@@ -1,0 +1,2 @@
+dEQP-VK.api.copy_and_blit.core.use_after_copy.d24_unorm_s8_uint.transfer_dst_optimal.32x32x2_cq_img2img
+dEQP-VK.api.copy_and_blit.core.use_after_copy.d24_unorm_s8_uint.transfer_dst_optimal.32x32x2_cq_img2img_msaa

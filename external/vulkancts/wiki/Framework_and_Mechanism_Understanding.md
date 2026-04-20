@@ -1,0 +1,693 @@
+# Vulkan CTS Framework and Mechanism Understanding
+
+## Overview
+
+This document provides a comprehensive understanding of how Vulkan CTS is organized, how tests are registered, executed, and verified.
+
+## 1. Vulkan CTS Organization Structure
+
+### 1.1 Directory Hierarchy
+
+```
+VK-GL-CTS/
+├── external/
+│   └── vulkancts/
+│       ├── modules/
+│       │   └── vulkan/              # Vulkan-specific tests
+│       │       ├── api/              # Core Vulkan API tests
+│       │       ├── pipeline/         # Pipeline creation and management
+│       │       ├── draw/             # Drawing operations
+│       │       ├── compute/          # Compute shader tests
+│       │       ├── memory/           # Memory management
+│       │       ├── image/            # Image operations
+│       │       ├── synchronization/  # Sync primitives (fences, semaphores)
+│       │       ├── shader_object/    # Shader object tests
+│       │       ├── ray_tracing/      # Ray tracing tests
+│       │       ├── mesh_shader/      # Mesh shader tests
+│       │       ├── video/            # Video encode/decode tests
+│       │       └── ... (many more)
+│       ├── framework/
+│       │   └── vulkan/              # Vulkan framework utilities
+│       └── mustpass/
+│           └── main/
+│               ├── vk-default.txt    # Mustpass list for Vulkan
+│               └── vksc-default.txt  # Mustpass list for Vulkan SC
+├── framework/                        # dEQP test framework
+│   ├── common/                       # Common utilities
+│   ├── opengl/                       # OpenGL framework (not Vulkan)
+│   └── platform/                     # Platform abstraction
+└── external/                         # External dependencies
+    ├── spirv-tools/                  # SPIR-V validation and tools
+    ├── glslang/                      # GLSL/HLSL compilation
+    ├── vulkan-docs/                  # Vulkan specification
+    └── amber/                        # Amber test format
+```
+
+### 1.2 Test Categories
+
+Vulkan tests are organized into the following main categories (from [vktTestPackage.cpp:1346-1401](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/vktTestPackage.cpp#L1346)):
+
+1. **info** - Device and driver information tests
+2. **api** - Core Vulkan API functionality
+3. **memory** - Memory allocation and binding
+4. **pipeline** - Pipeline creation and management
+5. **binding_model** - Descriptor set binding
+6. **spirv_assembly** - SPIR-V assembly tests
+7. **glsl** - GLSL shader tests
+8. **renderpasses** - Render pass functionality
+9. **ubo** - Uniform buffer objects
+10. **dynamic_state** - Dynamic state changes
+11. **ssbo** - Shader storage buffer objects
+12. **query_pool** - Query pool operations
+13. **draw** - Drawing operations (vertex, index, instanced)
+14. **compute** - Compute shader tests
+15. **image** - Image creation and operations
+16. **image_processing** - Image processing operations
+17. **wsi** - Window System Integration
+18. **synchronization** - Synchronization primitives
+19. **sparse_resources** - Sparse memory resources
+20. **tessellation** - Tessellation shader tests
+21. **rasterization** - Rasterization tests
+22. **geometry** - Geometry shader tests
+23. **texture** - Texture sampling tests
+24. **robustness** - Robustness and out-of-bounds access
+25. **multiview** - Multi-view rendering
+26. **subgroups** - Subgroup operations
+27. **ycbcr** - YCbCr image format
+28. **protected_memory** - Protected memory (Tizen)
+29. **device_group** - Multi-device rendering
+30. **memory_model** - Memory model operations
+31. **conditional_rendering** - Conditional rendering
+32. **graphicsfuzz** - Graphics fuzzing tests
+33. **imageless_framebuffer** - Imageless framebuffer tests
+34. **transform_feedback** - Transform feedback
+35. **descriptor_indexing** - Descriptor indexing
+36. **fragment_shader_interlock** - Fragment shader interlock
+37. **drm_format_modifiers** - DRM format modifiers
+38. **ray_tracing_pipeline** - Ray tracing pipeline
+39. **ray_query** - Ray query operations
+40. **fragment_shading_rate** - Fragment shading rate
+41. **reconvergence** - Reconvergence tests
+42. **mesh_shader** - Mesh shader tests
+43. **fragment_shading_barycentric** - Barycentric coordinates
+44. **depth** - Depth testing (Amber)
+45. **video** - Video encode/decode
+46. **shader_object** - Shader object API
+47. **dgc** - Device generated commands
+48. **cooperative_vector** - Cooperative vector
+49. **tensor** - Tensor operations
+50. **data_graph** - Data graph operations
+
+## 2. Test Registration Mechanism
+
+### 2.1 Registration Pattern
+
+Tests are registered using a hierarchical pattern. The main test package registers top-level test categories in [vktTestPackage.cpp:1346-1401](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/vktTestPackage.cpp#L1346):
+
+```cpp
+void TestPackage::init(void)
+{
+    addRootChild("api", m_caseListFilter, api::createTests);
+    addRootChild("memory", m_caseListFilter, memory::createTests);
+    addRootChild("pipeline", m_caseListFilter, pipeline::createTests);
+    // ... more categories
+}
+```
+
+### 2.2 Test Group Creation Pattern
+
+Each test category has a creation function that builds its children. For example, from [vktApiTests.cpp:86-142](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/api/vktApiTests.cpp#L86):
+
+```cpp
+void createApiTests(tcu::TestCaseGroup *apiTests)
+{
+    tcu::TestContext &testCtx = apiTests->getTestContext();
+    
+    apiTests->addChild(createVersionSanityCheckTests(testCtx));
+    apiTests->addChild(createDebugUtilsTests(testCtx));
+    apiTests->addChild(createDriverPropertiesTests(testCtx));
+    apiTests->addChild(createSmokeTests(testCtx));
+    apiTests->addChild(createDeviceInitializationTests(testCtx));
+    apiTests->addChild(createBufferTests(testCtx));
+    // ... more child tests
+}
+
+tcu::TestCaseGroup *createTests(tcu::TestContext &testCtx, const std::string &name)
+{
+    return createTestGroup(testCtx, name, createApiTests);
+}
+```
+
+### 2.3 Test Hierarchy Example
+
+```
+dEQP-VK/
+├── api/
+│   ├── version_sanity_check/
+│   ├── debug_utils/
+│   ├── driver_properties/
+│   ├── device_initialization/
+│   ├── buffer/
+│   │   ├── create.destroy
+│   │   ├── get_memory_requirements
+│   │   └── ... (many more)
+│   ├── command_buffers/
+│   ├── copies_and_blitting/
+│   ├── descriptor_set/
+│   ├── pipeline/
+│   └── ... (many more)
+├── memory/
+├── pipeline/
+└── ... (more categories)
+```
+
+### 2.4 Test Case Naming Convention
+
+Test names follow the pattern: `dEQP-VK.<category>.<subcategory>.<test_name>`
+
+Example: `dEQP-VK.api.buffer.create.destroy`
+
+## 3. Test Execution Flow
+
+### 3.1 Execution Pipeline
+
+1. **Initialization** (`TestCaseExecutor::init`)
+   - Create Vulkan instance and device
+   - Compile shaders
+   - Initialize test context
+
+2. **Iteration** (`TestCaseExecutor::iterate`)
+   - Create test instance
+   - Execute test logic
+   - Call Vulkan functions
+   - Verify results
+
+3. **Verification** (within test logic)
+   - Call Vulkan API functions
+   - Check return values
+   - Verify state changes
+   - Compare expected vs actual
+
+4. **Deinitialization** (`TestCaseExecutor::deinit`)
+   - Clean up resources
+   - Destroy Vulkan objects
+   - Log results
+
+### 3.2 Test Instance Pattern
+
+Each test inherits from `vkt::TestCase` and implements:
+
+```cpp
+class MyTestCase : public vkt::TestCase
+{
+public:
+    MyTestCase(tcu::TestContext &testCtx, const std::string &name)
+        : TestCase(testCtx, name) {}
+    
+    TestInstance *createInstance(Context &ctx) override;
+    void checkSupport(Context &ctx) override;
+};
+
+class MyTestInstance : public TestInstance
+{
+public:
+    MyTestInstance(Context &ctx) : TestInstance(ctx) {}
+    tcu::TestStatus iterate() override;
+};
+
+// In the test logic:
+tcu::TestStatus MyTestInstance::iterate()
+{
+    // 1. Call Vulkan functions
+    vkCreateBuffer(device, &createInfo, nullptr, &buffer);
+    
+    // 2. Verify results
+    if (result != VK_SUCCESS) {
+        return tcu::TestStatus::fail("Failed to create buffer");
+    }
+    
+    // 3. Check state
+    vkGetBufferMemoryRequirements(device, buffer, &requirements);
+    
+    // 4. Return result
+    return tcu::TestStatus::pass("Buffer created successfully");
+}
+```
+
+## 4. Test Verification Methods
+
+### 4.1 Return Value Verification
+
+Most Vulkan functions return `VkResult`. Tests verify these:
+
+```cpp
+VkResult result = vkCreateBuffer(device, &createInfo, nullptr, &buffer);
+if (result != VK_SUCCESS) {
+    return tcu::TestStatus::fail("Buffer creation failed");
+}
+```
+
+### 4.2 State Verification
+
+Tests verify that Vulkan state is correctly updated:
+
+```cpp
+// Query state after calling API
+VkMemoryRequirements requirements;
+vkGetBufferMemoryRequirements(device, buffer, &requirements);
+
+// Verify requirements are valid
+if (requirements.size == 0) {
+    return tcu::TestStatus::fail("Invalid memory requirements");
+}
+```
+
+### 4.3 Output Verification
+
+For rendering tests, verify output using:
+
+- **Image comparison**: Compare rendered image against reference
+- **Buffer verification**: Check buffer contents
+- **Query results**: Verify query pool results
+- **Pipeline state**: Verify pipeline properties
+
+### 4.4 Error Handling Tests
+
+Some tests intentionally pass invalid parameters to verify error handling:
+
+```cpp
+// Negative test: Pass NULL handle
+VkBuffer buffer = VK_NULL_HANDLE;
+VkResult result = vkDestroyBuffer(device, buffer, nullptr);
+// Should handle gracefully (result may be VK_SUCCESS or VK_ERROR)
+
+if (result == VK_SUCCESS) {
+    return tcu::TestStatus::pass("Gracefully handled NULL buffer");
+} else {
+    return tcu::TestStatus::fail("Failed to handle NULL buffer");
+}
+```
+
+## 5. Parameter Definition and Combination
+
+### 5.1 Parameter Categories
+
+Vulkan tests typically vary parameters across these dimensions:
+
+1. **Device Features**
+   - Required extensions (VK_KHR_*, VK_EXT_*)
+   - Feature flags (robustBufferAccess, fragmentStoresAndAtomics)
+   - Limits (maxImageDimension, maxComputeWorkGroupSize)
+
+2. **API Parameters**
+   - Handle types (buffer, image, shader)
+   - Create info structures
+   - Flags (VK_BUFFER_USAGE_*)
+   - Queue families
+
+3. **Data Parameters**
+   - Sizes (small, medium, large)
+   - Formats (R8, R16, R32G32, etc.)
+   - Configurations (1D, 2D, 3D arrays)
+
+### 5.2 Parameter Combination Strategy
+
+Tests use several strategies for parameter combinations:
+
+**1. All Combinations (Cartesian Product)**
+```cpp
+// Test all combinations of format and usage
+for (const auto &format : formats) {
+    for (const auto &usage : usages) {
+        for (const auto &tiling : tilings) {
+            runTest(format, usage, tiling);
+        }
+    }
+}
+```
+
+**2. Representative Sampling**
+```cpp
+// Test representative subset for quick validation
+const auto &testCases = {
+    {VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, 1024},
+    {VK_FORMAT_R32G32B32A32_SFLOAT, VK_IMAGE_TILING_LINEAR, 4096},
+    // ... more representative cases
+};
+```
+
+**3. Boundary Values**
+```cpp
+// Test edge cases
+const int sizes[] = {0, 1, 1024, MAX_SIZE - 1, MAX_SIZE};
+```
+
+### 5.3 Test Instance Creation with Parameters
+
+```cpp
+class ImageTestCase : public TestCase
+{
+public:
+    ImageTestCase(TestContext &ctx, const std::string &name, 
+                  VkFormat format, VkImageTiling tiling)
+        : TestCase(ctx, name)
+        , m_format(format)
+        , m_tiling(tiling) {}
+    
+    TestInstance *createInstance(Context &ctx) override;
+    
+private:
+    VkFormat m_format;
+    VkImageTiling m_tiling;
+};
+```
+
+## 6. Test Result Codes
+
+Tests return one of the following status codes:
+
+### 6.1 Success Codes
+
+- **Pass**: Test passed successfully
+- **NotSupported**: Feature not supported (acceptable for conformance)
+- **QualityWarning**: Works but not optimal
+- **CompatibilityWarning**: May cause issues in some scenarios
+- **Waiver**: Known issue with approved waiver
+
+### 6.2 Failure Codes
+
+- **Fail**: Test failed (conformance violation)
+- **InternalError**: Test infrastructure error
+- **Timeout**: Test exceeded time limit
+
+### 6.3 Result Reporting
+
+```cpp
+// Successful test
+return tcu::TestStatus::pass("Buffer created and used correctly");
+
+// Failed test
+return tcu::TestStatus::fail("Buffer creation failed with error: " + 
+                             vkResultToString(result));
+
+// Not supported (feature not available)
+if (!ctx.isDeviceFeatureSupported(myFeature)) {
+    TCU_THROW(NotSupportedError, "Feature not supported");
+}
+
+// Quality warning
+m_testCtx.getLog() << tcu::TestLog::Message 
+                   << "Performance may be suboptimal" 
+                   << tcu::TestLog::EndMessage;
+return tcu::TestStatus::qualityWarning("Suboptimal performance");
+```
+
+## 7. Mustpass List
+
+### 7.1 Purpose
+
+The mustpass list defines the **minimum set of tests** that must pass for conformance certification.
+
+### 7.2 Location
+
+```
+external/vulkancts/mustpass/main/
+├── vk-default.txt    # Vulkan mustpass
+└── vksc-default.txt  # Vulkan SC mustpass
+```
+
+### 7.3 Format
+
+```txt
+# Comments
+dEQP-VK.api.device.create
+dEQP-VK.api.buffer.create
+dEQP-VK.memory.*
+# ... more test patterns
+```
+
+### 7.4 Generation
+
+The mustpass list can be regenerated using:
+```bash
+python3 external/vulkancts/scripts/build_mustpass.py
+```
+
+## 8. Vulkan SC Overview
+
+### 8.1 What is Vulkan SC?
+
+**Vulkan SC** (Safety Critical) is a variant of Vulkan designed for **safety-critical applications** such as:
+- Automotive systems (ADAS, infotainment)
+- Aerospace and aviation
+- Medical devices
+- Industrial control systems
+
+### 8.2 Key Differences from Regular Vulkan
+
+| Aspect | Vulkan | Vulkan SC |
+|--------|--------|-----------|
+| **Target** | General-purpose graphics/compute | Safety-critical systems |
+| **Certification** | None required | Must meet ISO 26262, DO-178C, etc. |
+| **Dynamic Features** | Full dynamic state, shader compilation | Limited or pre-compiled only |
+| **Error Handling** | Layers and validation | Deterministic, no undefined behavior |
+| **SPIR-V** | Runtime compilation allowed | Pre-compiled shaders only |
+| **Extensions** | Many optional extensions | Strictly defined subset |
+| **Memory** | Dynamic allocation common | Pre-allocated memory pools |
+| **Threading** | Flexible | Strictly defined threading model |
+
+### 8.3 Vulkan SC CTS
+
+Vulkan SC has its own CTS variant:
+
+- **Executable**: `deqp-vksc` (vs `deqp-vk` for regular Vulkan)
+- **Mustpass**: `vksc-default.txt` (vs `vk-default.txt`)
+- **Test Scope**: Subset of Vulkan tests, excluding features not in Vulkan SC
+
+From the directory structure, you can see both mustpass lists exist:
+```
+external/vulkancts/mustpass/main/
+├── vk-default.txt    # Vulkan mustpass
+└── vksc-default.txt  # Vulkan SC mustpass
+```
+
+### 8.4 Why Vulkan SC Matters
+
+Even if you're not working on safety-critical systems, understanding Vulkan SC is valuable because:
+
+1. **Stricter Testing**: Vulkan SC tests often catch edge cases that regular Vulkan tests miss
+2. **Best Practices**: Patterns required for Vulkan SC often improve regular Vulkan code quality
+3. **Future-Proofing**: Some Vulkan SC restrictions may become best practices for regular Vulkan
+
+## 9. Command Line Options
+
+### 9.1 Essential Options for Running CTS
+
+```bash
+# Must specify mustpass file
+--deqp-caselist-file=vk-default.txt
+
+# Disable logging to reduce overhead
+--deqp-log-images=disable
+--deqp-log-shader-sources=disable
+
+# Optional: Specify device
+--deqp-vk-device-id=1
+
+# Optional: Disable flush for performance
+--deqp-log-flush=disable
+```
+
+### 9.2 Execution Modes
+
+```bash
+# Run all tests in mustpass
+deqp-vk --deqp-caselist-file=vk-default.txt
+
+# Run specific test
+deqp-vk --deqp-case=dEQP-VK.api.buffer.create
+
+# Run tests matching pattern
+deqp-vk --deqp-case=dEQP-VK.api.buffer.*
+
+# Parallel execution (N fractions)
+deqp-vk --deqp-caselist-file=vk-default.txt --deqp-fraction=0,4
+```
+
+## 10. Framework Components
+
+### 10.1 dEQP Framework
+
+Vulkan CTS is built on **dEQP** (Draw Elements Quality Program), which provides:
+
+- **Test Case Management**: Hierarchical test organization
+- **Test Execution**: Test runner and iteration
+- **Result Reporting**: XML-based test logs
+- **Platform Abstraction**: Multi-platform support
+
+### 10.2 Key Framework Classes
+
+```cpp
+// Test hierarchy
+tcu::TestContext       // Overall test context
+tcu::TestPackage       // Top-level test package
+tcu::TestCaseGroup     // Group of tests
+tcu::TestCase          // Individual test case
+tcu::TestInstance      // Runtime instance of a test
+
+// Vulkan-specific
+vkt::Context           // Vulkan context (instance, device, queue)
+vkt::TestCase          // Vulkan test case base class
+vkt::TestInstance      // Vulkan test instance base class
+```
+
+### 10.3 Framework Utilities
+
+Located in `framework/vulkan/`:
+
+- **vkRef.hpp**: Smart pointer wrappers for Vulkan handles
+- **vkPrograms.hpp**: Shader program management
+- **vkBuilderUtil.hpp**: Common build patterns
+- **vkCmdUtil.hpp**: Command buffer utilities
+- **vkImageUtil.hpp**: Image format utilities
+- **vkBarrierUtil.hpp**: Pipeline barrier helpers
+- **vkStrUtil.hpp**: String utilities for Vulkan enums
+
+## 11. Build and Execution
+
+### 11.1 Building
+
+```bash
+# Step 1: Download dependencies (run from project root)
+cd <project-root>
+python3 external/fetch_sources.py
+
+# Step 2: Create build directory (separate from source)
+mkdir build-vulkancts
+cd build-vulkancts
+
+# Step 3: Configure with CMake (from build directory)
+cmake .. -G"Visual Studio 18 2026" -A x64
+
+# Step 4: Build deqp-vk executable
+cmake --build . --config Debug --target deqp-vk
+```
+
+**Important**: Always build in a separate directory to avoid polluting the source tree with generated files.
+
+### 11.2 Running
+
+```bash
+# Navigate to the test directory (NOT the Debug subdirectory)
+cd build-vulkancts/external/vulkancts/modules/vulkan
+
+# Run all mustpass tests
+Debug/deqp-vk.exe --deqp-caselist-file=vk-default.txt \
+                  --deqp-log-images=disable \
+                  --deqp-log-shader-sources=disable
+```
+
+**Note**: Do NOT enter the `Debug` subdirectory. Running from `modules/vulkan` ensures relative paths to test data files are correct.
+
+### 11.3 Interpreting Results
+
+Results are written to `TestResults.qpa`:
+
+```xml
+<?xml version="1.0"?>
+<TestResults>
+    <TestCaseResult name="dEQP-VK.api.buffer.create.destroy">
+        <Result StatusCode="Pass">Not validated</Result>
+        ...
+    </TestCaseResult>
+</TestResults>
+```
+
+## 12. Important Concepts for Framework Understanding
+
+### 12.1 Test Case Filter
+
+Tests can be filtered using `m_caseListFilter` to run only specific tests:
+
+```cpp
+addRootChild("api", m_caseListFilter, api::createTests);
+```
+
+### 12.2 Support Checks
+
+Before running tests, `checkSupport()` determines if the device supports required features:
+
+```cpp
+void MyTestCase::checkSupport(Context &ctx)
+{
+    if (!ctx.isInstanceExtensionSupported("VK_KHR_device_group")) {
+        TCU_THROW(NotSupportedError, "VK_KHR_device_group not supported");
+    }
+}
+```
+
+### 12.3 Delayed Initialization
+
+Some tests use `delayedInit()` for deferred initialization:
+
+```cpp
+void MyTestCase::delayedInit()
+{
+    // Create resources that depend on device capabilities
+}
+```
+
+### 12.4 Resource Management
+
+Tests use RAII patterns for Vulkan resources:
+
+```cpp
+class BufferWithMemory
+{
+    VkBuffer buffer;
+    de::MovePtr<Allocation> allocation;
+public:
+    BufferWithMemory(Context &ctx, const VkBufferCreateInfo &info);
+    ~BufferWithMemory();
+};
+```
+
+## 13. Key Files for Framework Understanding
+
+### 13.1 Entry Points
+
+- [vktTestPackage.cpp](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/vktTestPackage.cpp) - Main test package, test registration
+- `tcuMain.cpp` - Framework entry point
+
+### 13.2 Core Framework
+
+- [vkRef.hpp](file:///f:/repos/VK-GL-CTS/framework/vulkan/vkRef.hpp) - Handle wrappers
+- [vkPrograms.hpp](file:///f:/repos/VK-GL-CTS/framework/vulkan/vkPrograms.hpp) - Shader programs
+- [vkCmdUtil.hpp](file:///f:/repos/VK-GL-CTS/framework/vulkan/vkCmdUtil.hpp) - Command utilities
+
+### 13.3 Test Infrastructure
+
+- [vktApiTests.cpp](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/api/vktApiTests.cpp) - API test registration
+- [vktApiBufferTests.cpp](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/api/vktApiBufferTests.cpp) - Buffer tests
+- [vktTestGroupUtil.hpp](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/vktTestGroupUtil.hpp) - Test group utilities
+
+### 13.4 Documentation
+
+- [README.md](file:///f:/repos/VK-GL-CTS/external/vulkancts/README.md) - Build and run instructions
+- [Objectives.md](file:///f:/repos/VK-GL-CTS/external/vulkancts/wiki/Objectives.md) - Project objectives
+- [doc/testspecs/VK/apitests.adoc](file:///f:/repos/VK-GL-CTS/doc/testspecs/VK/apitests.adoc) - API test specifications
+
+## Summary
+
+Vulkan CTS is a comprehensive test suite built on the dEQP framework with:
+
+1. **Hierarchical Organization**: Tests organized by category (api, memory, pipeline, etc.)
+2. **Automated Registration**: Tests registered using factory pattern
+3. **Parameter Variation**: Comprehensive parameter testing across formats, sizes, features
+4. **Multiple Verification Methods**: Return values, state queries, output validation
+5. **Mustpass List**: Defined minimum tests for conformance
+6. **Detailed Reporting**: XML-based logs with Pass/Fail/Waiver/NotSupported
+7. **Platform Abstraction**: Supports Windows, Linux, Android, macOS
+8. **Vulkan SC Variant**: Separate test suite for safety-critical systems
+
+This framework ensures comprehensive validation of Vulkan implementations across all aspects of the API.
