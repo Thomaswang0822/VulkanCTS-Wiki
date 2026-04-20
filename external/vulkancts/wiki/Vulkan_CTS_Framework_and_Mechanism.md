@@ -1,4 +1,4 @@
-# Vulkan CTS Framework and Mechanism Understanding
+# Vulkan CTS Framework and Mechanism
 
 ## Overview
 
@@ -122,7 +122,7 @@ Each test category has a creation function that builds its children. For example
 void createApiTests(tcu::TestCaseGroup *apiTests)
 {
     tcu::TestContext &testCtx = apiTests->getTestContext();
-    
+
     apiTests->addChild(createVersionSanityCheckTests(testCtx));
     apiTests->addChild(createDebugUtilsTests(testCtx));
     apiTests->addChild(createDriverPropertiesTests(testCtx));
@@ -203,7 +203,7 @@ class MyTestCase : public vkt::TestCase
 public:
     MyTestCase(tcu::TestContext &testCtx, const std::string &name)
         : TestCase(testCtx, name) {}
-    
+
     TestInstance *createInstance(Context &ctx) override;
     void checkSupport(Context &ctx) override;
 };
@@ -220,15 +220,15 @@ tcu::TestStatus MyTestInstance::iterate()
 {
     // 1. Call Vulkan functions
     vkCreateBuffer(device, &createInfo, nullptr, &buffer);
-    
+
     // 2. Verify results
     if (result != VK_SUCCESS) {
         return tcu::TestStatus::fail("Failed to create buffer");
     }
-    
+
     // 3. Check state
     vkGetBufferMemoryRequirements(device, buffer, &requirements);
-    
+
     // 4. Return result
     return tcu::TestStatus::pass("Buffer created successfully");
 }
@@ -348,14 +348,14 @@ const int sizes[] = {0, 1, 1024, MAX_SIZE - 1, MAX_SIZE};
 class ImageTestCase : public TestCase
 {
 public:
-    ImageTestCase(TestContext &ctx, const std::string &name, 
+    ImageTestCase(TestContext &ctx, const std::string &name,
                   VkFormat format, VkImageTiling tiling)
         : TestCase(ctx, name)
         , m_format(format)
         , m_tiling(tiling) {}
-    
+
     TestInstance *createInstance(Context &ctx) override;
-    
+
 private:
     VkFormat m_format;
     VkImageTiling m_tiling;
@@ -387,7 +387,7 @@ Tests return one of the following status codes:
 return tcu::TestStatus::pass("Buffer created and used correctly");
 
 // Failed test
-return tcu::TestStatus::fail("Buffer creation failed with error: " + 
+return tcu::TestStatus::fail("Buffer creation failed with error: " +
                              vkResultToString(result));
 
 // Not supported (feature not available)
@@ -396,8 +396,8 @@ if (!ctx.isDeviceFeatureSupported(myFeature)) {
 }
 
 // Quality warning
-m_testCtx.getLog() << tcu::TestLog::Message 
-                   << "Performance may be suboptimal" 
+m_testCtx.getLog() << tcu::TestLog::Message
+                   << "Performance may be suboptimal"
                    << tcu::TestLog::EndMessage;
 return tcu::TestStatus::qualityWarning("Suboptimal performance");
 ```
