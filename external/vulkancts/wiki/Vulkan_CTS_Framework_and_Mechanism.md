@@ -45,7 +45,7 @@ VK-GL-CTS/
 
 ### 1.2 Test Categories
 
-Vulkan tests are organized into the following main categories (from [vktTestPackage.cpp:1346-1401](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/vktTestPackage.cpp#L1346)):
+Vulkan tests are organized into the following top-level categories registered by [`TestPackage::init()`](../modules/vulkan/vktTestPackage.cpp:1346):
 
 1. **info** - Device and driver information tests
 2. **api** - Core Vulkan API functionality
@@ -59,44 +59,47 @@ Vulkan tests are organized into the following main categories (from [vktTestPack
 10. **dynamic_state** - Dynamic state changes
 11. **ssbo** - Shader storage buffer objects
 12. **query_pool** - Query pool operations
-13. **draw** - Drawing operations (vertex, index, instanced)
+13. **draw** - Drawing operations
 14. **compute** - Compute shader tests
 15. **image** - Image creation and operations
 16. **image_processing** - Image processing operations
 17. **wsi** - Window System Integration
 18. **synchronization** - Synchronization primitives
-19. **sparse_resources** - Sparse memory resources
-20. **tessellation** - Tessellation shader tests
-21. **rasterization** - Rasterization tests
-22. **geometry** - Geometry shader tests
-23. **texture** - Texture sampling tests
-24. **robustness** - Robustness and out-of-bounds access
-25. **multiview** - Multi-view rendering
-26. **subgroups** - Subgroup operations
-27. **ycbcr** - YCbCr image format
-28. **protected_memory** - Protected memory (Tizen)
-29. **device_group** - Multi-device rendering
-30. **memory_model** - Memory model operations
-31. **conditional_rendering** - Conditional rendering
-32. **graphicsfuzz** - Graphics fuzzing tests
-33. **imageless_framebuffer** - Imageless framebuffer tests
-34. **transform_feedback** - Transform feedback
-35. **descriptor_indexing** - Descriptor indexing
-36. **fragment_shader_interlock** - Fragment shader interlock
-37. **drm_format_modifiers** - DRM format modifiers
-38. **ray_tracing_pipeline** - Ray tracing pipeline
-39. **ray_query** - Ray query operations
-40. **fragment_shading_rate** - Fragment shading rate
-41. **reconvergence** - Reconvergence tests
-42. **mesh_shader** - Mesh shader tests
-43. **fragment_shading_barycentric** - Barycentric coordinates
-44. **depth** - Depth testing (Amber)
-45. **video** - Video encode/decode
-46. **shader_object** - Shader object API
-47. **dgc** - Device generated commands
-48. **cooperative_vector** - Cooperative vector
-49. **tensor** - Tensor operations
-50. **data_graph** - Data graph operations
+19. **synchronization2** - Synchronization2 API tests
+20. **sparse_resources** - Sparse memory resources
+21. **tessellation** - Tessellation shader tests
+22. **rasterization** - Rasterization tests
+23. **clipping** - Clipping tests
+24. **fragment_operations** - Fragment operation tests
+25. **texture** - Texture sampling tests
+26. **geometry** - Geometry shader tests
+27. **robustness** - Robustness and out-of-bounds access
+28. **multiview** - Multi-view rendering
+29. **subgroups** - Subgroup operations
+30. **ycbcr** - YCbCr image format
+31. **protected_memory** - Protected memory tests
+32. **device_group** - Multi-device rendering
+33. **memory_model** - Memory model operations
+34. **conditional_rendering** - Conditional rendering
+35. **graphicsfuzz** - GraphicsFuzz/Amber-based tests
+36. **imageless_framebuffer** - Imageless framebuffer tests
+37. **transform_feedback** - Transform feedback
+38. **descriptor_indexing** - Descriptor indexing
+39. **fragment_shader_interlock** - Fragment shader interlock
+40. **drm_format_modifiers** - DRM format modifiers
+41. **ray_tracing_pipeline** - Ray tracing pipeline
+42. **ray_query** - Ray query operations
+43. **fragment_shading_rate** - Fragment shading rate
+44. **reconvergence** - Reconvergence tests
+45. **mesh_shader** - Mesh shader tests
+46. **fragment_shading_barycentric** - Barycentric coordinates
+47. **depth** - Amber depth tests
+48. **video** - Video encode/decode
+49. **shader_object** - Shader object API
+50. **dgc** - Device generated commands
+51. **cooperative_vector** - Cooperative vector
+52. **tensor** - Tensor operations
+53. **data_graph** - Data graph operations
 
 ## 2. Test Registration Mechanism
 
@@ -171,31 +174,34 @@ Example: `dEQP-VK.api.buffer.create.destroy`
 
 ### 3.1 Execution Pipeline
 
-1. **Initialization** (`TestCaseExecutor::init`)
-   - Create Vulkan instance and device
-   - Compile shaders
-   - Initialize test context
+Vulkan CTS execution builds on the generic dEQP node lifecycle and adds Vulkan-specific hooks in [`vkt::TestCase`](../modules/vulkan/vktTestCase.hpp:277).
 
-2. **Iteration** (`TestCaseExecutor::iterate`)
-   - Create test instance
-   - Execute test logic
-   - Call Vulkan functions
-   - Verify results
+At the framework level, test nodes provide [`init()`](../../../framework/common/tcuTestCase.hpp:152), [`deinit()`](../../../framework/common/tcuTestCase.hpp:153), and [`iterate()`](../../../framework/common/tcuTestCase.hpp:154). Vulkan test cases typically implement the following extension points:
 
-3. **Verification** (within test logic)
-   - Call Vulkan API functions
-   - Check return values
-   - Verify state changes
-   - Compare expected vs actual
+1. [`checkSupport()`](../modules/vulkan/vktTestCase.hpp:280)
+   - Validate required features, extensions, limits, or queue capabilities
+   - Commonly throws `NotSupportedError` when prerequisites are missing
 
-4. **Deinitialization** (`TestCaseExecutor::deinit`)
-   - Clean up resources
-   - Destroy Vulkan objects
-   - Log results
+2. [`delayedInit()`](../modules/vulkan/vktTestCase.hpp:277)
+   - Optional Vulkan-specific initialization before program setup
+   - Used when tests need additional non-const setup after support checks
+
+3. [`initPrograms()`](../modules/vulkan/vktTestCase.hpp:278)
+   - Register shader programs or source collections needed by the test
+
+4. [`createInstance()`](../modules/vulkan/vktTestCase.hpp:279)
+   - Create a [`vkt::TestInstance`](../modules/vulkan/vktTestCase.hpp:289) that executes the runtime logic
+   - The default implementation throws unless overridden in the test case implementation, as shown in [`TestCase::createInstance()`](../modules/vulkan/vktTestCase.cpp:1932)
+
+5. [`TestInstance::iterate()`](../modules/vulkan/vktTestCase.hpp:299)
+   - Execute the actual Vulkan operations
+   - Perform verification and return [`tcu::TestStatus`](../../../framework/common/tcuTestCase.hpp:253)
+
+Verification is therefore usually part of test logic inside [`iterate()`](../modules/vulkan/vktTestCase.hpp:299), not a separate universal framework callback.
 
 ### 3.2 Test Instance Pattern
 
-Each test inherits from `vkt::TestCase` and implements:
+Each Vulkan test usually derives from [`vkt::TestCase`](../modules/vulkan/vktTestCase.hpp:277) and provides a matching [`vkt::TestInstance`](../modules/vulkan/vktTestCase.hpp:289):
 
 ```cpp
 class MyTestCase : public vkt::TestCase
@@ -204,35 +210,38 @@ public:
     MyTestCase(tcu::TestContext &testCtx, const std::string &name)
         : TestCase(testCtx, name) {}
 
-    TestInstance *createInstance(Context &ctx) override;
-    void checkSupport(Context &ctx) override;
+    void checkSupport(Context &ctx) const override;
+    void initPrograms(vk::SourceCollections &programCollection) const override;
+    TestInstance *createInstance(Context &ctx) const override;
 };
 
 class MyTestInstance : public TestInstance
 {
 public:
-    MyTestInstance(Context &ctx) : TestInstance(ctx) {}
-    tcu::TestStatus iterate() override;
+    MyTestInstance(Context &ctx)
+        : TestInstance(ctx) {}
+
+    tcu::TestStatus iterate(void) override;
 };
 
-// In the test logic:
-tcu::TestStatus MyTestInstance::iterate()
+tcu::TestStatus MyTestInstance::iterate(void)
 {
-    // 1. Call Vulkan functions
-    vkCreateBuffer(device, &createInfo, nullptr, &buffer);
+    VkBuffer         buffer = VK_NULL_HANDLE;
+    const VkResult   result = vkCreateBuffer(device, &createInfo, nullptr, &buffer);
 
-    // 2. Verify results
-    if (result != VK_SUCCESS) {
+    if (result != VK_SUCCESS)
         return tcu::TestStatus::fail("Failed to create buffer");
-    }
 
-    // 3. Check state
+    VkMemoryRequirements requirements;
     vkGetBufferMemoryRequirements(device, buffer, &requirements);
 
-    // 4. Return result
+    if (requirements.size == 0u)
+        return tcu::TestStatus::fail("Invalid memory requirements");
+
     return tcu::TestStatus::pass("Buffer created successfully");
 }
 ```
+
 
 ## 4. Test Verification Methods
 
@@ -273,20 +282,18 @@ For rendering tests, verify output using:
 
 ### 4.4 Error Handling Tests
 
-Some tests intentionally pass invalid parameters to verify error handling:
+Some tests intentionally exercise unsupported or invalid usage paths, but the exact verification depends on the API being tested.
+
+For commands that return [`VkResult`](../modules/vulkan/api/vktApiTests.cpp:86), the test can validate the returned status code directly:
 
 ```cpp
-// Negative test: Pass NULL handle
-VkBuffer buffer = VK_NULL_HANDLE;
-VkResult result = vkDestroyBuffer(device, buffer, nullptr);
-// Should handle gracefully (result may be VK_SUCCESS or VK_ERROR)
-
-if (result == VK_SUCCESS) {
-    return tcu::TestStatus::pass("Gracefully handled NULL buffer");
-} else {
-    return tcu::TestStatus::fail("Failed to handle NULL buffer");
-}
+VkResult result = vkCreateBuffer(device, &createInfo, nullptr, &buffer);
+if (result != VK_SUCCESS)
+    return tcu::TestStatus::fail("Buffer creation failed as part of negative-path validation");
 ```
+
+For commands that do not return a value, the test must verify observable behavior through other means such as follow-up queries, output validation, or ensuring the CTS catches the expected condition through its own checks.
+
 
 ## 5. Parameter Definition and Combination
 
@@ -364,23 +371,21 @@ private:
 
 ## 6. Test Result Codes
 
-Tests return one of the following status codes:
+Vulkan CTS tests typically report results through [`tcu::TestStatus`](../../../framework/common/tcuTestCase.hpp:253), which wraps an underlying `qpTestResult` code.
 
-### 6.1 Success Codes
+### 6.1 Commonly Used Result Outcomes
 
-- **Pass**: Test passed successfully
-- **NotSupported**: Feature not supported (acceptable for conformance)
-- **QualityWarning**: Works but not optimal
-- **CompatibilityWarning**: May cause issues in some scenarios
-- **Waiver**: Known issue with approved waiver
+- **Pass** - Test passed successfully
+- **Fail** - Test failed and indicates a conformance problem
+- **NotSupported** - Required feature or capability is unavailable, typically signaled via an exception such as `NotSupportedError`
+- **QualityWarning** - Test completed with a quality-related warning
+- **CompatibilityWarning** - Test completed with a compatibility-related warning
+- **InternalError** - Test or framework infrastructure encountered an unexpected internal problem
+- **Waiver** - Result covered by an approved waiver
 
-### 6.2 Failure Codes
+The generic framework also defines additional low-level result codes, but the items above are the most relevant ones to typical Vulkan CTS test implementations.
 
-- **Fail**: Test failed (conformance violation)
-- **InternalError**: Test infrastructure error
-- **Timeout**: Test exceeded time limit
-
-### 6.3 Result Reporting
+### 6.2 Result Reporting
 
 ```cpp
 // Successful test
@@ -402,36 +407,33 @@ m_testCtx.getLog() << tcu::TestLog::Message
 return tcu::TestStatus::qualityWarning("Suboptimal performance");
 ```
 
+
 ## 7. Mustpass List
 
 ### 7.1 Purpose
 
-The mustpass list defines the **minimum set of tests** that must pass for conformance certification.
+The mustpass files identify the test set used for conformance runs.
 
 ### 7.2 Location
 
-```
+```text
 external/vulkancts/mustpass/main/
-├── vk-default.txt    # Vulkan mustpass
-└── vksc-default.txt  # Vulkan SC mustpass
+├── vk-default.txt    # Vulkan mustpass entry file
+└── vksc-default.txt  # Vulkan SC mustpass entry file
 ```
 
-### 7.3 Format
+### 7.3 Structure
 
-```txt
-# Comments
-dEQP-VK.api.device.create
-dEQP-VK.api.buffer.create
-dEQP-VK.memory.*
-# ... more test patterns
-```
+The top-level mustpass files are include lists rather than flat lists of individual test cases. As documented in [`README.md`](../README.md:245), [`vk-default.txt`](../mustpass/main/vk-default.txt) and [`vksc-default.txt`](../mustpass/main/vksc-default.txt) reference additional files under their corresponding subdirectories, and those included files collectively define the full mustpass set.
 
 ### 7.4 Generation
 
-The mustpass list can be regenerated using:
+The mustpass set can be regenerated with:
+
 ```bash
 python3 external/vulkancts/scripts/build_mustpass.py
 ```
+
 
 ## 8. Vulkan SC Overview
 
