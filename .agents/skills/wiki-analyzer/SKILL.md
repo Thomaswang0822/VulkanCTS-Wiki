@@ -35,6 +35,7 @@ The skill is not just a template filler. It must derive claims from:
    - Check progress tracking
    - Confirm whether the category is already documented
    - Avoid duplicating or conflicting with existing work
+   - Follow the category order in the Progress Tracking table unless the user explicitly requests a different category
 
 2. [`external/vulkancts/wiki/Objectives.md`](../../../external/vulkancts/wiki/Objectives.md)
    - Defines the questions the documentation must answer
