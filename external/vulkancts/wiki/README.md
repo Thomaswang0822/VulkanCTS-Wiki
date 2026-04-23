@@ -102,6 +102,3 @@ wiki/
 - **Completed Categories**: 1/53
 - **Completed Test Files**: 8/592
 
-## Reference
-
-- Level-3 Template: [vktApiCopiesAndBlittingTests.md](testfiles/api/vktApiCopiesAndBlittingTests.md)

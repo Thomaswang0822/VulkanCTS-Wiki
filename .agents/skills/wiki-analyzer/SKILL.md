@@ -162,7 +162,7 @@ Do not hardcode category or file counts in generated docs unless you derive them
 - Notes on scope/uncertainty when appropriate
 
 **Important**:
-- The category doc must answer the category-level questions from [`Objectives.md`](../../../external/vulkancts/wiki/Objectives.md:15).
+- The category doc must answer the category-level questions from [`Objectives.md`](../../../external/vulkancts/wiki/Objectives.md#L15).
 - Keep it concise, but not so compressed that it loses traceability.
 
 ## Level 3: CPP Test File Documentation

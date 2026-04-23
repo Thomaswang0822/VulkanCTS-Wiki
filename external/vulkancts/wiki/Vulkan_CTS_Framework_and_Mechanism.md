@@ -45,7 +45,7 @@ VK-GL-CTS/
 
 ### 1.2 Test Categories
 
-Vulkan tests are organized into the following top-level categories registered by [`TestPackage::init()`](../modules/vulkan/vktTestPackage.cpp:1346):
+Vulkan tests are organized into the following top-level categories registered by [`TestPackage::init()`](../modules/vulkan/vktTestPackage.cpp#L1346):
 
 1. **info** - Device and driver information tests
 2. **api** - Core Vulkan API functionality
@@ -105,7 +105,7 @@ Vulkan tests are organized into the following top-level categories registered by
 
 ### 2.1 Registration Pattern
 
-Tests are registered using a hierarchical pattern. The main test package registers top-level test categories in [vktTestPackage.cpp:1346-1401](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/vktTestPackage.cpp#L1346):
+Tests are registered using a hierarchical pattern. The main test package registers top-level test categories in [`vktTestPackage.cpp`](../modules/vulkan/vktTestPackage.cpp#L1346):
 
 ```cpp
 void TestPackage::init(void)
@@ -119,7 +119,7 @@ void TestPackage::init(void)
 
 ### 2.2 Test Group Creation Pattern
 
-Each test category has a creation function that builds its children. For example, from [vktApiTests.cpp:86-142](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/api/vktApiTests.cpp#L86):
+Each test category has a creation function that builds its children. For example, from [`vktApiTests.cpp`](../modules/vulkan/api/vktApiTests.cpp#L86):
 
 ```cpp
 void createApiTests(tcu::TestCaseGroup *apiTests)
@@ -174,34 +174,34 @@ Example: `dEQP-VK.api.buffer.create.destroy`
 
 ### 3.1 Execution Pipeline
 
-Vulkan CTS execution builds on the generic dEQP node lifecycle and adds Vulkan-specific hooks in [`vkt::TestCase`](../modules/vulkan/vktTestCase.hpp:277).
+Vulkan CTS execution builds on the generic dEQP node lifecycle and adds Vulkan-specific hooks in [`vkt::TestCase`](../modules/vulkan/vktTestCase.hpp#L277).
 
-At the framework level, test nodes provide [`init()`](../../../framework/common/tcuTestCase.hpp:152), [`deinit()`](../../../framework/common/tcuTestCase.hpp:153), and [`iterate()`](../../../framework/common/tcuTestCase.hpp:154). Vulkan test cases typically implement the following extension points:
+At the framework level, test nodes provide [`init()`](../../../framework/common/tcuTestCase.hpp#L152), [`deinit()`](../../../framework/common/tcuTestCase.hpp#L153), and [`iterate()`](../../../framework/common/tcuTestCase.hpp#L154). Vulkan test cases typically implement the following extension points:
 
-1. [`checkSupport()`](../modules/vulkan/vktTestCase.hpp:280)
+1. [`checkSupport()`](../modules/vulkan/vktTestCase.hpp#L280)
    - Validate required features, extensions, limits, or queue capabilities
    - Commonly throws `NotSupportedError` when prerequisites are missing
 
-2. [`delayedInit()`](../modules/vulkan/vktTestCase.hpp:277)
+2. [`delayedInit()`](../modules/vulkan/vktTestCase.hpp#L277)
    - Optional Vulkan-specific initialization before program setup
    - Used when tests need additional non-const setup after support checks
 
-3. [`initPrograms()`](../modules/vulkan/vktTestCase.hpp:278)
+3. [`initPrograms()`](../modules/vulkan/vktTestCase.hpp#L278)
    - Register shader programs or source collections needed by the test
 
-4. [`createInstance()`](../modules/vulkan/vktTestCase.hpp:279)
-   - Create a [`vkt::TestInstance`](../modules/vulkan/vktTestCase.hpp:289) that executes the runtime logic
-   - The default implementation throws unless overridden in the test case implementation, as shown in [`TestCase::createInstance()`](../modules/vulkan/vktTestCase.cpp:1932)
+4. [`createInstance()`](../modules/vulkan/vktTestCase.hpp#L279)
+   - Create a [`vkt::TestInstance`](../modules/vulkan/vktTestCase.hpp#L289) that executes the runtime logic
+   - The default implementation throws unless overridden in the test case implementation, as shown in [`TestCase::createInstance()`](../modules/vulkan/vktTestCase.cpp#L1932)
 
-5. [`TestInstance::iterate()`](../modules/vulkan/vktTestCase.hpp:299)
+5. [`TestInstance::iterate()`](../modules/vulkan/vktTestCase.hpp#L299)
    - Execute the actual Vulkan operations
-   - Perform verification and return [`tcu::TestStatus`](../../../framework/common/tcuTestCase.hpp:253)
+   - Perform verification and return [`tcu::TestStatus`](../../../framework/common/tcuTestCase.hpp#L253)
 
-Verification is therefore usually part of test logic inside [`iterate()`](../modules/vulkan/vktTestCase.hpp:299), not a separate universal framework callback.
+Verification is therefore usually part of test logic inside [`iterate()`](../modules/vulkan/vktTestCase.hpp#L299), not a separate universal framework callback.
 
 ### 3.2 Test Instance Pattern
 
-Each Vulkan test usually derives from [`vkt::TestCase`](../modules/vulkan/vktTestCase.hpp:277) and provides a matching [`vkt::TestInstance`](../modules/vulkan/vktTestCase.hpp:289):
+Each Vulkan test usually derives from [`vkt::TestCase`](../modules/vulkan/vktTestCase.hpp#L277) and provides a matching [`vkt::TestInstance`](../modules/vulkan/vktTestCase.hpp#L289):
 
 ```cpp
 class MyTestCase : public vkt::TestCase
@@ -284,7 +284,7 @@ For rendering tests, verify output using:
 
 Some tests intentionally exercise unsupported or invalid usage paths, but the exact verification depends on the API being tested.
 
-For commands that return [`VkResult`](../modules/vulkan/api/vktApiTests.cpp:86), the test can validate the returned status code directly:
+For commands that return [`VkResult`](../modules/vulkan/api/vktApiTests.cpp#L86), the test can validate the returned status code directly:
 
 ```cpp
 VkResult result = vkCreateBuffer(device, &createInfo, nullptr, &buffer);
@@ -371,7 +371,7 @@ private:
 
 ## 6. Test Result Codes
 
-Vulkan CTS tests typically report results through [`tcu::TestStatus`](../../../framework/common/tcuTestCase.hpp:253), which wraps an underlying `qpTestResult` code.
+Vulkan CTS tests typically report results through [`tcu::TestStatus`](../../../framework/common/tcuTestCase.hpp#L253), which wraps an underlying `qpTestResult` code.
 
 ### 6.1 Commonly Used Result Outcomes
 
@@ -424,7 +424,7 @@ external/vulkancts/mustpass/main/
 
 ### 7.3 Structure
 
-The top-level mustpass files are include lists rather than flat lists of individual test cases. As documented in [`README.md`](../README.md:245), [`vk-default.txt`](../mustpass/main/vk-default.txt) and [`vksc-default.txt`](../mustpass/main/vksc-default.txt) reference additional files under their corresponding subdirectories, and those included files collectively define the full mustpass set.
+The top-level mustpass files are include lists rather than flat lists of individual test cases. As documented in [`README.md`](../README.md#L245), [`vk-default.txt`](../mustpass/main/vk-default.txt) and [`vksc-default.txt`](../mustpass/main/vksc-default.txt) reference additional files under their corresponding subdirectories, and those included files collectively define the full mustpass set.
 
 ### 7.4 Generation
 
@@ -658,26 +658,26 @@ public:
 
 ### 13.1 Entry Points
 
-- [vktTestPackage.cpp](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/vktTestPackage.cpp) - Main test package, test registration
-- `tcuMain.cpp` - Framework entry point
+- [`vktTestPackage.cpp`](../modules/vulkan/vktTestPackage.cpp) - Main test package, test registration
+- [`tcuMain.cpp`](../../../framework/common/tcuMain.cpp) - Framework entry point
 
 ### 13.2 Core Framework
 
-- [vkRef.hpp](file:///f:/repos/VK-GL-CTS/framework/vulkan/vkRef.hpp) - Handle wrappers
-- [vkPrograms.hpp](file:///f:/repos/VK-GL-CTS/framework/vulkan/vkPrograms.hpp) - Shader programs
-- [vkCmdUtil.hpp](file:///f:/repos/VK-GL-CTS/framework/vulkan/vkCmdUtil.hpp) - Command utilities
+- [`vkRef.hpp`](../../../framework/vulkan/vkRef.hpp) - Handle wrappers
+- [`vkPrograms.hpp`](../../../framework/vulkan/vkPrograms.hpp) - Shader programs
+- [`vkCmdUtil.hpp`](../../../framework/vulkan/vkCmdUtil.hpp) - Command utilities
 
 ### 13.3 Test Infrastructure
 
-- [vktApiTests.cpp](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/api/vktApiTests.cpp) - API test registration
-- [vktApiBufferTests.cpp](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/api/vktApiBufferTests.cpp) - Buffer tests
-- [vktTestGroupUtil.hpp](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/vktTestGroupUtil.hpp) - Test group utilities
+- [`vktApiTests.cpp`](../modules/vulkan/api/vktApiTests.cpp) - API test registration
+- [`vktApiBufferTests.cpp`](../modules/vulkan/api/vktApiBufferTests.cpp) - Buffer tests
+- [`vktTestGroupUtil.hpp`](../modules/vulkan/vktTestGroupUtil.hpp) - Test group utilities
 
 ### 13.4 Documentation
 
-- [README.md](file:///f:/repos/VK-GL-CTS/external/vulkancts/README.md) - Build and run instructions
-- [Objectives.md](file:///f:/repos/VK-GL-CTS/external/vulkancts/wiki/Objectives.md) - Project objectives
-- [doc/testspecs/VK/apitests.adoc](file:///f:/repos/VK-GL-CTS/doc/testspecs/VK/apitests.adoc) - API test specifications
+- [`README.md`](../README.md) - Build and run instructions
+- [`Objectives.md`](Objectives.md) - Project objectives
+- [`doc/testspecs/VK/apitests.adoc`](../../../doc/testspecs/VK/apitests.adoc) - API test specifications
 
 ## Summary
 
