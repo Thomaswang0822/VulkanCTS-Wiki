@@ -144,5 +144,4 @@ Observed verification approaches differ by file:
 
 ## Notes / Uncertainties
 
-- The geometry category currently contains eight wiki-tracked source files, but only seven subgroups under the top-level registration tree because [`vktGeometryTests.cpp`](../../modules/vulkan/geometry/vktGeometryTests.cpp#L1) is a registration file rather than a subgroup implementation file.
 - This category summary is based on the inspected geometry sources and helpers listed above; it intentionally does not reuse claims from the older geometry wiki pages.

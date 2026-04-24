@@ -153,6 +153,5 @@ The same plan file also describes the Vulkan CTS `TestCase` / `TestInstance` exe
 
 ## Notes / Uncertainties
 
-- The wiki tracker lists `2` Level-3 files for `info` in [`README.md`](../README.md#L44). The inspected code supports that count if the intended tracked files are [`vktInfoTests.cpp`](../../modules/vulkan/vktInfoTests.cpp#L1) and [`vktApiFeatureInfo.cpp`](../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8924), but the tracker itself does not explicitly name them.
 - [`vktInfoTests.hpp`](../../modules/vulkan/vktInfoTests.hpp#L1) and [`vktApiFeatureInfo.hpp`](../../modules/vulkan/api/vktApiFeatureInfo.hpp#L1) are documentation-relevant declarations, but this category page treats them as supporting evidence rather than additional Level-3 targets because the user requested Level-3 docs for source files under [`testfiles/info/`](../testfiles/info/).
 - The detailed verification internals for the delegated API feature-info cases are only summarized at registration level here unless directly visible in inspected snippets; unsupported claims about their deeper logic are intentionally avoided.
