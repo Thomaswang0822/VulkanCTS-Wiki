@@ -198,6 +198,8 @@ Do not hardcode category or file counts in generated docs unless you derive them
 
 **Purpose**: Document the tests represented by one source file.
 
+**Which files get Level-3 docs**: Create Level-3 wiki for a file **if and only if** it registers tests (has a registration path in the test tree). Pure utility/helper files that provide infrastructure without registering any tests do not get their own Level-3 pages.
+
 **Naming**: `external/vulkancts/wiki/testfiles/{category}/{cpp_filename}.md`
 
 **Required contents**:
@@ -246,17 +248,35 @@ For a category, start from its root registration file and count the groups added
 
 This counting step is about how many top-level registered children the category has, not about how to name them in user-facing text.
 
-### How to determine the correct top-level group name
+### How to determine the correct group name
 
-Do not assume the displayed group name from the factory symbol passed to `addChild()`.
+Do not assume the displayed group name from the factory symbol passed to `addChild()`. The common 1-to-1-to-1 correspondence between factory symbol, filename, and group name is only a heuristic, not a guarantee.
 
-The reliable method is:
-1. start from the category root registration file;
-2. use the included header/source files to navigate to the relevant implementation file;
-3. inspect the factory implementation that returns the child group;
-4. verify the actual registered group name from the constructed and returned [`tcu::TestCaseGroup`](../../../framework/common/tcuTestCase.hpp#L318) or equivalent registration call.
+**Step-by-step discovery process:**
 
-This is necessary because the common 1-to-1-to-1 correspondence between factory symbol, filename, and group name is only a heuristic, not a guarantee.
+1. **Start from the category root registration file** (e.g., `vktGeometryTests.cpp`)
+2. **Examine the include section** — identify headers that register test groups (exclude the file's own `.hpp` and utility headers)
+3. **Navigate to each header file** — find the factory function declaration (e.g., `createVaryingGeometryShaderTests()`)
+4. **Navigate to the corresponding `.cpp` file** — find the factory function definition
+5. **Locate the group name** — look for `TestCaseGroup` construction with the string name:
+   ```cpp
+   MovePtr<TestCaseGroup> varyingGroup(new TestCaseGroup(testCtx, "varying"));
+   ```
+   The group name is `"varying"`.
+
+**Optimization tip:** Factory function definitions are typically at the **end of the `.cpp` file**. When only extracting the group name, read from the end rather than loading the entire file (some files have thousands of lines).
+
+**Verification via mustpass TXT files:**
+
+After determining a group name, verify it against the mustpass definition files:
+
+1. Locate the corresponding TXT file: `external/vulkancts/mustpass/main/vk-default/{category}.txt`
+   - Note: Some categories map to multiple TXT files (e.g., `renderpass` and `renderpasses`)
+2. Use [`scripts/verify_registration_paths.py`](scripts/verify_registration_paths.py) to check if the full registration path exists
+3. The script searches for patterns like `api.copy_and_blit.core.blit_image` without loading the entire TXT file
+4. Parent paths are verified incrementally: when verifying `blit_image`, assume `api.copy_and_blit.core` was already verified
+
+**Important:** This verification is mandatory whenever documenting a group name in wiki pages.
 
 ### What not to use for tracker counts
 
@@ -341,7 +361,8 @@ Use only verified group names in user-facing subgroup trees and navigation text.
 ### Step 9: Consistency Review
 
 Before marking work complete, verify:
-- all relative links are correct
+- all relative links are correct (run [`scripts/validate_wiki_links.py`](scripts/validate_wiki_links.py))
+- all group names are verified (run [`scripts/verify_registration_paths.py`](scripts/verify_registration_paths.py))
 - category docs match registration code
 - displayed group names are verified from implementation where needed
 - no temporary coordination material leaked into Level-2 pages
@@ -359,14 +380,15 @@ When updating its `Level-3 Files` column, use the official top-level-group count
 1. **CPP files are the primary anchor for Level-3 docs**
 2. **Registration path matters**
 3. **Evidence beats intuition**
-4. **Top-level-group counts are for tracking, not for limiting writing**
-5. **Factory-symbol names are heuristics, not authoritative user-facing identifiers**
-6. **Internal coordination belongs in temporary files, not in Level-2 wiki pages**
-7. **No parameter explosion**
-8. **Concise but traceable**
-9. **Distinguish observed fact from interpretation**
-10. **Use correct relative links from the current document location**
-11. **Prefer regeneration from source over editing around old wiki mistakes**
+4. **Level-3 docs are for files that register tests** — utility/helper files without registration paths do not get their own Level-3 pages
+5. **Top-level-group counts are for tracking, not for limiting writing**
+6. **Factory-symbol names are heuristics, not authoritative user-facing identifiers**
+7. **Internal coordination belongs in temporary files, not in Level-2 wiki pages**
+8. **No parameter explosion**
+9. **Concise but traceable**
+10. **Distinguish observed fact from interpretation**
+11. **Use correct relative links from the current document location**
+12. **Prefer regeneration from source over editing around old wiki mistakes**
 
 ## Quality Checklist
 
@@ -381,3 +403,5 @@ Before finishing a category, confirm:
 - links to Level-3 docs are correct from the category doc
 - links to source files are correct from each Level-3 doc
 - wording avoids unsupported universal claims
+- [`scripts/validate_wiki_links.py`](scripts/validate_wiki_links.py) reports no broken links
+- [`scripts/verify_registration_paths.py`](scripts/verify_registration_paths.py) confirms all group names
