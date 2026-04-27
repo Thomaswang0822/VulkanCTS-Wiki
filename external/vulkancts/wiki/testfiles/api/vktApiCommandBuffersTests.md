@@ -1,4 +1,4 @@
-# [vktApiCommandBuffersTests.cpp](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1)
+# [vktApiCommandBuffersTests.cpp](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1)
 
 ## Overview
 
@@ -6,13 +6,13 @@ Tests Vulkan command buffer lifecycle, recording, submission, and execution sema
 
 ## Role of File
 
-Implementation-heavy. Contains all test logic, helper classes, and the registration function [createCommandBuffersTests()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L6266).
+Implementation-heavy. Contains all test logic, helper classes, and the registration function [createCommandBuffersTests()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L6266).
 
 ## Source Code
 
-- Implementation: [vktApiCommandBuffersTests.cpp](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1)
-- Header: [vktApiCommandBuffersTests.hpp](../../modules/vulkan/api/vktApiCommandBuffersTests.hpp#L1)
-- Parent registration: [vktApiTests.cpp](../../modules/vulkan/api/vktApiTests.cpp#L107)
+- Implementation: [vktApiCommandBuffersTests.cpp](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1)
+- Header: [vktApiCommandBuffersTests.hpp](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.hpp#L1)
+- Parent registration: [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L107)
 
 ## Registration Path
 
@@ -97,71 +97,71 @@ command_buffers
 
 ### Command Pool Creation (Spec 19.1)
 
-Tests creation of command pools with various flags and parameters. [createPoolNullParamsTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L380) creates a pool with default parameters. [createPoolNonNullAllocatorTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L392) tests allocation with a non-null allocator (non-SC only). [createPoolTransientBitTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L412) and [createPoolResetBitTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L430) test VK_COMMAND_POOL_CREATE_TRANSIENT_BIT and VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT respectively.
+Tests creation of command pools with various flags and parameters. [createPoolNullParamsTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L380) creates a pool with default parameters. [createPoolNonNullAllocatorTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L392) tests allocation with a non-null allocator (non-SC only). [createPoolTransientBitTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L412) and [createPoolResetBitTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L430) test VK_COMMAND_POOL_CREATE_TRANSIENT_BIT and VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT respectively.
 
 ### Command Pool Reset
 
-[resetPoolReleaseResourcesBitTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L449) resets with VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT (non-SC). [resetPoolNoFlagsTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L470) resets with no flags. [resetPoolReuseTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L511) verifies command buffers remain usable after pool reset (non-SC).
+[resetPoolReleaseResourcesBitTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L449) resets with VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT (non-SC). [resetPoolNoFlagsTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L470) resets with no flags. [resetPoolReuseTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L511) verifies command buffers remain usable after pool reset (non-SC).
 
 ### Command Buffer Lifetime (Spec 19.2)
 
-[allocatePrimaryBufferTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L564) and [allocateSecondaryBufferTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L638) test single buffer allocation. [allocateManyPrimaryBuffersTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L591) and [allocateManySecondaryBuffersTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L665) allocate 10000 buffers (100 on SC, 1024 on 32-bit). [executePrimaryBufferTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L712) and [executeLargePrimaryBufferTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L764) verify execution via event signaling. [resetBufferImplicitlyTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L830) tests implicit reset by re-recording.
+[allocatePrimaryBufferTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L564) and [allocateSecondaryBufferTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L638) test single buffer allocation. [allocateManyPrimaryBuffersTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L591) and [allocateManySecondaryBuffersTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L665) allocate many buffers. [executePrimaryBufferTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L712) and [executeLargePrimaryBufferTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L764) verify execution via event signaling. [resetBufferImplicitlyTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L830) tests implicit reset by re-recording.
 
 ### Trim Command Pool
 
-[trimCommandPoolTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L999) exercises vkTrimCommandPool with repeated allocation, recording, submission, freeing, and trimming cycles for both primary and secondary levels. Requires VK_KHR_maintenance1 (non-SC).
+[trimCommandPoolTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L999) exercises vkTrimCommandPool with repeated allocation, recording, submission, freeing, and trimming cycles for both primary and secondary levels (non-SC).
 
 ### Command Buffer Recording (Spec 19.3)
 
-[recordSinglePrimaryBufferTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1088), [recordLargePrimaryBufferTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1126), [recordSingleSecondaryBufferTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1186), and [recordLargeSecondaryBufferTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1241) test recording of primary and secondary buffers with varying command counts. Large tests record 10000 set/reset event pairs (1000 on SC).
+[recordSinglePrimaryBufferTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1088), [recordLargePrimaryBufferTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1126), [recordSingleSecondaryBufferTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1186), and [recordLargeSecondaryBufferTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1241) test recording of primary and secondary buffers with varying command counts.
 
 ### ManyDraws
 
-[ManyDrawsCase](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L4713) is a TestCase subclass that records many draw calls in a single command buffer and verifies rendering output. Parameterized by command buffer level and image extent.
+[ManyDrawsCase](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L4713) is a TestCase subclass that records many draw calls in a single command buffer and verifies rendering output. Parameterized by command buffer level and image extent.
 
 ### Submit Twice / One-Time Submit
 
-[submitPrimaryBufferTwiceTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1337) and [submitSecondaryBufferTwiceTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1399) verify that a command buffer can be submitted multiple times. [oneTimeSubmitFlagPrimaryBufferTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1519) and [oneTimeSubmitFlagSecondaryBufferTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1594) test VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT with re-recording.
+[submitPrimaryBufferTwiceTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1337) and [submitSecondaryBufferTwiceTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1399) verify that a command buffer can be submitted multiple times. [oneTimeSubmitFlagPrimaryBufferTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1519) and [oneTimeSubmitFlagSecondaryBufferTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1594) test VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT.
 
 ### Render Pass Continue
 
-[renderPassContinueTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1726) tests VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT with optional framebuffer hint, verifying clear attachment results. [renderPassContinueNestedTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1926) tests nested command buffers within a render pass, requiring VK_EXT_nested_command_buffer or VK_KHR_maintenance7.
+[renderPassContinueTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1726) tests VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT with optional framebuffer hint. [renderPassContinueNestedTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1926) tests nested command buffers within a render pass.
 
 ### Simultaneous Use
 
-[simultaneousUseSecondaryBufferOnePrimaryBufferTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1778) executes a secondary buffer twice within one primary buffer using VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT, verifying via atomic compute increment. [simultaneousUseSecondaryBufferTwoPrimaryBuffersTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L2543) does the same across two primaries. [simultaneousUseNestedSecondaryBufferTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L2048) and [simultaneousUseNestedSecondaryBufferTwiceTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L2205) test simultaneous use with nested command buffers.
+[simultaneousUseSecondaryBufferOnePrimaryBufferTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1778) executes a secondary buffer twice within one primary buffer using VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT. [simultaneousUseSecondaryBufferTwoPrimaryBuffersTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L2543) does the same across two primaries. [simultaneousUseNestedSecondaryBufferTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L2048) and [simultaneousUseNestedSecondaryBufferTwiceTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L2205) test simultaneous use with nested command buffers.
 
 ### Query Recording
 
-[recordBufferQueryPreciseWithFlagTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L2714), [recordBufferQueryImpreciseWithFlagTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L2803), and [recordBufferQueryImpreciseWithoutFlagTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L2892) test occlusion query recording in secondary command buffers with various precision and inheritance configurations.
+[recordBufferQueryPreciseWithFlagTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L2714), [recordBufferQueryImpreciseWithFlagTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L2803), and [recordBufferQueryImpreciseWithoutFlagTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L2892) test occlusion query recording in secondary command buffers.
 
 ### Bad Inheritance Info
 
-[badInheritanceInfoTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L2371) tests that secondary command buffers with invalid or garbage inheritance info pointers still execute correctly when the inheritance info is not actually used. Parameterized by BadInheritanceInfoCase enum.
+[badInheritanceInfoTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L2371) tests that secondary command buffers with invalid or garbage inheritance info pointers still execute correctly when the inheritance info is not actually used. Parameterized by BadInheritanceInfoCase enum.
 
 ### Command Buffer Submission (Spec 19.4)
 
-[submitBufferCountNonZero()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L2982) submits 5 command buffers at once. [submitBufferCountEqualZero()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L3074) submits with zero count. [submitBufferWaitSingleSemaphore()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp) and [submitBufferWaitManySemaphores()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp) test semaphore waits. [submitBufferNullFence()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp) and [submitTwoBuffersOneBufferNullWithFence()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp) test fence handling.
+[submitBufferCountNonZero()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L2982) submits 5 command buffers at once. [submitBufferCountEqualZero()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L3074) submits with zero count. Semaphore wait and fence handling tests follow.
 
 ### Secondary Command Buffer Execution (Spec 19.5)
 
-[executeSecondaryBufferTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L3647) executes a secondary buffer via cmdExecuteCommands. [executeSecondaryBufferTwiceTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L3978) executes the same secondary buffer in two separate primary submissions.
+[executeSecondaryBufferTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L3647) executes a secondary buffer via cmdExecuteCommands. [executeSecondaryBufferTwiceTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L3978) executes the same secondary buffer in two separate primary submissions.
 
 ### Pipeline Binding Order
 
-[orderBindPipelineTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L4144) verifies that the last bound pipeline before a dispatch is the one that executes, using compute shaders.
+[orderBindPipelineTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L4144) verifies that the last bound pipeline before a dispatch is the one that executes, using compute shaders.
 
 ### State Transitions
 
-[executeStateTransitionTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L4366) tests command buffer state transitions: recording-to-initial, executable-to-initial, recording-to-invalid, and executable-to-invalid, verifying that vkResetCommandBuffer returns the buffer to a usable state.
+[executeStateTransitionTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L4366) tests command buffer state transitions: recording-to-initial, executable-to-initial, recording-to-invalid, and executable-to-invalid.
 
 ### Nested Command Buffers
 
-[executeNestedBufferTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L3741) tests VK_EXT_nested_command_buffer by executing a secondary within a secondary. [executeMultipleLevelsNestedBufferTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L3871) tests multi-level nesting.
+[executeNestedBufferTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L3741) tests VK_EXT_nested_command_buffer by executing a secondary within a secondary. [executeMultipleLevelsNestedBufferTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L3871) tests multi-level nesting.
 
 ### Indirect Dispatch Alignment
 
-[IndirectDispatchAlignmentCase](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L5592) tests vkCmdDispatchIndirect with various memory and dispatch offsets, parameterized by 8x8 combinations.
+[IndirectDispatchAlignmentCase](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L5592) tests vkCmdDispatchIndirect with various memory and dispatch offsets, parameterized by 8x8 combinations.
 
 ### Secondary Extra Commands (non-SC)
 
@@ -200,14 +200,11 @@ Tests secondary command buffer execution on a transfer-only queue.
 | VK_KHR_push_descriptor | secondary_push_descriptor_set_2, secondary_push_descriptor_set_with_template |
 | VK_KHR_shader_object | pipeline_shader_object_mix_with_secondaries |
 | VK_KHR_timeline_semaphore | secondary_execute_twice |
-| VK_KHR_maintenance4 | destroy_after_compute_pipeline_construction, destroy_after_graphics_pipeline_construction (in pipeline layout lifetime) |
-| VK_EXT_nested_command_buffer features: nestedCommandBuffer, nestedCommandBufferRendering | nested_render_pass_continue |
-| VulkanSC commandPoolResetCommandBuffer property | reset_implicit, submit_twice_secondary, one_time_submit tests, state transition tests |
 | Events support | Multiple tests via checkEventSupport |
 
 ## Verification Methods
 
-- **Event signaling**: Most tests record vkCmdSetEvent and verify VK_EVENT_SET after submission (e.g., [executePrimaryBufferTest()](../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L712))
+- **Event signaling**: Most tests record vkCmdSetEvent and verify VK_EVENT_SET after submission (e.g., [executePrimaryBufferTest()](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L712))
 - **Pixel comparison**: renderPassContinueTest and ManyDrawsInstance read back color attachment and compare against expected clear/draw values
 - **Compute atomic increment**: simultaneousUse tests use a compute shader that atomically increments a counter; the final count is checked
 - **VK_CHECK**: API calls are checked for VK_SUCCESS; unexpected results cause test failure
@@ -225,6 +222,6 @@ Tests secondary command buffer execution on a transfer-only queue.
 ## Notes / Uncertainties
 
 - The file is very large (6463 lines) and contains many test functions; the hierarchy above lists all registered test names but does not enumerate every generated indirect_dispatch_offsets test individually
-- Some test functions referenced in the registration (e.g., submitBufferWaitSingleSemaphore, submitBufferWaitManySemaphores, submitBufferNullFence, submitTwoBuffersOneBufferNullWithFence) were not fully read due to file size but are registered at lines 6376-6385
-- The checkEventSupport and other support-check functions at lines 4555-4664 gate tests based on device features
+- Some test functions referenced in the registration (e.g., submitBufferWaitSingleSemaphore, submitBufferWaitManySemaphores, submitBufferNullFence, submitTwoBuffersOneBufferNullWithFence) were not fully read due to file size but are registered at [lines 6376-6385](../../../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L6376)
+- The checkEventSupport and other support-check functions gate tests based on device features
 - Vulkan SC tests have significantly reduced iteration counts and some features are omitted entirely

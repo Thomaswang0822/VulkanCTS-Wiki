@@ -41,15 +41,15 @@ Source: [`createChildren()`](../../../modules/vulkan/geometry/vktGeometryTests.c
 
 ## Registered Subgroups
 
-| Subgroup | Registration call | Implementing source |
-|---|---|---|
-| `input` | [`createInputGeometryShaderTests()`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L45) | [`vktGeometryInputGeometryShaderTests.cpp`](../../../modules/vulkan/geometry/vktGeometryInputGeometryShaderTests.cpp#L260) |
-| `basic` | [`createBasicGeometryShaderTests()`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L46) | [`vktGeometryBasicGeometryShaderTests.cpp`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1000) |
-| `layered` | [`createLayeredRenderingTests()`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L47) | Inspected through [`vktGeometryLayeredRenderingTests.cpp`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L62) |
-| `instanced` | [`createInstancedRenderingTests()`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L48) | [`vktGeometryInstancedRenderingTests.cpp`](../../../modules/vulkan/geometry/vktGeometryInstancedRenderingTests.cpp#L423) |
-| `varying` | [`createVaryingGeometryShaderTests()`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L49) | [`vktGeometryVaryingGeometryShaderTests.cpp`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L273) |
-| `emit` | [`createEmitGeometryShaderTests()`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L50) | [`vktGeometryEmitGeometryShaderTests.cpp`](../../../modules/vulkan/geometry/vktGeometryEmitGeometryShaderTests.cpp#L226) |
-| `builtin_variable` | [`createBuiltinVariableGeometryShaderTests()`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L51) | [`vktGeometryBuiltinVariableGeometryShaderTests.cpp`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L428) |
+| Group Name | Source |
+|---|---|
+| `input` | [`vktGeometryInputGeometryShaderTests.cpp`](../../../modules/vulkan/geometry/vktGeometryInputGeometryShaderTests.cpp#L1) |
+| `basic` | [`vktGeometryBasicGeometryShaderTests.cpp`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1) |
+| `layered` | [`vktGeometryLayeredRenderingTests.cpp`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1) |
+| `instanced` | [`vktGeometryInstancedRenderingTests.cpp`](../../../modules/vulkan/geometry/vktGeometryInstancedRenderingTests.cpp#L1) |
+| `varying` | [`vktGeometryVaryingGeometryShaderTests.cpp`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L1) |
+| `emit` | [`vktGeometryEmitGeometryShaderTests.cpp`](../../../modules/vulkan/geometry/vktGeometryEmitGeometryShaderTests.cpp#L1) |
+| `builtin_variable` | [`vktGeometryBuiltinVariableGeometryShaderTests.cpp`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L1) |
 
 ## Test Families
 

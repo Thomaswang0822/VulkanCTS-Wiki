@@ -383,12 +383,13 @@ When updating its `Level-3 Files` column, use the official top-level-group count
 4. **Level-3 docs are for files that register tests** — utility/helper files without registration paths do not get their own Level-3 pages
 5. **Top-level-group counts are for tracking, not for limiting writing**
 6. **Factory-symbol names are heuristics, not authoritative user-facing identifiers**
-7. **Internal coordination belongs in temporary files, not in Level-2 wiki pages**
-8. **No parameter explosion**
-9. **Concise but traceable**
-10. **Distinguish observed fact from interpretation**
-11. **Use correct relative links from the current document location**
-12. **Prefer regeneration from source over editing around old wiki mistakes**
+7. **Avoid factory function names in wiki content** — do not expose factory symbols like `createXxxTests()` in registration trees, tables, or hierarchy sections unless the symbol itself is the subject of a specific code-reference claim. Users who need to trace call stacks should use an IDE, not a wiki. Naming discrepancies between factory symbols and verified group names belong in Notes sections, not in primary tables or trees.
+8. **Internal coordination belongs in temporary files, not in Level-2 wiki pages**
+9. **No parameter explosion**
+10. **Concise but traceable**
+11. **Distinguish observed fact from interpretation**
+12. **Use correct relative links from the current document location**
+13. **Prefer regeneration from source over editing around old wiki mistakes**
 
 ## Quality Checklist
 

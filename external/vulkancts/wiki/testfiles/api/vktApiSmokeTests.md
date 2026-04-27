@@ -1,30 +1,32 @@
-# [vktApiSmokeTests.cpp](../../modules/vulkan/api/vktApiSmokeTests.cpp#L1)
+# [vktApiSmokeTests.cpp](../../../../../modules/vulkan/api/vktApiSmokeTests.cpp#L1)
 
 ## Overview
 
-Basic smoke tests that verify fundamental Vulkan operations work correctly: sampler creation, shader module creation, and triangle rendering via both GLSL and SPIR-V assembly shaders. Also tests rendering with an unused resolve attachment. These tests serve as minimal end-to-end validation of the graphics pipeline.
+Simple smoke tests that verify basic Vulkan object creation and rendering operations. Tests include creating a sampler, creating a shader module, rendering a triangle with GLSL, rendering a triangle with SPIR-V assembly, rendering without OpName, and rendering with an unused resolve attachment.
 
 ## Role of File
 
-Implementation-heavy. Contains multiple standalone test functions with full Vulkan pipeline setup, command buffer recording, rendering, and image comparison against reference images rendered with the rr (reference renderer) library.
+Implementation-heavy. Contains multiple independent test functions, reference rendering, and registration logic.
 
 ## Source Code
 
-- Implementation: [vktApiSmokeTests.cpp](../../modules/vulkan/api/vktApiSmokeTests.cpp#L1)
-- Header: [vktApiSmokeTests.hpp](../../modules/vulkan/api/vktApiSmokeTests.hpp#L1)
-- Parent registration: `createSmokeTests()` declared at [L34](../../modules/vulkan/api/vktApiSmokeTests.hpp#L34)
+| File | Description |
+|------|-------------|
+| [vktApiSmokeTests.cpp](../../../../../modules/vulkan/api/vktApiSmokeTests.cpp#L1) | Test implementation and registration |
+| [vktApiSmokeTests.hpp](../../../../../modules/vulkan/api/vulkan/api/vktApiSmokeTests.hpp#L1) | Declares `createSmokeTests` |
+| [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L94) | Parent registration: `apiTests->addChild(createSmokeTests(testCtx))` |
 
 ## Registration Path
 
 ```
 api
-  +-- smoke   (non-VKSC only)
-        +-- create_sampler
-        +-- create_shader
-        +-- triangle
-        +-- asm_triangle
-        +-- asm_triangle_no_opname
-        +-- unused_resolve_attachment
+  +-- smoke
+       +-- create_sampler
+       +-- create_shader
+       +-- triangle
+       +-- asm_triangle
+       +-- asm_triangle_no_opname
+       +-- unused_resolve_attachment
 ```
 
 ## Test Hierarchy
@@ -32,90 +34,73 @@ api
 ```
 smoke
   +-- create_sampler
+  |    Creates a VkSampler and tests Move assignment
   +-- create_shader
+  |    Creates a VkShaderModule from GLSL
   +-- triangle
+  |    Renders a triangle with GLSL shaders, compares against reference
   +-- asm_triangle
+  |    Renders a triangle with SPIR-V assembly shaders
   +-- asm_triangle_no_opname
+  |    Renders a triangle with SPIR-V assembly lacking OpName
   +-- unused_resolve_attachment
+       Renders with VK_ATTACHMENT_UNUSED resolve attachment
 ```
 
 ## Test Families
 
-### create_sampler
+### smoke
 
-Creates a `VkSampler` with basic nearest-filtering and clamp-to-edge addressing, then tests Move assignment semantics by moving the handle into a Unique wrapper. Verifies that sampler creation succeeds without errors.
+Group name verified at [vktApiSmokeTests.cpp:866](../../../../../modules/vulkan/api/vktApiSmokeTests.cpp#L866): `new tcu::TestCaseGroup(testCtx, "smoke")`.
 
-- Function: `createSamplerTest()` at [L64](../../modules/vulkan/api/vktApiSmokeTests.cpp#L64)
+Six test cases added at [lines 868-874](../../../../../modules/vulkan/api/vktApiSmokeTests.cpp#L868):
 
-### create_shader
+| Test Name | Function | Programs | Description |
+|-----------|----------|----------|-------------|
+| `create_sampler` | createSamplerTest | None | Creates a VkSampler with NEAREST filtering, tests Move assignment |
+| `create_shader` | createShaderModuleTest | GLSL vertex | Creates a VkShaderModule from compiled GLSL |
+| `triangle` | renderTriangleTest | GLSL vert+frag | Full rendering pipeline with image comparison |
+| `asm_triangle` | renderTriangleTest | SPIR-V asm vert+frag | Same rendering using SPIR-V assembly |
+| `asm_triangle_no_opname` | renderTriangleTest | SPIR-V asm without OpName | Tests SPIR-V without debug names |
+| `unused_resolve_attachment` | renderTriangleUnusedResolveAttachmentTest | GLSL vert+frag | Render pass with VK_ATTACHMENT_UNUSED resolve |
 
-Compiles a minimal GLSL vertex shader from source, creates a `VkShaderModule` from the compiled SPIR-V, and verifies creation succeeds.
+The rendering tests (`triangle`, `asm_triangle`, `asm_triangle_no_opname`) at [line 325](../../../../../modules/vulkan/api/vktApiSmokeTests.cpp#L325):
+1. Create a 256x256 R8G8B8A8_UNORM image, vertex buffer, and readback buffer
+2. Record a render pass that clears to (0.125, 0.25, 0.75, 1.0) and draws a triangle
+3. Copy image to buffer and read back pixels
+4. Render a reference triangle using the rr software renderer ([lines 307-323](../../../../../modules/vulkan/api/vktApiSmokeTests.cpp#L307))
+5. Compare using `intThresholdPositionDeviationCompare` with zero threshold and 1-pixel position deviation ([lines 563-566](../../../../../modules/vulkan/api/vktApiSmokeTests.cpp#L563))
 
-- Function: `createShaderModuleTest()` at [L109](../../modules/vulkan/api/vktApiSmokeTests.cpp#L109)
-- Shader programs: `createShaderProgs()` at [L102](../../modules/vulkan/api/vktApiSmokeTests.cpp#L102)
-
-### triangle
-
-Renders a triangle using GLSL vertex and fragment shaders. Creates a full graphics pipeline with vertex buffer, render pass, framebuffer, and command buffer. Reads back the rendered image and compares it against a reference image rendered with the rr library using `tcu::intThresholdPositionDeviationCompare` with zero threshold and 1-pixel position deviation tolerance.
-
-- Function: `renderTriangleTest()` at [L325](../../modules/vulkan/api/vktApiSmokeTests.cpp#L325)
-- Shader programs: `createTriangleProgs()` at [L182](../../modules/vulkan/api/vktApiSmokeTests.cpp#L182)
-- Reference renderer: `renderReferenceTriangle()` at [L307](../../modules/vulkan/api/vktApiSmokeTests.cpp#L307)
-
-### asm_triangle
-
-Same as `triangle` but uses hand-written SPIR-V assembly shaders instead of GLSL. Uses the same `renderTriangleTest()` function.
-
-- Shader programs: `createTriangleAsmProgs()` at [L118](../../modules/vulkan/api/vktApiSmokeTests.cpp#L118)
-
-### asm_triangle_no_opname
-
-Same as `asm_triangle` but the SPIR-V assembly shaders omit `OpName` instructions. Tests that the implementation handles shaders without debug names correctly.
-
-- Shader programs: `createProgsNoOpName()` at [L192](../../modules/vulkan/api/vktApiSmokeTests.cpp#L192)
-
-### unused_resolve_attachment
-
-Renders a triangle with a render pass that specifies a resolve attachment set to `VK_ATTACHMENT_UNUSED`. Verifies that the unused resolve attachment does not affect rendering correctness. Compares output against a reference image.
-
-- Function: `renderTriangleUnusedResolveAttachmentTest()` at [L581](../../modules/vulkan/api/vktApiSmokeTests.cpp#L581)
-- Resolve attachment: `VK_ATTACHMENT_UNUSED` at [L670](../../modules/vulkan/api/vktApiSmokeTests.cpp#L670)
+The `unused_resolve_attachment` test at [line 581](../../../../../modules/vulkan/api/vktApiSmokeTests.cpp#L581) is similar but creates a render pass with `VK_ATTACHMENT_UNUSED` in the resolve attachment reference ([line 670](../../../../../modules/vulkan/api/vktApiSmokeTests.cpp#L670)).
 
 ## Parameter Dimensions
 
 | Dimension | Observed Values | Notes |
 |-----------|----------------|-------|
-| Render size | 256x256 | [L333](../../modules/vulkan/api/vktApiSmokeTests.cpp#L333) |
-| Color format | VK_FORMAT_R8G8B8A8_UNORM | [L334](../../modules/vulkan/api/vktApiSmokeTests.cpp#L334) |
-| Clear color | (0.125, 0.25, 0.75, 1.0) | [L335](../../modules/vulkan/api/vktApiSmokeTests.cpp#L335) |
-| Triangle color | (1.0, 0.0, 1.0, 1.0) | Fragment shader at [L188](../../modules/vulkan/api/vktApiSmokeTests.cpp#L188) |
-| Comparison threshold | 0 (exact) | [L557](../../modules/vulkan/api/vktApiSmokeTests.cpp#L557) |
-| Position deviation | (1, 1, 0) | [L558](../../modules/vulkan/api/vktApiSmokeTests.cpp#L558) |
-| Non-zero memory offsets | Yes (alignment-based) | [L352](../../modules/vulkan/api/vktApiSmokeTests.cpp#L352) |
+| Render size | 256x256 | Hard-coded at [line 333](../../../../../modules/vulkan/api/vktApiSmokeTests.cpp#L333) |
+| Color format | VK_FORMAT_R8G8B8A8_UNORM | Hard-coded |
+| Clear color | (0.125, 0.25, 0.75, 1.0) | Hard-coded at [line 335](../../../../../modules/vulkan/api/vktApiSmokeTests.cpp#L335) |
+| Shader source | GLSL, SPIR-V asm | Varies by test |
+| Memory offset | Non-zero alignment offsets | Exercises non-zero offsets in buffer/image binding |
 
 ## Support / Feature Requirements
 
-| Requirement | Gate | Notes |
-|-------------|------|-------|
-| None explicit | No `checkSupport` callbacks | Tests rely on core Vulkan 1.0 functionality |
+No explicit extension requirements. These are basic smoke tests that should work on any Vulkan 1.0 implementation.
 
 ## Verification Methods
 
-- **Sampler creation**: `createSampler()` returns without error at [L91](../../modules/vulkan/api/vktApiSmokeTests.cpp#L91)
-- **Shader module creation**: `createShaderModule()` returns without error at [L113](../../modules/vulkan/api/vktApiSmokeTests.cpp#L113)
-- **Image comparison**: `tcu::intThresholdPositionDeviationCompare()` with zero threshold and 1-pixel deviation at [L563](../../modules/vulkan/api/vktApiSmokeTests.cpp#L563)
-- **VK_CHECK macros**: All Vulkan API calls wrapped in `VK_CHECK` throughout
+- **create_sampler**: Passes if `createSampler` succeeds and Move assignment works ([line 99](../../../../../modules/vulkan/api/vktApiSmokeTests.cpp#L99))
+- **create_shader**: Passes if `createShaderModule` succeeds ([line 115](../../../../../modules/vulkan/api/vktApiSmokeTests.cpp#L115))
+- **Rendering tests**: Uses `tcu::intThresholdPositionDeviationCompare` with zero color threshold and 1-pixel position deviation, comparing against a software-rendered reference ([lines 563-566](../../../../../modules/vulkan/api/vktApiSmokeTests.cpp#L563))
 
 ## Test Principles Observed
 
-- **End-to-end validation**: Full pipeline from shader compilation through rendering to pixel comparison
-- **Reference comparison**: Uses the rr reference renderer for ground-truth image generation
-- **Non-zero offsets**: Deliberately uses non-zero memory offsets to exercise alignment handling at [L352](../../modules/vulkan/api/vktApiSmokeTests.cpp#L352)
-- **SPIR-V assembly coverage**: Tests both GLSL-compiled and hand-written SPIR-V assembly shaders
+- Smoke testing: validates that basic Vulkan operations work end-to-end
+- Reference comparison: rendering tests compare against a software reference renderer
+- Non-zero offset coverage: buffer and image memory bindings use non-zero offsets to exercise alignment
 
 ## Notes / Uncertainties
 
-- The `create_sampler` test exercises Move semantics on `Move<VkSampler>` at [L94](../../modules/vulkan/api/vktApiSmokeTests.cpp#L94), which is testing the C++ wrapper rather than Vulkan behavior per se.
-- The `triangle` and `unused_resolve_attachment` tests use `SimpleAllocator` directly rather than `context.getDefaultAllocator()`, which is a different pattern from most other tests.
-- The `unused_resolve_attachment` test does not use non-zero memory offsets (unlike the `triangle` test), binding at offset 0 at [L611](../../modules/vulkan/api/vktApiSmokeTests.cpp#L611).
-- The `asm_triangle_no_opname` test uses SPIR-V that writes to two output locations (location 0 and location 2) and reads from location 2 in the fragment shader, which is an unusual pattern for a simple triangle test.
+- The `create_sampler` test exercises Move<VkSampler> assignment which tests the CTS framework's move semantics, not a Vulkan feature
+- The rendering tests use `SimpleAllocator` directly rather than the context's default allocator
+- The `unused_resolve_attachment` test does not use non-zero memory offsets unlike the main `triangle` test

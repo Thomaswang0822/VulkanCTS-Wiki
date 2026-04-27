@@ -4,56 +4,88 @@
 
 - Internal temporary coordination tracker for the Level-2 [`api`](../categories/api.md) page.
 - Primary index is header/source filename, not inferred subgroup name.
-- `Verified group name` is filled only when confirmed from implementation or registration.
+- `Verified group name` is filled only when confirmed from mustpass TXT.
 - Status values use `[x]`, `[-]`, `[ ]`.
 
 ## Tracker
 
-| File | Kind | Registration / evidence | Verified group name | Status | Notes |
+| File | Kind | Factory symbol | Verified group name | VKSC | Status |
 |---|---|---|---|---|---|
-| [`vktApiVersionCheck.hpp`](../../modules/vulkan/api/vktApiVersionCheck.hpp) | Header | [`createVersionSanityCheckTests()`](../../modules/vulkan/api/vktApiVersionCheck.hpp#L37), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L90) | `version_sanity_check` | [x] | Existing Level-3 doc noted in [`api.md`](../categories/api.md) before tracker removal. |
-| [`vktApiDebugUtilsTests.hpp`](../../modules/vulkan/api/vktApiDebugUtilsTests.hpp) | Header | [`createDebugUtilsTests()`](../../modules/vulkan/api/vktApiDebugUtilsTests.hpp#L32), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L91) | `debug_utils` | [x] | Existing Level-3 doc noted in [`api.md`](../categories/api.md) before tracker removal. |
-| [`vktApiDriverPropertiesTests.hpp`](../../modules/vulkan/api/vktApiDriverPropertiesTests.hpp) | Header | [`createDriverPropertiesTests()`](../../modules/vulkan/api/vktApiDriverPropertiesTests.hpp#L35), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L92) | `driver_properties` | [x] | Existing Level-3 doc noted in [`api.md`](../categories/api.md) before tracker removal. |
-| [`vktApiSmokeTests.hpp`](../../modules/vulkan/api/vktApiSmokeTests.hpp) | Header | [`createSmokeTests()`](../../modules/vulkan/api/vktApiSmokeTests.hpp#L34), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L94) | `smoke` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiFeatureInfo.hpp`](../../modules/vulkan/api/vktApiFeatureInfo.hpp) | Header | [`createFeatureInfoTests()`](../../modules/vulkan/api/vktApiFeatureInfo.hpp#L34), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L96) | `feature_info` | [x] | Existing Level-3 doc noted in [`api.md`](../categories/api.md) before tracker removal. |
-| [`vktApiDeviceDrmPropertiesTests.hpp`](../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.hpp) | Header | [`createDeviceDrmPropertiesTests()`](../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.hpp#L35), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L98) | `device_drm_properties` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiDeviceInitializationTests.hpp`](../../modules/vulkan/api/vktApiDeviceInitializationTests.hpp) | Header | [`createDeviceInitializationTests()`](../../modules/vulkan/api/vktApiDeviceInitializationTests.hpp#L34), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L100) | `device_initialization` | [x] | Existing Level-3 doc noted in [`api.md`](../categories/api.md) before tracker removal. |
-| [`vktApiObjectManagementTests.hpp`](../../modules/vulkan/api/vktApiObjectManagementTests.hpp) | Header | [`createObjectManagementTests()`](../../modules/vulkan/api/vktApiObjectManagementTests.hpp#L34), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L101) | `object_management` | [x] | Included in the current partial synthesis. |
-| [`vktApiBufferTests.hpp`](../../modules/vulkan/api/vktApiBufferTests.hpp) | Header | [`createBufferTests()`](../../modules/vulkan/api/vktApiBufferTests.hpp#L36), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L102) | `buffer` | [x] | Included in the current partial synthesis. |
-| [`vktApiBufferMarkerTests.hpp`](../../modules/vulkan/api/vktApiBufferMarkerTests.hpp) | Header | [`createBufferMarkerTests()`](../../modules/vulkan/api/vktApiBufferMarkerTests.hpp#L34), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L104) | `buffer_marker` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiTests.cpp`](../../modules/vulkan/api/vktApiTests.cpp#L78) | Source | Local [`createBufferViewTests()`](../../modules/vulkan/api/vktApiTests.cpp#L78) aggregator, registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L106) | `buffer_view` | [x] | Registration-level coverage only so far. |
-| [`vktApiCommandBuffersTests.hpp`](../../modules/vulkan/api/vktApiCommandBuffersTests.hpp) | Header | [`createCommandBuffersTests()`](../../modules/vulkan/api/vktApiCommandBuffersTests.hpp#L32), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L107) | `command_buffers` | [x] | Existing Level-3 doc noted in [`api.md`](../categories/api.md) before tracker removal. |
-| [`vktApiCopiesAndBlittingTests.hpp`](../../modules/vulkan/api/vktApiCopiesAndBlittingTests.hpp) | Header | [`createCopiesAndBlittingTests()`](../../modules/vulkan/api/vktApiCopiesAndBlittingTests.hpp#L36), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L108) | `copy_and_blit` | [-] | Dispatcher covered; nested subgroup docs also exist. |
-| [`vktApiDSColorBitCopyTests.hpp`](../../modules/vulkan/api/vktApiDSColorBitCopyTests.hpp) | Header | [`createDSColorBitCopyTests()`](../../modules/vulkan/api/vktApiDSColorBitCopyTests.hpp#L35), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L109) | `ds_color_bit_copy` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiImageClearingTests.hpp`](../../modules/vulkan/api/vktApiImageClearingTests.hpp) | Header | [`createImageClearingTests()`](../../modules/vulkan/api/vktApiImageClearingTests.hpp#L36), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L110) | `image_clearing` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiFillBufferTests.hpp`](../../modules/vulkan/api/vktApiFillBufferTests.hpp) | Header | [`createFillAndUpdateBufferTests()`](../../modules/vulkan/api/vktApiFillBufferTests.hpp#L36), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L111) | `fill_and_update_buffer` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiDescriptorPoolTests.hpp`](../../modules/vulkan/api/vktApiDescriptorPoolTests.hpp) | Header | [`createDescriptorPoolTests()`](../../modules/vulkan/api/vktApiDescriptorPoolTests.hpp#L35), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L112) | `descriptor_pool` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiNullHandleTests.hpp`](../../modules/vulkan/api/vktApiNullHandleTests.hpp) | Header | [`createNullHandleTests()`](../../modules/vulkan/api/vktApiNullHandleTests.hpp#L34), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L113) | `null_handle` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiGranularityTests.hpp`](../../modules/vulkan/api/vktApiGranularityTests.hpp) | Header | [`createGranularityQueryTests()`](../../modules/vulkan/api/vktApiGranularityTests.hpp#L36), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L114) | `granularity_query` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiGetMemoryCommitment.hpp`](../../modules/vulkan/api/vktApiGetMemoryCommitment.hpp) | Header | [`createMemoryCommitmentTests()`](../../modules/vulkan/api/vktApiGetMemoryCommitment.hpp#L36), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L115) | `memory_commitment` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiExternalMemoryTests.hpp`](../../modules/vulkan/api/vktApiExternalMemoryTests.hpp) | Header | [`createExternalMemoryTests()`](../../modules/vulkan/api/vktApiExternalMemoryTests.hpp#L32), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L117) | `external_memory` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiMaintenance3Check.hpp`](../../modules/vulkan/api/vktApiMaintenance3Check.hpp) | Header | [`createMaintenance3Tests()`](../../modules/vulkan/api/vktApiMaintenance3Check.hpp#L38), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L119) | `maintenance3` | [x] | Existing Level-3 doc noted in [`api.md`](../categories/api.md) before tracker removal. |
-| [`vktApiDescriptorSetTests.hpp`](../../modules/vulkan/api/vktApiDescriptorSetTests.hpp) | Header | [`createDescriptorSetTests()`](../../modules/vulkan/api/vktApiDescriptorSetTests.hpp#L35), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L120) | `descriptor_set` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiPipelineTests.hpp`](../../modules/vulkan/api/vktApiPipelineTests.hpp) | Header | [`createPipelineTests()`](../../modules/vulkan/api/vktApiPipelineTests.hpp#L36), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L121) | `pipeline` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiMemoryRequirementInvarianceTests.hpp`](../../modules/vulkan/api/vktApiMemoryRequirementInvarianceTests.hpp) | Header | [`createMemoryRequirementInvarianceTests()`](../../modules/vulkan/api/vktApiMemoryRequirementInvarianceTests.hpp#L35), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L122) | `memory_requirement_invariance` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiToolingInfoTests.hpp`](../../modules/vulkan/api/vktApiToolingInfoTests.hpp) | Header | [`createToolingInfoTests()`](../../modules/vulkan/api/vktApiToolingInfoTests.hpp#L35), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L124) | `tooling_info` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiFormatPropertiesExtendedKHRtests.hpp`](../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.hpp) | Header | [`createFormatPropertiesExtendedKHRTests()`](../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.hpp#L34), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L125) | `format_properties_extended_khr` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiBufferMemoryRequirementsTests.hpp`](../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.hpp) | Header | [`createBufferMemoryRequirementsTests()`](../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.hpp#L38), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L127) | `buffer_memory_requirements` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiImageCompressionControlTests.hpp`](../../modules/vulkan/api/vktApiImageCompressionControlTests.hpp) | Header | [`createImageCompressionControlTests()`](../../modules/vulkan/api/vktApiImageCompressionControlTests.hpp#L36), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L129) | `image_compression_control` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiGetDeviceProcAddrTests.hpp`](../../modules/vulkan/api/vktApiGetDeviceProcAddrTests.hpp) | Header | [`createGetDeviceProcAddrTests()`](../../modules/vulkan/api/vktApiGetDeviceProcAddrTests.hpp#L37), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L130) | `get_device_proc_addr` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiMaintenance6Check.hpp`](../../modules/vulkan/api/vktApiMaintenance6Check.hpp) | Header | [`createMaintenance6Tests()`](../../modules/vulkan/api/vktApiMaintenance6Check.hpp#L38), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L131) | `maintenance6` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiFrameBoundaryTests.hpp`](../../modules/vulkan/api/vktApiFrameBoundaryTests.hpp) | Header | [`createFrameBoundaryTests()`](../../modules/vulkan/api/vktApiFrameBoundaryTests.hpp#L36), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L132) | `frame_boundary` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiPhysicalDeviceFormatPropertiesMaint5Tests.hpp`](../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.hpp) | Header | [`createMaintenance5Tests()`](../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.hpp#L32), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L133) | `maintenance5` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiFragmentShaderOutputTests.hpp`](../../modules/vulkan/api/vktApiFragmentShaderOutputTests.hpp) | Header | [`createFragmentShaderOutputTests()`](../../modules/vulkan/api/vktApiFragmentShaderOutputTests.hpp#L34), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L134) | `fragment_shader_output` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiMaintenance7Tests.hpp`](../../modules/vulkan/api/vktApiMaintenance7Tests.hpp) | Header | [`createMaintenance7Tests()`](../../modules/vulkan/api/vktApiMaintenance7Tests.hpp#L34), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L135) | `maintenance7` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiDeviceAddressCommandsTests.hpp`](../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.hpp) | Header | [`createDeviceAddressCommandsTests()`](../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.hpp#L31), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L136) | `device_address_commands` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiExtensionDuplicatesTests.hpp`](../../modules/vulkan/api/vktApiExtensionDuplicatesTests.hpp) | Header | [`createExtensionDuplicatesTests()`](../../modules/vulkan/api/vktApiExtensionDuplicatesTests.hpp#L32), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L138) | `extension_duplicates` | [ ] | Not synthesized in the current partial category page. |
-| [`vktApiPerformanceCountersByRegionTests.hpp`](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.hpp) | Header | [`createRenderPassPerformanceCountersByRegionApiTests()`](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.hpp#L32), registered in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L140) | `renderpass_performance_counters_by_region_api` | [ ] | Not synthesized in the current partial category page. |
+| `vktApiVersionCheck.hpp` | Header | `createVersionSanityCheckTests()` | `version_check` | No | [ ] |
+| `vktApiDebugUtilsTests.hpp` | Header | `createDebugUtilsTests()` | `debug_utils` | No | [ ] |
+| `vktApiDriverPropertiesTests.hpp` | Header | `createDriverPropertiesTests()` | `driver_properties` | No | [ ] |
+| `vktApiSmokeTests.hpp` | Header | `createSmokeTests()` | `smoke` | Yes | [ ] |
+| `vktApiFeatureInfo.hpp` | Header | `createFeatureInfoTests()` | `info` | No | [ ] |
+| `vktApiDeviceDrmPropertiesTests.hpp` | Header | `createDeviceDrmPropertiesTests()` | `device_drm_properties` | Yes | [ ] |
+| `vktApiDeviceInitializationTests.hpp` | Header | `createDeviceInitializationTests()` | `device_init` | No | [ ] |
+| `vktApiObjectManagementTests.hpp` | Header | `createObjectManagementTests()` | `object_management` | No | [ ] |
+| `vktApiBufferTests.hpp` | Header | `createBufferTests()` | `buffer` | No | [ ] |
+| `vktApiBufferMarkerTests.hpp` | Header | `createBufferMarkerTests()` | `buffer_marker` | Yes | [ ] |
+| `vktApiTests.cpp#L78` | Source | `createBufferViewTests()` | `buffer_view` | No | [ ] |
+| `vktApiCommandBuffersTests.hpp` | Header | `createCommandBuffersTests()` | `command_buffers` | No | [ ] |
+| `vktApiCopiesAndBlittingTests.hpp` | Header | `createCopiesAndBlittingTests()` | `copy_and_blit` | No | [ ] |
+| `vktApiDSColorBitCopyTests.hpp` | Header | `createDSColorBitCopyTests()` | `ds_color_copy` | No | [ ] |
+| `vktApiImageClearingTests.hpp` | Header | `createImageClearingTests()` | `image_clearing` | No | [ ] |
+| `vktApiFillBufferTests.hpp` | Header | `createFillAndUpdateBufferTests()` | `fill_and_update_buffer` | No | [ ] |
+| `vktApiDescriptorPoolTests.hpp` | Header | `createDescriptorPoolTests()` | `descriptor_pool` | No | [ ] |
+| `vktApiNullHandleTests.hpp` | Header | `createNullHandleTests()` | `null_handle` | No | [ ] |
+| `vktApiGranularityTests.hpp` | Header | `createGranularityQueryTests()` | `granularity` | No | [ ] |
+| `vktApiGetMemoryCommitment.hpp` | Header | `createMemoryCommitmentTests()` | `get_memory_commitment` | No | [ ] |
+| `vktApiExternalMemoryTests.hpp` | Header | `createExternalMemoryTests()` | `external` | Yes | [ ] |
+| `vktApiMaintenance3Check.hpp` | Header | `createMaintenance3Tests()` | `maintenance3_check` | No | [ ] |
+| `vktApiDescriptorSetTests.hpp` | Header | `createDescriptorSetTests()` | `descriptor_set` | No | [ ] |
+| `vktApiPipelineTests.hpp` | Header | `createPipelineTests()` | `pipeline` | No | [ ] |
+| `vktApiMemoryRequirementInvarianceTests.hpp` | Header | `createMemoryRequirementInvarianceTests()` | `invariance` | No | [ ] |
+| `vktApiToolingInfoTests.hpp` | Header | `createToolingInfoTests()` | `tooling_info` | Yes | [ ] |
+| `vktApiFormatPropertiesExtendedKHRtests.hpp` | Header | `createFormatPropertiesExtendedKHRTests()` | `format_feature_flags2` | Yes | [ ] |
+| `vktApiBufferMemoryRequirementsTests.hpp` | Header | `createBufferMemoryRequirementsTests()` | `buffer_memory_requirements` | No | [ ] |
+| `vktApiImageCompressionControlTests.hpp` | Header | `createImageCompressionControlTests()` | `image_compression_control` | Yes | [ ] |
+| `vktApiGetDeviceProcAddrTests.hpp` | Header | `createGetDeviceProcAddrTests()` | `get_device_proc_addr` | Yes | [ ] |
+| `vktApiMaintenance6Check.hpp` | Header | `createMaintenance6Tests()` | `maintenance6_check` | Yes | [ ] |
+| `vktApiFrameBoundaryTests.hpp` | Header | `createFrameBoundaryTests()` | `frame_boundary` | Yes | [ ] |
+| `vktApiPhysicalDeviceFormatPropertiesMaint5Tests.hpp` | Header | `createMaintenance5Tests()` | `maintenance5` | Yes | [ ] |
+| `vktApiFragmentShaderOutputTests.hpp` | Header | `createFragmentShaderOutputTests()` | `fragment_shader_output` | Yes | [ ] |
+| `vktApiMaintenance7Tests.hpp` | Header | `createMaintenance7Tests()` | `maintenance7` | No | [ ] |
+| `vktApiDeviceAddressCommandsTests.hpp` | Header | `createDeviceAddressCommandsTests()` | `device_address` | Yes | [ ] |
+| `vktApiExtensionDuplicatesTests.hpp` | Header | `createExtensionDuplicatesTests()` | `extension_duplicates` | No | [ ] |
+| `vktApiPerformanceCountersByRegionTests.hpp` | Header | `createRenderPassPerformanceCountersByRegionApiTests()` | `performance_counters_by_region` | Yes | [ ] |
+
+## Nested subgroup files under copy_and_blit
+
+These files register subgroups within `copy_and_blit` and need Level-3 docs:
+
+| File | Verified subgroup names (from mustpass) | Status |
+|---|---|---|
+| `vktApiCopyImageToImageTests.cpp` | `core.image_to_image`, `dedicated_allocation.image_to_image`, `copy_commands2.image_to_image`, etc. | [ ] |
+| `vktApiCopyBufferToBufferTests.cpp` | `core.buffer_to_buffer`, `dedicated_allocation.buffer_to_buffer`, `copy_commands2.buffer_to_buffer`, etc. | [ ] |
+| `vktApiCopyImageToBufferTests.cpp` | `core.image_to_buffer`, `dedicated_allocation.image_to_buffer`, etc. | [ ] |
+| `vktApiCopyBufferToImageTests.cpp` | `core.buffer_to_image`, `dedicated_allocation.buffer_to_image`, etc. | [ ] |
+| `vktApiCopyBufferToDepthStencilTests.cpp` | `core.buffer_to_depthstencil`, `dedicated_allocation.buffer_to_depthstencil`, etc. | [ ] |
+| `vktApiCopyDepthStencilToBufferTests.cpp` | `core.depthstencil_to_buffer`, `dedicated_allocation.depthstencil_to_buffer`, etc. | [ ] |
+| `vktApiCopyDepthStencilMSAATests.cpp` | `core.depth_stencil_msaa_copy`, `dedicated_allocation.depth_stencil_msaa_copy` | [ ] |
+| `vktApiBlittingTests.cpp` | `core.blit_image`, `dedicated_allocation.blit_image`, `copy_commands2.blit_image`, etc. | [ ] |
+| `vktApiResolveTests.cpp` | `core.resolve_image`, `dedicated_allocation.resolve_image`, `copy_commands2.resolve_image`, etc. | [ ] |
+| `vktApiCopyMemoryIndirectTests.cpp` | `copy_memory_indirect` | [ ] |
+| `vktApiCopyMultiplaneImageTransferQueueTests.cpp` | `multiplane_transfer_queue` | [ ] |
+| `vktApiCopiesAndBlittingDynamicStateMetaOpsTests.cpp` | `dynamic_state_meta_ops` | [ ] |
+| `vktApiCopiesAndBlittingReinterpretTests.cpp` | `reinterpret` | [ ] |
+| `vktApiUseAfterCopyTests.cpp` | `core.use_after_copy` | [ ] |
+
+## Utility files (NO Level-3 docs needed)
+
+These files do not register tests and should NOT have Level-3 wiki pages:
+
+| File | Reason |
+|---|---|
+| `vktApiBufferAndImageAllocationUtil.cpp` | Utility: allocation strategy classes |
+| `vktApiBufferComputeInstance.cpp` | Utility: compute instance helpers |
+| `vktApiComputeInstanceResultBuffer.cpp` | Utility: result buffer helpers |
+| `vktApiCopiesAndBlittingUtil.cpp` | Utility: shared test infrastructure |
 
 ## Summary
 
-- Total tracked registration entries: 38.
-- Completed: 10.
-- In progress: 1.
-- Not started: 27.
-- One entry is source-indexed because [`buffer_view`](../../modules/vulkan/api/vktApiTests.cpp#L106) is built by the local aggregator [`createBufferViewTests()`](../../modules/vulkan/api/vktApiTests.cpp#L78) rather than by a dedicated top-level header factory.
+- Total top-level groups: 38
+- Nested subgroup files under copy_and_blit: 14
+- Utility files (no wiki needed): 4
+- Total Level-3 docs needed: 53 (38 top-level + 14 nested + 1 root registration)
+- Existing Level-3 docs to delete: 4 (utility files)

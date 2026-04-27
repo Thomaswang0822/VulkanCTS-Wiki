@@ -1,117 +1,105 @@
-# vktApiVersionCheck.cpp
+# [vktApiVersionCheck.cpp](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L1)
 
 ## Overview
 
-[`vktApiVersionCheck.cpp`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L70) implements the earliest `api/version` subgroup registered by [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L90). In the inspected portion, the file combines two closely related concerns:
-
-1. validating that the device API version is not newer than the maximum Vulkan version supported by this CTS build, and
-2. validating `vkGetInstanceProcAddr` / `vkGetDeviceProcAddr` behavior for core functions, disabled-extension functions, non-existent functions, and supported enabled-extension functions.
-
-This makes `version` more than a simple version printout despite the file header comment.
+[`vktApiVersionCheck.cpp`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L1) implements the `api/version_check` subgroup registered by [`createApiTests()`](../../../../../modules/vulkan/api/vktApiTests.cpp#L90). The file combines three concerns: validating that the device API version is not newer than the maximum Vulkan version supported by this CTS build, validating `vkGetInstanceProcAddr` / `vkGetDeviceProcAddr` behavior for core and extension functions, and verifying that `vkGetDeviceProcAddr` returns NULL for functions beyond the requested API version.
 
 ## Role of File
 
-Implementation-heavy test file for the `api/version` subgroup.
+Implementation-heavy test file for the `api/version_check` subgroup.
 
 ## Source Code
 
-- Primary source: [`vktApiVersionCheck.cpp`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L70)
-- Registration entry from parent category: [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L90)
+- Primary source: [vktApiVersionCheck.cpp](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L1)
+- Header: [vktApiVersionCheck.hpp](../../../../../modules/vulkan/api/vktApiVersionCheck.hpp#L1)
+- Parent-category registration: [`createApiTests()`](../../../../../modules/vulkan/api/vktApiTests.cpp#L90)
 
 ## Registration Path
 
 ```text
 TestPackage::init / TestPackageSC::init
-└── api
-    └── createTests(testCtx, "api")
-        └── createApiTests(apiTests)
-            └── createVersionSanityCheckTests(testCtx)
-                └── version subgroup implemented in vktApiVersionCheck.cpp
+  api
+  +-- createApiTests(apiTests)
+      +-- createVersionSanityCheckTests(testCtx)
+          +-- version_check
+              +-- version
+              +-- entry_points
+              +-- unavailable_entry_points  (not in Vulkan SC)
 ```
 
 Evidence:
-- package-level `api` attachment in [`TestPackage::init()`](../../modules/vulkan/vktTestPackage.cpp#L1349) and [`TestPackageSC::init()`](../../modules/vulkan/vktTestPackage.cpp#L1417)
-- `version` subgroup attachment in [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L90)
-- concrete test classes in [`APIVersionTestInstance`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L70), [`APIVersionTestCase`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L105), and [`APIEntryPointsTestInstance`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L123)
+- `version_check` group created at [`createVersionSanityCheckTests()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L780)
+- `version` test case added at [`vktApiVersionCheck.cpp`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L781)
+- `entry_points` test case added at [`vktApiVersionCheck.cpp`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L782)
+- `unavailable_entry_points` test case added under `#ifndef CTS_USES_VULKANSC` at [`vktApiVersionCheck.cpp`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L785)
 
-## Test Hierarchy Observed
-
-The exact subgroup builder function name is not visible in the inspected excerpt, so the safest confirmed hierarchy is:
+## Test Hierarchy
 
 ```text
 api
-└── version
-    ├── one test backed by APIVersionTestCase / APIVersionTestInstance
-    └── at least one entry-point validation test backed by APIEntryPointsTestInstance
++-- version_check
+    +-- version
+    +-- entry_points
+    +-- unavailable_entry_points  (excluded for Vulkan SC)
 ```
 
-Confirmed evidence:
-- [`APIVersionTestCase`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L105) uses the case name `"version"` in its constructor at [`vktApiVersionCheck.cpp`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L108)
-- [`APIEntryPointsTestInstance`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L123) contains the function-address validation logic for another test in the same subgroup, but the inspected lines do not show the surrounding `TestCase` registration name
+Source: [`createVersionSanityCheckTests()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L778).
 
 ## Test Families
 
 ### 1. CTS-supported Vulkan version bound check
 
-[`APIVersionTestInstance::iterate()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L76) logs the available instance version, the device version, and the used API version via [`tcu::TestLog`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L78). It then fails if the physical device major or minor version is newer than the framework's maximum supported Vulkan version at [`vktApiVersionCheck.cpp`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L97); otherwise it passes with the used API version string at [`vktApiVersionCheck.cpp`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L101).
+[`APIVersionTestCase`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L105) is registered with name `"version"` at [`vktApiVersionCheck.cpp`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L108). Its instance [`APIVersionTestInstance::iterate()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L76) logs the available instance version, the device version, and the used API version. It fails if the physical device major or minor version is newer than the framework maximum at [`vktApiVersionCheck.cpp`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L97); otherwise it passes with the used API version string at [`vktApiVersionCheck.cpp`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L101).
 
-### 2. Core entry-point resolution using proper and improper loaders
+### 2. Core and extension entry-point resolution
 
-Inside [`APIEntryPointsTestInstance::iterate()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L138), the first execution block creates a custom instance and device without extensions at [`vktApiVersionCheck.cpp`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L157) and builds an API context with both proc-address loaders at [`vktApiVersionCheck.cpp`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L163). It then:
+[`APIEntryPointsTestCase`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L603) is registered with name `"entry_points"` at [`vktApiVersionCheck.cpp`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L606). Its instance [`APIEntryPointsTestInstance::iterate()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L138) performs four phases:
 
-- initializes the core-function map with [`initApisMap()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L168)
-- optionally adds Vulkan 1.4 host-image-copy functions when [`hostImageCopy`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L172) is present
-- selects the last supported core version not newer than the used API version at [`vktApiVersionCheck.cpp`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L183)
-- runs a “regular check” via [`regularCheck()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L195)
-- runs a “cross check” with improper loaders via [`mixupAddressProcCheck()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L202)
+- **Regular check**: creates a custom instance and device without extensions, initializes the core-function map via [`initApisMap()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L168), optionally adds Vulkan 1.4 host-image-copy functions when [`hostImageCopy`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L172) is present, then validates that proper `vkGet*ProcAddr` returns non-null for core functions via [`regularCheck()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L551)
+- **Cross check**: validates that core instance functions return nullptr when queried through the wrong proc-address loader via [`mixupAddressProcCheck()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L511)
+- **Disabled-extension negative check**: verifies that functions of disabled extensions return nullptr via [`specialCasesCheck()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L534) with a fixed list at [`vktApiVersionCheck.cpp`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L208)
+- **Non-existent-function negative check**: verifies that bogus names like `"vkSomeName"`, `"vkNonexistingKHR"`, and the empty string return nullptr via [`specialCasesCheck()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L244)
+- **Enabled-extension positive check**: creates a second instance/device pair with all supported extensions enabled, collects extension functions, and validates them via [`regularCheck()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L309)
 
-This family is evidence-backed as loader-behavior validation, not just enumeration.
+### 3. Unavailable entry-points check
 
-### 3. Disabled-extension and non-existent-function negative checks
-
-Still in the no-extension block, the file defines a fixed list of disabled extension functions such as [`vkTrimCommandPoolKHR`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L209), [`vkCreateSwapchainKHR`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L212), and [`vkGetImageMemoryRequirements2KHR`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L217). It then validates those through [`specialCasesCheck()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L225). A second negative block builds intentionally invalid names like [`"vkSomeName"`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L235), [`"vkNonexistingKHR"`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L236), and the empty string at [`vktApiVersionCheck.cpp`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L237), and checks them the same way at [`vktApiVersionCheck.cpp`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L244).
-
-### 4. Enabled-extension positive checks
-
-The second main execution block enumerates supported instance and device extensions and filters them before use via [`getSupportedInstanceExtensions()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L251) and [`getSupportedDeviceExtensions()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L254). It derives callable extension functions for supported instance extensions at [`vktApiVersionCheck.cpp`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L272) and supported device extensions at [`vktApiVersionCheck.cpp`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L297), then performs an enabled-extensions “regular check” through [`regularCheck()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L309).
+[`APIUnavailableEntryPointsTestCase`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L757) is registered with name `"unavailable_entry_points"` at [`vktApiVersionCheck.cpp`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L761). Its instance [`APIUnavailableEntryPointsTestInstance::iterate()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L628) creates instances for each API version, then checks that `vkGetDeviceProcAddr` returns NULL for device functions that belong to API versions above the requested version at [`vktApiVersionCheck.cpp`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L739). Requires `VK_KHR_maintenance5` via [`checkSupport()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L766).
 
 ## Parameter Dimensions
 
 | Dimension | Observed values / evidence |
 |---|---|
-| Version values compared | framework maximum version, available instance version, device version, used API version in [`APIVersionTestInstance::iterate()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L79) |
-| Loader context variants | proper `vkGet*ProcAddr` use and improper cross-use in [`regularCheck()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L195) and [`mixupAddressProcCheck()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L202) |
-| Extension state | no-extension device/context block at [`vktApiVersionCheck.cpp`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L155) and enabled-extension block at [`vktApiVersionCheck.cpp`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L249) |
-| Function categories | core functions from [`initApisMap()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L168), disabled-extension functions listed at [`vktApiVersionCheck.cpp`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L208), non-existent function names at [`vktApiVersionCheck.cpp`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L231), enabled-extension functions collected at [`vktApiVersionCheck.cpp`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L264) |
-| Queue-family requirement when creating a test device | graphics+compute by default or compute-only under command-line control in [`createTestDevice()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L396) |
-| Extension-author filter | only names beginning with `VK_KHR_` or `VK_EXT_` are retained by [`filterMultiAuthorExtensions()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L340) |
+| Version values compared | framework maximum version, available instance version, device version, used API version in [`APIVersionTestInstance::iterate()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L79) |
+| Loader context variants | proper `vkGet*ProcAddr` use and improper cross-use in [`regularCheck()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L551) and [`mixupAddressProcCheck()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L511) |
+| Extension state | no-extension device/context at [`vktApiVersionCheck.cpp`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L155) and enabled-extension block at [`vktApiVersionCheck.cpp`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L249) |
+| Function categories | core functions from [`initApisMap()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L168), disabled-extension functions at [`vktApiVersionCheck.cpp`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L208), non-existent names at [`vktApiVersionCheck.cpp`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L231), enabled-extension functions at [`vktApiVersionCheck.cpp`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L264) |
+| Queue-family requirement | graphics+compute by default or compute-only under command-line control in [`createTestDevice()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L396) |
+| Extension-author filter | only names beginning with `VK_KHR_` or `VK_EXT_` retained by [`filterMultiAuthorExtensions()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L340) |
+| API versions iterated | all versions in `functionsPerVersion` up to `supportedApiVersion` in [`APIUnavailableEntryPointsTestInstance::iterate()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L639) |
 
 ## Support / Feature Requirements
 
-Observed support logic includes:
-
-- optional Vulkan 1.4 host image copy entry points are only appended when [`m_context.getDeviceVulkan14Features().hostImageCopy`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L172) is true
-- enabled-extension validation only uses extensions returned by [`enumerateInstanceExtensionProperties()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L360) and [`enumerateDeviceExtensionProperties()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L374), after filtering out core-promoted extensions via [`isCoreInstanceExtension()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L365) and [`isCoreDeviceExtension()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L380)
-- device creation requires a queue family with either compute-only capability or graphics+compute capability depending on command-line mode in [`createTestDevice()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L396)
-- Vulkan SC-specific device-creation reservation structures are inserted under [`#ifdef CTS_USES_VULKANSC`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L411)
+- optional Vulkan 1.4 host image copy entry points only appended when [`m_context.getDeviceVulkan14Features().hostImageCopy`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L172) is true
+- enabled-extension validation only uses extensions returned by [`enumerateInstanceExtensionProperties()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L360) and [`enumerateDeviceExtensionProperties()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L374), after filtering out core-promoted extensions
+- `unavailable_entry_points` requires `VK_KHR_maintenance5` via [`checkSupport()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L767)
+- Vulkan SC-specific device-creation reservation structures under [`#ifdef CTS_USES_VULKANSC`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L411)
 
 ## Verification Methods
 
-Observed verification methods are explicit and varied:
-
-- **version comparison**: fail if device major/minor exceeds framework-supported major/minor in [`APIVersionTestInstance::iterate()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L97)
-- **proc-address null/non-null checks**: helper functions [`checkPlatformFunction()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L476), [`checkInstanceFunction()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L483), and [`checkDeviceFunction()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L490) compare returned addresses against expected nullability
-- **failure accumulation**: loader mismatches are reported through [`reportFail()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L466), which increments a shared `failsQuantity`
-- **final pass/fail decision**: the entry-point test fails if any mismatches were accumulated at [`vktApiVersionCheck.cpp`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L314)
+- **version comparison**: fail if device major/minor exceeds framework-supported major/minor at [`vktApiVersionCheck.cpp`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L97)
+- **proc-address null/non-null checks**: helpers [`checkPlatformFunction()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L476), [`checkInstanceFunction()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L483), [`checkDeviceFunction()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L490) compare returned addresses against expected nullability
+- **failure accumulation**: mismatches reported through [`reportFail()`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L466), which increments `failsQuantity`
+- **final pass/fail decision**: entry-point test fails if any mismatches accumulated at [`vktApiVersionCheck.cpp`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L314)
+- **unavailable-function null check**: `vkGetDeviceProcAddr` must return nullptr for functions beyond requested API version at [`vktApiVersionCheck.cpp`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L739)
 
 ## Test Principles Observed
 
-- **Validate CTS applicability before deeper API checks**: the first observed test ensures the device version is within the Vulkan range this CTS build claims to support
-- **Check both positive and negative loader behavior**: the file validates not only that expected functions can be loaded, but also that disabled or bogus names do not appear unexpectedly
-- **Adapt expectations to runtime API/extension state**: supported enabled-extension functions are derived dynamically from enumerated extensions and API-version promotion rules
-- **Keep low-level checks traceable**: explicit helper functions for platform/instance/device proc-address queries centralize nullability expectations and logging
+- Validate CTS applicability before deeper API checks
+- Check both positive and negative loader behavior
+- Adapt expectations to runtime API/extension state
+- Keep low-level checks traceable via centralized helper functions
 
 ## Notes / Uncertainties
 
-- The inspected excerpt does not show the exact factory function that builds the `version` subgroup or the precise registration name of the test case backed by [`APIEntryPointsTestInstance`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L123), so this document avoids asserting a more detailed per-case hierarchy than the visible code supports.
-- The internal contents of [`regularCheck()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L195) and [`specialCasesCheck()`](../../modules/vulkan/api/vktApiVersionCheck.cpp#L225) are only partially visible from the inspected range, so their behavior is summarized from the calling pattern and nearby helper functions rather than fully reconstructed.
+- The internal contents of included files [`vkExtensionFunctions.inl`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L67) and [`vkCoreFunctionalities.inl`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L68) are not inspected here; the function lists they populate are summarized from usage context only.
+- The `unavailable_entry_points` test skips Vulkan 1.0 instances at [`vktApiVersionCheck.cpp`](../../../../../modules/vulkan/api/vktApiVersionCheck.cpp#L643) because `VK_KHR_maintenance5` requires at least Vulkan 1.1.

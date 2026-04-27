@@ -1,88 +1,94 @@
-# [vktApiFragmentShaderOutputTests.cpp](../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L1)
+# [vktApiFragmentShaderOutputTests.cpp](../../../../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L1)
 
 ## Overview
 
-Tests fragment shader output interactions with render pass color attachments. Validates three scenarios: shader output locations without corresponding attachments, attachments without corresponding shader output locations, and mismatched signedness between shader output types and attachment formats.
+Tests fragment shader output behavior when there is a mismatch between shader output locations and render pass color attachments. Covers three scenarios: a shader output location with no corresponding attachment, an attachment with no corresponding shader output, and shader/attachment format signedness mismatches.
 
 ## Role of File
 
-Implementation-heavy. Contains test instance logic, shader generation, and registration in a single source file (~775 lines). The public entry point [createFragmentShaderOutputTests()](../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L698) assembles the full test tree.
+Implementation-heavy. Contains shader generation, rendering pipeline setup, result verification, and test registration.
 
 ## Source Code
 
-- Source: [vktApiFragmentShaderOutputTests.cpp](../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L1)
-- Header: [vktApiFragmentShaderOutputTests.hpp](../../modules/vulkan/api/vktApiFragmentShaderOutputTests.hpp#L1)
-- Parent registration: `api` test group, child `fragment_shader_output` (non-VKSC only)
+| File | Description |
+|------|-------------|
+| [vktApiFragmentShaderOutputTests.cpp](../../../../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L1) | Test implementation and registration |
+| [vktApiFragmentShaderOutputTests.hpp](../../../../../modules/vulkan/api/vktApiFragmentShaderOutputTests.hpp#L1) | Declares `createFragmentShaderOutputTests` |
+| [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L134) | Parent registration: `apiTests->addChild(createFragmentShaderOutputTests(testCtx))` |
 
 ## Registration Path
 
 ```
 api
- +-- fragment_shader_output
-      +-- location_no_attachment
-      +-- attachment_no_location
-      +-- different_signedness
+  +-- fragment_shader_output
+       +-- location_no_attachment
+       |    +-- <permutation test cases>
+       +-- attachment_no_location
+       |    +-- <permutation test cases>
+       +-- different_signedness
+            +-- <permutation test cases>
 ```
 
 ## Test Hierarchy
 
 ```
 fragment_shader_output
- +-- location_no_attachment
- |    +-- <format_permutation_name>   -- e.g. unorm2unorm_snorm2snorm_uint2uint_sint2sint
- +-- attachment_no_location
- |    +-- <format_permutation_name>   -- e.g. unorm2unorm_snorm2snorm_uint2uint_sint2sint
- +-- different_signedness
-      +-- <format_pair_name>          -- e.g. unorm2sint_snorm2uint
+  +-- location_no_attachment
+  |    Fragment shader writes to a location beyond pColorAttachments count
+  |    +-- <format permutation tests>
+  |         e.g. unorm2unorm_snorm2snorm_uint2uint_sint2sint
+  +-- attachment_no_location
+  |    pColorAttachments has an entry with no matching shader output location
+  |    +-- <format permutation tests>
+  +-- different_signedness
+       Shader output type differs from attachment format signedness
+       +-- <format permutation tests>
+            e.g. unorm2uint_uint2unorm_sint2sint_uint2uint
 ```
 
 ## Test Families
 
-### Location No Attachment Family
+### fragment_shader_output
 
-Tests the case where a fragment shader writes to an output location that has no corresponding entry in `pColorAttachments`. The shader writes to `location = N` (where N equals the attachment count), while the render pass has fewer color attachments. The test verifies that the unattached location's image remains unchanged (at clear color) while all other attachments receive the shader output correctly. Defined by [LocationNoAttachment](../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L61) enum value. Uses permutations of 4 formats (R8_UNORM, R8_SNORM, R8_UINT, R8_SINT) as both shader and render formats.
+Group name verified at [vktApiFragmentShaderOutputTests.cpp:728](../../../../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L728): `new tcu::TestCaseGroup(testCtx, "fragment_shader_output", "Verify fragment shader output with multiple attachments")`.
 
-### Attachment No Location Family
+Three test cases defined at [lines 711-715](../../../../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L711):
 
-Tests the case where `pColorAttachments` contains an entry for which the fragment shader has no corresponding output location. The shader skips output at the middle location index while the render pass has an attachment for it. The test verifies that the skipped attachment's image remains unchanged (at clear color) while all other attachments receive the shader output correctly. Defined by [AttachmentNoLocation](../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L65) enum value. Uses permutations of 4 formats.
+| Subgroup | ShaderOutputCases | Description |
+|----------|-------------------|-------------|
+| `location_no_attachment` | LocationNoAttachment | Shader writes to location N but pColorAttachments has fewer than N+1 entries |
+| `attachment_no_location` | AttachmentNoLocation | pColorAttachments has entry at index N but shader does not output to location N |
+| `different_signedness` | DifferentSignedness | Shader output type (UNORM/SNORM/UINT/SINT) differs from attachment format |
 
-### Different Signedness Family
-
-Tests the case where fragment shader output types have different signedness than the attachment format (e.g., UNORM shader output with SINT attachment, or UINT shader output with SNORM attachment). Only pairs where the signedness differs (one signed, one unsigned) are generated. Defined by [DifferentSignedness](../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L69) enum value. All attachments are expected to render with the shader's output value reinterpreted according to the render format.
+For `location_no_attachment` and `attachment_no_location`, test cases are generated from permutations of 4 R8 variants (UNORM, SNORM, UINT, SINT) at [lines 700-705](../../../../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L700). For `different_signedness`, test cases use pairs of format combinations where signedness differs ([lines 717-726](../../../../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L717)).
 
 ## Parameter Dimensions
 
-| Dimension | Observed Values |
-|---|---|
-| Test Case | LocationNoAttachment, AttachmentNoLocation, DifferentSignedness |
-| Shader Format | R8_UNORM, R8_SNORM, R8_UINT, R8_SINT |
-| Render Format | R8_UNORM, R8_SNORM, R8_UINT, R8_SINT |
-| Format Pairing (LocationNoAttachment/AttachmentNoLocation) | All permutations of 4 formats (shader format = render format) |
-| Format Pairing (DifferentSignedness) | Only cross-signedness pairs (UNORM/SNORM with SINT/UINT and vice versa) |
+| Dimension | Observed Values | Notes |
+|-----------|----------------|-------|
+| Shader format | R8_UNORM, R8_SNORM, R8_UINT, R8_SINT | 4 formats at [line 701](../../../../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L701) |
+| Render format | R8_UNORM, R8_SNORM, R8_UINT, R8_SINT | Same 4 formats |
+| Test case | LocationNoAttachment, AttachmentNoLocation, DifferentSignedness | 3 cases |
+| Render size | 64x64 | Hard-coded at [line 599](../../../../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L599) |
 
 ## Support / Feature Requirements
 
-- Render format must support `VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT` and `VK_FORMAT_FEATURE_TRANSFER_SRC_BIT` ([checkSupport()](../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L245))
-- For LocationNoAttachment: attachment count + 1 must not exceed `maxColorAttachments` ([checkSupport()](../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L253))
-- For other cases: attachment count must not exceed `maxColorAttachments` ([checkSupport()](../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L264))
+- `maxColorAttachments` must be sufficient for the number of attachments used ([lines 251-272](../../../../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L251))
+- Each render format must support `VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT | VK_FORMAT_FEATURE_TRANSFER_SRC_BIT` ([lines 276-288](../../../../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L276))
 
 ## Verification Methods
 
-- [verifyResults()](../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L465): Reads back attachment pixel data and checks:
-  - For LocationNoAttachment/AttachmentNoLocation: the mismatched attachment's buffer must be unchanged (clear color), all others must be rendered correctly
-  - For DifferentSignedness: all attachments must be rendered with the expected value (shader output reinterpreted per render format)
-  - Integer formats use exact match; float formats use tolerance of 0.001
-  - [isBufferUnchanged()](../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L475): checks buffer matches clear color
-  - [isBufferRendered()](../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L502): checks buffer matches expected shader output value
+- **LocationNoAttachment / AttachmentNoLocation**: The attachment at the mismatched index must remain at its clear color (unchanged), while all other attachments must contain the shader-written value. Verified by `isBufferUnchanged` and `isBufferRendered` at [lines 566-576](../../../../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L566).
+- **DifferentSignedness**: All attachments must contain the rendered value. For UNORM/SNORM, expects 1.0f; for UINT, expects `unsignedIntColor` (123); for SINT, expects `signedIntColor` (111) ([lines 578-583](../../../../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L578)).
 
 ## Test Principles Observed
 
-- Shader generation dynamically creates fragment shaders with the correct output types and locations based on test configuration ([initPrograms()](../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L291))
-- Clear colors are distinct per attachment to enable verification of which attachments were written ([makeClearColors()](../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L431))
-- Test uses 64x64 pixel images with a fullscreen triangle draw
+- Mismatch validation: tests edge cases in the shader-to-attachment binding contract
+- Format coverage: tests all signedness combinations for R8 variants
+- Pixel-level verification: reads back attachment contents and compares against expected values
 
 ## Notes / Uncertainties
 
-- The DifferentSignedness tests may produce undefined behavior per the Vulkan spec when shader output and attachment format signedness mismatch; the test appears to validate that the implementation handles this gracefully rather than crashing
-- The format permutation naming uses a shorthand like `unorm2unorm` meaning shader=R8_UNORM, render=R8_UNORM ([makeTitle()](../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L669))
-- Only R8-width formats are tested; wider formats or multi-channel format combinations are not covered
+- The `different_signedness` tests do not use validation layers; they verify pixel output values rather than checking for validation errors
+- The number of test cases in `different_signedness` can be large due to the combinatorial pairing of format combinations
+- The test uses `std::next_permutation` to generate permutations for the non-signedness cases, which produces all unique orderings of the 4 formats

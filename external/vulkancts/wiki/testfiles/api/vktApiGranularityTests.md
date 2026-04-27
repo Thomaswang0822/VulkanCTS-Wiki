@@ -1,29 +1,24 @@
-# [vktApiGranularityTests.cpp](../../modules/vulkan/api/vktApiGranularityTests.cpp#L1)
+# [vktApiGranularityTests.cpp](../../../../../modules/vulkan/api/vktApiGranularityTests.cpp#L1)
 
 ## Overview
 
-Tests the `vkGetRenderAreaGranularity` and `vkGetRenderingAreaGranularity` APIs, which report the render area granularity for a given set of framebuffer attachments. The file validates that granularity values are consistent whether queried before or during a render pass, and that they satisfy spec-mandated constraints.
+Tests vkGetRenderAreaGranularity and vkGetRenderingAreaGranularity (VK_KHR_maintenance5). Verifies that the returned granularity values are valid (at least 1x1, consistent before and during a render pass, and within device limits) across various attachment format combinations and render pass modes.
 
 ## Role of File
 
-Implementation-heavy. Contains a full test class (`GranularityCase`/`GranularityInstance`) with Vulkan image creation, render pass setup, and three test modes covering legacy render passes, in-render-pass queries, and dynamic rendering.
+Implementation-heavy. Contains all test logic, helper classes, and the registration function [createGranularityQueryTests()](../../../../../modules/vulkan/api/vktApiGranularityTests.cpp#L463).
 
 ## Source Code
 
-- Implementation: [vktApiGranularityTests.cpp](../../modules/vulkan/api/vktApiGranularityTests.cpp#L1)
-- Header: [vktApiGranularityTests.hpp](../../modules/vulkan/api/vktApiGranularityTests.hpp#L1)
-- Parent registration: `createGranularityQueryTests()` declared at [L36](../../modules/vulkan/api/vktApiGranularityTests.hpp#L36)
+- Implementation: [vktApiGranularityTests.cpp](../../../../../modules/vulkan/api/vktApiGranularityTests.cpp#L1)
+- Header: [vktApiGranularityTests.hpp](../../../../../modules/vulkan/api/vktApiGranularityTests.hpp#L1)
+- Parent registration: [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L114)
 
 ## Registration Path
 
 ```
 api
   +-- granularity
-        +-- single
-        +-- multi
-        +-- random
-        +-- in_render_pass
-        +-- in_dynamic_render_pass   (non-VKSC only)
 ```
 
 ## Test Hierarchy
@@ -31,87 +26,75 @@ api
 ```
 granularity
   +-- single
-  |     +-- <format_name>  (one per VkFormat from 1..VK_FORMAT_D32_SFLOAT_S8_UINT)
-  |           Single attachment with random dimensions.
+  |     +-- <format_name>                  [one attachment per format 1..55]
   +-- multi
-  |     +-- <format_name>  (one per VkFormat from 1..VK_FORMAT_D32_SFLOAT_S8_UINT)
-  |           Multiple attachments of the same format with same random dimensions.
+  |     +-- <format_name>                  [multiple attachments of same format]
   +-- random
-  |     +-- <format_name>  (one per VkFormat from 1..VK_FORMAT_D32_SFLOAT_S8_UINT)
-  |           One primary format attachment + random mandatory-format attachments.
+  |     +-- <format_name>                  [one attachment + random mandatory formats]
   +-- in_render_pass
-  |     +-- <format_name>  (one per VkFormat from 1..VK_FORMAT_D32_SFLOAT_S8_UINT)
-  |           Queries granularity inside an active render pass.
-  +-- in_dynamic_render_pass  (non-VKSC only)
-        +-- <format_name>  (one per VkFormat from 1..VK_FORMAT_D32_SFLOAT_S8_UINT)
-              Queries granularity inside an active dynamic render pass.
+  |     +-- <format_name>                  [granularity queried inside render pass]
+  +-- in_dynamic_render_pass               [non-SC]
+        +-- <format_name>                  [granularity queried inside dynamic render pass]
 ```
 
 ## Test Families
 
-### single
+### Single Attachment Granularity
 
-Tests `vkGetRenderAreaGranularity` with a single attachment of each format. Creates one image per format with random dimensions (1..500), builds a render pass, and queries granularity before the render pass begins (TestMode::NO_RENDER_PASS).
+[GranularityInstance](../../../../../modules/vulkan/api/vktApiGranularityTests.cpp#L86) with TestMode::NO_RENDER_PASS creates a single attachment of each format from VK_FORMAT_R4G4_UNORM_PACK8 through VK_FORMAT_D32_SFLOAT_S8_UINT and queries the render area granularity. Verifies that the granularity is at least 1x1 and within device limits.
 
-- Registered at [L541](../../modules/vulkan/api/vktApiGranularityTests.cpp#L541)
+### Multiple Attachments of Same Format
 
-### multi
+Tests granularity with multiple attachments of the same format. The number of attachments is randomized between 2 and 10.
 
-Tests granularity with multiple attachments sharing the same format and dimensions. Creates 2..10 identical attachments, builds a render pass, and queries granularity.
+### Random Mixed Attachments
 
-- Registered at [L551](../../modules/vulkan/api/vktApiGranularityTests.cpp#L551)
+Tests granularity with one primary format attachment plus random mandatory format attachments. The number of additional attachments is randomized between 2 and 10.
 
-### random
+### In Render Pass
 
-Tests granularity with a mix of formats. Creates one attachment of the primary format plus 2..10 additional attachments using randomly selected mandatory formats, each with random dimensions.
+Tests granularity queried inside a traditional render pass (TestMode::USE_RENDER_PASS). Verifies that the granularity is consistent before and during the render pass.
 
-- Registered at [L567](../../modules/vulkan/api/vktApiGranularityTests.cpp#L567)
+### In Dynamic Render Pass (non-SC)
 
-### in_render_pass
-
-Queries `vkGetRenderAreaGranularity` both before and inside an active render pass (between `beginRenderPass` and `endRenderPass`). Verifies that the granularity values are identical in both cases.
-
-- TestMode: `USE_RENDER_PASS` at [L574](../../modules/vulkan/api/vktApiGranularityTests.cpp#L574)
-
-### in_dynamic_render_pass (non-VKSC only)
-
-Queries `vkGetRenderingAreaGranularity` (VK_KHR_maintenance5) both before and inside an active dynamic render pass (between `cmdBeginRendering` and `cmdEndRendering`). Verifies consistency.
-
-- TestMode: `USE_DYNAMIC_RENDER_PASS` at [L578](../../modules/vulkan/api/vktApiGranularityTests.cpp#L578)
-- Guarded by `#ifndef CTS_USES_VULKANSC` at [L576](../../modules/vulkan/api/vktApiGranularityTests.cpp#L576)
+Tests granularity queried inside a dynamic render pass (TestMode::USE_DYNAMIC_RENDER_PASS) using vkGetRenderingAreaGranularity from VK_KHR_maintenance5. Verifies consistency with pre-pass granularity.
 
 ## Parameter Dimensions
 
-| Dimension | Observed Values | Notes |
-|-----------|----------------|-------|
-| Format range | VK_FORMAT range 1..VK_FORMAT_D32_SFLOAT_S8_UINT | [L531](../../modules/vulkan/api/vktApiGranularityTests.cpp#L531) |
-| Attachment dimensions | Random 1..500 per axis | [L528](../../modules/vulkan/api/vktApiGranularityTests.cpp#L528) |
-| Multi attachment count | Random 2..10 | [L529](../../modules/vulkan/api/vktApiGranularityTests.cpp#L529) |
-| Random extra formats | From mandatoryFormats array (46 entries) | [L477](../../modules/vulkan/api/vktApiGranularityTests.cpp#L477) |
-| TestMode | NO_RENDER_PASS, USE_RENDER_PASS, USE_DYNAMIC_RENDER_PASS | [L57](../../modules/vulkan/api/vktApiGranularityTests.cpp#L57) |
-| Random seed | 215 | [L475](../../modules/vulkan/api/vktApiGranularityTests.cpp#L475) |
+| Dimension | Observed Values |
+|---|---|
+| TestMode | NO_RENDER_PASS, USE_RENDER_PASS, USE_DYNAMIC_RENDER_PASS |
+| Format range | VK_FORMAT_R4G4_UNORM_PACK8 through VK_FORMAT_D32_SFLOAT_S8_UINT (formats 1-55) |
+| Attachment count | 1 (single), 2-10 (multi, random) |
+| Image dimensions | 1-500 (randomized per attachment) |
+| Mandatory formats | 45 formats listed at [lines 477-525](../../../../../modules/vulkan/api/vktApiGranularityTests.cpp#L477) |
 
 ## Support / Feature Requirements
 
-| Requirement | Gate | Location |
-|-------------|------|----------|
-| Format support | `checkSupport` queries `getPhysicalDeviceFormatProperties`; throws NotSupportedError if format lacks `COLOR_ATTACHMENT_BIT` or `DEPTH_STENCIL_ATTACHMENT_BIT` | [L437](../../modules/vulkan/api/vktApiGranularityTests.cpp#L437) |
-| VK_KHR_maintenance5 | Required for `USE_DYNAMIC_RENDER_PASS` mode | [L453](../../modules/vulkan/api/vktApiGranularityTests.cpp#L453) |
+| Feature / Extension | Used By |
+|---|---|
+| VK_KHR_maintenance5 | in_dynamic_render_pass (uses vkGetRenderingAreaGranularity) |
+| Color attachment feature | All color format tests |
+| Depth/stencil attachment feature | All depth/stencil format tests |
 
 ## Verification Methods
 
-- **Granularity validity**: `granularity.width >= 1 && granularity.height >= 1` at [L393](../../modules/vulkan/api/vktApiGranularityTests.cpp#L393)
-- **Pre/post consistency**: `prePassGranularity.width == granularity.width && prePassGranularity.height == granularity.height` at [L394](../../modules/vulkan/api/vktApiGranularityTests.cpp#L394)
-- **Framebuffer limits**: `granularity.width <= maxFramebufferWidth && granularity.height <= maxFramebufferHeight` at [L395](../../modules/vulkan/api/vktApiGranularityTests.cpp#L395)
+- **Granularity validity**: [GranularityInstance::iterate()](../../../../../modules/vulkan/api/vktApiGranularityTests.cpp#L282) checks that granularity.width >= 1 and granularity.height >= 1
+- **Consistency check**: Pre-pass granularity must equal in-pass granularity
+- **Device limits check**: Granularity must not exceed maxFramebufferWidth and maxFramebufferHeight
+- **Format support skip**: [GranularityCase::checkSupport()](../../../../../modules/vulkan/api/vktApiGranularityTests.cpp#L437) skips tests if the format does not support color or depth/stencil attachment features
 
 ## Test Principles Observed
 
-- **Invariance**: Granularity must be the same before and during a render pass
-- **Spec compliance**: Granularity must be at least 1x1 and within framebuffer limits
-- **Format coverage**: Iterates over all defined formats to maximize coverage
+- Spec compliance: verifies the guarantees made by vkGetRenderAreaGranularity
+- Format coverage: iterates over all formats from 1 to D32_SFLOAT_S8_UINT
+- Consistency: granularity must not change between pre-pass and in-pass queries
+- Randomization: attachment counts and dimensions are randomized for variety
+- SC divergence: dynamic render pass tests are excluded for Vulkan SC
 
 ## Notes / Uncertainties
 
-- The `checkSupport` method checks for both `VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT` and `VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT` combined with OR at [L442](../../modules/vulkan/api/vktApiGranularityTests.cpp#L442), but depth/stencil formats typically only have `DEPTH_STENCIL_ATTACHMENT_BIT`. This may cause some depth/stencil formats to be incorrectly skipped if they lack `COLOR_ATTACHMENT_BIT`.
-- The `mandatoryFormats` array at [L477](../../modules/vulkan/api/vktApiGranularityTests.cpp#L477) includes `VK_FORMAT_D16_UNORM` and `VK_FORMAT_D32_SFLOAT` but not `VK_FORMAT_S8_UINT` or combined depth-stencil formats.
-- The framebuffer created in `initObjects` always has dimensions 1x1 at [L268](../../modules/vulkan/api/vktApiGranularityTests.cpp#L268), while the images may have larger random dimensions. This is valid since the render area granularity query depends on the render pass structure, not the framebuffer size.
+- The factory function is named `createGranularityQueryTests` but the group name is `granularity`
+- The format iteration range is 1 to VK_FORMAT_D32_SFLOAT_S8_UINT (format index 55), which covers most common formats but may not include all extended formats
+- The random seed is fixed at 215, so the test is deterministic
+- The `in_dynamic_render_pass` group uses VK_KHR_maintenance5's vkGetRenderingAreaGranularity, which takes a VkRenderingAreaInfoKHR instead of a VkRenderPass

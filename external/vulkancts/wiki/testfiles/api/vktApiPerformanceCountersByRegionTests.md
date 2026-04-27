@@ -1,26 +1,27 @@
-# [vktApiPerformanceCountersByRegionTests.cpp](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L1)
+# [vktApiPerformanceCountersByRegionTests.cpp](../../../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L1)
 
 ## Overview
 
-Tests the `VK_ARM_performance_counters_by_region` extension, specifically the `vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM` API. Validates correct enumeration behavior including partial count queries, VK_INCOMPLETE return codes, and that the implementation does not overwrite memory beyond the requested counter count.
+Tests VK_ARM_performance_counters_by_region by verifying the `vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM` function. Checks that counter enumeration behaves correctly with various buffer sizes: fewer than total, exactly total, and more than total counters, and that the implementation does not overwrite memory beyond the requested count.
 
 ## Role of File
 
-Implementation-heavy. Contains a single test case class with a full test instance that exercises the enumeration API with various buffer sizes and validates counter/description output integrity.
+Implementation-heavy. Contains test instance, support utilities, and registration logic.
 
 ## Source Code
 
-- Implementation: [vktApiPerformanceCountersByRegionTests.cpp](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L1)
-- Header: [vktApiPerformanceCountersByRegionTests.hpp](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.hpp#L1)
-- Parent registration: `createRenderPassPerformanceCountersByRegionApiTests()` declared at [L32](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.hpp#L32)
+| File | Description |
+|------|-------------|
+| [vktApiPerformanceCountersByRegionTests.cpp](../../../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L1) | Test implementation and registration |
+| [vktApiPerformanceCountersByRegionTests.hpp](../../../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.hpp#L1) | Declares `createRenderPassPerformanceCountersByRegionApiTests` |
+| [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L140) | Parent registration: `apiTests->addChild(createRenderPassPerformanceCountersByRegionApiTests(testCtx))` |
 
 ## Registration Path
 
 ```
 api
-  +-- render_pass_performance_counters_by_region   (non-VKSC only)
-        +-- performance_counters_by_region
-              +-- enumerate_counters
+  +-- performance_counters_by_region
+       +-- enumerate_counters
 ```
 
 ## Test Hierarchy
@@ -28,66 +29,58 @@ api
 ```
 performance_counters_by_region
   +-- enumerate_counters
-        Enumerates performance counters by region with various
-        buffer sizes: fewer than total, exact count, and more
-        than needed. Validates return codes and data integrity.
+       Tests vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM
+       with various buffer sizes and output parameter combinations
 ```
 
 ## Test Families
 
-### enumerate_counters
+### performance_counters_by_region
 
-A single comprehensive test that exercises `vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM` in multiple scenarios:
+Group name verified at [vktApiPerformanceCountersByRegionTests.cpp:387](../../../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L387): `new tcu::TestCaseGroup(testCtx, "performance_counters_by_region")`.
 
-1. **Partial count (count=1)**: Requests only 1 counter when more exist. Expects `VK_INCOMPLETE` return code and verifies only the requested number of counter structs were written. Tests counters only, descriptions only, and both together.
+Single test case `enumerate_counters` at [line 389](../../../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L389).
 
-2. **Exact count**: Requests the exact number of available counters. Expects `VK_SUCCESS` and validates all counters/descriptions were written correctly.
+The test instance `PerformanceCountersByRegionRenderPassBasicTestInstance` at [line 61](../../../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L61) performs these checks:
 
-3. **Oversized buffer**: Requests `count+1` entries. Expects `VK_SUCCESS`, the actual count returned unchanged, and that the extra entry was not overwritten.
+1. Queries the total counter count via `enumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM` with null output ([lines 197-198](../../../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L197))
+2. Finds a "dummy value" not present in any counter's counterID or flags, to use as a sentinel for overwrite detection ([lines 144-185](../../../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L144))
+3. If count > 1, tests with buffer size 1 (expects `VK_INCOMPLETE` and no overwrite beyond index 0) ([lines 213-274](../../../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L213))
+4. Tests with exact buffer size (expects all counters written, no overwrite beyond count) ([lines 278-325](../../../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L278))
+5. Tests with buffer size = count + 1 (expects all counters written, no overwrite beyond count) ([lines 329-343](../../../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L329))
 
-- Test case class: `APIPerformanceCountersByRegionRenderPassBasicTestCase` at [L348](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L348)
-- Test instance class: `PerformanceCountersByRegionRenderPassBasicTestInstance` at [L61](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L61)
-- Core logic in `iterate()` at [L187](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L187)
-- Counter validation in `checkCounterEnumeration()` at [L88](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L88)
-- Description validation in `checkCounterDescEnumeration()` at [L107](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L107)
+Each test is run with three output combinations: counters only, descriptions only, and both together.
 
 ## Parameter Dimensions
 
 | Dimension | Observed Values | Notes |
 |-----------|----------------|-------|
-| Queue family index | 0 | [L189](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L189) |
-| Partial count | 1 | [L216](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L216) |
-| Exact count | perfCounterCount | [L279](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L279) |
-| Oversized count | perfCounterCount + 1 | [L329](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L329) |
-| Dummy sentinel value | Dynamically computed to avoid collision | [L144](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L144) |
+| Buffer size | 1, perfCounterCount, perfCounterCount+1 | Only if count > 1 for size=1 |
+| Output type | Counters only, descriptions only, both | 3 variants per buffer size |
+| Queue family | 0 | Hard-coded at [line 189](../../../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L189) |
 
 ## Support / Feature Requirements
 
-| Requirement | Gate | Location |
-|-------------|------|----------|
-| VK_ARM_performance_counters_by_region | `context.requireDeviceFunctionality()` | [L362](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L362) |
-| VK_KHR_get_physical_device_properties2 | `context.requireInstanceFunctionality()` | [L363](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L363) |
-| performanceCountersByRegion feature bit | Checked via `VkPhysicalDevicePerformanceCountersByRegionFeaturesARM` | [L373](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L373) |
-| Non-VKSC build | Entire file guarded by `#ifndef CTS_USES_VULKANSC` | [L48](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L48) |
+- `VK_ARM_performance_counters_by_region` required ([line 362](../../../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L362))
+- `VK_KHR_get_physical_device_properties2` required ([line 363](../../../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L363))
+- `VkPhysicalDevicePerformanceCountersByRegionFeaturesARM::performanceCountersByRegion` must be VK_TRUE ([lines 366-374](../../../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L366))
+- Entire file is guarded by `#ifndef CTS_USES_VULKANSC` at [line 48](../../../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L48)
 
 ## Verification Methods
 
-- **Partial enumeration**: Returns `VK_INCOMPLETE` when requested count is less than available at [L229](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L229)
-- **Counter data integrity**: `perfCounters[idx].counterID != dummyValue` ensures the implementation wrote data into the requested slots at [L95](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L95)
-- **No overwrite beyond count**: `perfCounters[count].counterID == dummyValue` ensures no data was written past the requested count at [L101](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L101)
-- **Description data integrity**: Same pattern using `flags` field at [L114](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L114) and [L121](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L121)
-- **Count consistency**: Returned count matches expected count at [L284](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L284)
-- **Result collector**: Uses `tcu::ResultCollector` to accumulate multiple failures within a single test at [L75](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L75)
+- **Counter enumeration check**: Verifies that `counterID` fields are not equal to the dummy value for indices < count, and ARE equal to the dummy value at index = count (no overwrite) ([lines 88-105](../../../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L88))
+- **Description enumeration check**: Same pattern using `flags` field of `VkPerformanceCounterDescriptionARM` ([lines 107-125](../../../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L107))
+- **VK_INCOMPLETE check**: When requesting fewer counters than available, the result must be `VK_INCOMPLETE` ([lines 229-232](../../../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L229))
+- **Count consistency**: The returned count must match the expected value ([lines 284-287](../../../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L284))
 
 ## Test Principles Observed
 
-- **Boundary testing**: Tests with fewer, exact, and more buffer space than needed
-- **No overwrite**: Verifies implementation does not write beyond the provided buffer
-- **Return code correctness**: Validates VK_INCOMPLETE for partial queries and VK_SUCCESS for complete queries
+- Enumeration pattern testing: follows the standard Vulkan two-call enumeration pattern
+- Buffer safety: verifies no out-of-bounds writes beyond the requested count
+- Result code validation: checks for VK_INCOMPLETE when buffer is too small
 
 ## Notes / Uncertainties
 
-- The test uses queue family index 0 at [L189](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L189) rather than the universal queue family index. This may not be a queue family that supports performance counters.
-- The `findDummyValue()` function at [L144](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L144) searches downward from `UINT32_MAX` for a value not present in any counterID or flags field, which is used as a sentinel to detect overwrites. This assumes at least one value near UINT32_MAX is unused.
-- The entire file is wrapped in `#ifndef CTS_USES_VULKANSC` at [L48](../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L48), making it a non-VKSC-only test.
-- The test case class name `APIPerformanceCountersByRegionRenderPassBasicTestCase` contains "RenderPass" but the test does not actually use a render pass; it only tests the enumeration API.
+- The factory function is named `createRenderPassPerformanceCountersByRegionApiTests` but the group name is `performance_counters_by_region`; the "renderpass" prefix in the function name appears to be a legacy artifact
+- The test uses `queueFamilyIndex = 0` rather than the universal queue family index; this may not be a valid queue family for performance queries on all implementations
+- The test passes if `perfCounterCount == 0` with a failure message "No counters found"

@@ -1,122 +1,141 @@
-# [vktApiBufferMarkerTests.cpp](../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1)
+# [vktApiBufferMarkerTests.cpp](../../../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1)
 
 ## Overview
 
-Tests the VK_AMD_buffer_marker extension, which provides `cmdWriteBufferMarkerAMD` to write marker values into a buffer at specified pipeline stages. The file validates that marker writes produce correct values both in sequential and random-overwrite scenarios, and that proper memory dependencies are enforced between marker writes and other GPU operations (draws, dispatches, copies).
+Tests VK_AMD_buffer_marker by writing marker values into a buffer via `vkCmdWriteBufferMarkerAMD` and verifying the results. Covers sequential writes, random overwrites, and memory dependency scenarios where marker writes are interleaved with draws, compute dispatches, and buffer copies. Tests multiple queue types, pipeline stages, memory types, and buffer offsets.
 
 ## Role of File
 
-Implementation-heavy. Contains test instance logic, shader program generation, and test group construction for the VK_AMD_buffer_marker extension.
+Implementation-heavy. Contains multiple test instance classes, sparse/external memory management, shader generation, and deep test hierarchy registration.
 
 ## Source Code
 
-- Implementation: [vktApiBufferMarkerTests.cpp](../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1)
-- Header: [vktApiBufferMarkerTests.hpp](../../modules/vulkan/api/vktApiBufferMarkerTests.hpp#L1)
-- Parent registration: `vktApiTests.cpp` registers `createBufferMarkerTests()` under `api` -> `buffer_marker` (non-VKSC only)
+| File | Description |
+|------|-------------|
+| [vktApiBufferMarkerTests.cpp](../../../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1) | Test implementation and registration |
+| [vktApiBufferMarkerTests.hpp](../../../../../modules/vulkan/api/vktApiBufferMarkerTests.hpp#L1) | Declares `createBufferMarkerTests` |
+| [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L104) | Parent registration: `apiTests->addChild(createBufferMarkerTests(testCtx))` |
 
 ## Registration Path
 
 ```
 api
   +-- buffer_marker
-        +-- graphics
-        |     +-- external_host_mem
-        |     |     +-- top_of_pipe
-        |     |     |     +-- sequential
-        |     |     |     +-- overwrite
-        |     |     |     +-- memory_dep
-        |     |     +-- bottom_of_pipe
-        |     |           +-- sequential
-        |     |           +-- overwrite
-        |     |           +-- memory_dep
-        |     +-- default_mem
-        |           +-- top_of_pipe
-        |           +-- bottom_of_pipe
-        +-- compute
-        |     +-- ...
-        +-- transfer
-              +-- ...
+       +-- graphics
+       |    +-- external_host_mem
+       |    |    +-- top_of_pipe
+       |    |    |    +-- sequential
+       |    |    |    |    +-- 4, 64, 64_offset_16, 65536, 65536_offset_1024
+       |    |    |    +-- overwrite
+       |    |    |    |    +-- 1, 4, 64, 64_offset_24
+       |    |    |    +-- memory_dep
+       |    |    |         +-- draw, draw_offset_24, dispatch, dispatch_offset_24,
+       |    |    |            buffer_copy, buffer_copy_offset_24
+       |    |    +-- bottom_of_pipe
+       |    |         +-- <same structure as top_of_pipe>
+       |    +-- default_mem
+       |         +-- top_of_pipe
+       |         |    +-- <same structure>
+       |         +-- bottom_of_pipe
+       |              +-- <same structure>
+       +-- compute
+       |    +-- <same memory/stage/test structure>
+       +-- transfer
+            +-- <same memory/stage/test structure>
+                 (no draw/dispatch memory_dep tests for transfer queue)
 ```
 
 ## Test Hierarchy
 
 ```
 buffer_marker
-  +-- <queue_type>              -- graphics | compute | transfer
-        +-- <memory_type>       -- external_host_mem | default_mem
-              +-- <stage>        -- top_of_pipe | bottom_of_pipe
-                    +-- sequential
-                    |     +-- 4
-                    |     +-- 64
-                    |     +-- 64_offset_16
-                    |     +-- 65536
-                    |     +-- 65536_offset_1024
-                    +-- overwrite
-                    |     +-- 1
-                    |     +-- 4
-                    |     +-- 64
-                    |     +-- 64_offset_24
-                    +-- memory_dep
-                          +-- draw | draw_offset_24
-                          +-- dispatch | dispatch_offset_24
-                          +-- buffer_copy | buffer_copy_offset_24
+  +-- <queue_type: graphics|compute|transfer>
+       +-- <memory_type: external_host_mem|default_mem>
+            +-- <pipeline_stage: top_of_pipe|bottom_of_pipe>
+                 +-- sequential
+                 |    Writes N markers sequentially, verifies all values
+                 |    +-- 4, 64, 64_offset_16, 65536, 65536_offset_1024
+                 +-- overwrite
+                 |    Randomly overwrites marker slots, verifies final values
+                 |    +-- 1, 4, 64, 64_offset_24
+                 +-- memory_dep
+                      Interleaves marker writes with other operations,
+                      inserts pipeline barriers, verifies final values
+                      +-- draw / draw_offset_24       (graphics queue only)
+                      +-- dispatch / dispatch_offset_24 (graphics+compute queues)
+                      +-- buffer_copy / buffer_copy_offset_24 (all queues)
 ```
 
 ## Test Families
 
-### Sequential ([L248](../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L248))
+### buffer_marker
 
-Writes N sequential marker values into a buffer via `cmdWriteBufferMarkerAMD`, then reads back and compares against expected random values. Tests that each marker slot receives the correct value in order. Sizes tested: 4, 64, 65536 with optional buffer offsets (0, 16, 1024).
+Group name verified at [vktApiBufferMarkerTests.cpp:1084](../../../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1084): `new tcu::TestCaseGroup(testCtx, "buffer_marker")`.
 
-### Overwrite ([L321](../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L321))
+Three queue types at [line 1086](../../../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1086):
 
-Randomly overwrites marker slots (10x the buffer size iterations) using `cmdWriteBufferMarkerAMD`. Validates that the final value in each slot matches the last write to that slot. Sizes tested: 1, 4, 64 with optional offset (0, 24).
+| Queue Group | Queue Flag | Target Queue |
+|-------------|-----------|--------------|
+| `graphics` | VK_QUEUE_GRAPHICS_BIT | Universal/graphics queues |
+| `compute` | VK_QUEUE_COMPUTE_BIT | Compute-only queues |
+| `transfer` | VK_QUEUE_TRANSFER_BIT | Transfer-only queues |
 
-### Memory Dependency ([L484](../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L484))
+Two memory types at [lines 1097-1098](../../../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1097):
 
-Interleaves `cmdWriteBufferMarkerAMD` writes with other GPU operations (draw via fragment shader, compute dispatch, or `cmdUpdateBuffer` copy) that write to the same buffer slots. Inserts pipeline barriers when ownership changes between marker and non-marker writers. Runs 1000 iterations with random slot/owner selection. Validates final buffer contents match expected values.
+| Memory Group | useHostPtr | Description |
+|-------------|-----------|-------------|
+| `external_host_mem` | true | Uses VK_EXT_external_memory_host for buffer backing |
+| `default_mem` | false | Uses standard allocator |
 
-- **draw** sub-family: Uses graphics pipeline with fragment shader writing via storage buffer. Only available for `VK_QUEUE_GRAPHICS_BIT` queues ([L1205](../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1205)).
-- **dispatch** sub-family: Uses compute pipeline with storage buffer. Available for graphics and compute queues, not transfer-only queues ([L1215](../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1215)).
-- **buffer_copy** sub-family: Uses `cmdUpdateBuffer` for non-marker writes. Available for all queue types ([L1225](../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1225)).
+Two pipeline stages at [lines 1108-1109](../../../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1108):
+
+| Stage Group | Pipeline Stage |
+|------------|---------------|
+| `top_of_pipe` | VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT |
+| `bottom_of_pipe` | VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT |
+
+Three test categories:
+
+**sequential** - `bufferMarkerSequential` at [line 248](../../../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L248): Writes N sequential random marker values via `vkCmdWriteBufferMarkerAMD`, then reads back and verifies all values match.
+
+**overwrite** - `bufferMarkerOverwrite` at [line 321](../../../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L321): Randomly overwrites marker slots (size*10 iterations), verifying the final values match the last write to each slot.
+
+**memory_dep** - `bufferMarkerMemoryDep` at [line 484](../../../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L484): For 1000 iterations, randomly alternates between marker writes and non-marker operations (draw/dispatch/copy), inserting pipeline barriers when ownership changes between marker and non-marker writes. Verifies final buffer contents.
 
 ## Parameter Dimensions
 
-| Dimension | Values | Notes |
-|---|---|---|
-| Queue type | graphics, compute, transfer | Targets specific queue families via [makeQueueCreateInfo](../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L69) |
-| Memory type | external_host_mem, default_mem | Controls `useHostPtr` flag; external uses VK_EXT_external_memory_host |
-| Pipeline stage | top_of_pipe, bottom_of_pipe | VkPipelineStageFlagBits for marker write stage |
-| Test type | sequential, overwrite, memory_dep | Three distinct test families |
-| Buffer size | 4, 64, 65536 (sequential); 1, 4, 64 (overwrite); 128 (memory_dep) | Number of uint32_t marker slots |
-| Buffer offset | 0, 16, 1024 (sequential); 0, 24 (overwrite); 0, 24 (memory_dep) | Byte offset into buffer |
-| Memory dep method | draw, dispatch, buffer_copy | Only in memory_dep family; availability depends on queue type |
+| Dimension | Observed Values | Notes |
+|-----------|----------------|-------|
+| Queue type | Graphics, Compute, Transfer | 3 types at [line 1086](../../../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1086) |
+| Memory type | External host, Default | 2 types |
+| Pipeline stage | Top of pipe, Bottom of pipe | 2 stages |
+| Marker count | 1, 4, 64, 128, 65536 | Varies by test |
+| Buffer offset | 0, 16, 24, 1024 | Non-zero offsets exercise alignment |
+| Memory dep method | Draw, Dispatch, Copy | Draw only for graphics; dispatch for graphics+compute; copy for all |
+| Memory dep iterations | 1000 | Hard-coded at [line 493](../../../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L493) |
 
 ## Support / Feature Requirements
 
-| Requirement | Gate | Source |
-|---|---|---|
-| VK_AMD_buffer_marker | `context.requireDeviceFunctionality` | [L1057](../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1057) |
-| VK_EXT_external_memory_host | Required when `useHostPtr=true` | [L1054](../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1054) |
-| fragmentStoresAndAtomics | Required for memory_dep draw method | [L1070](../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1070) |
-| Custom device with specific queue family | `DevCaps::resetQueues` via `BufferMarkerBaseCase` / `BufferMarkerMemDepCase` | [L117](../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L117) |
+- `VK_AMD_buffer_marker` required for all tests ([line 1057](../../../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1057))
+- `VK_EXT_external_memory_host` required when `useHostPtr` is true ([line 1055](../../../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1055))
+- `DEVICE_CORE_FEATURE_FRAGMENT_STORES_AND_ATOMICS` required for draw memory dep tests ([line 1070](../../../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1070))
+- Queue selection targets specific queue types: transfer-only, compute-only, or universal queues via `makeQueueCreateInfo` at [line 69](../../../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L69)
 
 ## Verification Methods
 
-- **Sequential/Overwrite**: After GPU execution, the marker buffer is invalidated and read back. Each uint32_t slot is compared against the expected value. Any mismatch yields `TestStatus::fail` ([L314](../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L314)).
-- **Memory Dependency**: Same readback-and-compare approach, but expected values track the last writer (marker or non-marker) per slot across 1000 random iterations ([L994](../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L994)).
-- **External host memory**: Uses `invalidateHostMemory` instead of `invalidateAlloc` for readback ([L156](../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L156)).
+- **Sequential/overwrite**: Reads back marker buffer and compares each uint32_t against the expected value. Uses `checkMarkerBuffer` at [line 152](../../../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L152).
+- **Memory dep**: Tracks data ownership per slot (MARKER vs NON_MARKER). When ownership changes, inserts a `VkBufferMemoryBarrier` with computed access flags and stage masks via `computeMemoryDepBarrier` at [line 452](../../../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L452). Verifies final buffer contents match the last write to each slot.
 
 ## Test Principles Observed
 
-- **Extension coverage**: Tests all documented behaviors of VK_AMD_buffer_marker (sequential writes, overwrites, memory dependencies).
-- **Queue family specificity**: Targets transfer-only, compute-only, and universal queues separately via [makeQueueCreateInfo](../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L69).
-- **Memory model correctness**: Memory dependency tests exercise pipeline barriers between marker and non-marker writes, validating Vulkan memory model semantics.
-- **Offset coverage**: Tests non-zero buffer offsets to verify correct offset handling in marker writes.
+- Queue type coverage: tests marker writes on graphics, compute, and transfer queues
+- Memory type coverage: tests both standard and external host memory
+- Memory dependency correctness: verifies that pipeline barriers between marker and non-marker writes are properly respected
+- Offset coverage: tests non-zero buffer offsets to exercise alignment requirements
 
 ## Notes / Uncertainties
 
-- The `BufferMarkerBaseCase` and `BufferMarkerMemDepCase` classes use `InstanceFactory1WithSupport` with custom `DevCaps` to create devices with specific queue configurations, which is an unusual pattern compared to standard CTS tests.
-- The `genBufferMarkerDeviceId` function ([L56](../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L56)) uses `typeid(WorkingDevice).name()` as part of the capabilities ID, which may produce platform-specific identifiers.
-- The memory_dep draw sub-family requires `fragmentStoresAndAtomics` but the `BufferMarkerMemDepCase::initDeviceCapabilities` unconditionally adds this feature ([L448](../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L448)) even for non-draw methods, which appears to be a minor redundancy.
-- Shader programs for memory_dep tests are generated in [initMemoryDepPrograms](../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1001) using GLSL 450; the copy method does not require any shader programs.
+- The test uses `InstanceFactory1WithSupport` with custom `DevCaps` to create devices with specific queue configurations and extensions, which is different from most CTS tests
+- The `getRequiredCapabilitiesId` override at [line 113](../../../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L113) generates a unique ID per queue type and offset combination, which enables device capability caching
+- Transfer queue tests do not include draw or dispatch memory dependency tests since those operations require graphics or compute queues
+- The `VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT` stage for marker writes means the marker value is written at the start of the pipeline, which may have implementation-specific behavior

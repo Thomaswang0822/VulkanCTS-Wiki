@@ -44,7 +44,7 @@ For this tracker, the `Level-3 Files` column uses the agreed progress-counting r
 | # | Category | Level-2 | Level-3 Files | Status |
 |---|----------|---------|---------------|--------|
 | 1 | info | [info.md](categories/info.md) | 2 | ✅ Done |
-| 2 | api | [api.md](categories/api.md) |  | ⬜ Not Started |
+| 2 | api | [api.md](categories/api.md) | 38 | ✅ Done |
 | 3 | memory | [memory.md](categories/memory.md) |  | ⬜ Not Started |
 | 4 | synchronization | [synchronization.md](categories/synchronization.md) |  | ⬜ Not Started |
 | 5 | synchronization2 | [synchronization2.md](categories/synchronization2.md) |  | ⬜ Not Started |
@@ -103,6 +103,6 @@ For this tracker, the `Level-3 Files` column uses the agreed progress-counting r
 
 - **Total Categories**: 53
 - **Total CPP Test Files**: 592
-- **Completed Categories**: 2/53
-- **Completed Test Files**: 9/592
+- **Completed Categories**: 3/53
+- **Completed Test Files**: 47/592
 

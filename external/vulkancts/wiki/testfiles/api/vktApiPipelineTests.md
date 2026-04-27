@@ -1,101 +1,100 @@
-# [vktApiPipelineTests.cpp](../../modules/vulkan/api/vktApiPipelineTests.cpp#L1)
+# [vktApiPipelineTests.cpp](../../../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1)
 
 ## Overview
 
-Tests Vulkan pipeline object lifetime semantics: render pass lifetime after pipeline creation, pipeline layout lifetime after pipeline creation, compatible render pass usage with framebuffers, and invalid pointer handling in unused pipeline create-info structs.
+Tests Vulkan pipeline object lifetime semantics, render pass compatibility, and pipeline creation with invalid pointers in unused structs. Validates that pipeline layouts and render passes can be destroyed after pipeline creation and the pipelines remain functional.
 
 ## Role of File
 
-Implementation-heavy. Contains all test logic, shader source generation, helper functions, and the registration function [createPipelineTests()](../../modules/vulkan/api/vktApiPipelineTests.cpp#L1798). Delegates to sub-group creation functions.
+Implementation-heavy. Contains test logic for pipeline layout lifetime, render pass lifetime, and invalid pointer handling. The public entry point [createPipelineTests()](../../../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1798) assembles the test tree.
 
 ## Source Code
 
-- Implementation: [vktApiPipelineTests.cpp](../../modules/vulkan/api/vktApiPipelineTests.cpp#L1)
-- Header: [vktApiPipelineTests.hpp](../../modules/vulkan/api/vktApiPipelineTests.hpp#L1)
-- Parent registration: [vktApiTests.cpp](../../modules/vulkan/api/vktApiTests.cpp#L121)
+- Source: [vktApiPipelineTests.cpp](../../../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1)
+- Header: [vktApiPipelineTests.hpp](../../../../../modules/vulkan/api/vktApiPipelineTests.hpp#L1)
+- Parent registration: [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L121) adds `pipeline` group to `api`
 
 ## Registration Path
 
 ```
 api
-  +-- pipeline
+ +-- pipeline
+      +-- renderpass
+      |    +-- destroy_pipeline_renderpass
+      |    +-- framebuffer_compatible_renderpass
+      +-- pipeline_layout
+      |    +-- lifetime
+      |         +-- graphics
+      |         +-- compute
+      |         +-- destroy_after_end
+      |         +-- destroy_after_compute_pipeline_construction
+      |         +-- destroy_after_graphics_pipeline_construction
+      +-- pipeline_invalid_pointers_unused_structs   (non-VKSC only)
+           +-- graphics
+           +-- compute
 ```
 
 ## Test Hierarchy
 
 ```
 pipeline
-  +-- renderpass
-  |     +-- destroy_pipeline_renderpass
-  |     +-- framebuffer_compatible_renderpass
-  +-- pipeline_layout
-  |     +-- lifetime
-  |           +-- graphics
-  |           +-- compute
-  |           +-- destroy_after_end
-  |           +-- destroy_after_compute_pipeline_construction
-  |           +-- destroy_after_graphics_pipeline_construction
-  +-- pipeline_invalid_pointers_unused_structs  [non-SC]
-        +-- graphics
-        +-- compute
+ +-- renderpass
+ |    +-- destroy_pipeline_renderpass        -- draw after destroying the renderpass used to create a pipeline
+ |    +-- framebuffer_compatible_renderpass  -- use framebuffer created with another compatible render pass
+ +-- pipeline_layout
+ |    +-- lifetime
+ |         +-- graphics                              -- destroy layout after graphics pipeline creation
+ |         +-- compute                               -- destroy layout after compute pipeline creation
+ |         +-- destroy_after_end                     -- destroy layout after ending command buffer
+ |         +-- destroy_after_compute_pipeline_construction  -- destroy layout after compute pipeline built (VK_KHR_maintenance4)
+ |         +-- destroy_after_graphics_pipeline_construction -- destroy layout after graphics pipeline built (VK_KHR_maintenance4)
+ +-- pipeline_invalid_pointers_unused_structs  (non-VKSC only)
+      +-- graphics                          -- graphics pipeline with invalid pointers in unused pNext structs
+      +-- compute                           -- compute pipeline with invalid pointers in unused pNext structs
 ```
 
 ## Test Families
 
-### Renderpass Lifetime
+### renderpass
 
-[renderpassLifetimeTest()](../../modules/vulkan/api/vktApiPipelineTests.cpp#L426) wraps [drawTriangleTest()](../../modules/vulkan/api/vktApiPipelineTests.cpp#L97) with DTM_DESTROY_RENDER_PASS_AFTER_CREATING_PIPELINE. Creates a graphics pipeline using renderPassA, destroys renderPassA, then begins a render pass with a compatible renderPassB and draws a triangle. Verifies the draw succeeds by checking a pixel value (red channel > 0.9, green/blue < 0.1, alpha > 0.9) at [line 415](../../modules/vulkan/api/vktApiPipelineTests.cpp#L415). Registered at [line 1741](../../modules/vulkan/api/vktApiPipelineTests.cpp#L1741).
+Tests render pass lifetime and compatibility. `destroy_pipeline_renderpass` verifies that a pipeline created with a render pass remains valid after the render pass is destroyed, and drawing still works. `framebuffer_compatible_renderpass` verifies that a framebuffer created with one render pass can be used with a compatible render pass. Implemented by [renderpassLifetimeTest()](../../../../../modules/vulkan/api/vktApiPipelineTests.cpp#L97) and [framebufferCompatibleRenderPassTest()](../../../../../modules/vulkan/api/vktApiPipelineTests.cpp).
 
-[framebufferCompatibleRenderPassTest()](../../modules/vulkan/api/vktApiPipelineTests.cpp#L524) creates a framebuffer with renderPassA, then begins a render pass using a compatible renderPassB (same attachment format but different load/store ops and final layout). Verifies the command buffer submission succeeds. Registered at [line 1744](../../modules/vulkan/api/vktApiPipelineTests.cpp#L1744).
+### pipeline_layout / lifetime
 
-### Pipeline Layout Lifetime
+Tests that pipeline layouts can be destroyed after pipeline creation and the pipelines remain functional. The `graphics` and `compute` variants test basic lifetime. The `destroy_after_end` variant destroys the layout after recording commands. The `destroy_after_compute_pipeline_construction` and `destroy_after_graphics_pipeline_construction` variants test VK_KHR_maintenance4 semantics where the layout can be destroyed immediately after pipeline construction. Implemented by [createPipelineLayoutLifetimeTests()](../../../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1750).
 
-[pipelineLayoutLifetimeGraphicsTest()](../../modules/vulkan/api/vktApiPipelineTests.cpp#L848) creates a graphics pipeline with a pipeline layout, destroys the layout, then binds the pipeline and descriptor sets using the destroyed layout handle. Verifies the draw succeeds. The test uses a vertex+fragment shader pair and checks pixel output.
+### pipeline_invalid_pointers_unused_structs (non-VKSC only)
 
-[pipelineLayoutLifetimeComputeTest()](../../modules/vulkan/api/vktApiPipelineTests.cpp#L848) does the same for a compute pipeline.
-
-[destroyAfterEndCommndBufferTest()](../../modules/vulkan/api/vktApiPipelineTests.cpp) destroys the pipeline layout after recording commands but before submission.
-
-[destroyAfterCreateComputePipelineTest()](../../modules/vulkan/api/vktApiPipelineTests.cpp) and [destroyAfterCreateGraphicsPipelineTest()](../../modules/vulkan/api/vktApiPipelineTests.cpp) destroy the pipeline layout immediately after pipeline creation, requiring VK_KHR_maintenance4. Registered at [lines 1758-1765](../../modules/vulkan/api/vktApiPipelineTests.cpp#L1758).
-
-### Pipeline Invalid Pointers Unused Structs (non-SC)
-
-[pipelineInvalidPointersUnusedStructsGraphicsTest()](../../modules/vulkan/api/vktApiPipelineTests.cpp) and [pipelineInvalidPointersUnusedStructsComputeTest()](../../modules/vulkan/api/vktApiPipelineTests.cpp) test that pipelines can be created with invalid pointers in create-info structs that are not actually used (e.g., pTessellationState when no tessellation is active). Registered at [lines 1785-1790](../../modules/vulkan/api/vktApiPipelineTests.cpp#L1785).
+Tests that pipelines can be created with invalid pointers in pNext chains of unused struct fields without crashing. Both graphics and compute pipeline variants are tested. Implemented by [pipelineInvalidPointersUnusedStructsTest()](../../../../../modules/vulkan/api/vktApiPipelineTests.cpp).
 
 ## Parameter Dimensions
 
 | Dimension | Observed Values |
 |---|---|
-| Pipeline bind point | VK_PIPELINE_BIND_POINT_GRAPHICS, VK_PIPELINE_BIND_POINT_COMPUTE |
-| DrawTriangleMode | DTM_DESTROY_RENDER_PASS_AFTER_CREATING_PIPELINE, DTM_DESTROY_PIPELINE_LAYOUT_AFTER_CREATING_PIPELINE |
-| Render pass compatibility | Same render pass, compatible render pass (different load/store ops) |
-| Layout destruction timing | After pipeline creation, after command buffer recording, after end of command buffer |
-| Image format | VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_R8G8B8A8_UNORM (fallback) |
-| Image tiling | VK_IMAGE_TILING_LINEAR, VK_IMAGE_TILING_OPTIMAL (based on format features) |
+| Pipeline Bind Point | graphics, compute |
+| Lifetime Mode | destroy after creation, destroy after command buffer end, destroy after pipeline construction |
+| Render Pass Mode | destroy after creation, compatible render pass |
 
 ## Support / Feature Requirements
 
-| Feature / Extension | Used By |
-|---|---|
-| VK_KHR_maintenance4 | destroy_after_compute_pipeline_construction, destroy_after_graphics_pipeline_construction |
-| Color attachment format support | renderpass and pipeline_layout lifetime graphics tests |
+- `VK_KHR_maintenance4` required for `destroy_after_compute_pipeline_construction` and `destroy_after_graphics_pipeline_construction` tests ([checkMaintenance4Support()](../../../../../modules/vulkan/api/vktApiPipelineTests.cpp))
+- Graphics tests require a renderable color attachment format
+- `pipeline_invalid_pointers_unused_structs` group is excluded from VKSC builds
 
 ## Verification Methods
 
-- **Pixel value checking**: renderpassLifetimeTest reads back a pixel and checks RGBA values against expected red triangle output at [line 415](../../modules/vulkan/api/vktApiPipelineTests.cpp#L415)
-- **Pass-by-default**: framebufferCompatibleRenderPassTest and pipeline layout lifetime tests pass if command buffer submission succeeds without errors
-- **Image logging**: renderpassLifetimeTest logs the result image for visual inspection at [line 419](../../modules/vulkan/api/vktApiPipelineTests.cpp#L419)
-- **VK_CHECK**: all Vulkan API calls are checked for VK_SUCCESS
+- Lifetime tests: Destroy the layout/render pass, create pipeline, record and submit command buffer, verify queue submission succeeds
+- Render pass compatibility: Create framebuffer with one render pass, begin render pass with a compatible render pass, verify no errors
+- Invalid pointers: Create pipeline with invalid pNext pointers in unused structs, verify pipeline creation and execution succeed without crashes
 
 ## Test Principles Observed
 
-- Object lifetime: core focus is verifying that render passes and pipeline layouts can be destroyed after their information has been consumed by pipeline creation
-- Compatibility: framebuffer_compatible_renderpass tests the spec rule that compatible render passes can be used interchangeably with a framebuffer
-- Robustness: invalid pointers in unused structs tests verify that implementations do not dereference pointers in create-info structs that are not relevant to the pipeline being created
-- Format fallback: getRenderTargetFormat() at [line 56](../../modules/vulkan/api/vktApiPipelineTests.cpp#L56) tries B8G8R8A8_UNORM first, then R8G8B8A8_UNORM
+- Vulkan deferred destruction semantics: objects can be destroyed after they are captured by pipeline creation
+- VK_KHR_maintenance4 extends lifetime guarantees to allow destruction immediately after pipeline construction
+- Invalid pointer tests verify implementation robustness against uninitialized pNext fields
 
 ## Notes / Uncertainties
 
-- The pipelineInvalidPointersUnusedStructs tests were not fully read in detail but are registered at lines 1785-1790
-- The destroyAfterEndCommndBufferTest function was not fully read but is registered at line 1758
-- The checkSupport function referenced in the registration is a local function that checks for color attachment format support
+- The group name is `pipeline` as confirmed in [createPipelineTests()](../../../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1800)
+- The `destroy_after_end` test destroys the pipeline layout after `vkEndCommandBuffer` but before `vkQueueSubmit`, testing an intermediate lifetime point
+- The `pipeline_invalid_pointers_unused_structs` tests are guarded by `#ifndef CTS_USES_VULKANSC` ([L1779](../../../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1779))

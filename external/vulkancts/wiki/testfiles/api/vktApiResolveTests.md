@@ -1,106 +1,212 @@
 # vktApiResolveTests
 
+
+
 ## Overview
+
+
 
 Tests for `vkCmdResolveImage` and `vkCmdResolveImage2` (via `VK_KHR_copy_commands2`). Resolving converts a multisampled image to a non-multisampled image by averaging sample values. This file (~2600 lines) also tests intermediate copy operations on multisampled images before resolving.
 
+
+
 ## Role
 
-- **Implementation-heavy test file** — contains test instance class, test case registration, and verification logic.
+
+
+- **Implementation-heavy test file** �?contains test instance class, test case registration, and verification logic.
+
+
 
 ## Source Code
 
+
+
 - [`vktApiResolveTests.cpp`](../../../external/vulkancts/modules/vulkan/api/vktApiResolveTests.cpp)
+
 - [`vktApiResolveTests.hpp`](../../../external/vulkancts/modules/vulkan/api/vktApiResolveTests.hpp)
+
+
 
 ## Registration Path
 
+
+
 ```
-api → copy_and_blit → (core|dedicated_allocation|copy_commands2|...) → resolve_image
+
+api �?copy_and_blit �?(core|dedicated_allocation|copy_commands2|...) �?resolve_image
+
 ```
+
+
 
 Registered via [`addResolveImageTests()`](../../../external/vulkancts/modules/vulkan/api/vktApiResolveTests.cpp:2588), called from the dispatcher [`addCopiesAndBlittingTests()`](../../../external/vulkancts/modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp:137).
 
+
+
 ## Test Hierarchy
 
+
+
 ```
+
 resolve_image
+
 ├── whole                         (addResolveImageWholeTests)
+
 ├── partial                       (addResolveImagePartialTests)
+
 ├── with_regions                  (addResolveImageWithRegionsTests)
+
 ├── whole_copy_before_resolving   (addResolveImageWholeCopyBeforeResolvingTests)
+
 ├── compute_and_transfer_queue    (addComputeAndTransferQueueTests)
+
 ├── whole_copy_without_cab        (addResolveImageWholeCopyWithoutCabBeforeResolvingTests)
+
 ├── whole_copy_diff_layouts       (addResolveImageWholeCopyDiffLayoutsBeforeResolvingTests)
+
 ├── layer_copy_before_resolving   (addResolveImageLayerCopyBeforeResolvingTests)
+
 ├── copy_with_regions             (addResolveCopyImageWithRegionsTests)
+
 ├── whole_array_image             (addResolveImageWholeArrayImageTests)
+
 ├── whole_array_image_single_region (addResolveImageWholeArrayImageSingleRegionTests)
+
 └── diff_image_size               (addResolveImageDiffImageSizeTests)
+
 ```
+
+
 
 ## Test Families
 
+
+
 ### `ResolveImageToImage` (class)
 
+
+
 - Inherits [`CopiesAndBlittingTestInstanceWithSparseSemaphore`](../../../external/vulkancts/modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp:474)
+
 - Creates a multisampled source image, a non-multisampled destination, and optionally intermediate multisampled copy images
+
 - Controlled by [`ResolveImageToImageOptions`](../../../external/vulkancts/modules/vulkan/api/vktApiResolveTests.cpp:36) enum:
 
+
+
 | Option | Description |
+
 |--------|-------------|
+
 | `NO_OPTIONAL_OPERATION` | Simple resolve only |
-| `COPY_MS_IMAGE_TO_MS_IMAGE` | Copy MS→MS before resolve |
-| `COPY_MS_IMAGE_TO_ARRAY_MS_IMAGE` | Copy MS→array MS before resolve |
-| `COPY_MS_IMAGE_LAYER_TO_MS_IMAGE` | Copy single layer MS→MS before resolve |
-| `COPY_MS_IMAGE_TO_MS_IMAGE_MULTIREGION` | Multi-region MS→MS copy before resolve |
-| `COPY_MS_IMAGE_TO_MS_IMAGE_NO_CAB` | MS→MS copy without concurrent access bit |
-| `COPY_MS_IMAGE_TO_MS_IMAGE_COMPUTE` | MS→MS copy on compute queue |
-| `COPY_MS_IMAGE_TO_MS_IMAGE_TRANSFER` | MS→MS copy on transfer queue |
+
+| `COPY_MS_IMAGE_TO_MS_IMAGE` | Copy MS->MS before resolve |
+
+| `COPY_MS_IMAGE_TO_ARRAY_MS_IMAGE` | Copy MS->array MS before resolve |
+
+| `COPY_MS_IMAGE_LAYER_TO_MS_IMAGE` | Copy single layer MS->MS before resolve |
+
+| `COPY_MS_IMAGE_TO_MS_IMAGE_MULTIREGION` | Multi-region MS->MS copy before resolve |
+
+| `COPY_MS_IMAGE_TO_MS_IMAGE_NO_CAB` | MS->MS copy without concurrent access bit |
+
+| `COPY_MS_IMAGE_TO_MS_IMAGE_COMPUTE` | MS->MS copy on compute queue |
+
+| `COPY_MS_IMAGE_TO_MS_IMAGE_TRANSFER` | MS->MS copy on transfer queue |
+
+
 
 ### `copyMSImageToMSImage()` method
 
+
+
 - Performs an intermediate copy between multisampled images before resolving
+
 - Verifiable via [`checkIntermediateCopy()`](../../../external/vulkancts/modules/vulkan/api/vktApiResolveTests.cpp:63)
+
+
 
 ## Parameter Dimensions
 
+
+
 | Parameter | Observed Values |
+
 |-----------|----------------|
+
 | Sample count | `VK_SAMPLE_COUNT_2_BIT`, `VK_SAMPLE_COUNT_4_BIT`, `VK_SAMPLE_COUNT_8_BIT`, `VK_SAMPLE_COUNT_16_BIT`, `VK_SAMPLE_COUNT_32_BIT`, `VK_SAMPLE_COUNT_64_BIT` |
+
 | Image formats | Color formats supporting MSAA |
+
 | Resolve regions | Whole, partial, multi-region |
+
 | `extensionFlags` | `NONE`, `COPY_COMMANDS_2` |
+
 | `allocationKind` | `ALLOCATION_KIND_SUBALLOCATED`, `ALLOCATION_KIND_DEDICATED` |
+
 | Queue type | Universal, compute-only, transfer-only |
+
 | Array layers | Single layer, multi-layer, array image |
+
 | Image sizes | Same size, different sizes |
+
+
 
 ## Support / Feature Requirements
 
+
+
 - Multisampled image support for the chosen format and sample count
-- `COPY_COMMANDS_2` → `VK_KHR_copy_commands2` or Vulkan 1.3
+
+- `COPY_COMMANDS_2` �?`VK_KHR_copy_commands2` or Vulkan 1.3
+
 - Compute/transfer queue resolve requires appropriate queue family with support
+
 - Checked via `checkExtensionSupport()` and format property queries
+
+
 
 ## Verification Methods
 
+
+
 - CPU-side reference generated by averaging multisampled pixel values (via `FILL_MODE_MULTISAMPLE`)
+
 - Result compared using `tcu::floatThresholdCompare()` or similar threshold-based comparison
+
 - Intermediate copy verification via `checkIntermediateCopy()` when `shouldVerifyIntermediateResults()` returns true
+
+
 
 ## Test Principles
 
+
+
 - Verify that `vkCmdResolveImage` correctly averages multisampled pixels into a non-multisampled destination
+
 - Verify whole-image, partial, and multi-region resolves
-- Verify resolve after intermediate MS→MS copy operations (testing concurrent access bit)
+
+- Verify resolve after intermediate MS->MS copy operations (testing concurrent access bit)
+
 - Verify resolve on compute and transfer queues
+
 - Verify array image resolve (whole and single-region)
+
 - Verify resolve between images of different sizes
+
 - Verify resolve with different image layouts before/after
+
+
 
 ## Notes / Uncertainties
 
+
+
 - The exact sample counts tested vary per sub-function and were not exhaustively enumerated from the inspected code
-- The `copyMSImageToMSImage` path creates additional multisampled images and may use `VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT` — not fully inspected
+
+- The `copyMSImageToMSImage` path creates additional multisampled images and may use `VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT` �?not fully inspected
+
 - The diff_image_size tests were not fully inspected beyond the registration function signature
+

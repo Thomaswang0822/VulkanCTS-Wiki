@@ -78,9 +78,12 @@ def validate_wiki_links(wiki_dir: Path, repo_root: Path, verbose: bool = False) 
     for md_file in md_files:
         try:
             content = md_file.read_text(encoding='utf-8')
-        except Exception as e:
-            broken_links.append((md_file, 0, '', f"Failed to read file: {e}"))
-            continue
+        except UnicodeDecodeError:
+            try:
+                content = md_file.read_text(encoding='utf-8', errors='replace')
+            except Exception as e:
+                broken_links.append((md_file, 0, '', f"Failed to read file: {e}"))
+                continue
         
         links = extract_source_links(content, md_file)
         

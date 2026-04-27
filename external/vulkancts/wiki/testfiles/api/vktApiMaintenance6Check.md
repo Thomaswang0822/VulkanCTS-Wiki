@@ -1,70 +1,79 @@
-# [vktApiMaintenance6Check.cpp](../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L1)
+# [vktApiMaintenance6Check.cpp](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L1)
 
 ## Overview
 
-Tests the VK_KHR_maintenance6 extension by verifying that the maxCombinedImageSamplerDescriptorCount property reported via VkPhysicalDeviceMaintenance6PropertiesKHR is an upper bound for the per-format combinedImageSamplerDescriptorCount values reported for YCbCr and related formats.
+Tests VK_KHR_maintenance6 properties by verifying that `maxCombinedImageSamplerDescriptorCount` reported via `VkPhysicalDeviceMaintenance6PropertiesKHR` is at least as large as the `combinedImageSamplerDescriptorCount` reported for any YCbCr format via `VkSamplerYcbcrConversionImageFormatProperties`.
 
 ## Role of File
 
-Implementation-heavy. Contains the single test instance, test case, and the registration entry point. The entire file is wrapped in a `#ifndef CTS_USES_VULKANSC` guard, making it non-VKSC only.
+Implementation-heavy. Contains both the test case registration and the full test instance logic in a single file.
 
 ## Source Code
 
-- Implementation: [vktApiMaintenance6Check.cpp](../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L1)
-- Header: [vktApiMaintenance6Check.hpp](../../modules/vulkan/api/vktApiMaintenance6Check.hpp#L1)
-- Registration function: [createMaintenance6Tests()](../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L142)
-- Registered under: api -> maintenance6 (non-VKSC only)
+| File | Description |
+|------|-------------|
+| [vktApiMaintenance6Check.cpp](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L1) | Test implementation and registration |
+| [vktApiMaintenance6Check.hpp](../../../../../modules/vulkan/api/vktApiMaintenance6Check.hpp#L1) | Declares `createMaintenance6Tests` |
+| [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L131) | Parent registration: `apiTests->addChild(createMaintenance6Tests(testCtx))` |
 
 ## Registration Path
 
 ```
 api
-+-- maintenance6
-    +-- maintenance6_check
+  +-- maintenance6_check
+       +-- maintenance6_properties
 ```
 
 ## Test Hierarchy
 
 ```
 maintenance6_check
-+-- maintenance6_properties
+  +-- maintenance6_properties
+       Verifies maxCombinedImageSamplerDescriptorCount >=
+       combinedImageSamplerDescriptorCount for all YCbCr formats
 ```
 
 ## Test Families
 
-### maintenance6_properties
+### maintenance6_check
 
-Queries VkPhysicalDeviceMaintenance6PropertiesKHR to obtain maxCombinedImageSamplerDescriptorCount, then iterates over three format ranges (YCbCr formats, YCbCr extended formats, and VK_FORMAT_R16G16_S10_5_NV). For each format, it queries VkSamplerYcbcrConversionImageFormatProperties via getPhysicalDeviceImageFormatProperties2 and verifies that the per-format combinedImageSamplerDescriptorCount does not exceed the global maxCombinedImageSamplerDescriptorCount.
+Group name verified at [vktApiMaintenance6Check.cpp:145](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L145): `new tcu::TestCaseGroup(testCtx, "maintenance6_check", "Maintenance6 Tests")`.
 
-- Instance: [Maintenance6MaxCombinedImageSamplerDescriptorCountTestInstance](../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L52)
-- Case: [Maintenance6MaxCombinedImageSamplerDescriptorCountTestCase](../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L117)
-- Support gate: [VK_KHR_maintenance6](../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L130)
-- Format ranges: [L68-L81](../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L68)
+Contains a single test case `maintenance6_properties` registered at [vktApiMaintenance6Check.cpp:146](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L146).
+
+The test instance `Maintenance7MaxCombinedImageSamplerDescriptorCountTestInstance` at [vktApiMaintenance6Check.cpp:52](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L52):
+1. Queries `VkPhysicalDeviceMaintenance6PropertiesKHR` via `getPhysicalDeviceProperties2` ([line 66](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L66))
+2. Iterates over three YCbCr format ranges defined at [lines 68-81](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L68):
+   - YCbCr formats: `VK_FORMAT_G8B8G8R8_422_UNORM` through `VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM`
+   - YCbCr extended formats: `VK_FORMAT_G8_B8R8_2PLANE_444_UNORM` through `VK_FORMAT_G16_B16R16_2PLANE_444_UNORM`
+   - `VK_FORMAT_R16G16_S10_5_NV`
+3. For each format, queries `VkSamplerYcbcrConversionImageFormatProperties::combinedImageSamplerDescriptorCount` via `getPhysicalDeviceImageFormatProperties2` ([line 99](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L99))
+4. Fails if any format's `combinedImageSamplerDescriptorCount` exceeds `maxCombinedImageSamplerDescriptorCount` ([line 100](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L100))
 
 ## Parameter Dimensions
 
 | Dimension | Observed Values | Notes |
-|---|---|---|
-| formatRange | YCbCr formats (VK_FORMAT_G8B8G8R8_422_UNORM to VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM), YCbCr extended formats (VK_FORMAT_G8_B8R8_2PLANE_444_UNORM to VK_FORMAT_G16_B16R16_2PLANE_444_UNORM), VK_FORMAT_R16G16_S10_5_NV | 3 ranges at [L68-L81](../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L68) |
+|-----------|----------------|-------|
+| Format ranges | 3 ranges | YCbCr, YCbCr extended, and R16G16_S10_5_NV |
+| Image type | VK_IMAGE_TYPE_2D | Hard-coded at [line 96](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L96) |
+| Tiling | VK_IMAGE_TILING_OPTIMAL | Hard-coded at [line 97](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L97) |
+| Usage | VK_IMAGE_USAGE_TRANSFER_DST_BIT | Hard-coded at [line 98](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L98) |
 
 ## Support / Feature Requirements
 
-| Requirement | Where | Context |
-|---|---|---|
-| VK_KHR_maintenance6 | [L130](../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L130) | All tests |
-| Non-VKSC build | [L39](../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L39) | Entire file guarded |
+- `VK_KHR_maintenance6` required via `checkSupport` at [line 130](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L130)
+- Entire file is guarded by `#ifndef CTS_USES_VULKANSC` at [line 39](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L39)
 
 ## Verification Methods
 
-- **Upper bound check**: For each YCbCr-related format, verifies that combinedImageSamplerDescriptorCount (per-format) <= maxCombinedImageSamplerDescriptorCount (global) at [L100-L109](../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L100)
+- **Property comparison**: For each YCbCr format, `combinedImageSamplerDescriptorCount` must not exceed `maxCombinedImageSamplerDescriptorCount`. A violation produces a descriptive failure message including the format name and both values ([lines 103-108](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L103)).
 
 ## Test Principles Observed
 
-- **Cross-property consistency**: Validates that a global property serves as an upper bound for per-format properties ([L100-L109](../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L100))
-- **Format range coverage**: Tests all formats in the YCbCr, extended YCbCr, and R16G16_S10_5_NV ranges rather than a subset ([L68-L81](../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L68))
+- Conformance property validation: checks that a reported limit is consistent with per-format properties
+- Exhaustive format iteration: covers all YCbCr and related formats
 
 ## Notes / Uncertainties
 
-- The test only covers YCbCr and related formats. It does not test other aspects of VK_KHR_maintenance6 such as the new vkCmdBindDescriptorSets2 / vkCmdPushConstants2 / vkCmdSetViewport2 / vkCmdSetScissor2 commands or the VK_KHR_maintenance6 push descriptor set functionality.
-- The file is entirely excluded from VKSC builds via the `#ifndef CTS_USES_VULKANSC` guard at [L39](../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L39).
-- The test does not verify that getPhysicalDeviceImageFormatProperties2 succeeds for each format; it simply queries and checks the combinedImageSamplerDescriptorCount if the call returns properties.
+- The test does not verify the `VkSamplerYcbcrConversionImageFormatProperties` pNext chain is actually supported; it relies on `getPhysicalDeviceImageFormatProperties2` silently ignoring unsupported pNext chains
+- The group name is `maintenance6_check` (not `maintenance6`), which differs from the factory function name `createMaintenance6Tests`
