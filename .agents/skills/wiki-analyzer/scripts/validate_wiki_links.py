@@ -53,8 +53,17 @@ def is_external_or_special_target(link_target: str) -> bool:
 
 
 def strip_fragment_and_query(link_target: str) -> str:
-    """Return the filesystem path portion of a markdown link target."""
+    """Return the filesystem path portion of a markdown link target.
+
+    Strips URI fragments (#...), query strings (?...), and source code line
+    number suffixes (:line or :line-line) that are not part of the filename.
+    """
     path_part = link_target.strip().split('#', 1)[0].split('?', 1)[0]
+
+    # Strip source-code line-number suffixes such as ":82" or ":1650-1730".
+    # These are common in wiki links like [file.cpp:82](../path/file.cpp:82)
+    # but are not valid filename characters on any platform we target.
+    path_part = re.sub(r':\d+(-\d+)?$', '', path_part)
 
     # Markdown links may percent-encode spaces or other filename characters.
     return unquote(path_part)

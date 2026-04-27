@@ -45,7 +45,7 @@ For this tracker, the `Level-3 Files` column uses the agreed progress-counting r
 |---|----------|---------|---------------|--------|
 | 1 | info | [info.md](categories/info.md) | 2 | ✅ Done |
 | 2 | api | [api.md](categories/api.md) | 38 | ✅ Done |
-| 3 | memory | [memory.md](categories/memory.md) |  | ⬜ Not Started |
+| 3 | memory | [memory.md](categories/memory.md) | 16 | ✅ Done |
 | 4 | synchronization | [synchronization.md](categories/synchronization.md) |  | ⬜ Not Started |
 | 5 | synchronization2 | [synchronization2.md](categories/synchronization2.md) |  | ⬜ Not Started |
 | 6 | query_pool | [query_pool.md](categories/query_pool.md) |  | ⬜ Not Started |
