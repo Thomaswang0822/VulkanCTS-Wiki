@@ -140,7 +140,7 @@ Observed verification approaches differ by file:
 
 ## Relationship to the Test Plan
 
-[`apitests.adoc`](../../../doc/testspecs/VK/apitests.adoc#L15) describes the Vulkan CTS framework model in terms of [`TestCase`](../../../doc/testspecs/VK/apitests.adoc#L30) and [`TestInstance`](../../../doc/testspecs/VK/apitests.adoc#L43), but it does not appear to provide geometry-category-specific coverage details in the inspected range. For geometry documentation, the source files under [`modules/vulkan/geometry/`](../../modules/vulkan/geometry/vktGeometryTests.cpp#L24) are the primary evidence.
+[`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L15) describes the Vulkan CTS framework model in terms of [`TestCase`](../../../../doc/testspecs/VK/apitests.adoc#L30) and [`TestInstance`](../../../../doc/testspecs/VK/apitests.adoc#L43), but it does not appear to provide geometry-category-specific coverage details in the inspected range. For geometry documentation, the source files under [`modules/vulkan/geometry/`](../../modules/vulkan/geometry/vktGeometryTests.cpp#L24) are the primary evidence.
 
 ## Notes / Uncertainties
 
