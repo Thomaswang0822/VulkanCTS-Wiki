@@ -10,7 +10,7 @@ Covers `VK_EXT_descriptor_heap` behavior across limits, basic descriptor access,
 
 | Group | Availability | Evidence |
 |-------|--------------|----------|
-| `descriptor_heap` | VK only | Created in [`vktBindingDescriptorHeapTests.cpp:14803`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp:14803); factory entry at [`vktBindingDescriptorHeapTests.cpp:14801`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp:14801) |
+| `descriptor_heap` | VK only | Created in [`vktBindingDescriptorHeapTests.cpp:14803`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14803); factory entry at [`vktBindingDescriptorHeapTests.cpp:14801`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14801) |
 
 ## Registration Path
 
@@ -20,19 +20,19 @@ binding_model → descriptor_heap
 
 ## Test Hierarchy
 
-The group name is `descriptor_heap`; `populateDescriptorHeapTests` adds many focused subgroups such as `limit`, `basic`, `dynamic_indexing`, `binding_mapping`, `push_data`, `null_descriptor`, `graphics`, and `special_heap`. Evidence starts at [`vktBindingDescriptorHeapTests.cpp:12700`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp:12700) and continues through [`vktBindingDescriptorHeapTests.cpp:14803`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp:14803).
+The group name is `descriptor_heap`; `populateDescriptorHeapTests` adds many focused subgroups such as `limit`, `basic`, `dynamic_indexing`, `binding_mapping`, `push_data`, `null_descriptor`, `graphics`, and `special_heap`. Evidence starts at [`vktBindingDescriptorHeapTests.cpp:12700`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L12700) and continues through [`vktBindingDescriptorHeapTests.cpp:14803`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14803).
 
 ## Parameter Dimensions
 
 | Dimension | Observed values / source |
 |-----------|--------------------------|
-| Group construction | Verified by [`vktBindingDescriptorHeapTests.cpp:14803`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp:14803) |
-| Generated families | Derived from arrays, loops, or child additions near [`vktBindingDescriptorHeapTests.cpp:12700`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp:12700) |
+| Group construction | Verified by [`vktBindingDescriptorHeapTests.cpp:14803`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14803) |
+| Generated families | Derived from arrays, loops, or child additions near [`vktBindingDescriptorHeapTests.cpp:12700`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L12700) |
 | Build availability | Root or nested registration determines whether the group is always present or guarded by `CTS_USES_VULKANSC` |
 
 ## Support / Feature Requirements
 
-Support checks are implemented near [`vktBindingDescriptorHeapTests.cpp:508`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp:508). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
+Support checks are implemented near [`vktBindingDescriptorHeapTests.cpp:508`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L508). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
 
 ## Verification Methods
 

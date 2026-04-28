@@ -9,7 +9,7 @@ The `memory` category validates Vulkan device memory management, including alloc
 
 ## Registration Entry Point
 
-The [`createTests()`](../../modules/vulkan/memory/vktMemoryTests.cpp:82) factory creates the top-level `memory` group. The internal [`createChildren()`](../../modules/vulkan/memory/vktMemoryTests.cpp:52) function adds 16 child subgroups, split between Vulkan-only and Vulkan+VKSC builds.
+The [`createTests()`](../../modules/vulkan/memory/vktMemoryTests.cpp#L82) factory creates the top-level `memory` group. The internal [`createChildren()`](../../modules/vulkan/memory/vktMemoryTests.cpp#L52) function adds 16 child subgroups, split between Vulkan-only and Vulkan+VKSC builds.
 
 ## Subgroup Structure
 
@@ -37,7 +37,7 @@ memory
 
 | Group | VK | VKSC | Reason |
 |-------|:--:|:----:|--------|
-| `allocation` | ✓ | — | Random alloc/free tests fail when `vkFreeMemory` is absent ([line 57](../../modules/vulkan/memory/vktMemoryTests.cpp:57)) |
+| `allocation` | ✓ | — | Random alloc/free tests fail when `vkFreeMemory` is absent ([line 57](../../modules/vulkan/memory/vktMemoryTests.cpp#L57)) |
 | `device_group_allocation` | ✓ | — | Same as above |
 | `external_memory_acquire_unmodified` | ✓ | — | Behind `CTS_USES_VULKANSC` guard |
 | `pageable_allocation` | ✓ | — | Same as above |
@@ -129,10 +129,10 @@ memory
 
 Multiple subgroups iterate over all compatible device memory types at runtime, returning `incomplete()` between types:
 
-- `allocation` — all memory types ([vktMemoryAllocationTests.cpp:627](../../modules/vulkan/memory/vktMemoryAllocationTests.cpp:627))
-- `mapping` — all host-visible types ([vktMemoryMappingTests.cpp:705](../../modules/vulkan/memory/vktMemoryMappingTests.cpp:705))
-- `pipeline_barrier` — all non-protected, compatible types ([vktMemoryPipelineBarrierTests.cpp:9492](../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp:9492))
-- `zero_initialize_device_memory` — all types matching `ZeroInitialize` requirement ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:101](../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp:101))
+- `allocation` — all memory types ([vktMemoryAllocationTests.cpp:627](../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L627))
+- `mapping` — all host-visible types ([vktMemoryMappingTests.cpp:705](../../modules/vulkan/memory/vktMemoryMappingTests.cpp#L705))
+- `pipeline_barrier` — all non-protected, compatible types ([vktMemoryPipelineBarrierTests.cpp:9492](../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L9492))
+- `zero_initialize_device_memory` — all types matching `ZeroInitialize` requirement ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:101](../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L101))
 
 ### Allocate-Bind-Use Pattern
 
@@ -148,17 +148,17 @@ A common pattern across binding, mapping, and pipeline barrier tests:
 
 Tests that verify data consistency between CPU and GPU access:
 
-- `concurrent_access` — simultaneous host read during device write ([vktMemoryConcurrentAccessTests.cpp:77](../../modules/vulkan/memory/vktMemoryConcurrentAccessTests.cpp:77))
-- `external_memory_host` — host signals timeline semaphore, GPU reads ([vktMemoryExternalMemoryHostTests.cpp:758](../../modules/vulkan/memory/vktMemoryExternalMemoryHostTests.cpp:758))
-- `dma_heap_memory` — host → GPU → host round-trip ([vktMemoryExternalDmaHeapTests.cpp:159](../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp:159))
-- `map_placed` — CPU write → GPU increment → CPU verify ([vktMemoryMapPlacedTests.cpp:435](../../modules/vulkan/memory/vktMemoryMapPlacedTests.cpp:435))
+- `concurrent_access` — simultaneous host read during device write ([vktMemoryConcurrentAccessTests.cpp:77](../../modules/vulkan/memory/vktMemoryConcurrentAccessTests.cpp#L77))
+- `external_memory_host` — host signals timeline semaphore, GPU reads ([vktMemoryExternalMemoryHostTests.cpp:758](../../modules/vulkan/memory/vktMemoryExternalMemoryHostTests.cpp#L758))
+- `dma_heap_memory` — host → GPU → host round-trip ([vktMemoryExternalDmaHeapTests.cpp:159](../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp#L159))
+- `map_placed` — CPU write → GPU increment → CPU verify ([vktMemoryMapPlacedTests.cpp:435](../../modules/vulkan/memory/vktMemoryMapPlacedTests.cpp#L435))
 
 ### Callback/Report Validation
 
 Two subgroups validate Vulkan callback mechanisms:
 
-- `device_memory_report` — `ALLOCATE`/`FREE`/`IMPORT`/`UNIMPORT` event pairing ([vktMemoryDeviceMemoryReportTests.cpp:1663](../../modules/vulkan/memory/vktMemoryDeviceMemoryReportTests.cpp:1663))
-- `address_binding_report` — `BIND`/`UNBIND` event pairing ([vktMemoryAddressBindingTests.cpp:1650](../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp:1650))
+- `device_memory_report` — `ALLOCATE`/`FREE`/`IMPORT`/`UNIMPORT` event pairing ([vktMemoryDeviceMemoryReportTests.cpp:1663](../../modules/vulkan/memory/vktMemoryDeviceMemoryReportTests.cpp#L1663))
+- `address_binding_report` — `BIND`/`UNBIND` event pairing ([vktMemoryAddressBindingTests.cpp:1650](../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L1650))
 
 ## Cross-File Recurring Parameter Dimensions
 
@@ -194,8 +194,8 @@ Two subgroups validate Vulkan callback mechanisms:
 
 ## Notes
 
-- The `allocation`, `device_group_allocation`, and `pageable_allocation` groups share a single implementation via a common factory function with different `AllocationMode` values ([vktMemoryAllocationTests.cpp:1029](../../modules/vulkan/memory/vktMemoryAllocationTests.cpp:1029)).
+- The `allocation`, `device_group_allocation`, and `pageable_allocation` groups share a single implementation via a common factory function with different `AllocationMode` values ([vktMemoryAllocationTests.cpp:1029](../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L1029)).
 - The `pipeline_barrier` subgroup is the largest in the category (~10K lines) due to combinatorial coverage of write→read usage pairs.
 - The `zero_initialize_device_memory` group uses factory symbol `createClearedAllocationControlTests()` but registers under the group name `zero_initialize_device_memory`.
-- VKSC-excluded groups are guarded by `#ifndef CTS_USES_VULKANSC` at both the `#include` level ([line 34](../../modules/vulkan/memory/vktMemoryTests.cpp:34)) and within `createChildren()` ([line 56](../../modules/vulkan/memory/vktMemoryTests.cpp:56)).
+- VKSC-excluded groups are guarded by `#ifndef CTS_USES_VULKANSC` at both the `#include` level ([line 34](../../modules/vulkan/memory/vktMemoryTests.cpp#L34)) and within `createChildren()` ([line 56](../../modules/vulkan/memory/vktMemoryTests.cpp#L56)).
 - The `dma_heap_memory` and `map_placed` groups are Linux/Android-only, requiring platform-specific APIs (`memfd_create`, DMA heap ioctls).

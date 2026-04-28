@@ -10,7 +10,7 @@ Covers `VK_EXT_mutable_descriptor_type` using single, array, mixed, multiple, an
 
 | Group | Availability | Evidence |
 |-------|--------------|----------|
-| `mutable_descriptor` | VK only | Created in [`vktBindingMutableTests.cpp:3950`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp:3950); factory entry at [`vktBindingMutableTests.cpp:3948`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp:3948) |
+| `mutable_descriptor` | VK only | Created in [`vktBindingMutableTests.cpp:3950`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp#L3950); factory entry at [`vktBindingMutableTests.cpp:3948`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp#L3948) |
 
 ## Registration Path
 
@@ -20,19 +20,19 @@ binding_model → mutable_descriptor
 
 ## Test Hierarchy
 
-The group name is `mutable_descriptor`; it expands descriptor-set recipes and update/source/pool/access/stage variants. Evidence starts at [`vktBindingMutableTests.cpp:3992`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp:3992) and continues through [`vktBindingMutableTests.cpp:4343`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp:4343).
+The group name is `mutable_descriptor`; it expands descriptor-set recipes and update/source/pool/access/stage variants. Evidence starts at [`vktBindingMutableTests.cpp:3992`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp#L3992) and continues through [`vktBindingMutableTests.cpp:4343`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp#L4343).
 
 ## Parameter Dimensions
 
 | Dimension | Observed values / source |
 |-----------|--------------------------|
-| Group construction | Verified by [`vktBindingMutableTests.cpp:3950`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp:3950) |
-| Generated families | Derived from arrays, loops, or child additions near [`vktBindingMutableTests.cpp:3992`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp:3992) |
+| Group construction | Verified by [`vktBindingMutableTests.cpp:3950`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp#L3950) |
+| Generated families | Derived from arrays, loops, or child additions near [`vktBindingMutableTests.cpp:3992`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp#L3992) |
 | Build availability | Root or nested registration determines whether the group is always present or guarded by `CTS_USES_VULKANSC` |
 
 ## Support / Feature Requirements
 
-Support checks are implemented near [`vktBindingMutableTests.cpp:2808`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp:2808). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
+Support checks are implemented near [`vktBindingMutableTests.cpp:2808`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp#L2808). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
 
 ## Verification Methods
 

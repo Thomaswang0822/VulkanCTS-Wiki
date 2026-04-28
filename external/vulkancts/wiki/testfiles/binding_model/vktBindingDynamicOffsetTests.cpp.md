@@ -10,7 +10,7 @@ Checks dynamic descriptor offset behavior, including Amber shader-reuse tests an
 
 | Group | Availability | Evidence |
 |-------|--------------|----------|
-| `dynamic_offset` | VK only | Created in [`vktBindingDynamicOffsetTests.cpp:425`](../../../modules/vulkan/binding_model/vktBindingDynamicOffsetTests.cpp:425); factory entry at [`vktBindingDynamicOffsetTests.cpp:423`](../../../modules/vulkan/binding_model/vktBindingDynamicOffsetTests.cpp:423) |
+| `dynamic_offset` | VK only | Created in [`vktBindingDynamicOffsetTests.cpp:425`](../../../modules/vulkan/binding_model/vktBindingDynamicOffsetTests.cpp#L425); factory entry at [`vktBindingDynamicOffsetTests.cpp:423`](../../../modules/vulkan/binding_model/vktBindingDynamicOffsetTests.cpp#L423) |
 
 ## Registration Path
 
@@ -20,19 +20,19 @@ binding_model → dynamic_offset
 
 ## Test Hierarchy
 
-The `dynamic_offset` group adds two Amber tests and generated two-pipeline cases over separate offsets, push-constant ordering, shared layout, and different-set choices. Evidence starts at [`vktBindingDynamicOffsetTests.cpp:392`](../../../modules/vulkan/binding_model/vktBindingDynamicOffsetTests.cpp:392) and continues through [`vktBindingDynamicOffsetTests.cpp:418`](../../../modules/vulkan/binding_model/vktBindingDynamicOffsetTests.cpp:418).
+The `dynamic_offset` group adds two Amber tests and generated two-pipeline cases over separate offsets, push-constant ordering, shared layout, and different-set choices. Evidence starts at [`vktBindingDynamicOffsetTests.cpp:392`](../../../modules/vulkan/binding_model/vktBindingDynamicOffsetTests.cpp#L392) and continues through [`vktBindingDynamicOffsetTests.cpp:418`](../../../modules/vulkan/binding_model/vktBindingDynamicOffsetTests.cpp#L418).
 
 ## Parameter Dimensions
 
 | Dimension | Observed values / source |
 |-----------|--------------------------|
-| Group construction | Verified by [`vktBindingDynamicOffsetTests.cpp:425`](../../../modules/vulkan/binding_model/vktBindingDynamicOffsetTests.cpp:425) |
-| Generated families | Derived from arrays, loops, or child additions near [`vktBindingDynamicOffsetTests.cpp:392`](../../../modules/vulkan/binding_model/vktBindingDynamicOffsetTests.cpp:392) |
+| Group construction | Verified by [`vktBindingDynamicOffsetTests.cpp:425`](../../../modules/vulkan/binding_model/vktBindingDynamicOffsetTests.cpp#L425) |
+| Generated families | Derived from arrays, loops, or child additions near [`vktBindingDynamicOffsetTests.cpp:392`](../../../modules/vulkan/binding_model/vktBindingDynamicOffsetTests.cpp#L392) |
 | Build availability | Root or nested registration determines whether the group is always present or guarded by `CTS_USES_VULKANSC` |
 
 ## Support / Feature Requirements
 
-Support checks are implemented near [`vktBindingDynamicOffsetTests.cpp:86`](../../../modules/vulkan/binding_model/vktBindingDynamicOffsetTests.cpp:86). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
+Support checks are implemented near [`vktBindingDynamicOffsetTests.cpp:86`](../../../modules/vulkan/binding_model/vktBindingDynamicOffsetTests.cpp#L86). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
 
 ## Verification Methods
 

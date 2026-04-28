@@ -10,7 +10,7 @@ Generates random descriptor-set layouts over descriptor-set count, indexing mode
 
 | Group | Availability | Evidence |
 |-------|--------------|----------|
-| `descriptorset_random` | VK + VKSC, reduced stage set on VKSC | Created in [`vktBindingDescriptorSetRandomTests.cpp:3152`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp:3152); factory entry at [`vktBindingDescriptorSetRandomTests.cpp:3150`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp:3150) |
+| `descriptorset_random` | VK + VKSC, reduced stage set on VKSC | Created in [`vktBindingDescriptorSetRandomTests.cpp:3152`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L3152); factory entry at [`vktBindingDescriptorSetRandomTests.cpp:3150`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L3150) |
 
 ## Registration Path
 
@@ -20,19 +20,19 @@ binding_model → descriptorset_random
 
 ## Test Hierarchy
 
-The group name is `descriptorset_random`; Vulkan-only stages include ray tracing, task, and mesh stages behind `CTS_USES_VULKANSC`. Evidence starts at [`vktBindingDescriptorSetRandomTests.cpp:3162`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp:3162) and continues through [`vktBindingDescriptorSetRandomTests.cpp:3435`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp:3435).
+The group name is `descriptorset_random`; Vulkan-only stages include ray tracing, task, and mesh stages behind `CTS_USES_VULKANSC`. Evidence starts at [`vktBindingDescriptorSetRandomTests.cpp:3162`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L3162) and continues through [`vktBindingDescriptorSetRandomTests.cpp:3435`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L3435).
 
 ## Parameter Dimensions
 
 | Dimension | Observed values / source |
 |-----------|--------------------------|
-| Group construction | Verified by [`vktBindingDescriptorSetRandomTests.cpp:3152`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp:3152) |
-| Generated families | Derived from arrays, loops, or child additions near [`vktBindingDescriptorSetRandomTests.cpp:3162`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp:3162) |
+| Group construction | Verified by [`vktBindingDescriptorSetRandomTests.cpp:3152`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L3152) |
+| Generated families | Derived from arrays, loops, or child additions near [`vktBindingDescriptorSetRandomTests.cpp:3162`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L3162) |
 | Build availability | Root or nested registration determines whether the group is always present or guarded by `CTS_USES_VULKANSC` |
 
 ## Support / Feature Requirements
 
-Support checks are implemented near [`vktBindingDescriptorSetRandomTests.cpp:347`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp:347). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
+Support checks are implemented near [`vktBindingDescriptorSetRandomTests.cpp:347`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L347). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
 
 ## Verification Methods
 

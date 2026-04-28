@@ -10,7 +10,7 @@ Verifies descriptor copying for compute, graphics, graphics update-after-bind, a
 
 | Group | Availability | Evidence |
 |-------|--------------|----------|
-| `descriptor_copy` | VK + VKSC, with Vulkan-only inline-uniform variations | Created in [`vktBindingDescriptorCopyTests.cpp:3758`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp:3758); factory entry at [`vktBindingDescriptorCopyTests.cpp:3754`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp:3754) |
+| `descriptor_copy` | VK + VKSC, with Vulkan-only inline-uniform variations | Created in [`vktBindingDescriptorCopyTests.cpp:3758`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3758); factory entry at [`vktBindingDescriptorCopyTests.cpp:3754`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3754) |
 
 ## Registration Path
 
@@ -20,19 +20,19 @@ binding_model → descriptor_copy
 
 ## Test Hierarchy
 
-The `descriptor_copy` group contains `compute`, `graphics`, `graphics_uab`, and `misc`; helper functions add per-descriptor-type copy scenarios. Evidence starts at [`vktBindingDescriptorCopyTests.cpp:3760`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp:3760) and continues through [`vktBindingDescriptorCopyTests.cpp:3784`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp:3784).
+The `descriptor_copy` group contains `compute`, `graphics`, `graphics_uab`, and `misc`; helper functions add per-descriptor-type copy scenarios. Evidence starts at [`vktBindingDescriptorCopyTests.cpp:3760`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3760) and continues through [`vktBindingDescriptorCopyTests.cpp:3784`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3784).
 
 ## Parameter Dimensions
 
 | Dimension | Observed values / source |
 |-----------|--------------------------|
-| Group construction | Verified by [`vktBindingDescriptorCopyTests.cpp:3758`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp:3758) |
-| Generated families | Derived from arrays, loops, or child additions near [`vktBindingDescriptorCopyTests.cpp:3760`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp:3760) |
+| Group construction | Verified by [`vktBindingDescriptorCopyTests.cpp:3758`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3758) |
+| Generated families | Derived from arrays, loops, or child additions near [`vktBindingDescriptorCopyTests.cpp:3760`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3760) |
 | Build availability | Root or nested registration determines whether the group is always present or guarded by `CTS_USES_VULKANSC` |
 
 ## Support / Feature Requirements
 
-Support checks are implemented near [`vktBindingDescriptorCopyTests.cpp:2595`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp:2595). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
+Support checks are implemented near [`vktBindingDescriptorCopyTests.cpp:2595`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L2595). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
 
 ## Verification Methods
 

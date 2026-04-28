@@ -10,7 +10,7 @@ Covers `VK_EXT_descriptor_buffer` in traditional, sparse-binding, and sparse-res
 
 | Group | Availability | Evidence |
 |-------|--------------|----------|
-| `descriptor_buffer` | VK only | Created in [`vktBindingDescriptorBufferTests.cpp:7899`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp:7899); factory entry at [`vktBindingDescriptorBufferTests.cpp:7897`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp:7897) |
+| `descriptor_buffer` | VK only | Created in [`vktBindingDescriptorBufferTests.cpp:7899`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L7899); factory entry at [`vktBindingDescriptorBufferTests.cpp:7897`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L7897) |
 
 ## Registration Path
 
@@ -20,19 +20,19 @@ binding_model → descriptor_buffer
 
 ## Test Hierarchy
 
-The `descriptor_buffer` group contains `traditional_buffer`, `sparse_binding_buffer`, and `sparse_residency_buffer`, each populated with basic, single, multiple, max, push, robustness, capture-replay, mutable, and YCbCr scenarios where applicable. Evidence starts at [`vktBindingDescriptorBufferTests.cpp:7879`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp:7879) and continues through [`vktBindingDescriptorBufferTests.cpp:7892`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp:7892).
+The `descriptor_buffer` group contains `traditional_buffer`, `sparse_binding_buffer`, and `sparse_residency_buffer`, each populated with basic, single, multiple, max, push, robustness, capture-replay, mutable, and YCbCr scenarios where applicable. Evidence starts at [`vktBindingDescriptorBufferTests.cpp:7879`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L7879) and continues through [`vktBindingDescriptorBufferTests.cpp:7892`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L7892).
 
 ## Parameter Dimensions
 
 | Dimension | Observed values / source |
 |-----------|--------------------------|
-| Group construction | Verified by [`vktBindingDescriptorBufferTests.cpp:7899`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp:7899) |
-| Generated families | Derived from arrays, loops, or child additions near [`vktBindingDescriptorBufferTests.cpp:7879`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp:7879) |
+| Group construction | Verified by [`vktBindingDescriptorBufferTests.cpp:7899`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L7899) |
+| Generated families | Derived from arrays, loops, or child additions near [`vktBindingDescriptorBufferTests.cpp:7879`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L7879) |
 | Build availability | Root or nested registration determines whether the group is always present or guarded by `CTS_USES_VULKANSC` |
 
 ## Support / Feature Requirements
 
-Support checks are implemented near [`vktBindingDescriptorBufferTests.cpp:2351`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp:2351). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
+Support checks are implemented near [`vktBindingDescriptorBufferTests.cpp:2351`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L2351). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
 
 ## Verification Methods
 

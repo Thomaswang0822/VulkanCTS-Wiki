@@ -10,7 +10,7 @@ Exercises combinations where descriptor-buffer and legacy descriptor mechanisms 
 
 | Group | Availability | Evidence |
 |-------|--------------|----------|
-| `descriptor_combination` | VK only | Created in [`vktBindingDescriptorCombinationTests.cpp:691`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp:691); factory entry at [`vktBindingDescriptorCombinationTests.cpp:689`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp:689) |
+| `descriptor_combination` | VK only | Created in [`vktBindingDescriptorCombinationTests.cpp:691`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L691); factory entry at [`vktBindingDescriptorCombinationTests.cpp:689`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L689) |
 
 ## Registration Path
 
@@ -20,19 +20,19 @@ binding_model → descriptor_combination
 
 ## Test Hierarchy
 
-The group name is `descriptor_combination`; the `basic` subgroup contains two named combination cases. Evidence starts at [`vktBindingDescriptorCombinationTests.cpp:668`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp:668) and continues through [`vktBindingDescriptorCombinationTests.cpp:684`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp:684).
+The group name is `descriptor_combination`; the `basic` subgroup contains two named combination cases. Evidence starts at [`vktBindingDescriptorCombinationTests.cpp:668`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L668) and continues through [`vktBindingDescriptorCombinationTests.cpp:684`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L684).
 
 ## Parameter Dimensions
 
 | Dimension | Observed values / source |
 |-----------|--------------------------|
-| Group construction | Verified by [`vktBindingDescriptorCombinationTests.cpp:691`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp:691) |
-| Generated families | Derived from arrays, loops, or child additions near [`vktBindingDescriptorCombinationTests.cpp:668`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp:668) |
+| Group construction | Verified by [`vktBindingDescriptorCombinationTests.cpp:691`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L691) |
+| Generated families | Derived from arrays, loops, or child additions near [`vktBindingDescriptorCombinationTests.cpp:668`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L668) |
 | Build availability | Root or nested registration determines whether the group is always present or guarded by `CTS_USES_VULKANSC` |
 
 ## Support / Feature Requirements
 
-Support checks are implemented near [`vktBindingDescriptorCombinationTests.cpp:592`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp:592). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
+Support checks are implemented near [`vktBindingDescriptorCombinationTests.cpp:592`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L592). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
 
 ## Verification Methods
 

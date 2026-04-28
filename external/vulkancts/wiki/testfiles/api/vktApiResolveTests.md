@@ -40,7 +40,7 @@ api �?copy_and_blit �?(core|dedicated_allocation|copy_commands2|...) �?res
 
 
 
-Registered via [`addResolveImageTests()`](../../../external/vulkancts/modules/vulkan/api/vktApiResolveTests.cpp:2588), called from the dispatcher [`addCopiesAndBlittingTests()`](../../../external/vulkancts/modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp:137).
+Registered via [`addResolveImageTests()`](../../../external/vulkancts/modules/vulkan/api/vktApiResolveTests.cpp#L2588), called from the dispatcher [`addCopiesAndBlittingTests()`](../../../external/vulkancts/modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L137).
 
 
 
@@ -88,11 +88,11 @@ resolve_image
 
 
 
-- Inherits [`CopiesAndBlittingTestInstanceWithSparseSemaphore`](../../../external/vulkancts/modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp:474)
+- Inherits [`CopiesAndBlittingTestInstanceWithSparseSemaphore`](../../../external/vulkancts/modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L474)
 
 - Creates a multisampled source image, a non-multisampled destination, and optionally intermediate multisampled copy images
 
-- Controlled by [`ResolveImageToImageOptions`](../../../external/vulkancts/modules/vulkan/api/vktApiResolveTests.cpp:36) enum:
+- Controlled by [`ResolveImageToImageOptions`](../../../external/vulkancts/modules/vulkan/api/vktApiResolveTests.cpp#L36) enum:
 
 
 
@@ -124,7 +124,7 @@ resolve_image
 
 - Performs an intermediate copy between multisampled images before resolving
 
-- Verifiable via [`checkIntermediateCopy()`](../../../external/vulkancts/modules/vulkan/api/vktApiResolveTests.cpp:63)
+- Verifiable via [`checkIntermediateCopy()`](../../../external/vulkancts/modules/vulkan/api/vktApiResolveTests.cpp#L63)
 
 
 

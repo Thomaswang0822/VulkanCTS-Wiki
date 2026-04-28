@@ -9,7 +9,7 @@ Tests for `VK_EXT_zero_initialize_device_memory`. Validates that device memory a
 ## Registration
 
 - **Group name:** `zero_initialize_device_memory`
-- **Registration function:** [`createClearedAllocationControlTests()`](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp:1252)
+- **Registration function:** [`createClearedAllocationControlTests()`](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L1252)
 - **Parent group:** `memory`
 
 ## Test Hierarchy
@@ -34,7 +34,7 @@ zero_initialize_device_memory
 
 ### clear_buffer
 
-Tests that buffer memory allocated with the zero-initialize flag contains all zeros. Iterates over all compatible memory types (excluding protected and AMD device-coherent memory). For non-host-visible buffers, data is copied to a host-visible buffer via `vkCmdCopyBuffer` for CPU verification ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:136-222](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp:136)).
+Tests that buffer memory allocated with the zero-initialize flag contains all zeros. Iterates over all compatible memory types (excluding protected and AMD device-coherent memory). For non-host-visible buffers, data is copied to a host-visible buffer via `vkCmdCopyBuffer` for CPU verification ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:136-222](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L136)).
 
 | Dimension | Values |
 |-----------|--------|
@@ -44,7 +44,7 @@ Tests that buffer memory allocated with the zero-initialize flag contains all ze
 
 ### image_transition
 
-Tests that image memory allocated with the zero-initialize flag contains all zeros after transitioning from `VK_IMAGE_LAYOUT_ZERO_INITIALIZED_EXT`. Verification is done via transfer copy, compute shader read, or fragment shader read depending on the usage ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:530-884](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp:530)).
+Tests that image memory allocated with the zero-initialize flag contains all zeros after transitioning from `VK_IMAGE_LAYOUT_ZERO_INITIALIZED_EXT`. Verification is done via transfer copy, compute shader read, or fragment shader read depending on the usage ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:530-884](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L530)).
 
 | Dimension | Values |
 |-----------|--------|
@@ -56,7 +56,7 @@ Tests that image memory allocated with the zero-initialize flag contains all zer
 
 ### image_transition (depth/stencil)
 
-Separate test cases for depth/stencil formats. Uses a render pass with depth/stencil attachment, clears to zero, then draws a triangle and verifies the result ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:1031-1246](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp:1031)).
+Separate test cases for depth/stencil formats. Uses a render pass with depth/stencil attachment, clears to zero, then draws a triangle and verifies the result ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:1031-1246](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L1031)).
 
 | Dimension | Values |
 |-----------|--------|
@@ -72,45 +72,45 @@ The test iterates over all memory types that:
 - Match the `MemoryRequirement::ZeroInitialize` requirement
 - Are compatible with the resource's memory type bits
 - Are **not** protected memory (`VK_MEMORY_PROPERTY_PROTECTED_BIT`)
-- Are **not** AMD device-coherent memory (`VK_MEMORY_PROPERTY_DEVICE_COHERENT_BIT_AMD`) — the extension is not enabled by default for these ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:101-109](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp:101))
+- Are **not** AMD device-coherent memory (`VK_MEMORY_PROPERTY_DEVICE_COHERENT_BIT_AMD`) — the extension is not enabled by default for these ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:101-109](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L101))
 
 ### Allocation flags
 
-Memory is allocated with `VkMemoryAllocateFlagsInfo` containing `VK_MEMORY_ALLOCATE_ZERO_INITIALIZE_BIT_EXT` in the `pNext` chain ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:120-133](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp:120)).
+Memory is allocated with `VkMemoryAllocateFlagsInfo` containing `VK_MEMORY_ALLOCATE_ZERO_INITIALIZE_BIT_EXT` in the `pNext` chain ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:120-133](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L120)).
 
 ### Image initial layout
 
-Images are created with `VK_IMAGE_LAYOUT_ZERO_INITIALIZED_EXT` as the initial layout, which is the layout that indicates the memory has been zero-initialized ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:560](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp:560)).
+Images are created with `VK_IMAGE_LAYOUT_ZERO_INITIALIZED_EXT` as the initial layout, which is the layout that indicates the memory has been zero-initialized ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:560](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L560)).
 
 ## Support Requirements
 
 | Extension/Feature | Required by |
 |-------------------|-------------|
-| `VK_EXT_zero_initialize_device_memory` | All tests ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:61](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp:61)) |
-| Format support for image usage | image_transition tests — checked via `vkGetPhysicalDeviceImageFormatProperties` ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:342-352](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp:342)) |
-| Image extent support | image_transition tests — max extent checked ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:357-362](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp:357)) |
-| Mip level support | image_transition tests — max mip levels checked ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:365-366](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp:365)) |
+| `VK_EXT_zero_initialize_device_memory` | All tests ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:61](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L61)) |
+| Format support for image usage | image_transition tests — checked via `vkGetPhysicalDeviceImageFormatProperties` ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:342-352](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L342)) |
+| Image extent support | image_transition tests — max extent checked ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:357-362](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L357)) |
+| Mip level support | image_transition tests — max mip levels checked ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:365-366](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L365)) |
 
 ## Verification Methods
 
-### Buffer zero-check ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:200-213](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp:200))
+### Buffer zero-check ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:200-213](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L200))
 
 For each memory type, the buffer contents are compared against a reference buffer filled with zeros using `memcmp()`. If any memory type fails, the test reports failure with details in the log.
 
-### Image zero-check (transfer) ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:618-650](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp:618))
+### Image zero-check (transfer) ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:618-650](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L618))
 
 1. Image is transitioned from `VK_IMAGE_LAYOUT_ZERO_INITIALIZED_EXT` to `VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL`
 2. Image is copied to a host-visible buffer via `vkCmdCopyImageToBuffer`
 3. Buffer contents are compared against a reference texture filled with zeros
 
-### Image zero-check (shader read) ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:738-814](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp:738))
+### Image zero-check (shader read) ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:738-814](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L738))
 
 1. Image is transitioned from `VK_IMAGE_LAYOUT_ZERO_INITIALIZED_EXT` to the appropriate layout (`GENERAL` for storage, `SHADER_READ_ONLY_OPTIMAL` for sampled)
 2. A compute or fragment shader reads each pixel and writes to an SSBO
 3. SSBO contents are compared against a reference texture filled with zeros
 4. Expected values: RGB = 0, A = 1 for non-compressed formats (alpha defaults to 1.0)
 
-### Depth/stencil zero-check ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:1100-1246](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp:1100))
+### Depth/stencil zero-check ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:1100-1246](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L1100))
 
 1. Depth/stencil image is created with `VK_IMAGE_LAYOUT_ZERO_INITIALIZED_EXT`
 2. Render pass begins, depth is cleared to 0.0
@@ -127,6 +127,6 @@ For each memory type, the buffer contents are compared against a reference buffe
 
 ## Notes
 
-- RGB8 format is excluded from storage image tests because storage images with 3-channel formats do not exist ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:1338-1342](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp:1338))
-- Transfer read mode is incompatible with compressed formats in this test because block size calculations would be needed ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:582](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp:582))
-- The test uses `tcu::floatThresholdCompare` and `tcu::intThresholdCompare` with zero thresholds for image comparison ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:862-867](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp:862))
+- RGB8 format is excluded from storage image tests because storage images with 3-channel formats do not exist ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:1338-1342](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L1338))
+- Transfer read mode is incompatible with compressed formats in this test because block size calculations would be needed ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:582](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L582))
+- The test uses `tcu::floatThresholdCompare` and `tcu::intThresholdCompare` with zero thresholds for image comparison ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:862-867](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L862))

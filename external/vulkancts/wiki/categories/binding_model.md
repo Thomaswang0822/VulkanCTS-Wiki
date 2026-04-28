@@ -8,7 +8,7 @@ The `binding_model` category documents Vulkan descriptor binding, descriptor upd
 
 ## Registration Entry Point
 
-The category factory is [`createTests()`](../../modules/vulkan/binding_model/vktBindingModelTests.cpp:80), which delegates root children to [`createChildren()`](../../modules/vulkan/binding_model/vktBindingModelTests.cpp:52). Top-level discovery was performed from the root include section: the root header and [`vktTestGroupUtil.hpp`](../../modules/vulkan/binding_model/vktBindingModelTests.cpp:31) are excluded, and the remaining included headers map to registered source files. The direct child additions in [`createChildren()`](../../modules/vulkan/binding_model/vktBindingModelTests.cpp:56) through [`vktBindingModelTests.cpp:70`](../../modules/vulkan/binding_model/vktBindingModelTests.cpp:70) cross-check registration and `CTS_USES_VULKANSC` guards.
+The category factory is [`createTests()`](../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L80), which delegates root children to [`createChildren()`](../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52). Top-level discovery was performed from the root include section: the root header and [`vktTestGroupUtil.hpp`](../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L31) are excluded, and the remaining included headers map to registered source files. The direct child additions in [`createChildren()`](../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L56) through [`vktBindingModelTests.cpp:70`](../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L70) cross-check registration and `CTS_USES_VULKANSC` guards.
 
 ## Subgroup Structure
 
@@ -53,7 +53,7 @@ binding_model
 
 ## VK / VKSC Split
 
-The root include section includes five groups outside the `CTS_USES_VULKANSC` guard: `shader_access`, `descriptor_update`, `descriptorset_random`, `descriptor_copy`, and `buffer_device_address` ([`vktBindingModelTests.cpp:26`](../../modules/vulkan/binding_model/vktBindingModelTests.cpp:26)). Nine additional top-level groups are included and registered only when `CTS_USES_VULKANSC` is not defined ([`vktBindingModelTests.cpp:32`](../../modules/vulkan/binding_model/vktBindingModelTests.cpp:32), [`vktBindingModelTests.cpp:61`](../../modules/vulkan/binding_model/vktBindingModelTests.cpp:61)). The acceleration-structure descriptor-update file is also Vulkan-only, but it is nested under `descriptor_update` rather than registered by the category root ([`vktBindingDescriptorUpdateTests.cpp:1914`](../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp:1914)).
+The root include section includes five groups outside the `CTS_USES_VULKANSC` guard: `shader_access`, `descriptor_update`, `descriptorset_random`, `descriptor_copy`, and `buffer_device_address` ([`vktBindingModelTests.cpp:26`](../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L26)). Nine additional top-level groups are included and registered only when `CTS_USES_VULKANSC` is not defined ([`vktBindingModelTests.cpp:32`](../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L32), [`vktBindingModelTests.cpp:61`](../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L61)). The acceleration-structure descriptor-update file is also Vulkan-only, but it is nested under `descriptor_update` rather than registered by the category root ([`vktBindingDescriptorUpdateTests.cpp:1914`](../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L1914)).
 
 ## Cross-File Themes
 

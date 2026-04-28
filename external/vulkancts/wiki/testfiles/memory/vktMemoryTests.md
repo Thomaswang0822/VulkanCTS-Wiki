@@ -8,7 +8,7 @@ The `vktMemoryTests.cpp` file is the **registration dispatcher** for the entire 
 
 ## Role
 
-Central registration point. The [`createTests()`](../../../modules/vulkan/memory/vktMemoryTests.cpp:82) factory function is called by the test package to create the top-level `memory` group. The [`createChildren()`](../../../modules/vulkan/memory/vktMemoryTests.cpp:52) function inside the anonymous namespace adds all child subgroups.
+Central registration point. The [`createTests()`](../../../modules/vulkan/memory/vktMemoryTests.cpp#L82) factory function is called by the test package to create the top-level `memory` group. The [`createChildren()`](../../../modules/vulkan/memory/vktMemoryTests.cpp#L52) function inside the anonymous namespace adds all child subgroups.
 
 ## Registration Path
 
@@ -44,7 +44,7 @@ memory
 
 | Group | VK | VKSC | Reason |
 |-------|:--:|:----:|--------|
-| `allocation` | ✓ | — | Random alloc/free tests fail when `vkFreeMemory` is absent ([line 57](../../../modules/vulkan/memory/vktMemoryTests.cpp:57)) |
+| `allocation` | ✓ | — | Random alloc/free tests fail when `vkFreeMemory` is absent ([line 57](../../../modules/vulkan/memory/vktMemoryTests.cpp#L57)) |
 | `device_group_allocation` | ✓ | — | Same as above |
 | `external_memory_acquire_unmodified` | ✓ | — | Behind `CTS_USES_VULKANSC` guard |
 | `pageable_allocation` | ✓ | — | Same as above |
@@ -84,6 +84,6 @@ memory
 
 ## Notes
 
-- The `allocation`, `device_group_allocation`, and `pageable_allocation` groups share a single implementation via [`createAllocationTestsCommon()`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp:1029) with different `AllocationMode` values.
+- The `allocation`, `device_group_allocation`, and `pageable_allocation` groups share a single implementation via [`createAllocationTestsCommon()`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L1029) with different `AllocationMode` values.
 - The `pipeline_barrier` group is the largest subgroup (~10K lines), covering memory visibility across pipeline stages with various resource usages.
-- VKSC-excluded groups are guarded by `#ifndef CTS_USES_VULKANSC` preprocessor blocks at the [`#include`](../../../modules/vulkan/memory/vktMemoryTests.cpp:34) level and within [`createChildren()`](../../../modules/vulkan/memory/vktMemoryTests.cpp:56).
+- VKSC-excluded groups are guarded by `#ifndef CTS_USES_VULKANSC` preprocessor blocks at the [`#include`](../../../modules/vulkan/memory/vktMemoryTests.cpp#L34) level and within [`createChildren()`](../../../modules/vulkan/memory/vktMemoryTests.cpp#L56).

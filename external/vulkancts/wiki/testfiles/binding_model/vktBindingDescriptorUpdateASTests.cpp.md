@@ -10,7 +10,7 @@ Documents the nested acceleration-structure descriptor update group under `descr
 
 | Group | Availability | Evidence |
 |-------|--------------|----------|
-| `descriptor_update → acceleration_structure` | VK only nested group | Created in [`vktBindingDescriptorUpdateASTests.cpp:2568`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp:2568); factory entry at [`vktBindingDescriptorUpdateASTests.cpp:2566`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp:2566) |
+| `descriptor_update → acceleration_structure` | VK only nested group | Created in [`vktBindingDescriptorUpdateASTests.cpp:2568`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L2568); factory entry at [`vktBindingDescriptorUpdateASTests.cpp:2566`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L2566) |
 
 ## Registration Path
 
@@ -20,19 +20,19 @@ binding_model → descriptor_update → acceleration_structure
 
 ## Test Hierarchy
 
-The group name is `acceleration_structure`; it expands ray-query and ray-tracing test types, descriptor update methods, and shader stages. Evidence starts at [`vktBindingDescriptorUpdateASTests.cpp:2570`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp:2570) and continues through [`vktBindingDescriptorUpdateASTests.cpp:2660`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp:2660).
+The group name is `acceleration_structure`; it expands ray-query and ray-tracing test types, descriptor update methods, and shader stages. Evidence starts at [`vktBindingDescriptorUpdateASTests.cpp:2570`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L2570) and continues through [`vktBindingDescriptorUpdateASTests.cpp:2660`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L2660).
 
 ## Parameter Dimensions
 
 | Dimension | Observed values / source |
 |-----------|--------------------------|
-| Group construction | Verified by [`vktBindingDescriptorUpdateASTests.cpp:2568`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp:2568) |
-| Generated families | Derived from arrays, loops, or child additions near [`vktBindingDescriptorUpdateASTests.cpp:2570`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp:2570) |
+| Group construction | Verified by [`vktBindingDescriptorUpdateASTests.cpp:2568`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L2568) |
+| Generated families | Derived from arrays, loops, or child additions near [`vktBindingDescriptorUpdateASTests.cpp:2570`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L2570) |
 | Build availability | Root or nested registration determines whether the group is always present or guarded by `CTS_USES_VULKANSC` |
 
 ## Support / Feature Requirements
 
-Support checks are implemented near [`vktBindingDescriptorUpdateASTests.cpp:2355`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp:2355). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
+Support checks are implemented near [`vktBindingDescriptorUpdateASTests.cpp:2355`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L2355). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
 
 ## Verification Methods
 

@@ -66,6 +66,8 @@ Do not rely on sources outside this scope for factual claims.
    - Link all important claims to concrete files and lines.
    - Registration claims must point to the function that registers the group or test family.
    - Verification claims must point to the code that performs the check or comparison.
+   - **Source-code line references MUST use GitHub fragment syntax in link targets**: `file.cpp#L82` for a single line and `file.cpp#L82-L95` for a range.
+   - **Colon-style line references are forbidden in wiki links**: do not use `file.cpp:82` or `file.cpp:82-95` for `.cpp`, `.hpp`, `.h`, `.c`, or any other source file targets.
 
 3. **Do not overclaim**
    - Do not say "all features" unless the inspected code justifies that wording.
@@ -394,16 +396,17 @@ When updating its `Level-3 Files` column, use the official top-level-group count
 1. **CPP files are the primary anchor for Level-3 docs**
 2. **Registration path matters**
 3. **Evidence beats intuition**
-4. **Level-3 docs are for files that register tests** — utility/helper files without registration paths do not get their own Level-3 pages
-5. **Top-level-group counts are for tracking, not for limiting writing**
-6. **Factory-symbol names are heuristics, not authoritative user-facing identifiers**
-7. **Avoid factory function names in wiki content** — do not expose factory symbols like `createXxxTests()` in registration trees, tables, or hierarchy sections unless the symbol itself is the subject of a specific code-reference claim. Users who need to trace call stacks should use an IDE, not a wiki. Naming discrepancies between factory symbols and verified group names belong in Notes sections, not in primary tables or trees.
-8. **Internal coordination belongs in temporary files, not in Level-2 wiki pages**
-9. **No parameter explosion**
-10. **Concise but traceable**
-11. **Distinguish observed fact from interpretation**
-12. **Use correct relative links from the current document location**
-13. **Prefer regeneration from source over editing around old wiki mistakes**
+4. **Source-code line references use `#L` fragments, never colon syntax** — source-file link targets must use `file.cpp#L82` or `file.cpp#L82-L95`; `file.cpp:82` and `file.cpp:82-95` are forbidden for `.cpp`, `.hpp`, `.h`, `.c`, and other source files.
+5. **Level-3 docs are for files that register tests** — utility/helper files without registration paths do not get their own Level-3 pages
+6. **Top-level-group counts are for tracking, not for limiting writing**
+7. **Factory-symbol names are heuristics, not authoritative user-facing identifiers**
+8. **Avoid factory function names in wiki content** — do not expose factory symbols like `createXxxTests()` in registration trees, tables, or hierarchy sections unless the symbol itself is the subject of a specific code-reference claim. Users who need to trace call stacks should use an IDE, not a wiki. Naming discrepancies between factory symbols and verified group names belong in Notes sections, not in primary tables or trees.
+9. **Internal coordination belongs in temporary files, not in Level-2 wiki pages**
+10. **No parameter explosion**
+11. **Concise but traceable**
+12. **Distinguish observed fact from interpretation**
+13. **Use correct relative links from the current document location**
+14. **Prefer regeneration from source over editing around old wiki mistakes**
 
 ## Quality Checklist
 

@@ -10,7 +10,7 @@ Verifies descriptor visibility and shader access through primary/secondary comma
 
 | Group | Availability | Evidence |
 |-------|--------------|----------|
-| `shader_access` | VK + VKSC | Created in [`vktBindingShaderAccessTests.cpp:9865`](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp:9865); factory entry at [`vktBindingShaderAccessTests.cpp:9724`](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp:9724) |
+| `shader_access` | VK + VKSC | Created in [`vktBindingShaderAccessTests.cpp:9865`](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp#L9865); factory entry at [`vktBindingShaderAccessTests.cpp:9724`](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp#L9724) |
 
 ## Registration Path
 
@@ -20,19 +20,19 @@ binding_model → shader_access
 
 ## Test Hierarchy
 
-The file builds the `shader_access` group and expands bind location, bind command, update method, descriptor type, stage, and descriptor-dimension tables into cases. Vulkan SC excludes template and push update methods. Evidence starts at [`vktBindingShaderAccessTests.cpp:9726`](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp:9726) and continues through [`vktBindingShaderAccessTests.cpp:9854`](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp:9854).
+The file builds the `shader_access` group and expands bind location, bind command, update method, descriptor type, stage, and descriptor-dimension tables into cases. Vulkan SC excludes template and push update methods. Evidence starts at [`vktBindingShaderAccessTests.cpp:9726`](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp#L9726) and continues through [`vktBindingShaderAccessTests.cpp:9854`](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp#L9854).
 
 ## Parameter Dimensions
 
 | Dimension | Observed values / source |
 |-----------|--------------------------|
-| Group construction | Verified by [`vktBindingShaderAccessTests.cpp:9865`](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp:9865) |
-| Generated families | Derived from arrays, loops, or child additions near [`vktBindingShaderAccessTests.cpp:9726`](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp:9726) |
+| Group construction | Verified by [`vktBindingShaderAccessTests.cpp:9865`](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp#L9865) |
+| Generated families | Derived from arrays, loops, or child additions near [`vktBindingShaderAccessTests.cpp:9726`](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp#L9726) |
 | Build availability | Root or nested registration determines whether the group is always present or guarded by `CTS_USES_VULKANSC` |
 
 ## Support / Feature Requirements
 
-Support checks are implemented near [`vktBindingShaderAccessTests.cpp:3631`](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp:3631). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
+Support checks are implemented near [`vktBindingShaderAccessTests.cpp:3631`](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp#L3631). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
 
 ## Verification Methods
 

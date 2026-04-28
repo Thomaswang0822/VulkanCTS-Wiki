@@ -9,7 +9,7 @@ Buffer and image memory requirements validation tests. Verifies that `VkMemoryRe
 ## Registration
 
 - **Group name:** `requirements`
-- **Registration function:** [`createRequirementsTests()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp:2110)
+- **Registration function:** [`createRequirementsTests()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L2110)
 - **Parent group:** `memory`
 
 ## Test Hierarchy
@@ -61,38 +61,38 @@ requirements
 ### core
 
 Tests memory requirements using the original Vulkan 1.0 core APIs:
-- **Buffer:** [`vkGetBufferMemoryRequirements()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp:429)
-- **Image:** [`vkGetImageMemoryRequirements()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp:887)
-- **Sparse images:** [`vkGetImageSparseMemoryRequirements()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp:891)
+- **Buffer:** [`vkGetBufferMemoryRequirements()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L429)
+- **Image:** [`vkGetImageMemoryRequirements()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L887)
+- **Sparse images:** [`vkGetImageSparseMemoryRequirements()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L891)
 
 ### extended
 
 Same test logic as `core`, but uses `VK_KHR_get_memory_requirements2` extension APIs:
-- **Buffer:** [`vkGetBufferMemoryRequirements2()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp:545-549)
-- **Image:** [`vkGetImageMemoryRequirements2()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp:1437)
+- **Buffer:** [`vkGetBufferMemoryRequirements2()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L545-L549)
+- **Image:** [`vkGetImageMemoryRequirements2()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L1437)
 
 ### dedicated_allocation
 
 Extends `extended` tests to also validate `VkMemoryDedicatedRequirements` chained output, checking `prefersDedicatedAllocation` and `requiresDedicatedAllocation` fields. Requires `VK_KHR_dedicated_allocation`.
 
-Key verification: regular (non-shared) objects must **not** require dedicated allocations ([vktMemoryRequirementsTests.cpp:641-643](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp:641), [vktMemoryRequirementsTests.cpp:1504-1505](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp:1504)).
+Key verification: regular (non-shared) objects must **not** require dedicated allocations ([vktMemoryRequirementsTests.cpp:641-643](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L641), [vktMemoryRequirementsTests.cpp:1504-1505](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L1504)).
 
 ### multiplane_image
 
-Tests per-plane memory requirements for multi-planar (YCbCr) image formats using `VK_KHR_sampler_ycbcr_conversion` and `VK_KHR_get_memory_requirements2`. Iterates over `formats::planarFormats` and queries requirements for each plane aspect via `VkImagePlaneMemoryRequirementsInfo` ([vktMemoryRequirementsTests.cpp:1873-1880](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp:1873)).
+Tests per-plane memory requirements for multi-planar (YCbCr) image formats using `VK_KHR_sampler_ycbcr_conversion` and `VK_KHR_get_memory_requirements2`. Iterates over `formats::planarFormats` and queries requirements for each plane aspect via `VkImagePlaneMemoryRequirementsInfo` ([vktMemoryRequirementsTests.cpp:1873-1880](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L1873)).
 
 ### memory_property_flags
 
-Validates that all memory types reported by `vkGetPhysicalDeviceMemoryProperties()` match known `VkMemoryPropertyFlagBits` combinations ([vktMemoryRequirementsTests.cpp:2013-2080](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp:2013)).
+Validates that all memory types reported by `vkGetPhysicalDeviceMemoryProperties()` match known `VkMemoryPropertyFlagBits` combinations ([vktMemoryRequirementsTests.cpp:2013-2080](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L2013)).
 
 ### create_info (Vulkan 1.0 only)
 
 Tests `VK_KHR_maintenance4` create-info-based memory requirement queries:
-- **Buffer:** [`vkGetDeviceBufferMemoryRequirements()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp:125) — queries requirements without creating a buffer object
-- **Image:** [`vkGetDeviceImageMemoryRequirements()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp:164) — queries without creating an image
-- **Sparse:** [`vkGetDeviceImageSparseMemoryRequirements()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp:180)
+- **Buffer:** [`vkGetDeviceBufferMemoryRequirements()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L125) — queries requirements without creating a buffer object
+- **Image:** [`vkGetDeviceImageMemoryRequirements()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L164) — queries without creating an image
+- **Sparse:** [`vkGetDeviceImageSparseMemoryRequirements()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L180)
 
-Verifies results match equivalent object-based queries ([vktMemoryRequirementsTests.cpp:713-726](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp:713), [vktMemoryRequirementsTests.cpp:1571-1639](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp:1571)).
+Verifies results match equivalent object-based queries ([vktMemoryRequirementsTests.cpp:713-726](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L713), [vktMemoryRequirementsTests.cpp:1571-1639](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L1571)).
 
 ## Parameter Dimensions
 
@@ -138,11 +138,11 @@ Verifies results match equivalent object-based queries ([vktMemoryRequirementsTe
 | `VK_KHR_dedicated_allocation` | dedicated_allocation group |
 | `VK_KHR_sampler_ycbcr_conversion` | multiplane_image group |
 | `VK_KHR_maintenance4` | create_info group |
-| `VK_EXT_texture_compression_astc_3d` | ASTC 3D format cases ([vktMemoryRequirementsTests.cpp:1164](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp:1164)) |
+| `VK_EXT_texture_compression_astc_3d` | ASTC 3D format cases ([vktMemoryRequirementsTests.cpp:1164](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L1164)) |
 
 ## Verification Methods
 
-### Buffer verification ([vktMemoryRequirementsTests.cpp:437-502](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp:437))
+### Buffer verification ([vktMemoryRequirementsTests.cpp:437-502](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L437))
 
 - `memoryTypeBits` must have at least one bit set
 - All bits must reference valid memory type indices
@@ -154,7 +154,7 @@ Verifies results match equivalent object-based queries ([vktMemoryRequirementsTe
 - `memoryTypeBits` for specific usage must be a superset of all-usage-combined bits
 - For same create/usage flags, `memoryTypeBits` and `alignment` must be identical across different sizes
 
-### Image verification ([vktMemoryRequirementsTests.cpp:895-952](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp:895))
+### Image verification ([vktMemoryRequirementsTests.cpp:895-952](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L895))
 
 - Same basic checks as buffer (valid bits, power-of-two alignment, device local)
 - `LAZILY_ALLOCATED_BIT` only allowed for transient attachment images
@@ -162,14 +162,14 @@ Verifies results match equivalent object-based queries ([vktMemoryRequirementsTe
 - For sparse images, `imageMipTailSize` must be aligned with sparse block size
 - `memoryTypeBits` must be consistent across configurations with same tiling/transient/sparse flags
 
-### Multiplane verification ([vktMemoryRequirementsTests.cpp:1888-1948](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp:1888))
+### Multiplane verification ([vktMemoryRequirementsTests.cpp:1888-1948](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L1888))
 
 - Per-plane alignment must be power of two
 - Sparse `imageMipTailSize` aligned with sparse block size
 - Linear-tiling requires `HOST_VISIBLE_BIT` (unless protected)
 - `LAZILY_ALLOCATED_BIT` only for transient attachments
 
-### Create-info verification ([vktMemoryRequirementsTests.cpp:706-727](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp:706))
+### Create-info verification ([vktMemoryRequirementsTests.cpp:706-727](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L706))
 
 - Results from create-info queries must match object-based queries (alignment, memoryTypeBits, size)
 - Smaller objects must not require larger memory sizes

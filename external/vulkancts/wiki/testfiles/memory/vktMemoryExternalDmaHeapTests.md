@@ -9,7 +9,7 @@ Tests for `VK_EXT_external_memory_dma_buf` with DMA heap allocator integration. 
 ## Registration
 
 - **Group name:** `dma_heap_memory`
-- **Registration function:** [`createDmaHeapTests()`](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp:354)
+- **Registration function:** [`createDmaHeapTests()`](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp#L354)
 - **Parent group:** `memory`
 
 ## Test Hierarchy
@@ -25,7 +25,7 @@ dma_heap_memory
 
 ### allocate_and_bind
 
-Basic test that verifies DMA heap memory allocation and buffer binding succeeds. Creates a buffer with `VK_EXTERNAL_MEMORY_HANDLE_TYPE_DMA_BUF_BIT_EXT` and allocates memory from a `DmaHeapAllocator` ([vktMemoryExternalDmaHeapTests.cpp:132-157](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp:132)).
+Basic test that verifies DMA heap memory allocation and buffer binding succeeds. Creates a buffer with `VK_EXTERNAL_MEMORY_HANDLE_TYPE_DMA_BUF_BIT_EXT` and allocates memory from a `DmaHeapAllocator` ([vktMemoryExternalDmaHeapTests.cpp:132-157](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp#L132)).
 
 ### shader_access
 
@@ -33,11 +33,11 @@ End-to-end test verifying that DMA heap memory is accessible from both CPU and G
 1. A host-visible buffer is filled with a known pattern (value 42)
 2. A compute shader copies data from the host-visible buffer to the DMA heap buffer
 3. A second compute shader copies data back from the DMA heap buffer to the host-visible buffer
-4. CPU reads back and verifies the pattern matches ([vktMemoryExternalDmaHeapTests.cpp:159-350](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp:159))
+4. CPU reads back and verifies the pattern matches ([vktMemoryExternalDmaHeapTests.cpp:159-350](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp#L159))
 
 ### shader_access_offset
 
-Same as `shader_access` but with a non-zero offset parameter (`offset = 20000`) passed to the DMA heap allocator. This tests that the allocator correctly handles offset alignment requirements using `nonCoherentAtomSize` ([vktMemoryExternalDmaHeapTests.cpp:173-183](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp:173)).
+Same as `shader_access` but with a non-zero offset parameter (`offset = 20000`) passed to the DMA heap allocator. This tests that the allocator correctly handles offset alignment requirements using `nonCoherentAtomSize` ([vktMemoryExternalDmaHeapTests.cpp:173-183](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp#L173)).
 
 ## Parameter Dimensions
 
@@ -61,14 +61,14 @@ Same as `shader_access` but with a non-zero offset parameter (`offset = 20000`) 
 
 | Extension/Feature | Required by |
 |-------------------|-------------|
-| `VK_EXT_external_memory_dma_buf` | All tests ([vktMemoryExternalDmaHeapTests.cpp:59](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp:59)) |
-| `VK_EXTERNAL_MEMORY_FEATURE_IMPORTABLE_BIT` for DMA_BUF | All tests ([vktMemoryExternalDmaHeapTests.cpp:69-73](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp:69)) |
-| NOT `VK_EXTERNAL_MEMORY_FEATURE_DEDICATED_ONLY_BIT` | All tests ([vktMemoryExternalDmaHeapTests.cpp:75-79](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp:75)) |
-| `vk::DmaHeapAllocator::isSupported()` | All tests ([vktMemoryExternalDmaHeapTests.cpp:81-84](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp:81)) |
+| `VK_EXT_external_memory_dma_buf` | All tests ([vktMemoryExternalDmaHeapTests.cpp:59](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp#L59)) |
+| `VK_EXTERNAL_MEMORY_FEATURE_IMPORTABLE_BIT` for DMA_BUF | All tests ([vktMemoryExternalDmaHeapTests.cpp:69-73](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp#L69)) |
+| NOT `VK_EXTERNAL_MEMORY_FEATURE_DEDICATED_ONLY_BIT` | All tests ([vktMemoryExternalDmaHeapTests.cpp:75-79](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp#L75)) |
+| `vk::DmaHeapAllocator::isSupported()` | All tests ([vktMemoryExternalDmaHeapTests.cpp:81-84](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp#L81)) |
 
 ## Verification Methods
 
-### Shader access validation ([vktMemoryExternalDmaHeapTests.cpp:331-347](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp:331))
+### Shader access validation ([vktMemoryExternalDmaHeapTests.cpp:331-347](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp#L331))
 
 After the compute shader round-trip (host → DMA heap → host), each element is compared:
 ```
@@ -93,5 +93,5 @@ The command buffer includes explicit barriers between each stage:
 
 - The `DmaHeapAllocator` is a platform-specific allocator that allocates from Linux DMA heap interfaces
 - The test uses `VK_BUFFER_USAGE_STORAGE_BUFFER_BIT` for both buffers, enabling compute shader access via storage buffer descriptors
-- The DMA heap buffer is created with `VkExternalMemoryBufferCreateInfo` in the `pNext` chain of `VkBufferCreateInfo` ([vktMemoryExternalDmaHeapTests.cpp:197-205](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp:197))
+- The DMA heap buffer is created with `VkExternalMemoryBufferCreateInfo` in the `pNext` chain of `VkBufferCreateInfo` ([vktMemoryExternalDmaHeapTests.cpp:197-205](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp#L197))
 - Only Linux/Android platforms are supported — the test checks `vk::DmaHeapAllocator::isSupported()` and throws `NotSupportedError` otherwise

@@ -10,7 +10,7 @@ Covers descriptor update corner cases: empty bindings, samplerless writes, rando
 
 | Group | Availability | Evidence |
 |-------|--------------|----------|
-| `descriptor_update` | VK + VKSC, with nested VK-only AS group | Created in [`vktBindingDescriptorUpdateTests.cpp:1909`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp:1909); factory entry at [`vktBindingDescriptorUpdateTests.cpp:1907`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp:1907) |
+| `descriptor_update` | VK + VKSC, with nested VK-only AS group | Created in [`vktBindingDescriptorUpdateTests.cpp:1909`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L1909); factory entry at [`vktBindingDescriptorUpdateTests.cpp:1907`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L1907) |
 
 ## Registration Path
 
@@ -20,19 +20,19 @@ binding_model → descriptor_update
 
 ## Test Hierarchy
 
-The file creates `descriptor_update` and adds `empty_descriptor`, `samplerless`, `random`, and, outside `CTS_USES_VULKANSC`, `acceleration_structure`. Evidence starts at [`vktBindingDescriptorUpdateTests.cpp:1911`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp:1911) and continues through [`vktBindingDescriptorUpdateTests.cpp:1916`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp:1916).
+The file creates `descriptor_update` and adds `empty_descriptor`, `samplerless`, `random`, and, outside `CTS_USES_VULKANSC`, `acceleration_structure`. Evidence starts at [`vktBindingDescriptorUpdateTests.cpp:1911`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L1911) and continues through [`vktBindingDescriptorUpdateTests.cpp:1916`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L1916).
 
 ## Parameter Dimensions
 
 | Dimension | Observed values / source |
 |-----------|--------------------------|
-| Group construction | Verified by [`vktBindingDescriptorUpdateTests.cpp:1909`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp:1909) |
-| Generated families | Derived from arrays, loops, or child additions near [`vktBindingDescriptorUpdateTests.cpp:1911`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp:1911) |
+| Group construction | Verified by [`vktBindingDescriptorUpdateTests.cpp:1909`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L1909) |
+| Generated families | Derived from arrays, loops, or child additions near [`vktBindingDescriptorUpdateTests.cpp:1911`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L1911) |
 | Build availability | Root or nested registration determines whether the group is always present or guarded by `CTS_USES_VULKANSC` |
 
 ## Support / Feature Requirements
 
-Support checks are implemented near [`vktBindingDescriptorUpdateTests.cpp:311`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp:311). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
+Support checks are implemented near [`vktBindingDescriptorUpdateTests.cpp:311`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L311). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
 
 ## Verification Methods
 

@@ -9,7 +9,7 @@ Tests for `VK_EXT_device_address_binding_report`. Validates that the debug utils
 ## Registration
 
 - **Group name:** `address_binding_report`
-- **Registration function:** [`createAddressBindingReportTests()`](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp:1831)
+- **Registration function:** [`createAddressBindingReportTests()`](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L1831)
 - **Parent group:** `memory`
 
 ## Test Hierarchy
@@ -92,7 +92,7 @@ Tests that creating and destroying each Vulkan object type produces properly pai
 | `CommandPool` | Default, transient |
 | `CommandBuffer` | Primary, secondary |
 
-Each test creates the object within a scoped block, then validates that all callback records are properly paired ([vktMemoryAddressBindingTests.cpp:1956-1983](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp:1956)).
+Each test creates the object within a scoped block, then validates that all callback records are properly paired ([vktMemoryAddressBindingTests.cpp:1956-1983](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L1956)).
 
 ## Parameter Dimensions
 
@@ -116,13 +116,13 @@ Each test creates the object within a scoped block, then validates that all call
 
 | Extension/Feature | Required by |
 |-------------------|-------------|
-| `VK_EXT_device_address_binding_report` | All tests ([vktMemoryAddressBindingTests.cpp:200](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp:200)) |
-| `VK_EXT_device_address_binding_report` feature | Device created with `VkPhysicalDeviceAddressBindingReportFeaturesEXT::deviceAddressBindingReport = VK_TRUE` ([vktMemoryAddressBindingTests.cpp:203-204](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp:203)) |
+| `VK_EXT_device_address_binding_report` | All tests ([vktMemoryAddressBindingTests.cpp:200](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L200)) |
+| `VK_EXT_device_address_binding_report` feature | Device created with `VkPhysicalDeviceAddressBindingReportFeaturesEXT::deviceAddressBindingReport = VK_TRUE` ([vktMemoryAddressBindingTests.cpp:203-204](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L203)) |
 | `VK_IMAGE_VIEW_TYPE_CUBE_ARRAY` support | cube array image view test |
 
 ## Verification Methods
 
-### Callback recorder ([vktMemoryAddressBindingTests.cpp:92-146](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp:92))
+### Callback recorder ([vktMemoryAddressBindingTests.cpp:92-146](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L92))
 
 The `BindingCallbackRecorder` class:
 1. Registers as a `VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT` callback via `vkCreateDebugUtilsMessengerEXT`
@@ -132,7 +132,7 @@ The `BindingCallbackRecorder` class:
    - `bindingType` — `VK_DEVICE_ADDRESS_BINDING_TYPE_BIND_EXT` or `VK_DEVICE_ADDRESS_BINDING_TYPE_UNBIND_EXT`
    - `objectHandle` — the Vulkan object handle
 
-### Callback pairing validation ([vktMemoryAddressBindingTests.cpp:1650-1730](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp:1650))
+### Callback pairing validation ([vktMemoryAddressBindingTests.cpp:1650-1730](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L1650))
 
 The `validateCallbackRecords()` function checks:
 1. Each `BIND` event is tracked by `(objectHandle, bindingAddress)` pairs
@@ -144,12 +144,12 @@ The `validateCallbackRecords()` function checks:
 
 - **Callback completeness:** Every address binding must have a corresponding unbinding
 - **Object lifecycle:** Bindings occur when objects are created; unbindings occur when objects are destroyed
-- **Custom device isolation:** All object tests create a custom device with address binding report enabled to avoid interference from the test framework's own allocations ([vktMemoryAddressBindingTests.cpp:1800-1811](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp:1800))
-- **Scoped lifetime:** Objects are created within a scoped block `{ ... }` to ensure deterministic destruction before validation ([vktMemoryAddressBindingTests.cpp:1813-1816](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp:1813))
+- **Custom device isolation:** All object tests create a custom device with address binding report enabled to avoid interference from the test framework's own allocations ([vktMemoryAddressBindingTests.cpp:1800-1811](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L1800))
+- **Scoped lifetime:** Objects are created within a scoped block `{ ... }` to ensure deterministic destruction before validation ([vktMemoryAddressBindingTests.cpp:1813-1816](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L1813))
 
 ## Notes
 
-- The test uses a template-based object creation system (`Dependency<Object>`, `NamedParameters<Object>`) to generically test all object types with the same validation logic ([vktMemoryAddressBindingTests.cpp:181-192](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp:181))
-- The `Device` test case creates a custom device with the extension enabled; all other objects clone the environment and create their own custom device ([vktMemoryAddressBindingTests.cpp:1793-1811](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp:1793))
-- The debug messenger is destroyed after all object tests complete ([vktMemoryAddressBindingTests.cpp:1819](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp:1819))
+- The test uses a template-based object creation system (`Dependency<Object>`, `NamedParameters<Object>`) to generically test all object types with the same validation logic ([vktMemoryAddressBindingTests.cpp:181-192](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L181))
+- The `Device` test case creates a custom device with the extension enabled; all other objects clone the environment and create their own custom device ([vktMemoryAddressBindingTests.cpp:1793-1811](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L1793))
+- The debug messenger is destroyed after all object tests complete ([vktMemoryAddressBindingTests.cpp:1819](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L1819))
 - Only one test group exists (`create_and_destroy_object`); there are no direct address manipulation tests or external address tests

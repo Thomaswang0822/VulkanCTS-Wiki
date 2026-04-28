@@ -10,7 +10,7 @@ Exercises buffer device address loads, conversions, pointer storage, layouts, sh
 
 | Group | Availability | Evidence |
 |-------|--------------|----------|
-| `buffer_device_address` | VK + VKSC, with Vulkan-only capture-replay details | Created in [`vktBindingBufferDeviceAddressTests.cpp:2224`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp:2224); factory entry at [`vktBindingBufferDeviceAddressTests.cpp:2222`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp:2222) |
+| `buffer_device_address` | VK + VKSC, with Vulkan-only capture-replay details | Created in [`vktBindingBufferDeviceAddressTests.cpp:2224`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2224); factory entry at [`vktBindingBufferDeviceAddressTests.cpp:2222`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2222) |
 
 ## Registration Path
 
@@ -20,19 +20,19 @@ binding_model → buffer_device_address
 
 ## Test Hierarchy
 
-The group name is `buffer_device_address`; generated hierarchy spans descriptor-set count, pointer depth, base buffer type, conversion mode, storage mode, buffer topology, layout, stage, and offset. Evidence starts at [`vktBindingBufferDeviceAddressTests.cpp:2232`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp:2232) and continues through [`vktBindingBufferDeviceAddressTests.cpp:2385`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp:2385).
+The group name is `buffer_device_address`; generated hierarchy spans descriptor-set count, pointer depth, base buffer type, conversion mode, storage mode, buffer topology, layout, stage, and offset. Evidence starts at [`vktBindingBufferDeviceAddressTests.cpp:2232`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2232) and continues through [`vktBindingBufferDeviceAddressTests.cpp:2385`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2385).
 
 ## Parameter Dimensions
 
 | Dimension | Observed values / source |
 |-----------|--------------------------|
-| Group construction | Verified by [`vktBindingBufferDeviceAddressTests.cpp:2224`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp:2224) |
-| Generated families | Derived from arrays, loops, or child additions near [`vktBindingBufferDeviceAddressTests.cpp:2232`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp:2232) |
+| Group construction | Verified by [`vktBindingBufferDeviceAddressTests.cpp:2224`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2224) |
+| Generated families | Derived from arrays, loops, or child additions near [`vktBindingBufferDeviceAddressTests.cpp:2232`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2232) |
 | Build availability | Root or nested registration determines whether the group is always present or guarded by `CTS_USES_VULKANSC` |
 
 ## Support / Feature Requirements
 
-Support checks are implemented near [`vktBindingBufferDeviceAddressTests.cpp:173`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp:173). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
+Support checks are implemented near [`vktBindingBufferDeviceAddressTests.cpp:173`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L173). Requirements vary by selected case and extension path; this page records only the recurring gates visible in the inspected file.
 
 ## Verification Methods
 
