@@ -111,12 +111,14 @@ Document them differently according to their role.
 ### Parallel Execution
 
 If orchestration is available:
-1. Identify the category registration file and all relevant implementation files
-2. Split the category by top-level registered groups from the category root registration file
-3. Launch workers per top-level group when helpful
-4. Allow workers to create additional Level-3 pages for nested registered subgroup files under their assigned top-level group
-5. Review worker output for unsupported claims and broken links
-6. Create or update the Level-2 summary only after Level-3 evidence is stable
+1. Identify the category registration file and inspect its `#include` section first
+2. Use included `.hpp` files, excluding the root header and utility/helper-only headers, as the primary initial index for top-level branches
+3. Map each candidate header to its corresponding `.cpp` and inspect that implementation file to verify the displayed `TestCaseGroup` name
+4. Use direct registration calls in `createChildren()` or equivalent only as a cross-check for included headers and conditional registration, not as the primary indexing method
+5. Launch workers per verified top-level branch when helpful
+6. Allow workers to create additional Level-3 pages for nested registered subgroup files under their assigned top-level group
+7. Review worker output for unsupported claims and broken links
+8. Create or update the Level-2 summary only after Level-3 evidence is stable
 
 ### Completion
 
@@ -240,13 +242,19 @@ Use two different concepts and do not mix them:
 
 ### How to identify top-level groups for counting
 
-For a category, start from its root registration file and count the groups added directly there.
+For a category, start from the root registration file's `#include` section. Use included `.hpp` files as the primary initial index for top-level branches, excluding:
 
-- Example for `api`: inspect [`createApiTests()`](../../../external/vulkancts/modules/vulkan/api/vktApiTests.cpp#L86).
-- Example for `geometry`: inspect [`createChildren()`](../../../external/vulkancts/modules/vulkan/geometry/vktGeometryTests.cpp#L41).
-- Example for `info`: inspect [`createInfoTests()`](../../../external/vulkancts/modules/vulkan/vktInfoTests.cpp#L260).
+- the root category header (`vkt{Category}Tests.hpp` or equivalent)
+- shared utilities and helper-only headers
+- headers included only by implementation files rather than the root registration file
 
-This counting step is about how many top-level registered children the category has, not about how to name them in user-facing text.
+For each candidate top-level header:
+
+1. Map the header to its corresponding `.cpp` implementation file.
+2. Inspect the implementation file for the group construction that defines the displayed `TestCaseGroup` name.
+3. Use `createChildren()` or equivalent direct registration calls only as a cross-check that the header-backed group is actually added at the root level and to identify conditional registration such as compile-time guards.
+
+This counting step is about how many top-level registered children the category has. It is not a count of every `.cpp` file, every nested subgroup file, or every Level-3 page written for the category.
 
 ### How to determine the correct group name
 
@@ -255,10 +263,12 @@ Do not assume the displayed group name from the factory symbol passed to `addChi
 **Step-by-step discovery process:**
 
 1. **Start from the category root registration file** (e.g., `vktGeometryTests.cpp`)
-2. **Examine the include section** — identify headers that register test groups (exclude the file's own `.hpp` and utility headers)
-3. **Navigate to each header file** — find the factory function declaration (e.g., `createVaryingGeometryShaderTests()`)
-4. **Navigate to the corresponding `.cpp` file** — find the factory function definition
-5. **Locate the group name** — look for `TestCaseGroup` construction with the string name:
+2. **Examine the include section first** — identify included headers that correspond to root-level test groups (exclude the file's own `.hpp` and utility/helper-only headers)
+3. **Use those headers as the primary branch index** — do not primarily count by following factory-symbol calls in `createChildren()`
+4. **Cross-check root registration calls** — use `createChildren()` or equivalent to confirm the included header is registered directly at the root and to note conditional registration guards
+5. **Navigate to each header file** — find the factory function declaration only as a navigation aid, not as the authoritative group name
+6. **Navigate to the corresponding `.cpp` file** — find the factory function definition or group-building function
+7. **Locate the group name** — look for `TestCaseGroup` construction with the string name:
    ```cpp
    MovePtr<TestCaseGroup> varyingGroup(new TestCaseGroup(testCtx, "varying"));
    ```
@@ -291,10 +301,11 @@ Those sources can help discover material to inspect, but they are not the tracke
 ### Worker-dispatch rule
 
 When a category is large:
-- use top-level branches from the category root registration file as the dispatch unit for worker sessions;
-- in internal trackers, use filenames as the early indexing aid before the precise group names are verified;
+- use top-level branches discovered from the category root registration file's include section as the dispatch unit for worker sessions;
+- in internal trackers, use header/source filenames as the early indexing aid before the precise group names are verified;
+- use root-level registration calls as a cross-check for included headers and compile-time conditions;
 - allow each worker to inspect and document nested subgroup files inside its assigned top-level branch;
-- keep the official category count aligned only to the top-level registration structure so progress tracking stays simple and stable.
+- keep the official tracker count aligned only to the top-level registration structure, while allowing the writing scope to include nested registered files when they are meaningful Level-3 units.
 
 ## Analysis Process
 
@@ -324,9 +335,12 @@ Identify:
 
 ### Step 4: Trace Registration
 
-Start from the category registration file and trace:
-- top-level group creation
-- subgroup creation functions
+Start from the category root registration file's `#include` section and trace:
+- included `.hpp` files that correspond to root-level registered test groups
+- exclusions for the root header and utility/helper-only headers
+- header-to-`.cpp` mappings for implementation inspection
+- `createChildren()` or equivalent direct registration calls as a cross-check for root-level registration and conditional guards
+- subgroup creation functions only after the top-level branch is established
 - delegation to implementation files
 
 Use this step to identify the counted top-level branches. Do not finalize displayed group names until the corresponding implementation files are verified.
