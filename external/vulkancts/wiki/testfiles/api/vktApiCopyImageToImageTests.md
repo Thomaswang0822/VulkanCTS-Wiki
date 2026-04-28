@@ -22,9 +22,9 @@ Tests for `vkCmdCopyImage` and `vkCmdCopyImage2` (via `VK_KHR_copy_commands2`). 
 
 
 
-- [`vktApiCopyImageToImageTests.cpp`](../../../external/vulkancts/modules/vulkan/api/vktApiCopyImageToImageTests.cpp)
+- [`vktApiCopyImageToImageTests.cpp`](../../../modules/vulkan/api/vktApiCopyImageToImageTests.cpp)
 
-- [`vktApiCopyImageToImageTests.hpp`](../../../external/vulkancts/modules/vulkan/api/vktApiCopyImageToImageTests.hpp)
+- [`vktApiCopyImageToImageTests.hpp`](../../../modules/vulkan/api/vktApiCopyImageToImageTests.hpp)
 
 
 
@@ -40,7 +40,7 @@ api �?copy_and_blit �?(core|dedicated_allocation|copy_commands2|...) �?ima
 
 
 
-Registered via [`addCopyImageToImageTests()`](../../../external/vulkancts/modules/vulkan/api/vktApiCopyImageToImageTests.cpp#L4440) and [`addCopyImageToImageTestsSimpleOnly()`](../../../external/vulkancts/modules/vulkan/api/vktApiCopyImageToImageTests.cpp#L4456).
+Registered via [`addCopyImageToImageTests()`](../../../modules/vulkan/api/vktApiCopyImageToImageTests.cpp#L4440) and [`addCopyImageToImageTestsSimpleOnly()`](../../../modules/vulkan/api/vktApiCopyImageToImageTests.cpp#L4456).
 
 
 
@@ -88,7 +88,7 @@ image_to_image
 
 
 
-- Inherits [`CopiesAndBlittingTestInstanceWithSparseSemaphore`](../../../external/vulkancts/modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L474)
+- Inherits [`CopiesAndBlittingTestInstanceWithSparseSemaphore`](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L474)
 
 - Creates source and destination `VkImage` with `VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT`
 
@@ -106,7 +106,7 @@ image_to_image
 
 - Extends `TestParams` with `compatibleFormats` pointer for all-formats color tests
 
-- [`isAllowedImageToImageAllFormatsColorSrcFormatTests()`](../../../external/vulkancts/modules/vulkan/api/vktApiCopyImageToImageTests.cpp#L44) filters formats for dedicated allocation tests
+- [`isAllowedImageToImageAllFormatsColorSrcFormatTests()`](../../../modules/vulkan/api/vktApiCopyImageToImageTests.cpp#L44) filters formats for dedicated allocation tests
 
 
 
@@ -194,9 +194,9 @@ image_to_image
 
 
 
-- The `all_formats` and `dimensions` subgroups are skipped when `useSparseBinding` is set �?confirmed at [lines 4443�?447](../../../external/vulkancts/modules/vulkan/api/vktApiCopyImageToImageTests.cpp#L4443)
+- The `all_formats` and `dimensions` subgroups are skipped when `useSparseBinding` is set �?confirmed at [lines 4443�?447](../../../modules/vulkan/api/vktApiCopyImageToImageTests.cpp#L4443)
 
-- The `misc` subgroup is only created for `TransferOnly` queue selection �?confirmed at [line 4450](../../../external/vulkancts/modules/vulkan/api/vktApiCopyImageToImageTests.cpp#L4450)
+- The `misc` subgroup is only created for `TransferOnly` queue selection �?confirmed at [line 4450](../../../modules/vulkan/api/vktApiCopyImageToImageTests.cpp#L4450)
 
 - The `clearDestinationWithRed` flag clears the destination with red before copying to detect out-of-bounds writes
 

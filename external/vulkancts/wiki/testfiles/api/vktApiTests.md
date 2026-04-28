@@ -61,7 +61,7 @@ api
 └── performance_counters_by_region [not in Vulkan SC]
 ```
 
-Source: [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L86), verified against mustpass [`api.txt`](../../../external/vulkancts/mustpass/main/vk-default/api.txt).
+Source: [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L86), verified against mustpass [`api.txt`](../../../mustpass/main/vk-default/api.txt).
 
 ## Registered Subgroups
 

@@ -22,9 +22,9 @@ Tests for `vkCmdCopyBuffer` and its extensions (`vkCmdCopyBuffer2` via `VK_KHR_c
 
 
 
-- [`vktApiCopyBufferToBufferTests.cpp`](../../../external/vulkancts/modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp)
+- [`vktApiCopyBufferToBufferTests.cpp`](../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp)
 
-- [`vktApiCopyBufferToBufferTests.hpp`](../../../external/vulkancts/modules/vulkan/api/vktApiCopyBufferToBufferTests.hpp)
+- [`vktApiCopyBufferToBufferTests.hpp`](../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.hpp)
 
 
 
@@ -40,11 +40,11 @@ api �?copy_and_blit �?(core|dedicated_allocation|copy_commands2|device_addre
 
 
 
-Registered via [`addCopyBufferToBufferTests()`](../../../external/vulkancts/modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L421), called from the dispatcher [`addCopiesAndBlittingTests()`](../../../external/vulkancts/modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L135).
+Registered via [`addCopyBufferToBufferTests()`](../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L421), called from the dispatcher [`addCopiesAndBlittingTests()`](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L135).
 
 
 
-Additionally, [`addCopyBufferToBufferOffsetTests()`](../../../external/vulkancts/modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L621) is called only in the `core` subgroup.
+Additionally, [`addCopyBufferToBufferOffsetTests()`](../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L621) is called only in the `core` subgroup.
 
 
 
@@ -94,7 +94,7 @@ buffer_offset_tests
 
 
 
-- Inherits [`CopiesAndBlittingTestInstance`](../../../external/vulkancts/modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L420)
+- Inherits [`CopiesAndBlittingTestInstance`](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L420)
 
 - Creates source and destination `VkBuffer` with `VK_BUFFER_USAGE_TRANSFER_SRC_BIT` / `VK_BUFFER_USAGE_TRANSFER_DST_BIT`
 
@@ -110,7 +110,7 @@ buffer_offset_tests
 
 - Inherits `vkt::TestCase`
 
-- [`checkSupport()`](../../../external/vulkancts/modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L294) delegates to `checkExtensionSupport()` from the utility
+- [`checkSupport()`](../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L294) delegates to `checkExtensionSupport()` from the utility
 
 
 
@@ -118,11 +118,11 @@ buffer_offset_tests
 
 
 
-- [`bufferOffsetTest()`](../../../external/vulkancts/modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L326) �?standalone function-case test
+- [`bufferOffsetTest()`](../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L326) �?standalone function-case test
 
 - Verifies that bytes before `dstOffset` and after the copy region remain zero
 
-- Uses [`BufferOffsetParams`](../../../external/vulkancts/modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L303) with `kMaxOffset=8`
+- Uses [`BufferOffsetParams`](../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L303) with `kMaxOffset=8`
 
 
 
@@ -156,7 +156,7 @@ buffer_offset_tests
 
 - Non-universal queue tests require appropriate queue family support
 
-- Checked via [`checkExtensionSupport()`](../../../external/vulkancts/modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L356)
+- Checked via [`checkExtensionSupport()`](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L356)
 
 
 
@@ -164,11 +164,11 @@ buffer_offset_tests
 
 
 
-- **Bit-exact comparison**: The CPU reference is computed by [`copyRegionToTextureLevel()`](../../../external/vulkancts/modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L271) which performs `deMemcpy` of source region bytes to destination offsets
+- **Bit-exact comparison**: The CPU reference is computed by [`copyRegionToTextureLevel()`](../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L271) which performs `deMemcpy` of source region bytes to destination offsets
 
-- Destination buffer is read back as `VK_FORMAT_R32_UINT` and compared via [`checkTestResult()`](../../../external/vulkancts/modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L454) from the base class
+- Destination buffer is read back as `VK_FORMAT_R32_UINT` and compared via [`checkTestResult()`](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L454) from the base class
 
-- Offset tests use direct byte-level comparison against expected data with [`checkZerosAt()`](../../../external/vulkancts/modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L311) for untouched bytes
+- Offset tests use direct byte-level comparison against expected data with [`checkZerosAt()`](../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L311) for untouched bytes
 
 
 
@@ -192,6 +192,6 @@ buffer_offset_tests
 
 
 
-- The `regions` and `unaligned_regions` tests are skipped when `DEVICE_ADDRESS_COMMANDS` is set due to VUID-VkCopyDeviceMemoryInfoKHR-srcRange-13015 ([line 474](../../../external/vulkancts/modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L474))
+- The `regions` and `unaligned_regions` tests are skipped when `DEVICE_ADDRESS_COMMANDS` is set due to VUID-VkCopyDeviceMemoryInfoKHR-srcRange-13015 ([line 474](../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L474))
 
 - Only `addCopyBufferToBufferTests` and `addCopyBufferToBufferOffsetTests` are exported from the header; all other classes/functions are in the anonymous namespace

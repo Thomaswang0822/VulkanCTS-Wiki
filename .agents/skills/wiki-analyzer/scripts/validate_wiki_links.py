@@ -7,7 +7,7 @@ that every local file link points to an existing path inside the repository.
 External URLs, URI schemes, and anchor-only links are ignored.
 
 Usage:
-    python validate_wiki_links.py [--wiki-dir PATH] [--repo-root PATH] [--verbose] [--auto-fix]
+    python validate_wiki_links.py [--wiki-dir PATH] [--files PATH [PATH ...]] [--repo-root PATH] [--verbose] [--auto-fix]
 
 Exit codes:
     0 - All local links valid and no style violations
@@ -173,9 +173,17 @@ def validate_wiki_links(
     wiki_dir: Path,
     repo_root: Path,
     verbose: bool = False,
+    md_files: Optional[List[Path]] = None,
 ) -> Tuple[List[BrokenLink], List[StyleViolation]]:
     """
     Validate all local links in wiki markdown files.
+
+    Args:
+        wiki_dir: Wiki directory for discovery (used when md_files is None).
+        repo_root: Repository root for path validation.
+        verbose: Print verbose output.
+        md_files: Explicit list of markdown files to validate. When provided,
+                  wiki_dir discovery is skipped.
 
     Returns:
     - broken links as (md_file, line_num, link_target, error_message, resolved_path)
@@ -184,7 +192,8 @@ def validate_wiki_links(
     broken_links: List[BrokenLink] = []
     style_violations: List[StyleViolation] = []
 
-    md_files = sorted(wiki_dir.rglob('*.md'))
+    if md_files is None:
+        md_files = sorted(wiki_dir.rglob('*.md'))
 
     if verbose:
         print(f"Found {len(md_files)} markdown files to check")
@@ -245,10 +254,11 @@ def format_path_for_output(path: Path, repo_root: Path) -> str:
         return str(path)
 
 
-def auto_fix_wiki_links(wiki_dir: Path, verbose: bool = False) -> int:
+def auto_fix_wiki_links(wiki_dir: Path, verbose: bool = False, md_files: Optional[List[Path]] = None) -> int:
     """Rewrite colon-style source references in markdown link targets across the wiki."""
     total_replacements = 0
-    md_files = sorted(wiki_dir.rglob('*.md'))
+    if md_files is None:
+        md_files = sorted(wiki_dir.rglob('*.md'))
 
     for md_file in md_files:
         try:
@@ -274,6 +284,8 @@ def main():
     parser.add_argument('--wiki-dir', type=str,
                         default='external/vulkancts/wiki',
                         help='Path to wiki directory (relative to repo root)')
+    parser.add_argument('--files', type=str, nargs='+',
+                        help='One or more specific markdown files to validate (relative to repo root)')
     parser.add_argument('--repo-root', type=str,
                         default='.',
                         help='Path to repository root')
@@ -285,28 +297,49 @@ def main():
     args = parser.parse_args()
 
     repo_root = Path(args.repo_root).resolve()
+
+    # Determine the list of explicit files when --files is provided
+    explicit_files: Optional[List[Path]] = None
+    if args.files:
+        explicit_files = []
+        for f in args.files:
+            resolved = (repo_root / f).resolve()
+            if not resolved.exists():
+                print(f"Error: File not found: {resolved}", file=sys.stderr)
+                sys.exit(1)
+            if not is_inside_directory(resolved, repo_root):
+                print(f"Error: File is outside repository root: {resolved}", file=sys.stderr)
+                sys.exit(1)
+            explicit_files.append(resolved)
+
+    # When --files is given, wiki_dir is only used as a fallback for
+    # directory discovery; we still resolve it for display purposes.
     wiki_dir = (repo_root / args.wiki_dir).resolve()
 
-    if not wiki_dir.exists():
-        print(f"Error: Wiki directory not found: {wiki_dir}", file=sys.stderr)
-        sys.exit(1)
+    if not args.files:
+        if not wiki_dir.exists():
+            print(f"Error: Wiki directory not found: {wiki_dir}", file=sys.stderr)
+            sys.exit(1)
 
-    if not is_inside_directory(wiki_dir, repo_root):
-        print(f"Error: Wiki directory is outside repository root: {wiki_dir}", file=sys.stderr)
-        sys.exit(1)
+        if not is_inside_directory(wiki_dir, repo_root):
+            print(f"Error: Wiki directory is outside repository root: {wiki_dir}", file=sys.stderr)
+            sys.exit(1)
 
     if args.verbose:
         print(f"Repository root: {repo_root}")
-        print(f"Wiki directory: {wiki_dir}")
+        if explicit_files:
+            print(f"Validating {len(explicit_files)} specific file(s)")
+        else:
+            print(f"Wiki directory: {wiki_dir}")
         print()
 
     if args.auto_fix:
-        fixed_count = auto_fix_wiki_links(wiki_dir, args.verbose)
+        fixed_count = auto_fix_wiki_links(wiki_dir, args.verbose, md_files=explicit_files)
         print(f"Auto-fixed {fixed_count} colon-style source-code line reference(s).")
         if args.verbose:
             print()
 
-    broken_links, style_violations = validate_wiki_links(wiki_dir, repo_root, args.verbose)
+    broken_links, style_violations = validate_wiki_links(wiki_dir, repo_root, args.verbose, md_files=explicit_files)
 
     if broken_links:
         print(f"\nFound {len(broken_links)} broken link(s):\n")

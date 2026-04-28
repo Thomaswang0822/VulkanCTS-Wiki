@@ -22,9 +22,9 @@ Tests for `vkCmdBlitImage` and `vkCmdBlitImage2` (via `VK_KHR_copy_commands2`). 
 
 
 
-- [`vktApiBlittingTests.cpp`](../../../external/vulkancts/modules/vulkan/api/vktApiBlittingTests.cpp)
+- [`vktApiBlittingTests.cpp`](../../../modules/vulkan/api/vktApiBlittingTests.cpp)
 
-- [`vktApiBlittingTests.hpp`](../../../external/vulkancts/modules/vulkan/api/vktApiBlittingTests.hpp)
+- [`vktApiBlittingTests.hpp`](../../../modules/vulkan/api/vktApiBlittingTests.hpp)
 
 
 
@@ -40,7 +40,7 @@ api �?copy_and_blit �?(core|dedicated_allocation|copy_commands2|...) �?bli
 
 
 
-Registered via [`addBlittingImageTests()`](../../../external/vulkancts/modules/vulkan/api/vktApiBlittingTests.cpp#L4100), called from the dispatcher [`addCopiesAndBlittingTests()`](../../../external/vulkancts/modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L136).
+Registered via [`addBlittingImageTests()`](../../../modules/vulkan/api/vktApiBlittingTests.cpp#L4100), called from the dispatcher [`addCopiesAndBlittingTests()`](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L136).
 
 
 
@@ -96,7 +96,7 @@ blit_image
 
 
 
-- Inherits [`CopiesAndBlittingTestInstanceWithSparseSemaphore`](../../../external/vulkancts/modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L474)
+- Inherits [`CopiesAndBlittingTestInstanceWithSparseSemaphore`](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L474)
 
 - Creates source and destination images with `VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT`
 
@@ -104,7 +104,7 @@ blit_image
 
 - Dispatches to `vkCmdBlitImage` or `vkCmdBlitImage2` depending on `extensionFlags`
 
-- Handles compressed texture sources via [`CompressedTextureForBlit`](../../../external/vulkancts/modules/vulkan/api/vktApiBlittingTests.cpp#L42) helper class
+- Handles compressed texture sources via [`CompressedTextureForBlit`](../../../modules/vulkan/api/vktApiBlittingTests.cpp#L42) helper class
 
 
 
@@ -162,17 +162,17 @@ blit_image
 
 
 
-- **Nearest-filtered**: [`checkNearestFilteredResult()`](../../../external/vulkancts/modules/vulkan/api/vktApiBlittingTests.cpp#L175) �?exact comparison against source
+- **Nearest-filtered**: [`checkNearestFilteredResult()`](../../../modules/vulkan/api/vktApiBlittingTests.cpp#L175) �?exact comparison against source
 
-- **Non-nearest-filtered**: [`checkNonNearestFilteredResult()`](../../../external/vulkancts/modules/vulkan/api/vktApiBlittingTests.cpp#L171) �?threshold comparison with clamped and unclamped references
+- **Non-nearest-filtered**: [`checkNonNearestFilteredResult()`](../../../modules/vulkan/api/vktApiBlittingTests.cpp#L171) �?threshold comparison with clamped and unclamped references
 
 - **Compressed nearest**: `checkCompressedNearestFilteredResult()` �?with compressed format thresholds
 
 - **Compressed non-nearest**: `checkCompressedNonNearestFilteredResult()` �?with compressed format thresholds
 
-- CPU reference generated via [`blit()`](../../../external/vulkancts/modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L396) and [`scaleFromWholeSrcBuffer()`](../../../external/vulkancts/modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L392)
+- CPU reference generated via [`blit()`](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L396) and [`scaleFromWholeSrcBuffer()`](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L392)
 
-- Mirror mode handled by [`getMirrorMode()`](../../../external/vulkancts/modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L402) and [`flipCoordinates()`](../../../external/vulkancts/modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L399)
+- Mirror mode handled by [`getMirrorMode()`](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L402) and [`flipCoordinates()`](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L399)
 
 - Unclamped reference stored in `m_unclampedExpectedTextureLevel` for linear filter threshold comparison
 
@@ -202,7 +202,7 @@ blit_image
 
 
 
-- The `CompressedTextureForBlit` class uses random data with special valid-block generation for BC6H and ASTC formats to avoid decompression errors �?confirmed at [lines 56�?43](../../../external/vulkancts/modules/vulkan/api/vktApiBlittingTests.cpp#L56)
+- The `CompressedTextureForBlit` class uses random data with special valid-block generation for BC6H and ASTC formats to avoid decompression errors �?confirmed at [lines 56�?43](../../../modules/vulkan/api/vktApiBlittingTests.cpp#L56)
 
 - The all-formats color tests use `BlitColorTestParams` (extends `TestParams` with `compatibleFormats`) for format compatibility filtering
 

@@ -659,13 +659,13 @@ public:
 ### 13.1 Entry Points
 
 - [`vktTestPackage.cpp`](../modules/vulkan/vktTestPackage.cpp) - Main test package, test registration
-- [`tcuMain.cpp`](../../../framework/common/tcuMain.cpp) - Framework entry point
+- [`tcuMain.cpp`](../../../framework/platform/tcuMain.cpp) - Framework entry point
 
 ### 13.2 Core Framework
 
-- [`vkRef.hpp`](../../../framework/vulkan/vkRef.hpp) - Handle wrappers
-- [`vkPrograms.hpp`](../../../framework/vulkan/vkPrograms.hpp) - Shader programs
-- [`vkCmdUtil.hpp`](../../../framework/vulkan/vkCmdUtil.hpp) - Command utilities
+- [`vkRef.hpp`](../framework/vulkan/vkRef.hpp) - Handle wrappers
+- [`vkPrograms.hpp`](../framework/vulkan/vkPrograms.hpp) - Shader programs
+- [`vkCmdUtil.hpp`](../framework/vulkan/vkCmdUtil.hpp) - Command utilities
 
 ### 13.3 Test Infrastructure
 

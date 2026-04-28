@@ -11,7 +11,7 @@ Implementation file.
 ## Source Code
 
 - Primary source: [`vktGeometryLayeredRenderingTests.cpp`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1)
-- Shared context/framework conventions: [`vkt::TestCase`](../../../modules/vulkan/vktTestCase.hpp#L277), [`tcu::TestStatus`](../../../../framework/common/tcuTestCase.hpp#L253)
+- Shared context/framework conventions: [`vkt::TestCase`](../../../modules/vulkan/vktTestCase.hpp#L277), [`tcu::TestStatus`](../../../../../framework/common/tcuTestCase.hpp#L253)
 
 ## Registration Path
 
