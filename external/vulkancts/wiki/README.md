@@ -50,7 +50,7 @@ For this tracker, the `Level-3 Files` column uses the agreed progress-counting r
 | 5 | synchronization2 | [synchronization2.md](categories/synchronization2.md) | 10 | ✅ Done |
 | 6 | query_pool | [query_pool.md](categories/query_pool.md) | 7 | ✅ Done |
 | 7 | binding_model | [binding_model.md](categories/binding_model.md) | 14 | ✅ Done |
-| 8 | pipeline | [pipeline.md](categories/pipeline.md) |  | ⬜ Not Started |
+| 8 | pipeline | [pipeline.md](categories/pipeline.md) | 8 | ✅ Done |
 | 9 | shader_object | [shader_object.md](categories/shader_object.md) |  | ⬜ Not Started |
 | 10 | renderpasses | [renderpasses.md](categories/renderpasses.md) |  | ⬜ Not Started |
 | 11 | imageless_framebuffer | [imageless_framebuffer.md](categories/imageless_framebuffer.md) |  | ⬜ Not Started |
@@ -103,6 +103,6 @@ For this tracker, the `Level-3 Files` column uses the agreed progress-counting r
 
 - **Total Categories**: 53
 - **Total CPP Test Files**: 592
-- **Completed Categories**: 5/53
-- **Completed Test Files**: 68/592
+- **Completed Categories**: 6/53
+- **Completed Test Files**: 76/592
 

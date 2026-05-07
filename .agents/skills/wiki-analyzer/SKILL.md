@@ -1,19 +1,11 @@
 ---
 name: "wiki-analyzer"
-description: "Analyzes Vulkan CTS tests and generates evidence-backed hierarchical wiki documentation. Invoke when user wants to document test categories, test families, or understand test structure from code."
+description: "Analyzes Vulkan CTS tests and generates evidence-backed hierarchical wiki documentation. Invoke when user wants to document test categories, create or regenerate category documentation, understand test structure from code, or get evidence-backed summaries of test families, parameters, support gates, or verification methods."
 ---
 
 # Vulkan CTS Wiki Analyzer
 
 This skill analyzes Vulkan CTS tests and generates structured wiki documentation derived from code and test-plan evidence.
-
-## When to Invoke
-
-Invoke this skill when:
-- User wants to document a test category
-- User wants to understand the structure of tests
-- User wants to create or regenerate documentation for a category
-- User wants evidence-backed summaries of test families, parameters, support gates, or verification methods
 
 ## Primary Goal
 
@@ -27,35 +19,7 @@ The skill is not just a template filler. It must derive claims from:
 - verification logic
 - the official test plan when relevant
 
-## Required Reading Before Starting
-
-**CRITICAL**: Before starting documentation work, you MUST read:
-
-1. [`external/vulkancts/wiki/README.md`](../../../external/vulkancts/wiki/README.md)
-   - Check progress tracking
-   - Confirm whether the category is already documented
-   - Avoid duplicating or conflicting with existing work
-   - Follow the category order in the Progress Tracking table unless the user explicitly requests a different category
-
-2. [`external/vulkancts/wiki/Objectives.md`](../../../external/vulkancts/wiki/Objectives.md)
-   - Defines the questions the documentation must answer
-   - Defines the allowed scope
-
-3. [`doc/testspecs/VK/apitests.adoc`](../../../doc/testspecs/VK/apitests.adoc)
-   - Use when it contains relevant authoritative purpose/context for the category
-   - Do not force it into docs if the category is better explained directly from code
-
-4. Relevant framework files when making framework-level claims
-   - [`external/vulkancts/modules/vulkan/vktTestCase.hpp`](../../../external/vulkancts/modules/vulkan/vktTestCase.hpp)
-   - [`framework/common/tcuTestCase.hpp`](../../../framework/common/tcuTestCase.hpp)
-
-## Scope Rules
-
-Per [`Objectives.md`](../../../external/vulkancts/wiki/Objectives.md), documentation may rely on:
-- [`external/vulkancts/`](../../../external/vulkancts/)
-- [`doc/testspecs/VK/apitests.adoc`](../../../doc/testspecs/VK/apitests.adoc)
-
-Do not rely on sources outside this scope for factual claims.
+**Scope**: Rely only on [`external/vulkancts/`](../../../external/vulkancts/) and [`doc/testspecs/VK/apitests.adoc`](../../../doc/testspecs/VK/apitests.adoc) for factual claims.
 
 ## Evidence Rules
 
@@ -114,20 +78,11 @@ Document them differently according to their role.
 
 If orchestration is available:
 1. Identify the category registration file and inspect its `#include` section first
-2. Use included `.hpp` files, excluding the root header and utility/helper-only headers, as the primary initial index for top-level branches
-3. Map each candidate header to its corresponding `.cpp` and inspect that implementation file to verify the displayed `TestCaseGroup` name
-4. Use direct registration calls in `createChildren()` or equivalent only as a cross-check for included headers and conditional registration, not as the primary indexing method
-5. Launch workers per verified top-level branch when helpful
-6. Allow workers to create additional Level-3 pages for nested registered subgroup files under their assigned top-level group
-7. Review worker output for unsupported claims and broken links
-8. Create or update the Level-2 summary only after Level-3 evidence is stable
-
-### Completion
-
-After documentation is complete:
-- update [`external/vulkancts/wiki/README.md`](../../../external/vulkancts/wiki/README.md) if the workflow uses progress tracking
-- ensure links are correct relative to each document location
-- ensure the category summary matches the actual registration tree
+2. Follow the group-name discovery process (see Progress Counting Policy) to index top-level branches and verify group names
+3. Launch workers per verified top-level branch when helpful
+4. Allow workers to create additional Level-3 pages for nested registered subgroup files under their assigned top-level group
+5. Review worker output for unsupported claims and broken links
+6. Create or update the Level-2 summary only after Level-3 evidence is stable
 
 ## Wiki Structure
 
@@ -237,6 +192,7 @@ Use two different concepts and do not mix them:
    - For [`README.md`](../../../external/vulkancts/wiki/README.md), count only the top-level groups registered directly by the category root registration file.
    - This is the official progress number.
    - Do not count nested subgroup files in this tracker number.
+   - Do not use raw `.cpp` counts, CMake source lists, wiki page counts, or nested subgroup page counts as the official count source — those can help discover material but are not the tracker rule.
 
 2. **Writing scope**
    - When documenting the category, create Level-3 pages for any separately meaningful registered group file, including nested subgroup files when they exist as their own registration/documentation units.
@@ -250,13 +206,7 @@ For a category, start from the root registration file's `#include` section. Use 
 - shared utilities and helper-only headers
 - headers included only by implementation files rather than the root registration file
 
-For each candidate top-level header:
-
-1. Map the header to its corresponding `.cpp` implementation file.
-2. Inspect the implementation file for the group construction that defines the displayed `TestCaseGroup` name.
-3. Use `createChildren()` or equivalent direct registration calls only as a cross-check that the header-backed group is actually added at the root level and to identify conditional registration such as compile-time guards.
-
-This counting step is about how many top-level registered children the category has. It is not a count of every `.cpp` file, every nested subgroup file, or every Level-3 page written for the category.
+For each candidate top-level header, follow the group-name discovery process below to verify the group and its displayed name.
 
 ### How to determine the correct group name
 
@@ -280,43 +230,70 @@ Do not assume the displayed group name from the factory symbol passed to `addChi
 
 **Verification via mustpass TXT files:**
 
-After determining a group name, verify it against the mustpass definition files:
+After determining a group name, verify it against the mustpass definition files using the registration path verifier.
 
-1. Locate the corresponding TXT file: `external/vulkancts/mustpass/main/vk-default/{category}.txt`
-   - Note: Some categories map to multiple TXT files (e.g., `renderpass` and `renderpasses`)
-2. Use [`scripts/verify_registration_paths.py`](scripts/verify_registration_paths.py) to check if the full registration path exists
-3. The script searches for patterns like `api.copy_and_blit.core.blit_image` without loading the entire TXT file
-4. Parent paths are verified incrementally: when verifying `blit_image`, assume `api.copy_and_blit.core` was already verified
+### Verifier contract
+
+The verifier ([`verify_registration_paths.py`](.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py)) checks **literal registration path prefixes** against mustpass TXT files. It does not prove that every human-facing group label in a wiki page is a complete registration path. The default wiki extractor is conservative: it extracts explicit category-prefixed paths and simple root-tree entries, but does not infer paths from arbitrary markdown tables or prose labels.
+
+### How to run
+
+From the repository root:
+
+```bash
+# Check all extracted paths for a category
+python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category> --check-all
+
+# Check a single path
+python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category> <group_path>
+```
+
+Redirect both stdout and stderr to a category-specific file for later review:
+
+```bash
+python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category> --check-all \
+  > external/vulkancts/wiki/internal_doc/error_paths_<category>.txt 2>&1
+```
+
+### Regular vs. special categories
+
+- **Regular categories** (the majority): use the default extractor. No extra flags or configuration needed.
+- **Special categories** (e.g., `pipeline`): the script dispatches to a category-specific adapter internally. The public command is the same. Adapters live in [`registration_validators/`](.agents/skills/wiki-analyzer/scripts/registration_validators/) and are only added when a category's wiki structure or mustpass layout cannot be handled safely by the default extractor. Do not create one adapter per category.
+
+### Mustpass file discovery
+
+The verifier automatically locates mustpass TXT files for a category, handling:
+- Direct match: `{category}.txt`
+- Hyphenated filenames: `binding_model` → `binding-model.txt`
+- Plural forms: `renderpass` → `renderpasses.txt`
+- Split-category directories: `pipeline/` containing multiple variant TXT files
+
+### Exit codes and output interpretation
+
+| Exit code | Meaning |
+|-----------|---------|
+| 0 | All paths verified successfully |
+| 1 | One or more paths not found in mustpass files |
+| 2 | Runtime error (missing directory, bad arguments, etc.) |
+
+**Interpreting results:**
+- `OK: <path>` — the registration path prefix exists in at least one mustpass file.
+- `FAIL: <path>` — the prefix was not found. Check the source location and determine whether the wiki path is wrong or the mustpass file does not cover that variant.
+- `Also at: ...` — additional source locations where the same logical path appears (only shown on failure).
+- Exit code 2 with `Traceback` or `Error:` — a runtime error, not a verification failure. Fix the script or arguments before proceeding.
 
 **Important:** This verification is mandatory whenever documenting a group name in wiki pages.
-
-### What not to use for tracker counts
-
-Do **not** use any of the following as the official Level-3 count source:
-- raw `.cpp` counts from the directory
-- CMake source lists
-- counts of all existing wiki pages under `testfiles/`
-- counts of nested subgroup pages created during detailed documentation
-
-Those sources can help discover material to inspect, but they are not the tracker rule.
-
-### Worker-dispatch rule
-
-When a category is large:
-- use top-level branches discovered from the category root registration file's include section as the dispatch unit for worker sessions;
-- in internal trackers, use header/source filenames as the early indexing aid before the precise group names are verified;
-- use root-level registration calls as a cross-check for included headers and compile-time conditions;
-- allow each worker to inspect and document nested subgroup files inside its assigned top-level branch;
-- keep the official tracker count aligned only to the top-level registration structure, while allowing the writing scope to include nested registered files when they are meaningful Level-3 units.
 
 ## Analysis Process
 
 ### Step 1: Read Prerequisites
 
-1. Read [`external/vulkancts/wiki/README.md`](../../../external/vulkancts/wiki/README.md)
-2. Read [`external/vulkancts/wiki/Objectives.md`](../../../external/vulkancts/wiki/Objectives.md)
-3. Read [`doc/testspecs/VK/apitests.adoc`](../../../doc/testspecs/VK/apitests.adoc) if relevant
-4. Read framework files if making framework-level statements
+**CRITICAL**: Read these before starting any documentation work:
+
+1. [`external/vulkancts/wiki/README.md`](../../../external/vulkancts/wiki/README.md) — check progress tracking, confirm whether the category is already documented, avoid duplicating existing work, follow the category order in the Progress Tracking table unless the user explicitly requests otherwise
+2. [`external/vulkancts/wiki/Objectives.md`](../../../external/vulkancts/wiki/Objectives.md) — defines the questions the documentation must answer and the allowed scope
+3. [`doc/testspecs/VK/apitests.adoc`](../../../doc/testspecs/VK/apitests.adoc) — use when it contains relevant authoritative purpose/context; do not force it into docs if the category is better explained directly from code
+4. Relevant framework files when making framework-level claims: [`vktTestCase.hpp`](../../../external/vulkancts/modules/vulkan/vktTestCase.hpp), [`tcuTestCase.hpp`](../../../framework/common/tcuTestCase.hpp)
 
 ### Step 2: Identify Category
 
@@ -337,15 +314,12 @@ Identify:
 
 ### Step 4: Trace Registration
 
-Start from the category root registration file's `#include` section and trace:
-- included `.hpp` files that correspond to root-level registered test groups
-- exclusions for the root header and utility/helper-only headers
-- header-to-`.cpp` mappings for implementation inspection
-- `createChildren()` or equivalent direct registration calls as a cross-check for root-level registration and conditional guards
-- subgroup creation functions only after the top-level branch is established
-- delegation to implementation files
+Start from the category root registration file's `#include` section and follow the group-name discovery process (see Progress Counting Policy) to:
+- identify the counted top-level branches
+- verify displayed group names from implementation files
+- note conditional registration guards
 
-Use this step to identify the counted top-level branches. Do not finalize displayed group names until the corresponding implementation files are verified.
+Do not finalize displayed group names until the corresponding implementation files are verified.
 
 ### Step 5: Build Internal Tracker if Needed
 
@@ -377,40 +351,6 @@ Use only verified group names in user-facing subgroup trees and navigation text.
 ### Step 9: Consistency Review
 
 Before marking work complete, verify:
-- all relative links are correct (run [`scripts/validate_wiki_links.py`](scripts/validate_wiki_links.py))
-- all group names are verified (run [`scripts/verify_registration_paths.py`](scripts/verify_registration_paths.py))
-- category docs match registration code
-- displayed group names are verified from implementation where needed
-- no temporary coordination material leaked into Level-2 pages
-- no unsupported claims remain
-- repeated statements are deduplicated
-- wording matches inspected evidence strength
-
-### Step 10: Update Progress Tracking
-
-If the project is using [`external/vulkancts/wiki/README.md`](../../../external/vulkancts/wiki/README.md) as a tracker, update it after the consistency review.
-When updating its `Level-3 Files` column, use the official top-level-group count and only fill it once the category is `✅ Done`.
-
-## Key Principles
-
-1. **CPP files are the primary anchor for Level-3 docs**
-2. **Registration path matters**
-3. **Evidence beats intuition**
-4. **Source-code line references use `#L` fragments, never colon syntax** — source-file link targets must use `file.cpp#L82` or `file.cpp#L82-L95`; `file.cpp:82` and `file.cpp:82-95` are forbidden for `.cpp`, `.hpp`, `.h`, `.c`, and other source files.
-5. **Level-3 docs are for files that register tests** — utility/helper files without registration paths do not get their own Level-3 pages
-6. **Top-level-group counts are for tracking, not for limiting writing**
-7. **Factory-symbol names are heuristics, not authoritative user-facing identifiers**
-8. **Avoid factory function names in wiki content** — do not expose factory symbols like `createXxxTests()` in registration trees, tables, or hierarchy sections unless the symbol itself is the subject of a specific code-reference claim. Users who need to trace call stacks should use an IDE, not a wiki. Naming discrepancies between factory symbols and verified group names belong in Notes sections, not in primary tables or trees.
-9. **Internal coordination belongs in temporary files, not in Level-2 wiki pages**
-10. **No parameter explosion**
-11. **Concise but traceable**
-12. **Distinguish observed fact from interpretation**
-13. **Use correct relative links from the current document location**
-14. **Prefer regeneration from source over editing around old wiki mistakes**
-
-## Quality Checklist
-
-Before finishing a category, confirm:
 - every important claim has a source link
 - registration file and subgroup tree are documented correctly
 - user-facing Level-2 pages use verified subgroup names rather than inferred factory-symbol names
@@ -418,8 +358,16 @@ Before finishing a category, confirm:
 - parameter tables come from observable code constructs
 - support gates are documented when present
 - verification methods are documented only when evidenced
+- all relative links are correct (run [`scripts/validate_wiki_links.py`](scripts/validate_wiki_links.py))
 - links to Level-3 docs are correct from the category doc
 - links to source files are correct from each Level-3 doc
-- wording avoids unsupported universal claims
-- [`scripts/validate_wiki_links.py`](scripts/validate_wiki_links.py) reports no broken links
-- [`scripts/verify_registration_paths.py`](scripts/verify_registration_paths.py) confirms all group names
+- all group names are verified (run [`verify_registration_paths.py`](.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py) with `--check-all`; redirect output to `external/vulkancts/wiki/internal_doc/error_paths_<category>.txt`)
+- category docs match registration code
+- no unsupported claims remain; wording avoids universal claims not justified by evidence
+- repeated statements are deduplicated
+- wording matches inspected evidence strength
+
+### Step 10: Update Progress Tracking
+
+If the project is using [`external/vulkancts/wiki/README.md`](../../../external/vulkancts/wiki/README.md) as a tracker, update it after the consistency review.
+When updating its `Level-3 Files` column, use the official top-level-group count and only fill it once the category is `✅ Done`.
