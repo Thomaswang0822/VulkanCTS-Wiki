@@ -67,6 +67,14 @@ def find_mustpass_files(category: str, mustpass_dir: Path) -> List[Path]:
         add_if_exists(mustpass_dir / f"{category_variant}.txt")
         add_if_exists(mustpass_dir / f"{category_variant}s.txt")
 
+    # Some split categories use a hyphenated subdirectory whose child files are
+    # branch-specific names such as shader-object/performance.txt. Probe those
+    # branch filenames directly from the wiki category name as well.
+    hyphenated_branch_file = mustpass_dir / hyphenated_category / f"{hyphenated_category}.txt"
+    add_if_exists(hyphenated_branch_file)
+    underscored_branch_file = mustpass_dir / hyphenated_category / f"{category}.txt"
+    add_if_exists(underscored_branch_file)
+
     variations = [
         f"{category}es.txt",
         f"{hyphenated_category}es.txt",
@@ -77,6 +85,13 @@ def find_mustpass_files(category: str, mustpass_dir: Path) -> List[Path]:
     category_dir = mustpass_dir / category
     if category_dir.exists() and category_dir.is_dir():
         for txt_file in sorted(category_dir.glob("*.txt")):
+            add_if_exists(txt_file)
+
+    # Support categories whose mustpass layout uses hyphenated subdirectories,
+    # e.g. shader_object -> shader-object/*.txt
+    hyphenated_dir = mustpass_dir / hyphenated_category
+    if hyphenated_dir.exists() and hyphenated_dir.is_dir():
+        for txt_file in sorted(hyphenated_dir.glob("*.txt")):
             add_if_exists(txt_file)
 
     return txt_files

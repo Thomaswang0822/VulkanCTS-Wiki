@@ -1,0 +1,46 @@
+Checking 42 registration paths...
+
+  OK: shader_object.api
+  OK: shader_object.api.get_device_proc_addr
+  OK: shader_object.api.discard_rectangles
+  OK: shader_object.api.scissor_exclusive
+  OK: shader_object.api.dynamic_rendering
+  OK: shader_object.api.shader_binary_uuid
+  OK: shader_object.binary
+  OK: shader_object.binary.query.vert.unlinked.same_shader
+  OK: shader_object.binary.incompatible.frag.half_size
+  OK: shader_object.binary.device_features.comp.unlinked.0
+  OK: shader_object.binding
+  OK: shader_object.binding.unbind_passthrough_geom
+  OK: shader_object.binding.swap_vert
+  OK: shader_object.binding.mesh_swap_task
+  OK: shader_object.binding.bindings
+  OK: shader_object.binding.unbind_vtg
+  OK: shader_object.create
+  OK: shader_object.create.multiple.all
+  OK: shader_object.create.vert.succeed
+  OK: shader_object.create.comp.fail
+  OK: shader_object.link
+  OK: shader_object.link.next_stage
+  OK: shader_object.misc
+  OK: shader_object.misc.on.on.before.null.16.destroyed
+  OK: shader_object.misc.state.shaders.vert_frag.color_blend.enabled
+  OK: shader_object.misc.unused_variable.unlinked.output.vert
+  OK: shader_object.misc.tessellation_modes.one.equal
+  OK: shader_object.misc.tess_patch_non_match.standard
+  OK: shader_object.misc.push_const.57_64_all
+  OK: shader_object.pipeline_interaction
+  OK: shader_object.pipeline_interaction.shader_object
+  OK: shader_object.pipeline_interaction.max_pipeline
+  OK: shader_object.pipeline_interaction.compute_shader_object_min_pipeline
+  OK: shader_object.pipeline_interaction.vert_tess_geom_frag
+  OK: shader_object.rendering
+  OK: shader_object.rendering.color_attachment_count_0
+  OK: shader_object.rendering.color_attachment_count_4
+  OK: shader_object.rendering.output_array
+  OK: shader_object.rendering.output_array.r8_unorm.color_write_enable
+  OK: shader_object.tessellation
+  OK: shader_object.tessellation.glsl.orientation_ccw
+  OK: shader_object.tessellation.hlsl.point_mode_rebind
+
+All paths verified successfully
