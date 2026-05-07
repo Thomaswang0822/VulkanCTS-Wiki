@@ -1,4 +1,4 @@
-# [vktApiGetMemoryCommitment.cpp](../../../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L1)
+# [vktApiGetMemoryCommitment.cpp](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L1)
 
 ## Overview
 
@@ -6,13 +6,13 @@ Tests vkGetDeviceMemoryCommitment with lazily allocated memory types. Verifies t
 
 ## Role of File
 
-Implementation-heavy. Contains all test logic, helper classes, and the registration function [createMemoryCommitmentTests()](../../../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L479).
+Implementation-heavy. Contains all test logic, helper classes, and the registration function [createMemoryCommitmentTests()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L479).
 
 ## Source Code
 
-- Implementation: [vktApiGetMemoryCommitment.cpp](../../../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L1)
-- Header: [vktApiGetMemoryCommitment.hpp](../../../../../modules/vulkan/api/vktApiGetMemoryCommitment.hpp#L1)
-- Parent registration: [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L115)
+- Implementation: [vktApiGetMemoryCommitment.cpp](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L1)
+- Header: [vktApiGetMemoryCommitment.hpp](../../../modules/vulkan/api/vktApiGetMemoryCommitment.hpp#L1)
+- Parent registration: [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L115)
 
 ## Registration Path
 
@@ -33,13 +33,13 @@ get_memory_commitment
 
 ### Memory Commitment
 
-[MemoryCommitmentTestInstance::iterate()](../../../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L113) creates a transient color attachment image (VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT) with lazily allocated memory, renders to it using a graphics pipeline, and then checks vkGetDeviceMemoryCommitment both before and after rendering. Verifies that the committed memory size does not exceed the memory requirements size.
+[MemoryCommitmentTestInstance::iterate()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L113) creates a transient color attachment image (VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT) with lazily allocated memory, renders to it using a graphics pipeline, and then checks vkGetDeviceMemoryCommitment both before and after rendering. Verifies that the committed memory size does not exceed the memory requirements size.
 
 The test uses a 256x256 R32_UINT image, creates a render pass, framebuffer, and graphics pipeline, and performs a clear attachment operation before checking memory commitment.
 
 ### Memory Commitment Allocate Only
 
-[MemoryCommitmentAllocateOnlyTestInstance::iterate()](../../../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L362) allocates memory with VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT and immediately calls vkGetDeviceMemoryCommitment without binding it to any resource. Tests 10 random allocation sizes per memory type. Verifies that the committed size is not greater than the allocation size. Logs a warning if the committed size is non-zero before binding.
+[MemoryCommitmentAllocateOnlyTestInstance::iterate()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L362) allocates memory with VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT and immediately calls vkGetDeviceMemoryCommitment without binding it to any resource. Tests 10 random allocation sizes per memory type. Verifies that the committed size is not greater than the allocation size. Logs a warning if the committed size is non-zero before binding.
 
 ## Parameter Dimensions
 
@@ -62,7 +62,7 @@ The test uses a 256x256 R32_UINT image, creates a render pass, framebuffer, and 
 
 ## Verification Methods
 
-- **Commitment size check**: [isDeviceMemoryCommitmentOk()](../../../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L447) verifies that committed memory does not exceed the memory requirements size
+- **Commitment size check**: [isDeviceMemoryCommitmentOk()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L447) verifies that committed memory does not exceed the memory requirements size
 - **Pre-binding check**: memory_commitment_allocate_only verifies that commitment before binding does not exceed allocation size
 - **VK_CHECK**: API calls are verified for success
 - **NotSupportedError**: Tests skip if no memory type supports VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT

@@ -1,8 +1,8 @@
-# [vktShaderObjectLinkTests.cpp](../../../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1)
+# [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1)
 
 ## Overview
 
-[`vktShaderObjectLinkTests.cpp`](../../../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1) implements the `shader_object/link` branch. It builds linked and unlinked shader-stage combinations, next-stage chain tests, separate-link tests, and mesh/task/fragment link combinations.
+[`vktShaderObjectLinkTests.cpp`](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1) implements the `shader_object/link` branch. It builds linked and unlinked shader-stage combinations, next-stage chain tests, separate-link tests, and mesh/task/fragment link combinations.
 
 ## Role of File
 
@@ -10,14 +10,14 @@ Implementation-heavy test file for the root-level `link` branch.
 
 ## Source Code
 
-- Primary source: [vktShaderObjectLinkTests.cpp](../../../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1)
-- Parent registration: [vktShaderObjectTests.cpp](../../../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L53)
-- Shared utility include: [vktShaderObjectCreateUtil.hpp](../../../../../modules/vulkan/shader_object/vktShaderObjectCreateUtil.hpp#L1)
+- Primary source: [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1)
+- Parent registration: [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L53)
+- Shared utility include: [vktShaderObjectCreateUtil.hpp](../../../modules/vulkan/shader_object/vktShaderObjectCreateUtil.hpp#L1)
 
 ## Related Inspected Files
 
-- [vktShaderObjectTests.cpp](../../../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L47-L63)
-- [CMakeLists.txt](../../../../../modules/vulkan/shader_object/CMakeLists.txt#L6-L44)
+- [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L47-L63)
+- [CMakeLists.txt](../../../modules/vulkan/shader_object/CMakeLists.txt#L6-L44)
 
 ## Registration Path
 
@@ -39,7 +39,7 @@ Explicit registration path prefixes for verifier extraction:
 `shader_object.link.next_stage`
 ```
 
-Evidence: `createShaderObjectLinkTests()` constructs `link`, iterates `shaderTests[]`, `bindTypeTests[]`, and `randomOrderTests[]`, adds `next_stage`, and then adds mesh-combination groups at [vktShaderObjectLinkTests.cpp](../../../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1351-L1650).
+Evidence: `createShaderObjectLinkTests()` constructs `link`, iterates `shaderTests[]`, `bindTypeTests[]`, and `randomOrderTests[]`, adds `next_stage`, and then adds mesh-combination groups at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1351-L1650).
 
 ## Test Hierarchy
 
@@ -61,34 +61,34 @@ link
 
 ### Graphics linked/unlinked combinations
 
-`shaderTests[]` enumerates vertex, tessellation-control/evaluation, geometry, and fragment stages with `LINKED`, `UNLINKED`, or `UNUSED` state at [vktShaderObjectLinkTests.cpp](../../../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1355-L1364). Group names are generated from those states at [vktShaderObjectLinkTests.cpp](../../../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1381-L1390).
+`shaderTests[]` enumerates vertex, tessellation-control/evaluation, geometry, and fragment stages with `LINKED`, `UNLINKED`, or `UNUSED` state at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1355-L1364). Group names are generated from those states at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1381-L1390).
 
 ### Bind mode and ordering variants
 
-Each graphics shader-combination group iterates bind modes `separate`, `one_linked_unlinked`, and `all` at [vktShaderObjectLinkTests.cpp](../../../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1371-L1379), then adds `default` and `random_order` cases at [vktShaderObjectLinkTests.cpp](../../../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1391-L1426). When any stage is linked, it also adds `separate_link` at [vktShaderObjectLinkTests.cpp](../../../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1428-L1447).
+Each graphics shader-combination group iterates bind modes `separate`, `one_linked_unlinked`, and `all` at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1371-L1379), then adds `default` and `random_order` cases at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1391-L1426). When any stage is linked, it also adds `separate_link` at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1428-L1447).
 
 ### Next-stage chain tests
 
-`nextStageTests[]` registers named next-stage combinations such as `vert_t`, `vert_g`, `vert_tgf`, and no-fragment variants under `next_stage` at [vktShaderObjectLinkTests.cpp](../../../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1453-L1615).
+`nextStageTests[]` registers named next-stage combinations such as `vert_t`, `vert_g`, `vert_tgf`, and no-fragment variants under `next_stage` at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1453-L1615).
 
 ### Mesh shader link tests
 
-`meshShaderTests[]` defines five task/mesh/fragment combinations and registers `default` and `random_order` child cases for each at [vktShaderObjectLinkTests.cpp](../../../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1617-L1647).
+`meshShaderTests[]` defines five task/mesh/fragment combinations and registers `default` and `random_order` child cases for each at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1617-L1647).
 
 ## Parameter Dimensions
 
 | Dimension | Observed values / evidence |
 |---|---|
-| Stage link state | `UNUSED`, `LINKED`, `UNLINKED` in `ShaderType` at [vktShaderObjectLinkTests.cpp](../../../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L45-L50) |
-| Bind type | `SEPARATE`, `ONE_LINKED_UNLINKED`, `ALL` at [vktShaderObjectLinkTests.cpp](../../../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L82-L87) |
-| Random order | `false`, `true` at [vktShaderObjectLinkTests.cpp](../../../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1366-L1369) |
-| Next-stage flags | `NextStages` and `MeshNextStages` structs at [vktShaderObjectLinkTests.cpp](../../../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L68-L80) |
+| Stage link state | `UNUSED`, `LINKED`, `UNLINKED` in `ShaderType` at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L45-L50) |
+| Bind type | `SEPARATE`, `ONE_LINKED_UNLINKED`, `ALL` at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L82-L87) |
+| Random order | `false`, `true` at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1366-L1369) |
+| Next-stage flags | `NextStages` and `MeshNextStages` structs at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L68-L80) |
 
 ## Support / Feature Requirements
 
-- Graphics link cases require `VK_EXT_shader_object` at [vktShaderObjectLinkTests.cpp](../../../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L742-L745).
-- Tessellation and geometry features are required when the selected shader/next-stage parameters use those stages at [vktShaderObjectLinkTests.cpp](../../../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L746-L753).
-- Mesh link cases require `VK_EXT_shader_object`, `VK_EXT_mesh_shader`, and task/mesh feature support at [vktShaderObjectLinkTests.cpp](../../../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1323-L1328).
+- Graphics link cases require `VK_EXT_shader_object` at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L742-L745).
+- Tessellation and geometry features are required when the selected shader/next-stage parameters use those stages at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L746-L753).
+- Mesh link cases require `VK_EXT_shader_object`, `VK_EXT_mesh_shader`, and task/mesh feature support at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1323-L1328).
 
 ## Verification Methods
 

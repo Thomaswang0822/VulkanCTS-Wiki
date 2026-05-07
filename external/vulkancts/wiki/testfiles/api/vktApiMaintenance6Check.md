@@ -1,4 +1,4 @@
-# [vktApiMaintenance6Check.cpp](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L1)
+# [vktApiMaintenance6Check.cpp](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L1)
 
 ## Overview
 
@@ -12,9 +12,9 @@ Implementation-heavy. Contains both the test case registration and the full test
 
 | File | Description |
 |------|-------------|
-| [vktApiMaintenance6Check.cpp](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L1) | Test implementation and registration |
-| [vktApiMaintenance6Check.hpp](../../../../../modules/vulkan/api/vktApiMaintenance6Check.hpp#L1) | Declares `createMaintenance6Tests` |
-| [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L131) | Parent registration: `apiTests->addChild(createMaintenance6Tests(testCtx))` |
+| [vktApiMaintenance6Check.cpp](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L1) | Test implementation and registration |
+| [vktApiMaintenance6Check.hpp](../../../modules/vulkan/api/vktApiMaintenance6Check.hpp#L1) | Declares `createMaintenance6Tests` |
+| [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L131) | Parent registration: `apiTests->addChild(createMaintenance6Tests(testCtx))` |
 
 ## Registration Path
 
@@ -37,36 +37,36 @@ maintenance6_check
 
 ### maintenance6_check
 
-Group name verified at [vktApiMaintenance6Check.cpp:145](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L145): `new tcu::TestCaseGroup(testCtx, "maintenance6_check", "Maintenance6 Tests")`.
+Group name verified at [vktApiMaintenance6Check.cpp:145](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L145): `new tcu::TestCaseGroup(testCtx, "maintenance6_check", "Maintenance6 Tests")`.
 
-Contains a single test case `maintenance6_properties` registered at [vktApiMaintenance6Check.cpp:146](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L146).
+Contains a single test case `maintenance6_properties` registered at [vktApiMaintenance6Check.cpp:146](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L146).
 
-The test instance `Maintenance7MaxCombinedImageSamplerDescriptorCountTestInstance` at [vktApiMaintenance6Check.cpp:52](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L52):
-1. Queries `VkPhysicalDeviceMaintenance6PropertiesKHR` via `getPhysicalDeviceProperties2` ([line 66](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L66))
-2. Iterates over three YCbCr format ranges defined at [lines 68-81](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L68):
+The test instance `Maintenance7MaxCombinedImageSamplerDescriptorCountTestInstance` at [vktApiMaintenance6Check.cpp:52](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L52):
+1. Queries `VkPhysicalDeviceMaintenance6PropertiesKHR` via `getPhysicalDeviceProperties2` ([line 66](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L66))
+2. Iterates over three YCbCr format ranges defined at [lines 68-81](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L68):
    - YCbCr formats: `VK_FORMAT_G8B8G8R8_422_UNORM` through `VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM`
    - YCbCr extended formats: `VK_FORMAT_G8_B8R8_2PLANE_444_UNORM` through `VK_FORMAT_G16_B16R16_2PLANE_444_UNORM`
    - `VK_FORMAT_R16G16_S10_5_NV`
-3. For each format, queries `VkSamplerYcbcrConversionImageFormatProperties::combinedImageSamplerDescriptorCount` via `getPhysicalDeviceImageFormatProperties2` ([line 99](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L99))
-4. Fails if any format's `combinedImageSamplerDescriptorCount` exceeds `maxCombinedImageSamplerDescriptorCount` ([line 100](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L100))
+3. For each format, queries `VkSamplerYcbcrConversionImageFormatProperties::combinedImageSamplerDescriptorCount` via `getPhysicalDeviceImageFormatProperties2` ([line 99](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L99))
+4. Fails if any format's `combinedImageSamplerDescriptorCount` exceeds `maxCombinedImageSamplerDescriptorCount` ([line 100](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L100))
 
 ## Parameter Dimensions
 
 | Dimension | Observed Values | Notes |
 |-----------|----------------|-------|
 | Format ranges | 3 ranges | YCbCr, YCbCr extended, and R16G16_S10_5_NV |
-| Image type | VK_IMAGE_TYPE_2D | Hard-coded at [line 96](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L96) |
-| Tiling | VK_IMAGE_TILING_OPTIMAL | Hard-coded at [line 97](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L97) |
-| Usage | VK_IMAGE_USAGE_TRANSFER_DST_BIT | Hard-coded at [line 98](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L98) |
+| Image type | VK_IMAGE_TYPE_2D | Hard-coded at [line 96](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L96) |
+| Tiling | VK_IMAGE_TILING_OPTIMAL | Hard-coded at [line 97](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L97) |
+| Usage | VK_IMAGE_USAGE_TRANSFER_DST_BIT | Hard-coded at [line 98](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L98) |
 
 ## Support / Feature Requirements
 
-- `VK_KHR_maintenance6` required via `checkSupport` at [line 130](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L130)
-- Entire file is guarded by `#ifndef CTS_USES_VULKANSC` at [line 39](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L39)
+- `VK_KHR_maintenance6` required via `checkSupport` at [line 130](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L130)
+- Entire file is guarded by `#ifndef CTS_USES_VULKANSC` at [line 39](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L39)
 
 ## Verification Methods
 
-- **Property comparison**: For each YCbCr format, `combinedImageSamplerDescriptorCount` must not exceed `maxCombinedImageSamplerDescriptorCount`. A violation produces a descriptive failure message including the format name and both values ([lines 103-108](../../../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L103)).
+- **Property comparison**: For each YCbCr format, `combinedImageSamplerDescriptorCount` must not exceed `maxCombinedImageSamplerDescriptorCount`. A violation produces a descriptive failure message including the format name and both values ([lines 103-108](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L103)).
 
 ## Test Principles Observed
 

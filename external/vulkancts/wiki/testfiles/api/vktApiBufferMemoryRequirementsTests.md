@@ -1,4 +1,4 @@
-# [vktApiBufferMemoryRequirementsTests.cpp](../../../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L1)
+# [vktApiBufferMemoryRequirementsTests.cpp](../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L1)
 
 ## Overview
 
@@ -6,14 +6,14 @@ Tests that `vkGetBufferMemoryRequirements` and `vkGetBufferMemoryRequirements2` 
 
 ## Role of File
 
-Implementation-heavy. Contains all test logic, support checking, and registration. The public entry point [createBufferMemoryRequirementsTests()](../../../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L978) assembles the test tree.
+Implementation-heavy. Contains all test logic, support checking, and registration. The public entry point [createBufferMemoryRequirementsTests()](../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L978) assembles the test tree.
 
 ## Source Code
 
-- Source: [vktApiBufferMemoryRequirementsTests.cpp](../../../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L1)
-- Header: [vktApiBufferMemoryRequirementsTests.hpp](../../../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.hpp#L1)
-- Utilities: [vktApiBufferMemoryRequirementsTestsUtils.hpp](../../../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTestsUtils.hpp#L1)
-- Parent registration: [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L127) adds `buffer_memory_requirements` group to `api`
+- Source: [vktApiBufferMemoryRequirementsTests.cpp](../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L1)
+- Header: [vktApiBufferMemoryRequirementsTests.hpp](../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.hpp#L1)
+- Utilities: [vktApiBufferMemoryRequirementsTestsUtils.hpp](../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTestsUtils.hpp#L1)
+- Parent registration: [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L127) adds `buffer_memory_requirements` group to `api`
 
 ## Registration Path
 
@@ -68,7 +68,7 @@ buffer_memory_requirements
 
 ### Memory Requirements Tests (per configuration)
 
-Each test creates a buffer with the specified create flags and usage flags, queries its memory requirements via either `vkGetBufferMemoryRequirements` (method1) or `vkGetBufferMemoryRequirements2` (method2), and verifies that `memoryTypeBits` is non-zero. When `testSizeRequirements` is true (non-VKSC only), also verifies that the reported memory size does not exceed the aligned buffer size per `VK_KHR_maintenance4`. Implemented by [BufferMemoryRequirementsInstance](../../../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L248).
+Each test creates a buffer with the specified create flags and usage flags, queries its memory requirements via either `vkGetBufferMemoryRequirements` (method1) or `vkGetBufferMemoryRequirements2` (method2), and verifies that `memoryTypeBits` is non-zero. When `testSizeRequirements` is true (non-VKSC only), also verifies that the reported memory size does not exceed the aligned buffer size per `VK_KHR_maintenance4`. Implemented by [BufferMemoryRequirementsInstance](../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L248).
 
 ## Parameter Dimensions
 
@@ -82,8 +82,8 @@ Each test creates a buffer with the specified create flags and usage flags, quer
 
 ## Support / Feature Requirements
 
-- `VK_KHR_get_physical_device_properties2` required by all tests ([MemoryRequirementsTest::checkSupport()](../../../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L379))
-- `VK_KHR_get_memory_requirements2` required when `useMethod2=true` ([L381-L382](../../../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L381))
+- `VK_KHR_get_physical_device_properties2` required by all tests ([MemoryRequirementsTest::checkSupport()](../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L379))
+- `VK_KHR_get_memory_requirements2` required when `useMethod2=true` ([L381-L382](../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L381))
 - `VK_KHR_maintenance4` required when `testSizeRequirements=true` (non-VKSC only)
 - `VK_KHR_video_queue` and `VK_KHR_video_decode_queue`/`VK_KHR_video_encode_queue` required for video usage bits
 - Protected memory feature required for `VK_BUFFER_CREATE_PROTECTED_BIT`
@@ -104,7 +104,7 @@ Each test creates a buffer with the specified create flags and usage flags, quer
 
 ## Notes / Uncertainties
 
-- The group name is `buffer_memory_requirements` as confirmed in [createBufferMemoryRequirementsTests()](../../../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L1021)
+- The group name is `buffer_memory_requirements` as confirmed in [createBufferMemoryRequirementsTests()](../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L1021)
 - The `fateBits` parameter controls which usage flag categories are included; the actual usage flags are expanded from these categories at test time
-- The `BufferCreateBits` combinations are filtered to remove invalid combinations (e.g., sparse + protected) per VUID constraints ([updateBufferCreateFlags()](../../../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L193))
-- The test uses a custom `BitsSet` utility from [vktApiBufferMemoryRequirementsTestsUtils.hpp](../../../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTestsUtils.hpp#L1) for managing flag combinations
+- The `BufferCreateBits` combinations are filtered to remove invalid combinations (e.g., sparse + protected) per VUID constraints ([updateBufferCreateFlags()](../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L193))
+- The test uses a custom `BitsSet` utility from [vktApiBufferMemoryRequirementsTestsUtils.hpp](../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTestsUtils.hpp#L1) for managing flag combinations

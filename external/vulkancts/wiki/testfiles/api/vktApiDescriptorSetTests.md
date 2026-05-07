@@ -1,4 +1,4 @@
-# [vktApiDescriptorSetTests.cpp](../../../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L1)
+# [vktApiDescriptorSetTests.cpp](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L1)
 
 ## Overview
 
@@ -6,13 +6,13 @@ Tests descriptor set layout lifetime semantics, empty descriptor set layout crea
 
 ## Role of File
 
-Implementation-heavy. Contains test logic for descriptor set layout lifetime, empty layout creation, and binding ordering verification. The public entry point [createDescriptorSetTests()](../../../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L664) assembles the test tree.
+Implementation-heavy. Contains test logic for descriptor set layout lifetime, empty layout creation, and binding ordering verification. The public entry point [createDescriptorSetTests()](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L664) assembles the test tree.
 
 ## Source Code
 
-- Source: [vktApiDescriptorSetTests.cpp](../../../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L1)
-- Header: [vktApiDescriptorSetTests.hpp](../../../../../modules/vulkan/api/vktApiDescriptorSetTests.hpp#L1)
-- Parent registration: [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L120) adds `descriptor_set` group to `api`
+- Source: [vktApiDescriptorSetTests.cpp](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L1)
+- Header: [vktApiDescriptorSetTests.hpp](../../../modules/vulkan/api/vktApiDescriptorSetTests.hpp#L1)
+- Parent registration: [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L120) adds `descriptor_set` group to `api`
 
 ## Registration Path
 
@@ -55,7 +55,7 @@ Tests that a descriptor set layout used to create a pipeline layout can be destr
 
 ### descriptor_set_layout / empty_set
 
-Tests creation of empty descriptor set layouts (zero bindings). The `normal` test uses no create flags. The `push_descriptor` test uses `VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR` (non-VKSC only). Implemented by [emptyDescriptorSetLayoutTest()](../../../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L620).
+Tests creation of empty descriptor set layouts (zero bindings). The `normal` test uses no create flags. The `push_descriptor` test uses `VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR` (non-VKSC only). Implemented by [emptyDescriptorSetLayoutTest()](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L620).
 
 ### descriptor_set_layout_binding
 
@@ -72,7 +72,7 @@ Tests descriptor set layout binding ordering. The `update_subsequent_binding` te
 ## Support / Feature Requirements
 
 - `VK_KHR_push_descriptor` required for `push_descriptor` test (non-VKSC only)
-- Graphics tests require a renderable color attachment format ([getRenderTargetFormat()](../../../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp) in related pipeline tests)
+- Graphics tests require a renderable color attachment format ([getRenderTargetFormat()](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp) in related pipeline tests)
 
 ## Verification Methods
 
@@ -88,6 +88,6 @@ Tests descriptor set layout binding ordering. The `update_subsequent_binding` te
 
 ## Notes / Uncertainties
 
-- The group name is `descriptor_set` as confirmed in [createDescriptorSetTests()](../../../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L666)
+- The group name is `descriptor_set` as confirmed in [createDescriptorSetTests()](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L666)
 - The lifetime tests create the pipeline layout first, then destroy the descriptor set layout, then create the pipeline -- this is the key sequence being tested
-- The Amber test data directory is `api/descriptor_set/descriptor_set_layout_binding` ([L646](../../../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L646))
+- The Amber test data directory is `api/descriptor_set/descriptor_set_layout_binding` ([L646](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L646))

@@ -1,4 +1,4 @@
-# [vktApiGetDeviceProcAddrTests.cpp](../../../../../modules/vulkan/api/vktApiGetDeviceProcAddrTests.cpp#L1)
+# [vktApiGetDeviceProcAddrTests.cpp](../../../modules/vulkan/api/vktApiGetDeviceProcAddrTests.cpp#L1)
 
 ## Overview
 
@@ -12,10 +12,10 @@ Registration/dispatcher. The .cpp file is a thin wrapper that creates the test g
 
 | File | Description |
 |------|-------------|
-| [vktApiGetDeviceProcAddrTests.cpp](../../../../../modules/vulkan/api/vktApiGetDeviceProcAddrTests.cpp#L1) | Group registration and delegation |
-| [vktApiGetDeviceProcAddrTests.hpp](../../../../../modules/vulkan/api/vktApiGetDeviceProcAddrTests.hpp#L1) | Declares `createGetDeviceProcAddrTests` |
-| [vkGetDeviceProcAddr.inl](../../../../framework/vulkan/generated/vulkan/vkGetDeviceProcAddr.inl#L1) | Auto-generated: test implementation and function name list |
-| [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L130) | Parent registration: `apiTests->addChild(createGetDeviceProcAddrTests(testCtx))` |
+| [vktApiGetDeviceProcAddrTests.cpp](../../../modules/vulkan/api/vktApiGetDeviceProcAddrTests.cpp#L1) | Group registration and delegation |
+| [vktApiGetDeviceProcAddrTests.hpp](../../../modules/vulkan/api/vktApiGetDeviceProcAddrTests.hpp#L1) | Declares `createGetDeviceProcAddrTests` |
+| [vkGetDeviceProcAddr.inl](../../../framework/vulkan/generated/vulkan/vkGetDeviceProcAddr.inl#L1) | Auto-generated: test implementation and function name list |
+| [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L130) | Parent registration: `apiTests->addChild(createGetDeviceProcAddrTests(testCtx))` |
 
 ## Registration Path
 
@@ -38,11 +38,11 @@ get_device_proc_addr
 
 ### get_device_proc_addr
 
-Group name verified at [vktApiGetDeviceProcAddrTests.cpp:40](../../../../../modules/vulkan/api/vktApiGetDeviceProcAddrTests.cpp#L40).
+Group name verified at [vktApiGetDeviceProcAddrTests.cpp:40](../../../modules/vulkan/api/vktApiGetDeviceProcAddrTests.cpp#L40).
 
-Contains a single test case `non_enabled` added by the auto-generated [vkGetDeviceProcAddr.inl:1088](../../../../framework/vulkan/generated/vulkan/vkGetDeviceProcAddr.inl#L1088).
+Contains a single test case `non_enabled` added by the auto-generated [vkGetDeviceProcAddr.inl:1088](../../../framework/vulkan/generated/vulkan/vkGetDeviceProcAddr.inl#L1088).
 
-The test logic at [vkGetDeviceProcAddr.inl:21](../../../../framework/vulkan/generated/vulkan/vkGetDeviceProcAddr.inl#L21):
+The test logic at [vkGetDeviceProcAddr.inl:21](../../../framework/vulkan/generated/vulkan/vkGetDeviceProcAddr.inl#L21):
 1. Creates a `CustomInstance` and a `CustomDevice` with zero extensions enabled
 2. Iterates over a hard-coded vector of extension function name strings (lines 60-1070)
 3. Calls `deviceDriver.getDeviceProcAddr(device, functionName)` for each
@@ -61,7 +61,7 @@ No explicit extension or feature requirements. The test creates its own instance
 
 ## Verification Methods
 
-- **NULL pointer check**: For each queried function name, `vkGetDeviceProcAddr` must return NULL. Any non-NULL result is a failure ([vkGetDeviceProcAddr.inl:1075](../../../../framework/vulkan/generated/vulkan/vkGetDeviceProcAddr.inl#L1075)).
+- **NULL pointer check**: For each queried function name, `vkGetDeviceProcAddr` must return NULL. Any non-NULL result is a failure ([vkGetDeviceProcAddr.inl:1075](../../../framework/vulkan/generated/vulkan/vkGetDeviceProcAddr.inl#L1075)).
 
 ## Test Principles Observed
 

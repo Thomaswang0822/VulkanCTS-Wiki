@@ -1,4 +1,4 @@
-# [vktApiDSColorBitCopyTests.cpp](../../../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L1)
+# [vktApiDSColorBitCopyTests.cpp](../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L1)
 
 ## Overview
 
@@ -6,13 +6,13 @@ Tests copying between depth/stencil images and color images using vkCmdCopyImage
 
 ## Role of File
 
-Implementation-heavy. Contains all test logic, helper types, and the registration function [createDSColorBitCopyTests()](../../../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L875).
+Implementation-heavy. Contains all test logic, helper types, and the registration function [createDSColorBitCopyTests()](../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L875).
 
 ## Source Code
 
-- Implementation: [vktApiDSColorBitCopyTests.cpp](../../../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L1)
-- Header: [vktApiDSColorBitCopyTests.hpp](../../../../../modules/vulkan/api/vktApiDSColorBitCopyTests.hpp#L1)
-- Parent registration: [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L109)
+- Implementation: [vktApiDSColorBitCopyTests.cpp](../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L1)
+- Header: [vktApiDSColorBitCopyTests.hpp](../../../modules/vulkan/api/vktApiDSColorBitCopyTests.hpp#L1)
+- Parent registration: [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L109)
 
 ## Registration Path
 
@@ -34,13 +34,13 @@ Test names are auto-generated from format pairs, aspect, mip levels, and queue t
 
 ### Depth/Stencil to Color Bit Copy
 
-[DSColorCopyInstance::iterate()](../../../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L604) performs a round-trip copy: source buffer to source image, source image to destination image via vkCmdCopyImage, then destination image to destination buffer. The test compares source and destination pixel values bit-for-bit.
+[DSColorCopyInstance::iterate()](../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L604) performs a round-trip copy: source buffer to source image, source image to destination image via vkCmdCopyImage, then destination image to destination buffer. The test compares source and destination pixel values bit-for-bit.
 
-[DSColorCopyCase::checkSupport()](../../../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L362) verifies that both source and destination formats support the required image usage and mip levels, and checks queue-specific format feature flags for compute-only and transfer-only queues.
+[DSColorCopyCase::checkSupport()](../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L362) verifies that both source and destination formats support the required image usage and mip levels, and checks queue-specific format feature flags for compute-only and transfer-only queues.
 
 ### Format Groups
 
-[getFormatGroups()](../../../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L67) defines four format groups that pair depth/stencil formats with compatible color formats:
+[getFormatGroups()](../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L67) defines four format groups that pair depth/stencil formats with compatible color formats:
 
 - 32-bit depth: D32_SFLOAT, D32_SFLOAT_S8_UINT paired with R32_SFLOAT, R32_SINT, R32_UINT
 - 24-bit depth: X8_D24_UNORM_PACK32, D24_UNORM_S8_UINT paired with R32_SFLOAT, R32_SINT, R32_UINT
@@ -65,7 +65,7 @@ Test names are auto-generated from format pairs, aspect, mip levels, and queue t
 
 | Feature / Extension | Used By |
 |---|---|
-| VK_KHR_maintenance8 | All tests (required at [line 501](../../../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L501)) |
+| VK_KHR_maintenance8 | All tests (required at [line 501](../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L501)) |
 | VK_EXT_depth_range_unrestricted | Tests with unrestricted=true |
 | VK_KHR_maintenance10 | Compute-only and transfer-only queue tests (non-SC) |
 | VK_KHR_format_feature_flags2 | Compute-only and transfer-only queue tests (non-SC) |
@@ -76,7 +76,7 @@ Test names are auto-generated from format pairs, aspect, mip levels, and queue t
 
 ## Verification Methods
 
-- **Bit-exact pixel comparison**: [PixelValue](../../../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L507) compares source and destination pixels at each coordinate. For 8/16/32-bit values, exact integer comparison is used. For 24-bit depth, the lower 24 bits are masked and compared.
+- **Bit-exact pixel comparison**: [PixelValue](../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L507) compares source and destination pixels at each coordinate. For 8/16/32-bit values, exact integer comparison is used. For 24-bit depth, the lower 24 bits are masked and compared.
 - **VK_CHECK**: API calls are verified for success
 - **NotSupportedError**: Tests skip if the format does not support the required features or mip levels
 
@@ -90,7 +90,7 @@ Test names are auto-generated from format pairs, aspect, mip levels, and queue t
 
 ## Notes / Uncertainties
 
-- The group name in the source code is `ds_color_copy` at [line 877](../../../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L877), not `ds_color_bit_copy` as the filename might suggest
+- The group name in the source code is `ds_color_copy` at [line 877](../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L877), not `ds_color_bit_copy` as the filename might suggest
 - The factory function is named `createDSColorBitCopyTests` but the group name is `ds_color_copy`
 - When using a transfer queue with a depth/stencil source image, a staging image workaround is used because vkCmdCopyBufferToImage cannot be called on a transfer queue with DS images (VUID-vkCmdCopyBufferToImage-commandBuffer-07739)
 - The base image extent is 16x16; mip levels scale the source and destination image sizes accordingly

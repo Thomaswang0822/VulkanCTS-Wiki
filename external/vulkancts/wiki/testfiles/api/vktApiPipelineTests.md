@@ -1,4 +1,4 @@
-# [vktApiPipelineTests.cpp](../../../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1)
+# [vktApiPipelineTests.cpp](../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1)
 
 ## Overview
 
@@ -6,13 +6,13 @@ Tests Vulkan pipeline object lifetime semantics, render pass compatibility, and 
 
 ## Role of File
 
-Implementation-heavy. Contains test logic for pipeline layout lifetime, render pass lifetime, and invalid pointer handling. The public entry point [createPipelineTests()](../../../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1798) assembles the test tree.
+Implementation-heavy. Contains test logic for pipeline layout lifetime, render pass lifetime, and invalid pointer handling. The public entry point [createPipelineTests()](../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1798) assembles the test tree.
 
 ## Source Code
 
-- Source: [vktApiPipelineTests.cpp](../../../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1)
-- Header: [vktApiPipelineTests.hpp](../../../../../modules/vulkan/api/vktApiPipelineTests.hpp#L1)
-- Parent registration: [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L121) adds `pipeline` group to `api`
+- Source: [vktApiPipelineTests.cpp](../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1)
+- Header: [vktApiPipelineTests.hpp](../../../modules/vulkan/api/vktApiPipelineTests.hpp#L1)
+- Parent registration: [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L121) adds `pipeline` group to `api`
 
 ## Registration Path
 
@@ -57,15 +57,15 @@ pipeline
 
 ### renderpass
 
-Tests render pass lifetime and compatibility. `destroy_pipeline_renderpass` verifies that a pipeline created with a render pass remains valid after the render pass is destroyed, and drawing still works. `framebuffer_compatible_renderpass` verifies that a framebuffer created with one render pass can be used with a compatible render pass. Implemented by [renderpassLifetimeTest()](../../../../../modules/vulkan/api/vktApiPipelineTests.cpp#L97) and [framebufferCompatibleRenderPassTest()](../../../../../modules/vulkan/api/vktApiPipelineTests.cpp).
+Tests render pass lifetime and compatibility. `destroy_pipeline_renderpass` verifies that a pipeline created with a render pass remains valid after the render pass is destroyed, and drawing still works. `framebuffer_compatible_renderpass` verifies that a framebuffer created with one render pass can be used with a compatible render pass. Implemented by [renderpassLifetimeTest()](../../../modules/vulkan/api/vktApiPipelineTests.cpp#L97) and [framebufferCompatibleRenderPassTest()](../../../modules/vulkan/api/vktApiPipelineTests.cpp).
 
 ### pipeline_layout / lifetime
 
-Tests that pipeline layouts can be destroyed after pipeline creation and the pipelines remain functional. The `graphics` and `compute` variants test basic lifetime. The `destroy_after_end` variant destroys the layout after recording commands. The `destroy_after_compute_pipeline_construction` and `destroy_after_graphics_pipeline_construction` variants test VK_KHR_maintenance4 semantics where the layout can be destroyed immediately after pipeline construction. Implemented by [createPipelineLayoutLifetimeTests()](../../../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1750).
+Tests that pipeline layouts can be destroyed after pipeline creation and the pipelines remain functional. The `graphics` and `compute` variants test basic lifetime. The `destroy_after_end` variant destroys the layout after recording commands. The `destroy_after_compute_pipeline_construction` and `destroy_after_graphics_pipeline_construction` variants test VK_KHR_maintenance4 semantics where the layout can be destroyed immediately after pipeline construction. Implemented by [createPipelineLayoutLifetimeTests()](../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1750).
 
 ### pipeline_invalid_pointers_unused_structs (non-VKSC only)
 
-Tests that pipelines can be created with invalid pointers in pNext chains of unused struct fields without crashing. Both graphics and compute pipeline variants are tested. Implemented by [pipelineInvalidPointersUnusedStructsTest()](../../../../../modules/vulkan/api/vktApiPipelineTests.cpp).
+Tests that pipelines can be created with invalid pointers in pNext chains of unused struct fields without crashing. Both graphics and compute pipeline variants are tested. Implemented by [pipelineInvalidPointersUnusedStructsTest()](../../../modules/vulkan/api/vktApiPipelineTests.cpp).
 
 ## Parameter Dimensions
 
@@ -77,7 +77,7 @@ Tests that pipelines can be created with invalid pointers in pNext chains of unu
 
 ## Support / Feature Requirements
 
-- `VK_KHR_maintenance4` required for `destroy_after_compute_pipeline_construction` and `destroy_after_graphics_pipeline_construction` tests ([checkMaintenance4Support()](../../../../../modules/vulkan/api/vktApiPipelineTests.cpp))
+- `VK_KHR_maintenance4` required for `destroy_after_compute_pipeline_construction` and `destroy_after_graphics_pipeline_construction` tests ([checkMaintenance4Support()](../../../modules/vulkan/api/vktApiPipelineTests.cpp))
 - Graphics tests require a renderable color attachment format
 - `pipeline_invalid_pointers_unused_structs` group is excluded from VKSC builds
 
@@ -95,6 +95,6 @@ Tests that pipelines can be created with invalid pointers in pNext chains of unu
 
 ## Notes / Uncertainties
 
-- The group name is `pipeline` as confirmed in [createPipelineTests()](../../../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1800)
+- The group name is `pipeline` as confirmed in [createPipelineTests()](../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1800)
 - The `destroy_after_end` test destroys the pipeline layout after `vkEndCommandBuffer` but before `vkQueueSubmit`, testing an intermediate lifetime point
-- The `pipeline_invalid_pointers_unused_structs` tests are guarded by `#ifndef CTS_USES_VULKANSC` ([L1779](../../../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1779))
+- The `pipeline_invalid_pointers_unused_structs` tests are guarded by `#ifndef CTS_USES_VULKANSC` ([L1779](../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1779))

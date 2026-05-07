@@ -1,4 +1,4 @@
-# [vktApiDescriptorPoolTests.cpp](../../../../../modules/vulkan/api/vktApiDescriptorPoolTests.cpp#L1)
+# [vktApiDescriptorPoolTests.cpp](../../../modules/vulkan/api/vktApiDescriptorPoolTests.cpp#L1)
 
 ## Overview
 
@@ -6,13 +6,13 @@ Tests Vulkan descriptor pool operations: repeated reset, free-and-reset cycles, 
 
 ## Role of File
 
-Implementation-heavy. Contains all test logic and the registration function [createDescriptorPoolTests()](../../../../../modules/vulkan/api/vktApiDescriptorPoolTests.cpp#L509).
+Implementation-heavy. Contains all test logic and the registration function [createDescriptorPoolTests()](../../../modules/vulkan/api/vktApiDescriptorPoolTests.cpp#L509).
 
 ## Source Code
 
-- Implementation: [vktApiDescriptorPoolTests.cpp](../../../../../modules/vulkan/api/vktApiDescriptorPoolTests.cpp#L1)
-- Header: [vktApiDescriptorPoolTests.hpp](../../../../../modules/vulkan/api/vktApiDescriptorPoolTests.hpp#L1)
-- Parent registration: [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L112)
+- Implementation: [vktApiDescriptorPoolTests.cpp](../../../modules/vulkan/api/vktApiDescriptorPoolTests.cpp#L1)
+- Header: [vktApiDescriptorPoolTests.hpp](../../../modules/vulkan/api/vktApiDescriptorPoolTests.hpp#L1)
+- Parent registration: [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L112)
 
 ## Registration Path
 
@@ -39,23 +39,23 @@ descriptor_pool
 
 ### Repeated Reset
 
-[resetDescriptorPoolTest()](../../../../../modules/vulkan/api/vktApiDescriptorPoolTests.cpp#L84) allocates descriptor sets from a pool and resets the pool repeatedly. `repeated_reset_short` runs 2 iterations; `repeated_reset_long` runs 4096 iterations (100 on SC). This verifies that pool reset properly recycles resources without memory leaks.
+[resetDescriptorPoolTest()](../../../modules/vulkan/api/vktApiDescriptorPoolTests.cpp#L84) allocates descriptor sets from a pool and resets the pool repeatedly. `repeated_reset_short` runs 2 iterations; `repeated_reset_long` runs 4096 iterations (100 on SC). This verifies that pool reset properly recycles resources without memory leaks.
 
 ### Repeated Free and Reset
 
-The same [resetDescriptorPoolTest()](../../../../../modules/vulkan/api/vktApiDescriptorPoolTests.cpp#L84) with `freeDescriptorSets=true` allocates descriptor sets, frees them with vkFreeDescriptorSets, then resets the pool. `repeated_free_reset_short` runs 2 iterations; `repeated_free_reset_long` runs 4096 iterations. This verifies that free-then-reset cycles work correctly.
+The same [resetDescriptorPoolTest()](../../../modules/vulkan/api/vktApiDescriptorPoolTests.cpp#L84) with `freeDescriptorSets=true` allocates descriptor sets, frees them with vkFreeDescriptorSets, then resets the pool. `repeated_free_reset_short` runs 2 iterations; `repeated_free_reset_long` runs 4096 iterations. This verifies that free-then-reset cycles work correctly.
 
 ### Out of Pool Memory
 
-[outOfPoolMemoryTest()](../../../../../modules/vulkan/api/vktApiDescriptorPoolTests.cpp#L174) creates descriptor pools with insufficient resources and attempts to allocate more descriptor sets than the pool can hold. Verifies that VK_ERROR_OUT_OF_POOL_MEMORY is returned when VK_KHR_maintenance1 is supported. Tests multiple failure scenarios: out of descriptor sets, out of descriptors due to binding count, and out of descriptors due to array size.
+[outOfPoolMemoryTest()](../../../modules/vulkan/api/vktApiDescriptorPoolTests.cpp#L174) creates descriptor pools with insufficient resources and attempts to allocate more descriptor sets than the pool can hold. Verifies that VK_ERROR_OUT_OF_POOL_MEMORY is returned when VK_KHR_maintenance1 is supported. Tests multiple failure scenarios: out of descriptor sets, out of descriptors due to binding count, and out of descriptors due to array size.
 
 ### Zero Pool Size Count
 
-[zeroPoolSizeCount()](../../../../../modules/vulkan/api/vktApiDescriptorPoolTests.cpp#L331) creates a descriptor pool with zero pool sizes (maxSets=1, poolSizeCount=0) and verifies that an empty descriptor set can be allocated and freed from it.
+[zeroPoolSizeCount()](../../../modules/vulkan/api/vktApiDescriptorPoolTests.cpp#L331) creates a descriptor pool with zero pool sizes (maxSets=1, poolSizeCount=0) and verifies that an empty descriptor set can be allocated and freed from it.
 
 ### Repeated Free No Reset (SC only)
 
-[noResetDescriptorPoolTest()](../../../../../modules/vulkan/api/vktApiDescriptorPoolTests.cpp#L384) is a Vulkan SC-specific test that allocates and frees descriptor sets without resetting the pool, instead destroying and recreating the device. `repeated_free_no_reset_short` runs 2 iterations; `repeated_free_no_reset_long` runs 200 iterations.
+[noResetDescriptorPoolTest()](../../../modules/vulkan/api/vktApiDescriptorPoolTests.cpp#L384) is a Vulkan SC-specific test that allocates and frees descriptor sets without resetting the pool, instead destroying and recreating the device. `repeated_free_no_reset_short` runs 2 iterations; `repeated_free_no_reset_long` runs 200 iterations.
 
 ## Parameter Dimensions
 

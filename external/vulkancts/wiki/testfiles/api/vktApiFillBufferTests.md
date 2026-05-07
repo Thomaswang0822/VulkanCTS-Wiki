@@ -1,4 +1,4 @@
-# [vktApiFillBufferTests.cpp](../../../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L1)
+# [vktApiFillBufferTests.cpp](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L1)
 
 ## Overview
 
@@ -6,13 +6,13 @@ Tests vkCmdFillBuffer and vkCmdUpdateBuffer commands with various buffer offsets
 
 ## Role of File
 
-Implementation-heavy. Contains all test logic, helper classes, and the registration function [createFillAndUpdateBufferTests()](../../../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L764).
+Implementation-heavy. Contains all test logic, helper classes, and the registration function [createFillAndUpdateBufferTests()](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L764).
 
 ## Source Code
 
-- Implementation: [vktApiFillBufferTests.cpp](../../../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L1)
-- Header: [vktApiFillBufferTests.hpp](../../../../../modules/vulkan/api/vktApiFillBufferTests.hpp#L1)
-- Parent registration: [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L111)
+- Implementation: [vktApiFillBufferTests.cpp](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L1)
+- Header: [vktApiFillBufferTests.hpp](../../../modules/vulkan/api/vktApiFillBufferTests.hpp#L1)
+- Parent registration: [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L111)
 
 ## Registration Path
 
@@ -70,19 +70,19 @@ fill_and_update_buffer
 
 ### Fill Buffer
 
-[FillBufferTestCase](../../../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L764) tests vkCmdFillBuffer with various offsets and sizes. [FillWholeBufferTestCase](../../../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L177) specifically tests VK_WHOLE_SIZE with different buffer sizes and offsets.
+[FillBufferTestCase](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L764) tests vkCmdFillBuffer with various offsets and sizes. [FillWholeBufferTestCase](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L177) specifically tests VK_WHOLE_SIZE with different buffer sizes and offsets.
 
 ### Update Buffer
 
-[UpdateBufferTestCase](../../../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L764) tests vkCmdUpdateBuffer with the same offset/size parameterization as fill.
+[UpdateBufferTestCase](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L764) tests vkCmdUpdateBuffer with the same offset/size parameterization as fill.
 
 ### VK_WHOLE_SIZE Tests
 
-[FillWholeBufferTestCase](../../../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L177) tests vkCmdFillBuffer with VK_WHOLE_SIZE, varying the buffer size by adding extra bytes (0-3) and using different offsets. This verifies that VK_WHOLE_SIZE correctly fills from the offset to the end of the buffer.
+[FillWholeBufferTestCase](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L177) tests vkCmdFillBuffer with VK_WHOLE_SIZE, varying the buffer size by adding extra bytes (0-3) and using different offsets. This verifies that VK_WHOLE_SIZE correctly fills from the offset to the end of the buffer.
 
 ### Transfer Queue Tests
 
-The `suballocation_transfer_queue` group runs the same tests on a transfer-only queue by creating a custom device with a dedicated transfer queue family, implemented via [createCustomDevice()](../../../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L74).
+The `suballocation_transfer_queue` group runs the same tests on a transfer-only queue by creating a custom device with a dedicated transfer queue family, implemented via [createCustomDevice()](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L74).
 
 ### Device Address Commands
 

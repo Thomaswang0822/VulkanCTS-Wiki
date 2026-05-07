@@ -1,4 +1,4 @@
-# [vktApiCopiesAndBlittingTests.cpp](../../../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L1)
+# [vktApiCopiesAndBlittingTests.cpp](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L1)
 
 ## Overview
 
@@ -6,13 +6,13 @@ Dispatcher file for Vulkan copy and blit command tests. Does not contain test lo
 
 ## Role of File
 
-Registration/dispatcher. The [createCopiesAndBlittingTests()](../../../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L267) function creates the top-level group and delegates to sub-files via their respective `add*Tests` or `create*Tests` functions.
+Registration/dispatcher. The [createCopiesAndBlittingTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L267) function creates the top-level group and delegates to sub-files via their respective `add*Tests` or `create*Tests` functions.
 
 ## Source Code
 
-- Implementation: [vktApiCopiesAndBlittingTests.cpp](../../../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L1)
-- Header: [vktApiCopiesAndBlittingTests.hpp](../../../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.hpp#L1)
-- Parent registration: [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L108)
+- Implementation: [vktApiCopiesAndBlittingTests.cpp](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L1)
+- Header: [vktApiCopiesAndBlittingTests.hpp](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.hpp#L1)
+- Parent registration: [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L108)
 
 ## Registration Path
 
@@ -121,42 +121,42 @@ copy_and_blit
 
 ### Core and Dedicated Allocation
 
-[addCopiesAndBlittingTests()](../../../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L119) creates subgroups for each copy/blit type under both `core` (suballocated) and `dedicated_allocation` groups. Each subgroup delegates to a sub-file: image_to_image, image_to_buffer, buffer_to_image, buffer_to_depthstencil, depthstencil_to_buffer, buffer_to_buffer, blit_image, resolve_image, depth_stencil_msaa_copy. Additional subgroups for compute-only and transfer-only queues are added.
+[addCopiesAndBlittingTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L119) creates subgroups for each copy/blit type under both `core` (suballocated) and `dedicated_allocation` groups. Each subgroup delegates to a sub-file: image_to_image, image_to_buffer, buffer_to_image, buffer_to_depthstencil, depthstencil_to_buffer, buffer_to_buffer, blit_image, resolve_image, depth_stencil_msaa_copy. Additional subgroups for compute-only and transfer-only queues are added.
 
 ### Copy Commands2
 
-The `copy_commands2` group uses the same [addCopiesAndBlittingTests()](../../../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L119) but with the COPY_COMMANDS_2 extension flag, adding image_to_image_transfer_queue, image_to_image_transfer_queue_secondary, and image_to_image_transfer_sparse subgroups.
+The `copy_commands2` group uses the same [addCopiesAndBlittingTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L119) but with the COPY_COMMANDS_2 extension flag, adding image_to_image_transfer_queue, image_to_image_transfer_queue_secondary, and image_to_image_transfer_sparse subgroups.
 
 ### Sparse
 
-[addSparseCopyTests()](../../../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L57) adds a sparse image_to_image subgroup using COPY_COMMANDS_2 and SPARSE_BINDING flags.
+[addSparseCopyTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L57) adds a sparse image_to_image subgroup using COPY_COMMANDS_2 and SPARSE_BINDING flags.
 
 ### Indirect Copy (non-SC)
 
-[addIndirectCopyTests()](../../../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L74) adds memory_to_image_indirect, memory_to_depthstencil_indirect, and image_to_buffer_indirect subgroups for universal, transfer-only, and compute-only queues.
+[addIndirectCopyTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L74) adds memory_to_image_indirect, memory_to_depthstencil_indirect, and image_to_buffer_indirect subgroups for universal, transfer-only, and compute-only queues.
 
 ### Device Address (non-SC)
 
-[addDeviceAddressTests()](../../../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L249) adds image_to_buffer, buffer_to_image, buffer_to_depthstencil, and buffer_to_buffer subgroups using DEVICE_ADDRESS_COMMANDS.
+[addDeviceAddressTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L249) adds image_to_buffer, buffer_to_image, buffer_to_depthstencil, and buffer_to_buffer subgroups using DEVICE_ADDRESS_COMMANDS.
 
 ### Delegated Sub-Files
 
 The following sub-files provide the actual test implementations:
 
-- [vktApiCopyImageToImageTests.hpp](../../../../../modules/vulkan/api/vktApiCopyImageToImageTests.hpp#L1)
-- [vktApiCopyBufferToBufferTests.hpp](../../../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.hpp#L1)
-- [vktApiCopyImageToBufferTests.hpp](../../../../../modules/vulkan/api/vktApiCopyImageToBufferTests.hpp#L1)
-- [vktApiCopyBufferToImageTests.hpp](../../../../../modules/vulkan/api/vktApiCopyBufferToImageTests.hpp#L1)
-- [vktApiCopyBufferToDepthStencilTests.hpp](../../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.hpp#L1)
-- [vktApiCopyDepthStencilToBufferTests.hpp](../../../../../modules/vulkan/api/vktApiCopyDepthStencilToBufferTests.hpp#L1)
-- [vktApiCopyDepthStencilMSAATests.hpp](../../../../../modules/vulkan/api/vktApiCopyDepthStencilMSAATests.hpp#L1)
-- [vktApiBlittingTests.hpp](../../../../../modules/vulkan/api/vktApiBlittingTests.hpp#L1)
-- [vktApiResolveTests.hpp](../../../../../modules/vulkan/api/vktApiResolveTests.hpp#L1)
-- [vktApiCopiesAndBlittingDynamicStateMetaOpsTests.hpp](../../../../../modules/vulkan/api/vktApiCopiesAndBlittingDynamicStateMetaOpsTests.hpp#L1)
-- [vktApiCopiesAndBlittingReinterpretTests.hpp](../../../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.hpp#L1)
-- [vktApiCopyMultiplaneImageTransferQueueTests.hpp](../../../../../modules/vulkan/api/vktApiCopyMultiplaneImageTransferQueueTests.hpp#L1)
-- [vktApiCopyMemoryIndirectTests.hpp](../../../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.hpp#L1)
-- [vktApiUseAfterCopyTests.hpp](../../../../../modules/vulkan/api/vktApiUseAfterCopyTests.hpp#L1)
+- [vktApiCopyImageToImageTests.hpp](../../../modules/vulkan/api/vktApiCopyImageToImageTests.hpp#L1)
+- [vktApiCopyBufferToBufferTests.hpp](../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.hpp#L1)
+- [vktApiCopyImageToBufferTests.hpp](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.hpp#L1)
+- [vktApiCopyBufferToImageTests.hpp](../../../modules/vulkan/api/vktApiCopyBufferToImageTests.hpp#L1)
+- [vktApiCopyBufferToDepthStencilTests.hpp](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.hpp#L1)
+- [vktApiCopyDepthStencilToBufferTests.hpp](../../../modules/vulkan/api/vktApiCopyDepthStencilToBufferTests.hpp#L1)
+- [vktApiCopyDepthStencilMSAATests.hpp](../../../modules/vulkan/api/vktApiCopyDepthStencilMSAATests.hpp#L1)
+- [vktApiBlittingTests.hpp](../../../modules/vulkan/api/vktApiBlittingTests.hpp#L1)
+- [vktApiResolveTests.hpp](../../../modules/vulkan/api/vktApiResolveTests.hpp#L1)
+- [vktApiCopiesAndBlittingDynamicStateMetaOpsTests.hpp](../../../modules/vulkan/api/vktApiCopiesAndBlittingDynamicStateMetaOpsTests.hpp#L1)
+- [vktApiCopiesAndBlittingReinterpretTests.hpp](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.hpp#L1)
+- [vktApiCopyMultiplaneImageTransferQueueTests.hpp](../../../modules/vulkan/api/vktApiCopyMultiplaneImageTransferQueueTests.hpp#L1)
+- [vktApiCopyMemoryIndirectTests.hpp](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.hpp#L1)
+- [vktApiUseAfterCopyTests.hpp](../../../modules/vulkan/api/vktApiUseAfterCopyTests.hpp#L1)
 
 ## Parameter Dimensions
 
@@ -197,6 +197,6 @@ Verification is delegated to the sub-files. Common patterns include:
 ## Notes / Uncertainties
 
 - The `core` group additionally includes indirect copy tests and use-after-copy tests that are not in `dedicated_allocation`
-- The `copy_commands2` group uses dedicated allocation internally (hardcoded at [line 276](../../../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L276))
-- The `multiplane` subgroup is created by [createCopyMultiplaneImageTransferQueueTests()](../../../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L283) and its internal structure is defined in a separate file
+- The `copy_commands2` group uses dedicated allocation internally (hardcoded at [line 276](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L276))
+- The `multiplane` subgroup is created by [createCopyMultiplaneImageTransferQueueTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L283) and its internal structure is defined in a separate file
 - The `dynamic_state_meta_ops`, `indirect`, and `device_address` groups are non-SC only

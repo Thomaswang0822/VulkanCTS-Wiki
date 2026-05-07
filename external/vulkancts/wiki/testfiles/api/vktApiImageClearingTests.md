@@ -1,4 +1,4 @@
-# [vktApiImageClearingTests.cpp](../../../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L1)
+# [vktApiImageClearingTests.cpp](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L1)
 
 ## Overview
 
@@ -6,13 +6,13 @@ Tests Vulkan image clearing commands: vkCmdClearColorImage, vkCmdClearDepthStenc
 
 ## Role of File
 
-Implementation-heavy. Contains all test logic, helper types, and the registration function [createImageClearingTests()](../../../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L3204).
+Implementation-heavy. Contains all test logic, helper types, and the registration function [createImageClearingTests()](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L3204).
 
 ## Source Code
 
-- Implementation: [vktApiImageClearingTests.cpp](../../../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L1)
-- Header: [vktApiImageClearingTests.hpp](../../../../../modules/vulkan/api/vktApiImageClearingTests.hpp#L1)
-- Parent registration: [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L110)
+- Implementation: [vktApiImageClearingTests.cpp](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L1)
+- Header: [vktApiImageClearingTests.hpp](../../../modules/vulkan/api/vktApiImageClearingTests.hpp#L1)
+- Parent registration: [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L110)
 
 ## Registration Path
 
@@ -49,7 +49,7 @@ image_clearing
 
 ### Clear Color Image
 
-[ClearColorImageTestInstance](../../../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L2224) tests vkCmdClearColorImage across all mandatory color formats, image types (1D, 2D, 3D), tilings (optimal, linear), layer configurations, and dimensions. Tests include multiple subresource range variants and MSAA variants for 2D images.
+[ClearColorImageTestInstance](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L2224) tests vkCmdClearColorImage across all mandatory color formats, image types (1D, 2D, 3D), tilings (optimal, linear), layer configurations, and dimensions. Tests include multiple subresource range variants and MSAA variants for 2D images.
 
 ### Clear Depth/Stencil Image
 
@@ -69,7 +69,7 @@ Tests partial clears of color and depth/stencil attachments using VkClearRect wi
 
 ### Dedicated Allocation
 
-The `dedicated_allocation` subgroup repeats the same test structure using dedicated memory allocation instead of suballocation, created by [createDedicatedAllocationImageClearingTests()](../../../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L3197).
+The `dedicated_allocation` subgroup repeats the same test structure using dedicated memory allocation instead of suballocation, created by [createDedicatedAllocationImageClearingTests()](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L3197).
 
 ## Parameter Dimensions
 
@@ -117,6 +117,6 @@ The `dedicated_allocation` subgroup repeats the same test structure using dedica
 ## Notes / Uncertainties
 
 - The file is very large (3218 lines); the test hierarchy above shows the structural pattern but individual test names are auto-generated from format, dimension, and color parameters
-- Some compressed formats (BC, ETC2, EAC, ASTC) are commented out in the format list at [lines 2368-2421](../../../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L2368) due to tcu::TextureFormat limitations
+- Some compressed formats (BC, ETC2, EAC, ASTC) are commented out in the format list at [lines 2368-2421](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L2368) due to tcu::TextureFormat limitations
 - R64_SFLOAT, R64G64_SFLOAT, and larger 64-bit formats are also commented out
-- The `createImageClearingTestsCommon()` function at [line 2224](../../../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L2224) is the shared implementation for both core and dedicated_allocation groups
+- The `createImageClearingTestsCommon()` function at [line 2224](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L2224) is the shared implementation for both core and dedicated_allocation groups

@@ -1,4 +1,4 @@
-# [vktApiCopyBufferToDepthStencilTests.cpp](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L1)
+# [vktApiCopyBufferToDepthStencilTests.cpp](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L1)
 
 ## Overview
 
@@ -10,9 +10,9 @@ Implementation-heavy. Contains the `CopyBufferToDepthStencil` test instance with
 
 ## Source Code
 
-- Implementation: [vktApiCopyBufferToDepthStencilTests.cpp](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L1)
-- Header: [vktApiCopyBufferToDepthStencilTests.hpp](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.hpp#L1)
-- Parent registration: [vktApiCopiesAndBlittingTests.cpp](../../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L1)
+- Implementation: [vktApiCopyBufferToDepthStencilTests.cpp](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L1)
+- Header: [vktApiCopyBufferToDepthStencilTests.hpp](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.hpp#L1)
+- Parent registration: [vktApiCopiesAndBlittingTests.cpp](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L1)
 
 ## Registration Path
 
@@ -48,20 +48,20 @@ buffer_to_depthstencil (and variants)
 
 ### CopyBufferToDepthStencil (instance)
 
-Test instance inheriting from `CopiesAndBlittingTestInstanceWithSparseSemaphore` ([line 32](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L32)). Creates a source buffer and destination depth/stencil image, packs depth and stencil data separately into the buffer, issues copy commands, and verifies the result against a software reference.
+Test instance inheriting from `CopiesAndBlittingTestInstanceWithSparseSemaphore` ([line 32](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L32)). Creates a source buffer and destination depth/stencil image, packs depth and stencil data separately into the buffer, issues copy commands, and verifies the result against a software reference.
 
 Key behaviors:
-- Separates depth and stencil data into non-interleaved buffer regions before issuing copy commands ([line 323](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L323))
-- Supports sparse binding for the destination image ([line 237](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L237))
-- Supports four command paths: standard `vkCmdCopyBufferToImage`, `vkCmdCopyBufferToImage2` (COPY_COMMANDS_2), `vkCmdCopyMemoryToImageIndirectKHR` (INDIRECT_COPY), and `vkCmdCopyMemoryToImageKHR` (DEVICE_ADDRESS_COMMANDS) ([line 526](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L526))
-- Tests single-command (all regions in one call) and per-region (one region per call with pipeline barriers) modes ([line 528](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L528))
+- Separates depth and stencil data into non-interleaved buffer regions before issuing copy commands ([line 323](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L323))
+- Supports sparse binding for the destination image ([line 237](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L237))
+- Supports four command paths: standard `vkCmdCopyBufferToImage`, `vkCmdCopyBufferToImage2` (COPY_COMMANDS_2), `vkCmdCopyMemoryToImageIndirectKHR` (INDIRECT_COPY), and `vkCmdCopyMemoryToImageKHR` (DEVICE_ADDRESS_COMMANDS) ([line 526](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L526))
+- Tests single-command (all regions in one call) and per-region (one region per call with pipeline barriers) modes ([line 528](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L528))
 
 ### CopyBufferToDepthStencilTestCase (case)
 
-TestCase subclass ([line 616](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L616)) with `checkSupport` that validates:
-- `VK_KHR_format_feature_flags2` extension ([line 635](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L635))
-- Queue-specific format features: `VK_FORMAT_FEATURE_2_DEPTH_COPY_ON_COMPUTE_QUEUE_BIT_KHR` / `TRANSFER_QUEUE_BIT_KHR` and corresponding stencil bits ([line 653](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L653))
-- Indirect copy feature: `indirectMemoryToImageCopy` and `VK_FORMAT_FEATURE_2_COPY_IMAGE_INDIRECT_DST_BIT_KHR` ([line 710](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L710))
+TestCase subclass ([line 616](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L616)) with `checkSupport` that validates:
+- `VK_KHR_format_feature_flags2` extension ([line 635](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L635))
+- Queue-specific format features: `VK_FORMAT_FEATURE_2_DEPTH_COPY_ON_COMPUTE_QUEUE_BIT_KHR` / `TRANSFER_QUEUE_BIT_KHR` and corresponding stencil bits ([line 653](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L653))
+- Indirect copy feature: `indirectMemoryToImageCopy` and `VK_FORMAT_FEATURE_2_COPY_IMAGE_INDIRECT_DST_BIT_KHR` ([line 710](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L710))
 
 ## Parameter Dimensions
 
@@ -78,19 +78,19 @@ TestCase subclass ([line 616](../../../../modules/vulkan/api/vktApiCopyBufferToD
 
 ## Support / Feature Requirements
 
-- `VK_KHR_format_feature_flags2` required unconditionally ([line 635](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L635))
-- Depth/stencil format must be supported by the physical device ([line 109](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L109))
-- Compute queue: `VK_FORMAT_FEATURE_2_DEPTH_COPY_ON_COMPUTE_QUEUE_BIT_KHR` / `STENCIL_COPY_ON_COMPUTE_QUEUE_BIT_KHR` ([line 660](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L660))
-- Transfer queue: `VK_FORMAT_FEATURE_2_DEPTH_COPY_ON_TRANSFER_QUEUE_BIT_KHR` / `STENCIL_COPY_ON_TRANSFER_QUEUE_BIT_KHR` ([line 688](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L688))
-- Indirect copy: `indirectMemoryToImageCopy` feature and queue support from `VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR` ([line 117](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L117))
-- Indirect copy: `VK_FORMAT_FEATURE_2_COPY_IMAGE_INDIRECT_DST_BIT_KHR` ([line 724](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L724))
-- Sparse binding: `VK_IMAGE_CREATE_SPARSE_BINDING_BIT` | `VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT` and sparse queue availability ([line 239](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L239))
+- `VK_KHR_format_feature_flags2` required unconditionally ([line 635](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L635))
+- Depth/stencil format must be supported by the physical device ([line 109](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L109))
+- Compute queue: `VK_FORMAT_FEATURE_2_DEPTH_COPY_ON_COMPUTE_QUEUE_BIT_KHR` / `STENCIL_COPY_ON_COMPUTE_QUEUE_BIT_KHR` ([line 660](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L660))
+- Transfer queue: `VK_FORMAT_FEATURE_2_DEPTH_COPY_ON_TRANSFER_QUEUE_BIT_KHR` / `STENCIL_COPY_ON_TRANSFER_QUEUE_BIT_KHR` ([line 688](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L688))
+- Indirect copy: `indirectMemoryToImageCopy` feature and queue support from `VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR` ([line 117](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L117))
+- Indirect copy: `VK_FORMAT_FEATURE_2_COPY_IMAGE_INDIRECT_DST_BIT_KHR` ([line 724](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L724))
+- Sparse binding: `VK_IMAGE_CREATE_SPARSE_BINDING_BIT` | `VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT` and sparse queue availability ([line 239](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L239))
 
 ## Verification Methods
 
-- Software reference: `copyRegionToTextureLevel` computes expected result by copying source buffer data to expected image using the same buffer-image copy parameters ([line 53](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L53))
+- Software reference: `copyRegionToTextureLevel` computes expected result by copying source buffer data to expected image using the same buffer-image copy parameters ([line 53](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L53))
 - Result comparison: `checkTestResult` (inherited from base class) compares the GPU result against the software reference
-- Uncopied aspects: For combined depth/stencil formats where only one aspect was copied, the uncopied aspect is cleared to 0 in both result and reference before comparison ([line 602](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L602))
+- Uncopied aspects: For combined depth/stencil formats where only one aspect was copied, the uncopied aspect is cleared to 0 in both result and reference before comparison ([line 602](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L602))
 
 ## Test Principles Observed
 
@@ -102,6 +102,6 @@ TestCase subclass ([line 616](../../../../modules/vulkan/api/vktApiCopyBufferToD
 
 ## Notes / Uncertainties
 
-- The exact set of formats in `formats::depthAndStencilFormats` is defined in the shared utility header, not in this file; the observed iteration is at [line 805](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L805)
-- The `_SD` suffix test uses `singleCommand = true` with stencil region first, depth region second; the `_DS` suffix test uses the same but with depth first, stencil second ([line 846](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L846))
-- The `INDIRECT_COPY` and `DEVICE_ADDRESS_COMMANDS` paths are guarded by `#ifndef CTS_USES_VULKANSC` ([line 295](../../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L295))
+- The exact set of formats in `formats::depthAndStencilFormats` is defined in the shared utility header, not in this file; the observed iteration is at [line 805](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L805)
+- The `_SD` suffix test uses `singleCommand = true` with stencil region first, depth region second; the `_DS` suffix test uses the same but with depth first, stencil second ([line 846](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L846))
+- The `INDIRECT_COPY` and `DEVICE_ADDRESS_COMMANDS` paths are guarded by `#ifndef CTS_USES_VULKANSC` ([line 295](../../../modules/vulkan/api/vktApiCopyBufferToDepthStencilTests.cpp#L295))

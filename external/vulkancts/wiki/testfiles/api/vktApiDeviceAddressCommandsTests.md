@@ -1,4 +1,4 @@
-# [vktApiDeviceAddressCommandsTests.cpp](../../../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L1)
+# [vktApiDeviceAddressCommandsTests.cpp](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L1)
 
 ## Overview
 
@@ -12,9 +12,9 @@ Implementation-heavy. Contains two test instance classes, shader generation, spa
 
 | File | Description |
 |------|-------------|
-| [vktApiDeviceAddressCommandsTests.cpp](../../../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L1) | Test implementation and registration |
-| [vktApiDeviceAddressCommandsTests.hpp](../../../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.hpp#L1) | Declares `createDeviceAddressCommandsTests` |
-| [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L136) | Parent registration: `apiTests->addChild(createDeviceAddressCommandsTests(testCtx))` |
+| [vktApiDeviceAddressCommandsTests.cpp](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L1) | Test implementation and registration |
+| [vktApiDeviceAddressCommandsTests.hpp](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.hpp#L1) | Declares `createDeviceAddressCommandsTests` |
+| [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L136) | Parent registration: `apiTests->addChild(createDeviceAddressCommandsTests(testCtx))` |
 
 ## Registration Path
 
@@ -54,9 +54,9 @@ device_address
 
 ### device_address
 
-Group name verified at [vktApiDeviceAddressCommandsTests.cpp:770](../../../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L770): `new tcu::TestCaseGroup(testCtx, "device_address")`.
+Group name verified at [vktApiDeviceAddressCommandsTests.cpp:770](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L770): `new tcu::TestCaseGroup(testCtx, "device_address")`.
 
-Five test cases defined at [lines 774-779](../../../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L774):
+Five test cases defined at [lines 774-779](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L774):
 
 | Test Name | CommandFlagTestMode | Instance Class | Description |
 |-----------|---------------------|----------------|-------------|
@@ -66,9 +66,9 @@ Five test cases defined at [lines 774-779](../../../../../modules/vulkan/api/vkt
 | `basic_set_stride` | BASIC_SET_STRIDE | VertexIndexBindingTestInstance | Test setStride flag in vkCmdBindVertexBuffers3KHR |
 | `complex_set_stride` | COMPLEX_SET_STRIDE | VertexIndexBindingTestInstance | Test stride priority across multiple bind APIs |
 
-**BufferAddressCommandFlagsTestInstance** ([line 57](../../../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L57)): Creates sparse buffers with partial memory binding, writes test data, uses `vkCmdCopyMemoryKHR` with device address ranges and `VkAddressCommandFlagsKHR`, then verifies the copied data matches the original.
+**BufferAddressCommandFlagsTestInstance** ([line 57](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L57)): Creates sparse buffers with partial memory binding, writes test data, uses `vkCmdCopyMemoryKHR` with device address ranges and `VkAddressCommandFlagsKHR`, then verifies the copied data matches the original.
 
-**VertexIndexBindingTestInstance** ([line 324](../../../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L324)): Renders colored quads using different vertex/index binding APIs, then reads back the color attachment and verifies expected pixel patterns.
+**VertexIndexBindingTestInstance** ([line 324](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L324)): Renders colored quads using different vertex/index binding APIs, then reads back the color attachment and verifies expected pixel patterns.
 
 ## Parameter Dimensions
 
@@ -83,15 +83,15 @@ Five test cases defined at [lines 774-779](../../../../../modules/vulkan/api/vkt
 
 ## Support / Feature Requirements
 
-- `VK_KHR_device_address_commands` required for all tests ([line 720](../../../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L720))
-- `VK_EXT_vertex_input_dynamic_state` required for `COPY_TO_MEMORY_WITH_UNBOUND_RANGES` ([line 722](../../../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L722))
-- `DEVICE_CORE_FEATURE_SPARSE_BINDING` and `DEVICE_CORE_FEATURE_SPARSE_RESIDENCY_BUFFER` required for copy tests ([lines 724-729](../../../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L724))
-- `VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT` required for all buffers ([line 253](../../../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L253))
+- `VK_KHR_device_address_commands` required for all tests ([line 720](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L720))
+- `VK_EXT_vertex_input_dynamic_state` required for `COPY_TO_MEMORY_WITH_UNBOUND_RANGES` ([line 722](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L722))
+- `DEVICE_CORE_FEATURE_SPARSE_BINDING` and `DEVICE_CORE_FEATURE_SPARSE_RESIDENCY_BUFFER` required for copy tests ([lines 724-729](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L724))
+- `VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT` required for all buffers ([line 253](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L253))
 
 ## Verification Methods
 
-- **Copy tests**: After `vkCmdCopyMemoryKHR`, reads back the destination buffer and compares byte-by-byte against the test value (253). Passes if all `size` bytes match ([lines 237-244](../../../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L237)).
-- **Vertex/index binding tests**: Renders quads to a color attachment, reads back pixels, and checks that even-indexed fragment pairs have red channel > 253 and odd-indexed pairs have red channel < 2 ([lines 536-553](../../../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L536)).
+- **Copy tests**: After `vkCmdCopyMemoryKHR`, reads back the destination buffer and compares byte-by-byte against the test value (253). Passes if all `size` bytes match ([lines 237-244](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L237)).
+- **Vertex/index binding tests**: Renders quads to a color attachment, reads back pixels, and checks that even-indexed fragment pairs have red channel > 253 and odd-indexed pairs have red channel < 2 ([lines 536-553](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L536)).
 
 ## Test Principles Observed
 

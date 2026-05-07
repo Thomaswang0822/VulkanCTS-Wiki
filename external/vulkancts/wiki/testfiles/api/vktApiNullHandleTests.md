@@ -1,4 +1,4 @@
-# [vktApiNullHandleTests.cpp](../../../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L1)
+# [vktApiNullHandleTests.cpp](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L1)
 
 ## Overview
 
@@ -6,13 +6,13 @@ Tests that destroying or freeing a VK_NULL_HANDLE is silently ignored by the imp
 
 ## Role of File
 
-Implementation-heavy. Contains all test logic and the registration function [createNullHandleTests()](../../../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L373).
+Implementation-heavy. Contains all test logic and the registration function [createNullHandleTests()](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L373).
 
 ## Source Code
 
-- Implementation: [vktApiNullHandleTests.cpp](../../../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L1)
-- Header: [vktApiNullHandleTests.hpp](../../../../../modules/vulkan/api/vktApiNullHandleTests.hpp#L1)
-- Parent registration: [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L113)
+- Implementation: [vktApiNullHandleTests.cpp](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L1)
+- Header: [vktApiNullHandleTests.hpp](../../../modules/vulkan/api/vktApiNullHandleTests.hpp#L1)
+- Parent registration: [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L113)
 
 ## Registration Path
 
@@ -55,19 +55,19 @@ null_handle
 
 ### Destroy Object with Null Handle
 
-The template function [test<Object>()](../../../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L194) calls the appropriate destroy function with VK_NULL_HANDLE and a null allocator. On non-SC, it also tests with a recording allocator to verify that no memory allocation or deallocation occurs.
+The template function [test<Object>()](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L194) calls the appropriate destroy function with VK_NULL_HANDLE and a null allocator. On non-SC, it also tests with a recording allocator to verify that no memory allocation or deallocation occurs.
 
 ### Free Command Buffers with Null Handle
 
-[test<VkCommandBuffer>()](../../../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L216) creates a command pool and calls vkFreeCommandBuffers with an array of VK_NULL_HANDLE values. Verifies that the call is silently ignored.
+[test<VkCommandBuffer>()](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L216) creates a command pool and calls vkFreeCommandBuffers with an array of VK_NULL_HANDLE values. Verifies that the call is silently ignored.
 
 ### Free Descriptor Sets with Null Handle
 
-[test<VkDescriptorSet>()](../../../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L274) creates a descriptor pool and calls vkFreeDescriptorSets with an array of VK_NULL_HANDLE values. Verifies that the call is silently ignored.
+[test<VkDescriptorSet>()](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L274) creates a descriptor pool and calls vkFreeDescriptorSets with an array of VK_NULL_HANDLE values. Verifies that the call is silently ignored.
 
 ### Allocation Callback Verification
 
-On non-SC builds, tests use [AllocationCallbackRecorder](../../../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L200) to verify that destroying a null handle does not trigger any allocation or deallocation callbacks. The test passes only if the number of recorded callbacks remains at zero.
+On non-SC builds, tests use [AllocationCallbackRecorder](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L200) to verify that destroying a null handle does not trigger any allocation or deallocation callbacks. The test passes only if the number of recorded callbacks remains at zero.
 
 ## Parameter Dimensions
 
@@ -86,9 +86,9 @@ On non-SC builds, tests use [AllocationCallbackRecorder](../../../../../modules/
 
 ## Verification Methods
 
-- **No observable side effects**: On non-SC, [AllocationCallbackRecorder](../../../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L200) verifies that no allocation callbacks are triggered
+- **No observable side effects**: On non-SC, [AllocationCallbackRecorder](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L200) verifies that no allocation callbacks are triggered
 - **Silent success**: On SC, the test simply verifies that the destroy/free call does not crash
-- **reportStatus()**: [reportStatus()](../../../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L186) returns pass if no allocation occurred, fail otherwise
+- **reportStatus()**: [reportStatus()](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L186) returns pass if no allocation occurred, fail otherwise
 
 ## Test Principles Observed
 

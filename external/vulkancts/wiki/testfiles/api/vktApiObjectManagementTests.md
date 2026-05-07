@@ -1,8 +1,8 @@
-# [vktApiObjectManagementTests.cpp](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L1)
+# [vktApiObjectManagementTests.cpp](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L1)
 
 ## Overview
 
-[`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L1) implements the `api/object_management` subgroup registered by [`createApiTests()`](../../../../../modules/vulkan/api/vktApiTests.cpp#L101). The file is very large and systematically tests creation and destruction of every major Vulkan object type under various resource-sharing and threading models: single creation, multiple creation with unique resources, multiple creation with shared resources, maximum concurrent objects, multithreaded creation with per-thread device/resources/shared resources, allocation callback tests, and private data tests.
+[`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L1) implements the `api/object_management` subgroup registered by [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L101). The file is very large and systematically tests creation and destruction of every major Vulkan object type under various resource-sharing and threading models: single creation, multiple creation with unique resources, multiple creation with shared resources, maximum concurrent objects, multithreaded creation with per-thread device/resources/shared resources, allocation callback tests, and private data tests.
 
 ## Role of File
 
@@ -10,9 +10,9 @@ Implementation-heavy test file for the `api/object_management` subgroup.
 
 ## Source Code
 
-- Primary source: [vktApiObjectManagementTests.cpp](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L1)
-- Header: [vktApiObjectManagementTests.hpp](../../../../../modules/vulkan/api/vktApiObjectManagementTests.hpp#L1)
-- Parent-category registration: [`createApiTests()`](../../../../../modules/vulkan/api/vktApiTests.cpp#L101)
+- Primary source: [vktApiObjectManagementTests.cpp](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L1)
+- Header: [vktApiObjectManagementTests.hpp](../../../modules/vulkan/api/vktApiObjectManagementTests.hpp#L1)
+- Parent-category registration: [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L101)
 
 ## Registration Path
 
@@ -36,8 +36,8 @@ TestPackage::init / TestPackageSC::init
 ```
 
 Evidence:
-- `object_management` group created at [`createObjectManagementTests()`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3597)
-- subgroups added from [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3763) through [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L4120)
+- `object_management` group created at [`createObjectManagementTests()`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3597)
+- subgroups added from [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3763) through [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L4120)
 
 ## Test Hierarchy
 
@@ -97,62 +97,62 @@ api
         +-- (same object types minus Instance/Device/DeviceGroup/MergedPipelineCache)
 ```
 
-Source: [`createObjectManagementTests()`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3595).
+Source: [`createObjectManagementTests()`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3595).
 
 ## Test Families
 
 ### 1. Single object creation
 
-The `single` subgroup at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3763) tests creating one instance of each Vulkan object type. Object types include Instance, Device, DeviceGroup, DeviceMemory, Buffer (4 variants), BufferView (2 variants), Image (1D/2D/3D), ImageView (7 variants), Semaphore, Event, Fence (2 variants), QueryPool, ShaderModule, PipelineCache, MergedPipelineCache (4 variants), PipelineLayout, RenderPass, GraphicsPipeline, ComputePipeline, DescriptorSetLayout, Sampler, DescriptorPool, DescriptorSet, Framebuffer, CommandPool, and CommandBuffer. Case definitions at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3634).
+The `single` subgroup at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3763) tests creating one instance of each Vulkan object type. Object types include Instance, Device, DeviceGroup, DeviceMemory, Buffer (4 variants), BufferView (2 variants), Image (1D/2D/3D), ImageView (7 variants), Semaphore, Event, Fence (2 variants), QueryPool, ShaderModule, PipelineCache, MergedPipelineCache (4 variants), PipelineLayout, RenderPass, GraphicsPipeline, ComputePipeline, DescriptorSetLayout, Sampler, DescriptorPool, DescriptorSet, Framebuffer, CommandPool, and CommandBuffer. Case definitions at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3634).
 
 ### 2. Multiple objects with unique resources
 
-The `multiple_unique_resources` subgroup at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3800) creates multiple instances of each object type where each instance has its own independent resources. Device and DeviceGroup cases are excluded for Vulkan SC.
+The `multiple_unique_resources` subgroup at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3800) creates multiple instances of each object type where each instance has its own independent resources. Device and DeviceGroup cases are excluded for Vulkan SC.
 
 ### 3. Multiple objects with shared resources
 
-The `multiple_shared_resources` subgroup at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3837) creates multiple instances sharing common resources. Device and DeviceGroup cases are excluded for Vulkan SC.
+The `multiple_shared_resources` subgroup at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3837) creates multiple instances sharing common resources. Device and DeviceGroup cases are excluded for Vulkan SC.
 
 ### 4. Maximum concurrent live objects
 
-The `max_concurrent` subgroup at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3871) tests creating the maximum number of concurrently live objects. Entirely excluded for Vulkan SC because `VkAllocationCallbacks` is not supported.
+The `max_concurrent` subgroup at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3871) tests creating the maximum number of concurrently live objects. Entirely excluded for Vulkan SC because `VkAllocationCallbacks` is not supported.
 
 ### 5. Multithreaded object construction
 
 Three multithreaded subgroups exercise concurrent object creation:
-- `multithreaded_per_thread_device` at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3906): each thread uses its own device
-- `multithreaded_per_thread_resources` at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3940): each thread uses its own resources
-- `multithreaded_shared_resources` at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3978): threads share resources
+- `multithreaded_per_thread_device` at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3906): each thread uses its own device
+- `multithreaded_per_thread_resources` at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3940): each thread uses its own resources
+- `multithreaded_shared_resources` at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3978): threads share resources
 
 ### 6. Allocation callback tests
 
 Three allocation-callback subgroups (all excluded for Vulkan SC):
-- `single_alloc_callbacks` at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L4013): single object creation with custom allocation callbacks
-- `alloc_callback_fail` at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L4049): tests behavior when allocation callbacks fail
-- `alloc_callback_fail_multiple` at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L4085): allocation callback failure for bulk object creation
+- `single_alloc_callbacks` at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L4013): single object creation with custom allocation callbacks
+- `alloc_callback_fail` at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L4049): tests behavior when allocation callbacks fail
+- `alloc_callback_fail_multiple` at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L4085): allocation callback failure for bulk object creation
 
 ### 7. Private data tests
 
-The `private_data` subgroup at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L4120) tests `VK_EXT_private_data` functionality for each object type. Excluded for Vulkan SC.
+The `private_data` subgroup at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L4120) tests `VK_EXT_private_data` functionality for each object type. Excluded for Vulkan SC.
 
 ## Parameter Dimensions
 
 | Dimension | Observed values / evidence |
 |---|---|
-| Object types | Instance, Device, DeviceGroup, DeviceMemory, Buffer, BufferView, Image, ImageView, Semaphore, Event, Fence, QueryPool, ShaderModule, PipelineCache, MergedPipelineCache, PipelineLayout, RenderPass, GraphicsPipeline, ComputePipeline, DescriptorSetLayout, Sampler, DescriptorPool, DescriptorSet, Framebuffer, CommandPool, CommandBuffer at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3634) |
-| Buffer variants | uniform_small, uniform_large, storage_small, storage_large at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3649) |
-| Image variants | 1D, 2D, 3D at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3675) |
-| ImageView variants | 1D, 1D_array, 2D, 2D_array, Cube, Cube_array, 3D at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3680) |
-| Resource sharing model | single, multiple_unique_resources, multiple_shared_resources, max_concurrent at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3763) |
-| Threading model | per_thread_device, per_thread_resources, shared_resources at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3906) |
-| Allocation callback mode | single_alloc_callbacks, alloc_callback_fail, alloc_callback_fail_multiple at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L4013) |
+| Object types | Instance, Device, DeviceGroup, DeviceMemory, Buffer, BufferView, Image, ImageView, Semaphore, Event, Fence, QueryPool, ShaderModule, PipelineCache, MergedPipelineCache, PipelineLayout, RenderPass, GraphicsPipeline, ComputePipeline, DescriptorSetLayout, Sampler, DescriptorPool, DescriptorSet, Framebuffer, CommandPool, CommandBuffer at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3634) |
+| Buffer variants | uniform_small, uniform_large, storage_small, storage_large at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3649) |
+| Image variants | 1D, 2D, 3D at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3675) |
+| ImageView variants | 1D, 1D_array, 2D, 2D_array, Cube, Cube_array, 3D at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3680) |
+| Resource sharing model | single, multiple_unique_resources, multiple_shared_resources, max_concurrent at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3763) |
+| Threading model | per_thread_device, per_thread_resources, shared_resources at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3906) |
+| Allocation callback mode | single_alloc_callbacks, alloc_callback_fail, alloc_callback_fail_multiple at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L4013) |
 
 ## Support / Feature Requirements
 
-- ImageView cases require image cube array support via `checkImageCubeArraySupport` at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3742)
-- Event cases require event support via `checkEventSupport` at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3744)
-- MergedPipelineCache cases require pipeline cache control support via `checkPipelineCacheControlSupport` at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3749)
-- Device cases require `VK_EXT_vertex_attribute_divisor` or similar via `checkGetPhysicalDevicePropertiesExtension` at [`vktApiObjectManagementTests.cpp`](../../../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3736)
+- ImageView cases require image cube array support via `checkImageCubeArraySupport` at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3742)
+- Event cases require event support via `checkEventSupport` at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3744)
+- MergedPipelineCache cases require pipeline cache control support via `checkPipelineCacheControlSupport` at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3749)
+- Device cases require `VK_EXT_vertex_attribute_divisor` or similar via `checkGetPhysicalDevicePropertiesExtension` at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3736)
 - Private data tests require `VK_EXT_private_data` (excluded for Vulkan SC)
 - Allocation callback tests excluded for Vulkan SC because `VkAllocationCallbacks` is not supported
 

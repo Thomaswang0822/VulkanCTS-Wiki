@@ -1,4 +1,4 @@
-# [vktApiGranularityTests.cpp](../../../../../modules/vulkan/api/vktApiGranularityTests.cpp#L1)
+# [vktApiGranularityTests.cpp](../../../modules/vulkan/api/vktApiGranularityTests.cpp#L1)
 
 ## Overview
 
@@ -6,13 +6,13 @@ Tests vkGetRenderAreaGranularity and vkGetRenderingAreaGranularity (VK_KHR_maint
 
 ## Role of File
 
-Implementation-heavy. Contains all test logic, helper classes, and the registration function [createGranularityQueryTests()](../../../../../modules/vulkan/api/vktApiGranularityTests.cpp#L463).
+Implementation-heavy. Contains all test logic, helper classes, and the registration function [createGranularityQueryTests()](../../../modules/vulkan/api/vktApiGranularityTests.cpp#L463).
 
 ## Source Code
 
-- Implementation: [vktApiGranularityTests.cpp](../../../../../modules/vulkan/api/vktApiGranularityTests.cpp#L1)
-- Header: [vktApiGranularityTests.hpp](../../../../../modules/vulkan/api/vktApiGranularityTests.hpp#L1)
-- Parent registration: [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L114)
+- Implementation: [vktApiGranularityTests.cpp](../../../modules/vulkan/api/vktApiGranularityTests.cpp#L1)
+- Header: [vktApiGranularityTests.hpp](../../../modules/vulkan/api/vktApiGranularityTests.hpp#L1)
+- Parent registration: [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L114)
 
 ## Registration Path
 
@@ -41,7 +41,7 @@ granularity
 
 ### Single Attachment Granularity
 
-[GranularityInstance](../../../../../modules/vulkan/api/vktApiGranularityTests.cpp#L86) with TestMode::NO_RENDER_PASS creates a single attachment of each format from VK_FORMAT_R4G4_UNORM_PACK8 through VK_FORMAT_D32_SFLOAT_S8_UINT and queries the render area granularity. Verifies that the granularity is at least 1x1 and within device limits.
+[GranularityInstance](../../../modules/vulkan/api/vktApiGranularityTests.cpp#L86) with TestMode::NO_RENDER_PASS creates a single attachment of each format from VK_FORMAT_R4G4_UNORM_PACK8 through VK_FORMAT_D32_SFLOAT_S8_UINT and queries the render area granularity. Verifies that the granularity is at least 1x1 and within device limits.
 
 ### Multiple Attachments of Same Format
 
@@ -67,7 +67,7 @@ Tests granularity queried inside a dynamic render pass (TestMode::USE_DYNAMIC_RE
 | Format range | VK_FORMAT_R4G4_UNORM_PACK8 through VK_FORMAT_D32_SFLOAT_S8_UINT (formats 1-55) |
 | Attachment count | 1 (single), 2-10 (multi, random) |
 | Image dimensions | 1-500 (randomized per attachment) |
-| Mandatory formats | 45 formats listed at [lines 477-525](../../../../../modules/vulkan/api/vktApiGranularityTests.cpp#L477) |
+| Mandatory formats | 45 formats listed at [lines 477-525](../../../modules/vulkan/api/vktApiGranularityTests.cpp#L477) |
 
 ## Support / Feature Requirements
 
@@ -79,10 +79,10 @@ Tests granularity queried inside a dynamic render pass (TestMode::USE_DYNAMIC_RE
 
 ## Verification Methods
 
-- **Granularity validity**: [GranularityInstance::iterate()](../../../../../modules/vulkan/api/vktApiGranularityTests.cpp#L282) checks that granularity.width >= 1 and granularity.height >= 1
+- **Granularity validity**: [GranularityInstance::iterate()](../../../modules/vulkan/api/vktApiGranularityTests.cpp#L282) checks that granularity.width >= 1 and granularity.height >= 1
 - **Consistency check**: Pre-pass granularity must equal in-pass granularity
 - **Device limits check**: Granularity must not exceed maxFramebufferWidth and maxFramebufferHeight
-- **Format support skip**: [GranularityCase::checkSupport()](../../../../../modules/vulkan/api/vktApiGranularityTests.cpp#L437) skips tests if the format does not support color or depth/stencil attachment features
+- **Format support skip**: [GranularityCase::checkSupport()](../../../modules/vulkan/api/vktApiGranularityTests.cpp#L437) skips tests if the format does not support color or depth/stencil attachment features
 
 ## Test Principles Observed
 

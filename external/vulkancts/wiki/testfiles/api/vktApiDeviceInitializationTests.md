@@ -1,8 +1,8 @@
-# [vktApiDeviceInitializationTests.cpp](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L1)
+# [vktApiDeviceInitializationTests.cpp](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L1)
 
 ## Overview
 
-[`vktApiDeviceInitializationTests.cpp`](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L1) implements the `api/device_init` subgroup registered by [`createApiTests()`](../../../../../modules/vulkan/api/vktApiTests.cpp#L100). The file is large and covers a wide range of instance and device creation scenarios including invalid API versions, null application info, unsupported extensions, extension name abuse, layer name abuse, allocation leak detection, multiple device creation, unsupported features, queue creation with protected memory, and intentional allocation failure.
+[`vktApiDeviceInitializationTests.cpp`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L1) implements the `api/device_init` subgroup registered by [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L100). The file is large and covers a wide range of instance and device creation scenarios including invalid API versions, null application info, unsupported extensions, extension name abuse, layer name abuse, allocation leak detection, multiple device creation, unsupported features, queue creation with protected memory, and intentional allocation failure.
 
 ## Role of File
 
@@ -10,9 +10,9 @@ Implementation-heavy test file for the `api/device_init` subgroup.
 
 ## Source Code
 
-- Primary source: [vktApiDeviceInitializationTests.cpp](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L1)
-- Header: [vktApiDeviceInitializationTests.hpp](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.hpp#L1)
-- Parent-category registration: [`createApiTests()`](../../../../../modules/vulkan/api/vktApiTests.cpp#L100)
+- Primary source: [vktApiDeviceInitializationTests.cpp](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L1)
+- Header: [vktApiDeviceInitializationTests.hpp](../../../modules/vulkan/api/vktApiDeviceInitializationTests.hpp#L1)
+- Parent-category registration: [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L100)
 
 ## Registration Path
 
@@ -51,8 +51,8 @@ TestPackage::init / TestPackageSC::init
 ```
 
 Evidence:
-- `device_init` group created at [`createDeviceInitializationTests()`](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2881)
-- test cases registered from [`vktApiDeviceInitializationTests.cpp`](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2883) through [`vktApiDeviceInitializationTests.cpp`](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2951)
+- `device_init` group created at [`createDeviceInitializationTests()`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2881)
+- test cases registered from [`vktApiDeviceInitializationTests.cpp`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2883) through [`vktApiDeviceInitializationTests.cpp`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2951)
 
 ## Test Hierarchy
 
@@ -89,13 +89,13 @@ api
     +-- create_device_queue2_all_combinations
 ```
 
-Source: [`createDeviceInitializationTests()`](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2879).
+Source: [`createDeviceInitializationTests()`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2879).
 
 ## Test Families
 
 ### 1. Instance creation tests
 
-Six instance-creation cases are registered at [`vktApiDeviceInitializationTests.cpp`](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2883):
+Six instance-creation cases are registered at [`vktApiDeviceInitializationTests.cpp`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2883):
 
 - `create_instance_name_version`: validates instance creation with correct name and version fields
 - `create_instance_invalid_api_version`: tests instance creation with an invalid API version
@@ -106,19 +106,19 @@ Six instance-creation cases are registered at [`vktApiDeviceInitializationTests.
 
 ### 2. Device creation tests
 
-Multiple device-creation cases are registered starting at [`vktApiDeviceInitializationTests.cpp`](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2899):
+Multiple device-creation cases are registered starting at [`vktApiDeviceInitializationTests.cpp`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2899):
 
 - `create_device`: basic device creation
 - `create_multiple_devices`: creating multiple devices from the same physical device
 - `create_device_unsupported_extensions`: device creation requesting unsupported extensions
 - `create_device_various_queue_counts`: device creation with different queue count configurations
-- `create_device_global_priority` / `create_device_global_priority_khr`: device creation with global priority (KHR variant excluded for Vulkan SC) at [`vktApiDeviceInitializationTests.cpp`](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2906)
-- `create_device_features2`: device creation using `VkPhysicalDeviceFeatures2` at [`vktApiDeviceInitializationTests.cpp`](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2916)
-- `create_device_unsupported_features`: subgroup with per-feature subcases at [`vktApiDeviceInitializationTests.cpp`](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2919)
+- `create_device_global_priority` / `create_device_global_priority_khr`: device creation with global priority (KHR variant excluded for Vulkan SC) at [`vktApiDeviceInitializationTests.cpp`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2906)
+- `create_device_features2`: device creation using `VkPhysicalDeviceFeatures2` at [`vktApiDeviceInitializationTests.cpp`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2916)
+- `create_device_unsupported_features`: subgroup with per-feature subcases at [`vktApiDeviceInitializationTests.cpp`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2919)
 
 ### 3. Queue creation with protected memory
 
-Cases starting at [`vktApiDeviceInitializationTests.cpp`](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2934) exercise `vkCreateDeviceWithQueue2` with protected memory configurations:
+Cases starting at [`vktApiDeviceInitializationTests.cpp`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2934) exercise `vkCreateDeviceWithQueue2` with protected memory configurations:
 
 - `create_device_queue2_two_queues`, `create_device_queue2_all_protected`, `create_device_queue2_all_unprotected`, `create_device_queue2_split`, `create_device_queue2_all_families`, `create_device_queue2_all_families_protected`, `create_device_queue2_all_combinations`
 
@@ -126,22 +126,22 @@ All protected-memory cases use `checkProtectedMemorySupport` as their support ga
 
 ### 4. Intentional allocation failure
 
-`create_instance_device_intentional_alloc_fail` at [`vktApiDeviceInitializationTests.cpp`](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2929) is excluded for Vulkan SC.
+`create_instance_device_intentional_alloc_fail` at [`vktApiDeviceInitializationTests.cpp`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2929) is excluded for Vulkan SC.
 
 ## Parameter Dimensions
 
 | Dimension | Observed values / evidence |
 |---|---|
-| Instance creation variants | name/version, invalid API version, null appinfo, unsupported extensions, extension name abuse, layer name abuse at [`vktApiDeviceInitializationTests.cpp`](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2883) |
-| Device creation variants | basic, multiple devices, unsupported extensions, various queue counts, global priority, features2, unsupported features at [`vktApiDeviceInitializationTests.cpp`](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2899) |
-| Global priority variants | core and KHR variants at [`vktApiDeviceInitializationTests.cpp`](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2906) |
-| Protected memory queue variants | two queues, all protected, all unprotected, split, all families, all families protected, all combinations at [`vktApiDeviceInitializationTests.cpp`](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2934) |
+| Instance creation variants | name/version, invalid API version, null appinfo, unsupported extensions, extension name abuse, layer name abuse at [`vktApiDeviceInitializationTests.cpp`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2883) |
+| Device creation variants | basic, multiple devices, unsupported extensions, various queue counts, global priority, features2, unsupported features at [`vktApiDeviceInitializationTests.cpp`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2899) |
+| Global priority variants | core and KHR variants at [`vktApiDeviceInitializationTests.cpp`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2906) |
+| Protected memory queue variants | two queues, all protected, all unprotected, split, all families, all families protected, all combinations at [`vktApiDeviceInitializationTests.cpp`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2934) |
 | Vulkan SC exclusions | `enumerate_devices_alloc_leak`, `create_device_global_priority_khr`, `create_device_global_priority_query_khr`, `create_instance_device_intentional_alloc_fail` under `#ifndef CTS_USES_VULKANSC` |
 
 ## Support / Feature Requirements
 
-- global priority tests use `checkGlobalPrioritySupport` and `checkGlobalPriorityQuerySupport` at [`vktApiDeviceInitializationTests.cpp`](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2907)
-- protected memory queue tests use `checkProtectedMemorySupport` at [`vktApiDeviceInitializationTests.cpp`](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2935)
+- global priority tests use `checkGlobalPrioritySupport` and `checkGlobalPriorityQuerySupport` at [`vktApiDeviceInitializationTests.cpp`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2907)
+- protected memory queue tests use `checkProtectedMemorySupport` at [`vktApiDeviceInitializationTests.cpp`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2935)
 - several cases are excluded for Vulkan SC via `#ifndef CTS_USES_VULKANSC` guards
 
 ## Verification Methods
@@ -161,4 +161,4 @@ All protected-memory cases use `checkProtectedMemorySupport` as their support ga
 ## Notes / Uncertainties
 
 - The file is very large (over 2900 lines); only the registration function at the end and the beginning of the file were fully inspected. The individual test function implementations were not read in detail, so the descriptions of verification methods are inferred from the registration pattern and test names rather than from direct code inspection.
-- The `create_device_unsupported_features` subgroup contains additional per-feature subcases registered by [`addSeparateUnsupportedFeatureTests()`](../../../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2921) whose individual names are not visible in the inspected excerpt.
+- The `create_device_unsupported_features` subgroup contains additional per-feature subcases registered by [`addSeparateUnsupportedFeatureTests()`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2921) whose individual names are not visible in the inspected excerpt.

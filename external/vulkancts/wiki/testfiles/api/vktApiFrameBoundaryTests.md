@@ -1,4 +1,4 @@
-# [vktApiFrameBoundaryTests.cpp](../../../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L1)
+# [vktApiFrameBoundaryTests.cpp](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L1)
 
 ## Overview
 
@@ -12,9 +12,9 @@ Implementation-heavy. Contains test logic, support functions, and registration i
 
 | File | Description |
 |------|-------------|
-| [vktApiFrameBoundaryTests.cpp](../../../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L1) | Test implementation and registration |
-| [vktApiFrameBoundaryTests.hpp](../../../../../modules/vulkan/api/vktApiFrameBoundaryTests.hpp#L1) | Declares `createFrameBoundaryTests` |
-| [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L132) | Parent registration: `apiTests->addChild(createFrameBoundaryTests(testCtx))` |
+| [vktApiFrameBoundaryTests.cpp](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L1) | Test implementation and registration |
+| [vktApiFrameBoundaryTests.hpp](../../../modules/vulkan/api/vktApiFrameBoundaryTests.hpp#L1) | Declares `createFrameBoundaryTests` |
+| [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L132) | Parent registration: `apiTests->addChild(createFrameBoundaryTests(testCtx))` |
 
 ## Registration Path
 
@@ -64,9 +64,9 @@ frame_boundary
 
 ### frame_boundary
 
-Group name verified at [vktApiFrameBoundaryTests.cpp:507](../../../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L507): `createTestGroup(testCtx, "frame_boundary", createTestCases)`.
+Group name verified at [vktApiFrameBoundaryTests.cpp:507](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L507): `createTestGroup(testCtx, "frame_boundary", createTestCases)`.
 
-Test types defined in enum `TestType` at [lines 61-69](../../../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L61):
+Test types defined in enum `TestType` at [lines 61-69](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L61):
 
 | Test Name | TestType | Description |
 |-----------|----------|-------------|
@@ -76,7 +76,7 @@ Test types defined in enum `TestType` at [lines 61-69](../../../../../modules/vu
 | `multi_frame_multi_submissions` | TEST_TYPE_MULTIPLE_FRAMES_MULTIPLE_SUBMISSIONS | 4 frames, each with 2 submissions (no-end then end) |
 | `multi_frame_overlapping_submissions` | TEST_TYPE_MULTIPLE_OVERLAPPING_SUBMISSIONS | 4 frames with interleaved submissions |
 
-The `core` and `sync2` subgroups are created by `createExecTestCases` at [line 469](../../../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L469), which iterates all `TestType` values. The `wsi` subgroup is created by `createWsiTestCases` at [line 486](../../../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L486), iterating all WSI types.
+The `core` and `sync2` subgroups are created by `createExecTestCases` at [line 469](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L469), which iterates all `TestType` values. The `wsi` subgroup is created by `createWsiTestCases` at [line 486](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L486), iterating all WSI types.
 
 ## Parameter Dimensions
 
@@ -85,19 +85,19 @@ The `core` and `sync2` subgroups are created by `createExecTestCases` at [line 4
 | Extension use | EXTENSION_USE_NONE, EXTENSION_USE_SYNC2 | Controls VkSubmitInfo vs VkSubmitInfo2 path |
 | Test type | 5 types | See table above |
 | WSI type | All wsi::TYPE_LAST types | For wsi subgroup only |
-| Image format | VK_FORMAT_R8G8B8A8_UNORM | Hard-coded at [line 221](../../../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L221) |
-| Image extent | 16x16 | Hard-coded at [line 215](../../../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L215) |
+| Image format | VK_FORMAT_R8G8B8A8_UNORM | Hard-coded at [line 221](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L221) |
+| Image extent | 16x16 | Hard-coded at [line 215](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L215) |
 
 ## Support / Feature Requirements
 
-- `VK_EXT_frame_boundary` required for all tests ([line 79](../../../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L79))
-- `VK_KHR_synchronization2` additionally required for `sync2` subgroup ([line 82](../../../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L82))
-- WSI subgroup requires `VK_KHR_surface`, `VK_KHR_swapchain`, and platform-specific WSI extension ([lines 89-91](../../../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L89))
+- `VK_EXT_frame_boundary` required for all tests ([line 79](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L79))
+- `VK_KHR_synchronization2` additionally required for `sync2` subgroup ([line 82](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L82))
+- WSI subgroup requires `VK_KHR_surface`, `VK_KHR_swapchain`, and platform-specific WSI extension ([lines 89-91](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L89))
 
 ## Verification Methods
 
-- **Submission completion**: Tests submit commands with frame boundary structures and wait on fences. If the submission completes without error, the test passes. No image content verification is performed for the core/sync2 tests ([line 297](../../../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L297)).
-- **WSI present**: The WSI test acquires a swapchain image, renders to it, and presents with a frame boundary structure. Passes if `queuePresentKHR` succeeds ([line 464](../../../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L464)).
+- **Submission completion**: Tests submit commands with frame boundary structures and wait on fences. If the submission completes without error, the test passes. No image content verification is performed for the core/sync2 tests ([line 297](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L297)).
+- **WSI present**: The WSI test acquires a swapchain image, renders to it, and presents with a frame boundary structure. Passes if `queuePresentKHR` succeeds ([line 464](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L464)).
 
 ## Test Principles Observed
 

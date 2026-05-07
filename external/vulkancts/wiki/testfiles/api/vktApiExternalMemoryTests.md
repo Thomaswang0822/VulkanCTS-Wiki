@@ -1,4 +1,4 @@
-# [vktApiExternalMemoryTests.cpp](../../../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L1)
+# [vktApiExternalMemoryTests.cpp](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L1)
 
 ## Overview
 
@@ -6,13 +6,13 @@ Tests Vulkan external memory, semaphore, and fence sharing across process and AP
 
 ## Role of File
 
-Implementation-heavy. Contains all test logic, helper utilities, and registration in a single large source file (~5610 lines). The public entry point [createExternalMemoryTests()](../../../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5598) assembles the full test tree.
+Implementation-heavy. Contains all test logic, helper utilities, and registration in a single large source file (~5610 lines). The public entry point [createExternalMemoryTests()](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5598) assembles the full test tree.
 
 ## Source Code
 
-- Source: [vktApiExternalMemoryTests.cpp](../../../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L1)
-- Header: [vktApiExternalMemoryTests.hpp](../../../../../modules/vulkan/api/vktApiExternalMemoryTests.hpp#L1)
-- Parent registration: [vktApiTests.cpp](../../../../../modules/vulkan/api/vktApiTests.cpp#L117) adds `external` group to `api`
+- Source: [vktApiExternalMemoryTests.cpp](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L1)
+- Header: [vktApiExternalMemoryTests.hpp](../../../modules/vulkan/api/vktApiExternalMemoryTests.hpp#L1)
+- Parent registration: [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L117) adds `external` group to `api`
 
 ## Registration Path
 
@@ -139,16 +139,16 @@ Tests external fence handle export, import, and synchronization. Mirrors the sem
 ## Support / Feature Requirements
 
 - Platform-specific extensions required per handle type (e.g., `VK_KHR_external_semaphore_fd`, `VK_KHR_external_memory_win32`, `VK_ANDROID_external_memory_android_hardware_buffer`)
-- `VK_KHR_maintenance5` required for maintenance5 buffer query tests ([checkMaintenance5()](../../../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5263))
+- `VK_KHR_maintenance5` required for maintenance5 buffer query tests ([checkMaintenance5()](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5263))
 - `VK_KHR_dedicated_allocation` required for dedicated allocation tests
 - `VK_KHR_sampler_ycbcr_conversion` and `VK_EXT_queue_family_foreign` required for AHB tests
-- Custom instance/device creation with required extensions ([createTestInstance()](../../../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L198))
+- Custom instance/device creation with required extensions ([createTestInstance()](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L198))
 
 ## Verification Methods
 
 - Semaphore: Signal-export-import-wait round-trip verification; transference mode checks (copy vs reference)
 - Fence: Signal-export-import-wait round-trip; fence reset verification; FD duplication and socket transfer verification
-- Memory: Host-visible memory content comparison via [writeHostMemory()](../../../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L121) and [checkHostMemory()](../../../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L133); buffer/image binding state verification after export-import
+- Memory: Host-visible memory content comparison via [writeHostMemory()](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L121) and [checkHostMemory()](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L133); buffer/image binding state verification after export-import
 - AHB: Format property query validation; external format resolve draw support check
 
 ## Test Principles Observed
@@ -156,12 +156,12 @@ Tests external fence handle export, import, and synchronization. Mirrors the sem
 - Platform-conditional compilation (FD-based tests on Unix/Android, Win32 handles on Windows, Zircon on Fuchsia, Metal on Apple)
 - Support queries before each test
 - Custom instance/device creation with required extensions
-- Random test data generation via [genTestData()](../../../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L146)
+- Random test data generation via [genTestData()](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L146)
 
 ## Notes / Uncertainties
 
 - The file is very large (~5610 lines) and covers three distinct Vulkan object types (semaphore, memory, fence) that could arguably be separate files
 - FD-based tests use compute shaders to ensure sufficient execution time for valid FD export
 - AHB external format resolve tests use a custom TestCase/TestInstance subclass pair rather than the function-case pattern used elsewhere
-- The `createMemoryTests` overload without handle-type argument creates the parent "memory" group containing all handle-type subgroups ([createMemoryTests()](../../../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5578))
-- The group name is `external` as confirmed in [createExternalMemoryTests()](../../../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5600), not `external_memory`
+- The `createMemoryTests` overload without handle-type argument creates the parent "memory" group containing all handle-type subgroups ([createMemoryTests()](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5578))
+- The group name is `external` as confirmed in [createExternalMemoryTests()](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5600), not `external_memory`

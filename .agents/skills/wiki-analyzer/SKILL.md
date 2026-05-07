@@ -232,13 +232,13 @@ Do not assume the displayed group name from the factory symbol passed to `addChi
 
 After determining a group name, verify it against the mustpass definition files using the registration path verifier.
 
-### Verifier contract
+## Registration Path Validation
 
-The verifier ([`verify_registration_paths.py`](.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py)) checks **literal registration path prefixes** against mustpass TXT files. It does not prove that every human-facing group label in a wiki page is a complete registration path. The default wiki extractor is conservative: it extracts explicit category-prefixed paths and simple root-tree entries, but does not infer paths from arbitrary markdown tables or prose labels.
+**Purpose:** Confirm that documented registration paths and group names are backed by mustpass coverage before considering a category complete.
 
-### How to run
+**Script:** [`verify_registration_paths.py`](.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py)
 
-From the repository root:
+**How to run:** Run from the repository root.
 
 ```bash
 # Check all extracted paths for a category
@@ -246,43 +246,62 @@ python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <categ
 
 # Check a single path
 python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category> <group_path>
-```
 
-Redirect both stdout and stderr to a category-specific file for later review:
-
-```bash
+# Save category results for review
 python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category> --check-all \
   > external/vulkancts/wiki/internal_doc/error_paths_<category>.txt 2>&1
 ```
 
-### Regular vs. special categories
+Use category-wide verification as the default before marking documentation complete. Use single-path verification while investigating one suspicious or newly added registration path.
 
-- **Regular categories** (the majority): use the default extractor. No extra flags or configuration needed.
-- **Special categories** (e.g., `pipeline`): the script dispatches to a category-specific adapter internally. The public command is the same. Adapters live in [`registration_validators/`](.agents/skills/wiki-analyzer/scripts/registration_validators/) and are only added when a category's wiki structure or mustpass layout cannot be handled safely by the default extractor. Do not create one adapter per category.
+### Special cases
 
-### Mustpass file discovery
+- **Regular categories** use the default extractor automatically.
+- **Special categories** such as `pipeline` may dispatch to category-specific adapters under [`registration_validators/`](.agents/skills/wiki-analyzer/scripts/registration_validators/).
+- Mustpass discovery handles direct matches, hyphenated names such as `binding_model` → `binding-model.txt`, plural forms such as `renderpass` → `renderpasses.txt`, and split-category directories such as `pipeline/`.
 
-The verifier automatically locates mustpass TXT files for a category, handling:
-- Direct match: `{category}.txt`
-- Hyphenated filenames: `binding_model` → `binding-model.txt`
-- Plural forms: `renderpass` → `renderpasses.txt`
-- Split-category directories: `pipeline/` containing multiple variant TXT files
+**Important:** This validation is mandatory whenever documenting group names or registration paths in wiki pages.
 
-### Exit codes and output interpretation
+## Wiki Link Validation
 
-| Exit code | Meaning |
-|-----------|---------|
-| 0 | All paths verified successfully |
-| 1 | One or more paths not found in mustpass files |
-| 2 | Runtime error (missing directory, bad arguments, etc.) |
+**Purpose:** Confirm that markdown links in the wiki resolve correctly and that source-code line links use GitHub `#L...` fragment syntax.
 
-**Interpreting results:**
-- `OK: <path>` — the registration path prefix exists in at least one mustpass file.
-- `FAIL: <path>` — the prefix was not found. Check the source location and determine whether the wiki path is wrong or the mustpass file does not cover that variant.
-- `Also at: ...` — additional source locations where the same logical path appears (only shown on failure).
-- Exit code 2 with `Traceback` or `Error:` — a runtime error, not a verification failure. Fix the script or arguments before proceeding.
+**Script:** [`validate_wiki_links.py`](.agents/skills/wiki-analyzer/scripts/validate_wiki_links.py)
 
-**Important:** This verification is mandatory whenever documenting a group name in wiki pages.
+**How to run:** Run from the repository root.
+
+```bash
+# Check the entire wiki tree
+python3 .agents/skills/wiki-analyzer/scripts/validate_wiki_links.py \
+  --wiki-dir external/vulkancts/wiki \
+  --repo-root . \
+  --verbose
+
+# Check one category scope only (recommended during active work)
+python3 .agents/skills/wiki-analyzer/scripts/validate_wiki_links.py \
+  --wiki-dir external/vulkancts/wiki \
+  --files external/vulkancts/wiki/categories/<category>.md external/vulkancts/wiki/testfiles/<category>/*.md \
+  --repo-root . \
+  --verbose
+
+# Save category results for review
+python3 .agents/skills/wiki-analyzer/scripts/validate_wiki_links.py \
+  --wiki-dir external/vulkancts/wiki \
+  --files external/vulkancts/wiki/categories/<category>.md external/vulkancts/wiki/testfiles/<category>/*.md \
+  --repo-root . \
+  --verbose \
+  > external/vulkancts/wiki/internal_doc/error_urls_<category>.txt 2>&1
+```
+
+Use category-scoped validation as the default while writing or repairing one category. Whole-wiki validation is mainly for global cleanup and may report expected false positives from tracker links in [`README.md`](../../../external/vulkancts/wiki/README.md) that point to not-yet-created category pages.
+
+### Notes
+
+- Links are resolved relative to the owning markdown file's directory, not relative to `wiki/`.
+- The validator ignores external URLs, URI schemes, and anchor-only links.
+- `--auto-fix` only rewrites colon-style source references such as `file.cpp:82` to `file.cpp#L82`; it does not repair broken relative paths or wrong filenames.
+
+**Important:** Re-run category-scoped wiki-link validation until it passes cleanly before marking a category documentation batch complete.
 
 ## Analysis Process
 

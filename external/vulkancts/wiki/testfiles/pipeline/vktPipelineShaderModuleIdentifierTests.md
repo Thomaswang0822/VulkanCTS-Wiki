@@ -2,7 +2,7 @@
 
 ## Overview
 
-[`vktPipelineShaderModuleIdentifierTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineShaderIdentifierTests.cpp#L1) implements the [`shader_module_identifier`](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L3738) topic group. It verifies VK_EXT_shader_module_identifier functionality, testing pipeline creation using shader module identifiers instead of full shader code, including property queries, constant identifiers, and pipeline-from-id operations.
+[`vktPipelineShaderModuleIdentifierTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L1) implements the [`shader_module_identifier`](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L3738) topic group. It verifies VK_EXT_shader_module_identifier functionality, testing pipeline creation using shader module identifiers instead of full shader code, including property queries, constant identifiers, and pipeline-from-id operations.
 
 ## Role
 
