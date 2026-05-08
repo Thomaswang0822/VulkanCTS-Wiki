@@ -13,81 +13,82 @@ Implementation file.
 - Primary source: [`vktGeometryLayeredRenderingTests.cpp`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1)
 - Shared context/framework conventions: [`vkt::TestCase`](../../../modules/vulkan/vktTestCase.hpp#L277), [`tcu::TestStatus`](../../../../../framework/common/tcuTestCase.hpp#L253)
 
-## Registration Path
+## Registration Hierarchy
 
-This file defines layered behavior through the [`TestType`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L62) model and generates programs/tests from [`initPrograms()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L850) and [`test()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1223). The geometry category attaches the layered subgroup through [`createLayeredRenderingTests()`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L47). The actual factory body was not included in the inspected snippet set, so the documented hierarchy below is derived from the observed [`TestType`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L62) cases and verification code.
-
-## Test Hierarchy
-
-Observed subgroup themes from [`TestType`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L62):
+This file contributes the `layered` subgroup returned by [`createLayeredRenderingTests()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1996), which is attached under geometry by [`createChildren()`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L47). The inspected factory implementation registers five direct child groups by view type at [`getShortImageViewTypeName()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2041), then adds concrete size groups and test cases beneath each view-type group at [`viewTypeGroup`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2052) and [`addFunctionCaseWithPrograms()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2059).
 
 ```text
-layered
-├── default-layer rendering
-├── single-layer rendering
-├── all-layers rendering
-├── different-content-per-layer
-├── layer-id verification
-├── invocation-per-layer
-├── multiple-layers-per-invocation
-├── layered-readback
-└── secondary-command-buffer path
+geometry.layered
+├── 1d_array
+├── 2d_array
+├── cube
+├── cube_array
+└── 3d
 ```
-
-This is a semantic hierarchy derived from the inspected enum and program-generation branches, not a verbatim registration tree dump.
 
 ## Test Families
 
-### 1. Default-layer and single-layer targeting
+### 1d_array — 1D-array layered rendering cases
 
-[`TEST_TYPE_DEFAULT_LAYER`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L64) emits geometry without assigning [`gl_Layer`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L920), while [`TEST_TYPE_SINGLE_LAYER`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L65) explicitly targets the middle layer computed by [`getTargetLayer()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L107) and written in the geometry program at [`gl_Layer = targetLayer`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L943).
+The [`1d_array`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2041) subgroup is created from [`VK_IMAGE_VIEW_TYPE_1D_ARRAY`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2028). Under that direct child, the factory creates two size groups — [`64_1_4`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2046) and [`12_1_6`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2046) — then registers the full layered behavior set defined by [`testTypes[]`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2000).
 
-### 2. All-layer rendering
+### 2d_array — 2D-array layered rendering cases
 
-[`TEST_TYPE_ALL_LAYERS`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L66) iterates over all layers and assigns a per-layer color chosen from [`s_colors`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L89), emitted in the geometry shader loop at [`layerNdx`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L965).
+The [`2d_array`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2041) subgroup is created from [`VK_IMAGE_VIEW_TYPE_2D_ARRAY`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2030). It likewise contains two size groups — [`64_64_4`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2046) and [`12_36_6`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2046) — and each size group receives the same layered test-name set from [`testTypes[]`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2000).
 
-### 3. Different content per layer
+### cube — Cube layered rendering cases
 
-[`TEST_TYPE_DIFFERENT_CONTENT`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L67) draws layer-specific bar widths by looping over both [`layerNdx`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1021) and [`colNdx`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1022), yielding progressively wider coverage for later layers.
+The [`cube`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2041) subgroup is created from [`VK_IMAGE_VIEW_TYPE_CUBE`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2032). The factory builds size groups [`64_64_6`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2046) and [`36_36_6`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2046), then registers the layered behavior families beneath each one.
 
-### 4. Fragment-stage layer-id verification
+### cube_array — Cube-array layered rendering cases
 
-[`TEST_TYPE_LAYER_ID`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L68) writes all layers from the geometry shader and then colors fragments according to fragment-stage [`gl_Layer`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1191). Verification expects the fragment code and the CPU-side checker to stay in sync, as called out in [`verifyLayerContent()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L721).
+The [`cube_array`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2041) subgroup is created from [`VK_IMAGE_VIEW_TYPE_CUBE_ARRAY`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2034). Its two direct size groups are [`64_64_12`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2046) and [`36_36_12`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2046), after which the same behavior family names are registered from [`testTypes[]`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2000).
 
-### 5. Invocation distribution across layers
+### 3d — 3D layered rendering cases
 
-[`TEST_TYPE_INVOCATION_PER_LAYER`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L69) uses [`layout(points, invocations = numLayers)`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L892), then maps [`gl_InvocationID`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1040) directly to [`gl_Layer`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1044).
+The [`3d`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2041) subgroup is created from [`VK_IMAGE_VIEW_TYPE_3D`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2036). Its two direct size groups are [`64_64_8`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2048) and [`12_36_6`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2048), and the full test-name set is registered under each one via [`addFunctionCaseWithPrograms()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2059).
 
-[`TEST_TYPE_MULTIPLE_LAYERS_PER_INVOCATION`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L70) instead makes each invocation write to two target layers, [`layerA`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1070) and [`layerB`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1071).
+Across all five direct children, the concrete per-size behavior set comes from [`testTypes[]`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2000):
+- [`render_to_default_layer`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2005)
+- [`render_to_one`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2007)
+- [`render_to_all`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2009)
+- [`render_different_content`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2011)
+- [`fragment_layer`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2013)
+- [`invocation_per_layer`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2015)
+- [`multiple_layers_per_invocation`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2017)
+- [`readback`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2019)
+- [`secondary_cmd_buffer`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2021)
+- [`secondary_cmd_buffer_inherit_framebuffer`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2067) for the secondary-command-buffer mode only
 
-### 6. Layered readback
-
-[`TEST_TYPE_LAYERED_READBACK`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L71) uses an input uniform block [`uInput.pass`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L886) and per-pass depth/color behavior in the generated geometry shader at [`posZ`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1114). CPU-side validation distinguishes color, depth, and stencil readback in [`verifyLayerContent()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L727).
-
-### 7. Secondary command buffer path
-
-[`TEST_TYPE_SECONDARY_CMD_BUFFER`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L72) combines layered rendering with image load/store in the fragment shader using a bound [`storageImage`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1182) and blends [`vert_color`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1209) with the existing layer content.
+Semantically, those registered names correspond to the following behavior families implemented by [`TestType`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L62):
+- default-layer and single-layer targeting
+- all-layer rendering
+- different content per layer
+- fragment-stage `gl_Layer` verification
+- one invocation per layer and multiple layers per invocation
+- layered readback validation
+- secondary command buffer execution
 
 ## Parameter Dimensions
 
 | Parameter | Observed values / source |
 |---|---|
-| Test behavior | [`TestType`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L62) |
-| Image-view type | [`VkImageViewType`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L77), with handling for 1D-array, 2D-array, cube, cube-array, and 3D in [`getImageType()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L121) and fragment-image-type selection at [`imageViewString`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1154) |
-| Image extent | [`VkExtent3D size`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L78) |
-| Number of layers | [`numLayers`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L79) and derived layer count for 3D views at [`numLayers`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L870) |
-| Framebuffer inheritance flag | [`inheritFramebuffer`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L86) |
+| Test behavior | [`TestType`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L62) and registered names in [`testTypes[]`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2000) |
+| Image-view type | [`VK_IMAGE_VIEW_TYPE_1D_ARRAY`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2028), [`VK_IMAGE_VIEW_TYPE_2D_ARRAY`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2030), [`VK_IMAGE_VIEW_TYPE_CUBE`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2032), [`VK_IMAGE_VIEW_TYPE_CUBE_ARRAY`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2034), [`VK_IMAGE_VIEW_TYPE_3D`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2036) |
+| Image extent | [`VkExtent3D size`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L78) values in [`imageParams`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2026) |
+| Number of layers | [`numLayers`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L79) from [`imageParams`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2026), with 3D depth used instead for 3D subgroup-name synthesis at [`viewTypeGroupName`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2048) |
+| Size-group names | Generated from width / height / depth-or-layer-count at [`viewTypeGroupName`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2045) |
+| Framebuffer inheritance flag | [`inheritFramebuffer`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L86), toggled for the extra secondary-command-buffer case at [`params.inheritFramebuffer = true`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2066) |
 | Layer target | Middle layer via [`getTargetLayer()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L107) or per-invocation/per-loop layer selection in the generated geometry code |
 | Verification mode for readback | color / depth / stencil paths in [`verifyLayerContent()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L727) |
 
 ## Support / Feature Requirements
 
-The inspected snippets show several capability-dependent paths, but the dedicated support-check function was not included in the inspected range. Evidence from the file still shows requirements coupled to:
-- layered image/view compatibility via [`checkImageFormatProperties()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L161)
-- cube and 3D compatibility handling in [`isCubeImageViewType()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L156) and image-create flags in [`test()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1244)
-- invocation-count-dependent shader generation for per-layer invocation modes in [`initPrograms()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L890)
-
-Because the explicit `checkSupport()` function was not part of the inspected snippet set, this document avoids making stronger claims about exact feature gates beyond what is directly visible.
+Explicit support checking is implemented in [`checkSupport()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1936). The inspected function shows requirements coupled to:
+- layered image and view compatibility via [`checkImageFormatProperties()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L161) and the per-format/property checks in [`checkSupport()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1941)
+- core geometry-shader support via [`context.requireDeviceCoreFeature(DEVICE_CORE_FEATURE_GEOMETRY_SHADER)`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1976)
+- secondary-command-buffer image-store cases requiring [`DEVICE_CORE_FEATURE_FRAGMENT_STORES_AND_ATOMICS`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1985)
+- Vulkan SC secondary-command-buffer framebuffer restrictions in [`secondaryCommandBufferNullOrImagelessFramebuffer`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1988)
 
 ## Verification Methods
 
@@ -102,25 +103,25 @@ This file contains extensive file-local verification code.
 ### Per-layer semantic verification
 
 [`verifyLayerContent()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L687) selects the expected rule by [`TestType`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L694), including:
-- empty-vs-populated layer checks for default/single-layer cases
+- empty-vs-populated layer checks for default and single-layer cases
 - per-layer color validation for all-layer and invocation-per-layer cases
 - width-varying bar checks for different-content cases
 - [`gl_Layer`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L722)-derived fragment colors for layer-id cases
-- multi-bar color/depth/stencil validation for layered-readback cases
+- multi-bar color, depth, and stencil validation for layered-readback cases
 - blended expected colors for secondary-command-buffer cases
 
 ### Whole-result verification
 
-[`verifyResults()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L817) wraps the per-layer checks by creating a uniform layer-access abstraction through [`LayeredImageAccess`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L395) and iterating through all layers/slices.
+[`verifyResults()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L817) wraps the per-layer checks by creating a uniform layer-access abstraction through [`LayeredImageAccess`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L395) and iterating through all layers and slices.
 
 ## Test Principles Observed
 
 - **Layer semantics are validated explicitly**: tests do not stop at successful rendering; they check exact per-layer content in CPU-side validators
-- **Geometry and fragment cooperation is tested**: the category includes both geometry-side [`gl_Layer`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L943) assignment and fragment-side [`gl_Layer`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1191) consumption
-- **Image-view diversity matters**: the file is structured around 1D/2D/cube/3D view handling rather than a single image shape
+- **Geometry and fragment cooperation is tested**: the file includes both geometry-side [`gl_Layer`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L943) assignment and fragment-side [`gl_Layer`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1191) consumption
+- **Image-view diversity matters**: the file is structured around 1D-array, 2D-array, cube, cube-array, and 3D view handling rather than a single image shape
 - **Readback paths are part of coverage**: layered-readback tests verify not only color but also depth and stencil representations via [`convertDepthToColorBufferAccess()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L633) and [`convertStencilToColorBufferAccess()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L646)
 
 ## Notes / Uncertainties
 
-- The exact user-visible case names are not reconstructed here because the factory function that registers the individual layered cases was not part of the inspected snippet set.
-- The documented family structure is therefore evidence-backed at the semantic/test-type level rather than as a complete emitted case-name list.
+- The direct child names in `## Registration Hierarchy` are now confirmed from [`getShortImageViewTypeName()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2041), but the page still intentionally keeps deeper generated size groups and per-case registrations in prose rather than in the parseable tree.
+- The documented semantic families correspond to registered test names through [`testTypes[]`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2000), but the page does not expand every generated size-group subtree as a separate parseable hierarchy because the canonical contract limits the tree to one level below the Level-3 root.

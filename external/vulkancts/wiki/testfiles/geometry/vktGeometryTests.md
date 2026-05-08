@@ -20,11 +20,9 @@ Registration / dispatcher file.
   - [`vktGeometryEmitGeometryShaderTests.hpp`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L30)
   - [`vktGeometryBuiltinVariableGeometryShaderTests.hpp`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L31)
 
-## Registration Path
+## Registration Hierarchy
 
 The category entry point is [`createTests()`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L56), which builds a test group via [`createTestGroup()`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L58). The actual child registration happens in [`createChildren()`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L41).
-
-## Test Hierarchy
 
 ```text
 geometry
@@ -53,15 +51,33 @@ Source: [`createChildren()`](../../../modules/vulkan/geometry/vktGeometryTests.c
 
 ## Test Families
 
-This file does not implement individual test logic itself. Instead, it defines the top-level family split of the geometry category:
+### input — Input primitive handling
 
-1. **Input primitive handling** via [`input`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L45)
-2. **Basic geometry expansion and output-count behavior** via [`basic`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L46)
-3. **Layered rendering** via [`layered`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L47)
-4. **Instanced rendering with GS invocations** via [`instanced`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L48)
-5. **Varying propagation** via [`varying`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L49)
-6. **Emit/end primitive sequencing** via [`emit`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L50)
-7. **Built-in variable behavior** via [`builtin_variable`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L51)
+[`input`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L45) delegates to [`vktGeometryInputGeometryShaderTests.cpp`](../../../modules/vulkan/geometry/vktGeometryInputGeometryShaderTests.cpp#L1), which covers primitive topology handling, adjacency variants, and primitive-type conversion.
+
+### basic — Basic geometry expansion and output-count behavior
+
+[`basic`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L46) delegates to [`vktGeometryBasicGeometryShaderTests.cpp`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1), which covers fixed output counts, runtime-varying output counts, and side-effect-focused geometry shader cases.
+
+### layered — Layered rendering
+
+[`layered`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L47) delegates to [`vktGeometryLayeredRenderingTests.cpp`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1), which covers geometry-shader-controlled layered rendering, per-layer content variation, readback, and secondary-command-buffer behavior.
+
+### instanced — Instanced rendering with GS invocations
+
+[`instanced`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L48) delegates to [`vktGeometryInstancedRenderingTests.cpp`](../../../modules/vulkan/geometry/vktGeometryInstancedRenderingTests.cpp#L1), which combines draw instancing with geometry-shader invocation counts.
+
+### varying — Varying propagation
+
+[`varying`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L49) delegates to [`vktGeometryVaryingGeometryShaderTests.cpp`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L1), which focuses on cross-stage varying production and forwarding behavior.
+
+### emit — Emit/end primitive sequencing
+
+[`emit`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L50) delegates to [`vktGeometryEmitGeometryShaderTests.cpp`](../../../modules/vulkan/geometry/vktGeometryEmitGeometryShaderTests.cpp#L1), which varies [`EmitVertex()`](../../../modules/vulkan/geometry/vktGeometryEmitGeometryShaderTests.cpp#L199) and [`EndPrimitive()`](../../../modules/vulkan/geometry/vktGeometryEmitGeometryShaderTests.cpp#L204) sequencing.
+
+### builtin_variable — Built-in variable behavior
+
+[`builtin_variable`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L51) delegates to [`vktGeometryBuiltinVariableGeometryShaderTests.cpp`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L1), which covers point size, primitive ID, and position-oriented built-in behavior.
 
 ## Parameter Dimensions
 

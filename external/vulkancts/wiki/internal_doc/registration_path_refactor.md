@@ -209,7 +209,7 @@ Follow the finished-category order from [`README.md`](../README.md):
 - [ ] `shader_object`
 - [ ] `renderpasses`
 - [ ] `dynamic_state`
-- [ ] `geometry`
+- [x] `geometry`
 
 For each finished category:
 - [ ] review all Level-3 pages in the category
@@ -220,6 +220,14 @@ For each finished category:
 - [ ] move deeper expansion and explanatory prose into `Test Families`
 - [ ] remove script-only prefix snippets from user-facing pages
 - [ ] note any category-specific structural edge cases for the validator refactor
+
+Geometry test-set result:
+- [x] reviewed all geometry Level-3 pages
+- [x] merged duplicated hierarchy sections into canonical `Registration Hierarchy`
+- [x] normalized geometry tree roots and one-level-down child lists
+- [x] aligned `Test Families` headings with exact direct child names
+- [x] resolved the layered-registration edge case by escalating back to [`wiki-analyzer`](../../../.agents/skills/wiki-analyzer/SKILL.md) and confirming child names from [`createLayeredRenderingTests()`](../../../external/vulkancts/modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1996-L2079)
+- [x] used geometry as the Phase-2 test set for validating the `wiki-normalizer` harness
 
 ## Planned Work Breakdown
 
@@ -270,6 +278,8 @@ For each finished category:
 - [x] Agreed that `Test Families` mirrors each direct child with exact subgroup-name subsection headers
 - [x] Detailed internal refactor plan documented in this file
 - [x] Phase 1 contract update completed in [`SKILL.md`](../../../.agents/skills/wiki-analyzer/SKILL.md)
-- [ ] Finished-category migration started
+- [x] Finished-category migration started
 - [ ] Validator refactor started
 - [ ] End-to-end validation across finished categories completed
+- [x] Geometry finished as the Phase-2 normalization test set
+- [x] `wiki-normalizer` fallback-to-`wiki-analyzer` rule added and validated against the layered-registration case
