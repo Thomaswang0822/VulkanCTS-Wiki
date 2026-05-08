@@ -14,34 +14,19 @@ Implementation file used by the `info` category.
 - Related declarations: [`vktApiFeatureInfo.hpp`](../../../modules/vulkan/api/vktApiFeatureInfo.hpp#L34)
 - Calling site from the `info` category: [`createInfoTests()`](../../../modules/vulkan/vktInfoTests.cpp#L267)
 
-## Registration Path
-
-The inspected registration path is:
-
-```text
-TestPackage::init / TestPackageSC::init
-└── info
-    └── createTests(testCtx, "info")
-        └── createInfoTests(testGroup)
-            ├── createFeatureInfoInstanceTests(testGroup)
-            ├── createFeatureInfoDeviceTests(testGroup)
-            └── createFeatureInfoDeviceGroupTests(testGroup)
-```
-
-Evidence:
-- root attachment in [`TestPackage::init()`](../../../modules/vulkan/vktTestPackage.cpp#L1348) and [`TestPackageSC::init()`](../../../modules/vulkan/vktTestPackage.cpp#L1416)
-- delegation from [`createInfoTests()`](../../../modules/vulkan/vktInfoTests.cpp#L267)
-- declarations in [`vktApiFeatureInfo.hpp`](../../../modules/vulkan/api/vktApiFeatureInfo.hpp#L35)
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
 info
+├── build
+├── device
+├── platform
+├── memory_limits
 ├── physical_devices
 ├── physical_device_groups
 ├── instance_layers
 ├── instance_extensions
-├── instance_extension_dependencies          (not added for Vulkan SC)
+├── instance_extension_dependencies (not added for Vulkan SC)
 ├── instance_extension_device_functions
 ├── device_features
 ├── device_properties
@@ -49,54 +34,95 @@ info
 ├── device_memory_properties
 ├── device_layers
 ├── device_extensions
-├── device_extension_dependencies            (not added for Vulkan SC)
+├── device_extension_dependencies (not added for Vulkan SC)
 ├── device_no_khx_extensions
 ├── device_memory_budget
 ├── device_mandatory_features
 └── device_group_peer_memory_features
 ```
 
-Source: [`createFeatureInfoInstanceTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8924), [`createFeatureInfoDeviceTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8937), and [`createFeatureInfoDeviceGroupTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8953).
+Evidence:
+- root attachment in [`TestPackage::init()`](../../../modules/vulkan/vktTestPackage.cpp#L1348) and [`TestPackageSC::init()`](../../../modules/vulkan/vktTestPackage.cpp#L1416)
+- local cases from [`vktInfoTests.cpp`](../../../modules/vulkan/vktInfoTests.cpp#L260-L265) documented separately in [`vktInfoTests.md`](vktInfoTests.md)
+- instance-scope cases from [`createFeatureInfoInstanceTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8924-L8935)
+- device-scope cases from [`createFeatureInfoDeviceTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8937-L8951)
+- device-group case from [`createFeatureInfoDeviceGroupTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8953-L8957)
 
 ## Test Families
 
-### 1. Instance enumeration and dependency validation
+This file implements instance-scope, device-scope, and device-group cases that are added directly to the `info` group. The first four direct children (`build`, `device`, `platform`, `memory_limits`) are implemented in [`vktInfoTests.cpp`](../../../modules/vulkan/vktInfoTests.cpp#L260-L265) and documented in [`vktInfoTests.md`](vktInfoTests.md).
 
-[`createFeatureInfoInstanceTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8924) adds six instance-scope cases to the parent group:
+### physical_devices — Physical device enumeration
 
-- [`physical_devices`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8926) via [`enumeratePhysicalDevices`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8926)
-- [`physical_device_groups`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8927) via [`enumeratePhysicalDeviceGroups`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8927)
-- [`instance_layers`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8928) via [`enumerateInstanceLayers`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8928)
-- [`instance_extensions`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8929) via [`enumerateInstanceExtensions`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8929)
-- [`instance_extension_dependencies`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8931) via [`validateInstanceExtensionDependencies`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8931), omitted when [`CTS_USES_VULKANSC`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8930) is defined
-- [`instance_extension_device_functions`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8933) via [`validateDeviceLevelEntryPointsFromInstanceExtensions`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8934)
+[`physical_devices`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8926) is implemented by [`enumeratePhysicalDevices`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8926).
 
-The family mixes pure enumeration-style names with validation-style names, so the inspected registration suggests both reporting and correctness checking responsibilities.
+### physical_device_groups — Physical device group enumeration
 
-### 2. Device feature/property/memory/extension coverage
+[`physical_device_groups`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8927) is implemented by [`enumeratePhysicalDeviceGroups`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8927) via [`CustomInstanceTest<E071>`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8927).
 
-[`createFeatureInfoDeviceTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8937) adds ten device-scope cases:
+### instance_layers — Instance layer enumeration
 
-- [`device_features`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8939)
-- [`device_properties`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8940)
-- [`device_queue_family_properties`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8941)
-- [`device_memory_properties`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8942)
-- [`device_layers`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8943)
-- [`device_extensions`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8944)
-- [`device_extension_dependencies`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8946), omitted when [`CTS_USES_VULKANSC`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8945) is defined
-- [`device_no_khx_extensions`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8948)
-- [`device_memory_budget`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8949)
-- [`device_mandatory_features`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8950)
+[`instance_layers`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8928) is implemented by [`enumerateInstanceLayers`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8928).
 
-This family covers feature/property discovery, queue-family and memory properties, extension reporting/dependency validation, and a few policy-oriented checks whose exact internal logic is not fully described in the inspected snippet.
+### instance_extensions — Instance extension enumeration
 
-### 3. Device-group peer-memory query
+[`instance_extensions`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8929) is implemented by [`enumerateInstanceExtensions`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8929).
 
-[`createFeatureInfoDeviceGroupTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8953) adds one device-group-oriented case:
+### instance_extension_dependencies — Instance extension dependency validation
 
-- [`device_group_peer_memory_features`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8955) via [`deviceGroupPeerMemoryFeatures`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8956)
+[`instance_extension_dependencies`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8931) is implemented by [`validateInstanceExtensionDependencies`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8931).
 
-Although it is only one case, it shows that the file extends beyond plain instance/device queries into device-group capability reporting.
+This case is omitted when [`CTS_USES_VULKANSC`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8930) is defined.
+
+### instance_extension_device_functions — Instance extension device function validation
+
+[`instance_extension_device_functions`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8933) is implemented by [`validateDeviceLevelEntryPointsFromInstanceExtensions`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8934).
+
+### device_features — Device feature reporting
+
+[`device_features`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8939) is implemented by [`deviceFeatures`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8939).
+
+### device_properties — Device property reporting
+
+[`device_properties`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8940) is implemented by [`deviceProperties`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8940).
+
+### device_queue_family_properties — Device queue family property reporting
+
+[`device_queue_family_properties`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8941) is implemented by [`deviceQueueFamilyProperties`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8941).
+
+### device_memory_properties — Device memory property reporting
+
+[`device_memory_properties`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8942) is implemented by [`deviceMemoryProperties`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8942).
+
+### device_layers — Device layer enumeration
+
+[`device_layers`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8943) is implemented by [`enumerateDeviceLayers`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8943).
+
+### device_extensions — Device extension enumeration
+
+[`device_extensions`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8944) is implemented by [`enumerateDeviceExtensions`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8944).
+
+### device_extension_dependencies — Device extension dependency validation
+
+[`device_extension_dependencies`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8946) is implemented by [`validateDeviceExtensionDependencies`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8946).
+
+This case is omitted when [`CTS_USES_VULKANSC`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8945) is defined.
+
+### device_no_khx_extensions — Device KHX extension check
+
+[`device_no_khx_extensions`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8948) is implemented by [`testNoKhxExtensions`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8948).
+
+### device_memory_budget — Device memory budget reporting
+
+[`device_memory_budget`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8949) is implemented by [`deviceMemoryBudgetProperties`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8949).
+
+### device_mandatory_features — Device mandatory feature validation
+
+[`device_mandatory_features`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8950) is implemented by [`deviceMandatoryFeatures`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8950).
+
+### device_group_peer_memory_features — Device group peer memory feature query
+
+[`device_group_peer_memory_features`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8955) is implemented by [`deviceGroupPeerMemoryFeatures`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8956) via [`CustomInstanceTest<E071>`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8955).
 
 ## Parameter Dimensions
 

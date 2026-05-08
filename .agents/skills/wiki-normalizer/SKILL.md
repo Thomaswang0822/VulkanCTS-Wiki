@@ -22,6 +22,43 @@ The end state should leave the wiki corpus ready for parser-driven nested valida
 
 The validator refactor is now in place, so normalization work should be verified incrementally with [`verify_registration_paths.py`](../wiki-analyzer/scripts/verify_registration_paths.py) during migration rather than deferred until the end of the category batch.
 
+### Validation Command
+
+After normalizing a category, run the validator with the `--check-all` flag to verify all documented registration paths:
+
+```bash
+python .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category> --check-all --verbose
+```
+
+**Important**: The `--check-all` flag is required to verify all direct children, not just the root path. Without this flag, the validator only checks the category root.
+
+Example:
+```bash
+python .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py info --check-all --verbose
+```
+
+### Top-Level Category Edge Case
+
+For top-level categories (e.g., `info`, `api`), the root line in the hierarchy tree is just the category name itself:
+
+```text
+info
+├── build
+├── device
+└── ...
+```
+
+For nested Level-3 roots (e.g., `geometry.input`, `dynamic_state.general_state`), the root line includes the subgroup:
+
+```text
+geometry.input
+├── basic_primitive
+├── triangle_strip_adjacency
+└── conversion
+```
+
+Both formats are valid and supported by the validator.
+
 ## Relationship with [`wiki-analyzer`](../wiki-analyzer/SKILL.md)
 
 ### Division of responsibilities

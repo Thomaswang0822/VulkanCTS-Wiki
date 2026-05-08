@@ -223,7 +223,7 @@ def extract_canonical_hierarchy_paths(md_file: Path, category: str) -> Dict[str,
 
     root_line_num = fence_start + 2
     root_text = lines[fence_start + 1].strip()
-    if root_text.startswith(f'{category}.') and SIMPLE_GROUP_PATTERN.match(root_text):
+    if (root_text == category or root_text.startswith(f'{category}.')) and SIMPLE_GROUP_PATTERN.match(root_text):
         add_path(root_line_num, root_text)
     else:
         return paths

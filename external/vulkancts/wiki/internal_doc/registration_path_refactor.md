@@ -197,7 +197,7 @@ A temporary compatibility layer remains acceptable during migration, but the des
 
 Follow the finished-category order from [`README.md`](../README.md):
 
-- [ ] `info`
+- [x] `info`
 - [ ] `api`
 - [ ] `memory`
 - [ ] `synchronization`
@@ -220,6 +220,15 @@ For each finished category:
 - [ ] remove script-only prefix snippets from user-facing pages
 - [ ] run the refactored [`verify_registration_paths.py`](../../../.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py) on the category before considering it complete
 - [ ] note any category-specific structural edge cases for the validator refactor
+
+Info test-set result:
+- [x] reviewed all info Level-3 pages (vktInfoTests.md, vktApiFeatureInfo.md)
+- [x] merged duplicated hierarchy sections into canonical `Registration Hierarchy`
+- [x] normalized info tree root and one-level-down child lists
+- [x] aligned `Test Families` headings with exact direct child names
+- [x] fixed validator to handle top-level category root format (root line is just `info`, not `info.something`)
+- [x] verified the normalized info category with [`verify_registration_paths.py --check-all`](../../../.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py)
+- [x] all 22 registration paths (1 root + 21 children) verified successfully
 
 Geometry test-set result:
 - [x] reviewed all geometry Level-3 pages
@@ -264,6 +273,7 @@ Geometry test-set result:
 - [x] Expected validation depth: exactly one level below the Level-3 root
 - [x] Parenthesized note handling: trailing `()` notes are user-facing and ignored by the parser
 - [x] Exact allowed character set for current parseable child node names: lowercase letters, digits, and underscores
+- [x] Top-level category root format: root line is just the category name (e.g., `info`), not category-qualified with a dot (e.g., `info.something`). Validator updated to handle both top-level and nested Level-3 roots.
 - [ ] Exact indentation contract for parser implementation details beyond the current one-level child format
 - [ ] Whether any dual-category file patterns need a documented exception strategy
 - [ ] Whether some category-specific structures still justify adapters like [`pipeline.py`](../../../.agents/skills/wiki-analyzer/scripts/registration_validators/pipeline.py)
