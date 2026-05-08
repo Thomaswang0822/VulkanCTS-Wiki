@@ -50,14 +50,16 @@
   - category-qualified path lists instead of real tree structure
 - Recent pages sometimes added explicit prefix snippets only for the validator, which works technically but pollutes user-facing documentation.
 
-### Current script limitation
+### Validator status after refactor
 
-[`verify_registration_paths.py`](../../../.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py) currently works best when it can find:
-- explicit backticked full paths such as `category.subgroup.subgroup`
-- simple root-tree entries in category pages
-- category-specific extractor logic such as [`pipeline.py`](../../../.agents/skills/wiki-analyzer/scripts/registration_validators/pipeline.py)
+[`verify_registration_paths.py`](../../../.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py) now:
+- parses canonical `## Registration Hierarchy` blocks in Level-3 pages as the extraction source for regular categories
+- reconstructs the Level-3 root path and one-level-down child prefixes internally
+- ignores trailing parenthesized notes on child lines
+- preserves category-specific adapters such as [`pipeline.py`](../../../.agents/skills/wiki-analyzer/scripts/registration_validators/pipeline.py) where structurally justified
 
-This is sufficient for top-level validation and for some recent pages, but not for reliable nested validation across older finished categories.
+This closes the original nested-validation gap for normalized categories and makes the wiki contract enforceable by the validator.
+Existing legacy wiki files are expected to work with the validator after they have been normalized to the canonical Level-3 contract.
 
 ## Canonical Level-3 Hierarchy Contract
 
@@ -156,41 +158,38 @@ Even when a subtree is very large, the canonical hierarchy rule remains:
 - [`vktGeometryEmitGeometryShaderTests.md`](../testfiles/geometry/vktGeometryEmitGeometryShaderTests.md)
 - [`vktGeometryBuiltinVariableGeometryShaderTests.md`](../testfiles/geometry/vktGeometryBuiltinVariableGeometryShaderTests.md)
 
-These examples confirm that the corpus must be normalized before the validator should rely on hierarchy parsing.
+These examples confirm that the corpus had to be normalized before the validator could rely on hierarchy parsing.
 
-## Validator Refactor Goals
+## Validator Refactor Outcome
 
-After documentation normalization, refactor [`verify_registration_paths.py`](../../../.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py) with these goals:
+### Implemented behavior
 
-- parse only the canonical hierarchy contract
-- derive explicit validation prefixes internally
-- remain conservative rather than guessing from arbitrary prose
-- produce strong diagnostics for malformed or unsupported hierarchy blocks
-- preserve category-specific extraction hooks only where semantics differ structurally, not where formatting was historically inconsistent
-
-## Validator Refactor Shape
-
-### Internal responsibilities to separate
-
+[`verify_registration_paths.py`](../../../.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py) now separates and implements these responsibilities:
 - mustpass file discovery
 - candidate wiki file discovery
-- hierarchy section extraction
+- canonical hierarchy section extraction
 - tree parsing into path prefixes
 - validation against mustpass TXT files
-- diagnostics and CLI reporting
+- CLI diagnostics and reporting
 
-### Expected diagnostics
+The current canonical extractor:
+- locates `## Registration Hierarchy`
+- reads one fenced `text` block
+- validates a category-qualified root line
+- extracts one-level child lines using `├──` and `└──`
+- strips trailing `()` notes before constructing prefixes
 
-- missing canonical hierarchy section
-- malformed tree indentation
-- unsupported shorthand token in parseable tree
-- ambiguous or invalid node line
-- extracted prefix list in verbose mode
-- verification failures with source file and line references when possible
+### Current diagnostics stance
+
+The validator is intentionally conservative:
+- malformed or unsupported canonical content is ignored rather than guessed
+- compatibility extraction remains available during migration
+- verbose mode exposes the extracted prefixes and mustpass files being checked
+- verification failures continue to report wiki source locations when available
 
 ### Compatibility stance
 
-A temporary compatibility layer may be acceptable during migration, but the desired end state is:
+A temporary compatibility layer remains acceptable during migration, but the desired end state is still:
 - canonical hierarchy tree as the primary source
 - old explicit-path or ad hoc extraction logic retired where possible
 
@@ -219,6 +218,7 @@ For each finished category:
 - [ ] adjust `Test Families` so subsection headers mirror the exact child names from the tree
 - [ ] move deeper expansion and explanatory prose into `Test Families`
 - [ ] remove script-only prefix snippets from user-facing pages
+- [ ] run the refactored [`verify_registration_paths.py`](../../../.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py) on the category before considering it complete
 - [ ] note any category-specific structural edge cases for the validator refactor
 
 Geometry test-set result:
@@ -228,6 +228,7 @@ Geometry test-set result:
 - [x] aligned `Test Families` headings with exact direct child names
 - [x] resolved the layered-registration edge case by escalating back to [`wiki-analyzer`](../../../.agents/skills/wiki-analyzer/SKILL.md) and confirming child names from [`createLayeredRenderingTests()`](../../../external/vulkancts/modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1996-L2079)
 - [x] used geometry as the Phase-2 test set for validating the `wiki-normalizer` harness
+- [x] verified the normalized geometry category with the refactored [`verify_registration_paths.py`](../../../.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py)
 
 ## Planned Work Breakdown
 
@@ -239,16 +240,16 @@ Geometry test-set result:
 
 ### Phase 2: Wiki normalization of finished categories
 
-- [ ] Normalize finished categories in [`README.md`](../README.md) order
+- [-] Normalize finished categories in [`README.md`](../README.md) order
 - [ ] Keep user-facing readability while enforcing parseable structure
 - [ ] Track exceptions or special cases discovered during migration
 
 ### Phase 3: Validator refactor
 
-- [ ] Refactor [`verify_registration_paths.py`](../../../.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py) around canonical hierarchy parsing
-- [ ] Reduce reliance on explicit inline path extraction from prose
-- [ ] Retain category-specific handlers only where structurally justified
-- [ ] Improve diagnostics and verbose reporting
+- [x] Refactor [`verify_registration_paths.py`](../../../.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py) around canonical hierarchy parsing
+- [x] Reduce reliance on explicit inline path extraction from prose
+- [x] Retain category-specific handlers only where structurally justified
+- [x] Improve diagnostics and verbose reporting enough for migration use
 
 ### Phase 4: Verification and cleanup
 
@@ -262,8 +263,8 @@ Geometry test-set result:
 - [x] Final heading name for the canonical section: `## Registration Hierarchy`
 - [x] Expected validation depth: exactly one level below the Level-3 root
 - [x] Parenthesized note handling: trailing `()` notes are user-facing and ignored by the parser
-- [ ] Exact indentation contract for parser implementation details
-- [ ] Exact allowed character set for registered node names in parseable lines
+- [x] Exact allowed character set for current parseable child node names: lowercase letters, digits, and underscores
+- [ ] Exact indentation contract for parser implementation details beyond the current one-level child format
 - [ ] Whether any dual-category file patterns need a documented exception strategy
 - [ ] Whether some category-specific structures still justify adapters like [`pipeline.py`](../../../.agents/skills/wiki-analyzer/scripts/registration_validators/pipeline.py)
 - [ ] How to map parser diagnostics back to exact markdown line numbers most usefully
@@ -279,7 +280,8 @@ Geometry test-set result:
 - [x] Detailed internal refactor plan documented in this file
 - [x] Phase 1 contract update completed in [`SKILL.md`](../../../.agents/skills/wiki-analyzer/SKILL.md)
 - [x] Finished-category migration started
-- [ ] Validator refactor started
+- [x] Validator refactor completed in [`verify_registration_paths.py`](../../../.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py)
 - [ ] End-to-end validation across finished categories completed
 - [x] Geometry finished as the Phase-2 normalization test set
 - [x] `wiki-normalizer` fallback-to-`wiki-analyzer` rule added and validated against the layered-registration case
+- [x] Geometry category passes the refactored registration-path validator

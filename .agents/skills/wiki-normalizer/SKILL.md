@@ -20,6 +20,8 @@ Migrate existing user-facing Level-3 wiki pages under [`external/vulkancts/wiki/
 
 The end state should leave the wiki corpus ready for parser-driven nested validation by [`verify_registration_paths.py`](../wiki-analyzer/scripts/verify_registration_paths.py).
 
+The validator refactor is now in place, so normalization work should be verified incrementally with [`verify_registration_paths.py`](../wiki-analyzer/scripts/verify_registration_paths.py) during migration rather than deferred until the end of the category batch.
+
 ## Relationship with [`wiki-analyzer`](../wiki-analyzer/SKILL.md)
 
 ### Division of responsibilities
@@ -295,7 +297,8 @@ A normalized Level-3 page is successful when:
 - it preserves user-facing clarity
 - it preserves evidence-backed content
 - it is structurally consistent with other migrated Level-3 pages
-- it is ready for later parser-driven path extraction by [`verify_registration_paths.py`](../wiki-analyzer/scripts/verify_registration_paths.py)
+- it passes incremental registration-path validation with [`verify_registration_paths.py`](../wiki-analyzer/scripts/verify_registration_paths.py) for the active page or category scope being migrated
+- it is ready for parser-driven path extraction by [`verify_registration_paths.py`](../wiki-analyzer/scripts/verify_registration_paths.py)
 
 ## When to Escalate Back to [`wiki-analyzer`](../wiki-analyzer/SKILL.md)
 

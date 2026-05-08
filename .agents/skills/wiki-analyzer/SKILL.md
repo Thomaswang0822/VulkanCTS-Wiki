@@ -318,6 +318,12 @@ Use category-wide verification as the default before marking documentation compl
 
 The intended input for nested validation is the canonical `## Registration Hierarchy` tree in Level-3 pages. Avoid adding script-only explicit-prefix snippets to user-facing wiki pages.
 
+The current validator behavior for regular categories is:
+- canonical `## Registration Hierarchy` extraction in Level-3 pages is the only supported source of validation prefixes
+- the validator reconstructs the Level-3 root path and its direct-child prefixes internally from the tree
+- trailing parenthesized notes on child lines are ignored by the parser
+- legacy, non-normalized wiki pages are expected to work only after they have been normalized to the canonical Level-3 contract
+
 ### Special cases
 
 - **Regular categories** use the default extractor automatically.

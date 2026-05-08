@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
 """
-Verify literal registration path prefixes against mustpass TXT files.
+Verify documented registration hierarchy prefixes against mustpass TXT files.
 
-This script verifies intentionally documented registration path prefixes
+This script verifies registration path prefixes documented in the Vulkan CTS wiki
 against the actual registration paths in the mustpass definition files.
-It does not try to prove that every human-facing group label in a wiki
-page is a complete registration path. The default wiki extractor is
-conservative by design: it extracts explicit category-prefixed paths and
-simple root-tree entries, but does not infer paths from arbitrary tables.
+
+For regular categories, the extraction source is the canonical
+`## Registration Hierarchy` section in Level-3 wiki pages. The hierarchy contract
+is intentionally strict: the tree root is a category-qualified Level-3 root path
+and the tree expands exactly one level below that root. The validator reconstructs
+full prefixes internally from that tree.
+
+This script is intended for post-normalization wiki content. Existing legacy wiki
+files are expected to work with the validator after they have been normalized to
+that canonical Level-3 contract.
 
 MUSTPASS TXT FILE FORMAT:
     The mustpass TXT files contain test names in the format:
@@ -28,14 +34,20 @@ USAGE:
 EXIT CODES:
     0 - Path verified successfully
     1 - Path not found in mustpass files
-    2 - Error (file not found, etc.)
+    2 - Error (file not found, malformed wiki input, etc.)
 """
 
 import argparse
 import re
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Tuple
+
+
+CANONICAL_HIERARCHY_HEADING = '## Registration Hierarchy'
+TREE_CHILD_PATTERN = re.compile(r'^(?P<marker>├──|└──)\s+(?P<name>[a-z0-9_]+(?:\s*\([^)]*\))?)\s*$')
+TRAILING_PAREN_NOTE_PATTERN = re.compile(r'\s*\([^)]*\)\s*$')
+SIMPLE_GROUP_PATTERN = re.compile(r'^[a-z0-9]+(?:_[a-z0-9]+)*(?:\.[a-z0-9]+(?:_[a-z0-9]+)*)*$')
 
 
 def find_mustpass_files(category: str, mustpass_dir: Path) -> List[Path]:
@@ -67,9 +79,6 @@ def find_mustpass_files(category: str, mustpass_dir: Path) -> List[Path]:
         add_if_exists(mustpass_dir / f"{category_variant}.txt")
         add_if_exists(mustpass_dir / f"{category_variant}s.txt")
 
-    # Some split categories use a hyphenated subdirectory whose child files are
-    # branch-specific names such as shader-object/performance.txt. Probe those
-    # branch filenames directly from the wiki category name as well.
     hyphenated_branch_file = mustpass_dir / hyphenated_category / f"{hyphenated_category}.txt"
     add_if_exists(hyphenated_branch_file)
     underscored_branch_file = mustpass_dir / hyphenated_category / f"{category}.txt"
@@ -87,8 +96,6 @@ def find_mustpass_files(category: str, mustpass_dir: Path) -> List[Path]:
         for txt_file in sorted(category_dir.glob("*.txt")):
             add_if_exists(txt_file)
 
-    # Support categories whose mustpass layout uses hyphenated subdirectories,
-    # e.g. shader_object -> shader-object/*.txt
     hyphenated_dir = mustpass_dir / hyphenated_category
     if hyphenated_dir.exists() and hyphenated_dir.is_dir():
         for txt_file in sorted(hyphenated_dir.glob("*.txt")):
@@ -163,6 +170,82 @@ def get_wiki_candidate_files(wiki_dir: Path, category: str) -> Tuple[Path, List[
     return category_doc, candidate_files
 
 
+def strip_trailing_note(node_text: str) -> str:
+    """Remove one trailing parenthesized note from a hierarchy node line."""
+    return TRAILING_PAREN_NOTE_PATTERN.sub('', node_text).strip()
+
+
+def extract_canonical_hierarchy_paths(md_file: Path, category: str) -> Dict[str, List[Tuple[Path, int]]]:
+    """Extract full registration prefixes from a canonical Registration Hierarchy section."""
+    paths: Dict[str, List[Tuple[Path, int]]] = {}
+
+    def add_path(line_num: int, full_path: str) -> None:
+        loc = (md_file, line_num)
+        if full_path not in paths:
+            paths[full_path] = [loc]
+        elif loc not in paths[full_path]:
+            paths[full_path].append(loc)
+
+    try:
+        lines = md_file.read_text(encoding='utf-8').split('\n')
+    except Exception:
+        return paths
+
+    heading_index: Optional[int] = None
+    for idx, line in enumerate(lines):
+        if line.strip() == CANONICAL_HIERARCHY_HEADING:
+            heading_index = idx
+            break
+
+    if heading_index is None:
+        return paths
+
+    fence_start: Optional[int] = None
+    for idx in range(heading_index + 1, len(lines)):
+        stripped = lines[idx].strip()
+        if stripped.startswith('## '):
+            return paths
+        if stripped == '```text':
+            fence_start = idx
+            break
+
+    if fence_start is None:
+        return paths
+
+    fence_end: Optional[int] = None
+    for idx in range(fence_start + 1, len(lines)):
+        if lines[idx].strip() == '```':
+            fence_end = idx
+            break
+
+    if fence_end is None or fence_end <= fence_start + 1:
+        return paths
+
+    root_line_num = fence_start + 2
+    root_text = lines[fence_start + 1].strip()
+    if root_text.startswith(f'{category}.') and SIMPLE_GROUP_PATTERN.match(root_text):
+        add_path(root_line_num, root_text)
+    else:
+        return paths
+
+    for idx in range(fence_start + 2, fence_end):
+        stripped = lines[idx].rstrip()
+        if not stripped.strip():
+            continue
+
+        match = TREE_CHILD_PATTERN.match(stripped.strip())
+        if not match:
+            continue
+
+        child_name = strip_trailing_note(match.group('name'))
+        if not child_name or not re.fullmatch(r'[a-z0-9_]+', child_name):
+            continue
+
+        add_path(idx + 1, f'{root_text}.{child_name}')
+
+    return paths
+
+
 def extract_default_group_paths_from_wiki(wiki_dir: Path, category: str) -> Dict[str, List[Tuple[Path, int]]]:
     """
     Extract group paths from wiki markdown files for a regular category.
@@ -172,7 +255,7 @@ def extract_default_group_paths_from_wiki(wiki_dir: Path, category: str) -> Dict
     """
     paths: Dict[str, List[Tuple[Path, int]]] = {}
 
-    category_doc, candidate_files = get_wiki_candidate_files(wiki_dir, category)
+    _category_doc, candidate_files = get_wiki_candidate_files(wiki_dir, category)
     if not candidate_files:
         return paths
 
@@ -183,27 +266,25 @@ def extract_default_group_paths_from_wiki(wiki_dir: Path, category: str) -> Dict
         elif loc not in paths[full_path]:
             paths[full_path].append(loc)
 
-    full_path_pattern = re.compile(rf'`({re.escape(category)}\.(?!txt`)[a-zA-Z0-9_.]+)`')
-    simple_group_pattern = re.compile(r'^[a-z0-9]+(?:_[a-z0-9]+)*(?:\.[a-z0-9]+(?:_[a-z0-9]+)*)*$')
+    canonical_found = False
 
     for md_file in candidate_files:
-        try:
-            lines = md_file.read_text(encoding='utf-8').split('\n')
-        except Exception:
-            continue
+        canonical_paths = extract_canonical_hierarchy_paths(md_file, category)
+        if canonical_paths:
+            canonical_found = True
+            for full_path, locs in canonical_paths.items():
+                for source_file, line_num in locs:
+                    add_path(source_file, line_num, full_path)
 
-        for line_num, line in enumerate(lines, start=1):
-            for match in full_path_pattern.finditer(line):
-                add_path(md_file, line_num, match.group(1))
+    if canonical_found:
+        return paths
 
-            if md_file == category_doc:
-                stripped = line.strip()
-                if stripped.startswith('├──') or stripped.startswith('└──'):
-                    group = stripped[3:].strip().split()[0]
-                    if simple_group_pattern.match(group):
-                        add_path(md_file, line_num, f'{category}.{group}')
-
-    return paths
+    print(
+        f"Error: No canonical '## Registration Hierarchy' data found for category '{category}'. "
+        f"Normalize existing wiki files first.",
+        file=sys.stderr,
+    )
+    sys.exit(2)
 
 
 def extract_group_paths_from_wiki(wiki_dir: Path, category: str) -> Dict[str, List[Tuple[Path, int]]]:
