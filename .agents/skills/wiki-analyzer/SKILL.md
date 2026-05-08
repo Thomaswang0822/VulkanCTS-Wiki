@@ -167,8 +167,7 @@ Do not hardcode category or file counts in generated docs unless you derive them
 - Role of file: registration file or implementation file
 - Source code link
 - Other inspected related files if relevant
-- Registration path
-- Test hierarchy as observed from creation/registration code
+- Registration hierarchy
 - Test families with evidence-backed descriptions
 - Parameter dimensions and observed values/ranges
 - Support/feature requirements
@@ -176,11 +175,74 @@ Do not hardcode category or file counts in generated docs unless you derive them
 - Test principles observed in the file
 - Notes / uncertainties
 
+### Level-3 Registration Hierarchy Contract
+
+Use one canonical user-facing section, `## Registration Hierarchy`, instead of separate duplicated
+`Registration Path` and `Test Hierarchy` sections.
+
+The section must contain one fenced `text` tree block that is both readable for users and parseable by
+[`verify_registration_paths.py`](.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py).
+The tree is the source from which the validator derives registration-prefix candidates.
+
+Rules:
+- The first line is the category-qualified Level-3 root path, without the global `dEQP-VK` prefix.
+  - Example: `dynamic_state.general_state`
+  - Example: `geometry.input`
+- The tree expands exactly one level below that Level-3 root.
+  - If the page documents a top-level category child, list that group's direct children only.
+  - If the page documents a lower-level registered subgroup, list that subgroup's direct children only.
+- Fully expand every direct child at that one-level-down depth, even when the child list is large.
+- Use Unicode tree markers only:
+  - `├──` for non-final children
+  - `└──` for the final child
+- Each child line contains exactly one registered path component, optionally followed by a trailing
+  parenthesized note for users.
+  - Allowed: `├── state_switch_mesh (non-VulkanSC only)`
+  - The validator ignores the trailing parenthesized note.
+- Do not include deeper descendants in the parseable hierarchy tree.
+- Do not use shorthand or non-parseable notation in the tree:
+  - no `...`
+  - no `[_suffix]`
+  - no `same test names as ...`
+  - no trailing `/`
+  - no inline prose unless it is a trailing parenthesized note
+  - no factory-symbol call stacks such as `createApiTests -> createBufferTests -> buffer`
+
+Example:
+
+```text
+dynamic_state.general_state
+├── state_switch
+├── state_switch_mesh (non-VulkanSC only)
+├── bind_order
+├── bind_order_mesh (non-VulkanSC only)
+├── state_persistence (non-mesh only)
+├── static_stencil_mask_zero
+└── double_static_bind (non-shader-object only)
+```
+
+### Relationship Between Registration Hierarchy and Test Families
+
+Do not remove `## Test Families`. Use it to explain the direct children listed in `## Registration Hierarchy`.
+
+Rules:
+- Each `Test Families` subsection should begin with the exact registered child name from the hierarchy tree.
+- Add a human-readable description after the exact name when useful.
+- Use this section for deeper descendants, generated cases, parameter matrices, and evidence-backed semantics.
+
+Recommended subsection heading pattern:
+
+```markdown
+### basic_primitive — Basic primitive expansion
+### triangle_strip_adjacency — Triangle-strip-adjacency vertex-count sweep
+### conversion — Primitive-type conversion
+```
+
 **Formatting guidance**:
-- Use ASCII trees for hierarchies
-- Use tables for parameters when appropriate
-- Stop at meaningful test-family granularity
-- Do not explode to every generated test unless the file is small and the expansion helps understanding
+- Use the canonical registration hierarchy tree style above.
+- Use tables for parameters when appropriate.
+- Stop at meaningful test-family granularity in prose.
+- Put deeper generated cases in `Test Families` rather than the parseable hierarchy tree.
 
 Note: the workflow rules in this section are primarily about Level-2 category production. Level-3 standardization may follow different or additional rules later.
 
@@ -253,6 +315,8 @@ python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <categ
 ```
 
 Use category-wide verification as the default before marking documentation complete. Use single-path verification while investigating one suspicious or newly added registration path.
+
+The intended input for nested validation is the canonical `## Registration Hierarchy` tree in Level-3 pages. Avoid adding script-only explicit-prefix snippets to user-facing wiki pages.
 
 ### Special cases
 

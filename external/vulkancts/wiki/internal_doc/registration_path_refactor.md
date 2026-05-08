@@ -225,9 +225,9 @@ For each finished category:
 
 ### Phase 1: Contract definition
 
-- [ ] Update [`SKILL.md`](../../../.agents/skills/wiki-analyzer/SKILL.md) to define the canonical Level-3 hierarchy section
-- [ ] Record allowed syntax, forbidden syntax, and expected validation depth
-- [ ] Align any related harness or workflow documentation with the new contract
+- [x] Update [`SKILL.md`](../../../.agents/skills/wiki-analyzer/SKILL.md) to define the canonical Level-3 hierarchy section
+- [x] Record allowed syntax, forbidden syntax, and expected validation depth
+- [x] Align related workflow documentation with the new contract in the skill guidance
 
 ### Phase 2: Wiki normalization of finished categories
 
@@ -251,8 +251,10 @@ For each finished category:
 
 ## Open Questions To Resolve During Implementation
 
-- [ ] Final heading name for the canonical section
-- [ ] Exact indentation contract for nested tree parsing
+- [x] Final heading name for the canonical section: `## Registration Hierarchy`
+- [x] Expected validation depth: exactly one level below the Level-3 root
+- [x] Parenthesized note handling: trailing `()` notes are user-facing and ignored by the parser
+- [ ] Exact indentation contract for parser implementation details
 - [ ] Exact allowed character set for registered node names in parseable lines
 - [ ] Whether any dual-category file patterns need a documented exception strategy
 - [ ] Whether some category-specific structures still justify adapters like [`pipeline.py`](../../../.agents/skills/wiki-analyzer/scripts/registration_validators/pipeline.py)
@@ -266,8 +268,8 @@ For each finished category:
 - [x] Agreed on the strategy of deriving validation prefixes internally from a standardized user-facing hierarchy tree
 - [x] Agreed that the canonical tree is category-qualified, single-level-down, and fully expanded at that depth
 - [x] Agreed that `Test Families` mirrors each direct child with exact subgroup-name subsection headers
-- [-] Detailed internal refactor plan documented in this file
-- [ ] Contract update started
+- [x] Detailed internal refactor plan documented in this file
+- [x] Phase 1 contract update completed in [`SKILL.md`](../../../.agents/skills/wiki-analyzer/SKILL.md)
 - [ ] Finished-category migration started
 - [ ] Validator refactor started
 - [ ] End-to-end validation across finished categories completed
