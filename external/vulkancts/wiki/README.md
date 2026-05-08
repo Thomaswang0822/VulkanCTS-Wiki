@@ -54,7 +54,7 @@ For this tracker, the `Level-3 Files` column uses the agreed progress-counting r
 | 9 | shader_object | [shader_object.md](categories/shader_object.md) | 10 | ✅ Done |
 | 10 | renderpasses | [renderpasses.md](categories/renderpasses.md) | 3 | ✅ Done |
 | 11 | imageless_framebuffer | [imageless_framebuffer.md](categories/imageless_framebuffer.md) |  | ⬜ Not Started |
-| 12 | dynamic_state | [dynamic_state.md](categories/dynamic_state.md) |  | ⬜ Not Started |
+| 12 | dynamic_state | [dynamic_state.md](categories/dynamic_state.md) | 10 | ✅ Done |
 | 13 | image | [image.md](categories/image.md) |  | ⬜ Not Started |
 | 14 | image_processing | [image_processing.md](categories/image_processing.md) |  | ⬜ Not Started |
 | 15 | ycbcr | [ycbcr.md](categories/ycbcr.md) |  | ⬜ Not Started |
@@ -103,6 +103,6 @@ For this tracker, the `Level-3 Files` column uses the agreed progress-counting r
 
 - **Total Categories**: 53
 - **Total CPP Test Files**: 592
-- **Completed Categories**: 11/53
-- **Completed Test Files**: 151/592
+- **Completed Categories**: 12/53
+- **Completed Test Files**: 161/592
 
