@@ -27,13 +27,12 @@ MUSTPASS TXT FILE FORMAT:
     lines starting with "dEQP-VK.geometry.basic." in geometry.txt.
 
 USAGE:
-    python verify_registration_paths.py <category> <group_path>
-    python verify_registration_paths.py api copy_and_blit.core.blit_image
-    python verify_registration_paths.py geometry --check-all
+    python verify_registration_paths.py <category>
+    python verify_registration_paths.py --wiki-file <path-to-level3-md>
 
 EXIT CODES:
-    0 - Path verified successfully
-    1 - Path not found in mustpass files
+    0 - All paths verified successfully
+    1 - One or more paths not found in mustpass files
     2 - Error (file not found, malformed wiki input, etc.)
 """
 
@@ -298,39 +297,91 @@ def extract_group_paths_from_wiki(wiki_dir: Path, category: str) -> Dict[str, Li
     return extract_default_group_paths_from_wiki(wiki_dir, category)
 
 
+def validate_paths(paths: Dict[str, List[Tuple[Path, int]]],
+                    category: str, mustpass_dir: Path, verbose: bool = False) -> int:
+    """Validate extracted paths against mustpass files. Returns number of failures."""
+    failed = 0
+    for full_path, sources in paths.items():
+        parts = full_path.split('.', 1)
+        group_path = parts[1] if len(parts) > 1 else ''
+
+        success, message = verify_registration_path(
+            category, group_path, mustpass_dir, verbose)
+
+        if success:
+            print(f"  OK: {full_path}")
+            if verbose:
+                print(f"      ({message})")
+        else:
+            primary_md, primary_line = sources[0]
+            try:
+                rel_md = primary_md.relative_to(Path.cwd())
+            except ValueError:
+                rel_md = primary_md
+            print(f"  FAIL: {full_path}")
+            print(f"        Source: {rel_md}:{primary_line}")
+            if len(sources) > 1:
+                extra = ', '.join(
+                    f"{s[0].relative_to(Path.cwd())}:{s[1]}" for s in sources[1:]
+                )
+                print(f"        Also at: {extra}")
+            print(f"        {message}")
+            failed += 1
+
+    return failed
+
+
 def main():
     parser = argparse.ArgumentParser(description='Verify registration paths in mustpass files')
     parser.add_argument('category', nargs='?', help='Category name (e.g., api, geometry)')
-    parser.add_argument('group_path', nargs='?', help='Group path (e.g., copy_and_blit.core.blit_image)')
+    parser.add_argument('--wiki-file', type=str,
+                        help='Path to a single Level-3 wiki file to validate')
     parser.add_argument('--mustpass-dir', type=str,
                         default='external/vulkancts/mustpass/main/vk-default',
                         help='Path to mustpass directory')
-    parser.add_argument('--repo-root', type=str,
-                        default='.',
-                        help='Path to repository root')
     parser.add_argument('--wiki-dir', type=str,
                         default='external/vulkancts/wiki',
                         help='Path to wiki directory')
     parser.add_argument('--verbose', '-v', action='store_true',
                         help='Print verbose output')
-    parser.add_argument('--check-all', action='store_true',
-                        help='Check all paths found in wiki files for the category')
 
     args = parser.parse_args()
 
-    repo_root = Path(args.repo_root).resolve()
-    mustpass_dir = (repo_root / args.mustpass_dir).resolve()
-    wiki_dir = (repo_root / args.wiki_dir).resolve()
+    mustpass_dir = (Path.cwd() / args.mustpass_dir).resolve()
+    wiki_dir = (Path.cwd() / args.wiki_dir).resolve()
 
     if not mustpass_dir.exists():
         print(f"Error: Mustpass directory not found: {mustpass_dir}", file=sys.stderr)
         sys.exit(2)
 
-    if args.check_all:
-        if not args.category:
-            print("Error: --check-all requires a category argument", file=sys.stderr)
+    if args.wiki_file:
+        wiki_file = Path(args.wiki_file)
+        if not wiki_file.is_absolute():
+            wiki_file = (Path.cwd() / wiki_file).resolve()
+        if not wiki_file.exists():
+            print(f"Error: Wiki file not found: {wiki_file}", file=sys.stderr)
             sys.exit(2)
 
+        category = wiki_file.parent.name
+
+        paths = extract_canonical_hierarchy_paths(wiki_file, category)
+        if not paths:
+            print(f"No canonical hierarchy data found in {wiki_file}", file=sys.stderr)
+            sys.exit(2)
+
+        print(f"Checking {len(paths)} registration paths from {wiki_file.name}...\n")
+
+        failed = validate_paths(paths, category, mustpass_dir, args.verbose)
+
+        print()
+        if failed > 0:
+            print(f"Verification failed: {failed} path(s) not found")
+            sys.exit(1)
+        else:
+            print("All paths verified successfully")
+            sys.exit(0)
+
+    elif args.category:
         paths = extract_group_paths_from_wiki(wiki_dir, args.category)
         if not paths:
             print(f"No registration paths found in wiki for category '{args.category}'")
@@ -338,30 +389,7 @@ def main():
 
         print(f"Checking {len(paths)} registration paths...\n")
 
-        failed = 0
-        for full_path, sources in paths.items():
-            parts = full_path.split('.', 1)
-            group_path = parts[1] if len(parts) > 1 else ''
-
-            success, message = verify_registration_path(
-                args.category, group_path, mustpass_dir, args.verbose)
-
-            if success:
-                print(f"  OK: {full_path}")
-                if args.verbose:
-                    print(f"      ({message})")
-            else:
-                primary_md, primary_line = sources[0]
-                rel_md = primary_md.relative_to(repo_root)
-                print(f"  FAIL: {full_path}")
-                print(f"        Source: {rel_md}:{primary_line}")
-                if len(sources) > 1:
-                    extra = ', '.join(
-                        f"{s[0].relative_to(repo_root)}:{s[1]}" for s in sources[1:]
-                    )
-                    print(f"        Also at: {extra}")
-                print(f"        {message}")
-                failed += 1
+        failed = validate_paths(paths, args.category, mustpass_dir, args.verbose)
 
         print()
         if failed > 0:
@@ -372,20 +400,9 @@ def main():
             sys.exit(0)
 
     else:
-        if not args.category:
-            print("Error: category argument required", file=sys.stderr)
-            parser.print_help()
-            sys.exit(2)
-
-        success, message = verify_registration_path(
-            args.category, args.group_path or '', mustpass_dir, args.verbose)
-
-        if success:
-            print(f"Verified: {message}")
-            sys.exit(0)
-        else:
-            print(f"Verification failed: {message}", file=sys.stderr)
-            sys.exit(1)
+        print("Error: provide a category argument or --wiki-file", file=sys.stderr)
+        parser.print_help()
+        sys.exit(2)
 
 
 if __name__ == '__main__':

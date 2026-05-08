@@ -22,19 +22,24 @@ The end state should leave the wiki corpus ready for parser-driven nested valida
 
 The validator refactor is now in place, so normalization work should be verified incrementally with [`verify_registration_paths.py`](../wiki-analyzer/scripts/verify_registration_paths.py) during migration rather than deferred until the end of the category batch.
 
-### Validation Command
+### Validation Commands
 
-After normalizing a category, run the validator with the `--check-all` flag to verify all documented registration paths:
+After normalizing a single Level-3 wiki file, validate it with `--wiki-file`:
 
 ```bash
-python .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category> --check-all --verbose
+python .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py --wiki-file <relative-path-to-md> --verbose
 ```
 
-**Important**: The `--check-all` flag is required to verify all direct children, not just the root path. Without this flag, the validator only checks the category root.
+After normalizing an entire category, validate all its paths by category name:
 
-Example:
 ```bash
-python .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py info --check-all --verbose
+python .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category> --verbose
+```
+
+Examples:
+```bash
+python .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py --wiki-file external/vulkancts/wiki/testfiles/api/vktApiBufferTests.md --verbose
+python .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py info --verbose
 ```
 
 ### Top-Level Category Edge Case
@@ -242,6 +247,22 @@ For consistency-sensitive cases, a larger unit may be used:
 
 ```text
 One Run = 1 finished category review + N coordinated Level-3 normalizations
+```
+
+### Worker dispatch instruction template
+
+When dispatching worker agents to normalize individual Level-3 files in parallel, use the following instruction template:
+
+```text
+We are using wiki-normalizer skill `.agents/skills/wiki-normalizer/SKILL.md` to work on category "<category>". Your job is strictly follow the SKILL and normalize <relative path to a particular level-3 wiki file>. Report back after you finish your job.
+```
+
+Replace `<category>` with the category name (e.g., `api`, `memory`) and `<relative path to a particular level-3 wiki file>` with the repo-root-relative path to the Level-3 wiki file to normalize.
+
+Example for dispatching a worker for the `api` category:
+
+```text
+We are using wiki-normalizer skill `.agents/skills/wiki-normalizer/SKILL.md` to work on category "api". Your job is strictly follow the SKILL and normalize `external/vulkancts/wiki/testfiles/api/vktApiBufferTests.md`. Report back after you finish your job.
 ```
 
 ## Normalization Workflow
