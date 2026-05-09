@@ -14,23 +14,13 @@ Implementation-heavy. Contains test logic for memory requirement invariance, ali
 - Header: [vktApiMemoryRequirementInvarianceTests.hpp](../../../modules/vulkan/api/vktApiMemoryRequirementInvarianceTests.hpp#L1)
 - Parent registration: [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L122) adds `invariance` group to `api`
 
-## Registration Path
+## Registration Hierarchy
 
-```
-api
- +-- invariance
-      +-- random
-      +-- memory_requirements_matching
-      +-- memory_dedicated_requirements_matching
-```
-
-## Test Hierarchy
-
-```
-invariance
- +-- random                                  -- random allocation order invariance test
- +-- memory_requirements_matching            -- alignment and size matching across identical creates
- +-- memory_dedicated_requirements_matching  -- dedicated requirements matching between method2 and device queries
+```text
+api.invariance
+├── random
+├── memory_requirements_matching
+└── memory_dedicated_requirements_matching
 ```
 
 ## Test Families

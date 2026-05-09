@@ -14,44 +14,29 @@ Implementation-heavy test file for the `api/version_check` subgroup.
 - Header: [vktApiVersionCheck.hpp](../../../modules/vulkan/api/vktApiVersionCheck.hpp#L1)
 - Parent-category registration: [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L90)
 
-## Registration Path
+## Registration Hierarchy
 
 ```text
-TestPackage::init / TestPackageSC::init
-  api
-  +-- createApiTests(apiTests)
-      +-- createVersionSanityCheckTests(testCtx)
-          +-- version_check
-              +-- version
-              +-- entry_points
-              +-- unavailable_entry_points  (not in Vulkan SC)
+api.version_check
+├── version
+├── entry_points
+└── unavailable_entry_points (non-VulkanSC only)
 ```
 
-Evidence:
-- `version_check` group created at [`createVersionSanityCheckTests()`](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L780)
+The `version_check` group is created at [`createVersionSanityCheckTests()`](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L778), which is registered as a child of the `api` category by [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L90).
+
+Evidence for direct children:
 - `version` test case added at [`vktApiVersionCheck.cpp`](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L781)
 - `entry_points` test case added at [`vktApiVersionCheck.cpp`](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L782)
 - `unavailable_entry_points` test case added under `#ifndef CTS_USES_VULKANSC` at [`vktApiVersionCheck.cpp`](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L785)
 
-## Test Hierarchy
-
-```text
-api
-+-- version_check
-    +-- version
-    +-- entry_points
-    +-- unavailable_entry_points  (excluded for Vulkan SC)
-```
-
-Source: [`createVersionSanityCheckTests()`](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L778).
-
 ## Test Families
 
-### 1. CTS-supported Vulkan version bound check
+### version — CTS-supported Vulkan version bound check
 
 [`APIVersionTestCase`](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L105) is registered with name `"version"` at [`vktApiVersionCheck.cpp`](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L108). Its instance [`APIVersionTestInstance::iterate()`](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L76) logs the available instance version, the device version, and the used API version. It fails if the physical device major or minor version is newer than the framework maximum at [`vktApiVersionCheck.cpp`](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L97); otherwise it passes with the used API version string at [`vktApiVersionCheck.cpp`](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L101).
 
-### 2. Core and extension entry-point resolution
+### entry_points — Core and extension entry-point resolution
 
 [`APIEntryPointsTestCase`](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L603) is registered with name `"entry_points"` at [`vktApiVersionCheck.cpp`](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L606). Its instance [`APIEntryPointsTestInstance::iterate()`](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L138) performs four phases:
 
@@ -61,7 +46,7 @@ Source: [`createVersionSanityCheckTests()`](../../../modules/vulkan/api/vktApiVe
 - **Non-existent-function negative check**: verifies that bogus names like `"vkSomeName"`, `"vkNonexistingKHR"`, and the empty string return nullptr via [`specialCasesCheck()`](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L244)
 - **Enabled-extension positive check**: creates a second instance/device pair with all supported extensions enabled, collects extension functions, and validates them via [`regularCheck()`](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L309)
 
-### 3. Unavailable entry-points check
+### unavailable_entry_points — Unavailable entry-points check
 
 [`APIUnavailableEntryPointsTestCase`](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L757) is registered with name `"unavailable_entry_points"` at [`vktApiVersionCheck.cpp`](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L761). Its instance [`APIUnavailableEntryPointsTestInstance::iterate()`](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L628) creates instances for each API version, then checks that `vkGetDeviceProcAddr` returns NULL for device functions that belong to API versions above the requested version at [`vktApiVersionCheck.cpp`](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L739). Requires `VK_KHR_maintenance5` via [`checkSupport()`](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L766).
 

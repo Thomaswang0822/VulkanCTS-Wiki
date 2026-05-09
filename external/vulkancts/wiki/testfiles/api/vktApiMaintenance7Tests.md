@@ -16,47 +16,38 @@ Implementation-heavy. Contains two test instance classes and registration logic.
 | [vktApiMaintenance7Tests.hpp](../../../modules/vulkan/api/vktApiMaintenance7Tests.hpp#L1) | Declares `createMaintenance7Tests` |
 | [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L135) | Parent registration: `apiTests->addChild(createMaintenance7Tests(testCtx))` |
 
-## Registration Path
+## Registration Hierarchy
 
-```
-api
-  +-- maintenance7
-       +-- layered_api_vulkan_properties
-       +-- total_dynamic_buffers_properties
-```
-
-## Test Hierarchy
-
-```
-maintenance7
-  +-- layered_api_vulkan_properties
-  |    Verifies VkPhysicalDeviceLayeredApiVulkanPropertiesKHR:
-  |    - deviceID/vendorID match between layered and base properties
-  |    - limits/sparseProperties are zero-filled for Vulkan layered APIs
-  |    - limits/sparseProperties are ignored for non-Vulkan layered APIs
-  +-- total_dynamic_buffers_properties
-       Verifies VkPhysicalDeviceMaintenance7PropertiesKHR:
-       - maxDescriptorSetTotalUniformBuffersDynamic >= maxDescriptorSetUniformBuffersDynamic
-       - maxDescriptorSetTotalStorageBuffersDynamic >= maxDescriptorSetStorageBuffersDynamic
-       - maxDescriptorSetTotalBuffersDynamic >= sum of uniform + storage dynamic
-       - Same checks for update-after-bind variants
+```text
+api.maintenance7
+├── layered_api_vulkan_properties
+└── total_dynamic_buffers_properties
 ```
 
 ## Test Families
 
-### maintenance7
+### layered_api_vulkan_properties — Layered API Vulkan properties
 
-Group name verified at [vktApiMaintenance7Tests.cpp:310](../../../modules/vulkan/api/vktApiMaintenance7Tests.cpp#L310): `new tcu::TestCaseGroup(testCtx, "maintenance7", "Maintenance7 Tests")`.
+Verifies `VkPhysicalDeviceLayeredApiVulkanPropertiesKHR`:
+- deviceID/vendorID match between layered and base properties
+- limits/sparseProperties are zero-filled for Vulkan layered APIs
+- limits/sparseProperties are ignored for non-Vulkan layered APIs
 
-Two test cases added at [lines 312-314](../../../modules/vulkan/api/vktApiMaintenance7Tests.cpp#L312):
-
-**layered_api_vulkan_properties** - `Maintenance7LayeredApiVulkanPropertiesTestInstance` at [line 37](../../../modules/vulkan/api/vktApiMaintenance7Tests.cpp#L37):
+`Maintenance7LayeredApiVulkanPropertiesTestInstance` at [line 37](../../../modules/vulkan/api/vktApiMaintenance7Tests.cpp#L37):
 1. Queries `VkPhysicalDeviceLayeredApiPropertiesListKHR` via `getPhysicalDeviceProperties2` ([line 65](../../../modules/vulkan/api/vktApiMaintenance7Tests.cpp#L65))
 2. If layered APIs are reported, allocates `VkPhysicalDeviceLayeredApiVulkanPropertiesKHR` chains with pre-filled 0xFF in limits/sparseProperties ([lines 78-81](../../../modules/vulkan/api/vktApiMaintenance7Tests.cpp#L78))
 3. Re-queries and verifies: for Vulkan layered APIs, deviceID/vendorID must match, and limits/sparseProperties must be zero-filled ([lines 93-173](../../../modules/vulkan/api/vktApiMaintenance7Tests.cpp#L93))
 4. For non-Vulkan layered APIs, limits/sparseProperties must remain at 0xFF (ignored) ([lines 130-172](../../../modules/vulkan/api/vktApiMaintenance7Tests.cpp#L130))
 
-**total_dynamic_buffers_properties** - `Maintenance7TotalDynamicBuffersPropertiesTestInstance` at [line 200](../../../modules/vulkan/api/vktApiMaintenance7Tests.cpp#L200):
+### total_dynamic_buffers_properties — Total dynamic buffer descriptor limits
+
+Verifies `VkPhysicalDeviceMaintenance7PropertiesKHR`:
+- maxDescriptorSetTotalUniformBuffersDynamic >= maxDescriptorSetUniformBuffersDynamic
+- maxDescriptorSetTotalStorageBuffersDynamic >= maxDescriptorSetStorageBuffersDynamic
+- maxDescriptorSetTotalBuffersDynamic >= sum of uniform + storage dynamic
+- Same checks for update-after-bind variants
+
+`Maintenance7TotalDynamicBuffersPropertiesTestInstance` at [line 200](../../../modules/vulkan/api/vktApiMaintenance7Tests.cpp#L200):
 1. Queries `VkPhysicalDeviceMaintenance7PropertiesKHR` ([line 213](../../../modules/vulkan/api/vktApiMaintenance7Tests.cpp#L213))
 2. Verifies 6 inequalities against Vulkan 1.0 and 1.2 device limits ([lines 221-284](../../../modules/vulkan/api/vktApiMaintenance7Tests.cpp#L221))
 
