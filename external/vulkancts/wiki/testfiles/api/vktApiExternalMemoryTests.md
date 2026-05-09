@@ -14,113 +14,30 @@ Implementation-heavy. Contains all test logic, helper utilities, and registratio
 - Header: [vktApiExternalMemoryTests.hpp](../../../modules/vulkan/api/vktApiExternalMemoryTests.hpp#L1)
 - Parent registration: [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L117) adds `external` group to `api`
 
-## Registration Path
+## Registration Hierarchy
 
-```
-api
- +-- external
-      +-- semaphore
-      |    +-- sync_fd
-      |    +-- opaque_fd
-      |    +-- opaque_win32
-      |    +-- opaque_win32_kmt
-      |    +-- zircon_event
-      +-- memory
-      |    +-- opaque_fd
-      |    +-- opaque_win32
-      |    +-- opaque_win32_kmt
-      |    +-- android_hardware_buffer
-      |    +-- dma_buf
-      |    +-- zircon_vmo
-      |    +-- mtlbuffer
-      |    +-- mtltexture
-      +-- fence
-           +-- sync_fd
-           +-- opaque_fd
-           +-- opaque_win32
-           +-- opaque_win32_kmt
+```text
+api.external
+├── semaphore
+├── memory
+└── fence
 ```
 
-## Test Hierarchy
-
-```
-external
- +-- semaphore
- |    +-- <handle_type>              (sync_fd, opaque_fd, opaque_win32, opaque_win32_kmt, zircon_event)
- |         +-- info_binary           -- query external semaphore properties
- |         +-- info_timeline         -- query external timeline semaphore properties
- |         +-- import_twice_temporary / permanent
- |         +-- reimport_temporary / permanent
- |         +-- import_multiple_times_temporary / permanent
- |         +-- signal_export_import_wait_temporary / permanent
- |         +-- signal_import_temporary / permanent
- |         +-- transference_temporary / permanent
- |         +-- import_signaled_temporary / permanent  (sync_fd only)
- |         +-- export_multiple_times_temporary / permanent  (fd handles only)
- |         +-- dup / dup2 / dup3 / send_over_socket  (fd handles only)
- |         +-- signal_wait_import / export_signal_import_wait / export_import_signal_wait  (reference transference only)
- |         +-- create_win32_temporary / permanent  (win32 handles only)
- +-- memory
- |    +-- <handle_type>              (opaque_fd, opaque_win32, opaque_win32_kmt, android_hardware_buffer, dma_buf, zircon_vmo, mtlbuffer, mtltexture)
- |         +-- suballocated
- |         |    +-- host_visible
- |         |    |    +-- import_twice
- |         |    |    +-- import_multiple_times
- |         |    |    +-- export_multiple_times  (fd handles only)
- |         |    |    +-- fd_properties  (dma_buf only)
- |         |    |    +-- create_win32  (win32 handles only)
- |         |    +-- device_only
- |         |         +-- (same sub-tests as host_visible)
- |         +-- buffer
- |         |    +-- info
- |         |    +-- maintenance5
- |         |    +-- bind_export_import_bind
- |         |    +-- export_bind_import_bind
- |         |    +-- export_import_bind_bind
- |         +-- image
- |         |    +-- info
- |         |    +-- bind_export_import_bind
- |         |    +-- export_bind_import_bind
- |         |    +-- export_import_bind_bind
- |         +-- dedicated
- |         |    +-- (same sub-structure as suballocated)
- |         +-- ahb_format_properties / ahb_format_properties_2  (android_hardware_buffer only)
- |              +-- image_formats
- |              |    +-- <format_name>  (per AHB format)
- |              +-- external_format_resolve
- |                   +-- <ahb_format_name>  (per AHB non-BLOB format)
- +-- fence
-      +-- <handle_type>              (sync_fd, opaque_fd, opaque_win32, opaque_win32_kmt)
-           +-- info
-           +-- import_twice
-           +-- reimport
-           +-- signal_export_import_wait
-           +-- import_signaled  (sync_fd only)
-           +-- export_signal_import_wait
-           +-- export_import_signal_wait
-           +-- signal_import
-           +-- fence_reset
-           +-- signal_wait_import
-           +-- export_multiple_times  (fd handles only)
-           +-- import_multiple_times
-           +-- transference
-           +-- dup / dup2 / dup3 / send_over_socket  (fd handles only)
-           +-- create_win32  (win32 handles only)
-```
+The Level-3 root is the `external` subgroup registered by [createExternalMemoryTests()](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5598-L5606). Its exact direct child groups are `semaphore`, `memory`, and `fence`, registered by [createSemaphoreTests()](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5390-L5406), [createMemoryTests()](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5578-L5593), and [createFenceTests()](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5276-L5289).
 
 ## Test Families
 
-### Semaphore Family
+### semaphore — External semaphore sharing
 
-Tests external semaphore handle export, import, and synchronization. Covers binary and timeline semaphore types across temporary and permanent permanence modes. Uses compute shaders to ensure sufficient GPU work before exporting sync FD handles.
+Tests external semaphore handle export, import, and synchronization. The direct child group is registered by [createSemaphoreTests()](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5390-L5406), which expands into handle-type subgroups such as `sync_fd`, `opaque_fd`, `opaque_win32`, `opaque_win32_kmt`, and `zircon_event`. Within each handle-type subgroup, the file generates binary and timeline property queries plus temporary and permanent import/export flows including reimport, repeated import, transference, and handle-type-specific cases such as sync-FD signaled import, FD duplication/socket transfer, reference-transference signal/wait flows, and Win32 creation paths as shown in [createSemaphoreTests()](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5291-L5387).
 
-### Memory Family
+### memory — External device-memory sharing
 
-Tests external memory handle export, import, and binding for buffers and images. Organized by allocation mode (suballocated vs dedicated) and visibility (host_visible vs device_only). Android Hardware Buffer tests include format property queries and external format resolve.
+Tests external memory handle export, import, and binding. The direct child group is registered by [createMemoryTests()](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5578-L5593), which expands into handle-type subgroups `opaque_fd`, `opaque_win32`, `opaque_win32_kmt`, `android_hardware_buffer`, `dma_buf`, `zircon_vmo`, `mtlbuffer`, and `mtltexture`. Each handle-type subgroup then registers `suballocated` and `dedicated` branches with `host_visible` and `device_only` visibility modes plus `buffer` and `image` binding/query groups in [createMemoryTests()](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5409-L5575). The Android Hardware Buffer branch additionally registers `ahb_format_properties` and `ahb_format_properties_2`, each containing `image_formats` and `external_format_resolve` subgroups in [vktApiExternalMemoryTests.cpp](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5503-L5572).
 
-### Fence Family
+### fence — External fence sharing
 
-Tests external fence handle export, import, and synchronization. Mirrors the semaphore family structure but for fences.
+Tests external fence handle export, import, and synchronization. The direct child group is registered by [createFenceTests()](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5276-L5289), which expands into handle-type subgroups `sync_fd`, `opaque_fd`, `opaque_win32`, and `opaque_win32_kmt`. Each handle-type subgroup then generates info, import/reimport, signal-export-import-wait, reset, transference, repeated export/import, FD duplication/socket transfer, and Win32-specific creation coverage in [createFenceTests()](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5192-L5274).
 
 ## Parameter Dimensions
 
@@ -163,5 +80,5 @@ Tests external fence handle export, import, and synchronization. Mirrors the sem
 - The file is very large (~5610 lines) and covers three distinct Vulkan object types (semaphore, memory, fence) that could arguably be separate files
 - FD-based tests use compute shaders to ensure sufficient execution time for valid FD export
 - AHB external format resolve tests use a custom TestCase/TestInstance subclass pair rather than the function-case pattern used elsewhere
-- The `createMemoryTests` overload without handle-type argument creates the parent "memory" group containing all handle-type subgroups ([createMemoryTests()](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5578))
+- The `createMemoryTests` overload without handle-type argument creates the parent `memory` group containing all handle-type subgroups ([createMemoryTests()](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5578-L5593))
 - The group name is `external` as confirmed in [createExternalMemoryTests()](../../../modules/vulkan/api/vktApiExternalMemoryTests.cpp#L5600), not `external_memory`
