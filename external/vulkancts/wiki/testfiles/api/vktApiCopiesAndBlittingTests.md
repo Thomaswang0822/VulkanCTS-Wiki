@@ -14,130 +14,62 @@ Registration/dispatcher. The [createCopiesAndBlittingTests()](../../../modules/v
 - Header: [vktApiCopiesAndBlittingTests.hpp](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.hpp#L1)
 - Parent registration: [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L108)
 
-## Registration Path
+## Registration Hierarchy
 
-```
-api
-  +-- copy_and_blit
-```
-
-## Test Hierarchy
-
-```
-copy_and_blit
-  +-- core
-  |     +-- image_to_image
-  |     +-- image_to_buffer
-  |     +-- buffer_to_image
-  |     +-- buffer_to_depthstencil
-  |     +-- depthstencil_to_buffer
-  |     +-- buffer_to_buffer
-  |     +-- blit_image
-  |     +-- resolve_image
-  |     +-- depth_stencil_msaa_copy
-  |     +-- buffer_to_depthstencil_compute_queue
-  |     +-- depthstencil_to_buffer_compute_queue
-  |     +-- buffer_to_depthstencil_transfer_queue
-  |     +-- depthstencil_to_buffer_transfer_queue
-  |     +-- image_to_buffer_transfer_queue
-  |     +-- buffer_to_image_transfer_queue
-  |     +-- buffer_to_buffer_transfer_queue
-  |     +-- image_to_buffer_compute_queue
-  |     +-- buffer_to_image_compute_queue
-  |     +-- image_to_image_general_layout        [suballocated, no extensions only]
-  |     +-- image_to_buffer_general_layout        [suballocated, no extensions only]
-  |     +-- buffer_to_image_general_layout        [suballocated, no extensions only]
-  |     +-- memory_to_image_indirect              [non-SC]
-  |     +-- memory_to_depthstencil_indirect       [non-SC]
-  |     +-- image_to_buffer_indirect              [non-SC]
-  |     +-- memory_to_image_indirect_transfer_queue  [non-SC]
-  |     +-- image_to_buffer_indirect_transfer_queue  [non-SC]
-  |     +-- memory_to_image_indirect_compute_queue   [non-SC]
-  |     +-- image_to_buffer_indirect_compute_queue   [non-SC]
-  |     +-- buffer_offset_tests
-  |     +-- use_after_xfer
-  +-- dedicated_allocation
-  |     +-- image_to_image
-  |     +-- image_to_buffer
-  |     +-- buffer_to_image
-  |     +-- buffer_to_depthstencil
-  |     +-- depthstencil_to_buffer
-  |     +-- buffer_to_buffer
-  |     +-- blit_image
-  |     +-- resolve_image
-  |     +-- depth_stencil_msaa_copy
-  |     +-- buffer_to_depthstencil_compute_queue
-  |     +-- depthstencil_to_buffer_compute_queue
-  |     +-- buffer_to_depthstencil_transfer_queue
-  |     +-- depthstencil_to_buffer_transfer_queue
-  |     +-- image_to_buffer_transfer_queue
-  |     +-- buffer_to_image_transfer_queue
-  |     +-- buffer_to_buffer_transfer_queue
-  |     +-- image_to_buffer_compute_queue
-  |     +-- buffer_to_image_compute_queue
-  |     +-- memory_to_image_indirect              [non-SC]
-  |     +-- memory_to_depthstencil_indirect       [non-SC]
-  |     +-- image_to_buffer_indirect              [non-SC]
-  |     +-- memory_to_image_indirect_transfer_queue  [non-SC]
-  |     +-- image_to_buffer_indirect_transfer_queue  [non-SC]
-  |     +-- memory_to_image_indirect_compute_queue   [non-SC]
-  |     +-- image_to_buffer_indirect_compute_queue   [non-SC]
-  +-- copy_commands2
-  |     +-- image_to_image
-  |     +-- image_to_buffer
-  |     +-- buffer_to_image
-  |     +-- buffer_to_depthstencil
-  |     +-- depthstencil_to_buffer
-  |     +-- buffer_to_buffer
-  |     +-- blit_image
-  |     +-- resolve_image
-  |     +-- depth_stencil_msaa_copy
-  |     +-- buffer_to_depthstencil_compute_queue
-  |     +-- depthstencil_to_buffer_compute_queue
-  |     +-- buffer_to_depthstencil_transfer_queue
-  |     +-- depthstencil_to_buffer_transfer_queue
-  |     +-- image_to_buffer_transfer_queue
-  |     +-- buffer_to_image_transfer_queue
-  |     +-- buffer_to_buffer_transfer_queue
-  |     +-- image_to_buffer_compute_queue
-  |     +-- buffer_to_image_compute_queue
-  |     +-- image_to_image_transfer_queue
-  |     +-- image_to_image_transfer_queue_secondary
-  |     +-- image_to_image_transfer_sparse
-  +-- sparse
-  |     +-- image_to_image
-  +-- multiplane
-  +-- dynamic_state_meta_ops                   [non-SC]
-  +-- indirect                                 [non-SC]
-  +-- device_address                           [non-SC]
-  |     +-- image_to_buffer
-  |     +-- buffer_to_image
-  |     +-- buffer_to_depthstencil
-  |     +-- buffer_to_buffer
-  +-- reinterpretation
+```text
+api.copy_and_blit
+├── core
+├── dedicated_allocation
+├── copy_commands2
+├── sparse
+├── multiplanar_xfer
+├── dynamic_state (non-VulkanSC only)
+├── copy_memory_indirect (non-VulkanSC only)
+├── device_address (non-VulkanSC only)
+└── reinterpret
 ```
 
 ## Test Families
 
-### Core and Dedicated Allocation
+### core — Suballocated copy and blit tests
 
-[addCopiesAndBlittingTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L119) creates subgroups for each copy/blit type under both `core` (suballocated) and `dedicated_allocation` groups. Each subgroup delegates to a sub-file: image_to_image, image_to_buffer, buffer_to_image, buffer_to_depthstencil, depthstencil_to_buffer, buffer_to_buffer, blit_image, resolve_image, depth_stencil_msaa_copy. Additional subgroups for compute-only and transfer-only queues are added.
+[addCoreCopiesAndBlittingTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L232) creates the `core` group with suballocated allocation kind and no extension flags. It delegates to [addCopiesAndBlittingTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L119) for the main copy/blit subgroups, then adds indirect copy tests via [addIndirectCopyTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L74), buffer offset tests via `addCopyBufferToBufferOffsetTests()`, and use-after-copy tests via `createUseAfterXferGroup()`.
 
-### Copy Commands2
+The subgroups created by `addCopiesAndBlittingTests()` under `core` include: image_to_image, image_to_buffer, buffer_to_image, buffer_to_depthstencil, depthstencil_to_buffer, buffer_to_buffer, blit_image, resolve_image, depth_stencil_msaa_copy, plus compute-queue and transfer-queue variants (buffer_to_depthstencil_compute_queue, depthstencil_to_buffer_compute_queue, buffer_to_depthstencil_transfer_queue, depthstencil_to_buffer_transfer_queue, image_to_buffer_transfer_queue, buffer_to_image_transfer_queue, buffer_to_buffer_transfer_queue, image_to_buffer_compute_queue, buffer_to_image_compute_queue). Because `core` uses suballocated allocation with no extensions, it also includes general-layout subgroups: image_to_image_general_layout, image_to_buffer_general_layout, buffer_to_image_general_layout. The indirect copy subgroups added are: memory_to_image_indirect, memory_to_depthstencil_indirect, image_to_buffer_indirect, and their transfer-queue and compute-queue variants. Additional subgroups: buffer_offset_tests, use_after_xfer.
 
-The `copy_commands2` group uses the same [addCopiesAndBlittingTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L119) but with the COPY_COMMANDS_2 extension flag, adding image_to_image_transfer_queue, image_to_image_transfer_queue_secondary, and image_to_image_transfer_sparse subgroups.
+### dedicated_allocation — Dedicated-allocation copy and blit tests
 
-### Sparse
+[addDedicatedAllocationCopiesAndBlittingTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L241) creates the `dedicated_allocation` group with dedicated allocation kind and no extension flags. It delegates to [addCopiesAndBlittingTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L119) for the main copy/blit subgroups, then adds indirect copy tests via [addIndirectCopyTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L74).
 
-[addSparseCopyTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L57) adds a sparse image_to_image subgroup using COPY_COMMANDS_2 and SPARSE_BINDING flags.
+The subgroups mirror those of `core` (image_to_image, image_to_buffer, buffer_to_image, buffer_to_depthstencil, depthstencil_to_buffer, buffer_to_buffer, blit_image, resolve_image, depth_stencil_msaa_copy, plus compute-queue and transfer-queue variants, plus indirect copy subgroups), but without the general-layout subgroups, buffer_offset_tests, and use_after_xfer that are exclusive to `core`.
 
-### Indirect Copy (non-SC)
+### copy_commands2 — VK_KHR_copy_commands2 tests
 
-[addIndirectCopyTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L74) adds memory_to_image_indirect, memory_to_depthstencil_indirect, and image_to_buffer_indirect subgroups for universal, transfer-only, and compute-only queues.
+The `copy_commands2` group uses [addCopiesAndBlittingTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L119) with dedicated allocation and the COPY_COMMANDS_2 extension flag. It includes the same subgroups as `dedicated_allocation` (image_to_image, image_to_buffer, buffer_to_image, buffer_to_depthstencil, depthstencil_to_buffer, buffer_to_buffer, blit_image, resolve_image, depth_stencil_msaa_copy, plus compute-queue and transfer-queue variants), and additionally adds image_to_image_transfer_queue, image_to_image_transfer_queue_secondary, and image_to_image_transfer_sparse subgroups that are specific to the COPY_COMMANDS_2 path.
 
-### Device Address (non-SC)
+### sparse — Sparse-binding copy tests
 
-[addDeviceAddressTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L249) adds image_to_buffer, buffer_to_image, buffer_to_depthstencil, and buffer_to_buffer subgroups using DEVICE_ADDRESS_COMMANDS.
+[addSparseCopyTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L57) creates the `sparse` group with dedicated allocation, COPY_COMMANDS_2 and SPARSE_BINDING flags. It contains a single image_to_image subgroup for sparse image-to-image copy tests.
+
+### multiplanar_xfer — Multiplane image transfer-queue tests
+
+Created by [createCopyMultiplaneImageTransferQueueTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L283), this group tests multiplane image copy operations on transfer queues. Its internal structure is defined in [vktApiCopyMultiplaneImageTransferQueueTests.cpp](../../../modules/vulkan/api/vktApiCopyMultiplaneImageTransferQueueTests.cpp#L1) and covers multiple YCbCr and non-YCbCr multiplane formats with optimal and linear tiling, disjoint and non-disjoint images, and buffer-intermediated copies.
+
+### dynamic_state — Dynamic-state meta-operations (non-VulkanSC only)
+
+Created by [createDynamicStateMetaOperationsTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L286), this group tests copy operations combined with dynamic state meta-operations. Requires VK_KHR_maintenance5. Implementation is in [vktApiCopiesAndBlittingDynamicStateMetaOpsTests.cpp](../../../modules/vulkan/api/vktApiCopiesAndBlittingDynamicStateMetaOpsTests.cpp#L1).
+
+### copy_memory_indirect — Indirect copy commands (non-VulkanSC only)
+
+Created by [createCopyMemoryIndirectTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L287), this group tests indirect copy memory commands. Implementation is in [vktApiCopyMemoryIndirectTests.cpp](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L1). Note: this is a separate top-level child of `copy_and_blit`, distinct from the indirect copy subgroups nested inside `core` and `dedicated_allocation` (which are added by [addIndirectCopyTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L74)).
+
+### device_address — Device-address copy commands (non-VulkanSC only)
+
+[addDeviceAddressTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L249) creates the `device_address` group using DEVICE_ADDRESS_COMMANDS. It contains subgroups: image_to_buffer, buffer_to_image, buffer_to_depthstencil, and buffer_to_buffer.
+
+### reinterpret — Copy reinterpretation tests
+
+Created by [createReinterpretationTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L290), this group tests copy reinterpretation between compatible formats. Implementation is in [vktApiCopiesAndBlittingReinterpretTests.cpp](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L1).
 
 ### Delegated Sub-Files
 
@@ -176,8 +108,8 @@ The following sub-files provide the actual test implementations:
 | VK_KHR_copy_commands2 | copy_commands2 group |
 | VK_KHR_maintenance10 | buffer_to_depthstencil_compute_queue, depthstencil_to_buffer_compute_queue, and transfer_queue variants |
 | Sparse binding | sparse group |
-| VK_KHR_maintenance5 | dynamic_state_meta_ops (delegated) |
-| Indirect copy extension | indirect group (non-SC) |
+| VK_KHR_maintenance5 | dynamic_state group (delegated) |
+| Indirect copy extension | copy_memory_indirect group (non-SC) |
 | Device address commands | device_address group (non-SC) |
 
 ## Verification Methods
@@ -192,11 +124,11 @@ Verification is delegated to the sub-files. Common patterns include:
 - Aggregation: this file serves as a single entry point for all copy/blit tests
 - Parameterization: TestGroupParams struct carries allocation kind, extension flags, and queue selection through the hierarchy
 - Queue coverage: tests are repeated across universal, compute-only, and transfer-only queues where applicable
-- SC divergence: indirect copy and device address groups are excluded for Vulkan SC
+- SC divergence: dynamic_state, copy_memory_indirect, and device_address groups are excluded for Vulkan SC
 
 ## Notes / Uncertainties
 
 - The `core` group additionally includes indirect copy tests and use-after-copy tests that are not in `dedicated_allocation`
 - The `copy_commands2` group uses dedicated allocation internally (hardcoded at [line 276](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L276))
-- The `multiplane` subgroup is created by [createCopyMultiplaneImageTransferQueueTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L283) and its internal structure is defined in a separate file
-- The `dynamic_state_meta_ops`, `indirect`, and `device_address` groups are non-SC only
+- The `multiplanar_xfer` subgroup is created by [createCopyMultiplaneImageTransferQueueTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L283) and its internal structure is defined in a separate file
+- The `dynamic_state`, `copy_memory_indirect`, and `device_address` groups are non-SC only

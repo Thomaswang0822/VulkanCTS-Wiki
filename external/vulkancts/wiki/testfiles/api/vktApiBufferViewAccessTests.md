@@ -14,67 +14,29 @@ Implementation-heavy test file for the `api/buffer_view/access` subgroup.
 - Header: [vktApiBufferViewAccessTests.hpp](../../../modules/vulkan/api/vktApiBufferViewAccessTests.hpp#L1)
 - Parent-category registration: [`createBufferViewTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L78) which is called from [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L106) via `createTestGroup(testCtx, "buffer_view", createBufferViewTests)`
 
-## Registration Path
+## Registration Hierarchy
 
 ```text
-TestPackage::init / TestPackageSC::init
-  api
-  +-- createApiTests(apiTests)
-      +-- createTestGroup(testCtx, "buffer_view", createBufferViewTests)
-          +-- buffer_view
-              +-- access/
-                  +-- suballocation/
-                  +-- dedicated_alloc/
-                  +-- uniform_texel_buffer/
-                  +-- storage_texel_buffer/
-                  +-- uniform_storage_texel_buffer/  (not in Vulkan SC)
+api.buffer_view.access
+├── suballocation
+├── dedicated_alloc
+├── uniform_texel_buffer
+├── storage_texel_buffer
+└── uniform_storage_texel_buffer (not in VulkanSC)
 ```
 
 Evidence:
 - `buffer_view` group created at [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L106)
 - `access` subgroup created at [`createBufferViewAccessTests()`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1443)
 - suballocation and dedicated_alloc subgroups at [`vktApiBufferViewAccessTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1444)
-
-## Test Hierarchy
-
-```text
-api
-+-- buffer_view
-    +-- access/
-        +-- suballocation/
-            +-- buffer_view_memory_test_complete_graphics
-            +-- buffer_view_memory_test_complete_compute
-            +-- buffer_view_memory_test_partial_offset0_graphics
-            +-- buffer_view_memory_test_partial_offset0_compute
-            +-- buffer_view_memory_test_partial_offset1_graphics
-            +-- buffer_view_memory_test_partial_offset1_compute
-        +-- dedicated_alloc/
-            +-- buffer_view_memory_test_complete_with_buffer_dedicated_alloc_image_suballocated_graphics
-            +-- ... (all buffer/image allocation and queue type combinations)
-        +-- uniform_texel_buffer/
-            +-- (per-format test cases)
-        +-- storage_texel_buffer/
-            +-- (per-format test cases)
-        +-- uniform_storage_texel_buffer/  (excluded for Vulkan SC)
-            +-- bind_as_uniform/
-                +-- (per-format test cases)
-            +-- bind_as_storage/
-                +-- (per-format test cases)
-```
-
-Source: [`createBufferViewAccessTests()`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1435).
+- uniform_texel_buffer and storage_texel_buffer subgroups at [`vktApiBufferViewAccessTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1508)
+- uniform_storage_texel_buffer subgroup at [`vktApiBufferViewAccessTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1554)
 
 ## Test Families
 
-### 1. Buffer view memory access through graphics and compute pipelines
+### suballocation — Buffer view memory access with suballocated objects
 
-The `suballocation` and `dedicated_alloc` subgroups at [`vktApiBufferViewAccessTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1444) test buffer view data access. Each test case is parameterized by:
-
-- buffer allocation kind (suballocated or dedicated)
-- image allocation kind (suballocated or dedicated)
-- queue type (graphics or compute)
-
-Three test configurations are generated per combination at [`vktApiBufferViewAccessTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1457):
+The `suballocation` subgroup at [`vktApiBufferViewAccessTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1446) tests buffer view data access where both buffer and image are suballocated. Test cases are parameterized by queue type (graphics or compute). Three test configurations are generated per combination at [`vktApiBufferViewAccessTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1457):
 
 - `buffer_view_memory_test_complete`: buffer size equals view size (512 elements)
 - `buffer_view_memory_test_partial_offset0`: buffer is larger (4096 elements), view starts at offset 0
@@ -82,13 +44,32 @@ Three test configurations are generated per combination at [`vktApiBufferViewAcc
 
 [`BufferViewTestInstance`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L106) extends [`MultiQueueRunnerTestInstance`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L106) and uses either a graphics pipeline (vertex + fragment shader) or a compute pipeline to read from the buffer view and write results to an image, then copies the image to a host-visible buffer for verification.
 
-### 2. All-format buffer view access tests
+### dedicated_alloc — Buffer view memory access with dedicated allocation
 
-The `uniform_texel_buffer` and `storage_texel_buffer` subgroups at [`vktApiBufferViewAccessTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1508) test buffer view access for a wide range of formats using compute shaders. [`BufferViewAllFormatsTestInstance`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L864) populates a source buffer with a gradient pattern via [`populateSourceBuffer()`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L938), then uses a compute shader to read from the buffer view at four sample positions and writes the results to a storage buffer for comparison.
+The `dedicated_alloc` subgroup at [`vktApiBufferViewAccessTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1448) tests buffer view data access where at least one of the buffer or image uses dedicated allocation. Test cases are parameterized by:
 
-### 3. Uniform-storage texel buffer dual-usage tests
+- buffer allocation kind (suballocated or dedicated)
+- image allocation kind (suballocated or dedicated)
+- queue type (graphics or compute)
 
-The `uniform_storage_texel_buffer` subgroup at [`vktApiBufferViewAccessTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1554) (excluded for Vulkan SC) tests buffers created with both `VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT` and `VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT`, then bound as either uniform or storage texel buffer. This tests `VK_KHR_maintenance5` functionality where the bind usage may differ from the create usage via [`VkBufferUsageFlags2CreateInfoKHR`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1039).
+The same three test configurations as the `suballocation` subgroup are generated for each combination, with names including allocation qualifiers (e.g., `buffer_view_memory_test_complete_with_buffer_dedicated_alloc_image_suballocated_graphics`).
+
+[`BufferViewTestInstance`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L106) extends [`MultiQueueRunnerTestInstance`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L106) and uses either a graphics pipeline (vertex + fragment shader) or a compute pipeline to read from the buffer view and write results to an image, then copies the image to a host-visible buffer for verification.
+
+### uniform_texel_buffer — All-format uniform texel buffer access
+
+The `uniform_texel_buffer` subgroup at [`vktApiBufferViewAccessTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1508) tests buffer view access for a wide range of formats using compute shaders with `VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT`. [`BufferViewAllFormatsTestInstance`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L864) populates a source buffer with a gradient pattern via [`populateSourceBuffer()`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L938), then uses a compute shader to read from the buffer view at four sample positions and writes the results to a storage buffer for comparison.
+
+### storage_texel_buffer — All-format storage texel buffer access
+
+The `storage_texel_buffer` subgroup at [`vktApiBufferViewAccessTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1508) tests buffer view access for a wide range of formats using compute shaders with `VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT`. [`BufferViewAllFormatsTestInstance`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L864) populates a source buffer with a gradient pattern via [`populateSourceBuffer()`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L938), then uses a compute shader to read from the buffer view at four sample positions and writes the results to a storage buffer for comparison. Formats that cannot be used with `imageLoad`/`imageStore` are filtered out by [`isSupportedImageLoadStore()`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1383).
+
+### uniform_storage_texel_buffer — Uniform-storage texel buffer dual-usage tests
+
+The `uniform_storage_texel_buffer` subgroup at [`vktApiBufferViewAccessTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1554) (excluded for Vulkan SC) tests buffers created with both `VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT` and `VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT`, then bound as either uniform or storage texel buffer. This tests `VK_KHR_maintenance5` functionality where the bind usage may differ from the create usage via [`VkBufferUsageFlags2CreateInfoKHR`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1039). Contains two child subgroups:
+
+- `bind_as_uniform`: binds the buffer as a uniform texel buffer
+- `bind_as_storage`: binds the buffer as a storage texel buffer
 
 ## Parameter Dimensions
 

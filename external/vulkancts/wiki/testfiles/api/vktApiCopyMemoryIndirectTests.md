@@ -13,149 +13,83 @@ This file provides the test implementation and registration for all VK_KHR_copy_
 - Implementation: [vktApiCopyMemoryIndirectTests.cpp](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp)
 - Header: [vktApiCopyMemoryIndirectTests.hpp](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.hpp)
 
-## Registration Path
+## Registration Hierarchy
 
+```text
+api.copy_and_blit.copy_memory_indirect
+├── size_4
+├── size_12
+├── size_full
+├── mandatory_formats
+└── use_after_copy
 ```
-api > copy_and_blit > copy_memory_indirect
-```
 
-The top-level registration function `createCopyMemoryIndirectTests` at [line 2253](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2253) creates the `copy_memory_indirect` group containing:
+Evidence:
+- `copy_memory_indirect` group created by [`createCopyMemoryIndirectTests()`](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2253)
+- `size_4`, `size_12`, `size_full` subgroups added in the copy-size loop at [line 2295](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2295) through [line 2329](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2329)
+- `mandatory_formats` subgroup added at [line 2332](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2332)
+- `use_after_copy` subgroup added via [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2338) with `indirect=true`
 
-- Buffer-to-buffer indirect copy tests organized by size/offset/count/stride/queue
-- `mandatory_formats` subgroup for format feature bit verification
-- `use_after_copy` subgroup (delegated to `createUseAfterXferGroup`)
-
-Additionally, `addCopyMemoryToImageTests` at [line 2243](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2243) is called from [vktApiCopiesAndBlittingTests.cpp](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp) to register memory-to-image indirect tests under:
-- `memory_to_image_indirect` at [line 87](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L87)
-- `memory_to_image_indirect_transfer_queue` at [line 99](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L99)
-- `memory_to_image_indirect_compute_queue` at [line 111](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L111)
-
-And `addCopyImageToBufferIndirectTests` at [line 2236](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2236) registers image-to-buffer indirect tests under:
-- `image_to_buffer_indirect` at [line 89](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L89)
-- `image_to_buffer_indirect_transfer_queue` at [line 100](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L100)
-- `image_to_buffer_indirect_compute_queue` at [line 112](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L112)
-
-## Test Hierarchy
-
-```
-copy_memory_indirect
-|-- size_4
-|   |-- offset_0
-|   |   |-- count_0
-|   |   |   |-- normal_stride
-|   |   |   |   |-- graphics
-|   |   |   |   |-- transfer
-|   |   |   |   |-- compute
-|   |   |   |-- long_stride
-|   |   |       |-- graphics / transfer / compute
-|   |   |-- count_1 / count_2 / count_63
-|   |-- offset_4
-|       |-- count_0 / count_1 / count_2 / count_63
-|-- size_12 / size_full
-|-- mandatory_formats
-|   |-- memory_to_image
-|-- use_after_copy
-
-memory_to_image_indirect
-|-- 1d_images
-|   |-- tightly_sized_buffer
-|   |-- larger_buffer
-|   |-- array_tightly_sized_buffer
-|   |-- array_all_remaining_layers
-|   |-- array_not_all_remaining_layers
-|   |-- array_larger_buffer
-|-- 1d_additional_formats
-|   |-- r8g8_unorm / r8g8_uint / a2r10g10b10_unorm / ...
-|-- 2d_images
-|   |-- whole / conditional_off / conditional_on
-|   |-- regions
-|   |-- buffer_offset / buffer_offset_relaxed
-|   |-- tightly_sized_buffer / larger_buffer / tightly_sized_buffer_offset
-|   |-- array / array_larger_buffer / array_tightly_sized_buffer
-|   |-- array_all_remaining_layers / array_not_all_remaining_layers
-|-- 2d_mipmap_images
-|   |-- mip_copies_<format>_<W>x<H>
-|   |-- mip_copies_<format>_<W>x<H>_<N>_layers
-|-- 2d_additional_formats
-|   |-- r8g8_unorm / r8g8_uint / ... / r32g32b32a32_uint
-|-- 3d_images
-|   |-- r8g8b8a8_copy_per_slice
-|   |-- r8g8b8a8_quadrant_copies
-|   |-- r32g32_sfloat_copy_per_slice
-|   |-- r8g8b8a8_all_slices_at_once
-|   |-- r8g8_sint_all_slices_at_once
-|   |-- r32g32_sfloat_all_slices_at_once
-
-image_to_buffer_indirect
-|-- 1d_images
-|-- 3d_images
-```
+This file also provides `addCopyMemoryToImageTests()` at [line 2243](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2243) and `addCopyImageToBufferIndirectTests()` at [line 2236](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2236), which register indirect copy tests under `api.copy_and_blit.core` and `api.copy_and_blit.dedicated_allocation` (via [`addIndirectCopyTests()`](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L74) in [vktApiCopiesAndBlittingTests.cpp](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp)). Those registrations are documented in [vktApiCopiesAndBlittingTests.md](./vktApiCopiesAndBlittingTests.md).
 
 ## Test Families
 
-### Buffer-to-Buffer Indirect Copy (CopyMemoryIndirectTestInstance)
+### size_4 -- Buffer-to-buffer indirect copy (4 bytes)
 
-Registered in `createCopyMemoryIndirectTests` at [line 2253](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2253). Uses `CopyMemoryIndirectTestCase` at [line 2101](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2101) and `CopyMemoryIndirectTestInstance` at [line 1872](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L1872).
+Registered in [`createCopyMemoryIndirectTests()`](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2253). Uses `CopyMemoryIndirectTestCase` at [line 2101](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2101) and `CopyMemoryIndirectTestInstance` at [line 1872](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L1872).
 
-| Family | Description |
-|--------|-------------|
-| size_4 / offset_0 / count_0 / normal_stride / graphics | 0-copy buffer indirect with normal stride on graphics queue |
-| size_4 / offset_0 / count_1 / normal_stride / graphics | 1-copy buffer indirect, 4 bytes, no offset |
-| size_4 / offset_0 / count_2 / normal_stride / graphics | 2-copy buffer indirect, 4 bytes each |
-| size_4 / offset_0 / count_63 / normal_stride / graphics | 63-copy buffer indirect |
-| size_4 / offset_0 / count_1 / long_stride / graphics | 1-copy with stride > sizeof(VkCopyMemoryIndirectCommandKHR) |
-| size_full / offset_4 / ... | Full buffer size copy with 4-byte offset |
+The `size_4` subgroup contains buffer-to-buffer indirect copy tests with a 4-byte copy size. Each test is organized into a hierarchy of offset, count, stride, and queue subgroups:
 
-### Memory-to-Image Indirect Copy (CopyMemoryToImageIndirect)
+- `offset_0` / `offset_4` -- copy offset in bytes ([line 2276](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2276))
+  - `count_0` / `count_1` / `count_2` / `count_63` -- number of indirect copy commands ([line 2262](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2262))
+    - `normal_stride` / `long_stride` -- stride between indirect commands ([line 2283](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2283))
+      - `graphics` / `transfer` / `compute` -- target queue family ([line 2291](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2291))
 
-Registered in `addCopyMemoryToImageTests` at [line 2243](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2243). Uses `CopyMemoryToImageIndirectTestCase` at [line 727](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L727) and `CopyMemoryToImageIndirect` instance at [line 322](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L322).
+Note: combinations where `offset >= size` are skipped at [line 2313](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2313), so `offset_4` does not appear under `size_4`.
 
-| Family | Description |
-|--------|-------------|
-| whole | Copy entire 2D image from device memory via indirect command |
-| conditional_off | Same as whole but with conditional rendering predicate = 0 (copy should be skipped) |
-| conditional_on | Same as whole but with conditional rendering predicate = 1 (copy should execute) |
-| regions | Multiple copy regions from different buffer offsets to different image subregions |
-| buffer_offset | Copy with non-zero buffer offset and image subregion offset |
-| buffer_offset_relaxed | Copy with relaxed buffer offset alignment (Universal queue only) |
-| tightly_sized_buffer | Buffer sized exactly to the copied subregion |
-| larger_buffer | Buffer larger than needed with explicit bufferImageHeight |
-| tightly_sized_buffer_offset | Tightly sized buffer with non-zero buffer offset |
-| array | 16-layer array image, one copy region per layer |
-| array_larger_buffer | 16-layer array with bufferImageHeight larger than image height |
-| array_tightly_sized_buffer | 16-layer array with explicit row/image height per layer |
-| array_all_remaining_layers | Uses VK_REMAINING_ARRAY_LAYERS starting at layer 0 |
-| array_not_all_remaining_layers | Uses VK_REMAINING_ARRAY_LAYERS starting at layer 2 |
+### size_12 -- Buffer-to-buffer indirect copy (12 bytes)
 
-### Mipmapped Image Indirect (CopyMipmappedImageToBuffer)
+Same test structure as `size_4` but with a 12-byte copy size. The `offset_4` subgroup is present here (since 4 < 12), adding additional offset/count/stride/queue combinations.
 
-Registered in `addMemoryTo2DMipImageTests` at [line 1100](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L1100). Uses `CopyMipmappedImageToBufferTestCase` at [line 251](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L251) and `CopyMipmappedImageToBuffer` instance at [line 40](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L40).
+### size_full -- Buffer-to-buffer indirect copy (full buffer)
 
-| Family | Description |
-|--------|-------------|
-| mip_copies_<format>_<W>x<H> | 2D image with full mip chain, uploaded indirectly, verified per mip level |
-| mip_copies_<format>_<W>x<H>_<N>_layers | 2D array image with N layers, uploaded indirectly, verified per mip/layer |
+Same test structure as `size_4` and `size_12` but with `copySize = 0`, which signals a full-buffer copy. Both `offset_0` and `offset_4` subgroups are present.
 
-### 3D Image Indirect Copy
+### mandatory_formats -- Mandatory format support verification
 
-Registered in `add3dMemoryToImageTests` at [line 1642](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L1642).
+Registered at [line 2332](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2332). Uses function case with `MandatoryFormats::addIndirectCopyMandatoryFormatSupportTests` at [line 2155](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2155).
 
-| Family | Description |
-|--------|-------------|
-| r8g8b8a8_copy_per_slice | 3D image with 16 depth slices, one copy region per slice |
-| r8g8b8a8_quadrant_copies | 3D image with quadrant-based regions per depth slice |
-| r32g32_sfloat_copy_per_slice | 3D image with R32G32_SFLOAT format, one region per slice |
-| r8g8b8a8_all_slices_at_once | 3D image, all slices in a single region using layerCount |
-| r8g8_sint_all_slices_at_once | 3D image with R8G8_SINT format, all slices at once |
-| r32g32_sfloat_all_slices_at_once | 3D image with R32G32_SFLOAT format, all slices at once |
+Contains a single child `memory_to_image` that verifies all mandatory formats support `VK_FORMAT_FEATURE_2_COPY_IMAGE_INDIRECT_DST_BIT_KHR`.
 
-### Mandatory Format Support
+### use_after_copy -- Use-after-copy verification (indirect)
 
-Registered in `createCopyMemoryIndirectTests` at [line 2332](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2332). Uses function case with `MandatoryFormats::addIndirectCopyMandatoryFormatSupportTests` at [line 2155](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2155).
+Added via [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2338) with `indirect=true`. Implementation is delegated to [vktApiUseAfterCopyTests.cpp](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp), which verifies that image contents copied via indirect commands can still be consumed correctly afterward (sampled as texture or used as depth/stencil attachment). See [vktApiUseAfterCopyTests.md](./vktApiUseAfterCopyTests.md) for full documentation of the `use_after_copy` test structure.
 
-| Family | Description |
-|--------|-------------|
-| memory_to_image | Verifies all mandatory formats support VK_FORMAT_FEATURE_2_COPY_IMAGE_INDIRECT_DST_BIT_KHR |
+## Cross-File Registrations
+
+This file provides implementation functions that are called from [vktApiCopiesAndBlittingTests.cpp](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp) to register indirect copy tests under `api.copy_and_blit.core` and `api.copy_and_blit.dedicated_allocation`. These are not children of `copy_memory_indirect` but are documented here because their implementation resides in this file.
+
+### addCopyMemoryToImageTests -- Memory-to-image indirect copy
+
+Called from [`addIndirectCopyTests()`](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L74) to register under `memory_to_image_indirect`, `memory_to_image_indirect_transfer_queue`, and `memory_to_image_indirect_compute_queue`. Uses `CopyMemoryToImageIndirectTestCase` at [line 727](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L727) and `CopyMemoryToImageIndirect` instance at [line 322](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L322).
+
+Direct children of each `memory_to_image_indirect` group:
+
+- `1d_images` -- 1D image indirect copy tests (tightly_sized_buffer, larger_buffer, array variants)
+- `1d_additional_formats` -- Additional format coverage for 1D images
+- `2d_images` -- 2D image indirect copy tests (whole, conditional_off/on, regions, buffer_offset, tightly_sized_buffer, array variants)
+- `2d_mipmap_images` -- Mipmapped 2D image indirect copy tests
+- `2d_additional_formats` -- Additional format coverage for 2D images
+- `3d_images` -- 3D image indirect copy tests
+
+### addCopyImageToBufferIndirectTests -- Image-to-buffer indirect copy
+
+Called from [`addIndirectCopyTests()`](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L74) to register under `image_to_buffer_indirect`, `image_to_buffer_indirect_transfer_queue`, and `image_to_buffer_indirect_compute_queue`. Delegates to `add1dImageToBufferTests` and `add3dImageToBufferTests` from [vktApiCopyImageToBufferTests.cpp](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp).
+
+Direct children of each `image_to_buffer_indirect` group:
+
+- `1d_images` -- 1D image-to-buffer indirect tests
+- `3d_images` -- 3D image-to-buffer indirect tests
 
 ## Parameter Dimensions
 

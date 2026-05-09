@@ -13,37 +13,19 @@ This file provides the test implementation and registration for dynamic state me
 - Implementation: [vktApiCopiesAndBlittingDynamicStateMetaOpsTests.cpp](../../../modules/vulkan/api/vktApiCopiesAndBlittingDynamicStateMetaOpsTests.cpp)
 - Header: [vktApiCopiesAndBlittingDynamicStateMetaOpsTests.hpp](../../../modules/vulkan/api/vktApiCopiesAndBlittingDynamicStateMetaOpsTests.hpp)
 
-## Registration Path
+## Registration Hierarchy
 
-```
-api > copy_and_blit > dynamic_state
+```text
+api.copy_and_blit.dynamic_state
+├── copy
+└── blit
 ```
 
 The top-level registration function `createDynamicStateMetaOperationsTests` at [line 1402](../../../modules/vulkan/api/vktApiCopiesAndBlittingDynamicStateMetaOpsTests.cpp#L1402) creates the `dynamic_state` group. This is registered directly under `copy_and_blit` in [vktApiCopiesAndBlittingTests.cpp](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp) at [line 286](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L286).
 
-## Test Hierarchy
-
-```
-dynamic_state
-|-- copy
-|   |-- draw_multisampled_image_r8g8b8a8_unorm_samples_2
-|   |-- draw_multisampled_image_r8g8b8a8_unorm_samples_4
-|   |-- draw_multisampled_image_r8g8b8a8_unorm_samples_8
-|   |-- draw_multisampled_image_r8g8b8a8_unorm_samples_16
-|   |-- draw_multisampled_image_r8g8b8a8_unorm_samples_32
-|   |-- draw_multisampled_image_r8g8b8a8_unorm_samples_64
-|-- blit
-    |-- draw_multisampled_image_r8g8b8a8_unorm_samples_2
-    |-- draw_multisampled_image_r8g8b8a8_unorm_samples_4
-    |-- draw_multisampled_image_r8g8b8a8_unorm_samples_8
-    |-- draw_multisampled_image_r8g8b8a8_unorm_samples_16
-    |-- draw_multisampled_image_r8g8b8a8_unorm_samples_32
-    |-- draw_multisampled_image_r8g8b8a8_unorm_samples_64
-```
-
 ## Test Families
 
-### Copy Meta-Operation (DynamicStateMetaOpsInstance)
+### copy — Copy Meta-Operation
 
 Registered in `createDynamicStateMetaOperationsTests` at [line 1402](../../../modules/vulkan/api/vktApiCopiesAndBlittingDynamicStateMetaOpsTests.cpp#L1402). Uses `DynamicStateMetaOpsTestCase` at [line 1187](../../../modules/vulkan/api/vktApiCopiesAndBlittingDynamicStateMetaOpsTests.cpp#L1187) and `DynamicStateMetaOpsInstance` at [line 55](../../../modules/vulkan/api/vktApiCopiesAndBlittingDynamicStateMetaOpsTests.cpp#L55) with `MetaOperation::META_OP_COPY`.
 
@@ -51,7 +33,7 @@ Registered in `createDynamicStateMetaOperationsTests` at [line 1402](../../../mo
 |--------|-------------|
 | draw_multisampled_image_r8g8b8a8_unorm_samples_N | Draw to multisampled image, perform whole-image copy, draw again; verify both copy result and multisampled image integrity |
 
-### Blit Meta-Operation (DynamicStateMetaOpsInstance)
+### blit — Blit Meta-Operation
 
 Same registration as above, with `MetaOperation::META_OP_BLIT`.
 

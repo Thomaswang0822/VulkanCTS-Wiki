@@ -13,41 +13,42 @@ This file provides the test implementation and registration for format reinterpr
 - Implementation: [vktApiCopiesAndBlittingReinterpretTests.cpp](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp)
 - Header: [vktApiCopiesAndBlittingReinterpretTests.hpp](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.hpp)
 
-## Registration Path
+## Registration Hierarchy
 
-```
-api > copy_and_blit > reinterpret
+```text
+api.copy_and_blit.reinterpret
+├── 1d
+└── 2d
 ```
 
-The top-level registration function `createReinterpretationTests` at [line 1119](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L1119) creates the `reinterpret` group. This is registered directly under `copy_and_blit` in [vktApiCopiesAndBlittingTests.cpp](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp) at [line 289](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L289).
-
-## Test Hierarchy
-
-```
-reinterpret
-|-- 1d
-|   |-- copy_b10g11r11_ufloat_pack32_sample_r16g16_sfloat
-|   |-- copy_bc1_rgb_unorm_block_sample_r32g32_uint
-|   |-- copy_bc3_unorm_block_sample_r32g32b32a32_uint
-|-- 2d
-    |-- copy_b10g11r11_ufloat_pack32_sample_r16g16_sfloat
-    |-- copy_bc1_rgb_unorm_block_sample_r32g32_uint
-    |-- copy_bc3_unorm_block_sample_r32g32b32a32_uint
-```
+Evidence:
+- `reinterpret` group created by [`createReinterpretationTests()`](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L1119)
+- registered directly under `copy_and_blit` in [`vktApiCopiesAndBlittingTests.cpp`](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L290)
+- `1d` and `2d` subgroups created from `imageTypes` array at [line 1139](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L1139)
 
 ## Test Families
 
-### Reinterpret Copy + Sample (ReinterpretTestInstance)
+### 1d — 1D image format reinterpretation
 
-Registered in `createReinterpretationTests` at [line 1119](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L1119). Uses `ReinterpretTestCase` at [line 886](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L886) and `ReinterpretTestInstance` at [line 35](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L35).
+The `1d` subgroup at [line 1143](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L1143) contains format reinterpretation tests for `VK_IMAGE_TYPE_1D` images. Uses `ReinterpretTestCase` at [line 886](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L886) and `ReinterpretTestInstance` at [line 35](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L35).
 
-| Family | Description |
-|--------|-------------|
-| copy_b10g11r11_ufloat_pack32_sample_r16g16_sfloat | Uncompressed B10G11R11_UFLOAT image copied and sampled through R16G16_SFLOAT view |
-| copy_bc1_rgb_unorm_block_sample_r32g32_uint | BC1 compressed image copied and sampled through R32G32_UINT view (64-bit block) |
-| copy_bc3_unorm_block_sample_r32g32b32a32_uint | BC3 compressed image copied and sampled through R32G32B32A32_UINT view (128-bit block) |
+| Test | Description |
+|------|-------------|
+| copy_b10g11r11_ufloat_pack32_sample_r16g16_sfloat | Uncompressed B10G11R11_UFLOAT 1D image copied and sampled through R16G16_SFLOAT view |
+| copy_bc1_rgb_unorm_block_sample_r32g32_uint | BC1 compressed 1D image copied and sampled through R32G32_UINT view (64-bit block) |
+| copy_bc3_unorm_block_sample_r32g32b32a32_uint | BC3 compressed 1D image copied and sampled through R32G32B32A32_UINT view (128-bit block) |
 
-Each test performs two verifications:
+### 2d — 2D image format reinterpretation
+
+The `2d` subgroup at [line 1143](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L1143) contains format reinterpretation tests for `VK_IMAGE_TYPE_2D` images. Uses `ReinterpretTestCase` at [line 886](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L886) and `ReinterpretTestInstance` at [line 35](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L35).
+
+| Test | Description |
+|------|-------------|
+| copy_b10g11r11_ufloat_pack32_sample_r16g16_sfloat | Uncompressed B10G11R11_UFLOAT 2D image copied and sampled through R16G16_SFLOAT view |
+| copy_bc1_rgb_unorm_block_sample_r32g32_uint | BC1 compressed 2D image copied and sampled through R32G32_UINT view (64-bit block) |
+| copy_bc3_unorm_block_sample_r32g32b32a32_uint | BC3 compressed 2D image copied and sampled through R32G32B32A32_UINT view (128-bit block) |
+
+Each test in both subgroups performs two verifications:
 1. **Copy verification**: The destination image data is read back and compared against the expected result computed by `copyRegionToTextureLevel` at [line 152](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L152)
 2. **Sampling verification**: The source image is sampled via fragment shader `texelFetch` using the view format, and the result is compared against the expected reinterpreted data at [line 847](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L847)
 
