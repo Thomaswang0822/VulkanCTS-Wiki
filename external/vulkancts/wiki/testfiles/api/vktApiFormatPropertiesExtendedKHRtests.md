@@ -2,66 +2,61 @@
 
 ## Overview
 
-Tests the VK_KHR_format_feature_flags2 extension, verifying that `VkFormatProperties3` reported by the implementation includes all required format feature flags for every core Vulkan format. Compares implementation-reported flags against the CTS-required feature set.
+Tests the `VK_KHR_format_feature_flags2` extension by verifying that `VkFormatProperties3` reported by the implementation contains every format feature bit required by CTS for each core Vulkan format. The file compares implementation-reported flags against CTS-required properties for buffer, linear-tiling, and optimal-tiling usage.
 
 ## Role of File
 
-Implementation-heavy. Contains all test logic and registration. The public entry point [createFormatPropertiesExtendedKHRTests()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L90) assembles the test tree.
+Implementation-heavy Level-3 page for the top-level `api.format_feature_flags2` subgroup. The local registration entry point [createFormatPropertiesExtendedKHRTests()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L90-L93) creates the subgroup and registers one generated leaf test per core Vulkan format via [createTestCases()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L73-L80).
 
 ## Source Code
 
-- Source: [vktApiFormatPropertiesExtendedKHRtests.cpp](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L1)
+- Implementation: [vktApiFormatPropertiesExtendedKHRtests.cpp](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L1)
 - Header: [vktApiFormatPropertiesExtendedKHRtests.hpp](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.hpp#L1)
-- Parent registration: [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L125) adds `format_feature_flags2` group to `api`
+- Parent registration: [createApiTests()](../../../modules/vulkan/api/vktApiTests.cpp#L123-L126)
+- Local subgroup registration: [createFormatPropertiesExtendedKHRTests()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L90-L93)
 
-## Registration Path
+## Registration Hierarchy
 
-```
-api
- +-- format_feature_flags2
-      +-- <format_name>          (one test per core Vulkan format)
+```text
+api.format_feature_flags2
 ```
 
-## Test Hierarchy
-
-```
-format_feature_flags2
- +-- r4g4_unorm_pack8
- +-- r4g4b4a4_unorm_pack16
- +-- ...                         (one test per core format from VK_FORMAT_R4G4_UNORM_PACK8 to VK_CORE_FORMAT_LAST)
- +-- e5b9g9r9_ufloat_pack32
-```
+The confirmed Level-3 root is `format_feature_flags2`, which [createApiTests()](../../../modules/vulkan/api/vktApiTests.cpp#L123-L126) adds directly under `api`. [createFormatPropertiesExtendedKHRTests()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L90-L93) creates that group and delegates directly to [createTestCases()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L73-L80), which registers generated leaf tests with `addFunctionCase()` instead of creating any direct child subgroups. This page therefore has no registered one-level-down subgroup children to expand in the canonical hierarchy tree.
 
 ## Test Families
 
-### Per-format tests
-
-For each core Vulkan format (from `VK_FORMAT_R4G4_UNORM_PACK8` to `VK_CORE_FORMAT_LAST`), queries `VkFormatProperties3` via `context.getFormatProperties()` and `context.getRequiredFormatProperties()`, then verifies that the implementation's reported flags are a superset of the required flags. Checks three flag sets: `bufferFeatures`, `linearTilingFeatures`, and `optimalTilingFeatures`. Implemented by [test()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L59).
+This file does not register direct child subgroup branches under `api.format_feature_flags2`. Instead, it generates one leaf test per core Vulkan format inside the root group through the loop in [createTestCases()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L73-L80). Each generated case uses the lowercase format name derived from `getFormatName()` after stripping the `VK_FORMAT_` prefix in [createTestCases()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L78).
 
 ## Parameter Dimensions
 
-| Dimension | Observed Values |
+| Dimension | Observed values / evidence |
 |---|---|
-| Format | All core Vulkan formats from VK_FORMAT_R4G4_UNORM_PACK8 to VK_CORE_FORMAT_LAST |
+| Registration root | `api.format_feature_flags2` from [createApiTests()](../../../modules/vulkan/api/vktApiTests.cpp#L123-L126) and [createFormatPropertiesExtendedKHRTests()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L90-L93) |
+| Direct child subgroup names | None observed; [createFormatPropertiesExtendedKHRTests()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L90-L93) installs a callback that registers leaves directly through `addFunctionCase()` in [vktApiFormatPropertiesExtendedKHRtests.cpp](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L79) |
+| Format enumeration range | All core Vulkan formats from `VK_FORMAT_R4G4_UNORM_PACK8` up to but not including `VK_CORE_FORMAT_LAST` in [createTestCases()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L75-L76) |
+| Generated test name | Lowercase `getFormatName(format)` with the leading `VK_FORMAT_` removed in [createTestCases()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L78) |
+| Checked feature sets | `bufferFeatures`, `linearTilingFeatures`, and `optimalTilingFeatures` in [test()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L61-L68) |
 
 ## Support / Feature Requirements
 
-- `VK_KHR_format_feature_flags2` required by all tests ([checkSupport()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L39))
-- `VK_KHR_get_physical_device_properties2` required by all tests ([checkSupport()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L43))
+- All generated cases require `VK_KHR_format_feature_flags2` through [checkSupport()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L39-L44).
+- All generated cases also require `VK_KHR_get_physical_device_properties2` through [checkSupport()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L39-L44).
 
 ## Verification Methods
 
-- Flag superset check: For each format, verifies that `(reportedFlags & requiredFlags) == requiredFlags` for each of the three feature flag sets. If any required bits are missing, the test fails with a message identifying the missing bits. Implemented by [checkFlags()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L46).
+- [test()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L59-L70) obtains implementation-reported properties with `context.getFormatProperties()` and CTS-required properties with `context.getRequiredFormatProperties()`.
+- For each of the three feature sets, [checkFlags()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L46-L57) verifies that `(reportedFlags & requestedFlags) == requestedFlags` and fails if any required bits are missing.
+- Failure diagnostics are explicit: [checkFlags()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L51-L55) computes the missing mask and prints it in hexadecimal together with the affected feature-set label.
 
 ## Test Principles Observed
 
-- Exhaustive format coverage: every core Vulkan format is tested
-- Required-feature validation: implementation must support at least the features CTS deems required
-- Clear failure diagnostics: missing flag bits are reported in hex
+- Exhaustive coverage over the core-format enum interval visible in [createTestCases()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L75-L80).
+- CTS validates minimum required capability, not exact equality, by using a superset check in [checkFlags()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L46-L57).
+- The same verification logic is reused for buffer, linear-tiling, and optimal-tiling feature-bit sets in [test()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L64-L68).
 
 ## Notes / Uncertainties
 
-- The group name is `format_feature_flags2` as confirmed in [createFormatPropertiesExtendedKHRTests()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L92), not `format_properties_extended_khr`
-- The test name for each format is derived by stripping the `VK_FORMAT_` prefix and converting to lowercase ([L78](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L78))
-- The required format properties come from `context.getRequiredFormatProperties()` which is a CTS-maintained database of minimum required features per format
-- The test only checks that required flags are present; it does not validate that unsupported flags are absent
+- The registered subgroup name is `format_feature_flags2`, as shown in [createFormatPropertiesExtendedKHRTests()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L90-L93), not a symbol-derived variant such as `format_properties_extended_khr`.
+- Observed registration is leaf-only below `api.format_feature_flags2`: inspected code does not create any direct child subgroup names beneath the Level-3 root.
+- The required property database consumed by `context.getRequiredFormatProperties()` is used as a CTS-maintained source of mandatory feature bits, but this file alone does not expose where that database is populated.
+- The test only verifies that required bits are present; inspected code does not check whether extra reported bits should be absent.
