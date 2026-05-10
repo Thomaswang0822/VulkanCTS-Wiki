@@ -12,60 +12,13 @@ Tests for `VK_EXT_device_memory_report`. Validates that the device memory report
 - **Registration function:** [`createDeviceMemoryReportTests()`](../../../modules/vulkan/memory/vktMemoryDeviceMemoryReportTests.cpp#L2202)
 - **Parent group:** `memory`
 
-## Test Hierarchy
+## Registration Hierarchy
 
-```
-device_memory_report
+```text
+memory.device_memory_report
 ├── create_and_destroy_object
-│   ├── device
-│   ├── device_memory_small
-│   ├── buffer_uniform_small
-│   ├── buffer_uniform_large
-│   ├── buffer_storage_small
-│   ├── buffer_storage_large
-│   ├── buffer_view_uniform_r8g8b8a8_unorm
-│   ├── buffer_view_storage_r8g8b8a8_unorm
-│   ├── image_1d
-│   ├── image_2d
-│   ├── image_3d
-│   ├── image_view_1d
-│   ├── image_view_1d_arr
-│   ├── image_view_2d
-│   ├── image_view_2d_arr
-│   ├── image_view_cube
-│   ├── image_view_cube_arr
-│   ├── image_view_3d
-│   ├── semaphore
-│   ├── event
-│   ├── fence
-│   ├── fence_signaled
-│   ├── query_pool
-│   ├── shader_module
-│   ├── pipeline_cache
-│   ├── sampler
-│   ├── descriptor_set_layout_empty
-│   ├── descriptor_set_layout_single
-│   ├── pipeline_layout_empty
-│   ├── pipeline_layout_single
-│   ├── render_pass
-│   ├── graphics_pipeline
-│   ├── compute_pipeline
-│   ├── descriptor_pool
-│   ├── descriptor_pool_free_descriptor_set
-│   ├── descriptor_set
-│   ├── framebuffer
-│   ├── command_pool
-│   ├── command_pool_transient
-│   ├── command_buffer_primary
-│   └── command_buffer_secondary
 ├── vk_device_memory
-│   └── allocate_and_free
 └── external_memory
-    ├── import_and_unimport_opaque_fd
-    ├── import_and_unimport_opaque_win32
-    ├── import_and_unimport_opaque_win32_kmt
-    ├── import_and_unimport_android_hardware_buffer
-    └── import_and_unimport_dma_buf
 ```
 
 ## Test Families

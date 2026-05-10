@@ -10,16 +10,10 @@ Tests for concurrent access to device memory from both the host (CPU) and device
 
 `concurrent_access` ([line 291](../../../modules/vulkan/memory/vktMemoryConcurrentAccessTests.cpp#L291))
 
-## Registration Path
+## Registration Hierarchy
 
-```
-memory → concurrent_access
-```
-
-## Test Hierarchy
-
-```
-concurrent_access/
+```text
+memory.concurrent_access
 └── shader_and_host
 ```
 

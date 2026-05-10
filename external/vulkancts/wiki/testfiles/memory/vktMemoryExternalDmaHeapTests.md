@@ -12,10 +12,10 @@ Tests for `VK_EXT_external_memory_dma_buf` with DMA heap allocator integration. 
 - **Registration function:** [`createDmaHeapTests()`](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp#L354)
 - **Parent group:** `memory`
 
-## Test Hierarchy
+## Registration Hierarchy
 
-```
-dma_heap_memory
+```text
+memory.dma_heap_memory
 ├── allocate_and_bind
 ├── shader_access
 └── shader_access_offset

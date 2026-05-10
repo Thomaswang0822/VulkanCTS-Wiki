@@ -12,22 +12,12 @@ Tests for `VK_EXT_zero_initialize_device_memory`. Validates that device memory a
 - **Registration function:** [`createClearedAllocationControlTests()`](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L1252)
 - **Parent group:** `memory`
 
-## Test Hierarchy
+## Registration Hierarchy
 
-```
-zero_initialize_device_memory
+```text
+memory.zero_initialize_device_memory
 ├── clear_buffer
-│   ├── transfer_dst_<size>[_host_visible]
-│   ├── uniform_texel_buffer_<size>[_host_visible]
-│   ├── storage_texel_buffer_<size>[_host_visible]
-│   ├── uniform_buffer_<size>[_host_visible]
-│   ├── storage_buffer_<size>[_host_visible]
-│   ├── index_buffer_<size>[_host_visible]
-│   ├── vertex_buffer_<size>[_host_visible]
-│   └── indirect_buffer_<size>[_host_visible]
 └── image_transition
-    ├── <format>_<usage>_shader_<stage>_<width>x<height>[_first_mip|_second_mip]
-    └── <depth_format>_<width>x<height>[_first_mip|_second_mip]
 ```
 
 ## Test Families
@@ -54,9 +44,9 @@ Tests that image memory allocated with the zero-initialize flag contains all zer
 | Mip size | 1×1, 4×4, 53×92, 512×512 |
 | Mip level | `first_mip` (1-level image), `second_mip` (2-level image, reads level 1) |
 
-### image_transition (depth/stencil)
+#### Depth/stencil formats
 
-Separate test cases for depth/stencil formats. Uses a render pass with depth/stencil attachment, clears to zero, then draws a triangle and verifies the result ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:1031-1246](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L1031)).
+Separate test cases for depth/stencil formats within `image_transition`. Uses a render pass with depth/stencil attachment, clears to zero, then draws a triangle and verifies the result ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:1031-1246](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L1031)).
 
 | Dimension | Values |
 |-----------|--------|

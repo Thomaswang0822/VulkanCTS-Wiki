@@ -12,32 +12,19 @@ Tests for `VK_EXT_map_memory_placed` and `VK_KHR_map_memory2`. Validates that me
 - **Registration function:** [`createMapPlacedTests()`](../../../modules/vulkan/memory/vktMemoryMapPlacedTests.cpp#L926)
 - **Parent group:** `memory`
 
-## Test Hierarchy
+## Registration Hierarchy
 
-```
-map_placed
+```text
+memory.map_placed
 ├── exact_size
-│   ├── size_4096
-│   ├── size_8192
-│   ├── size_65536
-│   └── size_1048576
 ├── gpu_access
-│   └── read_write
 ├── unmap_reserve
-│   ├── size_4096
-│   ├── size_8192
-│   ├── size_65536
-│   └── size_1048576
 └── normal_unmap_reserve
-    ├── size_4096
-    ├── size_8192
-    ├── size_65536
-    └── size_1048576
 ```
 
 ## Test Families
 
-### exact_size
+### exact_size — Exact-size placed mapping verification
 
 Tests that `vkMapMemory2` with `VK_MEMORY_MAP_PLACED_BIT_EXT` maps memory at exactly the requested address, without mapping extra pages on either side. Uses a double-mmap strategy:
 1. A memfd file is created and mapped twice (reserved map and inspector map)
@@ -48,20 +35,20 @@ Tests that `vkMapMemory2` with `VK_MEMORY_MAP_PLACED_BIT_EXT` maps memory at exa
    - The Vulkan region itself does NOT show the fill pattern (driver mapped its own pages)
    - Guard pages after the Vulkan mapping retain the fill pattern ([vktMemoryMapPlacedTests.cpp:130-433](../../../modules/vulkan/memory/vktMemoryMapPlacedTests.cpp#L130))
 
-### gpu_access
+### gpu_access — CPU/GPU round-trip through placed mapping
 
 Tests that placed-mapped memory is accessible to both CPU and GPU without corruption:
 1. CPU writes sequential values (`data[i] = i`) to the placed mapping
 2. GPU (compute shader) increments each value by 1
 3. CPU reads back and verifies `data[i] == i + 1` ([vktMemoryMapPlacedTests.cpp:435-724](../../../modules/vulkan/memory/vktMemoryMapPlacedTests.cpp#L435))
 
-### unmap_reserve
+### unmap_reserve — UNMAP_RESERVE after placed mapping
 
 Tests `vkUnmapMemory2` with `VK_MEMORY_UNMAP_RESERVE_BIT_EXT` after a placed mapping. After unmap:
 1. Guard pages before and after the Vulkan mapping are verified to still be accessible and contain the fill pattern
 2. `/proc/self/maps` is checked to confirm the reserved range is still covered ([vktMemoryMapPlacedTests.cpp:86-128](../../../modules/vulkan/memory/vktMemoryMapPlacedTests.cpp#L86))
 
-### normal_unmap_reserve
+### normal_unmap_reserve — UNMAP_RESERVE after normal vkMapMemory
 
 Tests `vkUnmapMemory2` with `VK_MEMORY_UNMAP_RESERVE_BIT_EXT` after a **normal** `vkMapMemory` (not placed mapping). Verifies:
 1. The address range remains reserved after unmap

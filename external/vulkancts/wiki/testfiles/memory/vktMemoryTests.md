@@ -10,37 +10,31 @@ The `vktMemoryTests.cpp` file is the **registration dispatcher** for the entire 
 
 Central registration point. The [`createTests()`](../../../modules/vulkan/memory/vktMemoryTests.cpp#L82) factory function is called by the test package to create the top-level `memory` group. The [`createChildren()`](../../../modules/vulkan/memory/vktMemoryTests.cpp#L52) function inside the anonymous namespace adds all child subgroups.
 
-## Registration Path
+## Registration Hierarchy
 
-```
-vk-test-package → memory (createTests) → <children>
-```
-
-## Test Hierarchy
-
-The memory category contains **16 child groups**. Groups are split between Vulkan (non-SC) and Vulkan SC due to the removal of `vkFreeMemory` in Vulkan SC, which makes random allocation/free tests unreliable.
-
-```
+```text
 memory
-├── allocation                        (VK only)
-├── device_group_allocation           (VK only)
-├── external_memory_acquire_unmodified(VK only)
-├── pageable_allocation               (VK only)
-├── mapping                           (VK only)
-├── pipeline_barrier                  (VK only)
-├── concurrent_access                 (VK + VKSC)
-├── requirements                      (VK + VKSC)
-├── binding                           (VK + VKSC)
-├── external_memory_host              (VK + VKSC)
-├── device_memory_report              (VK only)
-├── address_binding_report            (VK only)
-├── decompression                     (VK only)
-├── zero_initialize_device_memory     (VK only)
-├── dma_heap_memory                   (VK only)
-└── map_placed                        (VK only)
+├── allocation (VK only)
+├── device_group_allocation (VK only)
+├── external_memory_acquire_unmodified (VK only)
+├── pageable_allocation (VK only)
+├── mapping (VK only)
+├── pipeline_barrier (VK only)
+├── concurrent_access (VK + VKSC)
+├── requirements (VK + VKSC)
+├── binding (VK + VKSC)
+├── external_memory_host (VK + VKSC)
+├── device_memory_report (VK only)
+├── address_binding_report (VK only)
+├── decompression (VK only)
+├── zero_initialize_device_memory (VK only)
+├── dma_heap_memory (VK only)
+└── map_placed (VK only)
 ```
 
 ### VK / VKSC Split
+
+The memory category contains **16 child groups**. Groups are split between Vulkan (non-SC) and Vulkan SC due to the removal of `vkFreeMemory` in Vulkan SC, which makes random allocation/free tests unreliable.
 
 | Group | VK | VKSC | Reason |
 |-------|:--:|:----:|--------|
@@ -61,26 +55,71 @@ memory
 | `dma_heap_memory` | ✓ | — | Same as above |
 | `map_placed` | ✓ | — | Same as above |
 
-## Child Group Reference
+## Test Families
 
-| Group Name | Source File | Level-3 Doc |
-|------------|------------|-------------|
-| `allocation` | [`vktMemoryAllocationTests.cpp`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp) | [vktMemoryAllocationTests.md](vktMemoryAllocationTests.md) |
-| `device_group_allocation` | [`vktMemoryAllocationTests.cpp`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp) | [vktMemoryAllocationTests.md](vktMemoryAllocationTests.md) |
-| `pageable_allocation` | [`vktMemoryAllocationTests.cpp`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp) | [vktMemoryAllocationTests.md](vktMemoryAllocationTests.md) |
-| `mapping` | [`vktMemoryMappingTests.cpp`](../../../modules/vulkan/memory/vktMemoryMappingTests.cpp) | [vktMemoryMappingTests.md](vktMemoryMappingTests.md) |
-| `pipeline_barrier` | [`vktMemoryPipelineBarrierTests.cpp`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp) | [vktMemoryPipelineBarrierTests.md](vktMemoryPipelineBarrierTests.md) |
-| `concurrent_access` | [`vktMemoryConcurrentAccessTests.cpp`](../../../modules/vulkan/memory/vktMemoryConcurrentAccessTests.cpp) | [vktMemoryConcurrentAccessTests.md](vktMemoryConcurrentAccessTests.md) |
-| `requirements` | [`vktMemoryRequirementsTests.cpp`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp) | [vktMemoryRequirementsTests.md](vktMemoryRequirementsTests.md) |
-| `binding` | [`vktMemoryBindingTests.cpp`](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp) | [vktMemoryBindingTests.md](vktMemoryBindingTests.md) |
-| `external_memory_host` | [`vktMemoryExternalMemoryHostTests.cpp`](../../../modules/vulkan/memory/vktMemoryExternalMemoryHostTests.cpp) | [vktMemoryExternalMemoryHostTests.md](vktMemoryExternalMemoryHostTests.md) |
-| `external_memory_acquire_unmodified` | [`vktMemoryExternalMemoryAcquireUnmodifiedTests.cpp`](../../../modules/vulkan/memory/vktMemoryExternalMemoryAcquireUnmodifiedTests.cpp) | [vktMemoryExternalMemoryAcquireUnmodifiedTests.md](vktMemoryExternalMemoryAcquireUnmodifiedTests.md) |
-| `device_memory_report` | [`vktMemoryDeviceMemoryReportTests.cpp`](../../../modules/vulkan/memory/vktMemoryDeviceMemoryReportTests.cpp) | [vktMemoryDeviceMemoryReportTests.md](vktMemoryDeviceMemoryReportTests.md) |
-| `address_binding_report` | [`vktMemoryAddressBindingTests.cpp`](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp) | [vktMemoryAddressBindingTests.md](vktMemoryAddressBindingTests.md) |
-| `decompression` | [`vktMemoryDecompressionTests.cpp`](../../../modules/vulkan/memory/vktMemoryDecompressionTests.cpp) | [vktMemoryDecompressionTests.md](vktMemoryDecompressionTests.md) |
-| `zero_initialize_device_memory` | [`vktMemoryZeroInitializeDeviceMemoryTests.cpp`](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp) | [vktMemoryZeroInitializeDeviceMemoryTests.md](vktMemoryZeroInitializeDeviceMemoryTests.md) |
-| `dma_heap_memory` | [`vktMemoryExternalDmaHeapTests.cpp`](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp) | [vktMemoryExternalDmaHeapTests.md](vktMemoryExternalDmaHeapTests.md) |
-| `map_placed` | [`vktMemoryMapPlacedTests.cpp`](../../../modules/vulkan/memory/vktMemoryMapPlacedTests.cpp) | [vktMemoryMapPlacedTests.md](vktMemoryMapPlacedTests.md) |
+### allocation — Memory allocation tests
+
+Source: [`vktMemoryAllocationTests.cpp`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp) | Doc: [vktMemoryAllocationTests.md](vktMemoryAllocationTests.md)
+
+### device_group_allocation — Device-group memory allocation tests
+
+Source: [`vktMemoryAllocationTests.cpp`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp) | Doc: [vktMemoryAllocationTests.md](vktMemoryAllocationTests.md)
+
+### external_memory_acquire_unmodified — External memory acquire-unmodified tests
+
+Source: [`vktMemoryExternalMemoryAcquireUnmodifiedTests.cpp`](../../../modules/vulkan/memory/vktMemoryExternalMemoryAcquireUnmodifiedTests.cpp) | Doc: [vktMemoryExternalMemoryAcquireUnmodifiedTests.md](vktMemoryExternalMemoryAcquireUnmodifiedTests.md)
+
+### pageable_allocation — Pageable host allocation tests
+
+Source: [`vktMemoryAllocationTests.cpp`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp) | Doc: [vktMemoryAllocationTests.md](vktMemoryAllocationTests.md)
+
+### mapping — Memory mapping tests
+
+Source: [`vktMemoryMappingTests.cpp`](../../../modules/vulkan/memory/vktMemoryMappingTests.cpp) | Doc: [vktMemoryMappingTests.md](vktMemoryMappingTests.md)
+
+### pipeline_barrier — Memory pipeline barrier tests
+
+Source: [`vktMemoryPipelineBarrierTests.cpp`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp) | Doc: [vktMemoryPipelineBarrierTests.md](vktMemoryPipelineBarrierTests.md)
+
+### concurrent_access — Concurrent memory access tests
+
+Source: [`vktMemoryConcurrentAccessTests.cpp`](../../../modules/vulkan/memory/vktMemoryConcurrentAccessTests.cpp) | Doc: [vktMemoryConcurrentAccessTests.md](vktMemoryConcurrentAccessTests.md)
+
+### requirements — Memory requirements tests
+
+Source: [`vktMemoryRequirementsTests.cpp`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp) | Doc: [vktMemoryRequirementsTests.md](vktMemoryRequirementsTests.md)
+
+### binding — Memory binding tests
+
+Source: [`vktMemoryBindingTests.cpp`](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp) | Doc: [vktMemoryBindingTests.md](vktMemoryBindingTests.md)
+
+### external_memory_host — External memory host tests
+
+Source: [`vktMemoryExternalMemoryHostTests.cpp`](../../../modules/vulkan/memory/vktMemoryExternalMemoryHostTests.cpp) | Doc: [vktMemoryExternalMemoryHostTests.md](vktMemoryExternalMemoryHostTests.md)
+
+### device_memory_report — Device memory report tests
+
+Source: [`vktMemoryDeviceMemoryReportTests.cpp`](../../../modules/vulkan/memory/vktMemoryDeviceMemoryReportTests.cpp) | Doc: [vktMemoryDeviceMemoryReportTests.md](vktMemoryDeviceMemoryReportTests.md)
+
+### address_binding_report — Address binding report tests
+
+Source: [`vktMemoryAddressBindingTests.cpp`](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp) | Doc: [vktMemoryAddressBindingTests.md](vktMemoryAddressBindingTests.md)
+
+### decompression — Memory decompression tests
+
+Source: [`vktMemoryDecompressionTests.cpp`](../../../modules/vulkan/memory/vktMemoryDecompressionTests.cpp) | Doc: [vktMemoryDecompressionTests.md](vktMemoryDecompressionTests.md)
+
+### zero_initialize_device_memory — Zero-initialize device memory tests
+
+Source: [`vktMemoryZeroInitializeDeviceMemoryTests.cpp`](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp) | Doc: [vktMemoryZeroInitializeDeviceMemoryTests.md](vktMemoryZeroInitializeDeviceMemoryTests.md)
+
+### dma_heap_memory — DMA heap memory tests
+
+Source: [`vktMemoryExternalDmaHeapTests.cpp`](../../../modules/vulkan/memory/vktMemoryExternalDmaHeapTests.cpp) | Doc: [vktMemoryExternalDmaHeapTests.md](vktMemoryExternalDmaHeapTests.md)
+
+### map_placed — Map-placed memory tests
+
+Source: [`vktMemoryMapPlacedTests.cpp`](../../../modules/vulkan/memory/vktMemoryMapPlacedTests.cpp) | Doc: [vktMemoryMapPlacedTests.md](vktMemoryMapPlacedTests.md)
 
 ## Notes
 

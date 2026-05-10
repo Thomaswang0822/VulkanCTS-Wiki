@@ -12,26 +12,13 @@ Tests for `VK_EXT_external_memory_host`. Validates importing host-allocated memo
 - **Registration function:** [`createMemoryExternalMemoryHostTests()`](../../../modules/vulkan/memory/vktMemoryExternalMemoryHostTests.cpp#L1113)
 - **Parent group:** `memory`
 
-## Test Hierarchy
+## Registration Hierarchy
 
-```
-external_memory_host
+```text
+memory.external_memory_host
 ├── simple_allocation
-│   ├── minImportedHostPointerAlignment_x1
-│   └── minImportedHostPointerAlignment_x3
 ├── bind_image_memory_and_render
-│   ├── with_zero_offset
-│   │   ├── r8g8b8a8_unorm
-│   │   ├── r16g16b16a16_unorm
-│   │   ├── r16g16b16a16_sfloat
-│   │   └── r32g32b32a32_sfloat
-│   └── with_non_zero_offset
-│       ├── r8g8b8a8_unorm
-│       ├── r16g16b16a16_unorm
-│       ├── r16g16b16a16_sfloat
-│       └── r32g32b32a32_sfloat
 └── synchronization
-    └── synchronization
 ```
 
 ## Test Families
