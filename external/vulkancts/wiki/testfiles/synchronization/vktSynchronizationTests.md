@@ -15,7 +15,7 @@ Registration / dispatcher. This file does not contain test logic itself. It incl
 | [`vktSynchronizationTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L1) | Root registration implementation |
 | [`vktSynchronizationTests.hpp`](../../../modules/vulkan/synchronization/vktSynchronizationTests.hpp#L1) | Public header |
 
-## Registration Path
+## Registration Hierarchy
 
 ### synchronization (LEGACY)
 
@@ -24,19 +24,13 @@ synchronization
 ├── smoke
 ├── timeline_semaphore
 ├── internally_synchronized_objects
-├── win32_keyed_mutex                  [not in Vulkan SC]
-├── global_priority_transition         [not in Vulkan SC]
+├── win32_keyed_mutex (not in Vulkan SC)
+├── global_priority_transition (not in Vulkan SC)
 ├── basic
-│   ├── event
-│   ├── fence
-│   ├── binary_semaphore
-│   └── timeline_semaphore
 ├── op
-│   ├── single_queue
-│   └── multi_queue
-├── cross_instance                     [not in Vulkan SC]
-├── signal_order                       [not in Vulkan SC]
-└── implicit                           [not in Vulkan SC]
+├── cross_instance (not in Vulkan SC)
+├── signal_order (not in Vulkan SC)
+└── implicit (not in Vulkan SC)
 ```
 
 Source: [`createTestsInternal()`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L114) with `SynchronizationType::LEGACY`, verified against mustpass [`synchronization.txt`](../../../mustpass/main/vk-default/synchronization.txt).
@@ -47,56 +41,71 @@ Source: [`createTestsInternal()`](../../../modules/vulkan/synchronization/vktSyn
 synchronization2
 ├── smoke
 ├── timeline_semaphore
-├── none_stage                         [not in Vulkan SC]
-├── internally_synchronized_queues     [not in Vulkan SC]
+├── none_stage (not in Vulkan SC)
+├── internally_synchronized_queues (not in Vulkan SC)
 ├── layout_transition
 ├── basic
-│   ├── event
-│   ├── binary_semaphore
-│   └── timeline_semaphore
 ├── op
-│   ├── single_queue
-│   └── multi_queue
-├── cross_instance                     [not in Vulkan SC]
-├── signal_order                       [not in Vulkan SC]
-└── implicit                           [not in Vulkan SC]
+├── cross_instance (not in Vulkan SC)
+├── signal_order (not in Vulkan SC)
+└── implicit (not in Vulkan SC)
 ```
 
 Source: [`createTestsInternal()`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L114) with `SynchronizationType::SYNCHRONIZATION2`, verified against mustpass [`synchronization2.txt`](../../../mustpass/main/vk-default/synchronization2.txt).
 
-## Registered Subgroups
+## Test Families
 
-### Shared between both categories
+### smoke — Smoke tests
 
-| Group Name | Source |
-|---|---|
-| `smoke` | [`vktSynchronizationSmokeTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1) |
-| `basic` (local helper) | [`vktSynchronizationTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L53) |
-| `op` (OperationTests class) | [`vktSynchronizationTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L74) |
-| `cross_instance` | [`vktSynchronizationCrossInstanceSharingTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationCrossInstanceSharingTests.cpp#L1) |
-| `signal_order` | [`vktSynchronizationSignalOrderTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationSignalOrderTests.cpp#L1) |
-| `implicit` | [`vktSynchronizationImplicitTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationImplicitTests.cpp#L1) |
-| `timeline_semaphore` | [`vktSynchronizationTimelineSemaphoreTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.cpp#L1) |
+Shared between both categories. Registered by [`createSmokeTests()`](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1) (LEGACY) and [`createSynchronization2SmokeTests()`](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1) (SYNCHRONIZATION2).
 
-### LEGACY-only groups
+Source: [`vktSynchronizationSmokeTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1)
 
-| Group Name | Source |
-|---|---|
-| `internally_synchronized_objects` | [`vktSynchronizationInternallySynchronizedObjectsTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedObjectsTests.cpp#L1) |
-| `win32_keyed_mutex` | [`vktSynchronizationWin32KeyedMutexTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationWin32KeyedMutexTests.cpp#L1) |
-| `global_priority_transition` | [`vktGlobalPriorityQueueTests.cpp`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L1) |
+### timeline_semaphore — Timeline semaphore tests
 
-### synchronization2-only groups
+Shared between both categories. Registered by [`createTimelineSemaphoreTests()`](../../../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.cpp#L1) (LEGACY) and [`createSynchronization2TimelineSemaphoreTests()`](../../../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.cpp#L1) (SYNCHRONIZATION2).
 
-| Group Name | Source |
-|---|---|
-| `none_stage` | [`vktSynchronizationNoneStageTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L1) |
-| `internally_synchronized_queues` | [`vktSynchronizationInternallySynchronizedTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedTests.cpp#L1) |
-| `layout_transition` | [`vktSynchronizationImageLayoutTransitionTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationImageLayoutTransitionTests.cpp#L1) |
+Source: [`vktSynchronizationTimelineSemaphoreTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.cpp#L1)
 
-### basic subgroup differences
+### internally_synchronized_objects — Internally synchronized objects (LEGACY only)
 
-The `basic` group is built by [`createBasicTests()`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L53) which adds different children depending on `SynchronizationType`:
+LEGACY-only group.
+
+Source: [`vktSynchronizationInternallySynchronizedObjectsTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedObjectsTests.cpp#L1)
+
+### win32_keyed_mutex — Win32 keyed mutex (LEGACY only, not in Vulkan SC)
+
+LEGACY-only group.
+
+Source: [`vktSynchronizationWin32KeyedMutexTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationWin32KeyedMutexTests.cpp#L1)
+
+### global_priority_transition — Global priority transition (LEGACY only, not in Vulkan SC)
+
+LEGACY-only group. The group name differs from what the source filename (`vktGlobalPriorityQueueTests.cpp`) might suggest.
+
+Source: [`vktGlobalPriorityQueueTests.cpp`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L1)
+
+### none_stage — None stage tests (synchronization2 only, not in Vulkan SC)
+
+synchronization2-only group.
+
+Source: [`vktSynchronizationNoneStageTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L1)
+
+### internally_synchronized_queues — Internally synchronized queues (synchronization2 only, not in Vulkan SC)
+
+synchronization2-only group. The group name differs from the LEGACY counterpart `internally_synchronized_objects` despite testing related concepts.
+
+Source: [`vktSynchronizationInternallySynchronizedTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedTests.cpp#L1)
+
+### layout_transition — Image layout transition (synchronization2 only)
+
+synchronization2-only group. The group name differs from the source filename (`vktSynchronizationImageLayoutTransitionTests.cpp`).
+
+Source: [`vktSynchronizationImageLayoutTransitionTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationImageLayoutTransitionTests.cpp#L1)
+
+### basic — Basic synchronization primitives
+
+Shared between both categories. Built by [`createBasicTests()`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L53) which adds different children depending on `SynchronizationType`:
 
 | Subgroup | LEGACY | sync2 | Source |
 |---|---|---|---|
@@ -104,6 +113,35 @@ The `basic` group is built by [`createBasicTests()`](../../../modules/vulkan/syn
 | `fence` | Yes | No | [`vktSynchronizationBasicFenceTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationBasicFenceTests.cpp#L1) |
 | `binary_semaphore` | Yes | Yes | [`vktSynchronizationBasicSemaphoreTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationBasicSemaphoreTests.cpp#L1) |
 | `timeline_semaphore` | Yes | Yes | [`vktSynchronizationBasicSemaphoreTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationBasicSemaphoreTests.cpp#L1) |
+
+The `basic.fence` subgroup exists only in LEGACY because `vkQueueSubmit` (used by fence tests) has no synchronization2 equivalent that would add distinct test coverage.
+
+### op — Synchronized operation tests
+
+Shared between both categories. Implemented by the [`OperationTests`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L74) class which shares [`PipelineCacheData`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L93) between its subgroups to speed up shader compilation.
+
+| Subgroup | Source |
+|---|---|
+| `single_queue` | [`vktSynchronizationOperationSingleQueueTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationOperationSingleQueueTests.cpp#L1) |
+| `multi_queue` | [`vktSynchronizationOperationMultiQueueTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L1) |
+
+### cross_instance — Cross-instance sharing (not in Vulkan SC)
+
+Shared between both categories.
+
+Source: [`vktSynchronizationCrossInstanceSharingTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationCrossInstanceSharingTests.cpp#L1)
+
+### signal_order — Signal order tests (not in Vulkan SC)
+
+Shared between both categories.
+
+Source: [`vktSynchronizationSignalOrderTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationSignalOrderTests.cpp#L1)
+
+### implicit — Implicit synchronization tests (not in Vulkan SC)
+
+Shared between both categories.
+
+Source: [`vktSynchronizationImplicitTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationImplicitTests.cpp#L1)
 
 ## Test Principles Observed
 

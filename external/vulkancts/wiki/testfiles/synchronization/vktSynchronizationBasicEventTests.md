@@ -18,105 +18,88 @@ The file provides two factory functions: `createBasicEventTests` for LEGACY and 
 - Implementation: [vktSynchronizationBasicEventTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationBasicEventTests.cpp)
 - Header: [vktSynchronizationBasicEventTests.hpp](../../../modules/vulkan/synchronization/vktSynchronizationBasicEventTests.hpp)
 
-## Registration Path
+## Registration Hierarchy
 
-```
-synchronization.basic.event          (LEGACY)
-synchronization2.basic.event         (sync2)
-```
-
-## Test Hierarchy
-
-### LEGACY (`synchronization.basic.event`)
-
-```
-event
-|-- host_set_reset
-|-- host_set_reset_cq
-|-- device_set_reset
-|-- device_set_reset_cq
-|-- single_submit_multi_command_buffer
-|-- single_submit_multi_command_buffer_cq
-|-- multi_submit_multi_command_buffer
-|-- multi_submit_multi_command_buffer_cq
-|-- multi_secondary_command_buffer
-|-- multi_secondary_command_buffer_cq
+```text
+synchronization.basic.event
+├── host_set_reset
+├── host_set_reset_cq
+├── device_set_reset
+├── device_set_reset_cq
+├── single_submit_multi_command_buffer
+├── single_submit_multi_command_buffer_cq
+├── multi_submit_multi_command_buffer
+├── multi_submit_multi_command_buffer_cq
+├── multi_secondary_command_buffer
+└── multi_secondary_command_buffer_cq
 ```
 
-### synchronization2 (`synchronization2.basic.event`)
+The LEGACY registration path is `synchronization.basic.event`, created by [`createBasicEventTests()`](../../../modules/vulkan/synchronization/vktSynchronizationBasicEventTests.cpp) which adds the `event` group under `synchronization.basic`.
 
-```
-event
-|-- device_set_reset
-|-- device_set_reset_cq
-|-- single_submit_multi_command_buffer
-|-- single_submit_multi_command_buffer_cq
-|-- multi_submit_multi_command_buffer
-|-- multi_submit_multi_command_buffer_cq
-|-- multi_secondary_command_buffer
-|-- multi_secondary_command_buffer_cq
-|-- none_set_reset
-|-- none_set_reset_cq
-|-- single_submit_multi_command_buffer_device_only
-|-- single_submit_multi_command_buffer_device_only_cq
-|-- multi_submit_multi_command_buffer_device_only
-|-- multi_submit_multi_command_buffer_device_only_cq
-|-- multi_secondary_command_buffer_device_only
-|-- multi_secondary_command_buffer_device_only_cq
-```
+This file also contributes to the `synchronization2` category via [`createSynchronization2BasicEventTests()`](../../../modules/vulkan/synchronization/vktSynchronizationBasicEventTests.cpp), which registers under `synchronization2.basic.event`. The sync2 path has 16 direct children: the same device-set/reset, single/multi submission, and secondary-command-buffer tests as LEGACY (without host_set_reset), plus sync2-only tests for `none_set_reset`, `none_set_reset_cq`, and six `*_device_only` variants.
 
 ## Test Families
 
-### Host Set/Reset Family (LEGACY only)
+### host_set_reset — Host set/reset (LEGACY only)
 
 | Test Name | Function | Compute Queue | Description |
 |---|---|---|---|
 | `host_set_reset` | `hostResetSetEventCase` | No | Create event on host, verify reset, set, verify set, reset, verify reset |
 | `host_set_reset_cq` | `hostResetSetEventCase` | Yes | Same test on a compute queue |
 
-### Device Set/Reset Family (both categories)
+### device_set_reset — Device set/reset
 
 | Test Name | Function | LEGACY | sync2 | Compute Queue | Description |
 |---|---|---|---|---|---|
 | `device_set_reset` | `deviceResetSetEventCase` | Yes | Yes | No | cmdSetEvent + cmdResetEvent on device; verify status after each |
 | `device_set_reset_cq` | `deviceResetSetEventCase` | Yes | Yes | Yes | Same on a compute queue |
 
-### Single Submission Family (both categories)
+### single_submit_multi_command_buffer — Single submission
 
 | Test Name | Function | LEGACY | sync2 | Compute Queue | Description |
 |---|---|---|---|---|---|
 | `single_submit_multi_command_buffer` | `singleSubmissionCase` | Yes | Yes | No | Set and wait on event in two command buffers within one submit |
 | `single_submit_multi_command_buffer_cq` | `singleSubmissionCase` | Yes | Yes | Yes | Same on a compute queue |
 
-### Multi Submission Family (both categories)
+### multi_submit_multi_command_buffer — Multi submission
 
 | Test Name | Function | LEGACY | sync2 | Compute Queue | Description |
 |---|---|---|---|---|---|
 | `multi_submit_multi_command_buffer` | `multiSubmissionCase` | Yes | Yes | No | Set event in one submit, wait in a separate submit |
 | `multi_submit_multi_command_buffer_cq` | `multiSubmissionCase` | Yes | Yes | Yes | Same on a compute queue |
 
-### Secondary Command Buffer Family (both categories, not for video queues)
+### multi_secondary_command_buffer — Secondary command buffer
 
 | Test Name | Function | LEGACY | sync2 | Compute Queue | Description |
 |---|---|---|---|---|---|
 | `multi_secondary_command_buffer` | `secondaryCommandBufferCase` | Yes | Yes | No | Set and wait on event in secondary command buffers executed via primary |
 | `multi_secondary_command_buffer_cq` | `secondaryCommandBufferCase` | Yes | Yes | Yes | Same on a compute queue |
 
-### None Stage Family (sync2 only)
+### none_set_reset — None pipeline stage (sync2 only)
 
 | Test Name | Function | Compute Queue | Description |
 |---|---|---|---|
 | `none_set_reset` | `eventSetResetNoneStage` | No | cmdSetEvent with VK_PIPELINE_STAGE_NONE_KHR src stage; cmdResetEvent with VK_PIPELINE_STAGE_NONE_KHR |
 | `none_set_reset_cq` | `eventSetResetNoneStage` | Yes | Same on a compute queue |
 
-### Device-Only Event Family (sync2 only)
+### single_submit_multi_command_buffer_device_only — Device-only single submission (sync2 only)
 
 | Test Name | Function | Compute Queue | Event Flags | Description |
 |---|---|---|---|---|
 | `single_submit_multi_command_buffer_device_only` | `singleSubmissionCase` | No | VK_EVENT_CREATE_DEVICE_ONLY_BIT_KHR | Single submit with GPU-only event |
 | `single_submit_multi_command_buffer_device_only_cq` | `singleSubmissionCase` | Yes | VK_EVENT_CREATE_DEVICE_ONLY_BIT_KHR | Same on a compute queue |
+
+### multi_submit_multi_command_buffer_device_only — Device-only multi submission (sync2 only)
+
+| Test Name | Function | Compute Queue | Event Flags | Description |
+|---|---|---|---|---|
 | `multi_submit_multi_command_buffer_device_only` | `multiSubmissionCase` | No | VK_EVENT_CREATE_DEVICE_ONLY_BIT_KHR | Multi submit with GPU-only event |
 | `multi_submit_multi_command_buffer_device_only_cq` | `multiSubmissionCase` | Yes | VK_EVENT_CREATE_DEVICE_ONLY_BIT_KHR | Same on a compute queue |
+
+### multi_secondary_command_buffer_device_only — Device-only secondary command buffer (sync2 only)
+
+| Test Name | Function | Compute Queue | Event Flags | Description |
+|---|---|---|---|---|
 | `multi_secondary_command_buffer_device_only` | `secondaryCommandBufferCase` | No | VK_EVENT_CREATE_DEVICE_ONLY_BIT_KHR | Secondary command buffer with GPU-only event |
 | `multi_secondary_command_buffer_device_only_cq` | `secondaryCommandBufferCase` | Yes | VK_EVENT_CREATE_DEVICE_ONLY_BIT_KHR | Same on a compute queue |
 

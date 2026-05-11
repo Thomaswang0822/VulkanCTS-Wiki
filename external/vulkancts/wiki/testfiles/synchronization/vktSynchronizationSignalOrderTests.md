@@ -15,55 +15,38 @@ This file contributes the `signal_order` group to **both** the `synchronization`
 | [`vktSynchronizationSignalOrderTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationSignalOrderTests.cpp#L1) | Implementation |
 | [`vktSynchronizationSignalOrderTests.hpp`](../../../modules/vulkan/synchronization/vktSynchronizationSignalOrderTests.hpp#L1) | Public header |
 
-## Registration Path
-
-### synchronization (LEGACY)
+## Registration Hierarchy
 
 ```text
 synchronization.signal_order
 ├── binary_semaphore
-│   └── <writeOp>_<readOp>
-│       └── <resource>
 ├── timeline_semaphore
-│   └── <writeOp>_<readOp>
-│       └── <resource>
 ├── shared_binary_semaphore
-│   └── <writeOp>_<readOp>
-│       └── <resource>_<externalSemaphoreType>
 └── shared_timeline_semaphore
-    └── <writeOp>_<readOp>
-        └── <resource>_<externalSemaphoreType>
 ```
 
-Source: [`createSignalOrderTests()`](../../../modules/vulkan/synchronization/vktSynchronizationSignalOrderTests.cpp#L1633) with `SynchronizationType::LEGACY`.
+This file contributes the `signal_order` group to **both** the `synchronization` (LEGACY) and `synchronization2` categories. The factory function [`createSignalOrderTests()`](../../../modules/vulkan/synchronization/vktSynchronizationSignalOrderTests.cpp#L1633) takes a `SynchronizationType` parameter, and the same test logic is reused across both API paths via [`SynchronizationWrapper`](../../../modules/vulkan/synchronization/vktSynchronizationUtil.hpp). The tree structure is identical between both categories; only the `SynchronizationType` parameter differs. In the `synchronization2` category, the root path is `synchronization2.signal_order`.
 
-### synchronization2 (SYNCHRONIZATION2)
-
-```text
-synchronization2.signal_order
-├── binary_semaphore
-│   └── <writeOp>_<readOp>
-│       └── <resource>
-├── timeline_semaphore
-│   └── <writeOp>_<readOp>
-│       └── <resource>
-├── shared_binary_semaphore
-│   └── <writeOp>_<readOp>
-│       └── <resource>_<externalSemaphoreType>
-└── shared_timeline_semaphore
-    └── <writeOp>_<readOp>
-        └── <resource>_<externalSemaphoreType>
-```
-
-Source: [`createSignalOrderTests()`](../../../modules/vulkan/synchronization/vktSynchronizationSignalOrderTests.cpp#L1633) with `SynchronizationType::SYNCHRONIZATION2`.
-
-The tree structure is identical between both categories; only the `SynchronizationType` parameter differs.
+Below each direct child, the hierarchy continues as `<writeOp>_<readOp>` / `<resource>` for non-shared groups, and `<writeOp>_<readOp>` / `<resource>_<externalSemaphoreType>` for shared groups. See Test Families below for details.
 
 ## Test Families
 
-### QueueSubmitSignalOrderTests -- `binary_semaphore` / `timeline_semaphore`
+### binary_semaphore — Single-device binary semaphore signal ordering
 
-Verifies signaling order on a single device with two queues from the same `VkDevice`.
+Verifies signaling order on a single device with two queues from the same `VkDevice`, using binary semaphores (`VK_SEMAPHORE_TYPE_BINARY_KHR`). Each write gets its own binary semaphore, and the read waits on the last one.
+
+Tests are registered under `synchronization.signal_order.binary_semaphore` (LEGACY) and `synchronization2.signal_order.binary_semaphore` (sync2).
+
+**Hierarchy below this group**:
+
+```text
+binary_semaphore
+└── <writeOp>_<readOp>
+    └── <resource>
+```
+
+- `<writeOp>_<readOp>`: Operation pair group (e.g., `copy_buffer_copy_buffer`, `ssbo_vertex_ssbo_fragment`). See Parameter Dimensions for the full operation set.
+- `<resource>`: The compatible resource from [`s_resources`](../../../modules/vulkan/synchronization/vktSynchronizationOperationTestData.hpp) that supports both the write and read operation.
 
 **Algorithm**:
 1. Submit 12 write operations on queueA, each in its own `VkSubmitInfo`, each signaling a semaphore
@@ -71,17 +54,69 @@ Verifies signaling order on a single device with two queues from the same `VkDev
 3. Because signal operations are guaranteed to happen in order, waiting on the last signal implies all prior signals (and their writes) have completed
 4. Verify that all read data matches the corresponding write data
 
-For timeline semaphores, a single timeline semaphore is used with incrementing values. A host signal on the first value kicks off the chain.
+- Test instance: [QueueSubmitSignalOrderTests](../../../modules/vulkan/synchronization/vktSynchronizationSignalOrderTests.cpp#L1638)
 
-For binary semaphores, each write gets its own binary semaphore, and the read waits on the last one.
+### timeline_semaphore — Single-device timeline semaphore signal ordering
 
-### QueueSubmitSignalOrderSharedTests -- `shared_binary_semaphore` / `shared_timeline_semaphore`
+Verifies signaling order on a single device with two queues from the same `VkDevice`, using timeline semaphores (`VK_SEMAPHORE_TYPE_TIMELINE_KHR`). A single timeline semaphore is used with incrementing values. A host signal on the first value kicks off the chain.
 
-Same algorithm as above, but uses two **different** `VkDevice` instances (queueA on deviceA, queueB on deviceB). Resources are exported from deviceA and imported into deviceB via external memory handles. Semaphores are exported/imported via external semaphore handles.
+Tests are registered under `synchronization.signal_order.timeline_semaphore` (LEGACY) and `synchronization2.signal_order.timeline_semaphore` (sync2).
+
+**Hierarchy below this group**:
+
+```text
+timeline_semaphore
+└── <writeOp>_<readOp>
+    └── <resource>
+```
+
+The hierarchy structure and test generation algorithm are identical to `binary_semaphore`. The only difference is the semaphore type: a single timeline semaphore with incrementing values is used instead of separate binary semaphores.
+
+- Test instance: [QueueSubmitSignalOrderTests](../../../modules/vulkan/synchronization/vktSynchronizationSignalOrderTests.cpp#L1640)
+
+### shared_binary_semaphore — Cross-device binary semaphore signal ordering
+
+Same algorithm as the non-shared binary semaphore variant, but uses two **different** `VkDevice` instances (queueA on deviceA, queueB on deviceB). Resources are exported from deviceA and imported into deviceB via external memory handles. Binary semaphores are exported/imported via external semaphore handles.
+
+Tests are registered under `synchronization.signal_order.shared_binary_semaphore` (LEGACY) and `synchronization2.signal_order.shared_binary_semaphore` (sync2).
+
+**Hierarchy below this group**:
+
+```text
+shared_binary_semaphore
+└── <writeOp>_<readOp>
+    └── <resource>_<externalSemaphoreType>
+```
+
+- `<externalSemaphoreType>`: The external semaphore handle type (e.g., `opaque_fd`, `opaque_win32_kmt`, `opaque_win32`). See External Handle Types in Parameter Dimensions.
 
 This variant requires:
 - Exportable and importable external memory
 - Exportable and importable external semaphores with reference semantics (not sync_fd)
+
+- Test instance: [QueueSubmitSignalOrderSharedTests](../../../modules/vulkan/synchronization/vktSynchronizationSignalOrderTests.cpp#L1642)
+
+### shared_timeline_semaphore — Cross-device timeline semaphore signal ordering
+
+Same algorithm as the non-shared timeline semaphore variant, but uses two **different** `VkDevice` instances (queueA on deviceA, queueB on deviceB). Resources are exported from deviceA and imported into deviceB via external memory handles. Timeline semaphores are exported/imported via external semaphore handles.
+
+Tests are registered under `synchronization.signal_order.shared_timeline_semaphore` (LEGACY) and `synchronization2.signal_order.shared_timeline_semaphore` (sync2).
+
+**Hierarchy below this group**:
+
+```text
+shared_timeline_semaphore
+└── <writeOp>_<readOp>
+    └── <resource>_<externalSemaphoreType>
+```
+
+The hierarchy structure and test generation algorithm are identical to `shared_binary_semaphore`. The only difference is the semaphore type: timeline semaphores with incrementing values are used instead of binary semaphores.
+
+This variant requires:
+- Exportable and importable external memory
+- Exportable and importable external semaphores with reference semantics (not sync_fd)
+
+- Test instance: [QueueSubmitSignalOrderSharedTests](../../../modules/vulkan/synchronization/vktSynchronizationSignalOrderTests.cpp#L1643)
 
 ## Parameter Dimensions
 

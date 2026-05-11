@@ -18,48 +18,57 @@ This file contributes **only to the LEGACY** synchronization category. Fence ope
 - Implementation: [vktSynchronizationBasicFenceTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationBasicFenceTests.cpp)
 - Header: [vktSynchronizationBasicFenceTests.hpp](../../../modules/vulkan/synchronization/vktSynchronizationBasicFenceTests.hpp)
 
-## Registration Path
+## Registration Hierarchy
 
-```
-synchronization.basic.fence          (LEGACY only)
+```text
+synchronization.basic.fence
+├── one
+├── multi
+├── empty_submit
+├── multi_waitall_false
+├── one_signaled
+└── multiple_signaled
 ```
 
-## Test Hierarchy
-
-### LEGACY (`synchronization.basic.fence`)
-
-```
-fence
-|-- one
-|-- multi
-|-- empty_submit
-|-- multi_waitall_false
-|-- one_signaled
-|-- multiple_signaled
-```
+The Level-3 root is `synchronization.basic.fence`, registered as the `fence` subgroup under `synchronization.basic` by [createBasicFenceTests()](../../../modules/vulkan/synchronization/vktSynchronizationBasicFenceTests.cpp#L344). This group is LEGACY-only; the synchronization2 path in [vktSynchronizationTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp) does not call `createBasicFenceTests`. All six direct children are leaf test cases added with `addFunctionCase`.
 
 ## Test Families
 
-### Single Fence Family
+### one — Single fence lifecycle
 
 | Test Name | Function | Description |
 |---|---|---|
 | `one` | `basicOneFenceCase` | Creates a single unsignaled fence, submits an empty command buffer, waits for signaling, resets, and verifies all state transitions |
-| `one_signaled` | `basicSignaledCase` | Creates a single pre-signaled fence (VK_FENCE_CREATE_SIGNALED_BIT), verifies status, and waits |
 
-### Multi Fence Family
+### multi — Multi-fence with simultaneous-use command buffer
 
 | Test Name | Function | Description |
 |---|---|---|
 | `multi` | `basicMultiFenceCase` | Two fences with a simultaneous-use command buffer; tests submit-wait-reset-resubmit and waiting for both fences |
-| `multi_waitall_false` | `basicMultiFenceWaitAllFalseCase` | Two fences; exercises vkWaitForFences with waitAll=VK_FALSE and waitAll=VK_TRUE under various signaling states |
-| `multiple_signaled` | `basicSignaledCase` | Creates 10 pre-signaled fences and waits for all of them |
 
-### Empty Submit Family
+### empty_submit — Empty queue submission
 
 | Test Name | Function | Description |
 |---|---|---|
 | `empty_submit` | `emptySubmitCase` | Submits an empty queue submission (commandBufferCount=0) with a fence and verifies the fence is signaled |
+
+### multi_waitall_false — Multi-fence waitAll semantics
+
+| Test Name | Function | Description |
+|---|---|---|
+| `multi_waitall_false` | `basicMultiFenceWaitAllFalseCase` | Two fences; exercises vkWaitForFences with waitAll=VK_FALSE and waitAll=VK_TRUE under various signaling states |
+
+### one_signaled — Single pre-signaled fence
+
+| Test Name | Function | Description |
+|---|---|---|
+| `one_signaled` | `basicSignaledCase` | Creates a single pre-signaled fence (VK_FENCE_CREATE_SIGNALED_BIT), verifies status, and waits |
+
+### multiple_signaled — Multiple pre-signaled fences
+
+| Test Name | Function | Description |
+|---|---|---|
+| `multiple_signaled` | `basicSignaledCase` | Creates 10 pre-signaled fences and waits for all of them |
 
 ## Parameter Dimensions
 

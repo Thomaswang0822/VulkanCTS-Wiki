@@ -21,62 +21,47 @@ The factory function [createSynchronizedOperationMultiQueueTests](../../../modul
 - Shared resource data: [vktSynchronizationOperationResources.hpp](../../../modules/vulkan/synchronization/vktSynchronizationOperationResources.hpp)
 - Operation framework: [vktSynchronizationOperation.hpp](../../../modules/vulkan/synchronization/vktSynchronizationOperation.hpp)
 
-## Registration Path
+## Registration Hierarchy
 
-```
-synchronization.op.multi_queue           (LEGACY)
-synchronization2.op.multi_queue          (SYNCHRONIZATION2)
+```text
+synchronization.op.multi_queue
+├── fence
+├── binary_semaphore
+├── timeline_semaphore
+└── intermediate_barrier_use_all (sync2 only, non-SC)
 ```
 
-Both paths are created by the same factory function invoked with different `SynchronizationType` values.
+The Level-3 root is `synchronization.op.multi_queue`, registered as the `multi_queue` subgroup under `synchronization.op` by [createSynchronizedOperationMultiQueueTests()](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L1658). Both LEGACY and SYNCHRONIZATION2 paths are created by the same factory function invoked with different `SynchronizationType` values. The `intermediate_barrier_use_all` child exists only in the synchronization2 variant and is excluded on Vulkan SC.
 
-## Test Hierarchy
-
-```
-multi_queue
-|-- fence
-|   |-- <writeOp>_<readOp>
-|       |-- <resourceName>_exclusive
-|       |-- <resourceName>_concurrent
-|       |-- <resourceName>_concurrent_maintenance9       (non-SC)
-|-- binary_semaphore
-|   |-- <writeOp>_<readOp>
-|       |-- <resourceName>_exclusive
-|       |-- <resourceName>_exclusive_use_all_stages      (sync2 only, non-SC)
-|       |-- <resourceName>_concurrent
-|       |-- <resourceName>_concurrent_maintenance9       (non-SC)
-|-- timeline_semaphore
-|   |-- <writeOp>_<readOp>
-|       |-- <resourceName>_exclusive
-|       |-- <resourceName>_concurrent
-|       |-- <resourceName>_concurrent_maintenance9       (non-SC)
-|-- intermediate_barrier_use_all                         (sync2 only, non-SC)
-    |-- <writeOp>_<readOp>_<resourceName>
-        |-- <extraReadOp>_<extraWriteOp>
-        |-- <extraReadOp>_<extraWriteOp>_maintenance9
-```
+Each direct child contains a deeper hierarchy of generated test cases. Under `fence`, `binary_semaphore`, and `timeline_semaphore`, the structure is `<writeOp>_<readOp>` groups containing leaf test cases named `<resourceName>_exclusive`, `<resourceName>_concurrent`, and optionally `<resourceName>_concurrent_maintenance9` (non-SC) or `<resourceName>_exclusive_use_all_stages` (sync2 binary_semaphore exclusive only, non-SC). Under `intermediate_barrier_use_all`, the structure is `<writeOp>_<readOp>_<resourceName>` groups containing leaves named `<extraReadOp>_<extraWriteOp>` and `<extraReadOp>_<extraWriteOp>_maintenance9`.
 
 ## Test Families
 
-### Fence Family (`fence`)
+### fence — Fence synchronization across queues
 
 Uses `VkFence` to synchronize across two separate command buffer submissions on different queues. The write command buffer is submitted to the write queue and waited on via fence, then the read command buffer is submitted to the read queue. Queue family ownership transfer barriers are inserted when the resource uses `VK_SHARING_MODE_EXCLUSIVE` and the queues belong to different families.
 
+Generated test cases follow the pattern `<writeOp>_<readOp>/<resourceName>_<sharing>`, where `<sharing>` is `_exclusive` or `_concurrent`. A `_concurrent_maintenance9` variant is also generated for concurrent resources (non-SC).
+
 - Test instance: [FenceTestInstance](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L1124)
 
-### Binary Semaphore Family (`binary_semaphore`)
+### binary_semaphore — Binary semaphore synchronization across queues
 
 Uses a binary `VkSemaphore` signaled by the write queue submission and waited on by the read queue submission. This is the primary family for testing queue family ownership transfer, including the `use_all_stages` variant (sync2 only) that uses `VK_DEPENDENCY_QUEUE_FAMILY_OWNERSHIP_TRANSFER_USE_ALL_STAGES_BIT_KHR`.
 
+Generated test cases follow the pattern `<writeOp>_<readOp>/<resourceName>_<sharing>`, where `<sharing>` is `_exclusive` or `_concurrent`. Additional variants include `<resourceName>_exclusive_use_all_stages` (sync2 only, non-SC) and `<resourceName>_concurrent_maintenance9` (non-SC).
+
 - Test instance: [BinarySemaphoreTestInstance](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L572)
 
-### Timeline Semaphore Family (`timeline_semaphore`)
+### timeline_semaphore — Timeline semaphore synchronization across queues
 
 Uses a `VkSemaphoreType::VK_SEMAPHORE_TYPE_TIMELINE` semaphore with incrementing timeline points. Similar to the single-queue variant, this chains multiple copy operations across different queues in the system, exercising timeline semaphore synchronization across a multi-hop data transfer chain that visits every queue at least once.
 
+Generated test cases follow the pattern `<writeOp>_<readOp>/<resourceName>_<sharing>`, where `<sharing>` is `_exclusive` or `_concurrent`. A `_concurrent_maintenance9` variant is also generated for concurrent resources (non-SC).
+
 - Test instance: [TimelineSemaphoreTestInstance](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L919)
 
-### Intermediate Barrier Use All Family (`intermediate_barrier_use_all`, sync2 only, non-SC)
+### intermediate_barrier_use_all — Intermediate barrier with use-all-stages flag (sync2 only, non-SC)
 
 Tests the interaction of `VK_DEPENDENCY_QUEUE_FAMILY_OWNERSHIP_TRANSFER_USE_ALL_STAGES_BIT_KHR` with intermediate barriers. This family creates a scenario where:
 
@@ -84,6 +69,8 @@ Tests the interaction of `VK_DEPENDENCY_QUEUE_FAMILY_OWNERSHIP_TRANSFER_USE_ALL_
 2. The read queue records: extra write op -> intermediate barrier -> QFOT acquire barrier -> read op -> wait semaphore
 
 The semaphore signals at the extra read stage and waits at the extra write stage, testing that the ownership transfer with `use_all_stages` correctly preserves the synchronization semantics even when additional work is interleaved.
+
+Generated test cases follow the pattern `<writeOp>_<readOp>_<resourceName>/<extraReadOp>_<extraWriteOp>`, with a `<extraReadOp>_<extraWriteOp>_maintenance9` variant for maintenance9 support. This family uses a reduced set of operations (8 extra write stages, 9 extra read stages, 6 resource types) to limit combinatorial explosion.
 
 - Test case: [IntermediateBarrierCase](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L1370)
 - Test instance: [IntermediateBarrierInstance](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L708)

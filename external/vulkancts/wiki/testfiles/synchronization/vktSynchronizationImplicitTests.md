@@ -15,47 +15,38 @@ This file contributes the `implicit` group to **both** the `synchronization` (LE
 | [`vktSynchronizationImplicitTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationImplicitTests.cpp#L1) | Implementation |
 | [`vktSynchronizationImplicitTests.hpp`](../../../modules/vulkan/synchronization/vktSynchronizationImplicitTests.hpp#L1) | Public header |
 
-## Registration Path
-
-### synchronization (LEGACY)
+## Registration Hierarchy
 
 ```text
 synchronization.implicit
 ├── binary_semaphore
-│   └── <writeOp>_<readOp>
-│       └── <resource>
-│           └── <comboIndex>
 └── timeline_semaphore
-    └── <writeOp>_<readOp>
-        └── <resource>
-            └── <comboIndex>
 ```
 
-Source: [`createImplicitSyncTests()`](../../../modules/vulkan/synchronization/vktSynchronizationImplicitTests.cpp#L757) with `SynchronizationType::LEGACY`.
+This file contributes the `implicit` group to **both** the `synchronization` (LEGACY) and `synchronization2` categories. The factory function [`createImplicitSyncTests()`](../../../modules/vulkan/synchronization/vktSynchronizationImplicitTests.cpp#L757) takes a `SynchronizationType` parameter, and the same test logic is reused across both API paths via [`SynchronizationWrapper`](../../../modules/vulkan/synchronization/vktSynchronizationUtil.hpp). The tree structure is identical between both categories; only the `SynchronizationType` parameter differs. In the `synchronization2` category, the root path is `synchronization2.implicit`.
 
-### synchronization2 (SYNCHRONIZATION2)
-
-```text
-synchronization2.implicit
-├── binary_semaphore
-│   └── <writeOp>_<readOp>
-│       └── <resource>
-│           └── <comboIndex>
-└── timeline_semaphore
-    └── <writeOp>_<readOp>
-        └── <resource>
-            └── <comboIndex>
-```
-
-Source: [`createImplicitSyncTests()`](../../../modules/vulkan/synchronization/vktSynchronizationImplicitTests.cpp#L757) with `SynchronizationType::SYNCHRONIZATION2`.
-
-The tree structure is identical between both categories; only the `SynchronizationType` parameter differs.
+Below each direct child, the hierarchy continues as `<writeOp>_<readOp>` / `<resource>` / `<comboIndex>`, where `<comboIndex>` is a 4-digit string encoding the submit-info type permutation (see Test Families below).
 
 ## Test Families
 
-### QueueSubmitImplicitTests -- `binary_semaphore` / `timeline_semaphore`
+### binary_semaphore -- Binary semaphore implicit synchronization
 
-Tests implicit synchronization by constructing permutations of `VkSubmitInfo` structures with varying combinations of wait, command buffer, and signal elements, all submitted to the same queue via a single `vkQueueSubmit` call.
+Tests implicit synchronization using binary semaphores (`VK_SEMAPHORE_TYPE_BINARY_KHR`). Each wait-signal pair uses its own dedicated semaphore.
+
+Tests are registered under `synchronization.implicit.binary_semaphore` (LEGACY) and `synchronization2.implicit.binary_semaphore` (sync2).
+
+**Hierarchy below this group**:
+
+```text
+binary_semaphore
+└── <writeOp>_<readOp>
+    └── <resource>
+        └── <comboIndex>
+```
+
+- `<writeOp>_<readOp>`: Operation pair group (e.g., `copy_buffer_copy_buffer`, `ssbo_vertex_copy_buffer`). See Parameter Dimensions for the reduced operation set.
+- `<resource>`: The first compatible resource from [`s_resources`](../../../modules/vulkan/synchronization/vktSynchronizationOperationTestData.hpp). Only one resource is tested per operation pair.
+- `<comboIndex>`: A 4-digit string (e.g., `0000`, `0123`) encoding the submit-info type permutation. See Submit Info Combinations below.
 
 **Core Algorithm**:
 1. Define 4 base submit info types (represented by [`QueueSubmitInfo`](../../../modules/vulkan/synchronization/vktSynchronizationImplicitTests.cpp#L113)):
@@ -78,8 +69,24 @@ Tests implicit synchronization by constructing permutations of `VkSubmitInfo` st
 - All waits are signaled by counterpart operations
 - All signals are waited upon by counterpart operations
 - All read operations have corresponding write operations and vice versa
-- For timeline semaphores, a single semaphore is shared across all waits/signals with different timeline values
-- For binary semaphores, each wait-signal pair uses its own semaphore
+- Each wait-signal pair uses its own binary semaphore
+
+### timeline_semaphore -- Timeline semaphore implicit synchronization
+
+Tests implicit synchronization using timeline semaphores (`VK_SEMAPHORE_TYPE_TIMELINE_KHR`). A single timeline semaphore is shared across all waits/signals with different timeline values.
+
+Tests are registered under `synchronization.implicit.timeline_semaphore` (LEGACY) and `synchronization2.implicit.timeline_semaphore` (sync2).
+
+**Hierarchy below this group**:
+
+```text
+timeline_semaphore
+└── <writeOp>_<readOp>
+    └── <resource>
+        └── <comboIndex>
+```
+
+The hierarchy structure and test generation algorithm are identical to `binary_semaphore`. The only difference is the semaphore type: a single timeline semaphore is shared across all waits/signals with incrementing timeline values, rather than using separate binary semaphores for each wait-signal pair.
 
 ## Parameter Dimensions
 

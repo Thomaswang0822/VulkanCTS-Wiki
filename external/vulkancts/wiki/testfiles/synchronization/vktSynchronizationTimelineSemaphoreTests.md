@@ -15,76 +15,96 @@ This file contributes the `timeline_semaphore` group to **both** the `synchroniz
 | [`vktSynchronizationTimelineSemaphoreTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.cpp#L1) | Implementation |
 | [`vktSynchronizationTimelineSemaphoreTests.hpp`](../../../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.hpp#L1) | Public header declaring both factory functions |
 
-## Registration Path
-
-### synchronization (LEGACY)
+## Registration Hierarchy
 
 ```text
 synchronization.timeline_semaphore
 ├── device_host
-│   ├── <writeOp>_<readOp>
-│   │   └── <resource>
-│   └── misc
-│       ├── max_difference_value
-│       └── initial_value
 ├── one_to_n
-│   └── <writeOp>_<readOp>
-│       └── <resource>
 ├── wait_before_signal
-│   └── <writeOp>_<readOp>
-│       └── <resource>
 ├── wait
-│   ├── all_signal_from_device
-│   ├── one_signal_from_device
-│   ├── all_signal_from_host
-│   ├── one_signal_from_host
-│   ├── host_wait_before_signal
-│   ├── poll_signal_from_device
-│   └── poll_signal_from_host
-├── sparse_bind                  [not in Vulkan SC]
-│   ├── no_sems
-│   ├── no_wait_sig
-│   ├── wait_no_sig
-│   ├── wait_and_sig
-│   └── wait_and_sig_2
+├── sparse_bind (LEGACY-only, not in Vulkan SC)
 └── misc
-    └── ignore_timeline_semaphore_info
 ```
-
-Source: [`createTimelineSemaphoreTests()`](../../../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.cpp#L2939) with `SynchronizationType::LEGACY`.
-
-### synchronization2 (SYNCHRONIZATION2)
 
 ```text
 synchronization2.timeline_semaphore
 ├── device_host
-│   ├── <writeOp>_<readOp>
-│   │   └── <resource>
-│   └── misc
-│       └── max_difference_value
 ├── one_to_n
-│   └── <writeOp>_<readOp>
-│       └── <resource>
 ├── wait_before_signal
-│   └── <writeOp>_<readOp>
-│       └── <resource>
 └── wait
-    ├── all_signal_from_device
-    ├── one_signal_from_device
-    ├── all_signal_from_host
-    ├── one_signal_from_host
-    ├── host_wait_before_signal
-    ├── poll_signal_from_device
-    └── poll_signal_from_host
 ```
 
-Source: [`createSynchronization2TimelineSemaphoreTests()`](../../../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.cpp#L2961) with `SynchronizationType::SYNCHRONIZATION2`.
+This file contributes the `timeline_semaphore` group to **both** the `synchronization` (LEGACY) and `synchronization2` categories. The two factory functions ([`createTimelineSemaphoreTests()`](../../../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.cpp#L2939) for LEGACY, [`createSynchronization2TimelineSemaphoreTests()`](../../../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.cpp#L2961) for synchronization2) build nearly identical test trees, differing only in the `SynchronizationType` parameter and a few LEGACY-only subgroups.
 
-**Differences from LEGACY**: The synchronization2 tree omits `sparse_bind` (Vulkan SC guard) and the `misc.initial_value` subtest. The `device_host` group uses [`Sytnchronization2DeviceHostTests`](../../../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.cpp#L1245) instead of [`LegacyDeviceHostTests`](../../../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.cpp#L1225).
+**Differences from LEGACY**: The synchronization2 tree omits `sparse_bind` (Vulkan SC guard) and the top-level `misc` group. The `device_host` group uses [`Sytnchronization2DeviceHostTests`](../../../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.cpp#L1245) instead of [`LegacyDeviceHostTests`](../../../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.cpp#L1225), which also omits the `misc.initial_value` subtest.
+
+Below each direct child, the hierarchy continues with generated test cases:
+
+- **device_host**: Contains `<writeOp>_<readOp>/<resource>` groups for each compatible operation pair and resource, plus a `misc` subgroup with `max_difference_value` (both LEGACY and sync2) and `initial_value` (LEGACY-only).
+- **one_to_n**: Contains `<writeOp>_<readOp>/<resource>` groups.
+- **wait_before_signal**: Contains `<writeOp>_<readOp>/<resource>` groups.
+- **wait**: Contains individual test cases (`all_signal_from_device`, `one_signal_from_device`, `all_signal_from_host`, `one_signal_from_host`, `host_wait_before_signal`, `poll_signal_from_device`, `poll_signal_from_host`).
+- **sparse_bind**: Contains individual test cases (`no_sems`, `no_wait_sig`, `wait_no_sig`, `wait_and_sig`, `wait_and_sig_2`).
+- **misc**: Contains `ignore_timeline_semaphore_info`.
 
 ## Test Families
 
-### WaitTests -- `wait`
+### device_host — DeviceHostTests
+
+Creates a chain of serialized GPU-write, GPU-read, host-copy operations using a single timeline semaphore. A host thread waits for the GPU read, copies data, then signals the next GPU write. Verifies data integrity across the entire chain.
+
+Two subclasses:
+- [`LegacyDeviceHostTests`](../../../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.cpp#L1225) -- adds `misc.max_difference_value` and `misc.initial_value`
+- [`Sytnchronization2DeviceHostTests`](../../../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.cpp#L1245) -- adds only `misc.max_difference_value`
+
+**Hierarchy below this group**:
+
+```text
+device_host
+├── <writeOp>_<readOp>
+│   └── <resource>
+└── misc
+    ├── max_difference_value
+    └── initial_value (LEGACY-only)
+```
+
+- `<writeOp>_<readOp>`: Operation pair group (e.g., `copy_buffer_copy_buffer`, `ssbo_vertex_ssbo_fragment`). See Parameter Dimensions for the full operation set.
+- `<resource>`: The first compatible resource from [`s_resources`](../../../modules/vulkan/synchronization/vktSynchronizationOperationTestData.hpp). Only compatible resource types are included.
+- `misc.max_difference_value`: Tests the `maxTimelineSemaphoreValueDifference` property limit.
+- `misc.initial_value`: Tests `vkGetSemaphoreCounterValue` against the expected initial value (0 or `nonZeroMaxValue`). LEGACY-only.
+
+### one_to_n — OneToNTests
+
+Tests one-to-N signaling: a single write operation signals a timeline semaphore, which then fans out to multiple copy and read operations on different queues. Verifies that all readers observe the correct data.
+
+**Hierarchy below this group**:
+
+```text
+one_to_n
+└── <writeOp>_<readOp>
+    └── <resource>
+```
+
+- `<writeOp>_<readOp>`: Operation pair group. See Parameter Dimensions for the full operation set.
+- `<resource>`: The first compatible resource from [`s_resources`](../../../modules/vulkan/synchronization/vktSynchronizationOperationTestData.hpp).
+
+### wait_before_signal — WaitBeforeSignalTests
+
+Submits GPU operations out-of-order to multiple queues, then signals the first timeline value from the host. Verifies that the chain of dependent operations completes correctly despite being submitted before the signal.
+
+**Hierarchy below this group**:
+
+```text
+wait_before_signal
+└── <writeOp>_<readOp>
+    └── <resource>
+```
+
+- `<writeOp>_<readOp>`: Operation pair group. See Parameter Dimensions for the full operation set.
+- `<resource>`: The first compatible resource from [`s_resources`](../../../modules/vulkan/synchronization/vktSynchronizationOperationTestData.hpp).
+
+### wait — WaitTests
 
 Tests basic `vkWaitSemaphores` / `vkWaitSemaphoresKHR` behavior with timeline semaphores.
 
@@ -98,23 +118,7 @@ Tests basic `vkWaitSemaphores` / `vkWaitSemaphoresKHR` behavior with timeline se
 | `poll_signal_from_device` | signalFromDevice=true | Polls `vkGetSemaphoreCounterValue` until signaled from device |
 | `poll_signal_from_host` | signalFromDevice=false | Polls `vkGetSemaphoreCounterValue` until signaled from host |
 
-### DeviceHostTests -- `device_host`
-
-Creates a chain of serialized GPU-write, GPU-read, host-copy operations using a single timeline semaphore. A host thread waits for the GPU read, copies data, then signals the next GPU write. Verifies data integrity across the entire chain.
-
-Two subclasses:
-- [`LegacyDeviceHostTests`](../../../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.cpp#L1225) -- adds `misc.max_difference_value` and `misc.initial_value`
-- [`Sytnchronization2DeviceHostTests`](../../../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.cpp#L1245) -- adds only `misc.max_difference_value`
-
-### WaitBeforeSignalTests -- `wait_before_signal`
-
-Submits GPU operations out-of-order to multiple queues, then signals the first timeline value from the host. Verifies that the chain of dependent operations completes correctly despite being submitted before the signal.
-
-### OneToNTests -- `one_to_n`
-
-Tests one-to-N signaling: a single write operation signals a timeline semaphore, which then fans out to multiple copy and read operations on different queues. Verifies that all readers observe the correct data.
-
-### SparseBindGroup -- `sparse_bind` (LEGACY-only, not in Vulkan SC)
+### sparse_bind — SparseBindGroup (LEGACY-only, not in Vulkan SC)
 
 Tests `vkQueueBindSparse` combined with timeline semaphore wait/signal. Parameterized by the number of wait and signal semaphores.
 
@@ -126,7 +130,7 @@ Tests `vkQueueBindSparse` combined with timeline semaphore wait/signal. Paramete
 | `wait_and_sig` | 1 | 1 |
 | `wait_and_sig_2` | 2 | 2 |
 
-### misc -- `ignore_timeline_semaphore_info`
+### misc — ignore_timeline_semaphore_info
 
 Verifies that `VkTimelineSemaphoreSubmitInfo` is correctly ignored when no timeline semaphores are present in the submit. Uses binary semaphores with a deliberately mismatched `VkTimelineSemaphoreSubmitInfo` pNext to confirm the driver does not read beyond array bounds.
 

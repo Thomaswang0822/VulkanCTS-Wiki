@@ -16,30 +16,30 @@ Provides the `layout_transition` test group, which validates two scenarios:
 
 - [vktSynchronizationImageLayoutTransitionTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationImageLayoutTransitionTests.cpp)
 
-## Registration Path
+## Registration Hierarchy
 
-```
+```text
 synchronization2.layout_transition
+├── no_op
+├── compute_transition
+└── compute_transition_storage
 ```
 
 Registered in the sync2 path via `createImageLayoutTransitionTests()` added to the `synchronization2` group in [vktSynchronizationTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp) (line 132).
 
-## Test Hierarchy
-
-```
-layout_transition
-+-- no_op
-+-- compute_transition
-+-- compute_transition_storage
-```
-
 ## Test Families
 
-| Family | Class | Description |
-|--------|-------|-------------|
-| no_op | SynchronizationImageLayoutTransitionTest | Graphics test: draws a full-screen quad with alpha blending, issues a no-op UNDEFINED-to-UNDEFINED barrier via `cmdPipelineBarrier2`, draws again, and verifies the blended result matches expected color. |
-| compute_transition | ComputeLayoutTransitionCase (storageUsage=false) | Compute test: transitions a multisample image across universal and compute queues, clears the image, reads via compute using `sampler2DMS`, and verifies the clear color. |
-| compute_transition_storage | ComputeLayoutTransitionCase (storageUsage=true) | Same as compute_transition but reads the image via `image2DMS` (storage image) instead of sampler. Requires additional format support check for storage usage with multisample. |
+### no_op — No-op layout transition
+
+Graphics test: draws a full-screen quad with alpha blending, issues a no-op UNDEFINED-to-UNDEFINED barrier via `cmdPipelineBarrier2`, draws again, and verifies the blended result matches expected color.
+
+### compute_transition — Compute queue layout transition
+
+Compute test: transitions a multisample image across universal and compute queues, clears the image, reads via compute using `sampler2DMS`, and verifies the clear color. Uses `ComputeLayoutTransitionCase` with `storageUsage=false`.
+
+### compute_transition_storage — Compute queue layout transition with storage image
+
+Same as compute_transition but reads the image via `image2DMS` (storage image) instead of sampler. Uses `ComputeLayoutTransitionCase` with `storageUsage=true`. Requires additional format support check for storage usage with multisample.
 
 ## Parameter Dimensions
 

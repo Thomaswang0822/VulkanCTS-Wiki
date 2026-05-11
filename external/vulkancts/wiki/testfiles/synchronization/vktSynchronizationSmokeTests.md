@@ -18,75 +18,66 @@ The file contributes two factory functions that each create a `smoke` group, one
 - Implementation: [vktSynchronizationSmokeTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp)
 - Header: [vktSynchronizationSmokeTests.hpp](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.hpp)
 
-## Registration Path
+## Registration Hierarchy
 
-```
-synchronization.smoke          (LEGACY)
-synchronization2.smoke         (sync2)
-```
-
-## Test Hierarchy
-
-### LEGACY (`synchronization.smoke`)
-
-```
-smoke
-|-- fences
-|-- binary_semaphores
-|-- timeline_semaphores
-|-- queue_type_ignore_buffer_ignored
-|-- queue_type_ignore_buffer_external
-|-- queue_type_ignore_buffer_foreign
-|-- queue_type_ignore_buffer_arbitrary
-|-- queue_type_ignore_image_ignored
-|-- queue_type_ignore_image_external
-|-- queue_type_ignore_image_foreign
-|-- queue_type_ignore_image_arbitrary
+```text
+synchronization.smoke
+├── fences (LEGACY only)
+├── binary_semaphores
+├── timeline_semaphores
+├── queue_type_ignore_buffer_ignored
+├── queue_type_ignore_buffer_external
+├── queue_type_ignore_buffer_foreign
+├── queue_type_ignore_buffer_arbitrary
+├── queue_type_ignore_image_ignored
+├── queue_type_ignore_image_external
+├── queue_type_ignore_image_foreign
+└── queue_type_ignore_image_arbitrary
 ```
 
-### synchronization2 (`synchronization2.smoke`)
-
-```
-smoke
-|-- binary_semaphores
-|-- timeline_semaphores
-|-- queue_type_ignore_buffer_ignored
-|-- queue_type_ignore_buffer_external
-|-- queue_type_ignore_buffer_foreign
-|-- queue_type_ignore_buffer_arbitrary
-|-- queue_type_ignore_image_ignored
-|-- queue_type_ignore_image_external
-|-- queue_type_ignore_image_foreign
-|-- queue_type_ignore_image_arbitrary
-```
+This group is also registered under `synchronization2.smoke` via [`createSynchronization2SmokeTests()`](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1756). The `synchronization2.smoke` tree is identical except `fences` is absent — fence signaling is not affected by VK_KHR_synchronization2.
 
 ## Test Families
 
-### Fence Family
+### fences — Fence state transition smoke test
 
 | Test Name | Function | LEGACY | sync2 | Description |
 |---|---|---|---|---|
 | `fences` | `testFences` | Yes | No | Renders a triangle, submits work with a fence, verifies fence state transitions and image output |
 
-### Semaphore Family
+### binary_semaphores — Binary semaphore smoke test
 
 | Test Name | Function | LEGACY | sync2 | Semaphore Type | Description |
 |---|---|---|---|---|---|
 | `binary_semaphores` | `testSemaphores` | Yes | Yes | VK_SEMAPHORE_TYPE_BINARY | Two-queue rendering with binary semaphore synchronization |
+
+### timeline_semaphores — Timeline semaphore smoke test
+
+| Test Name | Function | LEGACY | sync2 | Semaphore Type | Description |
+|---|---|---|---|---|---|
 | `timeline_semaphores` | `testSemaphores` | Yes | Yes | VK_SEMAPHORE_TYPE_TIMELINE | Two-queue rendering with timeline semaphore synchronization |
 
-### Queue Family Index Ignore Family
+### queue_type_ignore_buffer_* — Buffer barrier queue-family index smoke tests
 
-| Test Name | Function | LEGACY | sync2 | Resource | Family Type |
-|---|---|---|---|---|---|
-| `queue_type_ignore_buffer_ignored` | `ignoreQueueFamilyTypeBuffer` | Yes | Yes | Buffer | IGNORED |
-| `queue_type_ignore_buffer_external` | `ignoreQueueFamilyTypeBuffer` | Yes | Yes | Buffer | EXTERNAL |
-| `queue_type_ignore_buffer_foreign` | `ignoreQueueFamilyTypeBuffer` | Yes | Yes | Buffer | FOREIGN |
-| `queue_type_ignore_buffer_arbitrary` | `ignoreQueueFamilyTypeBuffer` | Yes | Yes | Buffer | ARBITRARY |
-| `queue_type_ignore_image_ignored` | `ignoreQueueFamilyTypeImage` | Yes | Yes | Image | IGNORED |
-| `queue_type_ignore_image_external` | `ignoreQueueFamilyTypeImage` | Yes | Yes | Image | EXTERNAL |
-| `queue_type_ignore_image_foreign` | `ignoreQueueFamilyTypeImage` | Yes | Yes | Image | FOREIGN |
-| `queue_type_ignore_image_arbitrary` | `ignoreQueueFamilyTypeImage` | Yes | Yes | Image | ARBITRARY |
+Four leaf test cases using `ignoreQueueFamilyTypeBuffer`, differing only in the `FamilyType` parameter:
+
+| Test Name | LEGACY | sync2 | FamilyType | Extension Required |
+|---|---|---|---|---|
+| `queue_type_ignore_buffer_ignored` | Yes | Yes | IGNORED | None |
+| `queue_type_ignore_buffer_external` | Yes | Yes | EXTERNAL | VK_KHR_external_memory |
+| `queue_type_ignore_buffer_foreign` | Yes | Yes | FOREIGN | VK_EXT_queue_family_foreign |
+| `queue_type_ignore_buffer_arbitrary` | Yes | Yes | ARBITRARY | None |
+
+### queue_type_ignore_image_* — Image barrier queue-family index smoke tests
+
+Four leaf test cases using `ignoreQueueFamilyTypeImage`, differing only in the `FamilyType` parameter:
+
+| Test Name | LEGACY | sync2 | FamilyType | Extension Required |
+|---|---|---|---|---|
+| `queue_type_ignore_image_ignored` | Yes | Yes | IGNORED | None |
+| `queue_type_ignore_image_external` | Yes | Yes | EXTERNAL | VK_KHR_external_memory |
+| `queue_type_ignore_image_foreign` | Yes | Yes | FOREIGN | VK_EXT_queue_family_foreign |
+| `queue_type_ignore_image_arbitrary` | Yes | Yes | ARBITRARY | None |
 
 ## Parameter Dimensions
 
