@@ -6,21 +6,45 @@ Documents the nested acceleration-structure descriptor update group under `descr
 
 - [`vktBindingDescriptorUpdateASTests.cpp`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp)
 
-## Verified Group Name
+## Registration Hierarchy
 
-| Group | Availability | Evidence |
-|-------|--------------|----------|
-| `descriptor_update → acceleration_structure` | VK only nested group | Created in [`vktBindingDescriptorUpdateASTests.cpp:2568`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L2568); factory entry at [`vktBindingDescriptorUpdateASTests.cpp:2566`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L2566) |
-
-## Registration Path
-
-```
-binding_model → descriptor_update → acceleration_structure
+```text
+binding_model.descriptor_update.acceleration_structure
+├── ray_query
+└── ray_tracing
 ```
 
-## Test Hierarchy
+The group is created at [`vktBindingDescriptorUpdateASTests.cpp:2568`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L2568); factory entry at [`vktBindingDescriptorUpdateASTests.cpp:2566`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L2566). This is a VK-only nested group under `descriptor_update`.
 
-The group name is `acceleration_structure`; it expands ray-query and ray-tracing test types, descriptor update methods, and shader stages. Evidence starts at [`vktBindingDescriptorUpdateASTests.cpp:2570`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L2570) and continues through [`vktBindingDescriptorUpdateASTests.cpp:2660`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L2660).
+## Test Families
+
+### ray_query — Ray-query acceleration-structure descriptor updates
+
+Tests descriptor update behavior for acceleration structures accessed via ray queries. Each test type group expands over update methods and pipeline stages.
+
+Update method subgroups (added at [`vktBindingDescriptorUpdateASTests.cpp:2620`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L2620)):
+
+| Subgroup | Update method |
+|----------|---------------|
+| `regular` | `UPDATE_METHOD_NORMAL` |
+| `with_template` | `UPDATE_METHOD_WITH_TEMPLATE` |
+| `with_push` | `UPDATE_METHOD_WITH_PUSH` |
+| `with_push_template` | `UPDATE_METHOD_WITH_PUSH_TEMPLATE` |
+
+Under each update method, pipeline stage test cases are generated (at [`vktBindingDescriptorUpdateASTests.cpp:2626`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L2626)) for all stages: `vert`, `tesc`, `tese`, `geom`, `frag`, `comp`, `rgen`, `ahit`, `chit`, `miss`, `sect`, `call`.
+
+### ray_tracing — Ray-tracing acceleration-structure descriptor updates
+
+Tests descriptor update behavior for acceleration structures accessed via ray tracing pipelines. Only pipeline stages with `rayTracing = true` are included (at [`vktBindingDescriptorUpdateASTests.cpp:2636`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L2636)): `rgen`, `chit`, `miss`.
+
+Update method subgroups are the same as for `ray_query`:
+
+| Subgroup | Update method |
+|----------|---------------|
+| `regular` | `UPDATE_METHOD_NORMAL` |
+| `with_template` | `UPDATE_METHOD_WITH_TEMPLATE` |
+| `with_push` | `UPDATE_METHOD_WITH_PUSH` |
+| `with_push_template` | `UPDATE_METHOD_WITH_PUSH_TEMPLATE` |
 
 ## Parameter Dimensions
 

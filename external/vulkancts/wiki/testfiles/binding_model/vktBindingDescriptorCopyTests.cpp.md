@@ -6,21 +6,35 @@ Verifies descriptor copying for compute, graphics, graphics update-after-bind, a
 
 - [`vktBindingDescriptorCopyTests.cpp`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp)
 
-## Verified Group Name
+## Registration Hierarchy
 
-| Group | Availability | Evidence |
-|-------|--------------|----------|
-| `descriptor_copy` | VK + VKSC, with Vulkan-only inline-uniform variations | Created in [`vktBindingDescriptorCopyTests.cpp:3758`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3758); factory entry at [`vktBindingDescriptorCopyTests.cpp:3754`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3754) |
-
-## Registration Path
-
-```
-binding_model → descriptor_copy
+```text
+binding_model.descriptor_copy
+├── compute
+├── graphics
+├── graphics_uab
+└── misc
 ```
 
-## Test Hierarchy
+Group `descriptor_copy` (VK + VKSC, with Vulkan-only inline-uniform variations) is created in [`vktBindingDescriptorCopyTests.cpp:3758`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3758); factory entry at [`vktBindingDescriptorCopyTests.cpp:3754`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3754).
 
-The `descriptor_copy` group contains `compute`, `graphics`, `graphics_uab`, and `misc`; helper functions add per-descriptor-type copy scenarios. Evidence starts at [`vktBindingDescriptorCopyTests.cpp:3760`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3760) and continues through [`vktBindingDescriptorCopyTests.cpp:3784`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3784).
+## Test Families
+
+### compute — Compute pipeline descriptor copy
+
+Created at [`vktBindingDescriptorCopyTests.cpp:3760`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3760). Populated by [`createTestsForAllDescriptorTypes`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3766) with `PIPELINE_TYPE_COMPUTE`, which iterates over descriptor types and generates per-type copy scenarios.
+
+### graphics — Graphics pipeline descriptor copy
+
+Created at [`vktBindingDescriptorCopyTests.cpp:3761`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3761). Populated by [`createTestsForAllDescriptorTypes`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3767) with `PIPELINE_TYPE_GRAPHICS` (update-after-bind disabled), which iterates over descriptor types and generates per-type copy scenarios.
+
+### graphics_uab — Graphics pipeline descriptor copy with update-after-bind
+
+Created at [`vktBindingDescriptorCopyTests.cpp:3763`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3763). Populated by [`createTestsForAllDescriptorTypes`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3768) with `PIPELINE_TYPE_GRAPHICS` and update-after-bind enabled (`true`), which iterates over descriptor types and generates per-type copy scenarios.
+
+### misc — Miscellaneous immutable-sampler copy tests
+
+Created at [`vktBindingDescriptorCopyTests.cpp:3764`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3764). Contains `CopyImmutableSamplerCase` tests generated from a loop over sampler counts (`1u`, `4u`) and buffer-first ordering (`false`, `true`), producing test names like `copy_immutable_sampler_<count>_images[_buffer_first]`. Evidence at [`vktBindingDescriptorCopyTests.cpp:3770`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3770) through [`vktBindingDescriptorCopyTests.cpp:3778`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3778).
 
 ## Parameter Dimensions
 

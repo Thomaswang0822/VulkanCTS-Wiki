@@ -288,12 +288,19 @@ def extract_default_group_paths_from_wiki(wiki_dir: Path, category: str) -> Dict
 
 def extract_group_paths_from_wiki(wiki_dir: Path, category: str) -> Dict[str, List[Tuple[Path, int]]]:
     """Dispatch to a category-specific extractor when needed."""
+    _scripts_dir = str(Path(__file__).resolve().parent)
+    if _scripts_dir not in sys.path:
+        sys.path.insert(0, _scripts_dir)
+
     if category == 'pipeline':
-        _scripts_dir = str(Path(__file__).resolve().parent)
-        if _scripts_dir not in sys.path:
-            sys.path.insert(0, _scripts_dir)
         from registration_validators import pipeline
         return pipeline.extract_group_paths(wiki_dir, get_wiki_candidate_files)
+
+    if category in ('synchronization', 'synchronization2'):
+        from registration_validators import synchronization
+        return synchronization.extract_group_paths(
+            wiki_dir, category, get_wiki_candidate_files, extract_canonical_hierarchy_paths)
+
     return extract_default_group_paths_from_wiki(wiki_dir, category)
 
 
