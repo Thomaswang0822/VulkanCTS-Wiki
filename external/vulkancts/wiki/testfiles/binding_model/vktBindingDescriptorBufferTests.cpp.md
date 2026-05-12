@@ -6,21 +6,32 @@ Covers `VK_EXT_descriptor_buffer` in traditional, sparse-binding, and sparse-res
 
 - [`vktBindingDescriptorBufferTests.cpp`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp)
 
-## Verified Group Name
+## Registration Hierarchy
 
-| Group | Availability | Evidence |
-|-------|--------------|----------|
-| `descriptor_buffer` | VK only | Created in [`vktBindingDescriptorBufferTests.cpp:7899`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L7899); factory entry at [`vktBindingDescriptorBufferTests.cpp:7897`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L7897) |
-
-## Registration Path
-
-```
-binding_model → descriptor_buffer
+```text
+binding_model.descriptor_buffer
+├── traditional_buffer
+├── sparse_binding_buffer
+└── sparse_residency_buffer
 ```
 
-## Test Hierarchy
+VK only. Group created in [`vktBindingDescriptorBufferTests.cpp:7899`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L7899); factory entry at [`vktBindingDescriptorBufferTests.cpp:7897`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L7897).
 
-The `descriptor_buffer` group contains `traditional_buffer`, `sparse_binding_buffer`, and `sparse_residency_buffer`, each populated with basic, single, multiple, max, push, robustness, capture-replay, mutable, and YCbCr scenarios where applicable. Evidence starts at [`vktBindingDescriptorBufferTests.cpp:7879`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L7879) and continues through [`vktBindingDescriptorBufferTests.cpp:7892`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L7892).
+## Test Families
+
+### traditional_buffer — Traditional descriptor buffer tests
+
+Traditional descriptor-buffer resource residency mode. Populated with basic, single, multiple, max, push, robustness, capture-replay, mutable, and YCbCr scenarios where applicable. Created at [`vktBindingDescriptorBufferTests.cpp:7880`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L7880).
+
+### sparse_binding_buffer — Sparse binding descriptor buffer tests
+
+Sparse-binding descriptor-buffer resource residency mode. Populated with basic, single, multiple, max, push, robustness, capture-replay, mutable, and YCbCr scenarios where applicable. Created at [`vktBindingDescriptorBufferTests.cpp:7885`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L7885).
+
+### sparse_residency_buffer — Sparse residency descriptor buffer tests
+
+Sparse-residency descriptor-buffer resource residency mode. Populated with basic, single, multiple, max, push, robustness, capture-replay, mutable, and YCbCr scenarios where applicable. Created at [`vktBindingDescriptorBufferTests.cpp:7890`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L7890).
+
+Evidence for the three child groups starts at [`vktBindingDescriptorBufferTests.cpp:7879`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L7879) and continues through [`vktBindingDescriptorBufferTests.cpp:7892`](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L7892).
 
 ## Parameter Dimensions
 

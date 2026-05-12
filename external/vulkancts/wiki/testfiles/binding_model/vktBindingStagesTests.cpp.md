@@ -6,21 +6,27 @@ Checks descriptor updates from different pipeline bind points with the same call
 
 - [`vktBindingStagesTests.cpp`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp)
 
-## Verified Group Name
+## Registration Hierarchy
 
-| Group | Availability | Evidence |
-|-------|--------------|----------|
-| `stages` | VK only | Created in [`vktBindingStagesTests.cpp:589`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L589); factory entry at [`vktBindingStagesTests.cpp:586`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L586) |
-
-## Registration Path
-
-```
-binding_model → stages
+```text
+binding_model.stages
 ```
 
-## Test Hierarchy
+## Test Families
+
+### stages — Update stages from different pipeline bind points
 
 The `stages` group is built directly and adds one case per descriptor type. Evidence starts at [`vktBindingStagesTests.cpp:592`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L592) and continues through [`vktBindingStagesTests.cpp:612`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L612).
+
+The group has no child subgroups. It contains three leaf test cases generated from a `DescriptorTypeTest` array ([`vktBindingStagesTests.cpp:592`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L592)):
+
+| Test case name | Descriptor type |
+|----------------|-----------------|
+| `storage_buffer` | `VK_DESCRIPTOR_TYPE_STORAGE_BUFFER` |
+| `uniform_buffer` | `VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER` |
+| `combined_image_sampler` | `VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER` |
+
+VK only. Created in [`vktBindingStagesTests.cpp:589`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L589); factory entry at [`vktBindingStagesTests.cpp:586`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L586).
 
 ## Parameter Dimensions
 

@@ -6,21 +6,27 @@ Checks that unused descriptors can remain unset/invalid where allowed and that c
 
 - [`vktBindingUnusedInvalidDescriptorTests.cpp`](../../../modules/vulkan/binding_model/vktBindingUnusedInvalidDescriptorTests.cpp)
 
-## Verified Group Name
+## Registration Hierarchy
 
-| Group | Availability | Evidence |
-|-------|--------------|----------|
-| `unused_invalid_descriptor` | VK only | Created in [`vktBindingUnusedInvalidDescriptorTests.cpp:1285`](../../../modules/vulkan/binding_model/vktBindingUnusedInvalidDescriptorTests.cpp#L1285); factory entry at [`vktBindingUnusedInvalidDescriptorTests.cpp:1283`](../../../modules/vulkan/binding_model/vktBindingUnusedInvalidDescriptorTests.cpp#L1283) |
-
-## Registration Path
-
-```
-binding_model → unused_invalid_descriptor
+```text
+binding_model.unused_invalid_descriptor
+├── write
+└── copy
 ```
 
-## Test Hierarchy
+## Test Families
 
-The `unused_invalid_descriptor` group contains `write/unused`, `write/invalid`, and `copy` branches over buffer and image resource types. Evidence starts at [`vktBindingUnusedInvalidDescriptorTests.cpp:1287`](../../../modules/vulkan/binding_model/vktBindingUnusedInvalidDescriptorTests.cpp#L1287) and continues through [`vktBindingUnusedInvalidDescriptorTests.cpp:1351`](../../../modules/vulkan/binding_model/vktBindingUnusedInvalidDescriptorTests.cpp#L1351).
+### write — Descriptor writes
+
+Contains the `unused` and `invalid` sub-branches over buffer and image resource types. Evidence starts at [`vktBindingUnusedInvalidDescriptorTests.cpp:1287`](../../../modules/vulkan/binding_model/vktBindingUnusedInvalidDescriptorTests.cpp#L1287).
+
+- **unused** ([`vktBindingUnusedInvalidDescriptorTests.cpp:1293`](../../../modules/vulkan/binding_model/vktBindingUnusedInvalidDescriptorTests.cpp#L1293)): Tests that unused descriptor bindings can remain unset without causing errors. Iterates over resource types `UNIFORM_BUFFER`, `STORAGE_BUFFER`, `SAMPLED_IMAGE`, `COMBINED_IMAGE_SAMPLER`, `STORAGE_IMAGE` with `addInvalidDescriptor = false`.
+
+- **invalid** ([`vktBindingUnusedInvalidDescriptorTests.cpp:1312`](../../../modules/vulkan/binding_model/vktBindingUnusedInvalidDescriptorTests.cpp#L1312)): Tests that invalid descriptor bindings can coexist with valid ones without affecting results. Iterates over resource types `SAMPLED_IMAGE`, `COMBINED_IMAGE_SAMPLER`, `STORAGE_IMAGE` with `addInvalidDescriptor = true`.
+
+### copy — Descriptor copy
+
+Tests that copying from invalid descriptors behaves as expected. Iterates over resource types `UNIFORM_BUFFER`, `STORAGE_BUFFER`, `SAMPLED_IMAGE`, `COMBINED_IMAGE_SAMPLER`, `STORAGE_IMAGE` with `addInvalidDescriptor = false`. Evidence at [`vktBindingUnusedInvalidDescriptorTests.cpp:1336`](../../../modules/vulkan/binding_model/vktBindingUnusedInvalidDescriptorTests.cpp#L1336).
 
 ## Parameter Dimensions
 

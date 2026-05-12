@@ -6,21 +6,23 @@ Tests NV push-constant bank behavior both with ordinary push constants and descr
 
 - [`vktBindingPushConstantBankTests.cpp`](../../../modules/vulkan/binding_model/vktBindingPushConstantBankTests.cpp)
 
-## Verified Group Name
+## Registration Hierarchy
 
-| Group | Availability | Evidence |
-|-------|--------------|----------|
-| `push_constant_bank` | VK only | Created in [`vktBindingPushConstantBankTests.cpp:1388`](../../../modules/vulkan/binding_model/vktBindingPushConstantBankTests.cpp#L1388); factory entry at [`vktBindingPushConstantBankTests.cpp:1386`](../../../modules/vulkan/binding_model/vktBindingPushConstantBankTests.cpp#L1386) |
-
-## Registration Path
-
-```
-binding_model → push_constant_bank
+```text
+binding_model.push_constant_bank
+├── basic
+└── descriptor_heap
 ```
 
-## Test Hierarchy
+## Test Families
 
-The `push_constant_bank` group has `basic` and `descriptor_heap` subgroups; generated cases vary compute/graphics use, bank count, and member offsets. Evidence starts at [`vktBindingPushConstantBankTests.cpp:1391`](../../../modules/vulkan/binding_model/vktBindingPushConstantBankTests.cpp#L1391) and continues through [`vktBindingPushConstantBankTests.cpp:1400`](../../../modules/vulkan/binding_model/vktBindingPushConstantBankTests.cpp#L1400).
+### basic — Basic push-constant bank tests without descriptor heap
+
+Basic tests using `vkCmdPushConstants2` + `VkPushConstantBankInfoNV`. Generated cases vary compute/graphics use, bank count, and member offsets. Created at [`vktBindingPushConstantBankTests.cpp:1391`](../../../modules/vulkan/binding_model/vktBindingPushConstantBankTests.cpp#L1391); populated via [`populateBasicTests`](../../../modules/vulkan/binding_model/vktBindingPushConstantBankTests.cpp#L1392); added to the parent group at [`vktBindingPushConstantBankTests.cpp:1393`](../../../modules/vulkan/binding_model/vktBindingPushConstantBankTests.cpp#L1393).
+
+### descriptor_heap — Push-constant bank tests with descriptor heap integration
+
+Tests using `vkCmdPushDataEXT` + `VkPushConstantBankInfoNV` for descriptor-heap push-data paths. Created at [`vktBindingPushConstantBankTests.cpp:1396`](../../../modules/vulkan/binding_model/vktBindingPushConstantBankTests.cpp#L1396); populated via [`populateDescriptorHeapTests`](../../../modules/vulkan/binding_model/vktBindingPushConstantBankTests.cpp#L1397); added to the parent group at [`vktBindingPushConstantBankTests.cpp:1398`](../../../modules/vulkan/binding_model/vktBindingPushConstantBankTests.cpp#L1398).
 
 ## Parameter Dimensions
 
