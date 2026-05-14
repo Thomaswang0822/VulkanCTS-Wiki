@@ -13,48 +13,33 @@ Implementation file. Nested subgroup under [`vktPipelineInterfaceMatchingTests.c
 - Primary source: [`vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp#L1)
 - Header: [`vktPipelineShaderComponentDecoratedLayoutMatchingTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineShaderComponentDecoratedLayoutMatchingTests.hpp#L1)
 
-## Registration Path
-
-[`createShaderCompDecorLayoutMatchingTests()`](../../../modules/vulkan/pipeline/vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp#L1172) returns the `shader_layout_component_matching` group, added under `interface_matching` by [`createInterfaceMatchingTests()`](../../../modules/vulkan/pipeline/vktPipelineInterfaceMatchingTests.cpp#L1). Full path: `pipeline.<variant>.interface_matching.shader_layout_component_matching`.
-
-**Variant coverage**: All variants (via parent interface_matching group). Non-VulkanSC only.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-shader_layout_component_matching
+pipeline.monolithic.interface_matching.shader_layout_component_matching
 ├── vert_frag
-│   └── loose_var
-│       ├── float16 / float32 / float64
-│       │   ├── single_location
-│       │   │   └── <component_pattern>
-│       │   └── multiple_locations
-│       │       └── <component_pattern>
 ├── vert_geom_frag
-│   └── (same structure)
 ├── vert_tesc_tese_frag
-│   └── (same structure)
 └── vert_tesc_tese_geom_frag
-    └── (same structure)
 ```
 
 ## Test Families
 
-### 1. Flow variants (vert_frag, vert_geom_frag, vert_tesc_tese_frag, vert_tesc_tese_geom_frag)
+### vert_frag — Vertex-to-fragment component matching
 
-Tests component-decorated layout matching across different pipeline stage combinations. Intermediate stages pass values through verbatim.
+Tests component-decorated layout matching across a vertex-to-fragment pipeline. Each flow variant contains mode subgroups (loose_var, in_block), width subgroups (float16, float32, float64), location count subgroups (single_location, multiple_locations), and component pattern leaves.
 
-### 2. Width variants (float16, float32, float64)
+### vert_geom_frag — Vertex-geometry-fragment component matching
 
-Tests 16-bit, 32-bit, and 64-bit floating-point component types. Width 64 is restricted to patterns fitting a single location (max 2 components).
+Tests component-decorated layout matching across a vertex-geometry-fragment pipeline. Geometry stage passes values through verbatim. Same nested structure as vert_frag.
 
-### 3. Location count (single_location, multiple_locations)
+### vert_tesc_tese_frag — Tessellation component matching
 
-Tests both single-location and multi-location (array-of-locations) decoration patterns.
+Tests component-decorated layout matching across a vertex-tessellation control-tessellation evaluation-fragment pipeline. Tessellation stages pass values through verbatim. Same nested structure as vert_frag.
 
-### 4. Component patterns
+### vert_tesc_tese_geom_frag — Full pipeline component matching
 
-9 patterns testing different component slot allocations: scalar_scalar_scalar_scalar, scalar_scalar_vec2, scalar_vec2_scalar, vec2_scalar_scalar, scalar_vec3, vec3_scalar, vec2_vec2 (16/32-bit); scalar_scalar, vec2 (64-bit).
+Tests component-decorated layout matching across a vertex-tessellation control-tessellation evaluation-geometry-fragment pipeline. Both tessellation and geometry stages pass values through verbatim. Same nested structure as vert_frag.
 
 ## Parameter Dimensions
 

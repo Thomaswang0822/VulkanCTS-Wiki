@@ -7,78 +7,55 @@ Tests for fragment-invocation-focused query behavior under `query_pool`. This pa
 - [`vktQueryPoolTests.cpp`](../../../modules/vulkan/query_pool/vktQueryPoolTests.cpp)
 - [`vktQueryPoolFragInvocationTests.cpp`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp)
 
-## Registration
+## Registration Hierarchy
 
-| Item | Value |
-|------|-------|
-| Top-level parent | `query_pool` via [`createTests()`](../../../modules/vulkan/query_pool/vktQueryPoolTests.cpp#L59) |
-| Level-3 group name | `frag_invocations` via [`createFragInvocationTests()`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L449) |
-| Child registration | [`queryPoolTests->addChild(createFragInvocationTests(testCtx))`](../../../modules/vulkan/query_pool/vktQueryPoolTests.cpp#L53) |
-| Group population | [`createFragInvocationTests()`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L449) |
-| Vulkan SC split | No registration-time Vulkan / Vulkan SC split is present in this file or in the parent add-child call |
+```text
+query_pool.frag_invocations
+├── occlusion
+└── frag_invs
+```
+
+The two query-type subgroups are created in the loop over [`QueryType`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L466), and the leaf cases are added in the nested loops over secondary-command-buffer mode and fragment-shader variant in [`createFragInvocationTests()`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L471).
 
 ## Summary
 
 The `frag_invocations` group verifies that full-screen fragment-producing draws generate the expected query visibility and invocation behavior even when the fragment shader is trivially constant, fed by interpolated vertex color, or writing to a storage buffer via atomics. The group is split first by query type and then by primary versus secondary command buffer execution. For occlusion mode it checks exact sample counts. For fragment-invocation mode it checks that the reported count is at least a conservative lower bound, with a stricter bound for shader variants that prevent invocation merging. All cases also verify the rendered color buffer, and atomic-shader variants verify the storage-buffer counter exactly.
 
-## Test Hierarchy
+## Test Families
 
-```text
-query_pool
-└── frag_invocations
-    ├── occlusion
-    │   ├── primary
-    │   ├── primary_with_vertex_color
-    │   ├── primary_with_atomic_counter
-    │   ├── secondary
-    │   ├── secondary_with_vertex_color
-    │   └── secondary_with_atomic_counter
-    └── frag_invs
-        ├── primary
-        ├── primary_with_vertex_color
-        ├── primary_with_atomic_counter
-        ├── secondary
-        ├── secondary_with_vertex_color
-        └── secondary_with_atomic_counter
-```
+### occlusion — Occlusion query fragment invocation tests
 
-The two query-type subgroups are created in the loop over [`QueryType`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L466), and the leaf cases are added in the nested loops over secondary-command-buffer mode and fragment-shader variant in [`createFragInvocationTests()`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L471).
+Uses `VK_QUERY_TYPE_OCCLUSION` with `VK_QUERY_CONTROL_PRECISE_BIT` in [`testInvocations()`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L237). Contains six leaf test cases generated from the Cartesian product of command-buffer mode and fragment-shader variant:
 
-## Registered Families
+- `primary`
+- `primary_with_vertex_color`
+- `primary_with_atomic_counter`
+- `secondary`
+- `secondary_with_vertex_color`
+- `secondary_with_atomic_counter`
 
-### Query-type split
+For the occlusion subgroup, the expected result is exact: `pixelCount = 64 x 64 x 1 = 4096`. [`testInvocations()`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L405) requires the returned occlusion count to equal that exact pixel count.
 
-[`getQueryTypeName()`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L52) maps the two query types to subgroup names:
+### frag_invs — Fragment invocation statistics tests
 
-| Enum | Group name | Vulkan query configuration |
-|------|------------|----------------------------|
-| `QueryType::OCCLUSION` | `occlusion` | `VK_QUERY_TYPE_OCCLUSION` with `VK_QUERY_CONTROL_PRECISE_BIT` in [`testInvocations()`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L237) |
-| `QueryType::INVOCATIONS` | `frag_invs` | `VK_QUERY_TYPE_PIPELINE_STATISTICS` with `VK_QUERY_PIPELINE_STATISTIC_FRAGMENT_SHADER_INVOCATIONS_BIT` in [`testInvocations()`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L237) |
+Uses `VK_QUERY_TYPE_PIPELINE_STATISTICS` with `VK_QUERY_PIPELINE_STATISTIC_FRAGMENT_SHADER_INVOCATIONS_BIT` in [`testInvocations()`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L237). Contains the same six leaf test cases as `occlusion`:
 
-This split is the top-level organizational axis under `frag_invocations`.
+- `primary`
+- `primary_with_vertex_color`
+- `primary_with_atomic_counter`
+- `secondary`
+- `secondary_with_vertex_color`
+- `secondary_with_atomic_counter`
 
-### Command-buffer mode split
+For the `frag_invs` subgroup, [`testInvocations()`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L370) requires the result to be at least a lower bound:
 
-Within each query-type subgroup, the file registers one primary and one secondary recording mode:
+| Shader variant | Minimum accepted result |
+|----------------|-------------------------|
+| `primary` / `secondary` with flat shader | Framebuffer area divided by the implementation's maximum fragment-shading-rate tile size, derived from `maxFragmentSize` when `VK_KHR_fragment_shading_rate` is supported; otherwise the full pixel count |
+| `*_with_vertex_color` | Full pixel count |
+| `*_with_atomic_counter` | Full pixel count |
 
-| Boolean | Name stem | Behavior |
-|---------|-----------|----------|
-| `false` | `primary` | Render-pass commands are recorded directly in the primary command buffer |
-| `true` | `secondary` | Draw commands are recorded in a secondary command buffer and executed from the primary buffer |
-
-The naming is produced by [`(secondaryCase ? "secondary" : "primary")`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L475).
-
-### Fragment-shader variants
-
-Each command-buffer mode is expanded across three shader variants listed in [`fragShaderVariantCases`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L456):
-
-| Variant enum | Name suffix | Shader behavior |
-|--------------|-------------|-----------------|
-| `FragShaderVariant::FLAT` | `""` | Fragment shader writes a constant blue color only |
-| `FragShaderVariant::VERTEX_COLOR` | `_with_vertex_color` | Vertex shader outputs color and fragment shader writes interpolated vertex color |
-| `FragShaderVariant::ATOMIC_COUNTER` | `_with_atomic_counter` | Fragment shader increments a storage-buffer atomic counter before writing color |
-
-The programs are generated by [`initPrograms()`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L106).
+The special handling for the flat-shader case exists because implementations may reuse fragment-shader invocations when the shader computes identical values and does not write storage resources; see the explanatory comment in [`testInvocations()`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L376).
 
 ## Parameter Dimensions
 
@@ -93,6 +70,18 @@ The complete leaf matrix is the Cartesian product of these dimensions:
 | Fragment shader variant | none, `_with_vertex_color`, `_with_atomic_counter` | [`fragShaderVariantCases`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L456) |
 
 This yields `2 x 2 x 3 = 12` leaf cases.
+
+### Fragment-shader variants
+
+Each command-buffer mode is expanded across three shader variants listed in [`fragShaderVariantCases`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L456):
+
+| Variant enum | Name suffix | Shader behavior |
+|--------------|-------------|-----------------|
+| `FragShaderVariant::FLAT` | `""` | Fragment shader writes a constant blue color only |
+| `FragShaderVariant::VERTEX_COLOR` | `_with_vertex_color` | Vertex shader outputs color and fragment shader writes interpolated vertex color |
+| `FragShaderVariant::ATOMIC_COUNTER` | `_with_atomic_counter` | Fragment shader increments a storage-buffer atomic counter before writing color |
+
+The programs are generated by [`initPrograms()`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L106).
 
 ### Rendering dimensions fixed across all cases
 
@@ -136,29 +125,7 @@ Every case submits a render pass, copies the color attachment to a host-visible 
 
 ### Query result verification
 
-After execution, the test reads one 32-bit query result with [`getQueryPoolResults()`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L364). The expected rule depends on query type.
-
-#### Occlusion subgroup
-
-For the `occlusion` subgroup, the expected result is exact:
-
-| Expected quantity | Value |
-|------------------|-------|
-| `pixelCount` | `64 x 64 x 1 = 4096` |
-
-[`testInvocations()`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L405) requires the returned occlusion count to equal that exact pixel count, because the test uses a full-screen triangle and `VK_QUERY_CONTROL_PRECISE_BIT`.
-
-#### Fragment-invocation subgroup
-
-For the `frag_invs` subgroup, [`testInvocations()`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L370) requires the result to be at least a lower bound.
-
-| Shader variant | Minimum accepted result |
-|----------------|-------------------------|
-| `primary` / `secondary` with flat shader | Framebuffer area divided by the implementation's maximum fragment-shading-rate tile size, derived from `maxFragmentSize` when `VK_KHR_fragment_shading_rate` is supported; otherwise the full pixel count |
-| `*_with_vertex_color` | Full pixel count |
-| `*_with_atomic_counter` | Full pixel count |
-
-The special handling for the flat-shader case exists because implementations may reuse fragment-shader invocations when the shader computes identical values and does not write storage resources; see the explanatory comment in [`testInvocations()`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L376).
+After execution, the test reads one 32-bit query result with [`getQueryPoolResults()`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L364). The expected rule depends on query type (see Test Families above for details).
 
 ### Atomic-counter verification
 

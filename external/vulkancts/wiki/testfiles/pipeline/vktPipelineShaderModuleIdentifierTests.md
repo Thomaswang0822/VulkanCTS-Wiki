@@ -13,46 +13,38 @@ Implementation file.
 - Primary source: [`vktPipelineShaderModuleIdentifierTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L1)
 - Header: [`vktPipelineShaderModuleIdentifierTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.hpp#L1)
 
-## Registration Path
-
-[`createShaderModuleIdentifierTests()`](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L3738) returns the `shader_module_identifier` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: Not shader-object, VK only.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-shader_module_identifier
-├── properties
-│   └── {test_case}
+pipeline.monolithic.shader_module_identifier
+├── properties (monolithic only)
 ├── constant_identifiers
-│   └── {pipeline_type}
-│       └── {pipeline_count}
-│           └── {use_sc}
-│               └── {api_call}
-│                   └── {different_device}
 ├── pipeline_from_id
-│   └── {pipeline_type}
-│       └── {pipeline_count}
-│           └── {use_sc}
-│               └── {pipeline_cache}
-│                   └── {module_usage}
-│                       └── {capturing}
 ├── hlsl_tessellation
-│   └── {test_case}
-└── misc
-    └── {test_case}
+└── misc (monolithic only)
 ```
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| Properties test | Verifies shader module identifier property queries |
-| Constant identifiers test | Verifies pipeline creation with constant shader module identifiers |
-| Pipeline from ID test | Verifies pipeline creation from shader module identifiers |
-| HLSL tessellation test | Verifies shader module identifiers with HLSL tessellation shaders |
-| Misc test | Verifies miscellaneous shader module identifier behaviors |
+### properties — Shader module identifier property queries
+
+Verifies shader module identifier property queries. Contains test cases for constant algorithm UUID validation. Monolithic variant only.
+
+### constant_identifiers — Constant shader module identifiers
+
+Verifies pipeline creation with constant shader module identifiers. Nested hierarchy: pipeline type (compute, graphics, ray_tracing, ray_tracing_libs) containing pipeline count, use specialization constants, API call pattern, and different device variants.
+
+### pipeline_from_id — Pipeline creation from identifiers
+
+Verifies pipeline creation from shader module identifiers. Nested hierarchy: pipeline type containing pipeline count, use specialization constants, pipeline cache, module usage (use_id, zero_len_id, etc.), and capturing mode (no_exec_properties, capture_stats, capture_irs).
+
+### hlsl_tessellation — HLSL tessellation shader identifiers
+
+Verifies shader module identifiers with HLSL tessellation shaders. Contains a single test case.
+
+### misc — Miscellaneous identifier tests
+
+Verifies miscellaneous shader module identifier behaviors, including capture statistics with maintenance5. Monolithic variant only.
 
 ## Parameter Dimensions
 

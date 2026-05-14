@@ -13,77 +13,57 @@ Implementation file.
 - Primary source: [`vktPipelineColorWriteEnableTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineColorWriteEnableTests.cpp#L1)
 - Header: [`vktPipelineColorWriteEnableTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineColorWriteEnableTests.hpp#L1)
 
-## Registration Path
-
-This file contributes two subgroups:
-- [`createColorWriteEnableTests()`](../../../modules/vulkan/pipeline/vktPipelineColorWriteEnableTests.cpp#L1662) returns the `color_write_enable` group
-- [`createColorWriteEnable2Tests()`](../../../modules/vulkan/pipeline/vktPipelineColorWriteEnableTests.cpp#L1832) returns the `color_write_enable_maxa` group
-
-Both are attached under each variant root by [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L1).
-
-**Variant coverage**: All variants.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-color_write_enable
-├── all_channels                          (BVec4(true,true,true,true))
-│   ├── cmd_buffer_start
-│   │   ├── enable_all / enable_first / enable_second / enable_last
-│   │   ├── enable_first_and_second / enable_second_and_last
-│   │   ├── disable_all / disable_first / disable_second / disable_last
-│   │   ├── disable_first_and_second / disable_second_and_last
-│   ├── before_draw / between_pipelines / after_pipelines
-│   │   └── (same 12 tests)
-│   ├── before_good_static / two_draws_dynamic / two_draws_static
-│   │   └── (same 12 tests)
-│   └── static
-│       └── (same 12 tests, static-only)
-├── red_channel / green_channel / blue_channel / alpha_channel
-│   └── (same ordering subgroups as above)
+pipeline.monolithic.color_write_enable
+├── all_channels
+├── red_channel
+├── green_channel
+├── blue_channel
+├── alpha_channel
 └── no_channels
-    └── (same ordering subgroups as above)
 
-color_write_enable_maxa
-├── cwe_before_bind                       (setColorWriteEnable before pipeline bind)
-│   ├── attachments3_more0 through attachments3_more3
-│   ├── attachments4_more0 through attachments4_more3
-│   └── attachments5_more0 through attachments5_more3
-└── cwe_after_bind                        (setColorWriteEnable after pipeline bind)
-    └── (same attachment combinations)
+pipeline.monolithic.color_write_enable_maxa
+├── cwe_before_bind
+└── cwe_after_bind
 ```
 
-Source: [`createColorWriteEnableTests()`](../../../modules/vulkan/pipeline/vktPipelineColorWriteEnableTests.cpp#L1662), [`createColorWriteEnable2Tests()`](../../../modules/vulkan/pipeline/vktPipelineColorWriteEnableTests.cpp#L1832).
+Source: [`createColorWriteEnableTests()`](../../../modules/vulkan/pipeline/vktPipelineColorWriteEnableTests.cpp#L1662), [`createColorWriteEnable2Tests()`](../../../modules/vulkan/pipeline/vktPipelineColorWriteEnableTests.cpp#L1832). Both are attached under each variant root by [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L1). Variant coverage: All variants.
 
 ## Test Families
 
-### color_write_enable group
+### all_channels — All RGBA channels enabled in colorWriteMask
 
-#### 1. Channel enable groups
+Tests with `tcu::BVec4(true, true, true, true)` as the channel mask. Contains ordering subgroups (`cmd_buffer_start`, `before_draw`, `between_pipelines`, `after_pipelines`, `before_good_static`, `two_draws_dynamic`, `two_draws_static`, `static`) each with 12 enable/disable test patterns for the 3 color attachments.
 
-Control which RGBA channels are enabled in the `colorWriteMask`. Six channel mask variants: all_channels, red_channel, green_channel, blue_channel, alpha_channel, no_channels. Tests that only enabled channels are written.
+### red_channel — Red channel enabled in colorWriteMask
 
-#### 2. Ordering groups
+Tests with `tcu::BVec4(true, false, false, false)` as the channel mask. Same ordering subgroups and enable/disable patterns as `all_channels`, but only the red channel is enabled in the colorWriteMask.
 
-Control when the dynamic color write enable state is set relative to pipeline binding and draw calls:
-- `cmd_buffer_start`: Set at command buffer start
-- `before_draw`: Set before draw call
-- `between_pipelines`: Set between pipeline binds (skipped for shader object)
-- `after_pipelines`: Set after pipeline binds (skipped for shader object)
-- `before_good_static`: Set before a good static pipeline
-- `two_draws_dynamic`: Two draws with dynamic state
-- `two_draws_static`: Two draws with static state
-- `static`: Statically-set color write enable (no dynamic state)
+### green_channel — Green channel enabled in colorWriteMask
 
-#### 3. Enable/Disable tests
+Tests with `tcu::BVec4(false, true, false, false)` as the channel mask. Same ordering subgroups and enable/disable patterns.
 
-Control which of the 3 color attachments have writes dynamically enabled or disabled. 12 patterns: enable_all, enable_first, enable_second, enable_last, enable_first_and_second, enable_second_and_last, and corresponding disable_* variants.
+### blue_channel — Blue channel enabled in colorWriteMask
 
-### color_write_enable_maxa group
+Tests with `tcu::BVec4(false, false, true, false)` as the channel mask. Same ordering subgroups and enable/disable patterns.
 
-#### 4. cwe_before_bind / cwe_after_bind
+### alpha_channel — Alpha channel enabled in colorWriteMask
 
-When `cmdSetColorWriteEnableEXT()` is called relative to pipeline binding. Tests with varying attachment counts (3, 4, 5) and additional "more" attachments (0-3), exercising `maxColorAttachments` limits.
+Tests with `tcu::BVec4(false, false, false, true)` as the channel mask. Same ordering subgroups and enable/disable patterns.
+
+### no_channels — All channels disabled in colorWriteMask
+
+Tests with `tcu::BVec4(false, false, false, false)` as the channel mask. Same ordering subgroups and enable/disable patterns.
+
+### cwe_before_bind — Set colorWriteEnable before pipeline bind
+
+Tests where `cmdSetColorWriteEnableEXT()` is called before the pipeline is bound. Part of the `color_write_enable_maxa` group. Tests with varying attachment counts (3, 4, 5) and additional "more" attachments (0-3), exercising `maxColorAttachments` limits. Each test case is named `attachments{N}_more{M}`.
+
+### cwe_after_bind — Set colorWriteEnable after pipeline bind
+
+Tests where `cmdSetColorWriteEnableEXT()` is called after the pipeline is bound. Part of the `color_write_enable_maxa` group. Same attachment count combinations as `cwe_before_bind`.
 
 ## Parameter Dimensions
 

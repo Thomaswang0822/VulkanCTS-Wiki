@@ -13,24 +13,23 @@ Implementation file.
 - Primary source: [`vktPipelineCreationCacheControlTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineCreationCacheControlTests.cpp#L1)
 - Header: [`vktPipelineCreationCacheControlTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineCreationCacheControlTests.hpp#L1)
 
-## Registration Path
-
-[`createCreationCacheControlTests()`](../../../modules/vulkan/pipeline/vktPipelineCreationCacheControlTests.cpp#L1350) returns the `creation_cache_control` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: Monolithic only, VK only. Timing-sensitive creation tests not repeated across construction types.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-creation_cache_control
-└── {test_case}
+pipeline.monolithic.creation_cache_control
+├── graphics_pipelines
+└── compute_pipelines
 ```
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| Cache control test | Verifies pipeline creation cache control flags disable caching as expected |
+### graphics_pipelines — Graphics pipeline cache control tests
+
+Verifies VK_EXT_pipeline_creation_cache_control flags with graphics pipelines. Contains individual test cases for different shader stage combinations (vertex+fragment, vertex+geometry+fragment, vertex+tessellation+fragment) testing `DISABLE_OPTIMIZATION` and `DISABLE_CACHING` flags. Some test cases also verify `VK_KHR_maintenance5` early-return behavior.
+
+### compute_pipelines — Compute pipeline cache control tests
+
+Verifies VK_EXT_pipeline_creation_cache_control flags with compute pipelines. Contains individual test cases testing `DISABLE_OPTIMIZATION` and `DISABLE_CACHING` flags for compute shader pipelines.
 
 ## Parameter Dimensions
 

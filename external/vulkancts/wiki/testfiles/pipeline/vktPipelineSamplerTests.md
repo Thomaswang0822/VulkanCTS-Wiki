@@ -15,67 +15,40 @@ Implementation file. Also dispatches to [`vktPipelineSamplerBorderSwizzleTests.c
 - Nested subgroup: [`vktPipelineSamplerBorderSwizzleTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineSamplerBorderSwizzleTests.cpp#L1)
 - Shared instance: [`vktPipelineImageSamplingInstance.cpp`](../../../modules/vulkan/pipeline/vktPipelineImageSamplingInstance.cpp#L1)
 
-## Registration Path
-
-[`createSamplerTests()`](../../../modules/vulkan/pipeline/vktPipelineSamplerTests.cpp#L3174) returns the `sampler` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: All variants. Full `view_type` subtree and `border_swizzle` only for monolithic/shader_object_unlinked_spirv.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-sampler
-├── view_type                            (genAllTests only)
-│   └── {1d,1d_unnormalized,1d_array,2d,2d_unnormalized,2d_array,3d,cube,cube_array}
-│       └── format/<format>
-│           ├── mag_filter/{nearest,linear}
-│           ├── min_filter/{nearest,linear}
-│           ├── mag_reduce/<component_mapping>/{average,min,max}
-│           ├── min_reduce/<component_mapping>/{average,min,max}
-│           ├── mipmap/{nearest,linear}/lod/<lod_cases>
-│           └── address_modes/<address_mode_cases>
+pipeline.monolithic.sampler
+├── view_type (monolithic, shader_object_unlinked_spirv only)
 ├── exact_sampling
-│   └── <format>/{gradient,solid_color}/{normalized,unnormalized}/{centered,edge_left,edge_right}
 ├── separate_stencil_usage
-│   └── (same as view_type with separateStencilUsage=true)
-├── border_swizzle                       (non-VulkanSC, genAllTests only)
+├── border_swizzle (non-VulkanSC, monolithic, shader_object_unlinked_spirv only)
 └── max_sampler_lod_bias
-    ├── sampler_bias / sampler_minlod / shader_lod / shader_bias / view_minlod
 ```
+
+Source: [`createSamplerTests()`](../../../modules/vulkan/pipeline/vktPipelineSamplerTests.cpp#L3174).
 
 ## Test Families
 
-### 1. mag_filter / min_filter
+### view_type — Sampler filter/reduce/mipmap/address mode tests (monolithic, shader_object_unlinked_spirv only)
 
-Tests VK_FILTER_NEAREST and VK_FILTER_LINEAR for magnification and minification.
+Tests sampler state across all view types (1d, 1d_array, 2d, 2d_array, 3d, cube, cube_array, plus 1d/2d unnormalized). Each view type contains format subgroups, which in turn contain subgroups for mag_filter (NEAREST, LINEAR), min_filter (NEAREST, LINEAR), mag_reduce and min_reduce (WEIGHTED_AVERAGE, MIN, MAX with component mappings), mipmap (NEAREST, LINEAR with LOD configurations), and address_modes (all VkSamplerAddressMode combinations with border colors including custom).
 
-### 2. mag_reduce / min_reduce
+### exact_sampling — Pixel-exact sampling verification
 
-Tests VK_SAMPLER_REDUCTION_MODE (WEIGHTED_AVERAGE, MIN, MAX) with component mappings.
+Verifies pixel-exact sampling with NEAREST filter at edge positions. Tests across formats with gradient/solid_color, normalized/unnormalized coordinates, and centered/edge_left/edge_right positions.
 
-### 3. mipmap / lod
+### separate_stencil_usage — Separate stencil usage sampling
 
-Tests VK_SAMPLER_MIPMAP_MODE_NEAREST/LINEAR with minLod/maxLod/mipLodBias combinations.
+Same test structure as `view_type` but with `VK_EXT_separate_stencil_usage` enabled (`separateStencilUsage=true`).
 
-### 4. address_modes
+### border_swizzle — Border color swizzle (non-VulkanSC, monolithic, shader_object_unlinked_spirv only)
 
-Tests all VkSamplerAddressMode combinations with border colors including custom.
+Tests `VK_EXT_border_color_swizzle` behavior. Delegated to [`vktPipelineSamplerBorderSwizzleTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineSamplerBorderSwizzleTests.cpp#L1).
 
-### 5. exact_sampling
+### max_sampler_lod_bias — Max sampler LOD bias limit
 
-Verifies pixel-exact sampling with NEAREST filter at edge positions.
-
-### 6. separate_stencil_usage
-
-Same as view_type but with VK_EXT_separate_stencil_usage.
-
-### 7. border_swizzle
-
-VK_EXT_border_color_swizzle tests (non-VulkanSC).
-
-### 8. max_sampler_lod_bias
-
-Tests maxSamplerLodBias limit via sampler bias, minLod, shader LOD, shader bias, and VK_EXT_image_view_min_lod.
+Tests `maxSamplerLodBias` limit via sampler bias, minLod, shader LOD, shader bias, and `VK_EXT_image_view_min_lod`. Subgroups include `sampler_bias`, `sampler_minlod`, `shader_lod`, `shader_bias`, and `view_minlod`.
 
 ## Parameter Dimensions
 

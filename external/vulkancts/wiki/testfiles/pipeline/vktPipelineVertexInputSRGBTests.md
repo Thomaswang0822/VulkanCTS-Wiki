@@ -13,47 +13,43 @@ Implementation file. Nested subgroup under [`vktPipelineVertexInputTests.cpp`](.
 - Primary source: [`vktPipelineVertexInputSRGBTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineVertexInputSRGBTests.cpp#L1)
 - Header: [`vktPipelineVertexInputSRGBTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineVertexInputSRGBTests.hpp#L1)
 
-## Registration Path
-
-This file contributes the subgroup returned by [`createVertexInputSRGBTests()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputSRGBTests.cpp#L455), which is added under `vertex_input` by [`createVertexInputTests()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3122). The full registration path is `pipeline.<variant>.vertex_input.srgb_vertex_formats`.
-
-**Variant coverage**: All variants (via parent vertex_input group).
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-srgb_vertex_formats
+pipeline.monolithic.vertex_input.srgb_vertex_formats
 ├── r8_srgb
-│   ├── r
-│   └── r_strict
 ├── r8g8_srgb
-│   ├── r / r_strict
-│   └── g / g_strict
 ├── r8g8b8_srgb
-│   ├── r / r_strict
-│   ├── g / g_strict
-│   └── b / b_strict
 ├── b8g8r8_srgb
-│   ├── r / r_strict / g / g_strict / b / b_strict
 ├── r8g8b8a8_srgb
-│   ├── r / r_strict / g / g_strict / b / b_strict / a / a_strict
 └── b8g8r8a8_srgb
-    ├── r / r_strict / g / g_strict / b / b_strict / a / a_strict
 ```
-
-Source: [`createVertexInputSRGBTests()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputSRGBTests.cpp#L455).
 
 ## Test Families
 
-### 1. srgb_vertex_formats (per-format, per-component)
+### r8_srgb — R8_SRGB format linearization
 
-Verifies that sRGB vertex attribute data is properly linearized when consumed by the vertex shader. Each sub-case tests a single component (R/G/B/A) of an sRGB format, checking whether the GPU applies the sRGB-to-linear conversion on vertex buffer reads. Components beyond the format's channel count are skipped.
+Tests sRGB-to-linear conversion for the R channel of VK_FORMAT_R8_SRGB. Contains `r` (non-strict, tolerates missing linearization with QUALITY_WARNING) and `r_strict` (fails if linearization does not occur, requires VK_KHR_maintenance10).
 
-### 2. strict vs non-strict
+### r8g8_srgb — R8G8_SRGB format linearization
 
-Each component has two variants:
-- **Non-strict** (`r`, `g`, `b`, `a`): Tolerates missing linearization with a `QUALITY_WARNING`
-- **Strict** (`r_strict`, `g_strict`, `b_strict`, `a_strict`): Fails if linearization does not occur; requires `VK_KHR_maintenance10`
+Tests sRGB-to-linear conversion for the R and G channels of VK_FORMAT_R8G8_SRGB. Each channel has non-strict and strict variants.
+
+### r8g8b8_srgb — R8G8B8_SRGB format linearization
+
+Tests sRGB-to-linear conversion for the R, G, and B channels of VK_FORMAT_R8G8B8_SRGB. Each channel has non-strict and strict variants.
+
+### b8g8r8_srgb — B8G8R8_SRGB format linearization
+
+Tests sRGB-to-linear conversion for the R, G, and B channels of VK_FORMAT_B8G8R8_SRGB. Each channel has non-strict and strict variants.
+
+### r8g8b8a8_srgb — R8G8B8A8_SRGB format linearization
+
+Tests sRGB-to-linear conversion for the R, G, B, and A channels of VK_FORMAT_R8G8B8A8_SRGB. Each channel has non-strict and strict variants.
+
+### b8g8r8a8_srgb — B8G8R8A8_SRGB format linearization
+
+Tests sRGB-to-linear conversion for the R, G, B, and A channels of VK_FORMAT_B8G8R8A8_SRGB. Each channel has non-strict and strict variants.
 
 ## Parameter Dimensions
 

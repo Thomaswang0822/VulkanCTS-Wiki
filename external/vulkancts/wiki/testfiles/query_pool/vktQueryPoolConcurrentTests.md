@@ -7,35 +7,25 @@ Tests for concurrent use of different Vulkan query types under `query_pool`. Thi
 - [`vktQueryPoolTests.cpp`](../../../modules/vulkan/query_pool/vktQueryPoolTests.cpp)
 - [`vktQueryPoolConcurrentTests.cpp`](../../../modules/vulkan/query_pool/vktQueryPoolConcurrentTests.cpp)
 
-## Registration
+## Registration Hierarchy
 
-| Item | Value |
-|------|-------|
-| Top-level parent | `query_pool` via [`createTests()`](../../../modules/vulkan/query_pool/vktQueryPoolTests.cpp#L59) |
-| Level-3 group name | `concurrent_queries` via [`QueryPoolConcurrentTests::QueryPoolConcurrentTests()`](../../../modules/vulkan/query_pool/vktQueryPoolConcurrentTests.cpp#L906) |
-| Child registration | [`queryPoolTests->addChild(new QueryPoolConcurrentTests(testCtx))`](../../../modules/vulkan/query_pool/vktQueryPoolTests.cpp#L52) |
-| Group population | [`QueryPoolConcurrentTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolConcurrentTests.cpp#L912) |
+```text
+query_pool.concurrent_queries
+├── primary_command_buffer
+└── secondary_command_buffer
+```
+
+The two leaf registrations are performed in [`QueryPoolConcurrentTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolConcurrentTests.cpp#L912).
 
 ## Summary
 
 The `concurrent_queries` group validates that a device can use more than one query type in the same workload without cross-interference. It combines occlusion, pipeline statistics, and timestamp queries around the same draw sequence and checks that each query pool reports results consistent with its own capture window. The group contains exactly two test cases: one centered on a primary command buffer and one centered on a secondary command buffer.
 
-## Test Hierarchy
+## Test Families
 
-```text
-query_pool
-└── concurrent_queries
-    ├── primary_command_buffer
-    └── secondary_command_buffer
-```
+### primary_command_buffer — Primary command buffer concurrent queries
 
-The two leaf registrations are performed in [`QueryPoolConcurrentTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolConcurrentTests.cpp#L912).
-
-## Registered Cases
-
-### `primary_command_buffer`
-
-This case is implemented by [`PrimaryCommandBufferConcurrentTestInstance`](../../../modules/vulkan/query_pool/vktQueryPoolConcurrentTests.cpp#L261). It records all query activity in a primary command buffer and validates concurrent operation of:
+Implemented by [`PrimaryCommandBufferConcurrentTestInstance`](../../../modules/vulkan/query_pool/vktQueryPoolConcurrentTests.cpp#L261). It records all query activity in a primary command buffer and validates concurrent operation of:
 
 - occlusion queries;
 - pipeline statistics queries using `VK_QUERY_PIPELINE_STATISTIC_FRAGMENT_SHADER_INVOCATIONS_BIT`;
@@ -50,9 +40,9 @@ The constructor creates one query pool per supported query type in [`PrimaryComm
 
 The enumeration and slot constants are defined in [`PrimaryCommandBufferConcurrentTestInstance`](../../../modules/vulkan/query_pool/vktQueryPoolConcurrentTests.cpp#L270).
 
-### `secondary_command_buffer`
+### secondary_command_buffer — Secondary command buffer concurrent queries
 
-This case is implemented by [`SecondaryCommandBufferConcurrentTestInstance`](../../../modules/vulkan/query_pool/vktQueryPoolConcurrentTests.cpp#L527). It distributes the workload across a primary and a secondary command buffer, then verifies that concurrent query execution still behaves correctly.
+Implemented by [`SecondaryCommandBufferConcurrentTestInstance`](../../../modules/vulkan/query_pool/vktQueryPoolConcurrentTests.cpp#L527). It distributes the workload across a primary and a secondary command buffer, then verifies that concurrent query execution still behaves correctly.
 
 It also adapts its occlusion-query behavior depending on whether inherited queries are supported. That support check is read from [`m_context.getDeviceFeatures().inheritedQueries`](../../../modules/vulkan/query_pool/vktQueryPoolConcurrentTests.cpp#L620).
 
@@ -116,7 +106,7 @@ That fragment discard pattern ensures that occlusion and fragment-invocation cou
 1. Allocate a primary command buffer.
 2. Reset all supported query pools.
 3. Begin a render pass.
-4. Begin the “empty” occlusion and pipeline-statistics captures in slot `0`.
+4. Begin the "empty" occlusion and pipeline-statistics captures in slot `0`.
 5. End slot `0` and begin the draw-call captures in slot `1`.
 6. Issue a triangle draw.
 7. Write a timestamp into slot `1` if timestamp queries are supported.

@@ -13,24 +13,28 @@ Implementation file.
 - Primary source: [`vktPipelineStencilExportTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineStencilExportTests.cpp#L1)
 - Header: [`vktPipelineStencilExportTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineStencilExportTests.hpp#L1)
 
-## Registration Path
-
-[`createStencilExportTests()`](../../../modules/vulkan/pipeline/vktPipelineStencilExportTests.cpp#L634) returns the `shader_stencil_export` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: All variants.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-shader_stencil_export
-└── {test_case}
+pipeline.monolithic.shader_stencil_export
+├── s8_uint
+├── d24_unorm_s8_uint
+└── d32_sfloat_s8_uint
 ```
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| StencilExportTest | Verifies that fragment shader stencil export writes correct stencil values |
+### s8_uint — Stencil export with S8_UINT format
+
+Tests shader stencil export with the VK_FORMAT_S8_UINT depth/stencil format. Includes `op_replace` and `op_replace_early_and_late` (non-VulkanSC only) test cases.
+
+### d24_unorm_s8_uint — Stencil export with D24_UNORM_S8_UINT format
+
+Tests shader stencil export with the VK_FORMAT_D24_UNORM_S8_UINT depth/stencil format. Includes `op_replace` and `op_replace_early_and_late` (non-VulkanSC only) test cases.
+
+### d32_sfloat_s8_uint — Stencil export with D32_SFLOAT_S8_UINT format
+
+Tests shader stencil export with the VK_FORMAT_D32_SFLOAT_S8_UINT depth/stencil format. Includes `op_replace` and `op_replace_early_and_late` (non-VulkanSC only) test cases.
 
 ## Parameter Dimensions
 

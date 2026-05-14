@@ -13,33 +13,30 @@ Implementation file.
 - Primary source: [`vktPipelineMultisampleMixedAttachmentSamplesTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineMultisampleMixedAttachmentSamplesTests.cpp#L1)
 - Header: [`vktPipelineMultisampleMixedAttachmentSamplesTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineMultisampleMixedAttachmentSamplesTests.hpp#L1)
 
-## Registration Path
-
-[`createMultisampleMixedAttachmentSamplesTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleMixedAttachmentSamplesTests.cpp#L2162) returns the `mixed_attachment_samples` group, added to the `multisample` group by `createMultisampleTests()`.
-
-**Variant coverage**: All variants.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-mixed_attachment_samples
+pipeline.monolithic.multisample.mixed_attachment_samples
 ├── verify_standard_locations
-│   └── {sample_case}
-│       └── {subpass_case}
 ├── verify_programmable_locations
-│   └── {sample_case}
-│       └── {subpass_case}
 └── shader_builtins
-    └── {sample_count}
 ```
+
+Source: [`createMultisampleMixedAttachmentSamplesTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleMixedAttachmentSamplesTests.cpp#L2162) returns the `mixed_attachment_samples` group, added to the `multisample` group by `createMultisampleTests()`. Variant coverage: all variants. The `shader_builtins` subgroup is only added when `useFragmentShadingRate` is false.
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| Standard locations test | Verifies mixed attachment samples with standard sample locations |
-| Programmable locations test | Verifies mixed attachment samples with programmable sample locations |
-| Shader builtins test | Verifies shader built-in variables work correctly with mixed sample counts |
+### verify_standard_locations — Standard sample locations with mixed attachment samples
+
+Verifies mixed attachment samples with standard sample locations. Contains leaf test cases organized by `{sample_case}` (single-pass and multi-subpass configurations) and `{subpass_case}` (format combinations). Single-pass cases cover 10 color/depth-stencil sample-count combinations. Multi-subpass cases cover increase/decrease color and coverage patterns.
+
+### verify_programmable_locations — Programmable sample locations with mixed attachment samples
+
+Verifies mixed attachment samples with programmable sample locations. Contains the same `{sample_case}` and `{subpass_case}` structure as `verify_standard_locations`, but with programmable sample locations enabled.
+
+### shader_builtins — Shader built-in variables with mixed sample counts
+
+Verifies shader built-in variables (`gl_SampleID`, `gl_SamplePosition`) work correctly with mixed sample counts. Contains leaf test cases parameterized by `{sample_count}`. Only registered when `useFragmentShadingRate` is false.
 
 ## Parameter Dimensions
 

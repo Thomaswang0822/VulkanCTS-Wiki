@@ -13,34 +13,39 @@ Implementation file.
 - Primary source: [`vktPipelineDynamicControlPoints.cpp`](../../../modules/vulkan/pipeline/vktPipelineDynamicControlPoints.cpp#L1)
 - Header: [`vktPipelineDynamicControlPoints.hpp`](../../../modules/vulkan/pipeline/vktPipelineDynamicControlPoints.hpp#L1)
 
-## Registration Path
-
-[`createDynamicControlPointsTests()`](../../../modules/vulkan/pipeline/vktPipelineDynamicControlPoints.cpp#L431) returns the `dynamic_control_points` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: All variants.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-dynamic_control_points
+pipeline.monolithic.dynamic_control_points
 ├── change_output
-├── change_input_output
-└── change_input_output_with_mesh
+├── change_winding
+└── change_output_winding
 ```
+
+Source: [`createDynamicControlPointTests()`](../../../modules/vulkan/pipeline/vktPipelineDynamicControlPoints.cpp#L431).
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| DynamicControlPointsTestCase | Verifies dynamic patch control points with tessellation shaders |
+### change_output — Changing tessellation control point output count
+
+Tests switching pipelines with dynamic control points while changing the number of tessellation control shader invocations. Uses `vkCmdSetPatchControlPointsEXT` to dynamically set different control point counts between draws.
+
+### change_winding — Changing winding with dynamic control points
+
+Tests switching pipelines with dynamic control points while switching the winding order. Verifies that culling behavior is correct when the patch control point count is set dynamically and the winding direction changes between draws.
+
+### change_output_winding — Changing both output count and winding
+
+Tests switching pipelines with dynamic control points while simultaneously changing both the number of tessellation control shader invocations and the winding order. Combines the aspects tested in `change_output` and `change_winding` into a single test case.
 
 ## Parameter Dimensions
 
 | Parameter | Source | Values |
 |---|---|---|
 | PipelineConstructionType | Parameter | All variant types |
-| Control point count | Array | Various tessellation control point counts |
-| Use mesh shader | Bool | With/without mesh shader variant |
+| Control point count | Dynamic state | Set via `vkCmdSetPatchControlPointsEXT` |
+| Winding order | Test config | Normal / reversed |
+| Cull mode | Test config | None / front |
 
 ## Support/Feature Requirements
 

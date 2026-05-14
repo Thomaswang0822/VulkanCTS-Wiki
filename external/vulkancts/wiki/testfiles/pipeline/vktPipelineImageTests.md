@@ -14,37 +14,25 @@ Implementation file.
 - Header: [`vktPipelineImageTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineImageTests.hpp#L1)
 - Shared instance: [`vktPipelineImageSamplingInstance.cpp`](../../../modules/vulkan/pipeline/vktPipelineImageSamplingInstance.cpp#L1)
 
-## Registration Path
-
-[`createImageTests()`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L917) returns the `image` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: Monolithic or base ESO only.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-image
+pipeline.monolithic.image
 ├── suballocation
-│   └── sampling_type
-│       ├── combined
-│       │   └── view_type
-│       │       └── {1d,1d_array,2d,2d_array,3d,cube,cube_array}
-│       │           └── format/<format>/count_{1,4,8}/size/<size_cases>
-│       └── separate
-│           └── (same structure)
 └── dedicated_allocation
-    └── (same structure, limited formats/counts)
 ```
+
+Source: [`createImageTests()`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L917).
 
 ## Test Families
 
-### 1. suballocation
+### suballocation — Image sampling with suballocated memory
 
-Image sampling with suballocated memory. Full format set, counts 1/4/8, all size variants.
+Image sampling with suballocated memory. Each view type (1d, 1d_array, 2d, 2d_array, 3d, cube, cube_array) is tested with combined and separate sampler descriptor types, full format set, counts 1/4/8, and all size variants (POT, NPOT, rectangular).
 
-### 2. dedicated_allocation
+### dedicated_allocation — Image sampling with dedicated allocation memory
 
-Image sampling with dedicated allocation memory. Only R8G8B8A8_UNORM and R16_SFLOAT formats, count=1.
+Image sampling with dedicated allocation memory. Same view type and sampling type structure as `suballocation`, but only R8G8B8A8_UNORM and R16_SFLOAT formats with count=1.
 
 ## Parameter Dimensions
 

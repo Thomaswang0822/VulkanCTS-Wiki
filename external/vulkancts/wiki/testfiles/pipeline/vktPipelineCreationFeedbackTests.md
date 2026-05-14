@@ -13,29 +13,23 @@ Implementation file.
 - Primary source: [`vktPipelineCreationFeedbackTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineCreationFeedbackTests.cpp#L1)
 - Header: [`vktPipelineCreationFeedbackTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineCreationFeedbackTests.hpp#L1)
 
-## Registration Path
-
-[`createCreationFeedbackTests()`](../../../modules/vulkan/pipeline/vktPipelineCreationFeedbackTests.cpp#L1506) returns the `creation_feedback` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: All variants, VK only.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-creation_feedback
-└── creation_feedback
-    ├── graphics
-    │   └── {test_param}
-    └── compute
-        └── {test_param}
+pipeline.monolithic.creation_feedback
+├── graphics_tests
+└── compute_tests (monolithic only)
 ```
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| GraphicsTestCase | Verifies pipeline creation feedback for graphics pipelines |
-| ComputeTestCase | Verifies pipeline creation feedback for compute pipelines |
+### graphics_tests — Graphics pipeline creation feedback tests
+
+Verifies VK_EXT_pipeline_creation_feedback for graphics pipelines. Contains individual test cases for different shader stage combinations (vertex+fragment, vertex+geometry+fragment, vertex+tessellation+fragment) with variations for cache disabled, delayed destroy, and zeroed-out feedback count. Tests verify that pipeline creation feedback flags are correctly set, cache hit feedback is reported when pipelines are created from cache, and timing values are reasonable.
+
+### compute_tests — Compute pipeline creation feedback tests
+
+Verifies VK_EXT_pipeline_creation_feedback for compute pipelines. Contains individual test cases with variations for cache disabled and delayed destroy. Only present for monolithic pipeline construction type.
 
 ## Parameter Dimensions
 

@@ -8,75 +8,35 @@ Tests for Vulkan performance queries under `query_pool`. This page documents the
 - [`vktQueryPoolPerformanceTests.cpp`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp)
 - [`vktQueryPoolPerformanceTests.hpp`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.hpp)
 
-## Registration
+## Registration Hierarchy
 
-| Item | Value |
-|------|-------|
-| Top-level parent | `query_pool` via [`createTests()`](../../../modules/vulkan/query_pool/vktQueryPoolTests.cpp#L59) |
-| Level-3 group name | `performance_query` via [`QueryPoolPerformanceTests::QueryPoolPerformanceTests()`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L1351) |
-| Child registration | [`queryPoolTests->addChild(new QueryPoolPerformanceTests(testCtx))`](../../../modules/vulkan/query_pool/vktQueryPoolTests.cpp#L49) |
-| Group population | [`QueryPoolPerformanceTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L1356) |
-| Vulkan SC split | Registered only when `CTS_USES_VULKANSC` is not defined, because the child registration is inside [`#ifndef CTS_USES_VULKANSC`](../../../modules/vulkan/query_pool/vktQueryPoolTests.cpp#L48) |
+```text
+query_pool.performance_query
+├── enumerate_and_validate_graphic (VK only)
+├── enumerate_and_validate_compute (VK only)
+├── query_graphic (VK only)
+├── query_compute (VK only)
+├── multiple_pools_graphic (VK only)
+├── multiple_pools_compute (VK only)
+├── enumerate_and_validate_graphic_copy (VK only)
+├── enumerate_and_validate_compute_copy (VK only)
+├── query_graphic_copy (VK only)
+├── query_compute_copy (VK only)
+├── multiple_pools_graphic_copy (VK only)
+└── multiple_pools_compute_copy (VK only)
+```
+
+All twelve leaf cases are registered in the loop inside [`QueryPoolPerformanceTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L1369). The entire `performance_query` group is absent from Vulkan SC because the parent registration is inside [`#ifndef CTS_USES_VULKANSC`](../../../modules/vulkan/query_pool/vktQueryPoolTests.cpp#L48).
 
 ## Summary
 
 The `performance_query` group covers three logical behaviors for `VK_KHR_performance_query`: counter enumeration and metadata validation, single-pool query execution, and multi-pool query execution. Each behavior is instantiated for graphics and compute queues, and then duplicated for host-side result retrieval and command-buffer copy retrieval. The tests do not attempt to validate the semantic meaning of individual counter values; instead, they verify that supported counters can be enumerated, that query pools can be created and submitted across all required profiling passes, and that the implementation actually writes result data into the destination memory.
 
-## Test Hierarchy
+## Test Families
 
-```text
-query_pool
-└── performance_query
-    ├── enumerate_and_validate_graphic
-    ├── enumerate_and_validate_compute
-    ├── query_graphic
-    ├── query_compute
-    ├── multiple_pools_graphic
-    ├── multiple_pools_compute
-    ├── enumerate_and_validate_graphic_copy
-    ├── enumerate_and_validate_compute_copy
-    ├── query_graphic_copy
-    ├── query_compute_copy
-    ├── multiple_pools_graphic_copy
-    └── multiple_pools_compute_copy
-```
+### enumerate_and_validate_graphic — Graphics counter enumeration and validation
 
-All twelve leaf cases are registered in the loop inside [`QueryPoolPerformanceTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L1369).
-
-## Registered Families
-
-### Copy-mode axis
-
-The outer registration loop defines two result-transfer modes in [`copyCases`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L1359):
-
-| Mode | `copyResults` | Name suffix | Result path |
-|------|---------------|-------------|-------------|
-| Host-get mode | `false` | none | [`vkGetQueryPoolResults`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L449) |
-| Command-copy mode | `true` | `_copy` | [`vkCmdCopyQueryPoolResults`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L440) |
-
-This suffix applies uniformly to enumeration, single-pool, and multiple-pool cases.
-
-### Queue axis
-
-Every logical case is generated for two queue classes:
-
-| Queue flavor | Flag passed to constructor | Name fragment |
-|--------------|----------------------------|---------------|
-| Graphics | `VK_QUEUE_GRAPHICS_BIT` | `graphic` |
-| Compute | `VK_QUEUE_COMPUTE_BIT` | `compute` |
-
-The queue flag is stored in [`QueryPoolPerformanceTest`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L1228) and controls both support checks and the concrete instance type returned by [`QueryPoolPerformanceTest::createInstance()`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L1241).
-
-### 1. Enumeration-and-validation family
-
-The first pair of registrations per copy mode produces:
-
-- `enumerate_and_validate_graphic`
-- `enumerate_and_validate_compute`
-- `enumerate_and_validate_graphic_copy`
-- `enumerate_and_validate_compute_copy`
-
-These cases instantiate [`EnumerateAndValidateTest`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L131), which walks all queue families matching the requested queue flag and validates the performance-counter metadata returned by [`enumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L163).
+Registered in [`QueryPoolPerformanceTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L1371). Instantiates [`EnumerateAndValidateTest`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L131), which walks all queue families matching `VK_QUEUE_GRAPHICS_BIT` and validates the performance-counter metadata returned by [`enumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L163).
 
 Validation covers:
 
@@ -88,45 +48,43 @@ Validation covers:
 | Counter `scope`, `storage`, and `unit` enums are inside valid ranges | [`EnumerateAndValidateTest::iterate()`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L203) |
 | Counter-description flags contain only `PERFORMANCE_IMPACTING` and `CONCURRENTLY_IMPACTED` bits | [`EnumerateAndValidateTest::iterate()`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L225) |
 
-Although `_copy` variants are registered for this family, the enumeration instance itself does not perform any result-copy operation. The suffix is present because the registration loop applies the same naming template to all test types.
+### enumerate_and_validate_compute — Compute counter enumeration and validation
 
-### 2. Single-pool query family
+Same as `enumerate_and_validate_graphic` but for `VK_QUEUE_COMPUTE_BIT`. Registered in [`QueryPoolPerformanceTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L1374).
 
-The second pair of registrations per copy mode produces:
+### query_graphic — Single graphics query pool
 
-- `query_graphic`
-- `query_compute`
-- `query_graphic_copy`
-- `query_compute_copy`
+Instantiates [`GraphicQueryTest`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L638). The flow is:
 
-These instantiate either [`GraphicQueryTest`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L638) or [`ComputeQueryTest`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L1014), depending on queue type.
-
-The common flow is:
-
-1. Build graphics or compute state objects.
+1. Build graphics state objects.
 2. Enumerate supported counters and filter out command-buffer-scope counters via [`QueryTestBase::setupCounters()`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L273).
 3. Create one performance query pool enabling every eligible counter through [`QueryTestBase::createQueryPool()`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L304).
 4. Acquire the profiling lock using [`ProfilingLockGuard`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L103).
-5. Reset the pool, record one query around a draw or dispatch, and submit the same command buffer once per required pass reported by [`getPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L361).
-6. Read or copy the results and verify that each destination item changed from its randomized initial contents in [`QueryTestBase::verifyQueryResults()`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L417).
+5. Reset the pool, record one query around a draw, and submit the same command buffer once per required pass reported by [`getPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L361).
+6. Read results and verify that each destination item changed from its randomized initial contents in [`QueryTestBase::verifyQueryResults()`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L417).
 
-### 3. Multiple-pools family
+### query_compute — Single compute query pool
 
-The final pair of registrations per copy mode produces:
+Instantiates [`ComputeQueryTest`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L1014). Same flow as `query_graphic` but with a compute dispatch (`2 x 2 x 2`) instead of a draw.
 
-- `multiple_pools_graphic`
-- `multiple_pools_compute`
-- `multiple_pools_graphic_copy`
-- `multiple_pools_compute_copy`
+### multiple_pools_graphic — Multiple graphics query pools
 
-These instantiate either [`GraphicMultiplePoolsTest`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L763) or [`ComputeMultiplePoolsTest`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L1113).
-
-The difference from the single-pool family is that the test allocates two query pools:
+Instantiates [`GraphicMultiplePoolsTest`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L763). Allocates two query pools:
 
 - one enabling counters selected with offset `0`, stride `2`; and
 - one enabling counters selected with offset `1`, stride `2`.
 
-That split is configured by the paired calls to [`createQueryPool(0, 2)`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L788) / [`createQueryPool(1, 2)`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L788) for graphics and again in [`ComputeMultiplePoolsTest::iterate()`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L1141) for compute. Each pool wraps its own draw or dispatch region, and each pool is verified independently after submission.
+That split is configured by the paired calls to [`createQueryPool(0, 2)`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L788) / [`createQueryPool(1, 2)`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L788). Each pool wraps its own draw region, and each pool is verified independently after submission.
+
+### multiple_pools_compute — Multiple compute query pools
+
+Instantiates [`ComputeMultiplePoolsTest`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L1113). Same two-pool split as `multiple_pools_graphic` but with compute dispatches.
+
+### *_copy variants — Command-buffer copy result retrieval
+
+The `_copy` suffix variants (`enumerate_and_validate_graphic_copy`, `enumerate_and_validate_compute_copy`, `query_graphic_copy`, `query_compute_copy`, `multiple_pools_graphic_copy`, `multiple_pools_compute_copy`) use `vkCmdCopyQueryPoolResults` instead of `vkGetQueryPoolResults` for result retrieval. The copy mode is controlled by the [`copyCases`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L1359) loop in the registration.
+
+Although `_copy` variants are registered for the enumeration family, the enumeration instance itself does not perform any result-copy operation. The suffix is present because the registration loop applies the same naming template to all test types.
 
 ## Parameter Dimensions
 
@@ -139,6 +97,26 @@ That split is configured by the paired calls to [`createQueryPool(0, 2)`](../../
 | `TT_ENUMERATE_AND_VALIDATE` | Metadata enumeration / validation only | `enumerate_and_validate_*` |
 | `TT_QUERY` | Single performance query pool | `query_*` |
 | `TT_MULTIPLE_POOLS` | Two performance query pools in one test | `multiple_pools_*` |
+
+### Copy-mode axis
+
+The outer registration loop defines two result-transfer modes in [`copyCases`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L1359):
+
+| Mode | `copyResults` | Name suffix | Result path |
+|------|---------------|-------------|-------------|
+| Host-get mode | `false` | none | [`vkGetQueryPoolResults`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L449) |
+| Command-copy mode | `true` | `_copy` | [`vkCmdCopyQueryPoolResults`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L440) |
+
+### Queue axis
+
+Every logical case is generated for two queue classes:
+
+| Queue flavor | Flag passed to constructor | Name fragment |
+|--------------|----------------------------|---------------|
+| Graphics | `VK_QUEUE_GRAPHICS_BIT` | `graphic` |
+| Compute | `VK_QUEUE_COMPUTE_BIT` | `compute` |
+
+The queue flag is stored in [`QueryPoolPerformanceTest`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L1228) and controls both support checks and the concrete instance type returned by [`QueryPoolPerformanceTest::createInstance()`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L1241).
 
 ### Counter-selection logic
 

@@ -7,73 +7,71 @@ Tests for Vulkan occlusion query behavior under `query_pool`. This file document
 - [`vktQueryPoolTests.cpp`](../../../modules/vulkan/query_pool/vktQueryPoolTests.cpp)
 - [`vktQueryPoolOcclusionTests.cpp`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp)
 
-## Registration
+## Registration Hierarchy
 
-| Item | Value |
-|------|-------|
-| Top-level parent | `query_pool` via [`createTests()`](../../../modules/vulkan/query_pool/vktQueryPoolTests.cpp#L59) |
-| Level-3 group name | `occlusion_query` via [`QueryPoolOcclusionTests::QueryPoolOcclusionTests()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1686) |
-| Child registration | [`queryPoolTests->addChild(new QueryPoolOcclusionTests(testCtx))`](../../../modules/vulkan/query_pool/vktQueryPoolTests.cpp#L46) |
-| Group population | [`QueryPoolOcclusionTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1691) |
+```text
+query_pool.occlusion_query
+├── basic_conservative
+├── basic_precise
+├── stride_zero
+├── stride_max
+├── clear_attachments_only
+├── clear_attachments_with_draw
+├── blit
+├── resolve
+├── no_attachments_single_sample
+└── no_attachments_multisample
+```
+
+In addition to the named cases above, [`QueryPoolOcclusionTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1691) registers a large number of matrix-generated test cases (functional matrix and stride/dstOffset matrix) as direct children of `occlusion_query`. These generated cases are documented in the Test Families section below.
 
 ## Summary
 
 The `occlusion_query` group combines focused smoke tests, a large functional matrix, no-attachment coverage, clear-operation coverage, stride and destination-offset coverage, and a limited set of device-address-command variants. The tests exercise both conservative and precise occlusion queries, validate result retrieval through host reads and command-buffer copies, and check special paths such as host query reset, attachment clears, blits, resolves, and rendering without color attachments.
 
-## Test Hierarchy
+## Test Families
 
-```text
-query_pool
-└── occlusion_query
-    ├── basic_conservative
-    ├── basic_precise
-    ├── stride_zero
-    ├── stride_max
-    ├── clear_attachments_only
-    ├── clear_attachments_with_draw
-    ├── blit
-    ├── resolve
-    ├── no_attachments_single_sample
-    ├── no_attachments_multisample
-    ├── <functional matrix>
-    └── <stride / dstOffset matrix>
-```
+### basic_conservative — Conservative occlusion query smoke test
 
-## Registered Families
+Registered in [`QueryPoolOcclusionTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1715) with `queryControlFlags = 0`. Uses the base vector with 64-bit results, `WAIT_QUEUE`, host-side `vkGetQueryPoolResults`, result-size stride, point-list rendering, and no availability field.
 
-### Basic tests
+### basic_precise — Precise occlusion query smoke test
 
-[`QueryPoolOcclusionTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1711) first registers two direct sanity cases:
+Registered in [`QueryPoolOcclusionTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1718) with `VK_QUERY_CONTROL_PRECISE_BIT`. Same base configuration as `basic_conservative` except for the precise flag.
 
-| Test name | Key configuration |
-|-----------|-------------------|
-| `basic_conservative` | Conservative occlusion query (`queryControlFlags = 0`) |
-| `basic_precise` | Precise occlusion query (`VK_QUERY_CONTROL_PRECISE_BIT`) |
+### stride_zero — Zero-stride result smoke test
 
-These use the base vector initialized in [`QueryPoolOcclusionTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1693) with 64-bit results, `WAIT_QUEUE`, host-side `vkGetQueryPoolResults`, result-size stride, point-list rendering, and no availability field.
+Registered in [`QueryPoolOcclusionTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1729). Tests result retrieval with stride set to zero.
 
-### Standalone stride and attachment-clear variants
+### stride_max — Maximum-stride result smoke test
 
-Additional short families are registered immediately afterward:
+Registered in [`QueryPoolOcclusionTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1729). Tests result retrieval with a large stride value.
 
-| Family | Registered names | Notes |
-|--------|------------------|-------|
-| Result stride smoke tests | `stride_zero`, `stride_max` | Registered in [`QueryPoolOcclusionTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1721) |
-| Clear-attachments smoke tests | `clear_attachments_only`, `clear_attachments_with_draw` | Use precise queries; registered in [`QueryPoolOcclusionTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1734) |
-| Additional post-render operation tests | `blit`, `resolve` | Registered in [`QueryPoolOcclusionTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1749) |
+### clear_attachments_only — Clear-attachments smoke test (no draw)
 
-### No-attachment function cases
+Registered in [`QueryPoolOcclusionTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1734). Uses precise queries; validates occlusion behavior when only attachment clears are performed.
 
-The group then registers two function-style cases with generated programs through [`addFunctionCaseWithPrograms()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1767):
+### clear_attachments_with_draw — Clear-attachments smoke test (with draw)
 
-| Test name | Parameters |
-|-----------|------------|
-| `no_attachments_single_sample` | No color attachment, single-sample path |
-| `no_attachments_multisample` | No color attachment, multisample path |
+Registered in [`QueryPoolOcclusionTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1734). Uses precise queries; validates occlusion behavior when attachment clears are followed by a draw.
 
-These cases use [`noAttachmentsSupport()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1609), [`initNoAttachmentsPrograms()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1580), and [`noAttachmentsTest()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1629).
+### blit — Post-render blit operation test
 
-### Functional matrix
+Registered in [`QueryPoolOcclusionTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1749). Uses precise queries; validates occlusion results after a blit operation.
+
+### resolve — Post-render resolve operation test
+
+Registered in [`QueryPoolOcclusionTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1749). Uses precise queries; validates occlusion results after a resolve operation.
+
+### no_attachments_single_sample — No color attachment, single-sample path
+
+Registered via [`addFunctionCaseWithPrograms()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1767). Uses [`noAttachmentsSupport()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1609), [`initNoAttachmentsPrograms()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1580), and [`noAttachmentsTest()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1629).
+
+### no_attachments_multisample — No color attachment, multisample path
+
+Registered via [`addFunctionCaseWithPrograms()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1767). Same infrastructure as the single-sample variant but with multisample rendering.
+
+### Functional matrix — Combinatorial occlusion query tests
 
 The main body of [`QueryPoolOcclusionTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1771) generates a combinatorial matrix of named tests. Test names follow this pattern:
 
@@ -132,7 +130,7 @@ The dimensions are:
 | Result size | `32`, `64` |
 | Availability field | `without`, `with` |
 | Destination offset suffix | none, `_dstoffset` |
-| Stride value | `0`, `1×`, `2×`, `3×`, `4×`, `5×`, `13×`, `1024×` result size |
+| Stride value | `0`, `1x`, `2x`, `3x`, `4x`, `5x`, `13x`, `1024x` result size |
 
 The concrete stride list is defined in [`QueryPoolOcclusionTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1966).
 
@@ -180,7 +178,7 @@ The rendering state is built by [`StateObjects::StateObjects()`](../../../module
 | Standard render pass | Color + depth attachments |
 | No-color-attachment mode | Depth-only render pass branch in [`StateObjects::StateObjects()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L132) |
 | Blit validation path | Source and destination transfer images allocated in [`StateObjects::StateObjects()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L235) |
-| Resolve validation path | 4× MSAA source image plus single-sample destination in [`StateObjects::StateObjects()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L246) |
+| Resolve validation path | 4x MSAA source image plus single-sample destination in [`StateObjects::StateObjects()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L246) |
 
 ## Support Requirements
 
@@ -189,7 +187,7 @@ The rendering state is built by [`StateObjects::StateObjects()`](../../../module
 | `occlusionQueryPrecise` feature | Any `precise` test | [`QueryPoolOcclusionTest::checkSupport()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1491) |
 | `VK_EXT_host_query_reset` + `hostQueryReset` feature | `RESULTS_MODE_GET_RESET` basic-instance path | [`QueryPoolOcclusionTest::checkSupport()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1497) |
 | `VK_KHR_device_address_commands` | `_device_address` variants | [`QueryPoolOcclusionTest::checkSupport()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1488) |
-| 4× sample-count support for `VK_FORMAT_R8G8B8A8_UNORM` transfer source usage | `resolve` variant | [`QueryPoolOcclusionTest::checkSupport()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1504) |
+| 4x sample-count support for `VK_FORMAT_R8G8B8A8_UNORM` transfer source usage | `resolve` variant | [`QueryPoolOcclusionTest::checkSupport()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1504) |
 
 ### Vulkan SC behavior
 

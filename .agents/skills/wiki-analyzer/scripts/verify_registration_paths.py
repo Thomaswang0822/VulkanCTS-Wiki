@@ -232,7 +232,15 @@ def extract_canonical_hierarchy_paths(md_file: Path, category: str) -> Dict[str,
         if not stripped.strip():
             continue
 
-        match = TREE_CHILD_PATTERN.match(stripped.strip())
+        # Support multiple roots in a single fence block: a bare line that
+        # matches the category-qualified group pattern becomes the new root.
+        bare_line = stripped.strip()
+        if (bare_line == category or bare_line.startswith(f'{category}.')) and SIMPLE_GROUP_PATTERN.match(bare_line):
+            root_text = bare_line
+            add_path(idx + 1, root_text)
+            continue
+
+        match = TREE_CHILD_PATTERN.match(bare_line)
         if not match:
             continue
 
@@ -294,7 +302,8 @@ def extract_group_paths_from_wiki(wiki_dir: Path, category: str) -> Dict[str, Li
 
     if category == 'pipeline':
         from registration_validators import pipeline
-        return pipeline.extract_group_paths(wiki_dir, get_wiki_candidate_files)
+        return pipeline.extract_group_paths(
+            wiki_dir, get_wiki_candidate_files, extract_canonical_hierarchy_paths)
 
     if category in ('synchronization', 'synchronization2'):
         from registration_validators import synchronization

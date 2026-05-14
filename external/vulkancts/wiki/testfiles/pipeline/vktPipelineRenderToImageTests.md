@@ -13,40 +13,25 @@ Implementation file.
 - Primary source: [`vktPipelineRenderToImageTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineRenderToImageTests.cpp#L1)
 - Header: [`vktPipelineRenderToImageTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineRenderToImageTests.hpp#L1)
 
-## Registration Path
-
-[`createRenderToImageTests()`](../../../modules/vulkan/pipeline/vktPipelineRenderToImageTests.cpp#L2026) returns the `render_to_image` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: All variants.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-render_to_image
+pipeline.monolithic.render_to_image
 ├── core
-│   └── {1d,1d_array,2d,2d_array,3d,cube,cube_array}
-│       ├── small/<colorFormat>_<dsFormat>
-│       ├── huge/<sizeDescription>/<colorFormat>_<dsFormat>
-│       └── mipmap/<colorFormat>_<dsFormat>
 └── dedicated_allocation
-    └── (same structure, no huge tests)
 ```
 
 ## Test Families
 
-### 1. core / small
+### core — Core render-to-image tests
 
-Baseline image sizes with all color/DS format combinations. For 3D, includes `_2d_compatible` variants (VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT + VK_KHR_maintenance9).
+Contains subgroups for each image view type (`1d`, `1d_array`, `2d`, `2d_array`, `3d`, `cube`, `cube_array`), each with three test categories:
 
-### 2. core / huge
+- **small**: Baseline image sizes with all color/DS format combinations. For 3D, includes `_2d_compatible` variants (VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT + VK_KHR_maintenance9).
+- **huge**: Maximum-dimension images. Only R8G8B8A8_UNORM color format. Verification region capped to 32x8.
+- **mipmap**: Renders to each mip level sequentially, verifies all levels.
 
-Maximum-dimension images. Only R8G8B8A8_UNORM color format. Verification region capped to 32x8.
-
-### 3. core / mipmap
-
-Renders to each mip level sequentially, verifies all levels.
-
-### 4. dedicated_allocation
+### dedicated_allocation — Dedicated allocation render-to-image tests
 
 Same as core but using VK_KHR_dedicated_allocation. No huge tests.
 

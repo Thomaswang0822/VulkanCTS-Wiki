@@ -13,25 +13,23 @@ Implementation file.
 - Primary source: [`vktPipelineMatchedAttachmentsTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineMatchedAttachmentsTests.cpp#L1)
 - Header: [`vktPipelineMatchedAttachmentsTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineMatchedAttachmentsTests.hpp#L1)
 
-## Registration Path
-
-[`createMatchedAttachmentsTests()`](../../../modules/vulkan/pipeline/vktPipelineMatchedAttachmentsTests.cpp#L1) returns the `matched_attachments` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: All variants (VulkanSC only). Excluded for shader object (input attachments not supported with dynamic rendering).
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-matched_attachments
-├── cache                  (with pipeline cache)
-└── no_cache               (without pipeline cache)
+pipeline.monolithic.matched_attachments
+├── cache
+└── no_cache
 ```
 
 ## Test Families
 
-### 1. cache / no_cache
+### cache — Matched attachments with pipeline cache
 
-Creates a graphics pipeline with a render pass that has two matched attachments (one color, one input) and verifies pipeline creation succeeds without crash. Tests both with and without pipeline cache.
+Creates a graphics pipeline with a render pass that has two matched attachments (one color, one input) and verifies pipeline creation succeeds without crash. Uses a pipeline cache.
+
+### no_cache — Matched attachments without pipeline cache
+
+Creates a graphics pipeline with a render pass that has two matched attachments (one color, one input) and verifies pipeline creation succeeds without crash. Does not use a pipeline cache.
 
 ## Parameter Dimensions
 
@@ -47,3 +45,4 @@ Pass-by-completion: test passes as long as `createGraphicsPipeline` did not cras
 
 - This is a minimal test file (~260 lines) targeting a specific regression scenario
 - No pixel-level verification; only verifies pipeline creation succeeds
+- Input attachments are not supported with dynamic rendering, so these tests are excluded for shader-object variants

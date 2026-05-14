@@ -6,50 +6,42 @@
 
 ## Role
 
-Implementation file.
+Implementation file. The [`createImageSlicedViewOf3DTests()`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L978) factory function creates the `sliced_view_of_3d_image` group, attached directly under the monolithic variant root by [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L208).
 
 ## Source Code
 
 - Primary source: [`vktPipelineImageSlicedViewOf3DTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L1)
 - Header: [`vktPipelineImageSlicedViewOf3DTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.hpp#L1)
 
-## Registration Path
+## Registration Hierarchy
 
-[`createImageSlicedViewOf3DTests()`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L978) returns the `sliced_view_of_3d_image` group, attached under each variant root by `createChildren()`.
+```text
+pipeline.monolithic.sliced_view_of_3d_image
+├── basic
+├── full_slice
+├── random
+└── mip_level
+```
 
 **Variant coverage**: Monolithic only (no PipelineConstructionType parameter).
 
-## Test Hierarchy
-
-```text
-sliced_view_of_3d_image
-├── basic
-│   └── {load,store}/{comp,frag}/{offset_0[_with_sampling], offset_1[_with_sampling]}
-├── full_slice
-│   └── {load,store}/{comp,frag}[_with_sampling]
-├── random
-│   └── {load,store}/{comp,frag}/depth_N_offset_N_range_N
-└── mip_level
-    └── {load,store}/{comp,frag}/level_N/offset_N_range_N
-```
-
 ## Test Families
 
-### 1. basic
+### basic — Basic sliced view tests
 
-Depth=2, range=1, tests view of first or second slice individually.
+Depth=2, range=1, tests view of first or second slice individually. Contains `load` and `store` test type subgroups, each with `comp` and `frag` stage subgroups. Leaf test cases vary offset (0 or 1) and optional sampling suffix.
 
-### 2. full_slice
+### full_slice — Full-depth sliced view tests
 
-Depth=4, range=full depth, tests a sliced view covering the entire 3D image.
+Depth=4, range=full depth, tests a sliced view covering the entire 3D image. Contains `load` and `store` test type subgroups, each with `comp` and `frag` stage subgroups. Leaf test cases include optional sampling suffix.
 
-### 3. random
+### random — Random parameter sliced view tests
 
-Pseudorandom depth (10-32), offset, and range values. Includes VK_REMAINING_3D_SLICES_EXT cases.
+Pseudorandom depth (10-32), offset, and range values. Includes VK_REMAINING_3D_SLICES_EXT cases. Contains `load` and `store` test type subgroups, each with `comp` and `frag` stage subgroups. Leaf test cases have names encoding depth, offset, and range values.
 
-### 4. mip_level
+### mip_level — Mip-level sliced view tests
 
-Fixed 8x8x8 image with full mip chain. Tests sliced views at non-zero mip levels.
+Fixed 8x8x8 image with full mip chain. Tests sliced views at non-zero mip levels. Contains `load` and `store` test type subgroups, each with `comp` and `frag` stage subgroups. Leaf test cases vary mip level, offset, and range.
 
 ## Parameter Dimensions
 

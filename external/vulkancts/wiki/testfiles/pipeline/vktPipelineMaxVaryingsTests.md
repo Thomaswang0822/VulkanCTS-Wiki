@@ -13,16 +13,10 @@ Implementation file.
 - Primary source: [`vktPipelineMaxVaryingsTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineMaxVaryingsTests.cpp#L1)
 - Header: [`vktPipelineMaxVaryingsTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineMaxVaryingsTests.hpp#L1)
 
-## Registration Path
-
-[`createMaxVaryingsTests()`](../../../modules/vulkan/pipeline/vktPipelineMaxVaryingsTests.cpp#L1133) returns the `max_varyings` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: All variants.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-max_varyings
+pipeline.monolithic.max_varyings
 ├── test_vertex_io_between_vertex_fragment
 ├── test_fragment_io_between_vertex_fragment
 ├── test_tess_eval_io_between_tess_eval_fragment
@@ -33,13 +27,29 @@ max_varyings
 
 ## Test Families
 
-### 1. Vertex/TessEval/Geometry output stress
+### test_vertex_io_between_vertex_fragment — Vertex output stress (VS-FS)
 
-Stresses maximum output components of the producing stage. Uses SPIR-V specialization to set array size to `maxOutputComponents / 4 - 1` vec4s.
+Stresses maximum output components of the vertex shader stage in a vertex-to-fragment pipeline. Uses SPIR-V specialization to set array size to `maxVertexOutputComponents / 4 - 1` vec4s, verifying all data passes correctly from vertex to fragment.
 
-### 2. Fragment input stress (per pipeline)
+### test_fragment_io_between_vertex_fragment — Fragment input stress (VS-FS)
 
-Stresses maximum fragment input components in the consuming pipeline. Specializes array to `maxFragmentInputComponents / 4` vec4s.
+Stresses maximum fragment input components in a vertex-to-fragment pipeline. Specializes array to `maxFragmentInputComponents / 4` vec4s, verifying the fragment shader can consume all inputs at the device limit.
+
+### test_tess_eval_io_between_tess_eval_fragment — Tessellation evaluation output stress (VS-TCS-TES-FS)
+
+Stresses maximum output components of the tessellation evaluation stage in a tessellation pipeline. Uses SPIR-V specialization to set array size based on `maxTessellationEvaluationOutputComponents`. Requires `tessellationShader`.
+
+### test_fragment_io_between_tess_eval_fragment — Fragment input stress (VS-TCS-TES-FS)
+
+Stresses maximum fragment input components in a tessellation pipeline. Specializes array to `maxFragmentInputComponents / 4` vec4s. Requires `tessellationShader`.
+
+### test_geometry_io_between_geometry_fragment — Geometry output stress (VS-GS-FS)
+
+Stresses maximum output components of the geometry shader stage in a geometry pipeline. Uses SPIR-V specialization to set array size based on `maxGeometryOutputComponents`. Requires `geometryShader`.
+
+### test_fragment_io_between_geometry_fragment — Fragment input stress (VS-GS-FS)
+
+Stresses maximum fragment input components in a geometry pipeline. Specializes array to `maxFragmentInputComponents / 4` vec4s. Requires `geometryShader`.
 
 ## Parameter Dimensions
 

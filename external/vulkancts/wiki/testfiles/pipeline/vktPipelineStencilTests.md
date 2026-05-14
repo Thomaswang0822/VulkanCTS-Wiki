@@ -14,57 +14,30 @@ Implementation file.
 - Header: [`vktPipelineStencilTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineStencilTests.hpp#L1)
 - Shared helpers: [`ReferenceRenderer`](../../../modules/vulkan/pipeline/vktPipelineReferenceRenderer.cpp#L1), [`vktPipelineImageUtil`](../../../modules/vulkan/pipeline/vktPipelineImageUtil.cpp#L1)
 
-## Registration Path
-
-This file contributes the subgroup returned by [`createStencilTests()`](../../../modules/vulkan/pipeline/vktPipelineStencilTests.cpp#L1469), which is attached under each variant root by [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L1) in the pipeline category root.
-
-**Variant coverage**: Not extra shader-object (skipped by extra shader-object variants).
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-stencil
-├── format                                (colorAttachmentEnabled = true)
-│   └── <format_name>[_separate_layouts]
-│       └── states
-│           ├── fail_<failOp>
-│           │   └── pass_<passOp>
-│           │       └── dfail_<depthFailOp>
-│           │           └── <compareOp>
-│           │               ├── any       (VK_IMAGE_LAYOUT_OPTIMAL)
-│           │               └── general   (VK_IMAGE_LAYOUT_GENERAL, limited subset)
-│           ...
-├── nocolor                               (colorAttachmentEnabled = false)
-│   └── format
-│       └── <same structure as above>
-└── no_stencil_att                        (monolithic, fast_linked_library, shader_object_unlinked_spirv only)
-    ├── render_passes
-    │   ├── static_enable
-    │   │   └── <depth_format_name>
-    │   └── dynamic_enable
-    │       └── <depth_format_name>
-    └── dynamic_rendering                 (skipped on VulkanSC)
-        ├── static_enable
-        │   └── <depth_format_name>
-        └── dynamic_enable
-            └── <depth_format_name>
+pipeline.monolithic.stencil
+├── format (colorAttachmentEnabled = true)
+├── nocolor
+└── no_stencil_att (monolithic, fast_linked_library, shader_object_unlinked_spirv only)
 ```
 
-Source: [`createStencilTests()`](../../../modules/vulkan/pipeline/vktPipelineStencilTests.cpp#L1469).
+Source: [`createStencilTests()`](../../../modules/vulkan/pipeline/vktPipelineStencilTests.cpp#L1469). This group is attached under each variant root by [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L1) in the pipeline category root. Variant coverage: not extra shader-object (skipped by extra shader-object variants).
 
 ## Test Families
 
-### 1. format/states
+### format — Stencil tests with color attachment
 
-Core stencil test family. Iterates all combinations of stencil operations (fail, pass, depth-fail) and compare operations across front/back faces for each supported stencil format. Front face iterates systematically; back face uses a seeded random iterator ([`StencilOpStateUniqueRandomIterator`](../../../modules/vulkan/pipeline/vktPipelineStencilTests.cpp#L71)) over all 8^4 = 4096 combinations. Verifies stencil operations produce correct results against a software reference renderer.
+Core stencil test family. Iterates all combinations of stencil operations (fail, pass, depth-fail) and compare operations across front/back faces for each supported stencil format. Front face iterates systematically; back face uses a seeded random iterator ([`StencilOpStateUniqueRandomIterator`](../../../modules/vulkan/pipeline/vktPipelineStencilTests.cpp#L71)) over all 8^4 = 4096 combinations. Verifies stencil operations produce correct results against a software reference renderer. Each format group contains a `states` child with nested subgroups: `fail_<failOp>` / `pass_<passOp>` / `dfail_<depthFailOp>` / `<compareOp>` / `any|general` (image layout variants).
 
-### 2. nocolor/format/states
+### nocolor — Stencil tests without color attachment
 
-Same as `format/states` but with no color attachment bound. Verifies stencil operations work correctly when only a depth/stencil attachment is present.
+Same stencil test structure as `format` but with no color attachment bound. Verifies stencil operations work correctly when only a depth/stencil attachment is present. Contains a `format` child group with the same per-format/states structure as the `format` family.
 
-### 3. no_stencil_att
+### no_stencil_att — Stencil test with no stencil attachment
 
-Tests enabling the stencil test when no stencil attachment is bound. Verifies the stencil test is effectively ignored (no crash, correct depth/color output). Uses both render passes and dynamic rendering, with static and dynamic stencil enable. Only registered for `monolithic`, `fast_linked_library`, and `shader_object_unlinked_spirv` variants ([line 1613](../../../modules/vulkan/pipeline/vktPipelineStencilTests.cpp#L1613)). Shader objects skip the `render_passes` sub-group ([line 1623](../../../modules/vulkan/pipeline/vktPipelineStencilTests.cpp#L1623)).
+Tests enabling the stencil test when no stencil attachment is bound. Verifies the stencil test is effectively ignored (no crash, correct depth/color output). Contains two rendering-mode subgroups: `render_passes` (with `static_enable` and `dynamic_enable` children, each containing per-depth-format test cases) and `dynamic_rendering` (same structure, non-VulkanSC only). Only registered for `monolithic`, `fast_linked_library`, and `shader_object_unlinked_spirv` variants ([line 1613](../../../modules/vulkan/pipeline/vktPipelineStencilTests.cpp#L1613)). Shader objects skip the `render_passes` sub-group ([line 1623](../../../modules/vulkan/pipeline/vktPipelineStencilTests.cpp#L1623)).
 
 ## Parameter Dimensions
 
@@ -95,7 +68,7 @@ Tests enabling the stencil test when no stencil attachment is bound. Verifies th
 
 ## Verification Methods
 
-### format/states and nocolor families
+### format and nocolor families
 
 [`StencilTestInstance::verifyImage()`](../../../modules/vulkan/pipeline/vktPipelineStencilTests.cpp#L766) uses [`ReferenceRenderer`](../../../modules/vulkan/pipeline/vktPipelineReferenceRenderer.cpp#L1) (software rasterizer) with matching stencil state:
 

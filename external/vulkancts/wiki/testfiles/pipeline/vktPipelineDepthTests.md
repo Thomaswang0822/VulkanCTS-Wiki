@@ -14,87 +14,50 @@ Implementation file.
 - Header: [`vktPipelineDepthTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineDepthTests.hpp#L1)
 - Shared helpers: [`ReferenceRenderer`](../../../modules/vulkan/pipeline/vktPipelineReferenceRenderer.cpp#L1), [`vktPipelineImageUtil`](../../../modules/vulkan/pipeline/vktPipelineImageUtil.cpp#L1)
 
-## Registration Path
-
-This file contributes the subgroup returned by [`createDepthTests()`](../../../modules/vulkan/pipeline/vktPipelineDepthTests.cpp#L2515), which is attached under each variant root by [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L1) in the pipeline category root.
-
-**Variant coverage**: All variants.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-depth
-├── format_features                       (monolithic only)
-│   ├── support_d16_unorm
-│   ├── support_d24_unorm_or_d32_sfloat
-│   └── support_d24_unorm_s8_uint_or_d32_sfloat_s8_uint
-├── format                                (genFormatTests only, colorAttachmentEnabled = true)
-│   └── <format_name>[_separate_layouts]
-│       ├── compare_ops
-│       │   ├── <topology>_<compareOpsName>
-│       │   ├── <topology>_<compareOpsName>_depth_bounds_test
-│       │   ├── <topology>_<compareOpsName>_depth_bounds_test_general_layout  (every 10th combo)
-│       │   └── never_zerodepthbounds_depthdisabled_stencilenabled
-│       ├── depth_test_disabled
-│       │   └── depth_write_enabled
-│       └── host_visible
-│           └── local_memory_depth_buffer
-├── nocolor                               (genFormatTests only, colorAttachmentEnabled = false)
-│   └── format
-│       └── <same structure as above>
-├── no_depth_attachment                   (not shader-object)
-│   └── depth_bound_test
-├── depth_clip_control                    (non-VulkanSC)
-│   └── <format>_<compareOp>[_different_w|_viewport_before_static|_viewport_before_dynamic|...]
-├── xfer_queue_layout                     (monolithic only)
-│   ├── aspect_depth
-│   ├── aspect_stencil
-│   └── aspect_depth_stencil
-└── depth_only                            (monolithic, fast_linked_library, shader_object_unlinked_spirv)
-    ├── separate_render_passes[_prepass|_postpass][_add_view_index]
-    ├── subpasses[_prepass|_postpass][_add_view_index]
-    └── dynamic_rendering[_prepass|_postpass][_add_view_index]   (non-VulkanSC)
+pipeline.monolithic.depth
+├── format_features (monolithic only)
+├── format (genFormatTests only)
+├── nocolor (genFormatTests only)
+├── no_depth_attachment (not shader-object)
+├── depth_clip_control (non-VulkanSC)
+├── xfer_queue_layout (monolithic only)
+└── depth_only (monolithic, fast_linked_library, shader_object_unlinked_spirv)
 ```
 
-Source: [`createDepthTests()`](../../../modules/vulkan/pipeline/vktPipelineDepthTests.cpp#L2515).
+Source: [`createDepthTests()`](../../../modules/vulkan/pipeline/vktPipelineDepthTests.cpp#L2515). This group is attached under each variant root by [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L1) in the pipeline category root. Variant coverage: all variants.
 
 ## Test Families
 
-### 1. format_features
+### format_features — Mandatory depth/stencil format support
 
-Verifies mandatory depth/stencil format support requirements: D16_UNORM must always be supported; at least one of D24_UNORM/X8_D24 or D32_SFLOAT must be supported; at least one of D24_UNORM_S8_UINT or D32_SFLOAT_S8_UINT must be supported. Monolithic only.
+Verifies mandatory depth/stencil format support requirements: D16_UNORM must always be supported; at least one of D24_UNORM/X8_D24 or D32_SFLOAT must be supported; at least one of D24_UNORM_S8_UINT or D32_SFLOAT_S8_UINT must be supported. Contains three test cases: `support_d16_unorm`, `support_d24_unorm_or_d32_sfloat`, `support_d24_unorm_s8_uint_or_d32_sfloat_s8_uint`. Monolithic only.
 
-### 2. format/compare_ops
+### format — Depth tests with color attachment
 
-Core depth test family. For each depth format and topology, tests pair-wise combinations of compare operators across 4 quads. Also includes depth bounds test variants and a special case with zero depth bounds, depth disabled, and stencil enabled.
+Core depth test family. For each depth format and topology, tests pair-wise combinations of compare operators across 4 quads. Each format group contains `compare_ops` (with per-topology compare-op combinations, depth bounds test variants, and a special `never_zerodepthbounds_depthdisabled_stencilenabled` case), `depth_test_disabled` (with `depth_write_enabled` child), and `host_visible` (with `local_memory_depth_buffer` child). Also includes depth bounds test variants and a special case with zero depth bounds, depth disabled, and stencil enabled. GenFormatTests only; colorAttachmentEnabled = true.
 
-### 3. format/depth_test_disabled
+### nocolor — Depth tests without color attachment
 
-Tests behavior when depth test is disabled but depth write is enabled. Verifies that depth writes still occur.
+Same depth test structure as `format` but without a color attachment bound. Contains a `format` child group with the same per-format structure. GenFormatTests only.
 
-### 4. format/host_visible
+### no_depth_attachment — Depth bounds test with no depth attachment
 
-Tests depth buffer placed in host-visible (local) memory. Verifies depth testing works correctly with non-device-local memory.
+Tests depth bounds test when no depth attachment is bound (VK_FORMAT_UNDEFINED). Verifies the depth bounds test is effectively a no-op. Contains a `depth_bound_test` child test case. Not generated for shader object variants.
 
-### 5. nocolor/format
+### depth_clip_control — Depth clip control tests
 
-Same depth test structure but without a color attachment bound.
+Tests `VK_EXT_depth_clip_control` which allows a [-1,1] depth range instead of [0,1]. Tests multiple viewport ordering scenarios (static, dynamic, before/after pipeline bind). Test case names follow the pattern `<format>_<compareOp>[_different_w|_viewport_before_static|_viewport_before_dynamic|...]`. Non-VulkanSC only.
 
-### 6. no_depth_attachment
+### xfer_queue_layout — Transfer queue layout transition tests
 
-Tests depth bounds test when no depth attachment is bound (VK_FORMAT_UNDEFINED). Verifies the depth bounds test is effectively a no-op. Not generated for shader object variants.
+Tests layout transitions of depth/stencil images using a transfer queue. Verifies correct rendering after layout changes between transfer and attachment usage. Contains three test cases: `aspect_depth`, `aspect_stencil`, `aspect_depth_stencil`. Monolithic only.
 
-### 7. depth_clip_control
+### depth_only — Depth-only rendering pass tests
 
-Tests `VK_EXT_depth_clip_control` which allows a [-1,1] depth range instead of [0,1]. Tests multiple viewport ordering scenarios (static, dynamic, before/after pipeline bind). Non-VulkanSC only.
-
-### 8. xfer_queue_layout
-
-Tests layout transitions of depth/stencil images using a transfer queue. Verifies correct rendering after layout changes between transfer and attachment usage. Monolithic only.
-
-### 9. depth_only
-
-Tests depth-only rendering passes (no color attachment in some passes). Verifies depth pre-pass and post-pass scenarios with separate render passes, subpasses, and dynamic rendering. Also tests with multiview (addViewIndex). Limited to monolithic, fast_linked_library, and shader_object_unlinked_spirv.
+Tests depth-only rendering passes (no color attachment in some passes). Verifies depth pre-pass and post-pass scenarios with separate render passes, subpasses, and dynamic rendering. Also tests with multiview (addViewIndex). Test case names follow the pattern `separate_render_passes|subpasses|dynamic_rendering[_prepass|_postpass][_add_view_index]`. Limited to monolithic, fast_linked_library, and shader_object_unlinked_spirv. VulkanSC skips the `dynamic_rendering` sub-type; shader objects skip `SEPARATE_RENDER_PASSES` and `SUBPASSES` sub-types.
 
 ## Parameter Dimensions
 
@@ -126,7 +89,7 @@ Tests depth-only rendering passes (no color attachment in some passes). Verifies
 
 ## Verification Methods
 
-### format/compare_ops and nocolor families
+### format and nocolor families
 
 [`DepthTestInstance::verifyImage()`](../../../modules/vulkan/pipeline/vktPipelineDepthTests.cpp#L1028) uses [`ReferenceRenderer`](../../../modules/vulkan/pipeline/vktPipelineReferenceRenderer.cpp#L1) with matching depth/compare state:
 
@@ -151,7 +114,7 @@ Tests depth-only rendering passes (no color attachment in some passes). Verifies
 
 ## Notes / Uncertainties
 
-- `genFormatTests` flag controls `format/` and `nocolor/` groups: only `shader_object_unlinked_spirv` gets format tests among shader object types
+- `genFormatTests` flag controls `format` and `nocolor` groups: only `shader_object_unlinked_spirv` gets format tests among shader object types
 - `format_features` is monolithic only; `xfer_queue_layout` is monolithic only
 - `depth_clip_control` and `dynamic_rendering` sub-type of `depth_only` are guarded by `#ifndef CTS_USES_VULKANSC`
 - Shader objects skip `SEPARATE_RENDER_PASSES` and `SUBPASSES` sub-types in `depth_only`

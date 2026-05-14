@@ -13,26 +13,23 @@ Implementation file.
 - Primary source: [`vktPipelineRobustnessCacheTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineRobustnessCacheTests.cpp#L1)
 - Header: [`vktPipelineRobustnessCacheTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineRobustnessCacheTests.hpp#L1)
 
-## Registration Path
-
-[`createRobustnessCacheTests()`](../../../modules/vulkan/pipeline/vktPipelineRobustnessCacheTests.cpp#L1) returns the `pipeline_cache` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: Not shader-object, VK only.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-pipeline_cache
-└── robustness
-    └── {pipeline_type}
-        └── {robustness_test}
+pipeline.monolithic.pipeline_cache
+├── robustness
+└── robustness2
 ```
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| PipelineCacheTestCase | Verifies pipeline cache behavior with robustness properties |
+### robustness — Pipeline cache with VK_EXT_pipeline_robustness
+
+Tests that pipelines created with VK_EXT_pipeline_robustness robustness properties produce consistent pipeline cache entries. Each child test covers a robustness type (storage, uniform, vertex_input, image) and may include a compute variant for monolithic pipelines.
+
+### robustness2 — Pipeline cache with VK_KHR_robustness2
+
+Tests that pipelines created with VK_KHR_robustness2 (or VK_EXT_robustness2) robustness properties produce consistent pipeline cache entries. Each child test covers a robustness type (storage, uniform, vertex_input, image) and may include a compute variant for monolithic pipelines.
 
 ## Parameter Dimensions
 

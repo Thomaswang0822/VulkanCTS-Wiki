@@ -15,97 +15,48 @@ Implementation file. Also dispatches to [`vktPipelineVertexInputSRGBTests.cpp`](
 - Nested subgroup: [`vktPipelineVertexInputSRGBTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineVertexInputSRGBTests.cpp#L1)
 - Nested subgroup: [`vktPipelineLegacyAttrTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L1)
 
-## Registration Path
-
-This file contributes the subgroup returned by [`createVertexInputTests()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3096), which is attached under each variant root by [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L1).
-
-**Variant coverage**: All variants. Some sub-groups are excluded for shader object variants.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-vertex_input
+pipeline.monolithic.vertex_input
 ├── single_attribute
-│   ├── int
-│   │   ├── <format>_<rate_vertex>
-│   │   └── <format>_<rate_vertex>_missing_components
-│   ├── ivec2 / ivec3 / ivec4
-│   ├── uint / uvec2 / uvec3 / uvec4
-│   ├── float / vec2 / vec3 / vec4
-│   ├── float16_t / f16vec2 / f16vec3 / f16vec4
-│   ├── mat2 / mat3 / mat4
-│   └── double / dvec2 / dvec3 / dvec4 / dmat2 / dmat3 / dmat4
-├── multiple_attributes                   (excluded for shaderObject)
-│   ├── binding_one_to_one
-│   │   └── attributes
-│   │       └── <glsl_type>
-│   ├── binding_one_to_many
-│   │   ├── attributes
-│   │   └── attributes_sequential
-│   ├── layout_skip
-│   │   ├── binding_one_to_one / binding_one_to_many
-│   └── out_of_order
-│       ├── binding_one_to_one / binding_one_to_many
-├── max_attributes                        (excluded for shaderObject)
-│   ├── 16_attributes / 32_attributes / 64_attributes / 128_attributes
-│   └── query_max_attributes
+├── multiple_attributes (excluded for shaderObject)
+├── max_attributes (excluded for shaderObject)
 ├── component_mismatch
-│   ├── r64g64_to_double
-│   ├── r64g64b64_to_double / r64g64b64_to_dvec2
-│   └── r64g64b64a64_to_double / r64g64b64a64_to_dvec2 / r64g64b64a64_to_dvec3
 ├── misc
-│   ├── stride_change_vert_frag
-│   ├── stride_change_vert_tess_frag
-│   ├── stride_change_vert_geom_frag
-│   ├── stride_change_vert_tess_geom_frag
-│   ├── unused_binding                    (monolithic, fast_linked_library, shader_object_unlinked_spirv)
-│   ├── unused_binding_dynamic
-│   ├── unbound_input                     (same + VK_KHR_maintenance9, non-VulkanSC)
-│   ├── unbound_input_dynamic
-│   ├── unbound_input_integer
-│   └── unbound_input_dynamic_integer
-├── legacy_vertex_attributes              (monolithic, fast_linked_library only)
-│   └── (delegated to vktPipelineLegacyAttrTests.cpp)
-└── srgb_vertex_formats                   (delegated to vktPipelineVertexInputSRGBTests.cpp)
+├── legacy_vertex_attributes (monolithic, fast_linked_library only)
+└── srgb_vertex_formats
 ```
 
 Source: [`createVertexInputTests()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3096).
 
 ## Test Families
 
-### 1. single_attribute
+### single_attribute — Single vertex attribute fetching
 
 Tests each GLSL vertex type with all compatible VkFormats, using both VERTEX and INSTANCE input rates. Also tests "missing components" (conversion to RGBA) for formats with fewer than 4 components.
 
-### 2. multiple_attributes
+### multiple_attributes — Multiple vertex attribute combinations (excluded for shaderObject)
 
-Tests combinations of 3 different GLSL types as multiple vertex attributes, with various binding mappings (1:1, 1:many), attribute layouts (interleaved, sequential), layout skip, and layout order (in-order, out-of-order). Excluded for shader object variants.
+Tests combinations of 3 different GLSL types as multiple vertex attributes, with various binding mappings (1:1, 1:many), attribute layouts (interleaved, sequential), layout skip, and layout order (in-order, out-of-order). Subgroups include `binding_one_to_one`, `binding_one_to_many`, `layout_skip`, and `out_of_order`.
 
-### 3. max_attributes
+### max_attributes — Maximum attribute count stress tests (excluded for shaderObject)
 
-Stress-tests with 16, 32, 64, 128, and device-max attributes using random GLSL types and compatible formats, with 1:1 and 1:many binding mappings and interleaved/sequential layouts. Excluded for shader object variants.
+Stress-tests with 16, 32, 64, 128, and device-max attributes using random GLSL types and compatible formats, with 1:1 and 1:many binding mappings and interleaved/sequential layouts.
 
-### 4. component_mismatch
+### component_mismatch — 64-bit format component mismatch
 
 Tests 64-bit float formats where the format has more components than the shader expects (e.g., R64G64B64_SFLOAT consumed as `double`), verifying correct "Conversion to RGBA" behavior.
 
-### 5. misc / stride_change
+### misc — Miscellaneous vertex input tests
 
-Verifies that changing vertex buffer stride between pipeline binds (with/without tessellation/geometry shaders) works correctly without rebinding vertex buffers.
+Contains stride change tests (verifying that changing vertex buffer stride between pipeline binds works correctly without rebinding vertex buffers, with/without tessellation/geometry shaders), unused binding tests (verifying that unused vertex input bindings do not affect rendering, both static and dynamic via `VK_EXT_vertex_input_dynamic_state`), and unbound input tests (verifying that unbound vertex inputs using `VK_KHR_maintenance9` produce correct default values, non-VulkanSC only).
 
-### 6. misc / unused_binding
+### legacy_vertex_attributes — Legacy vertex attributes (monolithic, fast_linked_library only)
 
-Verifies that unused vertex input bindings do not affect rendering. Tests both static and dynamic (`VK_EXT_vertex_input_dynamic_state`) vertex input. Limited to monolithic, fast_linked_library, and shader_object_unlinked_spirv.
+Delegated to [`vktPipelineLegacyAttrTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L1). Tests legacy vertex attribute behavior.
 
-### 7. misc / unbound_input
-
-Verifies that unbound vertex inputs (using `VK_KHR_maintenance9`) produce correct default values. Tests float and integer inputs, static and dynamic vertex input. Non-VulkanSC only.
-
-### 8. legacy_vertex_attributes
-
-Delegated to [`vktPipelineLegacyAttrTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L1). Tests legacy vertex attribute behavior. Monolithic and fast_linked_library only.
-
-### 9. srgb_vertex_formats
+### srgb_vertex_formats — sRGB vertex format linearization
 
 Delegated to [`vktPipelineVertexInputSRGBTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineVertexInputSRGBTests.cpp#L1). Verifies sRGB vertex format linearization.
 

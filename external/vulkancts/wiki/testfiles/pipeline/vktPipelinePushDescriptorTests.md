@@ -14,54 +14,40 @@ Implementation file.
 - Header: [`vktPipelinePushDescriptorTests.hpp`](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.hpp#L1)
 - Shared helpers: [`ReferenceRenderer`](../../../modules/vulkan/pipeline/vktPipelineReferenceRenderer.cpp#L1)
 
-## Registration Path
-
-[`createPushDescriptorTests()`](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4770) returns the `push_descriptor` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: All variants (VulkanSC only for push_descriptor). Compute sub-group is monolithic only. Input attachments excluded for shader object.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-push_descriptor
+pipeline.monolithic.push_descriptor
 ├── graphics
-│   ├── binding<N>_numcalls<M>_<descriptor_type>   (buffer, image, texel buffer, input attachment)
-│   ├── maintenance5_uniform_texel_buffer           (monolithic only)
-│   ├── maintenance5_storage_texel_buffer           (monolithic only)
-│   └── maintenance5_uniform_buffer                 (monolithic only)
-└── compute                                         (monolithic only)
-    ├── binding<N>_numcalls<M>_<descriptor_type>
-    ├── incremental_updates                         (monolithic only)
-    ├── incremental_updates_template                (monolithic only)
-    ├── incremental_updates_2                       (monolithic only)
-    └── incremental_updates_template_2              (monolithic only)
+└── compute (monolithic only)
 ```
+
+**Variant coverage**: All variants. The `compute` subgroup is monolithic only. Input attachments are excluded for shader object (not supported with dynamic rendering).
 
 ## Test Families
 
-### 1. Buffer Graphics / Compute
+### graphics — Graphics pipeline push descriptors
 
-Verifies push descriptors with uniform/storage buffers. Graphics uses reference renderer comparison; compute uses direct SSBO comparison.
+Verifies push descriptors with all descriptor types in graphics pipelines. Leaf tests follow the naming pattern `binding<N>_numcalls<M>_<descriptor_type>` where descriptor types include:
 
-### 2. Image Graphics / Compute
+- **Buffer types**: uniform_buffer, storage_buffer (using `PushDescriptorBufferGraphicsTest`)
+- **Image types**: combined_image_sampler, sampler, sampled_image, storage_image (using `PushDescriptorImageGraphicsTest`)
+- **Texel buffer types**: uniform_texel_buffer, storage_texel_buffer (using `PushDescriptorTexelBufferGraphicsTest`)
+- **Input attachment**: input_attachment (using `PushDescriptorInputAttachmentGraphicsTest`, excluded for shader object)
 
-Verifies push descriptors with combined image sampler, sampler, sampled image, and storage image types.
+Additionally includes maintenance5 tests (monolithic only):
+- `maintenance5_uniform_texel_buffer`
+- `maintenance5_storage_texel_buffer`
+- `maintenance5_uniform_buffer`
 
-### 3. Texel Buffer Graphics / Compute
+### compute — Compute pipeline push descriptors (monolithic only)
 
-Verifies push descriptors with uniform/storage texel buffers.
+Verifies push descriptors with all descriptor types in compute pipelines. Leaf tests follow the same naming pattern as graphics. Additionally includes incremental update tests:
 
-### 4. Input Attachment Graphics
-
-Verifies push descriptors with input attachments in graphics pipelines. Excluded for shader object (not supported with dynamic rendering).
-
-### 5. Incremental Updates Compute
-
-Verifies incremental push descriptor updates (push, update, push again) in compute pipelines. Includes template and maintenance6 variants.
-
-### 6. Maintenance5
-
-Tests VK_KHR_maintenance5 features with push descriptors. Monolithic only.
+- `incremental_updates`: Verifies incremental push descriptor updates (push, update, push again)
+- `incremental_updates_template`: Same as above using `VkDescriptorUpdateTemplateKHR`
+- `incremental_updates_2`: Incremental updates using `vkCmdPushDescriptorSet2KHR`
+- `incremental_updates_template_2`: Template-based incremental updates using `vkCmdPushDescriptorSet2KHR`
 
 ## Parameter Dimensions
 

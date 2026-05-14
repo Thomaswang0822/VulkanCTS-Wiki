@@ -13,16 +13,10 @@ Implementation file.
 - Primary source: [`vktPipelineDynamicVertexAttributeTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineDynamicVertexAttributeTests.cpp#L1)
 - Header: [`vktPipelineDynamicVertexAttributeTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineDynamicVertexAttributeTests.hpp#L1)
 
-## Registration Path
-
-This file contributes the subgroup returned by [`createDynamicVertexAttributeTests()`](../../../modules/vulkan/pipeline/vktPipelineDynamicVertexAttributeTests.cpp#L565), which is attached under each variant root by [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L1).
-
-**Variant coverage**: All variants.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-dynamic_vertex_attribute
+pipeline.monolithic.dynamic_vertex_attribute
 └── nonsequential
 ```
 
@@ -30,7 +24,7 @@ Source: [`createDynamicVertexAttributeTests()`](../../../modules/vulkan/pipeline
 
 ## Test Families
 
-### 1. nonsequential
+### nonsequential — Non-sequential vertex attribute locations
 
 Verifies that non-sequential vertex attribute locations (locations 1 and 7, with 16 total instances) work correctly with `VK_EXT_vertex_input_dynamic_state`. Two pipelines are created with different attribute descriptions bound dynamically, each rendering a colored quad segment, and the results are composited. The test ensures that the dynamic vertex input state correctly handles sparse attribute locations.
 

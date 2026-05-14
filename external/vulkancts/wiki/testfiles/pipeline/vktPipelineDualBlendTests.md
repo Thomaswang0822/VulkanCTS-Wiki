@@ -14,31 +14,68 @@ Implementation file. Nested subgroup under [`vktPipelineBlendTests.cpp`](../../.
 - Header: [`vktPipelineDualBlendTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.hpp#L1)
 - Shared blend support: [`vktPipelineBlendTestsCommon.cpp`](../../../modules/vulkan/pipeline/vktPipelineBlendTestsCommon.cpp#L1)
 
-## Registration Path
-
-This file contributes the subgroup created by [`addDualBlendMultiAttachmentTests()`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L1), which is called by [`createBlendTests()`](../../../modules/vulkan/pipeline/vktPipelineBlendTests.cpp#L2989) and added under the `dual_source` group. The full registration path is `pipeline.<variant>.blend.dual_source.multi_attachments`.
-
-**Variant coverage**: All variants (via parent blend group). Non-VulkanSC only.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-dual_source                              (parent: vktPipelineBlendTests.cpp)
-└── multi_attachments
-    ├── r4g4_unorm_pack8
-    ├── r4g4b4a4_unorm_pack16
-    ├── r5g6b5_unorm_pack16
-    ├── ...                               (all formats from getBlendFormats())
-    └── r10x6g10x6b10x6a10x6_unorm_4pack16
+pipeline.monolithic.blend.dual_source.multi_attachments
+├── r4g4_unorm_pack8
+├── r4g4b4a4_unorm_pack16
+├── r5g6b5_unorm_pack16
+├── r5g5b5a1_unorm_pack16
+├── a1r5g5b5_unorm_pack16
+├── r8_unorm
+├── r8_snorm
+├── r8_srgb
+├── r8g8_unorm
+├── r8g8_snorm
+├── r8g8_srgb
+├── r8g8b8_unorm
+├── r8g8b8_snorm
+├── r8g8b8_srgb
+├── r8g8b8a8_unorm
+├── r8g8b8a8_snorm
+├── r8g8b8a8_srgb
+├── a2r10g10b10_unorm_pack32
+├── a2b10g10r10_unorm_pack32
+├── r16_unorm
+├── r16_snorm
+├── r16_sfloat
+├── r16g16_unorm
+├── r16g16_snorm
+├── r16g16_sfloat
+├── r16g16b16_unorm
+├── r16g16b16_snorm
+├── r16g16b16_sfloat
+├── r16g16b16a16_unorm
+├── r16g16b16a16_snorm
+├── r16g16b16a16_sfloat
+├── r32_sfloat
+├── r32g32_sfloat
+├── r32g32b32_sfloat
+├── r32g32b32a32_sfloat
+├── b10g11r11_ufloat_pack32
+├── e5b9g9r9_ufloat_pack32
+├── b4g4r4a4_unorm_pack16
+├── b5g5r5a1_unorm_pack16
+├── a4r4g4b4_unorm_pack16
+├── a4b4g4r4_unorm_pack16
+└── r10x6g10x6b10x6a10x6_unorm_4pack16
 ```
 
-Source: [`addDualBlendMultiAttachmentTests()`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L1).
+Source: [`addDualBlendMultiAttachmentTests()`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L1759), called by [`createBlendTests()`](../../../modules/vulkan/pipeline/vktPipelineBlendTests.cpp#L2989). Variant coverage: All variants (via parent blend group). Non-VulkanSC only.
 
 ## Test Families
 
-### 1. multi_attachments
+### r4g4_unorm_pack8 through r10x6g10x6b10x6a10x6_unorm_4pack16 — Per-format dual-source blend tests
 
-Tests dual-source blending across 4 simultaneous color attachments. Each test case corresponds to one blendable format. Internally, each case iterates over many blend-state combinations (src/dst color/alpha factors and blend ops) to verify that dual-source blending on attachment 0 produces results consistent with a generic (non-dual-source) pipeline rendering to all 4 attachments.
+Each test case corresponds to one blendable format from [`getBlendFormats()`](../../../modules/vulkan/pipeline/vktPipelineBlendTestsCommon.cpp#L42). Internally, each case iterates over many blend-state combinations (src/dst color/alpha factors and blend ops) to verify that dual-source blending on attachment 0 produces results consistent with a generic (non-dual-source) pipeline rendering to all 4 attachments.
+
+The cross-pipeline comparison strategy ([line 1249](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L1249)) works as follows:
+
+1. **Generic pipeline draw**: Renders to all 4 attachments using non-dual-source blend factors (SRC1 factors replaced with SRC equivalents). Results stored in `m_genericAttachments` buffers.
+2. **Dual-source pipeline draw**: Renders to only attachment 0 using actual dual-source blend factors (SRC1_COLOR/SRC1_ALPHA). Results stored in `m_dualAttachments` buffers.
+3. **Buffer comparison** ([`compareBuffers`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L1619)): Pixel-by-pixel comparison using `tcu::ConstPixelBufferAccess` with format-aware threshold. For each pixel, absolute per-channel difference must be below threshold.
+4. **Zero-buffer check** ([`isBufferZero`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L1611)): If the destination buffer is all zeros after the generic draw, the iteration is skipped with `QUALITY_WARNING` because the blend state yields zero.
 
 ## Parameter Dimensions
 

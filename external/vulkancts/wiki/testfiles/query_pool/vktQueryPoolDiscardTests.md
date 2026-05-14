@@ -8,120 +8,40 @@ Tests for occlusion-query behavior under fragment discard-related conditions in 
 - [`vktQueryPoolDiscardTests.cpp`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp)
 - [`vktQueryPoolDiscardTests.hpp`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.hpp)
 
-## Registration
+## Registration Hierarchy
 
-| Item | Value |
-|------|-------|
-| Top-level parent | `query_pool` via [`createTests()`](../../../modules/vulkan/query_pool/vktQueryPoolTests.cpp#L59) |
-| Level-3 group name | `discard` via [`createDiscardTests()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L533) |
-| Child registration | [`queryPoolTests->addChild(createDiscardTests(testCtx))`](../../../modules/vulkan/query_pool/vktQueryPoolTests.cpp#L54) |
-| Group population | [`createDiscardTests()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L533) |
-| Vulkan SC split | The top-level `discard` group exists in both Vulkan and Vulkan SC, but one discard subtype is compiled out in SC builds via [`#ifndef CTS_USES_VULKANSC`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L546) |
+```text
+query_pool.discard
+├── normal
+└── early
+```
+
+The nested hierarchy is built by the three boolean loops and the discard-type loop in [`createDiscardTests()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L551). Beneath each direct child, the structure descends further: `normal` and `early` each contain `no_depth` and `with_depth` subgroups, which in turn contain `none` and `precise` subgroups, which contain the leaf discard-mechanism test cases.
 
 ## Summary
 
 The `discard` group validates precise and non-precise occlusion-query behavior when fragment visibility is reduced by shader `discard`, by zeroing the sample mask, or by alpha-to-coverage. It also checks the interaction of those mechanisms with early fragment tests and optional depth testing. All cases render a `32 x 32` image, verify the exact black/white stripe pattern produced by the fragment shader, and then compare the occlusion-query result against either an exact expected sample count or a weaker non-zero requirement depending on whether `VK_QUERY_CONTROL_PRECISE_BIT` is enabled.
 
-## Test Hierarchy
+## Test Families
 
-```text
-query_pool
-└── discard
-    ├── normal
-    │   ├── no_depth
-    │   │   ├── none
-    │   │   │   ├── discard
-    │   │   │   ├── sample_mask
-    │   │   │   ├── alpha_to_coverage
-    │   │   │   └── alpha_to_coverage_dynamic    (non-SC only)
-    │   │   └── precise
-    │   │       ├── discard
-    │   │       ├── sample_mask
-    │   │       ├── alpha_to_coverage
-    │   │       └── alpha_to_coverage_dynamic    (non-SC only)
-    │   └── with_depth
-    │       ├── none
-    │       │   ├── discard
-    │       │   ├── sample_mask
-    │       │   ├── alpha_to_coverage
-    │       │   └── alpha_to_coverage_dynamic    (non-SC only)
-    │       └── precise
-    │           ├── discard
-    │           ├── sample_mask
-    │           ├── alpha_to_coverage
-    │           └── alpha_to_coverage_dynamic    (non-SC only)
-    └── early
-        ├── no_depth
-        │   ├── none
-        │   │   ├── discard
-        │   │   ├── sample_mask
-        │   │   ├── alpha_to_coverage
-        │   │   └── alpha_to_coverage_dynamic    (non-SC only)
-        │   └── precise
-        │       ├── discard
-        │       ├── sample_mask
-        │       ├── alpha_to_coverage
-        │       └── alpha_to_coverage_dynamic    (non-SC only)
-        └── with_depth
-            ├── none
-            │   ├── discard
-            │   ├── sample_mask
-            │   ├── alpha_to_coverage
-            │   └── alpha_to_coverage_dynamic    (non-SC only)
-            └── precise
-                ├── discard
-                ├── sample_mask
-                ├── alpha_to_coverage
-                └── alpha_to_coverage_dynamic    (non-SC only)
-```
+### normal — Fragment shader without early_fragment_tests
 
-The nested hierarchy is built by the three boolean loops and the discard-type loop in [`createDiscardTests()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L551).
+Fragment shader runs without `layout(early_fragment_tests)`. The group naming is defined by [`earlyFragmentName`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L553) when `earlyFragmentTest` is `false`.
 
-## Registered Families
+Beneath `normal`, the hierarchy descends through depth and precision subgroups:
 
-### Early-fragment-test split
+- `no_depth` / `with_depth` -- depth testing disabled or enabled
+  - `none` / `precise` -- query control flags absent or `VK_QUERY_CONTROL_PRECISE_BIT`
+    - `discard` -- fragment shader executes `discard;` on even `x` coordinates
+    - `sample_mask` -- fragment shader writes `gl_SampleMask[0] = 0;` on even `x` coordinates
+    - `alpha_to_coverage` -- fragment shader writes alpha `0.0` on even `x` coordinates while alpha-to-coverage is enabled
+    - `alpha_to_coverage_dynamic` (non-SC only) -- same alpha-based behavior, but enable is set dynamically with [`cmdSetAlphaToCoverageEnableEXT()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L378)
 
-The first registration axis is `earlyFragmentTests`, producing the exact group names:
+### early — Fragment shader with early_fragment_tests
 
-| Boolean | Group name | Meaning |
-|---------|------------|---------|
-| `false` | `normal` | Fragment shader runs without `layout(early_fragment_tests)` |
-| `true` | `early` | Fragment shader includes `layout(early_fragment_tests) in;` in [`initPrograms()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L511) |
+Fragment shader includes `layout(early_fragment_tests) in;` in [`initPrograms()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L511). The group naming is defined by [`earlyFragmentName`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L553) when `earlyFragmentTest` is `true`.
 
-The group naming is defined by [`earlyFragmentName`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L553).
-
-### Depth-use split
-
-Inside each early-fragment branch, the second axis is `useDepth`:
-
-| Boolean | Group name | Meaning |
-|---------|------------|---------|
-| `false` | `no_depth` | Depth testing and writes are disabled in [`createPipeline()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L303) |
-| `true` | `with_depth` | Depth testing and writes are enabled in [`createPipeline()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L303) |
-
-### Query-precision split
-
-Inside each depth branch, the third axis is `precise`:
-
-| Boolean | Group name | Query flags |
-|---------|------------|-------------|
-| `false` | `none` | No query control flags |
-| `true` | `precise` | `VK_QUERY_CONTROL_PRECISE_BIT` |
-
-The flag selection happens in [`QueryPoolDiscardTestInstance::iterate()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L366).
-
-### Discard-type split
-
-Each precision group contains one leaf case per discard mechanism listed in [`discardTypes`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L538):
-
-| Enum | Leaf name | Mechanism |
-|------|-----------|-----------|
-| `DiscardType::DISCARD` | `discard` | Fragment shader executes `discard;` on even `x` coordinates |
-| `DiscardType::SAMPLE_MASK` | `sample_mask` | Fragment shader writes `gl_SampleMask[0] = 0;` on even `x` coordinates |
-| `DiscardType::ALPHA_TO_COVERAGE` | `alpha_to_coverage` | Fragment shader writes alpha `0.0` on even `x` coordinates while alpha-to-coverage is enabled |
-| `DiscardType::ALPHA_TO_COVERAGE_DYNAMIC` | `alpha_to_coverage_dynamic` | Same alpha-based behavior, but enable is set dynamically with [`cmdSetAlphaToCoverageEnableEXT()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L378) |
-
-The dynamic alpha-to-coverage leaf is registered only in non-SC builds because it is enclosed by [`#ifndef CTS_USES_VULKANSC`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L546).
+Beneath `early`, the same nested structure as `normal` applies: `no_depth` / `with_depth`, then `none` / `precise`, then the four discard-mechanism leaf cases.
 
 ## Parameter Dimensions
 

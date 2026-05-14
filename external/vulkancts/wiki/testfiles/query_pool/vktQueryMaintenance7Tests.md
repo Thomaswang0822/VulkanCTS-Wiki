@@ -8,36 +8,25 @@ Tests for maintenance7-specific timestamp query wrapping behavior under `query_p
 - [`vktQueryMaintenance7Tests.cpp`](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp)
 - [`vktQueryMaintenance7Tests.hpp`](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.hpp)
 
-## Registration
+## Registration Hierarchy
 
-| Item | Value |
-|------|-------|
-| Top-level parent | `query_pool` via [`createTests()`](../../../modules/vulkan/query_pool/vktQueryPoolTests.cpp#L59) |
-| Level-3 group name | `maintenance7` via [`createQueryMaintenance7Tests()`](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L228) |
-| Child registration | [`queryPoolTests->addChild(createQueryMaintenance7Tests(testCtx))`](../../../modules/vulkan/query_pool/vktQueryPoolTests.cpp#L50) |
-| Group population | [`createQueryMaintenance7Tests()`](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L228) |
-| Vulkan SC split | Registered only when `CTS_USES_VULKANSC` is not defined because both the parent add-child call and the whole implementation are guarded by [`#ifndef CTS_USES_VULKANSC`](../../../modules/vulkan/query_pool/vktQueryPoolTests.cpp#L48) and [`vktQueryMaintenance7Tests.cpp:34`](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L34) |
+```text
+query_pool.maintenance7
+├── query_32b_wrap_required (VK only)
+└── query_32b_wrap_notrequired (VK only)
+```
+
+The two leaf registrations are the only children added in [`createQueryMaintenance7Tests()`](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L228). The entire `maintenance7` group is absent from Vulkan SC because both the parent add-child call and the whole implementation are guarded by [`#ifndef CTS_USES_VULKANSC`](../../../modules/vulkan/query_pool/vktQueryPoolTests.cpp#L48) and [`vktQueryMaintenance7Tests.cpp:34`](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L34).
 
 ## Summary
 
 The `maintenance7` group is a compact two-case timestamp-query suite that verifies how 32-bit query results relate to corresponding 64-bit results when `VK_KHR_maintenance7` is available. Both cases record a single timestamp query, read it back as both 32-bit and 64-bit values, and then check whether the implementation follows the wrapping rule mandated when maintenance7 is enabled or the pre-maintenance7 behavior permitted when it is not enabled.
 
-## Test Hierarchy
+## Test Families
 
-```text
-query_pool
-└── maintenance7
-    ├── query_32b_wrap_required
-    └── query_32b_wrap_notrequired
-```
+### query_32b_wrap_required — 32-bit wrapping required with maintenance7 enabled
 
-The two leaf registrations are the only children added in [`createQueryMaintenance7Tests()`](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L234).
-
-## Registered Families
-
-### `query_32b_wrap_required`
-
-This case is created by [`new Maintenance7QueryFeatureTestCase(testCtx, "query_32b_wrap_required", true)`](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L234).
+Created by [`new Maintenance7QueryFeatureTestCase(testCtx, "query_32b_wrap_required", true)`](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L234).
 
 Its `maint7Enabled` parameter is `true`, which means:
 
@@ -45,9 +34,9 @@ Its `maint7Enabled` parameter is `true`, which means:
 - runtime support checking requires the `maintenance7` feature bit to be enabled in [`Maintenance7QueryFeatureTestCase::checkSupport()`](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L189);
 - verification expects the 32-bit result to equal the low 32 bits of the 64-bit result in [`Maintenance7QueryInstance::iterate()`](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L142).
 
-### `query_32b_wrap_notrequired`
+### query_32b_wrap_notrequired — 32-bit wrapping not required without maintenance7 feature
 
-This case is created by [`new Maintenance7QueryFeatureTestCase(testCtx, "query_32b_wrap_notrequired", false)`](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L235).
+Created by [`new Maintenance7QueryFeatureTestCase(testCtx, "query_32b_wrap_notrequired", false)`](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L235).
 
 Its `maint7Enabled` parameter is `false`, which means:
 

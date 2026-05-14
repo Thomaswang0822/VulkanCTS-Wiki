@@ -13,62 +13,62 @@ Implementation file.
 - Primary source: [`vktPipelineLogicOpTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineLogicOpTests.cpp#L1)
 - Header: [`vktPipelineLogicOpTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineLogicOpTests.hpp#L1)
 
-## Registration Path
-
-This file contributes two subgroups:
-- [`createLogicOpTests()`](../../../modules/vulkan/pipeline/vktPipelineLogicOpTests.cpp#L886) returns the `logic_op` group
-- [`createLogicOpInapplicableFormatsTests()`](../../../modules/vulkan/pipeline/vktPipelineLogicOpTests.cpp#L955) returns the `logic_op_na_formats` group
-
-Both are attached under each variant root by [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L1).
-
-**Variant coverage**: All variants.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-logic_op
-├── <format_name>                         (14 UINT formats)
-│   ├── clear
-│   ├── and
-│   ├── and_reverse
-│   ├── copy
-│   ├── and_inverted
-│   ├── no_op
-│   ├── xor
-│   ├── or
-│   ├── nor
-│   ├── equivalent
-│   ├── invert
-│   ├── or_reverse
-│   ├── copy_inverted
-│   ├── or_inverted
-│   ├── nand
-│   └── set
+pipeline.monolithic.logic_op
+├── r8_uint
+├── r8g8_uint
+├── r8g8b8a8_uint
+├── b8g8r8a8_uint
+├── r16_uint
+├── r16g16_uint
+├── r16g16b16_uint
+├── r16g16b16a16_uint
+├── r32_uint
+├── r32g32_uint
+├── r32g32b32_uint
+└── r32g32b32a32_uint
 
-logic_op_na_formats
-├── <format_name>                         (18 float/sRGB formats)
-│   ├── <logicOp>_noblend
-│   └── <logicOp>_blend
+pipeline.monolithic.logic_op_na_formats
+├── r16_sfloat
+├── r16g16_sfloat
+├── r16g16b16_sfloat
+├── r16g16b16a16_sfloat
+├── r32_sfloat
+├── r32g32_sfloat
+├── r32g32b32_sfloat
+├── r32g32b32a32_sfloat
+├── r64_sfloat
+├── r64g64_sfloat
+├── r64g64b64_sfloat
+├── r64g64b64a64_sfloat
+├── r8_srgb
+├── r8g8_srgb
+├── r8g8b8_srgb
+├── b8g8r8_srgb
+├── r8g8b8a8_srgb
+└── b8g8r8a8_srgb
 ```
 
-Source: [`createLogicOpTests()`](../../../modules/vulkan/pipeline/vktPipelineLogicOpTests.cpp#L886), [`createLogicOpInapplicableFormatsTests()`](../../../modules/vulkan/pipeline/vktPipelineLogicOpTests.cpp#L955).
+Source: [`createLogicOpTests()`](../../../modules/vulkan/pipeline/vktPipelineLogicOpTests.cpp#L886), [`createLogicOpInapplicableFormatsTests()`](../../../modules/vulkan/pipeline/vktPipelineLogicOpTests.cpp#L955). Both groups are attached under each variant root by [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L1). Variant coverage: all variants.
 
 ## Test Families
 
-### 1. logic_op
+### logic_op — Logic operations on UINT formats
 
-Verifies all 16 `VkLogicOp` operations on UINT color attachment formats. Renders a fullscreen quad with a source color onto a framebuffer pre-cleared with a destination color, with logicOp enabled. Each test computes the expected result as `calcOpResult(logicOp, srcColor, dstColor) & channelMask` and compares against the GPU output.
+Verifies all 16 `VkLogicOp` operations on UINT color attachment formats. Each direct child in the hierarchy is a format-named group (12 UINT formats) containing 16 test cases named after the logic operations (clear, and, and_reverse, copy, and_inverted, no_op, xor, or, nor, equivalent, invert, or_reverse, copy_inverted, or_inverted, nand, set). Renders a fullscreen quad with a source color onto a framebuffer pre-cleared with a destination color, with logicOp enabled. Each test computes the expected result as `calcOpResult(logicOp, srcColor, dstColor) & channelMask` and compares against the GPU output. Source/dest colors are chosen to exercise all bit combinations per 4-bit nibble.
 
-### 2. logic_op_na_formats
+### logic_op_na_formats — Logic operations on inapplicable formats
 
-Verifies that logic operations are correctly *not applied* when using float and sRGB color attachment formats where logic ops are inapplicable per spec. Tests both with and without blending enabled. For sRGB formats, applies `tcu::linearToSRGB` to the quad color for the expected result; for non-sRGB, expects the raw quad color.
+Verifies that logic operations are correctly *not applied* when using float and sRGB color attachment formats where logic ops are inapplicable per spec. Each direct child in the hierarchy is a format-named group (12 float + 6 sRGB formats) containing test cases for each logic op with both `_noblend` and `_blend` suffixes. For sRGB formats, applies `tcu::linearToSRGB` to the quad color for the expected result; for non-sRGB, expects the raw quad color (since logicOp should not apply).
 
 ## Parameter Dimensions
 
 | Parameter | Source | Values |
 |---|---|---|
 | VkLogicOp | Loop at [line 910](../../../modules/vulkan/pipeline/vktPipelineLogicOpTests.cpp#L910) | All 16: CLEAR, AND, AND_REVERSE, COPY, AND_INVERTED, NO_OP, XOR, OR, NOR, EQUIVALENT, INVERT, OR_REVERSE, COPY_INVERTED, OR_INVERTED, NAND, SET |
-| UINT format | [Array](../../../modules/vulkan/pipeline/vktPipelineLogicOpTests.cpp#L928) | 14 UINT formats: R8_UINT through R32G32B32A32_UINT |
+| UINT format | [Array](../../../modules/vulkan/pipeline/vktPipelineLogicOpTests.cpp#L928) | 12 UINT formats: R8_UINT through R32G32B32A32_UINT |
 | Float/sRGB format | [Array](../../../modules/vulkan/pipeline/vktPipelineLogicOpTests.cpp#L983) | 18 formats: 12 float + 6 sRGB |
 | Blending | Loop at [line 1018](../../../modules/vulkan/pipeline/vktPipelineLogicOpTests.cpp#L1018) | `false`, `true` (logic_op_na_formats only) |
 | Source/dest colors | Constants at [line 905](../../../modules/vulkan/pipeline/vktPipelineLogicOpTests.cpp#L905) | Carefully chosen to exercise all bit combinations per 4-bit nibble |

@@ -13,32 +13,28 @@ Implementation file.
 - Primary source: [`vktPipelineBlendOperationAdvancedTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineBlendOperationAdvancedTests.cpp#L1)
 - Header: [`vktPipelineBlendOperationAdvancedTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineBlendOperationAdvancedTests.hpp#L1)
 
-## Registration Path
-
-[`createBlendOperationAdvancedTests()`](../../../modules/vulkan/pipeline/vktPipelineBlendOperationAdvancedTests.cpp#L2236) returns the `blend_operation_advanced` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: All variants.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-blend_operation_advanced
+pipeline.monolithic.blend_operation_advanced
 ├── ops
-│   └── {blend_op}
-│       └── {format}
 ├── independent
-│   └── {blend_op}
-│       └── {format}
 └── coherent
-    └── {blend_op}
-        └── {format}
 ```
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| BlendOperationAdvancedTest | Verifies advanced blend operations produce correct results |
+### ops — Per-operation advanced blend verification
+
+Tests each advanced blend operation individually across multiple overlap modes (UNCORRELATED, CONJOINT, DISJOINT) and premultiplied source/destination color combinations. Each test case is parameterized by blend operation, format (R16G16B16A16_SFLOAT and R8G8B8A8_UNORM), overlap mode, and premultiply mode. Additional RGB blend operations (PLUS, MINUS, etc.) are only tested with UNCORRELATED overlap.
+
+### independent — Independent blend per attachment
+
+Tests advanced blend operations with independent blending enabled across multiple color attachments (2, 4, and 8). Each attachment receives a randomly selected blend operation. Uses premultiplied source and destination colors with UNCORRELATED overlap.
+
+### coherent — Coherent advanced blending
+
+Tests coherent advanced blending where two consecutive advanced blend operations are performed on the same color attachment. Each test case uses two randomly selected blend operations. Verifies that coherent blending produces correct results when operations are applied sequentially.
 
 ## Parameter Dimensions
 

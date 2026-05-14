@@ -13,59 +13,50 @@ Implementation file.
 - Primary source: [`vktPipelineMultisampledRenderToSingleSampledTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.cpp#L1)
 - Header: [`vktPipelineMultisampledRenderToSingleSampledTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.hpp#L1)
 
-## Registration Path
-
-- [`createMultisampledRenderToSingleSampledTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.cpp#L6101) returns the `multisampled_render_to_single_sampled` group
-- [`createMultisampledMiscTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.cpp#L6108) returns the `misc` group
-
-Both are added to the `multisample` group by `createMultisampleTests()`.
-
-**Variant coverage**: All variants (conditional on VK_EXT_multisampled_render_to_single_sampled support).
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-multisampled_render_to_single_sampled
+pipeline.monolithic.multisample.multisampled_render_to_single_sampled
 ├── basic
-│   └── {format}
-│       └── {sample_count}
-│           └── {resolve_mode}
-│               └── {whole_framebuffer,srgb_flags}
 ├── clear_attachments
-│   └── {format}
-│       └── {sample_count}
-│           └── {resolve_mode}
 ├── multi_subpass
-│   └── {format}
-│       └── {sample_count}
 ├── multi_renderpass
-│   └── {format}
-│       └── {sample_count}
 ├── input_attachments
-│   └── {input_type}
-│       └── {format}
-│           └── {sample_count}
-│               └── {resolve_mode}
 ├── subpass_resolve_efficiency_query
-├── garbage_color_attachment
-└── dynamic_rendering
-
-misc
 └── dynamic_rendering
 ```
 
+Source: [`createMultisampledRenderToSingleSampledTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.cpp#L6101) returns the `multisampled_render_to_single_sampled` group. Both this group and the separate [`misc`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.cpp#L6110) group are added to the `multisample` group by `createMultisampleTests()`. Variant coverage: all variants (conditional on VK_EXT_multisampled_render_to_single_sampled support).
+
 ## Test Families
 
-| Family | Description |
-|---|---|
-| Basic MSRTSS test | Verifies basic multisampled render to single-sampled attachment rendering |
-| Clear attachments test | Verifies vkCmdClearAttachments with MSRTSS |
-| Multi-subpass test | Verifies MSRTSS across multiple subpasses |
-| Multi-renderpass test | Verifies MSRTSS across multiple render passes |
-| Input attachments test | Verifies input attachment access with MSRTSS |
-| Subpass resolve efficiency query | Verifies subpass resolve efficiency query |
-| Garbage color attachment test | Verifies behavior with garbage color attachment data |
-| Dynamic rendering test | Verifies MSRTSS with VK_KHR_dynamic_rendering |
+### basic — Basic MSRTSS rendering
+
+Verifies basic multisampled render to single-sampled attachment rendering. Contains leaf test cases parameterized by `{format}`, `{sample_count}`, `{resolve_mode}`, and `{whole_framebuffer,srgb_flags}`.
+
+### clear_attachments — Clear attachments with MSRTSS
+
+Verifies `vkCmdClearAttachments` with MSRTSS. Contains leaf test cases parameterized by `{format}`, `{sample_count}`, and `{resolve_mode}`.
+
+### multi_subpass — Multi-subpass MSRTSS
+
+Verifies MSRTSS across multiple subpasses. Contains leaf test cases parameterized by `{format}` and `{sample_count}`. Not tested with dynamic rendering (multi-subpass requires render pass).
+
+### multi_renderpass — Multi-renderpass MSRTSS
+
+Verifies MSRTSS across multiple render passes. Contains leaf test cases parameterized by `{format}` and `{sample_count}`.
+
+### input_attachments — Input attachment access with MSRTSS
+
+Verifies input attachment access with MSRTSS. Contains leaf test cases parameterized by `{input_type}`, `{format}`, `{sample_count}`, and `{resolve_mode}`. Not tested with dynamic rendering or shader objects.
+
+### subpass_resolve_efficiency_query — Subpass resolve efficiency query
+
+Verifies subpass resolve efficiency query. Only registered when `isMultisampledRenderToSingleSampled` and `pipelineConstructionType == PIPELINE_CONSTRUCTION_TYPE_MONOLITHIC` and not using dynamic rendering.
+
+### dynamic_rendering — MSRTSS with dynamic rendering
+
+Verifies MSRTSS with VK_KHR_dynamic_rendering. This subgroup is always added and contains the same test structure as the non-dynamic-rendering path but using dynamic rendering mode. For non-monolithic pipeline construction types, also contains a `garbage_color_attachment` child subgroup that verifies behavior with garbage color attachment data.
 
 ## Parameter Dimensions
 
@@ -96,4 +87,4 @@ misc
 ## Notes
 
 - The `multisampled_render_to_single_sampled` group is only registered when the extension is supported
-- The `misc` group contains additional dynamic rendering tests
+- The `misc` group (registered separately as `pipeline.monolithic.multisample.misc`) contains additional dynamic rendering tests and is created by [`createMultisampledMiscTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.cpp#L6108)

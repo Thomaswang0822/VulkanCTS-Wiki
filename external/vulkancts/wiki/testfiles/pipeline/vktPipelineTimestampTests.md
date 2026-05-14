@@ -13,59 +13,45 @@ Implementation file.
 - Primary source: [`vktPipelineTimestampTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L1)
 - Header: [`vktPipelineTimestampTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.hpp#L1)
 
-## Registration Path
-
-[`createTimestampTests()`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4211) returns the `timestamp` group, attached under each variant root by [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L146).
-
-**Variant coverage**: All variants.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-timestamp
+pipeline.monolithic.timestamp
 ├── basic_graphics_tests
-│   └── {stage_pair}_{in/out_of_render_pass}{_host_query_reset}{_with_availability_bit}
 ├── advanced_graphics_tests
-│   └── {stage_pair}_{in/out_of_render_pass}{_host_query_reset}{_with_availability_bit}
-├── basic_compute_tests                          (monolithic only)
-│   └── {stage_pair}{_host_query_reset}{_with_availability_bit}
-├── transfer_tests                               (monolithic only)
-│   └── {stage}_with_{transfer_method}{_host_query_reset}{_transfer_queue}{_with_availability_bit}
-├── calibrated                                   (monolithic only)
-│   ├── dev_domain_test
-│   ├── host_domain_test
-│   └── calibration_test
-└── misc_tests                                   (monolithic only)
-    ├── timestamp_only{_with_availability_bit}
-    ├── two_cmd_buffers_primary{_with_availability_bit}
-    ├── two_cmd_buffers_secondary{_with_availability_bit}
-    ├── timestamp_only_host_query_reset{_with_availability_bit}
-    ├── two_cmd_buffers_primary_host_query_reset{_with_availability_bit}
-    ├── two_cmd_buffers_secondary_host_query_reset{_with_availability_bit}
-    ├── two_cmd_buffers_secondary_transfer_queue{_with_availability_bit}
-    ├── reset_query_before_copy
-    ├── fill_buffer_before_copy
-    ├── consistent_results
-    ├── check_timestamp_compute_and_graphics     (monolithic only)
-    └── sequential_timestamps                    (monolithic only)
+├── basic_compute_tests (monolithic only)
+├── transfer_tests (monolithic only)
+├── calibrated (monolithic only)
+└── misc_tests (monolithic only)
 ```
+
+Source: [`createTimestampTests()`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4211) returns the `timestamp` group, attached under each variant root by [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L146). Variant coverage: all variants.
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| BasicGraphicsTest | Verifies timestamp queries for basic graphics pipeline stages (vertex input, vertex shader, fragment shader, early/late fragment tests, color attachment output) |
-| AdvGraphicsTest | Verifies timestamp queries for advanced graphics pipeline stages (draw indirect, tessellation control/evaluation, geometry shader) |
-| BasicComputeTest | Verifies timestamp queries for compute pipeline stages (compute shader, all commands) |
-| TransferTest | Verifies timestamp queries for transfer operations across all transfer methods and queue types |
-| CalibratedTimestampTest | Verifies calibrated timestamp queries across device and host time domains |
-| TimestampTest | Base and standalone timestamp test (write timestamp only, no rendering) |
-| TwoCmdBuffersTest | Verifies timestamp query and copy across two command buffers (primary/secondary) |
-| FillBufferBeforeCopyTest | Verifies that filling a buffer with zeros before copying query results produces correct values |
-| ResetTimestampQueryBeforeCopyTest | Verifies that resetting a timestamp query before copying results produces correct values |
-| ConsistentQueryResultsTest | Verifies consistency between 32-bit and 64-bit timestamp query results |
-| CheckTimestampComputeAndGraphicsTest | Verifies that all graphics/compute queues support at least 36 timestamp valid bits when `timestampComputeAndGraphics` is enabled |
-| SequentialTimestampTest | Verifies that sequential timestamps across render pass, compute, and transfer operations are monotonically non-decreasing |
+### basic_graphics_tests — Basic graphics pipeline stage timestamps
+
+Verifies timestamp queries for basic graphics pipeline stages (vertex input, vertex shader, fragment shader, early/late fragment tests, color attachment output). Contains leaf test cases named `{stage_pair}_{in/out_of_render_pass}{_host_query_reset}{_with_availability_bit}` for each combination of stage pair, render-pass context, host-query-reset mode, and availability-bit flag.
+
+### advanced_graphics_tests — Advanced graphics pipeline stage timestamps
+
+Verifies timestamp queries for advanced graphics pipeline stages (draw indirect, tessellation control/evaluation, geometry shader). Contains leaf test cases named `{stage_pair}_{in/out_of_render_pass}{_host_query_reset}{_with_availability_bit}`.
+
+### basic_compute_tests — Compute pipeline stage timestamps (monolithic only)
+
+Verifies timestamp queries for compute pipeline stages (compute shader, all commands). Contains leaf test cases named `{stage_pair}{_host_query_reset}{_with_availability_bit}`. Only registered for `PIPELINE_CONSTRUCTION_TYPE_MONOLITHIC`.
+
+### transfer_tests — Transfer operation timestamps (monolithic only)
+
+Verifies timestamp queries for transfer operations across all transfer methods and queue types. Contains leaf test cases named `{stage}_with_{transfer_method}{_host_query_reset}{_transfer_queue}{_with_availability_bit}`. Only registered for `PIPELINE_CONSTRUCTION_TYPE_MONOLITHIC`. Transfer tests skip methods not supported on transfer-only queues (blit, clear, resolve, copy query pool results).
+
+### calibrated — Calibrated timestamp queries (monolithic only)
+
+Verifies calibrated timestamp queries across device and host time domains. Contains three leaf test cases: `dev_domain_test`, `host_domain_test`, and `calibration_test`. Only registered for `PIPELINE_CONSTRUCTION_TYPE_MONOLITHIC`.
+
+### misc_tests — Miscellaneous timestamp tests (monolithic only)
+
+Contains standalone and edge-case timestamp tests. Leaf test cases include `timestamp_only{_with_availability_bit}`, `two_cmd_buffers_primary{_with_availability_bit}`, `two_cmd_buffers_secondary{_with_availability_bit}`, `timestamp_only_host_query_reset{_with_availability_bit}`, `two_cmd_buffers_primary_host_query_reset{_with_availability_bit}`, `two_cmd_buffers_secondary_host_query_reset{_with_availability_bit}`, `two_cmd_buffers_secondary_transfer_queue{_with_availability_bit}`, `reset_query_before_copy`, `fill_buffer_before_copy`, `consistent_results`, `check_timestamp_compute_and_graphics` (monolithic only), and `sequential_timestamps` (monolithic only). Only registered for `PIPELINE_CONSTRUCTION_TYPE_MONOLITHIC`.
 
 ## Parameter Dimensions
 

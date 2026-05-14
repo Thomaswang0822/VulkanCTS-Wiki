@@ -14,47 +14,41 @@ Implementation file. Also dispatches to [`vktPipelineShaderComponentDecoratedLay
 - Header: [`vktPipelineInterfaceMatchingTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineInterfaceMatchingTests.hpp#L1)
 - Nested subgroup: [`vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp#L1)
 
-## Registration Path
-
-[`createInterfaceMatchingTests()`](../../../modules/vulkan/pipeline/vktPipelineInterfaceMatchingTests.cpp#L1254) returns the `interface_matching` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: All variants.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-interface_matching
-├── vector_length                         (outVec >= inVec)
-│   └── <pipelineType>_<definitionType>_<vecFormats>
+pipeline.monolithic.interface_matching
+├── vector_length
 ├── decoration_mismatch
-│   └── <decorationPair>_<definitionType>_<pipelineType>
-├── shader_layout_component_matching      (non-VulkanSC, delegated to nested file)
-│   └── vert_frag / vert_geom_frag / vert_tesc_tese_frag / vert_tesc_tese_geom_frag
-│       └── loose_var / in_block
-│           └── float16 / float32 / float64
-│               └── single_location / multiple_locations
-│                   └── <component_pattern>
+├── shader_layout_component_matching (non-VulkanSC only)
 └── misc
-    └── skip_output_variable
 ```
 
 ## Test Families
 
-### 1. vector_length
+### vector_length — Vector length interface matching
 
 Tests interface matching when output vector length differs from input vector length (e.g., vec4 output matched with vec2 input). Requires `VK_KHR_maintenance4` when lengths differ.
 
-### 2. decoration_mismatch
+Generated leaves follow the pattern `<pipelineType>_<definitionType>_<vecFormats>`, iterating over 9 pipeline types, 6 definition types, and all valid out/in vector size combinations.
+
+### decoration_mismatch — Decoration mismatch interface matching
 
 Tests interface matching when interpolation decorations (flat, no_perspective, component) differ between output and input. Requires `graphicsPipelineLibraryIndependentInterpolationDecoration` for pipeline library variant.
 
-### 3. shader_layout_component_matching
+Generated leaves follow the pattern `<decorationPair>_<definitionType>_<pipelineType>`, iterating over 8 decoration pairs filtered by definition type.
 
-Tests shader component decoration layout matching across pipeline stages. Parameterized by flow, mode, bit width, location count, and component packing. Non-VulkanSC only.
+### shader_layout_component_matching — Component-decorated layout matching
 
-### 4. misc / skip_output_variable
+Tests shader component decoration layout matching across pipeline stages. Parameterized by flow, mode, bit width, location count, and component packing. Non-VulkanSC only. Delegated to [`vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp#L1).
+
+Nested hierarchy: flow variants (vert_frag, vert_geom_frag, vert_tesc_tese_frag, vert_tesc_tese_geom_frag) containing mode (loose_var, in_block), width (float16, float32, float64), location count (single_location, multiple_locations), and component patterns.
+
+### misc — Miscellaneous interface matching tests
 
 Vertex shader outputs v0, v1, v2 but fragment shader only inputs v0, v2 (skipping v1). Verifies that v2 correctly receives the value from location 2.
+
+Contains the `skip_output_variable` test case.
 
 ## Parameter Dimensions
 
