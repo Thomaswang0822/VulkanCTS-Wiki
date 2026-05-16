@@ -4,23 +4,25 @@
 
 [vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp)
 
-## Registration
+## Registration Hierarchy
 
-Added to `renderpass1` root group.
+```text
+renderpasses.renderpass1.multiple_subpasses_multiple_command_buffers
+├── test
+└── test_general_layout
+```
 
-Registered group name: `"multiple_subpasses_multiple_command_buffers"` ([L904](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L904))
+Available under `renderpass1` only. Registered at [L904](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L904).
 
 ## Test Families
 
-```
-multiple_subpasses_multiple_command_buffers
-+-- MultipleSubpassesMultipleCommandBuffersTest
-    Rendering with multiple subpasses across multiple command buffers.
-    +-- test
-    |   useGeneralLayout=false
-    +-- test_general_layout
-        useGeneralLayout=true
-```
+### test — Multiple subpasses with multiple command buffers
+
+Rendering with multiple subpasses across multiple command buffers with `useGeneralLayout=false` ([L906](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L906)).
+
+### test_general_layout — Multiple subpasses with general layout
+
+Rendering with multiple subpasses across multiple command buffers with `useGeneralLayout=true` ([L907](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L907)).
 
 ## Parameter Dimensions
 

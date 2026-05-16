@@ -4,10 +4,15 @@
 
 - [vktRenderPassClearSomeAttachmentsTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassClearSomeAttachmentsTests.cpp)
 
-## Registration
+## Registration Hierarchy
 
-- **Path**: Added to `suballocation` subgroup (monolithic pipeline, secondary CB match)
-- **Registered group name**: `"clear_some_attachments"` at [vktRenderPassClearSomeAttachmentsTests.cpp#L429](../../../modules/vulkan/renderpass/vktRenderPassClearSomeAttachmentsTests.cpp#L429)
+```text
+renderpasses.renderpass1.suballocation.clear_some_attachments
+├── clear_only_color
+└── clear_only_depth
+```
+
+Registered under all rendering types (renderpass1, renderpass2, dynamic_rendering) within the `suballocation` subgroup, monolithic pipeline only. Registered group name: `"clear_some_attachments"` at [vktRenderPassClearSomeAttachmentsTests.cpp#L429](../../../modules/vulkan/renderpass/vktRenderPassClearSomeAttachmentsTests.cpp#L429).
 
 ## Role
 
@@ -15,23 +20,15 @@ Implementation file
 
 ## Test Families
 
-### Clear only color
+### clear_only_color — Clear only color attachment
 
-- **Pattern**: `clear_only_color`
 - **Mode**: CLEAR_ONLY_COLOR
+- Has a color attachment with loadOp = CLEAR and storeOp = STORE, a depth attachment with loadOp = LOAD and storeOp = STORE, and uses VkRenderPassBeginInfo to clear only the color attachment.
 
-### Clear only depth
+### clear_only_depth — Clear only depth attachment
 
-- **Pattern**: `clear_only_depth`
 - **Mode**: CLEAR_ONLY_DEPTH
-
-## Test Hierarchy
-
-```
-clear_some_attachments
-|-- clear_only_color
-+-- clear_only_depth
-```
+- Has a depth attachment with loadOp = CLEAR and storeOp = STORE, a color attachment with loadOp = LOAD and storeOp = STORE, and uses VkRenderPassBeginInfo to clear only the depth attachment.
 
 ## Parameter Dimensions
 

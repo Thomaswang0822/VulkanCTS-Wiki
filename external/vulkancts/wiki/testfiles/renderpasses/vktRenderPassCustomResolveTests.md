@@ -4,29 +4,35 @@
 
 [vktRenderPassCustomResolveTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassCustomResolveTests.cpp)
 
-## Registration
+## Registration Hierarchy
 
-Added to renderpass1, renderpass2, and dynamic_rendering root groups (non-SC, no secondary CB or partial secondary CB).
+```text
+renderpasses.renderpass1.custom_resolve
+├── fast_lib
+└── monolithic
+```
 
-Registered group name: `"custom_resolve"` ([L5777](../../../modules/vulkan/renderpass/vktRenderPassCustomResolveTests.cpp#L5777))
+Registered under renderpass1, renderpass2, and dynamic_rendering root groups (non-SC, no secondary CB or partial secondary CB). The representative root above shows renderpass1 children; dynamic_rendering additionally includes a `shader_objects` child. Registered group name: `"custom_resolve"` ([L5777](../../../modules/vulkan/renderpass/vktRenderPassCustomResolveTests.cpp#L5777)).
 
 ## Test Families
 
-```
-custom_resolve
-+-- CustomResolveCase
-|   Tests custom resolve using VK_EXT_custom_resolve with various
-|   resolve types and attachment configurations.
-+-- FragmentRegionCase
-|   Fragment density map region interactions with custom resolve.
-+-- FDMCase
-|   Fragment density map variant tests for custom resolve.
-+-- Sub-groups
-    +-- simple_average
-    +-- simple_fixed
-    +-- simple_sample_2
-    +-- complex configurations
-```
+### monolithic — Monolithic pipeline construction
+
+Custom resolve tests using monolithic pipeline construction (PIPELINE_CONSTRUCTION_TYPE_MONOLITHIC). Contains leaf test cases for various resolve configurations including:
+- `simple_average` — Simple average resolve
+- `simple_fixed` — Simple fixed-value resolve
+- `simple_sample_2` — Simple selected-sample resolve
+- Complex configurations with multiple color/depth/stencil attachments, format changes, and attachment index changes
+- FragmentRegionCase tests for fragment density map region interactions
+- FDMCase tests for fragment density map variants with custom resolve
+
+### fast_lib — Fast-linked graphics pipeline library
+
+Custom resolve tests using fast-linked graphics pipeline library construction (PIPELINE_CONSTRUCTION_TYPE_FAST_LINKED_LIBRARY). Contains the same test structure as monolithic.
+
+### shader_objects — Shader object construction (dynamic_rendering only)
+
+Custom resolve tests using shader object construction with unlinked SPIR-V (PIPELINE_CONSTRUCTION_TYPE_SHADER_OBJECT_UNLINKED_SPIRV). Only present under the dynamic_rendering variant. Contains the same test structure as monolithic.
 
 ## Parameter Dimensions
 

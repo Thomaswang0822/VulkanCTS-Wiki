@@ -4,10 +4,20 @@
 
 - [vktRenderPassUnusedAttachmentTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassUnusedAttachmentTests.cpp)
 
-## Registration
+## Registration Hierarchy
 
-- **Path**: Added to `suballocation` subgroup within each top-level group
-- **Registered group name**: `"unused_attachment"` at [vktRenderPassUnusedAttachmentTests.cpp#L1223](../../../modules/vulkan/renderpass/vktRenderPassUnusedAttachmentTests.cpp#L1223)
+```text
+renderpasses.renderpass1.suballocation.unused_attachment
+├── loadopclear
+├── loadopdontcare
+└── loadopload
+```
+
+Evidence:
+- `unused_attachment` group created at [`createRenderPassUnusedAttachmentTests()`](../../../modules/vulkan/renderpass/vktRenderPassUnusedAttachmentTests.cpp#L1223)
+- Direct children are per-load-op subgroups added from [vktRenderPassUnusedAttachmentTests.cpp#L1239-L1286](../../../modules/vulkan/renderpass/vktRenderPassUnusedAttachmentTests.cpp#L1239-L1286)
+
+Note: The representative root uses `renderpass1`; the same topic group also appears under `renderpass2` and `dynamic_rendering` (with some exclusions for DONT_CARE ops).
 
 ## Role
 
@@ -15,20 +25,27 @@ Implementation file
 
 ## Test Families
 
-### Load/store op combinations
+### loadopclear — Unused attachment tests with LOAD_OP_CLEAR
 
-- **Pattern**: `loadop<OP>/storeop<OP>/stencilloadop<OP>/stencilstoreop<OP>`
+Tests unused attachments when the load operation is `VK_ATTACHMENT_LOAD_OP_CLEAR`. Each test configures a combination of store op, stencil load op, and stencil store op for the unused attachment.
+
+- **Pattern**: `loadopclear/storeop<OP>/stencilloadop<OP>/stencilstoreop<OP>`
 - **Definition**: [vktRenderPassUnusedAttachmentTests.cpp#L1239-L1286](../../../modules/vulkan/renderpass/vktRenderPassUnusedAttachmentTests.cpp#L1239-L1286)
 
-## Test Hierarchy
+### loadopdontcare — Unused attachment tests with LOAD_OP_DONT_CARE
 
-```
-unused_attachment
-+-- loadop<OP>
-    +-- storeop<OP>
-        +-- stencilloadop<OP>
-            +-- stencilstoreop<OP>
-```
+Tests unused attachments when the load operation is `VK_ATTACHMENT_LOAD_OP_DONT_CARE`. Each test configures a combination of store op, stencil load op, and stencil store op for the unused attachment.
+
+- **Pattern**: `loadopdontcare/storeop<OP>/stencilloadop<OP>/stencilstoreop<OP>`
+- **Definition**: [vktRenderPassUnusedAttachmentTests.cpp#L1239-L1286](../../../modules/vulkan/renderpass/vktRenderPassUnusedAttachmentTests.cpp#L1239-L1286)
+- Excluded for `RENDERING_TYPE_DYNAMIC_RENDERING` (DONT_CARE load/store ops skipped)
+
+### loadopload — Unused attachment tests with LOAD_OP_LOAD
+
+Tests unused attachments when the load operation is `VK_ATTACHMENT_LOAD_OP_LOAD`. Each test configures a combination of store op, stencil load op, and stencil store op for the unused attachment.
+
+- **Pattern**: `loadopload/storeop<OP>/stencilloadop<OP>/stencilstoreop<OP>`
+- **Definition**: [vktRenderPassUnusedAttachmentTests.cpp#L1239-L1286](../../../modules/vulkan/renderpass/vktRenderPassUnusedAttachmentTests.cpp#L1239-L1286)
 
 ## Parameter Dimensions
 

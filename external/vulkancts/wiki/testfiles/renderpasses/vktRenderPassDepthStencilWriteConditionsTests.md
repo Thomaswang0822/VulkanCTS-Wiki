@@ -4,21 +4,25 @@
 
 [vktRenderPassDepthStencilWriteConditionsTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilWriteConditionsTests.cpp)
 
-## Registration
+## Registration Hierarchy
 
-Added to `renderpass1` root group (non-SC only).
+```text
+renderpasses.renderpass1.depth_stencil_write_conditions
+```
 
-Registered group name: `"depth_stencil_write_conditions"` ([L589](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilWriteConditionsTests.cpp#L589))
+Available under `renderpass1` only (non-SC). Registered at [L589](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilWriteConditionsTests.cpp#L589).
 
 ## Test Families
 
-```
-depth_stencil_write_conditions
-+-- DepthStencilWriteConditionsTest
-    Tests that depth/stencil writes from helper invocations
-    (discarded, demoted, or terminated fragments) do or do not
-    affect the buffer.
-```
+### depth_stencil_write_conditions — Depth/stencil write conditions for helper invocations
+
+Tests that depth/stencil writes from helper invocations (discarded, demoted, or terminated fragments) do or do not affect the buffer. 54 test cases generated from a parameter matrix:
+
+- **BufferType**: DEPTH (4 formats), STENCIL (2 formats)
+- **DiscardType**: KILL (OpKill), DEMOTE (OpDemoteToHelperInvocation), TERMINATE (OpTerminateInvocation)
+- **MutationMode**: WRITE, INITIALIZE, INITIALIZE_WRITE
+
+Test names follow the pattern: `{buffer}_{'kill'|'terminate'|'demote'}_{'write'|'initialize'|'write_initialize'}_{format_postfix}`
 
 ## Parameter Dimensions
 
@@ -29,8 +33,6 @@ depth_stencil_write_conditions
 | MutationMode | WRITE, INITIALIZE, INITIALIZE_WRITE |
 | Depth formats | D32_SFLOAT_S8_UINT, D24_UNORM_S8_UINT, X8_D24_UNORM_PACK32, D32_SFLOAT |
 | Stencil formats | D32_SFLOAT_S8_UINT, D24_UNORM_S8_UINT |
-
-Test names follow the pattern: `{buffer}_{'kill'|'terminate'|'demote'}_{'write'|'initialize'|'write_initialize'}_{format_postfix}`
 
 ## Support Requirements
 

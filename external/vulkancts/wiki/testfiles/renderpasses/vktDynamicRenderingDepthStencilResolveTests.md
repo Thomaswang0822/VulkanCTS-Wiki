@@ -4,20 +4,35 @@
 
 [vktDynamicRenderingDepthStencilResolveTests.cpp](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp)
 
-## Registration
+## Registration Hierarchy
 
-Added to dynamic_rendering root group (monolithic pipeline).
+```text
+renderpasses.dynamic_rendering.primary_cmd_buff.depth_stencil_resolve
+├── samples_16
+├── samples_2
+├── samples_32
+├── samples_4
+├── samples_64
+└── samples_8
+```
 
-Registered group name: `"depth_stencil_resolve"` ([line 1930](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1930))
+Registered under all four dynamic rendering intermediate groups: `primary_cmd_buff`, `partial_secondary_cmd_buff`, `complete_secondary_cmd_buff`, and `graphics_pipeline_library` ([vktRenderPassTests.cpp#L8527](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8527)). The `depth_stencil_resolve` group is created at [line 1930](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1930).
 
 ## Test Families
 
-```
-depth_stencil_resolve
-|-- samples_N
-    |-- format[_separate_layouts]
-        |-- depth_X_stencil_Y_testing_Z
-```
+### samples_2 — 2x MSAA depth/stencil resolve
+
+### samples_4 — 4x MSAA depth/stencil resolve
+
+### samples_8 — 8x MSAA depth/stencil resolve
+
+### samples_16 — 16x MSAA depth/stencil resolve
+
+### samples_32 — 32x MSAA depth/stencil resolve
+
+### samples_64 — 64x MSAA depth/stencil resolve
+
+Each sample group contains format subgroups (e.g., `d16_unorm`, `d24_unorm_s8_uint`, `d32_sfloat_s8_uint`, `d16_unorm_s8_uint`, `d32_sfloat`, `s8_uint`, `d24_unorm`), which in turn contain individual resolve-mode test cases named `depth_{mode}_stencil_{mode}_testing_{aspect}`.
 
 **Parameter Dimensions** ([lines 1766-1916](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1766-L1916)):
 
