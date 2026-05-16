@@ -251,10 +251,10 @@ Note: the workflow rules in this section are primarily about Level-2 category pr
 Use two different concepts and do not mix them:
 
 1. **Tracker count**
-   - For [`README.md`](../../../external/vulkancts/wiki/README.md), count only the top-level groups registered directly by the category root registration file.
+   - For [`README.md`](../../../external/vulkancts/wiki/README.md), count the actual number of Level-3 wiki files (`.md` files) under `testfiles/{category}/`.
    - This is the official progress number.
-   - Do not count nested subgroup files in this tracker number.
-   - Do not use raw `.cpp` counts, CMake source lists, wiki page counts, or nested subgroup page counts as the official count source — those can help discover material but are not the tracker rule.
+   - The count must be updated in the README table after the category reaches `✅ Done`.
+   - For categories that share a wiki folder with another category (e.g., `synchronization` and `synchronization2` share `testfiles/synchronization/`), the primary category gets the actual file count, and the secondary category uses `(shared with {primary_category})` instead of a number.
 
 2. **Writing scope**
    - When documenting the category, create Level-3 pages for any separately meaningful registered group file, including nested subgroup files when they exist as their own registration/documentation units.
@@ -459,4 +459,4 @@ Before marking work complete, verify:
 ### Step 10: Update Progress Tracking
 
 If the project is using [`external/vulkancts/wiki/README.md`](../../../external/vulkancts/wiki/README.md) as a tracker, update it after the consistency review.
-When updating its `Level-3 Files` column, use the official top-level-group count and only fill it once the category is `✅ Done`.
+When updating its `Level-3 Files` column, count the actual number of `.md` files under `testfiles/{category}/` and fill it once the category is `✅ Done`.

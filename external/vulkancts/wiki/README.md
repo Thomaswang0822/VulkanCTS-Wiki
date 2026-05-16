@@ -39,20 +39,20 @@ wiki/
 
 The category order below is intended as a learning path from Vulkan fundamentals toward more specialized and extension-heavy areas. It is the default order to follow when creating or reading category documentation, unless a user explicitly asks for a different category.
 
-For this tracker, the `Level-3 Files` column uses the agreed progress-counting rule: count only top-level groups under the category registration tree. The number is updated only after a category reaches `✅ Done`. Categories that are still `⬜ Not Started` intentionally leave this field blank, even if a future expected count is already known from source inspection.
+For this tracker, the `Level-3 Files` column counts the actual number of Level-3 wiki files (`.md` files) under `testfiles/{category}/`. This count is updated only after a category reaches `✅ Done`. Categories that are still `⬜ Not Started` intentionally leave this field blank.
 
 | # | Category | Level-2 | Level-3 Files | Status |
 |---|----------|---------|---------------|--------|
 | 1 | info | [info.md](categories/info.md) | 2 | ✅ Done |
-| 2 | api | [api.md](categories/api.md) | 38 | ✅ Done |
-| 3 | memory | [memory.md](categories/memory.md) | 16 | ✅ Done |
-| 4 | synchronization | [synchronization.md](categories/synchronization.md) | 10 | ✅ Done |
-| 5 | synchronization2 | [synchronization2.md](categories/synchronization2.md) | 10 | ✅ Done |
-| 6 | query_pool | [query_pool.md](categories/query_pool.md) | 7 | ✅ Done |
-| 7 | binding_model | [binding_model.md](categories/binding_model.md) | 14 | ✅ Done |
-| 8 | pipeline | [pipeline.md](categories/pipeline.md) | 8 | ✅ Done |
-| 9 | shader_object | [shader_object.md](categories/shader_object.md) | 10 | ✅ Done |
-| 10 | renderpasses | [renderpasses.md](categories/renderpasses.md) | 3 | ✅ Done |
+| 2 | api | [api.md](categories/api.md) | 54 | ✅ Done |
+| 3 | memory | [memory.md](categories/memory.md) | 15 | ✅ Done |
+| 4 | synchronization | [synchronization.md](categories/synchronization.md) | 17 | ✅ Done |
+| 5 | synchronization2 | [synchronization2.md](categories/synchronization2.md) | (shared with synchronization) | ✅ Done |
+| 6 | query_pool | [query_pool.md](categories/query_pool.md) | 8 | ✅ Done |
+| 7 | binding_model | [binding_model.md](categories/binding_model.md) | 15 | ✅ Done |
+| 8 | pipeline | [pipeline.md](categories/pipeline.md) | 62 | ✅ Done |
+| 9 | shader_object | [shader_object.md](categories/shader_object.md) | 11 | ✅ Done |
+| 10 | renderpasses | [renderpasses.md](categories/renderpasses.md) | 29 | ✅ Done |
 | 11 | imageless_framebuffer | [imageless_framebuffer.md](categories/imageless_framebuffer.md) |  | ⬜ Not Started |
 | 12 | dynamic_state | [dynamic_state.md](categories/dynamic_state.md) | 10 | ✅ Done |
 | 13 | image | [image.md](categories/image.md) |  | ⬜ Not Started |
@@ -64,7 +64,7 @@ For this tracker, the `Level-3 Files` column uses the agreed progress-counting r
 | 19 | fragment_operations | [fragment_operations.md](categories/fragment_operations.md) |  | ⬜ Not Started |
 | 20 | clipping | [clipping.md](categories/clipping.md) |  | ⬜ Not Started |
 | 21 | multiview | [multiview.md](categories/multiview.md) |  | ⬜ Not Started |
-| 22 | geometry | [geometry.md](categories/geometry.md) | 7 | ✅ Done |
+| 22 | geometry | [geometry.md](categories/geometry.md) | 8 | ✅ Done |
 | 23 | tessellation | [tessellation.md](categories/tessellation.md) |  | ⬜ Not Started |
 | 24 | transform_feedback | [transform_feedback.md](categories/transform_feedback.md) |  | ⬜ Not Started |
 | 25 | ubo | [ubo.md](categories/ubo.md) |  | ⬜ Not Started |
@@ -104,5 +104,5 @@ For this tracker, the `Level-3 Files` column uses the agreed progress-counting r
 - **Total Categories**: 53
 - **Total CPP Test Files**: 592
 - **Completed Categories**: 12/53
-- **Completed Test Files**: 161/592
+- **Completed Test Files**: 248/592
 
