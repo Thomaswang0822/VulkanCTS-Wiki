@@ -19,61 +19,125 @@ Implementation-heavy test file for the root-level `link` branch.
 - [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L47-L63)
 - [CMakeLists.txt](../../../modules/vulkan/shader_object/CMakeLists.txt#L6-L44)
 
-## Registration Path
+## Registration Hierarchy
 
 ```text
-shader_object
-+-- link
-    +-- (16 graphics shader-combination groups)
-    |   +-- separate/default|random_order|separate_link
-    |   +-- one_linked_unlinked/default|random_order|separate_link
-    |   +-- all/default|random_order|separate_link
-    +-- next_stage
-    +-- mesh_(task/mesh/frag combination groups)
+shader_object.link
+├── linked_linked_unlinked_unused_unlinked
+├── linked_linked_linked_unused_unlinked
+├── linked_linked_linked_unlinked_unlinked
+├── linked_linked_linked_linked_unlinked
+├── linked_linked_linked_linked_linked
+├── linked_unused_unused_linked_unlinked
+├── linked_unused_unused_linked_linked
+├── linked_unused_unused_unused_linked
+├── unlinked_unlinked_unlinked_unused_unlinked
+├── unlinked_unused_unused_unlinked_unlinked
+├── unlinked_unused_unused_unused_unlinked
+├── unlinked_linked_linked_unused_unlinked
+├── unlinked_linked_linked_linked_unlinked
+├── unlinked_linked_linked_unused_linked
+├── unlinked_linked_linked_linked_linked
+├── unlinked_unused_unused_linked_linked
+├── next_stage
+├── mesh_unlinked_unlinked_unlinked
+├── mesh_unlinked_unlinked_unused
+├── mesh_linked_linked_unlinked
+├── mesh_unlinked_linked_linked
+└── mesh_linked_linked_linked
 ```
 
-Explicit registration path prefixes for verifier extraction:
-
-```text
-`shader_object.link`
-`shader_object.link.next_stage`
-```
-
-Evidence: `createShaderObjectLinkTests()` constructs `link`, iterates `shaderTests[]`, `bindTypeTests[]`, and `randomOrderTests[]`, adds `next_stage`, and then adds mesh-combination groups at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1351-L1650).
-
-## Test Hierarchy
-
-```text
-link
-+-- linked/unlinked graphics-stage combination names
-|   +-- separate
-|   +-- one_linked_unlinked
-|   +-- all
-+-- next_stage
-+-- mesh_unlinked_unlinked_unlinked
-+-- mesh_unlinked_unlinked_unused
-+-- mesh_linked_linked_unlinked
-+-- mesh_unlinked_linked_linked
-+-- mesh_linked_linked_linked
-```
+Evidence: `createShaderObjectLinkTests()` constructs `link`, iterates `shaderTests[]`, `bindTypeTests[]`, and `randomOrderTests[]`, adds `next_stage`, and then adds mesh-combination groups at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1351-L1650). The 16 graphics shader-combination group names are generated from `typeToString()` applied to each of the five shader stage states (vertex, tessellation_control, tessellation_evaluation, geometry, fragment) joined by underscores at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1381-L1390).
 
 ## Test Families
 
-### Graphics linked/unlinked combinations
+### linked_linked_unlinked_unused_unlinked — Graphics linked/unlinked combination
 
-`shaderTests[]` enumerates vertex, tessellation-control/evaluation, geometry, and fragment stages with `LINKED`, `UNLINKED`, or `UNUSED` state at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1355-L1364). Group names are generated from those states at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1381-L1390).
+Graphics shader combination with vertex=LINKED, tesc=LINKED, tese=UNLINKED, geom=UNUSED, frag=UNLINKED. Each graphics shader-combination group iterates bind modes `separate`, `one_linked_unlinked`, and `all` at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1371-L1379), then adds `default` and `random_order` cases at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1391-L1426). When any stage is linked, it also adds `separate_link` at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1428-L1447).
 
-### Bind mode and ordering variants
+### linked_linked_linked_unused_unlinked — Graphics linked/unlinked combination
 
-Each graphics shader-combination group iterates bind modes `separate`, `one_linked_unlinked`, and `all` at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1371-L1379), then adds `default` and `random_order` cases at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1391-L1426). When any stage is linked, it also adds `separate_link` at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1428-L1447).
+Graphics shader combination with vertex=LINKED, tesc=LINKED, tese=LINKED, geom=UNUSED, frag=UNLINKED. Same bind-mode and ordering structure as other graphics groups.
 
-### Next-stage chain tests
+### linked_linked_linked_unlinked_unlinked — Graphics linked/unlinked combination
 
-`nextStageTests[]` registers named next-stage combinations such as `vert_t`, `vert_g`, `vert_tgf`, and no-fragment variants under `next_stage` at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1453-L1615).
+Graphics shader combination with vertex=LINKED, tesc=LINKED, tese=LINKED, geom=UNLINKED, frag=UNLINKED. Same bind-mode and ordering structure as other graphics groups.
 
-### Mesh shader link tests
+### linked_linked_linked_linked_unlinked — Graphics linked/unlinked combination
 
-`meshShaderTests[]` defines five task/mesh/fragment combinations and registers `default` and `random_order` child cases for each at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1617-L1647).
+Graphics shader combination with vertex=LINKED, tesc=LINKED, tese=LINKED, geom=LINKED, frag=UNLINKED. Same bind-mode and ordering structure as other graphics groups.
+
+### linked_linked_linked_linked_linked — Graphics linked/unlinked combination
+
+Graphics shader combination with all five stages LINKED. Same bind-mode and ordering structure as other graphics groups.
+
+### linked_unused_unused_linked_unlinked — Graphics linked/unlinked combination
+
+Graphics shader combination with vertex=LINKED, tesc=UNUSED, tese=UNUSED, geom=LINKED, frag=UNLINKED. Same bind-mode and ordering structure as other graphics groups.
+
+### linked_unused_unused_linked_linked — Graphics linked/unlinked combination
+
+Graphics shader combination with vertex=LINKED, tesc=UNUSED, tese=UNUSED, geom=LINKED, frag=LINKED. Same bind-mode and ordering structure as other graphics groups.
+
+### linked_unused_unused_unused_linked — Graphics linked/unlinked combination
+
+Graphics shader combination with vertex=LINKED, tesc=UNUSED, tese=UNUSED, geom=UNUSED, frag=LINKED. Same bind-mode and ordering structure as other graphics groups.
+
+### unlinked_unlinked_unlinked_unused_unlinked — Graphics linked/unlinked combination
+
+Graphics shader combination with vertex=UNLINKED, tesc=UNLINKED, tese=UNLINKED, geom=UNUSED, frag=UNLINKED. Same bind-mode and ordering structure as other graphics groups.
+
+### unlinked_unused_unused_unlinked_unlinked — Graphics linked/unlinked combination
+
+Graphics shader combination with vertex=UNLINKED, tesc=UNUSED, tese=UNUSED, geom=UNLINKED, frag=UNLINKED. Same bind-mode and ordering structure as other graphics groups.
+
+### unlinked_unused_unused_unused_unlinked — Graphics linked/unlinked combination
+
+Graphics shader combination with vertex=UNLINKED, tesc=UNUSED, tese=UNUSED, geom=UNUSED, frag=UNLINKED. Same bind-mode and ordering structure as other graphics groups.
+
+### unlinked_linked_linked_unused_unlinked — Graphics linked/unlinked combination
+
+Graphics shader combination with vertex=UNLINKED, tesc=LINKED, tese=LINKED, geom=UNUSED, frag=UNLINKED. Same bind-mode and ordering structure as other graphics groups.
+
+### unlinked_linked_linked_linked_unlinked — Graphics linked/unlinked combination
+
+Graphics shader combination with vertex=UNLINKED, tesc=LINKED, tese=LINKED, geom=LINKED, frag=UNLINKED. Same bind-mode and ordering structure as other graphics groups.
+
+### unlinked_linked_linked_unused_linked — Graphics linked/unlinked combination
+
+Graphics shader combination with vertex=UNLINKED, tesc=LINKED, tese=LINKED, geom=UNUSED, frag=LINKED. Same bind-mode and ordering structure as other graphics groups.
+
+### unlinked_linked_linked_linked_linked — Graphics linked/unlinked combination
+
+Graphics shader combination with vertex=UNLINKED, tesc=LINKED, tese=LINKED, geom=LINKED, frag=LINKED. Same bind-mode and ordering structure as other graphics groups.
+
+### unlinked_unused_unused_linked_linked — Graphics linked/unlinked combination
+
+Graphics shader combination with vertex=UNLINKED, tesc=UNUSED, tese=UNUSED, geom=LINKED, frag=LINKED. Same bind-mode and ordering structure as other graphics groups.
+
+### next_stage — Next-stage chain tests
+
+`nextStageTests[]` registers named next-stage combinations such as `vert_t`, `vert_g`, `vert_tgf`, and no-fragment variants under `next_stage` at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1453-L1615). These test next-stage flag specification independently from shader presence.
+
+### mesh_unlinked_unlinked_unlinked — Mesh shader link test
+
+Mesh shader combination with task=UNLINKED, mesh=UNLINKED, frag=UNLINKED. Registers `default` and `random_order` child cases at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1617-L1647).
+
+### mesh_unlinked_unlinked_unused — Mesh shader link test
+
+Mesh shader combination with task=UNLINKED, mesh=UNLINKED, frag=UNUSED. Registers `default` and `random_order` child cases.
+
+### mesh_linked_linked_unlinked — Mesh shader link test
+
+Mesh shader combination with task=LINKED, mesh=LINKED, frag=UNLINKED. Registers `default` and `random_order` child cases.
+
+### mesh_unlinked_linked_linked — Mesh shader link test
+
+Mesh shader combination with task=UNLINKED, mesh=LINKED, frag=LINKED. Registers `default` and `random_order` child cases.
+
+### mesh_linked_linked_linked — Mesh shader link test
+
+Mesh shader combination with task=LINKED, mesh=LINKED, frag=LINKED. Registers `default` and `random_order` child cases.
 
 ## Parameter Dimensions
 

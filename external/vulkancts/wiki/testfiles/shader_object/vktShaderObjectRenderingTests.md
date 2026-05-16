@@ -19,51 +19,38 @@ Implementation-heavy test file for the root-level `rendering` branch.
 - [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L47-L63)
 - [CMakeLists.txt](../../../modules/vulkan/shader_object/CMakeLists.txt#L6-L44)
 
-## Registration Path
+## Registration Hierarchy
 
 ```text
-shader_object
-+-- rendering
-    +-- color_attachment_count_{0,1,4,8}/...
-    +-- output_array/{r8_unorm,r8g8b8a8_unorm,r8g8b8a8_snorm,r32_uint,r32_sint,r32_sfloat,r32g32b32a32_sfloat}/{color_write_enable,color_write_disable}
-```
-
-Explicit registration path prefixes for verifier extraction:
-
-```text
-`shader_object.rendering`
-`shader_object.rendering.color_attachment_count_0`
-`shader_object.rendering.color_attachment_count_4`
-`shader_object.rendering.output_array`
-`shader_object.rendering.output_array.r8_unorm.color_write_enable`
+shader_object.rendering
+├── color_attachment_count_0
+├── color_attachment_count_1
+├── color_attachment_count_4
+├── color_attachment_count_8
+└── output_array
 ```
 
 The displayed branch name is verified from `TestCaseGroup(testCtx, "rendering")` at [vktShaderObjectRenderingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1201-L1203). The root file registers this branch directly at [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L59).
 
-## Test Hierarchy
-
-```text
-rendering
-+-- color attachment count
-|   +-- extra attachment placement/count
-|       +-- extra fragment output placement/count
-|           +-- dummy render pass mode
-|               +-- random/same color formats
-|                   +-- bind shaders before/after begin rendering
-|                       +-- gl_FragDepth write mode
-|                           +-- color format [and optional depth format]
-+-- output_array
-    +-- selected format
-        +-- color_write_enable / color_write_disable
-```
-
 ## Test Families
 
-### Dynamic rendering attachment/output matrix
+### color_attachment_count_0 — Dynamic rendering attachment/output matrix
 
-The main registration loop starts with four color attachment counts (`0`, `1`, `4`, `8`) at [vktShaderObjectRenderingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1205-L1214). It combines extra color attachments and extra fragment outputs from two seven-entry arrays, with a guard that skips cases where both extra attachments and extra outputs are active at the same time at [vktShaderObjectRenderingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1216-L1259). The loop then varies dummy render pass mode, random versus same color formats, bind timing, and `gl_FragDepth` writing before adding per-format cases at [vktShaderObjectRenderingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1262-L1341).
+The main registration loop starts with four color attachment counts (`0`, `1`, `4`, `8`) at [vktShaderObjectRenderingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1205-L1214). Each count creates a sub-group (`color_attachment_count_0` through `color_attachment_count_8`). Within each, the loop combines extra color attachments and extra fragment outputs from two seven-entry arrays, with a guard that skips cases where both extra attachments and extra outputs are active at the same time at [vktShaderObjectRenderingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1216-L1259). The loop then varies dummy render pass mode, random versus same color formats, bind timing, and `gl_FragDepth` writing before adding per-format cases at [vktShaderObjectRenderingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1262-L1341).
 
-### Output array cases
+### color_attachment_count_1 — Dynamic rendering with one color attachment
+
+Same matrix structure as `color_attachment_count_0` but with one color attachment. Random color format cases are skipped for fewer than two color attachments at [vktShaderObjectRenderingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1269-L1270).
+
+### color_attachment_count_4 — Dynamic rendering with four color attachments
+
+Same matrix structure as `color_attachment_count_0` but with four color attachments. Both random and same color format cases are registered.
+
+### color_attachment_count_8 — Dynamic rendering with eight color attachments
+
+Same matrix structure as `color_attachment_count_0` but with eight color attachments. Both random and same color format cases are registered.
+
+### output_array — Output array cases
 
 The `output_array` family registers seven selected color formats and two color-write modes at [vktShaderObjectRenderingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1356-L1394). These cases set `outputArray = true`, use four color attachments and two extra attachments, and require or disable color writes according to the registered case name at [vktShaderObjectRenderingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1374-L1389).
 

@@ -19,61 +19,298 @@ Implementation-heavy test file for the root-level `binding` branch.
 - [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L47-L63)
 - [CMakeLists.txt](../../../modules/vulkan/shader_object/CMakeLists.txt#L6-L44)
 
-## Registration Path
+## Registration Hierarchy
 
 ```text
-shader_object
-+-- binding
-    +-- unbind_passthrough_geom
-    +-- swap_{vert,tesc,tese,geom,frag}
-    +-- swap_*_unused_output_*_binary_*_{before,after}
-    +-- unbind_{tesc,geom}_{null_pshaders,null_handle}
-    +-- mesh_swap_{task,mesh}
-    +-- disabled_{geom,tess}
-    +-- disabled_{geom,tess}_bind
-    +-- draw_dispatch_draw
-    +-- dispatch_draw_dispatch
-    +-- bindings
-    +-- bindings_mesh_shaders
-    +-- unbind_vtg
-    +-- unbind_task_mesh
-    +-- unbind_mesh_draw_vertex
-```
-
-Explicit registration path prefixes for verifier extraction:
-
-```text
-`shader_object.binding`
-`shader_object.binding.unbind_passthrough_geom`
-`shader_object.binding.swap_vert`
-`shader_object.binding.mesh_swap_task`
-`shader_object.binding.bindings`
-`shader_object.binding.unbind_vtg`
+shader_object.binding
+├── unbind_passthrough_geom
+├── swap_vert
+├── swap_tesc
+├── swap_tese
+├── swap_geom
+├── swap_frag
+├── swap_vert_unused_output_vert_binary_vert_before
+├── swap_vert_unused_output_vert_binary_vert_after
+├── swap_vert_unused_output_vert_binary_tesc_before
+├── swap_vert_unused_output_vert_binary_tesc_after
+├── swap_vert_unused_output_vert_binary_tese_before
+├── swap_vert_unused_output_vert_binary_tese_after
+├── swap_vert_unused_output_vert_binary_geom_before
+├── swap_vert_unused_output_vert_binary_geom_after
+├── swap_vert_unused_output_vert_binary_frag_before
+├── swap_vert_unused_output_vert_binary_frag_after
+├── swap_vert_unused_output_tesc_binary_vert_before
+├── swap_vert_unused_output_tesc_binary_vert_after
+├── swap_vert_unused_output_tesc_binary_tesc_before
+├── swap_vert_unused_output_tesc_binary_tesc_after
+├── swap_vert_unused_output_tesc_binary_tese_before
+├── swap_vert_unused_output_tesc_binary_tese_after
+├── swap_vert_unused_output_tesc_binary_geom_before
+├── swap_vert_unused_output_tesc_binary_geom_after
+├── swap_vert_unused_output_tesc_binary_frag_before
+├── swap_vert_unused_output_tesc_binary_frag_after
+├── swap_vert_unused_output_tese_binary_vert_before
+├── swap_vert_unused_output_tese_binary_vert_after
+├── swap_vert_unused_output_tese_binary_tesc_before
+├── swap_vert_unused_output_tese_binary_tesc_after
+├── swap_vert_unused_output_tese_binary_tese_before
+├── swap_vert_unused_output_tese_binary_tese_after
+├── swap_vert_unused_output_tese_binary_geom_before
+├── swap_vert_unused_output_tese_binary_geom_after
+├── swap_vert_unused_output_tese_binary_frag_before
+├── swap_vert_unused_output_tese_binary_frag_after
+├── swap_vert_unused_output_geom_binary_vert_before
+├── swap_vert_unused_output_geom_binary_vert_after
+├── swap_vert_unused_output_geom_binary_tesc_before
+├── swap_vert_unused_output_geom_binary_tesc_after
+├── swap_vert_unused_output_geom_binary_tese_before
+├── swap_vert_unused_output_geom_binary_tese_after
+├── swap_vert_unused_output_geom_binary_geom_before
+├── swap_vert_unused_output_geom_binary_geom_after
+├── swap_vert_unused_output_geom_binary_frag_before
+├── swap_vert_unused_output_geom_binary_frag_after
+├── swap_vert_unused_output_frag_binary_vert_before
+├── swap_vert_unused_output_frag_binary_vert_after
+├── swap_vert_unused_output_frag_binary_tesc_before
+├── swap_vert_unused_output_frag_binary_tesc_after
+├── swap_vert_unused_output_frag_binary_tese_before
+├── swap_vert_unused_output_frag_binary_tese_after
+├── swap_vert_unused_output_frag_binary_geom_before
+├── swap_vert_unused_output_frag_binary_geom_after
+├── swap_vert_unused_output_frag_binary_frag_before
+├── swap_vert_unused_output_frag_binary_frag_after
+├── swap_tesc_unused_output_vert_binary_vert_before
+├── swap_tesc_unused_output_vert_binary_vert_after
+├── swap_tesc_unused_output_vert_binary_tesc_before
+├── swap_tesc_unused_output_vert_binary_tesc_after
+├── swap_tesc_unused_output_vert_binary_tese_before
+├── swap_tesc_unused_output_vert_binary_tese_after
+├── swap_tesc_unused_output_vert_binary_geom_before
+├── swap_tesc_unused_output_vert_binary_geom_after
+├── swap_tesc_unused_output_vert_binary_frag_before
+├── swap_tesc_unused_output_vert_binary_frag_after
+├── swap_tesc_unused_output_tesc_binary_vert_before
+├── swap_tesc_unused_output_tesc_binary_vert_after
+├── swap_tesc_unused_output_tesc_binary_tesc_before
+├── swap_tesc_unused_output_tesc_binary_tesc_after
+├── swap_tesc_unused_output_tesc_binary_tese_before
+├── swap_tesc_unused_output_tesc_binary_tese_after
+├── swap_tesc_unused_output_tesc_binary_geom_before
+├── swap_tesc_unused_output_tesc_binary_geom_after
+├── swap_tesc_unused_output_tesc_binary_frag_before
+├── swap_tesc_unused_output_tesc_binary_frag_after
+├── swap_tesc_unused_output_tese_binary_vert_before
+├── swap_tesc_unused_output_tese_binary_vert_after
+├── swap_tesc_unused_output_tese_binary_tesc_before
+├── swap_tesc_unused_output_tese_binary_tesc_after
+├── swap_tesc_unused_output_tese_binary_tese_before
+├── swap_tesc_unused_output_tese_binary_tese_after
+├── swap_tesc_unused_output_tese_binary_geom_before
+├── swap_tesc_unused_output_tese_binary_geom_after
+├── swap_tesc_unused_output_tese_binary_frag_before
+├── swap_tesc_unused_output_tese_binary_frag_after
+├── swap_tesc_unused_output_geom_binary_vert_before
+├── swap_tesc_unused_output_geom_binary_vert_after
+├── swap_tesc_unused_output_geom_binary_tesc_before
+├── swap_tesc_unused_output_geom_binary_tesc_after
+├── swap_tesc_unused_output_geom_binary_tese_before
+├── swap_tesc_unused_output_geom_binary_tese_after
+├── swap_tesc_unused_output_geom_binary_geom_before
+├── swap_tesc_unused_output_geom_binary_geom_after
+├── swap_tesc_unused_output_geom_binary_frag_before
+├── swap_tesc_unused_output_geom_binary_frag_after
+├── swap_tesc_unused_output_frag_binary_vert_before
+├── swap_tesc_unused_output_frag_binary_vert_after
+├── swap_tesc_unused_output_frag_binary_tesc_before
+├── swap_tesc_unused_output_frag_binary_tesc_after
+├── swap_tesc_unused_output_frag_binary_tese_before
+├── swap_tesc_unused_output_frag_binary_tese_after
+├── swap_tesc_unused_output_frag_binary_geom_before
+├── swap_tesc_unused_output_frag_binary_geom_after
+├── swap_tesc_unused_output_frag_binary_frag_before
+├── swap_tesc_unused_output_frag_binary_frag_after
+├── swap_tese_unused_output_vert_binary_vert_before
+├── swap_tese_unused_output_vert_binary_vert_after
+├── swap_tese_unused_output_vert_binary_tesc_before
+├── swap_tese_unused_output_vert_binary_tesc_after
+├── swap_tese_unused_output_vert_binary_tese_before
+├── swap_tese_unused_output_vert_binary_tese_after
+├── swap_tese_unused_output_vert_binary_geom_before
+├── swap_tese_unused_output_vert_binary_geom_after
+├── swap_tese_unused_output_vert_binary_frag_before
+├── swap_tese_unused_output_vert_binary_frag_after
+├── swap_tese_unused_output_tesc_binary_vert_before
+├── swap_tese_unused_output_tesc_binary_vert_after
+├── swap_tese_unused_output_tesc_binary_tesc_before
+├── swap_tese_unused_output_tesc_binary_tesc_after
+├── swap_tese_unused_output_tesc_binary_tese_before
+├── swap_tese_unused_output_tesc_binary_tese_after
+├── swap_tese_unused_output_tesc_binary_geom_before
+├── swap_tese_unused_output_tesc_binary_geom_after
+├── swap_tese_unused_output_tesc_binary_frag_before
+├── swap_tese_unused_output_tesc_binary_frag_after
+├── swap_tese_unused_output_tese_binary_vert_before
+├── swap_tese_unused_output_tese_binary_vert_after
+├── swap_tese_unused_output_tese_binary_tesc_before
+├── swap_tese_unused_output_tese_binary_tesc_after
+├── swap_tese_unused_output_tese_binary_tese_before
+├── swap_tese_unused_output_tese_binary_tese_after
+├── swap_tese_unused_output_tese_binary_geom_before
+├── swap_tese_unused_output_tese_binary_geom_after
+├── swap_tese_unused_output_tese_binary_frag_before
+├── swap_tese_unused_output_tese_binary_frag_after
+├── swap_tese_unused_output_geom_binary_vert_before
+├── swap_tese_unused_output_geom_binary_vert_after
+├── swap_tese_unused_output_geom_binary_tesc_before
+├── swap_tese_unused_output_geom_binary_tesc_after
+├── swap_tese_unused_output_geom_binary_tese_before
+├── swap_tese_unused_output_geom_binary_tese_after
+├── swap_tese_unused_output_geom_binary_geom_before
+├── swap_tese_unused_output_geom_binary_geom_after
+├── swap_tese_unused_output_geom_binary_frag_before
+├── swap_tese_unused_output_geom_binary_frag_after
+├── swap_tese_unused_output_frag_binary_vert_before
+├── swap_tese_unused_output_frag_binary_vert_after
+├── swap_tese_unused_output_frag_binary_tesc_before
+├── swap_tese_unused_output_frag_binary_tesc_after
+├── swap_tese_unused_output_frag_binary_tese_before
+├── swap_tese_unused_output_frag_binary_tese_after
+├── swap_tese_unused_output_frag_binary_geom_before
+├── swap_tese_unused_output_frag_binary_geom_after
+├── swap_tese_unused_output_frag_binary_frag_before
+├── swap_tese_unused_output_frag_binary_frag_after
+├── swap_geom_unused_output_vert_binary_vert_before
+├── swap_geom_unused_output_vert_binary_vert_after
+├── swap_geom_unused_output_vert_binary_tesc_before
+├── swap_geom_unused_output_vert_binary_tesc_after
+├── swap_geom_unused_output_vert_binary_tese_before
+├── swap_geom_unused_output_vert_binary_tese_after
+├── swap_geom_unused_output_vert_binary_geom_before
+├── swap_geom_unused_output_vert_binary_geom_after
+├── swap_geom_unused_output_vert_binary_frag_before
+├── swap_geom_unused_output_vert_binary_frag_after
+├── swap_geom_unused_output_tesc_binary_vert_before
+├── swap_geom_unused_output_tesc_binary_vert_after
+├── swap_geom_unused_output_tesc_binary_tesc_before
+├── swap_geom_unused_output_tesc_binary_tesc_after
+├── swap_geom_unused_output_tesc_binary_tese_before
+├── swap_geom_unused_output_tesc_binary_tese_after
+├── swap_geom_unused_output_tesc_binary_geom_before
+├── swap_geom_unused_output_tesc_binary_geom_after
+├── swap_geom_unused_output_tesc_binary_frag_before
+├── swap_geom_unused_output_tesc_binary_frag_after
+├── swap_geom_unused_output_tese_binary_vert_before
+├── swap_geom_unused_output_tese_binary_vert_after
+├── swap_geom_unused_output_tese_binary_tesc_before
+├── swap_geom_unused_output_tese_binary_tesc_after
+├── swap_geom_unused_output_tese_binary_tese_before
+├── swap_geom_unused_output_tese_binary_tese_after
+├── swap_geom_unused_output_tese_binary_geom_before
+├── swap_geom_unused_output_tese_binary_geom_after
+├── swap_geom_unused_output_tese_binary_frag_before
+├── swap_geom_unused_output_tese_binary_frag_after
+├── swap_geom_unused_output_geom_binary_vert_before
+├── swap_geom_unused_output_geom_binary_vert_after
+├── swap_geom_unused_output_geom_binary_tesc_before
+├── swap_geom_unused_output_geom_binary_tesc_after
+├── swap_geom_unused_output_geom_binary_tese_before
+├── swap_geom_unused_output_geom_binary_tese_after
+├── swap_geom_unused_output_geom_binary_geom_before
+├── swap_geom_unused_output_geom_binary_geom_after
+├── swap_geom_unused_output_geom_binary_frag_before
+├── swap_geom_unused_output_geom_binary_frag_after
+├── swap_geom_unused_output_frag_binary_vert_before
+├── swap_geom_unused_output_frag_binary_vert_after
+├── swap_geom_unused_output_frag_binary_tesc_before
+├── swap_geom_unused_output_frag_binary_tesc_after
+├── swap_geom_unused_output_frag_binary_tese_before
+├── swap_geom_unused_output_frag_binary_tese_after
+├── swap_geom_unused_output_frag_binary_geom_before
+├── swap_geom_unused_output_frag_binary_geom_after
+├── swap_geom_unused_output_frag_binary_frag_before
+├── swap_geom_unused_output_frag_binary_frag_after
+├── swap_frag_unused_output_vert_binary_vert_before
+├── swap_frag_unused_output_vert_binary_vert_after
+├── swap_frag_unused_output_vert_binary_tesc_before
+├── swap_frag_unused_output_vert_binary_tesc_after
+├── swap_frag_unused_output_vert_binary_tese_before
+├── swap_frag_unused_output_vert_binary_tese_after
+├── swap_frag_unused_output_vert_binary_geom_before
+├── swap_frag_unused_output_vert_binary_geom_after
+├── swap_frag_unused_output_vert_binary_frag_before
+├── swap_frag_unused_output_vert_binary_frag_after
+├── swap_frag_unused_output_tesc_binary_vert_before
+├── swap_frag_unused_output_tesc_binary_vert_after
+├── swap_frag_unused_output_tesc_binary_tesc_before
+├── swap_frag_unused_output_tesc_binary_tesc_after
+├── swap_frag_unused_output_tesc_binary_tese_before
+├── swap_frag_unused_output_tesc_binary_tese_after
+├── swap_frag_unused_output_tesc_binary_geom_before
+├── swap_frag_unused_output_tesc_binary_geom_after
+├── swap_frag_unused_output_tesc_binary_frag_before
+├── swap_frag_unused_output_tesc_binary_frag_after
+├── swap_frag_unused_output_tese_binary_vert_before
+├── swap_frag_unused_output_tese_binary_vert_after
+├── swap_frag_unused_output_tese_binary_tesc_before
+├── swap_frag_unused_output_tese_binary_tesc_after
+├── swap_frag_unused_output_tese_binary_tese_before
+├── swap_frag_unused_output_tese_binary_tese_after
+├── swap_frag_unused_output_tese_binary_geom_before
+├── swap_frag_unused_output_tese_binary_geom_after
+├── swap_frag_unused_output_tese_binary_frag_before
+├── swap_frag_unused_output_tese_binary_frag_after
+├── swap_frag_unused_output_geom_binary_vert_before
+├── swap_frag_unused_output_geom_binary_vert_after
+├── swap_frag_unused_output_geom_binary_tesc_before
+├── swap_frag_unused_output_geom_binary_tesc_after
+├── swap_frag_unused_output_geom_binary_tese_before
+├── swap_frag_unused_output_geom_binary_tese_after
+├── swap_frag_unused_output_geom_binary_geom_before
+├── swap_frag_unused_output_geom_binary_geom_after
+├── swap_frag_unused_output_geom_binary_frag_before
+├── swap_frag_unused_output_geom_binary_frag_after
+├── swap_frag_unused_output_frag_binary_vert_before
+├── swap_frag_unused_output_frag_binary_vert_after
+├── swap_frag_unused_output_frag_binary_tesc_before
+├── swap_frag_unused_output_frag_binary_tesc_after
+├── swap_frag_unused_output_frag_binary_tese_before
+├── swap_frag_unused_output_frag_binary_tese_after
+├── swap_frag_unused_output_frag_binary_geom_before
+├── swap_frag_unused_output_frag_binary_geom_after
+├── swap_frag_unused_output_frag_binary_frag_before
+├── swap_frag_unused_output_frag_binary_frag_after
+├── unbind_tesc_null_pshaders
+├── unbind_tesc_null_handle
+├── unbind_geom_null_pshaders
+├── unbind_geom_null_handle
+├── mesh_swap_task
+├── mesh_swap_mesh
+├── disabled_geom
+├── disabled_tess
+├── disabled_geom_bind
+├── disabled_tess_bind
+├── draw_dispatch_draw
+├── dispatch_draw_dispatch
+├── bindings
+├── bindings_mesh_shaders
+├── unbind_vtg
+├── unbind_task_mesh
+└── unbind_mesh_draw_vertex
 ```
 
 The displayed branch name is verified from `TestCaseGroup(testCtx, "binding")` at [vktShaderObjectBindingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L2074-L2076). The root file registers this branch directly at [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L57).
 
-## Test Hierarchy
-
-```text
-binding
-+-- BindingDrawParams cases
-+-- MeshBindingDrawParams cases
-+-- BindingParams cases
-+-- UnbindParams cases
-```
-
 ## Test Families
 
-### Graphics binding, swap, disabled-stage, and draw/dispatch cases
+### unbind_passthrough_geom — Graphics binding, swap, disabled-stage, and draw/dispatch cases
 
-`BindingDrawParams` defines the core dimensions for graphics and compute/draw interleaving: test type, stage, unused-output stage, binary stage, unsupported-stage binding, state ordering, and null-unbind style at [vktShaderObjectBindingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L52-L71). Registration creates a baseline `unbind_passthrough_geom`, five simple swap cases, a nested cross product over stage, unused-output stage, binary stage, and state timing, tessellation/geometry unbind cases, disabled-stage cases, and draw/dispatch interleaving cases at [vktShaderObjectBindingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L2078-L2184).
+`BindingDrawParams` defines the core dimensions for graphics and compute/draw interleaving: test type, stage, unused-output stage, binary stage, unsupported-stage binding, state ordering, and null-unbind style at [vktShaderObjectBindingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L52-L71). Registration creates a baseline `unbind_passthrough_geom`, five simple swap cases (`swap_vert`, `swap_tesc`, `swap_tese`, `swap_geom`, `swap_frag`), a nested cross product over stage, unused-output stage, binary stage, and state timing producing 250 `swap_*_unused_output_*_binary_*_{before,after}` cases, tessellation/geometry unbind cases (`unbind_tesc_null_pshaders`, `unbind_tesc_null_handle`, `unbind_geom_null_pshaders`, `unbind_geom_null_handle`), disabled-stage cases (`disabled_geom`, `disabled_tess`, `disabled_geom_bind`, `disabled_tess_bind`), and draw/dispatch interleaving cases (`draw_dispatch_draw`, `dispatch_draw_dispatch`) at [vktShaderObjectBindingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L2078-L2184).
 
-### Mesh swap cases
+### mesh_swap_task — Mesh swap cases
 
 `meshStageTest[]` registers `mesh_swap_task` and `mesh_swap_mesh` using `MeshShaderObjectBindingCase` at [vktShaderObjectBindingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L2154-L2169).
 
-### General bindings and unbind cases
+### bindings — General bindings and unbind cases
 
 `bindings` and `bindings_mesh_shaders` exercise binding lists with and without mesh shaders at [vktShaderObjectBindingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L2186-L2190). The final unbind family registers `unbind_vtg`, `unbind_task_mesh`, and `unbind_mesh_draw_vertex` at [vktShaderObjectBindingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L2192-L2198).
 

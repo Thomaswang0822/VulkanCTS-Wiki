@@ -12,51 +12,55 @@ Implementation file.
 
 - Primary source: [`vktDynamicStateInheritanceTests.cpp`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1)
 
-## Registration Path
-
-This file contributes the [`DynamicStateInheritanceTests`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1200) group (named `"inheritance"`), which is attached under each pipeline construction type subgroup by [`createChildren()`](../../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L54).
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-inheritance
+dynamic_state.monolithic.inheritance
 ├── baseline
-├── primary                      (non-VulkanSC only)
-├── secondary                    (non-VulkanSC only)
-├── nested                       (non-VulkanSC only)
-├── split                        (non-VulkanSC only)
-├── primary_with_count           (non-VulkanSC only)
-├── secondary_with_count         (non-VulkanSC only)
-└── nested_with_count            (non-VulkanSC only)
+├── primary (non-VulkanSC only)
+├── secondary (non-VulkanSC only)
+├── nested (non-VulkanSC only)
+├── split (non-VulkanSC only)
+├── primary_with_count (non-VulkanSC only)
+├── secondary_with_count (non-VulkanSC only)
+└── nested_with_count (non-VulkanSC only)
 ```
 
 Source: [`DynamicStateInheritanceTests::init()`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1207).
 
 ## Test Families
 
-### 1. Baseline
+### baseline — Baseline (inheritance disabled)
 
 [`baseline`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1210) uses [`kInheritanceDisabled`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L86). Tests the base case where the `VK_NV_inherited_viewport_scissor` extension is disabled, using non-dynamic viewport/scissor count.
 
-### 2. Primary inheritance
+### primary — Primary command buffer inheritance (non-VulkanSC only)
 
 [`primary`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1213) uses [`kInheritFromPrimary`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L87). Verifies that viewport/scissor state set in the primary command buffer is inherited by a secondary command buffer.
 
-### 3. Secondary inheritance
+### secondary — Secondary command buffer inheritance (non-VulkanSC only)
 
 [`secondary`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1215) uses [`kInheritFromSecondary`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L88). Verifies that viewport/scissor state set in an earlier secondary command buffer is inherited by a later secondary command buffer.
 
-### 4. Nested inheritance
+### nested — Nested secondary inheritance (non-VulkanSC only)
 
 [`nested`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1217) uses [`kInheritFromSecondaryNested`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L89). Verifies that viewport/scissor state is inherited from a secondary command buffer nested within another secondary buffer. Requires `VK_EXT_nested_command_buffer`.
 
-### 5. Split inheritance
+### split — Split inheritance (non-VulkanSC only)
 
 [`split`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1219) uses [`kSplitInheritance`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L90). Splits the viewport/scissor array, inheriting some from the primary and the rest from a secondary command buffer.
 
-### 6. With-count variants
+### primary_with_count — Primary with-count inheritance (non-VulkanSC only)
 
-[`primary_with_count`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1221), [`secondary_with_count`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1224), and [`nested_with_count`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1227) use the `VK_EXT_extended_dynamic_state` viewport/scissor-with-count variants (`vkCmdSetViewportWithCountEXT`, `vkCmdSetScissorWithCountEXT`).
+[`primary_with_count`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1221) uses the `VK_EXT_extended_dynamic_state` viewport/scissor-with-count variant (`vkCmdSetViewportWithCountEXT`), inheriting from the primary command buffer.
+
+### secondary_with_count — Secondary with-count inheritance (non-VulkanSC only)
+
+[`secondary_with_count`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1224) uses the `VK_EXT_extended_dynamic_state` scissor-with-count variant (`vkCmdSetScissorWithCountEXT`), inheriting from another secondary command buffer.
+
+### nested_with_count — Nested with-count inheritance (non-VulkanSC only)
+
+[`nested_with_count`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1227) uses the `VK_EXT_extended_dynamic_state` viewport/scissor-with-count variants, inheriting from a secondary command buffer nested within another secondary buffer.
 
 ## Parameter Dimensions
 

@@ -19,50 +19,57 @@ Implementation-heavy test file for the root-level `performance` branch.
 - [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L47-L63)
 - [CMakeLists.txt](../../../modules/vulkan/shader_object/CMakeLists.txt#L6-L44)
 
-## Registration Path
+## Registration Hierarchy
 
 ```text
-shader_object
-+-- performance
-    +-- {draw,draw_indexed,draw_indexed_indirect,draw_indexed_indirect_count,draw_indirect,draw_indirect_count}_{static_pipeline,dynamic_pipeline,linked_shaders,binary_shaders}
-    +-- binary_bind_shaders
-    +-- dispatch
-    +-- dispatch_base
-    +-- dispatch_indirect
-    +-- binary_shader_create
-    +-- binary_memcpy
+shader_object.performance
+├── draw_static_pipeline
+├── draw_dynamic_pipeline
+├── draw_linked_shaders
+├── draw_binary_shaders
+├── draw_indexed_static_pipeline
+├── draw_indexed_dynamic_pipeline
+├── draw_indexed_linked_shaders
+├── draw_indexed_binary_shaders
+├── draw_indexed_indirect_static_pipeline
+├── draw_indexed_indirect_dynamic_pipeline
+├── draw_indexed_indirect_linked_shaders
+├── draw_indexed_indirect_binary_shaders
+├── draw_indexed_indirect_count_static_pipeline
+├── draw_indexed_indirect_count_dynamic_pipeline
+├── draw_indexed_indirect_count_linked_shaders
+├── draw_indexed_indirect_count_binary_shaders
+├── draw_indirect_static_pipeline
+├── draw_indirect_dynamic_pipeline
+├── draw_indirect_linked_shaders
+├── draw_indirect_binary_shaders
+├── draw_indirect_count_static_pipeline
+├── draw_indirect_count_dynamic_pipeline
+├── draw_indirect_count_linked_shaders
+├── draw_indirect_count_binary_shaders
+├── binary_bind_shaders
+├── dispatch
+├── dispatch_base
+├── dispatch_indirect
+├── binary_shader_create
+└── binary_memcpy
 ```
-
-Verifier-oriented explicit path examples (dot syntax expected by `verify_registration_paths.py`):
-
-```text
-```
-
-Mustpass coverage note: the entire performance branch is explicitly excluded from mustpass by [`excluded-tests.txt`](../../../mustpass/main/src/excluded-tests.txt) (glob `dEQP-VK.shader_object.performance.*`). No `performance.txt` exists under [`shader-object/`](../../../mustpass/main/vk-default/shader-object), while sibling branch files such as [`api.txt`](../../../mustpass/main/vk-default/shader-object/api.txt), [`binding.txt`](../../../mustpass/main/vk-default/shader-object/binding.txt), [`pipeline-interaction.txt`](../../../mustpass/main/vk-default/shader-object/pipeline-interaction.txt), and [`rendering.txt`](../../../mustpass/main/vk-default/shader-object/rendering.txt) do exist. The branch is source-registered but intentionally excluded from conformance runs.
 
 The displayed branch name is verified from `TestCaseGroup(testCtx, "performance")` at [vktShaderObjectPerformanceTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L1262-L1264). The root file registers this branch directly at [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L58).
 
-## Test Hierarchy
-
-```text
-performance
-+-- draw command form x draw comparison mode
-+-- binary_bind_shaders
-+-- dispatch variants
-+-- binary-operation variants
-```
+Mustpass coverage note: the entire performance branch is explicitly excluded from mustpass by [`excluded-tests.txt`](../../../mustpass/main/src/excluded-tests.txt) (glob `dEQP-VK.shader_object.performance.*`). No `performance.txt` exists under [`shader-object/`](../../../mustpass/main/vk-default/shader-object), while sibling branch files such as [`api.txt`](../../../mustpass/main/vk-default/shader-object/api.txt), [`binding.txt`](../../../mustpass/main/vk-default/shader-object/binding.txt), [`pipeline-interaction.txt`](../../../mustpass/main/vk-default/shader-object/pipeline-interaction.txt), and [`rendering.txt`](../../../mustpass/main/vk-default/shader-object/rendering.txt) do exist. The branch is source-registered but intentionally excluded from conformance runs.
 
 ## Test Families
 
-### Timed draw cases
+### draw_static_pipeline — Timed draw cases
 
-`drawTypeTests[]` registers six draw command forms at [vktShaderObjectPerformanceTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L1266-L1277), and `typeTests[]` registers four comparison modes: `static_pipeline`, `dynamic_pipeline`, `linked_shaders`, and `binary_shaders` at [vktShaderObjectPerformanceTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L1279-L1288). Their cross product is registered at [vktShaderObjectPerformanceTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L1290-L1298), with `binary_bind_shaders` added separately at [vktShaderObjectPerformanceTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L1299).
+`drawTypeTests[]` registers six draw command forms at [vktShaderObjectPerformanceTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L1266-L1277), and `typeTests[]` registers four comparison modes: `static_pipeline`, `dynamic_pipeline`, `linked_shaders`, and `binary_shaders` at [vktShaderObjectPerformanceTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L1279-L1288). Their cross product is registered at [vktShaderObjectPerformanceTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L1290-L1298), producing 24 cases (`draw_static_pipeline` through `draw_indirect_count_binary_shaders`), with `binary_bind_shaders` added separately at [vktShaderObjectPerformanceTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L1299).
 
-### Timed dispatch cases
+### dispatch — Timed dispatch cases
 
 `dispatch`, `dispatch_base`, and `dispatch_indirect` are registered using `ShaderObjectDispatchPerformanceCase` at [vktShaderObjectPerformanceTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L1301-L1304). The dispatch enum is defined at [vktShaderObjectPerformanceTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L72-L77).
 
-### Binary operation cases
+### binary_shader_create — Binary operation cases
 
 `binary_shader_create` and `binary_memcpy` are registered using `ShaderObjectBinaryPerformanceCase` at [vktShaderObjectPerformanceTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L1306-L1308). The binary enum is defined at [vktShaderObjectPerformanceTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L56-L60).
 

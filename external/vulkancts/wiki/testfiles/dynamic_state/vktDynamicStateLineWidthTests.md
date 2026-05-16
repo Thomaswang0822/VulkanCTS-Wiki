@@ -13,37 +13,25 @@ Implementation file.
 - Primary source: [`vktDynamicStateLineWidthTests.cpp`](../../../modules/vulkan/dynamic_state/vktDynamicStateLineWidthTests.cpp#L1)
 - Shared base: [`DynamicStateBaseClass`](../../../modules/vulkan/dynamic_state/vktDynamicStateBaseClass.hpp#L43)
 
-## Registration Path
-
-This file contributes the [`DynamicStateLWTests`](../../../modules/vulkan/dynamic_state/vktDynamicStateLineWidthTests.cpp#L477) group (named `"line_width"`), which is attached under each pipeline construction type subgroup by [`createChildren()`](../../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L57).
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-line_width
+dynamic_state.monolithic.line_width
 ├── dyna_static
-│   ├── strip2_list1
-│   ├── strip4_list3
-│   ├── list6_strip5
-│   └── strip14_strip13
 └── static_dyna
-    ├── list1_strip2
-    ├── list3_strip4
-    ├── strip5_list6
-    └── strip15_strip16
 ```
 
 Source: [`DynamicStateLWTests::init()`](../../../modules/vulkan/dynamic_state/vktDynamicStateLineWidthTests.cpp#L508).
 
 ## Test Families
 
-### 1. Dynamic-first (dyna_static)
+### dyna_static — Dynamic pipeline first, static pipeline second
 
-The [`dyna_static`](../../../modules/vulkan/dynamic_state/vktDynamicStateLineWidthTests.cpp#L523) subgroup contains tests where the dynamic pipeline draws first (subpass 0) and the static pipeline draws second (subpass 1). Each test uses a different combination of line topology and width values.
+The [`dyna_static`](../../../modules/vulkan/dynamic_state/vktDynamicStateLineWidthTests.cpp#L523) subgroup contains tests where the dynamic pipeline draws first (subpass 0) and the static pipeline draws second (subpass 1). Each test uses a different combination of line topology and width values. The four leaf tests under this group are `strip2_list1`, `strip4_list3`, `list6_strip5`, and `strip14_strip13`, encoding the topology and width values for the dynamic and static pipelines respectively.
 
-### 2. Static-first (static_dyna)
+### static_dyna — Static pipeline first, dynamic pipeline second
 
-The [`static_dyna`](../../../modules/vulkan/dynamic_state/vktDynamicStateLineWidthTests.cpp#L524) subgroup contains tests where the static pipeline draws first (subpass 0) and the dynamic pipeline draws second (subpass 1).
+The [`static_dyna`](../../../modules/vulkan/dynamic_state/vktDynamicStateLineWidthTests.cpp#L524) subgroup contains tests where the static pipeline draws first (subpass 0) and the dynamic pipeline draws second (subpass 1). The four leaf tests under this group are `list1_strip2`, `list3_strip4`, `strip5_list6`, and `strip15_strip16`.
 
 ## Parameter Dimensions
 

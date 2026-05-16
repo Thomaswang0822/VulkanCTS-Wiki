@@ -310,6 +310,11 @@ def extract_group_paths_from_wiki(wiki_dir: Path, category: str) -> Dict[str, Li
         return synchronization.extract_group_paths(
             wiki_dir, category, get_wiki_candidate_files, extract_canonical_hierarchy_paths)
 
+    if category == 'shader_object':
+        from registration_validators import shader_object
+        return shader_object.extract_group_paths(
+            wiki_dir, category, get_wiki_candidate_files, extract_canonical_hierarchy_paths)
+
     return extract_default_group_paths_from_wiki(wiki_dir, category)
 
 

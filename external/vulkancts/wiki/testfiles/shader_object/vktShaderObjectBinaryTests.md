@@ -19,57 +19,30 @@ Implementation-heavy test file for the root-level `binary` branch.
 - [vktShaderObjectCreateUtil.hpp](../../../modules/vulkan/shader_object/vktShaderObjectCreateUtil.hpp#L1)
 - [CMakeLists.txt](../../../modules/vulkan/shader_object/CMakeLists.txt#L6-L44)
 
-## Registration Path
+## Registration Hierarchy
 
 ```text
-shader_object
-+-- binary
-    +-- query/{vert,tesc,tese,geom,frag,comp}/{unlinked,linked}/...
-    +-- incompatible/{vert,tesc,tese,geom,frag,comp}/...
-    +-- device_features/{vert,tesc,tese,geom,frag,comp}/{unlinked,linked}/0..31
-```
-
-Explicit registration path prefixes for verifier extraction:
-
-```text
-`shader_object.binary`
-`shader_object.binary.query.vert.unlinked.same_shader`
-`shader_object.binary.incompatible.frag.half_size`
-`shader_object.binary.device_features.comp.unlinked.0`
+shader_object.binary
+├── query
+├── incompatible
+└── device_features
 ```
 
 Evidence: `createShaderObjectBinaryTests()` constructs `binary`, then adds `query`, `incompatible`, and `device_features` groups at [vktShaderObjectBinaryTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBinaryTests.cpp#L838-L947).
 
-## Test Hierarchy
-
-```text
-binary
-+-- query
-|   +-- stage
-|       +-- unlinked
-|       +-- linked (not for compute)
-+-- incompatible
-|   +-- stage
-+-- device_features
-    +-- stage
-        +-- unlinked
-        +-- linked (not for compute)
-            +-- 0..31
-```
-
 ## Test Families
 
-### Binary query cases
+### query — Binary query cases
 
-`QueryType` includes `SAME_SHADER`, `NEW_SHADER`, `SHADER_FROM_BINARY`, `NEW_DEVICE`, `DEVICE_NO_EXTS_FEATURES`, and `ALL_FEATURE_COMBINATIONS` at [vktShaderObjectBinaryTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBinaryTests.cpp#L47-L55). The registered `queryTypeTests[]` currently uses five of those values at [vktShaderObjectBinaryTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBinaryTests.cpp#L860-L862).
+Iterates each of six shader stages (`vert`, `tesc`, `tese`, `geom`, `frag`, `comp`), creating a stage subgroup. Within each stage, linked and unlinked subgroups are created (linked compute is skipped). Each linked/unlinked subgroup registers five query-type leaf cases from `queryTypeTests[]`: `same_shader`, `new_shader`, `shader_from_binary`, `new_device`, and `device_no_exts_features` at [vktShaderObjectBinaryTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBinaryTests.cpp#L860-L882). `QueryType` also includes `ALL_FEATURE_COMBINATIONS` in the enum at [vktShaderObjectBinaryTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBinaryTests.cpp#L47-L55), but it was not observed in `queryTypeTests[]`.
 
-### Incompatible binary cases
+### incompatible — Incompatible binary cases
 
-`IncompleteBinaryTestType` defines half-size, garbage, second-half garbage, create-from-half-size, and create-from-half-size-garbage modes at [vktShaderObjectBinaryTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBinaryTests.cpp#L64-L71), registered under `incompatible` at [vktShaderObjectBinaryTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBinaryTests.cpp#L889-L920).
+Iterates each of six shader stages, creating a stage subgroup. Within each stage, five incompatible-binary leaf cases are registered from `incompatibleTests[]`: `half_size`, `garbage_data`, `garbage_second_half`, `create_from_half_size`, and `create_from_half_size_garbage` at [vktShaderObjectBinaryTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBinaryTests.cpp#L889-L920). `IncompleteBinaryTestType` defines these corruption/truncation modes at [vktShaderObjectBinaryTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBinaryTests.cpp#L64-L71).
 
-### Device-feature binary cases
+### device_features — Device-feature binary cases
 
-The `device_features` subgroup iterates each stage, linked/unlinked state except linked compute, and indices `0..31` at [vktShaderObjectBinaryTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBinaryTests.cpp#L922-L941).
+Iterates each of six shader stages, creating a stage subgroup. Within each stage, linked and unlinked subgroups are created (linked compute is skipped). Each linked/unlinked subgroup registers 32 leaf cases with indices `0..31` at [vktShaderObjectBinaryTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBinaryTests.cpp#L922-L941). The feature-bit mapping is implemented in the instance body outside the compact registration excerpt.
 
 ## Parameter Dimensions
 

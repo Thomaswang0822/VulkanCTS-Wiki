@@ -13,14 +13,10 @@ Implementation file.
 - Primary source: [`vktDynamicStateDiscardTests.cpp`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L1)
 - Shared base: [`DynamicStateBaseClass`](../../../modules/vulkan/dynamic_state/vktDynamicStateBaseClass.hpp#L43)
 
-## Registration Path
-
-This file contributes the [`DynamicStateDiscardTests`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L747) group (named `"discard"`), which is attached under each pipeline construction type subgroup by [`createChildren()`](../../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L56).
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-discard
+dynamic_state.monolithic.discard
 ├── stencil
 ├── viewport
 ├── scissor
@@ -33,27 +29,27 @@ Source: [`DynamicStateDiscardTests::init()`](../../../modules/vulkan/dynamic_sta
 
 ## Test Families
 
-### 1. Stencil discard
+### stencil — Stencil discard test
 
 [`stencil`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L762) uses [`StencilTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L360). Sets dynamic stencil compare mask, write mask, and reference via `vkCmdSetStencilCompareMask`, `vkCmdSetStencilWriteMask`, `vkCmdSetStencilReference`. Verifies that the stencil attachment remains at its clear value (0) since all fragments are discarded.
 
-### 2. Viewport discard
+### viewport — Viewport discard test
 
 [`viewport`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L765) uses [`ViewportTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L421). Sets dynamic viewport via `vkCmdSetViewport`. Verifies that the color attachment remains at its clear value (black) since all fragments are discarded.
 
-### 3. Scissor discard
+### scissor — Scissor discard test
 
 [`scissor`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L768) uses [`ScissorTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L476). Sets dynamic scissor via `vkCmdSetScissor`. Verifies that the color attachment remains at its clear value since all fragments are discarded.
 
-### 4. Depth discard
+### depth — Depth discard test
 
 [`depth`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L771) uses [`DepthTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L531). Sets dynamic depth bias and depth bounds via `vkCmdSetDepthBias`, `vkCmdSetDepthBounds`. Verifies that the depth attachment remains at its clear value (0.0f) since all fragments are discarded.
 
-### 5. Blend discard
+### blend — Blend constants discard test
 
 [`blend`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L773) uses [`BlendTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L572). Sets dynamic blend constants via `vkCmdSetBlendConstants`. Verifies that the color attachment remains at its clear value since all fragments are discarded.
 
-### 6. Line discard
+### line — Line width discard test
 
 [`line`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L776) uses [`LineTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L616). Sets dynamic line width via `vkCmdSetLineWidth`. Verifies that the color attachment remains at its clear value since all fragments are discarded.
 

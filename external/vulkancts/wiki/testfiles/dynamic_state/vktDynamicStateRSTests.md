@@ -14,14 +14,10 @@ Implementation file.
 - Shared base: [`DynamicStateBaseClass`](../../../modules/vulkan/dynamic_state/vktDynamicStateBaseClass.hpp#L43)
 - Test case utilities: [`vktDynamicStateTestCaseUtil.hpp`](../../../modules/vulkan/dynamic_state/vktDynamicStateTestCaseUtil.hpp#L1)
 
-## Registration Path
-
-This file contributes the [`DynamicStateRSTests`](../../../modules/vulkan/dynamic_state/vktDynamicStateRSTests.cpp#L1257) group (named `"rs_state"`), which is attached under each pipeline construction type subgroup by [`createChildren()`](../../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L50).
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-rs_state
+dynamic_state.monolithic.rs_state
 ├── depth_bias
 ├── depth_bias_mesh              (non-VulkanSC only)
 ├── depth_bias_clamp
@@ -34,29 +30,47 @@ rs_state
 └── nonzero_depth_bias_clamp_mesh     (non-VulkanSC only)
 ```
 
-Source: [`DynamicStateRSTests::init()`](../../../modules/vulkan/dynamic_state/vktDynamicStateRSTests.cpp#L1269).
-
 ## Test Families
 
-### 1. Depth bias
+### depth_bias — Depth bias
 
 [`depth_bias`](../../../modules/vulkan/dynamic_state/vktDynamicStateRSTests.cpp#L1296) and [`depth_bias_mesh`](../../../modules/vulkan/dynamic_state/vktDynamicStateRSTests.cpp#L1296) use [`DepthBiasParamTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateRSTests.cpp#L465). Tests dynamic depth bias via `vkCmdSetDepthBias`. Sets depth bias constant factor from `0.0f` to `-1.0f` between draws, verifying that the second draw passes the depth test due to the bias offset.
 
-### 2. Depth bias clamp
+### depth_bias_mesh — Depth bias (mesh shader)
+
+Mesh shader variant of `depth_bias`. See `depth_bias` above for test logic. Excluded on Vulkan SC builds.
+
+### depth_bias_clamp — Depth bias clamp
 
 [`depth_bias_clamp`](../../../modules/vulkan/dynamic_state/vktDynamicStateRSTests.cpp#L1299) and [`depth_bias_clamp_mesh`](../../../modules/vulkan/dynamic_state/vktDynamicStateRSTests.cpp#L1299) use [`DepthBiasClampParamTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateRSTests.cpp#L591). Tests dynamic depth bias with a large constant factor (`1000.0f`) and clamp (`0.005f`) via `vkCmdSetDepthBias`. Verifies that the clamp limits the effective bias, allowing the second draw to appear.
 
-### 3. Line width
+### depth_bias_clamp_mesh — Depth bias clamp (mesh shader)
+
+Mesh shader variant of `depth_bias_clamp`. See `depth_bias_clamp` above for test logic. Excluded on Vulkan SC builds.
+
+### line_width — Line width
 
 [`line_width`](../../../modules/vulkan/dynamic_state/vktDynamicStateRSTests.cpp#L1305) and [`line_width_mesh`](../../../modules/vulkan/dynamic_state/vktDynamicStateRSTests.cpp#L1305) use [`LineWidthParamTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateRSTests.cpp#L707). Tests dynamic line width via `vkCmdSetLineWidth` using the device's maximum supported line width from `lineWidthRange[1]`.
 
-### 4. Nonzero depth bias constant
+### line_width_mesh — Line width (mesh shader)
+
+Mesh shader variant of `line_width`. See `line_width` above for test logic. Excluded on Vulkan SC builds.
+
+### nonzero_depth_bias_constant — Nonzero depth bias constant
 
 [`nonzero_depth_bias_constant`](../../../modules/vulkan/dynamic_state/vktDynamicStateRSTests.cpp#L1322) and [`nonzero_depth_bias_constant_mesh`](../../../modules/vulkan/dynamic_state/vktDynamicStateRSTests.cpp#L1322) use [`DepthBiasNonZeroCase`](../../../modules/vulkan/dynamic_state/vktDynamicStateRSTests.cpp#L827) / [`DepthBiasNonZeroInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateRSTests.cpp#L848). Tests that a nonzero depth bias constant factor (`16384.0f`) with zero clamp is actually applied. Uses push constants for depth values and verifies via exact float threshold comparison.
 
-### 5. Nonzero depth bias clamp
+### nonzero_depth_bias_constant_mesh — Nonzero depth bias constant (mesh shader)
+
+Mesh shader variant of `nonzero_depth_bias_constant`. See `nonzero_depth_bias_constant` above for test logic. Excluded on Vulkan SC builds.
+
+### nonzero_depth_bias_clamp — Nonzero depth bias clamp
 
 [`nonzero_depth_bias_clamp`](../../../modules/vulkan/dynamic_state/vktDynamicStateRSTests.cpp#L1337) and [`nonzero_depth_bias_clamp_mesh`](../../../modules/vulkan/dynamic_state/vktDynamicStateRSTests.cpp#L1337) use [`DepthBiasNonZeroCase`](../../../modules/vulkan/dynamic_state/vktDynamicStateRSTests.cpp#L827) / [`DepthBiasNonZeroInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateRSTests.cpp#L848). Tests that a nonzero depth bias clamp (`0.125f`) with constant factor (`16384.0f`) is applied. Uses push constants for depth values and verifies via exact float threshold comparison.
+
+### nonzero_depth_bias_clamp_mesh — Nonzero depth bias clamp (mesh shader)
+
+Mesh shader variant of `nonzero_depth_bias_clamp`. See `nonzero_depth_bias_clamp` above for test logic. Excluded on Vulkan SC builds.
 
 ## Parameter Dimensions
 

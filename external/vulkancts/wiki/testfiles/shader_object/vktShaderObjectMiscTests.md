@@ -19,63 +19,50 @@ Implementation-heavy test file for the root-level `misc` branch.
 - [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L47-L63)
 - [CMakeLists.txt](../../../modules/vulkan/shader_object/CMakeLists.txt#L6-L44)
 
-## Registration Path
+## Registration Hierarchy
 
 ```text
-shader_object
-+-- misc
-    +-- {on,off}/{on,off}/{before,after}/{null,non_null}/{16,32,48,40}/{set,destroyed}
-    +-- state/{shaders,pipeline}/{shader-set}/{state-family}/{case}
-    +-- unused_variable/{unlinked,linked}/{output,builtin}/{vert,tesc,tese,geom}
-    +-- tessellation_modes/{one,two}/{equal,even,odd}
-    +-- tess_patch_non_match/{standard,reverse}
-    +-- push_const/{57_64_all,63_64_all,17_64,63_64,17_37_all,36_37_all,17_37,36_37}
-```
-
-Explicit registration path prefixes for verifier extraction:
-
-```text
-`shader_object.misc`
-`shader_object.misc.on.on.before.null.16.destroyed`
-`shader_object.misc.state.shaders.vert_frag.color_blend.enabled`
-`shader_object.misc.unused_variable.unlinked.output.vert`
-`shader_object.misc.tessellation_modes.one.equal`
-`shader_object.misc.tess_patch_non_match.standard`
-`shader_object.misc.push_const.57_64_all`
+shader_object.misc
+├── on
+├── off
+├── state
+├── unused_variable
+├── tessellation_modes
+├── tess_patch_non_match
+└── push_const
 ```
 
 The displayed branch name is verified from `TestCaseGroup(testCtx, "misc")` at [vktShaderObjectMiscTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L3498-L3500). The root file registers this branch directly at [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L60).
 
-## Test Hierarchy
-
-```text
-misc
-+-- blend/vertex-input/stride/destruction matrix
-+-- state
-|   +-- shaders / pipeline
-|       +-- shader-set
-|           +-- alphaToOne, depth, discard_rectangles, rasterization_discard, color_blend, primitives,
-|               stencil, logic_op, geometry_streams, provoking_vertex, sample_locations, lines, cull,
-|               conservative_rasterization, color_write
-+-- unused_variable
-+-- tessellation_modes
-+-- tess_patch_non_match
-+-- push_const
-```
-
 ## Test Families
 
-### Blend, vertex input, stride, and destruction matrix
+### on — Blend, vertex input, stride, and destruction matrix (blend enabled)
 
-The first family iterates two blend toggles, vertex-input timing (`before`/`after`), null versus non-null stride, four stride values, and two descriptor-set-layout destruction names at [vktShaderObjectMiscTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L3502-L3552). The corresponding `ShaderObjectMiscInstance` uses dynamic vertex input and vertex-buffer binding helpers at [vktShaderObjectMiscTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L90-L122).
+The first family iterates two blend toggles, vertex-input timing (`before`/`after`), null versus non-null stride, four stride values, and two descriptor-set-layout destruction names at [vktShaderObjectMiscTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L3502-L3552). The `on` sub-group represents the outer blend toggle enabled (`blend1 = true`). The corresponding `ShaderObjectMiscInstance` uses dynamic vertex input and vertex-buffer binding helpers at [vktShaderObjectMiscTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L90-L122). Deeper descendants include `off` (inner blend), `before`/`after` (vertex-input timing), `null`/`non_null` (stride), stride values `16`/`32`/`48`/`40`, and `set`/`destroyed` (descriptor-set-layout destruction).
 
-### Dynamic state comparison subtree
+### off — Blend, vertex input, stride, and destruction matrix (blend disabled)
 
-The `state` subtree varies pipeline mode (`shaders` versus `pipeline`) at [vktShaderObjectMiscTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L3554-L3561), six shader sets at [vktShaderObjectMiscTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L3563-L3620), and many state families registered from arrays at [vktShaderObjectMiscTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L3622-L3973). It is the largest family in this file and compares shader-object operation with pipeline/dynamic-rendering operation under selected state combinations.
+Same matrix structure as `on` but with the outer blend toggle disabled (`blend1 = false`). Deeper descendants follow the same nesting as `on`.
 
-### Unused variable, tessellation, patch mismatch, and push constants
+### state — Dynamic state comparison subtree
 
-`unused_variable` combines linked state, output/builtin selector, and four shader stages at [vktShaderObjectMiscTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L3975-L4023). `tessellation_modes` combines subdivision count names `one`/`two` with spacing names `equal`/`even`/`odd` at [vktShaderObjectMiscTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L4025-L4058). `tess_patch_non_match` registers standard and reverse tessellation-control binding orders through function cases at [vktShaderObjectMiscTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L4060-L4068). `push_const` registers eight offset/size/all-stage combinations at [vktShaderObjectMiscTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L4070-L4079).
+The `state` subtree varies pipeline mode (`shaders` versus `pipeline`) at [vktShaderObjectMiscTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L3554-L3561), six shader sets at [vktShaderObjectMiscTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L3563-L3620), and many state families registered from arrays at [vktShaderObjectMiscTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L3622-L3973). It is the largest family in this file and compares shader-object operation with pipeline/dynamic-rendering operation under selected state combinations. State families include `alphaToOne`, `depth`, `discard_rectangles`, `rasterization_discard`, `color_blend`, `primitives`, `stencil`, `logic_op`, `geometry_streams`, `provoking_vertex`, `sample_locations`, `lines`, `cull`, `conservative_rasterization`, and `color_write`.
+
+### unused_variable — Unused variable cases
+
+`unused_variable` combines linked state, output/builtin selector, and four shader stages at [vktShaderObjectMiscTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L3975-L4023). Deeper descendants include `unlinked`/`linked`, `output`/`builtin`, and stages `vert`/`tesc`/`tese`/`geom`.
+
+### tessellation_modes — Tessellation modes cases
+
+`tessellation_modes` combines subdivision count names `one`/`two` with spacing names `equal`/`even`/`odd` at [vktShaderObjectMiscTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L4025-L4058). Deeper descendants include `one`/`two` (subdivision) and `equal`/`even`/`odd` (spacing).
+
+### tess_patch_non_match — Tessellation patch mismatch cases
+
+`tess_patch_non_match` registers standard and reverse tessellation-control binding orders through function cases at [vktShaderObjectMiscTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L4060-L4068). Deeper descendants are `standard` and `reverse`.
+
+### push_const — Push constant cases
+
+`push_const` registers eight offset/size/all-stage combinations at [vktShaderObjectMiscTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L4070-L4079). Deeper descendants are `57_64_all`, `63_64_all`, `17_64`, `63_64`, `17_37_all`, `36_37_all`, `17_37`, and `36_37`.
 
 ## Parameter Dimensions
 
