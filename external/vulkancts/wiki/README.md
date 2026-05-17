@@ -59,7 +59,7 @@ For this tracker, the `Level-3 Files` column counts the actual number of Level-3
 | 14 | image_processing | [image_processing.md](categories/image_processing.md) | 3 | ✅ Done |
 | 15 | ycbcr | [ycbcr.md](categories/ycbcr.md) | 10 | ✅ Done |
 | 16 | draw | [draw.md](categories/draw.md) | 31 | ✅ Done |
-| 17 | texture | [texture.md](categories/texture.md) |  | ⬜ Not Started |
+| 17 | texture | [texture.md](categories/texture.md) | 13 | ✅ Done |
 | 18 | rasterization | [rasterization.md](categories/rasterization.md) |  | ⬜ Not Started |
 | 19 | fragment_operations | [fragment_operations.md](categories/fragment_operations.md) |  | ⬜ Not Started |
 | 20 | clipping | [clipping.md](categories/clipping.md) |  | ⬜ Not Started |
@@ -103,6 +103,6 @@ For this tracker, the `Level-3 Files` column counts the actual number of Level-3
 
 - **Total Categories**: 53
 - **Total CPP Test Files**: 592
-- **Completed Categories**: 17/53
-- **Completed Test Files**: 317/592
+- **Completed Categories**: 18/53
+- **Completed Test Files**: 330/592
 
