@@ -13,26 +13,23 @@ Implementation file.
 - Primary source: [`vktPipelineExecutablePropertiesTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineExecutablePropertiesTests.cpp#L1)
 - Header: [`vktPipelineExecutablePropertiesTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineExecutablePropertiesTests.hpp#L1)
 
-## Registration Path
-
-[`createExecutablePropertiesTests()`](../../../modules/vulkan/pipeline/vktPipelineExecutablePropertiesTests.cpp#L1213) returns the `executable_properties` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: Not shader-object, VK only.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-executable_properties
-└── {test_case}
+pipeline.monolithic.executable_properties
+├── graphics
+└── compute (monolithic only)
 ```
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| Executable properties test | Verifies pipeline executable property queries return valid results |
-| Executable statistics test | Verifies pipeline executable statistic queries return valid results |
-| Executable internal representations test | Verifies pipeline executable internal representation queries |
+### graphics — Graphics pipeline executable properties
+
+Verifies pipeline executable property, statistic, and internal representation queries for graphics pipelines. Tests 12 parameter combinations covering vert+frag, vert+geom+frag, and vert+tess+frag shader stages, with and without mesh shading, and with different executable count configurations.
+
+### compute — Compute pipeline executable properties
+
+Verifies pipeline executable property, statistic, and internal representation queries for compute pipelines. Tests 4 parameter combinations with and without mesh shading and different executable count configurations. Monolithic variant only.
 
 ## Parameter Dimensions
 

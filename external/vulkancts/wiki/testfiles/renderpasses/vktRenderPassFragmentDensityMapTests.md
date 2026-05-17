@@ -4,40 +4,47 @@
 
 [vktRenderPassFragmentDensityMapTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp)
 
-## Registration
+## Registration Hierarchy
 
-Added to root group (monolithic pipeline, non-SC).
+```text
+renderpasses.renderpass1.fragment_density_map
+├── 1_view
+├── depth_format
+└── properties
+```
 
-Registered group name: `"fragment_density_map"` ([L5410](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5410))
+Registered under all rendering types (renderpass1, renderpass2, dynamic_rendering) at the rendering-type root level, monolithic pipeline only, non-SC. The representative root above shows renderpass1 children; renderpass2 and dynamic_rendering additionally include `2_views`, `4_views`, `6_views`, and `offset` children (multiview is not supported in renderpass1). Registered group name: `"fragment_density_map"` ([L5410](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5410)).
 
 ## Test Families
 
-```
-fragment_density_map
-+-- FragmentDensityMapTest
-|   Static, deferred, and dynamic density maps with
-|   subsampled and non-subsampled images.
-+-- FDMOffsetOversizedFDMCase
-|   Oversized FDM with offsets.
-+-- FDMOffsetMinShiftCase
-|   Minimum shift by granularity.
-+-- FDMOffsetClampToEdgeCase
-|   Clamp-to-edge behavior.
-+-- Properties sub-group
-    +-- subsampled_sampler_counts
-    +-- imageless_fb
-    +-- subsampled_loads
-    +-- coarse_reconstruction
-    +-- memory_access
-    +-- maintenance5
-+-- Offset sub-groups
-    +-- oversized_fdm
-    |   Horizontal and vertical offset variants.
-    +-- min_shift
-    |   Horizontal and vertical offset variants.
-    +-- clamp_to_edge
-        Horizontal and vertical offset variants.
-```
+### 1_view — Single-view fragment density map tests
+
+Static, deferred, and dynamic density maps with subsampled and non-subsampled images for a single view. Contains subgroups organized by render type (render, render_copy), then by size ratio (divisible_density_size, non_divisible_density_size), then by sample count, with leaf FragmentDensityMapTest cases for each fragment area and density map type combination.
+
+### depth_format — Depth format FDM tests (renderpass1 only)
+
+Tests fragment density map behavior with different depth formats (d16_unorm, d32_sfloat, d24_unorm_s8_uint). Only present under renderpass1 since multiview is not supported in renderpass1 and this provides depth-specific coverage. Uses deferred density maps.
+
+### properties — FDM property and feature tests
+
+Tests for various fragment density map properties and features. Contains leaf tests:
+- `2_subsampled_samplers`, `4_subsampled_samplers`, `6_subsampled_samplers`, `8_subsampled_samplers` — Subsampled sampler count tests
+- `imageless_fb` — Imageless framebuffer with FDM
+- `subsampled_loads` — Subsampled image load operations (requires VK_EXT_fragment_density_map2)
+- `subsampled_coarse_reconstruction` — Coarse reconstruction with subsampled images (requires VK_EXT_fragment_density_map2)
+- `memory_access` — Memory access behavior with FDM
+- `maintenance5` — VK_KHR_maintenance5 interactions with FDM
+
+### 2_views, 4_views, 6_views — Multiview FDM tests (renderpass2 and dynamic_rendering only)
+
+Same structure as `1_view` but with 2, 4, and 6 views respectively. Not present under renderpass1 since multiview is not supported in the legacy render pass path.
+
+### offset — FDM offset tests (renderpass2 and dynamic_rendering only)
+
+Fragment density map offset tests using VK_EXT_fragment_density_map_offset. Contains subgroups:
+- `oversized_fdm` — Oversized FDM with horizontal and vertical offset variants, including multiview, suspend/resume, and extra large variants
+- `min_shift` — Minimum shift by granularity with horizontal and vertical offset variants
+- `clamp_to_edge` — Clamp-to-edge behavior with horizontal and vertical offset variants
 
 ## Parameter Dimensions
 

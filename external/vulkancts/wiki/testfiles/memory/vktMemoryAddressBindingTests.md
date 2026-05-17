@@ -12,57 +12,22 @@ Tests for `VK_EXT_device_address_binding_report`. Validates that the debug utils
 - **Registration function:** [`createAddressBindingReportTests()`](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L1831)
 - **Parent group:** `memory`
 
-## Test Hierarchy
+## Registration Hierarchy
 
-```
-address_binding_report
+```text
+memory.address_binding_report
 └── create_and_destroy_object
-    ├── device
-    ├── device_memory_small
-    ├── buffer_uniform_small
-    ├── buffer_uniform_large
-    ├── buffer_storage_small
-    ├── buffer_storage_large
-    ├── buffer_view_uniform_r8g8b8a8_unorm
-    ├── buffer_view_storage_r8g8b8a8_unorm
-    ├── image_1d
-    ├── image_2d
-    ├── image_3d
-    ├── image_view_1d
-    ├── image_view_1d_arr
-    ├── image_view_2d
-    ├── image_view_2d_arr
-    ├── image_view_cube
-    ├── image_view_cube_arr
-    ├── image_view_3d
-    ├── semaphore
-    ├── event
-    ├── fence
-    ├── fence_signaled
-    ├── query_pool
-    ├── shader_module
-    ├── pipeline_cache
-    ├── sampler
-    ├── descriptor_set_layout_empty
-    ├── descriptor_set_layout_single
-    ├── pipeline_layout_empty
-    ├── pipeline_layout_single
-    ├── render_pass
-    ├── graphics_pipeline
-    ├── compute_pipeline
-    ├── descriptor_pool
-    ├── descriptor_pool_free_descriptor_set
-    ├── descriptor_set
-    ├── framebuffer
-    ├── command_pool
-    ├── command_pool_transient
-    ├── command_buffer_primary
-    └── command_buffer_secondary
 ```
+
+The `create_and_destroy_object` subgroup contains 37 leaf test cases covering 23 Vulkan object types. Each leaf test is named after the object type and its configuration variant (e.g., `device`, `buffer_uniform_small`, `image_view_cube_arr`). The full list is detailed in [Test Families](#test-families).
+
+Evidence:
+- `address_binding_report` group created at [`createAddressBindingReportTests()`](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L1831)
+- `create_and_destroy_object` subgroup added at [line 1982](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L1982)
 
 ## Test Families
 
-### create_and_destroy_object
+### create_and_destroy_object — Create/destroy callback pairing per object type
 
 Tests that creating and destroying each Vulkan object type produces properly paired `BIND`/`UNBIND` callback events. Covers 23 object types:
 

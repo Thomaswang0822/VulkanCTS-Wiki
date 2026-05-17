@@ -27,57 +27,65 @@ Registration/dispatcher file for the `shader_object` category.
 - [vktShaderObjectRenderingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1201-L1395)
 - [vktShaderObjectMiscTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L3498-L4080)
 
-## Registration Path
+## Registration Hierarchy
 
 ```text
 shader_object
-+-- api
-+-- create
-+-- link
-+-- tessellation
-+-- binary
-+-- pipeline_interaction
-+-- binding
-+-- performance
-+-- rendering
-+-- misc
+├── api
+├── create
+├── link
+├── tessellation
+├── binary
+├── pipeline_interaction
+├── binding
+├── performance (excluded from mustpass)
+├── rendering
+└── misc
 ```
 
-Verifier-oriented explicit path examples (dot syntax expected by `verify_registration_paths.py`):
-
-```text
-`shader_object.api`
-`shader_object.create`
-`shader_object.link`
-`shader_object.tessellation`
-`shader_object.binary`
-`shader_object.pipeline_interaction`
-`shader_object.binding`
-`shader_object.rendering`
-`shader_object.misc`
-```
-
-Evidence: the root function directly calls `addChild()` for the ten branch factory functions at [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L51-L60). Each displayed branch name was verified from the corresponding implementation file's `TestCaseGroup` construction, not from the factory symbol alone. The inspected mustpass directory [`shader-object/`](../../../mustpass/main/vk-default/shader-object/) contains branch TXT files for `api`, `binary`, `binding`, `create`, `link`, `misc`, `pipeline-interaction`, `rendering`, and `tessellation`, but no `performance.txt`. The performance branch is source-registered in the root file but explicitly excluded from mustpass by [`excluded-tests.txt`](../../../mustpass/main/src/excluded-tests.txt) (glob `dEQP-VK.shader_object.performance.*`); it therefore has no mustpass TXT and is intentionally omitted from the verifier paths above.
-
-## Test Hierarchy
-
-```text
-shader_object
-+-- api                  (API and extension/property checks)
-+-- create               (shader creation and stage creation behavior)
-+-- link                 (linked/unlinked stage combinations and next-stage chains)
-+-- tessellation         (GLSL/HLSL tessellation shader-object rendering variants)
-+-- binary               (shader binary query/recreation/incompatibility/device-feature behavior)
-+-- pipeline_interaction (switching between shader objects and pipelines)
-+-- binding              (binding, swapping, disabling, and unbinding shader stages)
-+-- performance          (timed draw/dispatch/binary operations)
-+-- rendering            (dynamic rendering output/attachment format variants)
-+-- misc                 (state, unused variables, tessellation modes, push constants, and other cases)
-```
+Evidence: the root function directly calls `addChild()` for the ten branch factory functions at [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L51-L60). Each displayed branch name was verified from the corresponding implementation file's `TestCaseGroup` construction, not from the factory symbol alone. The inspected mustpass directory [`shader-object/`](../../../mustpass/main/vk-default/shader-object/) contains branch TXT files for `api`, `binary`, `binding`, `create`, `link`, `misc`, `pipeline-interaction`, `rendering`, and `tessellation`, but no `performance.txt`. The performance branch is source-registered in the root file but explicitly excluded from mustpass by [`excluded-tests.txt`](../../../mustpass/main/src/excluded-tests.txt) (glob `dEQP-VK.shader_object.performance.*`); it therefore has no mustpass TXT and is intentionally omitted from the mustpass directory.
 
 ## Test Families
 
-This file does not implement individual test logic. It defines the category's root branch map by including branch headers at [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L26-L35) and registering their factory outputs at [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L51-L60).
+### api — API and extension/property checks
+
+Checks shader-object-related API exposure, required dynamic-state command lookup through a custom device, selected extension-version expectations, dynamic-rendering availability, and nonzero `shaderBinaryUUID` property behavior.
+
+### create — Shader creation and stage creation behavior
+
+Covers creating multiple shader objects together and per-stage shader creation cases that are expected either to succeed or fail.
+
+### link — Linked/unlinked stage combinations and next-stage chains
+
+Builds linked and unlinked shader-stage combinations, next-stage chain tests, separate-link tests, and mesh/task/fragment link combinations.
+
+### tessellation — GLSL/HLSL tessellation shader-object rendering variants
+
+Registers GLSL and HLSL tessellation shader-object tests for orientation, spacing, patch vertex count, primitive mode, and point mode, each with and without a rebind suffix.
+
+### binary — Shader binary query/recreation/incompatibility/device-feature behavior
+
+Covers shader binary queries, recreating shaders from binaries, incompatible or corrupted binary data, and device-feature bit variation when using shader binaries.
+
+### pipeline_interaction — Switching between shader objects and pipelines
+
+Tests switching between shader objects and pipelines.
+
+### binding — Binding, swapping, disabling, and unbinding shader stages
+
+Tests binding, swapping, disabling, and unbinding shader stages.
+
+### performance — Timed draw/dispatch/binary operations
+
+Timed draw/dispatch/binary operations.
+
+### rendering — Dynamic rendering output/attachment format variants
+
+Dynamic rendering output/attachment format variants.
+
+### misc — State, unused variables, tessellation modes, push constants, and other cases
+
+State, unused variables, tessellation modes, push constants, and other cases.
 
 ## Parameter Dimensions
 

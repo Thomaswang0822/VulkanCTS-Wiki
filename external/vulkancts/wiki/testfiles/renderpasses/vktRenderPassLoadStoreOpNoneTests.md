@@ -4,25 +4,24 @@
 
 [vktRenderPassLoadStoreOpNoneTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp)
 
-## Registration
+## Registration Hierarchy
 
-Added to `suballocation` subgroup (non-SC).
+```text
+renderpasses.renderpass1.suballocation.load_store_op_none
+```
 
-Registered group name: `"load_store_op_none"` ([L1534](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L1534))
+Available under `renderpass1` and `renderpass2` suballocation subgroups (non-SC). Representative root shown for `renderpass1`. Registered at [L1534](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L1534).
 
 ## Test Families
 
-```
-load_store_op_none
-+-- LoadStoreOpNoneTest
-    Tests VK_ATTACHMENT_LOAD_OP_NONE_EXT / VK_ATTACHMENT_STORE_OP_NONE_EXT
-    behavior with various attachment configurations.
-    +-- Color attachment tests
-    |   Various load/store op combinations for color attachments.
-    +-- Depth/stencil tests
-        Separate depth/stencil load/store op combinations with
-        test enable/disable variants.
-```
+### load_store_op_none — VK_ATTACHMENT_LOAD_OP_NONE / VK_ATTACHMENT_STORE_OP_NONE tests
+
+Tests VK_ATTACHMENT_LOAD_OP_NONE_EXT / VK_ATTACHMENT_STORE_OP_NONE_EXT behavior with various attachment configurations. 55 test cases covering:
+
+- **Color attachment tests**: Various load/store op combinations for color attachments (`color_load_op_load_store_op_none`, `color_load_op_none_store_op_dontcare`, `color_load_op_none_store_op_none`, `color_load_op_none_store_op_none_resolve`, `color_load_op_none_store_op_none_write_off`, `color_load_op_none_store_op_store`, `color_load_op_none_store_op_store_alphablend`)
+- **Depth tests**: Separate depth load/store op combinations across 4 depth formats (D16_UNORM, D24_UNORM_S8_UINT, D32_SFLOAT, D32_SFLOAT_S8_UINT) with variants for load_op_load/store_op_none, load_op_none/store_op_dontcare, load_op_none/store_op_none_write_off, load_op_none/store_op_store
+- **Stencil tests**: Separate stencil load/store op combinations across 4 stencil-capable formats with same op variants as depth
+- **Depth/stencil combined tests**: Separate depth/stencil load/store op combinations with test enable/disable variants (stencil_test_off, stencil_write_off, depth_test_off, depth_write_off) across 3 combined depth/stencil formats
 
 ## Parameter Dimensions
 

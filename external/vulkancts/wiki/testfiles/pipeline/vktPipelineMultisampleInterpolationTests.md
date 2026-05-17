@@ -6,7 +6,7 @@
 
 ## Role
 
-Implementation file.
+Implementation file. The [`createMultisampleInterpolationTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleInterpolationTests.cpp#L1148) factory function creates the `multisample_interpolation` group, attached directly under each variant root by [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L135).
 
 ## Source Code
 
@@ -14,58 +14,77 @@ Implementation file.
 - Header: [`vktPipelineMultisampleInterpolationTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineMultisampleInterpolationTests.hpp#L1)
 - Base classes: [`vktPipelineMultisampleBase.cpp`](../../../modules/vulkan/pipeline/vktPipelineMultisampleBase.cpp#L1)
 
-## Registration Path
-
-[`createMultisampleInterpolationTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleInterpolationTests.cpp#L1148) returns the `multisample_interpolation` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: All variants.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-multisample_interpolation
+pipeline.monolithic.multisample_interpolation
 ├── sample_interpolate_at_single_sample
-│   └── {image_size}
 ├── sample_interpolate_at_distinct_values
 ├── sample_interpolate_at_ignores_centroid
 ├── sample_interpolation_consistency
-│   └── {sample_count}
 ├── sample_qualifier_distinct_values
 ├── centroid_interpolation_consistency
-│   └── {sample_count}
-├── reinterpolation_consistency          (VK_KHR_portability_subset guarded)
-│   ├── component
-│   └── interpolate_at_sample
-├── nonuniform_interpolant_indexing      (VK_KHR_portability_subset guarded)
-│   ├── component
-│   ├── interpolate_at_sample
-│   └── interpolate_at_offset
+├── reinterpolation_consistency (VK_KHR_portability_subset guarded)
+├── nonuniform_interpolant_indexing (VK_KHR_portability_subset guarded)
 ├── centroid_qualifier_inside_primitive
-├── interpolate_at_offset_pixel_center
+├── offset_interpolate_at_pixel_center
 └── offset_interpolation_at_sample_position
-    └── {sample_count}
 ```
+
+**Variant coverage**: All variants.
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| MSCaseInterpolateAtSampleSingleSample | Verifies `interpolateAtSample` returns the same value for all samples when only one sample is used |
-| MSCaseInterpolateAtSampleDistinctValues | Verifies `interpolateAtSample` returns distinct values per sample index |
-| MSCaseInterpolateAtSampleIgnoresCentroid | Verifies `interpolateAtSample` ignores centroid qualifier |
-| MSCaseInterpolateAtSampleConsistency | Verifies `interpolateAtSample` returns consistent results across invocations |
-| MSCaseSampleQualifierDistinctValues | Verifies sample qualifier variables produce distinct per-sample values |
-| MSCaseInterpolateAtCentroidConsistency | Verifies `interpolateAtCentroid` returns consistent results |
-| MSCaseCentroidQualifierInsidePrimitive | Verifies centroid-qualified values lie inside the primitive |
-| MSCaseInterpolateAtOffsetPixelCenter | Verifies `interpolateAtOffset(0,0)` matches pixel center |
-| MSCaseInterpolateAtOffsetSamplePosition | Verifies `interpolateAtOffset` matches sample positions |
+### sample_interpolate_at_single_sample — InterpolateAtSample with single sample
+
+Verifies `interpolateAtSample` returns the same value for all samples when only one sample is used. Contains image size subgroups (128x128, 137x191).
+
+### sample_interpolate_at_distinct_values — InterpolateAtSample distinct per-sample values
+
+Verifies `interpolateAtSample` returns distinct values per sample index.
+
+### sample_interpolate_at_ignores_centroid — InterpolateAtSample ignores centroid
+
+Verifies `interpolateAtSample` ignores the centroid qualifier.
+
+### sample_interpolation_consistency — InterpolateAtSample consistency
+
+Verifies `interpolateAtSample` returns consistent results across invocations. Contains sample count subgroups (2, 4, 8, 16, 32).
+
+### sample_qualifier_distinct_values — Sample qualifier distinct values
+
+Verifies sample qualifier variables produce distinct per-sample values.
+
+### centroid_interpolation_consistency — InterpolateAtCentroid consistency
+
+Verifies `interpolateAtCentroid` returns consistent results. Contains sample count subgroups (2, 4, 8, 16, 32).
+
+### reinterpolation_consistency — Reinterpolation consistency (VK_KHR_portability_subset guarded)
+
+Verifies reinterpolation consistency. Only added when `VK_KHR_portability_subset` is not supported or reports shader sample rate interpolation functions as supported. Contains `component` and `interpolate_at_sample` sub-tests, some using Amber test cases.
+
+### nonuniform_interpolant_indexing — Nonuniform interpolant indexing (VK_KHR_portability_subset guarded)
+
+Verifies nonuniform interpolant indexing. Only added when `VK_KHR_portability_subset` is not supported or reports shader sample rate interpolation functions as supported. Contains `component`, `interpolate_at_sample`, and `interpolate_at_offset` sub-tests.
+
+### centroid_qualifier_inside_primitive — Centroid qualifier inside primitive
+
+Verifies centroid-qualified values lie inside the primitive boundary.
+
+### offset_interpolate_at_pixel_center — InterpolateAtOffset at pixel center
+
+Verifies `interpolateAtOffset(0,0)` matches pixel center.
+
+### offset_interpolation_at_sample_position — Offset interpolation at sample position
+
+Verifies `interpolateAtOffset` matches sample positions. Contains sample count subgroups (2, 4, 8, 16, 32).
 
 ## Parameter Dimensions
 
 | Parameter | Source | Values |
 |---|---|---|
-| Image size | Array | 128x128, 256x256, 512x512 |
-| Sample count | Array | 2, 4, 8, 16 |
+| Image size | Array | 128x128, 137x191 |
+| Sample count | Array | 2, 4, 8, 16, 32 |
 | ComponentSource | Enum | CONSTANT, PUSH_CONSTANT, NONE |
 | PipelineConstructionType | Parameter | All variant types |
 

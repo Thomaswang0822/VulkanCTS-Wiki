@@ -16,30 +16,22 @@ Implementation-heavy. Contains test instance, support utilities, and registratio
 | [vktApiPerformanceCountersByRegionTests.hpp](../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.hpp#L1) | Declares `createRenderPassPerformanceCountersByRegionApiTests` |
 | [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L140) | Parent registration: `apiTests->addChild(createRenderPassPerformanceCountersByRegionApiTests(testCtx))` |
 
-## Registration Path
+## Registration Hierarchy
 
-```
-api
-  +-- performance_counters_by_region
-       +-- enumerate_counters
+```text
+api.performance_counters_by_region
+└── enumerate_counters
 ```
 
-## Test Hierarchy
-
-```
-performance_counters_by_region
-  +-- enumerate_counters
-       Tests vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM
-       with various buffer sizes and output parameter combinations
-```
+Evidence:
+- `performance_counters_by_region` group created at [`createRenderPassPerformanceCountersByRegionApiTests()`](../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L385)
+- `enumerate_counters` test case added at [`vktApiPerformanceCountersByRegionTests.cpp`](../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L389)
 
 ## Test Families
 
-### performance_counters_by_region
+### enumerate_counters — Counter enumeration with various buffer sizes
 
-Group name verified at [vktApiPerformanceCountersByRegionTests.cpp:387](../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L387): `new tcu::TestCaseGroup(testCtx, "performance_counters_by_region")`.
-
-Single test case `enumerate_counters` at [line 389](../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L389).
+Single test case registered at [`vktApiPerformanceCountersByRegionTests.cpp`](../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L389) within the `performance_counters_by_region` group (created at [line 387](../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L387)).
 
 The test instance `PerformanceCountersByRegionRenderPassBasicTestInstance` at [line 61](../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L61) performs these checks:
 

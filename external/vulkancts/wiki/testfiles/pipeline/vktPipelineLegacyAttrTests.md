@@ -6,48 +6,32 @@
 
 ## Role
 
-Implementation file. Nested subgroup under [`vktPipelineVertexInputTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1).
+Implementation file. Nested subgroup under [`vktPipelineVertexInputTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1). The parent file creates the group with name `"legacy_vertex_attributes"` and passes it to [`createLegacyVertexAttributesTests()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L833).
 
 ## Source Code
 
 - Primary source: [`vktPipelineLegacyAttrTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L1)
 - Header: [`vktPipelineLegacyAttrTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.hpp#L1)
 
-## Registration Path
+## Registration Hierarchy
 
-The parent file [`vktPipelineVertexInputTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3117) creates the group with name `"legacy_vertex_attributes"` and passes it to [`createLegacyVertexAttributesTests()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L1). The full registration path is `pipeline.<variant>.vertex_input.legacy_vertex_attributes`.
+```text
+pipeline.monolithic.vertex_input.legacy_vertex_attributes
+├── single_binding
+└── multi_binding
+```
 
 **Variant coverage**: Monolithic and fast_linked_library only (parent restricts at [line 3114](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3114)).
 
-## Test Hierarchy
-
-```text
-legacy_vertex_attributes
-├── single_binding
-│   ├── r8_unorm_shader_int_stride_0
-│   ├── r8_unorm_shader_uint_stride_0
-│   ├── r8_unorm_shader_float_stride_0
-│   ├── r8_unorm_shader_int_stride_1
-│   ├── ...                               (many combinations per format)
-│   └── r16g16b16_sfloat_shader_uint_stride_6_attribute_offset_1_memory_offset_1
-└── multi_binding
-    ├── r8_unorm_r16g16_uint_r32g32b32a32_sint_stride_normal
-    ├── r8_unorm_r16g16_uint_r32g32b32a32_sint_stride_1_byte
-    ├── ...                               (combinations of 3-format tuples x stride x offsets)
-    └── r32g32b32a32_sfloat_r16_sint_r8g8_unorm_stride_1_byte_attribute_offset_1_memory_offset_1
-```
-
-Source: [`createLegacyVertexAttributesTests()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L1).
-
 ## Test Families
 
-### 1. single_binding
+### single_binding — Single vertex binding tests
 
-Tests `VK_EXT_legacy_vertex_attributes` with a single vertex binding per test. Each case varies the vertex format, shader reinterpretation format, binding stride, attribute offset, and memory offset. Verifies that vertex data is correctly fetched through the legacy vertex attribute path with dynamic vertex input.
+Tests `VK_EXT_legacy_vertex_attributes` with a single vertex binding per test. Each case varies the vertex format, shader reinterpretation format, binding stride, attribute offset, and memory offset. Verifies that vertex data is correctly fetched through the legacy vertex attribute path with dynamic vertex input. Contains many leaf test cases generated from the cross-product of ~47 formats, shader formats (FLOAT, SIGNED_INT, UNSIGNED_INT), strides ({0, 1, formatSize, 2*formatSize-1}), attribute offsets ({0, 1}), and memory offsets ({0, 1}).
 
-### 2. multi_binding
+### multi_binding — Multi vertex binding tests
 
-Tests `VK_EXT_legacy_vertex_attributes` with 3 simultaneous vertex bindings per test. Uses curated format tuples mixing different component counts, numeric types, and bit widths. Verifies correct data fetching across multiple bindings with varied strides and offsets.
+Tests `VK_EXT_legacy_vertex_attributes` with 3 simultaneous vertex bindings per test. Uses curated format tuples mixing different component counts, numeric types, and bit widths. Verifies correct data fetching across multiple bindings with varied strides and offsets. Contains leaf test cases from 3 curated format tuples with normal and single-byte strides, plus attribute/memory offset combinations.
 
 ## Parameter Dimensions
 

@@ -13,25 +13,25 @@ Implementation file.
 - Primary source: [`vktPipelineDerivativeTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L1)
 - Header: [`vktPipelineDerivativeTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.hpp#L1)
 
-## Registration Path
-
-[`createDerivativeTests()`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L170) returns the `derivative` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: Monolithic only, VK only. Compute pipeline tests not repeated across construction types.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-derivative
+pipeline.monolithic.derivative
 └── compute
-    └── {test_case}
 ```
+
+Source: [`createDerivativeTests()`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L170). Variant coverage: Monolithic only, VK only. Compute pipeline tests not repeated across construction types.
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| Compute derivative test | Verifies compute pipeline derivative creation and execution |
+### compute — Compute pipeline derivative tests
+
+Verifies compute pipeline derivative creation and execution. Contains three test cases:
+- `derivative_by_handle`: Creates a derivative compute pipeline by handle, using `VK_PIPELINE_CREATE_DERIVATIVE_SOURCE_BIT` on the base pipeline and `VK_PIPELINE_CREATE_DERIVATIVE_DERIVATIVE_BIT` on the derivative.
+- `derivative_by_handle_maintenance5`: Same as `derivative_by_handle` but with `VK_KHR_maintenance5` enabled (non-VulkanSC only).
+- `derivative_by_index`: Creates a derivative compute pipeline by index, using the base pipeline index in `vkCreateComputePipelines`.
+
+All tests verify that the derivative pipeline produces correct computation results and that the derivative flag bits are correctly handled.
 
 ## Parameter Dimensions
 

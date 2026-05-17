@@ -14,49 +14,38 @@ Implementation file.
 - Header: [`vktPipelineAttachmentFeedbackLoopLayoutTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.hpp#L1)
 - Shared instance: [`vktPipelineImageSamplingInstance.cpp`](../../../modules/vulkan/pipeline/vktPipelineImageSamplingInstance.cpp#L1)
 
-## Registration Path
+## Registration Hierarchy
 
-[`createAttachmentFeedbackLoopLayoutTests()`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L1) returns the `attachment_feedback_loop_layout` group, attached under each variant root by `createChildren()`.
+[`createAttachmentFeedbackLoopLayoutTests()`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L3366) returns the `attachment_feedback_loop_layout` group, attached under each variant root by `createChildren()`.
 
 **Variant coverage**: All variants (VulkanSC only). Misc sub-group is monolithic only.
 
-## Test Hierarchy
-
 ```text
-attachment_feedback_loop_layout
+pipeline.monolithic.attachment_feedback_loop_layout
 ├── sampler
-│   ├── attachment_feedback_loop_optimal
-│   │   └── {combined_image_sampler,sampled_image}
-│   │       └── {1d,1d_unnormalized,1d_array,2d,2d_unnormalized,2d_array,3d,cube,cube_array}
-│   │           └── format/<format>_{color|depth|stencil}_{read|read_write_same_pixel|read_write_different_areas}[_interleave][_dynamic_*]
-│   ├── general
-│   │   └── (same structure)
-│   └── misc                            (monolithic only)
-│       ├── maintenance5_color_attachment
-│       └── maintenance5_ds_attachment
-└── misc                                (monolithic only)
-    ├── no_color_draw
-    ├── separate_mip_levels
-    └── separate_mip_levels_large_fb
+└── misc (monolithic only)
 ```
 
 ## Test Families
 
-### 1. sampler (feedback_loop_optimal / general)
+### sampler — Comprehensive sampling-from-feedback-loop tests
 
 Comprehensive sampling-from-feedback-loop tests. Renders to an image while simultaneously sampling from it. Covers read-only, read-write-same-pixel, and read-write-different-areas modes across image view types, formats, and descriptor types.
 
-### 2. maintenance5 misc
+The `sampler` group contains two image-layout sub-groups:
+- `attachment_feedback_loop_optimal` — tests using `VK_IMAGE_LAYOUT_ATTACHMENT_FEEDBACK_LOOP_OPTIMAL_EXT`
+- `general` — tests using `VK_IMAGE_LAYOUT_GENERAL`
 
-Tests VK_KHR_maintenance5 compatibility with feedback loop layout. Monolithic only.
+Each layout sub-group contains `combined_image_sampler` and `sampled_image` descriptor-type sub-groups, which in turn contain `image_type` sub-groups for the 9 view types (1d, 1d_unnormalized, 1d_array, 2d, 2d_unnormalized, 2d_array, 3d, cube, cube_array), each with `format/` leaf tests spanning 7 formats across color, depth, and stencil aspects with read, read_write_same_pixel, and read_write_different_areas modes (plus interleave and dynamic-state variants).
 
-### 3. no_color_draw
+Each layout sub-group also contains a `misc` sub-group (monolithic only) with `maintenance5_color_attachment` and `maintenance5_ds_attachment` tests for VK_KHR_maintenance5 compatibility with feedback loop layout.
 
-Draws with no color attachment bound but uses feedback loop layout. Verifies via storage buffer atomic counter.
+### misc — Non-sampler feedback-loop tests (monolithic only)
 
-### 4. separate_mip_levels
-
-Creates feedback loop using different mip levels of the same image. Normal (32x32) and large (512x512) variants.
+Contains tests that do not fit the sampler pattern:
+- `no_color_draw` — Draws with no color attachment bound but uses feedback loop layout. Verifies via storage buffer atomic counter.
+- `separate_mip_levels` — Creates feedback loop using different mip levels of the same image (32x32).
+- `separate_mip_levels_large_fb` — Same as `separate_mip_levels` but with a large framebuffer (512x512).
 
 ## Parameter Dimensions
 

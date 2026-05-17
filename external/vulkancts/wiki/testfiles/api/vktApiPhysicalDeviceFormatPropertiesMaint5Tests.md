@@ -16,64 +16,46 @@ Implementation-heavy. Contains test instance classes, test case class, and regis
 | [vktApiPhysicalDeviceFormatPropertiesMaint5Tests.hpp](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.hpp#L1) | Declares `createMaintenance5Tests` |
 | [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L133) | Parent registration: `apiTests->addChild(createMaintenance5Tests(testCtx))` |
 
-## Registration Path
+## Registration Hierarchy
 
-```
-api
-  +-- maintenance5
-       +-- format
-       |    +-- device_format_props
-       |    +-- device_format_props2
-       |    +-- image_format_props
-       |    +-- image_format_props2
-       |    +-- sparse_image_format_props
-       |    +-- sparse_image_format_props2
-       +-- flags
-            +-- image_format_props
-            +-- image_format_props2
-            +-- sparse_image_format_props
-            +-- sparse_image_format_props2
-```
-
-## Test Hierarchy
-
-```
-maintenance5
-  +-- format
-  |    Tests with VK_FORMAT_MAX_ENUM - i for i in [0..4]
-  |    +-- device_format_props        -> getPhysicalDeviceFormatProperties
-  |    +-- device_format_props2       -> getPhysicalDeviceFormatProperties2
-  |    +-- image_format_props         -> getPhysicalDeviceImageFormatProperties
-  |    +-- image_format_props2        -> getPhysicalDeviceImageFormatProperties2
-  |    +-- sparse_image_format_props  -> getPhysicalDeviceSparseImageFormatProperties
-  |    +-- sparse_image_format_props2 -> getPhysicalDeviceSparseImageFormatProperties2
-  +-- flags
-       Tests with VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM - i for i in [0..4]
-       +-- image_format_props         -> getPhysicalDeviceImageFormatProperties
-       +-- image_format_props2        -> getPhysicalDeviceImageFormatProperties2
-       +-- sparse_image_format_props  -> getPhysicalDeviceSparseImageFormatProperties
-       +-- sparse_image_format_props2 -> getPhysicalDeviceSparseImageFormatProperties2
+```text
+api.maintenance5
+├── format
+└── flags
 ```
 
 ## Test Families
 
-### maintenance5
+### format — Unsupported format parameter tests
 
-Group name verified at [vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp:345](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L345): `new tcu::TestCaseGroup(testCtx, "maintenance5")`.
+Group name verified at [vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp:346](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L346): `new tcu::TestCaseGroup(testCtx, "format")`.
 
-The `format` subgroup tests use `UnsupportedParametersMaintenance5FormatInstance` ([line 60](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L60)). For each of 5 invalid format values near `VK_FORMAT_MAX_ENUM`, it:
+Tests use `UnsupportedParametersMaintenance5FormatInstance` ([line 60](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L60)). For each of 5 invalid format values near `VK_FORMAT_MAX_ENUM`, it:
 1. Pre-fills the output structure with 0xFF bytes via `makeInvalidVulkanStructure` ([line 138](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L138))
 2. Calls the format properties query function
 3. Verifies the output is either zeroed or still contains the 0xFF pattern (indicating the implementation did not write to it) ([lines 196-237](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L196))
 
-The `flags` subgroup tests use `UnsupportedParametersMaintenance5FlagsInstance` ([line 75](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L75)). For each of 5 invalid usage flag values near `VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM`, it performs similar verification ([lines 245-331](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L245)).
-
-The function-to-test-case mapping is defined at [lines 337-343](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L337):
+Registered test cases:
 
 | Test Name | FuncIDs | API Function |
 |-----------|---------|-------------|
 | `device_format_props` | DeviceFormatProps | getPhysicalDeviceFormatProperties |
 | `device_format_props2` | DeviceFormatPropsSecond | getPhysicalDeviceFormatProperties2 |
+| `image_format_props` | DeviceImageFormatProps | getPhysicalDeviceImageFormatProperties |
+| `image_format_props2` | DeviceImageFormatPropsSecond | getPhysicalDeviceImageFormatProperties2 |
+| `sparse_image_format_props` | DeviceSparseImageFormatProps | getPhysicalDeviceSparseImageFormatProperties |
+| `sparse_image_format_props2` | DeviceSparseImageFormatPropsSecond | getPhysicalDeviceSparseImageFormatProperties2 |
+
+### flags — Unsupported usage flag tests
+
+Group name verified at [vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp:347](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L347): `new tcu::TestCaseGroup(testCtx, "flags")`.
+
+Tests use `UnsupportedParametersMaintenance5FlagsInstance` ([line 75](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L75)). For each of 5 invalid usage flag values near `VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM`, it performs similar verification ([lines 245-331](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L245)).
+
+Registered test cases:
+
+| Test Name | FuncIDs | API Function |
+|-----------|---------|-------------|
 | `image_format_props` | DeviceImageFormatProps | getPhysicalDeviceImageFormatProperties |
 | `image_format_props2` | DeviceImageFormatPropsSecond | getPhysicalDeviceImageFormatProperties2 |
 | `sparse_image_format_props` | DeviceSparseImageFormatProps | getPhysicalDeviceSparseImageFormatProperties |

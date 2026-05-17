@@ -19,58 +19,25 @@ Implementation-heavy test file for the root-level `tessellation` branch.
 - [vktShaderObjectCreateUtil.hpp](../../../modules/vulkan/shader_object/vktShaderObjectCreateUtil.hpp#L1)
 - [CMakeLists.txt](../../../modules/vulkan/shader_object/CMakeLists.txt#L6-L44)
 
-## Registration Path
+## Registration Hierarchy
 
 ```text
-shader_object
-+-- tessellation
-    +-- glsl
-    |   +-- orientation_ccw[_rebind]
-    |   +-- orientation_cw[_rebind]
-    |   +-- spacing_equal[_rebind]
-    |   +-- spacing_fractional_odd[_rebind]
-    |   +-- patch_vertices_4[_rebind]
-    |   +-- patch_vertices_5[_rebind]
-    |   +-- primitive_quads[_rebind]
-    |   +-- primitive_triangles[_rebind]
-    |   +-- point_mode[_rebind]
-    +-- hlsl
-        +-- same test names as glsl
+shader_object.tessellation
+├── glsl
+└── hlsl
 ```
 
-Explicit registration path prefixes for verifier extraction:
-
-```text
-`shader_object.tessellation`
-`shader_object.tessellation.glsl.orientation_ccw`
-`shader_object.tessellation.hlsl.point_mode_rebind`
-```
-
-Evidence: `createShaderObjectTessellationTests()` constructs `tessellation`, iterates `sourceTypeTests[]`, `testTypes[]`, and `rebind` values at [vktShaderObjectTessellationTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTessellationTests.cpp#L929-L975).
-
-## Test Hierarchy
-
-```text
-tessellation
-+-- glsl
-+-- hlsl
-```
-
-Each source-language group receives nine test types, each registered once with no suffix and once with `_rebind`.
+Evidence: `createShaderObjectTessellationTests()` constructs `tessellation`, iterates `sourceTypeTests[]` to create `glsl` and `hlsl` groups at [vktShaderObjectTessellationTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTessellationTests.cpp#L929-L975).
 
 ## Test Families
 
-### Source-language variants
+### glsl — GLSL tessellation shader-object tests
 
-`sourceTypeTests[]` registers `glsl` and `hlsl` groups at [vktShaderObjectTessellationTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTessellationTests.cpp#L933-L940).
+`sourceTypeTests[]` registers the `glsl` group at [vktShaderObjectTessellationTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTessellationTests.cpp#L933-L940). Within this group, `testTypes[]` maps nine `TestType` enum values to registered names at [vktShaderObjectTessellationTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTessellationTests.cpp#L942-L956): `orientation_ccw`, `orientation_cw`, `spacing_equal`, `spacing_fractional_odd`, `patch_vertices_4`, `patch_vertices_5`, `primitive_quads`, `primitive_triangles`, and `point_mode`. Each test type is registered twice by iterating `{false, true}` and appending `_rebind` for the true case at [vktShaderObjectTessellationTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTessellationTests.cpp#L962-L969), yielding 18 leaf cases total.
 
-### Tessellation mode variants
+### hlsl — HLSL tessellation shader-object tests
 
-`TestType` defines orientation, spacing, patch-vertex, primitive, and point-mode variants at [vktShaderObjectTessellationTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTessellationTests.cpp#L51-L62), and `testTypes[]` maps them to registered names at [vktShaderObjectTessellationTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTessellationTests.cpp#L942-L956).
-
-### Rebind variants
-
-Each test type is registered twice by iterating `{false, true}` and appending `_rebind` for the true case at [vktShaderObjectTessellationTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTessellationTests.cpp#L962-L969).
+`sourceTypeTests[]` registers the `hlsl` group at [vktShaderObjectTessellationTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTessellationTests.cpp#L933-L940). The same nine test types and rebind variants are registered under `hlsl` as under `glsl`, using HLSL source generation instead of GLSL.
 
 ## Parameter Dimensions
 

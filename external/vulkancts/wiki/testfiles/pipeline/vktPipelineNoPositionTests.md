@@ -13,24 +13,25 @@ Implementation file.
 - Primary source: [`vktPipelineNoPositionTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L1)
 - Header: [`vktPipelineNoPositionTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.hpp#L1)
 
-## Registration Path
-
-[`createNoPositionTests()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L1097) returns the `no_position` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: All variants.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-no_position
-└── {test_case}
+pipeline.monolithic.no_position
+├── implicit_declarations
+└── explicit_declarations
 ```
+
+Source: [`createNoPositionTests()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L1097) returns the `no_position` group, attached under each variant root by `createChildren()`. Variant coverage: all variants.
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| NoPositionTest | Verifies pipeline behavior when vertex shader does not write gl_Position |
+### implicit_declarations — Implicit declaration no-position tests
+
+Verifies pipeline behavior when vertex shader does not write `gl_Position` using implicit declarations. Contains a `basic` subgroup (with `single_view` and `multiview` leaves) and an `ssbo_writes` subgroup (with `single_view`, `multiview`, and `device_index_as_view_index` leaves). Each leaf contains test cases for various shader stage combinations (vertex-only, vertex+fragment, vertex+tessellation, vertex+geometry, etc.) with write-mask variants.
+
+### explicit_declarations — Explicit declaration no-position tests
+
+Verifies pipeline behavior when vertex shader does not write `gl_Position` using explicit declarations. Contains the same `basic` and `ssbo_writes` subgroup structure as `implicit_declarations`, but with explicit shader output declarations. Multiview tests are skipped for shader-object construction type.
 
 ## Parameter Dimensions
 
@@ -38,6 +39,11 @@ no_position
 |---|---|---|
 | PipelineConstructionType | Parameter | All variant types |
 | Shader type | Enum | Vertex-only, vertex+fragment |
+| Declaration style | Enum | Implicit, explicit |
+| Use SSBO | Boolean | Basic rendering, SSBO write verification |
+| View count | Enum | Single view, multiview, device-index-as-view-index |
+| Shader stage mask | Bitfield | Combinations of vertex, tessellation, geometry stages |
+| Write mask | Bitfield | Which stages write gl_Position (always 0 for vertex) |
 
 ## Support/Feature Requirements
 
@@ -53,3 +59,4 @@ no_position
 ## Notes
 
 - This test verifies a corner case where vertex shaders omit `gl_Position` output
+- Multiview tests (`multiview` and `device_index_as_view_index`) are skipped for shader-object construction type

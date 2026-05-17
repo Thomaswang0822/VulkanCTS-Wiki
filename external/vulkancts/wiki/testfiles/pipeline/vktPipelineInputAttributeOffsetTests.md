@@ -13,64 +13,23 @@ Implementation file.
 - Primary source: [`vktPipelineInputAttributeOffsetTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L1)
 - Header: [`vktPipelineInputAttributeOffsetTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.hpp#L1)
 
-## Registration Path
-
-This file contributes the subgroup returned by [`createInputAttributeOffsetTests()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L511), which is attached under each variant root by [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L1).
-
-**Variant coverage**: All variants.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-input_attribute_offset
-├── vec2                                  (TYPE_FLOAT_VEC2, 8 bytes)
-│   ├── offset_0
-│   │   ├── packed
-│   │   │   ├── no_memory_offset
-│   │   │   │   ├── static
-│   │   │   │   └── dynamic
-│   │   │   └── with_memory_offset
-│   │   │       ├── static
-│   │   │       └── dynamic
-│   │   ├── padded
-│   │   │   ├── no_memory_offset / with_memory_offset
-│   │   │   │   ├── static / dynamic
-│   │   └── overlapping
-│   │       ├── no_memory_offset / with_memory_offset
-│   │       │   ├── static / dynamic
-│   ├── offset_1 through offset_7
-│   └── (same structure per offset)
-└── vec4                                  (TYPE_FLOAT_VEC4, 16 bytes)
-    ├── offset_0 through offset_15
-    │   ├── packed / padded               (NO overlapping for vec4)
-    │   │   ├── no_memory_offset / with_memory_offset
-    │   │   │   ├── static / dynamic
-    └── (same structure per offset)
+pipeline.monolithic.input_attribute_offset
+├── vec2
+└── vec4
 ```
-
-Source: [`createInputAttributeOffsetTests()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L511).
 
 ## Test Families
 
-### 1. vec2 / vec4 (data type groups)
+### vec2 — Float vec2 attribute offset tests
 
-Data type of the vertex attribute. Determines attribute size (8 or 16 bytes) and the range of offsets tested. Vec2 tests offsets 0-7; vec4 tests offsets 0-15.
+Tests vertex attribute reading with `TYPE_FLOAT_VEC2` (8 bytes). Offsets 0 through 7 are tested, each containing stride cases (packed, padded, overlapping), memory offset variants (no_memory_offset, with_memory_offset), and vertex input state modes (static, dynamic).
 
-### 2. offset_N (binding offset groups)
+### vec4 — Float vec4 attribute offset tests
 
-Vertex binding offset from 0 to `typeSize - 1`. Tests that attribute data is correctly read when the vertex buffer is bound at various byte offsets.
-
-### 3. packed / padded / overlapping (stride case groups)
-
-Vertex data layout in the buffer: tightly packed, with padding between attributes, or overlapping (vec2 data read as vec4 in shader). `OVERLAPPING` is skipped for vec4 ([line 529](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L529)).
-
-### 4. no_memory_offset / with_memory_offset
-
-Whether an additional offset is applied when binding memory to the vertex buffer.
-
-### 5. static / dynamic
-
-Whether vertex input state is set statically in the pipeline or dynamically via `VK_EXT_vertex_input_dynamic_state`.
+Tests vertex attribute reading with `TYPE_FLOAT_VEC4` (16 bytes). Offsets 0 through 15 are tested, each containing stride cases (packed, padded; no overlapping for vec4), memory offset variants (no_memory_offset, with_memory_offset), and vertex input state modes (static, dynamic).
 
 ## Parameter Dimensions
 

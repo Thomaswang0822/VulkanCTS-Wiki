@@ -20,103 +20,69 @@ The file provides two factory functions, each accepting a `SynchronizationType` 
 - Implementation: [vktSynchronizationBasicSemaphoreTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationBasicSemaphoreTests.cpp)
 - Header: [vktSynchronizationBasicSemaphoreTests.hpp](../../../modules/vulkan/synchronization/vktSynchronizationBasicSemaphoreTests.hpp)
 
-## Registration Path
+## Registration Hierarchy
 
-```
-synchronization.basic.binary_semaphore       (LEGACY)
-synchronization.basic.timeline_semaphore     (LEGACY)
-synchronization2.basic.binary_semaphore      (sync2)
-synchronization2.basic.timeline_semaphore    (sync2)
-```
-
-## Test Hierarchy
-
-### binary_semaphore (both categories)
-
-```
-binary_semaphore
-|-- one_queue
-|-- one_queue_typed
-|-- multi_queue
-|-- multi_queue_typed
-|-- chain
-|-- none_wait_submit          (sync2 only)
+```text
+synchronization.basic.binary_semaphore
+├── one_queue
+├── one_queue_typed
+├── multi_queue
+├── multi_queue_typed
+└── chain
 ```
 
-### timeline_semaphore (both categories)
+```text
+synchronization.basic.timeline_semaphore
+├── one_queue
+├── multi_queue
+├── chain
+├── two_threads
+├── wait_for_any_current_value
+├── wait_for_any_lesser_value
+├── wait_for_all_current_value
+└── wait_for_all_lesser_value
+```
 
-```
-timeline_semaphore
-|-- one_queue
-|-- multi_queue
-|-- chain
-|-- two_threads               (LEGACY only)
-|-- wait_for_any_current_value    (LEGACY only)
-|-- wait_for_any_lesser_value     (LEGACY only)
-|-- wait_for_all_current_value    (LEGACY only)
-|-- wait_for_all_lesser_value     (LEGACY only)
-```
+In the `synchronization2` category, `synchronization2.basic.binary_semaphore` additionally contains `none_wait_submit`, and `synchronization2.basic.timeline_semaphore` omits `two_threads` and the `wait_for_*` tests. See the Test Families section below for details.
 
 ## Test Families
 
-### Binary Semaphore - Single Queue Family
+### binary_semaphore — Binary semaphore tests
+
+Tests registered under `synchronization.basic.binary_semaphore` (LEGACY) and `synchronization2.basic.binary_semaphore` (sync2).
 
 | Test Name | Function | LEGACY | sync2 | useTypeCreate | Description |
 |---|---|---|---|---|---|
 | `one_queue` | `basicOneQueueCase` | Yes | Yes | false | Signal and wait on a binary semaphore within a single queue using two submits |
 | `one_queue_typed` | `basicOneQueueCase` | Yes | Yes | true | Same as `one_queue` but creates semaphore via `createSemaphoreType` |
-
-### Binary Semaphore - Multi Queue Family
-
-| Test Name | Function | LEGACY | sync2 | useTypeCreate | Description |
-|---|---|---|---|---|---|
 | `multi_queue` | `basicMultiQueueCase` | Yes | Yes | false | Signal on one queue, wait on another; then swap roles |
 | `multi_queue_typed` | `basicMultiQueueCase` | Yes | Yes | true | Same as `multi_queue` but creates semaphore via `createSemaphoreType` |
+| `chain` | `basicChainCase` | Yes | Yes | -- | Chains 32768 (1024 on Vulkan SC) binary semaphores: each submit signals one and the next waits on it |
+| `none_wait_submit` | `noneWaitSubmitTest` | No | Yes | -- | Waits on a binary semaphore with VK_PIPELINE_STAGE_NONE_KHR as the wait destination stage (sync2 only) |
 
-### Binary Semaphore - Chain Family
+### timeline_semaphore — Timeline semaphore tests
 
-| Test Name | Function | LEGACY | sync2 | Description |
-|---|---|---|---|---|
-| `chain` | `basicChainCase` | Yes | Yes | Chains 32768 (1024 on Vulkan SC) binary semaphores: each submit signals one and the next waits on it |
-
-### Binary Semaphore - None Stage Family
-
-| Test Name | Function | LEGACY | sync2 | Description |
-|---|---|---|---|---|
-| `none_wait_submit` | `noneWaitSubmitTest` | No | Yes | Waits on a binary semaphore with VK_PIPELINE_STAGE_NONE_KHR as the wait destination stage |
-
-### Timeline Semaphore - Single Queue Family
+Tests registered under `synchronization.basic.timeline_semaphore` (LEGACY) and `synchronization2.basic.timeline_semaphore` (sync2).
 
 | Test Name | Function | LEGACY | sync2 | Description |
 |---|---|---|---|---|
 | `one_queue` | `basicOneQueueCase` | Yes | Yes | Signal and wait on a timeline semaphore (value 1) within a single queue |
-
-### Timeline Semaphore - Multi Queue Family
-
-| Test Name | Function | LEGACY | sync2 | Description |
-|---|---|---|---|---|
 | `multi_queue` | `basicMultiQueueCase` | Yes | Yes | Signal/wait across two queues with increasing timeline values; then swap signal/wait roles |
-
-### Timeline Semaphore - Chain Family
-
-| Test Name | Function | LEGACY | sync2 | Description |
-|---|---|---|---|---|
 | `chain` | `basicChainTimelineCase` | Yes | Yes | Chains 32768 (1024 on Vulkan SC) submits using a single timeline semaphore with incrementing values |
+| `two_threads` | `basicThreadTimelineCase` | Yes | No | Main thread signals value 1, worker thread waits for 1 then signals value 2, main thread waits for 2 (LEGACY only) |
+| `wait_for_any_current_value` | `basicWaitForAnyCurrentTimelineValueCase` | Yes | No | Wait for any: signal==wait value (LEGACY only) |
+| `wait_for_any_lesser_value` | `basicWaitForAnyLesserTimelineValueCase` | Yes | No | Wait for any: signal > wait value (LEGACY only) |
+| `wait_for_all_current_value` | `basicWaitForAllCurrentTimelineValueCase` | Yes | No | Wait for all: signal==wait value (LEGACY only) |
+| `wait_for_all_lesser_value` | `basicWaitForAllLesserTimelineValueCase` | Yes | No | Wait for all: signal > wait value (LEGACY only) |
 
-### Timeline Semaphore - Thread Family (LEGACY only)
+The `wait_for_*` tests share the `basicWaitForTimelineValueHelper` implementation with the following parameter dimensions:
 
-| Test Name | Function | LEGACY | sync2 | Description |
-|---|---|---|---|---|
-| `two_threads` | `basicThreadTimelineCase` | Yes | No | Main thread signals value 1, worker thread waits for 1 then signals value 2, main thread waits for 2 |
-
-### Timeline Semaphore - CPU Wait Family (LEGACY only)
-
-| Test Name | Function | LEGACY | sync2 | wait_flags | signal_value | wait_value | Description |
-|---|---|---|---|---|---|---|---|
-| `wait_for_any_current_value` | `basicWaitForAnyCurrentTimelineValueCase` | Yes | No | VK_SEMAPHORE_WAIT_ANY_BIT | 1 | 1 | Wait for any: signal==wait value |
-| `wait_for_any_lesser_value` | `basicWaitForAnyLesserTimelineValueCase` | Yes | No | VK_SEMAPHORE_WAIT_ANY_BIT | 4 | 1 | Wait for any: signal > wait value |
-| `wait_for_all_current_value` | `basicWaitForAllCurrentTimelineValueCase` | Yes | No | 0 | 1 | 1 | Wait for all: signal==wait value |
-| `wait_for_all_lesser_value` | `basicWaitForAllLesserTimelineValueCase` | Yes | No | 0 | 4 | 1 | Wait for all: signal > wait value |
+| Test Name | wait_flags | signal_value | wait_value |
+|---|---|---|---|
+| `wait_for_any_current_value` | VK_SEMAPHORE_WAIT_ANY_BIT | 1 | 1 |
+| `wait_for_any_lesser_value` | VK_SEMAPHORE_WAIT_ANY_BIT | 4 | 1 |
+| `wait_for_all_current_value` | 0 | 1 | 1 |
+| `wait_for_all_lesser_value` | 0 | 4 | 1 |
 
 ## Parameter Dimensions
 

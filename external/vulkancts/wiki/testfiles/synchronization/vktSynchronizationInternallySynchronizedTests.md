@@ -14,23 +14,205 @@ Provides the `internally_synchronized_queues` test group, which validates that i
 
 - [vktSynchronizationInternallySynchronizedTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedTests.cpp)
 
-## Registration Path
+## Registration Hierarchy
 
-```
+```text
 synchronization2.internally_synchronized_queues
+├── android_bind_sparse_wsi
+├── android_debug_utils_wsi
+├── android_device_wait_idle_wsi
+├── android_large2_wsi
+├── android_out_of_band_wsi
+├── android_performance_configuration_wsi
+├── android_small2_wsi
+├── android_wsi_bind_sparse
+├── android_wsi_debug_utils
+├── android_wsi_device_wait_idle
+├── android_wsi_large2
+├── android_wsi_out_of_band
+├── android_wsi_performance_configuration
+├── android_wsi_small2
+├── bind_sparse_bind_sparse
+├── bind_sparse_debug_utils
+├── bind_sparse_device_wait_idle
+├── bind_sparse_large2
+├── bind_sparse_out_of_band
+├── bind_sparse_performance_configuration
+├── bind_sparse_small2
+├── debug_utils_bind_sparse
+├── debug_utils_debug_utils
+├── debug_utils_device_wait_idle
+├── debug_utils_large2
+├── debug_utils_out_of_band
+├── debug_utils_performance_configuration
+├── debug_utils_small2
+├── device_wait_idle_bind_sparse
+├── device_wait_idle_debug_utils
+├── device_wait_idle_device_wait_idle
+├── device_wait_idle_large2
+├── device_wait_idle_out_of_band
+├── device_wait_idle_performance_configuration
+├── device_wait_idle_small2
+├── direct_bind_sparse_wsi
+├── direct_debug_utils_wsi
+├── direct_device_wait_idle_wsi
+├── direct_drm_bind_sparse_wsi
+├── direct_drm_debug_utils_wsi
+├── direct_drm_device_wait_idle_wsi
+├── direct_drm_large2_wsi
+├── direct_drm_out_of_band_wsi
+├── direct_drm_performance_configuration_wsi
+├── direct_drm_small2_wsi
+├── direct_drm_wsi_bind_sparse
+├── direct_drm_wsi_debug_utils
+├── direct_drm_wsi_device_wait_idle
+├── direct_drm_wsi_large2
+├── direct_drm_wsi_out_of_band
+├── direct_drm_wsi_performance_configuration
+├── direct_drm_wsi_small2
+├── direct_drm_wsi_wsi
+├── direct_large2_wsi
+├── direct_out_of_band_wsi
+├── direct_performance_configuration_wsi
+├── direct_small2_wsi
+├── direct_wsi_bind_sparse
+├── direct_wsi_debug_utils
+├── direct_wsi_device_wait_idle
+├── direct_wsi_large2
+├── direct_wsi_out_of_band
+├── direct_wsi_performance_configuration
+├── direct_wsi_small2
+├── direct_wsi_wsi
+├── headless_bind_sparse_wsi
+├── headless_debug_utils_wsi
+├── headless_device_wait_idle_wsi
+├── headless_large2_wsi
+├── headless_out_of_band_wsi
+├── headless_performance_configuration_wsi
+├── headless_small2_wsi
+├── headless_wsi_bind_sparse
+├── headless_wsi_debug_utils
+├── headless_wsi_device_wait_idle
+├── headless_wsi_large2
+├── headless_wsi_out_of_band
+├── headless_wsi_performance_configuration
+├── headless_wsi_small2
+├── headless_wsi_wsi
+├── large2_bind_sparse
+├── large2_debug_utils
+├── large2_device_wait_idle
+├── large2_large2
+├── large2_out_of_band
+├── large2_performance_configuration
+├── large2_small2
+├── metal_bind_sparse_wsi
+├── metal_debug_utils_wsi
+├── metal_device_wait_idle_wsi
+├── metal_large2_wsi
+├── metal_out_of_band_wsi
+├── metal_performance_configuration_wsi
+├── metal_small2_wsi
+├── metal_wsi_bind_sparse
+├── metal_wsi_debug_utils
+├── metal_wsi_device_wait_idle
+├── metal_wsi_large2
+├── metal_wsi_out_of_band
+├── metal_wsi_performance_configuration
+├── metal_wsi_small2
+├── metal_wsi_wsi
+├── out_of_band_bind_sparse
+├── out_of_band_debug_utils
+├── out_of_band_device_wait_idle
+├── out_of_band_large2
+├── out_of_band_out_of_band
+├── out_of_band_performance_configuration
+├── out_of_band_small2
+├── performance_configuration_bind_sparse
+├── performance_configuration_debug_utils
+├── performance_configuration_device_wait_idle
+├── performance_configuration_large2
+├── performance_configuration_out_of_band
+├── performance_configuration_performance_configuration
+├── performance_configuration_small2
+├── small2_bind_sparse
+├── small2_debug_utils
+├── small2_device_wait_idle
+├── small2_large2
+├── small2_out_of_band
+├── small2_performance_configuration
+├── small2_small2
+├── wayland_bind_sparse_wsi
+├── wayland_debug_utils_wsi
+├── wayland_device_wait_idle_wsi
+├── wayland_large2_wsi
+├── wayland_out_of_band_wsi
+├── wayland_performance_configuration_wsi
+├── wayland_small2_wsi
+├── wayland_wsi_bind_sparse
+├── wayland_wsi_debug_utils
+├── wayland_wsi_device_wait_idle
+├── wayland_wsi_large2
+├── wayland_wsi_out_of_band
+├── wayland_wsi_performance_configuration
+├── wayland_wsi_small2
+├── wayland_wsi_wsi
+├── win32_bind_sparse_wsi
+├── win32_debug_utils_wsi
+├── win32_device_wait_idle_wsi
+├── win32_large2_wsi
+├── win32_out_of_band_wsi
+├── win32_performance_configuration_wsi
+├── win32_small2_wsi
+├── win32_wsi_bind_sparse
+├── win32_wsi_debug_utils
+├── win32_wsi_device_wait_idle
+├── win32_wsi_large2
+├── win32_wsi_out_of_band
+├── win32_wsi_performance_configuration
+├── win32_wsi_small2
+├── win32_wsi_wsi
+├── xcb_bind_sparse_wsi
+├── xcb_debug_utils_wsi
+├── xcb_device_wait_idle_wsi
+├── xcb_large2_wsi
+├── xcb_out_of_band_wsi
+├── xcb_performance_configuration_wsi
+├── xcb_small2_wsi
+├── xcb_wsi_bind_sparse
+├── xcb_wsi_debug_utils
+├── xcb_wsi_device_wait_idle
+├── xcb_wsi_large2
+├── xcb_wsi_out_of_band
+├── xcb_wsi_performance_configuration
+├── xcb_wsi_small2
+├── xcb_wsi_wsi
+├── xlib_bind_sparse_wsi
+├── xlib_debug_utils_wsi
+├── xlib_device_wait_idle_wsi
+├── xlib_large2_wsi
+├── xlib_out_of_band_wsi
+├── xlib_performance_configuration_wsi
+├── xlib_small2_wsi
+├── xlib_wsi_bind_sparse
+├── xlib_wsi_debug_utils
+├── xlib_wsi_device_wait_idle
+├── xlib_wsi_large2
+├── xlib_wsi_out_of_band
+├── xlib_wsi_performance_configuration
+├── xlib_wsi_small2
+└── xlib_wsi_wsi
 ```
 
-Registered in the sync2 path via `createInternallySynchronizedTests(testCtx, type)` added to the `synchronization2` group in [vktSynchronizationTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp) (line 130).
+Registered in the sync2 path via [`createInternallySynchronizedTests()`](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedTests.cpp#L1656) added to the `synchronization2` group in [vktSynchronizationTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L130).
 
-## Test Hierarchy
+**NOT registered under `synchronization`** (LEGACY). The LEGACY category has a separate `internally_synchronized_objects` group from a different source file.
 
-```
-internally_synchronized_queues
-+-- <testType3>_<testType4>           (core combination)
-+-- <wsiType>_<testType3>_<testType4> (WSI variants, when WSI is involved)
-```
+### Test Name Generation
 
-### Test Type Names
+Test names follow two patterns depending on whether WSI is involved:
+
+- **Core combinations** (no WSI thread): `<testType3>_<testType4>` -- e.g. `small2_large2`, `bind_sparse_debug_utils`
+- **WSI variants** (at least one WSI thread): `<wsiType>_<testType3>_<testType4>` -- e.g. `android_small2_wsi`, `wayland_wsi_bind_sparse`
 
 | TestType | Name | Description |
 |----------|------|-------------|
@@ -57,9 +239,15 @@ Where `tests` = {small2, large2, bind_sparse, wsi, debug_utils, performance_conf
 
 ## Test Families
 
-| Family | Class | Description |
-|--------|-------|-------------|
-| InternallySynchronizedQueuesTestCase | InternallySynchronizedQueuesTestCase | Creates a custom device with internally synchronized queues, spawns 4 concurrent threads each running a different operation on the same queue, and verifies all threads complete successfully. |
+### internally_synchronized_queues -- Internally synchronized queue concurrent submission tests
+
+All 183 test cases in this group use the same test class `InternallySynchronizedQueuesTestCase`. Each test creates a custom device with internally synchronized queues, spawns 4 concurrent threads each running a different operation on the same queue, and verifies all threads complete successfully.
+
+The test cases are generated as a Cartesian product of the `tests` vector (8 types for threads 3 and 4), yielding 64 combinations. When either thread 3 or thread 4 uses the WSI type, additional per-WSI-platform variants are created (9 WSI types: android, direct, direct_drm, headless, metal, wayland, win32, xcb, xlib). The `android_wsi_wsi` variant is skipped because multiple concurrent WSI windows are not supported on Android.
+
+The 49 core (non-WSI) test cases use the naming pattern `<testType3>_<testType4>`, where both testType3 and testType4 are drawn from the non-WSI subset {small2, large2, bind_sparse, debug_utils, performance_configuration, out_of_band, device_wait_idle}.
+
+The 134 WSI test cases use the naming pattern `<wsiType>_<testType3>_<testType4>`, where at least one of testType3 or testType4 is `wsi`.
 
 ## Parameter Dimensions
 

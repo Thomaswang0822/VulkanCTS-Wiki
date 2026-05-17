@@ -14,49 +14,42 @@ Implementation file.
 - Header: [`vktPipelineDynamicOffsetTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineDynamicOffsetTests.hpp#L1)
 - Shared helpers: [`ReferenceRenderer`](../../../modules/vulkan/pipeline/vktPipelineReferenceRenderer.cpp#L1)
 
-## Registration Path
-
-[`createDynamicOffsetTests()`](../../../modules/vulkan/pipeline/vktPipelineDynamicOffsetTests.cpp#L2310) returns the `dynamic_offset` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: All variants. Compute and combined_descriptors sub-groups are monolithic only.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-dynamic_offset
-├── graphics                              (all construction types)
-│   ├── single_set
-│   │   ├── uniform_buffer
-│   │   │   ├── numcmdbuffers_1/sameorder/numdescriptorsetbindings_<N>/numdynamicbindings_<N>/numnondynamicbindings_<N>/bind[2]
-│   │   │   └── numcmdbuffers_2/sameorder|reverseorder/...
-│   │   └── storage_buffer
-│   │       └── (same structure)
-│   ├── multiset
-│   │   └── (same structure)
-│   └── arrays
-│       └── (same structure)
-├── compute                               (monolithic only)
-│   └── (same nested structure as graphics)
-└── combined_descriptors                  (monolithic only)
-    ├── all_offsets
-    │   └── <order>_<offsets>_<pipeline>
-    └── single_offset
-        └── <order>_<offsets>_<pipeline>
+pipeline.monolithic.dynamic_offset
+├── graphics
+├── compute (monolithic only)
+└── combined_descriptors (monolithic only)
 ```
+
+**Variant coverage**: All variants. The `compute` and `combined_descriptors` subgroups are monolithic only.
 
 ## Test Families
 
-### 1. graphics
+### graphics — Graphics pipeline dynamic offsets
 
-Tests dynamic descriptor offsets in a graphics pipeline. Renders colored quads and verifies via image comparison.
+Tests dynamic descriptor offsets in a graphics pipeline. Renders colored quads and verifies via image comparison. The subgroup hierarchy is organized by:
 
-### 2. compute
+- **Grouping strategy**: `single_set`, `multiset`, `arrays`
+  - **Descriptor type**: `uniform_buffer`, `storage_buffer`
+    - **Command buffer count**: `numcmdbuffers_1`, `numcmdbuffers_2`
+      - **Order**: `sameorder`, `reverseorder` (reverseorder only when numCmdBuffers >= 2)
+        - **Descriptor set bindings**: `numdescriptorsetbindings_1`, `numdescriptorsetbindings_2` (limited to 1 when numCmdBuffers > 1)
+          - **Dynamic bindings**: `numdynamicbindings_1`, `numdynamicbindings_2`
+            - **Non-dynamic bindings**: `numnondynamicbindings_0`, `numnondynamicbindings_1`
+              - **Bind command**: `bind`, `bind2` (bind2 uses `vkCmdBindDescriptorSets2KHR`, non-VulkanSC only)
 
-Tests dynamic descriptor offsets in a compute pipeline. Writes to an output buffer and verifies values directly. Monolithic only.
+### compute — Compute pipeline dynamic offsets (monolithic only)
 
-### 3. combined_descriptors
+Tests dynamic descriptor offsets in a compute pipeline. Writes to an output buffer and verifies values directly. Uses the same nested subgroup structure as `graphics` (grouping strategy, descriptor type, command buffer count, order, bindings).
 
-Tests dynamic offsets with mixed descriptor types (UBO + SSBO) across both graphics and compute pipelines simultaneously. Monolithic only.
+### combined_descriptors — Mixed descriptor types (monolithic only)
+
+Tests dynamic offsets with mixed descriptor types (UBO + SSBO) across both graphics and compute pipelines simultaneously. Contains two subgroups:
+
+- **all_offsets**: Tests with all dynamic offsets varying. Leaf tests named `<order>_<offsets>_<pipeline>`.
+- **single_offset**: Tests with a single dynamic offset varying. Leaf tests named `<order>_<offsets>_<pipeline>`.
 
 ## Parameter Dimensions
 

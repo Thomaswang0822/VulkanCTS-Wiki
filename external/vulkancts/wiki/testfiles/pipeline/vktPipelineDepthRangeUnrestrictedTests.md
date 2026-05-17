@@ -13,24 +13,33 @@ Implementation file.
 - Primary source: [`vktPipelineDepthRangeUnrestrictedTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineDepthRangeUnrestrictedTests.cpp#L1)
 - Header: [`vktPipelineDepthRangeUnrestrictedTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineDepthRangeUnrestrictedTests.hpp#L1)
 
-## Registration Path
-
-[`createDepthRangeUnrestrictedTests()`](../../../modules/vulkan/pipeline/vktPipelineDepthRangeUnrestrictedTests.cpp#L1377) returns the `depth_range_unrestricted` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: All variants, VK only.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-depth_range_unrestricted
-└── {test_case}
+pipeline.monolithic.depth_range_unrestricted
+├── clear_value
+├── viewport
+├── depthbounds
+└── depthclampingdisabled
 ```
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| DepthRangeUnrestrictedTest | Verifies depth range values outside [0,1] produce correct depth buffer values |
+### clear_value — Depth clear values outside [0,1]
+
+Tests that depth buffer clear values outside the standard [0,1] range are correctly handled when VK_EXT_depth_range_unrestricted is enabled. Parameterized by depth format (D32_SFLOAT, D24_UNORM_S8_UINT, D16_UNORM) and clear value (2.0, -3.0, 6.0, -7.0).
+
+### viewport — Viewport depth range outside [0,1]
+
+Tests that viewport min/max depth values outside [0,1] are correctly handled. Parameterized by depth format, compare operation, clear value, and viewport depth range values. Tests both static and dynamic viewport modes.
+
+### depthbounds — Depth bounds range outside [0,1]
+
+Tests that depth bounds min/max values outside [0,1] are correctly handled when depth bounds testing is enabled. Parameterized by depth format, compare operation, clear value, viewport depth range, and depth bounds values. Tests static viewport, dynamic depth bounds, and combined dynamic viewport+depth bounds modes.
+
+### depthclampingdisabled — Depth clamping disabled with unrestricted range
+
+Tests unrestricted depth range behavior when depth clamping is disabled. Parameterized by depth format, compare operation, clear value, viewport depth range, and W coordinate (wc) values. Uses static viewport/depth bounds mode only.
 
 ## Parameter Dimensions
 

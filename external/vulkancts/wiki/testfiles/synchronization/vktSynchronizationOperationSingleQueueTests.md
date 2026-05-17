@@ -21,84 +21,70 @@ The factory function [createSynchronizedOperationSingleQueueTests](../../../modu
 - Shared resource data: [vktSynchronizationOperationResources.hpp](../../../modules/vulkan/synchronization/vktSynchronizationOperationResources.hpp)
 - Operation framework: [vktSynchronizationOperation.hpp](../../../modules/vulkan/synchronization/vktSynchronizationOperation.hpp)
 
-## Registration Path
+## Registration Hierarchy
 
-```
-synchronization.op.single_queue          (LEGACY)
-synchronization2.op.single_queue         (SYNCHRONIZATION2)
+```text
+synchronization.op.single_queue
+├── fence
+├── binary_semaphore
+├── timeline_semaphore
+├── barrier
+├── event
+└── multi_events (sync2 only)
 ```
 
-Both paths are created by the same factory function invoked with different `SynchronizationType` values.
-
-## Test Hierarchy
-
-```
-single_queue
-|-- fence
-|   |-- <writeOp>_<readOp>
-|       |-- <resourceName>
-|-- binary_semaphore
-|   |-- <writeOp>_<readOp>
-|       |-- <resourceName>
-|-- timeline_semaphore
-|   |-- <writeOp>_<readOp>
-|       |-- <resourceName>
-|-- barrier
-|   |-- <writeOp>_<readOp>
-|       |-- <resourceName>
-|       |-- <resourceName>_specialized_access_flag       (sync2 only)
-|-- event
-|   |-- <writeOp>_<readOp>
-|       |-- <resourceName>
-|       |-- <resourceName>_specialized_access_flag       (sync2 only)
-|       |-- <resourceName>_maintenance9                  (sync2 only, non-SC)
-|       |-- <resourceName>_cq                            (compute-queue event)
-|-- multi_events                                         (sync2 only)
-    |-- <evt1>__<evt2>_res_<res1>_<res2>                (two-event combos)
-    |-- <nop/evt>__<evt/nop>_res_<none/res>_<res/none>  (nop-event combos)
-```
+Both `synchronization.op.single_queue` (LEGACY) and `synchronization2.op.single_queue` (SYNCHRONIZATION2) paths are created by the same factory function invoked with different `SynchronizationType` values. The `multi_events` child exists only under the `synchronization2` path.
 
 ## Test Families
 
-### Fence Family (`fence`)
+### fence — Fence synchronization
 
 Uses `VkFence` to synchronize across two separate command buffer submissions on the same queue. The write command buffer is submitted and waited on via fence, then the read command buffer is submitted. A pipeline barrier is recorded inside the write command buffer to establish the memory dependency.
 
+Test instances are organized as `fence/<writeOp>_<readOp>/<resourceName>`.
+
 - Test instance: [FenceTestInstance](../../../modules/vulkan/synchronization/vktSynchronizationOperationSingleQueueTests.cpp#L732)
 
-### Binary Semaphore Family (`binary_semaphore`)
+### binary_semaphore — Binary semaphore synchronization
 
 Uses a binary `VkSemaphore` signaled by the write submission and waited on by the read submission. Both command buffers are submitted to the same queue with the semaphore establishing the execution and memory dependency.
 
+Test instances are organized as `binary_semaphore/<writeOp>_<readOp>/<resourceName>`.
+
 - Test instance: [BinarySemaphoreTestInstance](../../../modules/vulkan/synchronization/vktSynchronizationOperationSingleQueueTests.cpp#L458)
 
-### Timeline Semaphore Family (`timeline_semaphore`)
+### timeline_semaphore — Timeline semaphore synchronization
 
 Uses a `VkSemaphoreType::VK_SEMAPHORE_TYPE_TIMELINE` semaphore with incrementing timeline points. This family is unique in that it chains multiple copy operations between the initial write and final read, exercising the timeline semaphore across a multi-hop data transfer chain on a single queue.
 
+Test instances are organized as `timeline_semaphore/<writeOp>_<readOp>/<resourceName>`.
+
 - Test instance: [TimelineSemaphoreTestInstance](../../../modules/vulkan/synchronization/vktSynchronizationOperationSingleQueueTests.cpp#L575)
 
-### Barrier Family (`barrier`)
+### barrier — Pipeline barrier synchronization
 
 Uses `vkCmdPipelineBarrier` (or `vkCmdPipelineBarrier2KHR` in sync2 mode) recorded in a single command buffer between the write and read operations. This is the simplest synchronization primitive, entirely intra-command-buffer.
 
+Test instances are organized as `barrier/<writeOp>_<readOp>/<resourceName>`. In sync2 mode, an additional `<resourceName>_specialized_access_flag` variant is generated when either the write or read operation supports specialized access flags.
+
 - Test instance: [BarrierTestInstance](../../../modules/vulkan/synchronization/vktSynchronizationOperationSingleQueueTests.cpp#L372)
 
-### Event Family (`event`)
+### event — Event synchronization
 
-Uses `vkCmdSetEvent` / `vkCmdWaitEvents` (or their sync2 equivalents) within a single command buffer. In sync2 mode, additional variants test:
+Uses `vkCmdSetEvent` / `vkCmdWaitEvents` (or their sync2 equivalents) within a single command buffer. Test instances are organized as `event/<writeOp>_<readOp>/<resourceName>`. In sync2 mode, additional variants are generated:
 
-- **maintenance9**: Uses `VK_DEPENDENCY_ASYMMETRIC_EVENT_BIT_KHR` and `VK_KHR_maintenance9` for asymmetric event semantics.
-- **compute queue (cq)**: Submits the event test on a dedicated compute queue instead of the universal queue, when both write and read operations support compute queues.
+- **`<resourceName>_specialized_access_flag`**: Tests `VkAccessFlags2` specialized access flag variants introduced by `VK_KHR_synchronization2`.
+- **`<resourceName>_maintenance9`** (sync2 only, non-SC): Uses `VK_DEPENDENCY_ASYMMETRIC_EVENT_BIT_KHR` and `VK_KHR_maintenance9` for asymmetric event semantics.
+- **`<resourceName>_cq`** (compute-queue event): Submits the event test on a dedicated compute queue instead of the universal queue, when both write and read operations support compute queues. Available in both LEGACY and SYNCHRONIZATION2 modes.
 
 - Test instance: [EventTestInstance](../../../modules/vulkan/synchronization/vktSynchronizationOperationSingleQueueTests.cpp#L76)
 
-### Multi-Events Family (`multi_events`, sync2 only)
+### multi_events — Multi-events synchronization (sync2 only)
 
 Tests `vkCmdWaitEvents2KHR` with **two events** waited on simultaneously. Two sub-families exist:
 
-1. **Two-event combos**: Both events have real write/read operation pairs; all combinations of valid op-pair/resource pairs are tested.
-2. **Nop-event combos**: One event is a no-op (empty dependency), testing that waiting on a mix of real and null events works correctly.
+1. **Two-event combos**: Both events have real write/read operation pairs; all combinations of valid op-pair/resource pairs are tested. Test names follow the pattern `<evt1>__<evt2>_res_<res1>_<res2>`.
+2. **Nop-event combos**: One event is a no-op (empty dependency), testing that waiting on a mix of real and null events works correctly. Test names follow the pattern `<nop/evt>__<evt/nop>_res_<none/res>_<res/none>`.
 
 - Test case: [SyncEventsTestCase](../../../modules/vulkan/synchronization/vktSynchronizationOperationSingleQueueTests.cpp#L944)
 - Test instance: [EventsTestInstance](../../../modules/vulkan/synchronization/vktSynchronizationOperationSingleQueueTests.cpp#L189)

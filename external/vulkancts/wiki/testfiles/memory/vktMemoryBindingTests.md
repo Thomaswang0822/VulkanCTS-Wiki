@@ -4,79 +4,54 @@ Memory binding tests exercising `VK_KHR_bind_memory2`. Validates batch binding o
 
 ## Source
 
-- [vktMemoryBindingTests.cpp](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp)
+- [vktMemoryBindingTests.cpp](../../../external/vulkancts/modules/vulkan/memory/vktMemoryBindingTests.cpp)
 
 ## Registration
 
 - **Group name:** `binding`
-- **Registration function:** [`createMemoryBindingTests()`](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L1127)
+- **Registration function:** [`createMemoryBindingTests()`](../../../external/vulkancts/modules/vulkan/memory/vktMemoryBindingTests.cpp#L1127)
 - **Parent group:** `memory`
 
-## Test Hierarchy
+## Registration Hierarchy
 
-```
-binding
+```text
+memory.binding
 ├── regular
-│   ├── suballocated
-│   │   ├── buffer_33
-│   │   ├── buffer_257
-│   │   ├── buffer_4087
-│   │   ├── buffer_8095
-│   │   ├── buffer_1048577
-│   │   ├── image_8_8
-│   │   ├── image_8_33
-│   │   ├── image_8_257
-│   │   ├── image_33_8
-│   │   ├── image_33_33
-│   │   ├── image_33_257
-│   │   ├── image_257_8
-│   │   ├── image_257_33
-│   │   └── image_257_257
-│   ├── dedicated (same sub-cases as suballocated)
-│   └── overallocated (same sub-cases as suballocated)
 ├── aliasing
-│   └── suballocated
-│       ├── buffer_* (same sizes as regular)
-│       └── image_* (same sizes as regular)
 ├── priority
-│   ├── regular (same structure as top-level regular)
-│   └── aliasing (same structure as top-level aliasing)
 ├── priority_dynamic
-│   ├── regular (same structure)
-│   └── aliasing (same structure)
 └── maintenance6
-    └── (same structure as top-level, with checkIndividualResult=true)
-        ├── regular
-        ├── aliasing
-        ├── priority
-        └── priority_dynamic
 ```
 
 ## Test Families
 
-### regular
+### regular — Standard memory binding
 
 Standard memory binding tests using `vkBindBufferMemory2()` / `vkBindImageMemory2()`. Tests both suballocated (shared memory) and dedicated allocation patterns. Each test creates 10 buffers or images, allocates individual memory for each, binds them, then verifies data integrity by copying data through each resource.
 
-### aliasing
+The `regular` group contains three subgroups:
 
-Tests memory aliasing where two sets of resources are bound to the same underlying memory. Validates that writing to one alias and reading from another produces correct results. Images use `VK_IMAGE_CREATE_ALIAS_BIT` ([vktMemoryBindingTests.cpp:1168](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L1168)).
+- **suballocated** — Resources share a single memory allocation. Individual buffer and image tests are generated for each size variant: `buffer_33`, `buffer_257`, `buffer_4087`, `buffer_8095`, `buffer_1048577`, and images `image_8_8` through `image_257_257` (all 3x3 combinations of widths and heights from {8, 33, 257}).
+- **dedicated** — Each resource gets its own dedicated memory allocation. Same size variants as suballocated.
+- **overallocated** — Tests binding with intentionally oversized memory allocations (factors of 1.5x, 2.3x, 3.0x). Only applies to dedicated allocation tests for images ([vktMemoryBindingTests.cpp:697-700](../../../external/vulkancts/modules/vulkan/memory/vktMemoryBindingTests.cpp#L697)). Same size variants as suballocated.
 
-### overallocated
+### aliasing — Memory aliasing
 
-Tests binding with intentionally oversized memory allocations (factors of 1.5x, 2.3x, 3.0x). Only applies to dedicated allocation tests for images ([vktMemoryBindingTests.cpp:697-700](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L697)).
+Tests memory aliasing where two sets of resources are bound to the same underlying memory. Validates that writing to one alias and reading from another produces correct results. Images use `VK_IMAGE_CREATE_ALIAS_BIT` ([vktMemoryBindingTests.cpp:1168](../../../external/vulkancts/modules/vulkan/memory/vktMemoryBindingTests.cpp#L1168)).
 
-### priority
+The `aliasing` group contains a **suballocated** subgroup with the same buffer and image size variants as `regular`.
 
-Tests `VK_EXT_memory_priority` with static priority values set during allocation via `VkMemoryPriorityAllocateInfoEXT` ([vktMemoryBindingTests.cpp:593-595](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L593)).
+### priority — Static memory priority
 
-### priority_dynamic
+Tests `VK_EXT_memory_priority` with static priority values set during allocation via `VkMemoryPriorityAllocateInfoEXT` ([vktMemoryBindingTests.cpp:593-595](../../../external/vulkancts/modules/vulkan/memory/vktMemoryBindingTests.cpp#L593)). Contains the same `regular` and `aliasing` subgroup structure as the top-level binding tests, but with priority values ranging from 0.0 to 0.9.
 
-Tests `VK_EXT_pageable_device_local_memory` with dynamic priority changes after allocation using `vkSetDeviceMemoryPriorityEXT()` ([vktMemoryBindingTests.cpp:602-604](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L602)).
+### priority_dynamic — Dynamic memory priority
 
-### maintenance6
+Tests `VK_EXT_pageable_device_local_memory` with dynamic priority changes after allocation using `vkSetDeviceMemoryPriorityEXT()` ([vktMemoryBindingTests.cpp:602-604](../../../external/vulkancts/modules/vulkan/memory/vktMemoryBindingTests.cpp#L602)). Contains the same `regular` and `aliasing` subgroup structure as the top-level binding tests, but with dynamically changing priority values.
 
-Tests `VK_KHR_maintenance6` individual bind result checking via `VkBindMemoryStatusKHR` chained to each bind info ([vktMemoryBindingTests.cpp:738-746](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L738)).
+### maintenance6 — Individual bind result checking
+
+Tests `VK_KHR_maintenance6` individual bind result checking via `VkBindMemoryStatusKHR` chained to each bind info ([vktMemoryBindingTests.cpp:738-746](../../../external/vulkancts/modules/vulkan/memory/vktMemoryBindingTests.cpp#L738)). Contains the same `regular`, `aliasing`, `priority`, and `priority_dynamic` subgroup structure as the top-level binding tests, but with `checkIndividualResult=true` so each bind operation reports its own success/failure.
 
 ## Parameter Dimensions
 
@@ -95,10 +70,10 @@ Tests `VK_KHR_maintenance6` individual bind result checking via `VkBindMemorySta
 
 | Extension/Feature | Required by |
 |-------------------|-------------|
-| `VK_KHR_bind_memory2` | All tests ([vktMemoryBindingTests.cpp:1108](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L1108)) |
-| `VK_EXT_memory_priority` | priority and priority_dynamic groups ([vktMemoryBindingTests.cpp:1111-1112](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L1111)) |
-| `VK_EXT_pageable_device_local_memory` | priority_dynamic group ([vktMemoryBindingTests.cpp:1113-1115](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L1113)) |
-| `VK_KHR_maintenance6` | maintenance6 group ([vktMemoryBindingTests.cpp:1116-1117](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L1116)) |
+| `VK_KHR_bind_memory2` | All tests ([vktMemoryBindingTests.cpp:1108](../../../external/vulkancts/modules/vulkan/memory/vktMemoryBindingTests.cpp#L1108)) |
+| `VK_EXT_memory_priority` | priority and priority_dynamic groups ([vktMemoryBindingTests.cpp:1111-1112](../../../external/vulkancts/modules/vulkan/memory/vktMemoryBindingTests.cpp#L1111)) |
+| `VK_EXT_pageable_device_local_memory` | priority_dynamic group ([vktMemoryBindingTests.cpp:1113-1115](../../../external/vulkancts/modules/vulkan/memory/vktMemoryBindingTests.cpp#L1113)) |
+| `VK_KHR_maintenance6` | maintenance6 group ([vktMemoryBindingTests.cpp:1116-1117](../../../external/vulkancts/modules/vulkan/memory/vktMemoryBindingTests.cpp#L1116)) |
 
 ## Verification Method
 
@@ -106,16 +81,16 @@ Each test follows this pattern:
 
 1. **Create resources** — 10 buffers or images with specified parameters
 2. **Allocate memory** — individual allocations per resource (or shared for suballocated)
-3. **Bind** — batch bind all resources using `vkBindBufferMemory2()` / `vkBindImageMemory2()` ([vktMemoryBindingTests.cpp:760](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L760), [vktMemoryBindingTests.cpp:805](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L805))
+3. **Bind** — batch bind all resources using `vkBindBufferMemory2()` / `vkBindImageMemory2()` ([vktMemoryBindingTests.cpp:760](../../../external/vulkancts/modules/vulkan/memory/vktMemoryBindingTests.cpp#L760), [vktMemoryBindingTests.cpp:805](../../../external/vulkancts/modules/vulkan/memory/vktMemoryBindingTests.cpp#L805))
 4. **Write** — fill a source buffer with pseudo-random data seeded with a known value
 5. **Copy through** — for each target resource, copy data from source buffer through the target to a destination buffer
-6. **Verify** — read back destination buffer and compare against expected pseudo-random sequence ([vktMemoryBindingTests.cpp:973-988](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L973))
+6. **Verify** — read back destination buffer and compare against expected pseudo-random sequence ([vktMemoryBindingTests.cpp:973-988](../../../external/vulkancts/modules/vulkan/memory/vktMemoryBindingTests.cpp#L973))
 
 For aliasing tests, the pattern is:
 1. Create two sets of resources
 2. Bind both sets to the same memory
 3. Layout-transition alias 1, then write to alias 0
-4. Read from alias 1 and verify data matches what was written to alias 0 ([vktMemoryBindingTests.cpp:1076-1080](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L1076))
+4. Read from alias 1 and verify data matches what was written to alias 0 ([vktMemoryBindingTests.cpp:1076-1080](../../../external/vulkancts/modules/vulkan/memory/vktMemoryBindingTests.cpp#L1076))
 
 ## Test Principles
 
@@ -127,7 +102,7 @@ For aliasing tests, the pattern is:
 
 ## Notes
 
-- Image format is fixed to `VK_FORMAT_R8G8B8A8_UINT` with linear tiling ([vktMemoryBindingTests.cpp:198-215](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L198))
+- Image format is fixed to `VK_FORMAT_R8G8B8A8_UINT` with linear tiling ([vktMemoryBindingTests.cpp:198-215](../../../external/vulkancts/modules/vulkan/memory/vktMemoryBindingTests.cpp#L198))
 - Buffer usage is `VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT`
-- The `priority_dynamic` tests create a custom device with the required extensions enabled ([vktMemoryBindingTests.cpp:458-489](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L458))
-- Vulkan SC builds only run 1 iteration (no priority/maintenance6 variants) ([vktMemoryBindingTests.cpp:1133-1137](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L1133))
+- The `priority_dynamic` tests create a custom device with the required extensions enabled ([vktMemoryBindingTests.cpp:458-489](../../../external/vulkancts/modules/vulkan/memory/vktMemoryBindingTests.cpp#L458))
+- Vulkan SC builds only run 1 iteration (no priority/maintenance6 variants) ([vktMemoryBindingTests.cpp:1133-1137](../../../external/vulkancts/modules/vulkan/memory/vktMemoryBindingTests.cpp#L1133))

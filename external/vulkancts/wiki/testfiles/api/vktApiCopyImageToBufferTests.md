@@ -13,58 +13,59 @@ This file provides the test implementation and registration for all image-to-buf
 - Implementation: [vktApiCopyImageToBufferTests.cpp](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp)
 - Header: [vktApiCopyImageToBufferTests.hpp](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.hpp)
 
-## Registration Path
+## Registration Hierarchy
 
+```text
+api.copy_and_blit.core.image_to_buffer
+├── 1d_images
+├── 2d_images
+└── 3d_images
 ```
-api > copy_and_blit > image_to_buffer
-```
 
-The top-level registration function `addCopyImageToBufferTests` at [line 2014](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L2014) creates three subgroups:
+Evidence:
+- `image_to_buffer` group created by [`addCopyImageToBufferTests()`](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L2014)
+- `1d_images` subgroup added at [line 2016](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L2016), populated by [`add1dImageToBufferTests()`](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1691)
+- `2d_images` subgroup added at [line 2017](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L2017), populated by [`add2dImageToBufferTests()`](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1098)
+- `3d_images` subgroup added at [line 2018](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L2018), populated by [`add3dImageToBufferTests()`](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1974)
 
-- `1d_images` -- populated by `add1dImageToBufferTests` at [line 1691](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1691)
-- `2d_images` -- populated by `add2dImageToBufferTests` at [line 1098](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1098)
-- `3d_images` -- populated by `add3dImageToBufferTests` at [line 1974](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1974)
+The `addCopyImageToBufferTests` function is called from multiple registration contexts in [vktApiCopiesAndBlittingTests.cpp](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp), each creating the same `1d_images`/`2d_images`/`3d_images` subgroup structure under a different parent:
 
-## Test Hierarchy
-
-```
-image_to_buffer
-|-- 1d_images
-|   |-- tightly_sized_buffer
-|   |-- larger_buffer
-|   |-- array_tightly_sized_buffer
-|   |-- array_larger_buffer
-|   |-- array_all_remaining_layers
-|   |-- array_not_all_remaining_layers
-|   |-- mip_copies_<format>_<W>x<H>
-|   |-- mip_copies_<format>_<W>x<H>_<N>_layers
-|-- 2d_images
-|   |-- whole[_<format>][_linear]
-|   |-- whole_unaligned[_<format>][_linear]
-|   |-- buffer_offset[_<format>][_linear]
-|   |-- buffer_offset_relaxed[_<format>][_linear]
-|   |-- regions[_<format>][_linear]
-|   |-- tightly_sized_buffer[_<format>][_linear]
-|   |-- larger_buffer[_<format>][_linear]
-|   |-- tightly_sized_buffer_offset[_<format>][_linear]
-|   |-- array[_<format>][_linear]
-|   |-- array_larger_buffer[_<format>][_linear]
-|   |-- array_tightly_sized_buffer[_<format>][_linear]
-|   |-- array_all_remaining_layers[_<format>][_linear]
-|   |-- array_not_all_remaining_layers[_<format>][_linear]
-|   |-- padding_bytes[_<format>][_linear]
-|   |-- mip_copies_<format>_<W>x<H>
-|   |-- mip_copies_<format>_<W>x<H>_<N>_layers
-|   |-- mip_copies_<format>_<W>x<H>_<N>_layersindirect
-|-- 3d_images
-|   |-- mip_copies_<format>_<W>x<H>xD
-```
+- `api.copy_and_blit.core.image_to_buffer` (primary, suballocated, no extensions)
+- `api.copy_and_blit.core.image_to_buffer_transfer_queue` at [line 174](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L174) (TransferOnly queue)
+- `api.copy_and_blit.core.image_to_buffer_compute_queue` at [line 186](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L186) (ComputeOnly queue)
+- `api.copy_and_blit.core.image_to_buffer_general_layout` at [line 227](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L227) (VK_IMAGE_LAYOUT_GENERAL)
+- `api.copy_and_blit.dedicated_allocation.image_to_buffer` (dedicated allocation)
+- `api.copy_and_blit.copy_commands2.image_to_buffer` (COPY_COMMANDS_2 extension)
+- `api.copy_and_blit.device_address.image_to_buffer` at [line 254](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L254) (DEVICE_ADDRESS_COMMANDS, non-VulkanSC only)
 
 ## Test Families
 
-### 2D Uncompressed Families (CopyImageToBuffer)
+### 1d_images — 1D image-to-buffer copy tests
 
-Registered in `add2dImageToBufferTests` at [line 1098](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1098). Uses `CopyImageToBufferTestCase` at [line 359](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L359) and `CopyImageToBuffer` instance at [line 65](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L65).
+Registered in `add1dImageToBufferTests` at [line 1691](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1691). Uses both `CopyImageToBuffer` (uncompressed) and `CopyCompressedImageToBuffer` (compressed) instance classes.
+
+Uncompressed families (using `CopyImageToBufferTestCase` at [line 359](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L359) and `CopyImageToBuffer` instance at [line 65](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L65)):
+
+| Family | Description |
+|--------|-------------|
+| tightly_sized_buffer | 1D image copy with tightly packed buffer |
+| larger_buffer | 1D image copy with larger buffer |
+| array_tightly_sized_buffer | 16-layer 1D array, one region per layer |
+| array_larger_buffer | 16-layer 1D array with larger buffer |
+| array_all_remaining_layers | VK_REMAINING_ARRAY_LAYERS from layer 0 |
+| array_not_all_remaining_layers | VK_REMAINING_ARRAY_LAYERS from layer 2 |
+
+Compressed families (using `CopyCompressedImageToBufferTestCase` at [line 687](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L687) and `CopyCompressedImageToBuffer` instance at [line 412](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L412)):
+
+| Family | Description |
+|--------|-------------|
+| mip_copies_\<format\>_\<W\>x\<H\> | Compressed 1D/2D image mip chain readback (uses INDIRECT_COPY) |
+
+### 2d_images — 2D image-to-buffer copy tests
+
+Registered in `add2dImageToBufferTests` at [line 1098](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1098). Contains both uncompressed and compressed test families.
+
+Uncompressed families (using `CopyImageToBufferTestCase` at [line 359](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L359) and `CopyImageToBuffer` instance at [line 65](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L65)):
 
 | Family | Description |
 |--------|-------------|
@@ -83,37 +84,21 @@ Registered in `add2dImageToBufferTests` at [line 1098](../../../modules/vulkan/a
 | array_not_all_remaining_layers | Uses VK_REMAINING_ARRAY_LAYERS starting at layer 2 |
 | padding_bytes | Verifies padding bytes between rows are not overwritten (linear tiling only) |
 
-### 2D Compressed Families (CopyCompressedImageToBuffer)
-
-Registered in `add2dImageToBufferTests` at [line 1659](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1659). Uses `CopyCompressedImageToBufferTestCase` at [line 687](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L687) and `CopyCompressedImageToBuffer` instance at [line 412](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L412).
+Compressed families (using `CopyCompressedImageToBufferTestCase` at [line 687](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L687) and `CopyCompressedImageToBuffer` instance at [line 412](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L412)):
 
 | Family | Description |
 |--------|-------------|
-| mip_copies_<format>_<W>x<H> | Compressed 2D image with full mip chain, verify each mip level readback |
-| mip_copies_<format>_<W>x<H>_<N>_layers | Compressed 2D array image with N layers, verify each mip/layer |
-| mip_copies_<format>_<W>x<H>_<N>_layersindirect | Same as above using vkCmdCopyMemoryToImageIndirectKHR for upload |
+| mip_copies_\<format\>_\<W\>x\<H\> | Compressed 2D image with full mip chain, verify each mip level readback |
+| mip_copies_\<format\>_\<W\>x\<H\>_\<N\>_layers | Compressed 2D array image with N layers, verify each mip/layer |
+| mip_copies_\<format\>_\<W\>x\<H\>_\<N\>_layersindirect | Same as above using vkCmdCopyMemoryToImageIndirectKHR for upload |
 
-### 1D Families (CopyImageToBuffer / CopyCompressedImageToBuffer)
+### 3d_images — 3D image-to-buffer copy tests
 
-Registered in `add1dImageToBufferTests` at [line 1691](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1691).
-
-| Family | Instance Class | Description |
-|--------|---------------|-------------|
-| tightly_sized_buffer | CopyImageToBuffer | 1D image copy with tightly packed buffer |
-| larger_buffer | CopyImageToBuffer | 1D image copy with larger buffer |
-| array_tightly_sized_buffer | CopyImageToBuffer | 16-layer 1D array, one region per layer |
-| array_larger_buffer | CopyImageToBuffer | 16-layer 1D array with larger buffer |
-| array_all_remaining_layers | CopyImageToBuffer | VK_REMAINING_ARRAY_LAYERS from layer 0 |
-| array_not_all_remaining_layers | CopyImageToBuffer | VK_REMAINING_ARRAY_LAYERS from layer 2 |
-| mip_copies_<format>_<W>x<H> | CopyCompressedImageToBuffer | Compressed 1D/2D image mip chain readback (uses INDIRECT_COPY) |
-
-### 3D Families (CopyCompressedImageToBuffer)
-
-Registered in `add3dImageToBufferTests` at [line 1974](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1974).
+Registered in `add3dImageToBufferTests` at [line 1974](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1974). Uses `CopyCompressedImageToBufferTestCase` at [line 687](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L687) and `CopyCompressedImageToBuffer` instance at [line 412](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L412).
 
 | Family | Description |
 |--------|-------------|
-| mip_copies_<format>_<W>x<H>xD | Compressed 3D image with full mip chain, verify each mip level readback |
+| mip_copies_\<format\>_\<W\>x\<H\>xD | Compressed 3D image with full mip chain, verify each mip level readback |
 
 ## Parameter Dimensions
 
@@ -182,7 +167,7 @@ Performs per-mip-level, per-array-layer byte-by-byte comparison using `deMemCmp`
 - **Buffer offset alignment**: Tests both aligned and relaxed buffer offsets; the relaxed variant is restricted to Universal queue at [line 1207](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1207).
 - **Multi-region copies**: The `regions` family at [line 1281](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1281) tests multiple copy regions in a single command.
 - **Array layer handling**: Tests individual per-layer copies, VK_REMAINING_ARRAY_LAYERS from base 0 and base 2, and tightly/larger buffer sizing.
-- **Compressed format coverage**: All BC, ETC2, EAC, and ASTC formats in `formats::compressedFormatsFloats` are tested with full mip chains.
+- **Compressed format coverage**: All BC, ETC2, EAC, and ASTC format in `formats::compressedFormatsFloats` are tested with full mip chains.
 - **Padding byte integrity**: The `padding_bytes` family at [line 1637](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1637) verifies that padding bytes between rows are not overwritten during copies with linear tiling.
 - **Sparse binding**: The `CopyImageToBuffer` class inherits from `CopiesAndBlittingTestInstanceWithSparseSemaphore` and supports sparse image allocation at [line 127](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L127).
 - **Image layout**: Tests both `VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL` and `VK_IMAGE_LAYOUT_GENERAL` (via `useGeneralLayout` flag) at [line 250](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L250).

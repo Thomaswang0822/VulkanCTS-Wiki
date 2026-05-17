@@ -10,71 +10,56 @@ Tests for `vkMapMemory`, `vkUnmapMemory`, `vkFlushMappedMemoryRanges`, and `vkIn
 
 `mapping` ([line 1963](../../../modules/vulkan/memory/vktMemoryMappingTests.cpp#L1963))
 
-## Registration Path
+## Registration Hierarchy
 
-```
-memory → mapping
+```text
+memory.mapping
+├── suballocation
+└── dedicated_alloc
 ```
 
-## Test Hierarchy
-
-```
-mapping/
-├── suballocation/
-│   ├── full/
-│   │   ├── variable/
-│   │   │   ├── implicit_unmap
-│   │   │   └── implicit_unmap_map2
-│   │   ├── 33/
-│   │   │   ├── simple
-│   │   │   ├── simple_map2
-│   │   │   ├── remap / remap_map2
-│   │   │   ├── flush / flush_map2
-│   │   │   ├── subflush / subflush_map2
-│   │   │   ├── subflush_separate / subflush_separate_map2
-│   │   │   ├── subflush_overlapping / subflush_overlapping_map2
-│   │   │   ├── invalidate / invalidate_map2
-│   │   │   ├── subinvalidate / subinvalidate_map2
-│   │   │   ├── subinvalidate_separate / subinvalidate_separate_map2
-│   │   │   └── subinvalidate_overlapping / subinvalidate_overlapping_map2
-│   │   ├── 257/ ...
-│   │   ├── 4087/ ...
-│   │   ├── 8095/ ...
-│   │   └── 1048577/ ...
-│   └── sub/
-│   │   ├── variable/ ...
-│   │   ├── 33/ ...
-│   │   ├── 257/ ...
-│   │   ├── 4087/ ...
-│   │   ├── 8095/ ...
-│   │   └── 1048577/ ...
-│   └── random/ (100 seeded cases × 2 map variants)
-│       ├── 0, 0_map2
-│       ├── 1, 1_map2
-│       ├── ...
-│       └── 99, 99_map2
-├── dedicated_alloc/
-│   ├── buffer/
-│   │   ├── full/ ...
-│   │   └── sub/ ...
-│   └── image/
-│       ├── full/ ...
-│       └── sub/ ...
-```
+Evidence:
+- `mapping` group created at [`createMappingTests()`](../../../modules/vulkan/memory/vktMemoryMappingTests.cpp#L1960)
+- `suballocation` subgroup added at [line 2134](../../../modules/vulkan/memory/vktMemoryMappingTests.cpp#L2134)
+- `dedicated_alloc` subgroup added at [line 2137](../../../modules/vulkan/memory/vktMemoryMappingTests.cpp#L2137)
 
 ## Test Families
 
-### Full Mapping (full)
+### suballocation — Suballocated memory mapping
+
+Tests using suballocated (`ALLOCATION_KIND_SUBALLOCATED`) host-visible memory. Contains three sub-families:
+
+#### full — Full Mapping
 
 Maps the entire allocation (offset=0, size=allocationSize). Writes random data, optionally flushes, optionally remaps, optionally invalidates, then reads back and compares against a reference model. Implemented by [`testMemoryMapping()`](../../../modules/vulkan/memory/vktMemoryMappingTests.cpp#L637).
 
-### Sub Mapping (sub)
+The `full` subgroup is further organized by allocation size, each containing operation-based leaf tests:
+- `variable` — contains `implicit_unmap` and `implicit_unmap_map2` (VK only)
+- `33`, `257`, `4087`, `8095`, `1048577` — each contains `simple`, `simple_map2`, `remap`, `remap_map2`, `flush`, `flush_map2`, `subflush`, `subflush_map2`, `subflush_separate`, `subflush_separate_map2`, `subflush_overlapping`, `subflush_overlapping_map2`, `invalidate`, `invalidate_map2`, `subinvalidate`, `subinvalidate_map2`, `subinvalidate_separate`, `subinvalidate_separate_map2`, `subinvalidate_overlapping`, `subinvalidate_overlapping_map2`
+
+#### sub — Sub Mapping
 
 Maps a sub-range of the allocation with explicit offset and size. Same write-flush-invalidate-read cycle as full mapping, but exercises partial mapping correctness. Uses [`subMappedConfig()`](../../../modules/vulkan/memory/vktMemoryMappingTests.cpp#L1813) to build test configs.
 
-### Random Mapping (random)
+The `sub` subgroup is further organized by allocation size, then by offset (`offset_N`) and size (`size_N`) subgroups, each containing the same operation-based leaf tests as `full`.
+
+#### random — Random Mapping
 
 Performs 100 random operations: allocate, free, map, unmap, read, write, modify, flush, and invalidate across all host-visible memory heaps. Uses a [`ReferenceMemory`](../../../modules/vulkan/memory/vktMemoryMappingTests.cpp#L229) model to track defined/flushed state per byte. Implemented by [`RandomMemoryMappingInstance`](../../../modules/vulkan/memory/vktMemoryMappingTests.cpp#L1487).
+
+The `random` subgroup contains 100 seeded cases (0-99), each duplicated with `_map2` suffix for `VK_KHR_map_memory2` coverage.
+
+### dedicated_alloc — Dedicated allocation memory mapping
+
+Tests using dedicated allocations with `VK_KHR_dedicated_allocation`. Contains two sub-families:
+
+#### buffer — Buffer dedicated allocation
+
+Tests with `ALLOCATION_KIND_DEDICATED_BUFFER`. Contains `full` and `sub` subgroups with the same structure as the suballocation variants, exercising the same mapping operations but backed by dedicated buffer memory.
+
+#### image — Image dedicated allocation
+
+Tests with `ALLOCATION_KIND_DEDICATED_IMAGE`. Contains `full` and `sub` subgroups with the same structure as the suballocation variants, exercising the same mapping operations but backed by dedicated image memory.
 
 ## Parameter Dimensions
 
@@ -118,4 +103,4 @@ Performs 100 random operations: allocate, free, map, unmap, read, write, modify,
 - `implicit_unmap` tests are VK-only (excluded in Vulkan SC) because they use `VkAllocationCallbacks` ([line 1986](../../../modules/vulkan/memory/vktMemoryMappingTests.cpp#L1986)).
 - The `implicit_unmap` variant uses a variable allocation size (found via binary search) rather than a fixed size ([line 728](../../../modules/vulkan/memory/vktMemoryMappingTests.cpp#L728)).
 - Protected memory device creation is handled separately when `implicitUnmap` is true and protected memory is supported ([line 664](../../../modules/vulkan/memory/vktMemoryMappingTests.cpp#L664)).
-- Heap size must be at least 4× the allocation size for a test to run; otherwise the memory type is skipped ([line 822](../../../modules/vulkan/memory/vktMemoryMappingTests.cpp#L822)).
+- Heap size must be at least 4x the allocation size for a test to run; otherwise the memory type is skipped ([line 822](../../../modules/vulkan/memory/vktMemoryMappingTests.cpp#L822)).

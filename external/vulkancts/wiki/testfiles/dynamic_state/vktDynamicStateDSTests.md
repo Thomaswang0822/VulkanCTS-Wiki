@@ -14,14 +14,10 @@ Implementation file.
 - Shared base: [`DynamicStateBaseClass`](../../../modules/vulkan/dynamic_state/vktDynamicStateBaseClass.hpp#L43)
 - Test case utilities: [`vktDynamicStateTestCaseUtil.hpp`](../../../modules/vulkan/dynamic_state/vktDynamicStateTestCaseUtil.hpp#L1)
 
-## Registration Path
-
-This file contributes the [`DynamicStateDSTests`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1262) group (named `"ds_state"`), which is attached under each pipeline construction type subgroup by [`createChildren()`](../../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L52).
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-ds_state
+dynamic_state.monolithic.ds_state
 ├── depth_bounds_1
 ├── depth_bounds_2
 ├── stencil_params_basic_1          (non-VulkanSC only)
@@ -34,27 +30,47 @@ ds_state
 └── stencil_params_advanced_mesh    (non-VulkanSC only)
 ```
 
-Source: [`DynamicStateDSTests::init()`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1274).
-
 ## Test Families
 
-### 1. Depth bounds (parametric)
+### depth_bounds_1 — Depth bounds (parametric)
 
 [`depth_bounds_1`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1305) and [`depth_bounds_1_mesh`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1305) use [`DepthBoundsParamTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L504). Tests dynamic depth bounds `[0.5f, 0.75f]` set via `vkCmdSetDepthBounds`. Verifies that only geometry within the depth bounds range passes the depth bounds test.
 
-### 2. Depth bounds (pre-filled)
+### depth_bounds_2 — Depth bounds (pre-filled)
 
 [`depth_bounds_2`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1307) and [`depth_bounds_2_mesh`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1307) use [`DepthBoundsTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L630). Pre-fills the depth buffer with varying depth values, then applies static depth bounds `[0.3f, 0.9f]`. Verifies that only pixels with depth values within the bounds are rendered.
 
-### 3. Stencil parameters (basic)
+### stencil_params_basic_1 — Stencil parameters (basic, config 1)
 
-[`stencil_params_basic_1`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1310) and [`stencil_params_basic_2`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1313) use [`StencilParamsBasicTestCase`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1050). Tests dynamic stencil compare mask, write mask, and reference values via `vkCmdSetStencilCompareMask`, `vkCmdSetStencilWriteMask`, and `vkCmdSetStencilReference`. Two configurations:
-- basic_1: writeMask=`0x0D`, readMask=`0x06`, expectedValue=`0x05`, expectedColor=blue
-- basic_2: writeMask=`0x06`, readMask=`0x02`, expectedValue=`0x05`, expectedColor=green
+[`stencil_params_basic_1`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1310) and [`stencil_params_basic_1_mesh`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1310) use [`StencilParamsBasicTestCase`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1050). Tests dynamic stencil compare mask, write mask, and reference values via `vkCmdSetStencilCompareMask`, `vkCmdSetStencilWriteMask`, and `vkCmdSetStencilReference`. Configuration: writeMask=`0x0D`, readMask=`0x06`, expectedValue=`0x05`, expectedColor=blue. Excluded on Vulkan SC builds.
 
-### 4. Stencil parameters (advanced)
+### stencil_params_basic_2 — Stencil parameters (basic, config 2)
+
+[`stencil_params_basic_2`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1313) and [`stencil_params_basic_2_mesh`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1313) use [`StencilParamsBasicTestCase`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1050). Tests dynamic stencil compare mask, write mask, and reference values via `vkCmdSetStencilCompareMask`, `vkCmdSetStencilWriteMask`, and `vkCmdSetStencilReference`. Configuration: writeMask=`0x06`, readMask=`0x02`, expectedValue=`0x05`, expectedColor=green. Excluded on Vulkan SC builds.
+
+### stencil_params_advanced — Stencil parameters (advanced)
 
 [`stencil_params_advanced`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1317) and [`stencil_params_advanced_mesh`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1317) use [`StencilParamsAdvancedTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1109). Uses two draws with different stencil parameters and `VK_COMPARE_OP_NOT_EQUAL`, verifying that the stencil state changes correctly between draws.
+
+### depth_bounds_1_mesh — Depth bounds (parametric, mesh shader)
+
+Mesh shader variant of `depth_bounds_1`. See `depth_bounds_1` above for test logic. Excluded on Vulkan SC builds.
+
+### depth_bounds_2_mesh — Depth bounds (pre-filled, mesh shader)
+
+Mesh shader variant of `depth_bounds_2`. See `depth_bounds_2` above for test logic. Excluded on Vulkan SC builds.
+
+### stencil_params_basic_1_mesh — Stencil parameters (basic, config 1, mesh shader)
+
+Mesh shader variant of `stencil_params_basic_1`. See `stencil_params_basic_1` above for test logic. Excluded on Vulkan SC builds.
+
+### stencil_params_basic_2_mesh — Stencil parameters (basic, config 2, mesh shader)
+
+Mesh shader variant of `stencil_params_basic_2`. See `stencil_params_basic_2` above for test logic. Excluded on Vulkan SC builds.
+
+### stencil_params_advanced_mesh — Stencil parameters (advanced, mesh shader)
+
+Mesh shader variant of `stencil_params_advanced`. See `stencil_params_advanced` above for test logic. Excluded on Vulkan SC builds.
 
 ## Parameter Dimensions
 

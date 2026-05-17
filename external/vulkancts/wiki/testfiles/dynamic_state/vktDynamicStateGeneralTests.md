@@ -14,14 +14,10 @@ Implementation file.
 - Shared base: [`DynamicStateBaseClass`](../../../modules/vulkan/dynamic_state/vktDynamicStateBaseClass.hpp#L43)
 - Test case utilities: [`vktDynamicStateTestCaseUtil.hpp`](../../../modules/vulkan/dynamic_state/vktDynamicStateTestCaseUtil.hpp#L1)
 
-## Registration Path
-
-This file contributes the [`DynamicStateGeneralTests`](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L915) group (named `"general_state"`), which is attached under each pipeline construction type subgroup by [`createChildren()`](../../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L53).
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-general_state
+dynamic_state.monolithic.general_state
 ├── state_switch
 ├── state_switch_mesh              (non-VulkanSC only)
 ├── bind_order
@@ -31,29 +27,35 @@ general_state
 └── double_static_bind            (non-shader-object only)
 ```
 
-Source: [`DynamicStateGeneralTests::init()`](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L927).
-
 ## Test Families
 
-### 1. State switch
+### state_switch — State switch
 
 [`state_switch`](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L958) and [`state_switch_mesh`](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L958) use [`StateSwitchTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L60). Sets dynamic viewport, rasterization, blend, and depth/stencil states, then performs two draws with different scissors. Verifies that the dynamic scissor state change between draws produces the expected two-quadrant pattern.
 
-### 2. Bind order
+### state_switch_mesh — State switch (mesh shader)
+
+Mesh shader variant of `state_switch`. See `state_switch` above for test logic. Excluded on Vulkan SC builds.
+
+### bind_order — Bind order
 
 [`bind_order`](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L961) and [`bind_order_mesh`](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L961) use [`BindOrderTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L174). Same as state_switch but rebinds dynamic states in a different order (blend, rasterization, depth/stencil) before drawing. Verifies that the order of setting dynamic states does not affect the final rendering result.
 
-### 3. State persistence
+### bind_order_mesh — Bind order (mesh shader)
 
-[`state_persistence`](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L966) uses [`StatePersistenceTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L296). Draws with two different pipelines (TRIANGLE_STRIP and TRIANGLE_LIST) using the same dynamic viewport/scissor state. Verifies that dynamic state persists across pipeline binds — the first draw produces green in the top-left quadrant, the second produces blue in the bottom-right.
+Mesh shader variant of `bind_order`. See `bind_order` above for test logic. Excluded on Vulkan SC builds.
 
-### 4. Static stencil mask zero
+### state_persistence — State persistence
+
+[`state_persistence`](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L966) uses [`StatePersistenceTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L296). Draws with two different pipelines (TRIANGLE_STRIP and TRIANGLE_LIST) using the same dynamic viewport/scissor state. Verifies that dynamic state persists across pipeline binds -- the first draw produces green in the top-left quadrant, the second produces blue in the bottom-right. Only available for non-mesh shader pipelines.
+
+### static_stencil_mask_zero — Static stencil mask zero
 
 [`static_stencil_mask_zero`](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L971) uses a function-style test case ([`staticStencilMaskZeroProgramsTest()`](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L519)). Uses `VK_DYNAMIC_STATE_STENCIL_WRITE_MASK` with static write mask = 0 and dynamic write mask = 0xFF. All fragments are discarded by the shader, so the stencil buffer should remain unchanged. Verifies via exact comparison of color, depth, and stencil buffers.
 
-### 5. Double static bind
+### double_static_bind — Double static bind
 
-[`double_static_bind`](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L977) uses a function-style test case ([`doubleBindTest()`](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L824)). Uses `VK_DYNAMIC_STATE_VIEWPORT` with a "bad" static viewport and "good" static scissor. After binding the pipeline twice, the dynamic viewport override should take effect. Verifies via exact float threshold comparison that the entire framebuffer is filled with the expected color.
+[`double_static_bind`](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L977) uses a function-style test case ([`doubleBindTest()`](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L824)). Uses `VK_DYNAMIC_STATE_VIEWPORT` with a "bad" static viewport and "good" static scissor. After binding the pipeline twice, the dynamic viewport override should take effect. Verifies via exact float threshold comparison that the entire framebuffer is filled with the expected color. Not available for shader object construction types.
 
 ## Parameter Dimensions
 

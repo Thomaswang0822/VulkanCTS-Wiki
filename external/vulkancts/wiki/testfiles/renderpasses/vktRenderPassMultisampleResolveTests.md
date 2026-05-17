@@ -4,10 +4,70 @@
 
 - [vktRenderPassMultisampleResolveTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp)
 
-## Registration
+## Registration Hierarchy
 
-- **Path**: Added to `suballocation` subgroup within each top-level group
-- **Registered group name**: `"multisample_resolve"` at [vktRenderPassMultisampleResolveTests.cpp#L3263](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3263)
+```text
+renderpasses.renderpass1.suballocation.multisample_resolve
+├── a2b10g10r10_uint_pack32
+├── a2b10g10r10_unorm_pack32
+├── a2r10g10b10_unorm_pack32
+├── a8_unorm
+├── a8b8g8r8_sint_pack32
+├── a8b8g8r8_snorm_pack32
+├── a8b8g8r8_srgb_pack32
+├── a8b8g8r8_uint_pack32
+├── a8b8g8r8_unorm_pack32
+├── b8g8r8a8_srgb
+├── b8g8r8a8_unorm
+├── layers_3
+├── layers_6
+├── r10x6g10x6b10x6a10x6_unorm_4pack16
+├── r16_sfloat
+├── r16_sint
+├── r16_snorm
+├── r16_uint
+├── r16_unorm
+├── r16g16_sfloat
+├── r16g16_sint
+├── r16g16_snorm
+├── r16g16_uint
+├── r16g16_unorm
+├── r16g16b16a16_sfloat
+├── r16g16b16a16_sint
+├── r16g16b16a16_snorm
+├── r16g16b16a16_uint
+├── r16g16b16a16_unorm
+├── r32_sfloat
+├── r32_sint
+├── r32_uint
+├── r32g32_sfloat
+├── r32g32_sint
+├── r32g32_uint
+├── r32g32b32a32_sfloat
+├── r32g32b32a32_sint
+├── r32g32b32a32_uint
+├── r5g6b5_unorm_pack16
+├── r8_sint
+├── r8_snorm
+├── r8_uint
+├── r8_unorm
+├── r8g8_sint
+├── r8g8_snorm
+├── r8g8_uint
+├── r8g8_unorm
+├── r8g8b8a8_sint
+├── r8g8b8a8_snorm
+├── r8g8b8a8_srgb
+├── r8g8b8a8_uint
+└── r8g8b8a8_unorm
+```
+
+Evidence:
+- `multisample_resolve` group created at [`createRenderPassMultisampleResolveTests()`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3263)
+- Format-named subgroups (layerCount=1) added at [vktRenderPassMultisampleResolveTests.cpp#L3248](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3248)
+- `layers_<N>` subgroups (layerCount>1) added at [vktRenderPassMultisampleResolveTests.cpp#L3254](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3254)
+
+Note: The representative root uses `renderpass1`; the same topic group also appears under `renderpass2` and `dynamic_rendering`. Non-monolithic pipelines limit sample counts and layer counts.
 
 ## Role
 
@@ -15,50 +75,35 @@ Implementation file
 
 ## Test Families
 
-### Basic resolve
+### a2b10g10r10_uint_pack32 through b8g8r8a8_unorm — Per-format basic resolve tests (single layer)
 
-- **Pattern**: `<formatName>/samples_<N>`
+Each format-named subgroup (layerCount=1) contains test cases for basic multisample resolve, plus monolithic-only variants for base layer offset, resolve level, max attachments, and compatibility.
+
+- **Basic resolve**: `<formatName>/samples_<N>` for N in {2, 4, 8}
+- **Base layer offset**: `<formatName>/samples_<N>_baseLayer1` (monolithic pipeline only)
+- **Resolve level**: `<formatName>/samples_<N>_resolve_level_<L>` for L in {2, 3, 4} (monolithic pipeline only)
+- **Max attachments**: `<formatName>/max_attachments_<P>_samples_<N>` for P in {4, 8, 16} (power of 2)
+- **Compatibility**: `<formatName>/compatibility_samples_<N>` (non-dynamic rendering only)
 - **Definition**: [vktRenderPassMultisampleResolveTests.cpp#L3149-L3248](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3149-L3248)
+- 50 color-only format subgroups
 
-### Base layer offset
+### layers_3 — Multi-layer resolve tests with 3 layers
 
-- **Pattern**: `<formatName>/samples_<N>_baseLayer1`
-- Monolithic pipeline only
+Tests multisample resolve with 3 array layers. Requires `DEVICE_CORE_FEATURE_GEOMETRY_SHADER`.
 
-### Resolve level
-
-- **Pattern**: `<formatName>/samples_<N>_resolve_level_<L>`
-- Monolithic pipeline only
-
-### Max attachments
-
-- **Pattern**: `<formatName>/max_attachments_<P>_samples_<N>`
-- **Definition**: [vktRenderPassMultisampleResolveTests.cpp#L3211-L3228](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3211-L3228)
-
-### Compatibility
-
-- **Pattern**: `<formatName>/compatibility_samples_<N>`
-- Non-dynamic rendering only
-
-### Multi-layer
-
-- **Pattern**: `layers_<L>/<formatName>/samples_<N>`
+- **Pattern**: `layers_3/<formatName>/samples_<N>`
 - **Definition**: [vktRenderPassMultisampleResolveTests.cpp#L3143-L3254](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3143-L3254)
+- Skips layerCount=6 with sampleCount=8 (slow test)
+- Secondary command buffer variants limit sample counts > 2 and layer counts > 3
 
-## Test Hierarchy
+### layers_6 — Multi-layer resolve tests with 6 layers
 
-```
-multisample_resolve
-|-- <formatName>
-|   |-- samples_<N>
-|   |-- samples_<N>_baseLayer1
-|   |-- samples_<N>_resolve_level_<L>
-|   |-- max_attachments_<P>_samples_<N>
-|   +-- compatibility_samples_<N>
-+-- layers_<L>
-    +-- <formatName>
-        +-- samples_<N>
-```
+Tests multisample resolve with 6 array layers. Requires `DEVICE_CORE_FEATURE_GEOMETRY_SHADER`.
+
+- **Pattern**: `layers_6/<formatName>/samples_<N>`
+- **Definition**: [vktRenderPassMultisampleResolveTests.cpp#L3143-L3254](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3143-L3254)
+- Skips layerCount=6 with sampleCount=8 (slow test)
+- Secondary command buffer variants limit sample counts > 2 and layer counts > 3
 
 ## Parameter Dimensions
 

@@ -2,11 +2,11 @@
 
 ## Overview
 
-[`vktPipelineMultisampleImageTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1) implements multiple multisample image subgroups: [`sampled_image`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2955), [`storage_image`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2962), [`standardsampleposition`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2969), [`samples_mapping_order`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2977), and [`3d`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2985). It verifies multisample image operations including sampling, storage reads/writes, standard sample positions, and 3D multisample images.
+[`vktPipelineMultisampleImageTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1) implements the [`sampled_image`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2955) subgroup under `multisample`. It verifies multisample image sampling produces correct resolved colors. The same source file also implements sibling subgroups `storage_image`, `standardsampleposition`, `samples_mapping_order`, and `3d` which are registered separately under `multisample`.
 
 ## Role
 
-Implementation file. Each factory function creates a subgroup registered under `multisample` by the parent dispatcher.
+Implementation file. The [`createMultisampleSampledImageTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2952) factory function creates the `sampled_image` subgroup registered under `multisample` by the parent dispatcher [`createMultisampleTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L7247).
 
 ## Source Code
 
@@ -14,78 +14,60 @@ Implementation file. Each factory function creates a subgroup registered under `
 - Header: [`vktPipelineMultisampleImageTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.hpp#L1)
 - Base classes: [`vktPipelineMultisampleBase.cpp`](../../../modules/vulkan/pipeline/vktPipelineMultisampleBase.cpp#L1)
 
-## Registration Path
-
-Each factory function returns a subgroup added to the `multisample` group by `createMultisampleTests()`:
-
-- [`createMultisampleSampledImageTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2953) → `sampled_image`
-- [`createMultisampleStorageImageTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2960) → `storage_image`
-- [`createMultisampleStandardSamplePositionTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2967) → `standardsampleposition`
-- [`createMultisampleSamplesMappingOrderTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2975) → `samples_mapping_order`
-- [`createMultisample3dImageTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2983) → `3d`
-
-**Variant coverage**: All variants. `samples_mapping_order` is conditional on `VK_EXT_sample_locations` support.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-sampled_image
-└── {size_layer}
-    └── {format}
-        └── {sample_count}
-
-storage_image
-└── {size_layer}
-    └── {format}
-        └── {sample_count}
-
-standardsampleposition
-└── {format}
-    └── {sample_count}
-
-samples_mapping_order
-└── {sample_count}
-
-3d
-└── {format}
-    └── {sample_count}
+pipeline.monolithic.multisample.sampled_image
+├── 64x64_1
+├── 64x64_4
+├── 79x31_1
+└── 79x31_4
 ```
+
+**Variant coverage**: All variants. The sibling subgroups `storage_image`, `standardsampleposition`, and `samples_mapping_order` (conditional on `VK_EXT_sample_locations`) are also registered under `multisample` from this same source file.
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| SampledImageTest | Verifies multisample image sampling produces correct resolved colors |
-| StorageImageTest | Verifies multisample storage image read/write operations |
-| StandardSamplePositionTest | Verifies standard sample positions match specification |
-| SamplesMappingOrderTest | Verifies sample mapping order with VK_EXT_sample_locations |
-| Image3dTest | Verifies 3D multisample image operations |
+### 64x64_1 — 64x64 image with 1 layer
+
+Tests multisample sampled image with a 64x64 image and a single layer. Each child is a format group (R8G8B8A8_UNORM, R32_UINT, R16G16_SINT, R32G32B32A32_SFLOAT), which in turn contains sample count cases (2, 4, 8, 16, 32, 64).
+
+### 64x64_4 — 64x64 image with 4 layers
+
+Tests multisample sampled image with a 64x64 image and 4 layers. Same format and sample count structure as `64x64_1`.
+
+### 79x31_1 — 79x31 image with 1 layer
+
+Tests multisample sampled image with a non-power-of-two 79x31 image and a single layer. Same format and sample count structure.
+
+### 79x31_4 — 79x31 image with 4 layers
+
+Tests multisample sampled image with a non-power-of-two 79x31 image and 4 layers. Same format and sample count structure.
 
 ## Parameter Dimensions
 
 | Parameter | Source | Values |
 |---|---|---|
-| VkFormat | Loop | R8G8B8A8_UNORM, R32G32B32A32_SFLOAT, etc. |
-| Sample count | Array | 2, 4, 8, 16 |
-| Image size | Array | Various dimensions |
-| Image type | Enum | 2D (most tests), 3D (3d subgroup) |
+| VkFormat | Loop | R8G8B8A8_UNORM, R32_UINT, R16G16_SINT, R32G32B32A32_SFLOAT |
+| Sample count | Array | 2, 4, 8, 16, 32, 64 |
+| Image size | Array | (64,64), (79,31) |
+| Num layers | Array | 1, 4 |
 | PipelineConstructionType | Parameter | All variant types |
 
 ## Support/Feature Requirements
 
 | Requirement | Context |
 |---|---|
-| `shaderStorageImageMultisample` | Required for storage_image tests |
-| `standardSampleLocations` | Required for standardsampleposition tests |
-| `VK_EXT_sample_locations` | Required for samples_mapping_order tests |
+| `shaderStorageImageMultisample` | Required for storage_image sibling subgroup |
+| `standardSampleLocations` | Required for standardsampleposition sibling subgroup |
+| `VK_EXT_sample_locations` | Required for samples_mapping_order sibling subgroup |
 
 ## Verification Methods
 
 - **Pixel comparison**: Render using multisample image, resolve, compare against expected color
-- **Storage image verification**: Write per-sample values to storage image, read back and compare
-- **Sample position verification**: Verify sample positions match standard or programmable locations
 
 ## Notes
 
+- The sibling subgroups `storage_image`, `standardsampleposition`, `samples_mapping_order`, and `3d` are also implemented in this source file but registered as separate children of `multisample`
 - The `samples_mapping_order` subgroup is only registered when `VK_EXT_sample_locations` is supported
 - The `3d` subgroup tests 3D multisample images which require `shaderStorageImageMultisample` feature

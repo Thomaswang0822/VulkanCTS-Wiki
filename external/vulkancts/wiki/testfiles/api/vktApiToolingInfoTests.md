@@ -14,21 +14,12 @@ Implementation-heavy. Contains all test logic and registration. The public entry
 - Header: [vktApiToolingInfoTests.hpp](../../../modules/vulkan/api/vktApiToolingInfoTests.hpp#L1)
 - Parent registration: [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L124) adds `tooling_info` group to `api`
 
-## Registration Path
+## Registration Hierarchy
 
-```
-api
- +-- tooling_info
-      +-- validate_getter
-      +-- validate_tools_properties
-```
-
-## Test Hierarchy
-
-```
-tooling_info
- +-- validate_getter             -- tests vkGetPhysicalDeviceToolProperties getter behavior
- +-- validate_tools_properties   -- validates returned tool property structures
+```text
+api.tooling_info
+├── validate_getter
+└── validate_tools_properties
 ```
 
 ## Test Families

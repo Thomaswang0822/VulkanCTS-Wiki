@@ -17,49 +17,88 @@ Provides the `global_priority_transition` test group, which contains two major t
 - [vktGlobalPriorityQueueTests.cpp](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp)
 - Utility code: [vktGlobalPriorityQueueUtils.cpp](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueUtils.cpp) / [vktGlobalPriorityQueueUtils.hpp](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueUtils.hpp) (no Level-3 doc for utils)
 
-## Registration Path
+## Registration Hierarchy
 
-```
+```text
 synchronization.global_priority_transition
+├── low
+├── medium
+├── high
+├── realtime
+└── preemption
 ```
 
 Registered in the LEGACY path via `createGlobalPriorityQueueTests()` added to the `synchronization` group in [vktSynchronizationTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp) (line 142).
 
-## Test Hierarchy
-
-```
-global_priority_transition
-+-- <priority>                           (low, medium, high, realtime)
-    +-- <syncType>                       (no_sync, semaphore)
-        +-- <modifier>                   (no_modifiers, sparse, protected)
-            +-- from_<srcQueue>_to_<dstQueue>  (e.g., from_graphics_to_compute)
-+-- preemption
-    +-- <queueTypeA>_<priorityA>_to_<queueTypeB>_<priorityB>[_double_preemption]
-```
-
-### Queue Transition Sub-groups
-
-- **Priority groups**: `low`, `medium`, `high`, `realtime` (corresponding to `VK_QUEUE_GLOBAL_PRIORITY_LOW_KHR` through `VK_QUEUE_GLOBAL_PRIORITY_REALTIME_KHR`)
-- **Sync type groups**: `no_sync`, `semaphore`
-- **Modifier groups**: `no_modifiers`, `sparse` (VK_QUEUE_SPARSE_BINDING_BIT), `protected` (VK_QUEUE_PROTECTED_BIT)
-- **Transition names**: `from_graphics_to_compute`, `from_compute_to_graphics`, `from_compute_to_transfer`, `from_transfer_to_compute` (only graphics<->compute and compute<->transfer are generated)
-
-### Preemption Sub-group
-
-Test names follow the pattern: `<queueTypeA>_<priorityA>_to_<queueTypeB>_<priorityB>[_double_preemption]`
-
-Queue type names: `graphics`, `compute`, `exclusive-compute`, `transfer`, `exclusive-transfer`
-
-Priority names: `low`, `medium`, `high`, `realtime`
-
-Only combinations where `priorityA < priorityB` are generated. The optional `_double_preemption` suffix indicates the small workload is submitted twice.
-
 ## Test Families
 
-| Family | Class | Description |
-|--------|-------|-------------|
-| Queue transition | GPQCase | Creates a custom device with two queue families at the same global priority, performs a producer-consumer pattern (compute->graphics, graphics->compute, compute->transfer, or transfer->compute), and verifies data integrity. |
-| Preemption | PreemptionCase | Creates two separate devices with different global priorities, submits a large workload to the lower-priority queue and a small workload to the higher-priority queue, and verifies both produce correct results. |
+### low — Queue transition at LOW priority
+
+Queue transition tests where both source and destination queues use `VK_QUEUE_GLOBAL_PRIORITY_LOW_KHR`. Each priority group expands into sync-type subgroups (`no_sync`, `semaphore`), then modifier subgroups (`no_modifiers`, `sparse`, `protected`), then leaf transition tests (e.g., `from_graphics_to_compute`).
+
+Implemented by `GPQCase`.
+
+### medium — Queue transition at MEDIUM priority
+
+Queue transition tests where both source and destination queues use `VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_KHR`. Internal structure is identical to `low`.
+
+Implemented by `GPQCase`.
+
+### high — Queue transition at HIGH priority
+
+Queue transition tests where both source and destination queues use `VK_QUEUE_GLOBAL_PRIORITY_HIGH_KHR`. Internal structure is identical to `low`.
+
+Implemented by `GPQCase`.
+
+### realtime — Queue transition at REALTIME priority
+
+Queue transition tests where both source and destination queues use `VK_QUEUE_GLOBAL_PRIORITY_REALTIME_KHR`. Internal structure is identical to `low`.
+
+Implemented by `GPQCase`.
+
+#### Shared queue-transition hierarchy
+
+All four priority groups (`low`, `medium`, `high`, `realtime`) share the same internal expansion:
+
+```
+<priority>
+├── no_sync
+│   ├── no_modifiers
+│   ├── sparse
+│   └── protected
+└── semaphore
+    ├── no_modifiers
+    ├── sparse
+    └── protected
+```
+
+Each modifier subgroup contains leaf tests named `from_<srcQueue>_to_<dstQueue>`:
+
+| Transition name | Source queue | Destination queue |
+|---|---|---|
+| `from_graphics_to_compute` | GRAPHICS | COMPUTE |
+| `from_compute_to_graphics` | COMPUTE | GRAPHICS |
+| `from_compute_to_transfer` | COMPUTE | TRANSFER |
+| `from_transfer_to_compute` | TRANSFER | COMPUTE |
+
+Only graphics<->compute and compute<->transfer transitions are generated; graphics<->transfer is explicitly skipped.
+
+Modifier details:
+- **no_modifiers**: No additional queue flags.
+- **sparse**: Adds `VK_QUEUE_SPARSE_BINDING_BIT` (requires `sparseBinding` + `sparseResidencyImage2D` features).
+- **protected**: Adds `VK_QUEUE_PROTECTED_BIT` (requires `protectedMemory` feature).
+
+### preemption — Preemption tests
+
+Preemption tests that submit a large workload to a lower-priority queue and a small workload to a higher-priority queue, verifying both produce correct results. Implemented by `PreemptionCase`.
+
+Leaf test names follow the pattern `<queueTypeA>_<priorityA>_to_<queueTypeB>_<priorityB>[_double_preemption]`.
+
+Queue type names: `graphics`, `compute`, `exclusive-compute`, `transfer`, `exclusive-transfer`.
+
+Priority names: `low`, `medium`, `high`, `realtime`.
+
+Only combinations where `priorityA < priorityB` are generated. The optional `_double_preemption` suffix indicates the small workload is submitted twice.
 
 ## Parameter Dimensions
 

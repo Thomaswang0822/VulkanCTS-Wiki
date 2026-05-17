@@ -13,14 +13,10 @@ Implementation file.
 - Primary source: [`vktDynamicStateClearTests.cpp`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L1)
 - Shared base: [`DynamicStateBaseClass`](../../../modules/vulkan/dynamic_state/vktDynamicStateBaseClass.hpp#L43)
 
-## Registration Path
-
-This file contributes the [`DynamicStateClearTests`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L470) group (named `"image"`), which is attached under each pipeline construction type subgroup by [`createChildren()`](../../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L55).
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-image
+dynamic_state.monolithic.image
 ├── clear
 ├── blit
 ├── copy
@@ -31,19 +27,19 @@ Source: [`DynamicStateClearTests::init()`](../../../modules/vulkan/dynamic_state
 
 ## Test Families
 
-### 1. Clear
+### clear — Clear attachment test
 
 [`clear`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L485) uses [`ClearTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L180). Sets dynamic states (viewport, scissor, line width, blend constants, depth/stencil), then calls `vkCmdClearAttachments` inside a render pass. Verifies that the dynamic blend constants remain in effect when a line is drawn after the clear operation.
 
-### 2. Blit
+### blit — Blit image test
 
 [`blit`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L489) uses [`BlitTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L236). Sets dynamic states, then calls `vkCmdBlitImage` outside the render pass. Verifies that the dynamic blend constants are not disturbed by the blit operation.
 
-### 3. Copy
+### copy — Copy image test
 
 [`copy`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L493) uses [`CopyTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L299). Sets dynamic states, then calls `vkCmdCopyImage` outside the render pass. Verifies that the dynamic blend constants are not disturbed by the copy operation.
 
-### 4. Resolve
+### resolve — Resolve image test
 
 [`resolve`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L497) uses [`ResolveTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L359). Sets dynamic states, then calls `vkCmdResolveImage` outside the render pass. Uses `VK_SAMPLE_COUNT_2_BIT` for the multisample source image. Verifies that the dynamic blend constants are not disturbed by the resolve operation.
 

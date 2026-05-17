@@ -11,47 +11,67 @@ Implementation file.
 ## Source Code
 
 - Primary source: [`vktPipelineExtendedDynamicStateTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.cpp#L1)
-- Header: [`vktPipelineExtendedDynamicStateTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.hpp#L1)
+- Header: [`vktPipelineExtendedDynamicStateTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTestsTests.hpp#L1)
 
-## Registration Path
-
-[`createExtendedDynamicStateTests()`](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.cpp#L6977) returns the `extended_dynamic_state` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: Not extra shader-object. Skipped by extra shader-object variants.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-extended_dynamic_state
-└── {dynamic_state_test}
-    ├── cull_none, cull_back, cull_front, cull_front_and_back
-    ├── front_face_cw, front_face_ccw, front_face_cw_reversed, front_face_ccw_reversed
-    ├── disable_raster, enable_raster
-    ├── logic_op_or, logic_op_enable, logic_op_disable
-    ├── color_blend_enable, color_blend_disable
-    ├── depth_bias, depth_bias_clamped
-    ├── depth_bounds, depth_bounds_clamped
-    ├── depth_test_enable, depth_test_disable
-    ├── stencil_test_enable, stencil_test_disable
-    ├── vertex_input
-    ├── patch_control_points
-    ├── rasterizer_discard_enable, rasterizer_discard_disable
-    ├── color_write_enable
-    ├── tess_domain_origin
-    ├── depth_clamp_enable, depth_clamp_disable
-    ├── polygon_mode
-    ├── sample_mask
-    ├── line_stipple
-    └── ... (many more EDS3 states)
+pipeline.monolithic.extended_dynamic_state
+├── cmd_buffer_start
+├── before_draw
+├── between_pipelines
+├── after_pipelines
+├── before_good_static
+├── two_draws_dynamic
+├── two_draws_static
+├── three_draws_dynamic
+├── mesh_shader
+└── misc
 ```
+
+Source: [`createExtendedDynamicStateTests()`](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.cpp#L6977). Variant coverage: Not extra shader-object. Skipped by extra shader-object variants.
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| ExtendedDynamicStateTest | Verifies dynamically set pipeline state produces correct rendering results |
-| EDS1 tests | VK_EXT_extended_dynamic_state: cull mode, front face, viewport, scissor, etc. |
-| EDS3 tests | VK_EXT_extended_dynamic_state3: logic op, color blend, vertex input, etc. |
+### cmd_buffer_start — Dynamic state set at command buffer start
+
+Tests where the dynamic state is set at the beginning of the command buffer, before any pipeline is bound. Each test case within this group exercises a specific EDS1 or EDS3 dynamic state parameter (cull mode, front face, rasterizer discard, logic op, color blend, depth bias, depth bounds, depth test, stencil test, vertex input, patch control points, etc.) with the state set via `vkCmdSet*` at command buffer start time.
+
+### before_draw — Dynamic state set before draw call
+
+Tests where the dynamic state is set just before the draw call. Same EDS1/EDS3 state coverage as `cmd_buffer_start`, but the `vkCmdSet*` calls are issued immediately before `vkCmdDraw`.
+
+### between_pipelines — Dynamic state set between pipeline binds
+
+Tests where the dynamic state is set after a pipeline with static states has been bound and before a pipeline with dynamic states has been bound. Skipped for shader object construction type.
+
+### after_pipelines — Dynamic state set after pipeline binds
+
+Tests where the dynamic state is set after both a static-state pipeline and a second dynamic-state pipeline have been bound. Skipped for shader object construction type.
+
+### before_good_static — Dynamic state set before a good static pipeline
+
+Tests where the dynamic state is set after a dynamic pipeline has been bound and before a second static-state pipeline with the correct values has been bound.
+
+### two_draws_dynamic — Two draws with dynamic state
+
+Binds a bad static pipeline and draws, followed by binding a correct dynamic pipeline and drawing again.
+
+### two_draws_static — Two draws with static state
+
+Binds a bad dynamic pipeline and draws, followed by binding a correct static pipeline and drawing again.
+
+### three_draws_dynamic — Three draws with dynamic state
+
+Extended sequence of three draws exercising dynamic state transitions.
+
+### mesh_shader — Mesh shader dynamic state tests
+
+Contains the same ordering subgroups (`cmd_buffer_start`, `before_draw`, etc.) but with mesh shaders instead of vertex shaders. Each test case exercises EDS1/EDS3 dynamic state parameters with mesh shader pipelines. Non-VulkanSC only.
+
+### misc — Miscellaneous extended dynamic state tests
+
+Implements edge-case and interaction tests for extended dynamic state that don't fit in the main ordering groups. Includes `sample_shading_dynamic_sample_count` and `dynamic_sample_shading_static_*_dynamic_*` test cases. Documented separately in [`vktPipelineExtendedDynamicStateMiscTests.md`](vktPipelineExtendedDynamicStateMiscTests.md).
 
 ## Parameter Dimensions
 

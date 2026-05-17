@@ -15,30 +15,7 @@ Registration file with a small amount of direct implementation.
 - Related delegated declarations: [`vktApiFeatureInfo.hpp`](../../../modules/vulkan/api/vktApiFeatureInfo.hpp#L34)
 - Root-category attachment: [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1348)
 
-## Registration Path
-
-The observed registration path is:
-
-```text
-TestPackage::init / TestPackageSC::init
-└── info
-    └── createTests(testCtx, "info")
-        └── createInfoTests(testGroup)
-            ├── build
-            ├── device
-            ├── platform
-            ├── memory_limits
-            ├── delegated instance-info cases
-            ├── delegated device-info cases
-            └── delegated device-group-info case
-```
-
-Evidence:
-- root attachment in [`TestPackage::init()`](../../../modules/vulkan/vktTestPackage.cpp#L1348) and [`TestPackageSC::init()`](../../../modules/vulkan/vktTestPackage.cpp#L1416)
-- category factory in [`createTests()`](../../../modules/vulkan/vktInfoTests.cpp#L274)
-- group population in [`createInfoTests()`](../../../modules/vulkan/vktInfoTests.cpp#L260)
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
 info
@@ -50,7 +27,7 @@ info
 ├── physical_device_groups
 ├── instance_layers
 ├── instance_extensions
-├── instance_extension_dependencies          (not added for Vulkan SC)
+├── instance_extension_dependencies (not added for Vulkan SC)
 ├── instance_extension_device_functions
 ├── device_features
 ├── device_properties
@@ -58,18 +35,23 @@ info
 ├── device_memory_properties
 ├── device_layers
 ├── device_extensions
-├── device_extension_dependencies            (not added for Vulkan SC)
+├── device_extension_dependencies (not added for Vulkan SC)
 ├── device_no_khx_extensions
 ├── device_memory_budget
 ├── device_mandatory_features
 └── device_group_peer_memory_features
 ```
 
-Local direct cases come from [`createInfoTests()`](../../../modules/vulkan/vktInfoTests.cpp#L260); delegated cases are added by [`vktApiFeatureInfo.cpp`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8924).
+Evidence:
+- root attachment in [`TestPackage::init()`](../../../modules/vulkan/vktTestPackage.cpp#L1348) and [`TestPackageSC::init()`](../../../modules/vulkan/vktTestPackage.cpp#L1416)
+- local cases registered in [`createInfoTests()`](../../../modules/vulkan/vktInfoTests.cpp#L260-L265)
+- delegated instance cases from [`createFeatureInfoInstanceTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8924-L8935)
+- delegated device cases from [`createFeatureInfoDeviceTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8937-L8951)
+- delegated device-group case from [`createFeatureInfoDeviceGroupTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8953-L8957)
 
 ## Test Families
 
-### 1. Build-environment reporting
+### build — Build-environment reporting
 
 [`build`](../../../modules/vulkan/vktInfoTests.cpp#L262) is implemented by [`logBuildInfo()`](../../../modules/vulkan/vktInfoTests.cpp#L132).
 
@@ -83,7 +65,7 @@ Observed behavior:
 
 This case returns pass status with the message `Not validated` in [`logBuildInfo()`](../../../modules/vulkan/vktInfoTests.cpp#L148).
 
-### 2. Device-property reporting
+### device — Device-property reporting
 
 [`device`](../../../modules/vulkan/vktInfoTests.cpp#L263) is implemented by [`logDeviceInfo()`](../../../modules/vulkan/vktInfoTests.cpp#L151).
 
@@ -94,7 +76,7 @@ Observed behavior:
 
 This case also returns `Not validated` in [`logDeviceInfo()`](../../../modules/vulkan/vktInfoTests.cpp#L166).
 
-### 3. Platform-description reporting
+### platform — Platform-description reporting
 
 [`platform`](../../../modules/vulkan/vktInfoTests.cpp#L264) is implemented by [`logPlatformInfo()`](../../../modules/vulkan/vktInfoTests.cpp#L169).
 
@@ -105,7 +87,7 @@ Observed behavior:
 
 This case returns `Not validated` in [`logPlatformInfo()`](../../../modules/vulkan/vktInfoTests.cpp#L177).
 
-### 4. Platform-memory-limit reporting with simple invariant checks
+### memory_limits — Platform-memory-limit reporting with simple invariant checks
 
 [`memory_limits`](../../../modules/vulkan/vktInfoTests.cpp#L265) is implemented by [`logPlatformMemoryLimits()`](../../../modules/vulkan/vktInfoTests.cpp#L236).
 
@@ -120,7 +102,13 @@ Observed behavior:
 
 Unlike the three purely informational cases, this one returns `Pass` in [`logPlatformMemoryLimits()`](../../../modules/vulkan/vktInfoTests.cpp#L257).
 
-### 5. Delegation into API feature-info coverage
+### Delegated API feature-info cases
+
+The remaining direct children under `info` are implemented in [`vktApiFeatureInfo.cpp`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8924) and documented in [`vktApiFeatureInfo.md`](vktApiFeatureInfo.md):
+
+- `physical_devices`, `physical_device_groups`, `instance_layers`, `instance_extensions`, `instance_extension_dependencies`, `instance_extension_device_functions` (instance-scope cases)
+- `device_features`, `device_properties`, `device_queue_family_properties`, `device_memory_properties`, `device_layers`, `device_extensions`, `device_extension_dependencies`, `device_no_khx_extensions`, `device_memory_budget`, `device_mandatory_features` (device-scope cases)
+- `device_group_peer_memory_features` (device-group case)
 
 After its own local cases, [`createInfoTests()`](../../../modules/vulkan/vktInfoTests.cpp#L267) appends three delegated groups of registrations:
 

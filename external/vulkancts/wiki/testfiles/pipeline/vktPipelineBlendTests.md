@@ -16,82 +16,45 @@ Implementation file. Also dispatches to [`vktPipelineDualBlendTests.cpp`](../../
 - Nested subgroup: [`vktPipelineDualBlendTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L1)
 - Shared helpers: [`ReferenceRenderer`](../../../modules/vulkan/pipeline/vktPipelineReferenceRenderer.cpp#L1)
 
-## Registration Path
-
-This file contributes the subgroup returned by [`createBlendTests()`](../../../modules/vulkan/pipeline/vktPipelineBlendTests.cpp#L2713), which is attached under each variant root by [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L1) in the pipeline category root.
-
-**Variant coverage**: All variants.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-blend
-├── format                                (genFormatTests only)
-│   └── <format_name>
-│       └── states
-│           └── <blend_state_set_name>   (100 random blend states per format)
-├── clamp                                 (always generated)
-│   └── <clamp_format_name>              (6 formats)
-├── dynamic_mask                          (genFormatTests only)
-│   └── format
-│       └── e5b9g9r9_ufloat_pack32
-│           └── states
-│               ├── mask_0_no_blend
-│               ├── mask_0_alpha_blend
-│               ├── mask_rgb_no_blend
-│               ├── mask_rgb_alpha_blend
-│               ├── mask_a_no_blend
-│               ├── mask_a_alpha_blend
-│               ├── mask_rgba_no_blend
-│               └── mask_rgba_alpha_blend
-├── dual_source                           (genFormatTests only)
-│   ├── format
-│   │   └── <format_name>
-│   │       ├── output_variable
-│   │       │   └── states
-│   │       │       └── <dual_source_blend_state_name>
-│   │       └── output_array
-│   │           └── states
-│   │               └── <dual_source_blend_state_name>
-│   └── multi_attachments                 (delegated to vktPipelineDualBlendTests.cpp, non-VulkanSC)
-├── dynamic_dual_disable                  (non-VulkanSC, genFormatTests only)
-│   ├── att_count_1
-│   ├── att_count_1_plus_1
-│   ├── att_count_2
-│   ├── att_count_2_plus_1
-│   ├── att_count_8
-│   └── att_count_8_plus_1
-└── drlr_remap                            (non-VulkanSC, genFormatTests only)
-    └── locations_1_0[_we_<YY|YN|NY>][_dyn_blend][_dyn_we]
+pipeline.monolithic.blend
+├── format (genFormatTests only)
+├── dynamic_mask (genFormatTests only)
+├── clamp
+├── dual_source (genFormatTests only)
+├── dynamic_dual_disable (genFormatTests only, non-VulkanSC)
+└── drlr_remap (genFormatTests only, non-VulkanSC)
 ```
 
-Source: [`createBlendTests()`](../../../modules/vulkan/pipeline/vktPipelineBlendTests.cpp#L2713).
+Source: [`createBlendTests()`](../../../modules/vulkan/pipeline/vktPipelineBlendTests.cpp#L2713). This group is attached under each variant root by [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L1) in the pipeline category root. Variant coverage: all variants.
 
 ## Test Families
 
-### 1. format/states
+### format — Format-specific blend state tests
 
-Core blend tests. For each blendable format, generates 100 random `VkPipelineColorBlendAttachmentState` combinations (src/dst color/alpha blend factors x blend ops x color write masks) using [`BlendStateUniqueRandomIterator`](../../../modules/vulkan/pipeline/vktPipelineBlendTestsCommon.cpp#L1) (seed 123). Verifies blending results against a software reference renderer.
+Core blend tests. For each blendable format, generates 100 random `VkPipelineColorBlendAttachmentState` combinations (src/dst color/alpha blend factors x blend ops x color write masks) using [`BlendStateUniqueRandomIterator`](../../../modules/vulkan/pipeline/vktPipelineBlendTestsCommon.cpp#L1) (seed 123). Verifies blending results against a software reference renderer. Each format group contains a `states` child with the random blend state test cases.
 
-### 2. clamp
+### dynamic_mask — Dynamic color write mask tests
 
-Tests that blend factor clamping to [0,1] (unorm) or [-1,1] (snorm) is correctly applied before blend operations. Uses out-of-range quad colors and blend constants to exercise clamping.
+Tests `VK_FORMAT_E5B9G9R9_UFLOAT_PACK32` with `VK_DYNAMIC_STATE_COLOR_WRITE_MASK_EXT`, verifying the spec rule that RGB mask bits must be all-or-none for this format. Uses [`DynamicMaskBlendTest`](../../../modules/vulkan/pipeline/vktPipelineBlendTests.cpp#L1) which overrides color write masks dynamically. Contains a `format` child group with the E5B9G9R9 format, which in turn contains a `states` child with 8 mask/blend combinations (mask_0_no_blend, mask_0_alpha_blend, mask_rgb_no_blend, mask_rgb_alpha_blend, mask_a_no_blend, mask_a_alpha_blend, mask_rgba_no_blend, mask_rgba_alpha_blend).
 
-### 3. dynamic_mask
+### clamp — Blend factor clamping tests
 
-Tests `VK_FORMAT_E5B9G9R9_UFLOAT_PACK32` with `VK_DYNAMIC_STATE_COLOR_WRITE_MASK_EXT`, verifying the spec rule that RGB mask bits must be all-or-none for this format. Uses [`DynamicMaskBlendTest`](../../../modules/vulkan/pipeline/vktPipelineBlendTests.cpp#L1) which overrides color write masks dynamically.
+Tests that blend factor clamping to [0,1] (unorm) or [-1,1] (snorm) is correctly applied before blend operations. Uses out-of-range quad colors and blend constants to exercise clamping. Contains one test case per clamp format (6 formats: R8G8B8A8_UNORM/SNORM, B8G8R8A8_UNORM/SNORM, R16G16B16A16_UNORM/SNORM). Always generated regardless of variant.
 
-### 4. dual_source
+### dual_source — Dual-source blending tests
 
-Dual-source blending tests. Iterates blend states that use SRC1 (secondary) blend factors. Tests both `output_variable` (single fragment output) and `output_array` (array output) shader patterns. Includes multi-attachment dual-source tests from [`vktPipelineDualBlendTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L1).
+Dual-source blending tests. Iterates blend states that use SRC1 (secondary) blend factors. Contains a `format` child group with per-format subgroups, each containing `output_variable` and `output_array` shader pattern groups with `states` children. Also includes a `multi_attachments` sub-group (delegated to [`vktPipelineDualBlendTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L1), non-VulkanSC only).
 
-### 5. dynamic_dual_disable
+### dynamic_dual_disable — Dynamic dual-source blend disable tests
 
-Tests dynamically disabling dual-source blending via `VK_EXT_extended_dynamic_state3` (colorBlendEnable, colorBlendEquation, colorWriteMask). Varies attachment count (1, 2, 8) with optional extra attachment.
+Tests dynamically disabling dual-source blending via `VK_EXT_extended_dynamic_state3` (colorBlendEnable, colorBlendEquation, colorWriteMask). Varies attachment count (1, 2, 8) with optional extra attachment. Contains test cases named `att_count_1`, `att_count_1_plus_1`, `att_count_2`, `att_count_2_plus_1`, `att_count_8`, `att_count_8_plus_1`. Non-VulkanSC only.
 
-### 6. drlr_remap
+### drlr_remap — Dynamic rendering local read remapping tests
 
-Tests `VK_KHR_dynamic_rendering_local_read` color attachment remapping with swapped location indices. Varies write enables, dynamic blend, and dynamic write enables.
+Tests `VK_KHR_dynamic_rendering_local_read` color attachment remapping with swapped location indices. Contains test cases with names like `locations_1_0[_we_<YY|YN|NY>][_dyn_blend][_dyn_we]`, varying write enables, dynamic blend, and dynamic write enables. Non-VulkanSC only.
 
 ## Parameter Dimensions
 
@@ -122,7 +85,7 @@ Tests `VK_KHR_dynamic_rendering_local_read` color attachment remapping with swap
 
 ## Verification Methods
 
-### format/states and dynamic_mask families
+### format and dynamic_mask families
 
 [`BlendTestInstance::verifyImage()`](../../../modules/vulkan/pipeline/vktPipelineBlendTests.cpp#L929) uses [`ReferenceRenderer`](../../../modules/vulkan/pipeline/vktPipelineReferenceRenderer.cpp#L1) to render a reference with matching blend state. Reads back color attachment via `readColorAttachment()`. Primary comparison uses `tcu::floatThresholdCompare` with format-dependent threshold. For sub-8-bit and expandable formats, falls back to wider precision comparisons if the primary comparison fails.
 

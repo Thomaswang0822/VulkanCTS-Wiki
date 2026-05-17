@@ -15,9 +15,7 @@ This file contributes the `internally_synchronized_objects` group to the **LEGAC
 | [`vktSynchronizationInternallySynchronizedObjectsTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedObjectsTests.cpp#L1) | Implementation |
 | [`vktSynchronizationInternallySynchronizedObjectsTests.hpp`](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedObjectsTests.hpp#L1) | Public header |
 
-## Registration Path
-
-### synchronization (LEGACY only)
+## Registration Hierarchy
 
 ```text
 synchronization.internally_synchronized_objects
@@ -31,7 +29,7 @@ Source: [`createInternallySynchronizedObjects()`](../../../modules/vulkan/synchr
 
 ## Test Families
 
-### PipelineCacheComputeTest -- `pipeline_cache_compute`
+### pipeline_cache_compute — PipelineCacheComputeTest
 
 Tests concurrent access to `VkPipelineCache` from multiple threads creating and executing compute pipelines.
 
@@ -52,7 +50,7 @@ Tests concurrent access to `VkPipelineCache` from multiple threads creating and 
 
 **Verification**: Each thread checks that the output buffer contains the expected values (0, 1, 2, ..., 15) after pipeline execution.
 
-### PipelineCacheGraphicTest -- `pipeline_cache_graphics`
+### pipeline_cache_graphics — PipelineCacheGraphicTest
 
 Tests concurrent access to `VkPipelineCache` from multiple threads creating and executing graphics pipelines.
 

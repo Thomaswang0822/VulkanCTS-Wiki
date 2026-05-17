@@ -14,73 +14,29 @@ Implementation file.
 - Header: [`vktPipelineInputAssemblyTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.hpp#L1)
 - Shared helpers: [`ReferenceRenderer`](../../../modules/vulkan/pipeline/vktPipelineReferenceRenderer.cpp#L1)
 
-## Registration Path
-
-This file contributes the subgroup returned by [`createInputAssemblyTests()`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L2340), which is attached under each variant root by [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L1).
-
-**Variant coverage**: All variants.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-input_assembly
+pipeline.monolithic.input_assembly
 ├── primitive_topology
-│   ├── index_type_uint16
-│   │   ├── point_list
-│   │   ├── line_list
-│   │   ├── line_strip
-│   │   ├── triangle_list
-│   │   ├── triangle_strip
-│   │   ├── triangle_fan
-│   │   ├── line_list_with_adjacency
-│   │   ├── line_strip_with_adjacency
-│   │   ├── triangle_list_with_adjacency
-│   │   └── triangle_strip_with_adjacency
-│   ├── index_type_uint32
-│   │   └── (same topologies)
-│   └── index_type_uint8
-│       └── (same topologies)
-├── primitive_restart                      (non-VulkanSC)
-│   ├── index_type_uint16
-│   │   ├── <topology_name>               (RestartType::NORMAL)
-│   │   ├── no_restart_<topology_name>    (RestartType::NONE)
-│   │   ├── restart_all_<topology_name>   (RestartType::ALL)
-│   │   ├── divide_draw_<topology_name>   (RestartType::DIVIDE)
-│   │   └── second_pass_<topology_name>   (RestartType::SECOND_PASS)
-│   ├── index_type_uint32
-│   │   └── (same pattern)
-│   ├── index_type_uint8
-│   │   └── (same pattern)
-│   ├── restart_disabled_*                (Amber tests, monolithic only)
-│   └── restart_mix
-│       ├── restart_mix
-│       ├── restart_mix_extra_draw
-│       ├── restart_mix_triangle_list
-│       ├── restart_mix_extra_draw_triangle_list
-│       ├── restart_mix_dynamic_topo
-│       └── ... (combinatorial: extraDraw x triangleList x dynamicTopology x largeNonIndexedDraw)
-└── (end)
+└── primitive_restart (non-VulkanSC)
 ```
 
 Source: [`createInputAssemblyTests()`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L2340).
 
 ## Test Families
 
-### 1. primitive_topology
+### primitive_topology — Primitive topology rendering
 
-Verifies correct rendering of all 10 standard primitive topologies using indexed draws with each index type (uint16, uint32, uint8). Uses [`PrimitiveTopologyTest`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L1) / [`InputAssemblyInstance`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L1).
+Verifies correct rendering of all 10 standard primitive topologies using indexed draws with each index type (uint16, uint32, uint8). Uses [`PrimitiveTopologyTest`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L1) / [`InputAssemblyInstance`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L1). Each index type (`index_type_uint16`, `index_type_uint32`, `index_type_uint8`) is a subgroup containing the 10 topology test cases.
 
-### 2. primitive_restart
+### primitive_restart — Primitive restart functionality (non-VulkanSC)
 
-Verifies primitive restart functionality across strip/list/fan/adjacency/patch topologies. Uses [`PrimitiveRestartTest`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L1) / [`InputAssemblyInstance`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L1). Includes list-type restart via `VK_EXT_primitive_topology_list_restart`. Five restart modes: NORMAL, NONE (restart disabled), ALL (all-primitive restart), DIVIDE (split draw), SECOND_PASS.
+Verifies primitive restart functionality across strip/list/fan/adjacency/patch topologies. Uses [`PrimitiveRestartTest`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L1) / [`InputAssemblyInstance`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L1). Includes list-type restart via `VK_EXT_primitive_topology_list_restart`. Five restart modes: NORMAL, NONE (restart disabled), ALL (all-primitive restart), DIVIDE (split draw), SECOND_PASS. Each index type (`index_type_uint16`, `index_type_uint32`, `index_type_uint8`) is a subgroup containing restart test cases for each topology and restart mode.
 
-### 3. restart_mix
+The `restart_mix` subgroup within `primitive_restart` verifies correct behavior when mixing indexed and non-indexed draws with primitive restart enabled. Uses [`PrimitiveRestartMixCase`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L1). Tests extra indexed draws, triangle list vs strip, dynamic topology, and large non-indexed draws.
 
-Verifies correct behavior when mixing indexed and non-indexed draws with primitive restart enabled. Uses [`PrimitiveRestartMixCase`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L1). Tests extra indexed draws, triangle list vs strip, dynamic topology, and large non-indexed draws.
-
-### 4. restart_disabled_* (Amber)
-
-Verifies that when primitive restart is disabled, the restart index value does not cause a restart. Monolithic pipeline only.
+The `restart_disabled_*` Amber tests within `primitive_restart` verify that when primitive restart is disabled, the restart index value does not cause a restart. Monolithic pipeline only.
 
 ## Parameter Dimensions
 

@@ -13,48 +13,38 @@ Implementation file.
 - Primary source: [`vktPipelineLibraryTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineLibraryTests.cpp#L1)
 - Header: [`vktPipelineLibraryTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineLibraryTests.hpp#L1)
 
-## Registration Path
-
-[`createGraphicsLibraryTests()`](../../../modules/vulkan/pipeline/vktPipelineLibraryTests.cpp#L6248) returns the `graphics_library` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: Pipeline library only, VK only. Library-specific tests executed once.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-graphics_library
-├── {pipeline_library_test_cases}
-├── maintenance5
+pipeline.pipeline_library.graphics_library
+├── fast
+├── optimize
 └── misc
-    ├── independent_layout_sets
-    │   └── {test_case}
-    ├── bind_null_descriptor_combinations
-    │   └── {test_case}
-    ├── other
-    │   ├── null_rendering_create_info
-    │   ├── bad_rendering_create_info
-    │   ├── common_frag_pipeline_library
-    │   ├── unusual_multisample_state
-    │   └── destroy_resources_before_link_samplers_{2,3}
-    ├── non_graphics
-    │   ├── shader_module_info_comp
-    │   ├── shader_module_info_rt
-    │   └── shader_module_info_rt_lib
-    ├── always_null_set_layout
-    │   └── {test_case}
-    ├── primitive_rebind
-    │   └── {test_case}
-    └── view_mask
-        └── {test_case}
 ```
+
+Source: [`createPipelineLibraryTests()`](../../../modules/vulkan/pipeline/vktPipelineLibraryTests.cpp#L6247). Variant coverage: Pipeline library only (`PIPELINE_CONSTRUCTION_TYPE_LINK_TIME_OPTIMIZED_LIBRARY`), VK only. The `graphics_library` group is attached under the `pipeline_library` variant root by [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L94).
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| PipelineLibraryTestCase | Verifies pipeline library creation and linking for various shader stage combinations |
-| PipelineLibraryMiscTestCase | Verifies miscellaneous pipeline library behaviors |
-| AlwaysNullSetLayoutCase | Verifies pipeline library with always-null descriptor set layouts |
+### fast — Pipeline library fast-link configurations
+
+Verifies graphics pipeline library creation and linking without optimization (`addPipelineLibraryConfigurationsTests` with `optimize=false`). Uses `PipelineLibraryTestCase` instances that test various shader stage combinations and pipeline library configurations under the fast-linked construction type.
+
+### optimize — Pipeline library optimized-link configurations
+
+Verifies graphics pipeline library creation and linking with optimization (`addPipelineLibraryConfigurationsTests` with `optimize=true`). Uses `PipelineLibraryTestCase` instances that test the same shader stage combinations and pipeline library configurations under the link-time-optimized construction type.
+
+### misc — Miscellaneous pipeline library behaviors
+
+Verifies miscellaneous pipeline library behaviors using `PipelineLibraryMiscTestCase` and `AlwaysNullSetLayoutCase` instances. Contains the following subgroups:
+
+- **independent_pipeline_layout_sets**: Tests independent pipeline layout sets with fast-linked and link-time-optimized union-handle modes.
+- **bind_null_descriptor_set**: Tests various null descriptor set binding combinations, using binary patterns (e.g., `"1"`, `"11"`, `"01"`, `"101"`) to represent which descriptor set layouts are used versus null.
+- **other**: Contains `compare_link_times`, `null_descriptor_set_in_monolithic_pipeline`, `null_rendering_create_info`, `bad_rendering_create_info`, `common_frag_pipeline_library`, `view_index_from_device_index` (with pipeline state mode and mesh shading variants), `unusual_multisample_state`, `transform_feedback_with_fast_link`, and `destroy_resources_before_link_samplers_2` / `destroy_resources_before_link_samplers_3`.
+- **non_graphics**: Tests shader module create info for compute (`shader_module_info_comp`), ray tracing (`shader_module_info_rt`), and ray tracing library (`shader_module_info_rt_lib`) pipeline types.
+- **always_null_set_layout**: Tests descriptor set layouts that are always `VK_NULL_HANDLE`, with combinations of used/unused sets and construction types (fast-linked and optimized).
+- **primary_rebind**: Tests rebinding pipelines in the primary command buffer after executing things in the secondary, across monolithic, fast-linked, optimized, and extended shader object construction types.
+- **view_mask**: Tests whether `viewMask` is needed in the fragment output library, with fast and optimized variants.
 
 ## Parameter Dimensions
 

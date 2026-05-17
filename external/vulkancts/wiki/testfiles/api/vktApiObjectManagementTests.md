@@ -14,126 +14,72 @@ Implementation-heavy test file for the `api/object_management` subgroup.
 - Header: [vktApiObjectManagementTests.hpp](../../../modules/vulkan/api/vktApiObjectManagementTests.hpp#L1)
 - Parent-category registration: [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L101)
 
-## Registration Path
+## Registration Hierarchy
 
 ```text
-TestPackage::init / TestPackageSC::init
-  api
-  +-- createApiTests(apiTests)
-      +-- createObjectManagementTests(testCtx)
-          +-- object_management
-              +-- single/
-              +-- multiple_unique_resources/
-              +-- multiple_shared_resources/
-              +-- max_concurrent/  (not in Vulkan SC)
-              +-- multithreaded_per_thread_device/
-              +-- multithreaded_per_thread_resources/
-              +-- multithreaded_shared_resources/
-              +-- single_alloc_callbacks/  (not in Vulkan SC)
-              +-- alloc_callback_fail/  (not in Vulkan SC)
-              +-- alloc_callback_fail_multiple/  (not in Vulkan SC)
-              +-- private_data/  (not in Vulkan SC)
+api.object_management
+├── single
+├── multiple_unique_resources
+├── multiple_shared_resources
+├── max_concurrent (not in Vulkan SC)
+├── multithreaded_per_thread_device
+├── multithreaded_per_thread_resources
+├── multithreaded_shared_resources
+├── single_alloc_callbacks (not in Vulkan SC)
+├── alloc_callback_fail (not in Vulkan SC)
+├── alloc_callback_fail_multiple (not in Vulkan SC)
+└── private_data (not in Vulkan SC)
 ```
 
 Evidence:
 - `object_management` group created at [`createObjectManagementTests()`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3597)
 - subgroups added from [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3763) through [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L4120)
 
-## Test Hierarchy
-
-```text
-api
-+-- object_management
-    +-- single/
-        +-- instance
-        +-- device
-        +-- device_group
-        +-- device_memory_small
-        +-- buffer_uniform_small
-        +-- buffer_uniform_large
-        +-- buffer_storage_small
-        +-- buffer_storage_large
-        +-- buffer_view_uniform_r8g8b8a8_unorm
-        +-- buffer_view_storage_r8g8b8a8_unorm
-        +-- image_1d, image_2d, image_3d
-        +-- image_view_1d, image_view_1d_arr, image_view_2d, ...
-        +-- semaphore
-        +-- event
-        +-- fence, fence_signaled
-        +-- query_pool
-        +-- shader_module
-        +-- pipeline_cache
-        +-- merged_pipeline_cache, merged_pipeline_cache_src_sync, ...
-        +-- pipeline_layout_empty, pipeline_layout_single
-        +-- render_pass
-        +-- graphics_pipeline
-        +-- compute_pipeline
-        +-- descriptor_set_layout_empty, descriptor_set_layout_single
-        +-- sampler
-        +-- descriptor_pool, descriptor_pool_free_descriptor_set
-        +-- descriptor_set
-        +-- framebuffer
-        +-- command_pool, command_pool_transient
-        +-- command_buffer_primary, command_buffer_secondary
-    +-- multiple_unique_resources/
-        +-- (same object types as single/)
-    +-- multiple_shared_resources/
-        +-- (same object types as single/)
-    +-- max_concurrent/  (excluded for Vulkan SC)
-        +-- (same object types as single/)
-    +-- multithreaded_per_thread_device/
-        +-- (same object types, minus Instance/Device/DeviceGroup)
-    +-- multithreaded_per_thread_resources/
-        +-- (same object types)
-    +-- multithreaded_shared_resources/
-        +-- (same object types, some EMPTY_CASE_DESC)
-    +-- single_alloc_callbacks/  (excluded for Vulkan SC)
-        +-- (same object types as single/)
-    +-- alloc_callback_fail/  (excluded for Vulkan SC)
-        +-- (same object types, some EMPTY_CASE_DESC)
-    +-- alloc_callback_fail_multiple/  (excluded for Vulkan SC)
-        +-- (only GraphicsPipeline, ComputePipeline, DescriptorSet, CommandBuffer)
-    +-- private_data/  (excluded for Vulkan SC)
-        +-- (same object types minus Instance/Device/DeviceGroup/MergedPipelineCache)
-```
-
-Source: [`createObjectManagementTests()`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3595).
-
 ## Test Families
 
-### 1. Single object creation
+### single -- Single object creation
 
 The `single` subgroup at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3763) tests creating one instance of each Vulkan object type. Object types include Instance, Device, DeviceGroup, DeviceMemory, Buffer (4 variants), BufferView (2 variants), Image (1D/2D/3D), ImageView (7 variants), Semaphore, Event, Fence (2 variants), QueryPool, ShaderModule, PipelineCache, MergedPipelineCache (4 variants), PipelineLayout, RenderPass, GraphicsPipeline, ComputePipeline, DescriptorSetLayout, Sampler, DescriptorPool, DescriptorSet, Framebuffer, CommandPool, and CommandBuffer. Case definitions at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3634).
 
-### 2. Multiple objects with unique resources
+### multiple_unique_resources -- Multiple objects with unique resources
 
 The `multiple_unique_resources` subgroup at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3800) creates multiple instances of each object type where each instance has its own independent resources. Device and DeviceGroup cases are excluded for Vulkan SC.
 
-### 3. Multiple objects with shared resources
+### multiple_shared_resources -- Multiple objects with shared resources
 
 The `multiple_shared_resources` subgroup at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3837) creates multiple instances sharing common resources. Device and DeviceGroup cases are excluded for Vulkan SC.
 
-### 4. Maximum concurrent live objects
+### max_concurrent -- Maximum concurrent live objects
 
 The `max_concurrent` subgroup at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3871) tests creating the maximum number of concurrently live objects. Entirely excluded for Vulkan SC because `VkAllocationCallbacks` is not supported.
 
-### 5. Multithreaded object construction
+### multithreaded_per_thread_device -- Multithreaded per-thread device
 
-Three multithreaded subgroups exercise concurrent object creation:
-- `multithreaded_per_thread_device` at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3906): each thread uses its own device
-- `multithreaded_per_thread_resources` at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3940): each thread uses its own resources
-- `multithreaded_shared_resources` at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3978): threads share resources
+The `multithreaded_per_thread_device` subgroup at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3906) exercises concurrent object creation where each thread uses its own device. Instance, Device, and DeviceGroup cases are excluded (marked `EMPTY_CASE_DESC`).
 
-### 6. Allocation callback tests
+### multithreaded_per_thread_resources -- Multithreaded per-thread resources
 
-Three allocation-callback subgroups (all excluded for Vulkan SC):
-- `single_alloc_callbacks` at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L4013): single object creation with custom allocation callbacks
-- `alloc_callback_fail` at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L4049): tests behavior when allocation callbacks fail
-- `alloc_callback_fail_multiple` at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L4085): allocation callback failure for bulk object creation
+The `multithreaded_per_thread_resources` subgroup at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3940) exercises concurrent object creation where each thread uses its own resources.
 
-### 7. Private data tests
+### multithreaded_shared_resources -- Multithreaded shared resources
 
-The `private_data` subgroup at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L4120) tests `VK_EXT_private_data` functionality for each object type. Excluded for Vulkan SC.
+The `multithreaded_shared_resources` subgroup at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3978) exercises concurrent object creation where threads share resources. Instance is excluded (marked `EMPTY_CASE_DESC`). DescriptorSet and CommandBuffer are excluded because they need per-thread pools. Device and DeviceGroup cases are excluded for Vulkan SC.
+
+### single_alloc_callbacks -- Single allocation callbacks
+
+The `single_alloc_callbacks` subgroup at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L4013) tests single object creation with custom allocation callbacks. Excluded for Vulkan SC because `VkAllocationCallbacks` is not supported.
+
+### alloc_callback_fail -- Allocation callback failure
+
+The `alloc_callback_fail` subgroup at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L4049) tests behavior when allocation callbacks fail. DescriptorSet and CommandBuffer are excluded (marked `EMPTY_CASE_DESC`). Excluded for Vulkan SC because `VkAllocationCallbacks` is not supported.
+
+### alloc_callback_fail_multiple -- Allocation callback failure for multiple objects
+
+The `alloc_callback_fail_multiple` subgroup at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L4085) tests allocation callback failure for bulk object creation. Only GraphicsPipeline, ComputePipeline, DescriptorSet, and CommandBuffer generate actual tests; all other object types are marked `EMPTY_CASE_DESC`. Excluded for Vulkan SC because `VkAllocationCallbacks` is not supported.
+
+### private_data -- Private data tests
+
+The `private_data` subgroup at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L4120) tests `VK_EXT_private_data` functionality for each object type. Instance, Device, and DeviceGroup are excluded (marked `EMPTY_CASE_DESC`). MergedPipelineCache is also excluded. Excluded for Vulkan SC because `VK_EXT_private_data` does not exist in Vulkan SC.
 
 ## Parameter Dimensions
 

@@ -12,80 +12,58 @@ Buffer and image memory requirements validation tests. Verifies that `VkMemoryRe
 - **Registration function:** [`createRequirementsTests()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L2110)
 - **Parent group:** `memory`
 
-## Test Hierarchy
+## Registration Hierarchy
 
-```
-requirements
+```text
+memory.requirements
 ├── core
-│   ├── buffer
-│   │   ├── regular
-│   │   ├── sparse                    (Vulkan 1.0 only)
-│   │   ├── sparse_residency          (Vulkan 1.0 only)
-│   │   ├── sparse_aliased            (Vulkan 1.0 only)
-│   │   └── sparse_residency_aliased  (Vulkan 1.0 only)
-│   └── image
-│       ├── regular_tiling_linear
-│       ├── regular_tiling_optimal
-│       ├── transient_tiling_linear
-│       ├── transient_tiling_optimal
-│       ├── sparse_tiling_linear        (Vulkan 1.0 only)
-│       ├── sparse_tiling_optimal       (Vulkan 1.0 only)
-│       ├── sparse_residency_tiling_optimal   (Vulkan 1.0 only)
-│       ├── sparse_aliased_tiling_optimal     (Vulkan 1.0 only)
-│       └── sparse_residency_aliased_tiling_optimal (Vulkan 1.0 only)
 ├── extended
-│   ├── buffer (same sub-cases as core)
-│   └── image (same sub-cases as core)
 ├── dedicated_allocation
-│   ├── buffer (same sub-cases as core)
-│   └── image (same sub-cases as core)
 ├── multiplane_image
-│   ├── regular_optimal
-│   ├── regular_linear
-│   ├── transient_optimal
-│   ├── transient_linear
-│   ├── sparse_optimal
-│   ├── sparse_residency_optimal
-│   ├── sparse_aliased_optimal
-│   └── sparse_residency_aliased_optimal
 ├── memory_property_flags
-│   └── check_all
-└── create_info                        (Vulkan 1.0 only)
-    ├── buffer (same sub-cases as core)
-    ├── image (same sub-cases as core)
-    └── multiplane_image (same sub-cases as multiplane_image)
+└── create_info (non-VulkanSC only)
 ```
 
 ## Test Families
 
-### core
+### core — Core API memory requirements
 
 Tests memory requirements using the original Vulkan 1.0 core APIs:
 - **Buffer:** [`vkGetBufferMemoryRequirements()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L429)
 - **Image:** [`vkGetImageMemoryRequirements()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L887)
 - **Sparse images:** [`vkGetImageSparseMemoryRequirements()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L891)
 
-### extended
+The `core` group is further organized into `buffer` and `image` subgroups. Buffer tests include `regular`, `sparse`, `sparse_residency`, `sparse_aliased`, and `sparse_residency_aliased` leaves (sparse variants are non-VulkanSC only). Image tests include `regular_tiling_linear`, `regular_tiling_optimal`, `transient_tiling_linear`, `transient_tiling_optimal`, and sparse variants (sparse variants are non-VulkanSC only).
+
+### extended — KHR_get_memory_requirements2 queries
 
 Same test logic as `core`, but uses `VK_KHR_get_memory_requirements2` extension APIs:
 - **Buffer:** [`vkGetBufferMemoryRequirements2()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L545-L549)
 - **Image:** [`vkGetImageMemoryRequirements2()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L1437)
 
-### dedicated_allocation
+The `extended` group shares the same `buffer` and `image` subgroup structure as `core`.
+
+### dedicated_allocation — Dedicated allocation requirements
 
 Extends `extended` tests to also validate `VkMemoryDedicatedRequirements` chained output, checking `prefersDedicatedAllocation` and `requiresDedicatedAllocation` fields. Requires `VK_KHR_dedicated_allocation`.
 
 Key verification: regular (non-shared) objects must **not** require dedicated allocations ([vktMemoryRequirementsTests.cpp:641-643](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L641), [vktMemoryRequirementsTests.cpp:1504-1505](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L1504)).
 
-### multiplane_image
+The `dedicated_allocation` group shares the same `buffer` and `image` subgroup structure as `core`.
+
+### multiplane_image — Per-plane memory requirements
 
 Tests per-plane memory requirements for multi-planar (YCbCr) image formats using `VK_KHR_sampler_ycbcr_conversion` and `VK_KHR_get_memory_requirements2`. Iterates over `formats::planarFormats` and queries requirements for each plane aspect via `VkImagePlaneMemoryRequirementsInfo` ([vktMemoryRequirementsTests.cpp:1873-1880](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L1873)).
 
-### memory_property_flags
+The `multiplane_image` group contains leaves for `regular_optimal`, `regular_linear`, `transient_optimal`, `transient_linear`, `sparse_optimal`, `sparse_residency_optimal`, `sparse_aliased_optimal`, and `sparse_residency_aliased_optimal`.
+
+### memory_property_flags — Memory property flag validation
 
 Validates that all memory types reported by `vkGetPhysicalDeviceMemoryProperties()` match known `VkMemoryPropertyFlagBits` combinations ([vktMemoryRequirementsTests.cpp:2013-2080](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L2013)).
 
-### create_info (Vulkan 1.0 only)
+The `memory_property_flags` group contains a `check_all` leaf test.
+
+### create_info — Create-info-based queries (non-VulkanSC only)
 
 Tests `VK_KHR_maintenance4` create-info-based memory requirement queries:
 - **Buffer:** [`vkGetDeviceBufferMemoryRequirements()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L125) — queries requirements without creating a buffer object
@@ -93,6 +71,8 @@ Tests `VK_KHR_maintenance4` create-info-based memory requirement queries:
 - **Sparse:** [`vkGetDeviceImageSparseMemoryRequirements()`](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L180)
 
 Verifies results match equivalent object-based queries ([vktMemoryRequirementsTests.cpp:713-726](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L713), [vktMemoryRequirementsTests.cpp:1571-1639](../../../modules/vulkan/memory/vktMemoryRequirementsTests.cpp#L1571)).
+
+The `create_info` group is further organized into `buffer`, `image`, and `multiplane_image` subgroups, sharing the same internal structure as their counterparts in `core` and `multiplane_image`.
 
 ## Parameter Dimensions
 

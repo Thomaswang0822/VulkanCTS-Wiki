@@ -4,23 +4,28 @@
 
 [vktRenderPassDitheringTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp)
 
-## Registration
+## Registration Hierarchy
 
-Added to root group (monolithic pipeline, non-SC).
+```text
+renderpasses.renderpass1.dithering
+└── v1
+```
 
-Registered group name: `"dithering"` ([L1359](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1359))
+Registered in all three rendering-type roots (renderpass1, renderpass2, dynamic_rendering) via [`createRenderPassDitheringTests`](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1356). Monolithic pipeline only. Under `dynamic_rendering`, an additional child `v2` is present ([L1361](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1361)).
 
 ## Test Families
 
-```
-dithering
-+-- DitheringTest
-    Tests VK_EXT_legacy_dithering extension behavior.
-    +-- v1
-    |   Revision 1 of the extension.
-    +-- v2
-        Revision 2 (dynamic rendering only).
-```
+### v1 — Revision 1 dithering tests
+
+Created via [`createDitheringRevision1GroupTests`](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1344). Always present. Contains three subgroups:
+
+- **base** — Ensures dithering works and values are within one ULP. Tests single formats, pairs, and triples from the testFormats array ([L1182-L1256](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1182-L1256)).
+- **depth_stencil** — Depth/stencil tests ensuring dithering works with depth/stencil and does not affect depth/stencil buffer. Format x stencil values (3) x depth values (3) x compare ops (2) ([L1264-L1306](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1264-L1306)).
+- **blend** — Blend tests with srcAlpha and additive blending per format ([L1310-L1333](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1310-L1333)).
+
+### v2 — Revision 2 dithering tests (dynamic rendering only)
+
+Created via [`createDitheringRevision2GroupTests`](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1350). Only added under dynamic rendering ([L1361](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1361)). Contains the same three subgroups as v1 (base, depth_stencil, blend) with `revision2 = true`.
 
 ## Parameter Dimensions
 

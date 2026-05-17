@@ -6,21 +6,25 @@ Exercises combinations where descriptor-buffer and legacy descriptor mechanisms 
 
 - [`vktBindingDescriptorCombinationTests.cpp`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp)
 
-## Verified Group Name
+## Registration Hierarchy
 
-| Group | Availability | Evidence |
-|-------|--------------|----------|
-| `descriptor_combination` | VK only | Created in [`vktBindingDescriptorCombinationTests.cpp:691`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L691); factory entry at [`vktBindingDescriptorCombinationTests.cpp:689`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L689) |
-
-## Registration Path
-
-```
-binding_model → descriptor_combination
+```text
+binding_model.descriptor_combination
+└── basic
 ```
 
-## Test Hierarchy
+## Test Families
 
-The group name is `descriptor_combination`; the `basic` subgroup contains two named combination cases. Evidence starts at [`vktBindingDescriptorCombinationTests.cpp:668`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L668) and continues through [`vktBindingDescriptorCombinationTests.cpp:684`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L684).
+### basic — Basic descriptor combination cases
+
+The `basic` subgroup contains two named combination cases added to a `basic` child group at [`vktBindingDescriptorCombinationTests.cpp:676`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L676). Evidence starts at [`vktBindingDescriptorCombinationTests.cpp:668`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L668) and continues through [`vktBindingDescriptorCombinationTests.cpp:684`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L684).
+
+The two test cases are:
+
+| Test case name | TestType enum | Source |
+|----------------|---------------|--------|
+| `descriptor_buffer_and_legacy_descriptor_in_command_buffer` | `DESCRIPTOR_BUFFER_AND_LEGACY_DESCRIPTOR_IN_COMMAND_BUFFER` | [`vktBindingDescriptorCombinationTests.cpp:670`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L670) |
+| `descriptor_buffer_capture_replay_with_custom_border_color` | `DESCRIPTOR_BUFFER_CAPTURE_REPLAY_WITH_CUSTOM_BORDER_COLOR` | [`vktBindingDescriptorCombinationTests.cpp:672`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L672) |
 
 ## Parameter Dimensions
 

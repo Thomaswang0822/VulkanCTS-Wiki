@@ -12,33 +12,41 @@ Tests for `VK_EXT_external_memory_acquire_unmodified`. Verifies that when acquir
 - **Registration function:** [`createExternalMemoryAcquireUnmodifiedTests()`](../../../modules/vulkan/memory/vktMemoryExternalMemoryAcquireUnmodifiedTests.cpp#L872)
 - **Parent group:** `memory`
 
-## Test Hierarchy
+## Registration Hierarchy
 
-```
-external_memory_acquire_unmodified
+```text
+memory.external_memory_acquire_unmodified
 ├── dma_buf
-│   ├── r8g8b8a8_unorm
-│   ├── b8g8r8a8_unorm
-│   ├── r16g16b16a16_unorm
-│   ├── r16g16b16a16_sfloat
-│   └── r32g32b32a32_sfloat
 └── android_hardware_buffer
-    ├── r8g8b8a8_unorm
-    ├── b8g8r8a8_unorm
-    ├── r16g16b16a16_unorm
-    ├── r16g16b16a16_sfloat
-    └── r32g32b32a32_sfloat
 ```
 
 ## Test Families
 
-### dma_buf
+### dma_buf — DMA-BUF external memory handle
 
 Tests `VK_EXTERNAL_MEMORY_HANDLE_TYPE_DMA_BUF_BIT_EXT` external memory with DRM format modifiers. For each format, the test queries all compatible DRM format modifiers and tests each one individually ([vktMemoryExternalMemoryAcquireUnmodifiedTests.cpp:352-369](../../../modules/vulkan/memory/vktMemoryExternalMemoryAcquireUnmodifiedTests.cpp#L352)).
 
-### android_hardware_buffer
+The `dma_buf` subgroup contains one child per format:
+
+- `r8g8b8a8_unorm` — `VK_FORMAT_R8G8B8A8_UNORM`
+- `b8g8r8a8_unorm` — `VK_FORMAT_B8G8R8A8_UNORM`
+- `r16g16b16a16_unorm` — `VK_FORMAT_R16G16B16A16_UNORM`
+- `r16g16b16a16_sfloat` — `VK_FORMAT_R16G16B16A16_SFLOAT`
+- `r32g32b32a32_sfloat` — `VK_FORMAT_R32G32B32A32_SFLOAT`
+
+Each format child iterates over all compatible DRM format modifiers at runtime.
+
+### android_hardware_buffer — Android Hardware Buffer external memory handle
 
 Tests `VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID` external memory using Android Hardware Buffer allocation ([vktMemoryExternalMemoryAcquireUnmodifiedTests.cpp:347-350](../../../modules/vulkan/memory/vktMemoryExternalMemoryAcquireUnmodifiedTests.cpp#L347)).
+
+The `android_hardware_buffer` subgroup contains one child per format:
+
+- `r8g8b8a8_unorm` — `VK_FORMAT_R8G8B8A8_UNORM`
+- `b8g8r8a8_unorm` — `VK_FORMAT_B8G8R8A8_UNORM`
+- `r16g16b16a16_unorm` — `VK_FORMAT_R16G16B16A16_UNORM`
+- `r16g16b16a16_sfloat` — `VK_FORMAT_R16G16B16A16_SFLOAT`
+- `r32g32b32a32_sfloat` — `VK_FORMAT_R32G32B32A32_SFLOAT`
 
 ## Parameter Dimensions
 

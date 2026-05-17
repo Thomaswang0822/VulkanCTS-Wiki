@@ -13,49 +13,39 @@ Implementation file.
 - Primary source: [`vktPipelineFramebufferAttachmentTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L1)
 - Header: [`vktPipelineFramebufferAttachmentTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.hpp#L1)
 
-## Registration Path
-
-[`createFramebufferAttachmentTests()`](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L1) returns the `framebuffer_attachment` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: All variants (VulkanSC only). Unused attachment and resolve+input same attachment have variant restrictions.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-framebuffer_attachment
-├── {viewtype}_{sizeString}[_ms]         (32 size-mismatch cases)
-├── no_attachments[_ms]                  (zero color attachments)
-├── unused_attachment                    (VK_ATTACHMENT_UNUSED, monolithic/shader-object only)
-├── diff_attachments_{1d|2d}_{sizeString}[_ms]  (12 different-size cases)
-├── resolve_input_same_attachment        (not shader-object)
-└── multi_attachments_not_exported_{2d}_{sizeString}[_ms]
+pipeline.monolithic.framebuffer_attachment
 ```
+
+All test cases are registered directly under this group as leaf tests (no intermediate subgroups). Test names follow patterns such as `{viewtype}_{sizeString}`, `no_attachments`, `unused_attachment`, `diff_attachments_{1d|2d}_{sizeString}`, `resolve_input_same_attachment`, and `multi_attachments_not_exported_{2d}_{sizeString}`.
 
 ## Test Families
 
-### 1. Size-mismatch attachments
+### Size-mismatch attachments
 
-Renders to framebuffer with attachment images strictly larger than the render area. 6 view types x 4 size ratios x single/multi-sample.
+Renders to framebuffer with attachment images strictly larger than the render area. 6 view types x 4 size ratios x single/multi-sample. Test names follow the pattern `{viewtype}_{sizeString}` with optional `_ms` suffix for multisample variants.
 
-### 2. No attachments
+### No attachments
 
-Renders with zero color attachments; fragment shader writes via `imageStore()` to a storage image.
+Renders with zero color attachments; fragment shader writes via `imageStore()` to a storage image. Test names: `no_attachments` and `no_attachments_ms`.
 
-### 3. Unused attachment
+### Unused attachment
 
-Creates render pass with VK_ATTACHMENT_UNUSED color attachment reference. Pass-by-completion. Monolithic and shader_object_unlinked_spirv only.
+Creates render pass with VK_ATTACHMENT_UNUSED color attachment reference. Pass-by-completion. Monolithic and shader_object_unlinked_spirv only. Test name: `unused_attachment`.
 
-### 4. Different attachment sizes
+### Different attachment sizes
 
-Multiple color attachments (3) with different sizes. Verifies no leaking between render target clears.
+Multiple color attachments (3) with different sizes. Verifies no leaking between render target clears. Test names follow the pattern `diff_attachments_{1d|2d}_{sizeString}` with optional `_ms` suffix.
 
-### 5. Resolve + input same attachment
+### Resolve + input same attachment
 
-Uses same image as both input attachment and resolve target. Not supported with shader object / dynamic rendering.
+Uses same image as both input attachment and resolve target. Not supported with shader object / dynamic rendering. Test name: `resolve_input_same_attachment`.
 
-### 6. Multi-attachments not exported
+### Multi-attachments not exported
 
-Multiple attachments where some are not declared in the fragment shader. Verifies unused attachments retain their clear color.
+Multiple attachments where some are not declared in the fragment shader. Verifies unused attachments retain their clear color. Test names follow the pattern `multi_attachments_not_exported_{2d}_{sizeString}` with optional `_ms` suffix.
 
 ## Parameter Dimensions
 

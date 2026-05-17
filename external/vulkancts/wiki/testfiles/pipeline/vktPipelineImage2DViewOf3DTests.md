@@ -6,47 +6,32 @@
 
 ## Role
 
-Implementation file.
+Implementation file. The [`createImage2DViewOf3DTests()`](../../../modules/vulkan/pipeline/vktPipelineImage2DViewOf3DTests.cpp#L1014) factory function creates the `image_2d_view_3d_image` group, attached directly under each variant root by [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L123).
 
 ## Source Code
 
 - Primary source: [`vktPipelineImage2DViewOf3DTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineImage2DViewOf3DTests.cpp#L1)
 - Header: [`vktPipelineImage2DViewOf3DTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineImage2DViewOf3DTests.hpp#L1)
 
-## Registration Path
-
-[`createImage2DViewOf3DTests()`](../../../modules/vulkan/pipeline/vktPipelineImage2DViewOf3DTests.cpp#L1014) returns the `image_2d_view_3d_image` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: All variants (VulkanSC only). Compute sub-group is monolithic only.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-image_2d_view_3d_image
-├── compute                              (monolithic only)
-│   ├── storage
-│   │   └── {mip0_layer0, mip0_layer0_sparse, mip0_layer63, ...}
-│   ├── sampler
-│   └── combined_image_sampler
+pipeline.monolithic.image_2d_view_3d_image
+├── compute (monolithic only)
 └── fragment
-    ├── storage
-    ├── sampler
-    └── combined_image_sampler
 ```
+
+**Variant coverage**: All variants (VulkanSC only). The `compute` subgroup is only populated for monolithic pipeline construction type.
 
 ## Test Families
 
-### 1. compute (monolithic only)
+### compute — Compute shader 2D view of 3D image (monolithic only)
 
-Tests 2D image view of 3D image via compute shader dispatch.
+Tests 2D image view of 3D image via compute shader dispatch. Contains three descriptor access type subgroups: `storage` (imageStore/imageLoad), `sampler` (separate sampled image + sampler), and `combined_image_sampler`. Each subgroup contains leaf test cases for mip levels {0, 2} and first/last layer per mip level, with normal and sparse binding variants.
 
-### 2. fragment
+### fragment — Fragment shader 2D view of 3D image
 
-Tests 2D image view of 3D image via fragment shader in a graphics pipeline.
-
-### 3. storage / sampler / combined_image_sampler
-
-Three descriptor access types: storage image (imageStore/imageLoad), separate sampled image + sampler, and combined image sampler.
+Tests 2D image view of 3D image via fragment shader in a graphics pipeline. Contains the same three descriptor access type subgroups as `compute`: `storage`, `sampler`, and `combined_image_sampler`, with the same mip/layer/sparse parameterization.
 
 ## Parameter Dimensions
 

@@ -14,32 +14,24 @@ Implementation file.
 - Header: [`vktPipelineImageViewTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineImageViewTests.hpp#L1)
 - Shared instance: [`vktPipelineImageSamplingInstance.cpp`](../../../modules/vulkan/pipeline/vktPipelineImageSamplingInstance.cpp#L1)
 
-## Registration Path
-
-[`createImageViewTests()`](../../../modules/vulkan/pipeline/vktPipelineImageViewTests.cpp#L760) returns the `image_view` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: Monolithic or base ESO only.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-image_view
+pipeline.monolithic.image_view
 └── view_type
-    └── {1d,1d_array,2d,2d_array,3d,cube,cube_array}
-        └── format/<format>
-            ├── component_swizzle/<4 channel rotation permutations>
-            └── subresource_range/<mip/array/combined/remaining range cases>
 ```
+
+Source: [`createImageViewTests()`](../../../modules/vulkan/pipeline/vktPipelineImageViewTests.cpp#L760).
 
 ## Test Families
 
-### 1. component_swizzle
+### view_type — Image view parameter tests
 
-Tests 4 channel rotation permutations of VkComponentMapping (RGBA identity rotated). The shader applies the swizzle to lookup scale/bias values; reference comparison accounts for swizzle.
+Tests image view parameters across all view types (1d, 1d_array, 2d, 2d_array, 3d, cube, cube_array). Each view type contains format subgroups, which in turn contain `component_swizzle` and `subresource_range` subgroups.
 
-### 2. subresource_range
+The `component_swizzle` subgroup tests 4 channel rotation permutations of VkComponentMapping (RGBA identity rotated). The shader applies the swizzle to lookup scale/bias values; reference comparison accounts for swizzle.
 
-Tests VkImageSubresourceRange parameters: baseMipLevel, mipLevels, baseArrayLayer, arraySize, VK_REMAINING_*. Uses `textureLod()` with specific LOD values to verify correct mip level selection. Cases vary by view type (3D has no array-only; cube uses 6-face granularity).
+The `subresource_range` subgroup tests VkImageSubresourceRange parameters: baseMipLevel, mipLevels, baseArrayLayer, arraySize, VK_REMAINING_*. Uses `textureLod()` with specific LOD values to verify correct mip level selection. Cases vary by view type (3D has no array-only; cube uses 6-face granularity).
 
 ## Parameter Dimensions
 

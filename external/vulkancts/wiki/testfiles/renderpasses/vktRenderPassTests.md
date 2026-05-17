@@ -5,27 +5,67 @@
 - [vktRenderPassTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp)
 - [vktRenderPassTests.hpp](../../../modules/vulkan/renderpass/vktRenderPassTests.hpp)
 
-## Registration
+## Registration Hierarchy
 
-- **Path**: `dEQP-VK.renderpasses`
-- **Function**: `createRenderPassesTests()` at [vktRenderPassTests.cpp#L8692](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8692)
+```text
+renderpasses
+├── renderpass1
+├── renderpass2
+└── dynamic_rendering (non-SC only)
+```
 
 ## Role
 
 Registration file + Implementation file. This file both registers the top-level groups and contains core test implementations.
 
-## Top-Level Groups
+## Test Families
 
-Registered at [vktRenderPassTests.cpp#L8681-L8689](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8681-L8689):
+### renderpass1 — Legacy render pass (RENDERING_TYPE_RENDERPASS_LEGACY)
 
-```
-dEQP-VK.renderpasses
-|-- renderpass1          (RENDERING_TYPE_RENDERPASS_LEGACY)
-|-- renderpass2          (RENDERING_TYPE_RENDERPASS2)
-+-- dynamic_rendering    (RENDERING_TYPE_DYNAMIC_RENDERING, non-SC only)
-```
+Registered at [vktRenderPassTests.cpp#L8685](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8685). Direct children in mustpass:
 
-Each top-level group contains `suballocation` and `dedicated_allocation` subgroups.
+- `custom_resolve` (non-SC, monolithic, no secondary CB)
+- `dedicated_allocation`
+- `depth_stencil_write_conditions` (non-SC only)
+- `dithering` (non-SC only)
+- `fragment_density_map` (non-SC only)
+- `multiple_subpasses_multiple_command_buffers`
+- `nested_command_buffers` (non-SC, monolithic, no secondary CB)
+- `no_draws`
+- `performance_counters_by_region` (non-SC only)
+- `remaining_array_layers`
+- `suballocation`
+
+Both `suballocation` and `dedicated_allocation` contain the core test groups defined in this file: `simple`, `formats`, `attachment`, `attachment_write_mask`, `attachment_allocation`.
+
+### renderpass2 — Render pass 2 (RENDERING_TYPE_RENDERPASS2)
+
+Registered at [vktRenderPassTests.cpp#L8686](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8686). Direct children in mustpass:
+
+- `custom_resolve` (non-SC, monolithic, no secondary CB)
+- `dedicated_allocation`
+- `depth_stencil_resolve`
+- `dithering` (non-SC only)
+- `fragment_density_map` (non-SC only)
+- `multiview_per_view` (non-SC only)
+- `nested_command_buffers` (non-SC, monolithic, no secondary CB)
+- `no_draws`
+- `performance_counters_by_region` (non-SC only)
+- `remaining_array_layers`
+- `suballocation`
+
+Both `suballocation` and `dedicated_allocation` contain the core test groups defined in this file: `simple`, `formats`, `attachment`, `attachment_write_mask`, `attachment_allocation`.
+
+### dynamic_rendering — Dynamic rendering (RENDERING_TYPE_DYNAMIC_RENDERING, non-SC only)
+
+Registered at [vktRenderPassTests.cpp#L8688](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8688). Direct children in mustpass:
+
+- `complete_secondary_cmd_buff`
+- `graphics_pipeline_library`
+- `partial_secondary_cmd_buff`
+- `primary_cmd_buff`
+
+These correspond to different pipeline construction types and command buffer configurations. Each contains `dedicated_allocation` and `suballocation` subgroups with the core test groups.
 
 ## Core Test Groups
 
@@ -63,51 +103,6 @@ Defined in this file and added to both suballocation/dedicated_allocation subgro
 - **Definition**: [vktRenderPassTests.cpp#L8462](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8462)
 - **Function**: [vktRenderPassTests.cpp#L6674](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L6674)
 - Multi-subpass allocation pattern tests: grow, shrink, roll, grow_shrink, input_output_chain, input_output
-
-## Test Hierarchy
-
-```
-dEQP-VK.renderpasses
-|-- renderpass1
-|   |-- suballocation
-|   |   |-- simple
-|   |   |-- formats
-|   |   |-- attachment
-|   |   |-- attachment_write_mask
-|   |   +-- attachment_allocation
-|   +-- dedicated_allocation
-|       |-- simple
-|       |-- formats
-|       |-- attachment
-|       |-- attachment_write_mask
-|       +-- attachment_allocation
-|-- renderpass2
-|   |-- suballocation
-|   |   |-- simple
-|   |   |-- formats
-|   |   |-- attachment
-|   |   |-- attachment_write_mask
-|   |   +-- attachment_allocation
-|   +-- dedicated_allocation
-|       |-- simple
-|       |-- formats
-|       |-- attachment
-|       |-- attachment_write_mask
-|       +-- attachment_allocation
-+-- dynamic_rendering
-    |-- suballocation
-    |   |-- simple
-    |   |-- formats
-    |   |-- attachment
-    |   |-- attachment_write_mask
-    |   +-- attachment_allocation
-    +-- dedicated_allocation
-        |-- simple
-        |-- formats
-        |-- attachment
-        |-- attachment_write_mask
-        +-- attachment_allocation
-```
 
 ## Parameter Dimensions
 

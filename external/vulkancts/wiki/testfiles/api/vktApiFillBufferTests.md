@@ -2,129 +2,78 @@
 
 ## Overview
 
-Tests vkCmdFillBuffer and vkCmdUpdateBuffer commands with various buffer offsets, sizes, allocation strategies, and queue types. Also tests VK_WHOLE_SIZE fill behavior and device address command variants.
+Tests `vkCmdFillBuffer` and `vkCmdUpdateBuffer` commands with different allocation strategies, offsets, sizes, queue types, `VK_WHOLE_SIZE` behavior, and selected device-address-command variants.
 
 ## Role of File
 
-Implementation-heavy. Contains all test logic, helper classes, and the registration function [createFillAndUpdateBufferTests()](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L764).
+Implementation-heavy test file for the `api.fill_and_update_buffer` subgroup. It contains the test logic, helper classes, and the local registration entry point [`createFillAndUpdateBufferTests()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L764).
 
 ## Source Code
 
 - Implementation: [vktApiFillBufferTests.cpp](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L1)
 - Header: [vktApiFillBufferTests.hpp](../../../modules/vulkan/api/vktApiFillBufferTests.hpp#L1)
-- Parent registration: [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L111)
+- Parent registration: [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L111)
+- Local subgroup registration: [`createFillAndUpdateBufferTests()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L764-L900)
 
-## Registration Path
+## Registration Hierarchy
 
-```
-api
-  +-- fill_and_update_buffer
+```text
+api.fill_and_update_buffer
+├── suballocation
+├── suballocation_transfer_queue
+└── dedicated_alloc
 ```
 
-## Test Hierarchy
-
-```
-fill_and_update_buffer
-  +-- suballocation
-  |     +-- fill_buffer_whole
-  |     +-- update_buffer_whole
-  |     +-- fill_buffer_first_one
-  |     +-- update_buffer_first_one
-  |     +-- fill_buffer_second_one
-  |     +-- update_buffer_second_one
-  |     +-- fill_buffer_second_part
-  |     +-- update_buffer_second_part
-  |     +-- fill_buffer_vk_whole_size_*_extra_bytes_offset_*
-  |     +-- update_buffer_vk_whole_size_*_extra_bytes_offset_*
-  +-- suballocation_transfer_queue
-  |     +-- fill_buffer_whole
-  |     +-- update_buffer_whole
-  |     +-- fill_buffer_first_one
-  |     +-- update_buffer_first_one
-  |     +-- fill_buffer_second_one
-  |     +-- update_buffer_second_one
-  |     +-- fill_buffer_second_part
-  |     +-- update_buffer_second_part
-  |     +-- fill_buffer_vk_whole_size_*_extra_bytes_offset_*
-  |     +-- update_buffer_vk_whole_size_*_extra_bytes_offset_*
-  |     +-- fill_buffer_vk_whole_size_device_address
-  |     +-- fill_buffer_second_part_device_address
-  |     +-- update_buffer_second_part_device_address
-  +-- dedicated_alloc
-        +-- fill_buffer_whole
-        +-- update_buffer_whole
-        +-- fill_buffer_whole_device_address
-        +-- update_buffer_whole_device_address
-        +-- fill_buffer_first_one
-        +-- update_buffer_first_one
-        +-- fill_buffer_second_one
-        +-- update_buffer_second_one
-        +-- fill_buffer_second_part
-        +-- update_buffer_second_part
-        +-- fill_buffer_second_part_device_address
-        +-- update_buffer_second_part_device_address
-        +-- fill_buffer_vk_whole_size_*_extra_bytes_offset_*
-```
+The Level-3 root is the `fill_and_update_buffer` subgroup added directly to `api` by [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L111). Its exact direct child groups are `suballocation`, `suballocation_transfer_queue`, and `dedicated_alloc`, registered from the `testGroupData` array and loop in [`createFillAndUpdateBufferTests()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L772-L898). Deeper generated leaves such as `fill_buffer_whole`, `update_buffer_second_part`, `fill_buffer_vk_whole_size_0_extra_bytes_offset_0`, and the limited device-address variants are intentionally described in prose rather than expanded in the canonical tree.
 
 ## Test Families
 
-### Fill Buffer
+### suballocation — Suballocated-buffer coverage on a regular queue
 
-[FillBufferTestCase](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L764) tests vkCmdFillBuffer with various offsets and sizes. [FillWholeBufferTestCase](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L177) specifically tests VK_WHOLE_SIZE with different buffer sizes and offsets.
+The `suballocation` branch is created from the first `testGroupData` entry in [`createFillAndUpdateBufferTests()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L778-L785). It uses [`BufferSuballocation`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L766-L768) with `useTransferOnlyQueue = false` and registers paired fill/update cases for `buffer_whole`, `buffer_first_one`, `buffer_second_one`, and `buffer_second_part` in [`createFillAndUpdateBufferTests()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L801-L853). It also adds the generated `fill_buffer_vk_whole_size_<extra>_extra_bytes_offset_<offset>` cases through the nested `VK_WHOLE_SIZE` loops in [`createFillAndUpdateBufferTests()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L867-L884).
 
-### Update Buffer
+### suballocation_transfer_queue — Suballocated-buffer coverage on a transfer-only queue
 
-[UpdateBufferTestCase](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L764) tests vkCmdUpdateBuffer with the same offset/size parameterization as fill.
+The `suballocation_transfer_queue` branch comes from the second `testGroupData` entry in [`createFillAndUpdateBufferTests()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L778-L785) and sets `useTransferOnlyQueue = true` when building the same core fill/update case matrix in [`createFillAndUpdateBufferTests()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L792-L853). In addition to the regular `VK_WHOLE_SIZE` sweep, this branch adds the dedicated `fill_buffer_vk_whole_size_device_address` case when the transfer-only-queue condition is active at [`createFillAndUpdateBufferTests()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L886-L894). The transfer-queue device setup is implemented through [`createCustomDevice()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L74).
 
-### VK_WHOLE_SIZE Tests
+### dedicated_alloc — Dedicated-allocation coverage with additional device-address variants
 
-[FillWholeBufferTestCase](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L177) tests vkCmdFillBuffer with VK_WHOLE_SIZE, varying the buffer size by adding extra bytes (0-3) and using different offsets. This verifies that VK_WHOLE_SIZE correctly fills from the offset to the end of the buffer.
-
-### Transfer Queue Tests
-
-The `suballocation_transfer_queue` group runs the same tests on a transfer-only queue by creating a custom device with a dedicated transfer queue family, implemented via [createCustomDevice()](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L74).
-
-### Device Address Commands
-
-Some tests use device address commands (VK_KHR_buffer_device_address) instead of regular buffer handles, gated by the `useDeviceAddressCommands` parameter.
+The `dedicated_alloc` branch comes from the third `testGroupData` entry in [`createFillAndUpdateBufferTests()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L778-L785) and switches the allocator to [`BufferDedicatedAllocation`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L766-L768). It registers the same base fill/update matrix as the other groups in [`createFillAndUpdateBufferTests()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L801-L853), adds `fill_buffer_whole_device_address` and `update_buffer_whole_device_address` when `useDedicatedAllocation` is true at [`createFillAndUpdateBufferTests()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L811-L823), and also adds `fill_buffer_second_part_device_address` plus `update_buffer_second_part_device_address` via the dedicated second-part device-address block in [`createFillAndUpdateBufferTests()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L855-L864). Its `VK_WHOLE_SIZE` coverage is still generated by the same nested loops in [`createFillAndUpdateBufferTests()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L867-L884).
 
 ## Parameter Dimensions
 
-| Dimension | Observed Values |
+| Dimension | Observed values / evidence |
 |---|---|
-| Buffer allocator | BufferSuballocation, BufferDedicatedAllocation |
-| Queue type | Universal, transfer-only |
-| Use device address commands | true, false |
-| Fill offset | 0, 4, dstSize/2 |
-| Fill size | TEST_DATA_SIZE (256), 4, dstSize/2, VK_WHOLE_SIZE |
-| Extra bytes for VK_WHOLE_SIZE | 0, 1, 2, 3 |
-| VK_WHOLE_SIZE offset | 0, 4 |
+| Registered direct child groups | `suballocation`, `suballocation_transfer_queue`, `dedicated_alloc` from `testGroupData` in [vktApiFillBufferTests.cpp](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L772-L785) |
+| Buffer allocator | [`BufferSuballocation`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L767) and [`BufferDedicatedAllocation`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L768) |
+| Queue mode | `useTransferOnlyQueue = false` and `true` from `testGroupData` in [vktApiFillBufferTests.cpp](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L775-L785) |
+| Device-address-command mode | `useDeviceAddressCommands = false` by default, with selected `true` cases added in [vktApiFillBufferTests.cpp](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L795-L823) and [vktApiFillBufferTests.cpp](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L855-L864) |
+| Destination offset | `0`, `4`, `dstSize / 2`, and `j * sizeof(uint32_t)` for `j = 0..3` in [vktApiFillBufferTests.cpp](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L804-L805), [vktApiFillBufferTests.cpp](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L828-L839), [vktApiFillBufferTests.cpp](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L848-L849), and [vktApiFillBufferTests.cpp](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L870-L876) |
+| Operation size | `dstSize`, `4`, `dstSize / 2`, and `VK_WHOLE_SIZE` in [vktApiFillBufferTests.cpp](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L804-L805), [vktApiFillBufferTests.cpp](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L828-L839), [vktApiFillBufferTests.cpp](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L848-L849), and [vktApiFillBufferTests.cpp](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L874-L876) |
+| `VK_WHOLE_SIZE` destination size variants | `TestParams::TEST_DATA_SIZE + i` for `i = 0..3` in [vktApiFillBufferTests.cpp](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L870-L880) |
+| Initial data pattern | `data[b] = (uint8_t)(b % 255)` across the destination contents in [vktApiFillBufferTests.cpp](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L797-L800) |
 
 ## Support / Feature Requirements
 
-| Feature / Extension | Used By |
-|---|---|
-| VK_KHR_buffer_device_address | Device address command variants |
-| Transfer-only queue | suballocation_transfer_queue group |
-| VK_KHR_synchronization2 | Custom device creation for transfer queue |
+- Device-address-command variants require [`requireDeviceFunctionality("VK_KHR_device_address_commands")`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L749-L750) in [`UpdateBufferTestCase::checkSupport()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L747-L751).
+- The transfer-only-queue branch relies on the custom-device path implemented by [`createCustomDevice()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L74), which is used when `useTransferOnlyQueue` is enabled.
+- The command-recording path treats transfer-only-queue destination flags specially by clearing them when `m_params.useTransferOnlyQueue` is true in [`UpdateBufferTestInstance::iterate()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L700-L705).
 
 ## Verification Methods
 
-- **Memory comparison**: After fill/update, buffer contents are mapped and compared against expected values
-- **VK_CHECK**: API calls are verified for success
-- **Byte-level verification**: Fill value is checked at every 4-byte boundary; update data is checked byte-by-byte
+- Buffer results are read back after command submission by invalidating the allocation and copying the mapped contents into a texture level in [`UpdateBufferTestInstance::iterate()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L713-L722).
+- Update-buffer expected contents are constructed by copying the original destination image and then overwriting the target range with `deMemcpy()` in [`UpdateBufferTestInstance::generateExpectedResult()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L725-L736).
+- The final comparison is performed through [`checkTestResult()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L722), after the command buffer records the transfer operation and a transfer-to-host barrier in [`UpdateBufferTestInstance::iterate()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L705-L713).
 
 ## Test Principles Observed
 
-- Offset and size coverage: tests cover whole buffer, first element, second element, and partial buffer
-- VK_WHOLE_SIZE edge cases: tests with non-aligned buffer sizes and non-zero offsets
-- Queue coverage: transfer-only queue is tested separately
-- Allocation strategy coverage: both suballocated and dedicated allocation are tested
-- Device address variant: some tests use device address commands for additional coverage
+- The file builds a shared fill/update matrix across three direct child groups that vary allocation mode and queue availability.
+- It covers whole-buffer, first-word, second-word, and second-half writes, then adds a generated `VK_WHOLE_SIZE` sweep over extra trailing bytes and start offsets.
+- Device-address-command coverage is intentionally selective rather than exhaustive: only dedicated-allocation whole/second-part variants and the transfer-queue `VK_WHOLE_SIZE` variant are generated.
+- The test design checks both ordinary queues and a transfer-only queue path under the same registration root.
 
 ## Notes / Uncertainties
 
-- The factory function is named `createFillAndUpdateBufferTests` but the group name is `fill_and_update_buffer`
-- The TEST_DATA_SIZE constant is 256 uint32_t values (1024 bytes)
-- Device address command tests are only generated for dedicated allocation and transfer queue groups
-- The VK_WHOLE_SIZE tests generate multiple test cases per offset/extra-bytes combination
+- The factory symbol [`createFillAndUpdateBufferTests()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L764) registers the displayed subgroup name `fill_and_update_buffer`, so the symbol name and path component are not identical.
+- The legacy wiki page previously listed `update_buffer_vk_whole_size_*_extra_bytes_offset_*` leaves, but the current inspected registration loop adds only `fill_buffer_vk_whole_size_<extra>_extra_bytes_offset_<offset>` cases in [`createFillAndUpdateBufferTests()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L867-L884).
+- The dedicated `fill_buffer_second_part_device_address` and `update_buffer_second_part_device_address` variants are created inside the shared group-building loop before the `VK_WHOLE_SIZE` block, so they appear only in branches where device-address commands are explicitly enabled by the code in [`createFillAndUpdateBufferTests()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L855-L864).

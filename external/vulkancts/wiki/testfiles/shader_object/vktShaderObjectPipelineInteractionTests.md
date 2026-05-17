@@ -19,60 +19,41 @@ Implementation-heavy test file for the root-level `pipeline_interaction` branch.
 - [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L47-L63)
 - [CMakeLists.txt](../../../modules/vulkan/shader_object/CMakeLists.txt#L6-L44)
 
-## Registration Path
+## Registration Hierarchy
 
 ```text
-shader_object
-+-- pipeline_interaction
-    +-- shader_object
-    +-- max_pipeline
-    +-- max_pipeline_shader_object_max_pipeline
-    +-- shader_object_max_pipeline_shader_object
-    +-- min_pipeline_shader_object
-    +-- shader_object_min_pipeline
-    +-- render_pass_pipeline_shader_object
-    +-- render_pass_pipeline_shader_object_after_begin
-    +-- compute_shader_object_min_pipeline
-    +-- shader_object_compute_pipeline
-    +-- vert
-    +-- vert_tess
-    +-- vert_geom
-    +-- vert_frag
-    +-- vert_tess_geom
-    +-- vert_tess_frag
-    +-- vert_geom_frag
-    +-- vert_tess_geom_frag
-```
-
-Explicit registration path prefixes for verifier extraction:
-
-```text
-`shader_object.pipeline_interaction`
-`shader_object.pipeline_interaction.shader_object`
-`shader_object.pipeline_interaction.max_pipeline`
-`shader_object.pipeline_interaction.compute_shader_object_min_pipeline`
-`shader_object.pipeline_interaction.vert_tess_geom_frag`
+shader_object.pipeline_interaction
+├── shader_object
+├── max_pipeline
+├── max_pipeline_shader_object_max_pipeline
+├── shader_object_max_pipeline_shader_object
+├── min_pipeline_shader_object
+├── shader_object_min_pipeline
+├── render_pass_pipeline_shader_object
+├── render_pass_pipeline_shader_object_after_begin
+├── compute_shader_object_min_pipeline
+├── shader_object_compute_pipeline
+├── vert
+├── vert_tess
+├── vert_geom
+├── vert_frag
+├── vert_tess_geom
+├── vert_tess_frag
+├── vert_geom_frag
+└── vert_tess_geom_frag
 ```
 
 The displayed branch name is verified from `TestCaseGroup(testCtx, "pipeline_interaction")` at [vktShaderObjectPipelineInteractionTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPipelineInteractionTests.cpp#L1506-L1508). The root file registers this branch directly at [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L56).
 
-## Test Hierarchy
-
-```text
-pipeline_interaction
-+-- TestType sequencing cases from tests[]
-+-- stage-binding cases from shaderBindTests[]
-```
-
 ## Test Families
 
-### Pipeline and shader-object sequencing
+### shader_object — Pipeline and shader-object sequencing
 
-`tests[]` maps the ten `TestType` values to case names at [vktShaderObjectPipelineInteractionTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPipelineInteractionTests.cpp#L1510-L1533). The enum itself shows the covered ordering categories: shader objects, maximum pipelines, minimum pipelines, render-pass pipelines, and compute combinations at [vktShaderObjectPipelineInteractionTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPipelineInteractionTests.cpp#L45-L57). The draw count expected by image verification is selected from `TestType` in `getDrawCount()` at [vktShaderObjectPipelineInteractionTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPipelineInteractionTests.cpp#L102-L128).
+`tests[]` maps the ten `TestType` values to case names: `shader_object`, `max_pipeline`, `max_pipeline_shader_object_max_pipeline`, `shader_object_max_pipeline_shader_object`, `min_pipeline_shader_object`, `shader_object_min_pipeline`, `render_pass_pipeline_shader_object`, `render_pass_pipeline_shader_object_after_begin`, `compute_shader_object_min_pipeline`, and `shader_object_compute_pipeline` at [vktShaderObjectPipelineInteractionTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPipelineInteractionTests.cpp#L1510-L1533). The enum itself shows the covered ordering categories: shader objects, maximum pipelines, minimum pipelines, render-pass pipelines, and compute combinations at [vktShaderObjectPipelineInteractionTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPipelineInteractionTests.cpp#L45-L57). The draw count expected by image verification is selected from `TestType` in `getDrawCount()` at [vktShaderObjectPipelineInteractionTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPipelineInteractionTests.cpp#L102-L128).
 
-### Stage-binding subsets
+### vert — Stage-binding subsets
 
-`shaderBindTests[]` registers eight stage-presence combinations over vertex, tessellation, geometry, and fragment stages at [vktShaderObjectPipelineInteractionTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPipelineInteractionTests.cpp#L1535-L1549). These cases use `StageTestParams` booleans defined at [vktShaderObjectPipelineInteractionTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPipelineInteractionTests.cpp#L64-L70).
+`shaderBindTests[]` registers eight stage-presence combinations: `vert`, `vert_tess`, `vert_geom`, `vert_frag`, `vert_tess_geom`, `vert_tess_frag`, `vert_geom_frag`, and `vert_tess_geom_frag` over vertex, tessellation, geometry, and fragment stages at [vktShaderObjectPipelineInteractionTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPipelineInteractionTests.cpp#L1535-L1549). These cases use `StageTestParams` booleans defined at [vktShaderObjectPipelineInteractionTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPipelineInteractionTests.cpp#L64-L70).
 
 ## Parameter Dimensions
 

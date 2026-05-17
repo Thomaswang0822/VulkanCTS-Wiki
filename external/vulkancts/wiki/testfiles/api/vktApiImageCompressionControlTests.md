@@ -14,53 +14,13 @@ Implementation-heavy. Contains all test logic, support checking, and registratio
 - Header: [vktApiImageCompressionControlTests.hpp](../../../modules/vulkan/api/vktApiImageCompressionControlTests.hpp#L1)
 - Parent registration: [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L129) adds `image_compression_control` group to `api`
 
-## Registration Path
+## Registration Hierarchy
 
-```
-api
- +-- image_compression_control
-      +-- create_image
-      |    +-- no_compression_control
-      |    +-- default
-      |    +-- fixed_rate_default
-      |    +-- disabled
-      |    +-- explicit
-      +-- android_hardware_buffer
-      |    +-- default
-      |    +-- fixed_rate_default
-      |    +-- disabled
-      |    +-- explicit
-      +-- swapchain
-           +-- <wsi_type>
-                +-- default
-                +-- fixed_rate_default
-                +-- disabled
-                +-- explicit
-```
-
-## Test Hierarchy
-
-```
-image_compression_control
- +-- create_image
- |    +-- no_compression_control  -- images created without compression control struct
- |    +-- default                 -- VK_IMAGE_COMPRESSION_DEFAULT_EXT
- |    +-- fixed_rate_default      -- VK_IMAGE_COMPRESSION_FIXED_RATE_DEFAULT_EXT
- |    +-- disabled                -- VK_IMAGE_COMPRESSION_DISABLED_EXT
- |    +-- explicit                -- VK_IMAGE_COMPRESSION_FIXED_RATE_EXPLICIT_EXT
- |         (each contains per-format subtests for core, YCbCr, and YCbCr extended formats)
- +-- android_hardware_buffer
- |    +-- default
- |    +-- fixed_rate_default
- |    +-- disabled
- |    +-- explicit
- |         (each contains per-AHB-format subtests)
- +-- swapchain
-      +-- <wsi_type>              (one subgroup per WSI platform)
-           +-- default
-           +-- fixed_rate_default
-           +-- disabled
-           +-- explicit
+```text
+api.image_compression_control
+├── create_image
+├── android_hardware_buffer
+└── swapchain
 ```
 
 ## Test Families
@@ -69,13 +29,19 @@ image_compression_control
 
 Tests image creation with `VkImageCompressionControlEXT` in the pNext chain. For each compression flag, iterates over core formats, YCbCr formats, and YCbCr extended formats (skipping compressed formats). Creates an image, then queries `VkImageCompressionPropertiesEXT` via `vkGetImageSubresourceLayout2` and `vkGetPhysicalDeviceImageFormatProperties2`. Validates that reported compression properties are consistent with the requested control flags. Implemented by [imageCreateTest()](../../../modules/vulkan/api/vktApiImageCompressionControlTests.cpp#L367) and [validate()](../../../modules/vulkan/api/vktApiImageCompressionControlTests.cpp#L102).
 
+Child groups: `no_compression_control` (images created without compression control struct), `default` (VK_IMAGE_COMPRESSION_DEFAULT_EXT), `fixed_rate_default` (VK_IMAGE_COMPRESSION_FIXED_RATE_DEFAULT_EXT), `disabled` (VK_IMAGE_COMPRESSION_DISABLED_EXT), `explicit` (VK_IMAGE_COMPRESSION_FIXED_RATE_EXPLICIT_EXT). Each contains per-format subtests for core, YCbCr, and YCbCr extended formats.
+
 ### android_hardware_buffer
 
 Tests image creation with compression control for Android Hardware Buffer external memory. Iterates over AHB-compatible formats. Creates an AHB, imports it as a Vulkan image with compression control, and validates compression properties. Implemented by [ahbImageCreateTest()](../../../modules/vulkan/api/vktApiImageCompressionControlTests.cpp#L293).
 
+Child groups: `default`, `fixed_rate_default`, `disabled`, `explicit`. Each contains per-AHB-format subtests.
+
 ### swapchain
 
 Tests swapchain image compression control. Creates a swapchain with `VkImageCompressionControlEXT` in the pNext chain, retrieves swapchain images, and validates their compression properties. Requires `VK_EXT_image_compression_control_swapchain`. Implemented by [swapchainCreateTest()](../../../modules/vulkan/api/vktApiImageCompressionControlTests.cpp#L592).
+
+Child groups: one subgroup per WSI platform type. Each WSI subgroup contains `default`, `fixed_rate_default`, `disabled`, and `explicit` child groups.
 
 ## Parameter Dimensions
 

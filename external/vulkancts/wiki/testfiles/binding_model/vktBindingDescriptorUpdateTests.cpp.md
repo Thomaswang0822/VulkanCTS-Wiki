@@ -6,21 +6,33 @@ Covers descriptor update corner cases: empty bindings, samplerless writes, rando
 
 - [`vktBindingDescriptorUpdateTests.cpp`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp)
 
-## Verified Group Name
+## Registration Hierarchy
 
-| Group | Availability | Evidence |
-|-------|--------------|----------|
-| `descriptor_update` | VK + VKSC, with nested VK-only AS group | Created in [`vktBindingDescriptorUpdateTests.cpp:1909`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L1909); factory entry at [`vktBindingDescriptorUpdateTests.cpp:1907`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L1907) |
-
-## Registration Path
-
-```
-binding_model → descriptor_update
+```text
+binding_model.descriptor_update
+├── empty_descriptor
+├── samplerless
+├── random
+└── acceleration_structure (VK only)
 ```
 
-## Test Hierarchy
+## Test Families
 
-The file creates `descriptor_update` and adds `empty_descriptor`, `samplerless`, `random`, and, outside `CTS_USES_VULKANSC`, `acceleration_structure`. Evidence starts at [`vktBindingDescriptorUpdateTests.cpp:1911`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L1911) and continues through [`vktBindingDescriptorUpdateTests.cpp:1916`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L1916).
+### empty_descriptor — Empty descriptor update tests
+
+Created in [`vktBindingDescriptorUpdateTests.cpp:141`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L141). Contains a single test case `uniform_buffer` that verifies descriptor update behavior with empty bindings. The test should always pass, confirming that updating an empty descriptor does not cause errors.
+
+### samplerless — Samplerless write tests
+
+Created in [`vktBindingDescriptorUpdateTests.cpp:885`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L885). Tests descriptor write operations on samplerless descriptor types. Generated from a combinatorial sweep over descriptor types (`sampled_img`, `storage_img`, `input_attachment`), pointer cases (`sampler_zero`, `sampler_one`, `sampler_destroyed`), descriptor set indices (0, 1), layout variants, and pipeline types (graphics, compute).
+
+### random — Random descriptor update tests
+
+Created in [`vktBindingDescriptorUpdateTests.cpp:1898`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L1898). Updates descriptors randomly between draws. Contains two test cases: `uniform_buffer_graphics` (graphics pipeline) and `uniform_buffer_compute` (compute pipeline).
+
+### acceleration_structure — Acceleration structure update tests (VK only)
+
+Created in [`vktBindingDescriptorUpdateASTests.cpp:2568`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L2568). Nested under `#ifndef CTS_USES_VULKANSC` guard at [`vktBindingDescriptorUpdateTests.cpp:1914`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L1914). Tests descriptor update behavior with acceleration structures. This group is excluded from Vulkan SC builds.
 
 ## Parameter Dimensions
 

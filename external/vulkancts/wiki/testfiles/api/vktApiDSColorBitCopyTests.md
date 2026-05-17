@@ -14,31 +14,25 @@ Implementation-heavy. Contains all test logic, helper types, and the registratio
 - Header: [vktApiDSColorBitCopyTests.hpp](../../../modules/vulkan/api/vktApiDSColorBitCopyTests.hpp#L1)
 - Parent registration: [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L109)
 
-## Registration Path
+## Registration Hierarchy
 
-```
-api
-  +-- ds_color_copy
-```
-
-## Test Hierarchy
-
-```
-ds_color_copy
-  +-- <srcFormat>_<dstFormat>_<aspect>_level<srcMip>_to_level<dstMip>[_unrestricted][_att_usage][_cq|_tq]
+```text
+api.ds_color_copy
 ```
 
-Test names are auto-generated from format pairs, aspect, mip levels, and queue type. For example: `d32_sfloat_r32_sfloat_depth_level0_to_level0`.
+This file registers the top-level `ds_color_copy` subgroup directly under `api` via [createDSColorBitCopyTests()](../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L875-L877). The remaining test names are generated leaf cases within that subgroup rather than separately registered child groups.
 
 ## Test Families
 
-### Depth/Stencil to Color Bit Copy
+The file does not register any direct child subgroups under `ds_color_copy`; instead, [createDSColorBitCopyTests()](../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L875-L910) generates leaf tests directly in the `ds_color_copy` group by iterating format pairs, copy direction, mip levels, attachment usage, unrestricted-depth mode, and queue type.
+
+### generated_leaf_cases — Generated depth/stencil-color copy permutations
 
 [DSColorCopyInstance::iterate()](../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L604) performs a round-trip copy: source buffer to source image, source image to destination image via vkCmdCopyImage, then destination image to destination buffer. The test compares source and destination pixel values bit-for-bit.
 
 [DSColorCopyCase::checkSupport()](../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L362) verifies that both source and destination formats support the required image usage and mip levels, and checks queue-specific format feature flags for compute-only and transfer-only queues.
 
-### Format Groups
+### format_groups — Depth/stencil-color format pairing sets
 
 [getFormatGroups()](../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L67) defines four format groups that pair depth/stencil formats with compatible color formats:
 
@@ -92,5 +86,6 @@ Test names are auto-generated from format pairs, aspect, mip levels, and queue t
 
 - The group name in the source code is `ds_color_copy` at [line 877](../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L877), not `ds_color_bit_copy` as the filename might suggest
 - The factory function is named `createDSColorBitCopyTests` but the group name is `ds_color_copy`
+- This Level-3 page documents the registered subgroup `api.ds_color_copy`, which has no separately registered direct child groups in the inspected file; generated test names are leaf cases only
 - When using a transfer queue with a depth/stencil source image, a staging image workaround is used because vkCmdCopyBufferToImage cannot be called on a transfer queue with DS images (VUID-vkCmdCopyBufferToImage-commandBuffer-07739)
 - The base image extent is 16x16; mip levels scale the source and destination image sizes accordingly

@@ -4,20 +4,19 @@
 
 [vktRenderPassSparseRenderTargetTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassSparseRenderTargetTests.cpp)
 
-## Registration
+## Registration Hierarchy
 
-Added to `suballocation` subgroup (monolithic pipeline, non-SC).
+```text
+renderpasses.renderpass1.suballocation.sparserendertarget
+```
 
-Registered group name: `"sparserendertarget"` ([L870](../../../modules/vulkan/renderpass/vktRenderPassSparseRenderTargetTests.cpp#L870))
+Available under `renderpass1` and `renderpass2` suballocation subgroups (non-SC, monolithic pipeline). Representative root shown for `renderpass1`. Registered at [L870](../../../modules/vulkan/renderpass/vktRenderPassSparseRenderTargetTests.cpp#L870).
 
 ## Test Families
 
-```
-sparserendertarget
-+-- SparseRenderTargetTestInstance
-    Tests render pass with sparse-resident color images.
-    Each supported format becomes an individual test case.
-```
+### sparserendertarget — Sparse-resident color image render pass tests
+
+Tests render pass with sparse-resident color images. Each supported format becomes an individual test case. 44 color formats are tested ([L797-L848](../../../modules/vulkan/renderpass/vktRenderPassSparseRenderTargetTests.cpp#L797-L848)), with test names derived from lowercasing the format enum (e.g., `r8_unorm`, `r16g16b16a16_sfloat`, `a8_unorm_khr`).
 
 ## Parameter Dimensions
 

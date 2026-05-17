@@ -22,40 +22,35 @@ The factory function [createCrossInstanceSharingTest](../../../modules/vulkan/sy
 - Operation framework: [vktSynchronizationOperation.hpp](../../../modules/vulkan/synchronization/vktSynchronizationOperation.hpp)
 - External memory utilities: [vktExternalMemoryUtil.hpp](../../../modules/vulkan/util/vktExternalMemoryUtil.hpp)
 
-## Registration Path
+## Registration Hierarchy
 
-```
-synchronization.cross_instance          (LEGACY, non-SC)
-synchronization2.cross_instance         (SYNCHRONIZATION2, non-SC)
-```
-
-Both paths are created by the same factory function invoked with different `SynchronizationType` values. This group is not registered for Vulkan SC.
-
-## Test Hierarchy
-
-```
-cross_instance
-|-- dedicated
-|   |-- <writeOp>_<readOp>
-|       |-- <resourceName>_<semaphoreType>_<handleTypeSuffix>
-|-- suballocated
-    |-- <writeOp>_<readOp>
-        |-- <resourceName>_<semaphoreType>_<handleTypeSuffix>
+```text
+synchronization.cross_instance
+├── dedicated (non-VulkanSC only)
+└── suballocated (non-VulkanSC only)
 ```
 
-Where:
-- `<semaphoreType>` is `_binary_semaphore` or `_timeline_semaphore`
-- `<handleTypeSuffix>` is one of the platform-specific handle type suffixes (see External Handle Types below)
+This group is also registered under `synchronization2.cross_instance` with `SynchronizationType::SYNCHRONIZATION2`. Both paths are created by the same factory function [createCrossInstanceSharingTest](../../../modules/vulkan/synchronization/vktSynchronizationCrossInstanceSharingTests.cpp#L1288) invoked with different `SynchronizationType` values. The entire `cross_instance` group is excluded from Vulkan SC builds (`#ifndef CTS_USES_VULKANSC`).
+
+Evidence:
+- `cross_instance` group created at [`createCrossInstanceSharingTest()`](../../../modules/vulkan/synchronization/vktSynchronizationCrossInstanceSharingTests.cpp#L1288)
+- `dedicated` and `suballocated` subgroups added in [`createTests()`](../../../modules/vulkan/synchronization/vktSynchronizationCrossInstanceSharingTests.cpp#L1200) at [line 1230](../../../modules/vulkan/synchronization/vktSynchronizationCrossInstanceSharingTests.cpp#L1230)
 
 ## Test Families
 
-### Dedicated Allocation Family (`dedicated`)
+### dedicated — Dedicated allocation cross-instance sharing
 
 Tests cross-instance sharing with **dedicated memory allocations** (`VkMemoryDedicatedAllocateInfo`). The external memory is allocated with a dedicated allocation that is bound to the specific buffer or image resource.
 
-### Suballocated Family (`suballocated`)
+Each `dedicated` test is further organized as `<writeOp>_<readOp>` groups, with leaf tests named `<resourceName>_<semaphoreType>_<handleTypeSuffix>`:
+- `<semaphoreType>` is `_binary_semaphore` or `_timeline_semaphore`
+- `<handleTypeSuffix>` is one of the platform-specific handle type suffixes (see External Handle Types below)
+
+### suballocated — Suballocated cross-instance sharing
 
 Tests cross-instance sharing with **suballocated memory** (no dedicated allocation). The external memory is allocated without binding to a specific resource. If the external memory type requires dedicated allocation only (`VK_EXTERNAL_MEMORY_FEATURE_DEDICATED_ONLY_BIT`), the test is skipped via `checkSupport`.
+
+Each `suballocated` test follows the same `<writeOp>_<readOp>` / `<resourceName>_<semaphoreType>_<handleTypeSuffix>` naming structure as `dedicated`.
 
 Both families share the same test logic implemented in [SharingTestInstance](../../../modules/vulkan/synchronization/vktSynchronizationCrossInstanceSharingTests.cpp#L646).
 

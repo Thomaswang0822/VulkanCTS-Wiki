@@ -16,32 +16,22 @@ Implementation-heavy. Contains both the test case registration and the full test
 | [vktApiMaintenance6Check.hpp](../../../modules/vulkan/api/vktApiMaintenance6Check.hpp#L1) | Declares `createMaintenance6Tests` |
 | [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L131) | Parent registration: `apiTests->addChild(createMaintenance6Tests(testCtx))` |
 
-## Registration Path
+## Registration Hierarchy
 
-```
-api
-  +-- maintenance6_check
-       +-- maintenance6_properties
-```
-
-## Test Hierarchy
-
-```
-maintenance6_check
-  +-- maintenance6_properties
-       Verifies maxCombinedImageSamplerDescriptorCount >=
-       combinedImageSamplerDescriptorCount for all YCbCr formats
+```text
+api.maintenance6_check
+└── maintenance6_properties (non-VulkanSC only)
 ```
 
 ## Test Families
 
-### maintenance6_check
+Group `maintenance6_check` registered at [vktApiMaintenance6Check.cpp:145](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L145): `new tcu::TestCaseGroup(testCtx, "maintenance6_check", "Maintenance6 Tests")`.
 
-Group name verified at [vktApiMaintenance6Check.cpp:145](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L145): `new tcu::TestCaseGroup(testCtx, "maintenance6_check", "Maintenance6 Tests")`.
+### maintenance6_properties — Maintenance6 property validation
 
-Contains a single test case `maintenance6_properties` registered at [vktApiMaintenance6Check.cpp:146](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L146).
+Registered at [vktApiMaintenance6Check.cpp:146](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L146).
 
-The test instance `Maintenance7MaxCombinedImageSamplerDescriptorCountTestInstance` at [vktApiMaintenance6Check.cpp:52](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L52):
+The test instance `Maintenance6MaxCombinedImageSamplerDescriptorCountTestInstance` at [vktApiMaintenance6Check.cpp:52](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L52):
 1. Queries `VkPhysicalDeviceMaintenance6PropertiesKHR` via `getPhysicalDeviceProperties2` ([line 66](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L66))
 2. Iterates over three YCbCr format ranges defined at [lines 68-81](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L68):
    - YCbCr formats: `VK_FORMAT_G8B8G8R8_422_UNORM` through `VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM`

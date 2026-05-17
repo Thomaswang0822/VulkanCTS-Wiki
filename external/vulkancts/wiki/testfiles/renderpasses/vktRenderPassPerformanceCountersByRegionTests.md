@@ -4,23 +4,23 @@
 
 [vktRenderPassPerformanceCountersByRegionTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp)
 
-## Registration
+## Registration Hierarchy
 
-Added to root group (non-SC).
+```text
+renderpasses.renderpass1.performance_counters_by_region
+└── r8g8b8a8_unorm
+```
 
-Registered group name: `"performance_counters_by_region"` ([L1618](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1618))
+Registered in all three rendering-type roots (non-SC) via [`createRenderPassPerformanceCountersByRegionTests`](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1615). The single direct child `r8g8b8a8_unorm` is a format-named subgroup created in [`initTests`](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1581).
 
 ## Test Families
 
-```
-performance_counters_by_region
-+-- PerformanceCountersByRegionRenderPassTestInstance
-    Tests VK_ARM_performance_counters_by_region with render passes.
-    +-- layers_1
-    |   Single layer configuration.
-    +-- layers_2
-        Two layer configuration.
-```
+### r8g8b8a8_unorm — R8G8B8A8_UNORM format tests
+
+Contains layer-count tests for VK_ARM_performance_counters_by_region with the sole tested format VK_FORMAT_R8G8B8A8_UNORM ([L1583](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1583)):
+
+- **layers_1** — Single layer configuration ([L1598-L1607](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1598-L1607)).
+- **layers_2** — Two layer configuration ([L1598-L1607](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1598-L1607)).
 
 ## Parameter Dimensions
 

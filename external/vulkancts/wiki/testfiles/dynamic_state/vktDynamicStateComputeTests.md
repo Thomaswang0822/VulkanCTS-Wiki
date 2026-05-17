@@ -8,128 +8,35 @@
 
 Implementation file.
 
-## Registration Path
-
-This file contributes the group returned by [`createDynamicStateComputeTests()`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L1188) (named `"compute_transfer"`), which is conditionally attached under the `monolithic` and `shader_object_unlinked_spirv` pipeline construction type subgroups by [`createChildren()`](../../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L63).
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-compute_transfer
+dynamic_state.monolithic.compute_transfer
 ├── single
-│   ├── compute
-│   │   ├── viewport
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── scissor
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── line_width
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── depth_bias
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── blend_constants
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── depth_bounds
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── stencil_compare_mask
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── stencil_write_mask
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── stencil_reference
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── discard_rectangle_ext
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── sample_locations_ext
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── ray_tracing_pipeline_stack_size_khr  (non-VulkanSC)
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── fragment_shading_rate_khr
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── line_stipple_ext
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── cull_mode_ext
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── front_face_ext
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── primitive_topology_ext
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── viewport_with_count_ext
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── scissor_with_count_ext
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── vertex_input_binding_stride_ext
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── depth_test_enable_ext
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── depth_write_enable_ext
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── depth_compare_op_ext
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── depth_bounds_test_enable_ext
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── stencil_test_enable_ext
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── stencil_op_ext
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── viewport_w_scaling_nv          (non-VulkanSC)
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── viewport_shading_rate_palette_nv  (non-VulkanSC)
-│   │   │   ├── before
-│   │   │   └── after
-│   │   ├── viewport_coarse_sample_order_nv   (non-VulkanSC)
-│   │   │   ├── before
-│   │   │   └── after
-│   │   └── exclusive_scissor_nv              (non-VulkanSC)
-│   │       ├── before
-│   │       └── after
-│   └── transfer
-│       └── (same state subgroups as compute)
 └── multi
-    ├── compute
-    │   ├── before
-    │   └── after
-    └── transfer
-        ├── before
-        └── after
 ```
 
 Source: [`createDynamicStateComputeTests()`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L1188).
 
+Note: This group is only registered for `monolithic` and `shader_object_unlinked_spirv` pipeline construction types.
+
 ## Test Families
 
-### 1. Single-state tests
+### single — Single-state tests
 
-The `single` subgroup tests one dynamic state at a time. For each of the 27-30 dynamic states in [`dynamicStateList[]`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L474), it creates tests under both `compute` and `transfer` operations, with `before` and `after` variants.
+The [`single`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L1216) subgroup tests one dynamic state at a time. For each of the 27-30 dynamic states in [`dynamicStateList[]`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L474), it creates tests under both `compute` and `transfer` operations, with `before` and `after` variants. The hierarchy under `single` is:
 
-### 2. Multi-state tests
+- `single.compute.{state_name}.before` / `single.compute.{state_name}.after` — for each dynamic state
+- `single.transfer.{state_name}.before` / `single.transfer.{state_name}.after` — for each dynamic state
 
-The `multi` subgroup tests multiple dynamic states together. It uses the first 10 "basic" states (viewport through stencil_reference) that have no extension requirements, testing them all at once under both `compute` and `transfer` operations.
+The dynamic state names include: `viewport`, `scissor`, `line_width`, `depth_bias`, `blend_constants`, `depth_bounds`, `stencil_compare_mask`, `stencil_write_mask`, `stencil_reference`, `discard_rectangle_ext`, `sample_locations_ext`, `ray_tracing_pipeline_stack_size_khr` (non-VulkanSC), `fragment_shading_rate_khr`, `line_stipple_ext`, `cull_mode_ext`, `front_face_ext`, `primitive_topology_ext`, `viewport_with_count_ext`, `scissor_with_count_ext`, `vertex_input_binding_stride_ext`, `depth_test_enable_ext`, `depth_write_enable_ext`, `depth_compare_op_ext`, `depth_bounds_test_enable_ext`, `stencil_test_enable_ext`, `stencil_op_ext`, `viewport_w_scaling_nv` (non-VulkanSC), `viewport_shading_rate_palette_nv` (non-VulkanSC), `viewport_coarse_sample_order_nv` (non-VulkanSC), `exclusive_scissor_nv` (non-VulkanSC).
+
+### multi — Multi-state tests
+
+The [`multi`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L1252) subgroup tests multiple dynamic states together. It uses the first 10 "basic" states (viewport through stencil_reference) that have no extension requirements, testing them all at once under both `compute` and `transfer` operations. The hierarchy under `multi` is:
+
+- `multi.compute.before` / `multi.compute.after`
+- `multi.transfer.before` / `multi.transfer.after`
 
 ## Parameter Dimensions
 

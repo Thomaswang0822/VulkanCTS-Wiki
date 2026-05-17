@@ -13,25 +13,18 @@ Implementation file.
 - Primary source: [`vktPipelineMultisampleResolveRenderAreaTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L1)
 - Header: [`vktPipelineMultisampleResolveRenderAreaTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.hpp#L1)
 
-## Registration Path
-
-[`createMultisampleResolveRenderpassRenderAreaTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L514) returns the `resolve` group, added to the `multisample` group by `createMultisampleTests()`.
-
-**Variant coverage**: All variants.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-resolve
+pipeline.monolithic.multisample.resolve
 └── renderpass_renderarea
-    └── {shape}_{sample_count}
 ```
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| MultisampleRenderAreaTest | Verifies multisample resolve with render areas smaller than attachment size |
+### renderpass_renderarea — Renderpass render area tests
+
+Contains individual test cases that verify multisample resolve correctness when the render area is smaller than the attachment size. Each test case is named `{shape}_{sample_count}`, combining a shape type (`rectangle`, `diamond`, `parallelogram`) with a sample count (`samples_2`, `samples_4`, `samples_8`, `samples_16`). The test renders a shape within a restricted render area, performs a multisample resolve, and verifies that the resolved image matches expected values within the render area while pixels outside the render area remain unaffected.
 
 ## Parameter Dimensions
 

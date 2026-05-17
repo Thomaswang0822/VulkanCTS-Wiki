@@ -4,23 +4,21 @@
 
 [vktRenderPassMultiviewPerViewTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp)
 
-## Registration
+## Registration Hierarchy
 
-Added to renderpass2 and dynamic_rendering root groups (non-SC).
+```text
+renderpasses.renderpass2.multiview_per_view
+├── viewports
+└── render_areas
+```
 
-Registered group name: `"multiview_per_view"` ([line 1816](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1816))
+Registered in renderpass2 and dynamic_rendering roots (non-SC) via [`createRenderPassMultiviewPerViewTests`](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1810). Not registered under renderpass1.
 
 ## Test Families
 
-```
-multiview_per_view
-|-- ViewportsCase
-|-- RenderAreasCase
-```
+### viewports — Per-view viewport attributes
 
-### ViewportsCase
-
-Per-view viewport attributes with multiview ([lines 1820-1835](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1820-L1835)).
+Tests per-view viewport attributes with multiview ([lines 1820-1835](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1820-L1835)).
 
 **Parameter Dimensions:**
 
@@ -36,9 +34,9 @@ Total: 72 cases
 - Color: `tcu::floatThresholdCompare`
 - Depth: `tcu::dsThresholdCompare`
 
-### RenderAreasCase
+### render_areas — Per-view render areas
 
-Per-view render areas with VK_QCOM_multiview_per_view_render_areas ([lines 1838-1858](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1838-L1858)).
+Tests per-view render areas with VK_QCOM_multiview_per_view_render_areas ([lines 1838-1858](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1838-L1858)).
 
 **Parameter Dimensions:**
 

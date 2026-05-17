@@ -4,10 +4,23 @@
 
 - [vktRenderPassSubpassDependencyTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp)
 
-## Registration
+## Registration Hierarchy
 
-- **Path**: Added to `suballocation` subgroup within each top-level group
-- **Registered group name**: `"subpass_dependencies"` at [vktRenderPassSubpassDependencyTests.cpp#L4587](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L4587)
+```text
+renderpasses.renderpass1.suballocation.subpass_dependencies
+├── external_subpass
+├── implicit_dependencies
+├── late_fragment_tests
+├── self_dependency
+├── separate_channels
+└── single_attachment
+```
+
+Evidence:
+- `subpass_dependencies` group created at [`createRenderPassSubpassDependencyTests()`](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L4587)
+- Direct children added from [vktRenderPassSubpassDependencyTests.cpp#L4207](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L4207) through [vktRenderPassSubpassDependencyTests.cpp#L4580](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L4580)
+
+Note: `external_subpass`, `implicit_dependencies`, `late_fragment_tests`, and `self_dependency` are excluded for `RENDERING_TYPE_DYNAMIC_RENDERING`. The representative root uses `renderpass1`; the same topic group also appears under `renderpass2` and `dynamic_rendering` (with exclusions).
 
 ## Role
 
@@ -15,63 +28,55 @@ Implementation file
 
 ## Test Families
 
-### External subpass
+### external_subpass — External subpass dependency tests
+
+Tests external subpass dependencies between render passes. Each test creates multiple render passes with explicit dependencies from `VK_SUBPASS_EXTERNAL` to subpass 0 and back.
 
 - **Pattern**: `external_subpass/render_size_<W>_<H>/render_passes_<N>`
+- **Sync2 variant**: `render_passes_<N>_sync_2` (RENDERPASS2 only)
 - **Definition**: [vktRenderPassSubpassDependencyTests.cpp#L4207-L4305](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L4207-L4305)
+- Excluded for `RENDERING_TYPE_DYNAMIC_RENDERING`
 
-### External subpass sync2
+### implicit_dependencies — Implicit subpass dependency tests
 
-- **Pattern**: `external_subpass/render_size_<W>_<H>/render_passes_<N>_sync_2`
-- **Definition**: [vktRenderPassSubpassDependencyTests.cpp#L4291-L4298](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L4291-L4298)
-
-### Implicit dependencies
+Tests that implementations correctly add implicit subpass dependencies. The first render pass omits all explicit dependencies; subsequent passes define only the external-to-first-subpass dependency.
 
 - **Pattern**: `implicit_dependencies/render_passes_<N>`
 - **Definition**: [vktRenderPassSubpassDependencyTests.cpp#L4307-L4375](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L4307-L4375)
+- Excluded for `RENDERING_TYPE_DYNAMIC_RENDERING`
 
-### Late fragment tests
+### late_fragment_tests — Late fragment tests with depth/stencil attachments
+
+Tests late fragment operations using depth/stencil attachments in multi-pass rendering. Subpasses wait for late fragment operations before reading previous subpass contents.
 
 - **Pattern**: `late_fragment_tests/render_size_<W>_<H>/subpass_count_<N>/<format>`
 - **Definition**: [vktRenderPassSubpassDependencyTests.cpp#L4377-L4496](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L4377-L4496)
+- Excluded for `RENDERING_TYPE_DYNAMIC_RENDERING`
 
-### Self dependency
+### self_dependency — Subpass self-dependency tests
+
+Tests subpass self-dependency using geometry shader output to indirect draw.
 
 - **Pattern**: `self_dependency/render_size_<W>_<H>/geometry_to_indirectdraw`
 - **Definition**: [vktRenderPassSubpassDependencyTests.cpp#L4498-L4525](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L4498-L4525)
+- Requires `DEVICE_CORE_FEATURE_GEOMETRY_SHADER`
+- Excluded for `RENDERING_TYPE_DYNAMIC_RENDERING`
 
-### Separate channels
+### separate_channels — Separate channel read/write tests
+
+Tests using a single attachment with reads and writes on separate channels. This should work without a subpass self-dependency.
 
 - **Pattern**: `separate_channels/<formatName>`
 - **Definition**: [vktRenderPassSubpassDependencyTests.cpp#L4527-L4552](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L4527-L4552)
+- 4 format variants: r8g8b8a8_unorm, r16g16b16a16_sfloat, d24_unorm_s8_uint, d32_sfloat_s8_uint
 
-### Single attachment
+### single_attachment — Single attachment input/output tests
+
+Tests using a single attachment for both input and output.
 
 - **Pattern**: `single_attachment/<formatName>`
 - **Definition**: [vktRenderPassSubpassDependencyTests.cpp#L4554-L4580](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L4554-L4580)
-
-## Test Hierarchy
-
-```
-subpass_dependencies
-|-- external_subpass
-|   +-- render_size_<W>_<H>
-|       |-- render_passes_<N>
-|       +-- render_passes_<N>_sync_2
-|-- implicit_dependencies
-|   +-- render_passes_<N>
-|-- late_fragment_tests
-|   +-- render_size_<W>_<H>
-|       +-- subpass_count_<N>
-|           +-- <format>
-|-- self_dependency
-|   +-- render_size_<W>_<H>
-|       +-- geometry_to_indirectdraw
-|-- separate_channels
-|   +-- <formatName>
-+-- single_attachment
-    +-- <formatName>
-```
+- 5 format variants: r8g8b8a8_unorm, b8g8r8a8_unorm, r16g16b16a16_sfloat, r5g6b5_unorm_pack16, a1r5g5b5_unorm_pack16
 
 ## Parameter Dimensions
 

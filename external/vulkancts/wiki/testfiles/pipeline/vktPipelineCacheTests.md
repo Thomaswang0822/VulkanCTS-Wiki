@@ -13,50 +13,43 @@ Implementation file.
 - Primary source: [`vktPipelineCacheTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L1)
 - Header: [`vktPipelineCacheTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.hpp#L1)
 
-## Registration Path
-
-[`createCacheTests()`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L2455) returns the `cache` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: All variants, VK only.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-cache
-└── blob_tests
-    ├── graphics
-    │   └── {test_param}
-    ├── pipeline_from_blobs
-    │   └── {test_param}
-    ├── pipeline_from_incomplete_blobs
-    │   └── {test_param}
-    ├── compute
-    │   └── {test_param}
-    ├── merge
-    │   └── {merge_stages}
-    │       └── {merge_test}
-    └── misc
-        ├── cache_header_test
-        ├── invalid_size_test
-        ├── zero_size_test
-        ├── invalid_blob_test
-        └── internally_synchronized_test
+pipeline.monolithic.cache
+├── graphics_tests
+├── pipeline_from_get_data
+├── pipeline_from_incomplete_get_data
+├── compute_tests (monolithic only)
+├── merge
+└── misc_tests
 ```
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| GraphicsTest | Verifies pipeline cache with graphics pipelines |
-| PipelineFromBlobsTest | Verifies creating pipelines from cached blobs |
-| PipelineFromIncompleteBlobsTest | Verifies creating pipelines from incomplete cache blobs |
-| ComputeTest | Verifies pipeline cache with compute pipelines |
-| MergeTest | Verifies pipeline cache merge operations |
-| CacheHeaderTest | Verifies pipeline cache header format |
-| InvalidSizeTest | Verifies behavior with invalid cache size |
-| ZeroSizeTest | Verifies behavior with zero-size cache |
-| InvalidBlobTest | Verifies behavior with invalid cache data |
-| InternallySynchronizedTest | Verifies internally synchronized cache access |
+### graphics_tests — Graphics pipeline cache tests
+
+Verifies pipeline cache with graphics pipelines. Contains individual test cases for different shader stage combinations (vertex+fragment, vertex+geometry+fragment, vertex+tessellation+fragment) with and without `VK_PIPELINE_CACHE_CREATE_EXTERNALLY_SYNCHRONIZED_BIT`.
+
+### pipeline_from_get_data — Pipeline from cached data tests
+
+Verifies creating pipelines from cached blob data retrieved via `vkGetPipelineCacheData`. Contains test cases for vertex+fragment, vertex+geometry+fragment, and vertex+tessellation+fragment shader stage combinations.
+
+### pipeline_from_incomplete_get_data — Pipeline from incomplete cached data tests
+
+Verifies creating pipelines from incomplete cache blob data. Contains test cases for the same shader stage combinations as `pipeline_from_get_data`. Only present in cache mode (not pipeline binary mode).
+
+### compute_tests — Compute pipeline cache tests
+
+Verifies pipeline cache with compute pipelines. Contains test cases for compute shader cache behavior. Only present for monolithic pipeline construction type.
+
+### merge — Cache merge tests
+
+Verifies pipeline cache merge operations. Contains subgroups per shader stage combination, each with test cases for various source and destination cache type combinations (empty, populated, etc.).
+
+### misc_tests — Miscellaneous cache tests
+
+Contains individual test cases for cache header validation, invalid size handling, zero-size cache handling, invalid blob handling, and internally synchronized cache access. The `internally_synchronized_test` is only added for monolithic pipeline construction type.
 
 ## Parameter Dimensions
 

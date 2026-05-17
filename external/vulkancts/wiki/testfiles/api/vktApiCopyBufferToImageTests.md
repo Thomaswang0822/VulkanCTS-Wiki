@@ -13,53 +13,32 @@ This file provides the test implementation and registration for all buffer-to-im
 - Implementation: [vktApiCopyBufferToImageTests.cpp](../../../modules/vulkan/api/vktApiCopyBufferToImageTests.cpp)
 - Header: [vktApiCopyBufferToImageTests.hpp](../../../modules/vulkan/api/vktApiCopyBufferToImageTests.hpp)
 
-## Registration Path
+## Registration Hierarchy
 
+```text
+api.copy_and_blit.core.buffer_to_image
+├── 1d_images
+└── 2d_images
 ```
-api > copy_and_blit > buffer_to_image
-```
 
-The top-level registration function `addCopyBufferToImageTests` at [line 1147](../../../modules/vulkan/api/vktApiCopyBufferToImageTests.cpp#L1147) creates two subgroups:
+Evidence:
+- `buffer_to_image` group created by [`addCopyBufferToImageTests()`](../../../modules/vulkan/api/vktApiCopyBufferToImageTests.cpp#L1147)
+- `1d_images` subgroup added at [line 1149](../../../modules/vulkan/api/vktApiCopyBufferToImageTests.cpp#L1149), populated by [`add1dBufferToImageTests()`](../../../modules/vulkan/api/vktApiCopyBufferToImageTests.cpp#L358)
+- `2d_images` subgroup added at [line 1150](../../../modules/vulkan/api/vktApiCopyBufferToImageTests.cpp#L1150), populated by [`add2dBufferToImageTests()`](../../../modules/vulkan/api/vktApiCopyBufferToImageTests.cpp#L625)
 
-- `1d_images` -- populated by `add1dBufferToImageTests` at [line 358](../../../modules/vulkan/api/vktApiCopyBufferToImageTests.cpp#L358)
-- `2d_images` -- populated by `add2dBufferToImageTests` at [line 625](../../../modules/vulkan/api/vktApiCopyBufferToImageTests.cpp#L625)
+The `addCopyBufferToImageTests` function is called from multiple registration contexts in [vktApiCopiesAndBlittingTests.cpp](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp), each creating the same `1d_images`/`2d_images` subgroup structure under a different parent:
 
-This function is also called from other registration contexts in [vktApiCopiesAndBlittingTests.cpp](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp):
-- `buffer_to_image_transfer_queue` at [line 175](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L175) (TransferOnly queue)
-- `buffer_to_image_compute_queue` at [line 187](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L187) (ComputeOnly queue)
-- `buffer_to_image_general_layout` at [line 228](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L228) (VK_IMAGE_LAYOUT_GENERAL)
-- `buffer_to_image` under `device_address` at [line 255](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L255) (DEVICE_ADDRESS_COMMANDS)
-
-## Test Hierarchy
-
-```
-buffer_to_image
-|-- 1d_images
-|   |-- tightly_sized_buffer[_<suffix>]
-|   |-- larger_buffer[_<suffix>]
-|   |-- array_tightly_sized_buffer[_<suffix>]
-|   |-- array_all_remaining_layers[_<suffix>]
-|   |-- array_not_all_remaining_layers[_<suffix>]
-|   |-- array_larger_buffer[_<suffix>]
-|-- 2d_images
-|   |-- whole[_<suffix>]
-|   |-- whole_unaligned[_<suffix>]
-|   |-- regions[_<suffix>]
-|   |-- buffer_offset[_<suffix>]
-|   |-- buffer_offset_relaxed[_<suffix>]
-|   |-- tightly_sized_buffer[_<suffix>]
-|   |-- larger_buffer[_<suffix>]
-|   |-- tightly_sized_buffer_offset[_<suffix>]
-|   |-- array[_<suffix>]
-|   |-- array_larger_buffer[_<suffix>]
-|   |-- array_tightly_sized_buffer[_<suffix>]
-|   |-- array_all_remaining_layers[_<suffix>]
-|   |-- array_not_all_remaining_layers[_<suffix>]
-```
+- `api.copy_and_blit.core.buffer_to_image` (primary, suballocated, no extensions)
+- `api.copy_and_blit.core.buffer_to_image_transfer_queue` at [line 175](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L175) (TransferOnly queue)
+- `api.copy_and_blit.core.buffer_to_image_compute_queue` at [line 187](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L187) (ComputeOnly queue)
+- `api.copy_and_blit.core.buffer_to_image_general_layout` at [line 228](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L228) (VK_IMAGE_LAYOUT_GENERAL)
+- `api.copy_and_blit.dedicated_allocation.buffer_to_image` (dedicated allocation)
+- `api.copy_and_blit.copy_commands2.buffer_to_image` (COPY_COMMANDS_2 extension)
+- `api.copy_and_blit.device_address.buffer_to_image` at [line 255](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L255) (DEVICE_ADDRESS_COMMANDS, non-VulkanSC only)
 
 ## Test Families
 
-### 1D Families (CopyBufferToImage)
+### 1d_images — 1D image buffer-to-image copy tests
 
 Registered in `add1dBufferToImageTests` at [line 358](../../../modules/vulkan/api/vktApiCopyBufferToImageTests.cpp#L358). Uses `CopyBufferToImageTestCase` at [line 269](../../../modules/vulkan/api/vktApiCopyBufferToImageTests.cpp#L269) and `CopyBufferToImage` instance at [line 35](../../../modules/vulkan/api/vktApiCopyBufferToImageTests.cpp#L35).
 
@@ -72,7 +51,7 @@ Registered in `add1dBufferToImageTests` at [line 358](../../../modules/vulkan/ap
 | array_not_all_remaining_layers | 16-layer 1D array image using VK_REMAINING_ARRAY_LAYERS from base layer 2 |
 | array_larger_buffer | 16-layer 1D array image with bufferImageHeight larger than image extent per layer |
 
-### 2D Families (CopyBufferToImage)
+### 2d_images — 2D image buffer-to-image copy tests
 
 Registered in `add2dBufferToImageTests` at [line 625](../../../modules/vulkan/api/vktApiCopyBufferToImageTests.cpp#L625). Uses `CopyBufferToImageTestCase` at [line 269](../../../modules/vulkan/api/vktApiCopyBufferToImageTests.cpp#L269) and `CopyBufferToImage` instance at [line 35](../../../modules/vulkan/api/vktApiCopyBufferToImageTests.cpp#L35).
 

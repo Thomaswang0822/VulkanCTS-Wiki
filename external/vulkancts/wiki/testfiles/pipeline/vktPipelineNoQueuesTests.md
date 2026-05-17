@@ -13,31 +13,30 @@ Implementation file. This is an independent root branch, not a topic group under
 - Primary source: [`vktPipelineNoQueuesTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineNoQueuesTests.cpp#L1)
 - Header: [`vktPipelineNoQueuesTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineNoQueuesTests.hpp#L1)
 
-## Registration Path
-
-[`createNoQueuesTests()`](../../../modules/vulkan/pipeline/vktPipelineNoQueuesTests.cpp#L1724) returns the `no_queues` group, registered as a direct child of `pipeline` (not under any variant root).
-
-**Variant coverage**: Independent root branch, VK only. Not a `createChildren()` topic group.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-no_queues
-├── compute
-│   └── {test_case}
-├── graphics
-│   └── {test_case}
-├── ray_tracing
-│   └── {test_case}
-└── mesh
-    └── {test_case}
+pipeline.no_queues
+├── pipeline_cache
+├── pipeline_binary
+└── shader_binary
 ```
+
+Source: [`createNoQueuesTests()`](../../../modules/vulkan/pipeline/vktPipelineNoQueuesTests.cpp#L1724) returns the `no_queues` group, registered as a direct child of `pipeline` (not under any variant root). Independent root branch, VK only.
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| NoQueuesTestCase | Verifies pipeline creation on a device with no queues |
+### pipeline_cache — Pipeline cache tests on no-queue device
+
+Verifies pipeline creation on a device with no queues using pipeline caches. Each test creates a pipeline for a specific shader stage (compute, raygen, isect, ahit, chit, miss, callable, vertex, fragment, geometry, tessctrl, tesseval, task, mesh) on a device with no queue families, then verifies that pipeline cache creation and retrieval works correctly.
+
+### pipeline_binary — Pipeline binary tests on no-queue device
+
+Verifies pipeline creation on a device with no queues using pipeline binaries. Same shader stage coverage as `pipeline_cache`. Tests that pipeline binary serialization and deserialization works correctly on a no-queue device.
+
+### shader_binary — Shader binary tests on no-queue device
+
+Verifies pipeline creation on a device with no queues using shader binaries. Excludes ray tracing KHR stages (raygen, isect, ahit, chit, miss, callable) since shader binaries do not apply to them. Covers compute, vertex, fragment, geometry, tessctrl, tesseval, task, and mesh stages.
 
 ## Parameter Dimensions
 
@@ -45,6 +44,8 @@ no_queues
 |---|---|---|
 | Pipeline type | Enum | Compute, graphics, ray tracing, mesh |
 | Pipeline cache | Bool | With/without pipeline cache |
+| Shader stage | [`stageCases[]`](../../../modules/vulkan/pipeline/vktPipelineNoQueuesTests.cpp#L1734) | 14 stages (compute, raygen, isect, ahit, chit, miss, callable, vertex, fragment, geometry, tessctrl, tesseval, task, mesh) |
+| Test type | [`ttCases[]`](../../../modules/vulkan/pipeline/vktPipelineNoQueuesTests.cpp#L1742) | `pipeline_cache`, `pipeline_binary`, `shader_binary` |
 
 ## Support/Feature Requirements
 

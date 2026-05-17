@@ -13,40 +13,25 @@ Implementation file.
 - Primary source: [`vktPipelineDescriptorLimitsTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineDescriptorLimitsTests.cpp#L1)
 - Header: [`vktPipelineDescriptorLimitsTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineDescriptorLimitsTests.hpp#L1)
 
-## Registration Path
-
-[`createDescriptorLimitsTests()`](../../../modules/vulkan/pipeline/vktPipelineDescriptorLimitsTests.cpp#L963) returns the `descriptor_limits` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: All variants. Compute shader sub-group is monolithic only. Input attachments excluded for shader object.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-descriptor_limits
-├── compute_shader                        (monolithic only)
-│   ├── samplers_<N>
-│   ├── uniform_buffers_<N>
-│   ├── storage_buffers_<N>
-│   ├── sampled_images_<N>
-│   └── storage_images_<N>
+pipeline.monolithic.descriptor_limits
+├── compute_shader (monolithic only)
 └── fragment_shader
-    ├── samplers_<N>
-    ├── uniform_buffers_<N>
-    ├── storage_buffers_<N>
-    ├── sampled_images_<N>
-    ├── storage_images_<N>
-    └── input_attachments_<N>             (excluded for shader object)
 ```
+
+Source: [`createDescriptorLimitsTests()`](../../../modules/vulkan/pipeline/vktPipelineDescriptorLimitsTests.cpp#L963).
 
 ## Test Families
 
-### 1. compute_shader
+### compute_shader — Descriptor limits via compute shader (monolithic only)
 
-Tests descriptor limits using a compute shader. Each descriptor type is tested with varying descriptor counts. Only registered for monolithic.
+Tests descriptor limits using a compute shader. Each descriptor type is tested with varying descriptor counts. Only registered for the monolithic pipeline construction type. The generated leaf test cases follow the pattern `<descriptor_type>_<count>`, where descriptor types are `samplers`, `uniform_buffers`, `storage_buffers`, `sampled_images`, and `storage_images`, and counts range over 36 values from 3 to 65535.
 
-### 2. fragment_shader
+### fragment_shader — Descriptor limits via fragment shader
 
-Tests descriptor limits using a fragment shader. Same descriptor types as compute, plus input attachments (excluded for shader object variant).
+Tests descriptor limits using a fragment shader. Same descriptor types as compute, plus input attachments. Input attachment tests are excluded for the shader object variant. The generated leaf test cases follow the pattern `<descriptor_type>_<count>`, where descriptor types are `samplers`, `uniform_buffers`, `storage_buffers`, `sampled_images`, `storage_images`, and `input_attachments`, and counts range over 36 values from 3 to 65535.
 
 ## Parameter Dimensions
 

@@ -13,32 +13,58 @@ Implementation file.
 - Primary source: [`vktPipelineEarlyDestroyTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineEarlyDestroyTests.cpp#L1)
 - Header: [`vktPipelineEarlyDestroyTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineEarlyDestroyTests.hpp#L1)
 
-## Registration Path
-
-[`createEarlyDestroyTests()`](../../../modules/vulkan/pipeline/vktPipelineEarlyDestroyTests.cpp#L546) returns the `early_destroy` group, attached under each variant root by [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L115) inside a `CTS_USES_VULKANSC` guard.
-
-**Variant coverage**: All variants, VK only.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-early_destroy
+pipeline.monolithic.early_destroy
 ├── no_cache
 ├── no_cache_destroy_layout
 ├── cache
 ├── cache_destroy_layout
-├── no_cache_compute                              (monolithic and shader-object-unlinked-spirv only)
-├── no_cache_destroy_layout_compute               (monolithic and shader-object-unlinked-spirv only)
-├── cache_compute                                 (monolithic and shader-object-unlinked-spirv only)
-├── cache_destroy_layout_compute                  (monolithic and shader-object-unlinked-spirv only)
+├── no_cache_compute
+├── no_cache_destroy_layout_compute
+├── cache_compute
+├── cache_destroy_layout_compute
 └── no_cache_destroy_layout_maintenance5
 ```
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| EarlyDestroyTestInstance | Verifies that destroying a pipeline object while command buffers referencing it are still in-flight does not cause errors or incorrect rendering results |
+### no_cache — Early destroy without pipeline cache
+
+Destroys a graphics pipeline object while command buffers referencing it are still in-flight, without using a pipeline cache. Verifies the implementation properly keeps the pipeline alive until all submissions complete.
+
+### no_cache_destroy_layout — Early destroy without cache, destroy layout
+
+Destroys both the graphics pipeline and its layout while command buffers referencing the pipeline are still in-flight, without using a pipeline cache. Verifies the implementation handles layout destruction correctly.
+
+### cache — Early destroy with pipeline cache
+
+Destroys a graphics pipeline object while command buffers referencing it are still in-flight, with a pipeline cache in use. Verifies the implementation properly keeps the pipeline alive even when a cache is involved.
+
+### cache_destroy_layout — Early destroy with cache, destroy layout
+
+Destroys both the graphics pipeline and its layout while command buffers referencing the pipeline are still in-flight, with a pipeline cache in use.
+
+### no_cache_compute — Early destroy compute pipeline without cache
+
+Destroys a compute pipeline object while command buffers referencing it are still in-flight, without using a pipeline cache. Compute variants are only available for monolithic and shader-object-unlinked-spirv construction types.
+
+### no_cache_destroy_layout_compute — Early destroy compute pipeline without cache, destroy layout
+
+Destroys both the compute pipeline and its layout while command buffers are still in-flight, without a pipeline cache.
+
+### cache_compute — Early destroy compute pipeline with cache
+
+Destroys a compute pipeline object while command buffers referencing it are still in-flight, with a pipeline cache in use.
+
+### cache_destroy_layout_compute — Early destroy compute pipeline with cache, destroy layout
+
+Destroys both the compute pipeline and its layout while command buffers are still in-flight, with a pipeline cache in use.
+
+### no_cache_destroy_layout_maintenance5 — Early destroy with maintenance5
+
+Destroys the pipeline and layout while command buffers are in-flight, with `VK_KHR_maintenance5` enabled. Uses graphics pipeline only, without pipeline cache. Requires `VK_KHR_maintenance5`.
 
 ## Parameter Dimensions
 

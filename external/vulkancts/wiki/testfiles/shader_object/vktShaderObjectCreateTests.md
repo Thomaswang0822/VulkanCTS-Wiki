@@ -19,56 +19,70 @@ Implementation-heavy test file for the root-level `create` branch.
 - [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L47-L63)
 - [CMakeLists.txt](../../../modules/vulkan/shader_object/CMakeLists.txt#L6-L44)
 
-## Registration Path
+## Registration Hierarchy
 
 ```text
-shader_object
-+-- create
-    +-- multiple
-    |   +-- all
-    |   +-- all_with_mesh
-    +-- vert/{succeed,fail}
-    +-- tesc/{succeed,fail}
-    +-- tese/{succeed,fail}
-    +-- geom/{succeed,fail}
-    +-- frag/{succeed,fail}
-    +-- comp/{succeed,fail}
-    +-- mesh/{succeed,fail}
-    +-- task/{succeed,fail}
-    +-- all/{succeed,fail}
-    +-- all_with_mesh/{succeed,fail}
+shader_object.create
+├── multiple
+├── vert
+├── tesc
+├── tese
+├── geom
+├── frag
+├── comp
+├── mesh
+├── task
+├── all
+└── all_with_mesh
 ```
 
-Explicit registration path prefixes for verifier extraction:
-
-```text
-`shader_object.create`
-`shader_object.create.multiple.all`
-`shader_object.create.vert.succeed`
-`shader_object.create.comp.fail`
-```
-
-Evidence: `createShaderObjectCreateTests()` constructs the group named `create`, registers `multiple`, and iterates `stageTests[]` with `failTests[]` at [vktShaderObjectCreateTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectCreateTests.cpp#L829-L878).
-
-## Test Hierarchy
-
-```text
-create
-+-- multiple
-+-- (stage groups from stageTests[])
-    +-- succeed
-    +-- fail
-```
+Evidence: `createShaderObjectCreateTests()` constructs the group named `create`, registers `multiple`, and iterates `stageTests[]` at [vktShaderObjectCreateTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectCreateTests.cpp#L829-L878).
 
 ## Test Families
 
-### Multiple shader creation
+### multiple — Multiple shader creation
 
 The `multiple` subgroup registers `all` and `all_with_mesh` at [vktShaderObjectCreateTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectCreateTests.cpp#L833-L838). The implementation creates shader objects separately and together, destroys them, and fails if expected comparison state does not match at [vktShaderObjectCreateTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectCreateTests.cpp#L300-L312).
 
-### Stage create success/failure matrix
+### vert — Vertex stage create success/failure
 
-`stageTests[]` covers vertex, tessellation-control, tessellation-evaluation, geometry, fragment, compute, mesh, task, all stages without mesh, and all stages with mesh at [vktShaderObjectCreateTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectCreateTests.cpp#L840-L856). Each stage group receives `succeed` and `fail` child cases from `failTests[]` at [vktShaderObjectCreateTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectCreateTests.cpp#L858-L875).
+Stage group for vertex shader creation, receiving `succeed` and `fail` child cases from `failTests[]` at [vktShaderObjectCreateTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectCreateTests.cpp#L858-L875).
+
+### tesc — Tessellation control stage create success/failure
+
+Stage group for tessellation control shader creation, receiving `succeed` and `fail` child cases. Requires tessellation shader feature support at [vktShaderObjectCreateTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectCreateTests.cpp#L698-L702).
+
+### tese — Tessellation evaluation stage create success/failure
+
+Stage group for tessellation evaluation shader creation, receiving `succeed` and `fail` child cases. Requires tessellation shader feature support at [vktShaderObjectCreateTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectCreateTests.cpp#L698-L702).
+
+### geom — Geometry stage create success/failure
+
+Stage group for geometry shader creation, receiving `succeed` and `fail` child cases. Requires geometry shader feature support at [vktShaderObjectCreateTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectCreateTests.cpp#L698-L702).
+
+### frag — Fragment stage create success/failure
+
+Stage group for fragment shader creation, receiving `succeed` and `fail` child cases.
+
+### comp — Compute stage create success/failure
+
+Stage group for compute shader creation, receiving `succeed` and `fail` child cases.
+
+### mesh — Mesh stage create success/failure
+
+Stage group for mesh shader creation, receiving `succeed` and `fail` child cases. Requires `VK_EXT_mesh_shader` and mesh feature support at [vktShaderObjectCreateTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectCreateTests.cpp#L695-L706).
+
+### task — Task stage create success/failure
+
+Stage group for task shader creation, receiving `succeed` and `fail` child cases. Requires `VK_EXT_mesh_shader` and task feature support at [vktShaderObjectCreateTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectCreateTests.cpp#L695-L706).
+
+### all — All stages without mesh create success/failure
+
+Stage group for all shader stages without mesh, receiving `succeed` and `fail` child cases.
+
+### all_with_mesh — All stages with mesh create success/failure
+
+Stage group for all shader stages including mesh/task, receiving `succeed` and `fail` child cases. Requires `VK_EXT_mesh_shader` and task/mesh feature support at [vktShaderObjectCreateTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectCreateTests.cpp#L695-L706).
 
 ## Parameter Dimensions
 

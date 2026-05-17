@@ -2,7 +2,7 @@
 
 ## Overview
 
-[`vktGeometryBasicGeometryShaderTests.cpp`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1) implements the [`basic`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1002) subgroup of the geometry category. In the inspected code, it covers fixed output-vertex-count patterns, runtime-varying output counts sourced from attributes/uniforms/textures, and side-effect cases that verify geometry-shader writes even when no color output should be produced.
+[`vktGeometryBasicGeometryShaderTests.cpp`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1) implements the [`basic`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1002) subgroup of the geometry category. In the inspected code, it covers fixed output-vertex-count patterns, runtime-varying output counts sourced from attributes, uniforms, and textures, plus side-effect cases that verify geometry-shader writes even when no color output should be produced.
 
 ## Role
 
@@ -14,14 +14,12 @@ Implementation file.
 - Shared base: [`GeometryExpanderRenderTestInstance`](../../../modules/vulkan/geometry/vktGeometryBasicClass.hpp#L37)
 - Shared helpers: [`compareWithFileImage()`](../../../modules/vulkan/geometry/vktGeometryTestsUtil.cpp#L412), [`makeImageCreateInfo()`](../../../modules/vulkan/geometry/vktGeometryTestsUtil.cpp#L374)
 
-## Registration Path
+## Registration Hierarchy
 
 This file contributes the subgroup returned by [`createBasicGeometryShaderTests()`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1000), which is attached under geometry by [`createChildren()`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L46).
 
-## Test Hierarchy
-
 ```text
-basic
+geometry.basic
 ├── output_10
 ├── output_128
 ├── output_10_and_100
@@ -42,38 +40,61 @@ Source: [`createBasicGeometryShaderTests()`](../../../modules/vulkan/geometry/vk
 
 ## Test Families
 
-### 1. Fixed output-count patterns
+### output_10 — Fixed output-count pattern
 
-[`GeometryOutputCountTest`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L451) registers single-pattern and two-pattern cases:
-- [`output_10`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1005)
-- [`output_128`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1006)
-- [`output_10_and_100`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1008)
-- [`output_100_and_10`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1009)
-- [`output_0_and_128`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1010)
-- [`output_128_and_0`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1011)
+[`output_10`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1005) is registered through [`GeometryOutputCountTest`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L451). The geometry program computes emitted vertices from [`m_pattern`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L461) and lays out primitives in [`GeometryOutputCountTest::initPrograms()`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L475).
 
-The geometry program computes the emitted vertex count from [`m_pattern`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L461) and emits a row/column arrangement of primitives in [`GeometryOutputCountTest::initPrograms()`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L475).
+### output_128 — Fixed output-count pattern
 
-### 2. Varying output count from runtime sources
+[`output_128`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1006) uses the same fixed-pattern test machinery with a larger emitted-vertex count.
 
-[`VaryingOutputCountCase`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L550) creates six cases, combining three count sources with two instancing modes:
-- source kinds: [`READ_ATTRIBUTE`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L64), [`READ_UNIFORM`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L67), [`READ_TEXTURE`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L68)
-- instancing modes: [`MODE_WITHOUT_INSTANCING`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L74), [`MODE_WITH_INSTANCING`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L75)
+### output_10_and_100 — Two-stage fixed output-count pattern
 
-The corresponding registrations are at [`createBasicGeometryShaderTests()`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1014).
+[`output_10_and_100`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1008) belongs to the fixed-pattern family and uses the multi-value pattern builder created by [`createPattern()`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L778).
 
-Data sources are realized as:
-- per-vertex/per-instance attribute values in [`genVertexDataWithoutInstancing()`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L393) and [`genVertexDataWithInstancing()`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L424)
-- uniform buffer upload in [`bindDescriptorSets()`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L315)
-- sampled texture lookup in [`bindDescriptorSets()`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L340)
+### output_100_and_10 — Two-stage fixed output-count pattern
 
-### 3. Side-effect cases
+[`output_100_and_10`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1009) covers the reversed two-pattern ordering inside the same [`GeometryOutputCountTest`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L451) family.
 
-Two function-style cases are added through [`addFunctionCaseWithPrograms()`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1041):
-- [`side_effect_with_condition`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1039)
-- [`side_effect_with_degenerate`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1039)
+### output_0_and_128 — Fixed pattern with zero-to-max transition
 
-The geometry shader for these cases writes [`ssbo.value = 777u`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L843) or [`ssbo.value = 777u`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L854), and the test later checks both SSBO content and an unchanged color buffer in [`sideEffectTest()`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L868).
+[`output_0_and_128`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1010) is another fixed-pattern variant that exercises a zero-output phase followed by a large emit count.
+
+### output_128_and_0 — Fixed pattern with max-to-zero transition
+
+[`output_128_and_0`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1011) mirrors the previous transition in the opposite order.
+
+### output_vary_by_attribute — Runtime-varying output count from attributes
+
+[`output_vary_by_attribute`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1014) is part of [`VaryingOutputCountCase`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L550). It uses [`READ_ATTRIBUTE`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L64) with non-instanced vertex data generated by [`genVertexDataWithoutInstancing()`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L393).
+
+### output_vary_by_uniform — Runtime-varying output count from uniform buffers
+
+[`output_vary_by_uniform`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1014) uses [`READ_UNIFORM`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L67), with uniform data uploaded in [`bindDescriptorSets()`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L315).
+
+### output_vary_by_texture — Runtime-varying output count from textures
+
+[`output_vary_by_texture`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1014) uses [`READ_TEXTURE`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L68), sourcing values through sampled texture lookup in [`bindDescriptorSets()`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L340).
+
+### output_vary_by_attribute_instancing — Attribute-driven output count with instancing
+
+[`output_vary_by_attribute_instancing`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1014) reuses the attribute count source with [`MODE_WITH_INSTANCING`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L75) and per-instance data generation in [`genVertexDataWithInstancing()`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L424).
+
+### output_vary_by_uniform_instancing — Uniform-driven output count with instancing
+
+[`output_vary_by_uniform_instancing`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1014) combines the uniform-backed count path with instanced execution.
+
+### output_vary_by_texture_instancing — Texture-driven output count with instancing
+
+[`output_vary_by_texture_instancing`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1014) combines the texture-backed count path with instanced execution.
+
+### side_effect_with_condition — Side-effect validation with conditional logic
+
+[`side_effect_with_condition`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1039) is added through [`addFunctionCaseWithPrograms()`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1041). Its shader writes [`ssbo.value = 777u`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L843), and [`sideEffectTest()`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L868) validates both the SSBO result and the unchanged color buffer.
+
+### side_effect_with_degenerate — Side-effect validation with degenerate geometry
+
+[`side_effect_with_degenerate`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1039) is the paired side-effect case. Its shader writes [`ssbo.value = 777u`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L854), and the same [`sideEffectTest()`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L868) path checks storage-buffer content plus framebuffer invariance.
 
 ## Parameter Dimensions
 
@@ -95,7 +116,7 @@ Observed support checks include:
 
 ## Verification Methods
 
-Observed verification paths differ by family:
+Observed verification paths differ by family.
 
 ### Fixed output-count and varying-output-count families
 
@@ -111,10 +132,10 @@ These tests are built on [`GeometryExpanderRenderTestInstance`](../../../modules
 
 - **Pattern-driven output validation**: output-count tests encode expected emitted geometry through integer patterns rather than separate bespoke shaders
 - **Multiple runtime count sources**: the same conceptual test is applied to attributes, uniform buffers, and textures
-- **Instanced and non-instanced variants**: varying-output tests reuse the same logic with and without geometry-shader invocations-based instancing in [`initPrograms()`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L614)
+- **Instanced and non-instanced variants**: varying-output tests reuse the same logic with and without geometry-shader-invocations-based instancing in [`initPrograms()`](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L614)
 - **Side effects are checked separately from raster output**: the side-effect tests explicitly verify both storage-buffer writes and absence of framebuffer changes
 
 ## Notes / Uncertainties
 
-- The file strongly suggests that the non-side-effect families compare rendered results against known reference images through the shared geometry base/helpers, but the exact shared iterate path is outside the inspected snippet set.
+- The file strongly suggests that the non-side-effect families compare rendered results against known reference images through the shared geometry base and helpers, but the exact shared iterate path is outside the inspected snippet set.
 - The documentation therefore describes the observed helper-based verification path without claiming every call site in this file directly invokes it.

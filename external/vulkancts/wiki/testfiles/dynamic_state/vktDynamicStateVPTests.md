@@ -14,14 +14,10 @@ Implementation file.
 - Shared base: [`DynamicStateBaseClass`](../../../modules/vulkan/dynamic_state/vktDynamicStateBaseClass.hpp#L43)
 - Test case utilities: [`vktDynamicStateTestCaseUtil.hpp`](../../../modules/vulkan/dynamic_state/vktDynamicStateTestCaseUtil.hpp#L1)
 
-## Registration Path
-
-This file contributes the [`DynamicStateVPTests`](../../../modules/vulkan/dynamic_state/vktDynamicStateVPTests.cpp#L459) group (named `"vp_state"`), which is attached under each pipeline construction type subgroup by [`createChildren()`](../../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L49).
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-vp_state
+dynamic_state.monolithic.vp_state
 ├── viewport
 ├── scissor
 ├── viewport_array
@@ -30,21 +26,31 @@ vp_state
 └── viewport_array_mesh    (non-VulkanSC only)
 ```
 
-Source: [`DynamicStateVPTests::init()`](../../../modules/vulkan/dynamic_state/vktDynamicStateVPTests.cpp#L471).
-
 ## Test Families
 
-### 1. Viewport dynamic state
+### viewport — Viewport dynamic state
 
 [`viewport`](../../../modules/vulkan/dynamic_state/vktDynamicStateVPTests.cpp#L502) and [`viewport_mesh`](../../../modules/vulkan/dynamic_state/vktDynamicStateVPTests.cpp#L502) use [`ViewportParamTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateVPTests.cpp#L138). A double-sized viewport (`2*WIDTH x 2*HEIGHT`) is set dynamically via `vkCmdSetViewport`, with a full-size scissor. The test verifies that the oversized viewport clips correctly to the scissor/render area, producing a green quad in the top-right quadrant.
 
-### 2. Scissor dynamic state
+### scissor — Scissor dynamic state
 
 [`scissor`](../../../modules/vulkan/dynamic_state/vktDynamicStateVPTests.cpp#L504) and [`scissor_mesh`](../../../modules/vulkan/dynamic_state/vktDynamicStateVPTests.cpp#L504) use [`ScissorParamTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateVPTests.cpp#L189). A normal viewport is set with a half-size scissor (`WIDTH/2 x HEIGHT/2`) via `vkCmdSetScissor`. The test verifies that the smaller scissor clips the rendering to the bottom-left quadrant.
 
-### 3. Viewport array dynamic state
+### viewport_array — Viewport array dynamic state
 
 [`viewport_array`](../../../modules/vulkan/dynamic_state/vktDynamicStateVPTests.cpp#L518) and [`viewport_array_mesh`](../../../modules/vulkan/dynamic_state/vktDynamicStateVPTests.cpp#L518) use [`ViewportArrayTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateVPTests.cpp#L239). Uses [`kNumViewports = 4`](../../../modules/vulkan/dynamic_state/vktDynamicStateVPTests.cpp#L245) viewports in a 2x2 grid with quarter-sized scissors. A geometry shader (non-mesh) or mesh shader assigns `gl_ViewportIndex`. The test verifies multi-viewport rendering produces a centered green square.
+
+### viewport_mesh — Viewport dynamic state (mesh shader)
+
+Mesh shader variant of `viewport`. See `viewport` above for test logic. Excluded on Vulkan SC builds.
+
+### scissor_mesh — Scissor dynamic state (mesh shader)
+
+Mesh shader variant of `scissor`. See `scissor` above for test logic. Excluded on Vulkan SC builds.
+
+### viewport_array_mesh — Viewport array dynamic state (mesh shader)
+
+Mesh shader variant of `viewport_array`. See `viewport_array` above for test logic. Excluded on Vulkan SC builds.
 
 ## Parameter Dimensions
 

@@ -14,49 +14,30 @@ Implementation-heavy test file for the `api/buffer_view/create` subgroup.
 - Header: [vktApiBufferViewCreateTests.hpp](../../../modules/vulkan/api/vktApiBufferViewCreateTests.hpp#L1)
 - Parent-category registration: [`createBufferViewTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L78) which is called from [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L106) via `createTestGroup(testCtx, "buffer_view", createBufferViewTests)`
 
-## Registration Path
+## Registration Hierarchy
 
 ```text
-TestPackage::init / TestPackageSC::init
-  api
-  +-- createApiTests(apiTests)
-      +-- createTestGroup(testCtx, "buffer_view", createBufferViewTests)
-          +-- buffer_view
-              +-- create/
-                  +-- suballocation/
-                  +-- dedicated_alloc/
+api.buffer_view.create
+├── suballocation
+└── dedicated_alloc
 ```
 
 Evidence:
 - `buffer_view` group created at [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L106)
 - `create` subgroup created at [`createBufferViewCreateTests()`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L399)
-- suballocation and dedicated_alloc subgroups created at [`vktApiBufferViewCreateTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L404)
-
-## Test Hierarchy
-
-```text
-api
-+-- buffer_view
-    +-- create/
-        +-- suballocation/
-            +-- uniform/
-                +-- (per-core-format test cases)
-            +-- storage/
-                +-- (per-core-format test cases)
-        +-- dedicated_alloc/
-            +-- uniform/
-                +-- (per-core-format test cases)
-            +-- storage/
-                +-- (per-core-format test cases)
-```
-
-Source: [`createBufferViewCreateTests()`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L390).
+- `suballocation` and `dedicated_alloc` subgroups created at [`vktApiBufferViewCreateTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L404)
 
 ## Test Families
 
-### 1. Buffer view creation across formats and allocation strategies
+### suballocation — Buffer view creation with suballocated memory
 
-[`createBufferViewCreateTests()`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L390) creates a `create` group with two allocation-strategy subgroups: `suballocation` at [`vktApiBufferViewCreateTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L406) and `dedicated_alloc` at [`vktApiBufferViewCreateTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L408). Within each, two usage subgroups are created: `uniform` and `storage` at [`vktApiBufferViewCreateTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L413). Each usage subgroup iterates over all core Vulkan formats from `VK_FORMAT_UNDEFINED + 1` through `VK_CORE_FORMAT_LAST` at [`vktApiBufferViewCreateTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L415).
+The `suballocation` subgroup at [`vktApiBufferViewCreateTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L406) tests buffer view creation for all core Vulkan formats using standard memory suballocation. Within this subgroup, two usage subgroups are created: `uniform` and `storage` at [`vktApiBufferViewCreateTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L413). Each usage subgroup iterates over all core Vulkan formats from `VK_FORMAT_UNDEFINED + 1` through `VK_CORE_FORMAT_LAST` at [`vktApiBufferViewCreateTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L415).
+
+Each test case creates a buffer, allocates memory, and creates a buffer view with the specified format, offset, and range. The test also creates a second "complete" buffer view spanning the entire buffer at [`vktApiBufferViewCreateTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L363).
+
+### dedicated_alloc — Buffer view creation with dedicated allocation
+
+The `dedicated_alloc` subgroup at [`vktApiBufferViewCreateTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L408) tests buffer view creation for all core Vulkan formats using dedicated memory allocation via `VK_KHR_dedicated_allocation`. Within this subgroup, two usage subgroups are created: `uniform` and `storage` at [`vktApiBufferViewCreateTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L413). Each usage subgroup iterates over all core Vulkan formats from `VK_FORMAT_UNDEFINED + 1` through `VK_CORE_FORMAT_LAST` at [`vktApiBufferViewCreateTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L415).
 
 Each test case creates a buffer, allocates memory, and creates a buffer view with the specified format, offset, and range. The test also creates a second "complete" buffer view spanning the entire buffer at [`vktApiBufferViewCreateTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L363).
 

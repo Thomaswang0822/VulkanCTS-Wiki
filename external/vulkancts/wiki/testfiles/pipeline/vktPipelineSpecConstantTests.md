@@ -14,69 +14,35 @@ Implementation file.
 - Header: [`vktPipelineSpecConstantTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.hpp#L1)
 - Shared utilities: [`vktPipelineSpecConstantUtil.cpp`](../../../modules/vulkan/pipeline/vktPipelineSpecConstantUtil.cpp#L1)
 
-## Registration Path
-
-[`createSpecConstantTests()`](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L2932) returns the `spec_constant` group, attached under each variant root by `createChildren()`.
-
-**Variant coverage**: All variants. Compute sub-group is monolithic only.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-spec_constant
+pipeline.monolithic.spec_constant
 ├── graphics
-│   ├── vertex / fragment / tess_control / tess_eval / geometry
-│   │   ├── default_value                (no specialization, uses shader defaults)
-│   │   │   └── bool / int8 / uint8 / int16 / uint16 / int / uint / int64 / uint64 / float / float16 / double
-│   │   ├── basic                        (explicit specialization)
-│   │   │   └── <type>[_2]
-│   │   ├── builtin                      (override gl_MaxImageUnits etc.)
-│   │   │   └── default / specialized
-│   │   ├── expression                   (spec constants in expressions)
-│   │   │   └── spec_const_expression / array_size / array_size_expression / ...
-│   │   └── composite                    (composite type specialization)
-│   │       ├── vector / matrix / array / struct
-└── compute                              (monolithic only)
-    ├── (same subgroups as graphics)
-    ├── local_size                       (work group size specialization)
-    │   └── x / y / z / xy / xz / yz / xyz
-    ├── unaligned_spec_constant
-    └── same_id
+└── compute (monolithic only)
 ```
+
+**Variant coverage**: All variants. The `compute` subgroup is monolithic only.
 
 ## Test Families
 
-### 1. default_value
+### graphics — Graphics pipeline specialization constants
 
-Declares specialization constants but does NOT provide specialized values via the API. Verifies that the default values declared in the shader are used.
+Tests specialization constants across graphics shader stages (vertex, fragment, tess_control, tess_eval, geometry). Each stage subgroup contains five common subgroups:
 
-### 2. basic
+- **default_value**: Declares specialization constants but does NOT provide specialized values via the API. Verifies that the default values declared in the shader are used. Covers types: bool, int8, uint8, int16, uint16, int, uint, int64, uint64, float, float16, double.
+- **basic**: Specializes constants with explicit values via `VkSpecializationInfo`. Verifies the specialized values override the defaults.
+- **builtin**: Tests overriding built-in constants (e.g., `gl_MaxImageUnits`) with specialization constants. Contains `default` and `specialized` leaf tests.
+- **expression**: Tests specialization constants used in expressions: constant expressions, array sizes, and array size expressions.
+- **composite**: Tests specialization of composite types: vectors (15 types), matrices (18 types), arrays, and structs.
 
-Specializes constants with explicit values via `VkSpecializationInfo`. Verifies the specialized values override the defaults.
+### compute — Compute pipeline specialization constants (monolithic only)
 
-### 3. builtin
+Tests specialization constants in the compute shader stage. Contains the same five subgroups as `graphics` (default_value, basic, builtin, expression, composite), plus three compute-specific subgroups:
 
-Tests overriding built-in constants (e.g., `gl_MaxImageUnits`) with specialization constants.
-
-### 4. expression
-
-Tests specialization constants used in expressions: constant expressions, array sizes, and array size expressions.
-
-### 5. composite
-
-Tests specialization of composite types: vectors, matrices, arrays, and structs.
-
-### 6. local_size (compute only)
-
-Tests specialization of `local_size_x_id`, `local_size_y_id`, `local_size_z_id` and their combinations.
-
-### 7. unaligned_spec_constant (compute only)
-
-Tests unaligned specialization constant data using hand-crafted SPIR-V.
-
-### 8. same_id (compute only)
-
-Tests multiple specialization constants sharing the same `constant_id` value.
+- **local_size**: Tests specialization of `local_size_x_id`, `local_size_y_id`, `local_size_z_id` and their combinations (x, y, z, xy, xz, yz, xyz).
+- **unaligned_spec_constant**: Tests unaligned specialization constant data using hand-crafted SPIR-V.
+- **same_id**: Tests multiple specialization constants sharing the same `constant_id` value.
 
 ## Parameter Dimensions
 

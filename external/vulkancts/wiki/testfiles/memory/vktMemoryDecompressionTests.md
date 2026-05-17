@@ -6,53 +6,34 @@ Tests for `VK_EXT_memory_decompression`. Validates GPU-accelerated memory decomp
 
 - [vktMemoryDecompressionTests.cpp](../../../modules/vulkan/memory/vktMemoryDecompressionTests.cpp)
 
-## Registration
+## Verified Group Name
 
-- **Group name:** `decompression`
-- **Registration function:** [`createMemoryDecompressionTests()`](../../../modules/vulkan/memory/vktMemoryDecompressionTests.cpp#L395)
-- **Parent group:** `memory`
+`decompression` ([line 397](../../../modules/vulkan/memory/vktMemoryDecompressionTests.cpp#L397))
 
-## Test Hierarchy
+## Registration Hierarchy
 
-```
-decompression
+```text
+memory.decompression
 ├── direct
-│   ├── compression_level_0
-│   │   ├── count_1_1
-│   │   │   ├── decompressed_size_17k
-│   │   │   └── decompressed_size_64k
-│   │   ├── count_20_12
-│   │   │   ├── decompressed_size_17k
-│   │   │   └── decompressed_size_64k
-│   │   ├── count_30_30_longstride
-│   │   │   ├── decompressed_size_17k
-│   │   │   └── decompressed_size_64k
-│   │   ├── count_32_32
-│   │   │   ├── decompressed_size_17k
-│   │   │   └── decompressed_size_64k
-│   │   ├── count_64_64
-│   │   │   ├── decompressed_size_17k
-│   │   │   └── decompressed_size_64k
-│   │   └── count_128_128
-│   │       ├── decompressed_size_17k
-│   │       └── decompressed_size_64k
-│   ├── compression_level_6
-│   │   └── (same count/size combinations as level 0)
-│   └── compression_level_12
-│       └── (same count/size combinations as level 0)
 └── indirect
-    └── (same structure as direct)
 ```
 
 ## Test Families
 
-### direct
+### direct — Direct decompression dispatch
 
 Tests decompression using `vkCmdDecompressMemoryEXT()` with a `VkDecompressMemoryInfoEXT` structure containing an array of `VkDecompressMemoryRegionEXT` regions. The command processes exactly `executedDecompressionCount` regions from the array ([vktMemoryDecompressionTests.cpp:276-282](../../../modules/vulkan/memory/vktMemoryDecompressionTests.cpp#L276)).
 
-### indirect
+Internal structure under `direct`:
+
+- `compression_level_0` / `compression_level_6` / `compression_level_12` — each compression level contains the same set of count subgroups
+- Each count subgroup (`count_1_1`, `count_20_12`, `count_30_30_longstride`, `count_32_32`, `count_64_64`, `count_128_128`) contains two leaf tests: `decompressed_size_17k` and `decompressed_size_64k`
+
+### indirect — Indirect decompression dispatch
 
 Tests decompression using `vkCmdDecompressMemoryIndirectCountEXT()` where the decompression parameters are stored in a GPU buffer. The command reads `executedDecompressionCount` from a count buffer and processes that many entries from the indirect parameter buffer, using the specified stride between entries ([vktMemoryDecompressionTests.cpp:283-288](../../../modules/vulkan/memory/vktMemoryDecompressionTests.cpp#L283)).
+
+Internal structure under `indirect` mirrors `direct` with the same compression levels, count subgroups, and decompressed-size leaf tests.
 
 ## Parameter Dimensions
 

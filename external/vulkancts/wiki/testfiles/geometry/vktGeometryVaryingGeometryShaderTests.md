@@ -14,14 +14,12 @@ Implementation file.
 - Shared base instance: [`GeometryExpanderRenderTestInstance`](../../../modules/vulkan/geometry/vktGeometryBasicClass.hpp#L37)
 - Registration parent: [`vktGeometryTests.cpp`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L49)
 
-## Registration Path
+## Registration Hierarchy
 
 This file contributes the subgroup returned by [`createVaryingGeometryShaderTests()`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L273), which is attached under geometry by [`createChildren()`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L49).
 
-## Test Hierarchy
-
 ```text
-varying
+geometry.varying
 ├── vertex_no_op_geometry_out_1
 ├── vertex_out_0_geometry_out_1
 ├── vertex_out_0_geometry_out_2
@@ -33,29 +31,27 @@ Source: [`varyingTests[]`](../../../modules/vulkan/geometry/vktGeometryVaryingGe
 
 ## Test Families
 
-### 1. Vertex output suppression vs geometry output presence
+### vertex_no_op_geometry_out_1 — No vertex-stage outputs, one geometry-stage output
 
-The file distinguishes vertex-stage output modes through [`VertexOutputs`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L57):
-- [`VERTEXT_NO_OP`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L59)
-- [`VERTEXT_ZERO`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L60)
-- [`VERTEXT_ONE`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L61)
+[`vertex_no_op_geometry_out_1`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L280) uses [`VERTEXT_NO_OP`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L59) together with [`GEOMETRY_ONE`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L66). In this configuration, the geometry shader synthesizes fallback input color at [`inputColor = vec4(1.0, 0.0, 0.0, 1.0)`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L187) and forwards one varying to the fragment stage via [`v_frag_0`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L175).
 
-These control whether the vertex shader writes nothing, only position, or position plus one varying in [`VaryingTest::initPrograms()`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L130).
+### vertex_out_0_geometry_out_1 — Position-only vertex output, one geometry-stage output
 
-### 2. Geometry output count variations
+[`vertex_out_0_geometry_out_1`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L281) uses [`VERTEXT_ZERO`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L60) with [`GEOMETRY_ONE`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L66). The vertex shader writes only [`gl_Position`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L147), while the geometry shader still forwards one fragment-stage varying.
 
-Geometry-stage outputs are modeled by [`GeometryOutputs`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L63):
-- [`GEOMETRY_ZERO`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L65)
-- [`GEOMETRY_ONE`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L66)
-- [`GEOMETRY_TWO`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L67)
+### vertex_out_0_geometry_out_2 — Position-only vertex output, two geometry-stage outputs
 
-The geometry shader conditionally declares and writes fragment varyings at [`v_frag_0`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L175) and [`v_frag_1`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L177).
+[`vertex_out_0_geometry_out_2`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L282) keeps the same position-only vertex stage but upgrades the geometry output mode to [`GEOMETRY_TWO`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L67), causing the geometry shader to write both [`v_frag_0`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L175) and [`v_frag_1`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L177).
 
-### 3. Cross-stage propagation combinations
+### vertex_out_1_geometry_out_0 — Vertex-stage varying present, no geometry-stage varying outputs
 
-Concrete cases are expressed as [`VaryingTestSpec`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L70) combinations in [`varyingTests[]`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L279). These cases verify selected combinations of:
-- vertex shader writes none / position only / position plus one varying
-- geometry shader writes zero / one / two varyings to the fragment stage
+[`vertex_out_1_geometry_out_0`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L283) combines [`VERTEXT_ONE`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L61) with [`GEOMETRY_ZERO`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L65). The vertex shader writes [`v_geom_0`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L151), but the geometry stage does not declare fragment varyings, so the fragment shader falls back to [`fragColor = vec4(1.0, 0.0, 0.0, 1.0)`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L256).
+
+### vertex_out_1_geometry_out_2 — Vertex-stage varying present, two geometry-stage outputs
+
+[`vertex_out_1_geometry_out_2`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L284) combines vertex-produced varying data with the richest geometry-stage output mode. The geometry shader reads vertex input color from [`v_geom_0[]`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L172) and writes the split outputs combined later in the fragment shader at [`fragColor = v_frag_0 + v_frag_1.yxzw`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L260).
+
+Collectively, these cases are expressed as [`VaryingTestSpec`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L70) combinations in [`varyingTests[]`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L279). They verify selected combinations of vertex-stage output production and geometry-stage forwarding behavior.
 
 ## Parameter Dimensions
 
@@ -76,7 +72,7 @@ This file does not define a local CPU-side verification routine in the inspected
 
 Within the inspected code, expected behavior is encoded into the generated shaders themselves:
 - the geometry shader either forwards input color or synthesizes fallback red in [`inputColor`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L185) and [`inputColor = vec4(1.0, 0.0, 0.0, 1.0)`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L187)
-- the fragment shader selects output based on geometry-output mode at [`fragColor = vec4(1.0, 0.0, 0.0, 1.0)`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L256), [`fragColor = v_frag_0`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L257), and [`fragColor = v_frag_0 + v_frag_1.yxzw`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L259)
+- the fragment shader selects output based on geometry-output mode at [`fragColor = vec4(1.0, 0.0, 0.0, 1.0)`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L256), [`fragColor = v_frag_0`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L258), and [`fragColor = v_frag_0 + v_frag_1.yxzw`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L260)
 
 Because the shared `iterate()` implementation was not inspected here, this document only claims the verification strategy visible from this file: shader-generated observable color differences interpreted by the common geometry render path.
 

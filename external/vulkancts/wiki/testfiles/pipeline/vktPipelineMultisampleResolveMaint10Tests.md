@@ -13,39 +13,40 @@ Implementation file.
 - Primary source: [`vktPipelineMultisampleResolveMaint10Tests.cpp`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveMaint10Tests.cpp#L1)
 - Header: [`vktPipelineMultisampleResolveMaint10Tests.hpp`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveMaint10Tests.hpp#L1)
 
-## Registration Path
-
-[`createMultisampleResolveMaint10Tests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveMaint10Tests.cpp#L1583) returns the `m10_resolve` group, added to the `multisample` group by `createMultisampleTests()`.
-
-**Variant coverage**: Monolithic, fast-linked-library, and shader_object_unlinked_spirv only. Not registered for other variants.
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-m10_resolve
-└── {resolve_method}
-    └── {format}
-        └── {resolve_aspects}
-            └── {resolve_mode}
-                └── {resolve_area}
-                    └── {srgb_flags}
+pipeline.monolithic.multisample.m10_resolve
+├── resolve_cmd
+├── render_pass_resolve
+└── dynamic_render_resolve
 ```
+
+Source: [`createMultisampleResolveMaint10Tests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveMaint10Tests.cpp#L1583) returns the `m10_resolve` group, added to the `multisample` group by `createMultisampleTests()`. Variant coverage: monolithic, fast-linked-library, and shader_object_unlinked_spirv only. Not registered for other variants. The `render_pass_resolve` subgroup is skipped for shader-object construction type.
 
 ## Test Families
 
-| Family | Description |
-|---|---|
-| Maint10ResolveCase | Verifies VK_KHR_maintenance10 resolve operations with various parameter combinations |
+### resolve_cmd — Command-based resolve with maintenance10
+
+Verifies VK_KHR_maintenance10 resolve operations using `vkCmdResolveImage2`. Contains leaf test cases parameterized by `{format}`, `{resolve_aspects}` (color, depth, stencil, depth_stencil), `{resolve_mode}` (average, sample_zero, min, max), `{resolve_area}` (full, full_multilayer, region, regions_multilayer), and `{srgb_flags}` (no_flags, enable_transfer, skip_transfer).
+
+### render_pass_resolve — Render-pass resolve with maintenance10
+
+Verifies VK_KHR_maintenance10 resolve operations using render-pass resolve. Contains the same parameter structure as `resolve_cmd`, but only tests sRGB formats. Skipped for shader-object construction type.
+
+### dynamic_render_resolve — Dynamic rendering resolve with maintenance10
+
+Verifies VK_KHR_maintenance10 resolve operations using dynamic rendering resolve. Contains the same parameter structure as `resolve_cmd`, but only tests sRGB formats.
 
 ## Parameter Dimensions
 
 | Parameter | Source | Values |
 |---|---|---|
-| Resolve method | Enum | Renderpass resolve, vkCmdResolveImage2, etc. |
+| Resolve method | Enum | Renderpass resolve, vkCmdResolveImage2, dynamic rendering resolve |
 | VkFormat | Loop | Color and depth/stencil formats |
 | Resolve aspects | Bitfield | Color, depth, stencil, depth+stencil |
 | Resolve mode | Enum | VK_RESOLVE_MODE_SAMPLE_ZERO_BIT, VK_RESOLVE_MODE_MAX_BIT, VK_RESOLVE_MODE_MIN_BIT, VK_RESOLVE_MODE_AVERAGE_BIT |
-| Resolve area | Struct | Full framebuffer, partial |
+| Resolve area | Struct | Full framebuffer, full multilayer, region, regions multilayer |
 | sRGB flags | Bool | With/without sRGB conversion |
 | PipelineConstructionType | Parameter | Limited variant types |
 

@@ -14,25 +14,23 @@ Implementation file.
 - Shared base: [`DynamicStateBaseClass`](../../../modules/vulkan/dynamic_state/vktDynamicStateBaseClass.hpp#L43)
 - Test case utilities: [`vktDynamicStateTestCaseUtil.hpp`](../../../modules/vulkan/dynamic_state/vktDynamicStateTestCaseUtil.hpp#L1)
 
-## Registration Path
-
-This file contributes the [`DynamicStateCBTests`](../../../modules/vulkan/dynamic_state/vktDynamicStateCBTests.cpp#L210) group (named `"cb_state"`), which is attached under each pipeline construction type subgroup by [`createChildren()`](../../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L51).
-
-## Test Hierarchy
+## Registration Hierarchy
 
 ```text
-cb_state
+dynamic_state.monolithic.cb_state
 ├── blend_constants
 └── blend_constants_mesh    (non-VulkanSC only)
 ```
 
-Source: [`DynamicStateCBTests::init()`](../../../modules/vulkan/dynamic_state/vktDynamicStateCBTests.cpp#L222).
-
 ## Test Families
 
-### 1. Blend constants
+### blend_constants — Blend constants
 
 [`blend_constants`](../../../modules/vulkan/dynamic_state/vktDynamicStateCBTests.cpp#L233) and [`blend_constants_mesh`](../../../modules/vulkan/dynamic_state/vktDynamicStateCBTests.cpp#L241) use [`BlendConstantsTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateCBTests.cpp#L49). A full-screen quad is drawn with green vertex colors onto a white background, with blending enabled using `VK_BLEND_FACTOR_CONSTANT_COLOR` and `VK_BLEND_FACTOR_CONSTANT_ALPHA` as destination blend factors. Dynamic blend constants `(0.33, 0.1, 0.66, 0.5)` are set via [`setDynamicBlendState()`](../../../modules/vulkan/dynamic_state/vktDynamicStateCBTests.cpp#L132). The test verifies the blended output matches the expected color derived from the blend operation.
+
+### blend_constants_mesh — Blend constants (mesh shader)
+
+Mesh shader variant of `blend_constants`. See `blend_constants` above for test logic. Excluded on Vulkan SC builds.
 
 ## Parameter Dimensions
 

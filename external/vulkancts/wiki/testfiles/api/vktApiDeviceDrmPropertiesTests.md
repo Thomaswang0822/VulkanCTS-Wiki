@@ -2,82 +2,76 @@
 
 ## Overview
 
-Tests VK_EXT_physical_device_drm by querying `VkPhysicalDeviceDrmPropertiesEXT` and verifying that DRM device files corresponding to the reported primary and render major/minor node numbers exist on the system.
+[`vktApiDeviceDrmPropertiesTests.cpp`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L1) is an implementation-heavy Level-3 file for the `api.device_drm_properties` subtree. It registers one direct child, `drm_files_exist`, and that leaf verifies that the DRM major/minor node numbers reported through `VK_EXT_physical_device_drm` correspond to device nodes visible on the system.
 
 ## Role of File
 
-Implementation-heavy. Contains test logic, DRM library integration, and registration.
+Implementation-heavy test file for the `api.device_drm_properties` subgroup. The public entry point is [`createDeviceDrmPropertiesTests()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L118-L121).
 
 ## Source Code
 
-| File | Description |
-|------|-------------|
-| [vktApiDeviceDrmPropertiesTests.cpp](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L1) | Test implementation and registration |
-| [vktApiDeviceDrmPropertiesTests.hpp](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.hpp#L1) | Declares `createDeviceDrmPropertiesTests` |
-| [vktApiTests.cpp](../../../modules/vulkan/api/vktApiTests.cpp#L98) | Parent registration: `apiTests->addChild(createDeviceDrmPropertiesTests(testCtx))` |
+- Primary source: [vktApiDeviceDrmPropertiesTests.cpp](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L1)
+- Header: [vktApiDeviceDrmPropertiesTests.hpp](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.hpp#L1)
+- Parent-category registration: [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L100-L140)
 
-## Registration Path
+## Registration Hierarchy
 
-```
-api
-  +-- device_drm_properties
-       +-- drm_files_exist
+```text
+api.device_drm_properties
+└── drm_files_exist
 ```
 
-## Test Hierarchy
-
-```
-device_drm_properties
-  +-- drm_files_exist
-       Queries VkPhysicalDeviceDrmPropertiesEXT and verifies
-       that DRM device nodes exist for reported major/minor numbers
-```
+The confirmed Level-3 root is `api.device_drm_properties`, created by [`createDeviceDrmPropertiesTests()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L118-L121) and registered under `api` in [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L136-L136). The exact direct child confirmed from [`createTestCases()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L110-L114) is `drm_files_exist`, added through [`addFunctionCase(group, "drm_files_exist", ...)`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L113-L113).
 
 ## Test Families
 
-### device_drm_properties
+### drm_files_exist — DRM node existence validation
 
-Group name verified at [vktApiDeviceDrmPropertiesTests.cpp:120](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L120): `createTestGroup(testCtx, "device_drm_properties", createTestCases)`.
+Covers the only direct child registered by [`createTestCases()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L110-L114). The leaf executes [`testDeviceDrmProperties()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L80-L108), which queries [`VkPhysicalDeviceDrmPropertiesEXT`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L86-L96) through [`getPhysicalDeviceProperties2()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L96-L96) and then dispatches to [`testFilesExist()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L53-L78).
 
-Single test case `drm_files_exist` at [line 113](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L113).
+The execution flow observed in [`testDeviceDrmProperties()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L80-L108) is:
 
-The test function `testDeviceDrmProperties` at [line 80](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L80):
-1. Pre-fills `VkPhysicalDeviceDrmPropertiesEXT` with zeros and `VkPhysicalDeviceProperties2` with 0xAA pattern ([lines 86-94](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L86))
-2. Chains `VkPhysicalDeviceDrmPropertiesEXT` into `VkPhysicalDeviceProperties2.pNext` ([line 94](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L94))
-3. Calls `getPhysicalDeviceProperties2` ([line 96](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L96))
-4. Calls `testFilesExist` which checks DRM device nodes ([line 101](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L101))
+1. Zero-initialize [`VkPhysicalDeviceDrmPropertiesEXT`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L88-L90).
+2. Fill [`VkPhysicalDeviceProperties2`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L84-L94) with the `0xaa` pattern before setting the required `sType` and `pNext` fields.
+3. Chain the DRM extension struct through `pNext` and call [`getPhysicalDeviceProperties2()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L94-L96).
+4. For `TEST_FILES_EXIST`, pass the queried DRM properties to [`testFilesExist()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L98-L102).
 
-The `testFilesExist` function at [line 53](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L53):
-- If `hasPrimary` is true, searches for a DRM device node matching `primaryMajor`/`primaryMinor`
-- If `hasRender` is true, searches for a DRM device node matching `renderMajor`/`renderMinor`
-- Uses `tcu::LibDrm` to enumerate DRM devices when `DEQP_SUPPORT_DRM` is defined ([line 58](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L58))
-- Throws `NotSupportedError` if neither primary nor render device files are found ([lines 74-77](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L74))
+Within [`testFilesExist()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L53-L78), the test:
+
+- Treats a missing primary or render requirement as already satisfied by initializing `primaryFound` from `!hasPrimary` and `renderFound` from `!hasRender` in [`vktApiDeviceDrmPropertiesTests.cpp`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L55-L56).
+- When DRM support is compiled in and Vulkan SC is not in use, enumerates DRM devices through [`tcu::LibDrm`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L58-L71).
+- Uses [`findDeviceNode()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L64-L69) to look up both the primary and render major/minor pairs reported by the driver.
+- Throws [`NotSupportedError`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L74-L77) if neither reported DRM node can be resolved to an existing device file.
 
 ## Parameter Dimensions
 
-| Dimension | Observed Values | Notes |
-|-----------|----------------|-------|
-| Test type | TEST_FILES_EXIST | Only one test type defined |
-| DRM node type | Primary, Render | Both checked if hasPrimary/hasRender is true |
+| Dimension | Observed values / evidence |
+|---|---|
+| Direct child subgroup | `drm_files_exist` from [`createTestCases()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L110-L114) |
+| Test type enum | `TEST_FILES_EXIST` in [`enum TestType`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L42-L45) |
+| DRM node categories | `primary` and `render` from the `hasPrimary` / `hasRender` flags and corresponding major/minor fields consumed in [`testFilesExist()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L55-L69) |
+| Property-query fill pattern | `0xaa` stored in `memsetPattern` before the query in [`testDeviceDrmProperties()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L84-L94) |
 
 ## Support / Feature Requirements
 
-- `VK_EXT_physical_device_drm` required via `checkSupport` at [line 50](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L50)
-- `DEQP_SUPPORT_DRM` must be defined at compile time for actual DRM device node lookup ([line 58](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L58))
-- `CTS_USES_VULKANSC` must not be defined for DRM lookup ([line 58](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L58))
+- `VK_EXT_physical_device_drm` is required for the leaf by [`checkSupport()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L47-L51).
+- Actual DRM device enumeration requires the `DEQP_SUPPORT_DRM` build flag and excludes Vulkan SC builds through the preprocessor guard in [`vktApiDeviceDrmPropertiesTests.cpp`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L58-L72).
+- The validation is effectively Linux/DRM-platform-specific because it depends on DRM device discovery via [`tcu::LibDrm`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L58-L71).
 
 ## Verification Methods
 
-- **DRM node existence**: Uses `tcu::LibDrm::findDeviceNode` to search for DRM device nodes matching the major/minor numbers reported in `VkPhysicalDeviceDrmPropertiesEXT` ([lines 64-69](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L64))
-- **Pre-fill pattern**: The `VkPhysicalDeviceProperties2` structure is pre-filled with 0xAA to detect if the implementation writes to it correctly ([line 85](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L85))
+- **DRM node existence**: [`testFilesExist()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L53-L78) resolves the primary and render major/minor values against enumerated DRM devices using [`findDeviceNode()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L64-L69).
+- **Failure condition**: the test reports failure by throwing [`NotSupportedError`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L74-L77) when neither expected DRM node is found.
+- **Property query initialization guard**: [`testDeviceDrmProperties()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L84-L96) pre-fills [`VkPhysicalDeviceProperties2`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L84-L94) with `0xaa` before invoking the Vulkan query.
 
 ## Test Principles Observed
 
-- Platform integration: verifies that Vulkan DRM properties correspond to actual system DRM devices
-- Property validation: checks that reported DRM node numbers are usable
+- Cross-check extension-reported DRM metadata against actual platform-visible DRM device nodes.
+- Use the Vulkan `pNext` chain to request extension-specific physical-device properties.
+- Treat primary and render DRM nodes as separate validation targets while allowing platforms to report only one of them.
 
 ## Notes / Uncertainties
 
-- Without `DEQP_SUPPORT_DRM`, the test always passes as long as at least one of `hasPrimary` or `hasRender` is false, because `primaryFound`/`renderFound` default to true when the corresponding `has*` flag is false ([line 55](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L55))
-- The test does not verify the content of `VkPhysicalDeviceProperties2.properties` beyond the DRM extension; the 0xAA pre-fill is not checked after the query
-- This test is Linux-specific due to its dependency on DRM
+- The canonical normalization for this page confirms the Level-3 root as `api.device_drm_properties` and the only direct child as `drm_files_exist`.
+- If `DEQP_SUPPORT_DRM` is not enabled, the DRM enumeration block is compiled out, so success depends only on the initial `hasPrimary` / `hasRender` state handled in [`testFilesExist()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L55-L56).
+- The inspected code does not explicitly validate the non-DRM members of [`VkPhysicalDeviceProperties2`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L84-L96) after the query.

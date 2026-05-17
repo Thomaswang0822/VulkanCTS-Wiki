@@ -4,10 +4,13 @@
 
 - [vktRenderPassUnusedClearAttachmentTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp)
 
-## Registration
+## Registration Hierarchy
 
-- **Path**: Added to `suballocation` subgroup (monolithic pipeline only, secondary CB match)
-- **Registered group name**: `"unused_clear_attachments"` at [vktRenderPassUnusedClearAttachmentTests.cpp#L1276](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1276)
+```text
+renderpasses.renderpass1.suballocation.unused_clear_attachments
+```
+
+Registered under all rendering types (renderpass1, renderpass2, dynamic_rendering) within the `suballocation` subgroup, monolithic pipeline only. Registered group name: `"unused_clear_attachments"` at [vktRenderPassUnusedClearAttachmentTests.cpp#L1276](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1276).
 
 ## Role
 
@@ -17,15 +20,9 @@ Implementation file
 
 ### Combination tests
 
-- **Pattern**: `<combination>_<dsCase>_<used>`
+Flat group of leaf test cases with no child subgroups. Test names follow the pattern `<combination>_<dsCase>_<used>`.
+
 - **Definition**: [vktRenderPassUnusedClearAttachmentTests.cpp#L1278-L1339](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1278-L1339)
-
-## Test Hierarchy
-
-```
-unused_clear_attachments
-+-- <combination>_<dsCase>_<used>
-```
 
 ## Parameter Dimensions
 

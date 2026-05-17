@@ -14,59 +14,281 @@ Provides the `none_stage` test group, which validates that pipeline barriers usi
 
 - [vktSynchronizationNoneStageTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp)
 
-## Registration Path
+## Registration Hierarchy
 
-```
+```text
 synchronization2.none_stage
+├── color_attachment_to_general
+├── color_attachment_to_generic_color_read
+├── color_attachment_to_shader_read
+├── color_attachment_to_transfer_src
+├── depth_attachment_to_depth_read
+├── depth_attachment_to_general
+├── depth_attachment_to_generic_color_read
+├── depth_attachment_to_generic_depth_read
+├── depth_attachment_to_shader_read
+├── depth_attachment_to_transfer_src
+├── depth_stencil_attachment_to_depth_attachment_stencil_read
+├── depth_stencil_attachment_to_depth_read_stencil_attachment
+├── depth_stencil_attachment_to_depth_stencil_read
+├── depth_stencil_attachment_to_general
+├── depth_stencil_attachment_to_generic_color_read
+├── depth_stencil_attachment_to_generic_depth_stencil_read
+├── depth_stencil_attachment_to_shader_read
+├── depth_stencil_attachment_to_transfer_src
+├── general_to_depth_attachment_stencil_read
+├── general_to_depth_read
+├── general_to_depth_read_stencil_attachment
+├── general_to_depth_stencil_read
+├── general_to_general
+├── general_to_generic_color_read
+├── general_to_generic_depth_read
+├── general_to_generic_depth_stencil_read
+├── general_to_generic_stencil_read
+├── general_to_shader_read
+├── general_to_stencil_read
+├── general_to_transfer_src
+├── generic_color_attachment_to_general
+├── generic_color_attachment_to_generic_color_read
+├── generic_color_attachment_to_shader_read
+├── generic_color_attachment_to_transfer_src
+├── generic_depth_attachment_to_depth_read
+├── generic_depth_attachment_to_general
+├── generic_depth_attachment_to_generic_color_read
+├── generic_depth_attachment_to_generic_depth_read
+├── generic_depth_attachment_to_shader_read
+├── generic_depth_attachment_to_transfer_src
+├── generic_depth_stencil_attachment_to_depth_attachment_stencil_read
+├── generic_depth_stencil_attachment_to_depth_read_stencil_attachment
+├── generic_depth_stencil_attachment_to_depth_stencil_read
+├── generic_depth_stencil_attachment_to_general
+├── generic_depth_stencil_attachment_to_generic_color_read
+├── generic_depth_stencil_attachment_to_generic_depth_stencil_read
+├── generic_depth_stencil_attachment_to_shader_read
+├── generic_depth_stencil_attachment_to_transfer_src
+├── generic_stencil_attachment_to_general
+├── generic_stencil_attachment_to_generic_color_read
+├── generic_stencil_attachment_to_generic_stencil_read
+├── generic_stencil_attachment_to_shader_read
+├── generic_stencil_attachment_to_stencil_read
+├── generic_stencil_attachment_to_transfer_src
+├── legacy_color_attachment_to_general
+├── legacy_color_attachment_to_generic_color_read
+├── legacy_color_attachment_to_shader_read
+├── legacy_color_attachment_to_transfer_src
+├── legacy_depth_attachment_to_depth_read
+├── legacy_depth_attachment_to_general
+├── legacy_depth_attachment_to_generic_color_read
+├── legacy_depth_attachment_to_generic_depth_read
+├── legacy_depth_attachment_to_shader_read
+├── legacy_depth_attachment_to_transfer_src
+├── legacy_depth_stencil_attachment_to_depth_attachment_stencil_read
+├── legacy_depth_stencil_attachment_to_depth_read_stencil_attachment
+├── legacy_depth_stencil_attachment_to_depth_stencil_read
+├── legacy_depth_stencil_attachment_to_general
+├── legacy_depth_stencil_attachment_to_generic_color_read
+├── legacy_depth_stencil_attachment_to_generic_depth_stencil_read
+├── legacy_depth_stencil_attachment_to_shader_read
+├── legacy_depth_stencil_attachment_to_transfer_src
+├── legacy_general_to_depth_attachment_stencil_read
+├── legacy_general_to_depth_read
+├── legacy_general_to_depth_read_stencil_attachment
+├── legacy_general_to_depth_stencil_read
+├── legacy_general_to_general
+├── legacy_general_to_generic_color_read
+├── legacy_general_to_generic_depth_read
+├── legacy_general_to_generic_depth_stencil_read
+├── legacy_general_to_generic_stencil_read
+├── legacy_general_to_shader_read
+├── legacy_general_to_stencil_read
+├── legacy_general_to_transfer_src
+├── legacy_generic_color_attachment_to_general
+├── legacy_generic_color_attachment_to_generic_color_read
+├── legacy_generic_color_attachment_to_shader_read
+├── legacy_generic_color_attachment_to_transfer_src
+├── legacy_generic_depth_attachment_to_depth_read
+├── legacy_generic_depth_attachment_to_general
+├── legacy_generic_depth_attachment_to_generic_color_read
+├── legacy_generic_depth_attachment_to_generic_depth_read
+├── legacy_generic_depth_attachment_to_shader_read
+├── legacy_generic_depth_attachment_to_transfer_src
+├── legacy_generic_depth_stencil_attachment_to_depth_attachment_stencil_read
+├── legacy_generic_depth_stencil_attachment_to_depth_read_stencil_attachment
+├── legacy_generic_depth_stencil_attachment_to_depth_stencil_read
+├── legacy_generic_depth_stencil_attachment_to_general
+├── legacy_generic_depth_stencil_attachment_to_generic_color_read
+├── legacy_generic_depth_stencil_attachment_to_generic_depth_stencil_read
+├── legacy_generic_depth_stencil_attachment_to_shader_read
+├── legacy_generic_depth_stencil_attachment_to_transfer_src
+├── legacy_generic_stencil_attachment_to_general
+├── legacy_generic_stencil_attachment_to_generic_color_read
+├── legacy_generic_stencil_attachment_to_generic_stencil_read
+├── legacy_generic_stencil_attachment_to_shader_read
+├── legacy_generic_stencil_attachment_to_stencil_read
+├── legacy_generic_stencil_attachment_to_transfer_src
+├── legacy_stencil_attachment_to_general
+├── legacy_stencil_attachment_to_generic_color_read
+├── legacy_stencil_attachment_to_generic_stencil_read
+├── legacy_stencil_attachment_to_shader_read
+├── legacy_stencil_attachment_to_stencil_read
+├── legacy_stencil_attachment_to_transfer_src
+├── legacy_transfer_dst_to_depth_attachment_stencil_read
+├── legacy_transfer_dst_to_depth_read
+├── legacy_transfer_dst_to_depth_read_stencil_attachment
+├── legacy_transfer_dst_to_depth_stencil_read
+├── legacy_transfer_dst_to_general
+├── legacy_transfer_dst_to_generic_color_read
+├── legacy_transfer_dst_to_generic_depth_read
+├── legacy_transfer_dst_to_generic_depth_stencil_read
+├── legacy_transfer_dst_to_generic_stencil_read
+├── legacy_transfer_dst_to_shader_read
+├── legacy_transfer_dst_to_stencil_read
+├── legacy_transfer_dst_to_transfer_src
+├── old_access_color_attachment_to_general
+├── old_access_color_attachment_to_generic_color_read
+├── old_access_color_attachment_to_shader_read
+├── old_access_color_attachment_to_transfer_src
+├── old_access_depth_attachment_to_depth_read
+├── old_access_depth_attachment_to_general
+├── old_access_depth_attachment_to_generic_color_read
+├── old_access_depth_attachment_to_generic_depth_read
+├── old_access_depth_attachment_to_shader_read
+├── old_access_depth_attachment_to_transfer_src
+├── old_access_depth_stencil_attachment_to_depth_attachment_stencil_read
+├── old_access_depth_stencil_attachment_to_depth_read_stencil_attachment
+├── old_access_depth_stencil_attachment_to_depth_stencil_read
+├── old_access_depth_stencil_attachment_to_general
+├── old_access_depth_stencil_attachment_to_generic_color_read
+├── old_access_depth_stencil_attachment_to_generic_depth_stencil_read
+├── old_access_depth_stencil_attachment_to_shader_read
+├── old_access_depth_stencil_attachment_to_transfer_src
+├── old_access_general_to_depth_attachment_stencil_read
+├── old_access_general_to_depth_read
+├── old_access_general_to_depth_read_stencil_attachment
+├── old_access_general_to_depth_stencil_read
+├── old_access_general_to_general
+├── old_access_general_to_generic_color_read
+├── old_access_general_to_generic_depth_read
+├── old_access_general_to_generic_depth_stencil_read
+├── old_access_general_to_generic_stencil_read
+├── old_access_general_to_shader_read
+├── old_access_general_to_stencil_read
+├── old_access_general_to_transfer_src
+├── old_access_generic_color_attachment_to_general
+├── old_access_generic_color_attachment_to_generic_color_read
+├── old_access_generic_color_attachment_to_shader_read
+├── old_access_generic_color_attachment_to_transfer_src
+├── old_access_generic_depth_attachment_to_depth_read
+├── old_access_generic_depth_attachment_to_general
+├── old_access_generic_depth_attachment_to_generic_color_read
+├── old_access_generic_depth_attachment_to_generic_depth_read
+├── old_access_generic_depth_attachment_to_shader_read
+├── old_access_generic_depth_attachment_to_transfer_src
+├── old_access_generic_depth_stencil_attachment_to_depth_attachment_stencil_read
+├── old_access_generic_depth_stencil_attachment_to_depth_read_stencil_attachment
+├── old_access_generic_depth_stencil_attachment_to_depth_stencil_read
+├── old_access_generic_depth_stencil_attachment_to_general
+├── old_access_generic_depth_stencil_attachment_to_generic_color_read
+├── old_access_generic_depth_stencil_attachment_to_generic_depth_stencil_read
+├── old_access_generic_depth_stencil_attachment_to_shader_read
+├── old_access_generic_depth_stencil_attachment_to_transfer_src
+├── old_access_generic_stencil_attachment_to_general
+├── old_access_generic_stencil_attachment_to_generic_color_read
+├── old_access_generic_stencil_attachment_to_generic_stencil_read
+├── old_access_generic_stencil_attachment_to_shader_read
+├── old_access_generic_stencil_attachment_to_stencil_read
+├── old_access_generic_stencil_attachment_to_transfer_src
+├── old_access_stencil_attachment_to_general
+├── old_access_stencil_attachment_to_generic_color_read
+├── old_access_stencil_attachment_to_generic_stencil_read
+├── old_access_stencil_attachment_to_shader_read
+├── old_access_stencil_attachment_to_stencil_read
+├── old_access_stencil_attachment_to_transfer_src
+├── old_access_transfer_dst_to_depth_attachment_stencil_read
+├── old_access_transfer_dst_to_depth_read
+├── old_access_transfer_dst_to_depth_read_stencil_attachment
+├── old_access_transfer_dst_to_depth_stencil_read
+├── old_access_transfer_dst_to_general
+├── old_access_transfer_dst_to_generic_color_read
+├── old_access_transfer_dst_to_generic_depth_read
+├── old_access_transfer_dst_to_generic_depth_stencil_read
+├── old_access_transfer_dst_to_generic_stencil_read
+├── old_access_transfer_dst_to_shader_read
+├── old_access_transfer_dst_to_stencil_read
+├── old_access_transfer_dst_to_transfer_src
+├── stencil_attachment_to_general
+├── stencil_attachment_to_generic_color_read
+├── stencil_attachment_to_generic_stencil_read
+├── stencil_attachment_to_shader_read
+├── stencil_attachment_to_stencil_read
+├── stencil_attachment_to_transfer_src
+├── transfer_dst_to_depth_attachment_stencil_read
+├── transfer_dst_to_depth_read
+├── transfer_dst_to_depth_read_stencil_attachment
+├── transfer_dst_to_depth_stencil_read
+├── transfer_dst_to_general
+├── transfer_dst_to_generic_color_read
+├── transfer_dst_to_generic_depth_read
+├── transfer_dst_to_generic_depth_stencil_read
+├── transfer_dst_to_generic_stencil_read
+├── transfer_dst_to_shader_read
+├── transfer_dst_to_stencil_read
+└── transfer_dst_to_transfer_src
 ```
 
-Registered in the sync2 path via `createNoneStageTests()` added to the `synchronization2` group in [vktSynchronizationTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp) (line 129).
-
-## Test Hierarchy
-
-```
-none_stage
-+-- <syncPrefix><writeLayout>_to_<readLayout>
-```
-
-### Layout Names
-
-**Writable layouts** (10 total):
-- `transfer_dst` (TRANSFER_DST_OPTIMAL, all aspects)
-- `general` (GENERAL, all aspects)
-- `color_attachment` (COLOR_ATTACHMENT_OPTIMAL, color aspect)
-- `depth_stencil_attachment` (DEPTH_STENCIL_ATTACHMENT_OPTIMAL, depth+stencil)
-- `depth_attachment` (DEPTH_ATTACHMENT_OPTIMAL, depth aspect)
-- `stencil_attachment` (STENCIL_ATTACHMENT_OPTIMAL, stencil aspect)
-- `generic_color_attachment` (ATTACHMENT_OPTIMAL_KHR, color aspect)
-- `generic_depth_attachment` (ATTACHMENT_OPTIMAL_KHR, depth aspect)
-- `generic_stencil_attachment` (ATTACHMENT_OPTIMAL_KHR, stencil aspect)
-- `generic_depth_stencil_attachment` (ATTACHMENT_OPTIMAL_KHR, depth+stencil)
-
-**Readable layouts** (12 total):
-- `transfer_src` (TRANSFER_SRC_OPTIMAL, all aspects)
-- `general` (GENERAL, all aspects)
-- `shader_read` (SHADER_READ_ONLY_OPTIMAL, all aspects)
-- `depth_stencil_read` (DEPTH_STENCIL_READ_ONLY_OPTIMAL, depth+stencil)
-- `depth_read_stencil_attachment` (DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL, depth+stencil)
-- `depth_attachment_stencil_read` (DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL, depth+stencil)
-- `depth_read` (DEPTH_READ_ONLY_OPTIMAL, depth aspect)
-- `stencil_read` (STENCIL_READ_ONLY_OPTIMAL, stencil aspect)
-- `generic_color_read` (READ_ONLY_OPTIMAL_KHR, all aspects)
-- `generic_depth_read` (READ_ONLY_OPTIMAL_KHR, depth aspect)
-- `generic_stencil_read` (READ_ONLY_OPTIMAL_KHR, stencil aspect)
-- `generic_depth_stencil_read` (READ_ONLY_OPTIMAL_KHR, depth+stencil)
-
-**Sync prefixes** (3 variants):
-- (empty) -- sync2 with generic access flags
-- `old_access_` -- sync2 with specific access flags
-- `legacy_` -- LEGACY synchronization structures with NONE_STAGE
+Registered in the sync2 path via [`createNoneStageTests()`](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp) added to the `synchronization2` group in [vktSynchronizationTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp) (line 129). This group is **NOT** registered under the LEGACY `synchronization` category.
 
 ## Test Families
 
-| Family | Description |
-|--------|-------------|
-| NoneStageTestCase | Individual test case per write-layout/read-layout/sync-type combination. Writes gradient data to an image, uses a barrier with NONE stage between write and read, transitions layout, reads back data, and verifies correctness. |
+Each direct child is an individual test case following the naming pattern `<syncPrefix><writeLayout>_to_<readLayout>`. The 216 test cases are organized into three groups by synchronization type and access flag strategy.
+
+### color_attachment_to_general — sync2 with generic access flags (72 tests)
+
+Test cases with no name prefix. These use `SynchronizationType::SYNCHRONIZATION2` with generic access flags (`VK_ACCESS_2_MEMORY_READ_BIT_KHR` / `VK_ACCESS_2_MEMORY_WRITE_BIT_KHR`) instead of specific access flags.
+
+Each test writes gradient data to an image via a method appropriate for the writable layout, uses a barrier with `VK_PIPELINE_STAGE_2_NONE_KHR` destination stage and `VK_ACCESS_2_NONE_KHR` destination access mask between write and read, transitions layout, reads back data, and verifies correctness.
+
+**Writable layouts** (10 total):
+
+| Name | Layout | Aspect |
+|------|--------|--------|
+| `transfer_dst` | TRANSFER_DST_OPTIMAL | all |
+| `general` | GENERAL | all |
+| `color_attachment` | COLOR_ATTACHMENT_OPTIMAL | color |
+| `depth_stencil_attachment` | DEPTH_STENCIL_ATTACHMENT_OPTIMAL | depth+stencil |
+| `depth_attachment` | DEPTH_ATTACHMENT_OPTIMAL | depth |
+| `stencil_attachment` | STENCIL_ATTACHMENT_OPTIMAL | stencil |
+| `generic_color_attachment` | ATTACHMENT_OPTIMAL_KHR | color |
+| `generic_depth_attachment` | ATTACHMENT_OPTIMAL_KHR | depth |
+| `generic_stencil_attachment` | ATTACHMENT_OPTIMAL_KHR | stencil |
+| `generic_depth_stencil_attachment` | ATTACHMENT_OPTIMAL_KHR | depth+stencil |
+
+**Readable layouts** (12 total):
+
+| Name | Layout | Aspect |
+|------|--------|--------|
+| `transfer_src` | TRANSFER_SRC_OPTIMAL | all |
+| `general` | GENERAL | all |
+| `shader_read` | SHADER_READ_ONLY_OPTIMAL | all |
+| `depth_stencil_read` | DEPTH_STENCIL_READ_ONLY_OPTIMAL | depth+stencil |
+| `depth_read_stencil_attachment` | DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL | depth+stencil |
+| `depth_attachment_stencil_read` | DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL | depth+stencil |
+| `depth_read` | DEPTH_READ_ONLY_OPTIMAL | depth |
+| `stencil_read` | STENCIL_READ_ONLY_OPTIMAL | stencil |
+| `generic_color_read` | READ_ONLY_OPTIMAL_KHR | all |
+| `generic_depth_read` | READ_ONLY_OPTIMAL_KHR | depth |
+| `generic_stencil_read` | READ_ONLY_OPTIMAL_KHR | stencil |
+| `generic_depth_stencil_read` | READ_ONLY_OPTIMAL_KHR | depth+stencil |
+
+Incompatible write/read aspect combinations are skipped (e.g., color write with depth-only read).
+
+### old_access_color_attachment_to_general — sync2 with specific access flags (72 tests)
+
+Test cases with the `old_access_` name prefix. These use `SynchronizationType::SYNCHRONIZATION2` with specific access flags (e.g., `VK_ACCESS_2_TRANSFER_WRITE_BIT_KHR`, `VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT_KHR`) instead of the generic `MEMORY_READ`/`MEMORY_WRITE` flags. The write layout, read layout, and aspect filtering are identical to the no-prefix group.
+
+### legacy_color_attachment_to_general — LEGACY synchronization with NONE stage (72 tests)
+
+Test cases with the `legacy_` name prefix. These use `SynchronizationType::LEGACY` synchronization structures (e.g., `vkCmdPipelineBarrier` instead of `vkCmdPipelineBarrier2`) with `VK_PIPELINE_STAGE_NONE_KHR` to verify backward compatibility. The write layout, read layout, and aspect filtering are identical to the no-prefix group. Despite using LEGACY structures, these tests are still registered under `synchronization2.none_stage` because the `none_stage` group is only added to the `synchronization2` test tree.
 
 ## Parameter Dimensions
 

@@ -14,44 +14,37 @@ Implementation file.
 - Shared base instance: [`GeometryExpanderRenderTestInstance`](../../../modules/vulkan/geometry/vktGeometryBasicClass.hpp#L37)
 - Related helper declaration: [`checkPointSize()`](../../../modules/vulkan/geometry/vktGeometryTestsUtil.hpp#L166)
 
-## Registration Path
+## Registration Hierarchy
 
 This file contributes the subgroup returned by [`createBuiltinVariableGeometryShaderTests()`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L428), which is attached under geometry by [`createChildren()`](../../../modules/vulkan/geometry/vktGeometryTests.cpp#L51).
 
-## Test Hierarchy
-
 ```text
-builtin_variable
+geometry.builtin_variable
 ├── in_block
-│   ├── point_size
-│   ├── primitive_id_in
-│   ├── primitive_id_in_restarted
-│   └── primitive_id
 └── outside_block
-    └── position
 ```
 
 Source: [`createBuiltinVariableGeometryShaderTests()`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L428).
 
 ## Test Families
 
-### 1. Point-size handling
+### in_block — Built-ins declared inside the geometry input block
 
-The [`point_size`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L435) case uses [`TEST_POINT_SIZE`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L66). The vertex shader passes a per-vertex value via [`v_geom_pointSize`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L217), and the geometry shader writes [`gl_PointSize = v_geom_pointSize[0].x + 1.0`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L279).
+The [`in_block`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L431) subgroup contains the cases registered in [`createBuiltinVariableGeometryShaderTests()`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L435):
+- [`point_size`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L435)
+- [`primitive_id_in`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L437)
+- [`primitive_id_in_restarted`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L439)
+- [`primitive_id`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L441)
 
-### 2. Primitive ID input
+Within that subgroup:
+- [`point_size`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L435) uses [`TEST_POINT_SIZE`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L66). The vertex shader passes a per-vertex value via [`v_geom_pointSize`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L217), and the geometry shader writes [`gl_PointSize = v_geom_pointSize[0].x + 1.0`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L279).
+- [`primitive_id_in`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L437) uses [`TEST_PRIMITIVE_ID_IN`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L67). The geometry shader colors output from a small color table indexed by [`gl_PrimitiveIDIn % 4`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L311).
+- [`primitive_id_in_restarted`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L439) reuses the same test type with [`indicesTest = true`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L439), which enables indexed drawing with a primitive-restart marker [`0xFFFF`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L127).
+- [`primitive_id`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L441) uses [`TEST_PRIMITIVE_ID`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L68). The geometry shader derives [`gl_PrimitiveID`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L338) from the input varying, and the fragment shader maps [`gl_PrimitiveID % 4`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L403) to one of four colors.
 
-The [`primitive_id_in`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L437) case uses [`TEST_PRIMITIVE_ID_IN`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L67). The geometry shader colors output from a small color table indexed by [`gl_PrimitiveIDIn % 4`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L311).
+### outside_block — Position case outside the geometry input block
 
-The [`primitive_id_in_restarted`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L439) case reuses the same test type with [`indicesTest = true`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L439), which enables indexed drawing with a primitive-restart marker [`0xFFFF`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L127).
-
-### 3. Primitive ID output
-
-The [`primitive_id`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L441) case uses [`TEST_PRIMITIVE_ID`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L68). The geometry shader derives [`gl_PrimitiveID`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L338) from the input varying, and the fragment shader maps [`gl_PrimitiveID % 4`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L403) to one of four colors.
-
-### 4. Position case
-
-The [`position`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L443) case uses [`TEST_POSITION`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L69). Unlike the GLSL-based cases above, the geometry stage here is emitted as HLSL source beginning at [`struct VSOut`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L350) and appends the three triangle input positions to the output stream.
+The [`outside_block`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L432) subgroup contains the single [`position`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L443) case. It uses [`TEST_POSITION`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L69). Unlike the GLSL-based cases above, the geometry stage here is emitted as HLSL source beginning at [`struct VSOut`](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L350) and appends the three triangle input positions to the output stream.
 
 ## Parameter Dimensions
 
