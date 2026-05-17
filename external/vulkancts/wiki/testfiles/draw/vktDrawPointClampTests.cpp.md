@@ -49,7 +49,7 @@ Implementation: The [`renderPointSizeClampTest()`](../../../modules/vulkan/draw/
 
 ## Verification Methods
 
-- **Float threshold comparison**: [`tcu::floatThresholdCompare()`](../../../modules/vulkan/draw/vktDrawPointClampTests.cpp#L380) with zero threshold. Reference image is cleared to the clear color (green), then the point color (black) is drawn at pixel (0,0). The test verifies the rendered point matches the clamped reference, confirming that `glPointSize` was properly clamped to `pointSizeRange[1]`.
+- **Float threshold comparison**: [`tcu::floatThresholdCompare()`](../../../modules/vulkan/draw/vktDrawPointClampTests.cpp#L380) with zero threshold. Reference image is cleared to the point color (black), then the clear color (green) is set at pixel (0,0). The test verifies the rendered point matches the clamped reference, confirming that `glPointSize` was properly clamped to `pointSizeRange[1]`.
 
 ## Notes
 

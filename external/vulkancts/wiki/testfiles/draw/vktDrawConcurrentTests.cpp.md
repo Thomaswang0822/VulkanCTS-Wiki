@@ -23,7 +23,7 @@ draw.renderpass.concurrent
 
 ### compute_and_triangle_list — Concurrent compute and graphics draw
 
-Creates a separate compute device and queue, fills a storage buffer with 1024 random uint32 values, and submits a compute shader that performs a bitwise NOT on each value. Simultaneously submits a graphics draw command that renders 1000 instances of a blue rectangle using `vkCmdDraw(cmdBuffer, 6, 1, 2, 0)` with `VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST`. Both submissions are fenced and waited upon. The compute result is validated by checking `bufferPtr[ndx] == ~inputData[ndx]` for each value. The graphics result is validated by fuzzy image comparison against a reference blue rectangle.
+Creates a separate compute device and queue, fills a storage buffer with 1024 random uint32 values, and submits a compute shader that performs a bitwise NOT on each value. Simultaneously submits a graphics draw command that renders a blue rectangle using `vkCmdDraw(cmdBuffer, 6, 1, 2, 0)` (instanceCount=1) with `VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST`, while the vertex buffer contains 1000 repeated copies of the triangle data (6000 vertices total) to increase the graphics workload. Both submissions are fenced and waited upon. The compute result is validated by checking `bufferPtr[ndx] == ~inputData[ndx]` for each value. The graphics result is validated by fuzzy image comparison against a reference blue rectangle.
 
 The test creates a custom device for the compute queue using `createCustomDevice` to ensure a separate queue family is used. The draw uses shaders `VertexFetch.vert` and `VertexFetch.frag`, while the compute uses `ConcurrentPayload.comp`.
 
@@ -54,5 +54,5 @@ Additionally, fence wait failures are detected separately as `ERROR_WAIT_COMPUTE
 
 - The compute device is created separately from the main context device using `createCustomDevice`, which allows selecting a compute-capable queue family that may differ from the graphics queue family.
 - On VulkanSC builds, the compute validation (buffer comparison) is only performed in subprocess mode (`isSubProcess()`).
-- The test uses 1000 repeated triangle instances in the vertex buffer to increase the graphics workload, making concurrent execution more likely.
+- The vertex buffer contains 1000 repeated copies of the 6-vertex triangle data (6000 vertices total) to increase the graphics workload, making concurrent execution more likely. Only a single instance is drawn (instanceCount=1).
 - The `ConcurrentDraw` class inherits from `DrawTestsBaseClass` and uses the standard `TestSpecBase` for its test specification.

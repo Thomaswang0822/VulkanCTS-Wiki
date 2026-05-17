@@ -83,6 +83,14 @@ draw.renderpass.depth_clamp
 ├── d32_sfloat_depth_bias_clamp_input_positive
 ├── d32_sfloat_depth_range_unrestricted_negative
 ├── d32_sfloat_depth_range_unrestricted_positive
+├── d32_sfloat_unrestricted_clamp_control_negative
+├── d32_sfloat_unrestricted_clamp_control_negative_dynamic
+├── d32_sfloat_unrestricted_clamp_control_positive
+├── d32_sfloat_unrestricted_clamp_control_positive_dynamic
+├── d32_sfloat_unrestricted_bias_clamp_control_negative
+├── d32_sfloat_unrestricted_bias_clamp_control_negative_dynamic
+├── d32_sfloat_unrestricted_bias_clamp_control_positive
+├── d32_sfloat_unrestricted_bias_clamp_control_positive_dynamic
 ├── d32_sfloat_s8_uint
 ├── d32_sfloat_s8_uint_clamp_control_half_viewport_range
 ├── d32_sfloat_s8_uint_clamp_control_half_viewport_range_dynamic
@@ -172,7 +180,7 @@ Renders a quad using four viewports with different depth ranges and depth values
 
 ### clamp_control_viewport_range — Depth clamp control using viewport range mode
 
-Uses `VK_EXT_depth_clamp_control` with `VK_DEPTH_CLAMP_MODE_VIEWPORT_RANGE_EXT` (depth clamp control enabled but using viewport range). Renders a quad with depth 0.3 in a viewport with range [0, 1]. The expected result is 0.3. Verifies that the viewport range clamp mode produces the same result as the default behavior. Parameterized by depth/stencil format. Also has a `_dynamic` variant using `vkCmdSetDepthClampRangeEXT`.
+Requires `VK_EXT_depth_clamp_control` but does not explicitly set a depth clamp control mode, relying on default Vulkan depth clamping. Renders a quad with depth 0.3 in a viewport with range [0, 1]. The expected result is 0.3. Verifies that the default depth clamping behavior produces the correct result when the extension is enabled but no explicit clamp control struct is attached to the pipeline. Parameterized by depth/stencil format.
 
 ### clamp_control_half_viewport_range — Depth clamp control with user-defined range inside viewport
 

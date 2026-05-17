@@ -44,7 +44,7 @@ Tests `vkCmdDrawIndexed` with instancing (4 instances, firstInstance=2) using `D
 
 Tests indexed drawing with null index buffer descriptors and `cmdBindIndexBuffer2`, exercising VK_KHR_maintenance6 behavior. Uses `DrawIndexedMaintenance6` with `VK_PRIMITIVE_TOPOLOGY_POINT_LIST` and a 1x1 render target. Test name structure:
 
-`draw_indexed[count]_indirect[_indirect_count][_multi][_bindindexbuffer2][_nulldescriptor]_maintenance6`
+`draw_indexed[_count][_indirect|_indirect_count|_multi][_bindindexbuffer2][_nulldescriptor][_maintenance_5]_maintenance6`
 
 Parameter combinations:
 - **Draw type**: indexed, indexed_indirect, indexed_indirect_count, multi_indexed_ext (VK_EXT_multi_draw, VulkanSC-excluded)

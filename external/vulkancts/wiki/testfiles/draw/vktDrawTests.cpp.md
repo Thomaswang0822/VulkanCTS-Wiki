@@ -93,7 +93,7 @@ The shared dispatcher [`createChildren()`](../../../modules/vulkan/draw/vktDrawT
 | `shader_invocation` | `createShaderInvocationTests` | Yes | No | VK only | `!CTS_USES_VULKANSC` and `!useDynamicRendering` |
 | `ahb` | `createAhbTests` | Yes | No | VK only | `!CTS_USES_VULKANSC` and `!useDynamicRendering` |
 | `non_line_with_params` | `createDrawNonLineTests` | Yes | No | VK only | `!CTS_USES_VULKANSC` and `!useDynamicRendering` |
-| `ahb_external_format_resolve` | `createAhbExternalFormatResolveTests` | Yes | All (including nested) | VK only | `!CTS_USES_VULKANSC` |
+| `ahb_external_format_resolve` | `createAhbExternalFormatResolveTests` | Yes | Not nested only | VK only | `!CTS_USES_VULKANSC` |
 | `point_size_clamp` | `createDrawPointClampTests` | Yes | No | Available | Added directly to renderpass only |
 
 Source: [`createChildren()`](../../../modules/vulkan/draw/vktDrawTests.cpp#L70) through [`vktDrawTests.cpp#L121`](../../../modules/vulkan/draw/vktDrawTests.cpp#L121).
@@ -103,4 +103,4 @@ Source: [`createChildren()`](../../../modules/vulkan/draw/vktDrawTests.cpp#L70) 
 - "Not nested only" means the group is excluded from `nested_partial_secondary_cmd_buff` and `nested_complete_secondary_cmd_buff` sub-variants (gated by `!groupParams->nestedSecondaryCmdBuffer`).
 - `basic_draw` is the only topic group present in ALL variants including nested ones.
 - `point_size_clamp` is added directly to the `renderpass` group outside of `createChildren()`, so it only appears under `draw.renderpass`.
-- `ahb_external_format_resolve` is the only VK-only group that appears in all dynamic rendering sub-variants including nested ones.
+- No VK-only group appears in nested dynamic rendering sub-variants; all VK-only groups are gated by either `!useDynamicRendering` or `!nestedSecondaryCmdBuffer`.

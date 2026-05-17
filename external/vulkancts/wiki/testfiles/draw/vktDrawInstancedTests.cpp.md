@@ -1070,7 +1070,7 @@ Tests using `vkCmdBindIndexBuffer3KHR`, `vkCmdBindVertexBuffers3KHR`, and `vkCmd
 
 ### dynamic_state_* — Dynamic vertex input state tests
 
-Tests with `VK_EXT_vertex_input_dynamic_state` enabled, using `vkCmdSetVertexInputEXT` to set vertex input state dynamically at command buffer recording time instead of at pipeline creation time. Reduced topology coverage (only `triangle_strip`) to limit test count.
+Tests with `VK_EXT_vertex_input_dynamic_state` enabled, using `vkCmdSetVertexInputEXT` to set vertex input state dynamically at command buffer recording time instead of at pipeline creation time. All six topologies are tested; the reduced topology coverage (only `triangle_strip` with `ATTRIBUTE_DIVISOR_NONE`) applies only to the `*_device_address` variant when `dynamicState` is true.
 
 ## Parameter Dimensions
 
@@ -1094,7 +1094,7 @@ Tests with `VK_EXT_vertex_input_dynamic_state` enabled, using `vkCmdSetVertexInp
 | `VK_EXT_vertex_attribute_divisor` | When `testAttribDivisor == ATTRIBUTE_DIVISOR_EXT` | [vktDrawInstancedTests.cpp#L365-L366](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L365-L366) |
 | `vertexAttributeInstanceRateDivisor` feature | When divisor != 1 and using EXT | [vktDrawInstancedTests.cpp#L370-L371](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L370-L371) |
 | `vertexAttributeInstanceRateZeroDivisor` feature | When divisor == 0 and using EXT | [vktDrawInstancedTests.cpp#L373-L374](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L373-L374) |
-| `supportsNonZeroFirstInstance` property | When using EXT or KHR divisor | [vktDrawInstancedTests.cpp#L380-L381](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L380-L381) |
+| `supportsNonZeroFirstInstance` property | When using EXT or KHR divisor | [vktDrawInstancedTests.cpp#L380-L381](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L380-L381), [vktDrawInstancedTests.cpp#L398-L399](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L398-L399) |
 | `VK_KHR_vertex_attribute_divisor` | When `testAttribDivisor == ATTRIBUTE_DIVISOR_KHR` | [vktDrawInstancedTests.cpp#L384-L385](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L384-L385) |
 | `VK_KHR_multiview` | When `testMultiview` is true | [vktDrawInstancedTests.cpp#L403-L404](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L403-L404) |
 | `multiview` feature | When `testMultiview` is true | [vktDrawInstancedTests.cpp#L407-L409](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L407-L409) |

@@ -89,7 +89,7 @@ Source: [vktDrawOutputLocationTests.cpp#L103-L119](../../../modules/vulkan/draw/
 |-------------|-----------|---------|
 | Vulkan only | `!CTS_USES_VULKANSC` | Entire test group guarded by Vulkan SC exclusion macro ([vktDrawOutputLocationTests.cpp#L53](../../../modules/vulkan/draw/vktDrawOutputLocationTests.cpp#L53)) |
 | Renderpass only | `!useDynamicRendering` | Not added to dynamic rendering variants ([vktDrawTests.cpp#L106-L110](../../../modules/vulkan/draw/vktDrawTests.cpp#L106-L110)) |
-| Portability subset | `VK_KHR_portability_subset` | Tests with `r8g8` or `inputs-outputs-mod` names are skipped if `minVertexInputBindingStrideAlignment == 4` ([vktDrawOutputLocationTests.cpp#L42-L48](../../../modules/vulkan/draw/vktDrawOutputLocationTests.cpp#L42-L48)) |
+| Portability subset | `VK_KHR_portability_subset` | Tests with `r8g8` names in the `array` group are skipped if `minVertexInputBindingStrideAlignment == 4` ([vktDrawOutputLocationTests.cpp#L42-L48](../../../modules/vulkan/draw/vktDrawOutputLocationTests.cpp#L42-L48)) |
 
 ## Verification Methods
 

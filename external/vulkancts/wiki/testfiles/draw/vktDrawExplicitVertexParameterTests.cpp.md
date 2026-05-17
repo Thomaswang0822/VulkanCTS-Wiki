@@ -87,7 +87,7 @@ Tests `gl_BaryCoordNoPerspCentroidAMD` with the `centroid` auxiliary qualifier. 
 | Dimension | Values | Description |
 |-----------|--------|-------------|
 | Interpolation | smooth, noperspective | The interpolation mode for both the standard and barycentric-computed values |
-| Sample count | 1, 2, 4, 8, 16, 32, 64 | Number of MSAA samples; reduced to 2 max when using secondary command buffers |
+| Sample count | 1, 2, 4, 8, 16, 32, 64 | Number of MSAA samples; reduced to 4 max when using secondary command buffers |
 | Auxiliary qualifier | none, sample, centroid | Additional qualifier on the standard interpolation variable; `none` only for 1 sample, `sample`/`centroid` for >= 2 samples |
 
 ## Support Requirements
@@ -110,4 +110,4 @@ Tests `gl_BaryCoordNoPerspCentroidAMD` with the `centroid` auxiliary qualifier. 
 - The test draws a triangle strip (4 vertices forming 2 triangles) with varying depth values to ensure perspective-correct interpolation is exercised at [vktDrawExplicitVertexParameterTests.cpp#L429-L439](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L429-L439).
 - The `__explicitInterpAMD` qualifier is used on the vertex output / fragment input that is fetched via `interpolateAtVertexAMD`, while the standard interpolation qualifier (smooth/noperspective with optional centroid/sample) is used on a separate variable for comparison.
 - Auxiliary qualifiers (`centroid`, `sample`) are only tested with sample counts >= 2, since they have no effect with a single sample at [vktDrawExplicitVertexParameterTests.cpp#L753-L754](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L753-L754).
-- When using secondary command buffers with dynamic rendering, only sample counts 1 and 2 are tested to reduce test count at [vktDrawExplicitVertexParameterTests.cpp#L747-L748](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L747-L748).
+- When using secondary command buffers with dynamic rendering, only sample counts 1, 2, and 4 are tested to reduce test count at [vktDrawExplicitVertexParameterTests.cpp#L747-L748](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L747-L748).

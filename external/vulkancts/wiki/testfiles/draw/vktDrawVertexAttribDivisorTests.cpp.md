@@ -68,15 +68,15 @@ Identical structure to the `ext` family but requires `VK_KHR_vertex_attribute_di
 |-------------|-----------|--------|
 | `VK_EXT_vertex_attribute_divisor` | When extension is EXT | [vktDrawVertexAttribDivisorTests.cpp#L979](../../../modules/vulkan/draw/vktDrawVertexAttribDivisorTests.cpp#L979) |
 | `VK_KHR_vertex_attribute_divisor` | When extension is KHR | [vktDrawVertexAttribDivisorTests.cpp#L988](../../../modules/vulkan/draw/vktDrawVertexAttribDivisorTests.cpp#L988) |
-| `vertexAttributeInstanceRateDivisor` feature | When divisor == 1 | [vktDrawVertexAttribDivisorTests.cpp#L1001-L1002](../../../modules/vulkan/draw/vktDrawVertexAttribDivisorTests.cpp#L1001-L1002) |
+| `vertexAttributeInstanceRateDivisor` feature | When divisor == 1 (note: per the Vulkan spec this feature is needed for divisors > 1; the source code check for divisor == 1 appears to be a bug) | [vktDrawVertexAttribDivisorTests.cpp#L1001-L1002](../../../modules/vulkan/draw/vktDrawVertexAttribDivisorTests.cpp#L1001-L1002) |
 | `vertexAttributeInstanceRateZeroDivisor` feature | When divisor == 0 | [vktDrawVertexAttribDivisorTests.cpp#L1003-L1004](../../../modules/vulkan/draw/vktDrawVertexAttribDivisorTests.cpp#L1003-L1004) |
 | `supportsNonZeroFirstInstance` property | When firstInstance is non-zero | [vktDrawVertexAttribDivisorTests.cpp#L982-L984](../../../modules/vulkan/draw/vktDrawVertexAttribDivisorTests.cpp#L982-L984) |
 | `drawIndirectFirstInstance` feature | When firstInstance is non-zero and draw is indirect | [vktDrawVertexAttribDivisorTests.cpp#L996-L999](../../../modules/vulkan/draw/vktDrawVertexAttribDivisorTests.cpp#L996-L999) |
 | `VK_EXT_vertex_input_dynamic_state` | When pipeline type is DYNAMIC_PIPELINE | [vktDrawVertexAttribDivisorTests.cpp#L1006-L1007](../../../modules/vulkan/draw/vktDrawVertexAttribDivisorTests.cpp#L1006-L1007) |
 | `VK_EXT_shader_object` | When pipeline type is SHADER_OBJECTS | [vktDrawVertexAttribDivisorTests.cpp#L1008-L1009](../../../modules/vulkan/draw/vktDrawVertexAttribDivisorTests.cpp#L1008-L1009) |
 | `VK_EXT_multi_draw` | When draw function is DRAW_MULTI_EXT or DRAW_MULTI_INDEXED_EXT | [vktDrawVertexAttribDivisorTests.cpp#L1011-L1012](../../../modules/vulkan/draw/vktDrawVertexAttribDivisorTests.cpp#L1011-L1012) |
-| `VK_KHR_draw_indirect_count` | When draw function is indirect count type | [vktDrawVertexAttribDivisorTests.cpp#L1013-L1014](../../../modules/vulkan/draw/vktDrawVertexAttribDivisorTests.cpp#L1013-L1014) |
-| `VK_EXT_transform_feedback` + `transformFeedbackDraw` | When draw function is DRAW_INDIRECT_BYTE_COUNT_EXT | [vktDrawVertexAttribDivisorTests.cpp#L1017-L1026](../../../modules/vulkan/draw/vktDrawVertexAttribDivisorTests.cpp#L1017-L1026) |
+| `VK_KHR_draw_indirect_count` | When draw function is any indirect draw type | [vktDrawVertexAttribDivisorTests.cpp#L1013-L1014](../../../modules/vulkan/draw/vktDrawVertexAttribDivisorTests.cpp#L1013-L1014) |
+| `VK_EXT_transform_feedback` + `transformFeedback` feature + `transformFeedbackDraw` property | When draw function is DRAW_INDIRECT_BYTE_COUNT_EXT | [vktDrawVertexAttribDivisorTests.cpp#L1017-L1026](../../../modules/vulkan/draw/vktDrawVertexAttribDivisorTests.cpp#L1017-L1026) |
 | `VK_KHR_dynamic_rendering` | When using dynamic rendering variant | [vktDrawVertexAttribDivisorTests.cpp#L1029-L1030](../../../modules/vulkan/draw/vktDrawVertexAttribDivisorTests.cpp#L1029-L1030) |
 
 ## Verification Methods

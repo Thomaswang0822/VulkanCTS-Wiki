@@ -35,11 +35,11 @@ Similar to `base_vertex` but uses the `VertexFetchShaderDrawParametersBaseVert.v
 
 ### base_instance — gl_BaseInstance validation across draw types
 
-Tests that `gl_BaseInstance` returns the correct value for instanced draws. Contains six leaf test cases: `draw_instanced`, `draw_indexed_instanced`, `draw_indirect_instanced`, `draw_indirect_first_instance_instanced`, `draw_indexed_indirect_instanced`, and `draw_indexed_indirect_first_instance_instanced`. The `first_instance` variants test non-zero `firstInstance` values, requiring the `drawIndirectFirstInstance` feature. Uses the `VertexFetchShaderDrawParameters.vert` shader with `TEST_FLAG_INSTANCED` set.
+Tests that `gl_BaseInstance` returns the correct value for instanced draws. Contains six leaf test cases: `draw`, `draw_indexed`, `draw_indirect`, `draw_indirect_first_instance`, `draw_indexed_indirect`, and `draw_indexed_indirect_first_instance`. The `first_instance` variants test non-zero `firstInstance` values, requiring the `drawIndirectFirstInstance` feature. Uses the `VertexFetchShaderDrawParameters.vert` shader with `TEST_FLAG_INSTANCED` set.
 
 ### base_instance_only — gl_BaseInstance-only validation (primary command buffer only)
 
-Similar to `base_instance` but uses the `VertexFetchShaderDrawParametersBaseInst.vert` shader and sets the `TEST_FLAG_BASE_INST_ONLY` flag. This variant isolates `gl_BaseInstance` testing. Only registered when not using secondary command buffers (`!useSecondaryCmdBuffer`) to limit test repetition. Contains the same six leaf test cases as `base_instance`.
+Similar to `base_instance` but uses the `VertexFetchShaderDrawParametersBaseInst.vert` shader and sets the `TEST_FLAG_BASE_INST_ONLY` flag. This variant isolates `gl_BaseInstance` testing. Only registered when not using secondary command buffers (`!useSecondaryCmdBuffer`) to limit test repetition. Contains the same six leaf test cases as `base_instance`: `draw`, `draw_indexed`, `draw_indirect`, `draw_indirect_first_instance`, `draw_indexed_indirect`, and `draw_indexed_indirect_first_instance`.
 
 ### draw_index — gl_DrawID validation in multi-draw indirect
 
@@ -78,4 +78,4 @@ Tests that `gl_DrawID` returns the correct draw index (0, 1, 2) within a multi-d
 - The `DrawTest` class uses the `FlagsTestSpec` struct at [vktDrawShaderDrawParametersTests.cpp#L54-L62](../../../modules/vulkan/draw/vktDrawShaderDrawParametersTests.cpp#L54-L62) which extends `TestSpecBase` with a `TestFlags` bitmask controlling which draw parameters are exercised.
 - Vertex data is carefully laid out with junk vertices interspersed with good vertices at specific indices (`NDX_FIRST_VERTEX = 2`, `NDX_SECOND_VERTEX = 9`) to ensure the shader correctly reads `gl_BaseVertex` and `gl_BaseInstance` values from the right locations at [vktDrawShaderDrawParametersTests.cpp#L66-L77](../../../modules/vulkan/draw/vktDrawShaderDrawParametersTests.cpp#L66-L77).
 - The `addDrawCase` helper at [vktDrawShaderDrawParametersTests.cpp#L455-L474](../../../modules/vulkan/draw/vktDrawShaderDrawParametersTests.cpp#L455-L474) constructs test names from the flag combination (e.g., `draw_indexed_indirect_instanced_first_instance`).
-- Three different vertex shaders are used: `VertexFetchShaderDrawParameters.vert` (base_vertex and base_instance), `VertexFetchShaderDrawParametersBaseVert.vert` (base_vertex_only), `VertexFetchShaderDrawParametersBaseInst.vert` (base_instance_only), and `VertexFetchShaderDrawParametersDrawIndex.vert` (draw_index).
+- Four different vertex shaders are used: `VertexFetchShaderDrawParameters.vert` (base_vertex and base_instance), `VertexFetchShaderDrawParametersBaseVert.vert` (base_vertex_only), `VertexFetchShaderDrawParametersBaseInst.vert` (base_instance_only), and `VertexFetchShaderDrawParametersDrawIndex.vert` (draw_index).

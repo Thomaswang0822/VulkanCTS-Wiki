@@ -18,9 +18,66 @@ Implementation-heavy test file for the `non_line_with_params` subgroup. Contains
 
 ```text
 draw.renderpass.non_line_with_params
-├── vtx_triangles...
-├── vtx_lines...
-└── vtx_points...
+├── vtx_triangles_mode_fill_line_raster_bresenham
+├── vtx_triangles_mode_fill_line_raster_rect
+├── vtx_triangles_mode_fill_line_raster_smooth
+├── vtx_triangles_mode_point_line_raster_bresenham
+├── vtx_triangles_mode_point_line_raster_rect
+├── vtx_triangles_mode_point_line_raster_smooth
+├── vtx_triangles_geom_points_mode_fill_line_raster_bresenham
+├── vtx_triangles_geom_points_mode_fill_line_raster_rect
+├── vtx_triangles_geom_points_mode_fill_line_raster_smooth
+├── vtx_triangles_geom_points_mode_line_line_raster_bresenham
+├── vtx_triangles_geom_points_mode_line_line_raster_rect
+├── vtx_triangles_geom_points_mode_line_line_raster_smooth
+├── vtx_triangles_geom_points_mode_point_line_raster_bresenham
+├── vtx_triangles_geom_points_mode_point_line_raster_rect
+├── vtx_triangles_geom_points_mode_point_line_raster_smooth
+├── vtx_triangles_geom_triangles_mode_fill_line_raster_bresenham
+├── vtx_triangles_geom_triangles_mode_fill_line_raster_rect
+├── vtx_triangles_geom_triangles_mode_fill_line_raster_smooth
+├── vtx_triangles_geom_triangles_mode_point_line_raster_bresenham
+├── vtx_triangles_geom_triangles_mode_point_line_raster_rect
+├── vtx_triangles_geom_triangles_mode_point_line_raster_smooth
+├── vtx_lines_geom_points_mode_fill_line_raster_bresenham
+├── vtx_lines_geom_points_mode_fill_line_raster_rect
+├── vtx_lines_geom_points_mode_fill_line_raster_smooth
+├── vtx_lines_geom_points_mode_line_line_raster_bresenham
+├── vtx_lines_geom_points_mode_line_line_raster_rect
+├── vtx_lines_geom_points_mode_line_line_raster_smooth
+├── vtx_lines_geom_points_mode_point_line_raster_bresenham
+├── vtx_lines_geom_points_mode_point_line_raster_rect
+├── vtx_lines_geom_points_mode_point_line_raster_smooth
+├── vtx_lines_geom_triangles_mode_fill_line_raster_bresenham
+├── vtx_lines_geom_triangles_mode_fill_line_raster_rect
+├── vtx_lines_geom_triangles_mode_fill_line_raster_smooth
+├── vtx_lines_geom_triangles_mode_point_line_raster_bresenham
+├── vtx_lines_geom_triangles_mode_point_line_raster_rect
+├── vtx_lines_geom_triangles_mode_point_line_raster_smooth
+├── vtx_points_mode_fill_line_raster_bresenham
+├── vtx_points_mode_fill_line_raster_rect
+├── vtx_points_mode_fill_line_raster_smooth
+├── vtx_points_mode_line_line_raster_bresenham
+├── vtx_points_mode_line_line_raster_rect
+├── vtx_points_mode_line_line_raster_smooth
+├── vtx_points_mode_point_line_raster_bresenham
+├── vtx_points_mode_point_line_raster_rect
+├── vtx_points_mode_point_line_raster_smooth
+├── vtx_points_geom_points_mode_fill_line_raster_bresenham
+├── vtx_points_geom_points_mode_fill_line_raster_rect
+├── vtx_points_geom_points_mode_fill_line_raster_smooth
+├── vtx_points_geom_points_mode_line_line_raster_bresenham
+├── vtx_points_geom_points_mode_line_line_raster_rect
+├── vtx_points_geom_points_mode_line_line_raster_smooth
+├── vtx_points_geom_points_mode_point_line_raster_bresenham
+├── vtx_points_geom_points_mode_point_line_raster_rect
+├── vtx_points_geom_points_mode_point_line_raster_smooth
+├── vtx_points_geom_triangles_mode_fill_line_raster_bresenham
+├── vtx_points_geom_triangles_mode_fill_line_raster_rect
+├── vtx_points_geom_triangles_mode_fill_line_raster_smooth
+├── vtx_points_geom_triangles_mode_point_line_raster_bresenham
+├── vtx_points_geom_triangles_mode_point_line_raster_rect
+└── vtx_points_geom_triangles_mode_point_line_raster_smooth
 ```
 
 The `non_line_with_params` group is registered by [`createDrawNonLineTests()`](../../../modules/vulkan/draw/vktDrawNonLineTests.cpp#L595) and appears only under the `draw.renderpass` variant branch. It is gated by `!CTS_USES_VULKANSC` and `!useDynamicRendering` at registration in [`vktDrawTests.cpp`](../../../modules/vulkan/draw/vktDrawTests.cpp#L106-L117). The leaf test case names combine vertex topology, geometry output suffix, polygon mode suffix, and line rasterization mode suffix (e.g., `vtx_triangles_mode_fill_line_raster_rect`).
@@ -31,17 +88,17 @@ Evidence:
 
 ## Test Families
 
-### vtx_triangles — Triangle vertex topology with non-line parameters
+### vtx_triangles prefix — Triangle vertex topology with non-line parameters
 
-Leaf test cases with `VertexTopology::TRIANGLES` as the input primitive topology. These test that line rasterization parameters do not affect triangle rendering, including when the geometry shader outputs non-line primitives or when polygon mode is `VK_POLYGON_MODE_POINT`. Cases where polygon mode is `VK_POLYGON_MODE_LINE` are skipped because they would produce line output, which could legitimately be affected by line rasterization parameters.
+Leaf test cases with the `vtx_triangles` name prefix use `VertexTopology::TRIANGLES` as the input primitive topology. These test that line rasterization parameters do not affect triangle rendering, including when the geometry shader outputs non-line primitives or when polygon mode is `VK_POLYGON_MODE_POINT`. Cases where polygon mode is `VK_POLYGON_MODE_LINE` are skipped because they would produce line output, which could legitimately be affected by line rasterization parameters. All cases are flat leaf children of the `non_line_with_params` group (no intermediate sub-groups).
 
-### vtx_lines — Line vertex topology with non-line parameters
+### vtx_lines prefix — Line vertex topology with non-line parameters
 
-Leaf test cases with `VertexTopology::LINES` as the input primitive topology. Only cases where a geometry shader transforms lines into non-line output (triangles or points) are included. Cases without a geometry shader (where lines would be rasterized directly) are skipped because line rasterization parameters would legitimately affect the output.
+Leaf test cases with the `vtx_lines` name prefix use `VertexTopology::LINES` as the input primitive topology. Only cases where a geometry shader transforms lines into non-line output (triangles or points) are included. Cases without a geometry shader (where lines would be rasterized directly) are skipped because line rasterization parameters would legitimately affect the output. All cases are flat leaf children of the `non_line_with_params` group (no intermediate sub-groups).
 
-### vtx_points — Point vertex topology with non-line parameters
+### vtx_points prefix — Point vertex topology with non-line parameters
 
-Leaf test cases with `VertexTopology::POINTS` as the input primitive topology. Points are never affected by line rasterization parameters, so all combinations of geometry output, polygon mode, and line rasterization mode are tested.
+Leaf test cases with the `vtx_points` name prefix use `VertexTopology::POINTS` as the input primitive topology. Points are never affected by line rasterization parameters, so all combinations of geometry output, polygon mode, and line rasterization mode are tested. All cases are flat leaf children of the `non_line_with_params` group (no intermediate sub-groups).
 
 Implementation: The [`NonLineDrawInstance::iterate()`](../../../modules/vulkan/draw/vktDrawNonLineTests.cpp#L379) method renders the same vertex data twice into separate color buffers using two pipelines. The first pipeline has no line rasterization state in its `pNext` chain; the second pipeline includes a `VkPipelineRasterizationLineStateCreateInfoKHR` struct with the specified line rasterization mode. Both results are compared for exact equality.
 
@@ -68,5 +125,5 @@ Implementation: The [`NonLineDrawInstance::iterate()`](../../../modules/vulkan/d
 ## Notes
 
 - Renderpass-only and VK-only: gated by `!CTS_USES_VULKANSC` and `!useDynamicRendering` at [`vktDrawTests.cpp`](../../../modules/vulkan/draw/vktDrawTests.cpp#L106-L116)
-- Cases that produce line output are skipped: (1) `VertexTopology::LINES` without geometry shader, (2) `GeometryOutput::LINES`, (3) `VertexTopology::TRIANGLES` with `GeometryOutput::NONE` and `VK_POLYGON_MODE_LINE`, (4) `GeometryOutput::TRIANGLES` with `VK_POLYGON_MODE_LINE`. The skip logic uses `break` at [`vktDrawNonLineTests.cpp`](../../../modules/vulkan/draw/vktDrawNonLineTests.cpp#L659) which skips the entire inner loop (line rasterization mode cases) for line-producing combinations.
+- Cases that produce line output are skipped: (1) `VertexTopology::LINES` without geometry shader, (2) `GeometryOutput::LINES`, (3) `VertexTopology::TRIANGLES` with `GeometryOutput::NONE` and `VK_POLYGON_MODE_LINE`, (4) `GeometryOutput::TRIANGLES` with `VK_POLYGON_MODE_LINE`. The skip logic uses `break` at [`vktDrawNonLineTests.cpp`](../../../modules/vulkan/draw/vktDrawNonLineTests.cpp#L659-L660) which skips the entire inner loop (line rasterization mode cases) for line-producing combinations.
 - The test uses a 32x32 framebuffer with random vertex positions generated per quadrant using a deterministic seed derived from the parameter combination

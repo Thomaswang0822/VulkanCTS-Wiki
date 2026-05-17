@@ -27,10 +27,12 @@ Unlike most categories where each source file registers under one flat group, th
 
 ### Variant Root to Mustpass Mapping
 
-| Variant root | Mustpass location | Sub-variants |
+Both variant roots are in the **same** `draw.txt` mustpass file:
+
+| Variant root | Mustpass file | Sub-variants |
 |---|---|---|
 | `renderpass` | `draw.txt` | None |
-| `dynamic_rendering` | `dynamic-rendering/` | `primary_cmd_buff`, `partial_secondary_cmd_buff`, `complete_secondary_cmd_buff`, `nested_partial_secondary_cmd_buff`, `nested_complete_secondary_cmd_buff` |
+| `dynamic_rendering` | `draw.txt` | `primary_cmd_buff`, `partial_secondary_cmd_buff`, `complete_secondary_cmd_buff`, `nested_partial_secondary_cmd_buff`, `nested_complete_secondary_cmd_buff` |
 
 ### SharedGroupParams
 
@@ -79,7 +81,7 @@ The following table shows each topic group's variant coverage, verified against 
 | `shader_invocation` | Renderpass-only, VK only | N/A | [vktDrawShaderInvocationTests.cpp](../testfiles/draw/vktDrawShaderInvocationTests.cpp.md) |
 | `ahb` | Renderpass-only, VK only | N/A | [vktDrawAhbTests.cpp](../testfiles/draw/vktDrawAhbTests.cpp.md) |
 | `non_line_with_params` | Renderpass-only, VK only | N/A | [vktDrawNonLineTests.cpp](../testfiles/draw/vktDrawNonLineTests.cpp.md) |
-| `ahb_external_format_resolve` | All variants, VK only | N/A | [vktDrawAhbExternalFormatResolveTests.cpp](../testfiles/draw/vktDrawAhbExternalFormatResolveTests.cpp.md) |
+| `ahb_external_format_resolve` | Not nested, VK only | N/A | [vktDrawAhbExternalFormatResolveTests.cpp](../testfiles/draw/vktDrawAhbExternalFormatResolveTests.cpp.md) |
 | `point_size_clamp` | Renderpass-only | Available | [vktDrawPointClampTests.cpp](../testfiles/draw/vktDrawPointClampTests.cpp.md) |
 
 ## File Inventory

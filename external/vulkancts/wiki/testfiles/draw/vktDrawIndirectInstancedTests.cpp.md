@@ -24,7 +24,7 @@ draw.renderpass.indirect_instanced
 └── 16
 ```
 
-The `indirect_instanced` group is registered by [`createIndirectInstancedTests()`](../../../modules/vulkan/draw/vktDrawIndirectInstancedTests.cpp#L607) and appears under both `draw.renderpass` and `draw.dynamic_rendering` variant branches. The hierarchy tree above uses the `draw.renderpass` variant as the representative path. Under `draw.dynamic_rendering`, the group appears in the `primary_cmd_buff`, `partial_secondary_cmd_buff`, `complete_secondary_cmd_buff`, `nested_partial_secondary_cmd_buff`, and `nested_complete_secondary_cmd_buff` sub-variants.
+The `indirect_instanced` group is registered by [`createIndirectInstancedTests()`](../../../modules/vulkan/draw/vktDrawIndirectInstancedTests.cpp#L607) and appears under both `draw.renderpass` and `draw.dynamic_rendering` variant branches. The hierarchy tree above uses the `draw.renderpass` variant as the representative path. Under `draw.dynamic_rendering`, the group appears only in the `primary_cmd_buff`, `partial_secondary_cmd_buff`, and `complete_secondary_cmd_buff` sub-variants (not in the nested sub-variants, because the registration is gated by `!groupParams->nestedSecondaryCmdBuffer`).
 
 Evidence:
 - `indirect_instanced` group added at [`createChildren()`](../../../modules/vulkan/draw/vktDrawTests.cpp#L100)

@@ -34,7 +34,7 @@ Renders a triangle twice and compares the results. The first pass uses a vertex 
 
 ### flat_1 — Flat on vertex, no qualifier on fragment
 
-Renders a triangle twice and compares the results. The first pass uses a vertex shader with the `flat` qualifier and a fragment shader with no qualifier. The reference pass uses both vertex and fragment shaders with no qualifier. The images should match because `flat` interpolation on the vertex side dominates the behavior.
+Renders a triangle twice and compares the results. The first pass uses a vertex shader with the `flat` qualifier and a fragment shader with no qualifier. The reference pass uses both vertex and fragment shaders with no qualifier. The images should match because the fragment input's lack of qualifier (smooth) takes precedence over the vertex output's `flat`, and the reference also uses smooth interpolation.
 
 **Shader configuration**: vert=`vertFlatColor`, frag=`frag`; ref vert=`vert`, ref frag=`frag`
 
