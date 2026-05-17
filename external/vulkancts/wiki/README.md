@@ -56,8 +56,8 @@ For this tracker, the `Level-3 Files` column counts the actual number of Level-3
 | 11 | imageless_framebuffer | [imageless_framebuffer.md](categories/imageless_framebuffer.md) | 1 | ✅ Done |
 | 12 | dynamic_state | [dynamic_state.md](categories/dynamic_state.md) | 10 | ✅ Done |
 | 13 | image | [image.md](categories/image.md) | 24 | ✅ Done |
-| 14 | image_processing | [image_processing.md](categories/image_processing.md) |  | ⬜ Not Started |
-| 15 | ycbcr | [ycbcr.md](categories/ycbcr.md) |  | ⬜ Not Started |
+| 14 | image_processing | [image_processing.md](categories/image_processing.md) | 3 | ✅ Done |
+| 15 | ycbcr | [ycbcr.md](categories/ycbcr.md) | 10 | ✅ Done |
 | 16 | draw | [draw.md](categories/draw.md) |  | ⬜ Not Started |
 | 17 | texture | [texture.md](categories/texture.md) |  | ⬜ Not Started |
 | 18 | rasterization | [rasterization.md](categories/rasterization.md) |  | ⬜ Not Started |
@@ -103,6 +103,6 @@ For this tracker, the `Level-3 Files` column counts the actual number of Level-3
 
 - **Total Categories**: 53
 - **Total CPP Test Files**: 592
-- **Completed Categories**: 14/53
-- **Completed Test Files**: 273/592
+- **Completed Categories**: 16/53
+- **Completed Test Files**: 286/592
 
