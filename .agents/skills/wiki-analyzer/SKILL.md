@@ -142,7 +142,7 @@ Do not hardcode category or file counts in generated docs unless you derive them
 **Lifecycle**:
 - Create when active coordination is needed for a category
 - Update during analysis and writing
-- Remove after the category work is complete, if the tracker is no longer useful
+- **Remove after the category work is complete**. These are temporary artifacts and should not be committed to the repository.
 
 **Indexing rule**:
 - Use header/source filenames as the initial tracker index because they are easy and robust to enumerate from the category root file includes.
@@ -152,6 +152,7 @@ Do not hardcode category or file counts in generated docs unless you derive them
 **Important**:
 - These internal trackers are not user-facing documentation.
 - Keep temporary planning notes, worker assignment notes, and partial verification state here rather than in Level-2 category docs.
+- **Cleanup requirement**: All files in `internal_doc/` must be removed before committing wiki documentation changes. This includes progress trackers (`{category}_progress.md`) and validation error logs (`error_paths_{category}.txt`, `error_urls_{category}.txt`).
 
 ## Level 3: CPP Test File Documentation
 
