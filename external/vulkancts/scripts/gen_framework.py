@@ -719,31 +719,6 @@ class ConformanceItemLists:
         for s in self.structs:
             if s.name in khrStructs:
                 s.alias = s.name + 'KHR'
-        # add missing structs that are needed by vulkan_json_parser.hpp (to be removed when vulkan_json_parser.hpp is fixed)
-        structNames = [s.name for s in self.structs]
-        commonMemberParams = (False, None, False, None, False, False, [], False, False, None, '', None, None, [])
-        dfmp2StructName = 'VkDrmFormatModifierProperties2EXT'
-        if dfmp2StructName not in structNames:
-            members = [
-                Member('drmFormatModifier', 'uint64_t', 'uint64_t', *commonMemberParams),
-                Member('drmFormatModifierPlaneCount', 'uint32_t', 'uint32_t', *commonMemberParams),
-                Member('drmFormatModifierTilingFeatures', 'VkFormatFeatureFlags2', 'VkFormatFeatureFlags2', *commonMemberParams)
-            ]
-            self.structs.append(Struct(dfmp2StructName, [], [], None, None, members, False, False, '', False, None, None))
-        dfmpl2StructName = 'VkDrmFormatModifierPropertiesList2EXT'
-        if dfmpl2StructName not in structNames:
-            members = [
-                Member('sType', 'VkStructureType', 'VkStructureType', *commonMemberParams),
-                Member('pNext', 'void', 'void*', *commonMemberParams),
-                Member('drmFormatModifierCount', 'uint32_t', 'uint32_t', *commonMemberParams),
-                Member('pDrmFormatModifierProperties', dfmp2StructName, 'VkDrmFormatModifierProperties2EXT*', *commonMemberParams)
-            ]
-            sType = 'VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_2_EXT'
-            self.structs.append(Struct(dfmpl2StructName, [], [], None, None, members, False, False, sType, False, None, None))
-            # add sType to VkStructureType enum
-            for e in self.enums:
-                if e.name == 'VkStructureType':
-                    e.fields.append(EnumField(sType, [], 'VkStructureType', None, False, 1000158006, '1000158006', [], True))
     # </vulkan_sc_workaround>
 
     def filterToSupportedByCTS(self, items):
@@ -2392,7 +2367,7 @@ class DeviceFeatures2Generator(CTSGenerator):
             '        nullptr, //ppEnabledExtensionNames;\n'
             '        nullptr, //pEnabledFeatures;\n'
             '    };\n\n'
-            '    const Unique<VkDevice>            device            (createCustomDevice(context.getTestContext().getCommandLine().isValidationEnabled(), platformInterface, instance, instanceDriver, physicalDevice, &deviceCreateInfo));\n'
+            '    const Unique<VkDevice>            device            (createCustomDevice(platformInterface, instance, instanceDriver, physicalDevice, &deviceCreateInfo));\n'
             '    const DeviceDriver                deviceDriver    (platformInterface, instance, device.get(), context.getUsedApiVersion(), context.getTestContext().getCommandLine());\n'
             '    const VkQueue                    queue = getDeviceQueue(deviceDriver, *device, queueFamilyIndex, queueIndex);\n\n'
             '    VK_CHECK(deviceDriver.queueWaitIdle(queue));\n\n'
@@ -3247,7 +3222,6 @@ class GetDeviceProcAddrGenerator(CTSGenerator):
 {
     tcu::TestLog&                                log                        (context.getTestContext().getLog());
     const PlatformInterface&                    platformInterface = context.getPlatformInterface();
-    const auto                                    validationEnabled = context.getTestContext().getCommandLine().isValidationEnabled();
     const CustomInstance                        instance                (createCustomInstanceFromContext(context));
     const InstanceDriver&                        instanceDriver = instance.getDriver();
     const VkPhysicalDevice                        physicalDevice = chooseDevice(instanceDriver, instance, context.getTestContext().getCommandLine());
@@ -3279,7 +3253,7 @@ class GetDeviceProcAddrGenerator(CTSGenerator):
         nullptr, //  const char* const* ppEnabledExtensionNames;
         nullptr, //  const VkPhysicalDeviceFeatures* pEnabledFeatures;
     };
-    const Unique<VkDevice>                    device            (createCustomDevice(validationEnabled, platformInterface, instance, instanceDriver, physicalDevice, &deviceCreateInfo));
+    const Unique<VkDevice>                    device            (createCustomDevice(platformInterface, instance, instanceDriver, physicalDevice, &deviceCreateInfo));
     const DeviceDriver                        deviceDriver    (platformInterface, instance, device.get(), context.getUsedApiVersion(), context.getTestContext().getCommandLine());
 
     const std::vector<std::string> functions{'''

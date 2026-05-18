@@ -1346,6 +1346,7 @@ enum class MiscTestMode
     SHADER_MODULE_CREATE_INFO_RT,
     SHADER_MODULE_CREATE_INFO_RT_LIB,
     NULL_RENDERING_CREATE_INFO,
+    NULL_RENDERING_CREATE_INFO_PTR,
     BAD_RENDERING_CREATE_INFO,
     COMMON_FRAG_LIBRARY,
     VIEW_INDEX_FROM_DEVICE_INDEX,
@@ -3238,18 +3239,16 @@ tcu::TestStatus UnusualRenderingCreateInfoInstance::iterate(void)
     const auto vertModule = createShaderModule(ctx.vkd, ctx.device, binaries.get("vert"));
     const auto fragModule = createShaderModule(ctx.vkd, ctx.device, binaries.get("frag"));
 
+    // We will use a null, null-filled or badly filled rendering info structure except for the frag out library.
     VkPipelineRenderingCreateInfo unusualRenderingInfo = initVulkanStructure();
-
-    // We will use a null-filled pipeline rendering info structure
-    // for all substates except the fragment output state
-    if (m_mode == MiscTestMode::NULL_RENDERING_CREATE_INFO)
-        unusualRenderingInfo.colorAttachmentCount = 0;
-    else // MiscTestMode::BAD_RENDERING_CREATE_INFO
+    if (m_mode == MiscTestMode::BAD_RENDERING_CREATE_INFO)
     {
         // use bad VkPipelineRenderingCreateInfo when it is not required
         unusualRenderingInfo.colorAttachmentCount    = 2;
         unusualRenderingInfo.pColorAttachmentFormats = reinterpret_cast<VkFormat *>(0xdeadbeef);
     }
+    const auto preFragOutRenderingInfoPtr =
+        (m_mode == MiscTestMode::NULL_RENDERING_CREATE_INFO_PTR ? nullptr : &unusualRenderingInfo);
 
     VkPipelineRenderingCreateInfo finalRenderingInfo = initVulkanStructure();
     finalRenderingInfo.colorAttachmentCount          = 1u;
@@ -3345,7 +3344,7 @@ tcu::TestStatus UnusualRenderingCreateInfoInstance::iterate(void)
     // Pre-rasterization shader state library.
     {
         VkGraphicsPipelineLibraryCreateInfoEXT preRasterShaderLibInfo =
-            initVulkanStructure(&unusualRenderingInfo); // What we're testing.
+            initVulkanStructure(preFragOutRenderingInfoPtr); // What we're testing.
         preRasterShaderLibInfo.flags |= VK_GRAPHICS_PIPELINE_LIBRARY_PRE_RASTERIZATION_SHADERS_BIT_EXT;
 
         VkGraphicsPipelineCreateInfo preRasterShaderPipelineInfo = initVulkanStructure(&preRasterShaderLibInfo);
@@ -3364,7 +3363,7 @@ tcu::TestStatus UnusualRenderingCreateInfoInstance::iterate(void)
     // Fragment shader stage library.
     {
         VkGraphicsPipelineLibraryCreateInfoEXT fragShaderLibInfo =
-            initVulkanStructure(&unusualRenderingInfo); // What we're testing.
+            initVulkanStructure(preFragOutRenderingInfoPtr); // What we're testing.
         fragShaderLibInfo.flags |= VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_SHADER_BIT_EXT;
 
         VkGraphicsPipelineCreateInfo fragShaderPipelineInfo = initVulkanStructure(&fragShaderLibInfo);
@@ -3503,7 +3502,8 @@ tcu::TestStatus CreateViewIndexFromDeviceIndexInstance::iterate()
     const auto viewCount   = 3u;
     const auto imageSize   = 8u;
     const auto colorFormat = VK_FORMAT_R8G8B8A8_UINT;
-    const auto extent      = makeExtent3D(imageSize, imageSize, 1u);
+    const tcu::UVec3 tcuExtent(imageSize, imageSize, 1u);
+    const auto extent = makeExtent3D(tcuExtent);
 
     VkPipelineCreateFlags basePipelineFlags = VK_PIPELINE_CREATE_LIBRARY_BIT_KHR;
     if (modeParams.useLinkTimeOptimization)
@@ -3556,9 +3556,6 @@ tcu::TestStatus CreateViewIndexFromDeviceIndexInstance::iterate()
                                                 colorFormat, imageSubresourceRange);
 
     const auto &multiviewFeatures(m_context.getMultiviewFeatures());
-    const auto srl(makeImageSubresourceLayers(VK_IMAGE_ASPECT_COLOR_BIT, 0u, 0u, viewCount));
-    const auto copyRegion(makeBufferImageCopy(extent, srl));
-    const auto beforeCopyBarrier(makeMemoryBarrier(VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_ACCESS_TRANSFER_READ_BIT));
     const auto clearValue(makeClearValueColor(tcu::Vec4(0.0f)));
 
     const auto pipelineLayout(makePipelineLayout(vk, device));
@@ -3616,9 +3613,9 @@ tcu::TestStatus CreateViewIndexFromDeviceIndexInstance::iterate()
     multiviewInfo.pCorrelationMasks               = &correlationMask;
 
     auto renderPass = makeRenderPass(
-        vk, device, colorFormat, VK_FORMAT_UNDEFINED, VK_ATTACHMENT_LOAD_OP_CLEAR, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-        VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-        VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 0, &multiviewInfo);
+        vk, device, colorFormat, VK_FORMAT_UNDEFINED, VK_ATTACHMENT_LOAD_OP_CLEAR,
+        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 0, &multiviewInfo);
 
     const auto framebufferCreateInfo = makeFramebufferCreateInfo(*renderPass, 1u, &*imageView, imageSize, imageSize);
     auto framebuffer                 = createFramebuffer(vk, device, &framebufferCreateInfo);
@@ -3686,11 +3683,9 @@ tcu::TestStatus CreateViewIndexFromDeviceIndexInstance::iterate()
 
     endRenderPass(vk, *cmdBuffer);
 
-    vk.cmdPipelineBarrier(*cmdBuffer, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0u, 1,
-                          &beforeCopyBarrier, 0, 0, 0, 0);
-
-    vk.cmdCopyImageToBuffer(*cmdBuffer, imageWithBuffer.getImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                            imageWithBuffer.getBuffer(), 1u, &copyRegion);
+    copyImageToBuffer(vk, *cmdBuffer, imageWithBuffer.getImage(), imageWithBuffer.getBuffer(),
+                      tcuExtent.asInt().swizzle(0, 1), VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, viewCount);
 
     endCommandBuffer(vk, *cmdBuffer);
     const VkQueue queue = getDeviceQueue(vk, device, queueFamilyIndex, 0);
@@ -3868,8 +3863,7 @@ bool CreateViewIndexFromDeviceIndexInstance::createDeviceGroup(void)
         nullptr,                              // const VkPhysicalDeviceFeatures* pEnabledFeatures;
     };
 
-    m_deviceGroupLogicalDevice = createCustomDevice(m_context.getTestContext().getCommandLine().isValidationEnabled(),
-                                                    m_context.getPlatformInterface(), m_deviceGroupInstance, instance,
+    m_deviceGroupLogicalDevice = createCustomDevice(m_context.getPlatformInterface(), m_deviceGroupInstance, instance,
                                                     deviceGroupInfo.pPhysicalDevices[physicalDeviceIndex], &deviceInfo);
 
     m_deviceGroupVk = de::MovePtr<DeviceDriver>(
@@ -4426,7 +4420,8 @@ void PipelineLibraryMiscTestCase::checkSupport(Context &context) const
         context.requireDeviceFunctionality("VK_KHR_pipeline_library");
 
     if ((m_testParams.mode == MiscTestMode::NULL_RENDERING_CREATE_INFO) ||
-        (m_testParams.mode == MiscTestMode::BAD_RENDERING_CREATE_INFO))
+        (m_testParams.mode == MiscTestMode::BAD_RENDERING_CREATE_INFO) ||
+        m_testParams.mode == MiscTestMode::NULL_RENDERING_CREATE_INFO_PTR)
         context.requireDeviceFunctionality("VK_KHR_dynamic_rendering");
 
     if (m_testParams.mode == MiscTestMode::COMMON_FRAG_LIBRARY)
@@ -4660,7 +4655,8 @@ void PipelineLibraryMiscTestCase::initPrograms(SourceCollections &programCollect
         programCollection.glslSources.add("rgen") << glu::RaygenSource(rgen.str()) << buildOptions;
     }
     else if ((m_testParams.mode == MiscTestMode::NULL_RENDERING_CREATE_INFO) ||
-             (m_testParams.mode == MiscTestMode::BAD_RENDERING_CREATE_INFO))
+             (m_testParams.mode == MiscTestMode::BAD_RENDERING_CREATE_INFO) ||
+             (m_testParams.mode == MiscTestMode::NULL_RENDERING_CREATE_INFO_PTR))
     {
         std::ostringstream vert;
         vert << "#version 460\n"
@@ -4810,9 +4806,11 @@ void PipelineLibraryMiscTestCase::initPrograms(SourceCollections &programCollect
                              "  const float x = -1.0 + 4.0 * ((idx & 2)>>1);\n"
                              "  const float y = -1.0 + 4.0 * (idx % 2);\n"
                              "  gl_MeshVerticesEXT[idx].gl_Position = vec4(x, y, 0.0, 1.0);\n"
-                             "  gl_PrimitiveTriangleIndicesEXT[0] = uvec3(0, 1, 2);\n"
-                             "  mViewIndex[idx] = uvec4(0);\n"
-                             "  mViewIndex[idx].x = gl_ViewIndex;\n"
+                             "  if (idx == 0) {\n"
+                             "    gl_PrimitiveTriangleIndicesEXT[0] = uvec3(0, 1, 2);\n"
+                             "    mViewIndex[0] = uvec4(0);\n"
+                             "    mViewIndex[0].x = gl_ViewIndex;\n"
+                             "  }\n"
                              "}\n");
             programCollection.glslSources.add("mesh") << glu::MeshSource(mesh) << buildOptions;
 
@@ -5029,7 +5027,8 @@ TestInstance *PipelineLibraryMiscTestCase::createInstance(Context &context) cons
         return new PipelineLibraryShaderModuleInfoRTInstance(context, true /*withLibrary*/);
 
     if ((m_testParams.mode == MiscTestMode::NULL_RENDERING_CREATE_INFO) ||
-        (m_testParams.mode == MiscTestMode::BAD_RENDERING_CREATE_INFO))
+        (m_testParams.mode == MiscTestMode::BAD_RENDERING_CREATE_INFO) ||
+        (m_testParams.mode == MiscTestMode::NULL_RENDERING_CREATE_INFO_PTR))
         return new UnusualRenderingCreateInfoInstance(context, m_testParams.mode);
 
     if (m_testParams.mode == MiscTestMode::VIEW_INDEX_FROM_DEVICE_INDEX)
@@ -6298,6 +6297,8 @@ tcu::TestCaseGroup *createPipelineLibraryTests(tcu::TestContext &testCtx)
                                             {MiscTestMode::BIND_NULL_DESCRIPTOR_SET_IN_MONOLITHIC_PIPELINE}));
         otherTests->addChild(new PipelineLibraryMiscTestCase(testCtx, "null_rendering_create_info",
                                                              {MiscTestMode::NULL_RENDERING_CREATE_INFO}));
+        otherTests->addChild(new PipelineLibraryMiscTestCase(testCtx, "null_rendering_create_info_ptr",
+                                                             {MiscTestMode::NULL_RENDERING_CREATE_INFO_PTR}));
         otherTests->addChild(new PipelineLibraryMiscTestCase(testCtx, "bad_rendering_create_info",
                                                              {MiscTestMode::BAD_RENDERING_CREATE_INFO}));
         otherTests->addChild(new PipelineLibraryMiscTestCase(testCtx, "common_frag_pipeline_library",

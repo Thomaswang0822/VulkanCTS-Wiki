@@ -2000,6 +2000,7 @@ dEQP-VK.mesh_shader.ext.misc.multiple_outputs_vertices
 dEQP-VK.mesh_shader.ext.misc.no_lines
 dEQP-VK.mesh_shader.ext.misc.no_points
 dEQP-VK.mesh_shader.ext.misc.no_triangles
+dEQP-VK.mesh_shader.ext.misc.payload_not_accessed
 dEQP-VK.mesh_shader.ext.misc.payload_read
 dEQP-VK.mesh_shader.ext.misc.push_constant
 dEQP-VK.mesh_shader.ext.misc.push_constant_and_task_shader
@@ -2021,6 +2022,7 @@ dEQP-VK.mesh_shader.ext.pipeline.builtin.shader_objects.clip_distance
 dEQP-VK.mesh_shader.ext.pipeline.builtin.shader_objects.clip_distance_mix
 dEQP-VK.mesh_shader.ext.pipeline.builtin.shader_objects.cull_distance
 dEQP-VK.mesh_shader.ext.pipeline.builtin.shader_objects.cull_distance_mix
+dEQP-VK.mesh_shader.ext.properties.limits
 dEQP-VK.mesh_shader.ext.properties.max_mesh_output_components
 dEQP-VK.mesh_shader.ext.properties.max_mesh_output_primitives_1024
 dEQP-VK.mesh_shader.ext.properties.max_mesh_output_primitives_2048

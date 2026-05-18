@@ -224,11 +224,13 @@ EARLY_SPECIAL_RECIPES = [
 LATE_SPECIAL_RECIPES = [
     ('android-mustpass', [
             RunScript(os.path.join("scripts", "build_android_mustpass.py"),
-                      lambda env: ["--build-dir", os.path.join(env.tmpDir, "android-mustpass")] + (["--verbose"] if env.verbose else [])),
+                      lambda env: ["--build-type", "Release",
+                                    "--build-dir", os.path.join(env.tmpDir, "android-mustpass")] + (["--verbose"] if env.verbose else [])),
         ]),
     ('vulkan-mustpass', [
             RunScript(os.path.join("external", "vulkancts", "scripts", "build_mustpass.py"),
-                      lambda env: ["--build-dir", os.path.join(env.tmpDir, "vulkan-mustpass")] + (["--verbose"] if env.verbose else [])),
+                      lambda env: ["--build-type", "Release",
+                                    "--build-dir", os.path.join(env.tmpDir, "vulkan-mustpass")] + (["--verbose"] if env.verbose else [])),
         ]),
     ('spirv-binaries', [
             RunScript(os.path.join("external", "vulkancts", "scripts", "build_spirv_binaries.py"),
@@ -308,6 +310,10 @@ def parseArgs ():
                         dest="applyPostExternalDependencyCleanup",
                         action="store_true",
                         help="skip external dependency clean up")
+    parser.add_argument("--clean-mustpass",
+                        dest="cleanMustpass",
+                        action="store_true",
+                        help="Wipe generated mustpass output (keeping hand-maintained inputs) before any recipe runs. Intended for the maintainer workflow that prunes obsolete files; not for CI.")
     parser.add_argument("-v", "--verbose",
                         dest="verbose",
                         action="store_true",
@@ -327,6 +333,9 @@ if __name__ == "__main__":
                     print(name)
                     break
     else:
+        if args.cleanMustpass:
+            RunScript(os.path.join("scripts", "clean_generated_mustpass.py")).run(env)
+
         selectedRecipes = getAllRecipe(RECIPES) if args.recipes == "all" \
                         else getRecipesByName(RECIPES, args.recipes)
 
