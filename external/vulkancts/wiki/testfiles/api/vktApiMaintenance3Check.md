@@ -61,7 +61,7 @@ Tests `VkDescriptorSetVariableDescriptorCountLayoutSupport` reporting. Each gene
 - `VK_KHR_maintenance3` required by all tests ([Maintenance3StructTestCase::checkSupport()](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L457), [Maintenance3DescriptorTestCase::checkSupport()](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L625))
 - `VK_EXT_descriptor_indexing` required by `support_count_*` tests ([checkSupportCountLayoutSupport()](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L644))
 - `descriptorBindingVariableDescriptorCount` feature required when `useVariableSize=true` ([checkSupportCountLayoutSupport()](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L649))
-- `VK_EXT_inline_uniform_block` required when descriptor type is `VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK` ([checkSupportCountLayoutSupport()](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L656))
+- `VK_EXT_inline_uniform_block` required when descriptor type is `VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK` on non-Vulkan SC builds; the inline-uniform-block descriptor type and related checks are excluded under `#ifndef CTS_USES_VULKANSC` ([checkSupportCountLayoutSupport()](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L656-L659), [descriptor type registration](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L875-L890))
 
 ## Verification Methods
 

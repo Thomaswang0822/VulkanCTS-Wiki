@@ -107,8 +107,22 @@ These categories are marked done in [README.md](../README.md) and had upstream s
 - Related mustpass changed:
   - [api.txt](../mustpass/main/vk-default/api.txt)
 - TODO:
-  - [ ] Check whether any changed files alter documented test families, parameter sets, support checks, or verification logic.
-  - [ ] Re-run registration-path validation for `api` after any wiki updates.
+  - [x] Check whether any changed files alter documented test families, parameter sets, support checks, or verification logic.
+  - [x] Re-run registration-path validation for `api` after any wiki updates.
+- Review result:
+  - Updated stale source facts in [vktApiBlittingTests.md](../testfiles/api/vktApiBlittingTests.md),
+    [vktApiDeviceAddressCommandsTests.md](../testfiles/api/vktApiDeviceAddressCommandsTests.md),
+    [vktApiFillBufferTests.md](../testfiles/api/vktApiFillBufferTests.md),
+    [vktApiMaintenance3Check.md](../testfiles/api/vktApiMaintenance3Check.md), and
+    [vktApiObjectManagementTests.md](../testfiles/api/vktApiObjectManagementTests.md).
+  - Fixed validator hygiene/link issues in [vktApiCopyBufferToBufferTests.md](../testfiles/api/vktApiCopyBufferToBufferTests.md),
+    [vktApiDescriptorPoolTests.md](../testfiles/api/vktApiDescriptorPoolTests.md),
+    [vktApiImageClearingTests.md](../testfiles/api/vktApiImageClearingTests.md), and
+    [vktApiUseAfterCopyTests.md](../testfiles/api/vktApiUseAfterCopyTests.md).
+  - No content update was needed for the other changed source files after Git-diff review because their changes were
+    mechanical helper-signature/plumbing changes or already-covered Vulkan SC compile-guard adjustments.
+  - Validation passed for the `api` scope: category link validation reported all local wiki links valid, and
+    registration validation checked 421 paths successfully.
 
 ### binding_model
 
@@ -399,10 +413,10 @@ Deleted mustpass files observed:
   - `shader_object`
   - `image`
 - [ ] Fix validator discovery if nested or renamed mustpass files break validation.
-- [ ] Correct [README.md](../README.md) statistics if no contrary counting rule is intended.
+- [x] Correct [README.md](../README.md) statistics if no contrary counting rule is intended.
 - [ ] Review completed categories in decreasing risk order:
   - [ ] [pipeline](../categories/pipeline.md)
-  - [ ] [api](../categories/api.md)
+  - [x] [api](../categories/api.md)
   - [ ] [synchronization](../categories/synchronization.md) and [synchronization2](../categories/synchronization2.md)
   - [ ] [image](../categories/image.md)
   - [ ] [renderpasses](../categories/renderpasses.md)
@@ -416,6 +430,6 @@ Deleted mustpass files observed:
   - [ ] [rasterization](../categories/rasterization.md)
   - [ ] [texture](../categories/texture.md)
 - [ ] For each reviewed category, update only facts proven from current source or mustpass files.
-- [ ] Run category-scoped link validation with [validate_wiki_links.py](../../../../.agents/skills/wiki-analyzer/scripts/validate_wiki_links.py) for every edited category.
-- [ ] Re-run registration-path validation for every edited category.
+- [x] Run category-scoped link validation with [validate_wiki_links.py](../../../../.agents/skills/wiki-analyzer/scripts/validate_wiki_links.py) for every edited category so far (`api` passed).
+- [x] Re-run registration-path validation for every edited category so far (`api` passed).
 - [ ] Before final commit, decide whether this internal TODO file is temporary and should be removed, because [SKILL.md](../../../../.agents/skills/wiki-analyzer/SKILL.md) says internal coordination artifacts should not be committed.
