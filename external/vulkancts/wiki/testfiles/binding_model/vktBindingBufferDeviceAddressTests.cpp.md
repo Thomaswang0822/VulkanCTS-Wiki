@@ -16,26 +16,27 @@ binding_model.buffer_device_address
 ├── set15
 ├── set31
 ├── capture_replay_stress (Vulkan-only capture-replay)
-└── op_access_chain
+├── op_access_chain
+└── misc
 ```
 
 ## Test Families
 
 ### set0 — Descriptor set 0
 
-Tests with descriptor set index 0. Nested hierarchy: depth (1/2/3) > base (UBO/SSBO) > conversion mode > storage mode > buffer topology > layout > stage > offset. Evidence: [`vktBindingBufferDeviceAddressTests.cpp:2232`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2232).
+Tests with descriptor set index 0. Nested hierarchy: depth (1/2/3) > base (UBO/SSBO) > conversion mode > storage mode > buffer topology > layout > stage > offset. Evidence: [`vktBindingBufferDeviceAddressTests.cpp:2368`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2368).
 
 ### set3 — Descriptor set 3
 
-Tests with descriptor set index 3. Same nested hierarchy as `set0`. Evidence: [`vktBindingBufferDeviceAddressTests.cpp:2232`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2232).
+Tests with descriptor set index 3. Same nested hierarchy as `set0`. Evidence: [`vktBindingBufferDeviceAddressTests.cpp:2368`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2368).
 
 ### set7 — Descriptor set 7
 
-Tests with descriptor set index 7. Same nested hierarchy as `set0`. Evidence: [`vktBindingBufferDeviceAddressTests.cpp:2232`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2232).
+Tests with descriptor set index 7. Same nested hierarchy as `set0`. Evidence: [`vktBindingBufferDeviceAddressTests.cpp:2368`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2368).
 
 ### set15 — Descriptor set 15
 
-Tests with descriptor set index 15. Same nested hierarchy as `set0`. Evidence: [`vktBindingBufferDeviceAddressTests.cpp:2232`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2232).
+Tests with descriptor set index 15. Same nested hierarchy as `set0`. Evidence: [`vktBindingBufferDeviceAddressTests.cpp:2368`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2368).
 
 ### set31 — Descriptor set 31
 
@@ -68,8 +69,12 @@ Stress-tests the `VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_EXT` captur
 ### op_access_chain — Memory-model access-chain tests
 
 Tests buffer device address behavior through memory-model access chains. Contains two leaf tests:
-- `memory_model_offset` — validates offset handling in memory-model access chains ([`vktBindingBufferDeviceAddressTests.cpp:2381`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2381))
-- `fragment_store` — validates fragment-store behavior via access chains ([`vktBindingBufferDeviceAddressTests.cpp:2382`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2382))
+- `memory_model_offset` — validates offset handling in memory-model access chains ([`vktBindingBufferDeviceAddressTests.cpp:2526`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2526))
+- `fragment_store` — validates fragment-store behavior via access chains ([`vktBindingBufferDeviceAddressTests.cpp:2527`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2527))
+
+### misc — Miscellaneous buffer-reference struct copy
+
+Contains `copy_struct`, which stores a buffer device address inside a `std430` SSBO struct, copies that struct in a compute shader, writes through the copied buffer reference, and expects the addressed integer to become `2`. The case requires `VK_KHR_buffer_device_address` ([`vktBindingBufferDeviceAddressTests.cpp:2360`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2360)) and is registered under `misc` at [`vktBindingBufferDeviceAddressTests.cpp:2530`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2530).
 
 ## Parameter Dimensions
 

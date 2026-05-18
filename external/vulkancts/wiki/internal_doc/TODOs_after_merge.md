@@ -137,8 +137,20 @@ These categories are marked done in [README.md](../README.md) and had upstream s
   - [vktBindingUnusedInvalidDescriptorTests.cpp](../modules/vulkan/binding_model/vktBindingUnusedInvalidDescriptorTests.cpp)
 - Related mustpass changed:
   - [binding-model.txt](../mustpass/main/vk-default/binding-model.txt)
+  - [vksc-default/binding-model.txt](../mustpass/main/vksc-default/binding-model.txt)
 - TODO:
-  - [ ] Review changed binding-model docs against current source and mustpass.
+  - [x] Review changed binding-model docs against current source and mustpass.
+- Review result:
+  - Updated stale source facts in
+    [vktBindingBufferDeviceAddressTests.cpp.md](../testfiles/binding_model/vktBindingBufferDeviceAddressTests.cpp.md),
+    [vktBindingDescriptorHeapTests.cpp.md](../testfiles/binding_model/vktBindingDescriptorHeapTests.cpp.md), and
+    [vktBindingUnusedInvalidDescriptorTests.cpp.md](../testfiles/binding_model/vktBindingUnusedInvalidDescriptorTests.cpp.md).
+  - No content update was needed for [vktBindingDescriptorBufferTests.cpp.md](../testfiles/binding_model/vktBindingDescriptorBufferTests.cpp.md),
+    [vktBindingMutableTests.cpp.md](../testfiles/binding_model/vktBindingMutableTests.cpp.md), or
+    [vktBindingPushConstantBankTests.cpp.md](../testfiles/binding_model/vktBindingPushConstantBankTests.cpp.md) because the
+    Git diff only showed mechanical custom-device helper-signature/plumbing changes.
+  - Validation passed for the `binding_model` scope: category link validation reported all local wiki links valid, and
+    registration validation checked 113 paths successfully.
 
 ### draw
 
@@ -420,7 +432,7 @@ Deleted mustpass files observed:
   - [ ] [synchronization](../categories/synchronization.md) and [synchronization2](../categories/synchronization2.md)
   - [ ] [image](../categories/image.md)
   - [ ] [renderpasses](../categories/renderpasses.md)
-  - [ ] [binding_model](../categories/binding_model.md)
+  - [x] [binding_model](../categories/binding_model.md)
   - [ ] [memory](../categories/memory.md)
   - [ ] [shader_object](../categories/shader_object.md)
   - [ ] [ycbcr](../categories/ycbcr.md)
