@@ -16,7 +16,7 @@ query_pool.discard
 └── early
 ```
 
-The nested hierarchy is built by the three boolean loops and the discard-type loop in [`createDiscardTests()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L551). Beneath each direct child, the structure descends further: `normal` and `early` each contain `no_depth` and `with_depth` subgroups, which in turn contain `none` and `precise` subgroups, which contain the leaf discard-mechanism test cases.
+The nested hierarchy is built by the three boolean loops and the discard-type loop in [`createDiscardTests()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L556). Beneath each direct child, the structure descends further: `normal` and `early` each contain `no_depth` and `with_depth` subgroups, which in turn contain `none` and `precise` subgroups, which contain the leaf discard-mechanism test cases.
 
 ## Summary
 
@@ -26,7 +26,7 @@ The `discard` group validates precise and non-precise occlusion-query behavior w
 
 ### normal — Fragment shader without early_fragment_tests
 
-Fragment shader runs without `layout(early_fragment_tests)`. The group naming is defined by [`earlyFragmentName`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L553) when `earlyFragmentTest` is `false`.
+Fragment shader runs without `layout(early_fragment_tests)`. The group naming is defined by [`earlyFragmentName`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L558) when `earlyFragmentTest` is `false`.
 
 Beneath `normal`, the hierarchy descends through depth and precision subgroups:
 
@@ -39,7 +39,7 @@ Beneath `normal`, the hierarchy descends through depth and precision subgroups:
 
 ### early — Fragment shader with early_fragment_tests
 
-Fragment shader includes `layout(early_fragment_tests) in;` in [`initPrograms()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L511). The group naming is defined by [`earlyFragmentName`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L553) when `earlyFragmentTest` is `true`.
+Fragment shader includes `layout(early_fragment_tests) in;` in [`initPrograms()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L516). The group naming is defined by [`earlyFragmentName`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L558) when `earlyFragmentTest` is `true`.
 
 Beneath `early`, the same nested structure as `normal` applies: `no_depth` / `with_depth`, then `none` / `precise`, then the four discard-mechanism leaf cases.
 
@@ -49,10 +49,10 @@ The file generates the Cartesian product of four axes:
 
 | Dimension | Values | Registration source |
 |-----------|--------|---------------------|
-| Early-fragment mode | `normal`, `early` | [`earlyFragmentTest`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L551) |
-| Depth mode | `no_depth`, `with_depth` | [`depth`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L556) |
-| Query precision | `none`, `precise` | [`precise`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L560) |
-| Discard mechanism | `discard`, `sample_mask`, `alpha_to_coverage`, plus `alpha_to_coverage_dynamic` in non-SC builds | [`discardTypes`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L538) |
+| Early-fragment mode | `normal`, `early` | [`earlyFragmentTest`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L556) |
+| Depth mode | `no_depth`, `with_depth` | [`depth`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L561) |
+| Query precision | `none`, `precise` | [`precise`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L565) |
+| Discard mechanism | `discard`, `sample_mask`, `alpha_to_coverage`, plus `alpha_to_coverage_dynamic` in non-SC builds | [`discardTypes`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L547) |
 
 This produces:
 
@@ -80,15 +80,16 @@ Support checking is implemented in [`QueryPoolDiscardTestCase::checkSupport()`](
 |------------|------------|--------|
 | `occlusionQueryPrecise` feature | All `*/precise/*` cases | [`QueryPoolDiscardTestCase::checkSupport()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L487) |
 | `extendedDynamicState3AlphaToCoverageEnable` feature | `alpha_to_coverage_dynamic` cases | [`QueryPoolDiscardTestCase::checkSupport()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L482) |
-| `earlyFragmentSampleMaskTestBeforeSampleCounting` maintenance5 property | All `early/*/*/*` cases | [`QueryPoolDiscardTestCase::checkSupport()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L489) |
-| `earlyFragmentMultisampleCoverageAfterSampleCounting` maintenance5 property | `early/*/*/alpha_to_coverage` and `early/*/*/alpha_to_coverage_dynamic` cases | [`QueryPoolDiscardTestCase::checkSupport()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L493) |
+| `earlyFragmentSampleMaskTestBeforeSampleCounting` maintenance5 property (non-SC only) | All `early/*/*/*` cases | [`QueryPoolDiscardTestCase::checkSupport()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L492) |
+| `earlyFragmentMultisampleCoverageAfterSampleCounting` maintenance5 property (non-SC only) | `early/*/*/alpha_to_coverage` and `early/*/*/alpha_to_coverage_dynamic` cases | [`QueryPoolDiscardTestCase::checkSupport()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L494) |
 
 ### Vulkan SC behavior
 
 Two Vulkan-SC-relevant behaviors are explicit in the source:
 
-- `alpha_to_coverage_dynamic` is not compiled or registered in SC builds because both its registration and dynamic-state setup are inside `#ifndef CTS_USES_VULKANSC`; see [`vktQueryPoolDiscardTests.cpp:315`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L315) and [`vktQueryPoolDiscardTests.cpp:546`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L546).
-- The rest of the hierarchy is shared across Vulkan and Vulkan SC, so exact path names for `normal`, `early`, `no_depth`, `with_depth`, `none`, `precise`, `discard`, `sample_mask`, and `alpha_to_coverage` remain unchanged.
+- `alpha_to_coverage_dynamic` is not compiled or registered in SC builds because both its registration and dynamic-state setup are inside `#ifndef CTS_USES_VULKANSC`; see [`vktQueryPoolDiscardTests.cpp:315`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L315) and [`vktQueryPoolDiscardTests.cpp:551`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L551).
+- All `early` cases are unsupported in SC builds because [`QueryPoolDiscardTestCase::checkSupport()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L489) unconditionally throws `NotSupportedError` inside the `CTS_USES_VULKANSC` guard when `earlyFragmentTests` is true. In non-SC builds, the same branch checks the two maintenance5 properties instead.
+- The `normal` branch of the hierarchy is shared across Vulkan and Vulkan SC, so exact path names for `no_depth`, `with_depth`, `none`, `precise`, `discard`, `sample_mask`, and `alpha_to_coverage` under `normal` remain unchanged.
 
 ## Verification Methods
 
@@ -137,7 +138,7 @@ This per-pixel image check ensures that the fragment-control mechanism actually 
 
 ### Shader behavior
 
-[`initPrograms()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L499) generates a simple full-screen strip:
+[`initPrograms()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L504) generates a simple full-screen strip:
 
 - the vertex shader derives clip-space positions from `gl_VertexIndex`, producing a quad from four vertices;
 - the fragment shader always initializes `gl_SampleMask[0] = ~0` and writes white;
@@ -158,5 +159,5 @@ For the dynamic variant, alpha-to-coverage is additionally toggled through [`VK_
 
 - All cases are `TestCase`-based and use the same execution class, [`QueryPoolDiscardTestInstance`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L69), with behavior driven entirely by `TestParameters`.
 - The exact subgroup name `none` is important: it denotes absence of query control flags, not failure or unsupported behavior.
-- The page documents the precise registration harness from [`createDiscardTests()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L533) and does not create or modify any broader Level-2 query-pool category page.
+- The page documents the precise registration harness from [`createDiscardTests()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L538) and does not create or modify any broader Level-2 query-pool category page.
 - This page documents only the Level-3 file represented by [`vktQueryPoolDiscardTests.cpp`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp).

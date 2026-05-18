@@ -300,7 +300,15 @@ These categories are marked done in [README.md](../README.md) and had upstream s
   - [vktQueryPoolDiscardTests.cpp](../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp)
   - [vktQueryPoolOcclusionTests.cpp](../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp)
 - TODO:
-  - [ ] Review query discard and occlusion docs.
+  - [x] Review query discard and occlusion docs.
+- Review result:
+  - Updated stale Vulkan SC behavior in [vktQueryPoolDiscardTests.md](../testfiles/query_pool/vktQueryPoolDiscardTests.md): all `early` cases now unconditionally throw `NotSupportedError` in SC builds inside `checkSupport()`, replacing the previous maintenance5 property checks. The `normal` branch remains shared across VK and VKSC.
+  - Updated support requirements table to mark maintenance5 property checks as non-SC only and fixed shifted line references (the upstream diff added 5 lines inside `checkSupport()`).
+  - Fixed all stale source-code line references in [vktQueryPoolDiscardTests.md](../testfiles/query_pool/vktQueryPoolDiscardTests.md) for lines after the diff point (`#L499`→`#L504`, `#L511`→`#L516`, `#L533`→`#L538`, `#L538`→`#L547`, `#L546`→`#L551`, `#L551`→`#L556`, `#L553`→`#L558`, `#L556`→`#L561`, `#L560`→`#L565`).
+  - No content update was needed for [vktQueryPoolOcclusionTests.md](../testfiles/query_pool/vktQueryPoolOcclusionTests.md) because the upstream diff only fixed a `VkStridedDeviceAddressRangeKHR` size calculation (`dstSize` → `dstSize - dstOffset`) and did not alter registration paths, test families, parameter dimensions, support gates, verification logic, or documented scope.
+  - No content update was needed for [query_pool.md](../categories/query_pool.md) because its references to the discard file point to lines before the diff point and the subgroup summary remains accurate.
+  - Link validation passed for [query_pool.md](../categories/query_pool.md) and all 9 files under [testfiles/query_pool](../testfiles/query_pool).
+  - Registration validation passed: `verify_registration_paths.py query_pool` checked 55 registration paths successfully.
 
 ### rasterization
 
@@ -309,7 +317,11 @@ These categories are marked done in [README.md](../README.md) and had upstream s
 - Upstream changed source files:
   - [vktRasterizationTests.cpp](../modules/vulkan/rasterization/vktRasterizationTests.cpp)
 - TODO:
-  - [ ] Review rasterization root registration or implementation claims.
+  - [x] Review rasterization root registration or implementation claims.
+- Review result:
+  - No wiki content update required. The upstream diff only made `FillRuleTestInstance::getRenderSize()` static (removed `const` qualifier), which is a mechanical refactoring that did not alter registration paths, test families, parameter dimensions, support gates, verification logic, or documented scope.
+  - Link validation passed for [rasterization.md](../categories/rasterization.md) and all 6 files under [testfiles/rasterization](../testfiles/rasterization).
+  - Registration validation passed: `verify_registration_paths.py rasterization` checked 52 registration paths successfully.
 
 ### renderpasses
 
@@ -499,10 +511,10 @@ Deleted mustpass files observed:
   - [x] [memory](../categories/memory.md)
   - [ ] [shader_object](../categories/shader_object.md)
   - [ ] [ycbcr](../categories/ycbcr.md)
-  - [ ] [query_pool](../categories/query_pool.md)
+  - [x] [query_pool](../categories/query_pool.md)
   - [x] [draw](../categories/draw.md)
   - [x] [dynamic_state](../categories/dynamic_state.md)
-  - [ ] [rasterization](../categories/rasterization.md)
+  - [x] [rasterization](../categories/rasterization.md)
   - [ ] [texture](../categories/texture.md)
 - [ ] For each reviewed category, update only facts proven from current source or mustpass files.
 - [x] Run category-scoped link validation with [validate_wiki_links.py](../../../../.agents/skills/wiki-analyzer/scripts/validate_wiki_links.py) for every edited category so far (`api` passed).
