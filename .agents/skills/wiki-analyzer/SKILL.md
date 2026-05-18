@@ -251,15 +251,15 @@ Note: the workflow rules in this section are primarily about Level-2 category pr
 
 Use two different concepts and do not mix them:
 
-1. **Tracker count**
-   - For [`README.md`](../../../external/vulkancts/wiki/README.md), count the actual number of Level-3 wiki files (`.md` files) under `testfiles/{category}/`.
-   - This is the official progress number.
-   - The count must be updated in the README table after the category reaches `✅ Done`.
+1. **README tracker count**
+   - For [`README.md`](../../../external/vulkancts/wiki/README.md), keep the per-category `Level-3 Files` column for categories that are already `✅ Done`.
+   - Leave the `Level-3 Files` field blank for categories that are not yet complete, because the final Level-3 writing scope is not reliable until category analysis is finished.
+   - Do not maintain aggregate README progress metrics based on Level-3 file totals; category completion status is the only reliable global progress signal.
    - For categories that share a wiki folder with another category (e.g., `synchronization` and `synchronization2` share `testfiles/synchronization/`), the primary category gets the actual file count, and the secondary category uses `(shared with {primary_category})` instead of a number.
 
 2. **Writing scope**
    - When documenting the category, create Level-3 pages for any separately meaningful registered group file, including nested subgroup files when they exist as their own registration/documentation units.
-   - In other words, writing may be broader than the official tracker count.
+   - Writing scope is evidence-driven and may expand during analysis as additional registered subgroup files are discovered.
 
 ### How to identify top-level groups for counting
 
@@ -460,4 +460,4 @@ Before marking work complete, verify:
 ### Step 10: Update Progress Tracking
 
 If the project is using [`external/vulkancts/wiki/README.md`](../../../external/vulkancts/wiki/README.md) as a tracker, update it after the consistency review.
-When updating its `Level-3 Files` column, count the actual number of `.md` files under `testfiles/{category}/` and fill it once the category is `✅ Done`.
+When a category reaches `✅ Done`, update its `Level-3 Files` cell with the actual number of `.md` files under `testfiles/{category}/`, but do not add or maintain aggregate README statistics based on total Level-3 file counts.

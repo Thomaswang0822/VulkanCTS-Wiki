@@ -25,7 +25,7 @@ wiki/
 |-------|-------------|-------|
 | Level 1 | Framework and mechanism overview | 1 |
 | Level 2 | Test category documentation | 53 |
-| Level 3 | CPP test file documentation | 592 |
+| Level 3 | CPP test file documentation | Varies by completed categories |
 
 ## Progress Tracking
 
@@ -102,7 +102,5 @@ For this tracker, the `Level-3 Files` column counts the actual number of Level-3
 ## Statistics
 
 - **Total Categories**: 53
-- **Total CPP Test Files**: 592
 - **Completed Categories**: 20/53
-- **Completed Test Files**: 341/592
 
