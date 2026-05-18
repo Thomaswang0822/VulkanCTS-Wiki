@@ -91,7 +91,7 @@ The test validates that external memory properties for `VK_EXTERNAL_MEMORY_HANDL
 ## Test Principles
 
 - **Host pointer alignment:** Tests verify that `minImportedHostPointerAlignment` is a power of two and within the 64KB limit ([vktMemoryExternalMemoryHostTests.cpp:220-224](../../../modules/vulkan/memory/vktMemoryExternalMemoryHostTests.cpp#L220))
-- **Memory type compatibility:** Tests find memory types that satisfy both the resource requirements and the host pointer properties
+- **Memory type compatibility:** Tests find memory types that satisfy both the resource requirements and the host pointer properties; in Vulkan SC parent-process execution, the current source intentionally short-circuits this selection to memory type index 0 to avoid under-reserving memory objects before subprocess execution ([vktMemoryExternalMemoryHostTests.cpp:276-284](../../../modules/vulkan/memory/vktMemoryExternalMemoryHostTests.cpp#L276))
 - **Render correctness:** End-to-end render test validates that imported host memory works correctly as a color attachment
 - **Synchronization:** The synchronization test validates proper cache invalidation/flush when host and device share the same memory, using timeline semaphores for host-to-device signaling
 

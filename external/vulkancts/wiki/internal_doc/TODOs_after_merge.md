@@ -226,7 +226,24 @@ These categories are marked done in [README.md](../README.md) and had upstream s
   - [vktMemoryExternalMemoryHostTests.cpp](../modules/vulkan/memory/vktMemoryExternalMemoryHostTests.cpp)
   - [vktMemoryMappingTests.cpp](../modules/vulkan/memory/vktMemoryMappingTests.cpp)
 - TODO:
-  - [ ] Review changed memory docs for support-gate or parameter updates.
+  - [x] Review changed memory docs for support-gate or parameter updates.
+- Review result:
+  - Updated the Vulkan SC parent-process memory-type selection note in
+    [vktMemoryExternalMemoryHostTests.md](../testfiles/memory/vktMemoryExternalMemoryHostTests.md) to reflect the
+    new early return in [vktMemoryExternalMemoryHostTests.cpp](../../modules/vulkan/memory/vktMemoryExternalMemoryHostTests.cpp).
+  - Fixed stale source-link paths in
+    [vktMemoryBindingTests.md](../testfiles/memory/vktMemoryBindingTests.md) so category-scoped link validation resolves
+    the binding source links correctly.
+  - No content update was needed for [vktMemoryAddressBindingTests.md](../testfiles/memory/vktMemoryAddressBindingTests.md),
+    [vktMemoryAllocationTests.md](../testfiles/memory/vktMemoryAllocationTests.md),
+    [vktMemoryDeviceMemoryReportTests.md](../testfiles/memory/vktMemoryDeviceMemoryReportTests.md), or
+    [vktMemoryMappingTests.md](../testfiles/memory/vktMemoryMappingTests.md) because the inspected upstream diffs only
+    removed obsolete `createCustomDevice` validation-flag plumbing and did not alter registration paths, parameter
+    dimensions, support gates, verification logic, or documented scope.
+  - No memory mustpass file changed in the inspected upstream diff.
+  - Link validation passed for [memory.md](../categories/memory.md) and all 15 files under
+    [testfiles/memory](../testfiles/memory).
+  - Registration validation passed: `verify_registration_paths.py memory` checked 75 registration paths successfully.
 
 ### pipeline
 
@@ -459,7 +476,7 @@ Deleted mustpass files observed:
   - [x] [image](../categories/image.md)
   - [ ] [renderpasses](../categories/renderpasses.md)
   - [x] [binding_model](../categories/binding_model.md)
-  - [ ] [memory](../categories/memory.md)
+  - [x] [memory](../categories/memory.md)
   - [ ] [shader_object](../categories/shader_object.md)
   - [ ] [ycbcr](../categories/ycbcr.md)
   - [ ] [query_pool](../categories/query_pool.md)
