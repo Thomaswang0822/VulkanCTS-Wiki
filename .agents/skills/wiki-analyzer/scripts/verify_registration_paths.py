@@ -92,12 +92,12 @@ def find_mustpass_files(category: str, mustpass_dir: Path) -> List[Path]:
 
     category_dir = mustpass_dir / category
     if category_dir.exists() and category_dir.is_dir():
-        for txt_file in sorted(category_dir.glob("*.txt")):
+        for txt_file in sorted(category_dir.rglob("*.txt")):
             add_if_exists(txt_file)
 
     hyphenated_dir = mustpass_dir / hyphenated_category
     if hyphenated_dir.exists() and hyphenated_dir.is_dir():
-        for txt_file in sorted(hyphenated_dir.glob("*.txt")):
+        for txt_file in sorted(hyphenated_dir.rglob("*.txt")):
             add_if_exists(txt_file)
 
     return txt_files

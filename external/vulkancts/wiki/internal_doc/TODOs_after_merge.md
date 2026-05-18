@@ -269,8 +269,28 @@ These categories are marked done in [README.md](../README.md) and had upstream s
   - renamed nested [monolithic.txt](../mustpass/main/vk-default/pipeline/monolithic/monolithic.txt)
   - renamed nested [shader-object-unlinked-spirv.txt](../mustpass/main/vk-default/pipeline/shader-object-unlinked-spirv/shader-object-unlinked-spirv.txt)
 - TODO:
-  - [ ] Validate that the pipeline registration adapter still finds nested mustpass files.
-  - [ ] Review changed pipeline Level-3 pages.
+  - [x] Validate that the pipeline registration adapter still finds nested mustpass files.
+  - [x] Review changed pipeline Level-3 pages.
+- Review result:
+  - Fixed nested mustpass discovery in
+    [verify_registration_paths.py](../../../../.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py) by
+    changing pipeline/category directory discovery from top-level `*.txt` globbing to recursive `*.txt` discovery, so
+    renamed nested files such as [monolithic.txt](../../mustpass/main/vk-default/pipeline/monolithic/monolithic.txt)
+    and [shader-object-unlinked-spirv.txt](../../mustpass/main/vk-default/pipeline/shader-object-unlinked-spirv/shader-object-unlinked-spirv.txt)
+    are included.
+  - Updated [pipeline.md](../categories/pipeline.md) mustpass mapping for the nested `monolithic` and
+    `shader_object_unlinked_spirv` files.
+  - Updated stale source facts in [vktPipelineBlendTests.md](../testfiles/pipeline/vktPipelineBlendTests.md),
+    [vktPipelineLibraryTests.md](../testfiles/pipeline/vktPipelineLibraryTests.md), and
+    [vktPipelineMultisampleResolveMaint10Tests.md](../testfiles/pipeline/vktPipelineMultisampleResolveMaint10Tests.md).
+  - Fixed link hygiene in
+    [vktPipelineExtendedDynamicStateTests.md](../testfiles/pipeline/vktPipelineExtendedDynamicStateTests.md).
+  - No content update was needed for the other changed pipeline source files because their inspected diffs only removed
+    obsolete `createCustomDevice` validation-flag plumbing or made local helper cleanup that did not alter documented
+    registration paths, test families, parameter dimensions, support gates, verification logic, or scope.
+  - Link validation passed for [pipeline.md](../categories/pipeline.md) and all 62 files under
+    [testfiles/pipeline](../testfiles/pipeline).
+  - Registration validation passed: `verify_registration_paths.py pipeline` checked 408 registration paths successfully.
 
 ### query_pool
 
@@ -470,7 +490,7 @@ Deleted mustpass files observed:
 - [ ] Fix validator discovery if nested or renamed mustpass files break validation.
 - [x] Correct [README.md](../README.md) statistics if no contrary counting rule is intended.
 - [ ] Review completed categories in decreasing risk order:
-  - [ ] [pipeline](../categories/pipeline.md)
+  - [x] [pipeline](../categories/pipeline.md)
   - [x] [api](../categories/api.md)
   - [ ] [synchronization](../categories/synchronization.md) and [synchronization2](../categories/synchronization2.md)
   - [x] [image](../categories/image.md)
