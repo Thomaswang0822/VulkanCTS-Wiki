@@ -47,7 +47,7 @@ Source: [lines 3688-3910](../../../modules/vulkan/texture/vktTextureMipmapTests.
 
 3D mipmap tests. Sub-groups: basic, affine, projected (coord types), bias, min_lod, max_lod, base_level, max_level, image_view_min_lod (non-VulkanSC).
 
-- Tests 3D mipmap filtering with different coordinate types and LOD controls
+- Tests 3D mipmap filtering with different coordinate types, LOD controls, and image view min LOD extension
 
 Source: [lines 3912-4187](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L3912-L4187)
 
@@ -72,7 +72,7 @@ Source: [lines 4189-4195](../../../modules/vulkan/texture/vktTextureMipmapTests.
 | 2D sizes | {64,64}, {63,57}, {32,64} |
 | 3D sizes | {32,32,32}, {33,29,27} |
 | Cube size | 64 |
-| Bias values (2D) | {1.0, -2.0, 0.8, -0.5, 1.5, 0.9, 2.0, 4.0} (8 values per grid) |
+| Bias values (all types) | {1.0, -2.0, 0.8, -0.5, 1.5, 0.9, 2.0, 4.0} (8 values per grid) |
 | MinLOD values | 16 values per grid cell |
 | MaxLOD values | 17 values per grid cell |
 
@@ -88,8 +88,9 @@ Source: [lines 4189-4195](../../../modules/vulkan/texture/vktTextureMipmapTests.
 
 **Mipmap filtering tests**: computeTextureLookupDiff() from tcu::TexLookupVerifier
 - 2D precision: coordBits=(20,20,0), uvwBits=(16,16,0), derivateBits=10, lodBits=8 (basic) or 6 (projected)
-- Cube precision: coordBits=(8-10), uvwBits=(5,5,0), lodBits=3-6
-- Tolerance for cube seams: up to 16-1024 failed pixels allowed
+- Cube precision: coordBits=(8-10), uvwBits=(5,5,0), derivateBits=10, lodBits=6 (basic) or 3 (projected)
+- 3D precision: coordBits=(20,20,20), uvwBits=(16,16,16), derivateBits=10, lodBits=8 (basic) or 6 (projected)
+- Tolerance for cube seams: up to 16 failed pixels (projected) or 1024 (bias) in compute-only mode; 0 in graphics mode
 
 **LOD control tests**: Same computeTextureLookupDiff() approach.
 
@@ -100,4 +101,4 @@ Source: [lines 4189-4195](../../../modules/vulkan/texture/vktTextureMipmapTests.
 - Grid-based verification (4x4 grid, each cell has different LOD parameters)
 - Colored level textures (each mipmap level has unique solid color)
 - LOD control hierarchy: basic -> bias -> min/max LOD -> base/max level -> image view min LOD
-- Dual pipeline (graphics + compute)
+- Dual pipeline (graphics + compute), except cubemap compute variants are skipped for projected and bias coordinate types due to inaccurate calculations

@@ -21,8 +21,8 @@ Implementation file
 ```text
 texture.filtering_anisotropy
 ├── basic
-├── mipmap
-└── single_level
+├── single_level
+└── mipmap
 ```
 
 ## Test Families
@@ -31,13 +31,13 @@ texture.filtering_anisotropy
 
 Basic anisotropy filtering tests (added at line 252). Tests anisotropic filtering with standard min/mag filter combinations on a 128x128 `VK_FORMAT_R8G8B8A8_UNORM` texture.
 
-### mipmap
-
-Anisotropy filtering with mipmap minification filters (added at line 319). Tests anisotropic filtering with mipmap-capable min filters on a 128x128 `VK_FORMAT_R8G8B8A8_UNORM` texture.
-
 ### single_level
 
 Anisotropy filtering on a single-mip-level texture (added at line 285). Tests anisotropic filtering behavior when the texture has only one mip level, using a 128x128 `VK_FORMAT_R8G8B8A8_UNORM` texture.
+
+### mipmap
+
+Anisotropy filtering with mipmap minification filters (added at line 319). Tests anisotropic filtering with mipmap-capable min filters on a 128x128 `VK_FORMAT_R8G8B8A8_UNORM` texture.
 
 ## Parameter Dimensions
 
@@ -58,7 +58,7 @@ Anisotropy filtering on a single-mip-level texture (added at line 285). Tests an
 Two-phase comparison in `FilteringAnisotropyInstance::iterate()` (lines 106-166):
 
 1. **Fuzzy similarity check**: `tcu::fuzzyCompare` with threshold 0.05, comparing anisotropic (maxAnisotropy) vs isotropic (1.0) rendering.
-2. **Difference detection** (LINEAR filters only): `tcu::floatThresholdCompare` with `Vec4(0.02f)`, expecting anisotropic output to differ from isotropic output.
+2. **Difference detection** (when neither minFilter nor magFilter is plain NEAREST): `tcu::floatThresholdCompare` with `Vec4(0.02f)`, expecting anisotropic output to differ from isotropic output.
 
 ## Notes
 

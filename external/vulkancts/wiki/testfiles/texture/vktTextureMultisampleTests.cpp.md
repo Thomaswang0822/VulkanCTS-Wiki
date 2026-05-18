@@ -19,7 +19,7 @@ Registration file
 ```text
 texture.multisample
 ├── atomic (non-VulkanSC only)
-└── invalid_sample_index
+└── invalid_sample_index (non-VulkanSC only)
 ```
 
 ## Test Families
@@ -38,7 +38,7 @@ Test principle: Validates atomic operations on multisample storage images.
 
 ### invalid_sample_index
 
-6 Amber test cases (lines 105-145):
+6 Amber test cases (lines 105-145, non-VulkanSC only):
 - `sample_count_2`
 - `sample_count_4`
 - `sample_count_8`
@@ -48,7 +48,7 @@ Test principle: Validates atomic operations on multisample storage images.
 
 Requires: `shaderStorageImageMultisample` feature.
 
-Test principle: Validates that writes to out-of-range sample indices are silently discarded.
+Test principle: Validates that writes to out-of-range sample indices are discarded.
 
 ## Parameter Dimensions
 
@@ -56,8 +56,8 @@ None at the registration level. Each sub-group enumerates specific test cases as
 
 ## Support/Feature Requirements
 
-- `atomic` sub-group: requires `shaderStorageImageMultisample`. R64 variants additionally require `shaderInt64`. Excluded on VulkanSC builds.
-- `invalid_sample_index` sub-group: requires `shaderStorageImageMultisample`. Available on all platforms including VulkanSC.
+- `atomic` sub-group: requires `shaderStorageImageMultisample`. R64 variants additionally require `shaderInt64`. Excluded on VulkanSC by both the parent group registration guard and an internal `#ifndef CTS_USES_VULKANSC` guard (lines 42-100).
+- `invalid_sample_index` sub-group: requires `shaderStorageImageMultisample`. Excluded on VulkanSC because the parent `multisample` group is not registered on VulkanSC (see [vktTextureTests.cpp](../../../modules/vulkan/texture/vktTextureTests.cpp#L60-L66)). No internal VulkanSC guard.
 
 ## Verification Methods
 
@@ -65,6 +65,5 @@ All tests are Amber-based. No C++-side verification logic.
 
 ## Notes
 
-- The `atomic` sub-group is excluded on VulkanSC builds.
-- The `invalid_sample_index` sub-group is available on all platforms.
+- Both sub-groups are excluded on VulkanSC because the parent `multisample` group is not registered on VulkanSC ([vktTextureTests.cpp](../../../modules/vulkan/texture/vktTextureTests.cpp#L60-L66)). The `atomic` sub-group has an additional internal `#ifndef CTS_USES_VULKANSC` guard, while `invalid_sample_index` relies solely on the parent exclusion.
 - The factory function creates a `TestCaseGroup(testCtx, "multisample")` at line 151.

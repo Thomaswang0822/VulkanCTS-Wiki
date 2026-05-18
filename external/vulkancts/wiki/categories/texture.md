@@ -124,7 +124,7 @@ Many test groups offer both regular and sparse backing modes for texture memory.
 | Image view min LOD | `VK_EXT_image_view_min_lod` | mipmap |
 | Robustness2 | `VK_EXT_robustness2` | mipmap (gather minLod) |
 | Depth comparison | `VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_DEPTH_COMPARISON_BIT_KHR` | shadow |
-| Compressed formats | `textureCompressionETC2`, `textureCompressionASTC_LDR`, `textureCompressionBC` | compressed |
+| Compressed formats | `textureCompressionETC2`, `textureCompressionASTC_LDR`, `textureCompressionBC` | compressed, compressed_3D |
 | ASTC 3D | `VK_EXT_texture_compression_astc_3d` | compressed_3D |
 | Depth/stencil swizzle | `VK_KHR_maintenance5` + `depthStencilSwizzleOneSupport` | swizzle |
 | RGBA10x6 without YCbCr | `VK_EXT_rgba10x6_formats` | filtering |

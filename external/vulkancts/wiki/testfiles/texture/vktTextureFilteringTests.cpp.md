@@ -37,7 +37,6 @@ texture.filtering
 - 6 sizes: {4,8}, {32,64}, {128,128}, {3,7}, {31,55}, {127,99}
 - 16 filterable formats
 - 5 wrap modes: repeat, mirrored_repeat, clamp_to_edge, clamp_to_border, mirror_clamp_to_edge
-- Seamless variants: seamless, non_seamless
 
 Source: [lines 1322-1470](../../../modules/vulkan/texture/vktTextureFilteringTests.cpp#L1322-L1470)
 

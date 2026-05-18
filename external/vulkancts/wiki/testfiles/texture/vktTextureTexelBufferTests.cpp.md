@@ -22,6 +22,8 @@ texture.texel_buffer
 └── uniform
 ```
 
+The `uniform` group contains 3 sub-groups (srgb, packed, snorm) which are one level below the root expansion.
+
 ## Test Families
 
 ### uniform

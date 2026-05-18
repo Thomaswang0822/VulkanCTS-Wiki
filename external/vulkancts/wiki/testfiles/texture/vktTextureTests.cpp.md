@@ -70,11 +70,11 @@ VkComponentMapping (component swizzle) and texture coordinate swizzle tests acro
 
 ### subgroup_lod
 
-Subgroup LOD consistency tests using textureLod, textureGrad, and texelFetch. Amber-based. Non-VulkanSC only. Registered by [createTextureSubgroupLodTests](../../../modules/vulkan/texture/vktTextureSubgroupLodTests.cpp#L59).
+LOD selection tests using textureLod, textureGrad, and texelFetch. Amber-based. Non-VulkanSC only. Registered by [createTextureSubgroupLodTests](../../../modules/vulkan/texture/vktTextureSubgroupLodTests.cpp#L59).
 
 ### conversion
 
-Format conversion tests: UFLOAT negative values, SNORM clamping, and SNORM linear filtering clamping. Non-VulkanSC only. Registered by [createTextureConversionTests](../../../modules/vulkan/texture/vktTextureConversionTests.cpp#L438).
+Format conversion tests: UFLOAT negative values, SNORM clamping, and SNORM linear filtering clamping. Group excluded on VulkanSC at registration level; internally, `snorm_clamp_linear` has no VulkanSC guard (would appear if group were registered). Registered by [createTextureConversionTests](../../../modules/vulkan/texture/vktTextureConversionTests.cpp#L438).
 
 ### texel_buffer
 
