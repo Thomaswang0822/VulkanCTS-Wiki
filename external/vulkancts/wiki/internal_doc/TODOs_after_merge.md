@@ -159,7 +159,15 @@ These categories are marked done in [README.md](../README.md) and had upstream s
 - Upstream changed source files:
   - [vktDrawConcurrentTests.cpp](../modules/vulkan/draw/vktDrawConcurrentTests.cpp)
 - TODO:
-  - [ ] Check if the concurrency test documentation needs update.
+  - [x] Check if the concurrency test documentation needs update.
+- Review result:
+  - No wiki content update required. The upstream diff only removed the local `validation` command-line flag
+    plumbing and adjusted the `createCustomDevice` call signature in `vktDrawConcurrentTests.cpp`; it did not alter
+    registration paths, the `concurrent.compute_and_triangle_list` test family, parameter dimensions, support gates,
+    compute/graphics verification logic, or documented scope.
+  - Link validation passed for [draw.md](../categories/draw.md) and all 31 files under
+    [testfiles/draw](../testfiles/draw).
+  - Registration validation passed: `verify_registration_paths.py draw` checked 1673 registration paths successfully.
 
 ### dynamic_state
 
@@ -437,7 +445,7 @@ Deleted mustpass files observed:
   - [ ] [shader_object](../categories/shader_object.md)
   - [ ] [ycbcr](../categories/ycbcr.md)
   - [ ] [query_pool](../categories/query_pool.md)
-  - [ ] [draw](../categories/draw.md)
+  - [x] [draw](../categories/draw.md)
   - [ ] [dynamic_state](../categories/dynamic_state.md)
   - [ ] [rasterization](../categories/rasterization.md)
   - [ ] [texture](../categories/texture.md)
