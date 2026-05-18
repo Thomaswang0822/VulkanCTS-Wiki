@@ -1,4 +1,4 @@
-# vktImage2dArrayCompatibleTests ([source](../../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp))
+# vktImage2dArrayCompatibleTests ([source](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp))
 
 ## Overview
 
@@ -10,7 +10,7 @@ Implementation file that registers the `2d_array_compatible` test group and prov
 
 ## Source Code
 
-- Implementation: [vktImage2dArrayCompatibleTests.cpp](../../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp)
+- Implementation: [vktImage2dArrayCompatibleTests.cpp](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp)
 - Header: (header file not shown in provided source)
 
 ## Registration Hierarchy
@@ -41,7 +41,7 @@ image.2d_array_compatible
 ```
 
 Evidence:
-- `2d_array_compatible` group created by [`createImage2dArrayCompatibleTests()`](../../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L464-L523)
+- `2d_array_compatible` group created by [`createImage2dArrayCompatibleTests()`](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L464-L523)
 - Layer configuration groups at lines 500-502 with names like `0_1_8`, `3_7_16`, `3_4_5`
 - Tiling groups at lines 503-505 with names `linear` and `optimal`
 - Image view type groups at lines 506-515 with names `2d` and `3d`
@@ -70,22 +70,22 @@ Evidence:
 
 | Dimension | Values | Source |
 |-----------|--------|--------|
-| Image Format | VK_FORMAT_R8G8B8A8_UNORM | [line 121](../../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L121) |
-| Image Type | VK_IMAGE_TYPE_3D | [line 136](../../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L136) |
-| Image Extent | 32x32x{depthLayers} | [line 122](../../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L122) |
-| Copy Extent | 32x32x1 | [line 123](../../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L123) |
-| Mip Levels | 1 | [line 139](../../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L139) |
-| Sample Count | VK_SAMPLE_COUNT_1_BIT | [line 141](../../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L141) |
-| Image Usage | TRANSFER_SRC_BIT, TRANSFER_DST_BIT, SAMPLED_BIT | [line 143-144](../../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L143-144) |
+| Image Format | VK_FORMAT_R8G8B8A8_UNORM | [line 121](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L121) |
+| Image Type | VK_IMAGE_TYPE_3D | [line 136](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L136) |
+| Image Extent | 32x32x{depthLayers} | [line 122](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L122) |
+| Copy Extent | 32x32x1 | [line 123](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L123) |
+| Mip Levels | 1 | [line 139](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L139) |
+| Sample Count | VK_SAMPLE_COUNT_1_BIT | [line 141](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L141) |
+| Image Usage | TRANSFER_SRC_BIT, TRANSFER_DST_BIT, SAMPLED_BIT | [line 143-144](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L143-144) |
 
 ## Support / Feature Requirements
 
 | Requirement | Condition | Source |
 |-------------|-----------|--------|
-| VK_KHR_maintenance9 | All tests | [line 409](../../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L409) |
-| VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT | Image format must support with 3D type | [line 415-419](../../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L415-419) |
-| VK_EXT_image_2d_view_of_3d | 2D view type tests (non-VulkanSC only) | [line 424](../../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L424) |
-| sampler2DViewOf3D feature | 2D view type tests (non-VulkanSC only) | [line 425-426](../../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L425-426) |
+| VK_KHR_maintenance9 | All tests | [line 409](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L409) |
+| VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT | Image format must support with 3D type | [line 415-419](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L415-419) |
+| VK_EXT_image_2d_view_of_3d | 2D view type tests (non-VulkanSC only) | [line 424](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L424) |
+| sampler2DViewOf3D feature | 2D view type tests (non-VulkanSC only) | [line 425-426](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L425-426) |
 
 ## Verification Methods
 
@@ -93,15 +93,15 @@ Evidence:
 
 Tests verify correct layer access by copying data between layers and comparing:
 
-1. **Source data generation**: Random data filled into source buffer at [lines 188-190](../../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L188-190)
-2. **Copy to first layer**: Buffer copied to firstLayer depth slice via `vkCmdCopyBufferToImage` at [lines 273-280](../../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L273-280)
-3. **Copy between layers**: Image copy from firstLayer to secondLayer via `vkCmdCopyImage` at [lines 293-300](../../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L293-300)
-4. **Shader sampling**: Compute shader samples from secondLayer view, writes to SSBO at [lines 455-456](../../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L455-456)
-5. **Copy from second layer**: Result copied to destination buffer via `vkCmdCopyImageToBuffer` at [lines 331-338](../../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L331-338)
+1. **Source data generation**: Random data filled into source buffer at [lines 188-190](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L188-190)
+2. **Copy to first layer**: Buffer copied to firstLayer depth slice via `vkCmdCopyBufferToImage` at [lines 273-280](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L273-280)
+3. **Copy between layers**: Image copy from firstLayer to secondLayer via `vkCmdCopyImage` at [lines 293-300](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L293-300)
+4. **Shader sampling**: Compute shader samples from secondLayer view, writes to SSBO at [lines 455-456](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L455-456)
+5. **Copy from second layer**: Result copied to destination buffer via `vkCmdCopyImageToBuffer` at [lines 331-338](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L331-338)
 
 **Verification checks**:
-- Byte-by-byte comparison of source and destination buffers at [line 355-372](../../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L355-372)
-- SSBO verification against scaled source values with epsilon of 1.0 at [lines 373-381](../../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L373-381)
+- Byte-by-byte comparison of source and destination buffers at [line 355-372](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L355-372)
+- SSBO verification against scaled source values with epsilon of 1.0 at [lines 373-381](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L373-381)
 
 ## Test Principles Observed
 

@@ -10,14 +10,14 @@ This file implements the core image load/store functionality tests for Vulkan st
 
 ## Source Code
 
-[vktImageLoadStoreTests.cpp](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageLoadStoreTests.cpp)
+[vktImageLoadStoreTests.cpp](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp)
 
 ## Related Files
 
-- [vktImageTests.cpp](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageTests.cpp) - Category root registration file
-- [vktImageLoadStoreTests.hpp](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageLoadStoreTests.hpp) - Header with factory declarations
-- [vktImageLoadStoreUtil.hpp](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageLoadStoreUtil.hpp) - Utility functions
-- [vktImageTexture.hpp](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageTexture.hpp) - Texture wrapper
+- [vktImageTests.cpp](../../../modules/vulkan/image/vktImageTests.cpp) - Category root registration file
+- [vktImageLoadStoreTests.hpp](../../../modules/vulkan/image/vktImageLoadStoreTests.hpp) - Header with factory declarations
+- [vktImageLoadStoreUtil.hpp](../../../modules/vulkan/image/vktImageLoadStoreUtil.hpp) - Utility functions
+- [vktImageTexture.hpp](../../../modules/vulkan/image/vktImageTexture.hpp) - Texture wrapper
 
 ## Registration Hierarchy
 

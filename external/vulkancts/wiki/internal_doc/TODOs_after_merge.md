@@ -176,7 +176,15 @@ These categories are marked done in [README.md](../README.md) and had upstream s
 - Upstream changed source files:
   - [vktDynamicStateComputeTests.cpp](../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp)
 - TODO:
-  - [ ] Check whether compute dynamic-state support gates or test families changed.
+  - [x] Check whether compute dynamic-state support gates or test families changed.
+- Review result:
+  - No wiki content update required. The upstream diff only updated the `createCustomDevice` helper signature in
+    `vktDynamicStateComputeTests.cpp`; it did not alter the `compute_transfer` registration tree, support gates,
+    single/multi test families, parameter dimensions, or compute/transfer verification logic.
+  - Link validation passed for [dynamic_state.md](../categories/dynamic_state.md) and all 10 files under
+    [testfiles/dynamic_state](../testfiles/dynamic_state).
+  - Registration validation passed: `verify_registration_paths.py dynamic_state` checked 67 registration paths
+    successfully.
 
 ### image
 
@@ -193,8 +201,18 @@ These categories are marked done in [README.md](../README.md) and had upstream s
   - [image/non-uniform-offset-sample.txt](../mustpass/main/vk-default/image/non-uniform-offset-sample.txt)
   - deleted [image/astc-sample.txt](../mustpass/main/vk-default/image/astc-sample.txt)
 - TODO:
-  - [ ] Determine whether deleted ASTC mustpass file affects any existing image wiki claims.
-  - [ ] Review host image copy, mutable image, non-uniform offset sample, and depth/stencil docs.
+  - [x] Determine whether deleted ASTC mustpass file affects any existing image wiki claims.
+  - [x] Review host image copy, mutable image, non-uniform offset sample, and depth/stencil docs.
+- Review result:
+  - The deleted `image/astc-sample.txt` does not invalidate the existing `general_layout.astc_sample` wiki claims;
+    the same paths are present under [image/general-layout.txt](../mustpass/main/vk-default/image/general-layout.txt).
+  - Updated image wiki content for changed behavior in depth/stencil separate support checks, sparse host-image-copy
+    fence waits, swapchain mutable-image acquire-semaphore synchronization, and non-uniform-offset compute-stage
+    implicit-LOD pruning.
+  - Also repaired image Level-3 link hygiene so source links resolve from [testfiles/image](../testfiles/image) and
+    normalized the `host_image_copy` registration hierarchy to validator-backed direct children.
+  - Link validation passed for [image.md](../categories/image.md) and all 24 files under [testfiles/image](../testfiles/image).
+  - Registration validation passed: `verify_registration_paths.py image` checked 37 registration paths successfully.
 
 ### memory
 
@@ -438,7 +456,7 @@ Deleted mustpass files observed:
   - [ ] [pipeline](../categories/pipeline.md)
   - [x] [api](../categories/api.md)
   - [ ] [synchronization](../categories/synchronization.md) and [synchronization2](../categories/synchronization2.md)
-  - [ ] [image](../categories/image.md)
+  - [x] [image](../categories/image.md)
   - [ ] [renderpasses](../categories/renderpasses.md)
   - [x] [binding_model](../categories/binding_model.md)
   - [ ] [memory](../categories/memory.md)
@@ -446,7 +464,7 @@ Deleted mustpass files observed:
   - [ ] [ycbcr](../categories/ycbcr.md)
   - [ ] [query_pool](../categories/query_pool.md)
   - [x] [draw](../categories/draw.md)
-  - [ ] [dynamic_state](../categories/dynamic_state.md)
+  - [x] [dynamic_state](../categories/dynamic_state.md)
   - [ ] [rasterization](../categories/rasterization.md)
   - [ ] [texture](../categories/texture.md)
 - [ ] For each reviewed category, update only facts proven from current source or mustpass files.
