@@ -413,7 +413,15 @@ These categories are marked done in [README.md](../README.md) and had upstream s
 - Upstream changed source files:
   - [vktTextureTestUtil.cpp](../modules/vulkan/texture/vktTextureTestUtil.cpp)
 - TODO:
-  - [ ] Decide whether helper-only utility change affects any documented texture behavior.
+  - [x] Decide whether helper-only utility change affects any documented texture behavior.
+- Review result:
+  - No wiki content update required. The upstream texture diff only removed obsolete validation-layer command-line
+    plumbing from `createCustomDevice()` in [vktTextureTestUtil.cpp](../modules/vulkan/texture/vktTextureTestUtil.cpp),
+    specifically inside shared robust-buffer-access custom-device creation. It did not alter texture registration paths,
+    test families, parameter dimensions, support gates, verification logic, or documented category scope.
+  - Link validation passed for [texture.md](../categories/texture.md) and all 13 files under
+    [testfiles/texture](../testfiles/texture).
+  - Registration validation passed: `verify_registration_paths.py texture` checked 45 registration paths successfully.
 
 ### ycbcr
 
@@ -426,7 +434,21 @@ These categories are marked done in [README.md](../README.md) and had upstream s
 - Related mustpass changed:
   - [ycbcr.txt](../mustpass/main/vk-default/ycbcr.txt)
 - TODO:
-  - [ ] Review changed YCbCr docs and mustpass impact.
+  - [x] Review changed YCbCr docs and mustpass impact.
+- Review result:
+  - Updated YCbCr documentation for new descriptor-mode coverage in [ycbcr.md](../categories/ycbcr.md),
+    [vktYCbCrFormatTests.md](../testfiles/ycbcr/vktYCbCrFormatTests.md), and
+    [vktYCbCrViewTests.md](../testfiles/ycbcr/vktYCbCrViewTests.md).
+  - The upstream source adds non-SC `VK_EXT_descriptor_buffer` and `VK_EXT_descriptor_heap` variants to the `format`
+    and `plane_view` groups. The updated [ycbcr.txt](../mustpass/main/vk-default/ycbcr.txt) includes the corresponding
+    `_descriptor_buffer` and `_descriptor_heap` paths: 372 of each under `ycbcr.format` and 1200 of each under
+    `ycbcr.plane_view`.
+  - Also noted the helper-only Vulkan SC guard changes in [vktYCbCrUtil.cpp](../modules/vulkan/ycbcr/vktYCbCrUtil.cpp)
+    for `A1B5G5R5` / `A8` channel-count handling; these do not require separate Level-3 documentation because
+    [vktYCbCrUtil.cpp](../modules/vulkan/ycbcr/vktYCbCrUtil.cpp) is helper-only.
+  - Link validation passed for [ycbcr.md](../categories/ycbcr.md) and all 10 files under
+    [testfiles/ycbcr](../testfiles/ycbcr).
+  - Registration validation passed: `verify_registration_paths.py ycbcr` checked 261 registration paths successfully.
 
 ## Completed Categories Not Touched By Upstream Source Changes
 

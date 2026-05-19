@@ -63,27 +63,31 @@ Verifies that sampling a YCbCr image through a `VkSamplerYcbcrConversion` produc
 | Dimension | Values | Notes |
 |-----------|--------|-------|
 | Format | `VK_YCBCR_FORMAT_FIRST` through `VK_YCBCR_FORMAT_LAST`, plus `VK_FORMAT_G8_B8R8_2PLANE_444_UNORM_EXT` through `VK_FORMAT_G16_B16R16_2PLANE_444_UNORM_EXT` | All YCbCr multi-planar formats |
-| Shader Type | vertex, fragment, geometry, tessellation_control, tessellation_evaluation, compute | All shader stages |
+| Shader Type | vertex, fragment, geometry, tessellation_control, tessellation_evaluation, compute | All shader stages; descriptor modes are filtered by `executorSupported()` |
 | Tiling | optimal, linear | `VK_IMAGE_TILING_OPTIMAL` and `VK_IMAGE_TILING_LINEAR` |
 | Disjoint | false, true | `VK_IMAGE_CREATE_DISJOINT_BIT` (multi-plane formats only) |
 | Mapped Memory | false, true | Host-visible memory mapping (linear tiling only) |
 | Array Layers | false, true | 2-layer image arrays (requires `VK_EXT_ycbcr_image_arrays`) |
+| Descriptor Mode | descriptor set, descriptor buffer, descriptor heap | Descriptor buffer and descriptor heap variants are non-VulkanSC only and use `_descriptor_buffer` / `_descriptor_heap` suffixes |
 
 **Support Requirements:**
 
 - `VK_KHR_sampler_ycbcr_conversion` extension and `samplerYcbcrConversion` feature
 - `VK_FORMAT_FEATURE_MIDPOINT_CHROMA_SAMPLES_BIT` for the format
 - `VK_EXT_ycbcr_image_arrays` for array layer tests
+- `VK_EXT_descriptor_buffer` for descriptor-buffer variants
+- `VK_EXT_descriptor_heap` for descriptor-heap variants
 - `DEVICE_CORE_FEATURE_VERTEX_PIPELINE_STORES_AND_ATOMICS` for vertex/tessellation/geometry shader stages
 - `maxArrayLayers >= 2` for array layer tests
 
 **Verification Method:**
 
-Shader execution via `ShaderExecutor`. Results are compared against a software reference using `tcu::Texture2DView::sample()` with a threshold of 0.02f per channel. The test also verifies that `combinedImageSamplerDescriptorCount >= 1` via `VkSamplerYcbcrConversionImageFormatProperties`.
+Shader execution via `ShaderExecutor`. Results are compared against a software reference using `tcu::Texture2DView::sample()` with a threshold of 0.02f per channel. The test also verifies that `combinedImageSamplerDescriptorCount >= 1` via `VkSamplerYcbcrConversionImageFormatProperties`. The descriptor mode controls whether execution uses descriptor sets, `executeBuffer()`, or `executeHeap()`.
 
 **Key Functions:**
 
-- [testFormat()](../../../modules/vulkan/ycbcr/vktYCbCrFormatTests.cpp#L279) - Main test implementation
-- [populatePerFormatGroup()](../../../modules/vulkan/ycbcr/vktYCbCrFormatTests.cpp#L521) - Per-format test case generation
-- [populateFormatGroup()](../../../modules/vulkan/ycbcr/vktYCbCrFormatTests.cpp#L570) - Top-level format group population
-- [createFormatTests()](../../../modules/vulkan/ycbcr/vktYCbCrFormatTests.cpp#L592) - Factory function returning the `format` group
+- [testFormat()](../../../modules/vulkan/ycbcr/vktYCbCrFormatTests.cpp#L353) - Main test implementation
+- [checkSupport()](../../../modules/vulkan/ycbcr/vktYCbCrFormatTests.cpp#L312) - Format, array-layer, shader-stage, and descriptor-mode support checks
+- [populatePerFormatGroup()](../../../modules/vulkan/ycbcr/vktYCbCrFormatTests.cpp#L640) - Per-format test case generation, including descriptor-buffer and descriptor-heap suffix variants
+- [populateFormatGroup()](../../../modules/vulkan/ycbcr/vktYCbCrFormatTests.cpp#L712) - Top-level format group population
+- [createFormatTests()](../../../modules/vulkan/ycbcr/vktYCbCrFormatTests.cpp#L734) - Factory function returning the `format` group

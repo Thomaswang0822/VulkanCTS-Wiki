@@ -58,17 +58,19 @@ Source: [`vktYCbCrTests.cpp`](../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L44).
 
 ## Subgroup Structure and Major Themes
 
-### [`format`](../../modules/vulkan/ycbcr/vktYCbCrFormatTests.cpp#L592)
+### [`format`](../../modules/vulkan/ycbcr/vktYCbCrFormatTests.cpp#L734)
 
-Tests YCbCr format feature support, verifying that multi-planar formats report correct `VkFormatProperties` and feature flags.
+Tests YCbCr format feature support and sampling behavior. Current source also generates non-SC descriptor-buffer and
+descriptor-heap variants for executor-supported shader stages, so the format subgroup covers legacy descriptor sets,
+`VK_EXT_descriptor_buffer`, and `VK_EXT_descriptor_heap` binding paths.
 
 ### [`filtering`](../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L787)
 
 Tests YCbCr texture sampling with various formats, chroma offsets, and filter modes. Verifies that sampled values match expected RGB conversions.
 
-### [`plane_view`](../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L901)
+### [`plane_view`](../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L1075)
 
-Tests multi-plane image views, verifying that individual plane views of multi-planar images produce correct results when sampled or used as attachments.
+Tests multi-plane image views, verifying that individual plane views of multi-planar images produce correct results when sampled or used as attachments. Current source also generates non-SC descriptor-buffer and descriptor-heap variants for executor-supported fragment/compute paths.
 
 ### [`query`](../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L603)
 
@@ -109,6 +111,7 @@ Miscellaneous tests including relaxed precision handling for YCbCr conversion re
 | Range | Full, luma, narrow |
 | Filter modes | Nearest, linear |
 | Plane counts | 1-plane, 2-plane, 3-plane |
+| Descriptor binding mode | Descriptor sets, descriptor buffers, descriptor heap variants in `format` and `plane_view` |
 
 ## Recurring Support Requirements
 
@@ -117,6 +120,8 @@ Miscellaneous tests including relaxed precision handling for YCbCr conversion re
 - `VK_KHR_format_feature_flags2` for format tests
 - `VK_EXT_ycbcr_2plane_444_formats` for 4:4:4 2-plane formats
 - `VK_EXT_ycbcr_image_arrays` for array-layer YCbCr images
+- `VK_EXT_descriptor_buffer` for non-SC descriptor-buffer variants in `format` and `plane_view`
+- `VK_EXT_descriptor_heap` for non-SC descriptor-heap variants in `format` and `plane_view`
 - `shaderStorageImageWriteWithoutFormat` for storage image write tests
 
 ## Recurring Verification Methods

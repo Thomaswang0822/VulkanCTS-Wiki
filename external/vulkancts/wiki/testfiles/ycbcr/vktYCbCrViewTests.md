@@ -38,22 +38,26 @@ Verifies that individual planes of a multi-planar YCbCr image can be accessed vi
 | Compatible Format | Plane's native compatible format, plus any format with matching pixel size from the compatibility table | E.g., `VK_FORMAT_R4G4_UNORM_PACK8` is compatible with `VK_FORMAT_R8_UNORM` |
 | Disjoint | false, true | `VK_IMAGE_CREATE_DISJOINT_BIT` (memory_alias requires disjoint) |
 | Shader Type | fragment, compute | Only shader stages with executor support |
+| Descriptor Mode | descriptor set, descriptor buffer, descriptor heap | Descriptor buffer and descriptor heap variants are non-VulkanSC only and use `_descriptor_buffer` / `_descriptor_heap` suffixes |
 
 **Support Requirements:**
 
 - `VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_TRANSFER_DST_BIT | VK_FORMAT_FEATURE_MIDPOINT_CHROMA_SAMPLES_BIT` for the YCbCr format
 - `VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_TRANSFER_DST_BIT` for the plane compatible format
+- `VK_EXT_descriptor_buffer` for descriptor-buffer variants
+- `VK_EXT_descriptor_heap` for descriptor-heap variants
 - `VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT` is always set
 - `VK_IMAGE_CREATE_ALIAS_BIT` for memory alias view type
 - `VK_IMAGE_CREATE_DISJOINT_BIT` for disjoint tests (and required for memory alias)
 
 **Verification Method:**
 
-Shader execution via `ShaderExecutor`. Two outputs are produced: (1) the whole image sampled with YCbCr conversion, and (2) the plane view sampled without conversion. Both are compared against software reference values using `tcu::Texture2DView::sample()` with a threshold of 0.02f. For compatible format comparisons, a `chooseComparisonFormat()` function selects the appropriate format to handle padded formats (e.g., `R10X6` vs `R12X4`) where padding bits may differ.
+Shader execution via `ShaderExecutor`. Two outputs are produced: (1) the whole image sampled with YCbCr conversion, and (2) the plane view sampled without conversion. Both are compared against software reference values using `tcu::Texture2DView::sample()` with a threshold of 0.02f. For compatible format comparisons, a `chooseComparisonFormat()` function selects the appropriate format to handle padded formats (e.g., `R10X6` vs `R12X4`) where padding bits may differ. The descriptor mode controls whether execution uses descriptor sets, `executeBuffer()`, or `executeHeap()`.
 
 **Key Functions:**
 
-- [testPlaneView()](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L487) - Main test implementation
-- [populateViewTypeGroup()](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L825) - Per-view-type test case generation
-- [populateViewGroup()](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L891) - Top-level view group population
-- [createViewTests()](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L901) - Factory function returning the `plane_view` group
+- [testPlaneView()](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L595) - Main test implementation
+- [checkSupport()](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L486) - Image, shader-stage, and descriptor-mode support checks
+- [populateViewTypeGroup()](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L983) - Per-view-type test case generation, including descriptor-buffer and descriptor-heap suffix variants
+- [populateViewGroup()](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L1065) - Top-level view group population
+- [createViewTests()](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L1075) - Factory function returning the `plane_view` group
