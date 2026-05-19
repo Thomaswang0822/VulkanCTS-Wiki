@@ -30,6 +30,10 @@ USAGE:
     python verify_registration_paths.py <category>
     python verify_registration_paths.py --wiki-file <path-to-level3-md>
 
+    Category mode validates all registration paths extracted from the category
+    wiki pages. The legacy --check-all flag is accepted as a no-op alias for
+    category mode for compatibility with older workflow notes.
+
 EXIT CODES:
     0 - All paths verified successfully
     1 - One or more paths not found in mustpass files
@@ -365,6 +369,8 @@ def main():
                         help='Path to wiki directory')
     parser.add_argument('--verbose', '-v', action='store_true',
                         help='Print verbose output')
+    parser.add_argument('--check-all', action='store_true',
+                        help='Deprecated no-op; category mode already validates all extracted paths')
 
     args = parser.parse_args()
 

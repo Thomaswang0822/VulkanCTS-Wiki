@@ -316,17 +316,17 @@ After determining a group name, verify it against the mustpass definition files 
 
 ```bash
 # Check all extracted paths for a category
-python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category> --check-all
+python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category>
 
-# Check a single path
-python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category> <group_path>
+# Check one Level-3 wiki file
+python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py --wiki-file external/vulkancts/wiki/testfiles/<category>/<cpp_filename>.md
 
 # Save category results for review
-python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category> --check-all \
+python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category> \
   > external/vulkancts/wiki/internal_doc/error_paths_<category>.txt 2>&1
 ```
 
-Use category-wide verification as the default before marking documentation complete. Use single-path verification while investigating one suspicious or newly added registration path.
+Use category-wide verification as the default before marking documentation complete. Use `--wiki-file` while investigating one suspicious or newly added Level-3 page.
 
 The intended input for nested validation is the canonical `## Registration Hierarchy` tree in Level-3 pages. Avoid adding script-only explicit-prefix snippets to user-facing wiki pages.
 
@@ -462,7 +462,7 @@ Before marking work complete, verify:
 - all relative links are correct (run [`scripts/validate_wiki_links.py`](scripts/validate_wiki_links.py))
 - links to Level-3 docs are correct from the category doc
 - links to source files are correct from each Level-3 doc
-- all group names are verified (run [`verify_registration_paths.py`](.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py) with `--check-all`; redirect output to `external/vulkancts/wiki/internal_doc/error_paths_<category>.txt`)
+- all group names are verified (run [`verify_registration_paths.py`](.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py) with the category argument; redirect output to `external/vulkancts/wiki/internal_doc/error_paths_<category>.txt`)
 - category docs match registration code
 - no unsupported claims remain; wording avoids universal claims not justified by evidence
 - repeated statements are deduplicated
