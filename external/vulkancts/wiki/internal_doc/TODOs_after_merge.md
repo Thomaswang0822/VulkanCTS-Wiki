@@ -390,8 +390,21 @@ These categories are marked done in [README.md](../README.md) and had upstream s
   - [vktSynchronizationTimelineSemaphoreTests.cpp](../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.cpp)
   - [vktSynchronizationWin32KeyedMutexTests.cpp](../modules/vulkan/synchronization/vktSynchronizationWin32KeyedMutexTests.cpp)
 - TODO:
-  - [ ] Review changed synchronization docs.
-  - [ ] Also consider [synchronization2.md](../categories/synchronization2.md), because its Level-3 files share the same wiki folder.
+  - [x] Review changed synchronization docs.
+  - [x] Also consider [synchronization2.md](../categories/synchronization2.md), because its Level-3 files share the same wiki folder.
+- Review result:
+  - No wiki content update required. The upstream synchronization diffs only removed obsolete validation-layer
+    command-line plumbing from custom-device creation calls, plus one helper include addition
+    (`tcuTextureUtil.hpp`) in [vktSynchronizationInternallySynchronizedTests.cpp](../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedTests.cpp).
+    They did not alter registration paths, test families, parameter dimensions, support gates, verification logic, or
+    documented scope for [synchronization.md](../categories/synchronization.md),
+    [synchronization2.md](../categories/synchronization2.md), or the shared
+    [testfiles/synchronization](../testfiles/synchronization) Level-3 pages.
+  - Link validation passed for [synchronization.md](../categories/synchronization.md),
+    [synchronization2.md](../categories/synchronization2.md), and all 17 files under
+    [testfiles/synchronization](../testfiles/synchronization).
+  - Registration validation passed: `verify_registration_paths.py synchronization` checked 501 registration paths
+    successfully, and `verify_registration_paths.py synchronization2` checked 405 registration paths successfully.
 
 ### texture
 
