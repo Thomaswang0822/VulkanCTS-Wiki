@@ -69,7 +69,7 @@ For this tracker, the `Level-3 Files` column counts the actual number of Level-3
 | 24 | transform_feedback | [transform_feedback.md](categories/transform_feedback.md) | 5 | ✅ Done |
 | 25 | ubo | [ubo.md](categories/ubo.md) | 1 | ✅ Done |
 | 26 | ssbo | [ssbo.md](categories/ssbo.md) | 3 | ✅ Done |
-| 27 | glsl | [glsl.md](categories/glsl.md) |  | ⬜ Not Started |
+| 27 | glsl | [glsl.md](categories/glsl.md) | 23 | ✅ Done |
 | 28 | spirv_assembly | [spirv_assembly.md](categories/spirv_assembly.md) |  | ⬜ Not Started |
 | 29 | subgroups | [subgroups.md](categories/subgroups.md) |  | ⬜ Not Started |
 | 30 | compute | [compute.md](categories/compute.md) |  | ⬜ Not Started |
@@ -102,5 +102,5 @@ For this tracker, the `Level-3 Files` column counts the actual number of Level-3
 ## Statistics
 
 - **Total Categories**: 53
-- **Completed Categories**: 23/53
+- **Completed Categories**: 24/53
 
