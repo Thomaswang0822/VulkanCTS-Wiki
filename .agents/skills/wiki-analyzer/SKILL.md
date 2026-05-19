@@ -47,6 +47,17 @@ The skill is not just a template filler. It must derive claims from:
 
 ## Execution Model
 
+### Command Approval Guidance
+
+Prefer built-in read/search tools and direct, whitelisted script invocations when they are sufficient. Shell here-doc
+syntax such as `python3 - <<'PY' ... PY`, shell redirection such as `> ... 2>&1`, and command chaining are often
+useful for systematic source discovery, extraction, or validation-log capture, but they may require frequent user
+approval even when the underlying executable is otherwise whitelisted.
+
+Do not avoid these shell constructs altogether. Use them when they materially improve accuracy, speed, or repeatability,
+especially for large categories or complex cross-checking. When a simpler direct command or built-in tool is adequate,
+prefer that lower-friction option to reduce approval prompts.
+
 ### Preferred Unit of Work
 
 Default target:
