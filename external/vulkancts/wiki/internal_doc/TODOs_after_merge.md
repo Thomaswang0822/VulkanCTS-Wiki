@@ -335,11 +335,22 @@ These categories are marked done in [README.md](../README.md) and had upstream s
   - [vktRenderPassPerformanceCountersByRegionTests.cpp](../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp)
   - [vktRenderPassSubpassDependencyTests.cpp](../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp)
 - Related mustpass changed:
-  - deleted [renderpass.txt](../mustpass/main/vk-default/renderpass.txt)
-  - modified [renderpasses.txt](../mustpass/main/vk-default/renderpasses.txt)
+  - deleted [renderpass.txt](../mustpass/main/vk-default/renderpass.txt) (19676 lines of legacy `dEQP-VK.renderpass.*` paths)
+  - modified [renderpasses.txt](../mustpass/main/vk-default/renderpasses.txt) (+69 lines of new `density_formula` test paths)
 - TODO:
-  - [ ] Confirm validator handles `renderpasses` rather than deleted `renderpass` file.
-  - [ ] Review changed renderpass docs.
+  - [x] Confirm validator handles `renderpasses` rather than deleted `renderpass` file.
+  - [x] Review changed renderpass docs.
+- Review result:
+  - Confirmed validator uses `renderpasses.txt` only; the deleted `renderpass.txt` was never referenced by the validator or by `vk-default.txt`.
+  - Updated [vktRenderPassCustomResolveTests.md](../testfiles/renderpasses/vktRenderPassCustomResolveTests.md): added `single_sample_clear` test family (dynamic_rendering only, verifies no unnecessary clear of single-sample attachment during custom resolve, emits QualityWarning if implementation clears outside scissor region); documented store-op change from `STORE` to `DONT_CARE` in `CustomResolveInstance::iterate()`; added support requirement and verification entries; fixed stale line references (`#L5777`→`#L6083`, `#L5786-L5790`→`#L6092-L6096`, `#L5792-L5800`→`#L6098-L6106`).
+  - Updated [vktRenderPassFragmentDensityMapTests.md](../testfiles/renderpasses/vktRenderPassFragmentDensityMapTests.md): added `density_formula` test family (renderpass2 and dynamic_rendering only, verifies 2^ceil(log2(floor(fb/fdm))) texel-size formula from VK_EXT_fragment_density_map spec version 3, three test cases per view group: `static_subsampled_4_4`, `deferred_subsampled_4_4`, `dynamic_subsampled_4_4`); added spec-version-3 support requirement; added density formula verification method; fixed stale line references (`#L5410`→`#L5485`, `#L4931`→`#L4963`, `#L4941`→`#L4973`, `#L4947`→`#L4979`, `#L4953`→`#L4985`, `#L4958`→`#L4990`, `#L3337-L3339`→`#L3371-L3373`).
+  - Updated [renderpasses.md](../categories/renderpasses.md): updated stale `renderpass.txt` note to reflect that the legacy file has been removed; added `density_formula` and `single_sample_clear` mentions to cross-file test families table; added `VK_EXT_fragment_density_map spec version >= 3` to cross-file support requirements.
+  - No content update was needed for [vktRenderPassDitheringTests.md](../testfiles/renderpasses/vktRenderPassDitheringTests.md) because the upstream diff only removed `isValidationEnabled()` from `createCustomDevice()` — mechanical plumbing with no impact on documented facts.
+  - No content update was needed for [vktRenderPassMultiviewPerViewTests.md](../testfiles/renderpasses/vktRenderPassMultiviewPerViewTests.md) because the upstream diff only added `#ifndef CTS_USES_VULKANSC` guards around `VkPipelineRenderingCreateInfo` usage — SC compile-fix with no impact on documented non-SC behavior.
+  - No content update was needed for [vktRenderPassPerformanceCountersByRegionTests.md](../testfiles/renderpasses/vktRenderPassPerformanceCountersByRegionTests.md) because the upstream diffs only removed validation-layer plumbing from `createCustomDevice()` and made geometry shader module conditional on `m_layerCount == 1` — implementation details with no impact on documented registration paths, test families, or verification methods.
+  - No content update was needed for [vktRenderPassSubpassDependencyTests.md](../testfiles/renderpasses/vktRenderPassSubpassDependencyTests.md) because the upstream diff only added `#ifndef CTS_USES_VULKANSC` guards to choose `VK_IMAGE_LAYOUT_RENDERING_LOCAL_READ` vs `VK_IMAGE_LAYOUT_GENERAL` — SC compile-fix with no impact on documented non-SC behavior.
+  - Link validation passed for [renderpasses.md](../categories/renderpasses.md) and all 29 files under [testfiles/renderpasses](../testfiles/renderpasses).
+  - Registration validation passed: `verify_registration_paths.py renderpasses` checked all registration paths successfully.
 
 ### shader_object
 
@@ -354,8 +365,13 @@ These categories are marked done in [README.md](../README.md) and had upstream s
 - Related mustpass changed:
   - nested pipeline shader-object mustpass file moved to [shader-object-unlinked-spirv.txt](../mustpass/main/vk-default/pipeline/shader-object-unlinked-spirv/shader-object-unlinked-spirv.txt)
 - TODO:
-  - [ ] Validate shader-object registration adapter after mustpass move.
-  - [ ] Review changed shader-object docs.
+  - [x] Validate shader-object registration adapter after mustpass move.
+  - [x] Review changed shader-object docs.
+- Review result:
+  - Confirmed the shader_object category validator uses `vk-default/shader-object/*.txt` (api.txt, binary.txt, binding.txt, create.txt, link.txt, misc.txt, pipeline-interaction.txt, rendering.txt, tessellation.txt), not the pipeline-category mustpass file. The moved `shader-object-unlinked-spirv.txt` contains `dEQP-VK.pipeline.shader_object_unlinked_spirv.*` paths belonging to the pipeline category, not the shader_object category, so the move has no impact on shader_object wiki validation.
+  - No wiki content update was needed for any shader_object Level-3 file or the category page. All five upstream diffs only removed the `isValidationEnabled()` parameter from `createCustomDevice()` calls — mechanical plumbing with no impact on registration paths, test families, parameter dimensions, support gates, verification logic, or documented scope.
+  - Link validation passed for [shader_object.md](../categories/shader_object.md) and all 11 files under [testfiles/shader_object](../testfiles/shader_object).
+  - Registration validation passed: `verify_registration_paths.py shader_object` checked all registration paths successfully.
 
 ### synchronization
 
@@ -494,22 +510,22 @@ Deleted mustpass files observed:
 
 ## Recommended Execution Order
 
-- [ ] Validate [verify_registration_paths.py](../../../../.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py) on a small set of high-risk categories:
+- [x] Validate [verify_registration_paths.py](../../../../.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py) on a small set of high-risk categories:
   - `renderpasses`
   - `pipeline`
   - `shader_object`
   - `image`
-- [ ] Fix validator discovery if nested or renamed mustpass files break validation.
+- [x] Fix validator discovery if nested or renamed mustpass files break validation.
 - [x] Correct [README.md](../README.md) statistics if no contrary counting rule is intended.
 - [ ] Review completed categories in decreasing risk order:
   - [x] [pipeline](../categories/pipeline.md)
   - [x] [api](../categories/api.md)
   - [ ] [synchronization](../categories/synchronization.md) and [synchronization2](../categories/synchronization2.md)
   - [x] [image](../categories/image.md)
-  - [ ] [renderpasses](../categories/renderpasses.md)
+  - [x] [renderpasses](../categories/renderpasses.md)
   - [x] [binding_model](../categories/binding_model.md)
   - [x] [memory](../categories/memory.md)
-  - [ ] [shader_object](../categories/shader_object.md)
+  - [x] [shader_object](../categories/shader_object.md)
   - [ ] [ycbcr](../categories/ycbcr.md)
   - [x] [query_pool](../categories/query_pool.md)
   - [x] [draw](../categories/draw.md)

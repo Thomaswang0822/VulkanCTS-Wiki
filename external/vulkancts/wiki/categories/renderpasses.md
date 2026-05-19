@@ -143,8 +143,8 @@ Note: `dynamic_rendering` and its subgroups are excluded under Vulkan SC builds.
 | Depth/stencil resolve | DepthStencilResolveTests, DynamicRenderingDepthStencilResolveTests | Resolve mode iteration across formats and sample counts |
 | Unused attachments | UnusedAttachmentTests, UnusedClearAttachmentTests, UnusedAttachmentSparseFillingTests, DynamicRenderingUnusedAttachmentsTests | Various patterns of unused attachments |
 | Subpass dependencies | SubpassDependencyTests | External, implicit, self, and inter-subpass dependencies |
-| Fragment density map | FragmentDensityMapTests | Static/deferred/dynamic FDM with offset variants |
-| Custom resolve | CustomResolveTests | VK_EXT_custom_resolve across all rendering types |
+| Fragment density map | FragmentDensityMapTests | Static/deferred/dynamic FDM with offset variants; density_formula subgroup verifies spec version 3 texel-size formula (renderpass2 and dynamic_rendering only) |
+| Custom resolve | CustomResolveTests | VK_EXT_custom_resolve across all rendering types; single_sample_clear test verifies no unnecessary clear of single-sample attachment (dynamic_rendering only) |
 | Dynamic rendering local read | DynamicRenderingLocalReadTests, DynamicRenderingLocalReadMaint10Tests | Input attachment mapping and feedback loops |
 
 ## Cross-File Recurring Parameter Dimensions
@@ -170,6 +170,7 @@ Note: `dynamic_rendering` and its subgroups are excluded under Vulkan SC builds.
 | VK_KHR_dynamic_rendering_local_read | Multisample, SampleRead, SubpassDependency, UnusedAttachment, SparseFilling, LocalRead |
 | VK_KHR_depth_stencil_resolve | DepthStencilResolveTests, DynamicRenderingDepthStencilResolveTests |
 | VK_EXT_fragment_density_map / VK_EXT_fragment_density_map2 | FragmentDensityMapTests |
+| VK_EXT_fragment_density_map spec version >= 3 | FragmentDensityMapTests (density_formula tests) |
 | VK_EXT_custom_resolve | CustomResolveTests |
 | VK_EXT_load_store_op_none / VK_KHR_load_store_op_none | LoadStoreOpNoneTests |
 | VK_EXT_legacy_dithering | DitheringTests |
@@ -201,6 +202,6 @@ Note: `dynamic_rendering` and its subgroups are excluded under Vulkan SC builds.
 ## Notes
 
 - The source directory is named `renderpass` (singular) but the registered group name is `renderpasses` (plural).
-- A legacy mustpass file `renderpass.txt` exists in the mustpass directory but is **not referenced** by the main mustpass configuration (`vk-default.txt`). Only `renderpasses.txt` is the official mustpass file. The `renderpass.txt` contains `dEQP-VK.renderpass.*` paths from an older test structure.
+- A legacy mustpass file `renderpass.txt` previously existed in the mustpass directory but was **not referenced** by the main mustpass configuration (`vk-default.txt`) and has since been removed. Only `renderpasses.txt` is the official mustpass file.
 - The `dynamic_rendering` group has four sub-variants (primary_cmd_buff, partial_secondary_cmd_buff, complete_secondary_cmd_buff, graphics_pipeline_library) that share the same `createRenderPassTestsInternal()` function with different GroupParams.
 - Many test groups are conditionally excluded based on rendering type, pipeline construction type, secondary command buffer usage, and Vulkan SC builds.
