@@ -1,8 +1,8 @@
-# [vktImageSampleCompressedTextureTests.cpp](../../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L1)
+# [vktImageSampleCompressedTextureTests.cpp](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L1)
 
 ## Overview
 
-[`vktImageSampleCompressedTextureTests.cpp`](../../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L1) implements the `image.sample_texture` subgroup registered by the image module. The file tests sampling from images with block-compressed formats (BC1/BC3) through image views with compatible uncompressed formats, verifying that the extended usage and mutable format features work correctly.
+[`vktImageSampleCompressedTextureTests.cpp`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L1) implements the `image.sample_texture` subgroup registered by the image module. The file tests sampling from images with block-compressed formats (BC1/BC3) through image views with compatible uncompressed formats, verifying that the extended usage and mutable format features work correctly.
 
 ## Role of File
 
@@ -10,7 +10,7 @@ Implementation-heavy test file for the `image.sample_texture` subgroup.
 
 ## Source Code
 
-- Primary source: [vktImageSampleCompressedTextureTests.cpp](../../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L1)
+- Primary source: [vktImageSampleCompressedTextureTests.cpp](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L1)
 - Parent-category registration: `createImageSampleDrawnTextureTests()` called from image module
 
 ## Registration Hierarchy
@@ -28,7 +28,7 @@ image.sample_texture
 ```
 
 Evidence:
-- `sample_texture` group created at [`createImageSampleDrawnTextureTests()`](../../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L888)
+- `sample_texture` group created at [`createImageSampleDrawnTextureTests()`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L888)
 - Eight test cases added at lines 890-912
 
 ## Test Families
@@ -40,7 +40,7 @@ Tests sampling a BC1_RGB_UNORM_BLOCK compressed image through a VK_FORMAT_R32G32
 2. Fragment shader samples via uncompressed image view and renders to target
 3. Verifies rendered image is pure blue
 
-Validation: Compare result against pure blue reference image at [`vktImageSampleCompressedTextureTests.cpp#L680-682`](../../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L680).
+Validation: Compare result against pure blue reference image at [`vktImageSampleCompressedTextureTests.cpp#L680-682`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L680).
 
 ### 64_bit_compressed_format_two_samplers â€?BC1 with dual samplers
 
@@ -59,7 +59,7 @@ Same pattern as 64-bit tests but uses BC3_UNORM_BLOCK with VK_FORMAT_R32G32B32A3
 Same as above but creates a cubemap image (6 layers) and tests sampling each face:
 1. Renders to each cubemap face separately
 2. Samples the rendered faces
-3. Verifies all faces contain pure blue (R=0, B>0, A>0) at [`vktImageSampleCompressedTextureTests.cpp#L660-669`](../../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L660)
+3. Verifies all faces contain pure blue (R=0, B>0, A>0) at [`vktImageSampleCompressedTextureTests.cpp#L660-669`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L660)
 
 ## Test Parameters
 
@@ -78,22 +78,22 @@ Same as above but creates a cubemap image (6 layers) and tests sampling each fac
 
 | Dimension | Observed values / evidence |
 |---|---|
-| Image dimensions | 80x80 pixels at [`vktImageSampleCompressedTextureTests.cpp#L77-78`](../../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L77) |
-| Compressed block sizes | BC1: 8x8, BC3: 8x8 at [`vktImageSampleCompressedTextureTests.cpp#L288`](../../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L288) |
+| Image dimensions | 80x80 pixels at [`vktImageSampleCompressedTextureTests.cpp#L77-78`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L77) |
+| Compressed block sizes | BC1: 8x8, BC3: 8x8 at [`vktImageSampleCompressedTextureTests.cpp#L288`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L288) |
 | Cubemap faces | 6 faces |
 | Test colors | Pure red (BC1/BC3 compressed), Pure blue (BC1/BC3 compressed) |
-| Vertex buffer size | 100KB at [`vktImageSampleCompressedTextureTests.cpp#L76`](../../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L76) |
+| Vertex buffer size | 100KB at [`vktImageSampleCompressedTextureTests.cpp#L76`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L76) |
 
 ## Support / Feature Requirements
 
-- `VK_KHR_maintenance2` required for `VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT`, `VK_IMAGE_CREATE_EXTENDED_USAGE_BIT`, and `VK_IMAGE_CREATE_BLOCK_TEXEL_VIEW_COMPATIBLE_BIT` via [`SampleDrawnTextureTest::checkSupport()`](../../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L735-737)
-- Format must support the combined usage flags (STORAGE, SAMPLED, TRANSFER) with the creation flags at [`vktImageSampleCompressedTextureTests.cpp#L739-752`](../../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L739)
+- `VK_KHR_maintenance2` required for `VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT`, `VK_IMAGE_CREATE_EXTENDED_USAGE_BIT`, and `VK_IMAGE_CREATE_BLOCK_TEXEL_VIEW_COMPATIBLE_BIT` via [`SampleDrawnTextureTest::checkSupport()`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L735-737)
+- Format must support the combined usage flags (STORAGE, SAMPLED, TRANSFER) with the creation flags at [`vktImageSampleCompressedTextureTests.cpp#L739-752`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L739)
 
 ## Verification Methods
 
 - Graphics rendering with compute pre-pass for 2D tests
-- Reference image comparison with 0.01 float threshold at [`vktImageSampleCompressedTextureTests.cpp#L680-682`](../../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L680)
-- Cubemap face validation: R=0, B>0, A>0 for all pixels at [`vktImageSampleCompressedTextureTests.cpp#L660-669`](../../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L660)
+- Reference image comparison with 0.01 float threshold at [`vktImageSampleCompressedTextureTests.cpp#L680-682`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L680)
+- Cubemap face validation: R=0, B>0, A>0 for all pixels at [`vktImageSampleCompressedTextureTests.cpp#L660-669`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L660)
 - Image logged to test output for visual verification
 
 ## Test Principles Observed

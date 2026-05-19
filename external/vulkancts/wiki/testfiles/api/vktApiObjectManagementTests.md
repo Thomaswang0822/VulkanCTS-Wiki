@@ -97,7 +97,7 @@ The `private_data` subgroup at [`vktApiObjectManagementTests.cpp`](../../../modu
 
 - ImageView cases require image cube array support via `checkImageCubeArraySupport` at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3742)
 - Event cases require event support via `checkEventSupport` at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3744)
-- MergedPipelineCache cases require pipeline cache control support via `checkPipelineCacheControlSupport` at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3749)
+- MergedPipelineCache cases require pipeline cache control support via `checkPipelineCacheControlSupport` at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3510-L3519); the current source explicitly rejects this support path in Vulkan SC.
 - Device cases require `VK_EXT_vertex_attribute_divisor` or similar via `checkGetPhysicalDevicePropertiesExtension` at [`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3736)
 - Private data tests require `VK_EXT_private_data` (excluded for Vulkan SC)
 - Allocation callback tests excluded for Vulkan SC because `VkAllocationCallbacks` is not supported

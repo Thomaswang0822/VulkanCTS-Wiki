@@ -22,7 +22,6 @@ tcu::TestStatus        testGetDeviceProcAddr        (Context& context)
 {
     tcu::TestLog&                                log                        (context.getTestContext().getLog());
     const PlatformInterface&                    platformInterface = context.getPlatformInterface();
-    const auto                                    validationEnabled = context.getTestContext().getCommandLine().isValidationEnabled();
     const CustomInstance                        instance                (createCustomInstanceFromContext(context));
     const InstanceDriver&                        instanceDriver = instance.getDriver();
     const VkPhysicalDevice                        physicalDevice = chooseDevice(instanceDriver, instance, context.getTestContext().getCommandLine());
@@ -54,7 +53,7 @@ tcu::TestStatus        testGetDeviceProcAddr        (Context& context)
         nullptr, //  const char* const* ppEnabledExtensionNames;
         nullptr, //  const VkPhysicalDeviceFeatures* pEnabledFeatures;
     };
-    const Unique<VkDevice>                    device            (createCustomDevice(validationEnabled, platformInterface, instance, instanceDriver, physicalDevice, &deviceCreateInfo));
+    const Unique<VkDevice>                    device            (createCustomDevice(platformInterface, instance, instanceDriver, physicalDevice, &deviceCreateInfo));
     const DeviceDriver                        deviceDriver    (platformInterface, instance, device.get(), context.getUsedApiVersion(), context.getTestContext().getCommandLine());
 
     const std::vector<std::string> functions{
@@ -82,6 +81,20 @@ tcu::TestStatus        testGetDeviceProcAddr        (Context& context)
 		"vkCmdDrawIndexedIndirectCountAMD",
 		"vkCmdDrawIndirectCountAMD",
 
+		// "VK_AMD_gpa_interface
+		"vkCmdBeginGpaSampleAMD",
+		"vkCmdBeginGpaSessionAMD",
+		"vkCmdCopyGpaSessionResultsAMD",
+		"vkCmdEndGpaSampleAMD",
+		"vkCmdEndGpaSessionAMD",
+		"vkCreateGpaSessionAMD",
+		"vkDestroyGpaSessionAMD",
+		"vkGetGpaDeviceClockInfoAMD",
+		"vkGetGpaSessionResultsAMD",
+		"vkGetGpaSessionStatusAMD",
+		"vkResetGpaSessionAMD",
+		"vkSetGpaDeviceClockModeAMD",
+
 		// "VK_AMD_shader_info
 		"vkGetShaderInfoAMD",
 
@@ -104,6 +117,10 @@ tcu::TestStatus        testGetDeviceProcAddr        (Context& context)
 
 		// "VK_ARM_data_graph_instruction_set_tosa
 		"vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM",
+
+		// "VK_ARM_data_graph_optical_flow
+		"vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM",
+		"vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM",
 
 		// "VK_ARM_performance_counters_by_region
 		"vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM",

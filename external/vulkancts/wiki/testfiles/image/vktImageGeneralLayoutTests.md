@@ -15,7 +15,7 @@ This is a registration and implementation file that:
 
 ## Source Code Link
 
-[vktImageGeneralLayoutTests.cpp](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageGeneralLayoutTests.cpp)
+[vktImageGeneralLayoutTests.cpp](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp)
 
 ## Registration Hierarchy
 
@@ -82,14 +82,14 @@ image.general_layout
 
 Tests ASTC compressed texture sampling and copy operations with `VK_IMAGE_LAYOUT_GENERAL`:
 
-**Test variants** ([vktImageGeneralLayoutTests.cpp#L2314-L2322](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2314-L2322)):
+**Test variants** ([vktImageGeneralLayoutTests.cpp#L2314-L2322](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2314-L2322)):
 - `copy_into_image`: Transfer data into ASTC image, sample, verify output
 - `copy_from_image`: Sample ASTC image, transfer out, verify data
 - `host_copy_into_image`: Use host image copy for data transfer (non-VulkanSC)
 - `host_copy_from_image`: Use host image copy for data retrieval (non-VulkanSC)
 - `sample_alias`: Test with mutable format aliasing (ASTC_8x8_UNORM vs ASTC_8x8_SRGB)
 
-**Test approach** ([vktImageGeneralLayoutTests.cpp#L239-L599](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L239-L599)):
+**Test approach** ([vktImageGeneralLayoutTests.cpp#L239-L599](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L239-L599)):
 - Creates 128x128x1 ASTC_8x8_UNORM_BLOCK image
 - Generates block-level test data using tcu::astc::generateBlockCaseTestData
 - Decompresses reference data for verification
@@ -100,12 +100,12 @@ Tests ASTC compressed texture sampling and copy operations with `VK_IMAGE_LAYOUT
 
 Tests synchronization2 memory barriers with images in general layout:
 
-**Structure** ([vktImageGeneralLayoutTests.cpp#L2333-L2377](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2333-L2377)):
+**Structure** ([vktImageGeneralLayoutTests.cpp#L2333-L2377](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2333-L2377)):
 - 2 shader stages: compute, fragment
 - 2 orderings: write-read, read-write
 - 3 access patterns: shader read/write, sampled read + storage write, storage read/write
 
-**Test approach** ([vktImageGeneralLayoutTests.cpp#L690-L1063](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L690-L1063)):
+**Test approach** ([vktImageGeneralLayoutTests.cpp#L690-L1063](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L690-L1063)):
 - Creates 128x128x1 R32_SFLOAT image
 - Copies initial data to image
 - Uses VkMemoryBarrier2 for synchronization
@@ -116,7 +116,7 @@ Tests synchronization2 memory barriers with images in general layout:
 
 Tests input attachments with subpass dependencies and various barrier types:
 
-**Barrier types** ([vktImageGeneralLayoutTests.cpp#L2380-L2388](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2380-L2388)):
+**Barrier types** ([vktImageGeneralLayoutTests.cpp#L2380-L2388](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2380-L2388)):
 - `execution`: Only execution dependency (no memory/image barrier)
 - `memory`: Memory barrier between subpasses
 - `image`: Image memory barrier between subpasses
@@ -125,7 +125,7 @@ Tests input attachments with subpass dependencies and various barrier types:
 - Input attachment type: actual input attachment vs sampled
 - Rendering method: render pass vs dynamic rendering (non-VulkanSC)
 
-**Test approach** ([vktImageGeneralLayoutTests.cpp#L1197-L1719](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L1197-L1719)):
+**Test approach** ([vktImageGeneralLayoutTests.cpp#L1197-L1719](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L1197-L1719)):
 - Creates 128x128x1 R8G8B8A8_UNORM images
 - Two-subpass render with data flow between passes
 - First pass writes/transforms data
@@ -136,12 +136,12 @@ Tests input attachments with subpass dependencies and various barrier types:
 
 Tests rendering with multiple color attachments using general layout:
 
-**Parameters** ([vktImageGeneralLayoutTests.cpp#L2418-L2433](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2418-L2433)):
+**Parameters** ([vktImageGeneralLayoutTests.cpp#L2418-L2433](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2418-L2433)):
 - Attachment counts: 4, 8 (limited by maxColorAttachments)
 - Attachment modes: same (MSAA targets used as color attachments) vs different (separate targets)
 - Sample count: 4x MSAA
 
-**Test approach** ([vktImageGeneralLayoutTests.cpp#L1812-L2237](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L1812-L2237)):
+**Test approach** ([vktImageGeneralLayoutTests.cpp#L1812-L2237](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L1812-L2237)):
 - Creates multiple 128x128x1 color attachments
 - Renders to all attachments in sequence
 - Resolves MSAA if using different attachments
@@ -161,21 +161,21 @@ Tests rendering with multiple color attachments using general layout:
 
 ## Support Requirements
 
-- **astc_sample** ([vktImageGeneralLayoutTests.cpp#L617-L635](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L617-L635)):
+- **astc_sample** ([vktImageGeneralLayoutTests.cpp#L617-L635](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L617-L635)):
   - `VK_EXT_astc_decode_mode`
   - `textureCompressionASTC_LDR` feature
   - `VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT` for optimal tiling
   - `VK_EXT_host_image_copy` for host copy variants (non-VulkanSC)
 
-- **memory_barrier** ([vktImageGeneralLayoutTests.cpp#L1081-L1084](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L1081-L1084)):
+- **memory_barrier** ([vktImageGeneralLayoutTests.cpp#L1081-L1084](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L1081-L1084)):
   - `VK_KHR_synchronization2`
 
-- **input_attachment** ([vktImageGeneralLayoutTests.cpp#L1737-L1745](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L1737-L1745)):
+- **input_attachment** ([vktImageGeneralLayoutTests.cpp#L1737-L1745](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L1737-L1745)):
   - `VK_KHR_synchronization2`
   - `VK_KHR_dynamic_rendering` for dynamic rendering variants (non-VulkanSC)
   - `VK_KHR_dynamic_rendering_local_read` for dynamic rendering (non-VulkanSC)
 
-- **msaa** ([vktImageGeneralLayoutTests.cpp#L2255-L2259](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2255-L2259)):
+- **msaa** ([vktImageGeneralLayoutTests.cpp#L2255-L2259](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2255-L2259)):
   - `maxColorAttachments` >= requested attachment count
 
 ## Verification Methods

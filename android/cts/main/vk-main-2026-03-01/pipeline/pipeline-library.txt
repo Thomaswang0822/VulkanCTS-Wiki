@@ -10472,10 +10472,6 @@ dEQP-VK.pipeline.pipeline_library.blend.dynamic_dual_disable.att_count_8
 dEQP-VK.pipeline.pipeline_library.blend.dynamic_dual_disable.att_count_8_plus_1
 dEQP-VK.pipeline.pipeline_library.blend.dynamic_mask.format.e5b9g9r9_ufloat_pack32.states.mask_0_alpha_blend
 dEQP-VK.pipeline.pipeline_library.blend.dynamic_mask.format.e5b9g9r9_ufloat_pack32.states.mask_0_no_blend
-dEQP-VK.pipeline.pipeline_library.blend.dynamic_mask.format.e5b9g9r9_ufloat_pack32.states.mask_a_alpha_blend
-dEQP-VK.pipeline.pipeline_library.blend.dynamic_mask.format.e5b9g9r9_ufloat_pack32.states.mask_a_no_blend
-dEQP-VK.pipeline.pipeline_library.blend.dynamic_mask.format.e5b9g9r9_ufloat_pack32.states.mask_rgb_alpha_blend
-dEQP-VK.pipeline.pipeline_library.blend.dynamic_mask.format.e5b9g9r9_ufloat_pack32.states.mask_rgb_no_blend
 dEQP-VK.pipeline.pipeline_library.blend.dynamic_mask.format.e5b9g9r9_ufloat_pack32.states.mask_rgba_alpha_blend
 dEQP-VK.pipeline.pipeline_library.blend.dynamic_mask.format.e5b9g9r9_ufloat_pack32.states.mask_rgba_no_blend
 dEQP-VK.pipeline.pipeline_library.blend_operation_advanced.coherent.barrier_color_attachments_1_blend_overlap_uncorrelated_ext_0
@@ -17840,6 +17836,7 @@ dEQP-VK.pipeline.pipeline_library.graphics_library.misc.always_null_set_layout.s
 dEQP-VK.pipeline.pipeline_library.graphics_library.misc.other.bad_rendering_create_info
 dEQP-VK.pipeline.pipeline_library.graphics_library.misc.other.destroy_resources_before_link_samplers_2
 dEQP-VK.pipeline.pipeline_library.graphics_library.misc.other.destroy_resources_before_link_samplers_3
+dEQP-VK.pipeline.pipeline_library.graphics_library.misc.other.null_rendering_create_info_ptr
 dEQP-VK.pipeline.pipeline_library.graphics_library.misc.other.transform_feedback_with_fast_link
 dEQP-VK.pipeline.pipeline_library.graphics_library.misc.other.view_index_from_device_index_in_all_stages_link_time_opt
 dEQP-VK.pipeline.pipeline_library.graphics_library.misc.other.view_index_from_device_index_in_all_stages_mesh_shading

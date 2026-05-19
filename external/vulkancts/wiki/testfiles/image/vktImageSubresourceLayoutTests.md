@@ -14,7 +14,7 @@ This is a registration and implementation file that:
 
 ## Source Code Link
 
-[vktImageSubresourceLayoutTests.cpp](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageSubresourceLayoutTests.cpp)
+[vktImageSubresourceLayoutTests.cpp](../../../modules/vulkan/image/vktImageSubresourceLayoutTests.cpp)
 
 ## Registration Hierarchy
 
@@ -50,7 +50,7 @@ Tests the accuracy of `vkGetImageSubresourceLayout` by:
 4. Verifying layout parameter consistency across array layers
 5. Reading back image data and comparing with original buffer data
 
-**Key test logic** ([vktImageSubresourceLayoutTests.cpp#L412-L692](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageSubresourceLayoutTests.cpp#L412-L692)):
+**Key test logic** ([vktImageSubresourceLayoutTests.cpp#L412-L692](../../../modules/vulkan/image/vktImageSubresourceLayoutTests.cpp#L412-L692)):
 - Tests each supported aspect (color, depth, stencil) per format
 - Validates array pitch consistency across layers
 - Checks offset consistency with array pitch calculations
@@ -65,7 +65,7 @@ Verifies that different subresource layout query methods return identical result
 2. `vkGetDeviceImageSubresourceLayoutKHR` (VK_KHR_maintenance5)
 3. `vkGetImageSubresourceLayout2EXT` (VK_EXT_image_compression_control)
 
-**Key test logic** ([vktImageSubresourceLayoutTests.cpp#L714-L787](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageSubresourceLayoutTests.cpp#L714-L787)):
+**Key test logic** ([vktImageSubresourceLayoutTests.cpp#L714-L787](../../../modules/vulkan/image/vktImageSubresourceLayoutTests.cpp#L714-L787)):
 - Creates an image and queries layout using the standard API
 - Queries layout using maintenance5 API without image handle
 - Compares results byte-by-byte
@@ -86,7 +86,7 @@ Verifies that different subresource layout query methods return identical result
 
 ## Support Requirements
 
-- **Required format features** ([vktImageSubresourceLayoutTests.cpp#L200-L204](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageSubresourceLayoutTests.cpp#L200-L204)):
+- **Required format features** ([vktImageSubresourceLayoutTests.cpp#L200-L204](../../../modules/vulkan/image/vktImageSubresourceLayoutTests.cpp#L200-L204)):
   - `VK_FORMAT_FEATURE_TRANSFER_DST_BIT`
   - `VK_FORMAT_FEATURE_TRANSFER_SRC_BIT`
   - For linear tiling images

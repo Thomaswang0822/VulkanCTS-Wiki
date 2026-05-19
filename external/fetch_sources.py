@@ -49,6 +49,24 @@ def onReadonlyRemoveError (func, path, exc_info):
     os.chmod(path, stat.S_IWRITE)
     os.unlink(path)
 
+def forceRemoveTree (path):
+    # Robust shutil.rmtree: tolerates missing paths, read-only files, and
+    # directories lacking read/execute bits (sometimes produced by CMake
+    # builds inside postCheckout trees). Chmod each subdir during its
+    # parent's visit so os.walk can descend into it on the next iteration.
+    if not os.path.exists(path):
+        return
+    def _chmod(p):
+        try:
+            os.chmod(p, stat.S_IRWXU)
+        except OSError:
+            pass
+    _chmod(path)
+    for root, dirs, files in os.walk(path):
+        for name in dirs + files:
+            _chmod(os.path.join(root, name))
+    shutil.rmtree(path, onerror=onReadonlyRemoveError)
+
 class Source:
     def __init__(self, baseDir, extractDir):
         self.baseDir = baseDir
@@ -292,10 +310,16 @@ class GitRepo (Source):
 
         if not os.path.exists(os.path.join(fullDstPath, '.git')):
             logging.debug("git repository does not exist; performing full clone")
+            # A non-empty destination without .git (e.g. postCheckout build
+            # artifacts or a previous partial clone) makes git clone fail.
+            # Wipe it before cloning. CMake builds sometimes leave
+            # unreadable/unsearchable directories, so restore permissions first.
+            forceRemoveTree(fullDstPath)
             try:
                 run(["git", "clone", "--no-checkout", url, fullDstPath])
             except:
                 if backupUrl != None:
+                    forceRemoveTree(fullDstPath)
                     execute(["git", "clone", "--no-checkout", backupUrl, fullDstPath])
 
         pushWorkingDir(fullDstPath)
@@ -336,40 +360,45 @@ PACKAGES = [
     GitRepo(
         "https://github.com/KhronosGroup/SPIRV-Tools.git",
         "git@github.com:KhronosGroup/SPIRV-Tools.git",
-        "2d14d2e76aa7de72404b17078eda15c20a6a0389",
+        "0bb521870594a00a7079381e119da2b4e1a2f859",
         "spirv-tools"),
     GitRepo(
         "https://github.com/KhronosGroup/glslang.git",
         "git@github.com:KhronosGroup/glslang.git",
-        "715c8500e7cd67f2eba9e60e98852a1ed49d2f15",
+        "972068c206742412ea26978ae410ec001dfb0620",
         "glslang",
         removeTags = ["main-tot", "master-tot"]),
     GitRepo(
         "https://github.com/KhronosGroup/SPIRV-Headers.git",
         "git@github.com:KhronosGroup/SPIRV-Headers.git",
-        "6dd7ba990830f7c15ac1345ff3b43ef6ffdad216",
+        "98c842bd561ac67c5ff98d599c8c960ba9edb7fd",
         "spirv-headers"),
     GitRepo(
         "https://github.com/KhronosGroup/Vulkan-Docs.git",
         "git@github.com:KhronosGroup/Vulkan-Docs.git",
-        "6019efe93eca7bfa7a692316d91a9465eb457d60",
+        "45285e2553e499bbcdb885f71fd789c1f20cab80",
         "vulkan-docs"),
     GitRepo(
         "https://github.com/KhronosGroup/Vulkan-ValidationLayers.git",
         "git@github.com:KhronosGroup/Vulkan-ValidationLayers.git",
-        "eb51484e6039752b56e8f70b5c33f04874224bfb",
+        "3d79815f35c2c54d5eaa261204e2e3fc2e90bebb",
         "vulkan-validationlayers",
         postCheckout="python3 scripts/update_deps.py --dir external  --optional tests  --api vulkan"),
     GitRepo(
         "https://github.com/google/amber.git",
         "git@github.com:google/amber.git",
-        "53a4c8934bf7335d27c694e9fdac9ae1b180c0d2",
+        "fc02f9bad7ddaf5ca685ad01c3a0668d19910fbf",
         "amber"),
     GitRepo(
         "https://github.com/open-source-parsers/jsoncpp.git",
         "git@github.com:open-source-parsers/jsoncpp.git",
-        "9059f5cad030ba11d37818847443a53918c327b1",
+        "89e2973c754a9c02a49974d839779b151e95afd6",
         "jsoncpp"),
+    GitRepo(
+        "https://github.com/KhronosGroup/VulkanSC-pcutil.git",
+        "git@github.com:KhronosGroup/VulkanSC-pcutil.git",
+        "1de6df7e8173762e6a27dfa2cec604687bc03dab",
+        "vulkansc-pcutil"),
     GitRepo(
         "https://github.com/KhronosGroup/Vulkan-Video-Samples.git",
         "git@github.com:KhronosGroup/Vulkan-Video-Samples.git",

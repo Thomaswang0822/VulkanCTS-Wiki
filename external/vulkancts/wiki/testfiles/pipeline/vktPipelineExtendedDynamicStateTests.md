@@ -11,7 +11,7 @@ Implementation file.
 ## Source Code
 
 - Primary source: [`vktPipelineExtendedDynamicStateTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.cpp#L1)
-- Header: [`vktPipelineExtendedDynamicStateTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTestsTests.hpp#L1)
+- Header: [`vktPipelineExtendedDynamicStateTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.hpp#L1)
 
 ## Registration Hierarchy
 

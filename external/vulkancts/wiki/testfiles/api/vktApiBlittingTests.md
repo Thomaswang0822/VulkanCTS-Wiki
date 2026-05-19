@@ -52,7 +52,8 @@ Direct children of `all_formats`:
 - **depth_stencil** — registered by [`addBlittingImageAllFormatsDepthStencilTests()`](../../../modules/vulkan/api/vktApiBlittingTests.cpp#L4094). Tests blitting for depth/stencil formats.
 - **generate_mipmaps** — registered by [`addBlittingImageAllFormatsMipmapTests()`](../../../modules/vulkan/api/vktApiBlittingTests.cpp#L4095). Tests mipmap level blitting with subgroups `from_base_level` and `from_previous_level`.
 
-Compressed format handling: The [`CompressedTextureForBlit`](../../../modules/vulkan/api/vktApiBlittingTests.cpp#L42) helper class generates compressed texture data (ASTC, BC6H, ETC, etc.) with valid blocks, decompresses to a `tcu::PixelBufferAccess` for CPU-side reference comparison, and special-cases ASTC LDR/HDR and BC6H float formats with predefined valid blocks.
+Compressed format handling: The [`CompressedTextureForBlit`](../../../modules/vulkan/api/vktApiBlittingTests.cpp#L42) helper class generates compressed texture data (ASTC, BC6H, ETC, etc.) with valid blocks, decompresses to a `tcu::PixelBufferAccess` for CPU-side reference comparison, and special-cases ASTC LDR/HDR and BC6H float formats with predefined valid blocks. BC7 compressed data also receives a valid block-mode byte so random data does not create invalid BC7 blocks, as shown in [`vktApiBlittingTests.cpp`](../../../modules/vulkan/api/vktApiBlittingTests.cpp#L124-L137).
+BC7 compressed data also receives a valid block-mode byte so random data does not create invalid BC7 blocks, as shown in [`vktApiBlittingTests.cpp`](../../../modules/vulkan/api/vktApiBlittingTests.cpp#L124-L137).
 
 ## Parameter Dimensions
 
@@ -61,7 +62,7 @@ Compressed format handling: The [`CompressedTextureForBlit`](../../../modules/vu
 | Filter | `VK_FILTER_NEAREST`, `VK_FILTER_LINEAR` |
 | Mirror mode | X, Y, Z, XY combined, subregions |
 | Scaling | Whole-to-whole, partial, with offsets, up-scaling, down-scaling |
-| Image type | 2D, 3D-to-2D-array, array |
+| Image type | 2D, 3D-to-2D-array, array, and non-SC 3D ASTC all-format color branches generated from `astc3DFormats` |
 | Formats | Color formats (wide range), depth/stencil formats, compressed formats |
 | `extensionFlags` | `NONE`, `COPY_COMMANDS_2` |
 | `allocationKind` | `ALLOCATION_KIND_SUBALLOCATED`, `ALLOCATION_KIND_DEDICATED` |
@@ -95,6 +96,6 @@ Compressed format handling: The [`CompressedTextureForBlit`](../../../modules/vu
 
 ## Notes / Uncertainties
 
-- The `CompressedTextureForBlit` class uses random data with special valid-block generation for BC6H and ASTC formats to avoid decompression errors, confirmed at [lines 56-143](../../../modules/vulkan/api/vktApiBlittingTests.cpp#L56)
+- The `CompressedTextureForBlit` class uses random data with special valid-block generation for BC6H, BC7, and ASTC formats to avoid decompression errors, confirmed at [lines 56-143](../../../modules/vulkan/api/vktApiBlittingTests.cpp#L56-L143)
 - The all-formats color tests use `BlitColorTestParams` (extends `TestParams` with `compatibleFormats`) for format compatibility filtering
 - The all-formats depth/stencil and mipmap test registration functions were not fully inspected beyond their signatures

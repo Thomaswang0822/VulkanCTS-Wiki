@@ -10,14 +10,14 @@ This file implements tests for multisampled storage image operations in Vulkan. 
 
 ## Source Code
 
-[vktImageMultisampleLoadStoreTests.cpp](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageMultisampleLoadStoreTests.cpp)
+[vktImageMultisampleLoadStoreTests.cpp](../../../modules/vulkan/image/vktImageMultisampleLoadStoreTests.cpp)
 
 ## Related Files
 
-- [vktImageTests.cpp](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageTests.cpp) - Category root registration file
-- [vktImageMultisampleLoadStoreTests.hpp](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageMultisampleLoadStoreTests.hpp) - Header with factory declaration
-- [vktImageLoadStoreUtil.hpp](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageLoadStoreUtil.hpp) - Utility functions
-- [vktImageTexture.hpp](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageTexture.hpp) - Texture wrapper
+- [vktImageTests.cpp](../../../modules/vulkan/image/vktImageTests.cpp) - Category root registration file
+- [vktImageMultisampleLoadStoreTests.hpp](../../../modules/vulkan/image/vktImageMultisampleLoadStoreTests.hpp) - Header with factory declaration
+- [vktImageLoadStoreUtil.hpp](../../../modules/vulkan/image/vktImageLoadStoreUtil.hpp) - Utility functions
+- [vktImageTexture.hpp](../../../modules/vulkan/image/vktImageTexture.hpp) - Texture wrapper
 
 ## Registration Hierarchy
 

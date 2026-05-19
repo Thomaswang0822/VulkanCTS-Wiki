@@ -44,7 +44,8 @@ binding_model.descriptor_heap
 ├── non_uniform_access
 ├── special_heap
 ├── non_packed
-└── unaligned
+├── unaligned
+└── secondary
 ```
 
 ## Test Families
@@ -139,7 +140,7 @@ Tests query operations on null image descriptors. Created in [`populateNullImage
 
 ### graphics — Graphics pipeline descriptor access
 
-Tests descriptor heap access across graphics pipeline stages (vertex, fragment, tessellation, geometry) with primary and secondary command buffers. Created in [`populateGraphicsTests`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14079). Evidence: [`vktBindingDescriptorHeapTests.cpp:14082`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14082).
+Tests descriptor heap access across graphics pipeline stages (vertex, fragment, tessellation, geometry) with primary and secondary command buffers. Current source also generates `_vectors` variants for the non-mesh graphics-stage combinations; these add descriptor-heap uniform-matrix and storage-vector descriptors and verify per-stage vector outputs ([`vktBindingDescriptorHeapTests.cpp:9410`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L9410), [`vktBindingDescriptorHeapTests.cpp:10050`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L10050)). Created in [`populateGraphicsTests`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14712), with vector variants registered at [`vktBindingDescriptorHeapTests.cpp:14725`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14725).
 
 ### graphics_and_compute — Combined graphics and compute access
 
@@ -189,6 +190,10 @@ Tests non-packed descriptor stride with override strides across mapping sources 
 
 Tests unaligned descriptor mapping with scaled strides across mapping sources and descriptor types. Contains subgroups per mapping source. Created in [`populateUnalignedTests`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14604). Evidence: [`vktBindingDescriptorHeapTests.cpp:14607`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14607).
 
+### secondary — Descriptor heap inheritance in secondary command buffers
+
+Tests that descriptor heap bindings inherited by a secondary command buffer can be used from both compute and graphics queues. The compute variant samples a descriptor-heap texture/sampler and writes a `vec4` result to a descriptor-heap storage buffer; the graphics variant samples through descriptor heaps in a secondary render-pass command buffer and verifies copied image pixels against the expected color. The cases are registered as `compute` and `graphics` in [`populateSecondaryCommandBufferTests`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14880) and added to the category in [`populateDescriptorHeapTests`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L15454).
+
 ## Parameter Dimensions
 
 | Dimension | Observed values / source |
@@ -203,7 +208,7 @@ Support checks are implemented near [`vktBindingDescriptorHeapTests.cpp:508`](..
 
 ## Verification Methods
 
-Cases bind resource and sampler heaps, execute shader pipelines, and compare results; support checks gate descriptor-heap and selected extension features.
+Cases bind resource and sampler heaps, execute shader pipelines, and compare results; support checks gate descriptor-heap and selected extension features. The secondary-command-buffer family additionally verifies inherited descriptor heaps by comparing either a compute-written `vec4` or graphics-rendered pixels to the expected sampled color ([`vktBindingDescriptorHeapTests.cpp:11992`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L11992), [`vktBindingDescriptorHeapTests.cpp:12171`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L12171)).
 
 ## Test Principles
 

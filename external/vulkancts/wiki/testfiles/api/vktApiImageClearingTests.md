@@ -2,7 +2,7 @@
 
 ## Overview
 
-[`vktApiImageClearingTests.cpp`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L1) is an implementation-heavy Level-3 file for the `api.image_clearing` subtree. It covers Vulkan image clearing through [`vkCmdClearColorImage`](../../../external/vulkancts/modules/vulkan/api/vktApiImageClearingTests.cpp#L2531-L2838), [`vkCmdClearDepthStencilImage`](../../../external/vulkancts/modules/vulkan/api/vktApiImageClearingTests.cpp#L2840-L2954), and [`vkCmdClearAttachments`](../../../external/vulkancts/modules/vulkan/api/vktApiImageClearingTests.cpp#L2956-L3187), with one top-level branch for suballocated memory and one for dedicated allocation. Within those branches, the generator expands image type, tiling, layer configuration, dimensions, format families, clear-value variants, separate depth/stencil layout modes, partial-clear modes, and selected multisample variants.
+[`vktApiImageClearingTests.cpp`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L1) is an implementation-heavy Level-3 file for the `api.image_clearing` subtree. It covers Vulkan image clearing through [`vkCmdClearColorImage`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L2531-L2838), [`vkCmdClearDepthStencilImage`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L2840-L2954), and [`vkCmdClearAttachments`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L2956-L3187), with one top-level branch for suballocated memory and one for dedicated allocation. Within those branches, the generator expands image type, tiling, layer configuration, dimensions, format families, clear-value variants, separate depth/stencil layout modes, partial-clear modes, and selected multisample variants.
 
 ## Role of File
 
@@ -27,19 +27,19 @@ api.image_clearing
 └── dedicated_allocation
 ```
 
-The confirmed Level-3 root is `api.image_clearing`, created by [`createImageClearingTests()`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L3204-L3214) and registered under `api` in [`vktApiTests.cpp`](../../../modules/vulkan/api/vktApiTests.cpp#L110). The exact direct children are `core` and `dedicated_allocation`; both delegate to the same generator in [`createImageClearingTestsCommon()`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L2224-L3190) with different [`AllocationKind`](../../../external/vulkancts/modules/vulkan/api/vktApiImageClearingTests.cpp#L2224-L2225) values.
+The confirmed Level-3 root is `api.image_clearing`, created by [`createImageClearingTests()`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L3204-L3214) and registered under `api` in [`vktApiTests.cpp`](../../../modules/vulkan/api/vktApiTests.cpp#L110). The exact direct children are `core` and `dedicated_allocation`; both delegate to the same generator in [`createImageClearingTestsCommon()`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L2224-L3190) with different [`AllocationKind`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L2224-L2225) values.
 
 ## Test Families
 
 ### core — Suballocated image-clearing matrix
 
-Covers the `core` direct child registered by [`createImageClearingTests()`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L3208-L3212). This branch calls [`createCoreImageClearingTests()`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L3192-L3195), which forwards [`ALLOCATION_KIND_SUBALLOCATED`](../../../external/vulkancts/modules/vulkan/api/vktApiImageClearingTests.cpp#L3194) into [`createImageClearingTestsCommon()`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L2224-L3190).
+Covers the `core` direct child registered by [`createImageClearingTests()`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L3208-L3212). This branch calls [`createCoreImageClearingTests()`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L3192-L3195), which forwards [`ALLOCATION_KIND_SUBALLOCATED`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L3194) into [`createImageClearingTestsCommon()`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L2224-L3190).
 
 Observed deeper descendants under `core` are the exact subgroup names created in [`createImageClearingTestsCommon()`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L2227-L2235): `clear_color_image`, `clear_depth_stencil_image`, `clear_color_attachment`, `clear_depth_stencil_attachment`, `partial_clear_color_attachment`, and `partial_clear_depth_stencil_attachment`. Those subgroups then expand further through nested loops over image types, tilings, layer configurations, dimensions, formats, clear-color parameter sets, and a few special-case suffix generators such as `_multiple_subresourcerange`, `_separate_layouts_depth`, `_separate_layouts_stencil`, and multisample suffixes from [`getSampleCountName()`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L2703-L2734).
 
 ### dedicated_allocation — Dedicated-memory mirror of the same clearing matrix
 
-Covers the `dedicated_allocation` direct child registered by [`createImageClearingTests()`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L3210-L3212). This branch calls [`createDedicatedAllocationImageClearingTests()`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L3197-L3200), which reuses the same generator but passes [`ALLOCATION_KIND_DEDICATED`](../../../external/vulkancts/modules/vulkan/api/vktApiImageClearingTests.cpp#L3199).
+Covers the `dedicated_allocation` direct child registered by [`createImageClearingTests()`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L3210-L3212). This branch calls [`createDedicatedAllocationImageClearingTests()`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L3197-L3200), which reuses the same generator but passes [`ALLOCATION_KIND_DEDICATED`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L3199).
 
 The deeper subgroup structure under `dedicated_allocation` is therefore the same six-way branch described for `core`, because both children are built from the same subgroup creation code in [`createImageClearingTestsCommon()`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L2227-L2235). The distinction is allocation strategy rather than separate registration names or different command coverage.
 
@@ -96,4 +96,4 @@ The inspected generator code clearly exposes these dependencies through the regi
 - This normalization confirms the Level-3 root as `api.image_clearing`, not just `api -> image_clearing`, because the canonical contract requires the category-qualified root from [`createImageClearingTests()`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L3204-L3214).
 - The exact direct children are only `core` and `dedicated_allocation`; subgroup names such as `clear_color_image` and `clear_depth_stencil_image` are deeper descendants described in prose rather than expanded in the parseable tree.
 - Several compressed and larger 64-bit formats are present only as commented-out candidates in the explicit format table because of noted `tcu::TextureFormat` limitations in [`vktApiImageClearingTests.cpp`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L2237-L2425).
-- This pass intentionally normalized only [`vktApiImageClearingTests.md`](external/vulkancts/wiki/testfiles/api/vktApiImageClearingTests.md) and did not modify adjacent files.
+- This pass intentionally normalized only [`vktApiImageClearingTests.md`](vktApiImageClearingTests.md) and did not modify adjacent files.

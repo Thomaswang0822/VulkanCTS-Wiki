@@ -38,7 +38,7 @@ Core blend tests. For each blendable format, generates 100 random `VkPipelineCol
 
 ### dynamic_mask — Dynamic color write mask tests
 
-Tests `VK_FORMAT_E5B9G9R9_UFLOAT_PACK32` with `VK_DYNAMIC_STATE_COLOR_WRITE_MASK_EXT`, verifying the spec rule that RGB mask bits must be all-or-none for this format. Uses [`DynamicMaskBlendTest`](../../../modules/vulkan/pipeline/vktPipelineBlendTests.cpp#L1) which overrides color write masks dynamically. Contains a `format` child group with the E5B9G9R9 format, which in turn contains a `states` child with 8 mask/blend combinations (mask_0_no_blend, mask_0_alpha_blend, mask_rgb_no_blend, mask_rgb_alpha_blend, mask_a_no_blend, mask_a_alpha_blend, mask_rgba_no_blend, mask_rgba_alpha_blend).
+Tests `VK_FORMAT_E5B9G9R9_UFLOAT_PACK32` with `VK_DYNAMIC_STATE_COLOR_WRITE_MASK_EXT`, verifying the `VUID-vkCmdDraw-None-09116` rule that the color write mask must include all RGBA components or none for this format. Uses [`DynamicMaskBlendTest`](../../../modules/vulkan/pipeline/vktPipelineBlendTests.cpp#L1) which overrides color write masks dynamically. Contains a `format` child group with the E5B9G9R9 format, which in turn contains a `states` child with 4 mask/blend combinations (mask_0_no_blend, mask_0_alpha_blend, mask_rgba_no_blend, mask_rgba_alpha_blend).
 
 ### clamp — Blend factor clamping tests
 
@@ -64,7 +64,7 @@ Tests `VK_KHR_dynamic_rendering_local_read` color attachment remapping with swap
 | Blend states | `BlendStateUniqueRandomIterator` (seed 123, 100 states) | Random cross-product of srcColorBlendFactor x dstColorBlendFactor x colorBlendOp x srcAlphaBlendFactor x dstAlphaBlendFactor x alphaBlendOp |
 | Color write masks | `BlendTest::s_colorWriteMasks` | 4 masks (one per quad) |
 | Clamp formats | [`clampFormats[]`](../../../modules/vulkan/pipeline/vktPipelineBlendTests.cpp#L2831) | 6 formats (R8G8B8A8_UNORM/SNORM, B8G8R8A8_UNORM/SNORM, R16G16B16A16_UNORM/SNORM) |
-| Dynamic mask patterns | [`ColorMaskTestCase[]`](../../../modules/vulkan/pipeline/vktPipelineBlendTests.cpp#L2899) | 4 mask patterns (0, RGB, A, RGBA) x 2 blend states |
+| Dynamic mask patterns | [`ColorMaskTestCase[]`](../../../modules/vulkan/pipeline/vktPipelineBlendTests.cpp#L2899) | 2 mask patterns (0, RGBA) x 2 blend states |
 | Dual-source shader output | [`shaderOutputTypes[]`](../../../modules/vulkan/pipeline/vktPipelineBlendTests.cpp#L2721) | `output_variable`, `output_array` |
 | Attachment count (dynamic_dual_disable) | Loop | 1, 2, 8 |
 | Extra attachment (dynamic_dual_disable) | Loop | `false`, `true` |

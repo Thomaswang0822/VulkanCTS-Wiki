@@ -1,8 +1,8 @@
-# [vktImageSizeTests.cpp](../../../../modules/vulkan/image/vktImageSizeTests.cpp#L1)
+# [vktImageSizeTests.cpp](../../../modules/vulkan/image/vktImageSizeTests.cpp#L1)
 
 ## Overview
 
-[`vktImageSizeTests.cpp`](../../../../modules/vulkan/image/vktImageSizeTests.cpp#L1) implements the `image.image_size` subgroup registered by the image module. The file tests the GLSL `imageSize()` builtin function for various image types and access qualifiers, verifying that it returns correct dimensions according to the Vulkan specification.
+[`vktImageSizeTests.cpp`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L1) implements the `image.image_size` subgroup registered by the image module. The file tests the GLSL `imageSize()` builtin function for various image types and access qualifiers, verifying that it returns correct dimensions according to the Vulkan specification.
 
 ## Role of File
 
@@ -10,8 +10,8 @@ Implementation-heavy test file for the `image.image_size` subgroup.
 
 ## Source Code
 
-- Primary source: [vktImageSizeTests.cpp](../../../../modules/vulkan/image/vktImageSizeTests.cpp#L1)
-- Header: [vktImageSizeTests.hpp](../../../../modules/vulkan/image/vktImageSizeTests.hpp#L1)
+- Primary source: [vktImageSizeTests.cpp](../../../modules/vulkan/image/vktImageSizeTests.cpp#L1)
+- Header: [vktImageSizeTests.hpp](../../../modules/vulkan/image/vktImageSizeTests.hpp#L1)
 - Parent-category registration: `createImageSizeTests()` called from image module
 
 ## Registration Hierarchy
@@ -29,7 +29,7 @@ image.image_size
 ```
 
 Evidence:
-- `image_size` group created at [`createImageSizeTests()`](../../../../modules/vulkan/image/vktImageSizeTests.cpp#L579)
+- `image_size` group created at [`createImageSizeTests()`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L579)
 - Image type subgroups created at lines 583-609
 
 ## Test Families
@@ -51,7 +51,7 @@ Enabled unless `CTS_USES_VULKANSC` is defined (VulkanSC does not support this ex
 
 ## Expected imageSize() Results
 
-From [`getExpectedImageSizeResult()`](../../../../modules/vulkan/image/vktImageSizeTests.cpp#L131-168):
+From [`getExpectedImageSizeResult()`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L131-168):
 
 | Image Type | Return value |
 |---|---|
@@ -65,24 +65,24 @@ From [`getExpectedImageSizeResult()`](../../../../modules/vulkan/image/vktImageS
 
 | Dimension | Observed values / evidence |
 |---|---|
-| Image types | IMAGE_TYPE_1D, IMAGE_TYPE_1D_ARRAY, IMAGE_TYPE_2D, IMAGE_TYPE_2D_ARRAY, IMAGE_TYPE_3D, IMAGE_TYPE_CUBE, IMAGE_TYPE_CUBE_ARRAY, IMAGE_TYPE_BUFFER at [`vktImageSizeTests.cpp#L560-563`](../../../../modules/vulkan/image/vktImageSizeTests.cpp#L560) |
-| Format | VK_FORMAT_R32G32B32A32_SFLOAT at [`vktImageSizeTests.cpp#L581`](../../../../modules/vulkan/image/vktImageSizeTests.cpp#L581) |
-| Base image sizes | 32x32x32, 12x34x56, 1x1x1, 7x1x1 at [`vktImageSizeTests.cpp#L566-571`](../../../../modules/vulkan/image/vktImageSizeTests.cpp#L566) |
-| Access qualifiers | FLAG_READONLY_IMAGE, FLAG_WRITEONLY_IMAGE, FLAG_READONLY_IMAGE|FLAG_WRITEONLY_IMAGE at [`vktImageSizeTests.cpp#L573-577`](../../../../modules/vulkan/image/vktImageSizeTests.cpp#L573) |
-| Texture dimensions | Derived from base sizes: 1D (1D/buffer: X), 1D array (X x Y), 2D (X x Y), 2D array (X x Y x layers), Cube (X x X x 6), Cube array (X x X x 12), 3D (X x Y x Z) at [`getTexture()`](../../../../modules/vulkan/image/vktImageSizeTests.cpp#L58-88) |
+| Image types | IMAGE_TYPE_1D, IMAGE_TYPE_1D_ARRAY, IMAGE_TYPE_2D, IMAGE_TYPE_2D_ARRAY, IMAGE_TYPE_3D, IMAGE_TYPE_CUBE, IMAGE_TYPE_CUBE_ARRAY, IMAGE_TYPE_BUFFER at [`vktImageSizeTests.cpp#L560-563`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L560) |
+| Format | VK_FORMAT_R32G32B32A32_SFLOAT at [`vktImageSizeTests.cpp#L581`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L581) |
+| Base image sizes | 32x32x32, 12x34x56, 1x1x1, 7x1x1 at [`vktImageSizeTests.cpp#L566-571`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L566) |
+| Access qualifiers | FLAG_READONLY_IMAGE, FLAG_WRITEONLY_IMAGE, FLAG_READONLY_IMAGE|FLAG_WRITEONLY_IMAGE at [`vktImageSizeTests.cpp#L573-577`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L573) |
+| Texture dimensions | Derived from base sizes: 1D (1D/buffer: X), 1D array (X x Y), 2D (X x Y), 2D array (X x Y x layers), Cube (X x X x 6), Cube array (X x X x 12), 3D (X x Y x Z) at [`getTexture()`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L58-88) |
 
 ## Support / Feature Requirements
 
-- `IMAGE_TYPE_CUBE_ARRAY` requires `DEVICE_CORE_FEATURE_IMAGE_CUBE_ARRAY` via [`SizeTest::checkSupport()`](../../../../modules/vulkan/image/vktImageSizeTests.cpp#L214-215)
-- 2D view of 3D requires `VK_EXT_image_2d_view_of_3d` via [`SizeTest::checkSupport()`](../../../../modules/vulkan/image/vktImageSizeTests.cpp#L233)
-- Format must be supported for the specified image usage flags via [`SizeTest::checkSupport()`](../../../../modules/vulkan/image/vktImageSizeTests.cpp#L224-229)
+- `IMAGE_TYPE_CUBE_ARRAY` requires `DEVICE_CORE_FEATURE_IMAGE_CUBE_ARRAY` via [`SizeTest::checkSupport()`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L214-215)
+- 2D view of 3D requires `VK_EXT_image_2d_view_of_3d` via [`SizeTest::checkSupport()`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L233)
+- Format must be supported for the specified image usage flags via [`SizeTest::checkSupport()`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L224-229)
 
 ## Verification Methods
 
 - Compute shader calls `imageSize()` and writes result to SSBO
 - Result is read back to host memory and compared against expected value
-- [`tcu::IVec3 readIVec3()`](../../../../modules/vulkan/image/vktImageSizeTests.cpp#L125-129) interprets buffer as ivec3
-- Single dispatch with work group size (1,1,1) at [`vktImageSizeTests.cpp#L366`](../../../../modules/vulkan/image/vktImageSizeTests.cpp#L366)
+- [`tcu::IVec3 readIVec3()`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L125-129) interprets buffer as ivec3
+- Single dispatch with work group size (1,1,1) at [`vktImageSizeTests.cpp#L366`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L366)
 - No data is read from or written to the image itself; only the size query is tested
 
 ## Test Principles Observed

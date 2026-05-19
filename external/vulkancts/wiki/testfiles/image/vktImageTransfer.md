@@ -14,7 +14,7 @@ This is a registration and implementation file that:
 
 ## Source Code Link
 
-[vktImageTransfer.cpp](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageTransfer.cpp)
+[vktImageTransfer.cpp](../../../modules/vulkan/image/vktImageTransfer.cpp)
 
 ## Registration Hierarchy
 
@@ -46,7 +46,7 @@ image.queue_transfer
 
 Tests the round-trip transfer of image data through host-visible buffers:
 
-**Test approach** ([vktImageTransfer.cpp#L157-L293](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageTransfer.cpp#L157-L293)):
+**Test approach** ([vktImageTransfer.cpp#L157-L293](../../../modules/vulkan/image/vktImageTransfer.cpp#L157-L293)):
 
 1. **Data generation**: Generate random data appropriate to the image format using `fillRandomNoNaN()`
 2. **Source buffer fill**: Copy generated data to host-visible source buffer
@@ -60,7 +60,7 @@ Tests the round-trip transfer of image data through host-visible buffers:
 - Calculates buffer size based on pixel format, dimensions, and aspect
 - Handles compressed formats by adjusting image height to block boundaries
 
-**Test flow** ([vktImageTransfer.cpp#L221-L273](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageTransfer.cpp#L221-L273)):
+**Test flow** ([vktImageTransfer.cpp#L221-L273](../../../modules/vulkan/image/vktImageTransfer.cpp#L221-L273)):
 ```
 Begin command buffer
   -> Pipeline barrier (UNDEFINED -> GENERAL)
@@ -85,7 +85,7 @@ Verify dstBuffer == srcBuffer
 | Depth | For 3D: extent.depth; For 2D/2D_array: 1 |
 | Sample Count | 1 |
 
-**Extent configurations** ([vktImageTransfer.cpp#L332-L336](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageTransfer.cpp#L332-L336)):
+**Extent configurations** ([vktImageTransfer.cpp#L332-L336](../../../modules/vulkan/image/vktImageTransfer.cpp#L332-L336)):
 
 | Extent Name | Dimensions | Description |
 |-------------|------------|-------------|
@@ -95,18 +95,18 @@ Verify dstBuffer == srcBuffer
 | 4x3x2 | 4 x 3 x 2 | 2D with depth/layers |
 | 16x15x16 | 16 x 15 x 16 | 3D or 2D array |
 
-**Buffer size calculation** ([vktImageTransfer.cpp#L172](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageTransfer.cpp#L172)):
+**Buffer size calculation** ([vktImageTransfer.cpp#L172](../../../modules/vulkan/image/vktImageTransfer.cpp#L172)):
 ```cpp
 const uint32_t pixelDataSize = tcuFormat.getPixelSize() * width * height * layers * depth;
 ```
 
 ## Support Requirements
 
-- **Format properties check** ([vktImageTransfer.cpp#L119-L130](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageTransfer.cpp#L119-L130)):
+- **Format properties check** ([vktImageTransfer.cpp#L119-L130](../../../modules/vulkan/image/vktImageTransfer.cpp#L119-L130)):
   - `vkGetPhysicalDeviceImageFormatProperties` must return VK_SUCCESS
   - VK_ERROR_FORMAT_NOT_SUPPORTED results in NotSupportedError
 
-- **Format features** ([vktImageTransfer.cpp#L133-L139](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageTransfer.cpp#L133-L139)):
+- **Format features** ([vktImageTransfer.cpp#L133-L139](../../../modules/vulkan/image/vktImageTransfer.cpp#L133-L139)):
   - `VK_FORMAT_FEATURE_TRANSFER_SRC_BIT`
   - `VK_FORMAT_FEATURE_TRANSFER_DST_BIT`
   - For optimal tiling
@@ -120,7 +120,7 @@ const uint32_t pixelDataSize = tcuFormat.getPixelSize() * width * height * layer
 
 ## Verification Methods
 
-1. **Byte-by-byte comparison** ([vktImageTransfer.cpp#L283-L289](file:///f:/repos/VK-GL-CTS/external/vulkancts/modules/vulkan/image/vktImageTransfer.cpp#L283-L289)):
+1. **Byte-by-byte comparison** ([vktImageTransfer.cpp#L283-L289](../../../modules/vulkan/image/vktImageTransfer.cpp#L283-L289)):
    ```cpp
    for (uint32_t i = 0; i < pixelDataSize; ++i)
    {

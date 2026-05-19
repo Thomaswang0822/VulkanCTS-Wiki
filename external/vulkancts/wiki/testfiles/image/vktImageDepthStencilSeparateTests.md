@@ -1,4 +1,4 @@
-# vktImageDepthStencilSeparateTests ([source](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp))
+# vktImageDepthStencilSeparateTests ([source](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp))
 
 ## Overview
 
@@ -10,8 +10,8 @@ Implementation file that registers the `depth_stencil_separate_access` test grou
 
 ## Source Code
 
-- Implementation: [vktImageDepthStencilSeparateTests.cpp](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp)
-- Header: [vktImageDepthStencilSeparateTests.hpp](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.hpp)
+- Implementation: [vktImageDepthStencilSeparateTests.cpp](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp)
+- Header: [vktImageDepthStencilSeparateTests.hpp](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.hpp)
 
 ## Registration Hierarchy
 
@@ -23,7 +23,7 @@ image.depth_stencil_separate_access
 ```
 
 Evidence:
-- `depth_stencil_separate_access` group created by [`createImageDepthStencilSeparateTests()`](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L1409-L1479)
+- `depth_stencil_separate_access` group created by [`createImageDepthStencilSeparateTests()`](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L1409-L1479)
 - Format subgroups added at lines 1441-1444 with names from `getFormatShortString(format)`
 - Write mechanism, layout, and stencil reference variants generated at lines 1446-1473
 
@@ -56,28 +56,28 @@ Each format subgroup generates a comprehensive matrix of test variants:
 
 | Dimension | Values | Source |
 |-----------|--------|--------|
-| Image Format | D16_UNORM_S8_UINT, D24_UNORM_S8_UINT, D32_SFLOAT_S8_UINT | [line 1415-1419](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L1415-L1419) |
-| Framebuffer Size | 16x16 | [line 60](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L60) |
-| Sample Count | 1-bit (single sample) or 4-bit (multisample for resolve tests) | [lines 63-64, 174-176](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L63-L64) |
-| Color Format | VK_FORMAT_R8G8B8A8_UNORM | [line 58](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L58) |
-| Storage Image Format | R32_SFLOAT (for depth read) or R32_UINT (for stencil read) | [line 181-183](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L181-183) |
-| Vertex Count | 1 point per pixel (256 points) | [line 844](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L844) |
-| Stencil Reference Values | 1-255 (pseudorandom per vertex) | [line 860](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L860) |
-| Depth Values | [0.5, 1.0) pseudorandom range | [line 859](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L859) |
+| Image Format | D16_UNORM_S8_UINT, D24_UNORM_S8_UINT, D32_SFLOAT_S8_UINT | [line 1415-1419](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L1415-L1419) |
+| Framebuffer Size | 16x16 | [line 60](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L60) |
+| Sample Count | 1-bit (single sample) or 4-bit (multisample for resolve tests) | [lines 63-64, 174-176](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L63-L64) |
+| Color Format | VK_FORMAT_R8G8B8A8_UNORM | [line 58](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L58) |
+| Storage Image Format | R32_SFLOAT (for depth read) or R32_UINT (for stencil read) | [line 181-183](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L181-183) |
+| Vertex Count | 1 point per pixel (256 points) | [line 844](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L844) |
+| Stencil Reference Values | 1-255 (pseudorandom per vertex) | [line 860](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L860) |
+| Depth Values | [0.5, 1.0) pseudorandom range | [line 859](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L859) |
 
 ## Support / Feature Requirements
 
 | Requirement | Condition | Source |
 |-------------|-----------|--------|
-| VK_KHR_get_physical_device_properties2 | Instance functionality required | [line 318](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L318) |
-| VK_KHR_maintenance7 | Device functionality required | [line 319](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L319) |
-| VK_KHR_format_feature_flags2 | Device functionality required | [line 320](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L320) |
-| separateDepthStencilAttachmentAccess | Physical device property must be true | [line 323-325](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L323-325) |
-| VK_EXT_shader_stencil_export | When dynamicStencilRef is true | [line 386](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L386) |
-| VK_KHR_depth_stencil_resolve | When write mechanism is TEST_RESOLVE | [line 389](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L389) |
-| VK_KHR_separate_depth_stencil_layouts | When separateLayouts is true | [line 392](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L392) |
-| Format features | VK_FORMAT_FEATURE_2_DEPTH_STENCIL_ATTACHMENT_BIT, SAMPLED_IMAGE_BIT, TRANSFER_SRC_BIT, TRANSFER_DST_BIT | [line 378-383](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L378-383) |
-| Sample count support | Must support requested sample count for format | [line 371-373](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L371-373) |
+| VK_KHR_get_physical_device_properties2 | Instance functionality required | [line 318](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L318) |
+| VK_KHR_maintenance7 | Device functionality required | [line 319](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L319) |
+| VK_KHR_format_feature_flags2 | Device functionality required | [line 320](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L320) |
+| separateDepthStencilAttachmentAccess | Physical device property must be true on non-VulkanSC builds | [lines 322-326](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L322-L326) |
+| VK_EXT_shader_stencil_export | When dynamicStencilRef is true | [line 391-392](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L391-L392) |
+| VK_KHR_depth_stencil_resolve | When write mechanism is TEST_RESOLVE | [line 394-395](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L394-L395) |
+| VK_KHR_separate_depth_stencil_layouts | When separateLayouts is true | [line 397-398](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L397-L398) |
+| Format features | On non-VulkanSC builds, optimal tiling must expose depth/stencil attachment, sampled image, transfer source, and transfer destination feature bits | [lines 382-389](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L382-L389) |
+| Sample count support | Must support requested sample count for format | [line 375-377](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L375-L377) |
 
 ## Verification Methods
 
@@ -85,18 +85,18 @@ Each format subgroup generates a comprehensive matrix of test variants:
 
 Tests verify results by copying buffers to host-visible memory and comparing against reference:
 
-- **Color buffer**: Compared using `tcu::floatThresholdCompare` with threshold 0.005 at [line 1379-1381](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L1379-1381)
-- **Storage buffer (sampled read)**: Depth values compared with `tcu::floatThresholdCompare` using format-specific threshold at [line 1383-1386](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L1383-1386); stencil values compared with `tcu::intThresholdCompare` at [line 1387-1388](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L1387-1388)
-- **Depth buffer**: Compared using `tcu::dsThresholdCompare` when not sampled via storage at [line 1390-1394](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L1390-1394)
-- **Stencil buffer**: Compared using `tcu::dsThresholdCompare` when not sampled via storage at [line 1396-1400](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L1396-1400)
+- **Color buffer**: Compared using `tcu::floatThresholdCompare` with threshold 0.005 at [line 1379-1381](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L1379-1381)
+- **Storage buffer (sampled read)**: Depth values compared with `tcu::floatThresholdCompare` using format-specific threshold at [line 1383-1386](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L1383-1386); stencil values compared with `tcu::intThresholdCompare` at [line 1387-1388](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L1387-1388)
+- **Depth buffer**: Compared using `tcu::dsThresholdCompare` when not sampled via storage at [line 1390-1394](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L1390-1394)
+- **Stencil buffer**: Compared using `tcu::dsThresholdCompare` when not sampled via storage at [line 1396-1400](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L1396-1400)
 
 ### Depth threshold by format
 
 | Format | Threshold | Source |
 |--------|-----------|--------|
-| D16_UNORM | 1.5/65535.0 (~0.000023) | [line 797-798](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L797-798) |
-| D24_UNORM_S8_UINT | 1.5/16777215.0 (~0.000000089) | [line 799-800](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L799-800) |
-| D32_SFLOAT | 1.0/33554431.0 (~0.000000030) | [line 802-803](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L802-803) |
+| D16_UNORM | 1.5/65535.0 (~0.000023) | [line 797-798](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L797-798) |
+| D24_UNORM_S8_UINT | 1.5/16777215.0 (~0.000000089) | [line 799-800](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L799-800) |
+| D32_SFLOAT | 1.0/33554431.0 (~0.000000030) | [line 802-803](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L802-803) |
 
 ## Test Principles Observed
 
@@ -109,7 +109,7 @@ Tests verify results by copying buffers to host-visible memory and comparing aga
 
 ## Notes / Uncertainties
 
-- The file requires `separateDepthStencilAttachmentAccess` to be true, which is verified in `checkSupport` at [lines 323-325](../../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L323-325)
+- The file requires `separateDepthStencilAttachmentAccess` to be true, which is verified in `checkSupport` at [lines 323-325](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L323-325)
 - When `generalLayout` and `separateLayouts` are both true, the combination is skipped (not meaningful)
 - When `writeMechanism` is TEST_RESOLVE and `separateLayouts` is true, the combination is skipped to avoid combinatorial explosion
 - Stencil reference is only dynamic when writing stencil with a test mechanism and not using shader-based stencil export

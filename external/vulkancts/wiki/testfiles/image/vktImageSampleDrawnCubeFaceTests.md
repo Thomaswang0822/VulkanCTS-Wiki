@@ -1,8 +1,8 @@
-# [vktImageSampleDrawnCubeFaceTests.cpp](../../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L1)
+# [vktImageSampleDrawnCubeFaceTests.cpp](../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L1)
 
 ## Overview
 
-[`vktImageSampleDrawnCubeFaceTests.cpp`](../../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L1) implements the `image.sample_cubemap` subgroup registered by the image module. The file tests sampling from rendered cubemap faces, verifying that the sampler correctly reads from cube faces that have been written to via render passes.
+[`vktImageSampleDrawnCubeFaceTests.cpp`](../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L1) implements the `image.sample_cubemap` subgroup registered by the image module. The file tests sampling from rendered cubemap faces, verifying that the sampler correctly reads from cube faces that have been written to via render passes.
 
 ## Role of File
 
@@ -10,7 +10,7 @@ Implementation-heavy test file for the `image.sample_cubemap` subgroup.
 
 ## Source Code
 
-- Primary source: [vktImageSampleDrawnCubeFaceTests.cpp](../../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L1)
+- Primary source: [vktImageSampleDrawnCubeFaceTests.cpp](../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L1)
 - Parent-category registration: `createImageSampleDrawnCubeFaceTests()` called from image module
 
 ## Registration Hierarchy
@@ -21,12 +21,12 @@ image.sample_cubemap
 ```
 
 Evidence:
-- `sample_cubemap` group created at [`createImageSampleDrawnCubeFaceTests()`](../../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L583)
-- Single test case `write_face_0` added at [`vktImageSampleDrawnCubeFaceTests.cpp#L585`](../../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L585)
+- `sample_cubemap` group created at [`createImageSampleDrawnCubeFaceTests()`](../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L583)
+- Single test case `write_face_0` added at [`vktImageSampleDrawnCubeFaceTests.cpp#L585`](../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L585)
 
 ## Test Families
 
-### write_face_0 â€?Sample from cubemap face 0 with surrounding face sampling
+### write_face_0 ï¿½?Sample from cubemap face 0 with surrounding face sampling
 
 The `write_face_0` test renders to cubemap face 0 and samples the surrounding 4 faces (+Y, -Y, +Z, -Z) to verify cubemap sampling works correctly.
 
@@ -37,7 +37,7 @@ Test sequence:
 4. Second pass: Render pure cyan (R=0, G=1, B=1) to face 0
 5. Sample again and verify: R should be 0 (from averaged samples), G should be > 0 (from second pass)
 
-Verification logic at [`vktImageSampleDrawnCubeFaceTests.cpp#L476-483`](../../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L476):
+Verification logic at [`vktImageSampleDrawnCubeFaceTests.cpp#L476-483`](../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L476):
 - Red component must equal 0
 - Green component must be > 0
 
@@ -47,7 +47,7 @@ The test uses two graphics pipelines:
 - Pipeline 1 (write): Renders solid colors to cubemap face
 - Pipeline 2 (sample): Samples cubemap and writes to target image
 
-Shader details from [`SampleDrawnCubeFaceTest::initPrograms()`](../../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L519-568):
+Shader details from [`SampleDrawnCubeFaceTest::initPrograms()`](../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L519-568):
 
 **Pipeline 1 Fragment Shader:**
 - Push constant `pass` toggles between magenta (pass 0) and cyan (pass 1)
@@ -60,23 +60,23 @@ Shader details from [`SampleDrawnCubeFaceTest::initPrograms()`](../../../../modu
 
 | Dimension | Observed values / evidence |
 |---|---|
-| Cubemap face size | 8x8 pixels at [`vktImageSampleDrawnCubeFaceTests.cpp#L581`](../../../../modules/vulkan/image/vktImageSampleDrawnCubeTests.cpp#L581) |
-| Format | VK_FORMAT_R8G8B8A8_UNORM at [`vktImageSampleDrawnCubeFaceTests.cpp#L580`](../../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L580) |
-| Layer count | 6 (full cubemap) at [`vktImageSampleDrawnCubeFaceTests.cpp#L249`](../../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L249) |
-| Buffer size | 1024 bytes at [`vktImageSampleDrawnCubeFaceTests.cpp#L246`](../../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L246) |
+| Cubemap face size | 8x8 pixels at [`vktImageSampleDrawnCubeFaceTests.cpp#L581`](../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L581) |
+| Format | VK_FORMAT_R8G8B8A8_UNORM at [`vktImageSampleDrawnCubeFaceTests.cpp#L580`](../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L580) |
+| Layer count | 6 (full cubemap) at [`vktImageSampleDrawnCubeFaceTests.cpp#L249`](../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L249) |
+| Buffer size | 1024 bytes at [`vktImageSampleDrawnCubeFaceTests.cpp#L246`](../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L246) |
 
 ## Support / Feature Requirements
 
 - No explicit feature requirements documented
 - Standard cubemap support implied by VK_IMAGE_VIEW_TYPE_CUBE usage
-- All image usage flags (TRANSFER_SRC, TRANSFER_DST, COLOR_ATTACHMENT, INPUT_ATTACHMENT, SAMPLED) at [`vktImageSampleDrawnCubeFaceTests.cpp#L73-75`](../../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L73)
+- All image usage flags (TRANSFER_SRC, TRANSFER_DST, COLOR_ATTACHMENT, INPUT_ATTACHMENT, SAMPLED) at [`vktImageSampleDrawnCubeFaceTests.cpp#L73-75`](../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L73)
 
 ## Verification Methods
 
 - Two-pass rendering with color validation
-- Per-pixel check: R must be 0, G must be > 0 at [`vktImageSampleDrawnCubeFaceTests.cpp#L476-483`](../../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L476)
-- Result image logged to test output for visual verification at [`vktImageSampleDrawnCubeFaceTests.cpp#L486-489`](../../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L486)
-- Sample averaging: 4 cubemap samples averaged and divided by 4 at [`vktImageSampleDrawnCubeFaceTests.cpp#L558-562`](../../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L558)
+- Per-pixel check: R must be 0, G must be > 0 at [`vktImageSampleDrawnCubeFaceTests.cpp#L476-483`](../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L476)
+- Result image logged to test output for visual verification at [`vktImageSampleDrawnCubeFaceTests.cpp#L486-489`](../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L486)
+- Sample averaging: 4 cubemap samples averaged and divided by 4 at [`vktImageSampleDrawnCubeFaceTests.cpp#L558-562`](../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L558)
 
 ## Test Principles Observed
 

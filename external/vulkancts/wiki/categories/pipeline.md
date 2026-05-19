@@ -28,10 +28,10 @@ Source: [`createTests()`](../../modules/vulkan/pipeline/vktPipelineTests.cpp#L22
 
 | Variant root | Mustpass file | Construction type enum |
 |---|---|---|
-| `monolithic` | `monolithic.txt` | [`PIPELINE_CONSTRUCTION_TYPE_MONOLITHIC`](../../framework/vulkan/vkPipelineConstructionUtil.hpp#L44) |
+| `monolithic` | `pipeline/monolithic/monolithic.txt` | [`PIPELINE_CONSTRUCTION_TYPE_MONOLITHIC`](../../framework/vulkan/vkPipelineConstructionUtil.hpp#L44) |
 | `pipeline_library` | `pipeline-library.txt` | [`PIPELINE_CONSTRUCTION_TYPE_LINK_TIME_OPTIMIZED_LIBRARY`](../../framework/vulkan/vkPipelineConstructionUtil.hpp#L45) |
 | `fast_linked_library` | `fast-linked-library.txt` | [`PIPELINE_CONSTRUCTION_TYPE_FAST_LINKED_LIBRARY`](../../framework/vulkan/vkPipelineConstructionUtil.hpp#L46) |
-| `shader_object_unlinked_spirv` | `shader-object-unlinked-spirv.txt` | [`PIPELINE_CONSTRUCTION_TYPE_SHADER_OBJECT_UNLINKED_SPIRV`](../../framework/vulkan/vkPipelineConstructionUtil.hpp#L47) |
+| `shader_object_unlinked_spirv` | `pipeline/shader-object-unlinked-spirv/shader-object-unlinked-spirv.txt` | [`PIPELINE_CONSTRUCTION_TYPE_SHADER_OBJECT_UNLINKED_SPIRV`](../../framework/vulkan/vkPipelineConstructionUtil.hpp#L47) |
 | `shader_object_unlinked_binary` | `shader-object-unlinked-binary.txt` | [`PIPELINE_CONSTRUCTION_TYPE_SHADER_OBJECT_UNLINKED_BINARY`](../../framework/vulkan/vkPipelineConstructionUtil.hpp#L48) |
 | `shader_object_linked_spirv` | `shader-object-linked-spirv.txt` | [`PIPELINE_CONSTRUCTION_TYPE_SHADER_OBJECT_LINKED_SPIRV`](../../framework/vulkan/vkPipelineConstructionUtil.hpp#L49) |
 | `shader_object_linked_binary` | `shader-object-linked-binary.txt` | [`PIPELINE_CONSTRUCTION_TYPE_SHADER_OBJECT_LINKED_BINARY`](../../framework/vulkan/vkPipelineConstructionUtil.hpp#L50) |

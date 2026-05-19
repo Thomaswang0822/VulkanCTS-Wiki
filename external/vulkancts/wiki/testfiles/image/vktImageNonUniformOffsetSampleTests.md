@@ -1,4 +1,4 @@
-# vktImageNonUniformOffsetSampleTests ([source](../../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp))
+# vktImageNonUniformOffsetSampleTests ([source](../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp))
 
 ## Overview
 
@@ -10,8 +10,8 @@ Implementation file that registers the `non_uniform_offset_sample` test group an
 
 ## Source Code
 
-- Implementation: [vktImageNonUniformOffsetSampleTests.cpp](../../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp)
-- Header: [vktImageNonUniformOffsetSampleTests.hpp](../../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.hpp)
+- Implementation: [vktImageNonUniformOffsetSampleTests.cpp](../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp)
+- Header: [vktImageNonUniformOffsetSampleTests.hpp](../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.hpp)
 
 ## Registration Hierarchy
 
@@ -25,56 +25,62 @@ image.non_uniform_offset_sample
 ```
 
 Evidence:
-- `non_uniform_offset_sample` group created by [`createImageNonUniformOffsetSampleTests()`](../../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L714-L767)
+- `non_uniform_offset_sample` group created by [`createImageNonUniformOffsetSampleTests()`](../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L714-L767)
 - Function groups added at lines 742-744 with names like `{prefix}_offset`
 - Test stages and multi-mip variants generated at lines 747-761
 
 ## Test Families
 
-### texture_offset â€?Basic texture sampling with non-uniform offset
+### texture_offset ï¿½?Basic texture sampling with non-uniform offset
 
 Tests `textureOffset` GLSL function. Uses base texture coordinates (top-left texel center) while offsets select which texel to actually sample. Validates that the sampler correctly applies non-constant offsets.
 
-### texel_fetch_offset â€?Texel fetch with non-uniform offset
+### texel_fetch_offset ï¿½?Texel fetch with non-uniform offset
 
 Tests `texelFetchOffset` GLSL function. Uses integer texel coordinates with explicit LOD, while offsets select which texel to fetch. Requires LOD argument availability.
 
-### texture_lod_offset â€?Explicit LOD texture sampling with non-uniform offset
+### texture_lod_offset ï¿½?Explicit LOD texture sampling with non-uniform offset
 
 Tests `textureLodOffset` GLSL function. Uses explicit LOD value with offset selection. Requires LOD argument availability.
 
-### texture_proj_offset â€?Projective texture sampling with non-uniform offset
+### texture_proj_offset ï¿½?Projective texture sampling with non-uniform offset
 
 Tests `textureProjOffset` GLSL function. Uses projective coordinates (3-component) where the third component serves as a divisor. The offset selects which texel to sample from the projected result.
 
-### texture_proj_lod_offset â€?Projective texture sampling with explicit LOD and non-uniform offset
+### texture_proj_lod_offset ï¿½?Projective texture sampling with explicit LOD and non-uniform offset
 
 Tests `textureProjLodOffset` GLSL function. Combines projective coordinates, explicit LOD, and non-uniform offset selection. Most complex sampling variant.
 
 ### Per-function variants
 
 Each function group generates:
-- **Shader stages**: vert (vertex shader), frag (fragment shader), comp (compute shader)
+- **Shader stages**: vert (vertex shader), frag (fragment shader), and comp (compute shader) when the sampling
+  function has an explicit LOD argument. Compute variants are skipped for implicit-LOD functions because compute
+  shaders do not provide derivatives without `GL_KHR_compute_shader_derivatives`.
 - **Mip levels**: single_mip (1 mip level) or multi_mip (4 mip levels, LOD-based functions only)
+
+The current source therefore excludes compute-stage `texture_offset.single_mip_comp` and
+`texture_proj_offset.single_mip_comp`; this matches their removal from
+[`non-uniform-offset-sample.txt`](../../../mustpass/main/vk-default/image/non-uniform-offset-sample.txt).
 
 ## Parameter Dimensions
 
 | Dimension | Values | Source |
 |-----------|--------|--------|
-| Framebuffer/Texture Size | 3x3 pixels | [line 135-138](../../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L135-138) |
-| Image Format | VK_FORMAT_R8G8B8A8_UNORM | [line 312](../../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L312) |
-| Mip Levels | 1 (single_mip) or 4 (multi_mip) | [line 313-314](../../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L313-314) |
-| Texture Usage | VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_USAGE_TRANSFER_DST_BIT | [line 317](../../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L317) |
-| Sample Count | VK_SAMPLE_COUNT_1_BIT | [line 332](../../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L332) |
-| Offset Range | 0-2 in each coordinate (x, y) | [line 459-464](../../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L459-464) |
-| Texture Colors | R/G from pixel position, B=0.5, A=1.0 | [line 356-365](../../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L356-365) |
+| Framebuffer/Texture Size | 3x3 pixels | [line 135-138](../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L135-138) |
+| Image Format | VK_FORMAT_R8G8B8A8_UNORM | [line 312](../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L312) |
+| Mip Levels | 1 (single_mip) or 4 (multi_mip) | [line 313-314](../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L313-314) |
+| Texture Usage | VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_USAGE_TRANSFER_DST_BIT | [line 317](../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L317) |
+| Sample Count | VK_SAMPLE_COUNT_1_BIT | [line 332](../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L332) |
+| Offset Range | 0-2 in each coordinate (x, y) | [line 459-464](../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L459-464) |
+| Texture Colors | R/G from pixel position, B=0.5, A=1.0 | [line 356-365](../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L356-365) |
 
 ## Support / Feature Requirements
 
 | Requirement | Condition | Source |
 |-------------|-----------|--------|
-| VK_KHR_maintenance8 | All tests | [line 168](../../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L168) |
-| GL_EXT_texture_offset_non_const | GLSL extension for non-constant offsets | [lines 240, 265, 278](../../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L240) |
+| VK_KHR_maintenance8 | All tests | [line 168](../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L168) |
+| GL_EXT_texture_offset_non_const | GLSL extension for non-constant offsets | [lines 240, 265, 278](../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L240) |
 
 ## Verification Methods
 
@@ -82,8 +88,8 @@ Each function group generates:
 
 Tests verify results by copying the framebuffer (or storage image for compute) to host-visible memory and comparing against a reference image:
 
-- **Reference generation**: For each pixel position (x, y), the reference color is the texture pixel at `offset[x, y]` where offset is the shuffled offset array at that pixel index [lines 686-694](../../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L686-694)
-- **Result comparison**: Uses `tcu::floatThresholdCompare` with RGB threshold of 0.005 (between 1/255 and 2/255) at [lines 701-706](../../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L701-706)
+- **Reference generation**: For each pixel position (x, y), the reference color is the texture pixel at `offset[x, y]` where offset is the shuffled offset array at that pixel index [lines 686-694](../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L686-694)
+- **Result comparison**: Uses `tcu::floatThresholdCompare` with RGB threshold of 0.005 (between 1/255 and 2/255) at [lines 701-706](../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L701-706)
 
 ### Test logic
 
@@ -103,7 +109,7 @@ Tests verify results by copying the framebuffer (or storage image for compute) t
 - **Shader variation**: Tests all three shader stages where texture sampling can occur
 - **Mip level coverage**: Single-mip and multi-mip variants test LOD handling with non-uniform offsets
 - **Offset range**: Uses offsets 0-2 which fall within mandatory `minTexelOffset`/`maxTexelOffset` range (-8 to 7), avoiding additional feature requirements
-- **SPIR-V validation**: Uses `FLAG_ALLOW_NON_CONST_OFFSETS` build option to allow non-constant offsets in SPIR-V [line 192](../../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L192)
+- **SPIR-V validation**: Uses `FLAG_ALLOW_NON_CONST_OFFSETS` build option to allow non-constant offsets in SPIR-V [line 192](../../../modules/vulkan/image/vktImageNonUniformOffsetSampleTests.cpp#L192)
 
 ## Notes / Uncertainties
 
