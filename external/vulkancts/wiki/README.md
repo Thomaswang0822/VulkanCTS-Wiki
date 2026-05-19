@@ -66,7 +66,7 @@ For this tracker, the `Level-3 Files` column counts the actual number of Level-3
 | 21 | multiview | [multiview.md](categories/multiview.md) | 2 | ✅ Done |
 | 22 | geometry | [geometry.md](categories/geometry.md) | 8 | ✅ Done |
 | 23 | tessellation | [tessellation.md](categories/tessellation.md) | 17 | ✅ Done |
-| 24 | transform_feedback | [transform_feedback.md](categories/transform_feedback.md) |  | ⬜ Not Started |
+| 24 | transform_feedback | [transform_feedback.md](categories/transform_feedback.md) | 5 | ✅ Done |
 | 25 | ubo | [ubo.md](categories/ubo.md) |  | ⬜ Not Started |
 | 26 | ssbo | [ssbo.md](categories/ssbo.md) |  | ⬜ Not Started |
 | 27 | glsl | [glsl.md](categories/glsl.md) |  | ⬜ Not Started |
