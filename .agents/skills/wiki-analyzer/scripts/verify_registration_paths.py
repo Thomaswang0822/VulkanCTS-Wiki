@@ -48,9 +48,10 @@ from typing import Dict, List, Optional, Tuple
 
 
 CANONICAL_HIERARCHY_HEADING = '## Registration Hierarchy'
-TREE_CHILD_PATTERN = re.compile(r'^(?P<marker>├──|└──)\s+(?P<name>[a-z0-9_]+(?:\s*\([^)]*\))?)\s*$')
+PATH_COMPONENT_PATTERN = r'[A-Za-z0-9]+(?:_[A-Za-z0-9]+)*'
+TREE_CHILD_PATTERN = re.compile(rf'^(?P<marker>├──|└──)\s+(?P<name>{PATH_COMPONENT_PATTERN}(?:\s*\([^)]*\))?)\s*$')
 TRAILING_PAREN_NOTE_PATTERN = re.compile(r'\s*\([^)]*\)\s*$')
-SIMPLE_GROUP_PATTERN = re.compile(r'^[a-z0-9]+(?:_[a-z0-9]+)*(?:\.[a-z0-9]+(?:_[a-z0-9]+)*)*$')
+SIMPLE_GROUP_PATTERN = re.compile(rf'^{PATH_COMPONENT_PATTERN}(?:\.{PATH_COMPONENT_PATTERN})*$')
 
 
 def find_mustpass_files(category: str, mustpass_dir: Path) -> List[Path]:
@@ -249,7 +250,7 @@ def extract_canonical_hierarchy_paths(md_file: Path, category: str) -> Dict[str,
             continue
 
         child_name = strip_trailing_note(match.group('name'))
-        if not child_name or not re.fullmatch(r'[a-z0-9_]+', child_name):
+        if not child_name or not re.fullmatch(PATH_COMPONENT_PATTERN, child_name):
             continue
 
         add_path(idx + 1, f'{root_text}.{child_name}')
