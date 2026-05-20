@@ -71,7 +71,7 @@ For this tracker, the `Level-3 Files` column counts the actual number of Level-3
 | 26 | ssbo | [ssbo.md](categories/ssbo.md) | 3 | ✅ Done |
 | 27 | glsl | [glsl.md](categories/glsl.md) | 23 | ✅ Done |
 | 28 | spirv_assembly | [spirv_assembly.md](categories/spirv_assembly.md) | 40 | ✅ Done |
-| 29 | subgroups | [subgroups.md](categories/subgroups.md) |  | ⬜ Not Started |
+| 29 | subgroups | [subgroups.md](categories/subgroups.md) | 20 | ✅ Done |
 | 30 | compute | [compute.md](categories/compute.md) |  | ⬜ Not Started |
 | 31 | memory_model | [memory_model.md](categories/memory_model.md) |  | ⬜ Not Started |
 | 32 | descriptor_indexing | [descriptor_indexing.md](categories/descriptor_indexing.md) |  | ⬜ Not Started |
