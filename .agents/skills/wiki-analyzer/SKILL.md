@@ -171,7 +171,16 @@ Do not hardcode category or file counts in generated docs unless you derive them
 
 **Which files get Level-3 docs**: Create Level-3 wiki for a file **if and only if** it registers tests (has a registration path in the test tree). Pure utility/helper files that provide infrastructure without registering any tests do not get their own Level-3 pages.
 
-**Naming**: `external/vulkancts/wiki/testfiles/{category}/{cpp_filename}.md`
+**Naming**: `external/vulkancts/wiki/testfiles/{category}/{cpp_basename}.md`
+
+- `{cpp_basename}` is the source filename with the source extension removed.
+  - Correct: source `vktMemoryModelPadding.cpp` → wiki `vktMemoryModelPadding.md`
+  - Correct: source `vktImageTransfer.cpp` → wiki `vktImageTransfer.md`
+  - Forbidden: `vktMemoryModelPadding.cpp.md`
+  - Forbidden: `vktImageTransfer.cpp.md`
+- Never include `.cpp`, `.hpp`, `.h`, `.c`, or another source extension in the Level-3 wiki filename.
+- Link text may mention the source file with `.cpp` when discussing source code, but links to Level-3 wiki pages must target
+  the extensionless `.md` page.
 
 **Required contents**:
 - H1 title
@@ -319,7 +328,7 @@ After determining a group name, verify it against the mustpass definition files 
 python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category>
 
 # Check one Level-3 wiki file
-python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py --wiki-file external/vulkancts/wiki/testfiles/<category>/<cpp_filename>.md
+python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py --wiki-file external/vulkancts/wiki/testfiles/<category>/<cpp_basename>.md
 
 # Save category results for review
 python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category> \
@@ -461,6 +470,7 @@ Before marking work complete, verify:
 - verification methods are documented only when evidenced
 - all relative links are correct (run [`scripts/validate_wiki_links.py`](scripts/validate_wiki_links.py))
 - links to Level-3 docs are correct from the category doc
+- Level-3 wiki filenames use `{cpp_basename}.md` and do not contain source extensions such as `.cpp.md`
 - links to source files are correct from each Level-3 doc
 - all group names are verified (run [`verify_registration_paths.py`](.agents/skills/wiki-analyzer/scripts/verify_registration_paths.py) with the category argument; redirect output to `external/vulkancts/wiki/internal_doc/error_paths_<category>.txt`)
 - category docs match registration code

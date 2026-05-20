@@ -51,38 +51,38 @@ The following table shows each topic group's variant coverage, verified against 
 
 | Topic group | Condition | VKSC | Level-3 doc |
 |---|---|---|---|
-| `basic_draw` | All variants (including nested) | Available | [vktBasicDrawTests.cpp](../testfiles/draw/vktBasicDrawTests.cpp.md) |
-| `simple_draw` | Not nested | Available | [vktDrawSimpleTest.cpp](../testfiles/draw/vktDrawSimpleTest.cpp.md) |
-| `concurrent` | Not nested | Available | [vktDrawConcurrentTests.cpp](../testfiles/draw/vktDrawConcurrentTests.cpp.md) |
-| `indexed_draw` | Not nested | Available | [vktDrawIndexedTest.cpp](../testfiles/draw/vktDrawIndexedTest.cpp.md) |
-| `indirect_draw` | Not nested | Available | [vktDrawIndirectTest.cpp](../testfiles/draw/vktDrawIndirectTest.cpp.md) |
-| `instanced` | Not nested | Available | [vktDrawInstancedTests.cpp](../testfiles/draw/vktDrawInstancedTests.cpp.md) |
-| `shader_draw_parameters` | Not nested | Available | [vktDrawShaderDrawParametersTests.cpp](../testfiles/draw/vktDrawShaderDrawParametersTests.cpp.md) |
-| `negative_viewport_height` | Not nested | Available | [vktDrawNegativeViewportHeightTests.cpp](../testfiles/draw/vktDrawNegativeViewportHeightTests.cpp.md) |
-| `zero_viewport_height` | Not nested | Available | [vktDrawNegativeViewportHeightTests.cpp](../testfiles/draw/vktDrawNegativeViewportHeightTests.cpp.md) |
-| `offscreen_viewport` | Not nested | Available | [vktDrawNegativeViewportHeightTests.cpp](../testfiles/draw/vktDrawNegativeViewportHeightTests.cpp.md) |
-| `inverted_depth_ranges` | Not nested | Available | [vktDrawInvertedDepthRangesTests.cpp](../testfiles/draw/vktDrawInvertedDepthRangesTests.cpp.md) |
-| `differing_interpolation` | Not nested | Available | [vktDrawDifferingInterpolationTests.cpp](../testfiles/draw/vktDrawDifferingInterpolationTests.cpp.md) |
-| `shader_layer` | Not nested | Available | [vktDrawShaderLayerTests.cpp](../testfiles/draw/vktDrawShaderLayerTests.cpp.md) |
-| `shader_viewport_index` | Not nested | Available | [vktDrawShaderViewportIndexTests.cpp](../testfiles/draw/vktDrawShaderViewportIndexTests.cpp.md) |
-| `scissor` | Not nested | Available | [vktDrawScissorTests.cpp](../testfiles/draw/vktDrawScissorTests.cpp.md) |
-| `multiple_interpolation` | Not nested | Available | [vktDrawMultipleInterpolationTests.cpp](../testfiles/draw/vktDrawMultipleInterpolationTests.cpp.md) |
-| `linear_interpolation` | Not nested | Available | [vktDrawMultisampleLinearInterpolationTests.cpp](../testfiles/draw/vktDrawMultisampleLinearInterpolationTests.cpp.md) |
-| `discard_rectangles` | Not nested | Available | [vktDrawDiscardRectanglesTests.cpp](../testfiles/draw/vktDrawDiscardRectanglesTests.cpp.md) |
-| `explicit_vertex_parameter` | Not nested | Available | [vktDrawExplicitVertexParameterTests.cpp](../testfiles/draw/vktDrawExplicitVertexParameterTests.cpp.md) |
-| `depth_clamp` | Not nested | Available | [vktDrawDepthClampTests.cpp](../testfiles/draw/vktDrawDepthClampTests.cpp.md) |
-| `multiple_clears_within_render_pass` | Not nested | Available | [vktDrawMultipleClearsWithinRenderPass.cpp](../testfiles/draw/vktDrawMultipleClearsWithinRenderPass.cpp.md) |
-| `implicit_sample_shading` | Not nested | Available | [vktDrawSampleAttributeTests.cpp](../testfiles/draw/vktDrawSampleAttributeTests.cpp.md) |
-| `vertex_attribute_divisor` | Not nested | Available | [vktDrawVertexAttribDivisorTests.cpp](../testfiles/draw/vktDrawVertexAttribDivisorTests.cpp.md) |
-| `indirect_instanced` | Not nested | Available | [vktDrawIndirectInstancedTests.cpp](../testfiles/draw/vktDrawIndirectInstancedTests.cpp.md) |
-| `multi_draw` | Not nested, VK only | N/A | [vktDrawMultiExtTests.cpp](../testfiles/draw/vktDrawMultiExtTests.cpp.md) |
-| `depth_bias` | Renderpass-only, VK only | N/A | [vktDrawDepthBiasTests.cpp](../testfiles/draw/vktDrawDepthBiasTests.cpp.md) |
-| `output_location` | Renderpass-only, VK only | N/A | [vktDrawOutputLocationTests.cpp](../testfiles/draw/vktDrawOutputLocationTests.cpp.md) |
-| `shader_invocation` | Renderpass-only, VK only | N/A | [vktDrawShaderInvocationTests.cpp](../testfiles/draw/vktDrawShaderInvocationTests.cpp.md) |
-| `ahb` | Renderpass-only, VK only | N/A | [vktDrawAhbTests.cpp](../testfiles/draw/vktDrawAhbTests.cpp.md) |
-| `non_line_with_params` | Renderpass-only, VK only | N/A | [vktDrawNonLineTests.cpp](../testfiles/draw/vktDrawNonLineTests.cpp.md) |
-| `ahb_external_format_resolve` | Not nested, VK only | N/A | [vktDrawAhbExternalFormatResolveTests.cpp](../testfiles/draw/vktDrawAhbExternalFormatResolveTests.cpp.md) |
-| `point_size_clamp` | Renderpass-only | Available | [vktDrawPointClampTests.cpp](../testfiles/draw/vktDrawPointClampTests.cpp.md) |
+| `basic_draw` | All variants (including nested) | Available | [vktBasicDrawTests.cpp](../testfiles/draw/vktBasicDrawTests.md) |
+| `simple_draw` | Not nested | Available | [vktDrawSimpleTest.cpp](../testfiles/draw/vktDrawSimpleTest.md) |
+| `concurrent` | Not nested | Available | [vktDrawConcurrentTests.cpp](../testfiles/draw/vktDrawConcurrentTests.md) |
+| `indexed_draw` | Not nested | Available | [vktDrawIndexedTest.cpp](../testfiles/draw/vktDrawIndexedTest.md) |
+| `indirect_draw` | Not nested | Available | [vktDrawIndirectTest.cpp](../testfiles/draw/vktDrawIndirectTest.md) |
+| `instanced` | Not nested | Available | [vktDrawInstancedTests.cpp](../testfiles/draw/vktDrawInstancedTests.md) |
+| `shader_draw_parameters` | Not nested | Available | [vktDrawShaderDrawParametersTests.cpp](../testfiles/draw/vktDrawShaderDrawParametersTests.md) |
+| `negative_viewport_height` | Not nested | Available | [vktDrawNegativeViewportHeightTests.cpp](../testfiles/draw/vktDrawNegativeViewportHeightTests.md) |
+| `zero_viewport_height` | Not nested | Available | [vktDrawNegativeViewportHeightTests.cpp](../testfiles/draw/vktDrawNegativeViewportHeightTests.md) |
+| `offscreen_viewport` | Not nested | Available | [vktDrawNegativeViewportHeightTests.cpp](../testfiles/draw/vktDrawNegativeViewportHeightTests.md) |
+| `inverted_depth_ranges` | Not nested | Available | [vktDrawInvertedDepthRangesTests.cpp](../testfiles/draw/vktDrawInvertedDepthRangesTests.md) |
+| `differing_interpolation` | Not nested | Available | [vktDrawDifferingInterpolationTests.cpp](../testfiles/draw/vktDrawDifferingInterpolationTests.md) |
+| `shader_layer` | Not nested | Available | [vktDrawShaderLayerTests.cpp](../testfiles/draw/vktDrawShaderLayerTests.md) |
+| `shader_viewport_index` | Not nested | Available | [vktDrawShaderViewportIndexTests.cpp](../testfiles/draw/vktDrawShaderViewportIndexTests.md) |
+| `scissor` | Not nested | Available | [vktDrawScissorTests.cpp](../testfiles/draw/vktDrawScissorTests.md) |
+| `multiple_interpolation` | Not nested | Available | [vktDrawMultipleInterpolationTests.cpp](../testfiles/draw/vktDrawMultipleInterpolationTests.md) |
+| `linear_interpolation` | Not nested | Available | [vktDrawMultisampleLinearInterpolationTests.cpp](../testfiles/draw/vktDrawMultisampleLinearInterpolationTests.md) |
+| `discard_rectangles` | Not nested | Available | [vktDrawDiscardRectanglesTests.cpp](../testfiles/draw/vktDrawDiscardRectanglesTests.md) |
+| `explicit_vertex_parameter` | Not nested | Available | [vktDrawExplicitVertexParameterTests.cpp](../testfiles/draw/vktDrawExplicitVertexParameterTests.md) |
+| `depth_clamp` | Not nested | Available | [vktDrawDepthClampTests.cpp](../testfiles/draw/vktDrawDepthClampTests.md) |
+| `multiple_clears_within_render_pass` | Not nested | Available | [vktDrawMultipleClearsWithinRenderPass.cpp](../testfiles/draw/vktDrawMultipleClearsWithinRenderPass.md) |
+| `implicit_sample_shading` | Not nested | Available | [vktDrawSampleAttributeTests.cpp](../testfiles/draw/vktDrawSampleAttributeTests.md) |
+| `vertex_attribute_divisor` | Not nested | Available | [vktDrawVertexAttribDivisorTests.cpp](../testfiles/draw/vktDrawVertexAttribDivisorTests.md) |
+| `indirect_instanced` | Not nested | Available | [vktDrawIndirectInstancedTests.cpp](../testfiles/draw/vktDrawIndirectInstancedTests.md) |
+| `multi_draw` | Not nested, VK only | N/A | [vktDrawMultiExtTests.cpp](../testfiles/draw/vktDrawMultiExtTests.md) |
+| `depth_bias` | Renderpass-only, VK only | N/A | [vktDrawDepthBiasTests.cpp](../testfiles/draw/vktDrawDepthBiasTests.md) |
+| `output_location` | Renderpass-only, VK only | N/A | [vktDrawOutputLocationTests.cpp](../testfiles/draw/vktDrawOutputLocationTests.md) |
+| `shader_invocation` | Renderpass-only, VK only | N/A | [vktDrawShaderInvocationTests.cpp](../testfiles/draw/vktDrawShaderInvocationTests.md) |
+| `ahb` | Renderpass-only, VK only | N/A | [vktDrawAhbTests.cpp](../testfiles/draw/vktDrawAhbTests.md) |
+| `non_line_with_params` | Renderpass-only, VK only | N/A | [vktDrawNonLineTests.cpp](../testfiles/draw/vktDrawNonLineTests.md) |
+| `ahb_external_format_resolve` | Not nested, VK only | N/A | [vktDrawAhbExternalFormatResolveTests.cpp](../testfiles/draw/vktDrawAhbExternalFormatResolveTests.md) |
+| `point_size_clamp` | Renderpass-only | Available | [vktDrawPointClampTests.cpp](../testfiles/draw/vktDrawPointClampTests.md) |
 
 ## File Inventory
 

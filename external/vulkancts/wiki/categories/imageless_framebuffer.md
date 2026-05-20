@@ -84,7 +84,7 @@ All tests use **procedural reference image comparison** via `tcu::intThresholdCo
 
 ## Links to Level-3 Docs
 
-- [vktImagelessFramebufferTests.cpp](../testfiles/imageless_framebuffer/vktImagelessFramebufferTests.cpp.md)
+- [vktImagelessFramebufferTests.cpp](../testfiles/imageless_framebuffer/vktImagelessFramebufferTests.md)
 
 ## Notes on Scope / Uncertainty
 

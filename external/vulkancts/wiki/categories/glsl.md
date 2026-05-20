@@ -86,7 +86,7 @@ glsl
 
 | File | Role | Level-3 Doc |
 |------|------|-------------|
-| [vktShaderLibrary.cpp](../../modules/vulkan/vktShaderLibrary.cpp) | Shared infrastructure — parses `.test` files and generates test groups | [vktShaderLibrary.cpp.md](../testfiles/glsl/vktShaderLibrary.cpp.md) |
+| [vktShaderLibrary.cpp](../../modules/vulkan/vktShaderLibrary.cpp) | Shared infrastructure — parses `.test` files and generates test groups | [vktShaderLibrary.md](../testfiles/glsl/vktShaderLibrary.md) |
 | [vktShaderLibrary.hpp](../../modules/vulkan/vktShaderLibrary.hpp) | Header for ShaderLibraryGroup | — |
 | `data/vulkan/glsl/es310/*.test` (9 files) | Declarative ES 3.10 test definitions | — |
 | `data/vulkan/glsl/440/*.test` (1 file) | Declarative GLSL 4.40 test definitions | — |
@@ -95,38 +95,38 @@ glsl
 
 | File | Group(s) | Level-3 Doc |
 |------|----------|-------------|
-| [vktShaderRenderDerivateTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderDerivateTests.cpp) | derivate | [vktShaderRenderDerivateTests.cpp.md](../testfiles/glsl/vktShaderRenderDerivateTests.cpp.md) |
-| [vktShaderRenderDiscardTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderDiscardTests.cpp) | discard, demote | [vktShaderRenderDiscardTests.cpp.md](../testfiles/glsl/vktShaderRenderDiscardTests.cpp.md) |
-| [vktShaderRenderIndexingTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp) | indexing | [vktShaderRenderIndexingTests.cpp.md](../testfiles/glsl/vktShaderRenderIndexingTests.cpp.md) |
-| [vktShaderRenderInvarianceTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderInvarianceTests.cpp) | invariance, precise | [vktShaderRenderInvarianceTests.cpp.md](../testfiles/glsl/vktShaderRenderInvarianceTests.cpp.md) |
-| [vktShaderRenderLimitTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderLimitTests.cpp) | limits | [vktShaderRenderLimitTests.cpp.md](../testfiles/glsl/vktShaderRenderLimitTests.cpp.md) |
-| [vktShaderRenderLoopTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderLoopTests.cpp) | loops | [vktShaderRenderLoopTests.cpp.md](../testfiles/glsl/vktShaderRenderLoopTests.cpp.md) |
-| [vktShaderRenderMatrixTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderMatrixTests.cpp) | matrix | [vktShaderRenderMatrixTests.cpp.md](../testfiles/glsl/vktShaderRenderMatrixTests.cpp.md) |
-| [vktShaderRenderOperatorTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderOperatorTests.cpp) | operator | [vktShaderRenderOperatorTests.cpp.md](../testfiles/glsl/vktShaderRenderOperatorTests.cpp.md) |
-| [vktShaderRenderReturnTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderReturnTests.cpp) | return | [vktShaderRenderReturnTests.cpp.md](../testfiles/glsl/vktShaderRenderReturnTests.cpp.md) |
-| [vktShaderRenderStructTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp) | struct | [vktShaderRenderStructTests.cpp.md](../testfiles/glsl/vktShaderRenderStructTests.cpp.md) |
-| [vktShaderRenderSwitchTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp) | switch | [vktShaderRenderSwitchTests.cpp.md](../testfiles/glsl/vktShaderRenderSwitchTests.cpp.md) |
-| [vktShaderRenderTextureFunctionTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp) | texture_functions | [vktShaderRenderTextureFunctionTests.cpp.md](../testfiles/glsl/vktShaderRenderTextureFunctionTests.cpp.md) |
-| [vktShaderRenderTextureGatherTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp) | texture_gather | [vktShaderRenderTextureGatherTests.cpp.md](../testfiles/glsl/vktShaderRenderTextureGatherTests.cpp.md) |
-| [vktShaderRenderBuiltinVarTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderBuiltinVarTests.cpp) | builtin_var | [vktShaderRenderBuiltinVarTests.cpp.md](../testfiles/glsl/vktShaderRenderBuiltinVarTests.cpp.md) |
+| [vktShaderRenderDerivateTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderDerivateTests.cpp) | derivate | [vktShaderRenderDerivateTests.md](../testfiles/glsl/vktShaderRenderDerivateTests.md) |
+| [vktShaderRenderDiscardTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderDiscardTests.cpp) | discard, demote | [vktShaderRenderDiscardTests.md](../testfiles/glsl/vktShaderRenderDiscardTests.md) |
+| [vktShaderRenderIndexingTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp) | indexing | [vktShaderRenderIndexingTests.md](../testfiles/glsl/vktShaderRenderIndexingTests.md) |
+| [vktShaderRenderInvarianceTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderInvarianceTests.cpp) | invariance, precise | [vktShaderRenderInvarianceTests.md](../testfiles/glsl/vktShaderRenderInvarianceTests.md) |
+| [vktShaderRenderLimitTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderLimitTests.cpp) | limits | [vktShaderRenderLimitTests.md](../testfiles/glsl/vktShaderRenderLimitTests.md) |
+| [vktShaderRenderLoopTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderLoopTests.cpp) | loops | [vktShaderRenderLoopTests.md](../testfiles/glsl/vktShaderRenderLoopTests.md) |
+| [vktShaderRenderMatrixTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderMatrixTests.cpp) | matrix | [vktShaderRenderMatrixTests.md](../testfiles/glsl/vktShaderRenderMatrixTests.md) |
+| [vktShaderRenderOperatorTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderOperatorTests.cpp) | operator | [vktShaderRenderOperatorTests.md](../testfiles/glsl/vktShaderRenderOperatorTests.md) |
+| [vktShaderRenderReturnTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderReturnTests.cpp) | return | [vktShaderRenderReturnTests.md](../testfiles/glsl/vktShaderRenderReturnTests.md) |
+| [vktShaderRenderStructTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp) | struct | [vktShaderRenderStructTests.md](../testfiles/glsl/vktShaderRenderStructTests.md) |
+| [vktShaderRenderSwitchTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp) | switch | [vktShaderRenderSwitchTests.md](../testfiles/glsl/vktShaderRenderSwitchTests.md) |
+| [vktShaderRenderTextureFunctionTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp) | texture_functions | [vktShaderRenderTextureFunctionTests.md](../testfiles/glsl/vktShaderRenderTextureFunctionTests.md) |
+| [vktShaderRenderTextureGatherTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp) | texture_gather | [vktShaderRenderTextureGatherTests.md](../testfiles/glsl/vktShaderRenderTextureGatherTests.md) |
+| [vktShaderRenderBuiltinVarTests.cpp](../../modules/vulkan/shaderrender/vktShaderRenderBuiltinVarTests.cpp) | builtin_var | [vktShaderRenderBuiltinVarTests.md](../testfiles/glsl/vktShaderRenderBuiltinVarTests.md) |
 
 ### ShaderExecutor Files
 
 | File | Group | Level-3 Doc |
 |------|-------|-------------|
-| [vktShaderBuiltinTests.cpp](../../modules/vulkan/shaderexecutor/vktShaderBuiltinTests.cpp) | builtin | [vktShaderBuiltinTests.cpp.md](../testfiles/glsl/vktShaderBuiltinTests.cpp.md) |
-| [vktOpaqueTypeIndexingTests.cpp](../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp) | opaque_type_indexing | [vktOpaqueTypeIndexingTests.cpp.md](../testfiles/glsl/vktOpaqueTypeIndexingTests.cpp.md) |
-| [vktAtomicOperationTests.cpp](../../modules/vulkan/shaderexecutor/vktAtomicOperationTests.cpp) | atomic_operations | [vktAtomicOperationTests.cpp.md](../testfiles/glsl/vktAtomicOperationTests.cpp.md) |
-| [vktShaderClockTests.cpp](../../modules/vulkan/shaderexecutor/vktShaderClockTests.cpp) | shader_clock | [vktShaderClockTests.cpp.md](../testfiles/glsl/vktShaderClockTests.cpp.md) |
-| [vktShaderHelperInvocationsTests.cpp](../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp) | helper_invocations | [vktShaderHelperInvocationsTests.cpp.md](../testfiles/glsl/vktShaderHelperInvocationsTests.cpp.md) |
-| [vktShaderBFloat16Tests.cpp](../../modules/vulkan/shaderexecutor/vktShaderBFloat16Tests.cpp) | bfloat16 | [vktShaderBFloat16Tests.cpp.md](../testfiles/glsl/vktShaderBFloat16Tests.cpp.md) |
-| [vktShaderExpectAssumeTests.cpp](../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp) | shader_expect_assume | [vktShaderExpectAssumeTests.cpp.md](../testfiles/glsl/vktShaderExpectAssumeTests.cpp.md) |
+| [vktShaderBuiltinTests.cpp](../../modules/vulkan/shaderexecutor/vktShaderBuiltinTests.cpp) | builtin | [vktShaderBuiltinTests.md](../testfiles/glsl/vktShaderBuiltinTests.md) |
+| [vktOpaqueTypeIndexingTests.cpp](../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp) | opaque_type_indexing | [vktOpaqueTypeIndexingTests.md](../testfiles/glsl/vktOpaqueTypeIndexingTests.md) |
+| [vktAtomicOperationTests.cpp](../../modules/vulkan/shaderexecutor/vktAtomicOperationTests.cpp) | atomic_operations | [vktAtomicOperationTests.md](../testfiles/glsl/vktAtomicOperationTests.md) |
+| [vktShaderClockTests.cpp](../../modules/vulkan/shaderexecutor/vktShaderClockTests.cpp) | shader_clock | [vktShaderClockTests.md](../testfiles/glsl/vktShaderClockTests.md) |
+| [vktShaderHelperInvocationsTests.cpp](../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp) | helper_invocations | [vktShaderHelperInvocationsTests.md](../testfiles/glsl/vktShaderHelperInvocationsTests.md) |
+| [vktShaderBFloat16Tests.cpp](../../modules/vulkan/shaderexecutor/vktShaderBFloat16Tests.cpp) | bfloat16 | [vktShaderBFloat16Tests.md](../testfiles/glsl/vktShaderBFloat16Tests.md) |
+| [vktShaderExpectAssumeTests.cpp](../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp) | shader_expect_assume | [vktShaderExpectAssumeTests.md](../testfiles/glsl/vktShaderExpectAssumeTests.md) |
 
 ### Amber Files
 
 | File | Group(s) | Level-3 Doc |
 |------|----------|-------------|
-| [vktAmberGlslTests.cpp](../../modules/vulkan/amber/vktAmberGlslTests.cpp) | combined_operations, crash_test, logical_copy | [vktAmberGlslTests.cpp.md](../testfiles/glsl/vktAmberGlslTests.cpp.md) |
+| [vktAmberGlslTests.cpp](../../modules/vulkan/amber/vktAmberGlslTests.cpp) | combined_operations, crash_test, logical_copy | [vktAmberGlslTests.md](../testfiles/glsl/vktAmberGlslTests.md) |
 
 ## Cross-File Recurring Test Families
 
@@ -200,26 +200,26 @@ The `vktAmberGlslTests.cpp` file creates Amber test cases from `.amber` script f
 
 ## Links to Level-3 Documentation
 
-- [vktShaderLibrary.cpp.md](../testfiles/glsl/vktShaderLibrary.cpp.md) — ShaderLibrary infrastructure (ES310 + 440 groups)
-- [vktShaderRenderDerivateTests.cpp.md](../testfiles/glsl/vktShaderRenderDerivateTests.cpp.md) — derivate
-- [vktShaderRenderDiscardTests.cpp.md](../testfiles/glsl/vktShaderRenderDiscardTests.cpp.md) — discard, demote
-- [vktShaderRenderIndexingTests.cpp.md](../testfiles/glsl/vktShaderRenderIndexingTests.cpp.md) — indexing
-- [vktShaderRenderInvarianceTests.cpp.md](../testfiles/glsl/vktShaderRenderInvarianceTests.cpp.md) — invariance, precise
-- [vktShaderRenderLimitTests.cpp.md](../testfiles/glsl/vktShaderRenderLimitTests.cpp.md) — limits
-- [vktShaderRenderLoopTests.cpp.md](../testfiles/glsl/vktShaderRenderLoopTests.cpp.md) — loops
-- [vktShaderRenderMatrixTests.cpp.md](../testfiles/glsl/vktShaderRenderMatrixTests.cpp.md) — matrix
-- [vktShaderRenderOperatorTests.cpp.md](../testfiles/glsl/vktShaderRenderOperatorTests.cpp.md) — operator
-- [vktShaderRenderReturnTests.cpp.md](../testfiles/glsl/vktShaderRenderReturnTests.cpp.md) — return
-- [vktShaderRenderStructTests.cpp.md](../testfiles/glsl/vktShaderRenderStructTests.cpp.md) — struct
-- [vktShaderRenderSwitchTests.cpp.md](../testfiles/glsl/vktShaderRenderSwitchTests.cpp.md) — switch
-- [vktShaderRenderTextureFunctionTests.cpp.md](../testfiles/glsl/vktShaderRenderTextureFunctionTests.cpp.md) — texture_functions
-- [vktShaderRenderTextureGatherTests.cpp.md](../testfiles/glsl/vktShaderRenderTextureGatherTests.cpp.md) — texture_gather
-- [vktShaderRenderBuiltinVarTests.cpp.md](../testfiles/glsl/vktShaderRenderBuiltinVarTests.cpp.md) — builtin_var
-- [vktShaderBuiltinTests.cpp.md](../testfiles/glsl/vktShaderBuiltinTests.cpp.md) — builtin
-- [vktOpaqueTypeIndexingTests.cpp.md](../testfiles/glsl/vktOpaqueTypeIndexingTests.cpp.md) — opaque_type_indexing
-- [vktAtomicOperationTests.cpp.md](../testfiles/glsl/vktAtomicOperationTests.cpp.md) — atomic_operations
-- [vktShaderClockTests.cpp.md](../testfiles/glsl/vktShaderClockTests.cpp.md) — shader_clock
-- [vktShaderHelperInvocationsTests.cpp.md](../testfiles/glsl/vktShaderHelperInvocationsTests.cpp.md) — helper_invocations
-- [vktShaderBFloat16Tests.cpp.md](../testfiles/glsl/vktShaderBFloat16Tests.cpp.md) — bfloat16
-- [vktShaderExpectAssumeTests.cpp.md](../testfiles/glsl/vktShaderExpectAssumeTests.cpp.md) — shader_expect_assume
-- [vktAmberGlslTests.cpp.md](../testfiles/glsl/vktAmberGlslTests.cpp.md) — combined_operations, crash_test, logical_copy
+- [vktShaderLibrary.md](../testfiles/glsl/vktShaderLibrary.md) — ShaderLibrary infrastructure (ES310 + 440 groups)
+- [vktShaderRenderDerivateTests.md](../testfiles/glsl/vktShaderRenderDerivateTests.md) — derivate
+- [vktShaderRenderDiscardTests.md](../testfiles/glsl/vktShaderRenderDiscardTests.md) — discard, demote
+- [vktShaderRenderIndexingTests.md](../testfiles/glsl/vktShaderRenderIndexingTests.md) — indexing
+- [vktShaderRenderInvarianceTests.md](../testfiles/glsl/vktShaderRenderInvarianceTests.md) — invariance, precise
+- [vktShaderRenderLimitTests.md](../testfiles/glsl/vktShaderRenderLimitTests.md) — limits
+- [vktShaderRenderLoopTests.md](../testfiles/glsl/vktShaderRenderLoopTests.md) — loops
+- [vktShaderRenderMatrixTests.md](../testfiles/glsl/vktShaderRenderMatrixTests.md) — matrix
+- [vktShaderRenderOperatorTests.md](../testfiles/glsl/vktShaderRenderOperatorTests.md) — operator
+- [vktShaderRenderReturnTests.md](../testfiles/glsl/vktShaderRenderReturnTests.md) — return
+- [vktShaderRenderStructTests.md](../testfiles/glsl/vktShaderRenderStructTests.md) — struct
+- [vktShaderRenderSwitchTests.md](../testfiles/glsl/vktShaderRenderSwitchTests.md) — switch
+- [vktShaderRenderTextureFunctionTests.md](../testfiles/glsl/vktShaderRenderTextureFunctionTests.md) — texture_functions
+- [vktShaderRenderTextureGatherTests.md](../testfiles/glsl/vktShaderRenderTextureGatherTests.md) — texture_gather
+- [vktShaderRenderBuiltinVarTests.md](../testfiles/glsl/vktShaderRenderBuiltinVarTests.md) — builtin_var
+- [vktShaderBuiltinTests.md](../testfiles/glsl/vktShaderBuiltinTests.md) — builtin
+- [vktOpaqueTypeIndexingTests.md](../testfiles/glsl/vktOpaqueTypeIndexingTests.md) — opaque_type_indexing
+- [vktAtomicOperationTests.md](../testfiles/glsl/vktAtomicOperationTests.md) — atomic_operations
+- [vktShaderClockTests.md](../testfiles/glsl/vktShaderClockTests.md) — shader_clock
+- [vktShaderHelperInvocationsTests.md](../testfiles/glsl/vktShaderHelperInvocationsTests.md) — helper_invocations
+- [vktShaderBFloat16Tests.md](../testfiles/glsl/vktShaderBFloat16Tests.md) — bfloat16
+- [vktShaderExpectAssumeTests.md](../testfiles/glsl/vktShaderExpectAssumeTests.md) — shader_expect_assume
+- [vktAmberGlslTests.md](../testfiles/glsl/vktAmberGlslTests.md) — combined_operations, crash_test, logical_copy
