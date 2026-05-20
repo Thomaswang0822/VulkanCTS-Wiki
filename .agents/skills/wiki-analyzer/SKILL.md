@@ -1,6 +1,6 @@
 ---
-name: "wiki-analyzer"
-description: "Analyzes Vulkan CTS tests and generates evidence-backed hierarchical wiki documentation. Invoke when user wants to document test categories, create or regenerate category documentation, understand test structure from code, or get evidence-backed summaries of test families, parameters, support gates, or verification methods."
+name: wiki-analyzer
+description: Analyzes Vulkan CTS tests and generates evidence-backed hierarchical wiki documentation. Invoke when user wants to document test categories, create or regenerate category documentation, understand test structure from code, or get evidence-backed summaries of test families, parameters, support gates, or verification methods.
 ---
 
 # Vulkan CTS Wiki Analyzer
@@ -460,7 +460,7 @@ Use only verified group names in user-facing subgroup trees and navigation text.
 
 ### Step 9: Consistency Review
 
-Before marking work complete, verify:
+Before marking writing complete, verify:
 - every important claim has a source link
 - registration file and subgroup tree are documented correctly
 - user-facing Level-2 pages use verified subgroup names rather than inferred factory-symbol names
@@ -478,7 +478,21 @@ Before marking work complete, verify:
 - repeated statements are deduplicated
 - wording matches inspected evidence strength
 
-### Step 10: Update Progress Tracking
+### Step 10: Semantic Audit with `wiki-auditor`
 
-If the project is using [`external/vulkancts/wiki/README.md`](../../../external/vulkancts/wiki/README.md) as a tracker, update it after the consistency review.
+After completing the category writing pass and the consistency review, invoke the `wiki-auditor` skill before marking the category complete or updating the README tracker to `✅ Done`.
+
+This audit is mandatory for a completed category batch because validators catch syntax, link, and registration-path issues but cannot prove that the prose is semantically true. The `wiki-auditor` pass must:
+- enumerate the full generated category scope, including the Level-2 page and every Level-3 page under `external/vulkancts/wiki/testfiles/{category}/`
+- put each generated wiki file beside its corresponding source files and inspect the cited source context
+- search for false claims, overclaims, stale drafting notes, missing conditionals, hierarchy-contract mistakes, unsupported parameter claims, support-gate mismatches, and verification-method mismatches
+- fix confirmed semantic errors before completion
+- rerun category-scoped link validation and registration-path validation after semantic fixes
+- report semantic findings separately from validator results, using the pattern "claimed X, source showed Y, fixed to Z" when corrections are made
+
+Do not treat successful validator runs as a substitute for this source-vs-wiki audit. If orchestration is available and workers generated the wiki pages, perform or dispatch a skeptical `wiki-auditor` review after worker output is integrated and before final progress tracking is updated.
+
+### Step 11: Update Progress Tracking
+
+If the project is using [`external/vulkancts/wiki/README.md`](../../../external/vulkancts/wiki/README.md) as a tracker, update it after the consistency review and the required `wiki-auditor` semantic audit.
 When a category reaches `✅ Done`, update its `Level-3 Files` cell with the actual number of `.md` files under `testfiles/{category}/`, but do not add or maintain aggregate README statistics based on total Level-3 file counts.
