@@ -73,7 +73,7 @@ For this tracker, the `Level-3 Files` column counts the actual number of Level-3
 | 28 | spirv_assembly | [spirv_assembly.md](categories/spirv_assembly.md) | 40 | ✅ Done |
 | 29 | subgroups | [subgroups.md](categories/subgroups.md) | 20 | ✅ Done |
 | 30 | compute | [compute.md](categories/compute.md) | 8 | ✅ Done |
-| 31 | memory_model | [memory_model.md](categories/memory_model.md) |  | ⬜ Not Started |
+| 31 | memory_model | [memory_model.md](categories/memory_model.md) | 3 | ✅ Done |
 | 32 | descriptor_indexing | [descriptor_indexing.md](categories/descriptor_indexing.md) |  | ⬜ Not Started |
 | 33 | robustness | [robustness.md](categories/robustness.md) |  | ⬜ Not Started |
 | 34 | sparse_resources | [sparse_resources.md](categories/sparse_resources.md) |  | ⬜ Not Started |
@@ -102,5 +102,5 @@ For this tracker, the `Level-3 Files` column counts the actual number of Level-3
 ## Statistics
 
 - **Total Categories**: 53
-- **Completed Categories**: 26/53
+- **Completed Categories**: 27/53
 
