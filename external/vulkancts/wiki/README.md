@@ -89,7 +89,7 @@ For this tracker, the `Level-3 Files` column counts the actual number of Level-3
 | 44 | fragment_shading_rate | [fragment_shading_rate.md](categories/fragment_shading_rate.md) | 5 | ✅ Done |
 | 45 | fragment_shading_barycentric | [fragment_shading_barycentric.md](categories/fragment_shading_barycentric.md) | 1 | ✅ Done |
 | 46 | mesh_shader | [mesh_shader.md](categories/mesh_shader.md) | 17 | ✅ Done |
-| 47 | ray_query | [ray_query.md](categories/ray_query.md) |  | ⬜ Not Started |
+| 47 | ray_query | [ray_query.md](categories/ray_query.md) | 15 | ✅ Done |
 | 48 | ray_tracing_pipeline | [ray_tracing_pipeline.md](categories/ray_tracing_pipeline.md) |  | ⬜ Not Started |
 | 49 | reconvergence | [reconvergence.md](categories/reconvergence.md) |  | ⬜ Not Started |
 | 50 | cooperative_vector | [cooperative_vector.md](categories/cooperative_vector.md) |  | ⬜ Not Started |
