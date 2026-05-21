@@ -85,9 +85,9 @@ For this tracker, the `Level-3 Files` column counts the actual number of Level-3
 | 40 | video | [video.md](categories/video.md) | 6 | ✅ Done |
 | 41 | depth | [depth.md](categories/depth.md) | 1 | ✅ Done |
 | 42 | graphicsfuzz | [graphicsfuzz.md](categories/graphicsfuzz.md) | 1 | ✅ Done |
-| 43 | fragment_shader_interlock | [fragment_shader_interlock.md](categories/fragment_shader_interlock.md) |  | ⬜ Not Started |
-| 44 | fragment_shading_rate | [fragment_shading_rate.md](categories/fragment_shading_rate.md) |  | ⬜ Not Started |
-| 45 | fragment_shading_barycentric | [fragment_shading_barycentric.md](categories/fragment_shading_barycentric.md) |  | ⬜ Not Started |
+| 43 | fragment_shader_interlock | [fragment_shader_interlock.md](categories/fragment_shader_interlock.md) | 2 | ✅ Done |
+| 44 | fragment_shading_rate | [fragment_shading_rate.md](categories/fragment_shading_rate.md) | 5 | ✅ Done |
+| 45 | fragment_shading_barycentric | [fragment_shading_barycentric.md](categories/fragment_shading_barycentric.md) | 1 | ✅ Done |
 | 46 | mesh_shader | [mesh_shader.md](categories/mesh_shader.md) |  | ⬜ Not Started |
 | 47 | ray_query | [ray_query.md](categories/ray_query.md) |  | ⬜ Not Started |
 | 48 | ray_tracing_pipeline | [ray_tracing_pipeline.md](categories/ray_tracing_pipeline.md) |  | ⬜ Not Started |
@@ -102,5 +102,5 @@ For this tracker, the `Level-3 Files` column counts the actual number of Level-3
 ## Statistics
 
 - **Total Categories**: 53
-- **Completed Categories**: 41/53
+- **Completed Categories**: 44/53
 
