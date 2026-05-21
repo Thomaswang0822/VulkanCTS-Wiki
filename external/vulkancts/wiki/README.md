@@ -78,8 +78,8 @@ For this tracker, the `Level-3 Files` column counts the actual number of Level-3
 | 33 | robustness | [robustness.md](categories/robustness.md) | 9 | ✅ Done |
 | 34 | sparse_resources | [sparse_resources.md](categories/sparse_resources.md) | 14 | ✅ Done |
 | 35 | protected_memory | [protected_memory.md](categories/protected_memory.md) | 15 | ✅ Done |
-| 36 | conditional_rendering | [conditional_rendering.md](categories/conditional_rendering.md) |  | ⬜ Not Started |
-| 37 | device_group | [device_group.md](categories/device_group.md) |  | ⬜ Not Started |
+| 36 | conditional_rendering | [conditional_rendering.md](categories/conditional_rendering.md) | 7 | ✅ Done |
+| 37 | device_group | [device_group.md](categories/device_group.md) | 1 | ✅ Done |
 | 38 | wsi | [wsi.md](categories/wsi.md) | 14 | ✅ Done |
 | 39 | drm_format_modifiers | [drm_format_modifiers.md](categories/drm_format_modifiers.md) |  | ⬜ Not Started |
 | 40 | video | [video.md](categories/video.md) |  | ⬜ Not Started |
@@ -102,5 +102,5 @@ For this tracker, the `Level-3 Files` column counts the actual number of Level-3
 ## Statistics
 
 - **Total Categories**: 53
-- **Completed Categories**: 36/53
+- **Completed Categories**: 38/53
 
