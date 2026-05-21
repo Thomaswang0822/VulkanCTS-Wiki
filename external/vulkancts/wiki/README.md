@@ -84,7 +84,7 @@ For this tracker, the `Level-3 Files` column counts the actual number of Level-3
 | 39 | drm_format_modifiers | [drm_format_modifiers.md](categories/drm_format_modifiers.md) | 1 | ✅ Done |
 | 40 | video | [video.md](categories/video.md) | 6 | ✅ Done |
 | 41 | depth | [depth.md](categories/depth.md) | 1 | ✅ Done |
-| 42 | graphicsfuzz | [graphicsfuzz.md](categories/graphicsfuzz.md) |  | ⬜ Not Started |
+| 42 | graphicsfuzz | [graphicsfuzz.md](categories/graphicsfuzz.md) | 1 | ✅ Done |
 | 43 | fragment_shader_interlock | [fragment_shader_interlock.md](categories/fragment_shader_interlock.md) |  | ⬜ Not Started |
 | 44 | fragment_shading_rate | [fragment_shading_rate.md](categories/fragment_shading_rate.md) |  | ⬜ Not Started |
 | 45 | fragment_shading_barycentric | [fragment_shading_barycentric.md](categories/fragment_shading_barycentric.md) |  | ⬜ Not Started |
@@ -102,5 +102,5 @@ For this tracker, the `Level-3 Files` column counts the actual number of Level-3
 ## Statistics
 
 - **Total Categories**: 53
-- **Completed Categories**: 40/53
+- **Completed Categories**: 41/53
 
