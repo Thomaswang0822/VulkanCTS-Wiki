@@ -93,7 +93,7 @@ For this tracker, the `Level-3 Files` column counts the actual number of Level-3
 | 48 | ray_tracing_pipeline | [ray_tracing_pipeline.md](categories/ray_tracing_pipeline.md) | 31 | ✅ Done |
 | 49 | reconvergence | [reconvergence.md](categories/reconvergence.md) | 2 | ✅ Done |
 | 50 | cooperative_vector | [cooperative_vector.md](categories/cooperative_vector.md) | 3 | ✅ Done |
-| 51 | tensor | [tensor.md](categories/tensor.md) |  | ⬜ Not Started |
+| 51 | tensor | [tensor.md](categories/tensor.md) | 7 | ✅ Done |
 | 52 | data_graph | [data_graph.md](categories/data_graph.md) |  | ⬜ Not Started |
 | 53 | dgc | [dgc.md](categories/dgc.md) |  | ⬜ Not Started |
 
@@ -102,5 +102,5 @@ For this tracker, the `Level-3 Files` column counts the actual number of Level-3
 ## Statistics
 
 - **Total Categories**: 53
-- **Completed Categories**: 45/53
+- **Completed Categories**: 46/53
 
