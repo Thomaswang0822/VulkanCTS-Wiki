@@ -21,27 +21,31 @@ This is a registration and implementation file that:
 ```text
 image.subresource_layout
 ├── 2d
-�?  ├── 1_level
-�?  ├── 2_levels
-�?  ├── 4_levels
-�?  └── all_levels
 ├── 2d_array
-�?  ├── 1_level
-�?  ├── 2_levels
-�?  ├── 4_levels
-�?  └── all_levels
 └── 3d
-    ├── 1_level
-    ├── 2_levels
-    ├── 4_levels
-    └── all_levels
+
+image.subresource_layout.2d
+├── 1_level
+├── 2_levels
+├── 4_levels
+└── all_levels
+image.subresource_layout.2d_array
+├── 1_level
+├── 2_levels
+├── 4_levels
+└── all_levels
+image.subresource_layout.3d
+├── 1_level
+├── 2_levels
+├── 4_levels
+└── all_levels
 ```
 
 Additional `invariance` subgroup (non-VulkanSC only) contains tests for `VK_KHR_maintenance5` APIs.
 
 ## Test Families
 
-### basic_subresource_layout �?Subresource Layout Query Tests
+### basic_subresource_layout — Subresource Layout Query Tests
 
 Tests the accuracy of `vkGetImageSubresourceLayout` by:
 1. Creating a linear-tiling image with multiple mipmap levels
@@ -58,7 +62,7 @@ Tests the accuracy of `vkGetImageSubresourceLayout` by:
 - Validates row pitch, array pitch, and depth pitch are sufficient
 - Compares image data byte-by-byte with source buffer data
 
-### invariance �?Layout Query Invariance Tests (non-VulkanSC only)
+### invariance — Layout Query Invariance Tests (non-VulkanSC only)
 
 Verifies that different subresource layout query methods return identical results:
 1. `vkGetImageSubresourceLayout` (standard API)

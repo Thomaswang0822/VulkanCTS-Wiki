@@ -2,9 +2,8 @@
 
 ## Overview
 
-[`vktMultiViewRenderTests.cpp`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L1) is the only implementation file in the inspected `multiview` category that directly registers test groups and concrete test cases. It generates the legacy `multiview` subtree plus the non-legacy `renderpass2` and `dynamic_rendering` variants, and it also implements the support checks, shader generation, command-buffer setup, reference-image generation, query verification, and depth/stencil verification used by those tests at [`multiViewRenderCreateTests()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4999-L5270), [`MultiViewRenderTestsCase::checkSupport()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4577-L4689), and [`MultiViewRenderTestsCase::initPrograms()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4691-L4929).
+[`vktMultiViewRenderTests.cpp`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L1) is the only implementation file in the inspected `multiview` category that directly registers test groups and concrete test cases. It generates the legacy `multiview` subtree plus the non-legacy `renderpass2` variant and, in non-VulkanSC builds, the `dynamic_rendering` variant. It also implements the support checks, shader generation, command-buffer setup, reference-image generation, query verification, and depth/stencil verification used by those tests at [`multiViewRenderCreateTests()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4999-L5270), [`MultiViewRenderTestsCase::checkSupport()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4577-L4689), and [`MultiViewRenderTestsCase::initPrograms()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4691-L4929).
 
-The inspected Vulkan API test plan contributes only generic framework context for `TestCase` and `TestInstance` separation at [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L20-L54). Multiview-specific structure and semantics are therefore derived from the inspected source.
 
 ## Role
 
@@ -51,7 +50,7 @@ multiview.renderpass2
 └── index
 ```
 
-[`multiViewRenderCreateTests()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4999-L5270) builds the same direct-child layout for both non-legacy wrapper roots, `renderpass2` and `dynamic_rendering`, except that `dynamic_rendering` omits `input_attachments` because the file explicitly skips that family when `subpassLoad` would be required at [`vktMultiViewRenderTests.cpp`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5128-L5130). This page uses `multiview.renderpass2` as the representative Level-3 root because the file itself creates that registered subgroup explicitly at [`vktMultiViewRenderTests.cpp`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5088-L5093).
+[`multiViewRenderCreateTests()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4999-L5270) builds the same direct-child layout for the non-legacy wrapper roots, `renderpass2` and the non-VulkanSC-only `dynamic_rendering`, except that `dynamic_rendering` omits `input_attachments` because the file explicitly skips that family when `subpassLoad` would be required at [`vktMultiViewRenderTests.cpp`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5128-L5130). This page uses `multiview.renderpass2` as the representative Level-3 root because the file itself creates that registered subgroup explicitly at [`vktMultiViewRenderTests.cpp`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5088-L5093).
 
 ## Test Families
 
@@ -164,7 +163,7 @@ The direct child `index` is created explicitly by name at [`vktMultiViewRenderTe
 | Dimension | Observed values / evidence |
 |---|---|
 | Test type | `TEST_TYPE_VIEW_MASK` through `TEST_TYPE_NESTED_CMD_BUFFER` in [`TestType`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L70-L102) |
-| Rendering type | `RENDERING_TYPE_RENDERPASS_LEGACY`, `RENDERING_TYPE_RENDERPASS2`, and `RENDERING_TYPE_DYNAMIC_RENDERING` in [`RenderingType`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L110-L115) |
+| Rendering type | `RENDERING_TYPE_RENDERPASS_LEGACY` and `RENDERING_TYPE_RENDERPASS2`, plus `RENDERING_TYPE_DYNAMIC_RENDERING` only when the non-VulkanSC rendering-type loop includes the third mode, as defined in [`RenderingType`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L110-L115) and selected at [`vktMultiViewRenderTests.cpp`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5076-L5100) |
 | Query mode | `QUERY_TYPE_NONE`, `QUERY_TYPE_GET_QUERY_POOL_RESULTS`, and `QUERY_TYPE_CMD_COPY_QUERY_POOL_RESULTS` in [`QueryType`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L117-L122) and [`queryTypeCases[]`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5159-L5167) |
 | Base extents | Seven `VkExtent3D` values in [`extent3D[]`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5032-L5036) |
 | Common mask patterns | `15`, `8`, `1_2_4_8`, `15_15_15_15`, `8_1_1_8`, `5_10_5_10`, and the one-bit sweep generated from `1` to `(1 << 6) - 1` in [`vktMultiViewRenderTests.cpp`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5037-L5067) |
@@ -179,7 +178,7 @@ The direct child `index` is created explicitly by name at [`vktMultiViewRenderTe
 
 - All cases require `VK_KHR_multiview` at [`checkSupport()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4592-L4593).
 - Geometry-dependent families require core geometry-shader support and `multiviewGeometryShader` at [`vktMultiViewRenderTests.cpp`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4579-L4584).
-- `renderpass2` requires `VK_KHR_create_renderpass2`, and `dynamic_rendering` requires `VK_KHR_dynamic_rendering`, at [`vktMultiViewRenderTests.cpp`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4586-L4590).
+- `renderpass2` requires `VK_KHR_create_renderpass2`; `dynamic_rendering` is registered only in non-VulkanSC builds and requires `VK_KHR_dynamic_rendering`, at [`vktMultiViewRenderTests.cpp`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4586-L4590) and [`vktMultiViewRenderTests.cpp`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5076-L5100).
 - `tessellation_shader` requires `multiviewTessellationShader` at [`vktMultiViewRenderTests.cpp`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4600-L4604).
 - The file queries `VkPhysicalDeviceMultiviewProperties::maxMultiviewViewCount` and requires at least six views on Vulkan or enough views for the test mask count on Vulkan SC at [`vktMultiViewRenderTests.cpp`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4609-L4621).
 - `point_size` requires `largePoints` and exact support for point sizes 2 and 4 within the reported range/granularity at [`vktMultiViewRenderTests.cpp`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4623-L4655).
@@ -207,5 +206,5 @@ The direct child `index` is created explicitly by name at [`vktMultiViewRenderTe
 
 ## Notes / Uncertainties
 
-- This page uses `multiview.renderpass2` as the canonical Level-3 root because the file explicitly constructs that registered subgroup in its own factory at [`vktMultiViewRenderTests.cpp`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5088-L5093). The same implementation also registers a sibling `multiview.dynamic_rendering` tree with nearly the same direct children, except for the omitted `input_attachments` family.
+- This page uses `multiview.renderpass2` as the canonical Level-3 root because the file explicitly constructs that registered subgroup in its own factory at [`vktMultiViewRenderTests.cpp`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5088-L5093). The same implementation also registers a sibling `multiview.dynamic_rendering` tree only in non-VulkanSC builds, with nearly the same direct children except for the omitted `input_attachments` family.
 - The canonical one-level hierarchy tree cannot simultaneously encode both `renderpass2` and `dynamic_rendering`, nor can it expand nested groups such as `index -> vertex_shader` or `queries -> get_query_pool_results`, so those relationships are described in prose instead of the parseable tree.

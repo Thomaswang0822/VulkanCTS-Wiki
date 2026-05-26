@@ -73,6 +73,8 @@ Note: The representative root uses `renderpass1`; the same topic group also appe
 
 Implementation file
 
+The historical Vulkan API test plan includes resolve behavior among multipass data-flow dimensions ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L302-L308)); current source and mustpass remain authoritative for exact behavior.
+
 ## Test Families
 
 ### a2b10g10r10_uint_pack32 through b8g8r8a8_unorm — Per-format basic resolve tests (single layer)

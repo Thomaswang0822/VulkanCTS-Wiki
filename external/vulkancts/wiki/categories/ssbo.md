@@ -70,7 +70,7 @@ Layout cases compute expected offsets and reference data in [`SSBOLayoutCase::de
 
 ## Relationship to the Test Plan
 
-[`doc/testspecs/VK/apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc) was searched for `SSBO`, `Shader Storage`, `storage buffer`, and `Storage Buffer`; no category-specific SSBO test-plan section was found in that inspected file. The factual claims above therefore rely on source and mustpass evidence under [`external/vulkancts/`](../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L1).
+The historical Vulkan API test plan was not used as evidence for exact `ssbo` registration, parameter matrices, support gates, or verification logic in this page. The inspected source and mustpass files are the authoritative evidence for the current `ssbo` category behavior.
 
 ## Notes / Uncertainties
 

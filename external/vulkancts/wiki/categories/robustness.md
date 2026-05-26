@@ -210,5 +210,3 @@ Evidence for this structure:
   not inspected for this page.
 - The default mustpass file is large; line-linked examples are used as coverage evidence for registered prefixes and
   representative generated families, not as a complete enumeration of every leaf.
-- No separate claim from `doc/testspecs/VK/apitests.adoc` was needed for this category-level synthesis; the inspected
-  source and mustpass evidence provided the registration, parameter, support, and verification details used here.

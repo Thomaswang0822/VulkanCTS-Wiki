@@ -51,4 +51,3 @@ The runtime path allocates a storage buffer for `ac_numIrrelevant`, creates and 
 ## Notes / Uncertainties
 
 - Mustpass inspection confirms `dEQP-VK.ssbo.corner_case.long_shader_bitwise_and` in [`vk-default/ssbo.txt`](../../../mustpass/main/vk-default/ssbo.txt#L1) and `dEQP-VKSC.ssbo.corner_case.long_shader_bitwise_and` in [`vksc-default/ssbo.txt`](../../../mustpass/main/vksc-default/ssbo.txt#L1).
-- [`doc/testspecs/VK/apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc) was searched for `SSBO`, `Shader Storage`, `storage buffer`, and `Storage Buffer`; no category-specific SSBO test-plan section was found.

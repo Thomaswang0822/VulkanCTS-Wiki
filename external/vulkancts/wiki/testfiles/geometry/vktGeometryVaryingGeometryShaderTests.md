@@ -84,5 +84,5 @@ Because the shared `iterate()` implementation was not inspected here, this docum
 
 ## Notes / Uncertainties
 
-- The earlier wiki example used different case names; this regenerated documentation follows the actual registered names in [`varyingTests[]`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L279).
+- This page follows the actual registered names in [`varyingTests[]`](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L279).
 - The exact pixel-comparison helper used at runtime is outside the inspected snippet set and is therefore not asserted here beyond the shared render-path dependency.

@@ -2,7 +2,7 @@
 
 ## Overview
 
-[`vktApiDeviceInitializationTests.cpp`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L1) is an implementation-heavy Level-3 file for the `api.device_init` subtree. The file registers a broad set of direct child subgroups covering instance creation, device creation, unsupported extensions and features, queue-creation variants, global-priority paths, and several Vulkan-SC-excluded cases through [`createDeviceInitializationTests()`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2879-L2952).
+[`vktApiDeviceInitializationTests.cpp`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L1) is an implementation-heavy Level-3 file for the `api.device_init` subtree. The file registers a broad set of direct child subgroups covering instance creation, device creation, unsupported extensions and features, queue-creation variants, global-priority paths, and several Vulkan-SC-excluded cases through [`createDeviceInitializationTests()`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2879-L2952). The broad theme is consistent with historical API test-plan goals for creating reported devices under varied application-info, allocation-callback, extension, multi-device, and queue configurations ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L318-L353)).
 
 ## Role of File
 

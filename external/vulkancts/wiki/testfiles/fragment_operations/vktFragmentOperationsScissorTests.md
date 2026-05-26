@@ -80,9 +80,9 @@ This file does not expose a dedicated `checkSupport()` gate in the inspected reg
 
 ## Verification Methods
 
-The file includes [`tcuImageCompare.hpp`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorTests.cpp#L39-L42) and builds a software-style reference path by generating the same primitive sets and scissor state used for rendering. Primitive data comes from [`genVertices()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorTests.cpp#L183-L239), and pipeline scissor state is set from the case definition in [`makeGraphicsPipeline()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorTests.cpp#L153-L175). The exact compare call was not inspected in the captured line ranges, so this page limits itself to the confirmed image-comparison setup visible in the source.
+The file includes [`tcuImageCompare.hpp`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorTests.cpp#L39-L42) and builds a reference path by drawing once with the full scissor, drawing once with the case scissor, then applying the case scissor to the full-scissor image in [`applyScissor()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorTests.cpp#L271-L286) and [`test()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorTests.cpp#L439-L491). Rendered output is compared with [`tcu::floatThresholdCompare()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorTests.cpp#L485-L488).
 
 ## Notes / Uncertainties
 
 - This file is both a user-facing subgroup registration file and an implementation file.
-- The direct evidence inspected here confirms the displayed subgroup names and parameter tables, but not the exact comparison helper invocation line for the single-viewport scissor cases.
+- The direct evidence inspected here confirms the displayed subgroup names, parameter tables, support behavior, and image-comparison verification path for the single-viewport scissor cases.

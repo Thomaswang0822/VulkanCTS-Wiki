@@ -70,4 +70,4 @@ Rendering cases compare reference images or layers [vktMeshShaderSmokeTests.cpp]
 
 ## Scope Notes
 
-The API test plan [apitests.adoc](../../../../doc/testspecs/VK/apitests.adoc) provides general Vulkan CTS context but no inspected mesh-shader-specific family list. Helper-only mesh-shader utility files were not given Level-3 pages because they do not register tests.
+Helper-only mesh-shader utility files were not given Level-3 pages because they do not register tests.

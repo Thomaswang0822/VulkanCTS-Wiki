@@ -46,7 +46,7 @@ api
 ├── frame_boundary                         (not in Vulkan SC)
 ├── maintenance5                           (not in Vulkan SC)
 ├── fragment_shader_output                 (not in Vulkan SC)
-├── maintenance7
+├── maintenance7                           (not in Vulkan SC)
 ├── device_address                         (not in Vulkan SC)
 ├── extension_duplicates
 └── performance_counters_by_region         (not in Vulkan SC)
@@ -118,6 +118,10 @@ Source: [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L86), veri
 | [`vktApiCopiesAndBlittingReinterpretTests.cpp`](../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L1) | `reinterpret` | [`vktApiCopiesAndBlittingReinterpretTests.md`](../testfiles/api/vktApiCopiesAndBlittingReinterpretTests.md) |
 | [`vktApiUseAfterCopyTests.cpp`](../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1) | `core.use_after_copy` | [`vktApiUseAfterCopyTests.md`](../testfiles/api/vktApiUseAfterCopyTests.md) |
 
+## Concise Test-Plan Context
+
+The historical Vulkan API test plan in [`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L134) is useful background for this category because it calls out the same broad API themes that dominate the current `api` wiki inventory: object creation/destruction and multithreaded object management, configurable device initialization, buffer corner cases, command-buffer lifecycle/recording/submission behavior, copy/blit coverage, and low-priority validation-layer planning. Treat it as objective-level context only; current source files and mustpass lists remain the evidence for exact registration, parameters, support gates, and verification behavior.
+
 ## Cross-file Recurring Themes
 
 ### Allocation strategy as a primary parameter dimension
@@ -147,7 +151,7 @@ Many subgroups are conditional on extensions:
 
 ### VKSC divergence
 
-16 of 38 top-level groups are excluded from Vulkan SC builds, guarded by `#ifndef CTS_USES_VULKANSC` in [`vktApiTests.cpp`](../../modules/vulkan/api/vktApiTests.cpp#L93).
+15 of 38 top-level groups are excluded from Vulkan SC builds, guarded by `#ifndef CTS_USES_VULKANSC` in [`vktApiTests.cpp`](../../modules/vulkan/api/vktApiTests.cpp#L93).
 
 ## Cross-file Recurring Verification Methods
 

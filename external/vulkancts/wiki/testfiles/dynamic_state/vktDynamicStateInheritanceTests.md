@@ -78,7 +78,7 @@ Source: [`DynamicStateInheritanceTests::init()`](../../../modules/vulkan/dynamic
 | Test | Requirement | Line |
 |---|---|---|
 | All tests | `VK_NV_inherited_viewport_scissor` | [L1162](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1162) |
-| primary_with_count, secondary_with_count, nested_with_count | `VK_EXT_extended_dynamic_state` | [L1163-L1166](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1163) |
+| primary_with_count, secondary_with_count | `VK_EXT_extended_dynamic_state` | [L1163-L1166](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1163) |
 | nested, nested_with_count | `VK_EXT_nested_command_buffer` + `nestedCommandBuffer` feature + `nestedCommandBufferRendering` feature | [L1167-L1179](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1167) |
 | All tests | Pipeline construction requirements | [L1181-L1182](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1181) |
 

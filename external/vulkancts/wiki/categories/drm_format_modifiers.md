@@ -4,7 +4,6 @@
 
 The `drm_format_modifiers` Vulkan CTS category verifies image creation, metadata queries, external-memory binding, and export/import behavior for images using `VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT`. The public category root is registered by the Vulkan test package as `drm_format_modifiers`, which calls `modifiers::createTests` ([vktTestPackage.cpp](../../modules/vulkan/vktTestPackage.cpp#L1385-L1387)). The implementation lives in `modules/vulkan/modifiers/`, not in a source directory named `drm_format_modifiers` ([vktModifiersTests.hpp](../../modules/vulkan/modifiers/vktModifiersTests.hpp#L29-L35), [CMakeLists.txt](../../modules/vulkan/modifiers/CMakeLists.txt#L8-L20)).
 
-`doc/testspecs/VK/apitests.adoc` was inspected as required, but text search found no DRM-format-modifier-specific section. Category-specific statements below are therefore derived from the inspected source and mustpass evidence.
 
 ## Registration Entry Point
 
@@ -87,5 +86,5 @@ Runtime support is also data-dependent: cases can be unsupported when a format h
 ## Scope and Uncertainties
 
 - The inspected tree has `external/vulkancts/modules/vulkan/modifiers/`; no `external/vulkancts/modules/vulkan/drm_format_modifiers/` directory was found during source discovery. The source-to-category mapping is evidenced by the package registration call and the `modifiers::createTests` declaration.
-- The default mustpass evidence inspected is under `mustpass/main/vk-default/drm-format-modifiers.txt`; no category-specific `apitests.adoc` prose was found.
+- The default mustpass evidence inspected is under `mustpass/main/vk-default/drm-format-modifiers.txt`.
 - This page does not claim exhaustive coverage of every DRM modifier value, because modifier IDs are implementation-reported at runtime rather than fixed in the source.

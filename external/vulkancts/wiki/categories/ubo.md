@@ -72,9 +72,6 @@ The shared support gate is [`UniformBlockCase::checkSupport()`](../../modules/vu
 
 The category computes expected layout entries in [`computeReferenceLayout()`](../../modules/vulkan/ubo/vktUniformBlockCase.cpp#L719-L767), writes deterministic reference values in [`generateValues()`](../../modules/vulkan/ubo/vktUniformBlockCase.cpp#L838-L854), emits GLSL declarations in [`generateDeclaration()`](../../modules/vulkan/ubo/vktUniformBlockCase.cpp#L1313-L1350), and emits read/compare code in [`generateCompareSrc()`](../../modules/vulkan/ubo/vktUniformBlockCase.cpp#L1612-L1733). Runtime validation uploads the reference UBO data, runs either the graphics or compute path, reads back an image, and requires every pixel to be white in [`UniformBlockCaseInstance::iterate()`](../../modules/vulkan/ubo/vktUniformBlockCase.cpp#L2089-L2404).
 
-## Relationship to the Test Plan
-
-[`doc/testspecs/VK/apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc) was searched for `ubo`, `uniform buffer`, and `uniform block`; no category-specific UBO test-plan section was found in that inspected file. The factual claims above therefore rely on source and mustpass evidence under [`external/vulkancts/`](../../modules/vulkan/ubo/vktUniformBlockTests.cpp#L1).
 
 ## Notes / Uncertainties
 

@@ -2,15 +2,15 @@
 
 ## Overview
 
-Tests for OpVectorShuffle with indices including -1 (undefined component), and long vector shuffle operations, using the Amber test framework.
+Tests for [`OpVectorShuffle`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/vector_shuffle.amber#L68-L70) with an undefined component index (`4294967295`) and long-vector shuffle operations using the Amber test framework.
 
 ## Role
 
-Implementation file
+Implementation file for the compute `vector_shuffle` group registered by [`createVectorShuffleGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVectorShuffleTests.cpp#L68).
 
 ## Source
 
-- [vktSpvAsmVectorShuffleTests.cpp](https://github.com/KhronosGroup/VK-GL-CTS/blob/main/external/vulkancts/modules/vulkan/spirv_assembly/vktSpvAsmVectorShuffleTests.cpp)
+- [vktSpvAsmVectorShuffleTests.cpp](../../../modules/vulkan/spirv_assembly/vktSpvAsmVectorShuffleTests.cpp#L68)
 
 ## Registration Hierarchy
 
@@ -24,30 +24,30 @@ spirv_assembly.instruction.compute.vector_shuffle
 
 ### vector_shuffle — Tests OpVectorShuffle with -1 indices
 
-Tests OpVectorShuffle where some component indices are set to -1 (0xFFFFFFFF), which means the resulting component is undefined. Requires `VariablePointerFeatures.variablePointers`. Source: `vktSpvAsmVectorShuffleTests.cpp#L47-L48`.
+Registers the [`vector_shuffle`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVectorShuffleTests.cpp#L46-L48) Amber case. The Amber source uses `OpUndef` and [`OpVectorShuffle ... 4294967295`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/vector_shuffle.amber#L58-L70), with [`VariablePointerFeatures.variablePointers`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/vector_shuffle.amber#L10-L12) required.
 
 ### long_vector_shuffle — Tests OpVectorShuffle with long vectors
 
-Tests OpVectorShuffle operations on long vectors (vectors with more than 4 components). Requires both `VariablePointerFeatures.variablePointers` and `ShaderLongVectorFeaturesEXT.longVector`. Source: `vktSpvAsmVectorShuffleTests.cpp#L49-L50`.
+Registers the [`long_vector_shuffle`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVectorShuffleTests.cpp#L49) Amber case. The Amber source requires [`ShaderLongVectorFeaturesEXT.longVector`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/long_vector_shuffle.amber#L10-L12), declares a six-component vector with [`OpTypeVectorIdEXT`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/long_vector_shuffle.amber#L38-L42), and shuffles it with [`OpVectorShuffle`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/long_vector_shuffle.amber#L66-L68).
 
 ## Parameter Dimensions
 
 | Dimension | Values | Description |
 |-----------|--------|-------------|
-| Vector type | standard (2-4 component), long (>4 component) | Whether standard or long vectors are used |
+| Vector type | standard 4-component vector in [`vector_shuffle.amber`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/vector_shuffle.amber#L38-L40), long 6-component vector in [`long_vector_shuffle.amber`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/long_vector_shuffle.amber#L38-L42) | Whether standard or long vectors are used |
 
 ## Support Requirements
 
-- `VariablePointerFeatures.variablePointers` (both tests)
-- `ShaderLongVectorFeaturesEXT.longVector` (long_vector_shuffle only)
-- Non-VulkanSC only (guarded by `#ifndef CTS_USES_VULKANSC`)
+- [`VariablePointerFeatures.variablePointers`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVectorShuffleTests.cpp#L46-L50) (both tests)
+- [`ShaderLongVectorFeaturesEXT.longVector`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/long_vector_shuffle.amber#L10-L12) (long_vector_shuffle only)
+- Non-VulkanSC only through the compile-time guard in [`createTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVectorShuffleTests.cpp#L35-L63).
 
 ## Verification Methods
 
-Verification is handled by the Amber test framework using `.amber` test files located in the `spirv_assembly/instruction/compute/vector_shuffle/` data subdirectory. Source: `vktSpvAsmVectorShuffleTests.cpp#L35-L63`.
+Verification is handled by Amber cases created via [`createAmberTestCase()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVectorShuffleTests.cpp#L52-L58). The standard case probes an SSBO result of [`6.0`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/vector_shuffle.amber#L76-L84), and the long-vector case probes the shuffled six-float vector [`4.0 2.0 -3.0 9.0 7.0 1.0`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/long_vector_shuffle.amber#L72-L80).
 
 ## Notes
 
-- All tests are Amber-based; the actual SPIR-V assembly and verification logic reside in external `.amber` files
-- Non-VulkanSC only
-- Only two test cases in this file
+- All tests are Amber-based; the actual SPIR-V assembly and verification logic reside in [`vector_shuffle.amber`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/vector_shuffle.amber#L13-L84) and [`long_vector_shuffle.amber`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/long_vector_shuffle.amber#L14-L80).
+- Non-VulkanSC only through the compile-time guard in [`createTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVectorShuffleTests.cpp#L35-L63).
+- Only two test cases are registered in the local [`cases`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVectorShuffleTests.cpp#L46-L50) array.

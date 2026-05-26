@@ -4,7 +4,6 @@
 
 [`vktClippingTests.cpp`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L1) is the root registration and implementation file for the `clipping` category. The category is attached to the Vulkan and Vulkan SC root package as `clipping` in [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1369-L1370) and [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1436-L1437), and its category factory returns a `createTestGroup()` wrapper around [`addClippingTests()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L1758-L1958).
 
-The inspected Vulkan API test plan explains the generic `TestCase` / `TestInstance` split and program-generation support at [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L20-L54), but it does not contain clipping-category-specific test-plan text. This page therefore derives clipping facts from the inspected clipping source and mustpass registration evidence.
 
 ## Role
 
@@ -109,4 +108,3 @@ The vertex shader assigns three `gl_CullDistance[]` values so each vertex has on
 ## Notes / Uncertainties
 
 - No separate implementation files are included by the clipping root file; the only source file in this category that registers tests is [`vktClippingTests.cpp`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L1758-L1958).
-- The inspected [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L1-L13) is a general API test-plan document and does not provide clipping-specific objectives; clipping coverage descriptions here are source-derived.

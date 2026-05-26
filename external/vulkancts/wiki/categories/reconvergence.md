@@ -77,4 +77,4 @@ Generated reconvergence tests execute shader-generated random programs, simulate
 
 ## Scope Notes
 
-The inspected API test plan provides general Vulkan CTS framework context but does not contain a reconvergence-specific test-family breakdown [apitests.adoc](../../../../doc/testspecs/VK/apitests.adoc#L8-L13). The Level-3 scope contains only the two source files that register tests in this category; no helper-only reconvergence source file was found in the category build inventory [CMakeLists.txt](../../modules/vulkan/reconvergence/CMakeLists.txt#L7-L12).
+The Level-3 scope contains only the two source files that register tests in this category; no helper-only reconvergence source file was found in the category build inventory [CMakeLists.txt](../../modules/vulkan/reconvergence/CMakeLists.txt#L7-L12).

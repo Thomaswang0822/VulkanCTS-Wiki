@@ -4,7 +4,7 @@
 
 The [`fragment_operations`](../../modules/vulkan/fragment_ops/vktFragmentOperationsTests.cpp#L50-L53) category covers fragment-stage-adjacent graphics tests registered under the root group name passed into [`createTests()`](../../modules/vulkan/fragment_ops/vktFragmentOperationsTests.cpp#L50-L53). The root registration file is [`vktFragmentOperationsTests.cpp`](../../modules/vulkan/fragment_ops/vktFragmentOperationsTests.cpp#L1), and its include section shows that the category dispatches to four sibling registration files: [`vktFragmentOperationsScissorTests.cpp`](../../modules/vulkan/fragment_ops/vktFragmentOperationsTests.cpp#L24-L30), [`vktFragmentOperationsEarlyFragmentTests.cpp`](../../modules/vulkan/fragment_ops/vktFragmentOperationsTests.cpp#L24-L30), [`vktFragmentOperationsOcclusionQueryTests.cpp`](../../modules/vulkan/fragment_ops/vktFragmentOperationsTests.cpp#L24-L30), and [`vktFragmentOperationsTransientAttachmentTests.cpp`](../../modules/vulkan/fragment_ops/vktFragmentOperationsTests.cpp#L24-L30).
 
-The Vulkan API test plan describes the general CTS split between `TestCase` and `TestInstance` in [`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L20-L54), but the inspected test-plan file does not provide category-specific text for `fragment_operations`. Accordingly, all category facts below are drawn from the inspected source files under [`external/vulkancts/modules/vulkan/fragment_ops/`](../../modules/vulkan/fragment_ops/).
+Category facts below are drawn from the inspected source files under [`external/vulkancts/modules/vulkan/fragment_ops/`](../../modules/vulkan/fragment_ops/).
 
 ## Registration Entry Point
 

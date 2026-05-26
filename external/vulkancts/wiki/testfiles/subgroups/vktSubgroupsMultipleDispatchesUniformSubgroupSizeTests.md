@@ -36,7 +36,7 @@ Requires subgroup-size-control support through [`MultipleDispatchesUniformSubgro
 
 ## Verification Methods
 
-The test uses its local compute shader and `MultipleDispatchesUniformSubgroupSizeInstance` execution/readback path rather than the shared framebuffer/mesh/ray-tracing subgroup helpers; the shader-side recorded values are generated in [`initPrograms()`](../../../modules/vulkan/subgroups/vktSubgroupsMultipleDispatchesUniformSubgroupSizeTests.cpp#L270-L291).
+The local compute execution clears the result buffer, dispatches each power-of-two local-size pipeline, reads back elected subgroup records, and fails if nonzero recorded subgroup sizes differ within a dispatch or if the recorded subgroup count does not match the local size rounded up by the observed subgroup size. The shader-side writes are generated in [`initPrograms()`](../../../modules/vulkan/subgroups/vktSubgroupsMultipleDispatchesUniformSubgroupSizeTests.cpp#L270-L291), and the host validation loop is in [`MultipleDispatchesUniformSubgroupSizeInstance::iterate()`](../../../modules/vulkan/subgroups/vktSubgroupsMultipleDispatchesUniformSubgroupSizeTests.cpp#L196-L243).
 
 ## Test Principles Observed
 
@@ -46,4 +46,4 @@ The test uses its local compute shader and `MultipleDispatchesUniformSubgroupSiz
 ## Notes / Uncertainties
 
 - The hierarchy tree intentionally lists only direct children of `subgroups.multiple_dispatches`. Deeper generated leaf names are summarized rather than expanded.
-- Claims are limited to inspected source under `external/vulkancts/modules/vulkan/subgroups/`; [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L8-L12) gives only general API-test-plan context for this category.
+- Claims are limited to inspected source under `external/vulkancts/modules/vulkan/subgroups/`.

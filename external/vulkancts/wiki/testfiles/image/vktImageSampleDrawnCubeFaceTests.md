@@ -26,7 +26,7 @@ Evidence:
 
 ## Test Families
 
-### write_face_0 �?Sample from cubemap face 0 with surrounding face sampling
+### write_face_0 — Sample from cubemap face 0 with surrounding face sampling
 
 The `write_face_0` test renders to cubemap face 0 and samples the surrounding 4 faces (+Y, -Y, +Z, -Z) to verify cubemap sampling works correctly.
 

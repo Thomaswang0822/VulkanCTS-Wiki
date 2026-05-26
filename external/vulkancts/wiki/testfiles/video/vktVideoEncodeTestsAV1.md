@@ -62,4 +62,3 @@ AV1 cases call `VideoDevice::checkSupport`, require all extensions collected in 
 
 ## Notes / Uncertainties
 
-- `doc/testspecs/VK/apitests.adoc` was inspected as required; text search found no video-specific section, so category-specific claims in this page are based on inspected `external/vulkancts/` source and `mustpass/main/vk-default/video.txt` evidence.

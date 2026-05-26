@@ -13,7 +13,6 @@ Implementation-heavy registration file for the `buffer` sparse-resource branch.
 - Primary source: [`vktSparseResourcesBufferTests.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferTests.cpp#L1)
 - Direct helper sources inspected for nested registered cases: [`vktSparseResourcesBufferSparseBinding.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferSparseBinding.cpp#L1), [`vktSparseResourcesBufferSparseResidency.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferSparseResidency.cpp#L1), [`vktSparseResourcesBufferMemoryAliasing.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferMemoryAliasing.cpp#L1), [`vktSparseResourcesBufferRebind.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferRebind.cpp#L1)
 - Shared sparse base inspected for queue/device creation behavior: [`vktSparseResourcesBase.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBase.cpp#L88-L134)
-- Test-plan context: [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L273-L276), [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L434-L449)
 
 ## Registration Hierarchy
 

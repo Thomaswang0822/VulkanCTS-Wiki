@@ -27,7 +27,7 @@ image.load_store_multisample
 
 ## Test Families
 
-### load_store_multisample �?Multisampled Image Load/Store
+### load_store_multisample — Multisampled Image Load/Store
 
 Tests per-sample load and store operations on multisampled storage images.
 
@@ -143,24 +143,24 @@ The test verifies:
 ```
 load_store_multisample
 ├── 2d
-�?  ├── r32g32b32a32_sfloat
-�?  �?  ├── samples_2
-�?  �?  ├── samples_4
-�?  �?  ├── samples_8
-�?  �?  ├── samples_16
-�?  �?  ├── samples_32
-�?  �?  └── samples_64
-�?  ├── r16g16b16a16_sfloat
-�?  �?  └── ... (same sample variants)
-�?  └── ... (other formats)
+│  ├── r32g32b32a32_sfloat
+│  │  ├── samples_2
+│  │  ├── samples_4
+│  │  ├── samples_8
+│  │  ├── samples_16
+│  │  ├── samples_32
+│  │  └── samples_64
+│  ├── r16g16b16a16_sfloat
+│  │  └── ... (same sample variants)
+│  └── ... (other formats)
 ├── 2d_array
-�?  ├── r32g32b32a32_sfloat
-�?  �?  ├── samples_2
-�?  �?  ├── samples_2_single_layer
-�?  �?  ├── samples_4
-�?  �?  ├── samples_4_single_layer
-�?  �?  └── ... (all sample counts x layer modes)
-�?  └── ... (other formats)
+│  ├── r32g32b32a32_sfloat
+│  │  ├── samples_2
+│  │  ├── samples_2_single_layer
+│  │  ├── samples_4
+│  │  ├── samples_4_single_layer
+│  │  └── ... (all sample counts x layer modes)
+│  └── ... (other formats)
 ```
 
 ## Implementation Notes

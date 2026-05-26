@@ -4,6 +4,8 @@
 
 The [`synchronization2`](../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L186) category tests Vulkan's `VK_KHR_synchronization2` extension (promoted to Vulkan 1.3 core), which introduces simplified synchronization APIs using unified `VkDependencyInfo` structs, `VkSubmitInfo2`, and more granular pipeline stage/access flags.
 
+The historical Vulkan API test plan predates this modern API family, but its synchronization objective still provides useful conceptual background: execution-ordering primitives should work across non-trivial workloads, with fences, semaphores, and events treated as recurring primitive families ([`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L370-L425)). The synchronization2-specific registration and behavior documented here come from current source and mustpass evidence, not from that older plan.
+
 This category uses `SynchronizationType::SYNCHRONIZATION2`, meaning it calls the new APIs such as `vkCmdPipelineBarrier2()`, `vkQueueSubmit2()`, and `vkCmdSetEvent2()`/`vkCmdWaitEvents2()`. A companion category [`synchronization`](synchronization.md) tests the same concepts using the legacy Vulkan 1.0 API.
 
 ## Registration Entry Point
@@ -55,7 +57,7 @@ Most implementation files accept a [`SynchronizationType`](../../modules/vulkan/
 
 ### More granular pipeline stages
 
-The synchronization2 API introduces finer-grained pipeline stages such as `VK_PIPELINE_STAGE_2_COPY_BIT`, `VK_PIPELINE_STAGE_2_BLIT_BIT`, and `VK_PIPELINE_STAGE_2_RESOLVE_BIT` (vs. the generic `VK_PIPELINE_STAGE_2_TRANSFER_BIT` in LEGACY). These are used in the `op` subgroups when `SynchronizationType::SYNCHRONIZATION2` is active.
+The synchronization2 path uses operation-specific pipeline stages in the `op` subgroups: copy, blit, resolve, and clear operations can use `VK_PIPELINE_STAGE_2_COPY_BIT`, `VK_PIPELINE_STAGE_2_BLIT_BIT`, `VK_PIPELINE_STAGE_2_RESOLVE_BIT`, and `VK_PIPELINE_STAGE_2_CLEAR_BIT` instead of the generic transfer stage used by the legacy path ([`vktSynchronizationOperation.cpp`](../../modules/vulkan/synchronization/vktSynchronizationOperation.cpp#L1216-L1301), [`vktSynchronizationOperation.cpp`](../../modules/vulkan/synchronization/vktSynchronizationOperation.cpp#L4132-L4168)).
 
 ### NONE stage and access flags
 
@@ -74,17 +76,17 @@ The `basic.event` subgroup in sync2 includes `*_device_only` variants using `VK_
 | Allocation strategy | suballocated, dedicated |
 | Resource type | buffer, image (multiple formats) |
 | External handle type | opaque_fd, dma_buf, fence_fd, opaque_win32, opaque_win32_kmt, zircon_handle |
-| Pipeline stage granularity | sync2-specific (COPY, BLIT, RESOLVE) vs. generic (TRANSFER) |
+| Pipeline stage granularity | sync2-specific COPY, BLIT, RESOLVE, CLEAR in operation implementations vs. generic TRANSFER in the legacy path |
 
 ## Cross-file Recurring Support / Feature Requirements
 
 | Feature / Extension | Used By |
 |---|---|
-| VK_KHR_synchronization2 | All groups (category prerequisite) |
-| VK_KHR_timeline_semaphore | `timeline_semaphore`, `basic.timeline_semaphore` |
-| VK_KHR_external_memory | `cross_instance` |
-| VK_KHR_external_semaphore | `cross_instance` |
-| VK_KHR_maintenance9 | `op.single_queue` (event), `op.multi_queue` (concurrent) |
+| VK_KHR_synchronization2 | Sync2 cases check this extension, including smoke, basic semaphore/event, timeline semaphore, operation, cross-instance, signal-order, implicit, layout-transition, none-stage, and internally synchronized queue cases |
+| VK_KHR_timeline_semaphore | Timeline-semaphore branches in `timeline_semaphore`, `basic.timeline_semaphore`, `op`, `cross_instance`, `signal_order`, and `implicit` |
+| VK_KHR_external_memory / VK_KHR_external_semaphore | `cross_instance` external-memory and external-semaphore sharing cases |
+| VK_KHR_maintenance8 | `op.multi_queue` use-all-stages and intermediate-barrier use-all cases |
+| VK_KHR_maintenance9 | `op.single_queue` event maintenance9 cases, `op.multi_queue` concurrent and intermediate-barrier maintenance9 cases |
 | VK_KHR_internally_synchronized_queues | `internally_synchronized_queues` |
 
 ## Cross-file Recurring Verification Methods

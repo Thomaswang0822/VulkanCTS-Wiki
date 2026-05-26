@@ -121,5 +121,4 @@ The flags2 variants additionally require `VK_KHR_format_feature_flags2` ([vktMod
 
 ## Notes and Uncertainties
 
-- `doc/testspecs/VK/apitests.adoc` was inspected as a required prerequisite, but no DRM-format-modifier-specific section was found by text search; this page therefore relies on source and mustpass evidence for category-specific claims.
 - The requested category name `drm_format_modifiers` does not correspond to a source directory with that exact name in the inspected tree. The registered category is created from `modules/vulkan/modifiers/` through `modifiers::createTests` ([vktTestPackage.cpp](../../../modules/vulkan/vktTestPackage.cpp#L1385-L1387), [CMakeLists.txt](../../../modules/vulkan/modifiers/CMakeLists.txt#L8-L20)).

@@ -329,6 +329,7 @@ The displayed branch name is verified from `TestCaseGroup(testCtx, "binding")` a
 
 - `ShaderObjectBindingDrawCase` requires `VK_EXT_shader_object`; tessellation and geometry features are required when the selected stage or binary stage uses them at [vktShaderObjectBindingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L677-L689).
 - Mesh swap cases require `VK_EXT_shader_object`, `VK_EXT_mesh_shader`, and task/mesh feature support at [vktShaderObjectBindingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1293-L1301).
+- General `bindings` cases require `VK_EXT_shader_object`; `bindings_mesh_shaders` additionally requires `VK_EXT_mesh_shader` at [vktShaderObjectBindingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1419-L1424).
 - Final unbind cases require `VK_EXT_shader_object`, `VK_EXT_mesh_shader`, and task/mesh feature support at [vktShaderObjectBindingTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1990-L1998).
 - Registration itself is unconditional once the root adds the branch factory at [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L57).
 

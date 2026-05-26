@@ -13,7 +13,6 @@ Implementation-heavy Level-3 registration file for sparse image rebind behavior.
 - Primary source: [`vktSparseResourcesImageRebind.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageRebind.cpp#L1)
 - Shared image/type helpers: [`vktSparseResourcesTestsUtil.hpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTestsUtil.hpp#L73-L115)
 - Shared queue/device base: [`vktSparseResourcesBase.hpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBase.hpp#L59-L114)
-- Test-plan context: [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L257-L276)
 
 ## Registration Hierarchy
 

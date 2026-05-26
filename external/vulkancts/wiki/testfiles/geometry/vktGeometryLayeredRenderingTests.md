@@ -84,11 +84,13 @@ Semantically, those registered names correspond to the following behavior famili
 
 ## Support / Feature Requirements
 
-Explicit support checking is implemented in [`checkSupport()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1936). The inspected function shows requirements coupled to:
-- layered image and view compatibility via [`checkImageFormatProperties()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L161) and the per-format/property checks in [`checkSupport()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1941)
-- core geometry-shader support via [`context.requireDeviceCoreFeature(DEVICE_CORE_FEATURE_GEOMETRY_SHADER)`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1976)
-- secondary-command-buffer image-store cases requiring [`DEVICE_CORE_FEATURE_FRAGMENT_STORES_AND_ATOMICS`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1985)
+Explicit support checking is implemented in [`checkSupport()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1965). The inspected function shows requirements coupled to:
+- core geometry-shader support via [`context.requireDeviceCoreFeature(DEVICE_CORE_FEATURE_GEOMETRY_SHADER)`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1967)
+- 3D image-view cases, which require [`VK_KHR_maintenance1`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1971) and reject portability-subset implementations without [`imageView2DOn3DImage`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1975)
+- secondary-command-buffer cases requiring [`DEVICE_CORE_FEATURE_FRAGMENT_STORES_AND_ATOMICS`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1985)
 - Vulkan SC secondary-command-buffer framebuffer restrictions in [`secondaryCommandBufferNullOrImagelessFramebuffer`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1988)
+
+The layered readback execution path separately checks depth/stencil image format properties at runtime via [`checkImageFormatProperties()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1367) before creating the depth/stencil image.
 
 ## Verification Methods
 
@@ -123,5 +125,5 @@ This file contains extensive file-local verification code.
 
 ## Notes / Uncertainties
 
-- The direct child names in `## Registration Hierarchy` are now confirmed from [`getShortImageViewTypeName()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2041), but the page still intentionally keeps deeper generated size groups and per-case registrations in prose rather than in the parseable tree.
+- The direct child names in `## Registration Hierarchy` are confirmed from [`getShortImageViewTypeName()`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2041); deeper generated size groups and per-case registrations are described in prose rather than in the parseable tree.
 - The documented semantic families correspond to registered test names through [`testTypes[]`](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2000), but the page does not expand every generated size-group subtree as a separate parseable hierarchy because the canonical contract limits the tree to one level below the Level-3 root.

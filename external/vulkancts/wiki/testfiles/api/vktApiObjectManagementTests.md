@@ -2,7 +2,7 @@
 
 ## Overview
 
-[`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L1) implements the `api/object_management` subgroup registered by [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L101). The file is very large and systematically tests creation and destruction of every major Vulkan object type under various resource-sharing and threading models: single creation, multiple creation with unique resources, multiple creation with shared resources, maximum concurrent objects, multithreaded creation with per-thread device/resources/shared resources, allocation callback tests, and private data tests.
+[`vktApiObjectManagementTests.cpp`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L1) implements the `api/object_management` subgroup registered by [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L101). The file is very large and systematically tests creation and destruction of every major Vulkan object type under various resource-sharing and threading models: single creation, multiple creation with unique resources, multiple creation with shared resources, maximum concurrent objects, multithreaded creation with per-thread device/resources/shared resources, allocation callback tests, and private data tests. This aligns with the historical API test-plan objective for object management: create/destroy coverage across object types, multiple objects, and concurrent create/free paths ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L134-L146)).
 
 ## Role of File
 

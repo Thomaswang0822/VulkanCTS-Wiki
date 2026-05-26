@@ -13,7 +13,7 @@ The file serves as both the **registration file** and the **implementation file*
 
 ## Other Inspected Related Files
 
-- [vktTestPackage.cpp](../../../modules/vulkan/vktTestPackage.cpp#L1383) -- root registration: `addRootChild("imageless_framebuffer", ...)`
+- [vktTestPackage.cpp](../../../modules/vulkan/vktTestPackage.cpp#L1382) -- root registration: `addRootChild("imageless_framebuffer", ...)`
 
 ## Registration Hierarchy
 
@@ -131,7 +131,6 @@ All tests use **procedural reference image comparison** as the primary verificat
 
 ## Notes / Uncertainties
 
-- The test plan file (`apitests.adoc`) does not contain a dedicated section for `imageless_framebuffer`, so all claims are derived solely from source code inspection.
 - All tests use a fixed render extent of 32x32 pixels; no parameterization over image sizes is present in the inspected code.
 - The `TestType` enum has a `TEST_TYPE_LAST` sentinel ([L68](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L68)) that is not used as a test type.
 - The `checkSupport` method in `BaseTestCase` ([L2715-L2722](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L2715-L2722)) only checks `standardSampleLocations` for resolve tests; the `VK_KHR_imageless_framebuffer` extension and feature bit checks happen inside the `TestInstance` constructors rather than in `checkSupport`.

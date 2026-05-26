@@ -8,8 +8,8 @@ logic from [vktMemoryModelSharedLayoutCase.cpp](../../../modules/vulkan/memory_m
 
 The `shared` branch generates randomized compute-shader cases that declare shared-memory structures, write generated literal
 values into every reachable leaf field, synchronize, then compare the shared-memory contents against the expected values. The
-branch is organized by feature sets such as scalar/vector/basic types, arrays, arrays of arrays, nested structs, and optional
-16-bit or 8-bit type groups.
+branch is organized by feature sets such as scalar/vector/basic types, arrays, arrays of arrays, nested structs, plus separate
+16-bit and 8-bit type groups whose cases have feature-specific support checks.
 
 ## Role of File
 
@@ -56,6 +56,21 @@ memory_model.shared
 └── 8bit
 ```
 
+The parseable tree lists only direct children of `memory_model.shared`. Source generation is a three-pass loop in
+[`createSharedMemoryLayoutTests()`](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L287-L327):
+
+| Loop pass | Parent group receiving the seven case families | Extra type feature bit |
+|-----------|-----------------------------------------------|------------------------|
+| `i == 0` | `memory_model.shared` itself | none |
+| `i == 1` | newly added `memory_model.shared.16bit` group | `FEATURE_16BIT_TYPES` |
+| `i == 2` | newly added `memory_model.shared.8bit` group | `FEATURE_8BIT_TYPES` |
+
+In each pass, the same seven `createRandomCaseGroup()` calls create `scalar_types`, `vector_types`, `basic_types`,
+`basic_arrays`, `arrays_of_arrays`, `nested_structs`, and `nested_structs_arrays`, each with 10 numbered randomized cases
+[`vktMemoryModelSharedLayout.cpp`](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L310-L326). Therefore
+`16bit` and `8bit` are not just attributes on the root families; they are actual child groups containing their own copies of
+those seven families with additional type-generation flags.
+
 ## Test Families
 
 ### scalar_types — Scalar shared-memory variables
@@ -70,8 +85,10 @@ matrix, array, or struct feature bits [vktMemoryModelSharedLayout.cpp](../../../
 
 ### basic_types — Scalar, vector, and matrix mix
 
-`basic_types` enables vectors and matrices through `allBasicTypes`, producing 10 randomized cases at the root and within the
-optional 16-bit/8-bit groups [vktMemoryModelSharedLayout.cpp](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L292-L314).
+`basic_types` is one of the seven families emitted in every loop pass. At the root, it uses `allBasicTypes`
+(`FEATURE_VECTORS | FEATURE_MATRICES`) without 16-bit or 8-bit type flags; inside `16bit`, the same family name is emitted
+with `FEATURE_16BIT_TYPES`; inside `8bit`, it is emitted with `FEATURE_8BIT_TYPES`
+[vktMemoryModelSharedLayout.cpp](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L292-L314).
 
 ### basic_arrays — Arrays of basic types
 

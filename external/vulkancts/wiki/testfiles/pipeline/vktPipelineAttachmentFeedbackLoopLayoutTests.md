@@ -16,9 +16,9 @@ Implementation file.
 
 ## Registration Hierarchy
 
-[`createAttachmentFeedbackLoopLayoutTests()`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L3366) returns the `attachment_feedback_loop_layout` group, attached under each variant root by `createChildren()`.
+[`createAttachmentFeedbackLoopLayoutTests()`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L3366) returns the `attachment_feedback_loop_layout` group, attached under each Vulkan variant root by `createChildren()`.
 
-**Variant coverage**: All variants (VulkanSC only). Misc sub-group is monolithic only.
+**Variant coverage**: All Vulkan variants; excluded from VulkanSC by the `#ifndef CTS_USES_VULKANSC` guard in the dispatcher. Misc sub-group is monolithic only.
 
 ```text
 pipeline.monolithic.attachment_feedback_loop_layout

@@ -2,6 +2,8 @@
 
 Tests for `vkMapMemory`, `vkUnmapMemory`, `vkFlushMappedMemoryRanges`, and `vkInvalidateMappedMemoryRanges` correctness. Also covers `vkMapMemory2KHR` / `vkUnmapMemory2KHR` from `VK_KHR_map_memory2`. Verifies that host-visible memory can be correctly written, read, flushed, and invalidated across all memory types and allocation kinds.
 
+The historical Vulkan API test plan explicitly calls for host-visible mapping, sub-range mapping, remap access, and CPU cache-control range cases ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L215-L245)); current source and mustpass remain authoritative for exact behavior.
+
 ## Source
 
 [`vktMemoryMappingTests.cpp`](../../../modules/vulkan/memory/vktMemoryMappingTests.cpp)

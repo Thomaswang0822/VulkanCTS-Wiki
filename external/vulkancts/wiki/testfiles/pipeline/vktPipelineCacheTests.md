@@ -2,7 +2,7 @@
 
 ## Overview
 
-[`vktPipelineCacheTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L1) implements the [`cache`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L2457) topic group. It verifies pipeline cache functionality including cache creation, merging, header validation, and blob serialization/deserialization across graphics and compute pipelines.
+[`vktPipelineCacheTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L1) implements the [`cache`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L2457) topic group. It verifies pipeline cache functionality including cache creation, merging, header validation, and blob serialization/deserialization across graphics and compute pipelines. This reflects the historical API test-plan objective for pre-populated cache behavior and cache-size checks ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L530-L535)).
 
 ## Role
 

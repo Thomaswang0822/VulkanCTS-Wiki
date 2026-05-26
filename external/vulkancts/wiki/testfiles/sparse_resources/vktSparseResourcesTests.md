@@ -12,7 +12,6 @@ Registration / dispatcher file.
 
 - Primary source: [`vktSparseResourcesTests.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTests.cpp#L1)
 - Category header: [`vktSparseResourcesTests.hpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTests.hpp#L29-L35)
-- Test-plan context: [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L273-L276)
 
 ## Registration Hierarchy
 

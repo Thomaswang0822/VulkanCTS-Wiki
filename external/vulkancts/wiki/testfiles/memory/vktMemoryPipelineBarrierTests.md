@@ -2,6 +2,8 @@
 
 Tests for memory visibility across Vulkan pipeline stages using `vkCmdPipelineBarrier`. Verifies that writes to buffers and images via various usage patterns (transfer, vertex, index, uniform, storage, etc.) are correctly made visible to subsequent read operations after a pipeline barrier.
 
+The historical Vulkan API test plan frames GPU cache-control coverage as visibility of CPU and GPU writes to CPU and GPU pipeline stages ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L250-L255)); current source and mustpass remain authoritative for exact behavior.
+
 ## Source
 
 [`vktMemoryPipelineBarrierTests.cpp`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp)

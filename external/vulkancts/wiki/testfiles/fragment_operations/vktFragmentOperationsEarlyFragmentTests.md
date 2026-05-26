@@ -29,9 +29,48 @@ fragment_operations.early_fragment
 ├── early_and_late_fragment_tests_stencil (non-VulkanSC only)
 ├── early_and_late_fragment_tests_depth_no_attachment (non-VulkanSC only)
 ├── early_and_late_fragment_tests_stencil_no_attachment (non-VulkanSC only)
-├── discard_* cases
-├── samplemask_* cases
-└── sample_count_* cases
+├── discard_no_early_fragment_tests_depth
+├── discard_no_early_fragment_tests_stencil
+├── discard_early_fragment_tests_depth
+├── discard_early_fragment_tests_stencil
+├── discard_early_and_late_fragment_tests_depth (non-VulkanSC only)
+├── discard_early_and_late_fragment_tests_stencil (non-VulkanSC only)
+├── samplemask_no_early_fragment_tests_depth_samples_2
+├── samplemask_no_early_fragment_tests_depth_samples_4
+├── samplemask_no_early_fragment_tests_depth_samples_8
+├── samplemask_no_early_fragment_tests_depth_samples_16
+├── samplemask_early_fragment_tests_depth_samples_2
+├── samplemask_early_fragment_tests_depth_samples_4
+├── samplemask_early_fragment_tests_depth_samples_8
+├── samplemask_early_fragment_tests_depth_samples_16
+├── samplemask_early_and_late_fragment_tests_depth_samples_2 (non-VulkanSC only)
+├── samplemask_early_and_late_fragment_tests_depth_replacing_mode_samples_2 (non-VulkanSC only)
+├── samplemask_early_and_late_fragment_tests_depth_samples_4 (non-VulkanSC only)
+├── samplemask_early_and_late_fragment_tests_depth_replacing_mode_samples_4 (non-VulkanSC only)
+├── samplemask_early_and_late_fragment_tests_depth_samples_8 (non-VulkanSC only)
+├── samplemask_early_and_late_fragment_tests_depth_replacing_mode_samples_8 (non-VulkanSC only)
+├── samplemask_early_and_late_fragment_tests_depth_samples_16 (non-VulkanSC only)
+├── samplemask_early_and_late_fragment_tests_depth_replacing_mode_samples_16 (non-VulkanSC only)
+├── sample_count_early_fragment_tests_depth_samples_2
+├── sample_count_early_fragment_tests_depth_samples_4
+├── sample_count_early_fragment_tests_depth_samples_8
+├── sample_count_early_fragment_tests_depth_samples_16
+├── sample_count_early_fragment_tests_depth_samples_2_maintenance5 (non-VulkanSC only)
+├── sample_count_early_fragment_tests_depth_alpha_to_coverage_samples_2_maintenance5 (non-VulkanSC only)
+├── sample_count_early_fragment_tests_depth_samples_4_maintenance5 (non-VulkanSC only)
+├── sample_count_early_fragment_tests_depth_alpha_to_coverage_samples_4_maintenance5 (non-VulkanSC only)
+├── sample_count_early_fragment_tests_depth_samples_8_maintenance5 (non-VulkanSC only)
+├── sample_count_early_fragment_tests_depth_alpha_to_coverage_samples_8_maintenance5 (non-VulkanSC only)
+├── sample_count_early_fragment_tests_depth_samples_16_maintenance5 (non-VulkanSC only)
+├── sample_count_early_fragment_tests_depth_alpha_to_coverage_samples_16_maintenance5 (non-VulkanSC only)
+├── sample_count_early_and_late_fragment_tests_depth_samples_2 (non-VulkanSC only)
+├── sample_count_early_and_late_fragment_tests_depth_samples_2_maintenance5 (non-VulkanSC only)
+├── sample_count_early_and_late_fragment_tests_depth_samples_4 (non-VulkanSC only)
+├── sample_count_early_and_late_fragment_tests_depth_samples_4_maintenance5 (non-VulkanSC only)
+├── sample_count_early_and_late_fragment_tests_depth_samples_8 (non-VulkanSC only)
+├── sample_count_early_and_late_fragment_tests_depth_samples_8_maintenance5 (non-VulkanSC only)
+├── sample_count_early_and_late_fragment_tests_depth_samples_16 (non-VulkanSC only)
+└── sample_count_early_and_late_fragment_tests_depth_samples_16_maintenance5 (non-VulkanSC only)
 ```
 
 Source: [`createEarlyFragmentTests()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L2755-L2895).
@@ -59,11 +98,11 @@ The second registration block adds discard-focused cases at [`vktFragmentOperati
 
 ### Sample-mask cases
 
-The third block registers `samplemask_*` names over sample counts 2, 4, 8, and 16 at [`vktFragmentOperationsEarlyFragmentTests.cpp`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L2823-L2849). The fragment shader for this family writes `gl_SampleMask[0] = 0x0` after `atomicAdd()` at [`vktFragmentOperationsEarlyFragmentTests.cpp`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L1840-L1842). The visible comment states this family checks that writing to `gl_SampleMask` does not affect depth test writes.
+The third block registers the `samplemask_*` names listed in the hierarchy over sample counts 2, 4, 8, and 16 at [`vktFragmentOperationsEarlyFragmentTests.cpp`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L2823-L2849). The fragment shader for this family writes `gl_SampleMask[0] = 0x0` after `atomicAdd()` at [`vktFragmentOperationsEarlyFragmentTests.cpp`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L1840-L1842). The visible comment states this family checks that writing to `gl_SampleMask` does not affect depth test writes.
 
 ### Sample-count cases
 
-The fourth block registers `sample_count_*` names over sample counts 2, 4, 8, and 16 at [`vktFragmentOperationsEarlyFragmentTests.cpp`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L2852-L2890). The generated combinations vary:
+The fourth block registers the `sample_count_*` names listed in the hierarchy over sample counts 2, 4, 8, and 16 at [`vktFragmentOperationsEarlyFragmentTests.cpp`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L2852-L2890). The generated combinations vary:
 
 - early-fragment versus early-and-late mode
 - optional `maintenance5`
@@ -94,5 +133,5 @@ For the sample-count family, the code logs two query-derived sample counts and a
 
 ## Notes / Uncertainties
 
-- This file is implementation-heavy and programmatically generates many direct children, so the parseable hierarchy above intentionally stops at one level while the family sections describe the generated name sets.
+- This file is implementation-heavy and programmatically generates many direct children; the parseable hierarchy above lists those direct children at one level and the family sections summarize the generated name sets.
 - The inspected evidence confirms registration, support checks, SPIR-V execution modes, and verification helpers, but this page avoids inferring semantics beyond what the file comments and code explicitly state.

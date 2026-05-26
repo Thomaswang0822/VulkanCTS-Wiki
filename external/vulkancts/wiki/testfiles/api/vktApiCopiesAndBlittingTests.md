@@ -2,7 +2,7 @@
 
 ## Overview
 
-Dispatcher file for Vulkan copy and blit command tests. Does not contain test logic itself; instead it aggregates sub-files that implement image-to-image, buffer-to-buffer, image-to-buffer, buffer-to-image, depth/stencil copy, blitting, resolve, indirect copy, and reinterpretation tests under a single `copy_and_blit` group.
+Dispatcher file for Vulkan copy and blit command tests. Does not contain test logic itself; instead it aggregates sub-files that implement image-to-image, buffer-to-buffer, image-to-buffer, buffer-to-image, depth/stencil copy, blitting, resolve, indirect copy, and reinterpretation tests under a single `copy_and_blit` group. The aggregate provides broad historical context for API test-plan copy/update themes across whole and partial ranges, small-to-large transfers, same-memory/object cases, compatible-format copies, and blits with or without scaling ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L683-L711)).
 
 ## Role of File
 

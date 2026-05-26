@@ -135,27 +135,36 @@ also registers `pipeline_robustness` only outside Vulkan SC builds
 
 ```text
 robustness.pipeline_robustness.robustness2
-└── bind
+├── bind
+├── push
+└── misc
 ```
 
 The nested pipeline-robustness `robustness2` child calls the shared generator with `robustness2=true` and
 `pipelineRobustness=true`
-([nested robustness2 call](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L4334-L4338)). Although
-`pushCases[]` contains `push`, the mustpass file observed for this subtask contains only `bind` as a direct child for
-`robustness.pipeline_robustness.robustness2`
+([nested robustness2 call](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L4334-L4338)). Its direct children
+come from `pushCases[]`, and the shared robustness2 guard also appends the `misc` stride tests because
+`uses64BitIndexing=false`
+([push cases](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L3947-L3952),
+[misc creation](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L4294-L4308)). The inspected mustpass file
+contains `bind`, `misc`, and `push` paths for this nested root
 ([mustpass range](../../../mustpass/main/vk-default/robustness.txt#L14019-L14785)).
 
 ### `robustness.pipeline_robustness.image_robustness` (non-VulkanSC only)
 
 ```text
 robustness.pipeline_robustness.image_robustness
-└── bind
+├── bind
+└── push
 ```
 
 The nested pipeline-robustness `image_robustness` child calls the shared generator with `robustness2=false` and
 `pipelineRobustness=true`
-([nested image-robustness call](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L4340-L4344)). The inspected
-mustpass file contains only `bind` as a direct child for `robustness.pipeline_robustness.image_robustness`
+([nested image-robustness call](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L4340-L4344)). Its direct
+children come from `pushCases[]`, while no `misc` child is added because `misc` is guarded by `robustness2`
+([push cases](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L3947-L3952),
+[misc guard](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L4294-L4308)). The inspected mustpass file
+contains both `bind` and `push` paths for this nested root
 ([mustpass range](../../../mustpass/main/vk-default/robustness.txt#L13875-L14018)).
 
 ## Test Families
@@ -209,7 +218,7 @@ passes `pipelineRobustness=true`
 creation according to the selected pipeline case
 ([compute pNext](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L2931-L2939),
 [ray-tracing pNext](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L2987-L2995),
-[graphics pNext/GPL](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L3204-L3349)).
+[graphics pNext / GPL (graphics pipeline library)](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L3204-L3349)).
 
 ### image_robustness
 
@@ -241,7 +250,7 @@ intentionally stop at one level below each documented root.
 | Formats | `r32i`, `r32ui`, `r32f`, `rg32i`, `rg32ui`, `rg32f`, `rgba32i`, `rgba32ui`, `rgba32f`, `r64i`, `r64ui` | `fmtCases[]` in [vktRobustnessExtsTests.cpp](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L3850-L3862). |
 | Robustness2 descriptor types | `uniform_buffer`, `storage_buffer`, `uniform_buffer_dynamic`, `storage_buffer_dynamic`, `uniform_texel_buffer`, `storage_texel_buffer`, `storage_image`, `sampled_image`, `vertex_attribute_fetch` | `fullDescCases[]` in [vktRobustnessExtsTests.cpp](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L3864-L3874). |
 | Image-robustness descriptor types | `storage_image`, `sampled_image` | `imgDescCases[]` in [vktRobustnessExtsTests.cpp](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L3876-L3879). |
-| Buffer/null lengths for 32-bit formats | `null_descriptor`, `img`, `len_4`, `len_8`, `len_12`, `len_16`, `len_20`, `len_31`, `len_32`, `len_33`, `len_35`, `len_36`, `len_39`, `len_41`, `len_252`, `len_256`, `len_260` | `fullLenCases32Bit[]` in [vktRobustnessExtsTests.cpp](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L3881-L3885). |
+| Buffer/null length case names for 32-bit formats | `null_descriptor`, `img`, `len_4`, `len_8`, `len_12`, `len_16`, `len_20`, `len_31`, `len_32`, `len_33`, `len_35`, `len_36`, `len_39`, `len_41`, `len_252`, `len_256`, `len_260` | `fullLenCases32Bit[]` in [vktRobustnessExtsTests.cpp](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L3881-L3885). Note that the registered case name `len_41` is paired with source count `40`; this table lists registered names rather than normalizing that source label. |
 | Buffer/null lengths for 64-bit formats | `null_descriptor`, `img`, `len_8`, `len_16`, `len_24`, `len_32`, `len_40`, `len_62`, `len_64`, `len_66`, `len_70`, `len_72`, `len_78`, `len_80`, `len_504`, `len_512`, `len_520` | `fullLenCases64Bit[]` in [vktRobustnessExtsTests.cpp](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L3887-L3891). |
 | Image-robustness lengths | `img` | `imgLenCases[]` in [vktRobustnessExtsTests.cpp](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L3893-L3895). |
 | Image view types | `1d`, `2d`, `3d`, `cube`, `1d_array`, `2d_array`, `cube_array` | `viewCases[]` in [vktRobustnessExtsTests.cpp](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L3897-L3905). |
@@ -352,10 +361,9 @@ reference color
 
 ## Notes / uncertainties
 
-- The inspected source shows `push` as a possible direct child wherever `pushCases[]` is enabled, but the inspected
-  mustpass file for `robustness.pipeline_robustness.robustness2` and
-  `robustness.pipeline_robustness.image_robustness` only contains `bind` paths. The nested pipeline hierarchy trees
-  therefore list only `bind` as evidenced by both source generation plus mustpass coverage observed for this subtask.
+- The parseable hierarchy trees list direct children from the source generator and checked default mustpass evidence. In
+  particular, nested pipeline-robustness roots include `push`; the `robustness2` nested root also includes `misc` because
+  the shared generator adds stride tests for robustness2 matrices when `uses64BitIndexing` is false.
 - The parameter tables summarize observed arrays and pruning rules rather than enumerating every generated leaf; the
   mustpass file contains tens of thousands of leaf paths for this file's roots.
 - Vulkan SC behavior is noted only where the inspected file has explicit `CTS_USES_VULKANSC` guards. This page follows the

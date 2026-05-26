@@ -179,8 +179,6 @@ buffer to green (`EQ_RGBA 0 255 0 255`) and compare either the depth attachment 
 
 ## Notes / Uncertainties
 
-- The official API test plan at [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L1-L13) states that it is
-a high-level API test plan and does not document this Amber `depth` category specifically in the inspected section.
 - No separate `external/vulkancts/modules/vulkan/depth/` directory exists in the inspected tree; this category is rooted
   from [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1393-L1395) and implemented by the Amber source
   file documented here.

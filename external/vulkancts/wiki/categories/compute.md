@@ -2,7 +2,7 @@
 
 ## Overview
 
-The [`compute`](../../modules/vulkan/compute/vktComputeTests.cpp#L68-L85) category documents Vulkan compute dispatch and compute-shader behavior. The Vulkan API test plan states that compute dispatch tests validate call parameters and verify that workgroup counts and invocation IDs reach shader invocations ([`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L676-L681)). The inspected source covers baseline compute execution, large buffer indexing, device groups, cooperative matrices, indirect dispatch, shader built-ins, zero-initialized workgroup memory, and explicit workgroup-memory layout.
+The [`compute`](../../modules/vulkan/compute/vktComputeTests.cpp#L68-L85) category documents Vulkan compute dispatch and compute-shader behavior. The Vulkan API test plan states that compute dispatch tests validate call parameters and verify that workgroup counts and invocation IDs reach shader invocations ([`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L679)). The inspected source covers baseline compute execution, large buffer indexing, device groups, cooperative matrices, indirect dispatch, shader built-ins, zero-initialized workgroup memory, and explicit workgroup-memory layout.
 
 ## Registration Entry Point
 
@@ -84,7 +84,7 @@ Verification commonly uses shader-written buffers or images compared against exp
 
 ## Relationship to the Test Plan
 
-The inspected test-plan compute section says compute tests validate dispatch call parameters and verify workgroup and invocation IDs in shaders ([`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L676-L681)). The source files implement that theme directly in `builtin_var`, indirect dispatch, and many buffer/image side-effect cases. The plan also notes that compute-specific shader features such as shared memory are assumed to be covered by SPIR-V tests ([`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L681-L681)); the compute category nevertheless includes extension-specific workgroup-memory behavior where the inspected Vulkan CTS source registers it.
+The inspected test-plan compute objective is to validate compute dispatch parameter effects and verify that workgroup counts and invocation IDs reach shader invocations ([`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L679)). The source files implement that theme directly in `builtin_var`, indirect dispatch, and buffer/image side-effect cases.
 
 ## Notes / Uncertainties
 

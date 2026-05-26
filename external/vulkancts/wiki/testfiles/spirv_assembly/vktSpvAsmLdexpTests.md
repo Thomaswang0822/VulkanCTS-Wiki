@@ -2,7 +2,7 @@
 
 ## Overview
 
-Tests for the SPIR-V `ldexp` operation using Amber test cases, covering various combinations of floating-point result types and integer exponent types.
+Tests for the SPIR-V `ldexp` operation using Amber test cases, covering the case list registered by [`createLdexpGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L35-L143) with combinations of floating-point result types and integer exponent types.
 
 ## Role
 
@@ -10,7 +10,7 @@ Implementation file
 
 ## Source
 
-- [vktSpvAsmLdexpTests.cpp](https://github.com/KhronosGroup/VK-GL-CTS/blob/main/external/vulkancts/modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp)
+- [vktSpvAsmLdexpTests.cpp](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L35)
 
 ## Registration Hierarchy
 
@@ -58,7 +58,7 @@ spirv_assembly.instruction.compute.ldexp
 
 ### Individual ldexp test cases — Tests ldexp with specific float/exponent type combinations
 
-Each test case exercises the `ldexp` operation (multiply a floating-point value by 2 raised to an integer power) with a specific combination of floating-point result type (float16, float32, float64; scalar or vec2/vec4) and integer exponent type (int8, int16, int32, int64; scalar or matching vector). Tests are implemented as Amber test cases loaded from the `ldexp/` data subdirectory. Source: `vktSpvAsmLdexpTests.cpp#L39-L143`.
+Each test case exercises the `ldexp` operation (multiply a floating-point value by 2 raised to an integer power) with a specific combination of floating-point result type (`float16`, `float32`, `float64`; scalar or `vec2`/`vec4`) and integer exponent type (`int8`, `int16`, `int32`, `int64`; scalar or matching vector), as shown by the registered [`LdexpCase`](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L39-L130) names. Tests are implemented as Amber test cases loaded from the [`ldexp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L132-L140) data subdirectory.
 
 ## Parameter Dimensions
 
@@ -71,21 +71,21 @@ Each test case exercises the `ldexp` operation (multiply a floating-point value 
 
 ## Support Requirements
 
-Varies per test case. Common requirements observed in `vktSpvAsmLdexpTests.cpp#L46-L130`:
-- `Float16Int8Features.shaderFloat16` for float16 results
-- `Float16Int8Features.shaderInt8` for int8 exponents
-- `Features.shaderInt16` for int16 exponents
-- `Features.shaderInt64` for int64 exponents
-- `Features.shaderFloat64` for float64 results
-- `Storage16BitFeatures.storageBuffer16BitAccess` / `uniformAndStorageBuffer16BitAccess` for 16-bit storage
-- `Storage8BitFeatures.uniformAndStorageBuffer8BitAccess` for 8-bit storage
+Varies per test case. Common requirements observed in [`caseList`](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L45-L130):
+- [`Float16Int8Features.shaderFloat16`](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L46-L58) for float16 results
+- [`Float16Int8Features.shaderInt8`](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L55-L58) for int8 exponents
+- [`Features.shaderInt16`](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L46-L48) for int16 exponents
+- [`Features.shaderInt64`](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L52-L54) for int64 exponents
+- [`Features.shaderFloat64`](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L86-L90) for float64 results
+- [`Storage16BitFeatures.storageBuffer16BitAccess`](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L46-L48) / [`uniformAndStorageBuffer16BitAccess`](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L46-L48) for 16-bit storage
+- [`Storage8BitFeatures.uniformAndStorageBuffer8BitAccess`](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L55-L58) for 8-bit storage
 
 ## Verification Methods
 
-Verification is handled by the Amber test framework using the `.amber` test files in the `ldexp/` data subdirectory.
+Verification is handled by the Amber test framework using `.amber` test files selected from the [`ldexp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L132-L140) data subdirectory.
 
 ## Notes
 
 - Non-VulkanSC only
 - All tests are Amber-based; the actual SPIR-V assembly and verification logic reside in external `.amber` files
-- The `ldexp_float32_int32` and `ldexp_f32vec2_i32vec2` / `ldexp_f32vec4_i32vec4` cases have empty requirements lists (baseline Vulkan support)
+- The [`ldexp_float32_int32`](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L118), [`ldexp_f32vec2_i32vec2`](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L75), and [`ldexp_f32vec4_i32vec4`](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L82) cases have empty requirements lists (baseline Vulkan support).

@@ -2,7 +2,7 @@
 
 ## Overview
 
-[`vktApiBufferTests.cpp`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L1) implements the `api/buffer` subgroup registered by [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L102). The file tests Vulkan buffer creation and memory allocation under various usage flags, allocation strategies (suballocated vs dedicated), sparse buffer handling, large buffer sizes, and invalid buffer feature exposure for depth/stencil formats.
+[`vktApiBufferTests.cpp`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L1) implements the `api/buffer` subgroup registered by [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L102). The file tests Vulkan buffer creation and memory allocation under various usage flags, allocation strategies (suballocated vs dedicated), sparse buffer handling, large buffer sizes, and invalid buffer feature exposure for depth/stencil formats. This is consistent with the historical API test-plan focus on buffer usage/create-flag combinations, varied sizes, memory requirements, and sparse buffers ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L434-L448)).
 
 ## Role of File
 

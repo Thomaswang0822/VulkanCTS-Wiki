@@ -2,7 +2,7 @@
 
 ## Overview
 
-Tests for SPIR-V Assembly image and sampler operations, including OpImageRead, OpImageFetch, OpImageSampleExplicitLod, OpImageSampleDrefImplicitLod, and OpImageSampleDrefExplicitLod. Tests various descriptor types (storage image, sampled image, combined image sampler, separate variables, separate descriptors) and test types (local variables, passing image/sampler to functions, OpTypeImage format mismatch).
+Tests for SPIR-V Assembly image and sampler operations, including `OpImageRead`, `OpImageFetch`, `OpImageSampleExplicitLod`, `OpImageSampleDrefImplicitLod`, and `OpImageSampleDrefExplicitLod`. Compute registration covers read/fetch/sample operations while graphics registration covers all read operations, including Dref variants ([addComputeImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L788-L824), [addGraphicsImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1183-L1219)). Descriptor and test-type combinations are filtered by [isValidTestCase()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L90-L163).
 
 ## Role
 
@@ -10,7 +10,7 @@ Implementation file
 
 ## Source
 
-- [vktSpvAsmImageSamplerTests.cpp](https://github.com/KhronosGroup/VK-GL-CTS/blob/main/external/vulkancts/modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp)
+- [vktSpvAsmImageSamplerTests.cpp](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1337)
 
 ## Registration Hierarchy
 
@@ -32,33 +32,33 @@ spirv_assembly.instruction.graphics.image_sampler
 
 ### imageread — OpImageRead tests
 
-Tests OpImageRead with storage image descriptors. Only valid with `DESCRIPTOR_TYPE_STORAGE_IMAGE`. Tests all test types (local variables, pass image/sampler to function, optypeimage_mismatch) with depth property variations.
+Tests `OpImageRead` with storage image descriptors. The validity filter permits `READOP_IMAGEREAD` only with `DESCRIPTOR_TYPE_STORAGE_IMAGE` ([isValidTestCase()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L120-L126)).
 
-Observed in `addComputeImageSamplerTest()` at vktSpvAsmImageSamplerTests.cpp#L812 and `addGraphicsImageSamplerTest()` at vktSpvAsmImageSamplerTests.cpp#L1204.
+Observed in the compute read-operation loop and graphics read-operation loop ([addComputeImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L812-L824), [addGraphicsImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1204-L1219)).
 
 ### imagefetch — OpImageFetch tests
 
-Tests OpImageFetch with sampled image, combined image sampler, and separate variable/descriptor configurations. Not valid with storage image descriptors.
+Tests `OpImageFetch` with sampled image, combined image sampler, and separate variable/descriptor configurations. The validity filter excludes storage-image descriptors for `READOP_IMAGEFETCH` ([isValidTestCase()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L128-L134)).
 
-Observed in compute loop at vktSpvAsmImageSamplerTests.cpp#L812 and graphics loop at vktSpvAsmImageSamplerTests.cpp#L1204.
+Observed in the compute and graphics read-operation loops ([addComputeImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L812-L824), [addGraphicsImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1204-L1219)).
 
 ### imagesample — OpImageSampleExplicitLod tests
 
-Tests OpImageSampleExplicitLod with sampled image and combined image sampler configurations. Uses Lod operand with value 0.0.
+Tests `OpImageSampleExplicitLod` with sampled image and combined-image sampler configurations. The validity filter groups `READOP_IMAGESAMPLE` with sampled/combined descriptor forms ([isValidTestCase()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L136-L144)).
 
-Observed in compute loop at vktSpvAsmImageSamplerTests.cpp#L812 and graphics loop at vktSpvAsmImageSamplerTests.cpp#L1204.
+Observed in the compute and graphics read-operation loops ([addComputeImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L812-L824), [addGraphicsImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1204-L1219)).
 
 ### imagesample_dref_implicit_lod — OpImageSampleDrefImplicitLod tests (graphics only)
 
-Tests depth comparison sampling with implicit LOD. Only present in graphics pipeline (fragment shader). Uses Bias operand.
+Tests depth-comparison sampling with implicit LOD. The graphics loop registers Dref read operations, and non-fragment stages are skipped for Dref operations so only fragment-stage cases are emitted ([addGraphicsImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1204-L1219), [addGraphicsImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1289-L1316)).
 
-Observed in `addGraphicsImageSamplerTest()` at vktSpvAsmImageSamplerTests.cpp#L1204.
+Observed in [`addGraphicsImageSamplerTest()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1204-L1219).
 
 ### imagesample_dref_explicit_lod — OpImageSampleDrefExplicitLod tests (graphics only)
 
-Tests depth comparison sampling with explicit LOD. Only present in graphics pipeline (fragment shader). Uses Lod operand.
+Tests depth-comparison sampling with explicit LOD. The graphics loop registers Dref read operations, and non-fragment stages are skipped for Dref operations so only fragment-stage cases are emitted ([addGraphicsImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1204-L1219), [addGraphicsImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1289-L1316)).
 
-Observed in `addGraphicsImageSamplerTest()` at vktSpvAsmImageSamplerTests.cpp#L1204.
+Observed in [`addGraphicsImageSamplerTest()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1204-L1219).
 
 Each read operation group contains descriptor type sub-groups, which contain test type sub-groups, which contain depth_property sub-groups.
 
@@ -70,28 +70,28 @@ Each read operation group contains descriptor type sub-groups, which contain tes
 | DescriptorType | `storage_image`, `sampled_image`, `combined_image_sampler`, `combined_image_sampler_separate_variables`, `combined_image_sampler_separate_descriptors` | Descriptor type configuration |
 | TestType | `all_local_variables`, `pass_image_to_function`, `pass_sampler_to_function`, `pass_image_and_sampler_to_function`, `optypeimage_mismatch` | How image/sampler variables are used |
 | DepthProperty | `non_depth`, `depth`, `unknown` | Depth property of OpTypeImage |
-| FormatDataForShaders | 12 format variants | Format mismatch data for `optypeimage_mismatch` tests (rgba8, rgba8snorm, rgba8ui, rgba8i, rgba16ui, rgba16i, rgba16f, r32ui, r32i, rgba32ui, rgba32i, rgba32f) |
-| SpirvVersion | SPIR-V 1.0, SPIR-V 1.6 (nontemporal) | SPIR-V version with optional Nontemporal image operand |
+| FormatDataForShaders | 12 format variants | Format mismatch data for `optypeimage_mismatch` tests ([optypeimageFormatMismatchSpirvData](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L610-L625)) |
+| SpirvVersion | SPIR-V 1.0, SPIR-V 1.6 (`_nontemporal`) | SPIR-V versions iterated by compute cases ([addComputeImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L802-L810)) |
 | ShaderStage | vert, tessc, tesse, geom, frag (graphics only) | Graphics shader stage |
 
-Not all combinations are valid; `isValidTestCase()` at vktSpvAsmImageSamplerTests.cpp#L90-L163 filters invalid combinations.
+Not all combinations are valid; [`isValidTestCase()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L90-L163) filters invalid combinations.
 
 ## Support Requirements
 
-- **vertexPipelineStoresAndAtomics** — required for vertex, tessellation, and geometry stages in graphics tests — vktSpvAsmImageSamplerTests.cpp#L1292
-- **fragmentStoresAndAtomics** — required for fragment stage in graphics tests — vktSpvAsmImageSamplerTests.cpp#L1313
-- **tessellationShader** — implicitly required for tessellation control/evaluation stages
-- **geometryShader** — implicitly required for geometry stage
-- SPIR-V 1.6 requires `OpEntryPoint` interface declaration and `Block`/`StorageBuffer` decorations — vktSpvAsmImageSamplerTests.cpp#L884-L889
+- **`vertexPipelineStoresAndAtomics`** — requested for vertex, tessellation, and geometry stages in non-Dref graphics tests ([addGraphicsImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1289-L1296))
+- **`fragmentStoresAndAtomics`** — requested for fragment-stage graphics tests ([addGraphicsImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1312-L1316))
+- **Tessellation shader stages** are included through `createTestForStage()` calls for tessellation control/evaluation in non-Dref graphics tests ([addGraphicsImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1298-L1305))
+- **Geometry shader stage** is included through a `createTestForStage()` call for non-Dref graphics tests ([addGraphicsImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1307-L1309))
+- SPIR-V 1.6 path uses an `OpEntryPoint` interface list and switches output decoration/storage class to `Block`/`StorageBuffer` ([addComputeImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L873-L889))
 
 ## Verification Methods
 
-- **Default IO verification**: For standard tests, output buffer is compared against expected input data (the shader passes input image data to the output buffer) — vktSpvAsmImageSamplerTests.cpp#L869
-- **nopVerifyFunction**: For `optypeimage_mismatch` tests, results are ignored (only checking for crashes) — vktSpvAsmImageSamplerTests.cpp#L782-L786
-- **verifyDepthCompareResult**: For depth comparison (Dref) tests, verifies VK_COMPARE_OP_LESS semantics: D=1.0 if D<Dref, otherwise D=0.0 — vktSpvAsmImageSamplerTests.cpp#L1154-L1181
+- **Default IO verification**: standard tests expect the shader to pass input image data to the output buffer ([addComputeImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L868-L869), [addGraphicsImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1261-L1263))
+- **`nopVerifyFunction`**: for `optypeimage_mismatch` tests, results are ignored so the test only checks execution stability ([nopVerifyFunction()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L781-L786), [addGraphicsImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1267-L1273))
+- **`verifyDepthCompareResult`**: for depth-comparison (Dref) tests, verifies the source-commented `VK_COMPARE_OP_LESS` semantics ([verifyDepthCompareResult()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1154-L1181))
 
 ## Notes
 
-- Compute tests only iterate through `READOP_IMAGEREAD` to `READOP_IMAGESAMPLE` (inclusive), while graphics tests iterate through all `READOP_LAST` values — vktSpvAsmImageSamplerTests.cpp#L812 vs #L1204
-- Dref read operations are only present in fragment/compute shaders (not vertex/tessellation/geometry) — vktSpvAsmImageSamplerTests.cpp#L1289-L1291
-- The `optypeimage_mismatch` tests use a deliberately mismatched format in OpTypeImage to verify the implementation handles format mismatches gracefully
+- Compute tests only iterate through `READOP_IMAGEREAD` to `READOP_IMAGESAMPLE` inclusive, while graphics tests iterate through all `READOP_LAST` values ([addComputeImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L812-L814), [addGraphicsImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1204-L1206))
+- For graphics Dref read-operation groups, the source skips vertex, tessellation, and geometry stages and emits only fragment-stage cases; the compute registration does not include Dref read-operation groups ([addComputeImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L812-L814), [addGraphicsImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1289-L1316))
+- The `optypeimage_mismatch` tests use alternate format data and `nopVerifyFunction`; the documented purpose is execution stability rather than output-value checking ([addGraphicsImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1221-L1237), [addGraphicsImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1267-L1273))

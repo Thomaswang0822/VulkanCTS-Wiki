@@ -4,7 +4,6 @@
 
 The [`rasterization`](../../modules/vulkan/rasterization/vktRasterizationTests.cpp#L10455) category covers Vulkan rasterization behavior observed in the inspected source files: primitive rasterization, line and point rules, fill rules, culling, rasterizer discard, interpolation and flat shading, multisampling, conservative rasterization, depth bias, provoking vertex behavior, fragment shader side effects, rasterization-order attachment access, shader tile-image reads, and selected maintenance5 line behavior. The root registration file is [`vktRasterizationTests.cpp`](../../modules/vulkan/rasterization/vktRasterizationTests.cpp#L1), with sibling registered implementation groups included from the root include section at [`vktRasterizationTests.cpp`](../../modules/vulkan/rasterization/vktRasterizationTests.cpp#L29-L62).
 
-The Vulkan API test plan describes the framework in terms of `TestCase` and `TestInstance` separation at [`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L20-L54), but the inspected test-plan file does not provide rasterization-category-specific coverage text; this page therefore uses the rasterization source files as the primary evidence.
 
 ## Registration Entry Point
 

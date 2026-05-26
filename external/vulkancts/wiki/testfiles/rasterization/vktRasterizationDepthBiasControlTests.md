@@ -80,4 +80,4 @@ After rendering, the test invalidates the depth and color buffers at [`vktRaster
 
 ## Notes / Uncertainties
 
-- The direct child names shown here are inferred from `getFormatSimpleName(format)` applied to the visible `VkFormat` list; validation against mustpass paths is required for the exact displayed spelling.
+- The direct child names shown here come from `getFormatSimpleName(format)` applied to the visible `VkFormat` list in the registration function.

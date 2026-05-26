@@ -1,16 +1,21 @@
-# Texture Function Tests
+# vktShaderRenderTextureFunctionTests.cpp
 
 ## Overview
 
-Comprehensive tests for GLSL texture access and query functions, covering `texture()`, `textureProj()`, `textureLod()`, `textureProjLod()`, `textureGrad()`, `textureProjGrad()`, `texelFetch()`, and their offset/clamp variants, as well as texture query functions (`textureSize`, `textureQueryLod`, `textureQueryLevels`, `textureSamples`). Tests span multiple texture types (1D, 2D, 3D, cube, 2D array, 1D array, cube array), formats (fixed-point, float, int, uint, shadow), sampler configurations, and shader stages (vertex, fragment, compute).
+[`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L1) is an implementation-heavy GLSL shader-render file for texture access and texture query functions. The file-level factory returns a `ShaderTextureFunctionTests` group whose registered name is `texture_functions` at [`createTextureFunctionTests()`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L8302-L8305) and [`ShaderTextureFunctionTests::ShaderTextureFunctionTests()`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L4418-L4421).
+
+The inspected source covers ordinary texture lookups, clamp/offset variants, projected lookups, explicit-LOD and gradient lookups, texel fetches, sparse texture-function variants, and query-function groups created under `query` in [`ShaderTextureFunctionTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L5009-L8298).
 
 ## Role
 
-Both registration and implementation. The `ShaderTextureFunctionTests` class (a `tcu::TestCaseGroup` named `"texture_functions"`) registers all sub-groups and test cases in its `init()` method ([L5009-L8298](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L5009-L8298)). The `ShaderTextureFunctionCase` and `SparseShaderTextureFunctionCase` classes provide the full test implementation, and `TextureQueryCase` handles query function tests.
+Registration file and implementation-heavy test file. It constructs the `glsl.texture_functions` hierarchy, defines texture/lookup case tables, emits shader sources, prepares texture bindings, and supplies evaluator functions used by the shared shader-render comparison framework.
 
 ## Source Code
 
-[vktShaderRenderTextureFunctionTests.cpp](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L1-L8308)
+- Primary source: [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L1)
+- Header: [`vktShaderRenderTextureFunctionTests.hpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.hpp#L1-L41)
+- Shared render framework: [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L773-L805)
+- Root package attachment for the `glsl` category: [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1338-L1354)
 
 ## Registration Hierarchy
 
@@ -48,52 +53,104 @@ glsl.texture_functions
 
 ## Test Families
 
-- **ShaderTextureFunctionCase** ([L1966-L2045](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L1966-L2045)): Extends `ShaderRenderCase`. Parameterized by `TextureLookupSpec`, `TextureSpec`, evaluation function, and shader stage flags. Creates `ShaderTextureFunctionInstance` for rendering and comparison.
-- **SparseShaderTextureFunctionCase** ([L2047-L2100](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L2047-L2100)): Variant that uses sparse image backing mode for testing texture functions with sparse residency.
-- **TextureQueryCase** ([L8100-L8290](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L8100-L8290)): Tests texture query functions (`textureSize`, `textureQueryLod`, `textureQueryLevels`, `textureSamples`) with various LOD clamp modes.
+### texture — Ordinary texture sampling
+
+The `texture` direct child is registered by a `createCaseGroup()` call at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L5650). It is populated from `textureCases`, whose entries use `FUNCTION_TEXTURE` and include sampled `sampler2D`, cube, array, 3D, 1D, and cube-array cases in the inspected table around [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L5573-L5648).
+
+`createCaseGroup()` creates per-case vertex, fragment, and compute descendants according to `CaseFlags`; it also adds sparse-prefixed cases when sparse support is enabled by the case table and Vulkan SC is not being built at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L4948-L5007).
+
+### textureclamp — ARB LOD-clamp texture sampling
+
+`textureclamp` is registered from `textureClampARBCases` at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L5759). The table uses `CLAMP_CASE_SPEC`, which sets `TextureLookupSpec::useClamp` and `lodClamp` through the macro definition at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L4461-L4468).
+
+### textureoffset and textureoffset_pcoffset — Texture sampling with texel offsets
+
+`textureoffset` and `textureoffset_pcoffset` are generated by looping over `pcOffset` values and constructing group names with an optional `_pcoffset` suffix at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L6023-L6037). Each group contains the five observed wrap-mode subgroups `clamp_to_edge`, `clamp_to_border`, `repeat`, `mirrored_repeat`, and `mirrored`, derived from `wrappingModesForOffset` at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L5016-L5022).
+
+The shader generation writes literal offsets for normal offset cases and push-constant components for `_pcoffset` cases at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L4816-L4831). Compute cases are not generated for `pcOffset` tables because `createCaseGroup()` skips compute when `lookupSpec.pcOffset` is true at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L4990-L4992).
+
+### textureoffsetclamp and textureoffsetclamp_pcoffset — Offset plus LOD clamp
+
+These direct children are generated with the same wrap-mode and `pcOffset` loop shape as `textureoffset`, using `textureOffsetClampARBCases` at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L6122-L6136). The cases combine `useOffset`, optional push-constant offsets, and `useClamp` from the clamp macro definitions at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L4445-L4476).
+
+### textureproj, textureprojoffset, and textureprojoffset_pcoffset — Projected texture sampling
+
+`textureproj` is registered directly at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L6390). The projected-family enum values distinguish ordinary projected lookups and the special 1D/2D coordinate signatures `FUNCTION_TEXTUREPROJ2` and `FUNCTION_TEXTUREPROJ3` at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L57-L74).
+
+The offset projected variants are generated as `textureprojoffset` and `textureprojoffset_pcoffset` by the same five wrap-mode subgroups and `pcOffset` suffix loop at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L6665-L6679). Reference evaluators divide by the projected coordinate component before sampling, for example in the 2D and 1D projected helpers at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L541-L587).
+
+### texturelod, texturelodoffset, texturelodoffset_pcoffset, textureprojlod, textureprojlodoffset, and textureprojlodoffset_pcoffset — Explicit LOD sampling
+
+`texturelod` and `textureprojlod` are registered directly at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L6766) and [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L6935). Their offset variants are generated from `textureLodOffsetCases` and `textureProjLodOffsetCases` with optional `_pcoffset` suffixes and wrap-mode subgroups at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L6843-L6857) and [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L7016-L7030).
+
+The enum helper treats explicit-LOD families and `texelFetch` as LOD-bearing functions at [`functionHasLod()`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L97-L102), and the reference functions read the explicit LOD from `c.in[1].x()` for sampled dimensions at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L589-L615).
+
+### texturegrad, texturegradclamp, texturegradoffset, texturegradoffset_pcoffset, texturegradoffsetclamp, and texturegradoffsetclamp_pcoffset — Explicit-gradient sampling
+
+`texturegrad` and `texturegradclamp` are registered at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L7201) and [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L7346). The offset and offset-clamp variants are generated with five wrap-mode subgroups and optional `_pcoffset` suffixes at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L7497-L7511) and [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L7623-L7637).
+
+Gradient cases use `GRAD_CASE_SPEC` or `GRADCLAMP_CASE_SPEC`, which place min/max derivative vectors into `TextureLookupSpec` at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L4453-L4476). Reference helpers compute LOD from gradients and, for clamp variants, clamp that LOD with `de::max(..., p.lodClamp)` at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L1180-L1260).
+
+### textureprojgrad, textureprojgradoffset, and textureprojgradoffset_pcoffset — Projected explicit-gradient sampling
+
+`textureprojgrad` is registered directly at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L7769). The offset projected-gradient variants are generated as `textureprojgradoffset` and `textureprojgradoffset_pcoffset` with the wrap-mode loop at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L7904-L7918).
+
+The projected-gradient reference helpers combine projection division, gradient-derived LOD, and optional offsets; representative functions for 2D, 3D, and 1D projected gradient cases are visible at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L1190-L1244).
+
+### texelfetch, texelfetchoffset, and texelfetchoffset_pcoffset — Integer-coordinate fetches
+
+`texelfetch` is registered from `texelFetchCases` at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L7974). `texelfetchoffset` and `texelfetchoffset_pcoffset` are generated by the `pcOffset` loop and wrap-mode subgroup loop at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L8007-L8024).
+
+Reference fetch functions convert coordinates and LOD values to integers before reading the requested texture level, as shown for 1D-array texel fetches at [`evalTexelFetch1DArray()`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L1401-L1407). Shader source generation also marks texel fetches as integer-coordinate functions at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L2081-L2088).
+
+### query — Texture query functions
+
+The `query` direct child is created at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L8027-L8037). Its inspected direct subgroups are `texturesize`, `texturesizems`, `texturesamples`, `texturequerylevels`, and `texturequerylod`, added at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L8077-L8293).
+
+`texturesize`, `texturequerylevels`, and `texturesamples` generate vertex, fragment, and compute cases in their loops, while `texturesizems` generates vertex and fragment cases only, and `texturequerylod` is explicitly fragment-only in the inspected loop at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L8079-L8091), [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L8116-L8126), [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L8146-L8158), [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L8205-L8217), and [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L8268-L8290).
 
 ## Parameter Dimensions
 
-| Dimension | Values | Description |
-|-----------|--------|-------------|
-| Texture function | `texture`, `textureProj`, `textureLod`, `textureProjLod`, `textureGrad`, `textureProjGrad`, `texelFetch` | The GLSL texture function being tested ([L57-L74](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L57-L74)) |
-| Texture type | 1D, 2D, 3D, Cube, 2DArray, 1DArray, CubeArray | Dimensionality and array-ness of the sampled texture |
-| Format | Fixed (RGBA8), Float (RGBA16F), Int (RGBA8I), Uint (RGBA8UI), Shadow (DEPTH_COMPONENT16) | Texel data format and signedness |
-| Sampler | Nearest, Linear, NearestMipmap, LinearMipmap, TriLinear, Shadow | Min/mag filter and mipmap modes ([L5024-L5057](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L5024-L5057)) |
-| Bias/LOD range | Various min/max LOD values | LOD bias and clamp ranges for bias and Lod variants |
-| Gradient ranges | Various dPdx/dPdy min/max | Gradient vector ranges for Grad variants |
-| Offset values | IVec3 offsets (e.g., -8, 7, 3) | Texel offsets for Offset variants |
-| Wrap mode | ClampToEdge, ClampToBorder, Repeat, MirroredRepeat, MirroredOnce | Texture wrap modes applied per offset group ([L5016-L5022](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L5016-L5022)) |
-| Shader stage | Vertex, Fragment, Compute | Which shader stage performs the texture operation |
-| pcOffset flag | false, true | Whether to use push constant offset (splits offset groups into `_pcoffset` variants) |
-| LOD clamp flag | false, true | Whether LOD clamping is applied (Clamp variants) |
-| ImageBackingMode | Regular, Sparse | Whether the texture uses standard or sparse memory backing |
+| Dimension | Observed values / evidence |
+|---|---|
+| Texture function enums | `FUNCTION_TEXTURE`, projected variants, explicit-LOD variants, gradient variants, and `FUNCTION_TEXELFETCH` at [`Function`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L57-L74) |
+| Direct registration groups | The 28 direct children listed in the hierarchy are created by `createCaseGroup()` calls, offset-group loops, and the final `query` group in [`ShaderTextureFunctionTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L5009-L8298) |
+| Texture dimensions and formats | The inspected `TextureSpec` declarations cover 2D, cube, 2D array, 3D, 1D, 1D array, and cube array textures with `GL_RGBA8`, `GL_RGBA16F`, `GL_RGBA8I`, `GL_RGBA8UI`, and depth-component shadow variants where declared at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L5059-L5190) |
+| Default sizes / mip levels | Examples include 2D 256x256 with 1 or 9 levels, cube 256x256 or 128x128 mipmapped float cube, 2D array 128x128x4 with 1 or 8 levels, 3D 64x32x32 with 1 or 7 levels, 1D 256-wide with 1 or 9 levels, and cube array 64x64x12 with 1 or 7 levels at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L5061-L5190) |
+| Offset-test sizes | Offset textures are smaller, commonly 4-wide or 4x4, with comments noting they are smaller than min/max allowed offsets at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L5192-L5312) |
+| Sampler modes | Nearest, linear, nearest-mipmap-nearest, linear-mipmap-nearest, linear-mipmap-linear, shadow no-mipmap, shadow mipmap, and texel-fetch samplers are declared at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L5023-L5057) |
+| Offset wrap modes | `clamp_to_edge`, `clamp_to_border`, `repeat`, `mirrored_repeat`, and `mirrored` from `wrappingModesForOffset` at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L5016-L5022) |
+| Shader stages | Case flags define `VERTEX`, `FRAGMENT`, `COMPUTE`, `BOTH`, and `ALL` at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L4427-L4434); `createCaseGroup()` materializes those flags as `_vertex`, `_fragment`, and `_compute` descendants at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L4962-L5003) |
+| Push-constant offset flag | Offset-family loops create non-`pcOffset` and `_pcoffset` groups, but compute children are skipped for `pcOffset` cases at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L4990-L4992) and [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L8007-L8024) |
+| Query-function subgroups | `texturesize`, `texturesizems`, `texturesamples`, `texturequerylevels`, and `texturequerylod` are direct children of `query` at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L8077-L8293) |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
-- **Sparse texture cases**: Require `sparseResidency*` features and are excluded on VulkanSC platforms.
-- **Compute shader cases**: Require compute pipeline support; test cases with `COMPUTE` flag generate compute shader variants.
-- **Shadow comparison modes**: Require depth format support in the device's format properties.
-- **1D texture cases**: Require `shaderSampledImageArrayDynamicIndexing` or 1D texture support as appropriate.
-- **Cube array texture cases**: Require `imageCubeArray` feature.
+| Requirement | Evidence |
+|---|---|
+| Cube arrays | `checkDeviceFeatures()` rejects `TEXTURETYPE_CUBE_ARRAY` when `imageCubeArray` is not supported at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L1431-L1439) |
+| Portability subset comparison samplers | Shadow/comparison sampler cases are rejected when `VK_KHR_portability_subset` is present without `mutableComparisonSamplers` at [`checkMutableComparisonSamplersSupport()`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L1442-L1458); both ordinary and query cases call this helper at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L2047-L2050) and [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L4008-L4011) |
+| Push-constant offset variants | Ordinary and sparse texture-function cases require `VK_KHR_maintenance8` when `lookupSpec.pcOffset` is true at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L2051-L2053) and [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L4935-L4937) |
+| Compute implicit-LOD derivatives | Compute texture-function cases that are neither explicit-LOD nor gradient cases require `VK_KHR_compute_shader_derivatives` and `computeDerivativeGroupQuads`; Vulkan SC rejects that path at [`ShaderTextureFunctionCase::checkSupport()`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L2054-L2065) |
+| Sparse cases | Sparse case classes and sparse child registration are compiled outside Vulkan SC only at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L4478-L4946) and [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L4964-L4998); sparse clamp instances additionally require `shaderResourceMinLod` at [`SparseShaderTextureFunctionInstance`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L4498-L4504) |
+| Query cases | `TextureQueryCase::checkSupport()` only calls the mutable-comparison-sampler helper in this file at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L4008-L4011); additional query behavior is implemented by the selected `TextureQueryInstance` subclass at [`TextureQueryCase::createInstance()`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L3988-L4005) |
 
 ## Verification Methods
 
-All tests use `ShaderRenderCase`-based reference comparison. Each test case provides a texture evaluation function (`TexEvalFunc`) that computes the expected texel value for a given coordinate:
+- Ordinary texture-function cases install a `TexLookupEvaluator` that calls the selected reference evaluation function at [`TexLookupEvaluator::evaluate()`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L1409-L1428), then the shared `ShaderRenderCaseInstance::iterate()` path renders the result, computes a vertex or fragment reference image, and compares both images at [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L773-L805).
+- Shared image comparison uses either `tcu::fuzzyCompare()` or `tcu::pixelThresholdCompare()` depending on `m_fuzzyCompare`, with a `0.2f` fuzzy threshold passed by the shader-render iteration path and a one-channel RGBA threshold for pixel-threshold mode at [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L799-L800) and [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2721-L2730).
+- Offset, bias, explicit-LOD, gradient, projection, and clamp semantics are encoded in separate evaluator helpers. Examples include projection division at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L541-L587), explicit LOD from `c.in[1].x()` at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L589-L615), and gradient clamp using `de::max()` at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L1246-L1260).
+- Sparse shader variants call `sparse*ARB` functions, test `sparseTexelsResidentARB(success)`, and write a distinctive fallback color when texels are not resident at [`SparseShaderTextureFunctionCase::initShaderSources()`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L4774-L4868).
+- `TextureQueryCase` dispatches to query-specific instances for `textureSize`, multisample size, `textureQueryLod`, `textureQueryLevels`, and `textureSamples` at [`TextureQueryCase::createInstance()`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L3988-L4005). The inspected `TextureSizeInstance` iterates through a table of sizes, skips incompatible cases, computes expected dimensions by texture type, renders, and compares the integer result components for valid LODs only at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L2920-L3035).
 
-- **Standard texture functions**: Evaluation functions (e.g., `evalTexture2D`, `evalTextureCube`, `evalTexture3D`) compute reference values via `tcu::TextureAccess` sampling, which implements the Vulkan texture sampling specification including filtering, wrapping, and LOD computation.
-- **Offset variants**: Evaluation functions (e.g., `evalTexture2DOffset`, `evalTexture3DOffset`) apply the specified texel offset before sampling.
-- **Bias variants**: Evaluation functions (e.g., `evalTexture2DBias`, `evalTexture2DOffsetBias`) add the bias value to the computed LOD before sampling.
-- **LOD variants**: Evaluation functions (e.g., `evalTexture2DLod`, `evalTexture2DShadowLod`) use the explicitly provided LOD value.
-- **Grad variants**: Evaluation functions (e.g., `evalTexture2DGrad`, `evalTexture2DGradOffset`) use the explicitly provided gradient vectors.
-- **Projection variants**: Evaluation functions divide coordinates by the w component before sampling.
-- **Query functions**: Results are verified against known texture dimensions and mipmap counts.
+## Test Principles
 
-The rendered output is compared against the reference image using the `ShaderRenderCase` framework's built-in threshold comparison with format-appropriate tolerances.
+- Direct child groups correspond to GLSL function families first, while offset-bearing families add a wrap-mode subgroup layer and an optional `_pcoffset` registration branch.
+- Case tables keep function selection, coordinate ranges, bias/LOD values, gradient ranges, offsets, texture specification, reference evaluator, and shader-stage flags together through `CASE_SPEC`, `GRAD_CASE_SPEC`, `CLAMP_CASE_SPEC`, and `GRADCLAMP_CASE_SPEC` at [`vktShaderRenderTextureFunctionTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L4436-L4476).
+- Texture families are checked by rendered-image comparison against CPU-side evaluator output, while query families use query-specific instances that compare rendered integer or floating query results against expected values.
+- Support logic is conditional: sparse paths are non-VulkanSC branches, push-constant offset variants require `VK_KHR_maintenance8`, and compute implicit-LOD sampling requires compute shader derivatives rather than all compute texture-function cases requiring that extension.
 
-## Notes
+## Notes / Uncertainties
 
-- The `createCaseGroup` helper ([L4960-L5007](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L4960-L5007)) generates vertex, fragment, and/or compute test cases from a `TexFuncCaseSpec` array based on the `CaseFlags` (VERTEX/FRAGMENT/COMPUTE).
-- Offset variants are further subdivided by wrap mode (clamp_to_edge, clamp_to_border, repeat, mirrored_repeat, mirrored) and pcOffset flag, creating a deep hierarchy under each offset group name.
-- The `FUNCTION_TEXTUREPROJ2` and `FUNCTION_TEXTUREPROJ3` enumerators handle the different coordinate signatures of `textureProj` for 1D and 2D samplers respectively ([L60-L63](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L60-L63)).
-- Texture query tests are organized under the `query` sub-group with separate groups for each query function and LOD clamp mode.
+- The page documents the direct children of `glsl.texture_functions` and summarizes deeper generated descendants in prose; the registration tree intentionally stops one level below the documented root.
+- Current-behavior claims in this page use inspected local source evidence under `external/vulkancts/`; no repository-local GitHub URLs are used.

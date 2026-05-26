@@ -2,7 +2,7 @@
 
 ## Summary
 
-The conditional rendering category exercises `VK_EXT_conditional_rendering` behavior around commands that are conditionally executed and commands that are expected to ignore the active conditional-rendering state. The root registration file adds six direct child groups. Source evidence is concentrated under `external/vulkancts/modules/vulkan/conditional_rendering/`; `doc/testspecs/VK/apitests.adoc` was inspected, but no conditional-rendering-specific section was found there.
+The conditional rendering category exercises `VK_EXT_conditional_rendering` behavior around commands that are conditionally executed and commands that are expected to ignore the active conditional-rendering state. The root registration file adds six direct child groups. Source evidence is concentrated under `external/vulkancts/modules/vulkan/conditional_rendering/`.
 
 ## Registration Entry Point
 

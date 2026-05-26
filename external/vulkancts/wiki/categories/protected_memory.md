@@ -88,9 +88,6 @@ The common support gate is [`checkProtectedContextSupport()`](../../modules/vulk
 
 Observed verification uses image validation after protected rendering or transfer work, buffer validation after protected buffer operations, WSI swapchain creation/render helpers, and YCbCr shader conversion validation. Image-output validation is visible in files such as [`vktProtectedMemShaderImageAccessTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemShaderImageAccessTests.cpp#L1227-L1245), and buffer validation is visible in [`vktProtectedMemFillUpdateCopyBufferTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemFillUpdateCopyBufferTests.cpp#L331-L335) and [`vktProtectedMemStorageBufferTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemStorageBufferTests.cpp#L671-L675).
 
-## Relationship to the Test Plan
-
-[`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L191-L267) describes general memory-management themes such as allocation, mapping, cache control, and binding. The inspected test-plan text does not provide protected-memory-category-specific coverage, so this category page relies primarily on the inspected source under [`modules/vulkan/protected_memory/`](../../modules/vulkan/protected_memory/vktProtectedMemTests.cpp#L25-L43).
 
 ## Notes / Uncertainties
 

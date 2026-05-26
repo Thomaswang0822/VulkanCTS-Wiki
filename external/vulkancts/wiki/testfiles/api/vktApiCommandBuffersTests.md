@@ -2,7 +2,7 @@
 
 ## Overview
 
-Tests Vulkan command buffer lifecycle, recording, submission, and execution semantics. Covers command pool creation and reset, primary and secondary command buffer allocation and reuse, render-pass-continue behavior, simultaneous use, nested command buffers, state transitions, and indirect dispatch alignment.
+Tests Vulkan command buffer lifecycle, recording, submission, and execution semantics. Covers command pool creation and reset, primary and secondary command buffer allocation and reuse, render-pass-continue behavior, simultaneous use, nested command buffers, state transitions, and indirect dispatch alignment. These areas correspond to historical API test-plan coverage for command-pool reset, command-buffer lifetime, recording, submission, secondary execution, and command ordering ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L568-L669)).
 
 ## Role of File
 

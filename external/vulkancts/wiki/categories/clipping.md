@@ -4,7 +4,6 @@
 
 The [`clipping`](../../modules/vulkan/clipping/vktClippingTests.cpp#L1956-L1959) category verifies fixed clip-volume behavior, depth clamp and explicit depth clip behavior, large-point and wide-line clipping behavior, shader-defined `gl_ClipDistance[]` and `gl_CullDistance[]` behavior, and selected complementarity/cull-distance corner cases. The category is registered as a Vulkan and Vulkan SC root child named `clipping` in [`vktTestPackage.cpp`](../../modules/vulkan/vktTestPackage.cpp#L1369-L1370) and [`vktTestPackage.cpp`](../../modules/vulkan/vktTestPackage.cpp#L1436-L1437).
 
-The inspected Vulkan API test plan provides general Vulkan CTS test framework context for `TestCase`, `TestInstance`, and shader program setup at [`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L20-L54), but it does not contain clipping-specific coverage text. Clipping-specific claims in this page are therefore derived from the inspected clipping implementation and mustpass registration file.
 
 ## Registration Entry Point
 
@@ -80,4 +79,3 @@ User-defined distance tests compare expected black pixels, guard pixels, and opt
 
 - The clipping category has no sibling implementation files in the inspected directory; [`CMakeLists.txt`](../../modules/vulkan/clipping/CMakeLists.txt#L7-L16) lists only [`vktClippingTests.cpp`](../../modules/vulkan/clipping/vktClippingTests.cpp#L1) and [`vktClippingTests.hpp`](../../modules/vulkan/clipping/vktClippingTests.hpp#L1).
 - The only required Level-3 page for source files that register clipping tests is [`vktClippingTests.md`](../testfiles/clipping/vktClippingTests.md).
-- No clipping-specific objectives were found in the inspected [`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L1-L13); source code and mustpass entries are the evidence base for category-specific coverage.

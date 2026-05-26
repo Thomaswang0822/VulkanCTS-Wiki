@@ -4,7 +4,6 @@
 
 The Vulkan CTS `video` category covers video queue/capability queries, video format and profile validation, decode sessions, encode sessions, and video-specific synchronization coverage. The public category root is registered by `TestPackage::init()` as `video`, which delegates to `video::createTests` ([vktTestPackage.cpp](../../modules/vulkan/vktTestPackage.cpp#L1394-L1396)). The root dispatcher then adds seven direct child groups: `capabilities`, `formats`, `profiles`, `decode`, `encode`, `synchronization`, and `synchronization2` ([vktVideoTests.cpp](../../modules/vulkan/video/vktVideoTests.cpp#L40-L93)).
 
-`doc/testspecs/VK/apitests.adoc` was inspected as required; text search found no video-specific section, so category-specific statements below are derived from inspected `external/vulkancts/` source and `mustpass/main/vk-default/video.txt`.
 
 ## Registration Entry Point
 
@@ -88,6 +87,5 @@ Only source files observed registering tests receive Level-3 pages.
 
 ## Notes and Uncertainties
 
-- No video-specific prose was found in the inspected `apitests.adoc`; this page intentionally relies on source and mustpass evidence.
 - The `synchronization` and `synchronization2` children are registered by the video dispatcher but implemented by shared synchronization code outside `modules/vulkan/video/` ([vktVideoTests.cpp](../../modules/vulkan/video/vktVideoTests.cpp#L51-L90)).
 - `external/vulkancts/wiki/README.md` was not updated to mark `video` done; the requested semantic audit is still a separate follow-up step.

@@ -78,4 +78,4 @@ The operation, matrix-multiply, and training tests generate GLSL for the selecte
 
 ## Scope Notes
 
-The inspected API test plan provides general Vulkan CTS framework context but no cooperative-vector-specific test-family breakdown [apitests.adoc](../../../../doc/testspecs/VK/apitests.adoc#L8-L13). The Level-3 scope contains the three source files that register tests in this category; `vktCooperativeVectorUtils.cpp` is documented as a helper because it provides data-type and conversion helpers but does not register tests [CMakeLists.txt](../../modules/vulkan/cooperative_vector/CMakeLists.txt#L12-L19), [vktCooperativeVectorUtils.cpp](../../modules/vulkan/cooperative_vector/vktCooperativeVectorUtils.cpp#L34-L101).
+The Level-3 scope contains the three source files that register tests in this category; `vktCooperativeVectorUtils.cpp` is documented as a helper because it provides data-type and conversion helpers but does not register tests [CMakeLists.txt](../../modules/vulkan/cooperative_vector/CMakeLists.txt#L12-L19), [vktCooperativeVectorUtils.cpp](../../modules/vulkan/cooperative_vector/vktCooperativeVectorUtils.cpp#L34-L101).

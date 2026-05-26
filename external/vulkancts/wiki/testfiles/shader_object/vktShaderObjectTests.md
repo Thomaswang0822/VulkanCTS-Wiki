@@ -108,4 +108,3 @@ No pass/fail verification is implemented in this dispatcher file. Verification m
 ## Notes / Uncertainties
 
 - The root group name is provided by the caller of `createTests()`; the category path `shader_object` is inferred from Vulkan CTS category registration and verified by mustpass path checking, not from a string literal in this file.
-- `doc/testspecs/VK/apitests.adoc` was searched for shader-object terms and no relevant matches were found in this stage.

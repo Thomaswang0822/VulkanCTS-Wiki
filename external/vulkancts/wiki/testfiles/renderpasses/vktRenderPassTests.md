@@ -18,6 +18,10 @@ renderpasses
 
 Registration file + Implementation file. This file both registers the top-level groups and contains core test implementations.
 
+## Notes
+
+The historical Vulkan API test plan describes multipass tests for data-flow configurations including target formats, attachment counts, load/store, resolves, dependencies, exhaustive dimensions, and randomized tests ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L302-L308)); current source and mustpass remain authoritative for exact behavior.
+
 ## Test Families
 
 ### renderpass1 — Legacy render pass (RENDERING_TYPE_RENDERPASS_LEGACY)

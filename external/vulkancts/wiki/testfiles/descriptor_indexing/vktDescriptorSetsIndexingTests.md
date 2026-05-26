@@ -252,6 +252,5 @@ When shader writes are enabled for storage buffers or storage texel buffers, ext
 
 ## Notes / Uncertainties
 
-- A search of [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc) for descriptor-indexing-specific phrases did not find relevant inspected evidence, so this page intentionally relies on source and mustpass evidence.
-- The hierarchy includes the four delegated misc direct-root cases because they are added through the call at the end of [`descriptorIndexingDescriptorSetsCreateTests`](../../../modules/vulkan/descriptor_indexing/vktDescriptorSetsIndexingTests.cpp#L4923) and appear in the default mustpass list. Their implementation details should be covered by a dedicated misc page if that page is written.
+- The hierarchy includes the four delegated misc direct-root cases because they are added through the call at the end of [`descriptorIndexingDescriptorSetsCreateTests`](../../../modules/vulkan/descriptor_indexing/vktDescriptorSetsIndexingTests.cpp#L4923) and appear in the default mustpass list. Their implementation details are covered by the dedicated [`vktDescriptorIndexingMiscTests.md`](vktDescriptorIndexingMiscTests.md) page.
 - The inspected source shows `non_uniform_atomics` as a direct function case, not as a nested `TestCaseGroup`; any audit should reject wording that treats it as a subgroup unless different source evidence is found.

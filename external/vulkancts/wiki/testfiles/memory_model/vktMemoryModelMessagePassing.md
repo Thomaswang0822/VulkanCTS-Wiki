@@ -164,7 +164,7 @@ four submits, copies the fail buffer to host-visible memory, and fails the case 
 
 ## Notes / Uncertainties
 
-- The inspected API test plan does not contain a dedicated `memory_model` section; this page relies on the inspected source and
-  mustpass evidence rather than test-plan prose.
+- This page relies on inspected source and mustpass evidence for exact registration, parameter matrices, support gates, and
+  verification behavior.
 - VulkanSC mustpass coverage was not observed for `dEQP-VKSC.memory_model` in the inspected mustpass search; the source still
   registers `memory_model` for VulkanSC package initialization.

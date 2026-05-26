@@ -1,6 +1,6 @@
 # Binding Model Tests
 
-The `binding_model` category documents Vulkan descriptor binding, descriptor updates/copies, descriptor buffers and heaps, mutable descriptors, dynamic offsets, buffer device addresses, inline uniform blocks, acceleration-structure descriptors, and related shader access behavior.
+The `binding_model` category documents Vulkan descriptor binding, descriptor updates/copies, descriptor buffers and heaps, mutable descriptors, dynamic offsets, buffer device addresses, inline uniform blocks, acceleration-structure descriptors, and related shader access behavior. The historical Vulkan API test plan gives useful high-level background for this category by identifying descriptor-set creation, shader resource access through varied layouts, descriptor updates, descriptor-set chaining, descriptor limits, and pipeline-layout corner cases as binding-model objectives ([`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L278-L297)).
 
 ## Source
 
@@ -67,6 +67,6 @@ The root include section includes five groups outside the `CTS_USES_VULKANSC` gu
 
 ## Notes
 
-- Official tracker count: 14 top-level groups discovered from root includes and cross-checked against direct child registration.
+- Top-level group count: 14 direct root children discovered from root includes and cross-checked against direct child registration.
 - Writing scope: 15 Level-3 pages, because [`vktBindingDescriptorUpdateASTests.cpp`](../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp) is a nested registered group under `descriptor_update`.
-- Mustpass validation may be unavailable for this category if no category-specific mustpass text file exists in the expected `vk-default` location.
+- Mustpass coverage is available in [`binding-model.txt`](../../mustpass/main/vk-default/binding-model.txt).

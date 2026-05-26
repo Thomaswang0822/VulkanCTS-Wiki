@@ -2,17 +2,20 @@
 
 ## Overview
 
-[`vktSubgroupsQuadControlTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L1) documents the [`subgroups.shader_quad_control`](../../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L807) branch. It covers `VK_KHR_shader_quad_control` draw tests.
+[`vktSubgroupsQuadControlTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L1) documents the [`subgroups.shader_quad_control`](../../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L807) branch. It covers `VK_KHR_shader_quad_control` draw tests. The entire branch is non-VulkanSC-only because the dispatcher includes this file only inside `#ifndef CTS_USES_VULKANSC` and registers `createSubgroupsQuadControlTests()` only inside the same guard in [`vktSubgroupsTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L40-L45) and [`vktSubgroupsTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L77-L81).
 
 ## Role
 
-Implementation file that registers tests under the verified group name [`shader_quad_control`](../../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L807).
+Implementation file that registers tests under the verified group name [`shader_quad_control`](../../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L807). The group is attached to `subgroups` only for non-VulkanSC builds by the dispatcher guard in [`vktSubgroupsTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L77-L81).
 
 ## Source Code
 
 - Primary source: [`vktSubgroupsQuadControlTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L1)
+- Dispatcher guard: [`vktSubgroupsTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L40-L45) and [`vktSubgroupsTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L77-L81)
 
 ## Registration Hierarchy
+
+The entire `subgroups.shader_quad_control` Level-3 branch is non-VulkanSC-only.
 
 ```text
 subgroups.shader_quad_control
@@ -44,7 +47,7 @@ Registered direct child of `shader_quad_control`; generated leaves and parameter
 
 ## Support / Feature Requirements
 
-Requires `VK_KHR_shader_quad_control`; terminated-invocation mode also requires `VK_KHR_shader_terminate_invocation`, with support checks in [`DrawWithQuadControlTestCase::checkSupport()`](../../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L621-L645).
+Requires `VK_KHR_shader_quad_control`. Terminated-invocation mode also requires `VK_KHR_shader_terminate_invocation` and at least one of `VK_KHR_shader_maximal_reconvergence` or `VK_KHR_shader_subgroup_uniform_control_flow`, with support checks in [`DrawWithQuadControlTestCase::checkSupport()`](../../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L621-L633).
 
 ## Verification Methods
 
@@ -58,4 +61,4 @@ The draw test returns pass when `isResultCorrect()` accepts the output image/buf
 ## Notes / Uncertainties
 
 - The hierarchy tree intentionally lists only direct children of `subgroups.shader_quad_control`. Deeper generated leaf names are summarized rather than expanded.
-- Claims are limited to inspected source under `external/vulkancts/modules/vulkan/subgroups/`; [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L8-L12) gives only general API-test-plan context for this category.
+- Claims are limited to inspected source under `external/vulkancts/modules/vulkan/subgroups/`.

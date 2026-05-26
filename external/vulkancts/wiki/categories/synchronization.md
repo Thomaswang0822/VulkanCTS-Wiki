@@ -4,6 +4,8 @@
 
 The [`synchronization`](../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L175) category tests Vulkan's legacy synchronization primitives and execution dependency mechanisms as defined by the original Vulkan 1.0 API. It covers fences, semaphores (binary and timeline), events, pipeline barriers, cross-instance resource sharing, signal ordering, and implicit synchronization guarantees.
 
+The historical Vulkan API test plan describes synchronization coverage as verification that execution-ordering primitives work as expected across non-trivial workloads, and separately calls out fences, semaphores, and events as important primitive families ([`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L370-L425)). Treat this as high-level background only; the current source and mustpass files below define the active registration, parameters, support gates, and verification details.
+
 This category uses `SynchronizationType::LEGACY`, meaning it calls the original Vulkan 1.0 synchronization APIs such as `vkCmdPipelineBarrier()`, `vkQueueSubmit()`, and `vkCmdSetEvent()`/`vkCmdWaitEvents()`. A companion category [`synchronization2`](synchronization2.md) tests the same concepts using the `VK_KHR_synchronization2` extension API.
 
 ## Registration Entry Point

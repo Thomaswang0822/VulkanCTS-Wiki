@@ -29,23 +29,23 @@ image.misaligned_cube
 
 ## Test Families
 
-### 7 â€?Seven-layer cube image test
+### 7 â€” Seven-layer cube image test
 
 Covers the `7` direct child registered by [`createMisalignedCubeTests()`](../../../modules/vulkan/image/vktImageMisalignedCubeTests.cpp#L391-L406). Creates a cube-compatible image with 7 array layers. Cube 0 starts at layer 0, Cube 1 starts at layer 1 (misaligned - only 1 layer remaining).
 
-### 8 â€?Eight-layer cube image test
+### 8 â€” Eight-layer cube image test
 
 Covers the `8` direct child registered by [`createMisalignedCubeTests()`](../../../modules/vulkan/image/vktImageMisalignedCubeTests.cpp#L391-L406). Creates a cube-compatible image with 8 array layers. Cube 0 starts at layer 0, Cube 1 starts at layer 2 (misaligned).
 
-### 9 â€?Nine-layer cube image test
+### 9 â€” Nine-layer cube image test
 
 Covers the `9` direct child registered by [`createMisalignedCubeTests()`](../../../modules/vulkan/image/vktImageMisalignedCubeTests.cpp#L391-L406). Creates a cube-compatible image with 9 array layers. Cube 0 starts at layer 0, Cube 1 starts at layer 3 (misaligned).
 
-### 10 â€?Ten-layer cube image test
+### 10 â€” Ten-layer cube image test
 
 Covers the `10` direct child registered by [`createMisalignedCubeTests()`](../../../modules/vulkan/image/vktImageMisalignedCubeTests.cpp#L391-L406). Creates a cube-compatible image with 10 array layers. Cube 0 starts at layer 0, Cube 1 starts at layer 4 (misaligned).
 
-### 11 â€?Eleven-layer cube image test
+### 11 â€” Eleven-layer cube image test
 
 Covers the `11` direct child registered by [`createMisalignedCubeTests()`](../../../modules/vulkan/image/vktImageMisalignedCubeTests.cpp#L391-L406). Creates a cube-compatible image with 11 array layers. Cube 0 starts at layer 0, Cube 1 starts at layer 5 (misaligned).
 

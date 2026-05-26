@@ -2,11 +2,7 @@
 
 ## Overview
 
-Tests plane-level image view access of multi-planar YCbCr images. Verifies that sampling individual planes through image views with compatible formats produces the same results as sampling the whole image through a YCbCr conversion-enabled view. Supports both direct image view access and memory aliasing approaches.
-
-**Role:** Implementation (registers group `ycbcr.plane_view`)
-
-**Source:** [vktYCbCrViewTests.cpp](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp)
+[`vktYCbCrViewTests.cpp`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp) implements the `ycbcr.plane_view` subgroup returned by [`createViewTests()`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L1075-L1078). It compares whole-image YCbCr sampling with plane-level sampling through either plane image views or memory-alias images in [`testPlaneView()`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L595-L860).
 
 ## Registration Hierarchy
 
@@ -16,48 +12,36 @@ ycbcr.plane_view
 └── memory_alias
 ```
 
+[`populateViewGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L1065-L1070) creates the direct `image_view` and `memory_alias` children. [`populateViewTypeGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L983-L1062) then expands each child into format, plane, shader, descriptor, and compatible-format cases.
+
 ## Test Families
 
-### plane_view
+### image_view
 
-Verifies that individual planes of a multi-planar YCbCr image can be accessed via image views with the plane's compatible format (or a format-compatible alternative). The test samples both the whole image (with YCbCr conversion) and the individual plane view, then compares the results against software reference values.
+`image_view` cases create a `VkImageView` with `VK_IMAGE_ASPECT_PLANE_N_BIT` on the original multi-planar image in [`testPlaneView()`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L613-L642).
 
-**View Types:**
+### memory_alias
 
-| View Type | Description |
-|-----------|-------------|
-| `image_view` | Creates a `VkImageView` with `VK_IMAGE_ASPECT_PLANE_N_BIT` on the original multi-planar image |
-| `memory_alias` | Creates a separate image bound to the same memory as the plane, with `VK_IMAGE_CREATE_ALIAS_BIT` (requires disjoint) |
+`memory_alias` cases create a separate image for the plane-compatible format and bind it to the plane memory in [`testPlaneView()`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L613-L642). Both view families create a whole-image view with a `VkSamplerYcbcrConversion` and a plane view without conversion in [`testPlaneView()`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L645-L675).
 
-**Parameter Dimensions:**
+## Parameters
 
-| Dimension | Values | Notes |
-|-----------|--------|-------|
-| Format | All YCbCr multi-planar formats (`VK_YCBCR_FORMAT_FIRST` through `VK_YCBCR_FORMAT_LAST`, plus 444 EXT formats) | Single-plane formats are skipped |
-| Plane Index | 0 through `numPlanes-1` | Each plane is tested independently |
-| Compatible Format | Plane's native compatible format, plus any format with matching pixel size from the compatibility table | E.g., `VK_FORMAT_R4G4_UNORM_PACK8` is compatible with `VK_FORMAT_R8_UNORM` |
-| Disjoint | false, true | `VK_IMAGE_CREATE_DISJOINT_BIT` (memory_alias requires disjoint) |
-| Shader Type | fragment, compute | Only shader stages with executor support |
-| Descriptor Mode | descriptor set, descriptor buffer, descriptor heap | Descriptor buffer and descriptor heap variants are non-VulkanSC only and use `_descriptor_buffer` / `_descriptor_heap` suffixes |
+| Dimension | Source-backed values |
+|---|---|
+| Formats | The generator iterates `VK_YCBCR_FORMAT_FIRST` to `VK_YCBCR_FORMAT_LAST` and the 2-plane 444 EXT range up to but not including `VK_FORMAT_G16_B16R16_2PLANE_444_UNORM_EXT` in [`populateViewTypeGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L1053-L1062). |
+| Plane index | All planes from `0` to `getPlaneCount(format)-1` are generated in [`populateViewTypeGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L1005-L1020). |
+| Compatible format | The native plane-compatible format is always tested, and additional formats are added when `formatsAreCompatible()` accepts them in [`populateViewTypeGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L1028-L1046). |
+| Descriptor mode | Descriptor-set, descriptor-buffer, and descriptor-heap variants are generated where executor-supported in [`populateViewTypeGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L991-L1026) and executed in [`testPlaneView()`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L757-L842). |
+| View flags | `VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT` is always included, `VK_IMAGE_CREATE_ALIAS_BIT` is added for memory aliases, and `VK_IMAGE_CREATE_DISJOINT_BIT` is varied in [`populateViewTypeGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L987-L1017). |
 
-**Support Requirements:**
+## Support Requirements
 
-- `VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_TRANSFER_DST_BIT | VK_FORMAT_FEATURE_MIDPOINT_CHROMA_SAMPLES_BIT` for the YCbCr format
-- `VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_TRANSFER_DST_BIT` for the plane compatible format
-- `VK_EXT_descriptor_buffer` for descriptor-buffer variants
-- `VK_EXT_descriptor_heap` for descriptor-heap variants
-- `VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT` is always set
-- `VK_IMAGE_CREATE_ALIAS_BIT` for memory alias view type
-- `VK_IMAGE_CREATE_DISJOINT_BIT` for disjoint tests (and required for memory alias)
+[`checkSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L486-L500) delegates YCbCr image support to shared [`checkImageSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrUtil.cpp#L176-L201), requires sampled-image/transfer-destination/midpoint features for the YCbCr format, sampled-image/transfer-destination features for the plane-compatible format, shader support, and `VK_EXT_descriptor_buffer` or `VK_EXT_descriptor_heap` for those descriptor modes.
 
-**Verification Method:**
+## Verification Method
 
-Shader execution via `ShaderExecutor`. Two outputs are produced: (1) the whole image sampled with YCbCr conversion, and (2) the plane view sampled without conversion. Both are compared against software reference values using `tcu::Texture2DView::sample()` with a threshold of 0.02f. For compatible format comparisons, a `chooseComparisonFormat()` function selects the appropriate format to handle padded formats (e.g., `R10X6` vs `R12X4`) where padding bits may differ. The descriptor mode controls whether execution uses descriptor sets, `executeBuffer()`, or `executeHeap()`.
+[`testPlaneView()`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L806-L860) samples 500 generated coordinates, produces whole-image and plane-view shader outputs, builds software references from `tcu::Texture2DView::sample()`, and uses a `0.02f` threshold; the descriptor path can use descriptor sets, `executeBuffer()`, or `executeHeap()` depending on the generated mode.
 
-**Key Functions:**
+## Notes / Uncertainties
 
-- [testPlaneView()](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L595) - Main test implementation
-- [checkSupport()](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L486) - Image, shader-stage, and descriptor-mode support checks
-- [populateViewTypeGroup()](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L983) - Per-view-type test case generation, including descriptor-buffer and descriptor-heap suffix variants
-- [populateViewGroup()](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L1065) - Top-level view group population
-- [createViewTests()](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L1075) - Factory function returning the `plane_view` group
+Memory-alias tests are source-filtered to disjoint images only, as shown by the generator's `continue` for non-disjoint memory-alias cases in [`populateViewTypeGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L1016-L1017).

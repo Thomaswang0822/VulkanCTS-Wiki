@@ -8,7 +8,7 @@ This category is compact, consisting of a single source file that implements bot
 
 ## Registration Entry Point
 
-The category is registered in [vktTestPackage.cpp#L1383](../../modules/vulkan/vktTestPackage.cpp#L1383):
+The category is registered in [vktTestPackage.cpp#L1382](../../modules/vulkan/vktTestPackage.cpp#L1382):
 
 ```cpp
 addRootChild("imageless_framebuffer", m_caseListFilter, imageless::createTests);
@@ -88,5 +88,4 @@ All tests use **procedural reference image comparison** via `tcu::intThresholdCo
 
 ## Notes on Scope / Uncertainty
 
-- The test plan (`apitests.adoc`) does not contain a dedicated section for this category; all documentation is derived from source code inspection.
 - The `VK_KHR_imageless_framebuffer` extension and feature bit checks are performed inside `TestInstance` constructors rather than in `BaseTestCase::checkSupport()`, which only checks `standardSampleLocations` for resolve tests.

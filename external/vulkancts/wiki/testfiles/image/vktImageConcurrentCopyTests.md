@@ -17,11 +17,11 @@ This is an implementation-heavy file that provides test implementations and regi
 
 ```text
 image.concurrent_copy
-├── r8g8b8a8_unorm
-�?  └── ... (nested structure by tiling, type, command, data, copy, access, flags)
-├── r8_unorm
-�?  └── ... (same structure)
-└── r32g32_sfloat
+├── vk_format_r8g8b8a8_unorm
+│   └── ... (nested structure by tiling, type, command, data, copy, access, flags)
+├── vk_format_r8_unorm
+│   └── ... (same structure)
+└── vk_format_r32g32_sfloat
     └── ... (same structure)
 ```
 
@@ -31,7 +31,7 @@ Evidence:
 
 ## Test Families
 
-### Format-based groups �?r8g8b8a8_unorm, r8_unorm, r32g32_sfloat
+### Format-based groups — r8g8b8a8_unorm, r8_unorm, r32g32_sfloat
 
 Each format has a nested hierarchy testing various combinations.
 

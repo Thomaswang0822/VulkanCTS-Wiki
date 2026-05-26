@@ -2,7 +2,7 @@
 
 ## Overview
 
-[`vktInfoTests.cpp`](../../../modules/vulkan/vktInfoTests.cpp#L1) is the primary registration file for the lightweight Vulkan CTS [`info`](../../categories/info.md) category. It implements four local function-style cases that report build, device, platform, and platform-memory information, then extends the same test group with delegated API feature-info registrations via [`createFeatureInfoInstanceTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8924), [`createFeatureInfoDeviceTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8937), and [`createFeatureInfoDeviceGroupTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8953).
+[`vktInfoTests.cpp`](../../../modules/vulkan/vktInfoTests.cpp#L1) is the primary registration file for the lightweight Vulkan CTS [`info`](../../categories/info.md) category. It implements four local function-style cases that report build, device, platform, and platform-memory information, then extends the same test group with delegated API feature-info registrations via [`createFeatureInfoInstanceTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8928), [`createFeatureInfoDeviceTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8941), and [`createFeatureInfoDeviceGroupTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8957).
 
 ## Role
 
@@ -13,7 +13,7 @@ Registration file with a small amount of direct implementation.
 - Primary source: [`vktInfoTests.cpp`](../../../modules/vulkan/vktInfoTests.cpp#L1)
 - Declaration: [`vktInfoTests.hpp`](../../../modules/vulkan/vktInfoTests.hpp#L34)
 - Related delegated declarations: [`vktApiFeatureInfo.hpp`](../../../modules/vulkan/api/vktApiFeatureInfo.hpp#L34)
-- Root-category attachment: [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1348)
+- Root-category attachment: [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1347)
 
 ## Registration Hierarchy
 
@@ -43,11 +43,11 @@ info
 ```
 
 Evidence:
-- root attachment in [`TestPackage::init()`](../../../modules/vulkan/vktTestPackage.cpp#L1348) and [`TestPackageSC::init()`](../../../modules/vulkan/vktTestPackage.cpp#L1416)
+- root attachment in [`TestPackage::init()`](../../../modules/vulkan/vktTestPackage.cpp#L1347) and [`TestPackageSC::init()`](../../../modules/vulkan/vktTestPackage.cpp#L1415)
 - local cases registered in [`createInfoTests()`](../../../modules/vulkan/vktInfoTests.cpp#L260-L265)
-- delegated instance cases from [`createFeatureInfoInstanceTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8924-L8935)
-- delegated device cases from [`createFeatureInfoDeviceTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8937-L8951)
-- delegated device-group case from [`createFeatureInfoDeviceGroupTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8953-L8957)
+- delegated instance cases from [`createFeatureInfoInstanceTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8928-L8939)
+- delegated device cases from [`createFeatureInfoDeviceTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8941-L8955)
+- delegated device-group case from [`createFeatureInfoDeviceGroupTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8957-L8960)
 
 ## Test Families
 
@@ -104,7 +104,7 @@ Unlike the three purely informational cases, this one returns `Pass` in [`logPla
 
 ### Delegated API feature-info cases
 
-The remaining direct children under `info` are implemented in [`vktApiFeatureInfo.cpp`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8924) and documented in [`vktApiFeatureInfo.md`](vktApiFeatureInfo.md):
+The remaining direct children under `info` are implemented in [`vktApiFeatureInfo.cpp`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8928) and documented in [`vktApiFeatureInfo.md`](vktApiFeatureInfo.md):
 
 - `physical_devices`, `physical_device_groups`, `instance_layers`, `instance_extensions`, `instance_extension_dependencies`, `instance_extension_device_functions` (instance-scope cases)
 - `device_features`, `device_properties`, `device_queue_family_properties`, `device_memory_properties`, `device_layers`, `device_extensions`, `device_extension_dependencies`, `device_no_khx_extensions`, `device_memory_budget`, `device_mandatory_features` (device-scope cases)
@@ -112,9 +112,9 @@ The remaining direct children under `info` are implemented in [`vktApiFeatureInf
 
 After its own local cases, [`createInfoTests()`](../../../modules/vulkan/vktInfoTests.cpp#L267) appends three delegated groups of registrations:
 
-- [`createFeatureInfoInstanceTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8924)
-- [`createFeatureInfoDeviceTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8937)
-- [`createFeatureInfoDeviceGroupTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8953)
+- [`createFeatureInfoInstanceTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8928)
+- [`createFeatureInfoDeviceTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8941)
+- [`createFeatureInfoDeviceGroupTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8957)
 
 This means [`vktInfoTests.cpp`](../../../modules/vulkan/vktInfoTests.cpp#L1) is both a direct implementation file and the top-level dispatcher for most of the `info` category surface.
 
@@ -134,8 +134,8 @@ This means [`vktInfoTests.cpp`](../../../modules/vulkan/vktInfoTests.cpp#L1) is 
 This file does not expose explicit Vulkan feature-enable checks for its local cases.
 
 Observed structural conditions instead are:
-- category creation is available in both Vulkan and Vulkan SC package init paths through [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1348) and [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1416)
-- some delegated feature-info cases are conditionally removed for Vulkan SC in [`vktApiFeatureInfo.cpp`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8930) and [`vktApiFeatureInfo.cpp`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8945)
+- category creation is available in both Vulkan and Vulkan SC package init paths through [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1347) and [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1415)
+- some delegated feature-info cases are conditionally removed for Vulkan SC in [`vktApiFeatureInfo.cpp`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8934) and [`vktApiFeatureInfo.cpp`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8949)
 
 ## Verification Methods
 
@@ -149,7 +149,7 @@ Observed result styles in this file are:
 
 - **Keep the top-level category lightweight**: the file uses direct function cases rather than elaborate test classes for its own local checks
 - **Prefer environment introspection and reporting**: most local cases log framework or platform state instead of driving complex GPU workloads
-- **Centralize shared capability queries elsewhere**: richer instance/device/device-group coverage is delegated to [`vktApiFeatureInfo.cpp`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8924) rather than duplicated here
+- **Centralize shared capability queries elsewhere**: richer instance/device/device-group coverage is delegated to [`vktApiFeatureInfo.cpp`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8928) rather than duplicated here
 - **Validate only where generic invariants are obvious**: [`memory_limits`](../../../modules/vulkan/vktInfoTests.cpp#L265) performs simple sanity checks, whereas the other local cases explicitly avoid stronger validation claims
 
 ## Notes / Uncertainties

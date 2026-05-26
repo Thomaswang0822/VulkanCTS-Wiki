@@ -26,6 +26,8 @@ Note: `external_subpass`, `implicit_dependencies`, `late_fragment_tests`, and `s
 
 Implementation file
 
+The historical Vulkan API test plan includes dependencies among multipass data-flow dimensions ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L302-L308)); current source and mustpass remain authoritative for exact behavior.
+
 ## Test Families
 
 ### external_subpass — External subpass dependency tests

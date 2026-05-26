@@ -17,125 +17,50 @@
 
 ```text
 api.copy_and_blit.core.use_after_copy
-├── D16_UNORM
-├── D16_UNORM_S8_UINT
-├── D24_UNORM_S8_UINT
-├── D32_SFLOAT
-├── D32_SFLOAT_S8_UINT
-├── R5G6B5_UNORM_PACK16
-├── R8G8B8A8_UNORM
-├── R8G8B8A8_SRGB
-├── B8G8R8A8_UNORM
-├── B8G8R8A8_SRGB
-├── A8B8G8R8_UNORM_PACK32
-├── A8B8G8R8_SRGB_PACK32
-├── A2R10G10B10_UNORM_PACK32
-├── A2B10G10R10_UNORM_PACK32
-├── R16G16B16A16_UNORM
-├── R16G16B16A16_SFLOAT
-├── R32_SFLOAT
-├── R32G32_SFLOAT
-├── R32G32B32_SFLOAT
-└── R32G32B32A32_SFLOAT
+├── a1r5g5b5_unorm_pack16
+├── a8b8g8r8_srgb_pack32
+├── b4g4r4a4_unorm_pack16
+├── b5g5r5a1_unorm_pack16
+├── b5g6r5_unorm_pack16
+├── b8g8r8a8_srgb
+├── d16_unorm
+├── d16_unorm_s8_uint
+├── d24_unorm_s8_uint
+├── d32_sfloat
+├── d32_sfloat_s8_uint
+├── e5b9g9r9_ufloat_pack32
+├── r32g32b32_sfloat
+├── r4g4b4a4_unorm_pack16
+├── r5g5b5a1_unorm_pack16
+├── r5g6b5_unorm_pack16
+├── r8_srgb
+├── r8_unorm
+├── r8g8_srgb
+├── r8g8b8_unorm
+├── r8g8b8a8_srgb
+├── r8g8b8a8_unorm
+└── x8_d24_unorm_pack32
 ```
 
-The Level-3 root documented here is the concrete subgroup created by [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1710-L1713). Within that root, the implementation registers one direct child per format by iterating the explicit `testFormats` table in [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1715-L1741). Each format child then owns deeper descendants such as `transfer_dst_optimal` and `general`, but those descendants are intentionally described in prose rather than expanded in the parseable tree because the normalizer contract requires exactly one level of direct children.
+The Level-3 root documented here is the concrete subgroup created by [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1716-L1719). Within that root, the implementation registers one direct child per format by iterating the explicit `testFormats` table and naming each child with [`getFormatSimpleName()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1721-L1759). The source formats are Vulkan enum names, but the registered CTS path components are lowercase simple names as confirmed by mustpass paths such as `api.copy_and_blit.core.use_after_copy.d16_unorm.*`. Each format child then owns deeper descendants such as `transfer_dst_optimal` and `general`, but those descendants are intentionally described in prose rather than expanded in the parseable tree because the normalizer contract requires exactly one level of direct children.
 
 ## Test Families
 
-### D16_UNORM — Depth-only 16-bit normalized destination format
+### format children — Destination formats copied and consumed afterward
 
-Covers the `D16_UNORM` direct child registered from the explicit format list in [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1717). As a depth-only format, these cases follow the post-copy depth-attachment validation path: [`AfterUsageParams::getImageCreateInfo()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L59-L115) adds depth/stencil attachment usage, and [`AfterUsageInstance::iterate()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1422-L1692) later binds the copied image as the depth attachment whose preserved values control point visibility.
+The direct children under `use_after_copy` are the lowercase registered names produced from the explicit `testFormats` list in [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1721-L1747). The list includes depth/stencil formats such as `d16_unorm`, `d16_unorm_s8_uint`, `d24_unorm_s8_uint`, `x8_d24_unorm_pack32`, `d32_sfloat`, and `d32_sfloat_s8_uint`; color formats such as `r8g8b8a8_unorm`, `r8g8b8_unorm`, `r8_unorm`, `r32g32b32_sfloat`, `r4g4b4a4_unorm_pack16`, `b4g4r4a4_unorm_pack16`, packed 565/5551 formats, sRGB formats, and `e5b9g9r9_ufloat_pack32`.
 
-Observed deeper descendants under this format root include the transfer-layout groups `transfer_dst_optimal` and `general`, both created in [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1757-L1761), plus generated leaf cases whose names encode extent, queue choice, partial-region mode, and selected image/view options in [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1903-L1933).
-
-### D16_UNORM_S8_UINT — Combined depth/stencil 16-bit depth plus 8-bit stencil format
-
-Covers the `D16_UNORM_S8_UINT` direct child registered in the same format loop at [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1718). These cases use the depth/stencil post-copy verification route described above rather than sampled color reads. The expected output is synthesized by checking whether each drawn point should pass the depth test against copied destination values in [`AfterUsageInstance::iterate()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1642-L1655).
-
-Like the other format branches, this subgroup contains deeper `transfer_dst_optimal` and `general` children from [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1757-L1761).
-
-### D24_UNORM_S8_UINT — Combined depth/stencil 24-bit depth plus 8-bit stencil format
-
-Covers the `D24_UNORM_S8_UINT` direct child from [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1719). The implementation treats this as a depth/stencil attachment-use case after the copy. Verification remains indirect through the rendered color target rather than by reading the destination depth image directly, with threshold-free comparison for depth/stencil results in [`AfterUsageInstance::iterate()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1688-L1691).
-
-### D32_SFLOAT — Depth-only 32-bit float destination format
-
-Covers the `D32_SFLOAT` direct child from [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1720). These cases exercise floating-point depth copies that must remain valid for later depth testing. CPU reference construction for the expected rendered output is handled in [`AfterUsageInstance::iterate()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1620-L1655).
-
-### D32_SFLOAT_S8_UINT — Combined 32-bit float depth plus 8-bit stencil format
-
-Covers the `D32_SFLOAT_S8_UINT` direct child from [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1721). Functionally, this branch belongs to the same post-copy depth/stencil-attachment family as the other depth/stencil formats, including layout variants rooted at `transfer_dst_optimal` and `general`.
-
-### R5G6B5_UNORM_PACK16 — Packed 16-bit UNORM color format
-
-Covers the `R5G6B5_UNORM_PACK16` direct child from [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1722). For color formats, [`AfterUsageParams::getImageCreateInfo()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L59-L115) gives the copied image sampled usage, [`AfterUsageCase::initPrograms()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L450-L503) generates fragment shaders that fetch the copied texels, and [`AfterUsageInstance::iterate()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1375-L1692) renders and compares the resulting framebuffer against a CPU-generated reference.
-
-### R8G8B8A8_UNORM — 8-bit UNORM RGBA color format
-
-Covers the `R8G8B8A8_UNORM` direct child from [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1723). This branch participates in the sampled-color post-copy usage family, including optional `_color_att_flag` expansions that add color-attachment usage on the destination image when the layout is `transfer_dst_optimal` and the view is not 3D, as generated in [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1836-L1847).
-
-### R8G8B8A8_SRGB — 8-bit sRGB RGBA color format
-
-Covers the `R8G8B8A8_SRGB` direct child from [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1724). This branch follows the same sampled-texture verification flow as the other color formats, with explicit sRGB handling called out in the expected-color synthesis code inside [`AfterUsageInstance::iterate()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1658-L1678).
-
-### B8G8R8A8_UNORM — 8-bit UNORM BGRA color format
-
-Covers the `B8G8R8A8_UNORM` direct child from [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1725). It belongs to the same post-copy sampled-rendering family and participates in the deeper layout, queue, partial-region, tiling, and copy-mechanism expansions generated by the nested loops in [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1757-L1933).
-
-### B8G8R8A8_SRGB — 8-bit sRGB BGRA color format
-
-Covers the `B8G8R8A8_SRGB` direct child from [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1726). This branch verifies that post-copy sampled use also works for BGRA sRGB formats, again compared with format-aware thresholds through [`getColorFormatThreshold()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L504-L537).
-
-### A8B8G8R8_UNORM_PACK32 — Packed 32-bit UNORM ABGR color format
-
-Covers the `A8B8G8R8_UNORM_PACK32` direct child from [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1727). The same color verification path applies: render using the copied image as a sampled texture, copy the result back to a host-visible buffer, then compare layer-by-layer using [`tcu::floatThresholdCompare()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1691).
-
-### A8B8G8R8_SRGB_PACK32 — Packed 32-bit sRGB ABGR color format
-
-Covers the `A8B8G8R8_SRGB_PACK32` direct child from [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1728). This is the sRGB counterpart of the previous branch and follows the same sampled-color pipeline and thresholded comparison model.
-
-### A2R10G10B10_UNORM_PACK32 — Packed 10:10:10:2 UNORM ARGB color format
-
-Covers the `A2R10G10B10_UNORM_PACK32` direct child from [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1729). It contributes packed-color coverage to the sampled-after-copy family while inheriting the same deeper layout and queue expansions.
-
-### A2B10G10R10_UNORM_PACK32 — Packed 10:10:10:2 UNORM ABGR color format
-
-Covers the `A2B10G10R10_UNORM_PACK32` direct child from [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1730). As with the preceding packed-color variant, the branch validates later sampled use after the copy rather than direct copy correctness alone.
-
-### R16G16B16A16_UNORM — 16-bit UNORM RGBA color format
-
-Covers the `R16G16B16A16_UNORM` direct child from [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1731). This branch extends the sampled-color family to higher-precision normalized color storage. Threshold selection still flows through the format-aware helper path in [`getColorFormatThreshold()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L504-L537).
-
-### R16G16B16A16_SFLOAT — 16-bit float RGBA color format
-
-Covers the `R16G16B16A16_SFLOAT` direct child from [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1732). The copied image is later sampled in a graphics pass, and tolerance derives from per-channel mantissa/bit-width information through [`bitWidthToThreshold()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L493-L502) and [`getColorFormatThreshold()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L504-L537).
-
-### R32_SFLOAT — 32-bit float single-channel color format
-
-Covers the `R32_SFLOAT` direct child from [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1733). This branch verifies post-copy sampled use for a single-channel floating-point format and participates in the same generated matrix of queue, layout, coverage, and image-configuration dimensions.
-
-### R32G32_SFLOAT — 32-bit float two-channel color format
-
-Covers the `R32G32_SFLOAT` direct child from [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1734). Like the other float color branches, the expected post-render image is synthesized from source texture data and compared with format-aware thresholds in [`AfterUsageInstance::iterate()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1658-L1692).
-
-### R32G32B32_SFLOAT — 32-bit float three-channel color format and only observed linear-tiling color format
-
-Covers the `R32G32B32_SFLOAT` direct child from [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1735). This branch is also the only format that receives the extra linear-tiling expansion in the observed generator, because `linearFormats` contains only this format in [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1743-L1745).
-
-### R32G32B32A32_SFLOAT — 32-bit float four-channel color format
-
-Covers the `R32G32B32A32_SFLOAT` direct child from [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1736). It is the widest floating-point color branch in the direct-child format table and follows the same sampled-after-copy execution and thresholded comparison flow as the other color formats.
+Depth/stencil format children use the post-copy attachment validation route: [`AfterUsageParams::getImageCreateInfo()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L59-L115) adds depth/stencil attachment usage, and [`AfterUsageInstance::iterate()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1422-L1692) later binds the copied image as the depth/stencil attachment whose preserved values control point visibility. Color format children use sampled post-copy validation: [`AfterUsageCase::initPrograms()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L450-L503) generates fragment shaders that fetch the copied texels, and [`AfterUsageInstance::iterate()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1375-L1705) compares the rendered framebuffer against a CPU-generated reference with format-aware thresholds.
 
 ### Deeper generated subgroups shared by all direct children
 
-Every direct format child owns two observed layout subgroups, `transfer_dst_optimal` and `general`, created from the transfer-layout loop in [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1757-L1761). Beneath those layout groups, generated leaves encode several parameter axes in their names, including queue suffixes (`_cq`, `_tq`), partial-region mode (`_regions`), 3D-image and 3D-view choices (`_3d_img`, `_3d_view`), extra color-attachment usage (`_color_att_flag`), image-to-image copies (`_img2img`), linear tiling (`_linear`), and multisample variants (`_msaa`) in [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1903-L1933).
+Every direct format child owns two observed layout subgroups, `transfer_dst_optimal` and `general`, created from the transfer-layout loop in [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1763-L1765). Beneath those layout groups, generated leaves encode several parameter axes in their names, including queue suffixes (`_cq`, `_tq`), partial-region mode (`_regions`), 3D-image and 3D-view choices (`_3d_img`, `_3d_view`), extra color-attachment usage (`_color_att_flag`), image-to-image copies (`_img2img`), linear tiling (`_linear`), and multisample variants (`_msaa`) in [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1903-L1933).
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Observed values / construction | Evidence |
 |----------|--------------------------------|----------|
-| Direct child format subgroup | `D16_UNORM`, `D16_UNORM_S8_UINT`, `D24_UNORM_S8_UINT`, `D32_SFLOAT`, `D32_SFLOAT_S8_UINT`, `R5G6B5_UNORM_PACK16`, `R8G8B8A8_UNORM`, `R8G8B8A8_SRGB`, `B8G8R8A8_UNORM`, `B8G8R8A8_SRGB`, `A8B8G8R8_UNORM_PACK32`, `A8B8G8R8_SRGB_PACK32`, `A2R10G10B10_UNORM_PACK32`, `A2B10G10R10_UNORM_PACK32`, `R16G16B16A16_UNORM`, `R16G16B16A16_SFLOAT`, `R32_SFLOAT`, `R32G32_SFLOAT`, `R32G32B32_SFLOAT`, `R32G32B32A32_SFLOAT` | [`vktApiUseAfterCopyTests.cpp`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1715-L1741) |
+| Direct child format subgroup | `a1r5g5b5_unorm_pack16`, `a8b8g8r8_srgb_pack32`, `b4g4r4a4_unorm_pack16`, `b5g5r5a1_unorm_pack16`, `b5g6r5_unorm_pack16`, `b8g8r8a8_srgb`, `d16_unorm`, `d16_unorm_s8_uint`, `d24_unorm_s8_uint`, `d32_sfloat`, `d32_sfloat_s8_uint`, `e5b9g9r9_ufloat_pack32`, `r32g32b32_sfloat`, `r4g4b4a4_unorm_pack16`, `r5g5b5a1_unorm_pack16`, `r5g6b5_unorm_pack16`, `r8_srgb`, `r8_unorm`, `r8g8_srgb`, `r8g8b8_unorm`, `r8g8b8a8_srgb`, `r8g8b8a8_unorm`, `x8_d24_unorm_pack32` | [`vktApiUseAfterCopyTests.cpp`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1721-L1759) |
 | Transfer layout subgroup | `VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL`, `VK_IMAGE_LAYOUT_GENERAL` | [`vktApiUseAfterCopyTests.cpp`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1757-L1761) |
 | Layer count / depth extent | `1` and `2`; used as Z extent in `tcu::IVec3(baseSize, baseSize, layerCount)` | [`vktApiUseAfterCopyTests.cpp`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1763-L1764) |
 | Queue selection | `Universal`, `ComputeOnly`, `TransferOnly` | [`vktApiUseAfterCopyTests.cpp`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1765-L1767) |

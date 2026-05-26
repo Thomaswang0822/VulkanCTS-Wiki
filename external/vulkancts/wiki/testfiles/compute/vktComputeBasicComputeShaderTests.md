@@ -132,7 +132,7 @@ Observed verification methods include generated GLSL that uses `gl_NumWorkGroups
 
 ## Test Principles Observed
 
-- The file exercises compute dispatch effects through combinations of local size, workgroup count, and buffer/image side effects, matching the compute test-plan focus on dispatch parameters ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L679-L681)).
+- The file exercises compute dispatch effects through combinations of local size, workgroup count, and buffer/image side effects, matching the compute test-plan focus on dispatch parameters ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L679)).
 - The same implementation is reused under the root pipeline-construction variants through the dispatcher ([`vktComputeTests.cpp`](../../../modules/vulkan/compute/vktComputeTests.cpp#L52-L54)).
 
 ## Notes / Uncertainties

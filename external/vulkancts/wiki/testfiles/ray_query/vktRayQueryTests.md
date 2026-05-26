@@ -115,5 +115,3 @@ The dispatcher does not perform feature checks. Support is checked inside implem
 The dispatcher does not verify results. Verification is implemented by child test instances, such as built-in result-buffer comparison in [vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L1591-L1608).
 
 ## Notes
-
-The API test plan provides general framework context, but the inspected `apitests.adoc` section does not list ray-query-specific families.

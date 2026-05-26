@@ -56,13 +56,13 @@ robust buffer access uses `testPipelineRobustness=false` and `testDescriptorHeap
 
 ```text
 robustness.buffer_access
-├── compute
+├── vertex
 ├── fragment
-├── through_pointers (registered into this root by vktRobustnessTests.cpp; implemented in another file)
-└── vertex
+├── compute
+└── through_pointers (registered into this root by vktRobustnessTests.cpp; implemented in another file)
 ```
 
-The `compute`, `fragment`, and `vertex` children are added by
+The `vertex`, `fragment`, and `compute` children are added by
 [addBufferAccessTests()](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1939-L1973) and released
 to the parent in [addBufferAccessTests()](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L2091-L2094).
 The `through_pointers` child is not implemented by this file; it is inserted below the existing `buffer_access` node by

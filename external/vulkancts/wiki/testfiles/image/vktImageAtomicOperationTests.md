@@ -37,47 +37,47 @@ Evidence:
 
 ## Test Families
 
-### add â€?Atomic addition operation
+### add â€” Atomic addition operation
 
 Tests the `imageAtomicAdd` function. Supports floating-point formats via `VK_EXT_shader_atomic_float`.
 
-### sub â€?Atomic subtraction operation
+### sub â€” Atomic subtraction operation
 
 Tests the `OpAtomicISub` SPIR-V instruction. Requires SPIR-V assembly shaders from `vktImageAtomicSpirvShaders.cpp`.
 
-### inc â€?Atomic increment operation
+### inc â€” Atomic increment operation
 
 Tests the `OpAtomicIIncrement` SPIR-V instruction. Requires SPIR-V assembly shaders.
 
-### dec â€?Atomic decrement operation
+### dec â€” Atomic decrement operation
 
 Tests the `OpAtomicIDecrement` SPIR-V instruction. Requires SPIR-V assembly shaders.
 
-### min â€?Atomic minimum operation
+### min â€” Atomic minimum operation
 
 Tests the `imageAtomicMin` function. Supports floating-point via `VK_EXT_shader_atomic_float2` for f32 MIN/MAX.
 
-### max â€?Atomic maximum operation
+### max â€” Atomic maximum operation
 
 Tests the `imageAtomicMax` function. Supports floating-point via `VK_EXT_shader_atomic_float2` for f32 MIN/MAX.
 
-### and â€?Atomic bitwise AND operation
+### and â€” Atomic bitwise AND operation
 
 Tests the `imageAtomicAnd` function.
 
-### or â€?Atomic bitwise OR operation
+### or â€” Atomic bitwise OR operation
 
 Tests the `imageAtomicOr` function.
 
-### xor â€?Atomic bitwise XOR operation
+### xor â€” Atomic bitwise XOR operation
 
 Tests the `imageAtomicXor` function.
 
-### exchange â€?Atomic exchange operation
+### exchange â€” Atomic exchange operation
 
 Tests the `imageAtomicExchange` function. Verifies that the final value matches one of the atomic arguments.
 
-### compare_exchange â€?Atomic compare-exchange operation
+### compare_exchange â€” Atomic compare-exchange operation
 
 Tests the `imageAtomicCompSwap` function. Verifies correct conditional update behavior.
 

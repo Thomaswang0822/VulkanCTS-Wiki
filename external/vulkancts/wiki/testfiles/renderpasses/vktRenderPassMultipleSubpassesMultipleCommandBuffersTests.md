@@ -14,6 +14,8 @@ renderpasses.renderpass1.multiple_subpasses_multiple_command_buffers
 
 Available under `renderpass1` only. Registered at [L904](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L904).
 
+The historical Vulkan API test plan describes multipass data-flow configurations as a test objective ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L302-L308)); current source and mustpass remain authoritative for exact behavior.
+
 ## Test Families
 
 ### test — Multiple subpasses with multiple command buffers

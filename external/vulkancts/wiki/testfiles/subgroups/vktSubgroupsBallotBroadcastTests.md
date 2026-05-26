@@ -69,4 +69,4 @@ Framebuffer and compute-like callbacks compare broadcast results against referen
 ## Notes / Uncertainties
 
 - The hierarchy tree intentionally lists only direct children of `subgroups.ballot_broadcast`. Deeper generated leaf names are summarized rather than expanded.
-- Claims are limited to inspected source under `external/vulkancts/modules/vulkan/subgroups/`; [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L8-L12) gives only general API-test-plan context for this category.
+- Claims are limited to inspected source under `external/vulkancts/modules/vulkan/subgroups/`.

@@ -2,6 +2,8 @@
 
 Tests for `vkAllocateMemory` and `vkFreeMemory` correctness across all memory types, allocation sizes, and allocation/free orderings. Three top-level groups (`allocation`, `device_group_allocation`, `pageable_allocation`) share a single implementation via [`createAllocationTestsCommon()`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L1029).
 
+The historical Vulkan API test plan calls for memory-allocation coverage across allocation sizes, heaps, failure cases, and random free order ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L200-L207)); current source and mustpass remain authoritative for exact behavior.
+
 ## Source
 
 - Primary source: [`vktMemoryAllocationTests.cpp`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp)

@@ -39,46 +39,63 @@ Source: [`vktImageProcessingTests.cpp`](../../modules/vulkan/image_processing/vk
 
 ### [`graphics`](../../modules/vulkan/image_processing/vktImageProcessingTests.cpp#L48)
 
-The graphics subgroup is further split by pipeline construction type:
-- [`monolithic`](../../modules/vulkan/image_processing/vktImageProcessingTests.cpp#L54) — Full block matching test suite (basic, block_sizes, address_modes, reduction_modes, tiling, swizzles, layouts, shader_stages, descriptors)
-- [`fast_lib`](../../modules/vulkan/image_processing/vktImageProcessingTests.cpp#L54) — Basic block matching only
-- [`shader_objects`](../../modules/vulkan/image_processing/vktImageProcessingTests.cpp#L56) — Basic block matching only
+The graphics subgroup creates three pipeline-construction branches from the `constructionTypes[]` table:
 
-Each pipeline variant contains a `block_matching` child group.
+| Registered branch | Pipeline construction type | Block-matching content |
+|---|---|---|
+| `monolithic` | `PIPELINE_CONSTRUCTION_TYPE_MONOLITHIC` at [`vktImageProcessingTests.cpp#L54`](../../modules/vulkan/image_processing/vktImageProcessingTests.cpp#L54) | `block_matching` with `basic` plus the monolithic-only extended graphics groups guarded at [`vktImageProcessingBlockMatchingTests.cpp#L2004-L2006`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L2004-L2006). |
+| `fast_lib` | `PIPELINE_CONSTRUCTION_TYPE_FAST_LINKED_LIBRARY` at [`vktImageProcessingTests.cpp#L55`](../../modules/vulkan/image_processing/vktImageProcessingTests.cpp#L55) | `block_matching` with the `basic` group; the extended graphics groups are skipped by the monolithic guard. |
+| `shader_objects` | `PIPELINE_CONSTRUCTION_TYPE_SHADER_OBJECT_UNLINKED_SPIRV` at [`vktImageProcessingTests.cpp#L56`](../../modules/vulkan/image_processing/vktImageProcessingTests.cpp#L56) | `block_matching` with the `basic` group; the extended graphics groups are skipped by the monolithic guard. |
+
+Each branch receives a `block_matching` child through [`createImageProcessingBlockMatchingGraphicsTests()`](../../modules/vulkan/image_processing/vktImageProcessingTests.cpp#L61-L62), and that factory creates the group named `block_matching` at [`vktImageProcessingBlockMatchingTests.cpp#L1885`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1885).
 
 ### [`api`](../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L139)
 
-API property validation tests that verify `VkPhysicalDeviceImageProcessingPropertiesQCOM` minimum values against implementation-reported limits.
+The API subgroup registers one `properties` test at [`vktImageProcessingApiTests.cpp#L141`](../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L141). It queries `VkPhysicalDeviceImageProcessingPropertiesQCOM` and checks minimum values for `maxWeightFilterPhases`, `maxWeightFilterDimension`, `maxBoxFilterBlockSize`, and `maxBlockMatchRegion` at [`vktImageProcessingApiTests.cpp#L101-L124`](../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L101-L124).
 
 ### [`compute`](../../modules/vulkan/image_processing/vktImageProcessingTests.cpp#L75)
 
-Compute pipeline block matching tests with `basic` and `self` sub-groups.
+The compute subgroup adds `block_matching` through [`createImageProcessingBlockMatchingComputeTests()`](../../modules/vulkan/image_processing/vktImageProcessingTests.cpp#L76). In the common block-matching factory, compute cases always get the `basic` group at [`vktImageProcessingBlockMatchingTests.cpp#L1958-L2001`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1958-L2001), and the compute-only `self` group is added under the `testCompute` branch at [`vktImageProcessingBlockMatchingTests.cpp#L2221-L2248`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L2221-L2248).
 
-## Recurring Parameter Dimensions
+## Parameter Dimensions and Registration Names
 
-| Dimension | Observed examples |
+| Dimension | Source-backed values / names |
 |---|---|
-| Pipeline construction type | Monolithic, fast linked library, shader objects |
-| Block matching target/reference sizes | 64x64, 32x32, 16x16, 8x8 |
-| Block size | 4x4, 8x8, 16x16, 32x32 |
-| Address mode | Clamp to edge, repeat, mirror |
-| Reduction mode | Min, max, min/max |
-| Tiling | Optimal, linear |
-| Shader stages | Vertex, fragment |
+| Operations | `sad` and `ssd`, registered from `ImageProcOp::IMAGE_PROC_OP_BLOCK_MATCH_SAD` and `ImageProcOp::IMAGE_PROC_OP_BLOCK_MATCH_SSD` at [`vktImageProcessingBlockMatchingTests.cpp#L1893-L1898`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1893-L1898). |
+| Pipeline construction branches | `monolithic`, `fast_lib`, and `shader_objects` from the graphics dispatcher table at [`vktImageProcessingTests.cpp#L54-L56`](../../modules/vulkan/image_processing/vktImageProcessingTests.cpp#L54-L56). |
+| Basic-case names | `{format}_same`, `{format}_diff`, optional `_random`, and `_constdiff` suffixes are assembled at [`vktImageProcessingBlockMatchingTests.cpp#L1967-L1982`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1967-L1982). |
+| Default target/reference image setup | `IMAGE_TYPE_2D`, `64x64`, selected format, `VK_IMAGE_TILING_OPTIMAL`, `VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL`, identity components, `VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE`, and `SAMPLER_REDUCTION_MODE_NONE` at [`vktImageProcessingBlockMatchingTests.cpp#L1662-L1675`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1662-L1675). |
+| Default block-match coordinates and block size | `targetCoord = 0,0`, `referenceCoord = 0,0`, and `blockSize = 32x32` at [`vktImageProcessingBlockMatchingTests.cpp#L1677-L1682`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1677-L1682). |
+| `block_sizes` graphics cases | `params0` through `params4`, generated from non-zero coordinates, `1x1`, `64x64`, and `1x64` block-size entries at [`vktImageProcessingBlockMatchingTests.cpp#L1817-L1874`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1817-L1874). |
+| `address_modes` graphics cases | `clamp_to_edge` and `clamp_to_border`, the actual registered name prefixes in `addressModes[]` at [`vktImageProcessingBlockMatchingTests.cpp#L1900-L1906`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1900-L1906); address-mode parameter variants include the `40x40`, `16x16` target / `32x32` reference, and `targetCoord = 64,64` cases at [`vktImageProcessingBlockMatchingTests.cpp#L1699-L1740`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1699-L1740). |
+| `reduction_modes` graphics cases | Registered prefixes `weighted_average`, `min`, and `max` from `reductionModes[]` at [`vktImageProcessingBlockMatchingTests.cpp#L1908-L1914`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1908-L1914). Each reference reduction mode is combined with target reduction modes from `SAMPLER_REDUCTION_MODE_NONE` through `SAMPLER_REDUCTION_MODE_MAX` at [`vktImageProcessingBlockMatchingTests.cpp#L1743-L1761`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1743-L1761). |
+| `tiling` graphics cases | Registered prefixes `optimal` and `linear` from `tilingTypes[]` at [`vktImageProcessingBlockMatchingTests.cpp#L1916-L1920`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1916-L1920). The generator skips the both-optimal case because basic tests already cover it at [`vktImageProcessingBlockMatchingTests.cpp#L1775-L1785`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1775-L1785). |
+| `layouts` graphics cases | Registered prefixes `rdonly_optimal` and `general` from `layouts[]` at [`vktImageProcessingBlockMatchingTests.cpp#L1922-L1926`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1922-L1926). The generator skips the both-`VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL` case because basic tests already cover it at [`vktImageProcessingBlockMatchingTests.cpp#L1800-L1811`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1800-L1811). |
+| `swizzles` graphics cases | Registered names `bgra`, `g01a`, and `rbg1` from `swizzles[]` at [`vktImageProcessingBlockMatchingTests.cpp#L1928-L1943`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1928-L1943). |
+| `shader_stages` graphics cases | `vertex` is the additional graphics shader-stage case; the source notes that fragment-stage coverage is already in basic tests at [`vktImageProcessingBlockMatchingTests.cpp#L1945-L1949`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1945-L1949). |
+| `descriptors` graphics cases | `updateAfterBind_same`, `updateAfterBind_diff`, and optional `_random` suffixes are generated from the descriptor loop at [`vktImageProcessingBlockMatchingTests.cpp#L2192-L2216`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L2192-L2216). |
+| `self` compute cases | `same`, `diff`, and optional `_random` suffixes are generated for compute self-tests at [`vktImageProcessingBlockMatchingTests.cpp#L2221-L2248`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L2221-L2248). |
+| Block-matching formats | `getOpSupportedFormats()` returns `VK_FORMAT_R8_UNORM`, `VK_FORMAT_R8G8_UNORM`, `VK_FORMAT_R8G8B8_UNORM`, `VK_FORMAT_R8G8B8A8_UNORM`, `VK_FORMAT_A8B8G8R8_UNORM_PACK32`, and `VK_FORMAT_A2B10G10R10_UNORM_PACK32` for `sad` / `ssd` at [`vktImageProcessingTestsUtil.cpp#L408-L435`](../../modules/vulkan/image_processing/vktImageProcessingTestsUtil.cpp#L408-L435). |
 
-## Recurring Support Requirements
+## Support Requirements by Code Path
 
-- `VK_QCOM_image_processing` extension
-- Vulkan 1.3+ or `VK_KHR_format_feature_flags2`
-- `shaderStorageImageReadWithoutFormat` for compute path
-- `shaderImageGatherExtended` for graphics path
+| Scope | Support gates / checks |
+|---|---|
+| API `properties` test | If the API version is below Vulkan 1.3, the test requires `VK_KHR_format_feature_flags2`; it also requires `VK_QCOM_image_processing` at [`vktImageProcessingApiTests.cpp#L66-L72`](../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L66-L72). |
+| Shared image-processing test base | Block-matching tests use `ImageProcessingTest::checkSupport()`, which requires `VK_KHR_format_feature_flags2` below Vulkan 1.3 and `VK_QCOM_image_processing` at [`vktImageProcessingBase.cpp#L92-L100`](../../modules/vulkan/image_processing/vktImageProcessingBase.cpp#L92-L100). |
+| `sad` / `ssd` block-matching operation | The shared base checks `textureBlockMatch` and `VK_FORMAT_FEATURE_2_BLOCK_MATCHING_BIT_QCOM` for the sampled/reference image format and selected tiling at [`vktImageProcessingBase.cpp#L108-L123`](../../modules/vulkan/image_processing/vktImageProcessingBase.cpp#L108-L123). |
+| Target image in block-matching tests | `ImageProcessingBlockMatchTest::checkSupport()` also checks `VK_FORMAT_FEATURE_2_BLOCK_MATCHING_BIT_QCOM` for the target image format and selected tiling at [`vktImageProcessingBlockMatchingTests.cpp#L165-L177`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L165-L177). |
+| Graphics output image | Graphics block-matching cases require `VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT`, successful `vkGetPhysicalDeviceImageFormatProperties()` for transfer-source plus color-attachment usage, and pipeline-construction requirements at [`vktImageProcessingBlockMatchingTests.cpp#L240-L272`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L240-L272). |
+| Compute output image | Compute block-matching cases require `VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT`, successful `vkGetPhysicalDeviceImageFormatProperties()` for transfer-source plus storage-image usage, and output dimensions within `maxComputeWorkGroupCount` at [`vktImageProcessingBlockMatchingTests.cpp#L1160-L1193`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1160-L1193). |
+| Descriptor update-after-bind cases | Cases that set `updateAfterBind` require `VK_EXT_descriptor_indexing` and `descriptorBindingSampledImageUpdateAfterBind` in the shared base at [`vktImageProcessingBase.cpp#L163-L168`](../../modules/vulkan/image_processing/vktImageProcessingBase.cpp#L163-L168); those cases are generated in the `descriptors` group at [`vktImageProcessingBlockMatchingTests.cpp#L2192-L2216`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L2192-L2216). |
 
-## Recurring Verification Methods
+## Verification Methods
 
-- CPU reference computation vs GPU result comparison with error threshold
-- Property limit validation against spec-defined minimums
+- API `properties` verifies `VkPhysicalDeviceImageProcessingPropertiesQCOM` minimums and fails if any inspected property is below the coded threshold at [`vktImageProcessingApiTests.cpp#L93-L127`](../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L93-L127).
+- Block-matching tests compare the GPU result image against a CPU-built reference image with exact image threshold `(0,0,0,0)` and compare the computed error metric against `errorThreshold` in [`ImageProcessingTestInstance::verifyResult()`](../../modules/vulkan/image_processing/vktImageProcessingBase.cpp#L237-L272).
 
 ## Notes / Uncertainties
 
-- Format lists are determined at runtime by `getOpSupportedFormats()` in [`vktImageProcessingTestsUtil.cpp`](../../modules/vulkan/image_processing/vktImageProcessingTestsUtil.cpp#L1), so exact format coverage varies by implementation.
-- Extended graphics sub-groups (block_sizes, address_modes, etc.) are only generated for the monolithic pipeline construction type.
+- The inspected category currently registers only block-matching operations (`sad` and `ssd`) even though the shared base has support branches for sample-weighted and box-filter operations at [`vktImageProcessingBase.cpp#L125-L157`](../../modules/vulkan/image_processing/vktImageProcessingBase.cpp#L125-L157).
+- Extended graphics groups (`block_sizes`, `address_modes`, `reduction_modes`, `tiling`, `swizzles`, `layouts`, `shader_stages`, and `descriptors`) are generated only when `testCompute` is false and the pipeline construction type is `PIPELINE_CONSTRUCTION_TYPE_MONOLITHIC` at [`vktImageProcessingBlockMatchingTests.cpp#L2004-L2006`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L2004-L2006).
+- Per-device format support is checked at runtime even though `getOpSupportedFormats()` supplies a fixed candidate format list at [`vktImageProcessingTestsUtil.cpp#L408-L435`](../../modules/vulkan/image_processing/vktImageProcessingTestsUtil.cpp#L408-L435).

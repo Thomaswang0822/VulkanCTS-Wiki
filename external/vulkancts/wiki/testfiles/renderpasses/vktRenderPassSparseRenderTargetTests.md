@@ -10,7 +10,7 @@
 renderpasses.renderpass1.suballocation.sparserendertarget
 ```
 
-Available under `renderpass1` and `renderpass2` suballocation subgroups (non-SC, monolithic pipeline). Representative root shown for `renderpass1`. Registered at [L870](../../../modules/vulkan/renderpass/vktRenderPassSparseRenderTargetTests.cpp#L870).
+Available under `renderpass1`, `renderpass2`, and dynamic-rendering monolithic `suballocation` subgroups (non-SC). Representative root shown for `renderpass1`. The root registration adds this group inside the monolithic-pipeline block for all rendering types ([vktRenderPassTests.cpp#L8571-L8580](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8571-L8580)); the source file creates the registered group at [L870](../../../modules/vulkan/renderpass/vktRenderPassSparseRenderTargetTests.cpp#L870).
 
 ## Test Families
 

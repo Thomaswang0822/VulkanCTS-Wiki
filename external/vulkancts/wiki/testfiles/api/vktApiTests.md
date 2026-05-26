@@ -223,6 +223,6 @@ Registered by [`createRenderPassPerformanceCountersByRegionApiTests()`](../../..
 
 ## Notes / Uncertainties
 
-- 18 of 38 group names differ from their factory symbol names. For example, `createMemoryRequirementInvarianceTests()` produces the group `invariance`, not `memory_requirement_invariance`. The full factory-symbol-to-group-name mapping was recorded during analysis in an internal tracker, but that tracker is not currently part of the committed wiki tree.
+- Several displayed group names differ from their factory symbol names. For example, `createMemoryRequirementInvarianceTests()` produces the group `invariance`, not `memory_requirement_invariance`; the registered names in the hierarchy are the source-created group names verified against mustpass coverage.
 - `buffer_view` is a composite group built by a local helper in [`vktApiTests.cpp`](../../../modules/vulkan/api/vktApiTests.cpp#L78) that combines two sub-factories for `create` and `access` children.
 - 15 of the 38 groups are guarded by `#ifndef CTS_USES_VULKANSC` and are only available in non-VulkanSC builds.

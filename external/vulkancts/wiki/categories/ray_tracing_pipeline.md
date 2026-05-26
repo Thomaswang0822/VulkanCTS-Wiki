@@ -244,4 +244,4 @@ Observed verification patterns include ray tracing pipeline and SBT creation fol
 
 ## Scope Notes
 
-The actual registered source location is [external/vulkancts/modules/vulkan/ray_tracing](../../modules/vulkan/ray_tracing/) even though the category is named `ray_tracing_pipeline`. The inspected API test plan [apitests.adoc](../../../../doc/testspecs/VK/apitests.adoc) provides general Vulkan CTS framework context but no ray-tracing-pipeline-specific family breakdown. Helper/model headers without direct registration were not given separate Level-3 pages.
+The actual registered source location is [external/vulkancts/modules/vulkan/ray_tracing](../../modules/vulkan/ray_tracing/) even though the category is named `ray_tracing_pipeline`. Helper/model headers without direct registration were not given separate Level-3 pages.

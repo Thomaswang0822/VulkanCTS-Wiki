@@ -6,7 +6,7 @@ The dynamic_state category tests Vulkan's dynamic state mechanism, which allows 
 
 ## Registration Entry Point
 
-[`createTests()`](../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L108) in `vktDynamicStateTests.cpp` creates the root group. The [`initDynamicStateTestGroup()`](../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L74) function creates 7 pipeline construction type subgroups, each containing the same set of dynamic state test groups.
+[`createTests()`](../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L108) in `vktDynamicStateTests.cpp` creates the root group. The [`initDynamicStateTestGroup()`](../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L74) function creates 7 pipeline construction type subgroups, each populated by [`createChildren()`](../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L49). Most direct child groups are added for every pipeline construction type; `compute_transfer` is added only for `monolithic` and `shader_object_unlinked_spirv`.
 
 ## Subgroup Structure
 
@@ -140,6 +140,6 @@ Most implementation files create both traditional vertex-shader and mesh-shader 
 
 ## Notes
 
-- The root registration file creates 7 pipeline construction type subgroups, each containing the same set of dynamic state tests. This means every test is effectively run 7 times with different pipeline construction modes.
+- The root registration file creates 7 pipeline construction type subgroups. Most direct child groups are registered under all 7 construction types, but individual children can still have narrower registration; for example, `compute_transfer` appears only under `monolithic` and `shader_object_unlinked_spirv`, and `double_static_bind` is omitted for shader-object construction types.
 - The `compute_transfer` group is only registered for `monolithic` and `shader_object_unlinked_spirv` construction types.
 - The `image` group name (from `vktDynamicStateClearTests.cpp`) refers to image manipulation commands (clear, blit, copy, resolve) being tested for non-interference with dynamic state, not to image-related dynamic state.

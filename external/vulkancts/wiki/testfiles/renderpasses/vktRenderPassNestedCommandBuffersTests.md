@@ -12,7 +12,7 @@ renderpasses.renderpass1.nested_command_buffers
 └── khr
 ```
 
-Available under `renderpass1` and `renderpass2` (non-SC, monolithic pipeline, no secondary CB). Representative root shown for `renderpass1`. Registered at [L670](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L670).
+Available under `renderpass1`, `renderpass2`, and dynamic-rendering primary command-buffer groups (non-SC, monolithic pipeline, no secondary CB). Representative root shown for `renderpass1`. The root registration adds this group when `useSecondaryCmdBuffer == false` inside the monolithic-pipeline block ([vktRenderPassTests.cpp#L8571-L8592](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8571-L8592)); the source file creates the registered group at [L670](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L670).
 
 ## Test Families
 
@@ -48,8 +48,8 @@ Total: 2 extensions x 2 first-command x 2 last-command = 8 test cases.
 |---|---|
 | VK_EXT_nested_command_buffer | Required for EXT variant, with `nestedCommandBuffer` + `nestedCommandBufferRendering` features ([lines 646-653](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L646-L653)) |
 | VK_KHR_maintenance7 | Required for KHR variant, with `maintenance7` feature ([lines 657-661](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L657-L661)) |
-| VK_KHR_dynamic_rendering | Core dependency |
-| VK_KHR_create_renderpass2 | Core dependency |
+| VK_KHR_dynamic_rendering | Required only when the group parameters use `RENDERING_TYPE_DYNAMIC_RENDERING` ([lines 635-638](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L635-L638)) |
+| VK_KHR_create_renderpass2 | Required only when the group parameters use `RENDERING_TYPE_RENDERPASS2` ([lines 639-642](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L639-L642)) |
 
 ## Verification
 

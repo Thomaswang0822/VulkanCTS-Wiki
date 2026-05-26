@@ -53,11 +53,11 @@ Tests per-view render areas with VK_QCOM_multiview_per_view_render_areas ([lines
 
 | Requirement | Context |
 |---|---|
-| VK_QCOM_multiview_per_view_render_areas | [line 1121](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1121) |
-| VK_QCOM_multiview_per_view_viewports | Required for MULTI_QCOM ([line 1125](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1125)) |
-| VK_KHR_dynamic_rendering | Core dependency |
-| VK_KHR_create_renderpass2 | Core dependency |
-| VK_KHR_multiview | Core dependency |
-| DEVICE_CORE_FEATURE_GEOMETRY_SHADER | Required for MULTI_GEOM |
-| DEVICE_CORE_FEATURE_MULTI_VIEWPORT | Required for non-SINGLE |
-| Vulkan 1.2 | Required for MULTI_VERT |
+| VK_QCOM_multiview_per_view_render_areas | Required by `render_areas` cases ([line 1135](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1135)) |
+| VK_QCOM_multiview_per_view_viewports | Required for `MULTI_QCOM` render-area cases and per-view viewport cases built with the QCOM path ([lines 205-207](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L205-L207), [lines 1137-1140](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1137-L1140)) |
+| VK_KHR_dynamic_rendering | Required only when the parameters use dynamic rendering ([lines 196-198](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L196-L198), [lines 1157-1158](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1157-L1158)) |
+| VK_KHR_create_renderpass2 | Required by these tests ([line 202](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L202), [line 1160](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1160)) |
+| VK_KHR_multiview | Required by these tests ([line 203](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L203), [line 1161](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1161)) |
+| DEVICE_CORE_FEATURE_GEOMETRY_SHADER | Required for `MULTI_GEOM` render-area cases, together with `multiviewGeometryShader` ([lines 1146-1151](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1146-L1151)) |
+| DEVICE_CORE_FEATURE_MULTI_VIEWPORT | Required for per-view viewport cases and for non-`SINGLE` render-area cases ([line 194](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L194), [lines 1154-1155](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1154-L1155)) |
+| Vulkan 1.2 | Required for non-QCOM viewport path and `MULTI_VERT` render-area cases ([lines 208-209](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L208-L209), [lines 1141-1144](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1141-L1144)) |

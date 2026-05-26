@@ -70,7 +70,7 @@ The test instance computes host-side reference values for each workgroup/local-i
 
 ## Test Principles Observed
 
-- The file is a direct implementation of the test-plan goal that workgroup counts and invocation IDs are passed correctly to compute shader invocations ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L679-L681)).
+- The file is a direct implementation of the test-plan goal that workgroup counts and invocation IDs are passed correctly to compute shader invocations ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L679)).
 - Vector built-ins are tested through both aggregate and per-component reads to catch access-form issues ([`vktComputeShaderBuiltinVarTests.cpp`](../../../modules/vulkan/compute/vktComputeShaderBuiltinVarTests.cpp#L657-L660)).
 
 ## Notes / Uncertainties

@@ -25,13 +25,13 @@ api.maintenance6_check
 
 ## Test Families
 
-Group `maintenance6_check` registered at [vktApiMaintenance6Check.cpp:145](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L145): `new tcu::TestCaseGroup(testCtx, "maintenance6_check", "Maintenance6 Tests")`.
+Group `maintenance6_check` registered at [vktApiMaintenance6Check.cpp#L145](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L145): `new tcu::TestCaseGroup(testCtx, "maintenance6_check", "Maintenance6 Tests")`.
 
 ### maintenance6_properties — Maintenance6 property validation
 
-Registered at [vktApiMaintenance6Check.cpp:146](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L146).
+Registered at [vktApiMaintenance6Check.cpp#L146](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L146).
 
-The test instance `Maintenance6MaxCombinedImageSamplerDescriptorCountTestInstance` at [vktApiMaintenance6Check.cpp:52](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L52):
+The test instance `Maintenance6MaxCombinedImageSamplerDescriptorCountTestInstance` at [vktApiMaintenance6Check.cpp#L52](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L52):
 1. Queries `VkPhysicalDeviceMaintenance6PropertiesKHR` via `getPhysicalDeviceProperties2` ([line 66](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L66))
 2. Iterates over three YCbCr format ranges defined at [lines 68-81](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L68):
    - YCbCr formats: `VK_FORMAT_G8B8G8R8_422_UNORM` through `VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM`

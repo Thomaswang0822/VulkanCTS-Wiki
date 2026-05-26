@@ -2,7 +2,7 @@
 
 ## Summary
 
-The `device_group` category documents tests from one source file, `vktDeviceGroupRendering.cpp`. The tests create and use device groups to exercise split-frame rendering, alternate-frame rendering, split and alternate compute dispatch, dedicated allocations, peer access, host-memory render targets, tessellated geometry, and line-fill variants where registered. `doc/testspecs/VK/apitests.adoc` was inspected; its device-initialization section mentions multiple devices from one physical device and queue configurations, but it does not provide source-level details for this category.
+The `device_group` category documents tests from one source file, `vktDeviceGroupRendering.cpp`. The tests create and use device groups to exercise split-frame rendering, alternate-frame rendering, split and alternate compute dispatch, dedicated allocations, peer access, host-memory render targets, tessellated geometry, and line-fill variants where registered. The Vulkan API test plan provides only broad device-initialization context for multiple devices from one physical device and queue configurations ([`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L345-L349)); source evidence below defines this category's current behavior.
 
 ## Registration Entry Point
 
@@ -11,7 +11,7 @@ The `device_group` category documents tests from one source file, `vktDeviceGrou
 | Package root registration | [`addRootChild("device_group", ...)`](../../modules/vulkan/vktTestPackage.cpp#L1377-L1379) |
 | Category factory | [`DeviceGroup::createTests()`](../../modules/vulkan/device_group/vktDeviceGroupRendering.cpp#L2717-L2720) |
 | Direct child registration | [`DeviceGroupTestRendering::init()`](../../modules/vulkan/device_group/vktDeviceGroupRendering.cpp#L2645-L2715) |
-| Related test-plan context | [device initialization notes](../../../../doc/testspecs/VK/apitests.adoc#L318-L354) |
+| Related test-plan context | [device initialization notes](../../../../doc/testspecs/VK/apitests.adoc#L345-L349) |
 
 ## Subgroup Structure
 

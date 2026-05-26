@@ -103,7 +103,5 @@ comparison scripts compare reference and variant framebuffers with `EQ_HISTOGRAM
 
 - No dedicated `external/vulkancts/modules/vulkan/graphicsfuzz/` source directory was found during source discovery; the
   category is implemented through the shared Amber module and registered directly as a root category.
-- The inspected API test plan describes the Vulkan API test plan at a high level and does not provide category-specific text
-  for this Amber `graphicsfuzz` root ([`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L8-L13)).
 - Existing wiki pages were not used as factual evidence for this category; claims above are derived from inspected source,
-  Amber data, mustpass coverage, and the scoped API test-plan file.
+  Amber data, and mustpass coverage.

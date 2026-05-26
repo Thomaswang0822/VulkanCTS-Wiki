@@ -38,19 +38,19 @@ Evidence:
 
 ## Test Families
 
-### draw_*_* �?Draw-based host image copy tests
+### draw_*_* — Draw-based host image copy tests
 
 Tests host image copy operations with images used in graphics draw commands. Format naming: `draw_<output_format>_<sampled_format>`. Covers format conversions like uncompressed to compressed and depth formats to color.
 
-### dispatch_*_* �?Dispatch-based host image copy tests
+### dispatch_*_* — Dispatch-based host image copy tests
 
 Tests host image copy operations with images used in compute dispatch commands. Similar format naming pattern.
 
-### large_images �?Large image copy tests
+### large_images — Large image copy tests
 
 Tests copy operations on large images (128x128, 512x512, 4096x4096) at [lines 4617-4653](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L4617-L4653).
 
-### array �?Array image copy tests
+### array — Array image copy tests
 
 Tests copy operations on array images with various layer configurations. Covers:
 - Array sizes: 1, 2, 6 layers with various offsets
@@ -58,31 +58,31 @@ Tests copy operations on array images with various layer configurations. Covers:
 - Cube-compatible images
 - Remaining layers handling
 
-### preinitialized �?Preinitialized image layout tests
+### preinitialized — Preinitialized image layout tests
 
 Tests host image copy with images in preinitialized layout state. Organized by tiling (linear, optimal, drm_format_modifier) with src/dst layout combinations.
 
-### capture_replay �?Capture/replay test
+### capture_replay — Capture/replay test
 
 Single test for verifying capture/replay scenarios using heap memory at [lines 4883-4889](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L4883-L4889).
 
-### properties �?Device properties tests
+### properties — Device properties tests
 
 Tests querying device properties for host image copy support at [lines 4891-4893](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L4891-L4893).
 
-### query �?Format feature query tests
+### query — Format feature query tests
 
 Tests querying supported layouts and features for host image copy at [lines 4906-4919](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L4906-L4919).
 
-### identical_memory_layout �?Memory layout verification tests
+### identical_memory_layout — Memory layout verification tests
 
 Tests that host image copy works correctly with identical memory layouts at [lines 4921-4934](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L4921-L4934).
 
-### depth_stencil �?Depth/stencil format tests
+### depth_stencil — Depth/stencil format tests
 
 Tests host image copy with depth and stencil formats at [lines 4937-4948](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L4937-L4948).
 
-### simple �?Simple copy tests
+### simple — Simple copy tests
 
 Basic host image copy tests with minimal parameter variation at [lines 4964-4997](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L4964-L4997).
 

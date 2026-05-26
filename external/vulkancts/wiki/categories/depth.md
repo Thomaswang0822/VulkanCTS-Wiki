@@ -115,6 +115,3 @@ expected floats
 
 - No dedicated `external/vulkancts/modules/vulkan/depth/` source directory was found during source discovery; the
   category is implemented through the shared Amber module and registered directly as a root category.
-- The inspected API test plan section describes the test plan as a high-level Vulkan API testing outline and does not
-  provide category-specific text for this Amber `depth` root
-  ([`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L8-L13)).

@@ -29,11 +29,10 @@ synchronization.op.single_queue
 ├── binary_semaphore
 ├── timeline_semaphore
 ├── barrier
-├── event
-└── multi_events (sync2 only)
+└── event
 ```
 
-Both `synchronization.op.single_queue` (LEGACY) and `synchronization2.op.single_queue` (SYNCHRONIZATION2) paths are created by the same factory function invoked with different `SynchronizationType` values. The `multi_events` child exists only under the `synchronization2` path.
+Both `synchronization.op.single_queue` (LEGACY) and `synchronization2.op.single_queue` (SYNCHRONIZATION2) paths are created by the same factory function invoked with different `SynchronizationType` values. The parseable tree above lists the LEGACY `synchronization` children; the `synchronization2.op.single_queue` variant additionally registers a `multi_events` child.
 
 ## Test Families
 

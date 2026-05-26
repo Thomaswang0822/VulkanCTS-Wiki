@@ -12,7 +12,6 @@ Implementation-heavy registration file for fully resident sparse-image binding. 
 
 - Primary source: [`vktSparseResourcesImageSparseBinding.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseBinding.cpp#L1)
 - Shared image/type helpers: [`vktSparseResourcesTestsUtil.hpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTestsUtil.hpp#L43-L115), [`vktSparseResourcesTestsUtil.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTestsUtil.cpp#L52-L118)
-- Test-plan context: [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L273-L276)
 
 ## Registration Hierarchy
 

@@ -221,6 +221,5 @@ No pass/fail validation is implemented in this dispatcher. Verification methods 
 
 ## Notes / Uncertainties
 
-- A search of [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc) for descriptor-indexing-specific terms did not identify a relevant inspected section, so this page relies on source and mustpass evidence rather than forcing test-plan context.
 - This dispatcher page intentionally avoids implementation-heavy details such as per-descriptor feature gates and result comparison logic; those belong in the delegated implementation pages.
 - The direct-child list is long because the category root contains direct test cases rather than named nested subgroups in the inspected registration path.

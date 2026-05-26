@@ -2,7 +2,7 @@
 
 ## Overview
 
-[`vktPipelineImageViewTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineImageViewTests.cpp#L1) implements the [`image_view`](../../../modules/vulkan/pipeline/vktPipelineImageViewTests.cpp#L941) topic group. It verifies image view parameters including component swizzle and subresource range selection across all view types and formats.
+[`vktPipelineImageViewTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineImageViewTests.cpp#L1) implements the [`image_view`](../../../modules/vulkan/pipeline/vktPipelineImageViewTests.cpp#L941) topic group. It verifies image view parameters including component swizzle and subresource range selection across all view types and formats. This follows the historical API test-plan objectives for image-view swizzles, formats, view sizes, and partial mip/array slices ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L483-L504)).
 
 ## Role
 

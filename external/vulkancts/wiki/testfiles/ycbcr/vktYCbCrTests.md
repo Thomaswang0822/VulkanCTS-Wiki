@@ -2,11 +2,9 @@
 
 ## Overview
 
-This is the **registration file** for the YCbCr test category. It serves as the top-level entry point that aggregates all YCbCr-related test groups into a single `ycbcr` test tree. The file contains no test logic itself; it delegates to individual implementation files via their respective `create*Tests()` factory functions.
+[`vktYCbCrTests.cpp`](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp) is the registration-only file for the top-level `ycbcr` category: [`createTests()`](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L63-L65) wraps [`populateTestGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L44-L58), and `populateTestGroup()` adds all child groups without implementing test logic itself.
 
-**Role:** Registration only
-
-**Source:** [vktYCbCrTests.cpp](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp)
+**Role:** Registration only, with test behavior delegated to the implementation factories linked below.
 
 ## Registration Hierarchy
 
@@ -27,20 +25,24 @@ ycbcr
 
 ## Test Families
 
-| Group | Factory Function | Implementation File | Description |
-|-------|-----------------|---------------------|-------------|
-| `format` | `createFormatTests()` | vktYCbCrFormatTests.cpp | YCbCr format sampling tests across all multi-planar formats |
-| `filtering` | `createFilteringTests()` | vktYCbCrFilteringTests.cpp | YCbCr linear filtering with chroma reconstruction |
-| `plane_view` | `createViewTests()` | vktYCbCrViewTests.cpp | Plane-level image view access of multi-planar images |
-| `query` | `createImageQueryTests()` | vktYCbCrImageQueryTests.cpp | OpImageQuerySizeLod and OpImageQueryLevels on YCbCr images |
-| `conversion` | `createConversionTests()` | vktYCbCrConversionTests.cpp | Sampler YCbCr color model conversion tests |
-| `copy` | `createCopyTests()` | vktYCbCrCopyTests.cpp | Image-to-image copy between YCbCr and compatible formats |
-| `single_plane_copy` | `createSinglePlanarCopyTests()` | vktYCbCrCopyTests.cpp | Single-planar format copy to/from YCbCr 422 formats |
-| `copy_dimensions` | `createDimensionsCopyTests()` | vktYCbCrCopyTests.cpp | YCbCr copy tests with extreme image dimensions |
-| `storage_image_write` | `createStorageImageWriteTests()` | vktYCbCrStorageImageWriteTests.cpp | Compute shader writing to multi-planar storage images |
-| `subresource_offset` | `createImageOffsetTests()` | vktYCbCrImageOffsetTests.cpp | VkSubresourceLayout offset validation for disjoint YCbCr images |
-| `misc` | `createMiscTests()` | vktYCbCrMiscTests.cpp | Miscellaneous YCbCr tests (relaxed precision) |
+| Group | Factory function | Evidence-backed role |
+|---|---|---|
+| `format` | [`createFormatTests()`](../../../modules/vulkan/ycbcr/vktYCbCrFormatTests.cpp#L734-L737) | Added by [`populateTestGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L48) to cover generated format sampling cases. |
+| `filtering` | [`createFilteringTests()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L787-L835) | Added by [`populateTestGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L49) to cover graphics/compute filtering cases. |
+| `plane_view` | [`createViewTests()`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L1075-L1078) | Added by [`populateTestGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L50) to cover image-view and memory-alias plane access. |
+| `query` | [`createImageQueryTests()`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L603-L605) | Added by [`populateTestGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L51) to cover `size_lod` and `levels` image queries. |
+| `conversion` | [`createConversionTests()`](../../../modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp#L2192-L2195) | Added by [`populateTestGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L52) to cover sampler YCbCr conversion matrices. |
+| `copy` | [`createCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L1023-L1026) | Added by [`populateTestGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L53) for default image-copy cases. |
+| `single_plane_copy` | [`createSinglePlanarCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L1028-L1031) | Added by [`populateTestGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L54) for 422 single-planar copy pairs. |
+| `copy_dimensions` | [`createDimensionsCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L1033-L1036) | Added by [`populateTestGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L55) for wide/tall copy dimensions. |
+| `storage_image_write` | [`createStorageImageWriteTests()`](../../../modules/vulkan/ycbcr/vktYCbCrStorageImageWriteTests.cpp#L939-L942) | Added by [`populateTestGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L56) for compute storage-image writes. |
+| `subresource_offset` | [`createImageOffsetTests()`](../../../modules/vulkan/ycbcr/vktYCbCrImageOffsetTests.cpp#L167-L170) | Added by [`populateTestGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L57) for disjoint plane layout offsets. |
+| `misc` | [`createMiscTests()`](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp#L366-L370) | Added by [`populateTestGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L58) for the current relaxed-precision case. |
 
-## Registration Code
+## Support Requirements
 
-The `populateTestGroup()` function at [vktYCbCrTests.cpp#L44](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L44) adds all child groups. The public entry point `createTests()` at [vktYCbCrTests.cpp#L63](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L63) wraps this into a `tcu::TestCaseGroup`.
+This file does not perform support checks itself; support gating is in each implementation factory's test cases, while this file only wires child groups through [`populateTestGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L44-L58).
+
+## Verification Methods
+
+This file has no verification logic; it returns a populated `tcu::TestCaseGroup` from [`createTests()`](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L63-L65).

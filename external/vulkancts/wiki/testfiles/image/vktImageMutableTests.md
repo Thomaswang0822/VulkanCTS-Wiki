@@ -2,7 +2,7 @@
 
 ## Overview
 
-[`vktImageMutableTests.cpp`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1) is an implementation-heavy Level-3 file for the `image.mutable` and `image.swapchain_mutable` subtrees. It covers Vulkan mutable image format scenarios, testing scenarios where an image is created with one format but views are created with compatible but different formats. The file tests various upload/download method combinations, multisample resolve attachments with mutable formats, and swapchain mutable format functionality.
+[`vktImageMutableTests.cpp`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1) is an implementation-heavy Level-3 file for the `image.mutable` and `image.swapchain_mutable` subtrees. It covers Vulkan mutable image format scenarios, testing scenarios where an image is created with one format but views are created with compatible but different formats. The file tests various upload/download method combinations, multisample resolve attachments with mutable formats, and swapchain mutable format functionality. This aligns with the historical API test-plan objective for compatible image views with different formats ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L483-L504)).
 
 ## Role of File
 
@@ -36,13 +36,13 @@ The confirmed Level-3 roots are `image.mutable` (created by [`createImageMutable
 
 ## Test Families
 
-### mutable �?Mutable image format testing
+### mutable — Mutable image format testing
 
 Covers the `mutable` direct child registered by [`createImageMutableTests()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1856-L1985). This group tests scenarios where image views are created with formats different from but compatible with the underlying image format.
 
 The test structure creates subgroups by image view type (`2d`, `2d_array`), then generates test cases for format pairs where the formats differ but are compatible (same pixel size) according to [`formatsAreCompatible()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L290-L293).
 
-### swapchain_mutable �?Swapchain mutable format testing
+### swapchain_mutable — Swapchain mutable format testing
 
 Covers the `swapchain_mutable` direct child registered by [`createSwapchainImageMutableTests()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L2372-L2438). This group tests mutable format functionality specifically for swapchain images, using the WSI surface formats defined in [`s_swapchainFormats[]`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L262-L265).
 

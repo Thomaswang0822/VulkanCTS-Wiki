@@ -2,7 +2,7 @@
 
 ## Overview
 
-Tests for SPIR-V Assembly indexing operations using OpAccessChain, OpInBoundsAccessChain, and OpPtrAccessChain. Covers struct-based indexing with various integer sizes (16, 32, 64 bits) and signs, non-16-base-alignment indexing (compute only), and output component indexing (graphics only).
+Tests for SPIR-V Assembly indexing operations using `OpAccessChain`, `OpInBoundsAccessChain`, and `OpPtrAccessChain`. The compute group registers `input` with `struct` and `non16basealignment` children, while the graphics group registers `input`/`struct` and `output`/`component` coverage ([createIndexingComputeGroup()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L761-L773), [createIndexingGraphicsGroup()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L776-L788)).
 
 ## Role
 
@@ -10,7 +10,7 @@ Implementation file
 
 ## Source
 
-- [vktSpvAsmIndexingTests.cpp](https://github.com/KhronosGroup/VK-GL-CTS/blob/main/external/vulkancts/modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp)
+- [vktSpvAsmIndexingTests.cpp](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L761)
 
 ## Registration Hierarchy
 
@@ -29,65 +29,65 @@ spirv_assembly.instruction.graphics.indexing
 
 Contains `struct` and `non16basealignment` sub-groups for compute shader input data indexing.
 
-Observed in `createIndexingComputeGroup()` at vktSpvAsmIndexingTests.cpp#L761-L774.
+Observed in [`createIndexingComputeGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L761-L773).
 
 #### struct — Struct-based indexing tests
 
 Tests indexing into a deeply nested struct containing a 2D array of 4x4 matrices using OpAccessChain, OpInBoundsAccessChain, and OpPtrAccessChain. Indices are read from a selector buffer and converted to the desired bit size and sign. For compute, each test also has a `_64bit_indexing` variant (non-VulkanSC only).
 
-Observed in `addComputeIndexingStructTests()` at vktSpvAsmIndexingTests.cpp#L68-L293 and `addGraphicsIndexingStructTests()` at vktSpvAsmIndexingTests.cpp#L295-L532.
+Observed in [`addComputeIndexingStructTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L68-L293) and [`addGraphicsIndexingStructTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L295-L532).
 
 #### non16basealignment — Non-16-byte base alignment indexing tests (compute only)
 
 Tests indexing into a struct with non-16-byte-aligned array stride (18 floats per struct instance). Uses OpAccessChain and OpPtrAccessChain to sum all elements of the float array within each struct instance. Requires `VK_KHR_variable_pointers` extension.
 
-Observed in `addComputeIndexingNon16BaseAlignmentTests()` at vktSpvAsmIndexingTests.cpp#L597-L757.
+Observed in [`addComputeIndexingNon16BaseAlignmentTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L597-L757).
 
 ### input (graphics) — Graphics input indexing tests
 
 Contains `struct` sub-group for graphics pipeline input data indexing across all shader stages.
 
-Observed in `createIndexingGraphicsGroup()` at vktSpvAsmIndexingTests.cpp#L776-L789.
+Observed in [`createIndexingGraphicsGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L776-L788).
 
 ### output — Output component indexing tests (graphics only)
 
 Tests indexing into output interface components using OpAccessChain. Uses a per-stage interface operation pattern with different indexing for vertex, fragment, tessellation, and geometry stages.
 
-Observed in `addGraphicsOutputComponentIndexingTests()` at vktSpvAsmIndexingTests.cpp#L534-L595.
+Observed in [`addGraphicsOutputComponentIndexingTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L534-L595).
 
 ## Parameter Dimensions
 
 | Dimension | Values | Description |
 |-----------|--------|-------------|
-| ChainOp | `opaccesschain`, `opinboundsaccesschain`, `opptraccesschain` | Access chain operation type |
-| idxSize | 16, 32, 64 | Index integer bit width |
-| sign | unsigned (`_u`), signed (`_s`) | Index integer signedness |
+| ChainOp | `opaccesschain`, `opinboundsaccesschain`, `opptraccesschain` | Access-chain operation names from `chainOpTestNames` ([chainOpTestNames](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L60-L61)) |
+| idxSize | 16, 32, 64 | Index integer bit widths from `idxSizes` ([idxSizes](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L60-L61)) |
+| sign | unsigned (`_u`), signed (`_s`) | Signedness suffix generated in struct test names ([addComputeIndexingStructTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L87-L95), [addGraphicsIndexingStructTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L317-L325)) |
 | 64bit_indexing | bool (non-VulkanSC only) | Whether to use 64-bit buffer indexing |
 
-Test names follow the pattern: `{chainOp}_{sign}{idxSize}` (e.g., `opaccesschain_u32`, `opptraccesschain_s64_64bit_indexing`).
+Test names follow the pattern `{chainOp}_{sign}{idxSize}` and may append `_64bit_indexing` for non-VulkanSC variants ([addComputeIndexingStructTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L93-L95), [addComputeIndexingStructTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L284-L288)).
 
-For `non16basealignment` tests, only `opaccesschain` and `opptraccesschain` are tested.
+For `non16basealignment` tests, only `opaccesschain` and `opptraccesschain` are tested ([addComputeIndexingNon16BaseAlignmentTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L610-L612), [addComputeIndexingNon16BaseAlignmentTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L729-L753)).
 
-For `output` (graphics), only a single `component` test exists per stage.
+For `output` graphics coverage, the file creates a single `component` test across all stages ([addGraphicsOutputComponentIndexingTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L588-L594)).
 
 ## Support Requirements
 
-- **shaderInt16** — required when `idxSize == 16` — vktSpvAsmIndexingTests.cpp#L277
-- **shaderInt64** — required when `idxSize == 64` — vktSpvAsmIndexingTests.cpp#L279
-- **VK_KHR_variable_pointers** — required for OpPtrAccessChain tests — vktSpvAsmIndexingTests.cpp#L230
-- **variablePointersStorageBuffer** — required for OpPtrAccessChain tests — vktSpvAsmIndexingTests.cpp#L229
-- **vertexPipelineStoresAndAtomics** — required for graphics struct tests — vktSpvAsmIndexingTests.cpp#L510
-- **fragmentStoresAndAtomics** — required for graphics struct tests — vktSpvAsmIndexingTests.cpp#L511
-- SPIR-V extensions: `SPV_KHR_variable_pointers`, `SPV_KHR_storage_buffer_storage_class` — for OpPtrAccessChain — vktSpvAsmIndexingTests.cpp#L226-L227
+- **`shaderInt16`** — requested when `idxSize == 16` ([addComputeIndexingStructTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L276-L280))
+- **`shaderInt64`** — requested when `idxSize == 64` ([addComputeIndexingStructTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L276-L280))
+- **`VK_KHR_variable_pointers`** — requested for `OpPtrAccessChain` struct tests and non-16-base-alignment tests ([addComputeIndexingStructTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L219-L231), [addComputeIndexingNon16BaseAlignmentTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L700-L701))
+- **`variablePointersStorageBuffer`** — requested for `OpPtrAccessChain` struct tests and non-16-base-alignment tests ([addComputeIndexingStructTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L224-L230), [addComputeIndexingNon16BaseAlignmentTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L700-L726))
+- **`vertexPipelineStoresAndAtomics`** — requested for graphics struct tests ([addGraphicsIndexingStructTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L507-L518))
+- **`fragmentStoresAndAtomics`** — requested for graphics struct tests ([addGraphicsIndexingStructTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L507-L518))
+- SPIR-V extensions: `SPV_KHR_variable_pointers`, `SPV_KHR_storage_buffer_storage_class` for `OpPtrAccessChain` and non-16-base-alignment variants ([addComputeIndexingStructTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L224-L227), [addComputeIndexingNon16BaseAlignmentTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L735-L737))
 
 ## Verification Methods
 
-- **Struct tests**: Output buffer values are compared against CPU-computed expected values. The expected output is calculated by indexing into the input data using the same indices as the shader, following the struct layout — vktSpvAsmIndexingTests.cpp#L238-L244 (compute) and vktSpvAsmIndexingTests.cpp#L498-L505 (graphics)
-- **Non-16-base-alignment tests**: Output is the sum of all float array elements per struct instance, computed on CPU using whole numbers to avoid rounding differences — vktSpvAsmIndexingTests.cpp#L717-L723
-- **Output component tests**: Uses `GraphicsInterfaces` with input/output type specifications and `createTestsForAllStages` for per-stage verification — vktSpvAsmIndexingTests.cpp#L588-L594
+- **Struct tests**: output buffer values are compared against CPU-computed expected values calculated by indexing input data with the same selector indices as the shader ([addComputeIndexingStructTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L237-L244), [addGraphicsIndexingStructTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L498-L505))
+- **Non-16-base-alignment tests**: output is the sum of all float-array elements per struct instance, computed on CPU after floor-rounding inputs to avoid CPU/GPU rounding differences ([addComputeIndexingNon16BaseAlignmentTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L703-L723))
+- **Output component tests**: uses `GraphicsInterfaces` with input/output type specifications and `createTestsForAllStages` for per-stage verification ([addGraphicsOutputComponentIndexingTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L588-L594))
 
 ## Notes
 
-- The `_64bit_indexing` variants are guarded by `#ifndef CTS_USES_VULKANSC` — vktSpvAsmIndexingTests.cpp#L284-L288 (compute) and vktSpvAsmIndexingTests.cpp#L521-L527 (graphics)
-- OpPtrAccessChain uses `StorageBuffer` storage class and `Block` decoration, while OpAccessChain/OpInBoundsAccessChain use `Uniform` storage class and `BufferBlock` decoration — vktSpvAsmIndexingTests.cpp#L207-L231
-- The `non16basealignment` tests use floor-rounded input data to avoid CPU/GPU rounding differences — vktSpvAsmIndexingTests.cpp#L709
+- The `_64bit_indexing` variants are guarded by `#ifndef CTS_USES_VULKANSC` in compute and graphics struct tests ([addComputeIndexingStructTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L284-L288), [addGraphicsIndexingStructTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L521-L527))
+- `OpPtrAccessChain` uses `StorageBuffer` storage class and `Block` decoration, while `OpAccessChain`/`OpInBoundsAccessChain` use `Uniform` storage class and `BufferBlock` decoration ([addComputeIndexingStructTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L204-L231))
+- The `non16basealignment` tests use floor-rounded input data to avoid CPU/GPU rounding differences ([addComputeIndexingNon16BaseAlignmentTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L703-L710))

@@ -30,7 +30,7 @@ The confirmed Level-3 root is `image.mismatched_write_op`, created by [`createIm
 
 ## Test Families
 
-### mismatched_vector_sizes �?OpImageWrite with mismatched vector component counts
+### mismatched_vector_sizes — OpImageWrite with mismatched vector component counts
 
 Covers the `mismatched_vector_sizes` direct child registered by [`createImageWriteOpTests()``](../../../modules/vulkan/image/vktImageMismatchedWriteOpTests.cpp#L1084). This group tests scenarios where data is written to an image using a vector with fewer components than the image format expects.
 
@@ -38,7 +38,7 @@ The [`MismatchedVectorSizesTest`](../../../modules/vulkan/image/vktImageMismatch
 
 Test cases are generated for all formats in [`allFormats[]`](../../../modules/vulkan/image/vktImageMismatchedWriteOpTests.cpp#L459-L502) with vector source widths from 1 to 5 (or 4 for VulkanSC), where the source width is greater than or equal to the format's channel count.
 
-### mismatched_signedness_and_type �?OpImageWrite with mismatched signedness and type
+### mismatched_signedness_and_type — OpImageWrite with mismatched signedness and type
 
 Covers the `mismatched_signedness_and_type` direct child registered by [`createImageWriteOpTests()``](../../../modules/vulkan/image/vktImageMismatchedWriteOpTests.cpp#L1085). This group tests scenarios where source data has different signedness or numeric type than the target image format.
 

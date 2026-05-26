@@ -30,19 +30,19 @@ The confirmed Level-3 root is `image.mismatched_formats`, created by [`createIma
 
 ## Test Families
 
-### image_read â€?OpImageRead with mismatched formats
+### image_read â€” OpImageRead with mismatched formats
 
 Covers the `image_read` direct child registered by [`createImageMismatchedFormatsTests()``](../../../modules/vulkan/image/vktImageMismatchedFormatsTests.cpp#L483-L484). This group tests the [`imageLoad()`](https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/imageLoad.html) GLSL builtin with SPIR-V image formats that differ from the underlying Vulkan image format.
 
 The test class [`MismatchedFormatTest`](../../../modules/vulkan/image/vktImageMismatchedFormatsTests.cpp#L231-L245) with `TestType::READ` generates GLSL shaders that perform [`imageLoad()`](https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/imageLoad.html) operations.
 
-### image_write â€?OpImageWrite with mismatched formats
+### image_write â€” OpImageWrite with mismatched formats
 
 Covers the `image_write` direct child registered by [`createImageMismatchedFormatsTests()``](../../../modules/vulkan/image/vktImageMismatchedFormatsTests.cpp#L484). This group tests the [`imageStore()`](https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/imageStore.html) GLSL builtin with mismatched formats.
 
 The test class [`MismatchedFormatTest`](../../../modules/vulkan/image/vktImageMismatchedFormatsTests.cpp#L231-L245) with `TestType::WRITE` generates GLSL shaders that perform [`imageStore()`](https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/imageStore.html) operations.
 
-### sparse_image_read â€?Sparse OpImageRead with mismatched formats (non-VulkanSC)
+### sparse_image_read â€” Sparse OpImageRead with mismatched formats (non-VulkanSC)
 
 Covers the `sparse_image_read` direct child registered by [`createImageMismatchedFormatsTests()``](../../../modules/vulkan/image/vktImageMismatchedFormatsTests.cpp#L486-L487). This group tests sparse texture read operations with mismatched formats using the [`GL_ARB_sparse_texture2`](https://www.opengl.org/registry/specs/ARB/sparse_texture2.txt) extension.
 

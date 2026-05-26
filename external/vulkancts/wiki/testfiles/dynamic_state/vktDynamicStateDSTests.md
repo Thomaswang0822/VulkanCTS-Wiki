@@ -91,7 +91,8 @@ Mesh shader variant of `stencil_params_advanced`. See `stencil_params_advanced` 
 |---|---|---|
 | depth_bounds_1/2 (vertex) | `DEVICE_CORE_FEATURE_DEPTH_BOUNDS` | [`checkDepthBoundsSupport`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1246) |
 | depth_bounds_1/2 (mesh) | depth bounds + `VK_EXT_mesh_shader` | [`checkDepthBoundsAndMeshShaderSupport`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1252) |
-| All mesh variants | `VK_EXT_mesh_shader` | [`checkMeshShaderSupport`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1045) |
+| stencil_params_basic_1/2 (vertex and mesh) | `VK_EXT_mesh_shader` plus pipeline construction requirements in the case-level support method | [`StencilParamsBasicTestCase::checkSupport()`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1079) |
+| stencil_params_advanced (mesh) | `VK_EXT_mesh_shader` | [`checkMeshShaderSupport`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1045) |
 | stencil_params_advanced (vertex) | None | [`checkNothing`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1041) |
 
 ## Verification Methods

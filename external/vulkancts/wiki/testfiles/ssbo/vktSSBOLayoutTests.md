@@ -80,4 +80,3 @@ For layout cases, [`SSBOLayoutCase::delayedInit()`](../../../modules/vulkan/ssbo
 ## Notes / Uncertainties
 
 - Mustpass inspection confirms the direct `ssbo` children listed in the hierarchy tree in [`vk-default/ssbo.txt`](../../../mustpass/main/vk-default/ssbo.txt#L1) and [`vksc-default/ssbo.txt`](../../../mustpass/main/vksc-default/ssbo.txt#L1). The generated leaf set is large, so this page documents direct groups and source-observed generators rather than enumerating every leaf case.
-- [`doc/testspecs/VK/apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc) was searched for `SSBO`, `Shader Storage`, `storage buffer`, and `Storage Buffer`; no category-specific SSBO test-plan section was found, so factual claims here rely on source and mustpass evidence.

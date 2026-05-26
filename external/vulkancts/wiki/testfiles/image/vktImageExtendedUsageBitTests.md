@@ -18,8 +18,7 @@ Implementation file that registers the `extended_usage_bit_compatibility` test g
 ```text
 image.extended_usage_bit_compatibility
 ├── image_format_properties
-├── image_format_properties2
-└── image_format_list
+└── image_format_properties2
 ```
 
 Evidence:
@@ -29,15 +28,15 @@ Evidence:
 
 ## Test Families
 
-### image_format_properties �?vkGetPhysicalDeviceImageFormatProperties tests
+### image_format_properties — vkGetPhysicalDeviceImageFormatProperties tests
 
 Tests using the original `vkGetPhysicalDeviceImageFormatProperties` API (VK_KHR_get_physical_device_properties2 not required). Validates that format compatibility works with the legacy API.
 
-### image_format_properties2 �?vkGetPhysicalDeviceImageFormatProperties2 tests
+### image_format_properties2 — vkGetPhysicalDeviceImageFormatProperties2 tests
 
 Tests using `vkGetPhysicalDeviceImageFormatProperties2`. Validates that format compatibility works with the extended API structure.
 
-### image_format_list �?vkGetPhysicalDeviceImageFormatProperties2 with ImageFormatList tests
+### image_format_list — vkGetPhysicalDeviceImageFormatProperties2 with ImageFormatList tests
 
 Tests using `VkImageFormatListCreateInfo` to specify view formats. Validates that explicit format lists work correctly with extended usage bit.
 

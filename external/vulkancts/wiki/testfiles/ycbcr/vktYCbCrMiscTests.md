@@ -2,11 +2,7 @@
 
 ## Overview
 
-Miscellaneous YCbCr tests that do not fit into other categories. Currently contains a single test for relaxed precision decoration handling with YCbCr samplers.
-
-**Role:** Implementation (registers group `ycbcr.misc`)
-
-**Source:** [vktYCbCrMiscTests.cpp](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp)
+[`vktYCbCrMiscTests.cpp`](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp) implements the `ycbcr.misc` subgroup returned by [`createMiscTests()`](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp#L366-L370). The current source registers a single `relaxed_precision` case.
 
 ## Registration Hierarchy
 
@@ -15,42 +11,33 @@ ycbcr.misc
 └── relaxed_precision
 ```
 
+The single child is added by [`createMiscTests()`](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp#L366-L370).
+
 ## Test Families
 
-### misc
+### relaxed_precision
 
-Contains miscellaneous YCbCr-related tests. The current test validates that `RelaxedPrecision` decorations in SPIR-V work correctly with YCbCr sampler operations.
+The current miscellaneous family contains only `relaxed_precision`, which is implemented by [`RelaxedPrecisionTestCase`](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp#L278-L291) and [`RelaxedPrecisionTestInstance`](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp#L60-L270).
 
-#### relaxed_precision
+The test uses `VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM`, a `256x256` render target, RGB identity/full-range YCbCr conversion, cosited chroma locations, and nearest filtering in [`RelaxedPrecisionTestInstance::iterate()`](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp#L68-L89). Its fragment shader is handwritten SPIR-V assembly with `RelaxedPrecision` decorations on the output, sampler variable, sampled values, and intermediate multiplication; it samples with `OpImageSampleImplicitLod` and `OpImageSampleProjImplicitLod` in [`RelaxedPrecisionTestCase::initPrograms()`](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp#L310-L364).
 
-Tests that a fragment shader with `RelaxedPrecision` decorations on YCbCr sampler operations (`OpImageSampleImplicitLod` and `OpImageSampleProjImplicitLod`) executes without errors. The test uses a hand-crafted SPIR-V assembly fragment shader that:
+## Parameters
 
-1. Samples a YCbCr image at coordinates (0,0) via `OpImageSampleImplicitLod`
-2. Samples the same image with projective sampling via `OpImageSampleProjImplicitLod`
-3. Multiplies the two results and stores to the output
+| Dimension | Source-backed values |
+|---|---|
+| Format | `VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM` in [`iterate()`](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp#L68-L75). |
+| Render size | `256x256` in [`iterate()`](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp#L68-L69). |
+| Conversion | RGB identity, ITU full range, cosited-even chroma locations, nearest chroma filter in [`iterate()`](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp#L71-L87). |
+| SPIR-V operations | `OpImageSampleImplicitLod`, `OpImageSampleProjImplicitLod`, and `OpFMul` in [`initPrograms()`](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp#L352-L358). |
 
-The `RelaxedPrecision` decoration is applied to the sampler variable, the sampled results, and intermediate computations. The test verifies that the pipeline compiles and executes successfully without crashes or validation errors.
+## Support Requirements
 
-**Parameter Dimensions:**
+[`RelaxedPrecisionTestCase::checkSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp#L294-L297) requires `VK_KHR_sampler_ycbcr_conversion`.
 
-| Dimension | Values | Notes |
-|-----------|--------|-------|
-| Format | `VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM` | Fixed format for this test |
-| Render Size | 256x256 | Fixed |
-| Chroma Location | `VK_CHROMA_LOCATION_COSITED_EVEN` (both X and Y) | Fixed |
-| Color Model | `VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY` | Fixed |
-| Color Range | `VK_SAMPLER_YCBCR_RANGE_ITU_FULL` | Fixed |
+## Verification Method
 
-**Support Requirements:**
+The test records and submits a draw using the generated graphics pipeline in [`RelaxedPrecisionTestInstance::iterate()`](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp#L241-L270). There is no source-visible pixel comparison in this file; the test's pass condition is successful pipeline execution of the relaxed-precision YCbCr sampler operations.
 
-- `VK_KHR_sampler_ycbcr_conversion` extension
+## Notes / Uncertainties
 
-**Verification Method:**
-
-The test passes if the graphics pipeline executes without errors. No pixel-level result verification is performed; the test validates that the SPIR-V with `RelaxedPrecision` decorations on YCbCr sampler operations is accepted by the driver and does not cause crashes or validation errors.
-
-**Key Classes and Functions:**
-
-- [RelaxedPrecisionTestInstance](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp#L49) - Test instance implementation
-- [RelaxedPrecisionTestCase](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp#L278) - Test case with SPIR-V assembly fragment shader
-- [createMiscTests()](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp#L366) - Factory function returning the `misc` group
+The source currently contains no additional `misc` children beyond `relaxed_precision` in [`createMiscTests()`](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp#L366-L370).

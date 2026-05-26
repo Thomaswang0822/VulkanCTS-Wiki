@@ -56,4 +56,3 @@ The layout tests validate that repeated conversions preserve row/column-major re
 
 ## Notes
 
-The inspected API test plan provides general Vulkan CTS framework context but no cooperative-vector-specific test-family breakdown [apitests.adoc](../../../../../doc/testspecs/VK/apitests.adoc#L8-L13).

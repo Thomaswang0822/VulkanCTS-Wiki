@@ -72,4 +72,4 @@ The generated tests produce shader output into buffers, simulate the random prog
 
 ## Notes
 
-The inspected API test plan provides general Vulkan CTS framework context but no reconvergence-specific category breakdown [apitests.adoc](../../../../../doc/testspecs/VK/apitests.adoc#L8-L13). The source contains additional graphics-stage code behind a disabled `INCLUDE_GRAPHICS_TESTS` macro, so this page documents the registered paths visible in the current source and mustpass coverage rather than the disabled branches [vktReconvergenceTests.cpp](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L69-L69), [vktReconvergenceTests.cpp](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L7805-L7814).
+The source contains additional graphics-stage code behind a disabled `INCLUDE_GRAPHICS_TESTS` macro, so this page documents the registered paths visible in the current source and mustpass coverage rather than the disabled branches [vktReconvergenceTests.cpp](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L69-L69), [vktReconvergenceTests.cpp](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L7805-L7814).

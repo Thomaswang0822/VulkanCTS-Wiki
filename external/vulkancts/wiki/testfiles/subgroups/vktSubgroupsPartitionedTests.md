@@ -2,27 +2,30 @@
 
 ## Overview
 
-[`vktSubgroupsPartitionedTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsPartitionedTests.cpp#L1) documents the [`subgroups.partitioned`](../../../modules/vulkan/subgroups/vktSubgroupsPartitionedTests.cpp#L528) branch. It covers NV partitioned subgroup operations.
+[`vktSubgroupsPartitionedTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsPartitionedTests.cpp#L1) documents the [`subgroups.partitioned`](../../../modules/vulkan/subgroups/vktSubgroupsPartitionedTests.cpp#L528) branch. It covers NV partitioned subgroup operations. The entire branch is non-VulkanSC-only because the dispatcher includes this file only inside `#ifndef CTS_USES_VULKANSC` and registers `createSubgroupsPartitionedTests()` only inside the same guard in [`vktSubgroupsTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L40-L45) and [`vktSubgroupsTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L68-L70).
 
 ## Role
 
-Implementation file that registers tests under the verified group name [`partitioned`](../../../modules/vulkan/subgroups/vktSubgroupsPartitionedTests.cpp#L528).
+Implementation file that registers tests under the verified group name [`partitioned`](../../../modules/vulkan/subgroups/vktSubgroupsPartitionedTests.cpp#L528). The group is attached to `subgroups` only for non-VulkanSC builds by the root dispatcher guard in [`vktSubgroupsTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L68-L70).
 
 ## Source Code
 
 - Primary source: [`vktSubgroupsPartitionedTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsPartitionedTests.cpp#L1)
+- Dispatcher guard: [`vktSubgroupsTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L40-L45) and [`vktSubgroupsTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L68-L70)
 - Related helper source: [`vktSubgroupsTestsUtils.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2429-L2638)
 - Related helper declarations: [`vktSubgroupsTestsUtils.hpp`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.hpp#L58-L63)
 
 ## Registration Hierarchy
+
+The entire `subgroups.partitioned` Level-3 branch is non-VulkanSC-only.
 
 ```text
 subgroups.partitioned
 ├── graphics
 ├── compute
 ├── framebuffer
-├── ray_tracing (non-VulkanSC only)
-└── mesh (non-VulkanSC only)
+├── ray_tracing
+└── mesh
 ```
 
 ## Test Families
@@ -65,4 +68,4 @@ Callbacks compare partitioned results with non-partitioned references over gener
 ## Notes / Uncertainties
 
 - The hierarchy tree intentionally lists only direct children of `subgroups.partitioned`. Deeper generated leaf names are summarized rather than expanded.
-- Claims are limited to inspected source under `external/vulkancts/modules/vulkan/subgroups/`; [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L8-L12) gives only general API-test-plan context for this category.
+- Claims are limited to inspected source under `external/vulkancts/modules/vulkan/subgroups/`.

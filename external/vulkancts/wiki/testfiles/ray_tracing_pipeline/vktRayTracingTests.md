@@ -204,5 +204,3 @@ The dispatcher does not verify results; child files implement pipeline creation,
 The file is a dispatcher: it fixes the top-level order and delegates all parameters, support gates, and verification to child source files through direct `addChild()` registrations [vktRayTracingTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102).
 
 ## Notes
-
-The API test plan provides general CTS framework context, but the inspected `apitests.adoc` file does not list ray-tracing-pipeline-specific families.

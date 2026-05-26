@@ -29,19 +29,19 @@ Evidence:
 
 ## Test Families
 
-### coherent â€?Coherent memory qualifier tests
+### coherent â€” Coherent memory qualifier tests
 
 The `coherent` subgroup tests that the `coherent` memory qualifier properly synchronizes memory access across work groups. Tests write values using `imageStore`, perform `memoryBarrier()` and `barrier()`, then read values from other work items. Verification compares computed sums against expected values.
 
-Tests all image types (1D, 1D array, 2D, 2D array, 3D, cube, cube array, buffer) with three formats (R32_FLOAT, R32_UINT, R32_SINT) at [`vktImageQualifiersTests.cpp#L753-759`](../../../modules/vulkan/image/vktImageQualifiersTests.cpp#L753).
+Tests all image types (1D, 1D array, 2D, 2D array, 3D, cube, cube array, buffer) with three source-defined `tcu::TextureFormat` values (`R/FLOAT`, `R/UNSIGNED_INT32`, and `R/SIGNED_INT32`) at [`vktImageQualifiersTests.cpp#L753-L759`](../../../modules/vulkan/image/vktImageQualifiersTests.cpp#L753-L759). These are converted into shader image format qualifiers (`r32f`, `r32ui`, and `r32i`) by [`getShaderImageFormatQualifier()`](../../../modules/vulkan/image/vktImageTestsUtil.cpp#L608-L679).
 
-### volatile â€?Volatile memory qualifier tests
+### volatile â€” Volatile memory qualifier tests
 
 The `volatile` subgroup tests that the `volatile` memory qualifier prevents caching of image values. Uses the same test pattern as coherent tests.
 
-Tests all image types with three formats at [`vktImageQualifiersTests.cpp#L753-759`](../../../modules/vulkan/image/vktImageQualifiersTests.cpp#L753).
+Tests all image types with the same three source-defined `tcu::TextureFormat` values at [`vktImageQualifiersTests.cpp#L753-L759`](../../../modules/vulkan/image/vktImageQualifiersTests.cpp#L753-L759).
 
-### restrict â€?Restrict memory qualifier tests
+### restrict â€” Restrict memory qualifier tests
 
 The `restrict` subgroup tests that the `restrict` qualifier properly isolates pointers. Uses `createImageQualifierRestrictCase` from `vktImageLoadStoreTests.hpp` at [`vktImageQualifiersTests.cpp#L744-746`](../../../modules/vulkan/image/vktImageQualifiersTests.cpp#L744).
 
@@ -52,7 +52,7 @@ Tests all image types (1D, 1D array, 2D, 2D array, 3D, cube, cube array, buffer)
 | Dimension | Observed values / evidence |
 |---|---|
 | Image types | IMAGE_TYPE_1D, IMAGE_TYPE_1D_ARRAY, IMAGE_TYPE_2D, IMAGE_TYPE_2D_ARRAY, IMAGE_TYPE_3D, IMAGE_TYPE_CUBE, IMAGE_TYPE_CUBE_ARRAY, IMAGE_TYPE_BUFFER at [`vktImageQualifiersTests.cpp#L711-718`](../../../modules/vulkan/image/vktImageQualifiersTests.cpp#L711) |
-| Formats | R32G32B32A32_SFLOAT, R32_UINT, R32_SINT at [`vktImageQualifiersTests.cpp#L720-724`](../../../modules/vulkan/image/vktImageQualifiersTests.cpp#L720) |
+| Formats | Source-defined `tcu::TextureFormat` values `R/FLOAT`, `R/UNSIGNED_INT32`, and `R/SIGNED_INT32` at [`vktImageQualifiersTests.cpp#L720-L724`](../../../modules/vulkan/image/vktImageQualifiersTests.cpp#L720-L724); shader qualifier names are generated as `r32f`, `r32ui`, and `r32i` by [`getShaderImageFormatQualifier()`](../../../modules/vulkan/image/vktImageTestsUtil.cpp#L608-L679) |
 | Image sizes | 64x64x1 (2D/cube), 64x1x8 (1D array/3D), 64x1x1 (1D/buffer) at [`vktImageQualifiersTests.cpp#L711-718`](../../../modules/vulkan/image/vktImageQualifiersTests.cpp#L711) |
 | Work group size | (8, 8, 2) base with dynamic adjustment at [`vktImageQualifiersTests.cpp#L64`](../../../modules/vulkan/image/vktImageQualifiersTests.cpp#L64) |
 | Read offsets | X: {1,4,7,10}, Y: {2,5,8,11}, Z: {3,6,9,12} at [`vktImageQualifiersTests.cpp#L65-70`](../../../modules/vulkan/image/vktImageQualifiersTests.cpp#L65) |

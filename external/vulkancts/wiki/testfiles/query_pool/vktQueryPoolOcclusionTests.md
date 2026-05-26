@@ -27,7 +27,7 @@ In addition to the named cases above, [`QueryPoolOcclusionTests::init()`](../../
 
 ## Summary
 
-The `occlusion_query` group combines focused smoke tests, a large functional matrix, no-attachment coverage, clear-operation coverage, stride and destination-offset coverage, and a limited set of device-address-command variants. The tests exercise both conservative and precise occlusion queries, validate result retrieval through host reads and command-buffer copies, and check special paths such as host query reset, attachment clears, blits, resolves, and rendering without color attachments.
+The `occlusion_query` group combines focused smoke tests, a large functional matrix, no-attachment coverage, clear-operation coverage, stride and destination-offset coverage, and a limited set of device-address-command variants. The tests exercise both conservative and precise occlusion queries, validate result retrieval through host reads and command-buffer copies, and check special paths such as host query reset, attachment clears, blits, resolves, and rendering without color attachments. The historical API test plan identifies exact occlusion query as mandatory pipeline-query coverage ([apitests.adoc](../../../../../doc/testspecs/VK/apitests.adoc#L427-L432)).
 
 ## Test Families
 
@@ -221,4 +221,4 @@ The pass/fail helper for the core result comparison is implemented in the logic 
 
 - The group mixes regular `TestCase`-based registrations with function-style cases using [`addFunctionCaseWithPrograms()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1767).
 - The file intentionally uses a much larger parameter matrix for general query semantics than for device-address-command coverage, keeping the latter sampled rather than exhaustive.
-- No Level-2 category document is created here; this page documents only the Level-3 file represented by [`vktQueryPoolOcclusionTests.cpp`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp).
+- The page documents only the Level-3 file represented by [`vktQueryPoolOcclusionTests.cpp`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp); the category-level summary is maintained separately in [query_pool.md](../../categories/query_pool.md).

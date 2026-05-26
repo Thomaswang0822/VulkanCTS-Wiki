@@ -2,7 +2,7 @@
 
 ## Overview
 
-SPIR-V Assembly Tests for pointers as function parameters. Tests passing pointers in Function, Private, and StorageBuffer storage classes as function parameters, including aliased pointer semantics, buffer memory access through pointer parameters, and workgroup memory with variable pointers.
+SPIR-V Assembly Tests for pointers as function parameters. Tests passing pointers in Function, Private, StorageBuffer, and Workgroup storage classes as function parameters, including aliased pointer semantics, buffer memory access through pointer parameters, and workgroup memory with variable pointers.
 
 ## Role
 
@@ -10,7 +10,7 @@ Implementation file
 
 ## Source
 
-- [vktSpvAsmPointerParameterTests.cpp](https://github.com/KhronosGroup/VK-GL-CTS/blob/main/external/vulkancts/modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp)
+- [vktSpvAsmPointerParameterTests.cpp](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L1082)
 
 ## Registration Hierarchy
 
@@ -49,83 +49,56 @@ spirv_assembly.instruction.graphics.pointer_parameter
 
 ### param_to_param — Pointer-to-pointer parameter aliasing (compute only)
 
-Tests passing Function-storage-class pointers as function parameters where both parameters alias the same variable (`vktSpvAsmPointerParameterTests.cpp#L45-L141`). The shader implements:
+Tests passing Function-storage-class pointers as function parameters where both parameters can alias the same variable. The source comments spell out the pseudo shader, and the SPIR-V decorates both function parameters with [`Aliased`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L52-L81). The compute shader calls the function once with the same pointer and once with different pointers, then expects [`7.0f`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L110-L140) for all 128 output elements.
 
-```
-float func(alias float* f, alias float* g) {
-    *g = 5.0; *f = 2.0; return *g;
-}
-void main() {
-    float a = 0.0;
-    o = func(&a, &a);  // should return 2.0 (aliased)
-    float b = 0.0;
-    o += func(&a, &b); // should return 5.0 (not aliased)
-}
-```
+### global_to_param — Pointer parameter to global/private variable (graphics only)
 
-Expected output: 7.0 for all 128 elements. Uses `Aliased` decoration on function parameters. Compute-only test.
+Graphics counterpart of [`param_to_param`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L692-L766), using function parameters and aliased decorations in graphics shader fragments. It registers stage-suffixed cases through [`createTestsForAllStages("global_to_param", ...)`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L758-L766).
 
-### global_to_param — Pointer parameter to global (Private) variable (graphics only)
+### param_to_global — Pointer parameter to global/private variable
 
-Graphics counterpart of param_to_param, passing a Private-storage-class pointer and a Function-storage-class pointer as function parameters (`vktSpvAsmPointerParameterTests.cpp#L692-L767`). Uses `createTestsForAllStages` to generate stage-suffixed test cases (`global_to_param_vert`, `global_to_param_frag`, etc.).
-
-### param_to_global — Pointer parameter to global (Private) variable
-
-Tests passing a Private-storage-class pointer and a Function-storage-class pointer as function parameters, where the function modifies a global variable through both paths (`vktSpvAsmPointerParameterTests.cpp#L143-L257`). Compute version uses `SpvAsmComputeShaderCase`; graphics version (`vktSpvAsmPointerParameterTests.cpp#L769-L864`) uses `createTestsForAllStages` with stage-suffixed names. The shader implements:
-
-```
-alias float a = 0.0; // Private storage class
-float func0(alias float* f0) { *a = 5.0; *f0 = 2.0; return *a; } // f0 is Private
-float func1(alias float* f1) { *a = 5.0; *f1 = 2.0; return *a; } // f1 is Function
-void main() {
-    o = func0(&a);  // should return 2.0
-    float b = 0.0;
-    o += func1(&b); // should return 5.0
-}
-```
-
-Expected output: 7.0 for all 128 elements.
+Tests passing a Private-storage-class pointer and a Function-storage-class pointer as function parameters, where functions modify a global/private variable through both paths. The compute version uses the pseudo shader and `Aliased` decorations in [`addComputePointerParamToGlobalTest()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L143-L256), and the graphics version registers stage-suffixed cases through [`createTestsForAllStages("param_to_global", ...)`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L769-L861). Both variants expect [`7.0f`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L247-L256) output values.
 
 ### buffer_memory — Buffer memory access through pointer parameters
 
-Tests passing StorageBuffer array pointers as function parameters (`vktSpvAsmPointerParameterTests.cpp#L259-L386`). The shader passes pointers to fixed-size and runtime arrays in a StorageBuffer to functions that write through those pointers. Uses `VariablePointersStorageBuffer` capability. Expected output: first half = 5.0, second half = 2.0. Graphics version (`vktSpvAsmPointerParameterTests.cpp#L864-L972`) uses `createTestsForAllStages` with stage-suffixed names.
+Tests passing StorageBuffer array pointers as function parameters. The compute shader writes through fixed-size and runtime-array pointers to produce first-half `5.0f` and second-half `2.0f` output values, using [`VariablePointersStorageBuffer`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L291-L385). The graphics version uses the same storage-buffer pattern and registers stage-suffixed cases through [`createTestsForAllStages("buffer_memory", ...)`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L864-L969).
 
-### buffer_memory_variable_pointers — Buffer memory with full variable pointers
+### buffer_memory_variable_pointers — Buffer memory with variable-pointer extension coverage
 
-Similar to buffer_memory but uses the full `VariablePointers` capability (not just `VariablePointersStorageBuffer`) (`vktSpvAsmPointerParameterTests.cpp#L388-L514`). Requires `VK_KHR_variable_pointers` extension. Same expected output pattern. Graphics version (`vktSpvAsmPointerParameterTests.cpp#L972-L1082`) uses `createTestsForAllStages` with stage-suffixed names.
+Similar to [`buffer_memory`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L259-L385), with a separately registered compute case and graphics stage-suffixed cases. In the inspected source, this family still emits [`OpCapability VariablePointersStorageBuffer`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L420-L424) rather than `OpCapability VariablePointers`, and it requests the [`VK_KHR_variable_pointers`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L505-L513) extension/feature path.
 
 ### workgroup_memory_variable_pointers — Workgroup memory with variable pointers (compute only)
 
-Tests passing Workgroup-storage-class array pointers as function parameters with `VariablePointers` and `WorkgroupMemoryExplicitLayoutKHR` capabilities (`vktSpvAsmPointerParameterTests.cpp#L516-L660`). The shader uses shared workgroup memory with explicit layout, passes pointers to workgroup arrays to functions, and verifies cross-invocation data exchange. Compute-only test.
+Tests passing Workgroup-storage-class array pointers as function parameters with [`VariablePointers`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L560-L565) and [`WorkgroupMemoryExplicitLayoutKHR`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L560-L565) capabilities. The shader uses shared workgroup memory, calls functions to write local arrays, synchronizes with [`OpControlBarrier`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L622-L637), and compares against a shuffled expected-output pattern computed on the CPU.
 
 ## Parameter Dimensions
 
 | Dimension | Values | Description |
 |-----------|--------|-------------|
-| Pipeline | compute, graphics | Shader pipeline under test |
-| Pointer storage class | Function, Private, StorageBuffer, Workgroup | Storage class of the pointer parameter |
-| Aliasing | aliased, not_aliased | Whether pointer parameters alias the same variable |
-| Variable pointers capability | VariablePointersStorageBuffer, VariablePointers | Level of variable pointers support required |
-| Buffer type | fixed_array, runtime_array | Array type in StorageBuffer |
+| Pipeline | [`compute`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L1082-L1092), [`graphics`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L1095-L1104) | Shader pipeline under test |
+| Pointer storage class | [`Function`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L85-L87), [`Private`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L193-L195), [`StorageBuffer`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L321-L329), [`Workgroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L596-L605) | Storage class of the pointer parameter |
+| Aliasing | [`Aliased`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L80-L81), non-aliased call pair | Whether pointer parameters alias the same variable in the test shader |
+| Variable pointer capability | [`VariablePointersStorageBuffer`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L292-L295), [`VariablePointers`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L560-L565) | Level of variable-pointer support exercised |
+| Buffer type | fixed array, runtime array | Storage-buffer arrays are represented by fixed-size and runtime array types in the generated assembly |
 
 ## Support Requirements
 
-- **VK_KHR_variable_pointers** extension (for buffer_memory_variable_pointers and workgroup_memory_variable_pointers)
-- **VK_KHR_storage_buffer_storage_class** extension (SPV extension)
-- **VariablePointersStorageBuffer** SPIR-V capability (for buffer_memory tests)
-- **VariablePointers** SPIR-V capability (for variable pointers and workgroup tests)
-- **WorkgroupMemoryExplicitLayoutKHR** SPIR-V capability (for workgroup_memory_variable_pointers)
-- **VK_KHR_workgroup_memory_explicit_layout** extension (for workgroup_memory_variable_pointers)
-- **vertexPipelineStoresAndAtomics** + **fragmentStoresAndAtomics** features (graphics tests)
+- [`VK_KHR_variable_pointers`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L383-L385) extension is requested by the storage-buffer pointer families.
+- [`SPV_KHR_storage_buffer_storage_class`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L292-L295) SPIR-V extension is emitted in storage-buffer assembly.
+- [`VariablePointersStorageBuffer`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L376-L383) feature/capability is requested for storage-buffer pointer tests.
+- [`VariablePointers`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L680-L687) feature is requested for the workgroup-memory variable-pointer test.
+- [`WorkgroupMemoryExplicitLayoutKHR`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L560-L565) capability/extension and [`VK_KHR_workgroup_memory_explicit_layout`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L680-L687) extension are used by the workgroup-memory test.
+- [`vertexPipelineStoresAndAtomics`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L758-L766) and [`fragmentStoresAndAtomics`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L758-L766) are required by graphics tests that write storage-buffer outputs.
 
 ## Verification Methods
 
-- **Compute tests**: Output buffer values are compared against expected float values (7.0 for aliasing tests, 5.0/2.0 for buffer tests). The `SpvAsmComputeShaderCase` framework handles execution and comparison.
-- **Graphics tests**: Output buffer values are compared against expected float values using `createTestsForAllStages` which runs the test across vertex, tessellation, geometry, and fragment stages.
+- Compute tests provide expected output buffers to [`SpvAsmComputeShaderCase`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L135-L140), including `7.0f` for aliasing/global tests and `5.0f`/`2.0f` patterns for buffer-memory tests.
+- Graphics tests provide expected storage-buffer outputs through [`GraphicsResources`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L758-L766) and register stage-suffixed variants with `createTestsForAllStages`.
+- Workgroup memory verification uses a CPU-generated shuffled expected-output sequence after the shader writes and reads shared arrays across invocations.
 
 ## Notes
 
-- The compute group has 5 test cases while the graphics group has 20 (4 test families × 5 shader stages, with stage-suffixed names).
-- The compute `param_to_param` test is named `global_to_param` in the graphics pipeline (same test logic, different registered name).
-- The `param_to_param` and `global_to_param` tests use the `Aliased` SPIR-V decoration on function parameters to indicate potential aliasing (`vktSpvAsmPointerParameterTests.cpp#L80-L81`).
-- The workgroup_memory_variable_pointers test uses `OpControlBarrier` and `OpMemoryBarrier` for synchronization between invocations (`vktSpvAsmPointerParameterTests.cpp#L516-L660`).
+- The compute group registers five cases through [`createPointerParameterComputeGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L1082-L1092).
+- The graphics group registers four base families through [`createPointerParameterGraphicsGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L1095-L1104), expanded by `createTestsForAllStages` into stage-suffixed cases.
+- The compute [`param_to_param`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L140) test corresponds to graphics [`global_to_param`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L765-L766) naming.
+- The `param_to_param` and `global_to_param` tests use the [`Aliased`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L80-L81) SPIR-V decoration on function parameters to indicate potential aliasing.

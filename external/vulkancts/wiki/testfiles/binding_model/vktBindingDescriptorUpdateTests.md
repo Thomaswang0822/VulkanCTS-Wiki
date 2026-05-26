@@ -2,6 +2,8 @@
 
 Covers descriptor update corner cases: empty bindings, samplerless writes, random descriptor updates, and a nested acceleration-structure update branch for Vulkan builds.
 
+The historical Vulkan API test plan identifies descriptor updates as a binding-model objective ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L281-L289)); current source and mustpass remain authoritative for exact behavior.
+
 ## Source
 
 - [`vktBindingDescriptorUpdateTests.cpp`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp)

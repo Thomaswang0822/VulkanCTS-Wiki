@@ -17,9 +17,9 @@ The skill is not just a template filler. It must derive claims from:
 - parameter structs, enums, arrays, and loops
 - support checks and feature requirements
 - verification logic
-- the official test plan when relevant
+- the historical Vulkan API test plan when directly relevant for objective-level context
 
-**Scope**: Rely only on [`external/vulkancts/`](../../../external/vulkancts/) and [`doc/testspecs/VK/apitests.adoc`](../../../doc/testspecs/VK/apitests.adoc) for factual claims.
+**Scope**: Rely only on [`external/vulkancts/`](../../../external/vulkancts/) and [`doc/testspecs/VK/apitests.adoc`](../../../doc/testspecs/VK/apitests.adoc) for factual claims. Current source and mustpass evidence remain authoritative for exact registration, generated parameters, support gates, and verification behavior.
 
 ## Evidence Rules
 
@@ -44,6 +44,49 @@ The skill is not just a template filler. It must derive claims from:
 
 5. **Prefer code over existing wiki text**
    - Existing wiki pages can help with structure, but regenerated content must be derived from source again.
+
+### Historical Vulkan API Test Plan Usage
+
+Treat [`doc/testspecs/VK/apitests.adoc`](../../../doc/testspecs/VK/apitests.adoc) as a broad historical Vulkan API test-plan document, not as documentation only for the current `api` category.
+
+Use it only when it gives useful objective-level context for a category or feature area:
+- Do not cite it merely to say it was inspected and found irrelevant.
+- Do not repeat generic framework context from it in category or testfile pages.
+- Do not use it as evidence for exact current registration paths, generated parameter matrices, support gates, feature requirements, or verification logic.
+- Framework-level `TestCase` / `TestInstance` context belongs in [`Vulkan_CTS_Framework_and_Mechanism.md`](../../../external/vulkancts/wiki/Vulkan_CTS_Framework_and_Mechanism.md), not as boilerplate in each category.
+- Prefer wording such as "historical Vulkan API test plan" or "historical objective-plan context" and explicitly keep source and mustpass evidence authoritative for exact current behavior.
+
+Known useful relevance areas include:
+- `api`: object management, device initialization, command buffers, buffers, copies/blits
+- `info`: API query objectives
+- `memory`: memory allocation, mapping, cache control, binding
+- `sparse_resources`: sparse resources called out separately from basic memory management
+- `binding_model`: descriptor sets, descriptor updates/copies, descriptor limits, pipeline layouts
+- `renderpasses`: multipass and data-flow objectives
+- `device_group`: limited multiple-device/device-initialization context
+- `synchronization`: fences, semaphores, events, and legacy synchronization primitives
+- `synchronization2`: broad conceptual relationship only; usually Level-2 context, because the plan predates modern synchronization2
+- `query_pool`: occlusion queries and GPU timestamps
+- `image`: image creation, image views, render-target views
+- `pipeline`: pipeline construction, caches, state, samplers, push constants
+- `texture`: sampler and sampling-related objectives, usually Level-2 context only
+- `draw`: draw command objectives
+- `compute`: compute dispatch parameters, workgroup counts, invocation IDs
+
+Modern extension-heavy or narrow categories such as `mesh_shader`, `ray_query`, `ray_tracing_pipeline`, `tensor`, `cooperative_vector`, `video`, `descriptor_indexing`, `shader_object`, and similar areas should not receive `apitests.adoc` references unless a direct matching section is found.
+
+Level guidance:
+- Level-2 category pages may use `apitests.adoc` for broad category purpose or recurring theme context.
+- Level-3 testfile pages should cite `apitests.adoc` only when the specific source-file page maps directly to a concrete test-plan section or bullet.
+- Do not add Level-3 citations merely for symmetry with other pages.
+- Dispatcher-only pages and narrow modern extension pages usually should avoid `apitests.adoc` unless the dispatcher or file itself directly matches a concrete plan section.
+
+Link and wording rules:
+- Use local relative links, not external `https://github.com/...` URLs, for repository-local files.
+- From Level-2 pages in `external/vulkancts/wiki/categories/`, link as `../../../doc/testspecs/VK/apitests.adoc#L...`.
+- From Level-3 pages in `external/vulkancts/wiki/testfiles/{category}/`, link as `../../../../../doc/testspecs/VK/apitests.adoc#L...`.
+- Use GitHub-style `#L` fragments, not colon-style line references.
+- Avoid anti-patterns such as "the API test plan does not mention this category", "no test-plan coverage was found", or "this category is covered by the API test plan" when only broad historical context exists.
 
 ## Execution Model
 
@@ -267,19 +310,16 @@ Recommended subsection heading pattern:
 
 Note: the workflow rules in this section are primarily about Level-2 category production. Level-3 standardization may follow different or additional rules later.
 
-## Progress Counting Policy
+## Writing Scope Policy
 
-Use two different concepts and do not mix them:
+Do not treat [`README.md`](../../../external/vulkancts/wiki/README.md) as a work-in-progress tracker. It is a user-facing navigation entry point and category index.
 
-1. **README tracker count**
-   - For [`README.md`](../../../external/vulkancts/wiki/README.md), keep the per-category `Level-3 Files` column for categories that are already `✅ Done`.
-   - Leave the `Level-3 Files` field blank for categories that are not yet complete, because the final Level-3 writing scope is not reliable until category analysis is finished.
-   - Do not maintain aggregate README progress metrics based on Level-3 file totals; category completion status is the only reliable global progress signal.
-   - For categories that share a wiki folder with another category (e.g., `synchronization` and `synchronization2` share `testfiles/synchronization/`), the primary category gets the actual file count, and the secondary category uses `(shared with {primary_category})` instead of a number.
-
-2. **Writing scope**
-   - When documenting the category, create Level-3 pages for any separately meaningful registered group file, including nested subgroup files when they exist as their own registration/documentation units.
-   - Writing scope is evidence-driven and may expand during analysis as additional registered subgroup files are discovered.
+When documenting a category:
+- Create Level-3 pages for any separately meaningful registered group file, including nested subgroup files when they exist as their own registration/documentation units.
+- Writing scope is evidence-driven and may expand during analysis as additional registered subgroup files are discovered.
+- Do not add progress status, worker notes, completion checkboxes, or Level-3 file counts to `README.md`.
+- If a new top-level category is added, update the user-facing README Category Index only after the category documentation has passed consistency review and the required semantic audit.
+- Update README Category Naming Notes only when the category has a non-standard mapping, such as a registered category name that differs from its mustpass entry or source directory, or an implementation that lives in shared/root-level infrastructure.
 
 ### How to identify top-level groups for counting
 
@@ -384,7 +424,7 @@ python3 .agents/skills/wiki-analyzer/scripts/validate_wiki_links.py \
   > external/vulkancts/wiki/internal_doc/error_urls_<category>.txt 2>&1
 ```
 
-Use category-scoped validation as the default while writing or repairing one category. Whole-wiki validation is mainly for global cleanup and may report expected false positives from tracker links in [`README.md`](../../../external/vulkancts/wiki/README.md) that point to not-yet-created category pages.
+Use category-scoped validation as the default while writing or repairing one category. Whole-wiki validation is mainly for global cleanup after the user-facing README Category Index and category/testfile pages are expected to resolve cleanly.
 
 ### Notes
 
@@ -400,14 +440,23 @@ Use category-scoped validation as the default while writing or repairing one cat
 
 **CRITICAL**: Read these before starting any documentation work:
 
-1. [`external/vulkancts/wiki/README.md`](../../../external/vulkancts/wiki/README.md) — check progress tracking, confirm whether the category is already documented, avoid duplicating existing work, follow the category order in the Progress Tracking table unless the user explicitly requests otherwise
+1. [`external/vulkancts/wiki/README.md`](../../../external/vulkancts/wiki/README.md) — use as the user-facing navigation entry point and Category Index; confirm whether the category already has a linked page and note naming mismatches, but do not use it as a progress tracker
 2. [`external/vulkancts/wiki/Objectives.md`](../../../external/vulkancts/wiki/Objectives.md) — defines the questions the documentation must answer and the allowed scope
-3. [`doc/testspecs/VK/apitests.adoc`](../../../doc/testspecs/VK/apitests.adoc) — use when it contains relevant authoritative purpose/context; do not force it into docs if the category is better explained directly from code
+3. [`doc/testspecs/VK/apitests.adoc`](../../../doc/testspecs/VK/apitests.adoc) — inspect relevant sections only when the category maps to known useful relevance areas or the user asks for test-plan context; do not force it into docs if the category is better explained directly from code
 4. Relevant framework files when making framework-level claims: [`vktTestCase.hpp`](../../../external/vulkancts/modules/vulkan/vktTestCase.hpp), [`tcuTestCase.hpp`](../../../framework/common/tcuTestCase.hpp)
 
 ### Step 2: Identify Category
 
 Determine the target category from the user request or the test path.
+
+### Step 2a: Decide Whether `apitests.adoc` Is Relevant
+
+Before adding test-plan context:
+1. Check whether the category maps to a known useful relevance area from Historical Vulkan API Test Plan Usage.
+2. If it does not, avoid citing `apitests.adoc` unless a direct matching section is found.
+3. If it does, decide whether the relevance belongs only in the Level-2 category page or also in specific Level-3 pages.
+4. Do not add negative "not covered" text for irrelevant categories.
+5. Keep `apitests.adoc` subordinate to source and mustpass evidence for exact current behavior.
 
 ### Step 3: Discover Source Files
 
@@ -477,10 +526,14 @@ Before marking writing complete, verify:
 - no unsupported claims remain; wording avoids universal claims not justified by evidence
 - repeated statements are deduplicated
 - wording matches inspected evidence strength
+- `apitests.adoc` mentions, if present, are in relevant categories or directly matched Level-3 pages
+- `apitests.adoc` is not used as evidence for exact current registration, parameters, support gates, or verification logic
+- no page mentions `apitests.adoc` merely to say it was inspected and found irrelevant
+- generic framework context from `apitests.adoc` is not repeated in category/testfile pages
 
 ### Step 10: Semantic Audit with `wiki-auditor`
 
-After completing the category writing pass and the consistency review, invoke the `wiki-auditor` skill before marking the category complete or updating the README tracker to `✅ Done`.
+After completing the category writing pass and the consistency review, invoke the [`wiki-auditor`](../wiki-auditor/SKILL.md) skill before treating the category documentation as complete or updating user-facing navigation.
 
 This audit is mandatory for a completed category batch because validators catch syntax, link, and registration-path issues but cannot prove that the prose is semantically true. The `wiki-auditor` pass must:
 - enumerate the full generated category scope, including the Level-2 page and every Level-3 page under `external/vulkancts/wiki/testfiles/{category}/`
@@ -490,9 +543,13 @@ This audit is mandatory for a completed category batch because validators catch 
 - rerun category-scoped link validation and registration-path validation after semantic fixes
 - report semantic findings separately from validator results, using the pattern "claimed X, source showed Y, fixed to Z" when corrections are made
 
-Do not treat successful validator runs as a substitute for this source-vs-wiki audit. If orchestration is available and workers generated the wiki pages, perform or dispatch a skeptical `wiki-auditor` review after worker output is integrated and before final progress tracking is updated.
+Do not treat successful validator runs as a substitute for this source-vs-wiki audit. If orchestration is available and workers generated the wiki pages, perform or dispatch a skeptical `wiki-auditor` review after worker output is integrated and before user-facing navigation is updated.
 
-### Step 11: Update Progress Tracking
+### Step 11: Update User-Facing Navigation
 
-If the project is using [`external/vulkancts/wiki/README.md`](../../../external/vulkancts/wiki/README.md) as a tracker, update it after the consistency review and the required `wiki-auditor` semantic audit.
-When a category reaches `✅ Done`, update its `Level-3 Files` cell with the actual number of `.md` files under `testfiles/{category}/`, but do not add or maintain aggregate README statistics based on total Level-3 file counts.
+If a new top-level category is added or a non-standard category name/source-directory mapping changes, update [`external/vulkancts/wiki/README.md`](../../../external/vulkancts/wiki/README.md) after the consistency review and the required `wiki-auditor` semantic audit.
+
+README updates must remain user-facing:
+- maintain the Category Index in the recommended reading order
+- update Category Naming Notes only for non-standard mappings, such as wiki category names that differ from mustpass entries or source directory names, or categories implemented through shared/root-level infrastructure
+- do not add progress statuses, completion checkboxes, temporary notes, worker assignments, or Level-3 file counts

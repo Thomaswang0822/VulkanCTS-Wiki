@@ -33,7 +33,7 @@ Evidence:
 
 ## Test Families
 
-### 64_bit_compressed_format â€?BC1 compressed texture sampling
+### 64_bit_compressed_format â€” BC1 compressed texture sampling
 
 Tests sampling a BC1_RGB_UNORM_BLOCK compressed image through a VK_FORMAT_R32G32_UINT image view. The test:
 1. Compute shader fills storage image with compressed pure blue values
@@ -42,7 +42,7 @@ Tests sampling a BC1_RGB_UNORM_BLOCK compressed image through a VK_FORMAT_R32G32
 
 Validation: Compare result against pure blue reference image at [`vktImageSampleCompressedTextureTests.cpp#L680-682`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L680).
 
-### 64_bit_compressed_format_two_samplers â€?BC1 with dual samplers
+### 64_bit_compressed_format_two_samplers â€” BC1 with dual samplers
 
 Same as above but uses two samplers:
 1. First pass: compute writes compressed blue, fragment samples with sampler2 (compressed format) - draws garbage
@@ -50,11 +50,11 @@ Same as above but uses two samplers:
 
 Verifies both sampler paths work correctly.
 
-### 128_bit_compressed_format â€?BC3 compressed texture sampling
+### 128_bit_compressed_format â€” BC3 compressed texture sampling
 
 Same pattern as 64-bit tests but uses BC3_UNORM_BLOCK with VK_FORMAT_R32G32B32A32_UINT view.
 
-### {format}_cubemap variants â€?Cubemap compressed texture sampling
+### {format}_cubemap variants â€” Cubemap compressed texture sampling
 
 Same as above but creates a cubemap image (6 layers) and tests sampling each face:
 1. Renders to each cubemap face separately
@@ -79,7 +79,7 @@ Same as above but creates a cubemap image (6 layers) and tests sampling each fac
 | Dimension | Observed values / evidence |
 |---|---|
 | Image dimensions | 80x80 pixels at [`vktImageSampleCompressedTextureTests.cpp#L77-78`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L77) |
-| Compressed block sizes | BC1: 8x8, BC3: 8x8 at [`vktImageSampleCompressedTextureTests.cpp#L288`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L288) |
+| Compressed block sizes | BC1: 4x4, BC3: 4x4 via `tcu::getBlockPixelSize()` at [`vktImageSampleCompressedTextureTests.cpp#L287-L288`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L287-L288) |
 | Cubemap faces | 6 faces |
 | Test colors | Pure red (BC1/BC3 compressed), Pure blue (BC1/BC3 compressed) |
 | Vertex buffer size | 100KB at [`vktImageSampleCompressedTextureTests.cpp#L76`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L76) |

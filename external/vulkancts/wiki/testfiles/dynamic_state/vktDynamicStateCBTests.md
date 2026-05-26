@@ -55,10 +55,10 @@ Mesh shader variant of `blend_constants`. See `blend_constants` above for test l
 **Fuzzy image comparison** via [`tcu::fuzzyCompare()`](../../../modules/vulkan/dynamic_state/vktDynamicStateCBTests.cpp#L190) with threshold `0.05f`:
 
 1. Render a full-screen quad with green vertex color, blending against a white background using dynamic blend constants.
-2. Build a software reference frame: black background with expected blended color `(0.33, 1.0, 0.66, 1.0)` in the quad region.
+2. Build a software reference frame with expected blended color `(0.33, 1.0, 0.66, 1.0)` in the quad region.
 3. Read back the rendered image and compare against the reference.
 
-The expected color is derived from the blend operation: with source green `(0,1,0,1)` and blend constants `(0.33, 0.1, 0.66, 0.5)`, the result is `src_alpha * src_color + constant_color * (1 - src_alpha)`.
+The expected color follows the attachment blend setup in [`initPipeline()`](../../../modules/vulkan/dynamic_state/vktDynamicStateCBTests.cpp#L78): color uses `src.rgb * SRC_ALPHA + dst.rgb * CONSTANT_COLOR`, while alpha uses `src.a * SRC_ALPHA + dst.a * CONSTANT_ALPHA`. With a green source quad, white clear color, and dynamic constants `(0.33, 0.1, 0.66, 0.5)`, the unclamped result is `(0.33, 1.1, 0.66, 1.5)`, which clamps to `(0.33, 1.0, 0.66, 1.0)` for the normalized color attachment.
 
 ## Test Principles Observed
 

@@ -2,6 +2,8 @@
 
 Generates random descriptor-set layouts over descriptor-set count, indexing mode, descriptor-count limits, inline uniform blocks, update-after-bind, shader stage, input attachments, and seed.
 
+The historical Vulkan API test plan calls for valid descriptor-set creation, descriptor-set chaining, limits, and pipeline-layout coverage as binding-model objectives ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L281-L297)); current source and mustpass remain authoritative for exact behavior.
+
 ## Source
 
 - [`vktBindingDescriptorSetRandomTests.cpp`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp)

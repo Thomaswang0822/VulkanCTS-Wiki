@@ -444,7 +444,7 @@ synchronization.win32_keyed_mutex
 └── write_update_buffer_read_vertex_input
 ```
 
-Registered in the LEGACY synchronization path via [`createWin32KeyedMutexTest()`](../../../modules/vulkan/synchronization/vktSynchronizationWin32KeyedMutexTests.cpp#L1863) added to the `synchronization` group in [vktSynchronizationTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp) (line 141). This group is not included in the `synchronization2` path.
+Registered in the LEGACY synchronization path via [`createWin32KeyedMutexTest()`](../../../modules/vulkan/synchronization/vktSynchronizationWin32KeyedMutexTests.cpp#L1863), added to the `synchronization` group in [`vktSynchronizationTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L141). This group is not included in the `synchronization2` path.
 
 The 424 direct children are operation pair groups generated from the Cartesian product of `s_writeOps` and `s_readOps` from [`vktSynchronizationOperationTestData`](../../../modules/vulkan/synchronization/vktSynchronizationOperationTestData.hpp), filtered by resource compatibility (`isResourceSupported`). Only non-empty groups (those with at least one compatible resource/handle-type combination) are registered.
 

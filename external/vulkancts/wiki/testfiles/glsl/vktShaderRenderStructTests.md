@@ -1,14 +1,22 @@
-# Shader Struct Tests
+# vktShaderRenderStructTests.cpp
 
 ## Overview
 
-Tests GLSL struct declaration, initialization, member access, nested structs, struct arrays, and struct usage as function parameters and return values. Covers both local struct variables (declared and initialized within shader code) and uniform struct variables (provided via std140 uniform buffers). Validates correct struct layout, member access patterns, dynamic indexing of array members, and interaction with control flow constructs (conditional assignment, loop assignment).
+[`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1) implements the `glsl.struct` ShaderRenderCase subtree. The file registers a `struct` group with `local` and `uniform` children, and those children generate paired `_vertex` and `_fragment` cases from macros that call [`createStructCase()`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L64-L118), [`LOCAL_STRUCT_CASE`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L136-L153), and [`UNIFORM_STRUCT_CASE`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1220-L1238).
+
+The tests exercise GLSL `struct` values in shader-generated local variables and in `std140` uniform blocks. Observed coverage includes scalar/vector members, nested structs, array members, struct arrays, dynamic indexing through integer uniforms, function parameters and return values for local structs, assignment through conditionals and loops, and equality / inequality operators. The source file is registered into the `glsl` category by [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1269).
 
 ## Role
 
-Both registration and implementation. The `ShaderStructTests` class (line 2088) serves as the `TestCaseGroup` that registers the `glsl.struct` hierarchy, and the same source file contains the `ShaderStructCase` class (line 38), `LocalStructTests` (line 120), and `UniformStructTests` (line 1204).
+Registration and implementation file. [`ShaderStructTests`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L2088-L2113) constructs the `struct` group and adds [`LocalStructTests`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L120-L134) and [`UniformStructTests`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1204-L1218). The same file contains the shader-source templates, per-case uniform setup callbacks, and per-case evaluator callbacks consumed by [`ShaderStructCase`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L38-L58).
 
-Source: [vktShaderRenderStructTests.cpp](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp)
+## Source Code
+
+- Primary source: [`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1)
+- Public factory declaration: [`vktShaderRenderStructTests.hpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.hpp#L22-L35)
+- ShaderRenderCase framework: [`vktShaderRender.hpp`](../../../modules/vulkan/shaderrender/vktShaderRender.hpp#L360-L390) and [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L575-L625)
+- Category-level registration call: [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1269)
+- Build inventory: [`CMakeLists.txt`](../../../modules/vulkan/shaderrender/CMakeLists.txt#L7-L38)
 
 ## Registration Hierarchy
 
@@ -20,54 +28,64 @@ glsl.struct
 
 ## Test Families
 
-- **ShaderStructCase** (line 38): Single test family for all struct tests. Extends `ShaderRenderCase` and is constructed with an evaluation function, a uniform setup function, and vertex/fragment shader source strings. The `createStructCase` helper (line 64) uses `tcu::StringTemplate` to specialize shader source templates based on the shader stage.
+### local — Struct operations on shader-local values
+
+The `local` group is a `TestCaseGroup` named `local` at [`LocalStructTests`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L120-L134). Its macro creates two child cases for each listed base name: `#NAME "_vertex"` and `#NAME "_fragment"`, both using the same evaluator and uniform-setup callbacks but switching whether the generated struct code is placed in the vertex or fragment shader at [`LOCAL_STRUCT_CASE`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L136-L153) and [`createStructCase()`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L85-L114).
+
+Local struct construction and member access start with `basic`, which declares `struct S` with `float`, `vec3`, and `int` members, initializes it from coordinates and `ui_one`, writes a member after construction, and returns selected fields as color at [`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L155-L174). `nested` embeds `struct T` inside `struct S` and returns fields from both levels at [`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L176-L204).
+
+Array-oriented local cases include array members (`b[3]`) with constant and uniform-driven indices at [`array_member`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L206-L229) and [`array_member_dynamic_index`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L231-L261), arrays of `S` with constant and dynamic indices at [`struct_array`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L263-L291) and [`struct_array_dynamic_index`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L293-L322), and nested arrays `S[2] -> T[3] -> vec2[2]` with both constant and dynamic indexing at [`nested_struct_array`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L324-L397) and [`nested_struct_array_dynamic_index`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L399-L475).
+
+Function-bound local cases are only observed under `local`: `parameter` and `parameter_nested` pass structs to `myFunc()` at [`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L477-L536), while `return` and `return_nested` return structs from `myFunc()` at [`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L538-L599).
+
+Control-flow local cases assign whole structs or nested members under `if` and loop constructs: `conditional_assignment`, `loop_assignment`, `dynamic_loop_assignment`, `nested_conditional_assignment`, `nested_loop_assignment`, and `nested_dynamic_loop_assignment` are generated from [`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L601-L797). The dynamic variants use integer uniforms such as `ui_one` and `ui_three` as loop bounds or comparison values at [`dynamic_loop_assignment`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L660-L690) and [`nested_dynamic_loop_assignment`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L761-L797).
+
+Loop-over-array cases include `loop_struct_array`, `loop_nested_struct_array`, `dynamic_loop_struct_array`, and `dynamic_loop_nested_struct_array`. These accumulate values from arrays of structs with fixed loop bounds in the `loop_*` variants and uniform loop bounds in the `dynamic_loop_*` variants at [`loop_struct_array`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L799-L835), [`loop_nested_struct_array`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L837-L921), [`dynamic_loop_struct_array`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L923-L961), and [`dynamic_loop_nested_struct_array`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L963-L1047).
+
+Local equality cases compare structs and nested structs with `==` and `!=`. `basic_equal` / `basic_not_equal` compare scalar, vector, and integer member differences at [`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1049-L1120), and `nested_equal` / `nested_not_equal` perform analogous comparisons through nested `T` members at [`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1122-L1201).
+
+### uniform — Struct operations on std140 uniform-buffer data
+
+The `uniform` group is a `TestCaseGroup` named `uniform` at [`UniformStructTests`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1204-L1218). Its macro also creates paired `_vertex` and `_fragment` children for each base name at [`UNIFORM_STRUCT_CASE`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1220-L1238). Unlike the `local` family, these shaders read structs from uniform blocks and the C++ setup callbacks upload explicit uniform-buffer bytes through [`addUniform()`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1273-L1275), [`addUniform()`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1417-L1419), and the framework descriptor setup in [`ShaderRenderCaseInstance::addUniform()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L858-L865).
+
+Uniform `basic` and `nested` cases read `S` from `layout (std140, set = 0, binding = ...) uniform` blocks and provide matching C++ structs with padding fields at [`basic`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1240-L1275) and [`nested`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1277-L1327). Array-member and struct-array uniform cases cover fixed and dynamic indexing at [`array_member`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1329-L1371), [`array_member_dynamic_index`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1373-L1419), [`struct_array`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1421-L1461), and [`struct_array_dynamic_index`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1463-L1504).
+
+Nested uniform arrays use the same `S[2] -> T[3] -> vec2[2]` shape observed in local nested-array cases, but the C++ setup callbacks build padded `T` and `S` arrays and upload them as uniform buffers at [`nested_struct_array`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1506-L1575) and [`nested_struct_array_dynamic_index`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1577-L1655). Uniform loop-array cases cover fixed and dynamic loops over uniform struct arrays at [`loop_struct_array`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1657-L1704), [`loop_nested_struct_array`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1706-L1805), [`dynamic_loop_struct_array`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1808-L1857), and [`dynamic_loop_nested_struct_array`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1859-L1961).
+
+Uniform equality cases are named `equal` and `not_equal`, not `basic_equal` or nested variants. They compare three uploaded `S` values against each other and against a shader-constructed `S d` using `==` or `!=` at [`equal`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1963-L2023) and [`not_equal`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L2025-L2085).
 
 ## Parameter Dimensions
 
-| Dimension | Values | Description |
-|-----------|--------|-------------|
-| Struct scope | `local`, `uniform` | Whether the struct is a local variable or a uniform buffer member |
-| Struct complexity | basic, nested, deeply_nested | Struct with simple members, nested struct members, or arrays of nested structs |
-| Control flow | conditional, loop, dynamic_loop | Struct assignment within if-else, static loop, or dynamic loop |
-| Shader stage | `vertex`, `fragment` | Shader stage under test (each case is instantiated for both) |
+| Dimension | Observed values / evidence |
+|---|---|
+| Direct registered child groups | `local` and `uniform`, added by [`ShaderStructTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L2109-L2113) |
+| Shader stage placement | Every macro-generated case is emitted as `_vertex` and `_fragment`; `createStructCase()` substitutes the struct shader into the selected stage and uses a passthrough shader for the other stage at [`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L85-L117) |
+| Local base names | `basic`, `nested`, array-member, struct-array, nested-array, parameter, return, control-flow assignment, loop-array, and equality base names generated between [`LocalStructTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L155-L1201) |
+| Uniform base names | `basic`, `nested`, array-member, struct-array, nested-array, loop-array, and `equal` / `not_equal` base names generated between [`UniformStructTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1240-L2085) |
+| Struct shapes | Simple `S` with `float`, `vec3`, and `int`; nested `S` containing `T`; `float b[3]` array members; `S[3]`; and nested `S[2]` containing `T b[3]` with `vec2 b[2]`, as shown in representative local definitions at [`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L155-L174), [`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L176-L204), [`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L206-L261), and [`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L324-L397) |
+| Indexing values | Dynamic indexing is driven by uniforms such as `ui_zero`, `ui_one`, `ui_two`, and `ui_three`, supplied through `instance.useUniform()` in local cases at [`array_member_dynamic_index`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L231-L261) and [`dynamic_loop_struct_array`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L923-L961), and through uniform setup in uniform cases at [`nested_struct_array_dynamic_index`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1577-L1655) |
+| Uniform-buffer layout data | Uniform cases define C++ mirror structs with explicit padding fields or padded element wrappers before calling `instance.addUniform()` at [`basic`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1260-L1275), [`array_member_dynamic_index`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1398-L1419), and [`nested_struct_array`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1531-L1575) |
 
-**Local struct test cases** (defined via `LOCAL_STRUCT_CASE` macro at line 136):
-- `basic`: Simple struct with float, vec3, and int members
-- `nested`: Struct containing another struct as a member
-- `array_member`: Struct with a fixed-size array member
-- `array_member_dynamic_index`: Array member accessed with dynamic (uniform) index
-- `struct_array`: Array of structs
-- `struct_array_dynamic_index`: Array of structs with dynamic indexing
-- `nested_struct_array`: Array of structs containing nested struct arrays
-- `nested_struct_array_dynamic_index`: Same with dynamic indexing
-- `parameter`: Struct passed as function parameter
-- `parameter_nested`: Nested struct passed as function parameter
-- `return`: Struct returned from a function
-- `return_nested`: Nested struct returned from a function
-- `conditional_assignment`: Struct reassigned conditionally
-- `loop_assignment`: Struct reassigned in a static loop
-- `dynamic_loop_assignment`: Struct reassigned in a dynamic loop
-- `nested_conditional_assignment`: Nested struct member reassigned conditionally
-- `nested_loop_assignment`: Nested struct member reassigned in a loop
+## Support / Feature Requirements
 
-**Uniform struct test cases** (defined via `UNIFORM_STRUCT_CASE` macro at line 1220):
-- `basic`, `nested`, `array_member`, `array_member_dynamic_index`, `struct_array`, `struct_array_dynamic_index`, `nested_struct_array`, `nested_struct_array_dynamic_index`: Mirror the local cases but with struct data provided via std140 uniform buffers
-
-## Support/Feature Requirements
-
-None beyond core Vulkan. All tests use standard GLSL 310 es features with std140 layout uniform buffers.
+No file-local `checkSupport()` override or feature gate was observed in [`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L38-L2120). The cases rely on the ShaderRenderCase path, which adds GLSL sources through [`ShaderRenderCase::initPrograms()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L607-L625), uploads descriptor-backed uniforms through [`ShaderRenderCaseInstance::setupUniforms()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L939-L943), [`useUniform()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L945-L977), and [`addUniform()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L858-L865), and registers the struct group without a Vulkan SC exclusion guard in the GLSL registration block at [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1269).
 
 ## Verification Methods
 
-ShaderRenderCase-based reference comparison using custom evaluation and uniform setup functions. Each test case defines:
-- An `eval` function that computes the expected output color from `ShaderEvalContext` (e.g., `c.color.xyz() = c.coords.swizzle(0, 1, 2)`)
-- A `setUniforms` function that configures the uniform buffer data, including proper std140 padding for struct layout
+- [`ShaderStructCase`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L51-L58) stores specialized vertex and fragment shader sources and passes a case-specific evaluator plus uniform setup callback into [`ShaderRenderCase`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L577-L588).
+- [`ShaderRenderCaseInstance::iterate()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L773-L806) renders the generated shader, computes a CPU reference image with [`computeVertexReference()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2603-L2690) or [`computeFragmentReference()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2692-L2719), and compares result and reference images through [`compareImages()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2721-L2730).
+- Local cases compute expected colors from input coordinates in their evaluator callbacks, for example `basic` expects `coords.xyz` after assigning struct fields at [`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L155-L174), and `nested_struct_array_dynamic_index` expects `coords.zxw` after nested dynamic indexing at [`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L399-L475).
+- Uniform cases compute expected colors from `constCoords` because the setup callbacks populate uniform-buffer data from the constant coordinate vector; representative examples are [`basic`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1240-L1275), [`struct_array_dynamic_index`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1463-L1504), and [`dynamic_loop_nested_struct_array`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1859-L1961).
+- Equality tests encode comparison outcomes into output color channels and mirror those expectations in evaluator callbacks: local `basic_equal` / `basic_not_equal` use `floor()`-based member differences at [`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1049-L1120), nested local equality variants do the same through nested members at [`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1122-L1201), and uniform `equal` / `not_equal` compare uploaded buffers and a shader-constructed value at [`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1963-L2085).
 
-For uniform struct tests, the uniform setup functions manually construct C++ structs with the correct std140 padding (e.g., `_padding` fields) and upload them via `instance.addUniform()` with `VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER`.
+## Test Principles
 
-## Notes
+- The file keeps registration shallow (`glsl.struct.local` and `glsl.struct.uniform`) while macros expand each semantic case into vertex-stage and fragment-stage executions at [`LOCAL_STRUCT_CASE`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L136-L153), [`UNIFORM_STRUCT_CASE`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1220-L1238), and [`ShaderStructTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L2109-L2113).
+- Local cases emphasize GLSL operations on shader-created structs: construction, member writes, nesting, array indexing, passing and returning structs, assignments inside control flow, and struct equality operators, all visible across [`LocalStructTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L155-L1201).
+- Uniform cases emphasize `std140` layout and descriptor-backed struct reads by pairing GLSL uniform-block declarations with C++ mirror data and explicit `addUniform()` uploads, as shown by [`basic`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1240-L1275), [`nested_struct_array`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1506-L1575), and [`equal`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1963-L2023).
+- Correctness is image-based rather than API-result-based: each shader output is compared with a CPU-generated reference image by the shared ShaderRenderCase framework at [`ShaderRenderCaseInstance::iterate()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L773-L806).
 
-- Each test case is instantiated for both vertex and fragment shader stages (suffixed `_vertex` and `_fragment`).
-- The `LOCAL_STRUCT_CASE` and `UNIFORM_STRUCT_CASE` macros (lines 136, 1220) generate both the uniform setup and evaluation functions using local struct definitions, ensuring type safety and reducing boilerplate.
-- Uniform struct tests require careful std140 layout alignment. The C++ uniform setup code includes explicit padding fields to match the GLSL std140 layout rules (e.g., `float _padding1[3]` after a `float` member to align `vec3` to 16-byte boundaries).
-- Dynamic indexing tests use integer uniforms (`ui_zero`, `ui_one`, `ui_two`) as array indices to test runtime indexing of struct array members.
+## Notes / Uncertainties
+
+- The inspected source does not show uniform cases for function parameter or return-value struct passing; those base names appear in the `local` family at [`parameter`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L477-L536) and [`return`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L538-L599), while the `uniform` family begins at `basic` and ends with `equal` / `not_equal` at [`UniformStructTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1240-L2085).
+- The source comments label several equality sections generically as "Struct equality" even when the registered names distinguish `equal` from `not_equal`; this page uses the macro case names as the documented case identifiers at [`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1049-L1201) and [`vktShaderRenderStructTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderStructTests.cpp#L1963-L2085).

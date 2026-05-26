@@ -120,13 +120,14 @@ The inspected geometry files repeatedly vary the following dimensions:
 
 ## Recurring Support Requirements
 
-A recurring support gate across the geometry category is [`DEVICE_CORE_FEATURE_GEOMETRY_SHADER`](../../modules/vulkan/geometry/vktGeometryInputGeometryShaderTests.cpp#L136), required in input, basic, varying, emit, built-in, and instanced-related support checks.
+A recurring support gate across the geometry category is [`DEVICE_CORE_FEATURE_GEOMETRY_SHADER`](../../modules/vulkan/geometry/vktGeometryInputGeometryShaderTests.cpp#L136), required in input, basic, layered, varying, emit, built-in, and instanced-related support checks.
 
 Additional observed support gates include:
 - portability-subset rejection for unsupported triangle fans in [`GeometryExpanderRenderTest::checkSupport()`](../../modules/vulkan/geometry/vktGeometryInputGeometryShaderTests.cpp#L139)
 - point-size support for the built-in point-size case via [`DEVICE_CORE_FEATURE_SHADER_TESSELLATION_AND_GEOMETRY_POINT_SIZE`](../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L199)
-- vertex-pipeline atomics for side-effect tests in [`sideEffectSupportCheck()`](../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L797)
+- vertex-pipeline stores and atomics for side-effect tests in [`sideEffectSupportCheck()`](../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L797)
 - geometry-shader invocation-limit checks in [`checkSupport()`](../../modules/vulkan/geometry/vktGeometryInstancedRenderingTests.cpp#L409)
+- 3D layered rendering requirements for [`VK_KHR_maintenance1`](../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1971) and portability-subset [`imageView2DOn3DImage`](../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1975), plus secondary-command-buffer requirements for fragment stores/atomics and Vulkan SC framebuffer inheritance restrictions in [`checkSupport()`](../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1983)
 
 ## Recurring Verification Methods
 
@@ -138,10 +139,7 @@ Observed verification approaches differ by file:
 - thresholded reference-image comparison in side-effect tests via [`tcu::floatThresholdCompare()`](../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L991)
 - color coding of built-in-variable expectations inside shaders, for example fragment use of [`gl_PrimitiveID`](../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L403)
 
-## Relationship to the Test Plan
-
-[`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L15) describes the Vulkan CTS framework model in terms of [`TestCase`](../../../../doc/testspecs/VK/apitests.adoc#L30) and [`TestInstance`](../../../../doc/testspecs/VK/apitests.adoc#L43), but it does not appear to provide geometry-category-specific coverage details in the inspected range. For geometry documentation, the source files under [`modules/vulkan/geometry/`](../../modules/vulkan/geometry/vktGeometryTests.cpp#L24) are the primary evidence.
 
 ## Notes / Uncertainties
 
-- This category summary is based on the inspected geometry sources and helpers listed above; it intentionally does not reuse claims from the older geometry wiki pages.
+- This category summary is based on the inspected geometry sources and helpers listed above; it keeps source and helper behavior as the authority for registration names, support gates, parameters, and verification methods.

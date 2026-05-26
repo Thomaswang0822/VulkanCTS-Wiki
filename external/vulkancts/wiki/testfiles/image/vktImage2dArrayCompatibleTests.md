@@ -2,7 +2,7 @@
 
 ## Overview
 
-Tests for VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT (VK_KHR_maintenance9). The file verifies that 3D images created with the 2D array compatible flag can be viewed as 2D array images, allowing individual depth slices to be accessed as array layers. Tests cover both 2D view and 3D view types, different layer configurations, and both linear and optimal tiling modes.
+Tests for VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT (VK_KHR_maintenance9). The file verifies that 3D images created with the 2D array compatible flag can be viewed as 2D array images, allowing individual depth slices to be accessed as array layers. Tests cover both 2D view and 3D view types, different layer configurations, and both linear and optimal tiling modes. This is consistent with the historical API test-plan focus on image-view type/subresource configurations ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L495-L513)).
 
 ## Role of File
 
@@ -18,26 +18,38 @@ Implementation file that registers the `2d_array_compatible` test group and prov
 ```text
 image.2d_array_compatible
 ├── 0_1_8
-�?  ├── linear
-�?  �?  ├── 2d
-�?  �?  └── 3d
-�?  └── optimal
-�?      ├── 2d
-�?      └── 3d
 ├── 3_7_16
-�?  ├── linear
-�?  �?  ├── 2d
-�?  �?  └── 3d
-�?  └── optimal
-�?      ├── 2d
-�?      └── 3d
 └── 3_4_5
-    ├── linear
-    �?  ├── 2d
-    �?  └── 3d
-    └── optimal
-        ├── 2d
-        └── 3d
+
+image.2d_array_compatible.0_1_8
+├── linear
+└── optimal
+image.2d_array_compatible.0_1_8.linear
+├── 2d
+└── 3d
+image.2d_array_compatible.0_1_8.optimal
+├── 2d
+└── 3d
+
+image.2d_array_compatible.3_7_16
+├── linear
+└── optimal
+image.2d_array_compatible.3_7_16.linear
+├── 2d
+└── 3d
+image.2d_array_compatible.3_7_16.optimal
+├── 2d
+└── 3d
+
+image.2d_array_compatible.3_4_5
+├── linear
+└── optimal
+image.2d_array_compatible.3_4_5.linear
+├── 2d
+└── 3d
+image.2d_array_compatible.3_4_5.optimal
+├── 2d
+└── 3d
 ```
 
 Evidence:

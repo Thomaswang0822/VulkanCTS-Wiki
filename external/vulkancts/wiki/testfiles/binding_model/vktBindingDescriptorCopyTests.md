@@ -2,6 +2,8 @@
 
 Verifies descriptor copying for compute, graphics, graphics update-after-bind, and miscellaneous immutable-sampler cases.
 
+The historical Vulkan API test plan's descriptor-creation, shader-access, and update objectives provide high-level binding-model context for descriptor-copy scenarios ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L281-L297)); current source and mustpass remain authoritative for exact behavior.
+
 ## Source
 
 - [`vktBindingDescriptorCopyTests.cpp`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp)

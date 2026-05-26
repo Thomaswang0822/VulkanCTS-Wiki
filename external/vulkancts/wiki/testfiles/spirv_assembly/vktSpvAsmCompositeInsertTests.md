@@ -10,7 +10,7 @@ Implementation file
 
 ## Source
 
-- [vktSpvAsmCompositeInsertTests.cpp](https://github.com/KhronosGroup/VK-GL-CTS/blob/main/external/vulkancts/modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp)
+- [vktSpvAsmCompositeInsertTests.cpp](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L660)
 
 ## Registration Hierarchy
 
@@ -180,21 +180,21 @@ spirv_assembly.instruction.graphics.composite_insert
 
 ### Vector composite insert tests
 
-Tests OpCompositeInsert on vectors (vec2, vec3, vec4). Each element is inserted sequentially using OpCompositeInsert, building a vector with values 0, 1, 2, 3. Two variants: starting from OpUndef (`undef_vecN`) or starting from a loaded variable (`vecN`).
+Tests [`OpCompositeInsert`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L168-L244) on vectors (vec2, vec3, vec4). Each element is inserted sequentially using [`OpCompositeInsert`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L168-L244), building a vector with values 0, 1, 2, 3. Two variants: starting from [`OpUndef`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L168-L244) (`undef_vecN`) or starting from a loaded variable (`vecN`).
 
-Observed in `addComputeVectorCompositeInsertTests()` at vktSpvAsmCompositeInsertTests.cpp#L168-L244 and `addGraphicsVectorCompositeInsertTests()` at vktSpvAsmCompositeInsertTests.cpp#L246-L327.
+Observed in [`addComputeVectorCompositeInsertTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L168-L244) at [vktSpvAsmCompositeInsertTests.cpp#L168-L244](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L168-L244) and [`addGraphicsVectorCompositeInsertTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L246-L327) at [vktSpvAsmCompositeInsertTests.cpp#L246-L327](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L246-L327).
 
 ### Matrix composite insert tests
 
-Tests OpCompositeInsert on matrices (mat2x2 through mat4x4). Identity vectors are inserted column-by-column to construct an identity matrix. Matrix stride is 16 for 3-row matrices (padding), otherwise rows*4. Two variants: starting from OpUndef (`undef_matCxR`) or starting from a loaded variable (`matCxR`).
+Tests [`OpCompositeInsert`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L329-L411) on matrices (mat2x2 through mat4x4). Identity vectors are inserted column-by-column to construct an identity matrix. Matrix stride is 16 for 3-row matrices (padding), otherwise rows*4. Two variants: starting from [`OpUndef`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L329-L411) (`undef_matCxR`) or starting from a loaded variable (`matCxR`).
 
-Observed in `addComputeMatrixCompositeInsertTests()` at vktSpvAsmCompositeInsertTests.cpp#L329-L411 and `addGraphicsMatrixCompositeInsertTests()` at vktSpvAsmCompositeInsertTests.cpp#L413-L506.
+Observed in [`addComputeMatrixCompositeInsertTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L329-L411) at [vktSpvAsmCompositeInsertTests.cpp#L329-L411](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L329-L411) and [`addGraphicsMatrixCompositeInsertTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L413-L506) at [vktSpvAsmCompositeInsertTests.cpp#L413-L506](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L413-L506).
 
 ### Nested struct composite insert tests
 
-Tests OpCompositeInsert on a deeply nested struct containing an array of 8 mat4x4. Identity vectors are inserted at specific array and column indices using multi-level access chains (0, 0, arrayIdx, vectorIdx). Two variants: starting from OpUndef (`undef_nested_struct`) or starting from a loaded variable (`nested_struct`).
+Tests [`OpCompositeInsert`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L508-L574) on a deeply nested struct containing an array of 8 mat4x4. Identity vectors are inserted at specific array and column indices using multi-level access chains (0, 0, arrayIdx, vectorIdx). Two variants: starting from [`OpUndef`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L508-L574) (`undef_nested_struct`) or starting from a loaded variable (`nested_struct`).
 
-Observed in `addComputeNestedStructCompositeInsertTests()` at vktSpvAsmCompositeInsertTests.cpp#L508-L574 and `addGraphicsNestedStructCompositeInsertTests()` at vktSpvAsmCompositeInsertTests.cpp#L576-L656.
+Observed in [`addComputeNestedStructCompositeInsertTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L508-L574) at [vktSpvAsmCompositeInsertTests.cpp#L508-L574](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L508-L574) and [`addGraphicsNestedStructCompositeInsertTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L576-L656) at [vktSpvAsmCompositeInsertTests.cpp#L576-L656](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L576-L656).
 
 ## Parameter Dimensions
 
@@ -212,19 +212,19 @@ Test naming convention:
 
 ## Support Requirements
 
-- **vertexPipelineStoresAndAtomics** — required for vertex, tessellation, and geometry stages in graphics tests — vktSpvAsmCompositeInsertTests.cpp#L303
-- **fragmentStoresAndAtomics** — required for fragment stage in graphics tests — vktSpvAsmCompositeInsertTests.cpp#L322
+- **vertexPipelineStoresAndAtomics** — required for vertex, tessellation, and geometry stages in graphics tests — [vktSpvAsmCompositeInsertTests.cpp#L303](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L303)
+- **fragmentStoresAndAtomics** — required for fragment stage in graphics tests — [vktSpvAsmCompositeInsertTests.cpp#L322](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L322)
 - **tessellationShader** — implicitly required for tessellation stages (graphics)
 - **geometryShader** — implicitly required for geometry stage (graphics)
 
 ## Verification Methods
 
-- **Vector tests**: Output buffer is compared against a running counter (0, 1, 2, ..., elements-1) — vktSpvAsmCompositeInsertTests.cpp#L229-L231
-- **Matrix tests**: Uses custom `verifyMatrixOutput` function that compares output against expected identity matrix data. Padding values in 3-row matrices are marked with -1.0f and skipped during comparison — vktSpvAsmCompositeInsertTests.cpp#L121-L147
-- **Nested struct tests**: Output is compared against an array of 8 identity matrices — vktSpvAsmCompositeInsertTests.cpp#L564-L567
+- **Vector tests**: Output buffer is compared against a running counter (0, 1, 2, ..., elements-1) — [vktSpvAsmCompositeInsertTests.cpp#L229-L231](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L229-L231)
+- **Matrix tests**: Uses custom [`verifyMatrixOutput`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L121-L147) function that compares output against expected identity matrix data. Padding values in 3-row matrices are marked with -1.0f and skipped during comparison — [vktSpvAsmCompositeInsertTests.cpp#L121-L147](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L121-L147)
+- **Nested struct tests**: Output is compared against an array of 8 identity matrices — [vktSpvAsmCompositeInsertTests.cpp#L564-L567](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L564-L567)
 
 ## Notes
 
-- For 3-row matrices, padding of -1.0f is inserted after each column to align to 16-byte stride, and the `verifyMatrixOutput` function skips these padding values — vktSpvAsmCompositeInsertTests.cpp#L397-L399
-- Graphics tests use `createTestForStage` per stage rather than `createTestsForAllStages`, resulting in flat test names with stage suffixes
-- The nested struct test uses a fixed array size of 8 mat4x4 matrices — vktSpvAsmCompositeInsertTests.cpp#L516
+- For 3-row matrices, padding of -1.0f is inserted after each column to align to 16-byte stride, and the [`verifyMatrixOutput`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L121-L147) function skips these padding values — [vktSpvAsmCompositeInsertTests.cpp#L397-L399](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L397-L399)
+- Graphics tests use [`createTestForStage`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L305-L325) per stage rather than `createTestsForAllStages`, resulting in flat test names with stage suffixes
+- The nested struct test uses a fixed array size of 8 mat4x4 matrices — [vktSpvAsmCompositeInsertTests.cpp#L516](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L516)

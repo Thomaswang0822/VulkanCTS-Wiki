@@ -34,12 +34,15 @@ Contains layer-count tests for VK_ARM_performance_counters_by_region with the so
 
 | Requirement | Condition |
 |-------------|-----------|
-| VK_KHR_buffer_device_address | Always ([L1544](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1544)) |
-| VK_EXT_separate_stencil_usage | Always ([L1545](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1545)) |
-| VK_ARM_performance_counters_by_region | Always ([L1546](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1546)) |
-| VK_KHR_get_physical_device_properties2 | Always ([L1547](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1547)) |
-| VK_KHR_shader_clock with shaderDeviceClock feature | ([L1564-L1567](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1564-L1567)) |
-| performanceCountersByRegion feature | ([L1578](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1578)) |
+| VK_KHR_buffer_device_address | Always ([L1535](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1535)) |
+| VK_EXT_separate_stencil_usage | Always ([L1536](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1536)) |
+| VK_ARM_performance_counters_by_region | Always ([L1537](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1537)) |
+| VK_KHR_get_physical_device_properties2 | Always as an instance functionality check ([L1538](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1538)) |
+| VK_KHR_create_renderpass2 | For `RENDERING_TYPE_RENDERPASS2` ([L1540-L1541](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1540-L1541)) |
+| VK_KHR_dynamic_rendering | For `RENDERING_TYPE_DYNAMIC_RENDERING` ([L1543-L1544](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1543-L1544)) |
+| VK_KHR_pipeline_library / VK_EXT_graphics_pipeline_library | For library pipeline construction, with `graphicsPipelineLibrary` feature ([L1546-L1552](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1546-L1552)) |
+| VK_KHR_shader_clock with shaderDeviceClock feature | ([L1555-L1558](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1555-L1558)) |
+| performanceCountersByRegion feature | ([L1560-L1569](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1560-L1569)) |
 
 ## Verification
 

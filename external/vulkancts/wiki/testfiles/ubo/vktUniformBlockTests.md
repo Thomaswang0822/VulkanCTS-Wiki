@@ -128,4 +128,3 @@ The `unsized_array` group is registered in [`UniformBlockTests::init()`](../../.
 ## Notes / Uncertainties
 
 - Mustpass inspection confirmed the direct `ubo` children listed in the hierarchy tree. The generated leaf set is large, so this page documents direct groups and source-observed parameter generators rather than enumerating every leaf case.
-- [`doc/testspecs/VK/apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc) was searched for `ubo`, `uniform buffer`, and `uniform block`; no category-specific UBO test-plan section was found in that inspected file, so this page relies on source and mustpass evidence.

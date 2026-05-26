@@ -2,7 +2,7 @@
 
 ## Overview
 
-Basic fence tests for Vulkan synchronization. These tests validate the lifecycle and behavior of VkFence objects, including creation state, signaling via queue submission, waiting with various timeout and waitAll configurations, resetting, and empty submissions. The tests cover single-fence and multi-fence scenarios.
+Basic fence tests for Vulkan synchronization. These tests validate the lifecycle and behavior of VkFence objects, including creation state, signaling via queue submission, waiting with various timeout and waitAll configurations, resetting, and empty submissions. The tests cover single-fence and multi-fence scenarios. The historical API test plan explicitly calls out fence waiting, reset/reuse, unsignaled status queries, and signaled-create behavior as objectives ([apitests.adoc](../../../../../doc/testspecs/VK/apitests.adoc#L384-L395)).
 
 ## Role of File
 
@@ -11,7 +11,7 @@ Basic fence tests for Vulkan synchronization. These tests validate the lifecycle
 | synchronization (LEGACY) | `basic.fence` | `synchronization.basic.fence` |
 | synchronization2 | N/A | N/A |
 
-This file contributes **only to the LEGACY** synchronization category. Fence operations are not affected by the VK_KHR_synchronization2 extension, so there is no synchronization2 variant of these tests. The `basic.fence` group is added under `synchronization.basic` only when the synchronization type is LEGACY (see [vktSynchronizationTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp) line 61).
+This file contributes **only to the LEGACY** synchronization category. Fence operations are not affected by the VK_KHR_synchronization2 extension, so there is no synchronization2 variant of these tests. The `basic.fence` group is added under `synchronization.basic` only when the synchronization type is LEGACY (see [`vktSynchronizationTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L61)).
 
 ## Source Code
 
@@ -152,7 +152,7 @@ The Level-3 root is `synchronization.basic.fence`, registered as the `fence` sub
 
 ## Notes / Uncertainties
 
-- These tests are LEGACY-only because fences are not part of the VK_KHR_synchronization2 extension. The synchronization2 path in [vktSynchronizationTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp) does not call `createBasicFenceTests`.
+- These tests are LEGACY-only because fences are not part of the VK_KHR_synchronization2 extension. The synchronization2 path in [`vktSynchronizationTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L63-L66) does not call `createBasicFenceTests`.
 - The `basicSignaledCase` function is shared between `one_signaled` (numFences=1) and `multiple_signaled` (numFences=10), differing only in the FenceConfig parameter.
 - On Vulkan SC, the `multi`, `multi_waitall_false`, and `multiple_signaled` tests require `commandBufferSimultaneousUse == VK_TRUE`, which may not be available on all SC implementations.
 - Video codec operation flags are passed through but do not change the fence logic; they only affect which queue and device are used for submission.

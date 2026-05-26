@@ -50,7 +50,7 @@ For `gen_in_compute`, the file emits a compute shader that writes indirect-comma
 
 ## Test Principles Observed
 
-- The source directly targets the test-plan requirement that compute dispatch parameters and workgroup counts reach shader invocations ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L679-L681)).
+- The source directly targets the test-plan requirement that compute dispatch parameters and workgroup counts reach shader invocations ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L679)).
 - The same case matrix is run through both uploaded and compute-generated indirect-command paths ([`vktComputeIndirectComputeDispatchTests.cpp`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L889-L897)).
 
 ## Notes / Uncertainties

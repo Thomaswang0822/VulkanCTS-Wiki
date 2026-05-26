@@ -6,6 +6,8 @@ The [`pipeline`](../../modules/vulkan/pipeline/vktPipelineTests.cpp#L224) catego
 
 The category covers fixed-function pipeline state (blend, depth, stencil, input assembly, vertex input, multisample, logic op), resource binding (descriptors, push constants, spec constants), image and sampler validation, pipeline construction models (monolithic, graphics pipeline library, shader object), cache and binary mechanics, dynamic state, and various extension-gated features.
 
+The historical Vulkan API test plan is useful background for this category because it frames pipeline testing around rendering-result checks for representative construction paths, randomized or isolated state coverage, cache reuse, and state-manipulation corner cases ([`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L522-L547)). It also calls out push-constant range sizes, range counts, stage coverage, and repeated data updates as planned API-test objectives ([`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L742-L748)). Treat these as historical objectives only; current registration, construction-type coverage, support gates, and verification details come from source and mustpass evidence below.
+
 ## Registration Entry Point
 
 The category is rooted in [`createTests()`](../../modules/vulkan/pipeline/vktPipelineTests.cpp#L224), which creates eight direct children under `pipeline`:
@@ -254,15 +256,17 @@ Under `CTS_USES_VULKANSC`, only the `monolithic` variant root is registered ([`v
 
 Within [`createChildren()`](../../modules/vulkan/pipeline/vktPipelineTests.cpp#L94), the following topic groups are excluded from VKSC by `#ifndef CTS_USES_VULKANSC` guards:
 
-`early_destroy`, `image_2d_view_3d_image`, `push_constant`, `push_descriptor`, `matched_attachments`, `multisample_shader_builtin`, `cache`, `pipeline_binary`, `framebuffer_attachment`, `creation_feedback`, `depth_range_unrestricted`, `executable_properties`, `bind_point`, `attachment_feedback_loop_layout`, `shader_module_identifier`, `pipeline_cache`, `derivative`, `creation_cache_control`, `sliced_view_of_3d_image`, `graphics_library`, `no_queues`.
+`early_destroy`, `image_2d_view_3d_image`, `push_constant`, `push_descriptor`, `matched_attachments`, `multisample_shader_builtin`, `cache`, `pipeline_binary`, `framebuffer_attachment`, `creation_feedback`, `depth_range_unrestricted`, `executable_properties`, `bind_point`, `attachment_feedback_loop_layout`, `shader_module_identifier`, `pipeline_cache`, `derivative`, `creation_cache_control`, `sliced_view_of_3d_image`, `graphics_library`.
+
+The independent `no_queues` root is excluded by the `#ifndef CTS_USES_VULKANSC` guard in [`createTests()`](../../modules/vulkan/pipeline/vktPipelineTests.cpp#L254-L262), not by the shared `createChildren()` dispatcher.
 
 Source: [`createChildren()`](../../modules/vulkan/pipeline/vktPipelineTests.cpp#L114) through [`vktPipelineTests.cpp#L219`](../../modules/vulkan/pipeline/vktPipelineTests.cpp#L219), [`createTests()`](../../modules/vulkan/pipeline/vktPipelineTests.cpp#L228).
 
 ## Cross-File Themes
 
-### PipelineConstructionType as a universal parameter
+### PipelineConstructionType as the recurring construction parameter
 
-Every topic group registered through [`createChildren()`](../../modules/vulkan/pipeline/vktPipelineTests.cpp#L94) receives a [`PipelineConstructionType`](../../framework/vulkan/vkPipelineConstructionUtil.hpp#L42) parameter. This drives the selection of pipeline construction path (monolithic `vkCreateGraphicsPipelines`, graphics pipeline library link-time optimization, fast-linked library, or shader object) via [`GraphicsPipelineWrapper`](../../modules/vulkan/pipeline/vktPipelineTests.cpp#L193). Representative files: [`vktPipelineBlendTests.cpp`](../../modules/vulkan/pipeline/vktPipelineBlendTests.cpp#L1), [`vktPipelineDepthTests.cpp`](../../modules/vulkan/pipeline/vktPipelineDepthTests.cpp#L1), [`vktPipelineMultisampleTests.cpp`](../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L1).
+Most topic groups registered through [`createChildren()`](../../modules/vulkan/pipeline/vktPipelineTests.cpp#L94) receive a [`PipelineConstructionType`](../../framework/vulkan/vkPipelineConstructionUtil.hpp#L42) parameter. This drives the selection of pipeline construction path (monolithic `vkCreateGraphicsPipelines`, graphics pipeline library link-time optimization, fast-linked library, or shader object) via [`GraphicsPipelineWrapper`](../../modules/vulkan/pipeline/vktPipelineTests.cpp#L193). Monolithic-only and library-only exceptions such as `derivative`, `creation_cache_control`, `sliced_view_of_3d_image`, and `graphics_library` are registered from `createChildren()` without passing the construction-type parameter ([`vktPipelineTests.cpp#L198-L215`](../../modules/vulkan/pipeline/vktPipelineTests.cpp#L198-L215)). Representative parameterized files: [`vktPipelineBlendTests.cpp`](../../modules/vulkan/pipeline/vktPipelineBlendTests.cpp#L1), [`vktPipelineDepthTests.cpp`](../../modules/vulkan/pipeline/vktPipelineDepthTests.cpp#L1), [`vktPipelineMultisampleTests.cpp`](../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L1).
 
 ### Reference rendering and CPU comparison
 
@@ -286,7 +290,7 @@ Several topic groups are intentionally restricted to specific variant roots beca
 
 | Restriction | Topic groups | Rationale |
 |---|---|---|
-| Monolithic only | `derivative`, `creation_cache_control`, `sliced_view_of_3d_image` | Compute pipeline tests and timing-sensitive creation tests not meaningful for library/shader-object variants |
+| Monolithic only | `derivative`, `creation_cache_control`, `sliced_view_of_3d_image` | Compute-pipeline derivative tests, timing-sensitive creation-cache-control tests, and sliced-3D-image checks are registered once for the monolithic construction path |
 | Pipeline library only | `graphics_library` | Library-specific linking behavior tested once |
 | Not shader-object | `multisample_shader_builtin`, `cache`, `pipeline_binary`, `executable_properties`, `shader_module_identifier`, `pipeline_cache` | Input attachments or cache/binary semantics not applicable to shader objects |
 | Not extra shader-object | `stencil`, `extended_dynamic_state` | Skipped by linked binary/linked spirv shader-object variants |

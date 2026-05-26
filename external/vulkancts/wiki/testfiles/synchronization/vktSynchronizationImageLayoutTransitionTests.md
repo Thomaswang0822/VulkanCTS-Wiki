@@ -25,7 +25,7 @@ synchronization2.layout_transition
 └── compute_transition_storage
 ```
 
-Registered in the sync2 path via `createImageLayoutTransitionTests()` added to the `synchronization2` group in [vktSynchronizationTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp) (line 132).
+Registered in the sync2 path via [`createImageLayoutTransitionTests()`](../../../modules/vulkan/synchronization/vktSynchronizationImageLayoutTransitionTests.cpp#L744), added to the `synchronization2` group in [`vktSynchronizationTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L132).
 
 ## Test Families
 

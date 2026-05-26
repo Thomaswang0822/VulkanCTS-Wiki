@@ -52,5 +52,3 @@ Verification checks each output pixel against clear, hit, or miss color values a
 The file registers focused ray tracing pipeline scenarios and varies only the dimensions visible in its registration loops or child-group construction. Claims above are limited to inspected registration code and mustpass-observed path components.
 
 ## Notes
-
-The API test plan provides general CTS framework context but no ray-tracing-pipeline-specific family breakdown in the inspected file.

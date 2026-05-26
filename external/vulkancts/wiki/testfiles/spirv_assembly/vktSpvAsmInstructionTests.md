@@ -2,7 +2,7 @@
 
 ## Overview
 
-Central aggregator and implementation file for the `spirv_assembly.instruction` test hierarchy. Creates the `instruction` group with `compute` and `graphics` pipeline variants, plus several direct subgroups. Contains inline definitions for the majority of SPIR-V instruction-level test groups, while delegating larger feature areas to separate implementation files.
+Central aggregator and implementation file for the [`spirv_assembly.instruction`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21311-L21317) test hierarchy. Creates the `instruction` group with [`compute`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21315-L21317) and [`graphics`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21315-L21317) pipeline variants, plus several direct subgroups registered near the end of [`createInstructionTests`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21535-L21544). Contains inline definitions for many SPIR-V instruction-level test groups, while delegating larger feature areas to separate implementation files.
 
 ## Role
 
@@ -10,7 +10,7 @@ Registration file and implementation file. Aggregates all instruction-test subgr
 
 ## Source
 
-- [vktSpvAsmInstructionTests.cpp](https://github.com/KhronosGroup/VK-GL-CTS/blob/main/external/vulkancts/modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp)
+- [vktSpvAsmInstructionTests.cpp](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21311)
 
 ## Registration Hierarchy
 
@@ -30,7 +30,7 @@ spirv_assembly.instruction
 
 ### compute — Compute-pipeline instruction tests
 
-Container for all instruction tests that use the compute pipeline. Contains both inline groups defined in this file and groups delegated to separate implementation files.
+Container for instruction tests that use the compute pipeline, registered as [`computeTests`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21316-L21449). Contains both inline groups defined in this file and groups delegated to separate implementation files.
 
 **Inline groups under compute** (defined in this file):
 
@@ -139,7 +139,7 @@ Container for all instruction tests that use the compute pipeline. Contains both
 
 ### graphics — Graphics-pipeline instruction tests
 
-Container for all instruction tests that use the graphics pipeline (vertex + fragment, sometimes geometry/tessellation). Contains both inline groups and groups delegated to separate files.
+Container for instruction tests that use graphics pipelines, registered as [`graphicsTests`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21451-L21533). Contains both inline groups and groups delegated to separate files.
 
 **Inline groups under graphics** (defined in this file):
 
@@ -211,15 +211,15 @@ Tests AMD_shader_trinary_minmax extension operations (FMin3, FMax3, FMid3, SMin3
 
 ### function_params — Function parameter tests
 
-Tests function parameter passing with combined image samplers. Contains a single Amber test `sampler_param`. Non-VulkanSC only.
+Tests function parameter passing with combined image samplers. Contains a single Amber test [`sampler_param`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21097-L21117). Non-VulkanSC only.
 
 ### image_query — Image query tests
 
-Tests image query operations on storage images. Contains `samples_storage` Amber test requiring `shaderStorageImageMultisample`. Non-VulkanSC only.
+Tests image query operations on storage images. Contains [`samples_storage`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21283-L21305) Amber test requiring [`shaderStorageImageMultisample`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21298-L21303). Non-VulkanSC only.
 
 ### maint9_vectorization — Maintenance 9 vectorized bit operations
 
-Tests VK_KHR_maintenance9 vectorization of bit operations (OpBitCount, OpBitReverse, OpBitFieldInsert, OpBitFieldSExtract, OpBitFieldUExtract). Delegated to [vktSpvAsmMaint9VectorizationTests.md](vktSpvAsmMaint9VectorizationTests.md).
+Tests [`VK_KHR_maintenance9`](../../../modules/vulkan/spirv_assembly/vktSpvAsmMaint9VectorizationTests.cpp#L292-L294) vectorization of bit operations (`OpBitCount`, `OpBitReverse`, `OpBitFieldInsert`, `OpBitFieldSExtract`, `OpBitFieldUExtract`) registered by [`createMaint9VectorizationTests`](../../../modules/vulkan/spirv_assembly/vktSpvAsmMaint9VectorizationTests.cpp#L1291-L1415). Delegated to [vktSpvAsmMaint9VectorizationTests.md](vktSpvAsmMaint9VectorizationTests.md).
 
 ### spirv1p4 — SPIR-V 1.4 features
 
@@ -233,16 +233,16 @@ Tests VK_KHR_shader_terminate_invocation, verifying that OpTerminateInvocation p
 
 ### Pipeline variant
 
-The `compute` vs `graphics` split is the primary structural dimension. Many test groups exist under both variants with similar logic but different shader infrastructure:
-- **Compute**: Uses `SpvAsmComputeShaderCase` infrastructure; tests run as compute dispatches
-- **Graphics**: Uses `SpvAsmGraphicsShaderTestUtil` infrastructure; tests run as graphics pipelines with vertex/fragment (and optionally geometry/tessellation) stages
+The [`compute`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21316-L21449) vs [`graphics`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21451-L21533) split is the primary structural dimension. Many test groups exist under both variants with similar logic but different shader infrastructure:
+- **Compute**: Uses [`SpvAsmComputeShaderCase`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L1080-L1082) infrastructure; tests run as compute dispatches
+- **Graphics**: Uses graphics shader test infrastructure through the graphics registration paths (for example [`createOpNopTests`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21451-L21453)); tests run as graphics pipelines with vertex/fragment and, for some groups, geometry/tessellation stages
 
 ### SPIR-V version
 
 Some groups test version-specific features:
-- `spirv_version` iterates over SPIR-V 1.0 through latest
-- `spirv1p4` targets SPIR-V 1.4 features
-- `localsize_id` requires SPIR-V 1.5
+- [`spirv_version`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21319-L21321) iterates version-support cases in compute and graphics registration paths
+- [`spirv1p4`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21537-L21539) targets SPIR-V 1.4 features
+- [`localsize_id`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21319-L21321) requires SPIR-V 1.5
 
 ### Data type dimensions
 
@@ -276,16 +276,16 @@ Recurring requirements across inline groups:
 
 ## Verification Methods
 
-- **Compute shader verification**: Most compute tests use `SpvAsmComputeShaderCase` which writes results to a storage buffer and compares against expected values ([vktSpvAsmComputeShaderCase.cpp#L1](https://github.com/KhronosGroup/VK-GL-CTS/blob/main/external/vulkancts/modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderCase.cpp))
-- **Graphics shader verification**: Graphics tests render a full-screen quad and compare the output color against expected RGBA values using `RGBA()` comparison
-- **Binary verification**: Groups like `opmoduleprocessed` verify that the compiled SPIR-V binary contains expected instructions
-- **Amber test cases**: Some groups (early_fragment, execution_mode, mixed_relaxed_precision_operands, function_params, image_query, oparraylength) use Amber test framework
-- **Precision-sensitive verification**: `nocontraction` tests use carefully chosen floating-point values where fused multiply-add would produce a different result than separate multiply and add
+- **Compute shader verification**: Most compute tests use `SpvAsmComputeShaderCase` which writes results to a storage buffer and compares against expected values ([source](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderCase.cpp#L65))
+- **Graphics shader verification**: Graphics tests render through graphics shader utilities; individual graphics groups are registered under [`graphicsTests`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21451-L21533)
+- **Binary verification**: Groups like [`opmoduleprocessed`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21331-L21333) verify compiled SPIR-V module contents
+- **Amber test cases**: Some groups, including [`function_params`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21097-L21117), [`image_query`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21283-L21305), and [`oparraylength`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L3378-L3394), use Amber test framework
+- **Precision-sensitive verification**: [`nocontraction`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21349-L21351) tests use floating-point values selected to distinguish fused multiply-add from separate multiply and add
 
 ## Notes
 
 - This file is the single largest source file in the spirv_assembly category at over 21,000 lines
 - The `compute`/`graphics` split means many SPIR-V instructions are tested under both pipeline types, often with similar test logic but different shader infrastructure
 - Some groups under `compute` have no `graphics` counterpart (e.g., `opatomic*`, `bool`, `shader_default_output`) and vice versa (e.g., `barrier`, `cross_stage`, `early_fragment`, `execution_mode`)
-- The `android` sub-groups under both `compute` and `graphics` relax the expected result for negative-operand division/modulo from PASS to QUALITY_WARNING
-- The `maintenance8` sub-groups test VK_KHR_maintenance8 behavior where negative-operand OpSRem/OpSMod must FAIL instead of being undefined
+- The [`android`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21384-L21390) sub-groups under both [`compute`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21384-L21390) and [`graphics`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21479-L21486) relax the expected result for negative-operand division/modulo from PASS to `QUALITY_WARNING`
+- The [`maintenance8`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21437-L21448) sub-groups test `VK_KHR_maintenance8` behavior where negative-operand `OpSRem`/`OpSMod` must FAIL instead of being undefined

@@ -34,7 +34,7 @@ Evidence:
 
 ## Test Families
 
-### 1d, 1d_array, 2d, 2d_array, 3d, cube, cube_array, buffer â€?imageSize() for all image types
+### 1d, 1d_array, 2d, 2d_array, 3d, cube, cube_array, buffer â€” imageSize() for all image types
 
 Each image type subgroup tests `imageSize()` with multiple configurations:
 - Access qualifier combinations: readonly, writeonly, readonly_writeonly
@@ -43,7 +43,7 @@ Each image type subgroup tests `imageSize()` with multiple configurations:
 
 Test case naming format: `{qualifier}_{2d_view_}{WIDTH}x{HEIGHT}x{DEPTH}`
 
-### 2d_view variants â€?2D view of 3D image tests
+### 2d_view variants â€” 2D view of 3D image tests
 
 When the image type is 3D and the `is2DViewOf3D` flag is set, tests use `VK_EXT_image_2d_view_of_3d` to create a 2D view of the 3D image. The `imageSize()` should return ivec2 with z=0 for these views.
 

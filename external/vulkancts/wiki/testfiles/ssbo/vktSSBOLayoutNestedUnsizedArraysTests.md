@@ -50,5 +50,4 @@ Runtime execution initializes the whole storage buffer to `1`, dispatches the ge
 
 ## Notes / Uncertainties
 
-- Mustpass inspection confirms the leaf under `unsized_array_length` in `vk-default/ssbo.txt`; the line was not in the small excerpt read directly, but it is validated by the mandatory registration verifier after this page is generated.
-- [`doc/testspecs/VK/apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc) was searched for `SSBO`, `Shader Storage`, `storage buffer`, and `Storage Buffer`; no category-specific SSBO test-plan section was found.
+- Mustpass inspection confirms `dEQP-VK.ssbo.unsized_array_length.nested_unsized_arrays` in [`vk-default/ssbo.txt`](../../../mustpass/main/vk-default/ssbo.txt#L12225) and `dEQP-VKSC.ssbo.unsized_array_length.nested_unsized_arrays` in [`vksc-default/ssbo.txt`](../../../mustpass/main/vksc-default/ssbo.txt#L12162).

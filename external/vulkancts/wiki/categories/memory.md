@@ -1,6 +1,6 @@
 # Memory Tests
 
-The `memory` category validates Vulkan device memory management, including allocation, binding, mapping, visibility, synchronization, and external memory import. It covers core memory operations (`vkAllocateMemory`, `vkBindBufferMemory`, `vkMapMemory`), memory requirements queries, pipeline barrier visibility, and numerous extension-specific behaviors such as external memory host import, DMA heap integration, memory decompression, and placed memory mapping.
+The `memory` category validates Vulkan device memory management, including allocation, binding, mapping, visibility, synchronization, and external memory import. It covers core memory operations (`vkAllocateMemory`, `vkBindBufferMemory`, `vkMapMemory`), memory requirements queries, pipeline barrier visibility, and numerous extension-specific behaviors such as external memory host import, DMA heap integration, memory decompression, and placed memory mapping. The historical Vulkan API test plan frames the relevant memory-management objectives as allocation/suballocation, mapped CPU access, CPU/GPU cache-control visibility, and binding memory to buffers or images ([`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L191-L258)).
 
 ## Source
 

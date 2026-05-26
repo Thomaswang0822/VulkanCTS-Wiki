@@ -142,4 +142,4 @@ Observed verification methods include result-buffer comparison against expected 
 
 ## Scope Notes
 
-The inspected API test plan [apitests.adoc](../../../../doc/testspecs/VK/apitests.adoc) provides general Vulkan CTS framework context but no ray-query-specific category breakdown. Helper-only files were not present in this category directory; every `.cpp` file under [ray_query](../../modules/vulkan/ray_query/) that registers tests received a Level-3 page.
+Helper-only files were not present in this category directory; every `.cpp` file under [ray_query](../../modules/vulkan/ray_query/) that registers tests received a Level-3 page.

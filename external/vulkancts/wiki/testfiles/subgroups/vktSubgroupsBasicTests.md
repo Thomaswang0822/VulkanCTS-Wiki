@@ -78,4 +78,4 @@ Graphics and ray-tracing all-stage paths are also routed through [`test()`](../.
 ## Notes / Uncertainties
 
 - The hierarchy tree intentionally lists only direct children of `subgroups.basic`. Generated operation and stage leaves are documented in the test-family and parameter sections rather than expanded in the parseable tree.
-- Claims are limited to inspected source under `external/vulkancts/modules/vulkan/subgroups/`; [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L8-L12) gives only general API-test-plan context for this category.
+- Claims are limited to inspected source under `external/vulkancts/modules/vulkan/subgroups/`.

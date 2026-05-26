@@ -2,11 +2,7 @@
 
 ## Overview
 
-Tests SPIR-V image query operations (`OpImageQuerySizeLod` and `OpImageQueryLevels`) on YCbCr multi-planar images. Verifies that the reported image dimensions and level counts are correct when a YCbCr image is accessed through a combined image sampler with a `VkSamplerYcbcrConversion`.
-
-**Role:** Implementation (registers group `ycbcr.query`)
-
-**Source:** [vktYCbCrImageQueryTests.cpp](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp)
+[`vktYCbCrImageQueryTests.cpp`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp) implements the `ycbcr.query` subgroup returned by [`createImageQueryTests()`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L603-L605). It tests `OpImageQuerySizeLod` and `OpImageQueryLevels` through GLSL texture-query expressions generated for executor-supported shader stages in [`populateImageQueryGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L593-L599) and [`populateQueryGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L579-L590).
 
 ## Registration Hierarchy
 
@@ -16,42 +12,36 @@ ycbcr.query
 └── levels
 ```
 
+`size_lod` and `levels` are added by [`populateImageQueryGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L593-L599); each query type creates shader-stage groups and then adds a non-YCbCr reference format plus YCbCr formats and disjoint variants in [`populateQueryInShaderGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L548-L577).
+
 ## Test Families
 
-### query
+### size_lod
 
-Verifies that `OpImageQuerySizeLod` and `OpImageQueryLevels` return correct values for YCbCr images. For `size_lod`, the test creates images at multiple sizes (aligned to the format's maximum plane divisor) and verifies the returned dimensions match. For `levels`, the test verifies the returned level count is 1.
+`size_lod` cases compare the shader-returned `UVec2` against constructed image dimensions in [`testImageQuery()`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L418-L465).
 
-**Query Types:**
+### levels
 
-| Query Type | SPIR-V Op | GLSL Expression | Expected Result |
-|------------|-----------|-----------------|-----------------|
-| `size_lod` | `OpImageQuerySizeLod` | `textureSize(u_image, lod)` | Image width and height |
-| `levels` | `OpImageQueryLevels` | `textureQueryLevels(u_image)` | 1 (single mip level) |
+`levels` cases use the same test path to check the expected single mip level for the constructed image in [`testImageQuery()`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L437-L465).
 
-**Parameter Dimensions:**
+## Parameters
 
-| Dimension | Values | Notes |
-|-----------|--------|-------|
-| Query Type | `QUERY_TYPE_IMAGE_SIZE_LOD`, `QUERY_TYPE_IMAGE_LEVELS` | Size query vs. level count query |
-| Format | `VK_FORMAT_R8G8B8A8_UNORM` (reference), all YCbCr formats (`VK_YCBCR_FORMAT_FIRST` through `VK_YCBCR_FORMAT_LAST`, plus 444 EXT formats) | Non-YCbCr reference included |
-| Disjoint | false, true | `VK_IMAGE_CREATE_DISJOINT_BIT` (multi-plane formats only) |
-| Shader Type | All supported shader stages | vertex, fragment, geometry, tessellation_control, tessellation_evaluation, compute (filtered by `executorSupported()`) |
+| Dimension | Source-backed values |
+|---|---|
+| Query type | `QUERY_TYPE_IMAGE_SIZE_LOD` and `QUERY_TYPE_IMAGE_LEVELS` are registered as `size_lod` and `levels` in [`populateImageQueryGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L593-L599). |
+| Formats | `VK_FORMAT_R8G8B8A8_UNORM` is added as a reference, then YCbCr base and 444 EXT ranges are added in [`populateQueryInShaderGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L550-L576). |
+| Disjoint | Disjoint variants are generated when `getPlaneCount(format) > 1` in [`populateQueryInShaderGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L559-L575). |
+| Image sizes | `size_lod` tests six sizes derived from the format's maximum plane divisor; `levels` uses one `16x18` image in [`testImageQuery()`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L418-L439). |
+| Shader type | Executor-supported shader stages are filtered by `executorSupported()` in [`populateQueryGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L581-L589). |
 
-**Support Requirements:**
+## Support Requirements
 
-- `VK_FORMAT_FEATURE_MIDPOINT_CHROMA_SAMPLES_BIT` for YCbCr formats
-- Shader stage support via `checkSupportShader()`
+[`checkSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L495-L515) applies shared YCbCr image support only to YCbCr formats, then requires midpoint chroma-sample support for YCbCr formats and checks shader-stage support.
 
-**Verification Method:**
+## Verification Method
 
-For `size_lod`: Creates images at 6 different sizes (multiples of the format's max plane divisor: 1x, 2x1, 1x2, 63x79, 99x1, 421x1117), samples each with `textureSize()`, and compares the returned `ivec2` against the known image dimensions.
+For `size_lod`, [`testImageQuery()`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L418-L465) compares the shader-returned `UVec2` against each constructed image size. For `levels`, the same switch path checks the expected single mip level for the one constructed image; image construction uses one mip level in `TestImage` creation through [`testImageQuery()`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L437-L439).
 
-For `levels`: Creates a single image and verifies `textureQueryLevels()` returns 1.
+## Notes / Uncertainties
 
-**Key Functions:**
-
-- [testImageQuery()](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L330) - Main test implementation
-- [populateQueryGroup()](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L579) - Per-query-type group population
-- [populateImageQueryGroup()](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L593) - Top-level query group population
-- [createImageQueryTests()](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L603) - Factory function returning the `query` group
+The reference `VK_FORMAT_R8G8B8A8_UNORM` cases are intentionally included by the generator and are not YCbCr conversion cases.

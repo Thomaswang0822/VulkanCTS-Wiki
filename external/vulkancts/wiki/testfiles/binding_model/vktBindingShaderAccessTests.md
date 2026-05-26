@@ -2,6 +2,8 @@
 
 Verifies descriptor visibility and shader access through primary/secondary command-buffer binding paths, descriptor update methods, descriptor types, shader stages, and descriptor input shapes.
 
+The historical Vulkan API test plan lists shader access through varied descriptor layouts as a binding-model objective ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L281-L289)); current source and mustpass remain authoritative for exact behavior.
+
 ## Source
 
 - [`vktBindingShaderAccessTests.cpp`](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp)

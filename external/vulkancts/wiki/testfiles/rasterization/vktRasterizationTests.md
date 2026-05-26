@@ -79,7 +79,7 @@ The `culling` group combines front/back/both cull modes, triangle-list/strip/fan
 
 ### discard — Rasterizer discard
 
-The `discard` group has direct children for triangle, line, and point topologies and creates `query_pipeline_false` and `query_pipeline_true` cases under each topology at [`vktRasterizationTests.cpp`](../../../modules/vulkan/rasterization/vktRasterizationTests.cpp#L9608-L9647).
+The `discard` group has direct children for triangle-list, triangle-strip, triangle-fan, line-list, line-strip, and point-list topologies and creates `query_pipeline_false` and `query_pipeline_true` cases under each topology at [`vktRasterizationTests.cpp`](../../../modules/vulkan/rasterization/vktRasterizationTests.cpp#L9608-L9647).
 
 ### conservative — Conservative rasterization
 

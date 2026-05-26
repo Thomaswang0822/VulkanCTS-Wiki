@@ -54,7 +54,7 @@ tessellation
 | [`vktTessellationCommonEdgeTests.cpp`](../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L1) | [`vktTessellationCommonEdgeTests.md`](../testfiles/tessellation/vktTessellationCommonEdgeTests.md) |
 | [`vktTessellationCoordinatesTests.cpp`](../../modules/vulkan/tessellation/vktTessellationCoordinatesTests.cpp#L1) | [`vktTessellationCoordinatesTests.md`](../testfiles/tessellation/vktTessellationCoordinatesTests.md) |
 | [`vktTessellationFractionalSpacingTests.cpp`](../../modules/vulkan/tessellation/vktTessellationFractionalSpacingTests.cpp#L1) | [`vktTessellationFractionalSpacingTests.md`](../testfiles/tessellation/vktTessellationFractionalSpacingTests.md) |
-| [`vktTessellationGeometryGridRenderScatterTests.cpp`](../../modules/vulkan/tessellation/vktTessellationGeometryGridRenderTests.cpp#L1) | [`vktTessellationGeometryGridRenderScatterTests.md`](../testfiles/tessellation/vktTessellationGeometryGridRenderScatterTests.md) |
+| [`vktTessellationGeometryGridRenderTests.cpp` (`scatter` subgroup)](../../modules/vulkan/tessellation/vktTessellationGeometryGridRenderTests.cpp#L765-L782) | [`vktTessellationGeometryGridRenderScatterTests.md`](../testfiles/tessellation/vktTessellationGeometryGridRenderScatterTests.md) |
 | [`vktTessellationGeometryGridRenderTests.cpp`](../../modules/vulkan/tessellation/vktTessellationGeometryGridRenderTests.cpp#L1) | [`vktTessellationGeometryGridRenderTests.md`](../testfiles/tessellation/vktTessellationGeometryGridRenderTests.md) |
 | [`vktTessellationGeometryPassthroughTests.cpp`](../../modules/vulkan/tessellation/vktTessellationGeometryPassthroughTests.cpp#L1) | [`vktTessellationGeometryPassthroughTests.md`](../testfiles/tessellation/vktTessellationGeometryPassthroughTests.md) |
 | [`vktTessellationGeometryPointSizeTests.cpp`](../../modules/vulkan/tessellation/vktTessellationGeometryPointSizeTests.cpp#L1) | [`vktTessellationGeometryPointSizeTests.md`](../testfiles/tessellation/vktTessellationGeometryPointSizeTests.md) |
@@ -98,9 +98,6 @@ The central support gate is tessellation-shader support, checked directly in fil
 
 Observed verification methods include device-limit comparisons, generated coordinate set comparison in [`compareTessCoords()`](../../modules/vulkan/tessellation/vktTessellationCoordinatesTests.cpp#L330-L347), image fuzzy/threshold comparison in draw tests, pixel/color counting for winding and common-edge behavior, exact primitive/triangle-set comparisons in invariance tests, and shader-side comparison status using SSBO or color output in user-defined IO.
 
-## Relationship to the Test Plan
-
-[`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L15-L18) describes the overall Vulkan CTS framework and utilities but does not provide tessellation-category-specific coverage in the inspected portion. The category documentation therefore relies primarily on source files under [`modules/vulkan/tessellation/`](../../modules/vulkan/tessellation/vktTessellationTests.cpp#L25-L42).
 
 ## Notes / Uncertainties
 

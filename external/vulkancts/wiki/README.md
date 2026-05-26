@@ -1,106 +1,124 @@
 # Vulkan CTS Wiki
 
-This wiki provides comprehensive documentation of the Vulkan Conformance Test Suite (CTS) test structure.
+This wiki documents how Vulkan Conformance Test Suite (CTS) test categories are organized, registered,
+parameterized, and verified. It is intended as a source-backed navigation layer over Vulkan CTS code, with category
+summaries and per-source-file notes that link back to the implementation evidence.
 
-## Structure
+## Where to Start
 
-```
+- New to Vulkan CTS internals: start with
+  [Vulkan_CTS_Framework_and_Mechanism.md](Vulkan_CTS_Framework_and_Mechanism.md).
+- Looking for a top-level test area: use the [Category Index](#category-index).
+- Looking for source-file-level behavior: open a category page, then follow its Level-3 testfile links.
+- Investigating naming mismatches between wiki pages, mustpass files, and source directories: see
+  [Category Naming Notes](#category-naming-notes).
+
+## How the Wiki Is Organized
+
+| Area | Purpose |
+|------|---------|
+| [Vulkan_CTS_Framework_and_Mechanism.md](Vulkan_CTS_Framework_and_Mechanism.md) | Framework, registration, execution, verification, mustpass, and Vulkan SC overview. |
+| [categories/](categories/) | One page per top-level Vulkan CTS category, summarizing registration structure and cross-file behavior. |
+| [testfiles/](testfiles/) | Source-file-level pages linked from category pages, covering registered groups, test families, parameters, support checks, and verification methods. |
+
+```text
 wiki/
-├── README.md                                   # This file
-├── Vulkan_CTS_Framework_and_Mechanism.md       # Level 1: Framework overview
-├── categories/                                 # Level 2: Category documentation
+├── README.md                                   # This navigation entry point
+├── Vulkan_CTS_Framework_and_Mechanism.md       # Framework and mechanism overview
+├── categories/                                 # Top-level category documentation
 │   ├── api.md
 │   ├── memory.md
 │   └── ...
-└── testfiles/                                  # Level 3: CPP test file documentation
+└── testfiles/                                  # Source-file-level documentation
     ├── api/
     │   ├── vktApiBufferTests.md
     │   └── ...
     └── ...
 ```
 
-## Documentation Levels
+## Scope and Evidence
 
-| Level | Description | Count |
-|-------|-------------|-------|
-| Level 1 | Framework and mechanism overview | 1 |
-| Level 2 | Test category documentation | 53 |
-| Level 3 | CPP test file documentation | Varies by completed categories |
+The wiki focuses on Vulkan CTS content under the repository's [Vulkan CTS tree](..). Category and testfile pages are
+intended to summarize registration hierarchy, test families, parameter dimensions, support requirements, and
+verification methods using inspected source-code evidence.
 
-## Progress Tracking
+The category names in this index follow Vulkan CTS root registration paths and default mustpass categories. They are not
+always identical to source directory names; see [Category Naming Notes](#category-naming-notes) for common mappings.
 
-### Level 1: Framework Overview
+## Category Index
 
-| Document | Status |
-|----------|--------|
-| [Vulkan_CTS_Framework_and_Mechanism.md](Vulkan_CTS_Framework_and_Mechanism.md) | ✅ Done |
+The table below lists the documented top-level Vulkan CTS categories in the recommended reading order.
 
-### Level 2 & 3: Categories
+| # | Category | Documentation |
+|---|----------|---------------|
+| 1 | info | [info.md](categories/info.md) |
+| 2 | api | [api.md](categories/api.md) |
+| 3 | memory | [memory.md](categories/memory.md) |
+| 4 | synchronization | [synchronization.md](categories/synchronization.md) |
+| 5 | synchronization2 | [synchronization2.md](categories/synchronization2.md) |
+| 6 | query_pool | [query_pool.md](categories/query_pool.md) |
+| 7 | binding_model | [binding_model.md](categories/binding_model.md) |
+| 8 | pipeline | [pipeline.md](categories/pipeline.md) |
+| 9 | shader_object | [shader_object.md](categories/shader_object.md) |
+| 10 | renderpasses | [renderpasses.md](categories/renderpasses.md) |
+| 11 | imageless_framebuffer | [imageless_framebuffer.md](categories/imageless_framebuffer.md) |
+| 12 | dynamic_state | [dynamic_state.md](categories/dynamic_state.md) |
+| 13 | image | [image.md](categories/image.md) |
+| 14 | image_processing | [image_processing.md](categories/image_processing.md) |
+| 15 | ycbcr | [ycbcr.md](categories/ycbcr.md) |
+| 16 | draw | [draw.md](categories/draw.md) |
+| 17 | texture | [texture.md](categories/texture.md) |
+| 18 | rasterization | [rasterization.md](categories/rasterization.md) |
+| 19 | fragment_operations | [fragment_operations.md](categories/fragment_operations.md) |
+| 20 | clipping | [clipping.md](categories/clipping.md) |
+| 21 | multiview | [multiview.md](categories/multiview.md) |
+| 22 | geometry | [geometry.md](categories/geometry.md) |
+| 23 | tessellation | [tessellation.md](categories/tessellation.md) |
+| 24 | transform_feedback | [transform_feedback.md](categories/transform_feedback.md) |
+| 25 | ubo | [ubo.md](categories/ubo.md) |
+| 26 | ssbo | [ssbo.md](categories/ssbo.md) |
+| 27 | glsl | [glsl.md](categories/glsl.md) |
+| 28 | spirv_assembly | [spirv_assembly.md](categories/spirv_assembly.md) |
+| 29 | subgroups | [subgroups.md](categories/subgroups.md) |
+| 30 | compute | [compute.md](categories/compute.md) |
+| 31 | memory_model | [memory_model.md](categories/memory_model.md) |
+| 32 | descriptor_indexing | [descriptor_indexing.md](categories/descriptor_indexing.md) |
+| 33 | robustness | [robustness.md](categories/robustness.md) |
+| 34 | sparse_resources | [sparse_resources.md](categories/sparse_resources.md) |
+| 35 | protected_memory | [protected_memory.md](categories/protected_memory.md) |
+| 36 | conditional_rendering | [conditional_rendering.md](categories/conditional_rendering.md) |
+| 37 | device_group | [device_group.md](categories/device_group.md) |
+| 38 | wsi | [wsi.md](categories/wsi.md) |
+| 39 | drm_format_modifiers | [drm_format_modifiers.md](categories/drm_format_modifiers.md) |
+| 40 | video | [video.md](categories/video.md) |
+| 41 | depth | [depth.md](categories/depth.md) |
+| 42 | graphicsfuzz | [graphicsfuzz.md](categories/graphicsfuzz.md) |
+| 43 | fragment_shader_interlock | [fragment_shader_interlock.md](categories/fragment_shader_interlock.md) |
+| 44 | fragment_shading_rate | [fragment_shading_rate.md](categories/fragment_shading_rate.md) |
+| 45 | fragment_shading_barycentric | [fragment_shading_barycentric.md](categories/fragment_shading_barycentric.md) |
+| 46 | mesh_shader | [mesh_shader.md](categories/mesh_shader.md) |
+| 47 | ray_query | [ray_query.md](categories/ray_query.md) |
+| 48 | ray_tracing_pipeline | [ray_tracing_pipeline.md](categories/ray_tracing_pipeline.md) |
+| 49 | reconvergence | [reconvergence.md](categories/reconvergence.md) |
+| 50 | cooperative_vector | [cooperative_vector.md](categories/cooperative_vector.md) |
+| 51 | tensor | [tensor.md](categories/tensor.md) |
+| 52 | data_graph | [data_graph.md](categories/data_graph.md) |
+| 53 | dgc | [dgc.md](categories/dgc.md) |
 
-The category order below is intended as a learning path from Vulkan fundamentals toward more specialized and extension-heavy areas. It is the default order to follow when creating or reading category documentation, unless a user explicitly asks for a different category.
+## Category Naming Notes
 
-For this tracker, the `Level-3 Files` column counts the actual number of Level-3 wiki files (`.md` files) under `testfiles/{category}/`. This count is updated only after a category reaches `✅ Done`. Categories that are still `⬜ Not Started` intentionally leave this field blank.
+Some registered category names intentionally differ from source directory names or are implemented through
+shared/root-level infrastructure. These mappings help readers locate the relevant source implementation.
 
-| # | Category | Level-2 | Level-3 Files | Status |
-|---|----------|---------|---------------|--------|
-| 1 | info | [info.md](categories/info.md) | 2 | ✅ Done |
-| 2 | api | [api.md](categories/api.md) | 54 | ✅ Done |
-| 3 | memory | [memory.md](categories/memory.md) | 15 | ✅ Done |
-| 4 | synchronization | [synchronization.md](categories/synchronization.md) | 17 | ✅ Done |
-| 5 | synchronization2 | [synchronization2.md](categories/synchronization2.md) | (shared with synchronization) | ✅ Done |
-| 6 | query_pool | [query_pool.md](categories/query_pool.md) | 8 | ✅ Done |
-| 7 | binding_model | [binding_model.md](categories/binding_model.md) | 15 | ✅ Done |
-| 8 | pipeline | [pipeline.md](categories/pipeline.md) | 62 | ✅ Done |
-| 9 | shader_object | [shader_object.md](categories/shader_object.md) | 11 | ✅ Done |
-| 10 | renderpasses | [renderpasses.md](categories/renderpasses.md) | 29 | ✅ Done |
-| 11 | imageless_framebuffer | [imageless_framebuffer.md](categories/imageless_framebuffer.md) | 1 | ✅ Done |
-| 12 | dynamic_state | [dynamic_state.md](categories/dynamic_state.md) | 10 | ✅ Done |
-| 13 | image | [image.md](categories/image.md) | 24 | ✅ Done |
-| 14 | image_processing | [image_processing.md](categories/image_processing.md) | 3 | ✅ Done |
-| 15 | ycbcr | [ycbcr.md](categories/ycbcr.md) | 10 | ✅ Done |
-| 16 | draw | [draw.md](categories/draw.md) | 31 | ✅ Done |
-| 17 | texture | [texture.md](categories/texture.md) | 13 | ✅ Done |
-| 18 | rasterization | [rasterization.md](categories/rasterization.md) | 6 | ✅ Done |
-| 19 | fragment_operations | [fragment_operations.md](categories/fragment_operations.md) | 5 | ✅ Done |
-| 20 | clipping | [clipping.md](categories/clipping.md) | 1 | ✅ Done |
-| 21 | multiview | [multiview.md](categories/multiview.md) | 2 | ✅ Done |
-| 22 | geometry | [geometry.md](categories/geometry.md) | 8 | ✅ Done |
-| 23 | tessellation | [tessellation.md](categories/tessellation.md) | 17 | ✅ Done |
-| 24 | transform_feedback | [transform_feedback.md](categories/transform_feedback.md) | 5 | ✅ Done |
-| 25 | ubo | [ubo.md](categories/ubo.md) | 1 | ✅ Done |
-| 26 | ssbo | [ssbo.md](categories/ssbo.md) | 3 | ✅ Done |
-| 27 | glsl | [glsl.md](categories/glsl.md) | 23 | ✅ Done |
-| 28 | spirv_assembly | [spirv_assembly.md](categories/spirv_assembly.md) | 40 | ✅ Done |
-| 29 | subgroups | [subgroups.md](categories/subgroups.md) | 20 | ✅ Done |
-| 30 | compute | [compute.md](categories/compute.md) | 8 | ✅ Done |
-| 31 | memory_model | [memory_model.md](categories/memory_model.md) | 3 | ✅ Done |
-| 32 | descriptor_indexing | [descriptor_indexing.md](categories/descriptor_indexing.md) | 3 | ✅ Done |
-| 33 | robustness | [robustness.md](categories/robustness.md) | 9 | ✅ Done |
-| 34 | sparse_resources | [sparse_resources.md](categories/sparse_resources.md) | 14 | ✅ Done |
-| 35 | protected_memory | [protected_memory.md](categories/protected_memory.md) | 15 | ✅ Done |
-| 36 | conditional_rendering | [conditional_rendering.md](categories/conditional_rendering.md) | 7 | ✅ Done |
-| 37 | device_group | [device_group.md](categories/device_group.md) | 1 | ✅ Done |
-| 38 | wsi | [wsi.md](categories/wsi.md) | 14 | ✅ Done |
-| 39 | drm_format_modifiers | [drm_format_modifiers.md](categories/drm_format_modifiers.md) | 1 | ✅ Done |
-| 40 | video | [video.md](categories/video.md) | 6 | ✅ Done |
-| 41 | depth | [depth.md](categories/depth.md) | 1 | ✅ Done |
-| 42 | graphicsfuzz | [graphicsfuzz.md](categories/graphicsfuzz.md) | 1 | ✅ Done |
-| 43 | fragment_shader_interlock | [fragment_shader_interlock.md](categories/fragment_shader_interlock.md) | 2 | ✅ Done |
-| 44 | fragment_shading_rate | [fragment_shading_rate.md](categories/fragment_shading_rate.md) | 5 | ✅ Done |
-| 45 | fragment_shading_barycentric | [fragment_shading_barycentric.md](categories/fragment_shading_barycentric.md) | 1 | ✅ Done |
-| 46 | mesh_shader | [mesh_shader.md](categories/mesh_shader.md) | 17 | ✅ Done |
-| 47 | ray_query | [ray_query.md](categories/ray_query.md) | 15 | ✅ Done |
-| 48 | ray_tracing_pipeline | [ray_tracing_pipeline.md](categories/ray_tracing_pipeline.md) | 31 | ✅ Done |
-| 49 | reconvergence | [reconvergence.md](categories/reconvergence.md) | 2 | ✅ Done |
-| 50 | cooperative_vector | [cooperative_vector.md](categories/cooperative_vector.md) | 3 | ✅ Done |
-| 51 | tensor | [tensor.md](categories/tensor.md) | 7 | ✅ Done |
-| 52 | data_graph | [data_graph.md](categories/data_graph.md) | 4 | ✅ Done |
-| 53 | dgc | [dgc.md](categories/dgc.md) | 27 | ✅ Done |
-
-**Legend**: ✅ Done | 🔄 In Progress | ⬜ Not Started
-
-## Statistics
-
-- **Total Categories**: 53
-- **Completed Categories**: 53/53
-
+| Wiki category | Mustpass entry | Source location pattern | Note |
+|---------------|----------------|-------------------------|------|
+| renderpasses | [renderpasses.txt](../mustpass/main/vk-default/renderpasses.txt) | [renderpass/](../modules/vulkan/renderpass/) | Registered category name differs from source directory name. |
+| fragment_operations | [fragment-operations.txt](../mustpass/main/vk-default/fragment-operations.txt) | [fragment_ops/](../modules/vulkan/fragment_ops/) | Registered category name differs from source directory name. |
+| drm_format_modifiers | [drm-format-modifiers.txt](../mustpass/main/vk-default/drm-format-modifiers.txt) | [modifiers/](../modules/vulkan/modifiers/) | Registered category name differs from source directory name. |
+| ray_tracing_pipeline | [ray-tracing-pipeline.txt](../mustpass/main/vk-default/ray-tracing-pipeline.txt) | [ray_tracing/](../modules/vulkan/ray_tracing/) | Registered category name differs from source directory name. |
+| dgc | [dgc.txt](../mustpass/main/vk-default/dgc.txt) | [device_generated_commands/](../modules/vulkan/device_generated_commands/) | Short registered category name maps to a longer source directory. |
+| info | [info.txt](../mustpass/main/vk-default/info.txt) | [vktInfoTests.cpp](../modules/vulkan/vktInfoTests.cpp) | Implemented by root-level Vulkan module files, not a matching category directory. |
+| glsl | [glsl.txt](../mustpass/main/vk-default/glsl.txt) | Amber and shader-render integration files | Registered as a root test group without a matching `glsl/` source directory. |
+| graphicsfuzz | [graphicsfuzz.txt](../mustpass/main/vk-default/graphicsfuzz.txt) | Amber integration files | Registered as a root test group without a matching `graphicsfuzz/` source directory. |
+| depth | [depth.txt](../mustpass/main/vk-default/depth.txt) | Amber depth integration files | Registered as a root test group without a matching `depth/` source directory. |
+| synchronization2 | [synchronization2.txt](../mustpass/main/vk-default/synchronization2.txt) | [synchronization/](../modules/vulkan/synchronization/) | Shares implementation area with `synchronization`. |

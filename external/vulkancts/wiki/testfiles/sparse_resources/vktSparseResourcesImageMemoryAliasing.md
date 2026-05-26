@@ -13,7 +13,6 @@ Implementation-heavy registration file shared by two top-level roots. The regula
 - Primary source: [`vktSparseResourcesImageMemoryAliasing.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageMemoryAliasing.cpp#L1)
 - Shared image/type helpers: [`vktSparseResourcesTestsUtil.hpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTestsUtil.hpp#L73-L115)
 - Shared queue/device-group base: [`vktSparseResourcesBase.hpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBase.hpp#L59-L114)
-- Test-plan context: [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L257-L276)
 
 ## Registration Hierarchy
 

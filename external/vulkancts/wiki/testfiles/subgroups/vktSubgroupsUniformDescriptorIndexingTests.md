@@ -2,17 +2,20 @@
 
 ## Overview
 
-[`vktSubgroupsUniformDescriptorIndexingTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsUniformDescriptorIndexingTests.cpp#L1) documents the [`subgroups.uniform_descriptor_indexing`](../../../modules/vulkan/subgroups/vktSubgroupsUniformDescriptorIndexingTests.cpp#L827) branch. It covers uniform descriptor indexing for several descriptor types.
+[`vktSubgroupsUniformDescriptorIndexingTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsUniformDescriptorIndexingTests.cpp#L1) documents the [`subgroups.uniform_descriptor_indexing`](../../../modules/vulkan/subgroups/vktSubgroupsUniformDescriptorIndexingTests.cpp#L827) branch. It covers uniform descriptor indexing for several descriptor types. The entire branch is non-VulkanSC-only because the dispatcher includes this file only inside `#ifndef CTS_USES_VULKANSC` and registers `createSubgroupsUniformDescriptorIndexingTests()` only inside the same guard in [`vktSubgroupsTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L40-L45) and [`vktSubgroupsTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L77-L81).
 
 ## Role
 
-Implementation file that registers tests under the verified group name [`uniform_descriptor_indexing`](../../../modules/vulkan/subgroups/vktSubgroupsUniformDescriptorIndexingTests.cpp#L827).
+Implementation file that registers tests under the verified group name [`uniform_descriptor_indexing`](../../../modules/vulkan/subgroups/vktSubgroupsUniformDescriptorIndexingTests.cpp#L827). The group is attached to `subgroups` only for non-VulkanSC builds by the dispatcher guard in [`vktSubgroupsTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L77-L81).
 
 ## Source Code
 
 - Primary source: [`vktSubgroupsUniformDescriptorIndexingTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsUniformDescriptorIndexingTests.cpp#L1)
+- Dispatcher guard: [`vktSubgroupsTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L40-L45) and [`vktSubgroupsTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L77-L81)
 
 ## Registration Hierarchy
+
+The entire `subgroups.uniform_descriptor_indexing` Level-3 branch is non-VulkanSC-only.
 
 ```text
 subgroups.uniform_descriptor_indexing
@@ -78,4 +81,4 @@ The image result is classified by colors; the test passes only when non-backgrou
 ## Notes / Uncertainties
 
 - The hierarchy tree intentionally lists only direct children of `subgroups.uniform_descriptor_indexing`. Deeper generated leaf names are summarized rather than expanded.
-- Claims are limited to inspected source under `external/vulkancts/modules/vulkan/subgroups/`; [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L8-L12) gives only general API-test-plan context for this category.
+- Claims are limited to inspected source under `external/vulkancts/modules/vulkan/subgroups/`.

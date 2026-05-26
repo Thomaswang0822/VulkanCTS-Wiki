@@ -236,7 +236,7 @@ synchronization2.none_stage
 └── transfer_dst_to_transfer_src
 ```
 
-Registered in the sync2 path via [`createNoneStageTests()`](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp) added to the `synchronization2` group in [vktSynchronizationTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp) (line 129). This group is **NOT** registered under the LEGACY `synchronization` category.
+Registered in the sync2 path via [`createNoneStageTests()`](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L1375), added to the `synchronization2` group in [`vktSynchronizationTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L129). This group is **NOT** registered under the LEGACY `synchronization` category.
 
 ## Test Families
 

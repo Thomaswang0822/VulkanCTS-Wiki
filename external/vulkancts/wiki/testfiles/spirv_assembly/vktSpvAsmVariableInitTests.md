@@ -2,15 +2,15 @@
 
 ## Overview
 
-Tests for OpVariable initialization in SPIR-V, covering initialization of Private storage class variables from constants and from Workgroup global variables, as well as initialization of Output storage class variables in graphics shaders.
+Tests for [`OpVariable`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L181) initialization in SPIR-V, covering initialization of Private storage class variables from constants and from Workgroup global variables, as well as initialization of Output storage class variables in graphics shaders.
 
 ## Role
 
-Implementation file
+Implementation file for the compute and graphics `variable_init` groups registered by [`createVariableInitComputeGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L658) and [`createVariableInitGraphicsGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L667).
 
 ## Source
 
-- [vktSpvAsmVariableInitTests.cpp](https://github.com/KhronosGroup/VK-GL-CTS/blob/main/external/vulkancts/modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp)
+- [vktSpvAsmVariableInitTests.cpp](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L658)
 
 ## Registration Hierarchy
 
@@ -27,39 +27,39 @@ spirv_assembly.instruction.graphics.variable_init
 
 ### private (compute) — Tests OpVariable initialization in Private storage class (compute)
 
-Tests that Private variables initialized with a constant value (all 1.0s) are correctly loaded and stored to an output SSBO. Covers five data types: float, vec4, matrix (mat2x4), floatArray (8 floats), and struct. Additionally tests initialization from Workgroup global variables (float_from_workgroup, vec4_from_workgroup, floatarray_from_workgroup, struct_from_workgroup), which requires VariablePointers and WorkgroupMemoryExplicitLayout for some types. Source: `vktSpvAsmVariableInitTests.cpp#L113-L229`.
+Tests that Private variables initialized with a constant value are loaded and stored to an output SSBO by [`addComputeVariableInitPrivateTest()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L113). The data set covers [`float`, `vec4`, `matrix`, `floatarray`, and `struct`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L67-L76), with all expected components initialized to [`1.0f`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L118). It additionally registers Workgroup-global initialization cases (`float_from_workgroup`, `vec4_from_workgroup`, `floatarray_from_workgroup`, and `struct_from_workgroup`) from the same parameter table, with [`VariablePointers`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L187-L202) for Workgroup globals and [`WorkgroupMemoryExplicitLayoutKHR`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L212-L220) for the struct and float-array Workgroup cases.
 
 ### private (graphics) — Tests OpVariable initialization in Private storage class (graphics)
 
-Same as compute private tests but running across all graphics shader stages. Only tests constant initialization source (not Workgroup globals). Source: `vktSpvAsmVariableInitTests.cpp#L231-L317`.
+Same constant-initializer parameter table as compute, but [`addGraphicsVariableInitPrivateTest()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L231) skips Workgroup-global entries and creates graphics-stage cases through [`createTestsForAllStages()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L247-L315).
 
 ### output (graphics) — Tests OpVariable initialization in Output storage class
 
-Tests that Output variables in vertex shaders can be initialized with a constant value. The initialized output is then read by the fragment shader and stored to an SSBO for verification. Covers float, vec4, matrix, floatArray, and struct types. Source: `vktSpvAsmVariableInitTests.cpp#L602-L654`.
+Tests that Output variables in vertex shaders can be initialized with a constant value. [`addGraphicsVariableInitOutputTest()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L602) registers the constant-source entries, builds a vertex+fragment pipeline, and verifies float, vec4, matrix, floatArray, and struct output values through a storage buffer configured in [`resources.outputs`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L631-L650).
 
 ## Parameter Dimensions
 
 | Dimension | Values | Description |
 |-----------|--------|-------------|
-| Data type | float, vec4, matrix, floatarray, struct | The type of the initialized variable |
-| Initialization source | CONSTANT, GLOBAL | Whether the variable is initialized from a constant or a Workgroup global |
+| Data type | [`float`, `vec4`, `matrix`, `floatarray`, `struct`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L67-L71) | The type of the initialized variable |
+| Initialization source | [`INITIALIZATION_SOURCE_CONSTANT`, `INITIALIZATION_SOURCE_GLOBAL`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L47-L51) | Whether the variable is initialized from a constant or a Workgroup global |
 | Storage class | Private, Output | The SPIR-V storage class of the variable |
-| Shader stage | compute, vertex, fragment, geometry, tess_ctrl, tess_eval | The pipeline stage (graphics only) |
+| Shader stage | compute; graphics stages generated by [`createTestsForAllStages()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L314-L315) | The pipeline stage (graphics only) |
 
 ## Support Requirements
 
-- `VK_KHR_storage_buffer_storage_class` extension (all tests)
-- `VK_KHR_variable_pointers` extension / `variablePointers` feature (Workgroup global init tests only)
-- `VK_KHR_workgroup_memory_explicit_layout` extension (struct_from_workgroup, floatarray_from_workgroup only)
-- SPIR-V 1.4 for WorkgroupMemoryExplicitLayout tests
-- `vertexPipelineStoresAndAtomics` / `fragmentStoresAndAtomics` (graphics tests)
+- [`VK_KHR_storage_buffer_storage_class`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L225) extension (all tests)
+- [`VK_KHR_variable_pointers`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L202) extension / [`variablePointers`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L201) feature (Workgroup global init tests only)
+- [`VK_KHR_workgroup_memory_explicit_layout`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L219) extension (struct_from_workgroup, floatarray_from_workgroup only)
+- [`SPIRV_VERSION_1_4`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L220) for WorkgroupMemoryExplicitLayout tests
+- [`vertexPipelineStoresAndAtomics`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L244) / [`fragmentStoresAndAtomics`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L245) for graphics Private tests; Output tests require [`fragmentStoresAndAtomics`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L627-L629).
 
 ## Verification Methods
 
-All tests verify that the output buffer contains all 1.0 float values (matching the constant initializer). The expected output is pre-filled with 1.0f values and compared against the shader output. Source: `vktSpvAsmVariableInitTests.cpp#L118-L119` (compute), `vktSpvAsmVariableInitTests.cpp#L239` (graphics).
+Compute and graphics Private cases pre-fill expected output with [`1.0f`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L118-L125) or [`1.0f`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L238-L256) respectively. Output-storage graphics cases build per-type expected buffers of `numComponents` ones and verify through `runAndVerifyDefaultPipeline()` via [`outputTest()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L324-L327) and [`addFunctionCaseWithPrograms()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L637-L650).
 
 ## Notes
 
-- The `struct` type contains: floatArray (8 floats), vec4, and 4 individual floats — all initialized to 1.0
-- Graphics output tests use a custom vertex+fragment shader pair where the vertex shader initializes an Output variable and the fragment shader reads it
-- Workgroup global initialization tests store the constant to the Workgroup variable before loading it, testing the pointer indirection path
+- The `struct` type contains [`floatArray`, `vec4`, and four scalar floats](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L87-L88), all initialized to 1.0.
+- Graphics output tests use a custom vertex+fragment shader pair where the vertex shader initializes an Output variable and the fragment shader reads it, as shown in [`addShaderCodeOutput()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L329-L599).
+- Workgroup global initialization tests store the constant to the Workgroup variable before loading it, testing the pointer indirection path in [`dataLoad`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L193-L199).

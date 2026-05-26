@@ -42,7 +42,7 @@ Support checks are implemented near [`vktBindingUnusedInvalidDescriptorTests.cpp
 
 ## Verification Methods
 
-Cases build descriptor sets containing unused or invalid descriptors and verify only used valid resources affect results. For invalid sampled-image and combined-image-sampler resources, the helper now uses 4x MSAA as the invalid sampled-image condition; invalid storage images still use an invalid format ([`vktBindingUnusedInvalidDescriptorTests.cpp:184`](../../../modules/vulkan/binding_model/vktBindingUnusedInvalidDescriptorTests.cpp#L184)). For invalid sampled-image and combined-image-sampler resources, the helper now uses 4x MSAA as the invalid sampled-image condition; invalid storage images still use an invalid format ([`vktBindingUnusedInvalidDescriptorTests.cpp:184`](../../../modules/vulkan/binding_model/vktBindingUnusedInvalidDescriptorTests.cpp#L184)).
+Cases build descriptor sets containing unused or invalid descriptors and verify only used valid resources affect results. For invalid sampled-image and combined-image-sampler resources, the helper uses 4x MSAA as the invalid sampled-image condition; invalid storage images use an invalid format ([`vktBindingUnusedInvalidDescriptorTests.cpp:184`](../../../modules/vulkan/binding_model/vktBindingUnusedInvalidDescriptorTests.cpp#L184)).
 
 ## Test Principles
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The renderpasses category tests Vulkan render pass functionality across three rendering models: legacy render passes (Vulkan 1.0), render pass 2 (VK_KHR_create_renderpass2), and dynamic rendering (VK_KHR_dynamic_rendering). It validates attachment management, subpass dependencies, multisample operations, depth/stencil resolve, fragment density maps, custom resolve, and numerous extension interactions.
+The renderpasses category tests Vulkan render pass functionality across three rendering models: legacy render passes (Vulkan 1.0), render pass 2 (VK_KHR_create_renderpass2), and dynamic rendering (VK_KHR_dynamic_rendering). It validates attachment management, subpass dependencies, multisample operations, depth/stencil resolve, fragment density maps, custom resolve, and numerous extension interactions. The historical Vulkan API test plan provides concise multipass background for this category by calling out data-flow configurations over target formats, target counts, load/store operations, resolve behavior, and dependencies ([`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L302-L308)).
 
 ## Registration Entry Point
 

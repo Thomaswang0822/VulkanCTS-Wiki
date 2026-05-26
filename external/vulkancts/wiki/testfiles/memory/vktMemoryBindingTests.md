@@ -2,6 +2,8 @@
 
 Memory binding tests exercising `VK_KHR_bind_memory2`. Validates batch binding of buffers and images to device memory, including aliasing, dedicated allocation, overallocation, and memory priority scenarios.
 
+The historical Vulkan API test plan calls out binding buffers/images, sub-allocation, rebinding, aliasing, and supported allocation types as binding-memory objectives ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L257-L266)); current source and mustpass remain authoritative for exact behavior.
+
 ## Source
 
 - [vktMemoryBindingTests.cpp](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp)
@@ -33,7 +35,7 @@ The `regular` group contains three subgroups:
 
 - **suballocated** — Resources share a single memory allocation. Individual buffer and image tests are generated for each size variant: `buffer_33`, `buffer_257`, `buffer_4087`, `buffer_8095`, `buffer_1048577`, and images `image_8_8` through `image_257_257` (all 3x3 combinations of widths and heights from {8, 33, 257}).
 - **dedicated** — Each resource gets its own dedicated memory allocation. Same size variants as suballocated.
-- **overallocated** — Tests binding with intentionally oversized memory allocations (factors of 1.5x, 2.3x, 3.0x). Only applies to dedicated allocation tests for images ([vktMemoryBindingTests.cpp:697-700](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L697)). Same size variants as suballocated.
+- **overallocated** — Tests binding with intentionally oversized dedicated memory allocations (factors of 1.5x, 2.3x, 3.0x) for both buffer and image size variants; the source adds overallocated buffer cases and image cases separately ([vktMemoryBindingTests.cpp:1157](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L1157), [vktMemoryBindingTests.cpp:1181-L1182](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L1181-L1182), [vktMemoryBindingTests.cpp:1207-L1210](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L1207-L1210)).
 
 ### aliasing — Memory aliasing
 

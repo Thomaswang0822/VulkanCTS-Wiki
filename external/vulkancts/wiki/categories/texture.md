@@ -2,7 +2,9 @@
 
 ## Overview
 
-The [`texture`](../../modules/vulkan/texture/vktTextureTests.cpp#L48) category tests Vulkan texture sampling operations across all texture types (1D, 2D, 3D, cube, and their array variants), covering filtering, mipmapping, shadow comparison, anisotropic filtering, compressed format decoding, swizzle, format conversion, texel buffers, multisample textures, and subgroup LOD consistency. The category verifies that GPU texture sampling matches CPU-computed reference results using a variety of verification strategies.
+The [`texture`](../../modules/vulkan/texture/vktTextureTests.cpp#L48) category tests Vulkan texture sampling operations across multiple texture types (including 1D, 2D, 3D, cube, and array cases in the groups that register them), covering filtering, mipmapping, shadow comparison, anisotropic filtering, compressed format decoding, swizzle, format conversion, texel buffers, multisample textures, and subgroup LOD consistency. The category verifies that GPU texture sampling matches CPU-computed reference results or Amber-script expectations using a variety of verification strategies.
+
+The historical Vulkan API test plan provides concise sampler context: sampler parameters should map to hardware state and be exercised by sampling selected formats, all texture types, and mipmapping with explicit and implicit LOD, while exhaustive texture filtering belongs to separate focused coverage ([`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L549-L557)). This aligns with the category's recurring sampling themes, but current source and mustpass files remain the evidence for exact groups, parameter matrices, support requirements, and verification logic.
 
 ## Registration Entry Point
 
@@ -96,7 +98,7 @@ Most test groups cover multiple texture types with a consistent structure:
 
 ### Graphics + Compute Dual Pipeline
 
-Nearly every test group generates both graphics pipeline and compute pipeline variants. Compute variants are typically named with a `_compute` suffix. This pattern appears in filtering, mipmap, explicit_lod, filtering_anisotropy, compressed, compressed_3D, swizzle, and conversion tests.
+Several implementation-heavy test groups generate both graphics pipeline and compute pipeline variants. Compute variants are typically named with a `_compute` suffix. This pattern appears in filtering, mipmap, explicit_lod, filtering_anisotropy, compressed, compressed_3D, swizzle, and conversion tests.
 
 ### Sparse Backing Mode
 

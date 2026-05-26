@@ -25,16 +25,16 @@ subgroups
 ├── ballot_other
 ├── arithmetic
 ├── clustered
-├── partitioned
+├── partitioned (non-VulkanSC only)
 ├── shuffle
 ├── quad
 ├── shape
 ├── ballot_mask
 ├── multiple_dispatches
 ├── size_control
-├── subgroup_uniform_control_flow
-├── uniform_descriptor_indexing
-└── shader_quad_control
+├── subgroup_uniform_control_flow (non-VulkanSC only)
+├── uniform_descriptor_indexing (non-VulkanSC only)
+└── shader_quad_control (non-VulkanSC only)
 ```
 
 ## Test Families
@@ -118,4 +118,3 @@ No result validation is implemented in this dispatcher; verification is delegate
 ## Notes / Uncertainties
 
 - This page documents source-observed registration only. Leaf-level generated cases are summarized in child pages.
-- [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L8-L12) provides general API test-plan context but no inspected category-specific subgroup plan.

@@ -2,11 +2,11 @@
 
 ## Overview
 
-The [`info`](../../modules/vulkan/vktInfoTests.cpp#L260) category is a lightweight information and capability-reporting category registered by [`TestPackage::init()`](../../modules/vulkan/vktTestPackage.cpp#L1348) and [`TestPackageSC::init()`](../../modules/vulkan/vktTestPackage.cpp#L1416). It logs build, device, platform, and platform-memory-limit information, then delegates most of its coverage to API feature-info helpers declared in [`vktApiFeatureInfo.hpp`](../../modules/vulkan/api/vktApiFeatureInfo.hpp#L34).
+The [`info`](../../modules/vulkan/vktInfoTests.cpp#L260) category is a lightweight information and capability-reporting category registered by [`TestPackage::init()`](../../modules/vulkan/vktTestPackage.cpp#L1347) and [`TestPackageSC::init()`](../../modules/vulkan/vktTestPackage.cpp#L1415). It logs build, device, platform, and platform-memory-limit information, then delegates most of its coverage to API feature-info helpers declared in [`vktApiFeatureInfo.hpp`](../../modules/vulkan/api/vktApiFeatureInfo.hpp#L34).
 
 ## Registration Entry Point
 
-The category is rooted in [`createInfoTests()`](../../modules/vulkan/vktInfoTests.cpp#L260), which adds 21 direct leaf cases (flat, no subgroups). Group names below are verified against [`info.txt`](../../mustpass/main/vk-default/info.txt).
+The category is rooted in [`createInfoTests()`](../../modules/vulkan/vktInfoTests.cpp#L260), which adds a flat set of direct leaf cases: 21 in Vulkan builds and 19 in Vulkan SC builds because the two extension-dependency cases are guarded out. Group names below are verified against [`info.txt`](../../mustpass/main/vk-default/info.txt).
 
 ```text
 info
@@ -40,17 +40,17 @@ Source: [`vktInfoTests.cpp`](../../modules/vulkan/vktInfoTests.cpp#L260), verifi
 | File | Role | Verified group name | Level-3 doc |
 |---|---|---|---|
 | [`vktInfoTests.cpp`](../../modules/vulkan/vktInfoTests.cpp#L1) | Registration + implementation | (root) | [`vktInfoTests.md`](../testfiles/info/vktInfoTests.md) |
-| [`vktApiFeatureInfo.cpp`](../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8924) | Implementation dependency | (flat augmentation) | [`vktApiFeatureInfo.md`](../testfiles/info/vktApiFeatureInfo.md) |
+| [`vktApiFeatureInfo.cpp`](../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8928) | Implementation dependency | (flat augmentation) | [`vktApiFeatureInfo.md`](../testfiles/info/vktApiFeatureInfo.md) |
 | [`vktInfoTests.hpp`](../../modules/vulkan/vktInfoTests.hpp#L1) | Declaration | — | — |
 | [`vktApiFeatureInfo.hpp`](../../modules/vulkan/api/vktApiFeatureInfo.hpp#L34) | Declaration dependency | — | — |
-| [`vktTestPackage.cpp`](../../modules/vulkan/vktTestPackage.cpp#L1348) | Package registration | — | — |
+| [`vktTestPackage.cpp`](../../modules/vulkan/vktTestPackage.cpp#L1347) | Package registration | — | — |
 
 ## Level-3 Documents
 
 | Source file | Wiki document |
 |---|---|
 | [`vktInfoTests.cpp`](../../modules/vulkan/vktInfoTests.cpp#L1) | [`vktInfoTests.md`](../testfiles/info/vktInfoTests.md) |
-| [`vktApiFeatureInfo.cpp`](../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8924) | [`vktApiFeatureInfo.md`](../testfiles/info/vktApiFeatureInfo.md) |
+| [`vktApiFeatureInfo.cpp`](../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8928) | [`vktApiFeatureInfo.md`](../testfiles/info/vktApiFeatureInfo.md) |
 
 ## Why the info Category Lives in the Root Module Path
 
@@ -58,7 +58,7 @@ Unlike every other category, `info` does not have its own subdirectory under `ex
 
 The reason is primarily historical and structural:
 
-1. **Minimal scope**: The `info` category is the smallest category in the CTS. The entire local implementation spans only ~280 lines in a single file, with just four lightweight local test cases (`build`, `device`, `platform`, `memory_limits`).
+1. **Minimal scope**: The `info` category is one of the smallest categories in the CTS. The entire local implementation spans only ~280 lines in a single file, with just four lightweight local test cases (`build`, `device`, `platform`, `memory_limits`).
 
 2. **Cross-category dependency**: The bulk of the `info` tree is not implemented in `vktInfoTests.cpp` at all. It is delegated to three builder functions defined in [`vktApiFeatureInfo.cpp`](../../modules/vulkan/api/vktApiFeatureInfo.cpp) — a file that belongs to the `api/` subdirectory. Creating a separate `info/` subdirectory for just two small files that delegate most of their work to `api/` was apparently not warranted.
 
@@ -77,7 +77,7 @@ Four direct function cases are registered before delegating to API feature-info 
 
 ### Instance-information cases
 
-Six instance-scope query and validation cases under the same `info` group:
+Up to six instance-scope query and validation cases under the same `info` group; Vulkan SC omits the dependency-validation case:
 
 - `physical_devices`
 - `physical_device_groups`
@@ -88,7 +88,7 @@ Six instance-scope query and validation cases under the same `info` group:
 
 ### Device-information cases
 
-Ten device-scope query and validation cases:
+Up to ten device-scope query and validation cases; Vulkan SC omits the dependency-validation case:
 
 - `device_features`
 - `device_properties`
@@ -123,18 +123,19 @@ The inspected `info` registration code does not show the usual per-category feat
 - the whole category is registered in both Vulkan and Vulkan SC packages through separate init functions
 - two extension-dependency checks are conditionally excluded for Vulkan SC via preprocessor guards
 - [`logPlatformMemoryLimits()`](../../modules/vulkan/vktInfoTests.cpp#L253) applies generic runtime assertions that total system memory and allocation granularity are non-zero and that page size is a power of two, but these are result checks rather than feature-enable gates
+- delegated cases add narrower runtime requirements, including `device_memory_budget` requiring `VK_EXT_memory_budget` and `device_group_peer_memory_features` requiring a selected device group with at least two physical devices
 
 ## Cross-File Recurring Verification Methods
 
 - **Pure logging with non-validating pass status**: `build`, `device`, and `platform` all return pass statuses whose message is `Not validated`
 - **Logging plus simple invariant checks**: `memory_limits` logs numeric limits, then applies `TCU_CHECK` assertions before returning `Pass`
-- **Delegated functional validation**: the API feature-info registrations include validation-oriented cases such as `instance_extension_dependencies`, `instance_extension_device_functions`, `device_extension_dependencies`, and `device_mandatory_features`. The detailed internal verification logic for those functions is not described here because it was not fully inspected end-to-end in this pass.
+- **Delegated functional validation**: the API feature-info registrations include validation-oriented cases such as `instance_extension_dependencies`, `instance_extension_device_functions`, `device_extension_dependencies`, and `device_mandatory_features`. The detailed internal verification logic is documented at a summary level in the Level-3 delegated API feature-info page.
 
 ## Relationship to the Test Plan
 
-[`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L158) contains an `API Queries` section that states the objective is to validate that various `vkGet*` functions return correct values and lists generic checks such as returned-size sanity, no out-of-bounds writes, value stability, and concurrent-query behavior. That high-level purpose is relevant to the delegated feature-info coverage registered through the instance and device builders.
+[`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L161) describes API-query tests as validating that `vkGet*` functions return correct values, with generic checks for result sizing, pointer bounds, value stability, and concurrent queries. This matches the delegated instance/device feature-info query coverage summarized above.
 
 ## Notes / Uncertainties
 
 - [`vktInfoTests.hpp`](../../modules/vulkan/vktInfoTests.hpp#L1) and [`vktApiFeatureInfo.hpp`](../../modules/vulkan/api/vktApiFeatureInfo.hpp#L1) are documentation-relevant declarations, but this category page treats them as supporting evidence rather than additional Level-3 targets because they are pure declaration files without registration paths.
-- The detailed verification internals for the delegated API feature-info cases are only summarized at registration level here; unsupported claims about their deeper logic are intentionally avoided.
+- The detailed verification internals for delegated API feature-info cases are summarized in the corresponding Level-3 page; this category page intentionally keeps those details at a cross-file summary level.

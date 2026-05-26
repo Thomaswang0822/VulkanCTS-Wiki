@@ -21,37 +21,37 @@
 ```text
 image.texel_view_compatible
 ├── compute
-�?  ├── basic
-�?  �?  ├── 1d_image
-�?  �?  ├── 2d_image
-�?  �?  └── 3d_image
-�?  └── extended
-�?      ├── 1d_image
-�?      ├── 2d_image
-�?      └── 3d_image
+│  ├── basic
+│  │  ├── 1d_image
+│  │  ├── 2d_image
+│  │  └── 3d_image
+│  └── extended
+│      ├── 1d_image
+│      ├── 2d_image
+│      └── 3d_image
 ├── graphic
-�?  ├── basic
-�?  �?  ├── 1d_image
-�?  �?  ├── 2d_image
-�?  �?  └── 3d_image
-�?  └── extended
-�?      ├── 1d_image
-�?      ├── 2d_image
-�?      └── 3d_image
+│  ├── basic
+│  │  ├── 1d_image
+│  │  ├── 2d_image
+│  │  └── 3d_image
+│  └── extended
+│      ├── 1d_image
+│      ├── 2d_image
+│      └── 3d_image
 └── multi_layer_views (non-VulkanSC only)
 ```
 
 ## Test Families
 
-### compute �?Compute shader texel view compatibility tests
+### compute — Compute shader texel view compatibility tests
 
 Covers the `compute` direct child registered by [`createImageCompressionTranscodingTests()`](../../../modules/vulkan/image/vktImageCompressionTranscodingSupport.cpp#L3805-L3902). These tests use compute shaders to verify that compressed images can be viewed as texel-compatible uncompressed formats.
 
-### graphic �?Graphics shader texel view compatibility tests
+### graphic — Graphics shader texel view compatibility tests
 
 Covers the `graphic` direct child registered by [`createImageCompressionTranscodingTests()`](../../../modules/vulkan/image/vktImageCompressionTranscodingSupport.cpp#L3805-L3902). These tests use fragment shaders to verify texel view compatibility through attachment operations and texture sampling.
 
-### multi_layer_views �?Multi-layer view compatibility tests (non-VulkanSC only)
+### multi_layer_views — Multi-layer view compatibility tests (non-VulkanSC only)
 
 Covers the `multi_layer_views` direct child registered at lines [3907-3971](../../../modules/vulkan/image/vktImageCompressionTranscodingSupport.cpp#L3907-L3971). Requires `VK_KHR_maintenance6` `blockTexelViewCompatibleMultipleLayers` feature. Tests texel view compatibility when using multi-layer image views.
 

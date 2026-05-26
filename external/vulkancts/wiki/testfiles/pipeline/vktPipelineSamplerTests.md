@@ -2,7 +2,7 @@
 
 ## Overview
 
-[`vktPipelineSamplerTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineSamplerTests.cpp#L1) implements the [`sampler`](../../../modules/vulkan/pipeline/vktPipelineSamplerTests.cpp#L3179) topic group. It verifies sampler state behavior including filters, reduction modes, mipmap modes, LOD, address modes, border colors, exact sampling, border swizzle, and max LOD bias.
+[`vktPipelineSamplerTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineSamplerTests.cpp#L1) implements the [`sampler`](../../../modules/vulkan/pipeline/vktPipelineSamplerTests.cpp#L3179) topic group. It verifies sampler state behavior including filters, reduction modes, mipmap modes, LOD, address modes, border colors, exact sampling, border swizzle, and max LOD bias. This is a concrete implementation match for the historical API test-plan sampler-state objectives ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L549-L558)).
 
 ## Role
 

@@ -24,7 +24,7 @@ Note: This group is only registered for `monolithic` and `shader_object_unlinked
 
 ### single — Single-state tests
 
-The [`single`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L1216) subgroup tests one dynamic state at a time. For each of the 27-30 dynamic states in [`dynamicStateList[]`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L474), it creates tests under both `compute` and `transfer` operations, with `before` and `after` variants. The hierarchy under `single` is:
+The [`single`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L1216) subgroup tests one dynamic state at a time. For each dynamic state in [`dynamicStateList[]`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L474), it creates tests under both `compute` and `transfer` operations, with `before` and `after` variants. The list contains 30 states on non-VulkanSC builds and 25 states when the VulkanSC guards remove ray-tracing and NV-specific states. The hierarchy under `single` is:
 
 - `single.compute.{state_name}.before` / `single.compute.{state_name}.after` — for each dynamic state
 - `single.transfer.{state_name}.before` / `single.transfer.{state_name}.after` — for each dynamic state
@@ -33,7 +33,7 @@ The dynamic state names include: `viewport`, `scissor`, `line_width`, `depth_bia
 
 ### multi — Multi-state tests
 
-The [`multi`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L1252) subgroup tests multiple dynamic states together. It uses the first 10 "basic" states (viewport through stencil_reference) that have no extension requirements, testing them all at once under both `compute` and `transfer` operations. The hierarchy under `multi` is:
+The [`multi`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L1252) subgroup tests multiple dynamic states together. It uses the first 9 "basic" states (viewport through stencil_reference) that have no extension requirements, testing them all at once under both `compute` and `transfer` operations. The hierarchy under `multi` is:
 
 - `multi.compute.before` / `multi.compute.after`
 - `multi.transfer.before` / `multi.transfer.after`
@@ -45,7 +45,7 @@ The [`multi`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.
 | Pipeline construction type | Passed from parent group |
 | Operation type | `COMPUTE` or `TRANSFER` from [`OperType`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L769) |
 | When to set | `BEFORE` or `AFTER` from [`WhenToSet`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L773) |
-| Dynamic state | 27-30 values from [`dynamicStateList[]`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L474) (single tests), first 10 basic states (multi tests) |
+| Dynamic state | 30 non-VulkanSC or 25 VulkanSC values from [`dynamicStateList[]`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L474) (single tests), first 9 basic states (multi tests) |
 
 ### Dynamic state list with extension requirements
 

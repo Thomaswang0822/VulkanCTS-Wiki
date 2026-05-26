@@ -60,5 +60,4 @@ Each case requires `VK_KHR_video_queue`; decode cases require the decode queue a
 
 ## Notes / Uncertainties
 
-- `doc/testspecs/VK/apitests.adoc` was inspected as required; text search found no video-specific section, so category-specific claims in this page are based on inspected `external/vulkancts/` source and `mustpass/main/vk-default/video.txt` evidence.
 - The hierarchy block lists codec groups one level below the profile decode/encode roots; generated leaf names are described by the parameter dimensions and are present in mustpass but are not all repeated here.

@@ -33,7 +33,7 @@ image.load_store
 
 image.format_reinterpret
 
-image.extend_operands
+image.extend_operands_spirv1p4
 
 image.nontemporal_operand
 
@@ -48,7 +48,7 @@ image.load_store_lod
 
 ## Test Families
 
-### store â€?Image Store Operations
+### store â€” Image Store Operations
 
 Tests basic `imageStore()` shader operations across image types and formats.
 
@@ -75,7 +75,7 @@ Tests basic `imageStore()` shader operations across image types and formats.
 - Copies image to host buffer via transfer
 - Compares buffer contents against expected computed values
 
-### load_store â€?Image Load and Store Operations
+### load_store â€” Image Load and Store Operations
 
 Tests combined `imageLoad()` and `imageStore()` operations, verifying round-trip data integrity.
 
@@ -103,7 +103,7 @@ Tests combined `imageLoad()` and `imageStore()` operations, verifying round-trip
 - Loads back from image
 - Compares loaded values against reference using format-appropriate thresholding
 
-### format_reinterpret â€?Format Reinterpretation
+### format_reinterpret â€” Format Reinterpretation
 
 Tests storage image access with different format interpretations (write as one format, read as another).
 
@@ -118,7 +118,7 @@ Tests storage image access with different format interpretations (write as one f
 - Verifies bit-level reinterpretation produces expected results
 - Handles special cases (denormalized values, NaN, infinity for float formats)
 
-### extend_operands â€?SPIR-V 1.4 Extend Operands (SignExtend/ZeroExtend)
+### extend_operands â€” SPIR-V 1.4 Extend Operands (SignExtend/ZeroExtend)
 
 Tests SPIR-V 1.4 extension operand behavior for integer format widening operations.
 
@@ -141,7 +141,7 @@ Tests SPIR-V 1.4 extension operand behavior for integer format widening operatio
 - Performs load or store with specified operand extension
 - Compares results against expected values with appropriate precision thresholds
 
-### nontemporal_operand â€?Non-Temporal Memory Hint
+### nontemporal_operand â€” Non-Temporal Memory Hint
 
 Tests `OpImageWrite` with non-temporal memory hint operand.
 
@@ -158,7 +158,7 @@ Tests `OpImageWrite` with non-temporal memory hint operand.
 - Stores values using non-temporal hint
 - Loads back and verifies correctness
 
-### device_scope_access â€?Device Scope Memory Access
+### device_scope_access â€” Device Scope Memory Access
 
 Tests Vulkan memory model device-scope synchronization for image load/store operations.
 
@@ -188,7 +188,7 @@ Tests Vulkan memory model device-scope synchronization for image load/store oper
 - Reads pattern back in compute or draw shader
 - Compares loaded values against expected
 
-### load_store_lod â€?Mipmap Level-of-Detail Access (AMD)
+### load_store_lod â€” Mipmap Level-of-Detail Access (AMD)
 
 Tests image load/store operations with explicit LOD specification using `VK_AMD_shader_image_load_store_lod` extension.
 

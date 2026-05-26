@@ -22,6 +22,8 @@ When auditing Vulkan CTS wiki pages, preserve the factual scope used by `wiki-an
 - Require source links for important claims.
 - Use GitHub fragment syntax in wiki source links: `file.cpp#L82` or `file.cpp#L82-L95`.
 - Treat colon-style source line links in wiki pages as invalid: `file.cpp:82` is not acceptable.
+- Treat `doc/testspecs/VK/apitests.adoc` as historical objective-level context only; current source and mustpass evidence remain authoritative for exact behavior.
+- Audit repository-local links for local relative paths. Do not allow `https://github.com/KhronosGroup/VK-GL-CTS/blob/main/` links to repository files in generated wiki pages.
 
 ## Core Principle
 
@@ -84,7 +86,28 @@ For each wiki page, map major sections to source evidence:
 
 Open source files at cited lines and nearby context. If a source link points to a broad range, inspect enough surrounding code to verify the claim, not just the linked line.
 
-### Step 3: Audit Registration Semantics
+### Step 3: Audit Test-Plan Usage and Repository-Local Links
+
+If wiki pages cite `doc/testspecs/VK/apitests.adoc`, verify that each mention follows the `wiki-analyzer` policy:
+
+- The cited section provides useful objective-level context for the category or specific Level-3 file.
+- The page does not use `apitests.adoc` as evidence for exact current registration, parameter matrices, support gates, feature requirements, or verification logic.
+- Level-3 citations map directly to a concrete test-plan section or bullet, not merely to broad category similarity.
+- The page does not include negative boilerplate such as "the API test plan does not mention this category" or "no test-plan coverage was found".
+- Generic framework `TestCase` / `TestInstance` context is not repeated in category or testfile pages.
+- `apitests.adoc` links use local relative paths with `#L` fragments, not external repository URLs.
+
+Also search the audit scope for repository-local GitHub URLs that validators may ignore:
+
+```bash
+grep -RIn "https://github.com/KhronosGroup/VK-GL-CTS/blob/main/" \
+  external/vulkancts/wiki/categories/<category>.md \
+  external/vulkancts/wiki/testfiles/<category>
+```
+
+Convert any such links to local relative markdown links before completion.
+
+### Step 4: Audit Registration Semantics
 
 Verify the documented tree against actual registration code.
 
@@ -98,7 +121,7 @@ Check:
 
 For Level-3 hierarchy trees, enforce one canonical parseable root unless the active harness explicitly allows more. If one source file registers multiple top-level roots, document one canonical tree and describe the additional roots in prose or tables, or follow the project-specific convention for multi-root files.
 
-### Step 4: Audit Parameter Claims
+### Step 5: Audit Parameter Claims
 
 Trace every parameter claim to code constructs.
 
@@ -110,7 +133,7 @@ Verify:
 
 Treat broad wording as suspicious. Rewrite broad statements to narrower statements when the source only proves a subset.
 
-### Step 5: Audit Support and Feature Gates
+### Step 6: Audit Support and Feature Gates
 
 Compare support sections against `checkSupport()` and runtime checks.
 
@@ -124,7 +147,7 @@ Distinguish:
 
 Avoid writing that a feature is required for the whole page when the code requires it only for a format, operand, or branch.
 
-### Step 6: Audit Verification Claims
+### Step 7: Audit Verification Claims
 
 Inspect the actual pass/fail logic.
 
@@ -140,7 +163,7 @@ Check whether verification is:
 
 Ensure the wiki does not claim verification happens when the source only prepares resources, logs images, or relies on successful API calls.
 
-### Step 7: Audit Stale or Workflow-Derived Text
+### Step 8: Audit Stale or Workflow-Derived Text
 
 Look for statements created during earlier drafting stages that may have become false after later work, such as:
 
@@ -152,7 +175,7 @@ Look for statements created during earlier drafting stages that may have become 
 
 Remove or update stale text before completion.
 
-### Step 8: Fix Confirmed Errors
+### Step 9: Fix Confirmed Errors
 
 Edit only confirmed issues. For each fix, preserve evidence links or add better links.
 
@@ -165,7 +188,7 @@ Prefer precise wording such as:
 
 Do not invent missing source evidence to support a claim. If a plausible behavior is not proven, say it is not confirmed from inspected files or omit it.
 
-### Step 9: Run Validators After Semantic Fixes
+### Step 10: Run Validators After Semantic Fixes
 
 Run validators only after manual semantic auditing and fixes. Use category-scoped validation when possible.
 
@@ -179,11 +202,15 @@ python3 .agents/skills/wiki-analyzer/scripts/validate_wiki_links.py \
   --verbose
 
 python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category>
+
+grep -RIn "https://github.com/KhronosGroup/VK-GL-CTS/blob/main/" \
+  external/vulkancts/wiki/categories/<category>.md \
+  external/vulkancts/wiki/testfiles/<category>
 ```
 
-If validators fail, fix validation problems only after checking that the fix remains semantically accurate.
+If validators fail, fix validation problems only after checking that the fix remains semantically accurate. If the repository-local GitHub URL grep reports matches, convert them to local relative links and rerun link validation.
 
-### Step 10: Report Audit Results
+### Step 11: Report Audit Results
 
 Report the audit as a source-backed review, not as a validator run.
 
@@ -221,6 +248,8 @@ Consider the audit complete only when:
 - Registration trees match the harness contract and source registration semantics.
 - Support/verification/parameter claims reflect conditional code paths.
 - Temporary coordination text is absent from user-facing pages.
+- `apitests.adoc` mentions, if present, are relevant historical objective-level context and not current-behavior evidence.
+- Repository-local links use local relative paths, and the audit scope has no `https://github.com/KhronosGroup/VK-GL-CTS/blob/main/` links to repository files.
 - Category-scoped link validation passes, unless a documented external issue is out of scope.
 - Registration-path validation passes for documented trees, unless a documented validator limitation is out of scope.
 - Final report distinguishes semantic audit findings from automated validation results.

@@ -68,4 +68,3 @@ The dispatcher does not execute tests directly. Verification is delegated to the
 
 ## Notes
 
-The inspected API test plan provides general Vulkan CTS framework context but no cooperative-vector-specific test-family breakdown [apitests.adoc](../../../../../doc/testspecs/VK/apitests.adoc#L8-L13).

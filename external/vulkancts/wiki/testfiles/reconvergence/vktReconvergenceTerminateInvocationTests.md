@@ -58,4 +58,4 @@ All subcases render a full-screen triangle into an R8G8B8A8 framebuffer, copy th
 
 ## Notes
 
-This file registers its own `terminate_invocation` group and therefore receives a Level-3 page under the analyzer rule for registered source files [vktReconvergenceTerminateInvocationTests.cpp](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L653-L675). The inspected API test plan provides general Vulkan CTS framework context but no terminate-invocation-specific reconvergence breakdown [apitests.adoc](../../../../../doc/testspecs/VK/apitests.adoc#L8-L13).
+This file registers its own `terminate_invocation` group and therefore receives a Level-3 page under the analyzer rule for registered source files [vktReconvergenceTerminateInvocationTests.cpp](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L653-L675).

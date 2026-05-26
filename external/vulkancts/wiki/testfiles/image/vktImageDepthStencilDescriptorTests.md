@@ -31,19 +31,19 @@ Evidence:
 
 ## Test Families
 
-### depth_read_only_stencil_attachment_optimal â€?Depth read-only, stencil attachment layout
+### depth_read_only_stencil_attachment_optimal â€” Depth read-only, stencil attachment layout
 
 Tests using `VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL`. The depth aspect is read-only while stencil is read-write. Format subgroups iterate over all supported depth/stencil formats.
 
-### depth_attachment_stencil_read_only_optimal â€?Depth attachment, stencil read-only layout
+### depth_attachment_stencil_read_only_optimal â€” Depth attachment, stencil read-only layout
 
 Tests using `VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL`. The stencil aspect is read-only while depth is read-write. Format subgroups iterate over all supported depth/stencil formats.
 
-### depth_read_only_optimal â€?Depth-only read-only layout
+### depth_read_only_optimal â€” Depth-only read-only layout
 
 Tests using `VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL`. Only the depth aspect is accessible (read-only); stencil aspect is inaccessible. Format subgroups iterate over depth-only formats.
 
-### stencil_read_only_optimal â€?Stencil-only read-only layout
+### stencil_read_only_optimal â€” Stencil-only read-only layout
 
 Tests using `VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL`. Only the stencil aspect is accessible (read-only); depth aspect is inaccessible. Format subgroups iterate over stencil-only formats.
 

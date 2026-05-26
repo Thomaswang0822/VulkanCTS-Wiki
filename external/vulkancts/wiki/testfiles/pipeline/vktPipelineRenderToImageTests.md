@@ -2,7 +2,7 @@
 
 ## Overview
 
-[`vktPipelineRenderToImageTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineRenderToImageTests.cpp#L1) implements the [`render_to_image`](../../../modules/vulkan/pipeline/vktPipelineRenderToImageTests.cpp#L2029) topic group. It verifies rendering to image attachments across all view types, formats, and sizes, including maximum-dimension images and mipmap rendering.
+[`vktPipelineRenderToImageTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineRenderToImageTests.cpp#L1) implements the [`render_to_image`](../../../modules/vulkan/pipeline/vktPipelineRenderToImageTests.cpp#L2029) topic group. It verifies rendering to image attachments across all view types, formats, and sizes, including maximum-dimension images and mipmap rendering. This corresponds to the historical API test-plan objective for writing to color/depth/stencil attachments in varied view configurations ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L506-L514)).
 
 ## Role
 

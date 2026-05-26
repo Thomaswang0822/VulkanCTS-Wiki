@@ -79,5 +79,4 @@ Most descriptor-type matrix cases render or dispatch into outputs, build a refer
 ## Notes and Uncertainties
 
 - The category page intentionally does not present factory symbols such as `descriptorIndexingDescriptorSetsCreateTests` or `createDescriptorIndexingMiscTests` as subgroup names; those symbols are implementation entry points, while the inspected registered children are direct root test cases.
-- The inspected `apitests.adoc` evidence available through the Level-3 work did not identify a descriptor-indexing-specific section, so this summary relies on source files and mustpass evidence rather than adding test-plan claims.
 - `vktDescriptorSetsIndexingTestsUtils.cpp` is treated as helper evidence only. A standalone Level-3 page would require separate registration evidence, which was not observed in the inspected files.

@@ -151,7 +151,7 @@ Mesh shader combination with task=LINKED, mesh=LINKED, frag=LINKED. Registers `d
 ## Support / Feature Requirements
 
 - Graphics link cases require `VK_EXT_shader_object` at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L742-L745).
-- Tessellation and geometry features are required when the selected shader/next-stage parameters use those stages at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L746-L753).
+- The current graphics link support check also requires tessellation and geometry support for the inspected `ShaderObjectLinkCase` cases because its `nextStages` bit tests OR in the tessellation-control and geometry bits, making those feature checks true at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L746-L753). This is broader than merely requiring those features for selected stage combinations.
 - Mesh link cases require `VK_EXT_shader_object`, `VK_EXT_mesh_shader`, and task/mesh feature support at [vktShaderObjectLinkTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1323-L1328).
 
 ## Verification Methods

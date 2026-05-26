@@ -2,7 +2,7 @@
 
 ## Overview
 
-Basic event tests for Vulkan synchronization. These tests validate the lifecycle and behavior of VkEvent objects, including host-side set/reset, device-side set/reset via command buffers, wait-events synchronization, secondary command buffer usage, and synchronization2-specific features such as VK_PIPELINE_STAGE_NONE_KHR and VK_EVENT_CREATE_DEVICE_ONLY_BIT_KHR. The file contributes to both the LEGACY and synchronization2 categories.
+Basic event tests for Vulkan synchronization. These tests validate the lifecycle and behavior of VkEvent objects, including host-side set/reset, device-side set/reset via command buffers, wait-events synchronization, secondary command buffer usage, and synchronization2-specific features such as VK_PIPELINE_STAGE_NONE_KHR and VK_EVENT_CREATE_DEVICE_ONLY_BIT_KHR. The file contributes to both the LEGACY and synchronization2 categories. For LEGACY event coverage, the historical API test plan calls out CPU signaling, status polling, barriers, reset/polling corner cases, and multiple setters ([apitests.adoc](../../../../../doc/testspecs/VK/apitests.adoc#L413-L425)).
 
 ## Role of File
 
@@ -203,7 +203,7 @@ When `videoCodecOperationFlags != 0`, the `_cq` variants and `multi_secondary_co
 ## Notes / Uncertainties
 
 - The `host_set_reset` test is LEGACY-only. The sync2 factory function does not include it, likely because the sync2 extension focuses on device-side synchronization and introduces device-only events.
-- The `none_set_reset` test hardcodes `SynchronizationType::SYNCHRONIZATION2` internally (line 200), meaning it always uses the sync2 API path regardless of the TestConfig.
+- The `none_set_reset` test uses `SynchronizationType::SYNCHRONIZATION2` internally in [`eventSetResetNoneStage()`](../../../modules/vulkan/synchronization/vktSynchronizationBasicEventTests.cpp#L200), meaning it always uses the sync2 API path regardless of the `TestConfig`.
 - The `deviceResetSetEventCase` test uses `VkMemoryBarrier2` with srcStage=TOP_OF_PIPE and dstStage=BOTTOM_OF_PIPE for the set operation, and `VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT_KHR` for the reset operation. This is a minimal dependency specification.
 - Video codec operation flags are passed through but affect which tests are generated (compute queue and secondary command buffer tests are omitted for video queues).
 - The `secondaryCommandBufferCase` test checks whether the queue supports `VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT` before executing, to avoid VUID violations on queues that cannot execute secondary command buffers.

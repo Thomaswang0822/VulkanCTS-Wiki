@@ -22,63 +22,87 @@ This is a registration and implementation file that:
 ```text
 image.general_layout
 ├── astc_sample
-�?  ├── copy_into_image
-�?  ├── copy_from_image
-�?  ├── host_copy_into_image (non-VulkanSC)
-�?  ├── host_copy_from_image (non-VulkanSC)
-�?  └── sample_alias
 ├── memory_barrier (non-VulkanSC)
-�?  ├── compute
-�?  �?  ├── write_read
-�?  �?  �?  ├── shader_read_write
-�?  �?  �?  ├── sampled_read_storage_write
-�?  �?  �?  └── storage_read_storage_write
-�?  �?  └── read_write
-�?  �?      ├── shader_read_write
-�?  �?      ├── sampled_read_storage_write
-�?  �?      └── storage_read_storage_write
-�?  └── fragment
-�?      ├── write_read
-�?      �?  ├── shader_read_write
-�?      �?  ├── sampled_read_storage_write
-�?      �?  └── storage_read_storage_write
-�?      └── read_write
-�?          ├── shader_read_write
-�?          ├── sampled_read_storage_write
-�?          └── storage_read_storage_write
 ├── input_attachment
-�?  ├── input_attachment
-�?  �?  ├── execution
-�?  �?  �?  ├── render_pass
-�?  �?  �?  └── dynamic_rendering
-�?  �?  ├── memory
-�?  �?  �?  ├── render_pass
-�?  �?  �?  └── dynamic_rendering
-�?  �?  └── image
-�?  �?      ├── render_pass
-�?  �?      └── dynamic_rendering
-�?  └── sampled
-�?      ├── execution
-�?      �?  ├── render_pass
-�?      �?  └── dynamic_rendering
-�?      ├── memory
-�?      �?  ├── render_pass
-�?      �?  └── dynamic_rendering
-�?      └── image
-�?          ├── render_pass
-�?          └── dynamic_rendering
 └── msaa
-    ├── same
-    �?  ├── 4
-    �?  └── 8
-    └── different
-        ├── 4
-        └── 8
+
+image.general_layout.astc_sample
+├── copy_into_image
+├── copy_from_image
+├── host_copy_into_image (non-VulkanSC)
+├── host_copy_from_image (non-VulkanSC)
+└── sample_alias
+
+image.general_layout.memory_barrier
+├── compute
+└── fragment
+image.general_layout.memory_barrier.compute
+├── write_read
+└── read_write
+image.general_layout.memory_barrier.compute.write_read
+├── shader_read_write
+├── sampled_read_storage_write
+└── storage_read_storage_write
+image.general_layout.memory_barrier.compute.read_write
+├── shader_read_write
+├── sampled_read_storage_write
+└── storage_read_storage_write
+image.general_layout.memory_barrier.fragment
+├── write_read
+└── read_write
+image.general_layout.memory_barrier.fragment.write_read
+├── shader_read_write
+├── sampled_read_storage_write
+└── storage_read_storage_write
+image.general_layout.memory_barrier.fragment.read_write
+├── shader_read_write
+├── sampled_read_storage_write
+└── storage_read_storage_write
+
+image.general_layout.input_attachment
+├── input_attachment
+└── sampled
+image.general_layout.input_attachment.input_attachment
+├── execution
+├── memory
+└── image
+image.general_layout.input_attachment.input_attachment.execution
+├── render_pass
+└── dynamic_rendering
+image.general_layout.input_attachment.input_attachment.memory
+├── render_pass
+└── dynamic_rendering
+image.general_layout.input_attachment.input_attachment.image
+├── render_pass
+└── dynamic_rendering
+image.general_layout.input_attachment.sampled
+├── execution
+├── memory
+└── image
+image.general_layout.input_attachment.sampled.execution
+├── render_pass
+└── dynamic_rendering
+image.general_layout.input_attachment.sampled.memory
+├── render_pass
+└── dynamic_rendering
+image.general_layout.input_attachment.sampled.image
+├── render_pass
+└── dynamic_rendering
+
+image.general_layout.msaa
+├── same
+└── different
+image.general_layout.msaa.same
+├── 4
+└── 8
+image.general_layout.msaa.different
+├── 4
+└── 8
 ```
 
 ## Test Families
 
-### astc_sample �?ASTC Compressed Texture Operations
+### astc_sample — ASTC Compressed Texture Operations
 
 Tests ASTC compressed texture sampling and copy operations with `VK_IMAGE_LAYOUT_GENERAL`:
 
@@ -96,7 +120,7 @@ Tests ASTC compressed texture sampling and copy operations with `VK_IMAGE_LAYOUT
 - Performs copy/sampling operations
 - Compares output buffer data against expected decompressed values
 
-### memory_barrier �?Image Memory Barrier Synchronization (non-VulkanSC)
+### memory_barrier — Image Memory Barrier Synchronization (non-VulkanSC)
 
 Tests synchronization2 memory barriers with images in general layout:
 
@@ -112,7 +136,7 @@ Tests synchronization2 memory barriers with images in general layout:
 - Performs shader operations (storage image or sampler)
 - Copies result back and verifies data matches expected values
 
-### input_attachment �?Input Attachment Rendering
+### input_attachment — Input Attachment Rendering
 
 Tests input attachments with subpass dependencies and various barrier types:
 
@@ -132,7 +156,7 @@ Tests input attachments with subpass dependencies and various barrier types:
 - Second pass reads as input attachment and applies additional transformation
 - Verifies final output matches expected transformation
 
-### msaa �?MSAA Multi-Attachment Rendering
+### msaa — MSAA Multi-Attachment Rendering
 
 Tests rendering with multiple color attachments using general layout:
 

@@ -21,7 +21,7 @@ pipeline.monolithic.image_2d_view_3d_image
 └── fragment
 ```
 
-**Variant coverage**: All variants (VulkanSC only). The `compute` subgroup is only populated for monolithic pipeline construction type.
+**Variant coverage**: All Vulkan variants; excluded from VulkanSC by the `#ifndef CTS_USES_VULKANSC` guard in the dispatcher. The `compute` subgroup is only populated for monolithic pipeline construction type.
 
 ## Test Families
 

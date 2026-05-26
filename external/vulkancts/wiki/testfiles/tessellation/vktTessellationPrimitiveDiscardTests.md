@@ -19,14 +19,48 @@ The documented root is [`tessellation.primitive_discard`](../../../modules/vulka
 ```text
 tessellation.primitive_discard
 ├── isolines_equal_spacing_ccw
+├── isolines_equal_spacing_ccw_point_mode
 ├── isolines_equal_spacing_cw
+├── isolines_equal_spacing_cw_point_mode
+├── isolines_fractional_even_spacing_ccw
+├── isolines_fractional_even_spacing_ccw_point_mode
+├── isolines_fractional_even_spacing_cw
+├── isolines_fractional_even_spacing_cw_point_mode
+├── isolines_fractional_odd_spacing_ccw
+├── isolines_fractional_odd_spacing_ccw_point_mode
+├── isolines_fractional_odd_spacing_cw
+├── isolines_fractional_odd_spacing_cw_point_mode
 ├── quads_equal_spacing_ccw
+├── quads_equal_spacing_ccw_point_mode
 ├── quads_equal_spacing_cw
+├── quads_equal_spacing_cw_point_mode
+├── quads_fractional_even_spacing_ccw
+├── quads_fractional_even_spacing_ccw_point_mode
+├── quads_fractional_even_spacing_cw
+├── quads_fractional_even_spacing_cw_point_mode
+├── quads_fractional_odd_spacing_ccw
+├── quads_fractional_odd_spacing_ccw_point_mode
+├── quads_fractional_odd_spacing_ccw_point_mode_valid_levels
 ├── quads_fractional_odd_spacing_ccw_valid_levels
+├── quads_fractional_odd_spacing_cw
+├── quads_fractional_odd_spacing_cw_point_mode
+├── quads_fractional_odd_spacing_cw_point_mode_valid_levels
 ├── quads_fractional_odd_spacing_cw_valid_levels
 ├── triangles_equal_spacing_ccw
+├── triangles_equal_spacing_ccw_point_mode
 ├── triangles_equal_spacing_cw
+├── triangles_equal_spacing_cw_point_mode
+├── triangles_fractional_even_spacing_ccw
+├── triangles_fractional_even_spacing_ccw_point_mode
+├── triangles_fractional_even_spacing_cw
+├── triangles_fractional_even_spacing_cw_point_mode
+├── triangles_fractional_odd_spacing_ccw
+├── triangles_fractional_odd_spacing_ccw_point_mode
+├── triangles_fractional_odd_spacing_ccw_point_mode_valid_levels
 ├── triangles_fractional_odd_spacing_ccw_valid_levels
+├── triangles_fractional_odd_spacing_cw
+├── triangles_fractional_odd_spacing_cw_point_mode
+├── triangles_fractional_odd_spacing_cw_point_mode_valid_levels
 └── triangles_fractional_odd_spacing_cw_valid_levels
 ```
 

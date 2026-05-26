@@ -2,7 +2,7 @@
 
 ## Overview
 
-[`vktPipelinePushConstantTests.cpp`](../../../modules/vulkan/pipeline/vktPipelinePushConstantTests.cpp#L1) implements the [`push_constant`](../../../modules/vulkan/pipeline/vktPipelinePushConstantTests.cpp#L3606) topic group. It verifies push constant behavior across graphics and compute pipelines, including range sizes, overlapping ranges, multi-stage sharing, data updates, lifetime semantics, and overwrite behavior.
+[`vktPipelinePushConstantTests.cpp`](../../../modules/vulkan/pipeline/vktPipelinePushConstantTests.cpp#L1) implements the [`push_constant`](../../../modules/vulkan/pipeline/vktPipelinePushConstantTests.cpp#L3606) topic group. It verifies push constant behavior across graphics and compute pipelines, including range sizes, overlapping ranges, multi-stage sharing, data updates, lifetime semantics, and overwrite behavior. This directly implements the historical API test-plan goals for range size, stage coverage, and data updates ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L742-L748)).
 
 ## Role
 

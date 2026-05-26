@@ -12,7 +12,6 @@ Implementation-heavy Level-3 registration file. It constructs the `multisampled_
 
 - Primary source: [`vktSparseResourcesMultisampledImageSparseResidency.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMultisampledImageSparseResidency.cpp#L1)
 - Shared sparse-resource helpers: [`vktSparseResourcesTestsUtil.hpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTestsUtil.hpp#L161-L204), [`vktSparseResourcesBase.hpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBase.hpp#L59-L114)
-- Test-plan context: [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L273-L276)
 
 ## Registration Hierarchy
 

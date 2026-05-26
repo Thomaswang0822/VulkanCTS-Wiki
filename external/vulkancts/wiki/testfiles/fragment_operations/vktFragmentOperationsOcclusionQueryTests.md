@@ -17,14 +17,70 @@ Registration and implementation file. It owns the user-visible `occlusion_query`
 
 ```text
 fragment_operations.occlusion_query
-├── conservative*_test_scissors_*
-├── conservative*_test_depth_*
-├── conservative*_test_stencil_*
-├── conservative*_test_all
-├── precise*_test_scissors_*
-├── precise*_test_depth_*
-├── precise*_test_stencil_*
-└── precise*_test_all
+├── conservative_test_scissors_clear_color
+├── conservative_test_scissors_depth_clear
+├── conservative_test_scissors_depth_write
+├── conservative_test_scissors_depth_clear_depth_write
+├── conservative_test_scissors_stencil_clear
+├── conservative_test_scissors_stencil_write
+├── conservative_test_scissors_stencil_clear_stencil_write
+├── conservative_test_scissors_depth_clear_stencil_clear
+├── conservative_test_scissors_depth_write_stencil_clear
+├── conservative_test_scissors_depth_clear_stencil_write
+├── conservative_test_scissors_depth_write_stencil_write
+├── conservative_test_scissors_depth_clear_stencil_clear_depth_write
+├── conservative_test_scissors_depth_clear_stencil_clear_stencil_write
+├── conservative_test_scissors_depth_clear_depth_write_stencil_write
+├── conservative_test_scissors_depth_write_stencil_clear_stencil_write
+├── conservative_test_scissors_test_all
+├── conservative_test_clear_color
+├── conservative_test_depth_clear
+├── conservative_test_depth_write
+├── conservative_test_depth_clear_depth_write
+├── conservative_test_stencil_clear
+├── conservative_test_stencil_write
+├── conservative_test_stencil_clear_stencil_write
+├── conservative_test_depth_clear_stencil_clear
+├── conservative_test_depth_write_stencil_clear
+├── conservative_test_depth_clear_stencil_write
+├── conservative_test_depth_write_stencil_write
+├── conservative_test_depth_clear_stencil_clear_depth_write
+├── conservative_test_depth_clear_stencil_clear_stencil_write
+├── conservative_test_depth_clear_depth_write_stencil_write
+├── conservative_test_depth_write_stencil_clear_stencil_write
+├── conservative_test_test_all
+├── precise_test_scissors_clear_color
+├── precise_test_scissors_depth_clear
+├── precise_test_scissors_depth_write
+├── precise_test_scissors_depth_clear_depth_write
+├── precise_test_scissors_stencil_clear
+├── precise_test_scissors_stencil_write
+├── precise_test_scissors_stencil_clear_stencil_write
+├── precise_test_scissors_depth_clear_stencil_clear
+├── precise_test_scissors_depth_write_stencil_clear
+├── precise_test_scissors_depth_clear_stencil_write
+├── precise_test_scissors_depth_write_stencil_write
+├── precise_test_scissors_depth_clear_stencil_clear_depth_write
+├── precise_test_scissors_depth_clear_stencil_clear_stencil_write
+├── precise_test_scissors_depth_clear_depth_write_stencil_write
+├── precise_test_scissors_depth_write_stencil_clear_stencil_write
+├── precise_test_scissors_test_all
+├── precise_test_clear_color
+├── precise_test_depth_clear
+├── precise_test_depth_write
+├── precise_test_depth_clear_depth_write
+├── precise_test_stencil_clear
+├── precise_test_stencil_write
+├── precise_test_stencil_clear_stencil_write
+├── precise_test_depth_clear_stencil_clear
+├── precise_test_depth_write_stencil_clear
+├── precise_test_depth_clear_stencil_write
+├── precise_test_depth_write_stencil_write
+├── precise_test_depth_clear_stencil_clear_depth_write
+├── precise_test_depth_clear_stencil_clear_stencil_write
+├── precise_test_depth_clear_depth_write_stencil_write
+├── precise_test_depth_write_stencil_clear_stencil_write
+└── precise_test_test_all
 ```
 
 Source: [`createOcclusionQueryTests()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsOcclusionQueryTests.cpp#L706-L767).
@@ -75,4 +131,4 @@ The pass rule is explicit in [`vktFragmentOperationsOcclusionQueryTests.cpp`](..
 ## Notes / Uncertainties
 
 - This file is implementation-heavy even though its registration shape is a flat direct-child list of generated case names.
-- The parseable hierarchy intentionally groups generated names by prefix pattern instead of exhaustively listing all direct children, because the file registers dozens of concrete names from one case table.
+- The parseable hierarchy exhaustively lists the direct children generated from the case table so registration-path validation can check concrete prefixes.

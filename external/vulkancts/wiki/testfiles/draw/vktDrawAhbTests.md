@@ -38,7 +38,7 @@ Source: [vktDrawAhbTests.cpp#L634-L635](../../../modules/vulkan/draw/vktDrawAhbT
 
 ### triangle_list_layers_5 — Five-layer AHB draw
 
-Renders 45 vertices (9 triangles per layer) as a triangle list to a 5-layer AHB-backed color attachment. Each layer is a separate color attachment with its own subpass. The rendered output for each layer is compared against a software reference renderer.
+Renders 45 vertices (3 triangles per layer) as a triangle list to a 5-layer AHB-backed color attachment. Each layer is a separate color attachment with its own subpass. The rendered output for each layer is compared against a software reference renderer.
 
 Source: [vktDrawAhbTests.cpp#L638-L639](../../../modules/vulkan/draw/vktDrawAhbTests.cpp#L638-L639)
 

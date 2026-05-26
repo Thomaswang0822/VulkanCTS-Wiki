@@ -56,11 +56,11 @@ Source: [`createScissorMultiViewportTests()`](../../../modules/vulkan/fragment_o
 
 ## Support Requirements
 
-The code documents the expected minimum by naming [`MIN_MAX_VIEWPORTS`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L61-L64) as the minimum number of viewports for implementations supporting multi-viewport. The exact `checkSupport()` body was not part of the captured line ranges, so this page only states the multi-viewport dependency that is explicitly visible from the constant name and from the per-viewport pipeline setup in [`makeGraphicsPipeline()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L94-L129).
+[`checkSupport()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L431-L438) requires both `geometryShader` and `multiViewport` core features, and rejects implementations whose `maxViewports` limit is below [`MIN_MAX_VIEWPORTS`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L61-L64). The pipeline setup uses one viewport and one scissor rectangle per requested viewport count in [`makeGraphicsPipeline()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L94-L129).
 
 ## Verification Methods
 
-The file generates a reference image by clearing the render target and then clearing each scissor subregion to its expected color in [`generateReferenceImage()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L179-L197). Rendered output is compared with [`tcu::floatThresholdCompare()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L430-L433).
+The file generates a reference image by clearing the render target and then clearing each scissor subregion to its expected color in [`generateReferenceImage()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L179-L197). Rendered output is compared with [`tcu::floatThresholdCompare()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L422-L425).
 
 ## Notes / Uncertainties
 

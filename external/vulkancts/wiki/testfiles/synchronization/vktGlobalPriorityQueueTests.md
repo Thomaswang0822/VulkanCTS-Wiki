@@ -28,7 +28,7 @@ synchronization.global_priority_transition
 └── preemption
 ```
 
-Registered in the LEGACY path via `createGlobalPriorityQueueTests()` added to the `synchronization` group in [vktSynchronizationTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp) (line 142).
+Registered in the LEGACY path via [`createGlobalPriorityQueueTests()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2281), added to the `synchronization` group in [`vktSynchronizationTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L142).
 
 ## Test Families
 

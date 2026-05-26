@@ -2,7 +2,7 @@
 
 ## Overview
 
-[`vktComputeTests.cpp`](../../../modules/vulkan/compute/vktComputeTests.cpp#L26-L36) is the compute category dispatcher. It includes the root-level compute subgroup headers and registers the same child-building callback under the pipeline construction variants created in [`createTests()`](../../../modules/vulkan/compute/vktComputeTests.cpp#L68-L85). The Vulkan API test plan states that compute dispatch tests validate call parameters and that work-group counts and invocation IDs are passed correctly to shader invocations ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L676-L681)).
+[`vktComputeTests.cpp`](../../../modules/vulkan/compute/vktComputeTests.cpp#L26-L36) is the compute category dispatcher. It includes the root-level compute subgroup headers and registers the same child-building callback under the pipeline construction variants created in [`createTests()`](../../../modules/vulkan/compute/vktComputeTests.cpp#L68-L85). The Vulkan API test plan states that compute dispatch tests validate call parameters and that workgroup counts and invocation IDs are passed correctly to shader invocations ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L679)).
 
 ## Role
 

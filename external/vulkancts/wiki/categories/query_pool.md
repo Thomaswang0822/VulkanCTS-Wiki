@@ -2,6 +2,8 @@
 
 The `query_pool` category validates Vulkan query-pool functionality across occlusion, pipeline statistics, performance counters, concurrent multi-query usage, fragment-invocation-focused workloads, maintenance7 timestamp wrapping, and discard-related visibility behavior. It covers both host-side and command-buffer result retrieval paths, query reset workflows, inherited-query behavior, result layout handling, and several extension-specific features such as `VK_KHR_performance_query`, `VK_KHR_maintenance7`, `VK_KHR_device_address_commands`, and maintenance5 discard semantics.
 
+The historical Vulkan API test plan gives limited but useful background for this category: pipeline query details were initially TBD except for exact occlusion-query coverage, while GPU timestamp coverage was expected to span all stages, multiple timestamps, render-pass boundaries, and timestamp-only command buffers ([`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L427-L432), [`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L751-L757)). The current source and mustpass files below remain the evidence for exact registration, parameter matrices, support gates, and verification logic.
+
 ## Source
 
 - **Root registration:** [`vktQueryPoolTests.cpp`](../../modules/vulkan/query_pool/vktQueryPoolTests.cpp)
@@ -114,7 +116,7 @@ Several subgroups explicitly compare primary and secondary command buffer behavi
 Query-pool tests frequently distinguish exact-count validation from weaker non-zero or lower-bound checks:
 
 - `occlusion_query` accepts exact counts for precise mode and non-zero visibility for conservative mode in [`OcclusionQueryTestInstance::iterate()`](../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L1471).
-- `frag_invocations` requires exact full-screen counts for `occlusion` but only lower bounds for `frag_invs` flat-shader cases in [`testInvocations()`](../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L370).
+- `frag_invocations` requires exact full-screen counts for `occlusion` and lower-bound checks for `frag_invs`: the flat-shader cases may accept a fragment-shading-rate-derived minimum, while vertex-color and atomic-counter variants require at least the full pixel count in [`testInvocations()`](../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L370).
 - `discard` uses exact counts in `precise` branches and non-zero validation in `none` branches in [`QueryPoolDiscardTestInstance::iterate()`](../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L411).
 - `concurrent_queries` uses a slot-based zero vs non-zero rule for concurrent query captures in [`PrimaryCommandBufferConcurrentTestInstance::iterate()`](../../modules/vulkan/query_pool/vktQueryPoolConcurrentTests.cpp#L445).
 
@@ -122,7 +124,7 @@ Query-pool tests frequently distinguish exact-count validation from weaker non-z
 
 | Dimension | Subgroups | Typical Values |
 |-----------|-----------|----------------|
-| Query type | `occlusion_query`, `concurrent_queries`, `frag_invocations`, `maintenance7` | Occlusion, pipeline statistics, timestamp, performance |
+| Query type | `occlusion_query`, `performance_query`, `concurrent_queries`, `frag_invocations`, `maintenance7` | Occlusion, pipeline statistics, timestamp, performance |
 | Result width | `occlusion_query`, `statistics_query`, `maintenance7` | 32-bit, 64-bit |
 | Result path | `occlusion_query`, `statistics_query`, `performance_query` | Host get, command copy |
 | Availability field | `occlusion_query`, `concurrent_queries` | Without availability, with availability |
@@ -158,5 +160,5 @@ Query-pool tests frequently distinguish exact-count validation from weaker non-z
 
 - The exact top-level registered children are only `occlusion_query`, `statistics_query`, `performance_query`, `maintenance7`, `concurrent_queries`, `frag_invocations`, and `discard`, in that order from [`createChildren()`](../../modules/vulkan/query_pool/vktQueryPoolTests.cpp#L46).
 - The Vulkan / Vulkan SC split is structural at the top level only for `performance_query` and `maintenance7`; the other groups keep the same top-level names and handle most support differences inside their own implementations.
-- [`CMakeLists.txt`](../../modules/vulkan/query_pool/CMakeLists.txt:7) mirrors that split by placing shared sources in `DEQP_VK_VKSC_QUERY_POOL_SRCS` and Vulkan-only sources in `DEQP_VK_QUERY_POOL_SRCS`.
+- [`CMakeLists.txt`](../../modules/vulkan/query_pool/CMakeLists.txt#L7) mirrors that split by placing shared sources in `DEQP_VK_VKSC_QUERY_POOL_SRCS` and Vulkan-only sources in `DEQP_VK_QUERY_POOL_SRCS`.
 - Several Level-3 files add their own finer-grained non-SC-only cases, especially `_device_address` or dynamic alpha-to-coverage variants, but those do not change the root `query_pool` child list.

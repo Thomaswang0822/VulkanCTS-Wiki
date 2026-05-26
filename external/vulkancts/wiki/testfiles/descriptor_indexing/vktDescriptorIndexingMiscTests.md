@@ -82,5 +82,4 @@ After `cmdDispatch`, the output buffer is synchronized for host reads and invali
 
 ## Notes / Uncertainties
 
-- A repository search of [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc) for descriptor-indexing and non-uniform indexing terms found no matching inspected section, so this page does not add test-plan claims.
 - The hierarchy tree is intentionally narrower than the full `descriptor_indexing` category because this page documents only the direct children registered by [`vktDescriptorIndexingMiscTests.cpp`](../../../modules/vulkan/descriptor_indexing/vktDescriptorIndexingMiscTests.cpp#L587-L612). If a future validator requires every category-root direct child on every page, the audit should treat this as a validator compatibility issue rather than a source-claim issue.

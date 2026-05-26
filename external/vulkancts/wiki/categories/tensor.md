@@ -114,7 +114,6 @@ tensor
 
 ## Notes
 
-- This category targets the `VK_ARM_tensors` vendor extension. No test-plan coverage was found in `apitests.adoc`.
 - The `vktTensorTestsUtil.hpp` shared utility defines `TensorParameters` (format, tiling, dimensions, strides) and helper functions used across all implementation files.
 - The `AccessVariant` enum (`WRITE_TO_BUFFER`, `READ_FROM_BUFFER`, `ARRAY_READ`, `ARRAY_WRITE`) has counterintuitive naming: `WRITE_TO_BUFFER` maps to `shader_read` (shader reads tensor, writes to buffer) and `READ_FROM_BUFFER` maps to `shader_write` (shader reads buffer, writes to tensor).
 - All shader files are located in the `shaders/` subdirectory under the tensor module.

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Basic semaphore tests for Vulkan synchronization. These tests validate the behavior of binary and timeline semaphores across single-queue and multi-queue scenarios, including signal/wait chains, multi-queue synchronization, and timeline-specific features such as CPU wait/signal and value-based waiting. The file contributes to both the LEGACY and synchronization2 categories via the `SynchronizationType` parameter.
+Basic semaphore tests for Vulkan synchronization. These tests validate the behavior of binary and timeline semaphores across single-queue and multi-queue scenarios, including signal/wait chains, multi-queue synchronization, and timeline-specific features such as CPU wait/signal and value-based waiting. The file contributes to both the LEGACY and synchronization2 categories via the `SynchronizationType` parameter. For LEGACY binary semaphore coverage, the historical API test plan calls out command signal/wait, cross-queue use, queueing waits around signals, idle waits, and multiple waiters ([apitests.adoc](../../../../../doc/testspecs/VK/apitests.adoc#L401-L410)).
 
 ## Role of File
 
@@ -183,7 +183,7 @@ The `wait_for_*` tests share the `basicWaitForTimelineValueHelper` implementatio
 
 ## Notes / Uncertainties
 
-- The `two_threads` and `wait_for_*` tests are LEGACY-only. The source code comment at line 988 states "dont repeat this test for synchronization2" without further explanation. These tests exercise CPU-side `waitSemaphores` and `signalSemaphore` which are not affected by the VK_KHR_synchronization2 extension.
+- The `two_threads` and `wait_for_*` tests are LEGACY-only. The source comment near the LEGACY-only additions states that these tests are not repeated for synchronization2. These tests exercise CPU-side `waitSemaphores` and `signalSemaphore` which are not affected by the VK_KHR_synchronization2 extension.
 - The `none_wait_submit` test is sync2-only because VK_PIPELINE_STAGE_NONE_KHR is a synchronization2 concept.
 - The `basicThreadTimelineCase` test uses a 50 ms timeout for `waitSemaphores` and returns QUALITY_WARNING if the timeout is reached, rather than a hard failure.
 - The `basicChainCase` and `basicChainTimelineCase` tests touch the watchdog every quarter of the chain length to avoid timeout during long test runs.

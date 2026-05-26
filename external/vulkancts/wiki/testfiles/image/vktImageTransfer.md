@@ -21,28 +21,32 @@ This is a registration and implementation file that:
 ```text
 image.queue_transfer
 ├── 2d
-�?  ├── 4x3x1
-�?  ├── 16x15x1
-�?  ├── 64x31x1
-�?  ├── 4x3x2
-�?  └── 16x15x16
 ├── 2d_array
-�?  ├── 4x3x1
-�?  ├── 16x15x1
-�?  ├── 64x31x1
-�?  ├── 4x3x2
-�?  └── 16x15x16
 └── 3d
-    ├── 4x3x1
-    ├── 16x15x1
-    ├── 64x31x1
-    ├── 4x3x2
-    └── 16x15x16
+
+image.queue_transfer.2d
+├── 4x3x1
+├── 16x15x1
+├── 64x31x1
+├── 4x3x2
+└── 16x15x16
+image.queue_transfer.2d_array
+├── 4x3x1
+├── 16x15x1
+├── 64x31x1
+├── 4x3x2
+└── 16x15x16
+image.queue_transfer.3d
+├── 4x3x1
+├── 16x15x1
+├── 64x31x1
+├── 4x3x2
+└── 16x15x16
 ```
 
 ## Test Families
 
-### basic_transfer �?Buffer-Image Transfer Tests
+### basic_transfer — Buffer-Image Transfer Tests
 
 Tests the round-trip transfer of image data through host-visible buffers:
 

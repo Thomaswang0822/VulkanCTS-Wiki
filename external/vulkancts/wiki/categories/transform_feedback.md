@@ -23,7 +23,7 @@ transform_feedback
 | File | Role | Notes |
 |---|---|---|
 | [`vktTransformFeedbackTests.cpp`](../../modules/vulkan/transform_feedback/vktTransformFeedbackTests.cpp#L1) | Registration | Top-level dispatcher |
-| [`vktTransformFeedbackSimpleTests.cpp`](../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1) | Implementation | Simple, fast-GPL, and optimized-GPL transform-feedback matrices |
+| [`vktTransformFeedbackSimpleTests.cpp`](../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1) | Implementation | Simple, fast GPL (graphics pipeline library), and optimized-GPL transform-feedback matrices |
 | [`vktTransformFeedbackFuzzLayoutTests.cpp`](../../modules/vulkan/transform_feedback/vktTransformFeedbackFuzzLayoutTests.cpp#L1) | Implementation | Interface-block layout group registration |
 | [`vktTransformFeedbackFuzzLayoutCase.cpp`](../../modules/vulkan/transform_feedback/vktTransformFeedbackFuzzLayoutCase.cpp#L1) | Helper/implementation support | Fuzz-layout execution, support, and validation logic |
 | [`vktTransformFeedbackRandomLayoutCase.cpp`](../../modules/vulkan/transform_feedback/vktTransformFeedbackRandomLayoutCase.cpp#L1) | Helper | Random layout case construction support |
@@ -66,9 +66,6 @@ The central requirement is `VK_EXT_transform_feedback`, checked in [`TransformFe
 
 Observed verification methods include transform-feedback buffer readback and byte/value validation, query-pool get/copy counter comparison, image comparison for draw-indirect rendering, interface-layout value validation through [`validateValues()`](../../modules/vulkan/transform_feedback/vktTransformFeedbackFuzzLayoutCase.cpp#L1853-L1858), and primitive-restart counter/position validation after transform-feedback capture.
 
-## Relationship to the Test Plan
-
-[`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L15-L18) describes general Vulkan CTS test framework expectations but does not provide category-specific transform-feedback coverage in the inspected portion. The documentation therefore uses source and mustpass evidence from [`modules/vulkan/transform_feedback/`](../../modules/vulkan/transform_feedback/vktTransformFeedbackTests.cpp#L24-L29).
 
 ## Notes / Uncertainties
 

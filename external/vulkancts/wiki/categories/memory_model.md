@@ -75,8 +75,8 @@ shader-side `std140` structures and checks that destination padding bytes remain
 ### Shared-memory layout coverage
 
 `shared` generates deterministic randomized cases for scalar, vector, basic, array, arrays-of-arrays, nested-struct, and
-nested-struct-with-array layouts, repeated under optional `16bit` and `8bit` groups when those feature bits are enabled in the
-case generation [vktMemoryModelSharedLayout.cpp](../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L287-L330).
+nested-struct-with-array layouts, and registers the same seven families inside separate `16bit` and `8bit` groups whose cases
+enable the corresponding type-generation feature bits [vktMemoryModelSharedLayout.cpp](../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L287-L330).
 
 ## Recurring Parameter Dimensions
 
@@ -126,8 +126,8 @@ case generation [vktMemoryModelSharedLayout.cpp](../../modules/vulkan/memory_mod
 
 ## Scope and Uncertainties
 
-- No dedicated `memory_model` prose section was found in the inspected API test plan; this summary is derived from source and
-  mustpass evidence.
+- The audited scope relies on current source and mustpass evidence for exact registration, parameter matrices, feature gates,
+  and verification behavior.
 - A mustpass search found `dEQP-VK.memory_model` paths in `external/vulkancts/mustpass/main/vk-default/memory-model.txt`, but
   the inspected search did not find `dEQP-VKSC.memory_model` entries. The VulkanSC package source still registers the root
   category.

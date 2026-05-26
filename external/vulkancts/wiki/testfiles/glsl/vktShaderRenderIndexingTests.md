@@ -1,16 +1,19 @@
-# Shader Indexing Tests
+# vktShaderRenderIndexingTests.cpp
 
 ## Overview
 
-Tests for GLSL array, vector, and matrix indexing operations in vertex and fragment shaders. Verifies correct behavior when accessing array elements, vector components, and matrix columns using various indexing methods including static indices, dynamic (variable) indices, and loop-based indices.
+[`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1) registers and implements the `glsl.indexing` shader-render group. The file builds GLSL ES 3.10 vertex and fragment shader pairs that exercise array indexing, vector subscripting, and matrix-column subscripting through generated `ShaderIndexingCase` instances. The group is attached below `glsl` by [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1261), and the local factory returns a `ShaderIndexingTests` group named `indexing` at [`createIndexingTests()`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1357-L1360).
 
 ## Role
 
-Both registration and implementation. The `ShaderIndexingTests` class (derived from `tcu::TestCaseGroup`) serves as the test group registrar and populates all child test cases in its `init()` method. Individual test cases are created via factory functions (`createVaryingArrayCase`, `createUniformArrayCase`, `createTmpArrayCase`, `createVectorSubscriptCase`, `createMatrixSubscriptCase`) that return `ShaderIndexingCase` instances.
+Registration / dispatcher file and implementation-heavy test file. `ShaderIndexingTests::init()` creates the direct child groups and generated cases at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1192-L1353), while the case-builder helpers generate the per-case shader source and select the reference evaluator at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L280-L1166).
 
 ## Source Code
 
-[../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1-L1363)
+- Primary source: [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1)
+- Header / factory declaration: [`vktShaderRenderIndexingTests.hpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.hpp#L1-L40)
+- GLSL category registration: [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1261)
+- Shared shader-render harness: [`vktShaderRender.hpp`](../../../modules/vulkan/shaderrender/vktShaderRender.hpp#L320-L392) and [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L577-L632)
 
 ## Registration Hierarchy
 
@@ -25,51 +28,82 @@ glsl.indexing
 
 ## Test Families
 
-- **VaryingArrayCase** - Tests indexing into varying arrays. Vertex shader writes to array elements using one access type, fragment shader reads using another. Parameterized by data type and vertex/fragment index access combinations.
-- **UniformArrayCase** - Tests indexing into uniform arrays. Fragment or vertex shader reads array elements using various access types. Parameterized by data type, read access type, and shader stage.
-- **TmpArrayCase** - Tests indexing into temporary (local) arrays. Both write and read access types are parameterized, along with data type and shader stage. Includes const index access.
-- **VectorSubscriptCase** - Tests subscript-based indexing into vector components. Parameterized by vector type, write/read access types (direct, component, static/dynamic/loop subscript), and shader stage.
-- **MatrixSubscriptCase** - Tests subscript-based indexing into matrix columns. Parameterized by matrix type, write/read access types, and shader stage.
+### varying_array — Varying array write/read access matrix
+
+`varying_array` is created as a direct child of `indexing` at [`ShaderIndexingTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1198-L1220). For each `float`, `vec2`, `vec3`, and `vec4` element type from `s_floatAndVecTypes`, it combines vertex-shader write access and fragment-shader read access by iterating both access loops from `0` to `INDEXACCESS_CONST - 1` at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1194-L1217). The generated case name is `<type>_<vertex_access>_write_<fragment_access>_read` at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1209-L1214).
+
+`createVaryingArrayCase()` emits a vertex shader that writes four varying-array elements by static indices, uniforms `ui_zero` through `ui_three`, a static `for (int i = 0; i < 4; i++)` loop, or a dynamic `for (int i = 0; i < ui_four; i++)` loop at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L280-L335). The fragment shader sums the same four elements using the selected read access at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L337-L381), and the array length is specialized to `4` at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L383-L388).
+
+### uniform_array — Uniform-buffer array reads in vertex or fragment shaders
+
+`uniform_array` is registered at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1223-L1246). It uses the same four array element types, iterates read access types only up to `INDEXACCESS_CONST - 1`, and generates both `vertex` and `fragment` cases using `s_shaderTypes` at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1194-L1196) and [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1227-L1242). Case names follow `<type>_<read_access>_read_<shader_stage>` at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1232-L1240).
+
+`createUniformArrayCase()` places the uniform-array read in the selected shader stage through `std::ostringstream &op = isVertexCase ? vtx : frag` at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L408-L415). It declares `u_arr[4]` at binding `5` at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L434-L445), sums four entries using the selected access method at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L455-L481), and uses `getArrayUniformEvalFunc()` for the reference evaluator at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L517-L519).
+
+### tmp_array — Local temporary array write/read access matrix
+
+`tmp_array` is registered at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1249-L1279). It iterates four `float` / vector element types, write access values from `INDEXACCESS_STATIC` through `INDEXACCESS_CONST`, read access values only below `INDEXACCESS_CONST`, and both shader stages at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1253-L1274). Case names follow `<type>_<write_access>_write_<read_access>_read_<shader_stage>` at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1260-L1272).
+
+`createTmpArrayCase()` writes a local `arr[]` and then reads it in the selected shader stage at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L522-L568). Static, dynamic, static-loop, and dynamic-loop writes use coordinate-derived values at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L575-L623), while `const` writes use literal constructors and fill unused array elements in a 40-element local array at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L582-L599) and [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L671-L678). Read access covers static, dynamic, static-loop, and dynamic-loop reads at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L625-L650). `const` write cases use the uniform-coordinate reference evaluator, while the other writes use the coordinate reference evaluator at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L695-L702).
+
+### vector_subscript — Vector component/subscript access matrix
+
+`vector_subscript` is registered at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1282-L1314). It covers `vec2`, `vec3`, and `vec4` from `s_vectorTypes`, all six `VectorAccessType` write values, all six read values, and both shader stages at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1286-L1309). The access names are `direct`, `component`, `static_subscript`, `dynamic_subscript`, `static_loop_subscript`, and `dynamic_loop_subscript` as defined by `getVectorAccessTypeName()` at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L67-L90).
+
+`createVectorSubscriptCase()` determines the vector length from the data type and conditionally declares dynamic-index uniforms only for the vector components that exist at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L733-L776). The write path distinguishes direct swizzles, component assignments, static subscripts, dynamic subscripts, static loops, and dynamic loops at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L787-L842). The read path similarly reduces the vector to a scalar sum through direct `dot()`, component reads, subscripts, or loops at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L844-L888). Reference colors use the vector-specific evaluator selected by `getVectorSubscriptEvalFunc()` at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L707-L731) and [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L919-L921).
+
+### matrix_subscript — Matrix-column write/read access matrix
+
+`matrix_subscript` is registered at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1317-L1351). It covers the nine float matrix types in `s_matrixTypes`, iterates write and read access only up to `INDEXACCESS_CONST - 1`, and creates vertex and fragment variants at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1321-L1346). Case names follow `<matrix_type>_<write_access>_write_<read_access>_read_<shader_stage>` at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1332-L1344).
+
+`createMatrixSubscriptCase()` computes the matrix column count, row count, dynamic-loop uniform name, and column vector type from the selected matrix type at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L997-L1009). The generated shader writes matrix columns with static indices, dynamic uniforms, static loops, or dynamic loops at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1053-L1096), then reads and sums columns through the corresponding read-access forms at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1098-L1130). Reference colors use matrix-shape-specific evaluators selected by `getMatrixSubscriptEvalFunc()` at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L926-L995) and [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1164-L1166).
 
 ## Parameter Dimensions
 
-| Dimension | Values | Description |
-|-----------|--------|-------------|
-| DataType (arrays) | float, vec2, vec3, vec4 | Element type for varying/uniform/tmp arrays |
-| DataType (vector) | vec2, vec3, vec4 | Vector type for subscript tests |
-| DataType (matrix) | mat2, mat2x3, mat2x4, mat3x2, mat3, mat3x4, mat4x2, mat4x3, mat4 | Matrix type for subscript tests |
-| IndexAccessType | static, dynamic, static_loop, dynamic_loop, const | How the array index is computed (const only for tmp arrays) |
-| VectorAccessType | direct, component, static_subscript, dynamic_subscript, static_loop_subscript, dynamic_loop_subscript | How vector component access is performed |
-| ShaderType | vertex, fragment | Which shader stage performs the indexing |
+| Dimension | Observed values / evidence |
+|---|---|
+| Direct children | `varying_array`, `uniform_array`, `tmp_array`, `vector_subscript`, and `matrix_subscript` are the five groups added by `ShaderIndexingTests::init()` at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1198-L1351). |
+| Array element data types | `TYPE_FLOAT`, `TYPE_FLOAT_VEC2`, `TYPE_FLOAT_VEC3`, and `TYPE_FLOAT_VEC4` in `s_floatAndVecTypes` at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1194-L1197). |
+| Array index access names | `static`, `dynamic`, `static_loop`, `dynamic_loop`, and `const` are returned by `getIndexAccessTypeName()` at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L45-L65). `const` is excluded from varying, uniform, matrix, and temporary-array read loops by `< INDEXACCESS_CONST` loop bounds at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1205-L1207), [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1230-L1233), [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1256-L1259), and [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1328-L1330). |
+| Shader-stage dimension | `s_shaderTypes` contains `SHADERTYPE_VERTEX` and `SHADERTYPE_FRAGMENT` at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1192-L1195); uniform, temporary-array, vector, and matrix cases append the stage name in their generated case names. |
+| Varying-array matrix | Four element types × four vertex write access values × four fragment read access values at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1198-L1217); there is no separate vertex/fragment stage suffix because the write stage is vertex and the read stage is fragment in `createVaryingArrayCase()` at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L280-L405). |
+| Uniform-array matrix | Four element types × four read access values × two shader stages at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1223-L1242). |
+| Temporary-array matrix | Four element types × five write access values × four read access values × two shader stages at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1249-L1274); `const` write cases specialize `ARRAY_LEN` to `40` instead of `4` at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L671-L678). |
+| Vector subscript types and access modes | `vec2`, `vec3`, and `vec4` from `s_vectorTypes`, and six write/read access values from `VectorAccessType`, at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L67-L90) and [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1282-L1309). |
+| Matrix subscript types and access modes | `mat2`, `mat2x3`, `mat2x4`, `mat3x2`, `mat3`, `mat3x4`, `mat4x2`, `mat4x3`, and `mat4` from `s_matrixTypes`, crossed with four write access values, four read access values, and two shader stages at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1317-L1346). |
+| Dynamic-index uniform values | Integer uniform setup binds `ui_zero` through `ui_four` at descriptor bindings 0 through 4 at [`IndexingTestUniformSetup::setup()`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L203-L210), using the base uniform values defined in the shared harness at [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L945-L972). |
+| Uniform array data | Uniform-array cases upload four `Vec4` entries at binding 5, with values derived from `constCoords` and scaled by `1.0`, `0.5`, `0.25`, and `0.125` according to element type at [`IndexingTestUniformSetup::setup()`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L211-L246). |
 
-### IndexAccessType Details
+## Support / Feature Requirements
 
-- **static**: Index is a compile-time constant
-- **dynamic**: Index is computed from a varying/uniform value at runtime
-- **static_loop**: Index is the loop counter in a compile-time bounded loop
-- **dynamic_loop**: Index is the loop counter in a runtime-bounded loop
-- **const**: Index is a const-qualified variable (tmp arrays only)
-
-### VectorAccessType Details
-
-- **direct**: Direct swizzle access (e.g., `v.x`)
-- **component**: Component-level access (e.g., `v[0]`)
-- **static_subscript**: Subscript with compile-time constant index
-- **dynamic_subscript**: Subscript with runtime-computed index
-- **static_loop_subscript**: Subscript with loop counter in compile-time bounded loop
-- **dynamic_loop_subscript**: Subscript with loop counter in runtime-bounded loop
-
-## Support/Feature Requirements
-
-No additional requirements beyond core Vulkan.
+| Requirement | Evidence |
+|---|---|
+| Registration availability | `createIndexingTests(testCtx)` is added under the `glsl` package without the Vulkan SC guard that surrounds neighboring demote and bfloat16 additions at [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1261). |
+| Shader language and stages | Each builder emits `#version 310 es` vertex and fragment shader sources at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L284-L339), [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L416-L421), [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L530-L535), [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L745-L750), and [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1011-L1016). |
+| Uniform descriptors for dynamic access | Dynamic and dynamic-loop indexing paths declare uniform-buffer bindings only when the selected access mode needs them, for arrays at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L288-L296) and [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L548-L557), vectors at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L763-L776), and matrices at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1029-L1042). |
+| Shared shader-render resources | `ShaderIndexingCase` derives from `ShaderRenderCase`, passes `IndexingTestUniformSetup`, and does not add a file-local `checkSupport()` override at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L251-L272). The shared `ShaderRenderCase` compiles the generated vertex and fragment sources and creates `ShaderRenderCaseInstance` at [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L607-L632). |
+| No inspected feature-specific gate | In the inspected file, support behavior is expressed through generated shader variants and shared shader-render setup; no local feature/extension check was observed in [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1-L1363). |
 
 ## Verification Methods
 
-- **ShaderRenderCase reference comparison**: Each test case uses a `ShaderEvaluator` function to compute the expected output color. For varying arrays, the evaluator scales the input coordinates by 1.875. For uniform arrays, the evaluator scales the const coordinates by 1.875. The rendered image is compared against the reference image produced by the evaluator.
+- Each `ShaderIndexingCase` constructs a `ShaderRenderCase` with a `ShaderEvaluator`, generated vertex/fragment source, and `IndexingTestUniformSetup` at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L264-L272). The shared case registers those GLSL sources in `initPrograms()` and creates a `ShaderRenderCaseInstance` at [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L607-L632).
+- `ShaderRenderCaseInstance::iterate()` renders the generated shader, computes either a vertex or fragment reference image according to `m_isVertexCase`, and compares the result against the reference with a `0.2f` error threshold at [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L773-L805).
+- The comparison uses `tcu::fuzzyCompare()` by default, or `tcu::pixelThresholdCompare()` when fuzzy comparison is disabled, at [`compareImages()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2721-L2730).
+- Array references scale coordinates by `1.875`, the sum of `1.0 + 0.5 + 0.25 + 0.125`, using either interpolated coordinates or constant coordinates according to the case family at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L92-L154).
+- Vector-subscript references sum weighted vector components for `vec2`, `vec3`, or `vec4` at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L707-L731).
+- Matrix-subscript references sum rotated coordinate vectors with per-column weights according to the matrix shape at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L926-L995).
+- The software reference evaluator runs per pixel after `ShaderEvalContext::reset()` computes input coordinates, then writes the evaluator color unless the evaluator marks the pixel discarded at [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2700-L2718).
 
-## Notes
+## Test Principles
 
-- Varying array tests combine vertex write access and fragment read access, producing a matrix of access type pairs (4x4 = 16 combinations per data type, excluding const access).
-- Uniform array tests only parameterize read access (since the uniform data is written by the host), and additionally parameterize by shader stage.
-- Tmp array tests include the `const` index access type for both write and read, yielding 5x4 = 20 combinations per data type and shader stage.
-- Matrix subscript tests use the 9 non-square and square float matrix types (mat2 through mat4, including non-square variants).
+- The file tests equivalent mathematical results across alternate indexing spellings: direct/static access, uniform-driven dynamic access, compile-time-bounded loops, and uniform-bounded loops are generated from the same value patterns in the array, vector, and matrix builders at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L280-L1166).
+- The registration matrix keeps direct child names aligned with semantic families, while generated case names encode data type, write access, read access, and shader stage where applicable at [`ShaderIndexingTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1192-L1353).
+- Dynamic indexing is data-dependent through small integer uniforms supplied by the shared uniform setup, rather than through hard-coded constants in the shader text, as shown by `ui_zero` through `ui_four` setup at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L203-L210).
+- Vertex-stage variants pass computed colors or coordinates to the fragment shader, while fragment-stage variants perform the tested indexing in the fragment shader; this split is generated with `std::ostringstream &op = isVertexCase ? vtx : frag` in the uniform, temporary-array, vector, and matrix builders at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L412-L415), [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L526-L529), [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L738-L741), and [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1002-L1005).
+- Correctness is verified by rendered-image comparison against source-level reference evaluators, not by API-call success alone, as shown by the render/reference/compare flow in [`ShaderRenderCaseInstance::iterate()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L773-L805).
+
+## Notes / Uncertainties
+
+- No separate helper implementation file specific to indexing was observed; the indexing source uses the shared shader-render harness in [`vktShaderRender.hpp`](../../../modules/vulkan/shaderrender/vktShaderRender.hpp#L320-L392) and [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L577-L632).
+- The inspected implementation does not add `const` read cases. `INDEXACCESS_CONST` is used only as a write access for `tmp_array`, and even there the read loop stops before `INDEXACCESS_CONST` at [`vktShaderRenderIndexingTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1256-L1259).
+- The inspected file does not contain file-local feature checks; any failures outside shader result mismatch would come from shared shader-render setup or shader compilation paths not specialized in this file.

@@ -2,18 +2,21 @@
 
 ## Overview
 
-[`vktSubgroupUniformControlFlowTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupUniformControlFlowTests.cpp#L1) documents the [`subgroups.subgroup_uniform_control_flow`](../../../modules/vulkan/subgroups/vktSubgroupUniformControlFlowTests.cpp#L224) branch. It covers uniform-control-flow and reconvergence shader cases loaded from Amber files.
+[`vktSubgroupUniformControlFlowTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupUniformControlFlowTests.cpp#L1) documents the [`subgroups.subgroup_uniform_control_flow`](../../../modules/vulkan/subgroups/vktSubgroupUniformControlFlowTests.cpp#L224) branch. It covers uniform-control-flow and reconvergence shader cases loaded from Amber files. The entire branch is non-VulkanSC-only because the dispatcher includes this file only inside `#ifndef CTS_USES_VULKANSC` and registers `createSubgroupUniformControlFlowTests()` only inside the same guard in [`vktSubgroupsTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L40-L45) and [`vktSubgroupsTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L77-L81).
 
 ## Role
 
-Implementation file that registers tests under the verified group name [`subgroup_uniform_control_flow`](../../../modules/vulkan/subgroups/vktSubgroupUniformControlFlowTests.cpp#L224).
+Implementation file that registers tests under the verified group name [`subgroup_uniform_control_flow`](../../../modules/vulkan/subgroups/vktSubgroupUniformControlFlowTests.cpp#L224). The group is attached to `subgroups` only for non-VulkanSC builds by the dispatcher guard in [`vktSubgroupsTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L77-L81).
 
 ## Source Code
 
 - Primary source: [`vktSubgroupUniformControlFlowTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupUniformControlFlowTests.cpp#L1)
+- Dispatcher guard: [`vktSubgroupsTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L40-L45) and [`vktSubgroupsTests.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L77-L81)
 - Uses Amber test-case infrastructure via [`vktAmberTestCase.hpp`](../../../modules/vulkan/amber/vktAmberTestCase.hpp#L1)
 
 ## Registration Hierarchy
+
+The entire `subgroups.subgroup_uniform_control_flow` Level-3 branch is non-VulkanSC-only.
 
 ```text
 subgroups.subgroup_uniform_control_flow
@@ -75,4 +78,4 @@ The Amber-backed test cases rely on generated requirements and shader execution 
 ## Notes / Uncertainties
 
 - The hierarchy tree intentionally lists only direct children of `subgroups.subgroup_uniform_control_flow`. Deeper generated leaf names are summarized rather than expanded.
-- Claims are limited to inspected source under `external/vulkancts/modules/vulkan/subgroups/`; [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L8-L12) gives only general API-test-plan context for this category.
+- Claims are limited to inspected source under `external/vulkancts/modules/vulkan/subgroups/`.

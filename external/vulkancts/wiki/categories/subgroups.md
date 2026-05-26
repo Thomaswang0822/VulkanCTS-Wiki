@@ -17,16 +17,16 @@ subgroups
 ├── ballot_other
 ├── arithmetic
 ├── clustered
-├── partitioned
+├── partitioned (non-VulkanSC only)
 ├── shuffle
 ├── quad
 ├── shape
 ├── ballot_mask
 ├── multiple_dispatches
 ├── size_control
-├── subgroup_uniform_control_flow
-├── uniform_descriptor_indexing
-└── shader_quad_control
+├── subgroup_uniform_control_flow (non-VulkanSC only)
+├── uniform_descriptor_indexing (non-VulkanSC only)
+└── shader_quad_control (non-VulkanSC only)
 ```
 
 ## File Inventory
@@ -106,9 +106,6 @@ The common baseline is subgroup support, checked through local calls to [`isSubg
 
 Most operation files generate shaders, execute them through framebuffer or compute-like helpers, read back result storage, and call local callbacks. The shared callback signatures carry `subgroupSize` and dimensions through [`CheckResult` declarations](../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.hpp#L58-L63), and common helpers turn callback failures into CTS failures in [`vktSubgroupsTestsUtils.cpp`](../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2622-L2637). Specialized branches add image/color classification for uniform descriptor indexing in [`iterate()`](../../modules/vulkan/subgroups/vktSubgroupsUniformDescriptorIndexingTests.cpp#L366-L377), output correctness checks for shader quad control in [`iterate()`](../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L331-L336), and subgroup-size property/range checks in [`vktSubgroupsSizeControlTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsSizeControlTests.cpp#L974-L1005).
 
-## Relationship to the Test Plan
-
-[`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L8-L12) describes the general API test-plan scope but does not provide inspected category-specific subgroup coverage. This page therefore derives subgroup structure, parameters, support gates, and verification methods from `external/vulkancts/modules/vulkan/subgroups/`.
 
 ## Notes / Uncertainties
 

@@ -159,5 +159,5 @@ For the dynamic variant, alpha-to-coverage is additionally toggled through [`VK_
 
 - All cases are `TestCase`-based and use the same execution class, [`QueryPoolDiscardTestInstance`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L69), with behavior driven entirely by `TestParameters`.
 - The exact subgroup name `none` is important: it denotes absence of query control flags, not failure or unsupported behavior.
-- The page documents the precise registration harness from [`createDiscardTests()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L538) and does not create or modify any broader Level-2 query-pool category page.
+- The page documents the precise registration harness from [`createDiscardTests()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L538); the broader category-level summary is maintained separately in [query_pool.md](../../categories/query_pool.md).
 - This page documents only the Level-3 file represented by [`vktQueryPoolDiscardTests.cpp`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp).

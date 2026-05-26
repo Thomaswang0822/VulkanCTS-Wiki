@@ -31,23 +31,23 @@ Evidence:
 
 ## Test Families
 
-### texture_offset �?Basic texture sampling with non-uniform offset
+### texture_offset — Basic texture sampling with non-uniform offset
 
 Tests `textureOffset` GLSL function. Uses base texture coordinates (top-left texel center) while offsets select which texel to actually sample. Validates that the sampler correctly applies non-constant offsets.
 
-### texel_fetch_offset �?Texel fetch with non-uniform offset
+### texel_fetch_offset — Texel fetch with non-uniform offset
 
 Tests `texelFetchOffset` GLSL function. Uses integer texel coordinates with explicit LOD, while offsets select which texel to fetch. Requires LOD argument availability.
 
-### texture_lod_offset �?Explicit LOD texture sampling with non-uniform offset
+### texture_lod_offset — Explicit LOD texture sampling with non-uniform offset
 
 Tests `textureLodOffset` GLSL function. Uses explicit LOD value with offset selection. Requires LOD argument availability.
 
-### texture_proj_offset �?Projective texture sampling with non-uniform offset
+### texture_proj_offset — Projective texture sampling with non-uniform offset
 
 Tests `textureProjOffset` GLSL function. Uses projective coordinates (3-component) where the third component serves as a divisor. The offset selects which texel to sample from the projected result.
 
-### texture_proj_lod_offset �?Projective texture sampling with explicit LOD and non-uniform offset
+### texture_proj_lod_offset — Projective texture sampling with explicit LOD and non-uniform offset
 
 Tests `textureProjLodOffset` GLSL function. Combines projective coordinates, explicit LOD, and non-uniform offset selection. Most complex sampling variant.
 

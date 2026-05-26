@@ -28,7 +28,7 @@ api.maintenance5
 
 ### format — Unsupported format parameter tests
 
-Group name verified at [vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp:346](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L346): `new tcu::TestCaseGroup(testCtx, "format")`.
+Group name verified at [vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L346](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L346): `new tcu::TestCaseGroup(testCtx, "format")`.
 
 Tests use `UnsupportedParametersMaintenance5FormatInstance` ([line 60](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L60)). For each of 5 invalid format values near `VK_FORMAT_MAX_ENUM`, it:
 1. Pre-fills the output structure with 0xFF bytes via `makeInvalidVulkanStructure` ([line 138](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L138))
@@ -48,7 +48,7 @@ Registered test cases:
 
 ### flags — Unsupported usage flag tests
 
-Group name verified at [vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp:347](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L347): `new tcu::TestCaseGroup(testCtx, "flags")`.
+Group name verified at [vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L347](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L347): `new tcu::TestCaseGroup(testCtx, "flags")`.
 
 Tests use `UnsupportedParametersMaintenance5FlagsInstance` ([line 75](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L75)). For each of 5 invalid usage flag values near `VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM`, it performs similar verification ([lines 245-331](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L245)).
 

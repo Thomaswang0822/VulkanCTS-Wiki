@@ -28,19 +28,19 @@ image.extended_usage_bit
 
 ## Test Families
 
-### attachment_read â€?Attachment read with extended usage
+### attachment_read â€” Attachment read with extended usage
 
 Covers the `attachment_read` direct child registered by [`createImageTranscodingSupportTests()`](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L1205-L1257). Tests reading from input attachments where the view usage differs from the original image. Uses `VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT` as the tested feature with `VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT` as the paired usage.
 
-### attachment_write â€?Attachment write with extended usage
+### attachment_write â€” Attachment write with extended usage
 
 Covers the `attachment_write` direct child registered by [`createImageTranscodingSupportTests()`](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L1205-L1257). Tests writing to color attachments where the view usage differs from the original image. Uses `VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT` as the tested feature with `VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT` as the paired usage.
 
-### texture_read â€?Texture read with extended usage
+### texture_read â€” Texture read with extended usage
 
 Covers the `texture_read` direct child registered by [`createImageTranscodingSupportTests()`](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L1205-L1257). Tests reading from sampled images where the view usage differs from the original image. Uses `VK_IMAGE_USAGE_SAMPLED_BIT` as the tested feature with `VK_IMAGE_USAGE_STORAGE_BIT` as the paired usage. Requires `fragmentStoresAndAtomics`.
 
-### texture_write â€?Texture write with extended usage
+### texture_write â€” Texture write with extended usage
 
 Covers the `texture_write` direct child registered by [`createImageTranscodingSupportTests()`](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L1205-L1257). Tests writing to storage images where the view usage differs from the original image. Uses `VK_IMAGE_USAGE_STORAGE_BIT` as the tested feature with `VK_IMAGE_USAGE_SAMPLED_BIT` as the paired usage. Requires `fragmentStoresAndAtomics`.
 

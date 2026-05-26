@@ -10,7 +10,7 @@
 renderpasses.renderpass1.suballocation.load_store_op_none
 ```
 
-Available under `renderpass1` and `renderpass2` suballocation subgroups (non-SC). Representative root shown for `renderpass1`. Registered at [L1534](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L1534).
+Available under `renderpass1`, `renderpass2`, and dynamic-rendering `suballocation` subgroups (non-SC). Representative root shown for `renderpass1`. The root registration adds this group to every renderpasses suballocation group outside the rendering-type-specific switch ([vktRenderPassTests.cpp#L8564-L8569](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8564-L8569)); the source file creates the registered group at [L1534](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L1534).
 
 ## Test Families
 

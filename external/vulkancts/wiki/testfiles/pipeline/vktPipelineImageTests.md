@@ -2,7 +2,7 @@
 
 ## Overview
 
-[`vktPipelineImageTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L1) implements the [`image`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L919) topic group. It verifies image sampling across all view types, formats, image counts, and sizes, using both suballocated and dedicated allocation memory.
+[`vktPipelineImageTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L1) implements the [`image`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L919) topic group. It verifies image sampling across all view types, formats, image counts, and sizes, using both suballocated and dedicated allocation memory. This maps to historical API test-plan goals for supported image-parameter combinations, sizes, and nearest-sampling verification ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L466-L481)).
 
 ## Role
 

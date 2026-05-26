@@ -2,7 +2,11 @@
 
 ## Overview
 
-Tests for new features introduced in SPIR-V 1.4, including OpCopyLogical, OpPtrDiff, OpPtrEqual/OpPtrNotEqual, OpCopyMemory with access operands, workgroup/subgroup uniform load, NonWritable decoration on function/private variables, entry point variable listing, HLSL functionality features, loop controls, OpSelect on composite types, UConvert in OpSpecConstantOp, and integer wrap decorations.
+Tests SPIR-V 1.4 feature groups registered by
+[`createSpirvVersion1p4Group()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L124-L409),
+including OpCopyLogical, pointer comparisons/differences, OpCopyMemory access operands, uniform IDs, NonWritable
+function/private variables, SPIR-V 1.4 entry-point interface requirements, HLSL functionality, loop controls,
+OpSelect cases, UConvert in OpSpecConstantOp, and integer wrap decorations.
 
 ## Role
 
@@ -10,7 +14,7 @@ Implementation file
 
 ## Source
 
-- [vktSpvAsmSpirvVersion1p4Tests.cpp](https://github.com/KhronosGroup/VK-GL-CTS/blob/main/external/vulkancts/modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp)
+- [vktSpvAsmSpirvVersion1p4Tests.cpp](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L124)
 
 ## Registration Hierarchy
 
@@ -35,76 +39,119 @@ spirv_assembly.instruction.spirv1p4
 
 ### opcopylogical — Tests OpCopyLogical instruction
 
-Tests copying between types with different layouts: different matrix layouts, different matrix strides, nested arrays with different inner/outer strides, same array/struct with two IDs, and SSBO-to-UBO/UBO-to-SSBO copies. Source: `vktSpvAsmSpirvVersion1p4Tests.cpp#L160-L183`.
+Tests copying between types with different layouts: different matrix layouts, different matrix strides, nested arrays with
+different inner/outer strides, same array/struct with two IDs, and SSBO-to-UBO/UBO-to-SSBO copies. These cases are
+registered in the [`opcopylogical`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L160-L183)
+case group.
 
 ### opptrdiff — Tests OpPtrDiff instruction
 
-Tests pointer difference computation within SSBO and workgroup storage, with variable pointers at different capability levels. Source: `vktSpvAsmSpirvVersion1p4Tests.cpp#L185-L196`.
+Tests pointer difference computation within SSBO and workgroup storage, with variable-pointer requirements from
+[`Varptr_ssbo`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L139-L140) and
+[`Varptr_full`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L142-L143). The registered cases
+are listed in the [`opptrdiff`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L185-L196)
+case group.
 
 ### opptrequal — Tests OpPtrEqual instruction
 
-Tests pointer equality comparisons against different SSBO/WG variables, null pointers, and with variable pointers stored in function/private variables. Source: `vktSpvAsmSpirvVersion1p4Tests.cpp#L198-L223`.
+Tests pointer equality comparisons against different SSBO/WG variables, null pointers, simple variable-pointer operands,
+and variable pointers stored in function/private variables. The registered cases are listed in the
+[`opptrequal`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L198-L223) case group.
 
 ### opptrnotequal — Tests OpPtrNotEqual instruction
 
-Tests pointer inequality comparisons with the same scenarios as opptrequal. Source: `vktSpvAsmSpirvVersion1p4Tests.cpp#L225-L250`.
+Tests pointer inequality comparisons for the corresponding SSBO, workgroup, null, simple variable-pointer, and stored
+pointer scenarios. The registered cases are listed in the
+[`opptrnotequal`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L225-L250) case group.
 
 ### opcopymemory — Tests OpCopyMemory with access operands
 
-Tests OpCopyMemory with different alignments and missing source/target access operands (new in SPIR-V 1.4). Source: `vktSpvAsmSpirvVersion1p4Tests.cpp#L252-L259`.
+Tests OpCopyMemory with different alignments, no source access operands, and no target access operands. The registered
+cases are listed in the [`opcopymemory`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L252-L259)
+case group.
 
 ### uniformid — Tests workgroup and subgroup uniform load
 
-Tests `OpGroupNonUniformAll`/`OpGroupNonUniformAny` and workgroup/subgroup uniform load results in various control flow scenarios. Source: `vktSpvAsmSpirvVersion1p4Tests.cpp#L261-L272`.
+Tests workgroup/subgroup uniform load and compare results in active and nonuniform control-flow scenarios. The registered
+cases are listed in the [`uniformid`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L261-L272)
+case group.
 
 ### nonwritable — Tests NonWritable decoration on function/private variables
 
-Tests that NonWritable can decorate Function and Private variables (new in SPIR-V 1.4). Source: `vktSpvAsmSpirvVersion1p4Tests.cpp#L274-L285`.
+Tests that NonWritable can decorate Function and Private variables, including multiple variables and a non-entrypoint
+function case. The registered cases are listed in the
+[`nonwritable`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L274-L285) case group.
 
 ### entrypoint — Tests entry point listing all module-scope variables
 
-Tests that SPIR-V 1.4 entry points must list all module-scope variables statically used, across compute, vertex, fragment, geometry, and tessellation shader stages. Source: `vktSpvAsmSpirvVersion1p4Tests.cpp#L287-L327`.
+Tests compute, fragment, geometry, tessellation-control, tessellation-evaluation, and vertex entry-point cases with push
+constant, SSBO, UBO, or workgroup variables as registered in the
+[`entrypoint`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L287-L327) case group.
 
 ### hlsl_functionality1 — Tests SPV_GOOGLE_hlsl_functionality1 features in SPIR-V 1.4
 
-Tests CounterBuffer decoration, OpDecorateString, and OpMemberDecorateString (folded into SPIR-V 1.4). Source: `vktSpvAsmSpirvVersion1p4Tests.cpp#L329-L337`.
+Tests CounterBuffer decoration, OpDecorateString, and OpMemberDecorateString as registered in the
+[`hlsl_functionality1`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L329-L337) case group.
 
 ### loop_control — Tests SPIR-V 1.4 loop controls
 
-Tests IterationMultiple, MaxIterations, MinIterations, PartialCount, and PeelCount loop controls. Source: `vktSpvAsmSpirvVersion1p4Tests.cpp#L339-L351`.
+Tests IterationMultiple, MaxIterations, MinIterations, PartialCount, and PeelCount loop controls as registered in the
+[`loop_control`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L339-L351) case group.
 
 ### opselect — Tests OpSelect on composite types
 
-Tests OpSelect with arrays, structs, vectors with scalar selector (new in 1.4), SSBO/workgroup pointers, and nested arrays/structs. Source: `vktSpvAsmSpirvVersion1p4Tests.cpp#L353-L379`.
+Tests OpSelect with arrays, structs, nested arrays/structs, scalar/vector selectors, SSBO pointers, and workgroup pointers.
+The workgroup-pointer cases use the extra
+[`VK_KHR_workgroup_memory_explicit_layout`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L145-L147)
+requirement. The registered cases are listed in the
+[`opselect`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L353-L379) case group.
 
 ### uconvert — Tests UConvert in OpSpecConstantOp
 
-Tests UConvert operations (extend/truncate/zero-extend) in OpSpecConstantOp with 16-bit and 64-bit integer types. Source: `vktSpvAsmSpirvVersion1p4Tests.cpp#L381-L399`.
+Tests UConvert extend, truncate, and zero-extend cases involving 16-bit and 64-bit integer requirements. The registered
+cases are listed in the [`uconvert`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L381-L399)
+case group.
 
 ### wrap — Tests NoSignedWrap/NoUnsignedWrap decorations
 
-Tests that NoSignedWrap and NoUnsignedWrap decorations are accepted (folded into SPIR-V 1.4). Source: `vktSpvAsmSpirvVersion1p4Tests.cpp#L401-L408`.
+Tests NoSignedWrap and NoUnsignedWrap decorations as registered in the
+[`wrap`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L401-L407) case group.
 
 ## Parameter Dimensions
 
 | Dimension | Values | Description |
 |-----------|--------|-------------|
-| Feature group | opcopylogical, opptrdiff, opptrequal, opptrnotequal, opcopymemory, uniformid, nonwritable, entrypoint, hlsl_functionality1, loop_control, opselect, uconvert, wrap | The SPIR-V 1.4 feature being tested |
-| Shader stage | compute, vertex, fragment, geometry, tess_ctrl, tess_eval | Pipeline stage (entrypoint family) |
-| Variable pointer level | SSBO only, full (SSBO + WG) | Variable pointer capability level |
+| Feature group | [`opcopylogical` through `wrap`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L160-L407) | The registered SPIR-V 1.4 feature group |
+| Shader stage | [`compute`, `fragment`, `geometry`, `tess_con`, `tess_eval`, `vert`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L287-L325) | Pipeline stage prefixes used by the entrypoint family |
+| Variable pointer level | [`Varptr_ssbo`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L139-L140), [`Varptr_full`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L142-L143), [`Varptr_full_explicitLayout`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L145-L147) | Variable-pointer requirement sets used by pointer families |
 
 ## Support Requirements
 
-- `VK_KHR_spirv_1_4` extension (added to all tests at `vktSpvAsmSpirvVersion1p4Tests.cpp#L98`)
-- SPIR-V 1.4 assembly build options
-- Various feature requirements per subgroup: `Features.geometryShader`, `Features.tessellationShader`, `VariablePointerFeatures.variablePointersStorageBuffer`, `VariablePointerFeatures.variablePointers`, `Features.shaderInt16`, `VK_KHR_16bit_storage`, `Features.shaderInt64`, `VK_KHR_workgroup_memory_explicit_layout`
+- All generated Amber test cases add [`VK_KHR_spirv_1_4`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L93-L99).
+- All generated cases use SPIR-V 1.4 assembly build options through
+  [`SpirVAsmBuildOptions`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L83-L84) and
+  [`setSpirVAsmBuildOptions`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L113).
+- Per-case requirements include [`Features.geometryShader`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L132-L135),
+  [`Features.tessellationShader`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L136-L137),
+  [`VariablePointerFeatures.variablePointersStorageBuffer`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L139-L140),
+  [`VariablePointerFeatures.variablePointers`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L142-L143),
+  [`Features.shaderInt16`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L148-L149),
+  [`VK_KHR_16bit_storage`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L151-L154),
+  [`Features.shaderInt64`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L155-L156), and
+  [`VK_KHR_workgroup_memory_explicit_layout`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L145-L147).
 
 ## Verification Methods
 
-All tests are Amber-based. Verification is handled by the Amber test framework using `.amber` test files located in the `spirv_assembly/instruction/spirv1p4/` data subdirectory (with subdirectories per feature group). Source: `vktSpvAsmSpirvVersion1p4Tests.cpp#L75-L120`.
+All tests are Amber-based. The helper
+[`addTestsForAmberFiles()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L75-L120) builds the
+subdirectory path from each [`CaseGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L56-L73),
+creates each Amber test case with
+[`cts_amber::createAmberTestCase`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L86-L91), adds
+requirements, sets SPIR-V 1.4 assembly options, and adds the case to the group.
 
 ## Notes
 
-- Non-VulkanSC only
-- All tests use Amber test framework with SPIR-V 1.4 build options
-- VK_KHR_spirv_1_4 requires Vulkan 1.1, so many extensions promoted to core in Vulkan 1.1 do not need explicit requests
+- The test-generation helper is non-VulkanSC only through
+  [`#ifndef CTS_USES_VULKANSC`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L75-L120).
+- The source comments state that [`VK_KHR_spirv_1_4`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L93-L106)
+  requires Vulkan 1.1 and therefore several promoted extensions do not need explicit test requirements.

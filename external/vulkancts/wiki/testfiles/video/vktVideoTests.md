@@ -55,5 +55,4 @@ This dispatcher does not verify Vulkan behavior directly. It provides registrati
 
 ## Notes / Uncertainties
 
-- `doc/testspecs/VK/apitests.adoc` was inspected as required; text search found no video-specific section, so category-specific claims in this page are based on inspected `external/vulkancts/` source and `mustpass/main/vk-default/video.txt` evidence.
 - No Level-3 page is created for shared synchronization source under this category because the requested source discovery scope was `modules/vulkan/video/`; the video-specific registration names are documented here.

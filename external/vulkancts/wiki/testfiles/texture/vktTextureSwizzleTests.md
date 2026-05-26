@@ -17,11 +17,10 @@ Implementation file
 ```text
 texture.swizzle
 ├── component_mapping
-│   ├── color
-│   ├── depth (non-VulkanSC only)
-│   └── stencil (non-VulkanSC only)
 └── texture_coordinate
 ```
+
+The `component_mapping` child contains `color`, `depth`, and `stencil` sub-groups; `depth` and `stencil` are non-VulkanSC only and are described below rather than expanded in the parseable one-level hierarchy tree.
 
 ## Test Families
 

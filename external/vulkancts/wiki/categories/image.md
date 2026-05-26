@@ -4,6 +4,8 @@
 
 The [`image`](../../modules/vulkan/image/vktImageTests.cpp#L1) category documents Vulkan image tests registered by [`createTests()`](../../modules/vulkan/image/vktImageTests.cpp#L104). In the inspected files, this category covers a wide range of image functionality including load/store operations, sampling, compression/transcoding, format compatibility, layout management, atomic operations, and host image copy features.
 
+The historical Vulkan API test plan provides useful high-level image background: image creation should cover supported parameter combinations, sizes, linear-layout CPU access, and nearest-sampling checks, while image views and render-target views should cover compatible views, swizzles, depth/stencil modes, partial mip or array ranges, and color/depth/stencil attachment writes ([`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L466-L515)). Treat that as category-purpose context only; the current source and mustpass files below define active registration, parameters, support gates, and verification behavior.
+
 ## Registration Entry Point
 
 The category is rooted in [`createChildren()`](../../modules/vulkan/image/vktImageTests.cpp#L61), which adds thirty-one subgroups:
@@ -21,8 +23,8 @@ image
 ├── atomic_operations
 ├── texel_view_compatible
 ├── extended_usage_bit
-├── extend_operands
-├── nontemporal_operand
+├── extend_operands_spirv1p4
+├── nontemporal_operand (non-VulkanSC only)
 ├── astc_decode_mode
 ├── misaligned_cube
 ├── load_store_lod
@@ -35,7 +37,7 @@ image
 ├── extended_usage_bit_compatibility
 ├── queue_transfer
 ├── concurrent_copy
-├── host_image_copy
+├── host_image_copy (non-VulkanSC only)
 ├── depth_stencil_separate_access
 ├── non_uniform_offset_sample
 ├── device_scope_access
@@ -50,7 +52,7 @@ Source: [`vktImageTests.cpp`](../../modules/vulkan/image/vktImageTests.cpp#L61).
 | File | Role | Notes |
 |---|---|---|
 | [`vktImageTests.cpp`](../../modules/vulkan/image/vktImageTests.cpp#L1) | Registration | Top-level image category registration |
-| [`vktImageLoadStoreTests.cpp`](../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L1) | Implementation | Store, load_store, format_reinterpret, extend_operands, nontemporal_operand, device_scope_access, load_store_lod |
+| [`vktImageLoadStoreTests.cpp`](../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L1) | Implementation | Store, load_store, format_reinterpret, extend_operands_spirv1p4, nontemporal_operand, device_scope_access, load_store_lod |
 | [`vktImageMultisampleLoadStoreTests.cpp`](../../modules/vulkan/image/vktImageMultisampleLoadStoreTests.cpp#L1) | Implementation | Multisample load_store tests |
 | [`vktImageMutableTests.cpp`](../../modules/vulkan/image/vktImageMutableTests.cpp#L1) | Implementation | Mutable format and swapchain mutable tests |
 | [`vktImageMismatchedFormatsTests.cpp`](../../modules/vulkan/image/vktImageMismatchedFormatsTests.cpp#L1) | Implementation | Mismatched format read operations |
@@ -66,7 +68,7 @@ Source: [`vktImageTests.cpp`](../../modules/vulkan/image/vktImageTests.cpp#L61).
 | [`vktImageGeneralLayoutTests.cpp`](../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L1) | Implementation | General layout tests (ASTC sample, memory barriers, input attachments, MSAA) |
 | [`vktImageTransfer.cpp`](../../modules/vulkan/image/vktImageTransfer.cpp#L1) | Implementation | Queue transfer tests |
 | [`vktImageConcurrentCopyTests.cpp`](../../modules/vulkan/image/vktImageConcurrentCopyTests.cpp#L1) | Implementation | Concurrent copy tests |
-| [`vktImageHostImageCopyTests.cpp`](../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L1) | Implementation | Host image copy (VK_EXT_host_image_copy) | VulkanSC only |
+| [`vktImageHostImageCopyTests.cpp`](../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L1) | Implementation | Host image copy (VK_EXT_host_image_copy; non-VulkanSC only) |
 | [`vktImageSampleCompressedTextureTests.cpp`](../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L1) | Implementation | Compressed texture sampling tests |
 | [`vktImageSampleDrawnCubeFaceTests.cpp`](../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L1) | Implementation | Cubemap face sampling tests |
 | [`vktImageDepthStencilDescriptorTests.cpp`](../../modules/vulkan/image/vktImageDepthStencilDescriptorTests.cpp#L1) | Implementation | Depth/stencil descriptor tests |
@@ -116,7 +118,7 @@ The image category includes extensive tests for shader image load/store operatio
 - [`load_store`](../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L3511) - Combined load and store operations
 - [`load_store_multisample`](../../modules/vulkan/image/vktImageMultisampleLoadStoreTests.cpp#L572) - Atomic and non-atomic multisample operations
 - [`format_reinterpret`](../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L3732) - Format reinterpretation in shaders
-- [`extend_operands`](../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L3819) - OpImage*Operands extended tests
+- [`extend_operands_spirv1p4`](../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L3819) - SPIR-V 1.4 OpImage*Operands extended tests
 - [`nontemporal_operand`](../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L3897) - Nontemporal memory hints
 - [`device_scope_access`](../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L3936) - Device-scope memory access patterns
 - [`load_store_lod`](../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L3677) - LOD-based image load operations

@@ -916,7 +916,5 @@ The script-level pass/fail criteria are Amber `EXPECT` statements. Inspected exa
 - No separate `external/vulkancts/modules/vulkan/graphicsfuzz/` source directory was found during source discovery; this
   category is rooted from [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1380-L1382) and implemented by
   the Amber source file documented here.
-- The official API test plan at [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L8-L13) is a high-level API
-  testing outline and does not document this Amber `graphicsfuzz` root specifically in the inspected section.
 - The documentation does not claim semantic details for all 757 individual shaders beyond the inspected index, representative
   scripts, mustpass coverage, and shared Amber execution behavior cited above.

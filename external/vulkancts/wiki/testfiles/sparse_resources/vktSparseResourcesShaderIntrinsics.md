@@ -14,7 +14,6 @@ Registration file plus implementation hub. The top-level file registers direct c
 - Sampled sparse intrinsic helpers: [`vktSparseResourcesShaderIntrinsicsSampled.hpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesShaderIntrinsicsSampled.hpp#L33-L124), [`vktSparseResourcesShaderIntrinsicsSampled.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesShaderIntrinsicsSampled.cpp#L135-L984)
 - Storage sparse intrinsic helpers: [`vktSparseResourcesShaderIntrinsicsStorage.hpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesShaderIntrinsicsStorage.hpp#L33-L91), [`vktSparseResourcesShaderIntrinsicsStorage.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesShaderIntrinsicsStorage.cpp#L50-L802)
 - Shared intrinsic base: [`vktSparseResourcesShaderIntrinsicsBase.hpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesShaderIntrinsicsBase.hpp#L59-L189), [`vktSparseResourcesShaderIntrinsicsBase.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesShaderIntrinsicsBase.cpp#L549-L1238)
-- Test-plan context: [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L273-L276)
 
 ## Registration Hierarchy
 

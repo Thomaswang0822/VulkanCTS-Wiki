@@ -2,9 +2,8 @@
 
 ## Overview
 
-The [`multiview`](../../modules/vulkan/multiview/vktMultiViewTests.cpp#L34-L37) category verifies multiview rendering behavior across ordinary color rendering, `gl_ViewIndex` use in multiple shader stages, input attachments, instancing, indirect and indexed draws, attachment clears, secondary and nested command buffers, multisampling and resolve, occlusion and timestamp queries, readback after clears, depth/stencil rendering, and view-mask iteration. The category is registered as a root child named `multiview` in the Vulkan and Vulkan SC packages at [`vktTestPackage.cpp`](../../modules/vulkan/vktTestPackage.cpp#L1375) and [`vktTestPackage.cpp`](../../modules/vulkan/vktTestPackage.cpp#L1442).
+The [`multiview`](../../modules/vulkan/multiview/vktMultiViewTests.cpp#L34-L37) category verifies multiview rendering behavior across ordinary color rendering, `gl_ViewIndex` use in multiple shader stages, input attachments, instancing, indirect and indexed draws, attachment clears, secondary and nested command buffers, multisampling and resolve, occlusion and timestamp queries, readback after clears, depth/stencil rendering, and view-mask iteration. The category is registered as a root child named `multiview` in the Vulkan and Vulkan SC packages at [`vktTestPackage.cpp`](../../modules/vulkan/vktTestPackage.cpp#L1374) and [`vktTestPackage.cpp`](../../modules/vulkan/vktTestPackage.cpp#L1441).
 
-The inspected Vulkan API test plan provides only generic framework context for Vulkan CTS `TestCase` and `TestInstance` structure at [`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L20-L54). It does not provide multiview-specific coverage goals, so the category-specific statements below are derived from the inspected multiview source files.
 
 ## Registration Entry Point
 
@@ -39,10 +38,10 @@ multiview
 ├── nested_cmd_buffer
 ├── index
 ├── renderpass2
-└── dynamic_rendering
+└── dynamic_rendering (non-VulkanSC only)
 ```
 
-Source: [`vktMultiViewTests.cpp`](../../modules/vulkan/multiview/vktMultiViewTests.cpp#L34-L37) and [`multiViewRenderCreateTests()`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4999-L5270).
+Source: [`vktMultiViewTests.cpp`](../../modules/vulkan/multiview/vktMultiViewTests.cpp#L34-L37) and [`multiViewRenderCreateTests()`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4999-L5270). `dynamic_rendering` is only generated when `CTS_USES_VULKANSC` is not defined, because the rendering-type loop uses three rendering types for Vulkan and two for Vulkan SC at [`vktMultiViewRenderTests.cpp`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5076-L5080).
 
 ## File Inventory
 
@@ -77,7 +76,7 @@ The file creates a dedicated direct child named `index` at [`vktMultiViewRenderT
 
 ### `renderpass2` and `dynamic_rendering` — alternate rendering-path wrappers
 
-The implementation loops over rendering modes and creates wrapper groups `renderpass2` and `dynamic_rendering` for non-legacy paths at [`vktMultiViewRenderTests.cpp`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5076-L5100). Each wrapper is then populated with almost the same direct-child family set as the legacy root at [`vktMultiViewRenderTests.cpp`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5106-L5269). One explicit exception is `input_attachments`, which is skipped for dynamic rendering because `subpassLoad` cannot be used there at [`vktMultiViewRenderTests.cpp`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5128-L5130).
+The implementation loops over rendering modes and creates wrapper groups `renderpass2` and, in non-VulkanSC builds, `dynamic_rendering` for non-legacy paths at [`vktMultiViewRenderTests.cpp`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5076-L5100). Each wrapper is then populated with almost the same direct-child family set as the legacy root at [`vktMultiViewRenderTests.cpp`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5106-L5269). One explicit exception is `input_attachments`, which is skipped for dynamic rendering because `subpassLoad` cannot be used there at [`vktMultiViewRenderTests.cpp`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5128-L5130).
 
 ## Recurring Test Families
 
@@ -94,7 +93,7 @@ The implementation loops over rendering modes and creates wrapper groups `render
 
 | Dimension | Observed values / evidence |
 |---|---|
-| Rendering path | Legacy root plus `renderpass2` and `dynamic_rendering` wrappers at [`vktMultiViewRenderTests.cpp`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5076-L5100) |
+| Rendering path | Legacy root plus `renderpass2`; `dynamic_rendering` is added only in non-VulkanSC builds at [`vktMultiViewRenderTests.cpp`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5076-L5100) |
 | Test family | `TEST_TYPE_*` enumeration and names in [`TestType`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L70-L102) and [`testTypeNames`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5001-L5031) |
 | Query mode | `no_queries`, `get_query_pool_results`, and `cmd_copy_query_pool_results` from [`queryTypeCases[]`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5159-L5167) |
 | Base image extent | Seven generated extents in [`extent3D[]`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5032-L5036) |
@@ -111,7 +110,7 @@ Observed support gates are centralized in [`MultiViewRenderTestsCase::checkSuppo
 
 - `VK_KHR_multiview` for all families at [`vktMultiViewRenderTests.cpp`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4592-L4593)
 - `VK_KHR_create_renderpass2` for `renderpass2` at [`vktMultiViewRenderTests.cpp`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4586-L4587)
-- `VK_KHR_dynamic_rendering` for `dynamic_rendering` at [`vktMultiViewRenderTests.cpp`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4589-L4590)
+- `VK_KHR_dynamic_rendering` for `dynamic_rendering`, which is registered only in non-VulkanSC builds, at [`vktMultiViewRenderTests.cpp`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4589-L4590) and [`vktMultiViewRenderTests.cpp`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5076-L5080)
 - Geometry shader plus `multiviewGeometryShader` for geometry-dependent families at [`vktMultiViewRenderTests.cpp`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4579-L4584)
 - `multiviewTessellationShader` for `tessellation_shader` at [`vktMultiViewRenderTests.cpp`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4600-L4604)
 - `maxMultiviewViewCount` property checks via `vkGetPhysicalDeviceProperties2` at [`vktMultiViewRenderTests.cpp`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4609-L4621)
@@ -135,4 +134,4 @@ The multiview category relies primarily on CPU-side validation of rendered layer
 
 - Only two inspected source files in this category register tests directly: [`vktMultiViewTests.cpp`](../../modules/vulkan/multiview/vktMultiViewTests.cpp#L34-L37) and [`vktMultiViewRenderTests.cpp`](../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4999-L5270). The utility files provide shared helpers but no direct registration evidence was observed in the inspected lines.
 - The non-legacy wrapper groups `renderpass2` and `dynamic_rendering` replicate most of the legacy family structure. This page documents them as category-level structure, while the Level-3 file pages capture the representative one-level hierarchy required by the validator.
-- The inspected [`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L1-L13) contains no multiview-specific objectives, so all category semantics are source-derived and limited to what is visible in the inspected multiview files.
+- Category semantics are source-derived and limited to what is visible in the inspected multiview files.

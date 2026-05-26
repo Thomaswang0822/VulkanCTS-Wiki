@@ -2,7 +2,7 @@
 
 ## Overview
 
-This file implements the `block_matching` test group for the `image_processing` category. It validates the `VK_QCOM_image_processing` block matching operations (`blockMatchSADQCOM` and `blockMatchSSDQCOM`) across both graphics and compute pipelines. The file contains all test class definitions, shader generation, descriptor setup, command buffer construction, and result verification logic.
+This file implements the `block_matching` test group for the `image_processing` category. It validates the `VK_QCOM_image_processing` block matching operations (`textureBlockMatchSADQCOM` and `textureBlockMatchSSDQCOM`) across both graphics and compute pipelines. The file contains all test class definitions, shader generation, descriptor setup, command buffer construction, and result verification logic.
 
 This is an **implementation file** that both registers and implements its test cases. It is the largest file in the category and covers the core functional testing of block matching image operations.
 
@@ -43,25 +43,25 @@ The shared registration function that builds the `block_matching` group. It crea
 
 ### sad (Sum of Absolute Differences)
 
-Tests the `IMAGE_PROC_OP_BLOCK_MATCH_SAD` operation, which corresponds to the GLSL `blockMatchSADQCOM()` function. Computes the sum of absolute differences between corresponding texels in a target block and a reference block.
+Tests the `IMAGE_PROC_OP_BLOCK_MATCH_SAD` operation, which maps to the GLSL `textureBlockMatchSADQCOM()` function. Computes the sum of absolute differences between corresponding texels in a target block and a reference block.
 
-**Supported formats** (from `getOpSupportedFormats()`): determined at runtime by the utility function.
+**Registered formats** (from [`getOpSupportedFormats()`](../../../modules/vulkan/image_processing/vktImageProcessingTestsUtil.cpp#L408)): `VK_FORMAT_R8_UNORM`, `VK_FORMAT_R8G8_UNORM`, `VK_FORMAT_R8G8B8_UNORM`, `VK_FORMAT_R8G8B8A8_UNORM`, `VK_FORMAT_A8B8G8R8_UNORM_PACK32`, and `VK_FORMAT_A2B10G10R10_UNORM_PACK32`; per-device format support is checked at runtime.
 
 ### ssd (Sum of Squared Differences)
 
-Tests the `IMAGE_PROC_OP_BLOCK_MATCH_SSD` operation, which corresponds to the GLSL `blockMatchSSDQCOM()` function. Computes the sum of squared differences between corresponding texels.
+Tests the `IMAGE_PROC_OP_BLOCK_MATCH_SSD` operation, which maps to the GLSL `textureBlockMatchSSDQCOM()` function. Computes the sum of squared differences between corresponding texels.
 
-**Supported formats** (from `getOpSupportedFormats()`): determined at runtime by the utility function.
+**Registered formats** (from [`getOpSupportedFormats()`](../../../modules/vulkan/image_processing/vktImageProcessingTestsUtil.cpp#L408)): `VK_FORMAT_R8_UNORM`, `VK_FORMAT_R8G8_UNORM`, `VK_FORMAT_R8G8B8_UNORM`, `VK_FORMAT_R8G8B8A8_UNORM`, `VK_FORMAT_A8B8G8R8_UNORM_PACK32`, and `VK_FORMAT_A2B10G10R10_UNORM_PACK32`; per-device format support is checked at runtime.
 
 ## Test Sub-groups
 
 ### basic
 
-**Both graphics and compute paths.** Tests block matching with default parameters across all supported formats. Each test case is parameterized by:
+**Both graphics and compute paths.** Tests block matching with default parameters across the registered block-matching format list, subject to per-device support checks. Each test case is parameterized by:
 
 | Parameter | Values | Line |
 |---|---|---|
-| Format | All formats from `getOpSupportedFormats()` | [L1962](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1962) |
+| Format | Formats returned by `getOpSupportedFormats()` | [L1962](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1962) |
 | Match type | `same` (matching blocks) / `diff` (different blocks) | [L1967](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1967) |
 | Random reference | `true` / `false` | [L1969](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1969) |
 | Constant difference | `true` / `false` (skipped when match=true) | [L1971](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1971) |
@@ -190,6 +190,9 @@ Default self-test parameters:
 | Requirement | Line | Detail |
 |---|---|---|
 | `VK_QCOM_image_processing` | Inherited from `ImageProcessingTest` | Device extension |
+| `textureBlockMatch` | [L112-L114](../../../modules/vulkan/image_processing/vktImageProcessingBase.cpp#L112-L114) | Required by the shared image-processing base support check for SAD/SSD operations |
+| Vulkan 1.3+ or `VK_KHR_format_feature_flags2` | [L97-L99](../../../modules/vulkan/image_processing/vktImageProcessingBase.cpp#L97-L99) | `VK_KHR_format_feature_flags2` is required below Vulkan 1.3 |
+| `VK_EXT_descriptor_indexing` and `descriptorBindingSampledImageUpdateAfterBind` | [L163-L168](../../../modules/vulkan/image_processing/vktImageProcessingBase.cpp#L163-L168) | Required only for descriptor tests where `updateAfterBind` is enabled |
 | Block size within limits | [L160-L162](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L160) | `blockSize <= maxBlockMatchRegion` from `VkPhysicalDeviceImageProcessingPropertiesQCOM` |
 | `VK_FORMAT_FEATURE_2_BLOCK_MATCHING_BIT_QCOM` | [L172-L177](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L172) | Required for both target and reference image formats (optimal or linear tiling as appropriate) |
 | Target image format support | [L198-L213](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L198) | `vkGetPhysicalDeviceImageFormatProperties` must succeed with `VK_IMAGE_USAGE_SAMPLE_BLOCK_MATCH_BIT_QCOM` |

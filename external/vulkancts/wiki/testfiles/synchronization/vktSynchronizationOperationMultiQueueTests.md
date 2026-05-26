@@ -27,11 +27,10 @@ The factory function [createSynchronizedOperationMultiQueueTests](../../../modul
 synchronization.op.multi_queue
 ├── fence
 ├── binary_semaphore
-├── timeline_semaphore
-└── intermediate_barrier_use_all (sync2 only, non-SC)
+└── timeline_semaphore
 ```
 
-The Level-3 root is `synchronization.op.multi_queue`, registered as the `multi_queue` subgroup under `synchronization.op` by [createSynchronizedOperationMultiQueueTests()](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L1658). Both LEGACY and SYNCHRONIZATION2 paths are created by the same factory function invoked with different `SynchronizationType` values. The `intermediate_barrier_use_all` child exists only in the synchronization2 variant and is excluded on Vulkan SC.
+The Level-3 root is `synchronization.op.multi_queue`, registered as the `multi_queue` subgroup under `synchronization.op` by [createSynchronizedOperationMultiQueueTests()](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L1658). Both LEGACY and SYNCHRONIZATION2 paths are created by the same factory function invoked with different `SynchronizationType` values. The parseable tree above lists the LEGACY `synchronization` children; the `synchronization2.op.multi_queue` variant additionally registers `intermediate_barrier_use_all`, which is excluded on Vulkan SC.
 
 Each direct child contains a deeper hierarchy of generated test cases. Under `fence`, `binary_semaphore`, and `timeline_semaphore`, the structure is `<writeOp>_<readOp>` groups containing leaf test cases named `<resourceName>_exclusive`, `<resourceName>_concurrent`, and optionally `<resourceName>_concurrent_maintenance9` (non-SC) or `<resourceName>_exclusive_use_all_stages` (sync2 binary_semaphore exclusive only, non-SC). Under `intermediate_barrier_use_all`, the structure is `<writeOp>_<readOp>_<resourceName>` groups containing leaves named `<extraReadOp>_<extraWriteOp>` and `<extraReadOp>_<extraWriteOp>_maintenance9`.
 
