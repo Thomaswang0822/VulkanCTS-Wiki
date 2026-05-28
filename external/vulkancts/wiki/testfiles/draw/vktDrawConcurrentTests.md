@@ -33,7 +33,7 @@ The test creates a custom device for the compute queue using `createCustomDevice
 |-----------|--------|-------------|
 | Rendering variant | renderpass, dynamic_rendering, secondary_cmd_buffer | Controlled by `SharedGroupParams` (not nested variants only) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition |
 |-------------|-----------|

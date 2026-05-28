@@ -69,7 +69,7 @@ Renders `N` colored rectangles into `N` framebuffer layers using a tessellation 
 | numLayers | 1, 2, 3, 4, 5, 6, 7, 8, 256 | Number of framebuffer layers to render into |
 | shaderStage | vertex, tessellation | Which shader stage writes gl_Layer |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition | Source |
 |-------------|-----------|--------|

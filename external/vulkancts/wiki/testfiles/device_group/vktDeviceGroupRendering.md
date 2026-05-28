@@ -63,7 +63,7 @@ The compute tests include split-dispatch (`compute_split_dispatch*`) and alterna
 | Compute schedule | Split dispatch and alternate dispatch modes are used by registered compute cases. |
 | Compute memory variants | Dedicated allocation and peer-memory flags appear in compute children. |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Rendering cases require `VK_KHR_device_group_creation` at instance level and `VK_KHR_device_group` at device level. Dedicated-allocation variants require `VK_KHR_dedicated_allocation`. Cases that need peer access require more than one physical device in the selected group. Bind-memory2 is required when the mode is not AFR or when the selected physical-device group has more than one device. Tessellated and line-fill cases check `tessellationShader` and `fillModeNonSolid` device features. Compute cases perform parallel checks for device-group creation, `VK_KHR_device_group`, dedicated allocation, peer-memory device count, and conditional `VK_KHR_bind_memory2` support.
 

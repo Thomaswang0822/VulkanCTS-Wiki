@@ -65,7 +65,7 @@ Renders a triangle twice and compares the results. The first pass uses a vertex 
 | interpolation | `flat`, `noperspective` | The interpolation qualifier being tested |
 | mismatchSide | 0, 1 | Which stage has the mismatching qualifier (0=vertex missing, 1=fragment missing) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition | Source |
 |-------------|-----------|--------|

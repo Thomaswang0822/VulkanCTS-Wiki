@@ -66,7 +66,7 @@ Per-format case generation covers all executor-supported shader stages, optimal 
 | Array layers | Array variants use two array layers in [`testFormat()`](../../../modules/vulkan/ycbcr/vktYCbCrFormatTests.cpp#L363-L365) and are gated by `VK_EXT_ycbcr_image_arrays` plus `maxArrayLayers >= 2` in [`checkSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrFormatTests.cpp#L316-L326). |
 | Descriptor mode | Descriptor-set, descriptor-buffer, and descriptor-heap modes are generated in [`populatePerFormatGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrFormatTests.cpp#L655-L665) and executed by `execute()`, `executeBuffer()`, or `executeHeap()` in [`testFormat()`](../../../modules/vulkan/ycbcr/vktYCbCrFormatTests.cpp#L557-L578). |
 
-## Support Requirements
+## Support / Feature Requirements
 
 [`checkSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrFormatTests.cpp#L312-L337) delegates image support to shared [`checkImageSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrUtil.cpp#L176-L201), requires `VK_EXT_ycbcr_image_arrays` and two array layers for array cases, requires `DEVICE_CORE_FEATURE_VERTEX_PIPELINE_STORES_AND_ATOMICS` for vertex/tessellation/geometry execution, and gates descriptor-buffer/heap variants on `VK_EXT_descriptor_buffer` and `VK_EXT_descriptor_heap`.
 

@@ -30,7 +30,7 @@ The `singlehit` test type is registered second; AABB geometry is skipped for thi
 
 The matrix includes two test types, twelve shader-stage names (`vert` through `call`), and triangle/AABB geometry, with the single-hit AABB skip noted above [vktRayQueryWatertightnessTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryWatertightnessTests.cpp#L2257-L2290).
 
-## Support Requirements
+## Support / Feature Requirements
 
 Cases require acceleration-structure and ray-query functionality and delegate stage-specific support to pipeline check functions [vktRayQueryWatertightnessTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryWatertightnessTests.cpp#L2154-L2169) and [vktRayQueryWatertightnessTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryWatertightnessTests.cpp#L2182-L2203).
 

@@ -70,7 +70,7 @@ For `non16basealignment` tests, only `opaccesschain` and `opptraccesschain` are 
 
 For `output` graphics coverage, the file creates a single `component` test across all stages ([addGraphicsOutputComponentIndexingTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L588-L594)).
 
-## Support Requirements
+## Support / Feature Requirements
 
 - **`shaderInt16`** — requested when `idxSize == 16` ([addComputeIndexingStructTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L276-L280))
 - **`shaderInt64`** — requested when `idxSize == 64` ([addComputeIndexingStructTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L276-L280))

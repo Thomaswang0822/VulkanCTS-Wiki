@@ -72,7 +72,7 @@ Memory is allocated with `VkMemoryAllocateFlagsInfo` containing `VK_MEMORY_ALLOC
 
 Images are created with `VK_IMAGE_LAYOUT_ZERO_INITIALIZED_EXT` as the initial layout, which is the layout that indicates the memory has been zero-initialized ([vktMemoryZeroInitializeDeviceMemoryTests.cpp:560](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L560)).
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Extension/Feature | Required by |
 |-------------------|-------------|

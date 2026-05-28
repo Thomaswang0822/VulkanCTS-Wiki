@@ -65,7 +65,7 @@ Contains tests that do not fit the standard topology-per-command pattern. Only p
 | useMaintenance5 | false, true | Whether to use VK_KHR_maintenance5 `VkBufferUsageFlags2CreateInfoKHR` for buffer creation |
 | Rendering variant | renderpass, dynamic_rendering, secondary_cmd_buffer, nested_secondary_cmd_buffer | Controlled by `SharedGroupParams` |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition |
 |-------------|-----------|

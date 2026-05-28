@@ -118,7 +118,7 @@ Test partial binding of depth/stencil formats. 3 sets of tests: (1) Clears bound
 - Depth: `verifyDepth()`
 - Stencil: `verifyStencil()`
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

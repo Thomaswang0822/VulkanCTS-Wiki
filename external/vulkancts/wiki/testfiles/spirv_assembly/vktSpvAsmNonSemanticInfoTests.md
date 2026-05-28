@@ -66,7 +66,7 @@ Places non-semantic [`OpExtInst`](../../../modules/vulkan/spirv_assembly/vktSpvA
 |-----------|--------|-------------|
 | Test type | [`TT_BASIC`](../../../modules/vulkan/spirv_assembly/vktSpvAsmNonSemanticInfoTests.cpp#L42), [`TT_NONEXISTING_INSTRUCTION_SET`](../../../modules/vulkan/spirv_assembly/vktSpvAsmNonSemanticInfoTests.cpp#L43), [`TT_LARGE_INSTRUCTION_NUMBER`](../../../modules/vulkan/spirv_assembly/vktSpvAsmNonSemanticInfoTests.cpp#L44), [`TT_MANY_PARAMETERS`](../../../modules/vulkan/spirv_assembly/vktSpvAsmNonSemanticInfoTests.cpp#L45), [`TT_ANY_CONSTANT_TYPE`](../../../modules/vulkan/spirv_assembly/vktSpvAsmNonSemanticInfoTests.cpp#L46), [`TT_ANY_CONSTANT_TYPE_USED`](../../../modules/vulkan/spirv_assembly/vktSpvAsmNonSemanticInfoTests.cpp#L47), [`TT_ANY_NON_CONSTANT_TYPE`](../../../modules/vulkan/spirv_assembly/vktSpvAsmNonSemanticInfoTests.cpp#L48), [`TT_PLACEMENT`](../../../modules/vulkan/spirv_assembly/vktSpvAsmNonSemanticInfoTests.cpp#L49) | The specific non-semantic info scenario being tested |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - [`VK_KHR_shader_non_semantic_info`](../../../modules/vulkan/spirv_assembly/vktSpvAsmNonSemanticInfoTests.cpp#L115-L118) device extension.
 - [`SPV_KHR_non_semantic_info`](../../../modules/vulkan/spirv_assembly/vktSpvAsmNonSemanticInfoTests.cpp#L64) SPIR-V extension is requested through the compute shader specification.

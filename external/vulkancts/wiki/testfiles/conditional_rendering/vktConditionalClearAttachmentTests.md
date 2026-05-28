@@ -89,7 +89,7 @@ Direct children are condition-data names from `s_testsData` after rows with `cle
 
 The parameter source is the shared `ConditionalData` table. This file uses the condition buffer placement, inversion, inheritance, expected-execution, nested-secondary, and memory-type fields but skips rows marked for render-pass clear.
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support is inherited through the conditional-rendering setup helpers used by the draw-style test infrastructure; the shared helper requires `VK_EXT_conditional_rendering`, validates `conditionalRendering`, checks inherited conditional rendering when requested, and checks nested-command-buffer support for nested rows.
 

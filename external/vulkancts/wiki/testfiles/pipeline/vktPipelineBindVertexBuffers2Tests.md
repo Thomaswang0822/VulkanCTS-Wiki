@@ -57,7 +57,7 @@ Tests added via [`createCmdBindVertexBuffers2Tests()`](../../../modules/vulkan/p
 | Size mode | Pair array | whole_size, true_size |
 | Beyond type | Pair array | beyond_buffer, beyond_size |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

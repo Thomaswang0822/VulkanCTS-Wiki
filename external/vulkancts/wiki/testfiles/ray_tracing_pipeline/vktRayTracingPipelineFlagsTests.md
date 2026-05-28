@@ -29,7 +29,7 @@ Pipeline flag tests exercise `VK_PIPELINE_CREATE_RAY_TRACING_NO_NULL_*_SHADERS_B
 |-----------|-----------------|----------|
 | `pipeline_no_null_shaders_flag` direct children | `cpu`, `gpu`, `misc` | [vktRayTracingPipelineFlagsTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1573-L1593) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support checks reject illegal triangle/intersection-flag combinations, require ray tracing pipeline with acceleration structure and buffer device address consistency, conditionally require maintenance5, and require acceleration-structure host commands for host-build cases [vktRayTracingPipelineFlagsTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L578-L616).
 

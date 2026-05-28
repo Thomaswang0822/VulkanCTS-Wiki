@@ -180,7 +180,7 @@ The rendering state is built by [`StateObjects::StateObjects()`](../../../module
 | Blit validation path | Source and destination transfer images allocated in [`StateObjects::StateObjects()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L235) |
 | Resolve validation path | 4x MSAA source image plus single-sample destination in [`StateObjects::StateObjects()`](../../../modules/vulkan/query_pool/vktQueryPoolOcclusionTests.cpp#L246) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | When needed | Source |
 |------------|-------------|--------|

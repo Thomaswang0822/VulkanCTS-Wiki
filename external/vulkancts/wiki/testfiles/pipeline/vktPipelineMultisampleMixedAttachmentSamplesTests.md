@@ -48,7 +48,7 @@ Verifies shader built-in variables (`gl_SampleID`, `gl_SamplePosition`) work cor
 | PipelineConstructionType | Parameter | All variant types |
 | useFragmentShadingRate | Bool | false / true |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

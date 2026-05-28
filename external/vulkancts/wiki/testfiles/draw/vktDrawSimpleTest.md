@@ -48,7 +48,7 @@ Renders instanced triangles using `VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP` with `i
 | Instancing | non-instanced, instanced (4 instances, firstInstance=2) | Whether to test instanced draw with non-zero firstInstance |
 | Rendering variant | renderpass, dynamic_rendering, secondary_cmd_buffer | Controlled by `SharedGroupParams` (not nested variants only) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition |
 |-------------|-----------|

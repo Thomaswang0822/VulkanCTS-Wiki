@@ -39,7 +39,7 @@ ycbcr
 | `subresource_offset` | [`createImageOffsetTests()`](../../../modules/vulkan/ycbcr/vktYCbCrImageOffsetTests.cpp#L167-L170) | Added by [`populateTestGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L57) for disjoint plane layout offsets. |
 | `misc` | [`createMiscTests()`](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp#L366-L370) | Added by [`populateTestGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L58) for the current relaxed-precision case. |
 
-## Support Requirements
+## Support / Feature Requirements
 
 This file does not perform support checks itself; support gating is in each implementation factory's test cases, while this file only wires child groups through [`populateTestGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L44-L58).
 

@@ -31,7 +31,7 @@ The `clear` child contains `color` and `depth` subgroups populated from clear-pa
 
 Clear names encode discard/no-discard, invert/no-invert, partial/full clear, offset/no-offset, and host/local memory. Draw names encode generated case index and memory type; additional variants toggle maintenance5 and device-address-command paths where registered.
 
-## Support Requirements
+## Support / Feature Requirements
 
 The base support check requires `VK_EXT_conditional_rendering`. Draw cases also check triangle-fan portability-subset support where relevant; maintenance5 and device-address-command variants require `VK_KHR_maintenance5` and `VK_KHR_device_address_commands`, respectively. The update-buffer-with-draw support path also checks vertex pipeline stores and atomics.
 

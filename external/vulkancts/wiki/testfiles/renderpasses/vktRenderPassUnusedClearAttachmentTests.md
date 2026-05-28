@@ -33,7 +33,7 @@ Flat group of leaf test cases with no child subgroups. Test names follow the pat
 | Color attachment counts | 0, 1, 4 | - |
 | Color used combinations | All subsets via runCallbackOnCombination | - |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Defined at [vktRenderPassUnusedClearAttachmentTests.cpp#L271-L287](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L271-L287):
 

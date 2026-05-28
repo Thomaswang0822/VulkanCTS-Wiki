@@ -92,7 +92,7 @@ Most direct children are shared condition-data group names. Additional direct gr
 
 The command dimension contains `dispatch`, `dispatch_indirect`, and `dispatch_base`. Focused groups vary condition byte position and padding, primary/inherited/secondary/secondary-inherited placement, allocation-offset active state, host-visible versus device-local condition buffers, indirect dispatch, and compute-queue execution.
 
-## Support Requirements
+## Support / Feature Requirements
 
 The file uses the shared conditional-rendering capability checks. Compute-queue tests call `context.getComputeQueue()`, and `dispatch_base` requires `VK_KHR_device_group`.
 

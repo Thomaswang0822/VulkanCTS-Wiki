@@ -28,7 +28,7 @@ Limits tests query acceleration-structure and ray-tracing pipeline property grou
 |-----------|-----------------|----------|
 | `limits` direct children | `accel_struct_props`, `ray_tracing_props` | [vktRayTracingLimitsTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingLimitsTests.cpp#L279-L299) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support is property-family-specific: acceleration-structure property checks require `VK_KHR_acceleration_structure`, and ray-tracing-pipeline property checks require `VK_KHR_ray_tracing_pipeline` [vktRayTracingLimitsTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingLimitsTests.cpp#L71-L77).
 

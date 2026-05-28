@@ -51,7 +51,7 @@ Same as compute_transition but reads the image via `image2DMS` (storage image) i
 | Sample count | VK_SAMPLE_COUNT_1_BIT (no_op), VK_SAMPLE_COUNT_4_BIT (compute) | Fixed per test type |
 | Storage usage | false, true | Only for compute tests |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Type | Notes |
 |-------------|------|-------|

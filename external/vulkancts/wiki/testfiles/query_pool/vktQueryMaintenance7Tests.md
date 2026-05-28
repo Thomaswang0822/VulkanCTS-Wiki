@@ -56,7 +56,7 @@ This file has a deliberately small matrix.
 
 Unlike the broader `query_pool` files, this page documents only a feature toggle and does not generate deeper subgroup matrices.
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support is checked in [`Maintenance7QueryFeatureTestCase::checkSupport()`](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L185).
 

@@ -83,7 +83,7 @@ Source: [vktDrawOutputLocationTests.cpp#L103-L119](../../../modules/vulkan/draw/
 | Output component count | float, vec2, vec3, vec4 | Number of components written to output location |
 | Location mapping | identity (array), shuffled (shuffle) | How output locations map to attachments |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition | Details |
 |-------------|-----------|---------|

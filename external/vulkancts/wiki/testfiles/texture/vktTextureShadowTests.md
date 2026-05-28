@@ -107,7 +107,7 @@ Source: [lines 2069-2077](../../../modules/vulkan/texture/vktTextureShadowTests.
 | Backing modes | 2: regular, sparse (1D and 1D_array skip sparse) |
 | Seamless modes | 2: seamless, non_seamless (cube and cube_array only; requires VK_EXT_non_seamless_cube_map) |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition |
 |-------------|-----------|

@@ -40,7 +40,7 @@ Amber test case. Data directory: `texture/subgroup_lod`, file: `texel_fetch.ambe
 
 None. All three tests are single Amber test cases with no parameterization.
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 No explicit `checkSupport` in C++ code. All test creation code is guarded by `#ifndef CTS_USES_VULKANSC` (line 40). On VulkanSC, `DE_UNREF(group)` is called and no tests are added (line 53). The parent `subgroup_lod` group is also excluded on VulkanSC at the registration level in [vktTextureTests.cpp](../../../modules/vulkan/texture/vktTextureTests.cpp#L60-L66).
 

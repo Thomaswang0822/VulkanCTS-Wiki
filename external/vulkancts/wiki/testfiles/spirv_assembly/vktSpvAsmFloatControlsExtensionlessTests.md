@@ -38,7 +38,7 @@ Tests the same float-control execution modes through Vulkan 1.2 support, without
 | Float width | 16, 32, 64 | Bit width of the float type, from [`floatingPointWideness`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsExtensionlessTests.cpp#L242-L244) |
 | Execution mode | `denorm_preserve`, `denorm_flush_to_zero`, `signed_zero_inf_nan_preserve`, `rounding_mode_rte`, `rounding_mode_rtz` | Float-control feature under test, from the [`fpFeatures`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsExtensionlessTests.cpp#L244-L254) table |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - **VK_KHR_spirv_1_4** extension — required for the `spirv1p4` group in [`checkSupport()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsExtensionlessTests.cpp#L206-L211).
 - **Vulkan 1.2** — required for the `vulkan1_2` group in [`checkSupport()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsExtensionlessTests.cpp#L212-L216).

@@ -75,7 +75,7 @@ Created by `create2DTests` at [line 1398](../../../modules/vulkan/texture/vktTex
 | 2d.derivatives | - | 16x16 | 8 (2x2x2) | - | 5 | graphics, compute |
 | 2d.sizes | - | 9 | 16 (2x2x2x2) | 7 | - | graphics, compute |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 - [TextureFilteringTestCase::checkSupport](../../../modules/vulkan/texture/vktTextureFilteringExplicitLodTests.cpp#L916-L919) calls `util::checkTextureSupport` (no-op template specialization)
 - Actual format support check and `NotSupportedError` throw occur in `isSupported()` (line 887) and `runTest()` (line 577)

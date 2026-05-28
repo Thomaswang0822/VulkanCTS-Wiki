@@ -259,7 +259,7 @@ The 134 WSI test cases use the naming pattern `<wsiType>_<testType3>_<testType4>
 | Same queue family | true/false | Alternates based on `i % 2 == 0` |
 | WSI type | All `vk::wsi::Type` values | Only when WSI test type is involved |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Type | Notes |
 |-------------|------|-------|

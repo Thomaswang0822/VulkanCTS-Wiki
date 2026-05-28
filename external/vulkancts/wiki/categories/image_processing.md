@@ -77,7 +77,7 @@ The compute subgroup adds `block_matching` through [`createImageProcessingBlockM
 | `self` compute cases | `same`, `diff`, and optional `_random` suffixes are generated for compute self-tests at [`vktImageProcessingBlockMatchingTests.cpp#L2221-L2248`](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L2221-L2248). |
 | Block-matching formats | `getOpSupportedFormats()` returns `VK_FORMAT_R8_UNORM`, `VK_FORMAT_R8G8_UNORM`, `VK_FORMAT_R8G8B8_UNORM`, `VK_FORMAT_R8G8B8A8_UNORM`, `VK_FORMAT_A8B8G8R8_UNORM_PACK32`, and `VK_FORMAT_A2B10G10R10_UNORM_PACK32` for `sad` / `ssd` at [`vktImageProcessingTestsUtil.cpp#L408-L435`](../../modules/vulkan/image_processing/vktImageProcessingTestsUtil.cpp#L408-L435). |
 
-## Support Requirements by Code Path
+## Support / Feature Requirements by Code Path
 
 | Scope | Support gates / checks |
 |---|---|

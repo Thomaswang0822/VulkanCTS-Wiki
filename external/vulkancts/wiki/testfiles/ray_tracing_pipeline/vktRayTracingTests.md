@@ -191,7 +191,7 @@ Registered by [vktRayTracingTests.cpp](../../../modules/vulkan/ray_tracing/vktRa
 
 The dispatcher itself has no generated parameters; it delegates to implementation files through `addChild()` calls [vktRayTracingTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102).
 
-## Support Requirements
+## Support / Feature Requirements
 
 The dispatcher does not perform feature checks; implementation files check support before execution, for example [vktRayTracingBuildTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L186-L205).
 

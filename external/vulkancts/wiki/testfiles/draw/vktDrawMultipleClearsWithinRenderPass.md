@@ -199,7 +199,7 @@ A two-step sequence: (1) `vkCmdClearAttachments` to red with depth 0.3, (2) `vkC
 | Clear sequence | load_clear_draw, draw_clear_draw, clear_clear_draw, load_clear, draw_clear, clear_clear | Order and type of clear/draw operations |
 | Blending | enabled (3-step), disabled (2-step) | Whether alpha blending is enabled in the pipeline |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition | Source |
 |-------------|-----------|--------|

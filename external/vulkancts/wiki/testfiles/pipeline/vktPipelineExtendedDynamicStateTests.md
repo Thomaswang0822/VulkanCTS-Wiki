@@ -83,7 +83,7 @@ Implements edge-case and interaction tests for extended dynamic state that don't
 | VK_EXT_extended_dynamic_state | Extension | Required for EDS1 tests |
 | VK_EXT_extended_dynamic_state3 | Extension | Required for EDS3 tests |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

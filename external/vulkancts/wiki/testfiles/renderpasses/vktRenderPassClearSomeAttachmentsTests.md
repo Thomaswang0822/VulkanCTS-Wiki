@@ -39,7 +39,7 @@ Implementation file
 | Depth/stencil format | D24_UNORM_S8_UINT or D32_SFLOAT_S8_UINT (auto-selected) | - |
 | Image size | 8x8 (fixed) | - |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Defined at [vktRenderPassClearSomeAttachmentsTests.cpp#L409-L417](../../../modules/vulkan/renderpass/vktRenderPassClearSomeAttachmentsTests.cpp#L409-L417):
 

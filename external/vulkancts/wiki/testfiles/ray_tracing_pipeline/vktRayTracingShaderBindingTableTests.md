@@ -30,7 +30,7 @@ Shader-binding-table tests cover hit/miss/callable indexing and shader-group han
 |-----------|-----------------|----------|
 | `shader_binding_table` direct children | `handle_alignment`, `indexing_call`, `indexing_hit`, `indexing_miss` | [vktRayTracingShaderBindingTableTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingShaderBindingTableTests.cpp#L1620-L1640) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support checks are implemented by the file's test cases; common ray tracing pipeline tests require `VK_KHR_ray_tracing_pipeline` and, where acceleration structures are used, `VK_KHR_acceleration_structure`, as illustrated by [vktRayTracingBuildTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L186-L205).
 

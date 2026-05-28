@@ -43,7 +43,7 @@ Tests passing empty structs through function call/return using [`OpFunctionCall`
 | Copy method | `copy_object`, `copy_memory` | SPIR-V instruction used to copy the struct in the `copying` family, defined in [`copyingMethods`](../../../modules/vulkan/spirv_assembly/vktSpvAsmEmptyStructTests.cpp#L167-L184) |
 | Variable storage | `global_variable_private`, `global_variable_shared`, `local_variable` | Empty-struct variable storage in the `function` family, defined in [`variableDefinitions`](../../../modules/vulkan/spirv_assembly/vktSpvAsmEmptyStructTests.cpp#L468-L502) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - **copying**: [`SPV_KHR_storage_buffer_storage_class`](../../../modules/vulkan/spirv_assembly/vktSpvAsmEmptyStructTests.cpp#L66-L69) extension.
 - **pointer_comparison**: SPIR-V 1.4, [`VK_KHR_spirv_1_4`](../../../modules/vulkan/spirv_assembly/vktSpvAsmEmptyStructTests.cpp#L311-L315), and [`VariablePointersStorageBuffer`](../../../modules/vulkan/spirv_assembly/vktSpvAsmEmptyStructTests.cpp#L217-L218) capability with the Vulkan feature requested at [`spec.requestedVulkanFeatures`](../../../modules/vulkan/spirv_assembly/vktSpvAsmEmptyStructTests.cpp#L309-L315).

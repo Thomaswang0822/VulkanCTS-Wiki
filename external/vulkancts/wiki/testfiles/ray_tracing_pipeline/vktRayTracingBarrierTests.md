@@ -29,7 +29,7 @@ Barrier tests cross resource types, barrier types, and writer/reader stages invo
 |-----------|-----------------|----------|
 | `barrier` direct children | `simg`, `ssbo`, `ubo` | [vktRayTracingBarrierTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBarrierTests.cpp#L1753-L1773) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support checks are implemented by the file's test cases; common ray tracing pipeline tests require `VK_KHR_ray_tracing_pipeline` and, where acceleration structures are used, `VK_KHR_acceleration_structure`, as illustrated by [vktRayTracingBuildTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L186-L205).
 

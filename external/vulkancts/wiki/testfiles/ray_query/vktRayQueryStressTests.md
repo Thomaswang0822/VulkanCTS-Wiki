@@ -85,7 +85,7 @@ This direct child is listed in the registration hierarchy and is covered by the 
 
 Each direct child is a shader source and contains `triangles` and `aabbs` leaves; non-ray-tracing pipelines adjust ray size to a power-of-two-derived value [vktRayQueryStressTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L474-L572).
 
-## Support Requirements
+## Support / Feature Requirements
 
 Cases require acceleration-structure and ray-query functionality, with tessellation, geometry, vertex-pipeline-store, and ray-tracing-pipeline gates where selected [vktRayQueryStressTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L128-L176).
 

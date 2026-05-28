@@ -56,7 +56,7 @@ The `android_hardware_buffer` subgroup contains one child per format:
 | `format` | `VK_FORMAT_R8G8B8A8_UNORM`, `VK_FORMAT_B8G8R8A8_UNORM`, `VK_FORMAT_R16G16B16A16_UNORM`, `VK_FORMAT_R16G16B16A16_SFLOAT`, `VK_FORMAT_R32G32B32A32_SFLOAT` |
 | DRM format modifier | All compatible modifiers per format (dma_buf only) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Extension | Required for |
 |-----------|-------------|

@@ -58,7 +58,7 @@ Tests that different float widths can have independent control settings (roundin
 | SettingsMode | `SM_ROUNDING`, `SM_DENORMS` | Independence settings modes ([SettingsMode](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3610-L3612)) |
 | Independence | `32_BIT_ONLY`, `ALL` | Independence values used by settings tests ([ComputeTestGroupBuilder::createSettingsTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4136-L4138)) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - **`VK_KHR_shader_float_controls`** extension (conditionally requested in [createInstanceContext()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L5362-L5364) and always requested for mixed-settings tests in [fillSettingsTestCase()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4686-L4690))
 - **`VK_KHR_16bit_storage`** extension for the FP16 storage path in settings tests ([fillSettingsTestCase()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4650-L4665))

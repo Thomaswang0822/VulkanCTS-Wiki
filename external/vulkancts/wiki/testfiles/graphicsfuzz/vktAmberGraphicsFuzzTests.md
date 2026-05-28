@@ -861,7 +861,7 @@ Many representative non-comparison scripts use a passthrough vertex shader, one 
 | Shader stage patterns | Representative cases use passthrough vertex shaders and SPIR-V assembly fragment shaders; some sampled coverage cases include GLSL texture-generation helper shaders; sampled comparison cases use reference and variant shader pairs | [`access-new-vector-inside-if-condition.amber`](../../../data/vulkan/amber/graphicsfuzz/access-new-vector-inside-if-condition.amber#L24-L42), [`cov-global-loop-counter-texture-sample-loop-condition-set-array-element.amber`](../../../data/vulkan/amber/graphicsfuzz/cov-global-loop-counter-texture-sample-loop-condition-set-array-element.amber#L23-L27), [`spv-double-branch-to-same-block.amber`](../../../data/vulkan/amber/graphicsfuzz/spv-double-branch-to-same-block.amber#L25-L30) |
 | Framebuffer checks observed in sampled scripts | Direct RGBA/RGB red checks and reference-vs-variant histogram EMD comparisons | [`access-new-vector-inside-if-condition.amber`](../../../data/vulkan/amber/graphicsfuzz/access-new-vector-inside-if-condition.amber#L110-L110), [`write-before-break.amber`](../../../data/vulkan/amber/graphicsfuzz/write-before-break.amber#L341-L342), [`stable-mergesort-reversed-for-loop.amber`](../../../data/vulkan/amber/graphicsfuzz/stable-mergesort-reversed-for-loop.amber#L1555-L1555) |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 The C++ registration wrapper itself adds no category-wide feature gate. Optional support requirements are supplied per entry
 by extra quoted strings in the index. The shared parser adds each extra string with `testCase->addRequirement()`, and the

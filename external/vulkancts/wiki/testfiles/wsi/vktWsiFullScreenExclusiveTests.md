@@ -49,7 +49,7 @@ Tests swapchain creation and rendering with `VK_FULL_SCREEN_EXCLUSIVE_APPLICATIO
 
 Each test case is parameterized by both `wsiType` (set by the per-platform parent group) and one `fseType` value. The `fseType` determines the test name within the group.
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 - **VK_EXT_full_screen_exclusive**: Required at the device level. The test checks for this extension on the device at runtime and throws `NotSupportedError` if absent ([vktWsiFullScreenExclusiveTests.cpp#L306-L308](../../../modules/vulkan/wsi/vktWsiFullScreenExclusiveTests.cpp#L306-L308), [vktWsiFullScreenExclusiveTests.cpp#L318-L319](../../../modules/vulkan/wsi/vktWsiFullScreenExclusiveTests.cpp#L318-L319)). This is a device extension, not an instance extension.
 - **VK_KHR_surface**: Required for instance creation.

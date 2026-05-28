@@ -38,7 +38,7 @@ The direct children correspond to draw, indexed draw, indirect draw, multi-draw,
 
 The command enum provides nine observed command names. The test spec also supplies vertex and fragment shader names for the transform-feedback draw path.
 
-## Support Requirements
+## Support / Feature Requirements
 
 Each case requires `VK_EXT_conditional_rendering` and `VK_EXT_transform_feedback`. Indirect-count command variants require `VK_KHR_draw_indirect_count`, multi-draw variants require `VK_EXT_multi_draw`, and the transform-feedback feature check requires `geometryStreams`.
 

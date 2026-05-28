@@ -114,7 +114,7 @@ Dimension-stress tests use four 4:2:0 YCbCr formats at 8/10/12/16 bits plus `VK_
 | Disjoint | Default and dimension groups vary source and destination disjoint states in [`initYcbcrDefaultCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L843-L858) and [`initYcbcrDimensionsCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L995-L1006). |
 | Image limits | Requested source and destination dimensions are checked against `maxImageDimension2D` in [`checkSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L175-L183). |
 
-## Support Requirements
+## Support / Feature Requirements
 
 [`checkSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L175-L190) checks image-dimension limits, requires `VK_KHR_sampler_ycbcr_conversion`, and requires the `samplerYcbcrConversion` feature. Format-level support checks require transfer source/destination capability and disjoint support when requested in the helper just above `checkSupport()` at [`vktYCbCrCopyTests.cpp`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L164-L170).
 

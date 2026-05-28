@@ -36,7 +36,7 @@ Tests VK_REMAINING_ARRAY_LAYERS with a multi-layer framebuffer using gl_Layer. R
 | Layer tests | {1,1,"1_1"}, {2,2,"2_2"}, {4,1,"4_1"}, {1,4,"1_4"} (baseLayer + additionalLayers) ([L493-L503](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L493-L503)) |
 | Framebuffer tests | single_layer_fb, multi_layer_fb, multi_layer_fb_gl_layer ([L505-L514](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L505-L514)) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition |
 |-------------|-----------|

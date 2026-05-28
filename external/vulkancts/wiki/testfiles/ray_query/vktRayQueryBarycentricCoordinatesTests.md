@@ -25,7 +25,7 @@ This direct child is listed in the registration hierarchy and is covered by the 
 
 The single `compute` case is registered with a deterministic seed [vktRayQueryBarycentricCoordinatesTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L381-L390).
 
-## Support Requirements
+## Support / Feature Requirements
 
 The case requires acceleration-structure and ray-query functionality [vktRayQueryBarycentricCoordinatesTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L102-L106).
 

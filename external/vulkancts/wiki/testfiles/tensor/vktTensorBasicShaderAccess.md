@@ -468,7 +468,7 @@ Linear-tiling tensor with DMA heap buffer and 2000-byte offset. `WRITE_TO_BUFFER
 | Force staging | true, false | Whether to force staging buffer usage even for host-visible memory |
 | DMA heap | true, false | Whether to use DMA heap allocator for tensor memory |
 
-## Support/feature requirements
+## Support / Feature Requirements
 
 All tests require `VK_ARM_tensors` extension ([vktTensorBasicShaderAccess.cpp#L195](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L195)). Additional checks in `checkSupport`:
 

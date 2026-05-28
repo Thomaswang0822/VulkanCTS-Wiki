@@ -63,7 +63,7 @@ Source: [vktDrawAhbExternalFormatResolveTests.cpp#L1727-L1752](../../../modules/
 | Partial draw | true, false | Whether the render area is a sub-region of the full image |
 | Image dimensions | 64x64 | Fixed render target size |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition | Details |
 |-------------|-----------|---------|

@@ -38,7 +38,7 @@ Amber-scripted ray tracing cases require ray tracing pipeline, acceleration stru
 |-----------|-----------------|----------|
 | `amber` direct children | `barycentrics`, `basic`, `basic2`, `basic_lib`, `different-payload-sizes`, `divergent-as`, `flags-accept-first`, `flags-culling`, `flags-force-non-opaque`, `flags-force-opaque`, `flags-skip-chit`, `rt-sample` | [vktRayTracingAmberTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L35-L55) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Amber cases are registered only outside Vulkan SC builds and attach per-script requirement arrays for acceleration structure, buffer device address, ray tracing pipeline, and, for selected scripts, pipeline library or deferred host operations in [vktRayTracingAmberTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L37-L60) and [vktRayTracingAmberTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L86-L92).
 

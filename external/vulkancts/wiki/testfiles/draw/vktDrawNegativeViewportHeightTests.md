@@ -99,7 +99,7 @@ Tests that viewports positioned entirely outside the framebuffer bounds produce 
 | yAxis | ONSCREEN, NEGATIVE_SIDE, POSITIVE_SIDE | Y-axis placement of off-screen viewport |
 | negativeHeight | false, true | Whether the off-screen viewport uses negative height |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition | Source |
 |-------------|-----------|--------|

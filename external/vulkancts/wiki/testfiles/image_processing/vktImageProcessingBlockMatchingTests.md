@@ -183,7 +183,7 @@ Default self-test parameters:
 - Reference coordinate: (32,32)
 - Both target and reference use the same image (single descriptor binding)
 
-## Support Requirements
+## Support / Feature Requirements
 
 ### Common (base class `ImageProcessingBlockMatchTest::checkSupport()`, line 141)
 

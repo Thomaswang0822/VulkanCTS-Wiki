@@ -70,7 +70,7 @@ Contains 26 test cases (13 formats x 2 pipeline types: graphics + compute). Same
 |--------|--------|----------|-------------|
 | snorm_clamp_linear | 13 SNORM formats | graphics, compute | varies by sizeMultiplier (base 20, +2 per format) |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 - **ufloat_negative_values** and **snorm_clamp**: guarded by `#ifndef CTS_USES_VULKANSC`
 - **snorm_clamp_linear**: NOT guarded by `#ifndef CTS_USES_VULKANSC` — available on VulkanSC. [checkSupport](../../../modules/vulkan/texture/vktTextureConversionTests.cpp#L270-L279) checks `VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT` for the format's optimal tiling features

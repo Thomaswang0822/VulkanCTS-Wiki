@@ -52,7 +52,7 @@ Tests for multisample surfaces with 16 samples. Same source type and format stru
 | Color format | Enum | R8G8B8A8_UNORM, R32_UINT, R32_SINT |
 | PipelineConstructionType | Parameter | All variant types |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

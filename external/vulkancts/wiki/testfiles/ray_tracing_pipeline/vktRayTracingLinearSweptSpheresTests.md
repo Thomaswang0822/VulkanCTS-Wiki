@@ -28,7 +28,7 @@ Linear swept spheres tests compare sphere and linear-swept-sphere geometry modes
 |-----------|-----------------|----------|
 | `linear_swept_spheres` direct children | `lss`, `spheres` | [vktRayTracingLinearSweptSpheresTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingLinearSweptSpheresTests.cpp#L1029-L1049) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support requires acceleration structure, ray tracing pipeline, and `VK_NV_ray_tracing_linear_swept_spheres`, with an explicit ray-tracing-pipeline feature check [vktRayTracingLinearSweptSpheresTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingLinearSweptSpheresTests.cpp#L747-L757).
 

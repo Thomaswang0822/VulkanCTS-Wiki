@@ -79,7 +79,7 @@ TestCaseGroup at [line 515](../../../modules/vulkan/texture/vktTextureSwizzleTes
 | component_mapping.stencil | 4 | pot, npot | oooo | regular, sparse | graphics, compute |
 | texture_coordinate | 119 | pot, npot | 3 coordinate swizzles | regular, sparse | graphics, compute |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 - [SwizzleTestCase::checkSupport()](../../../modules/vulkan/texture/vktTextureSwizzleTests.cpp#L75-L91): calls `checkTextureSupport`, plus for depth/stencil requires `VK_KHR_maintenance5` and `depthStencilSwizzleOneSupport`
 - Sparse backing mode requires sparse binding support (non-VulkanSC only)

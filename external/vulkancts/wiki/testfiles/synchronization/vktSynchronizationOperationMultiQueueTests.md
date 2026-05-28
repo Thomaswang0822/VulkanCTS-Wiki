@@ -117,7 +117,7 @@ When sharing mode is `VK_SHARING_MODE_CONCURRENT`, a `_maintenance9` variant is 
 
 The [MultiQueues](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L99) singleton creates a custom device with up to 2 queues per family. The `getQueuesPairs` method selects queue pairs where the write queue supports the write operation's queue flags and the read queue supports the read operation's queue flags. When `useAllStages` is true, it requires queues from different families.
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition |
 |---|---|

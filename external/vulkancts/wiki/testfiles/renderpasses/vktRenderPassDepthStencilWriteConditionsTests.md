@@ -34,7 +34,7 @@ Test names follow the pattern: `{buffer}_{'kill'|'terminate'|'demote'}_{'write'|
 | Depth formats | D32_SFLOAT_S8_UINT, D24_UNORM_S8_UINT, X8_D24_UNORM_PACK32, D32_SFLOAT |
 | Stencil formats | D32_SFLOAT_S8_UINT, D24_UNORM_S8_UINT |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition |
 |-------------|-----------|

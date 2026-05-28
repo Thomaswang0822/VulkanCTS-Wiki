@@ -60,7 +60,7 @@ Implementation: The [`DrawIndirectInstancedInstance::iterate()`](../../../module
 | Quad grid size | `8x8` |
 | Framebuffer size | `128x128` |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - `DEVICE_CORE_FEATURE_DRAW_INDIRECT_FIRST_INSTANCE` (checked at [`checkSupport()`](../../../modules/vulkan/draw/vktDrawIndirectInstancedTests.cpp#L566))
 - `VK_KHR_dynamic_rendering` when using dynamic rendering variant (checked at [`checkSupport()`](../../../modules/vulkan/draw/vktDrawIndirectInstancedTests.cpp#L570))

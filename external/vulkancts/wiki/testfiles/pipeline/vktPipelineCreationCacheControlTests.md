@@ -38,7 +38,7 @@ Verifies VK_EXT_pipeline_creation_cache_control flags with compute pipelines. Co
 | PipelineConstructionType | Parameter | Monolithic only |
 | Cache control flags | Bitfield | DISABLE_OPTIMIZATION, DISABLE_CACHING |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

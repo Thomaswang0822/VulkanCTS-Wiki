@@ -54,7 +54,7 @@ Source: [`createScissorMultiViewportTests()`](../../../modules/vulkan/fragment_o
 | Color palette size | Up to 16 predefined colors in [`generateColors()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L163-L177) |
 | Primitive expansion model | One input point emits a fullscreen quad in the geometry shader built by [`initPrograms()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L219-L260) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 [`checkSupport()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L431-L438) requires both `geometryShader` and `multiViewport` core features, and rejects implementations whose `maxViewports` limit is below [`MIN_MAX_VIEWPORTS`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L61-L64). The pipeline setup uses one viewport and one scissor rectangle per requested viewport count in [`makeGraphicsPipeline()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L94-L129).
 

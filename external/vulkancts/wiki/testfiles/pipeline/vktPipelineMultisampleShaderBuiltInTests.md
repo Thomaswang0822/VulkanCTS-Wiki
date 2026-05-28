@@ -64,7 +64,7 @@ Verifies per-sample writes using `gl_SampleMask` with a render pass containing t
 | Sample count | Array | 2, 4, 8, 16, 32, 64 (full set); 2, 4, 8, 16, 32 (reduced set) |
 | PipelineConstructionType | Parameter | All variant types |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

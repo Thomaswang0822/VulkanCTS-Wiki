@@ -45,7 +45,7 @@ Verifies pipeline behavior when vertex shader does not write `gl_Position` using
 | Shader stage mask | Bitfield | Combinations of vertex, tessellation, geometry stages |
 | Write mask | Bitfield | Which stages write gl_Position (always 0 for vertex) |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

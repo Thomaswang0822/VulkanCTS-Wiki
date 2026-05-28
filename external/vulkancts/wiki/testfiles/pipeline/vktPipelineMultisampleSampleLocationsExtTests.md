@@ -64,7 +64,7 @@ Draw/clear configurations include combinations of draw-in mode (render passes, s
 | useStdLocations | Bool | false (sample_locations_ext), true (std_sample_locations) |
 | PipelineConstructionType | Parameter | All variant types |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

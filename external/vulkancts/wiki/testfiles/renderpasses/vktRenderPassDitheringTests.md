@@ -36,7 +36,7 @@ Created via [`createDitheringRevision2GroupTests`](../../../modules/vulkan/rende
 | Depth/stencil tests | format x stencil values (3) x depth values (3) x compare ops (2) ([L1264-L1306](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1264-L1306)) |
 | Blend tests | srcAlpha and additive blending per format ([L1310-L1333](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1310-L1333)) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition |
 |-------------|-----------|

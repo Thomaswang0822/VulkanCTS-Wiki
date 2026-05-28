@@ -142,7 +142,7 @@ Dynamic equivalent of `static_scissor_framebuffer_border_in`. Verifies correct d
 | Command mix | draws only, clears only, mixed | Combination of draw and clear commands |
 | Framebuffer size | 256x256, 127x127 | Size of the framebuffer (reduced for border tests) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition | Source |
 |-------------|-----------|--------|

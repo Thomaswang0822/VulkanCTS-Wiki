@@ -50,7 +50,7 @@ Verifies VK_KHR_maintenance10 resolve operations using dynamic rendering resolve
 | sRGB flags | Bool | With/without sRGB conversion |
 | PipelineConstructionType | Parameter | Limited variant types |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

@@ -80,7 +80,7 @@ This direct child is listed in the registration hierarchy and is covered by the 
 
 Each direct child is one shader source in the registration array [vktRayQueryMultipleRayQueries.cpp](../../../modules/vulkan/ray_query/vktRayQueryMultipleRayQueries.cpp#L401-L470).
 
-## Support Requirements
+## Support / Feature Requirements
 
 Cases require acceleration-structure and ray-query functionality, with tessellation, geometry, vertex-pipeline-store, and ray-tracing-pipeline gates for relevant stages [vktRayQueryMultipleRayQueries.cpp](../../../modules/vulkan/ray_query/vktRayQueryMultipleRayQueries.cpp#L116-L161).
 

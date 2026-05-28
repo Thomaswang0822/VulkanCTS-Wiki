@@ -30,7 +30,7 @@ Data-spill tests cover data spilling around trace-ray, report-intersection, exec
 |-----------|-----------------|----------|
 | `data_spill` direct children | `execute_callable`, `pipeline_interface`, `report_intersection`, `trace_ray` | [vktRayTracingDataSpillTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L2890-L2910) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support starts with common acceleration-structure/ray-tracing-pipeline checks and then adds conditional gates based on spilled data type: 64-bit integer/float features, 16-bit storage and float/int features, 8-bit storage/int features, or descriptor indexing for sampler-based data [vktRayTracingDataSpillTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L476-L533).
 

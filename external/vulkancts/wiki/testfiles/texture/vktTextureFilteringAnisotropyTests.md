@@ -48,7 +48,7 @@ Anisotropy filtering with mipmap minification filters (added at line 319). Tests
 - **useCompute**: {false, true} (graphics + compute variants)
 - **Texture**: 128x128 `VK_FORMAT_R8G8B8A8_UNORM`
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 - Requires `samplerAnisotropy` feature (lines 193-199).
 - `maxAnisotropy` is clamped to the device's `maxSamplerAnisotropy` limit (lines 91-94).

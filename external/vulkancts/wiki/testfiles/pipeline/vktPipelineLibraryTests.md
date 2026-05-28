@@ -56,7 +56,7 @@ Verifies miscellaneous pipeline library behaviors using `PipelineLibraryMiscTest
 | Null descriptor | Bool | With/without null descriptors |
 | View mask | Array | Single view, multi-view |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

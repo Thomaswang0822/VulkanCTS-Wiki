@@ -55,7 +55,7 @@ Registered through `ConditionalTransformFeedbackTests`, this child covers transf
 
 This dispatcher does not define test parameters itself. It delegates to implementation files whose constructors and `init()` methods build the child groups.
 
-## Support Requirements
+## Support / Feature Requirements
 
 No support gates are enforced in this dispatcher. Extension and feature checks are implemented in the registered child files.
 

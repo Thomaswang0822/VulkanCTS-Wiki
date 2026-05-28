@@ -49,7 +49,7 @@ Tests per-view render areas with VK_QCOM_multiview_per_view_render_areas ([lines
 
 - `tcu::floatThresholdCompare` with zero threshold per layer
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

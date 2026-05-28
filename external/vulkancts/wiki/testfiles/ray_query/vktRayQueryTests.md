@@ -106,7 +106,7 @@ Registered by [vktRayQueryTests.cpp](../../../modules/vulkan/ray_query/vktRayQue
 
 The dispatcher itself has no generated parameters; it delegates to implementation files through `addChild()` calls [vktRayQueryTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryTests.cpp#L53-L69).
 
-## Support Requirements
+## Support / Feature Requirements
 
 The dispatcher does not perform feature checks. Support is checked inside implementation test cases, for example the built-in tests require ray-query and acceleration-structure functionality in [vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6052-L6067).
 

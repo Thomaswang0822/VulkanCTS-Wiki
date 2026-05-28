@@ -30,7 +30,7 @@ Shader execution reorder tests register built-in, large-dimension, motion, and r
 |-----------|-----------------|----------|
 | `ser` direct children | `builtin_var`, `large_dim`, `motion`, `reorder` | [vktRayTracingShaderExecutionReorderTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingShaderExecutionReorderTests.cpp#L2256-L2276) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support requires acceleration structure, ray tracing pipeline, and `VK_EXT_ray_tracing_invocation_reorder`; motion tests additionally require `VK_NV_ray_tracing_motion_blur`, position-fetch tests require `VK_KHR_ray_tracing_position_fetch`, selected hit-kind query tests require invocation-reorder spec version 2, and large-dimension cases validate device limits [vktRayTracingShaderExecutionReorderTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingShaderExecutionReorderTests.cpp#L342-L408).
 

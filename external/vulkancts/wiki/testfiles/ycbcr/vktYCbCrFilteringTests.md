@@ -59,7 +59,7 @@ The graphics path renders sampled values with a fragment shader in [`LinearFilte
 | Pipeline | Graphics cases use `LinearFilteringTestInstance`; compute cases pass `false` for `m_useGraphics` and create `LinearFilteringComputeTestInstance` in [`LinearFilteringTestCase::createInstance()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L732-L738). |
 | Image/render sizes | Verification is invoked with `{8,8}->{64,64}` and `{64,32}->{32,64}` size pairs in the graphics and compute paths, as shown by the calls to [`verifyFilteringResult()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L481) and [`verifyFilteringResult()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L669). |
 
-## Support Requirements
+## Support / Feature Requirements
 
 [`LinearFilteringTestCase::checkSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L704-L730) requires `VK_KHR_sampler_ycbcr_conversion`, the `samplerYcbcrConversion` feature, midpoint chroma samples, linear texture filtering, separate reconstruction filtering when chroma and texture filters differ, and YCbCr linear chroma filtering for `VK_FILTER_LINEAR` chroma cases.
 

@@ -67,7 +67,7 @@ Test principle: Validates SNORM conversion including clamping of the most negati
 
 None at the registration level. Each sub-group enumerates specific format test cases as individual Amber tests.
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 - sRGB tests: require `VK_FORMAT_FEATURE_UNIFORM_TEXEL_BUFFER_BIT` for each format.
 - packed tests: excluded on VulkanSC builds.

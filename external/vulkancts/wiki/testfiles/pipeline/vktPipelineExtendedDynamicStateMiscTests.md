@@ -50,7 +50,7 @@ Verifies dynamic sample shading behavior when the static pipeline sample count d
 | Static sample count | Loop | 1, 2, 4, 8 |
 | Dynamic sample count | Loop | 2, 4, 8, 16 (always greater than static) |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

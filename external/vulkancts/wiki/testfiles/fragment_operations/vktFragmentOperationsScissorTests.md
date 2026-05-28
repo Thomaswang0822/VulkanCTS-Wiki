@@ -74,7 +74,7 @@ The `multi_viewport` child is not implemented in this file. It is added by calli
 | Vertex generation count | 50 points, 30 short lines, 20 small triangles in [`genVertices()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorTests.cpp#L183-L239) |
 | Topology mapping | Point list, line list, triangle list in [`getTopology()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorTests.cpp#L241-L259) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 This file does not expose a dedicated `checkSupport()` gate in the inspected registration path. The pipeline is built with one viewport and one scissor rectangle in [`makeGraphicsPipeline()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorTests.cpp#L114-L175), so the documented direct cases rely on core graphics pipeline functionality rather than explicit extension checks in the inspected code.
 

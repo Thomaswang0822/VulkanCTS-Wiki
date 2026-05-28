@@ -34,7 +34,7 @@ Build tests compare ray tracing results when acceleration structures are built o
 |-----------|-----------------|----------|
 | `build` direct children | `cpu`, `cpuht_1`, `cpuht_2`, `cpuht_3`, `cpuht_4`, `cpuht_8`, `cpuht_max`, `gpu` | [vktRayTracingBuildTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L756-L776) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support is checked in this file; observed gates include ray tracing pipeline and related feature/extension checks at [vktRayTracingBuildTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L186-L205).
 

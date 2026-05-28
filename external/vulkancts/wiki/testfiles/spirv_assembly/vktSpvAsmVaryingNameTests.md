@@ -41,7 +41,7 @@ Neither the vertex shader output variable nor the fragment shader input variable
 |-----------|--------|-------------|
 | Name scenario | [`names_match`, `names_differ`, `no_names`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVaryingNameTests.cpp#L238-L240) | How OpName is applied to the varying in vertex and fragment shaders |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - [`VK_KHR_storage_buffer_storage_class`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVaryingNameTests.cpp#L214-L215) extension
 - [`fragmentStoresAndAtomics`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVaryingNameTests.cpp#L214) feature

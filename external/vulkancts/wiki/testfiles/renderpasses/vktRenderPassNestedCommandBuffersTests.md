@@ -42,7 +42,7 @@ Total: 2 extensions x 2 first-command x 2 last-command = 8 test cases.
 - Nesting patterns: inline_secondary, secondary_inline
 - Total: 2 extensions x 2 first-command x 2 last-command = 8 test cases
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

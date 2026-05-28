@@ -50,7 +50,7 @@ The test allocates separate memory for each plane, binds with `vkBindImageMemory
 | Image setup | The image size is `8x8`, memory is host-visible, and per-plane memory requirements are used in [`imageOffsetTest()`](../../../modules/vulkan/ycbcr/vktYCbCrImageOffsetTests.cpp#L98-L118). |
 | Plane aspects | Plane aspects are selected from `VK_IMAGE_ASPECT_PLANE_0_BIT`, `VK_IMAGE_ASPECT_PLANE_1_BIT`, and `VK_IMAGE_ASPECT_PLANE_2_BIT` in [`imageOffsetTest()`](../../../modules/vulkan/ycbcr/vktYCbCrImageOffsetTests.cpp#L136-L139). |
 
-## Support Requirements
+## Support / Feature Requirements
 
 [`checkSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrImageOffsetTests.cpp#L61-L69) requires `VK_KHR_sampler_ycbcr_conversion` and linear-tiling `VK_FORMAT_FEATURE_DISJOINT_BIT` support for the tested format.
 

@@ -31,7 +31,7 @@ Tests an HLSL packing corner case where an array `foo[2]` has an ArrayStride of 
 |-----------|--------|-------------|
 | Test type | `TT_CBUFFER_PACKING` | Only test type enum value and registered case in this file ([TestType](../../../modules/vulkan/spirv_assembly/vktSpvAsmFromHlslTests.cpp#L46-L48), [createHlslComputeGroup()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFromHlslTests.cpp#L228-L235)) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - `VK_EXT_scalar_block_layout` extension, checked in [`checkSupport()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFromHlslTests.cpp#L221-L224)
 - `FLAG_ALLOW_SCALAR_OFFSETS` shader build option used when adding the HLSL source ([Programs::init()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFromHlslTests.cpp#L77-L79))

@@ -127,7 +127,7 @@ fragment-stage recorded value to be `1.9`
 | Depth pipeline toggles | `TEST on`, `WRITE on`, optional `CLAMP on`, optional `BIAS` | [`fs_clamp.amber`](../../../data/vulkan/amber/depth/fs_clamp.amber#L50-L55), [`bias_fs_clamp.amber`](../../../data/vulkan/amber/depth/bias_fs_clamp.amber#L50-L56), [`bias_outside_range.amber`](../../../data/vulkan/amber/depth/bias_outside_range.amber#L49-L54) |
 | Expected outputs | Color equality, depth equality or tolerance checks, and storage-buffer depth checks where present | [`fs_clamp.amber`](../../../data/vulkan/amber/depth/fs_clamp.amber#L73-L75), [`out_of_range.amber`](../../../data/vulkan/amber/depth/out_of_range.amber#L65-L66), [`bias_outside_range.amber`](../../../data/vulkan/amber/depth/bias_outside_range.amber#L72-L74) |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 The C++ wrapper adds each `base_required_features` entry with
 [`testCase->addRequirement(req)`](../../../modules/vulkan/amber/vktAmberDepthTests.cpp#L115-L116), and adds

@@ -146,7 +146,7 @@ Opacity-micromap tests combine opacity flags, special-index use, modes, levels, 
 |-----------|-----------------|----------|
 | `opacity_micromap` direct children | `NoFlags`, `cull_no_opaque_ray_flag`, `cull_opaque_ray_flag`, `disable_opacity_micromap_instance`, `disable_opacity_micromap_instance_cull_no_opaque_ray_flag`, `disable_opacity_micromap_instance_cull_opaque_ray_flag`, `disable_opacity_micromap_instance_force_2_state_instance`, `disable_opacity_micromap_instance_force_2_state_instance_cull_no_opaque_ray_flag`, `disable_opacity_micromap_instance_force_2_state_instance_cull_opaque_ray_flag`, `disable_opacity_micromap_instance_force_2_state_instance_force_2_state_ray_flag`, `disable_opacity_micromap_instance_force_2_state_instance_force_2_state_ray_flag_cull_no_opaque_ray_flag`, `disable_opacity_micromap_instance_force_2_state_instance_force_2_state_ray_flag_cull_opaque_ray_flag` ... | [vktRayTracingOpacityMicromapTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L821-L841) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support requires acceleration structure, ray tracing pipeline, and `VK_EXT_opacity_micromap`; cases check the micromap feature and conditionally reject subdivision levels above the reported 2-state or 4-state limits when not using special indices [vktRayTracingOpacityMicromapTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L119-L149).
 

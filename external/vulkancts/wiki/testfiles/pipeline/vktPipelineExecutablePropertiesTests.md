@@ -39,7 +39,7 @@ Verifies pipeline executable property, statistic, and internal representation qu
 | Pipeline type | Enum | Graphics, compute |
 | Query type | Enum | Properties, statistics, internal representations |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

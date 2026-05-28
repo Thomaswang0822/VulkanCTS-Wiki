@@ -30,7 +30,7 @@ The test uses `VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM`, a `256x256` render target, 
 | Conversion | RGB identity, ITU full range, cosited-even chroma locations, nearest chroma filter in [`iterate()`](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp#L71-L87). |
 | SPIR-V operations | `OpImageSampleImplicitLod`, `OpImageSampleProjImplicitLod`, and `OpFMul` in [`initPrograms()`](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp#L352-L358). |
 
-## Support Requirements
+## Support / Feature Requirements
 
 [`RelaxedPrecisionTestCase::checkSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrMiscTests.cpp#L294-L297) requires `VK_KHR_sampler_ycbcr_conversion`.
 

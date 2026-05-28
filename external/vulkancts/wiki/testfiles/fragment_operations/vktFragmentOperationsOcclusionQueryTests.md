@@ -118,7 +118,7 @@ The names are evidence-backed directly by the case table at [`vktFragmentOperati
 | Depth-stencil format selection | Combined DS formats, stencil-only `VK_FORMAT_S8_UINT`, or depth-only format path selected around [`vktFragmentOperationsOcclusionQueryTests.cpp`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsOcclusionQueryTests.cpp#L315-L320) and helper selection in [`pickSupportedDepthStencilFormat()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsOcclusionQueryTests.cpp#L211-L224) |
 | Scissor rectangle behavior | Full render area versus central inset area in [`makeGraphicsPipeline()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsOcclusionQueryTests.cpp#L101-L106) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 [`OcclusionQueryTest::checkSupport()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsOcclusionQueryTests.cpp#L675-L701) validates that the selected test format is supported and throws `NotSupportedError` when no compatible format exists at [`vktFragmentOperationsOcclusionQueryTests.cpp`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsOcclusionQueryTests.cpp#L700-L701). For precise variants, it explicitly checks `occlusionQueryPrecise` against `VK_QUERY_CONTROL_PRECISE_BIT` at [`vktFragmentOperationsOcclusionQueryTests.cpp`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsOcclusionQueryTests.cpp#L690-L694).
 

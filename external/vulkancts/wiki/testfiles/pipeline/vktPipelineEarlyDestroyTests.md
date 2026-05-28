@@ -76,7 +76,7 @@ Destroys the pipeline and layout while command buffers are in-flight, with `VK_K
 | Use compute pipeline | Boolean | Whether to test with compute pipeline (vs. graphics) |
 | Use maintenance5 | Boolean | Whether to enable `VK_KHR_maintenance5` features |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

@@ -227,7 +227,7 @@ Tests image load/store operations with explicit LOD specification using `VK_AMD_
 | Layer Counts | 1, 6 (cube), 8 (array), 12 (cube_array) |
 | Sample Counts | N/A for non-multisample tests |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 ### Device Core Features
 - `shaderStorageImageMultisample` - For multisample-capable storage images (indirect)

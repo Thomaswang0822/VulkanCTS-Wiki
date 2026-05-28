@@ -27,7 +27,7 @@ RTIR activity tests register a single activity case for invocation reorder activ
 |-----------|-----------------|----------|
 | `rtir_activity` direct children | `activity` | [vktRayTracingInvocationReorderActivityTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L637-L657) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support requires deferred host operations, acceleration structure, ray tracing pipeline, buffer device address, and `VK_EXT_ray_tracing_invocation_reorder`, then checks the buffer-device-address, ray-tracing-pipeline, acceleration-structure, and invocation-reorder feature bits [vktRayTracingInvocationReorderActivityTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L96-L126).
 

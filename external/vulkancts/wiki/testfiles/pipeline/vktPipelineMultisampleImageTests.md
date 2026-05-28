@@ -54,7 +54,7 @@ Tests multisample sampled image with a non-power-of-two 79x31 image and 4 layers
 | Num layers | Array | 1, 4 |
 | PipelineConstructionType | Parameter | All variant types |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

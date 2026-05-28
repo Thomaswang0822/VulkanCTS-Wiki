@@ -123,7 +123,7 @@ Only combinations where `priorityA < priorityB` are generated. The optional `_do
 | Priority B | LOW, MEDIUM, HIGH, REALTIME | Must be strictly greater than Priority A |
 | Double preemption | false, true | Whether to submit the small workload twice |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Type | Notes |
 |-------------|------|-------|

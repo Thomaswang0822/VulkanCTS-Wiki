@@ -89,7 +89,7 @@ Source: [lines 1920-2076](../../../modules/vulkan/texture/vktTextureFilteringTes
 | Formats | 16 filterable formats |
 | Seamless | {seamless, non_seamless} |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition |
 |-------------|-----------|

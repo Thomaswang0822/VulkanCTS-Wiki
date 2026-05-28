@@ -29,7 +29,7 @@ Amber test case. Data directory: `texture/texel_offset`, file: `texel_offset.amb
 
 None. Single Amber test case with no parameterization.
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 No explicit `checkSupport` in C++ code. The test is wrapped in `#ifndef CTS_USES_VULKANSC` (line 39). On VulkanSC, the group is created but left empty.
 

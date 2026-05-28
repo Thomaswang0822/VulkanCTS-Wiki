@@ -45,7 +45,7 @@ Uses the same generated type and aggregation structure as `min3`, with `Operatio
 | Aggregation | `SCALAR`, `VEC2`, `VEC3`, `VEC4` | Registered as `scalar`, `vec2`, `vec3`, and `vec4` cases ([source](../../../modules/vulkan/spirv_assembly/vktSpvAsmTrinaryMinMaxTests.cpp#L83-L90), [registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmTrinaryMinMaxTests.cpp#L1003-L1035)) |
 | Random seed | Incrementing `seed` | Each generated `TestParams` receives the current seed and then increments it ([source](../../../modules/vulkan/spirv_assembly/vktSpvAsmTrinaryMinMaxTests.cpp#L981-L982), [assignment](../../../modules/vulkan/spirv_assembly/vktSpvAsmTrinaryMinMaxTests.cpp#L1027-L1033)) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - `VK_KHR_get_physical_device_properties2`, `VK_KHR_storage_buffer_storage_class`, and `VK_AMD_shader_trinary_minmax` are always required by `TrinaryMinMaxCase::checkSupport()` ([source](../../../modules/vulkan/spirv_assembly/vktSpvAsmTrinaryMinMaxTests.cpp#L584-L590)).
 - 8-bit cases require `VK_KHR_8bit_storage`, `storageBuffer8BitAccess`, and `shaderInt8` for integer base types ([storage](../../../modules/vulkan/spirv_assembly/vktSpvAsmTrinaryMinMaxTests.cpp#L596-L603), [shader integer gate](../../../modules/vulkan/spirv_assembly/vktSpvAsmTrinaryMinMaxTests.cpp#L612-L620)).

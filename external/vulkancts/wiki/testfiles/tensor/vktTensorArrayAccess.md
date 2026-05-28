@@ -171,7 +171,7 @@ The test name is constructed by `paramsToString(params, variant) + "_array_size_
 
 The total element count for shape `{13, 17, 19, 23}` is 13 x 17 x 19 x 23 = 96,577 elements.
 
-## Support/feature requirements
+## Support / Feature Requirements
 
 All test cases share a common `checkSupport` method. The linear tiling variant is at [vktTensorArrayAccess.cpp#L134-L168](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L134-L168); the optimal tiling variant is at [vktTensorArrayAccess.cpp#L256-L297](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L256-L297). The checks are:
 

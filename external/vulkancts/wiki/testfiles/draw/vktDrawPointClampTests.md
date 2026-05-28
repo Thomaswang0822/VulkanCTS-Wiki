@@ -43,7 +43,7 @@ Implementation: The [`renderPointSizeClampTest()`](../../../modules/vulkan/draw/
 | Framebuffer width | `ceil(maxPointSizeRange * 0.5) + 1` |
 | Primitive topology | `VK_PRIMITIVE_TOPOLOGY_POINT_LIST` |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - `largePoints` device feature (checked at [`checkSupport()`](../../../modules/vulkan/draw/vktDrawPointClampTests.cpp#L387))
 

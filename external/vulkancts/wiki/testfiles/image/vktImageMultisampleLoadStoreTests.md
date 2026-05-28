@@ -99,7 +99,7 @@ A second compute shader loads each sample and verifies the values match expected
 
 If all samples match, writes checksum value (equal to sample count) to checksum image.
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 ### Device Core Features
 - `shaderStorageImageMultisample` - **Required** - Core feature for multisample storage images

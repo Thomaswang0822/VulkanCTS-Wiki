@@ -47,7 +47,7 @@ Verifies pipeline creation on a device with no queues using shader binaries. Exc
 | Shader stage | [`stageCases[]`](../../../modules/vulkan/pipeline/vktPipelineNoQueuesTests.cpp#L1734) | 14 stages (compute, raygen, isect, ahit, chit, miss, callable, vertex, fragment, geometry, tessctrl, tesseval, task, mesh) |
 | Test type | [`ttCases[]`](../../../modules/vulkan/pipeline/vktPipelineNoQueuesTests.cpp#L1742) | `pipeline_cache`, `pipeline_binary`, `shader_binary` |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

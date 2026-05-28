@@ -31,7 +31,7 @@ Traversal-control tests verify any-hit ignore/pass-through/terminate behavior an
 |-----------|-----------------|----------|
 | `traversal_control` direct children | `ahit_ignore_intersection`, `ahit_pass_through`, `ahit_terminate_ray`, `isect_dont_report_intersection`, `isect_report_intersection` | [vktRayTracingTraversalControlTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L769-L789) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support checks are implemented by the file's test cases; common ray tracing pipeline tests require `VK_KHR_ray_tracing_pipeline` and, where acceleration structures are used, `VK_KHR_acceleration_structure`, as illustrated by [vktRayTracingBuildTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L186-L205).
 

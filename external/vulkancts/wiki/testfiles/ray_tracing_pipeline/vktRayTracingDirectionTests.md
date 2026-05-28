@@ -33,7 +33,7 @@ Inside-AABB tests vary stages, ray-end choices, scaling factors, and rotation an
 | `direction_length` direct children | `ahit`, `chit`, `isec` | [vktRayTracingDirectionTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L684-L704) |
 | `inside_aabbs` direct children | `ahit`, `chit`, `isec` | [vktRayTracingDirectionTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L778-L798) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support checks are implemented by the file's test cases; common ray tracing pipeline tests require `VK_KHR_ray_tracing_pipeline` and, where acceleration structures are used, `VK_KHR_acceleration_structure`, as illustrated by [vktRayTracingBuildTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L186-L205).
 

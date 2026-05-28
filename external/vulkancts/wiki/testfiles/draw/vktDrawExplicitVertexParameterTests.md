@@ -90,7 +90,7 @@ Tests `gl_BaryCoordNoPerspCentroidAMD` with the `centroid` auxiliary qualifier. 
 | Sample count | 1, 2, 4, 8, 16, 32, 64 | Number of MSAA samples; reduced to 4 max when using secondary command buffers |
 | Auxiliary qualifier | none, sample, centroid | Additional qualifier on the standard interpolation variable; `none` only for 1 sample, `sample`/`centroid` for >= 2 samples |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition | Source |
 |-------------|-----------|--------|

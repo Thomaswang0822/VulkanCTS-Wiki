@@ -40,7 +40,7 @@ All tests verify that the derivative pipeline produces correct computation resul
 | PipelineConstructionType | Parameter | Monolithic only |
 | Derivative type | Enum | Base pipeline, derivative pipeline |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

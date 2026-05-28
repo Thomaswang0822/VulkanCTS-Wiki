@@ -40,7 +40,7 @@ Observed in [`TestType::TWO_ENTRY_POINTS_DIFFERENT_INTERFACES`](../../../modules
 |-----------|--------|-------------|
 | TestType | `TWO_ENTRY_POINTS_EXECUTION_MODE_ID`, `TWO_ENTRY_POINTS_DIFFERENT_INTERFACES` | Type of multi-entry-point test |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - **[`VK_KHR_maintenance4`](../../../modules/vulkan/spirv_assembly/vktSpvAsmMultipleShadersTests.cpp#L441-L445)** — required for `TWO_ENTRY_POINTS_EXECUTION_MODE_ID` test
 - [SPIR-V 1.5 build options](../../../modules/vulkan/spirv_assembly/vktSpvAsmMultipleShadersTests.cpp#L237-L239) — used for both test types

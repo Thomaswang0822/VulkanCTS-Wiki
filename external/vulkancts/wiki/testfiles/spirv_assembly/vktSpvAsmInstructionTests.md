@@ -252,7 +252,7 @@ Many inline groups iterate over data types:
 - Vector widths: scalar, vec2, vec3, vec4
 - Composite types: matrices, arrays, structs
 
-## Support Requirements
+## Support / Feature Requirements
 
 Recurring requirements across inline groups:
 

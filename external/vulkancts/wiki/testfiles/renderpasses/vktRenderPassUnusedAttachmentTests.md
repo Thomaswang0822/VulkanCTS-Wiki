@@ -57,7 +57,7 @@ Tests unused attachments when the load operation is `VK_ATTACHMENT_LOAD_OP_LOAD`
 
 Note: Dynamic rendering starts stencil ops at DONT_CARE and skips DONT_CARE load/store ops.
 
-## Support Requirements
+## Support / Feature Requirements
 
 Defined at [vktRenderPassUnusedAttachmentTests.cpp#L367-L375](../../../modules/vulkan/renderpass/vktRenderPassUnusedAttachmentTests.cpp#L367-L375):
 

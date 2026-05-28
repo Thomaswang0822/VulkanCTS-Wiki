@@ -49,7 +49,7 @@ Registered under `renderpasses.renderpass2.suballocation` only via [`createRende
 - When disallow: `postMergeSubpassCount` equals original, each subpass has `VK_SUBPASS_MERGE_STATUS_DISALLOWED_EXT`
 - When allowed: `postMergeSubpassCount` <= `subpassCount`, single subpass has `NOT_MERGED_SINGLE_SUBPASS`, merged subpasses share `postMergeIndex`
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

@@ -25,7 +25,7 @@ Tests render pass with sparse-resident color images. Each supported format becom
 | Formats | 44 color formats ([L797-L848](../../../modules/vulkan/renderpass/vktRenderPassSparseRenderTargetTests.cpp#L797-L848)) |
 | Test naming | Each format becomes a test case named by lowercasing the format enum |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition |
 |-------------|-----------|

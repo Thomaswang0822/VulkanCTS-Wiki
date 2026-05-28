@@ -125,7 +125,7 @@ Tests NoSignedWrap and NoUnsignedWrap decorations as registered in the
 | Shader stage | [`compute`, `fragment`, `geometry`, `tess_con`, `tess_eval`, `vert`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L287-L325) | Pipeline stage prefixes used by the entrypoint family |
 | Variable pointer level | [`Varptr_ssbo`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L139-L140), [`Varptr_full`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L142-L143), [`Varptr_full_explicitLayout`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L145-L147) | Variable-pointer requirement sets used by pointer families |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - All generated Amber test cases add [`VK_KHR_spirv_1_4`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L93-L99).
 - All generated cases use SPIR-V 1.4 assembly build options through

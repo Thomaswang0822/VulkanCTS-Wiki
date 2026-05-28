@@ -36,7 +36,7 @@ Registers the [`long_vector_shuffle`](../../../modules/vulkan/spirv_assembly/vkt
 |-----------|--------|-------------|
 | Vector type | standard 4-component vector in [`vector_shuffle.amber`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/vector_shuffle.amber#L38-L40), long 6-component vector in [`long_vector_shuffle.amber`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/long_vector_shuffle.amber#L38-L42) | Whether standard or long vectors are used |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - [`VariablePointerFeatures.variablePointers`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVectorShuffleTests.cpp#L46-L50) (both tests)
 - [`ShaderLongVectorFeaturesEXT.longVector`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/long_vector_shuffle.amber#L10-L12) (long_vector_shuffle only)

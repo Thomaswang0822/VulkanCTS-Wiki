@@ -28,7 +28,7 @@ Null acceleration-structure tests check always-miss behavior and mixed dispatche
 |-----------|-----------------|----------|
 | `null_as` direct children | `mixed_dispatches`, `test` | [vktRayTracingNullASTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L759-L779) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support is checked in this file: the `test` case requires ray tracing pipeline support plus acceleration-structure, deferred-host-operation, buffer-device-address consistency and robustness2/nullDescriptor support [vktRayTracingNullASTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L278-L310); the `mixed_dispatches` descriptor case requires acceleration structure and ray tracing pipeline support [vktRayTracingNullASTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L707-L711).
 

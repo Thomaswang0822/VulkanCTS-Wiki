@@ -60,7 +60,7 @@ Tests `interpolateAtOffset` with an offset of (0.4375, 0.4375), the maximum vali
 | Offset | (0.0, 0.0), (-0.5, -0.5), (0.4375, 0.4375) | The offset passed to `interpolateAtOffset` |
 | Sample count | 1, 2, 4, 8, 16, 32, 64 | Number of MSAA samples; reduced to 4 max when using secondary command buffers |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition | Source |
 |-------------|-----------|--------|

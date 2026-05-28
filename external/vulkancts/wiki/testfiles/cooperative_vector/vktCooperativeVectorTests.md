@@ -58,7 +58,7 @@ The dispatcher appends `createCooperativeVectorMatrixTypeConversionTests(testCtx
 | VulkanSC condition | The dispatcher registers children only inside `#ifndef CTS_USES_VULKANSC` | [vktCooperativeVectorTests.cpp](../../../modules/vulkan/cooperative_vector/vktCooperativeVectorTests.cpp#L41-L50) |
 | Build files | The cooperative-vector target compiles the dispatcher plus the two registering implementation files and the helper utility file | [CMakeLists.txt](../../../modules/vulkan/cooperative_vector/CMakeLists.txt#L7-L23) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 The dispatcher itself has no support checks beyond the VulkanSC compile-time guard; support checks are implemented in the delegated test-case classes [vktCooperativeVectorTests.cpp](../../../modules/vulkan/cooperative_vector/vktCooperativeVectorTests.cpp#L41-L50), [vktCooperativeVectorBasicTests.cpp](../../../modules/vulkan/cooperative_vector/vktCooperativeVectorBasicTests.cpp#L310-L483), [vktCooperativeVectorMatrixTests.cpp](../../../modules/vulkan/cooperative_vector/vktCooperativeVectorMatrixTests.cpp#L117-L158), [vktCooperativeVectorMatrixTests.cpp](../../../modules/vulkan/cooperative_vector/vktCooperativeVectorMatrixTests.cpp#L551-L599).
 

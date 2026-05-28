@@ -47,7 +47,7 @@ Tests switching pipelines with dynamic control points while simultaneously chang
 | Winding order | Test config | Normal / reversed |
 | Cull mode | Test config | None / front |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

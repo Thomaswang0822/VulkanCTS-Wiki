@@ -76,7 +76,7 @@ Source: [lines 4189-4195](../../../modules/vulkan/texture/vktTextureMipmapTests.
 | MinLOD values | 16 values per grid cell |
 | MaxLOD values | 17 values per grid cell |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition |
 |-------------|-----------|

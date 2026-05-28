@@ -72,7 +72,7 @@ Each depth clamp group contains the following depth parameter sub-cases:
 | depthBiasEnable | false, true | Whether depth bias is applied |
 | depthBiasClamp | 0.0, -0.003, 0.003 | Depth bias clamp value |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition | Source |
 |-------------|-----------|--------|

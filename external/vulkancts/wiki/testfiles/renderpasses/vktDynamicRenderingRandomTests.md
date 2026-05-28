@@ -831,7 +831,7 @@ Randomized dynamic rendering tests. 800 test cases generated from parameter comb
 - `tcu::floatThresholdCompare` with threshold `Vec4(0.02f)`
 - Also verifies occlusion query pool results
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

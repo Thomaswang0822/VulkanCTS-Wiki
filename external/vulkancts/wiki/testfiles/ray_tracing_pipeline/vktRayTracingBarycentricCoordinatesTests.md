@@ -29,7 +29,7 @@ Barycentric-coordinate tests register closest-hit, any-hit, and terminating any-
 |-----------|-----------------|----------|
 | `barycentric_coordinates` direct children | `ahit`, `ahitTerminate`, `chit` | [vktRayTracingBarycentricCoordinatesTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L503-L523) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support checks are implemented by the file's test cases; common ray tracing pipeline tests require `VK_KHR_ray_tracing_pipeline` and, where acceleration structures are used, `VK_KHR_acceleration_structure`, as illustrated by [vktRayTracingBuildTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L186-L205).
 

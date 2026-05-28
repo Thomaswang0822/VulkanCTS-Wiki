@@ -48,7 +48,7 @@ This child uses `SubCase::QUAD_ANY` and is registered as `quad_any` [vktReconver
 | Framebuffer extent | 32 by 32 pixels | [vktReconvergenceTerminateInvocationTests.cpp](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L386-L390) |
 | Format | `VK_FORMAT_R8G8B8A8_UNORM` | [vktReconvergenceTerminateInvocationTests.cpp](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L390-L393) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 `bit_count` and `terminate_helpers` require `VK_KHR_shader_maximal_reconvergence` because `needsMaximalReconvergence()` returns true for those subcases [vktReconvergenceTerminateInvocationTests.cpp](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L166-L169), [vktReconvergenceTerminateInvocationTests.cpp](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L196-L200). The minimum API version is Vulkan 1.3 for subcases using `gl_HelperInvocation` and Vulkan 1.1 otherwise [vktReconvergenceTerminateInvocationTests.cpp](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L201-L203). All cases require fragment-stage subgroup support, `VK_SUBGROUP_FEATURE_BASIC_BIT`, and `VK_KHR_shader_quad_control`; `bit_count` additionally requires ballot support, while `terminate_helpers` and `quad_any` require vote support [vktReconvergenceTerminateInvocationTests.cpp](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L205-L226).
 

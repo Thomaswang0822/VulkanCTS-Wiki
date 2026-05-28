@@ -324,7 +324,7 @@ Graphics and compute families frequently instantiate three recording styles:
 
 The enum is declared in [`CommandBufferType`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L97). The helper lambda [`addChilds`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L6227) centralizes much of the graphics-case fan-out for these modes.
 
-## Support Requirements
+## Support / Feature Requirements
 
 ### Common statistics-query support
 

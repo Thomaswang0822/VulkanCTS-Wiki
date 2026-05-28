@@ -30,7 +30,7 @@ This direct child is listed in the registration hierarchy and is covered by the 
 
 The file registers `direction_length` for triangle/AABB geometry with generated scaling and rotation factors, and `inside_aabbs` for four ray-end positions with generated scaling and rotation factors [vktRayQueryDirectionTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L546-L681).
 
-## Support Requirements
+## Support / Feature Requirements
 
 Cases require acceleration-structure and ray-query functionality [vktRayQueryDirectionTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L258-L262).
 

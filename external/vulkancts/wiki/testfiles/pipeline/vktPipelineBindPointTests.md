@@ -48,7 +48,7 @@ Tests the interaction between compute and ray tracing pipeline bind points. Only
 | Dispatch sequence | Permutation | Draw/compute/trace calls in all orderings |
 | PipelineConstructionType | Parameter | All variant types |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

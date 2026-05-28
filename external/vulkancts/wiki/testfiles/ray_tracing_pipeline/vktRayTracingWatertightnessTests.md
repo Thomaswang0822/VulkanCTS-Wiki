@@ -38,7 +38,7 @@ Watertightness tests generate fan and closed-fan triangle arrangements and check
 |-----------|-----------------|----------|
 | `watertightness` direct children | `0`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `closedFan`, `closedFan2` | [vktRayTracingWatertightnessTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L875-L895) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support checks are implemented by the file's test cases; common ray tracing pipeline tests require `VK_KHR_ray_tracing_pipeline` and, where acceleration structures are used, `VK_KHR_acceleration_structure`, as illustrated by [vktRayTracingBuildTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L186-L205).
 

@@ -42,7 +42,7 @@ Non-uniform argument tests generate closest-hit ray-type combinations and miss-c
 |-----------|-----------------|----------|
 | `non_uniform_args` direct children | `chit_1_types_0`, `chit_2_types_0`, `chit_2_types_1`, `chit_3_types_0`, `chit_3_types_1`, `chit_3_types_2`, `chit_4_types_0`, `chit_4_types_1`, `chit_4_types_2`, `chit_4_types_3`, `miss_cause_1`, `miss_cause_2` ... | [vktRayTracingNonUniformArgsTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L520-L540) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support checks are implemented by the file's test cases; common ray tracing pipeline tests require `VK_KHR_ray_tracing_pipeline` and, where acceleration structures are used, `VK_KHR_acceleration_structure`, as illustrated by [vktRayTracingBuildTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L186-L205).
 

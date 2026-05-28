@@ -210,7 +210,7 @@ Test naming convention:
 - Compute: `{undef_}vec{N}`, `{undef_}mat{C}x{R}`, `{undef_}nested_struct`
 - Graphics: `{undef_}vec{N}_{stage}`, `{undef_}mat{C}x{R}_{stage}`, `{undef_}nested_struct_{stage}`
 
-## Support Requirements
+## Support / Feature Requirements
 
 - **vertexPipelineStoresAndAtomics** — required for vertex, tessellation, and geometry stages in graphics tests — [vktSpvAsmCompositeInsertTests.cpp#L303](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L303)
 - **fragmentStoresAndAtomics** — required for fragment stage in graphics tests — [vktSpvAsmCompositeInsertTests.cpp#L322](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L322)

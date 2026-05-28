@@ -55,7 +55,7 @@ Tests shared presentable image behavior with the swapchain image extent set larg
 | Composite Alpha | `OPAQUE`, `PRE_MULTIPLIED`, `POST_MULTIPLIED`, `INHERIT` | 4 alpha flags; each throws `NotSupportedError` if not supported by the surface |
 | Surface Format | All formats returned by `getPhysicalDeviceSurfaceFormats` | Iterated automatically per swapchain config; skipped if `getPhysicalDeviceImageFormatProperties` returns `VK_ERROR_FORMAT_NOT_SUPPORTED` |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 - **VK_KHR_shared_presentable_image** extension is required (enabled on the device alongside `VK_KHR_swapchain`)
 - **VK_KHR_surface** and **VK_KHR_get_surface_capabilities2** instance extensions are required

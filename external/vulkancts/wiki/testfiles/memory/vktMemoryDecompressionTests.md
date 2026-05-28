@@ -70,7 +70,7 @@ Internal structure under `indirect` mirrors `direct` with the same compression l
 | `decompressed_size_17k` | `vulkan/data/gdeflate/decompressed_17k.gdef` | ~17KB test data |
 | `decompressed_size_64k` | `vulkan/data/gdeflate/decompressed_64k.gdef` | ~64KB test data |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Extension/Feature | Required by |
 |-------------------|-------------|

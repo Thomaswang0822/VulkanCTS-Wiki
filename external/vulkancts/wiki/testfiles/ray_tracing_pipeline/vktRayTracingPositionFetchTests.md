@@ -28,7 +28,7 @@ Position-fetch tests vary CPU/GPU build modes, vertex formats, and flag masks fo
 |-----------|-----------------|----------|
 | `position_fetch` direct children | `cpu_built`, `gpu_built` | [vktRayTracingPositionFetchTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L532-L552) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support requires acceleration structure, ray tracing pipeline, and `VK_KHR_ray_tracing_position_fetch`; host-build cases additionally require acceleration-structure host commands, and all cases check the `rayTracingPositionFetch` feature [vktRayTracingPositionFetchTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L113-L134).
 

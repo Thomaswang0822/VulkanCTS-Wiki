@@ -63,7 +63,7 @@ Each shader type group contains these direct children:
 | mipLvl | 0-1 | Mip level for LOD tests |
 | useLocalInvocationIndex | bool | Whether to use LocalInvocationIndex (quads variant) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - **VK_KHR_compute_shader_derivatives** extension (all tests) — [vktSpvAsmComputeShaderDerivativesTests.cpp#L2834](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L2834)
 - **computeDerivativeGroupLinear** feature — required when `DerivativeFeature::LINEAR` — [vktSpvAsmComputeShaderDerivativesTests.cpp#L2841](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L2841)
