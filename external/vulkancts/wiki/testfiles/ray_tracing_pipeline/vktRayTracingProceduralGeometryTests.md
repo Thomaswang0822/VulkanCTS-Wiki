@@ -28,7 +28,7 @@ Procedural-geometry tests register explicit AABB arrangements for objects behind
 |-----------|-----------------|----------|
 | `procedural_geometry` direct children | `object_behind_bounding_boxes`, `triangle_in_between` | [vktRayTracingProceduralGeometryTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L614-L634) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support checks are implemented by the file's test cases; common ray tracing pipeline tests require `VK_KHR_ray_tracing_pipeline` and, where acceleration structures are used, `VK_KHR_acceleration_structure`, as illustrated by [vktRayTracingBuildTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L186-L205).
 

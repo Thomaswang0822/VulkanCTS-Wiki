@@ -121,7 +121,7 @@ Tests mapping to (unused) locations higher than default locations. Parameter dim
 
 - `tcu::floatThresholdCompare` for color/depth/stencil against expected values
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

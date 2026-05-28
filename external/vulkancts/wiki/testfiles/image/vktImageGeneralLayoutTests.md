@@ -183,7 +183,7 @@ Tests rendering with multiple color attachments using general layout:
 | Color Attachment Counts | 4, 8 (MSAA tests) |
 | Buffer Count | width x height (128 x 128 = 16384 elements) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - **astc_sample** ([vktImageGeneralLayoutTests.cpp#L617-L635](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L617-L635)):
   - `VK_EXT_astc_decode_mode`

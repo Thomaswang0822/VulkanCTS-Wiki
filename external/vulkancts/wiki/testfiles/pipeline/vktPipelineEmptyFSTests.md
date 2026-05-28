@@ -69,7 +69,7 @@ Verifies that sample masking works correctly in a pipeline without a fragment sh
 | Fragment shader presence | Enum | No fragment shader, empty fragment shader |
 | Depth/stencil attachment | Enum | Depth-only, stencil-only, depth+stencil |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

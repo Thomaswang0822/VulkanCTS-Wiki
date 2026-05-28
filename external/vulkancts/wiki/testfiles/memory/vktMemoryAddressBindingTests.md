@@ -77,7 +77,7 @@ Each test creates the object within a scoped block, then validates that all call
 | ImageView cube | 64×64, cube compatible, 6 faces | `VK_IMAGE_USAGE_SAMPLED_BIT \| VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT` |
 | ImageView cube array | 64×64, cube compatible, 12 faces (2 cubes) | `VK_IMAGE_USAGE_SAMPLED_BIT \| VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT` |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Extension/Feature | Required by |
 |-------------------|-------------|

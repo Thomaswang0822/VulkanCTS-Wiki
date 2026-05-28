@@ -57,7 +57,7 @@ Parameters: dynamicDepthEnable {false, true}. Requires VK_EXT_extended_dynamic_s
 - Color: `tcu::floatThresholdCompare` or pixel-by-pixel comparison
 - Depth/stencil: `tcu::dsThresholdCompare` with threshold `0.0f`
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

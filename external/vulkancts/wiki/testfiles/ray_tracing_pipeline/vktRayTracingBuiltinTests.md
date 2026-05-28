@@ -33,7 +33,7 @@ Specialization-constant cases register shader-stage leaves for raygen, hit, miss
 | `builtin` direct children | `geometryindexext`, `hitkindext`, `hittext`, `incomingrayflagsext`, `indirect`, `instancecustomindexext`, `instanceid`, `launchidext`, `launchsizeext`, `objectraydirectionext`, `objectrayoriginext`, `objecttoworld3x4ext` ... | [vktRayTracingBuiltinTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBuiltinTests.cpp#L4794-L4814) |
 | `spec_constants` direct children | `ahit`, `call`, `chit`, `miss`, `rgen`, `sect` | [vktRayTracingBuiltinTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBuiltinTests.cpp#L4811-L4831) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support checks are implemented by the file's test cases; common ray tracing pipeline tests require `VK_KHR_ray_tracing_pipeline` and, where acceleration structures are used, `VK_KHR_acceleration_structure`, as illustrated by [vktRayTracingBuildTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L186-L205).
 

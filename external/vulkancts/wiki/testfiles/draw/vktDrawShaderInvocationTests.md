@@ -44,7 +44,7 @@ Amber test combining helper-invocation volatile semantics with the Vulkan memory
 |---|---|---|
 | Test type | EXT, CORE, CORE_MEM_MODEL | Determines support requirements and amber file |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Applicable Tests | Source |
 |---|---|---|

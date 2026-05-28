@@ -30,7 +30,7 @@ Contains layer-count tests for VK_ARM_performance_counters_by_region with the so
 | Layer counts | 1 and 2 ([L1598-L1607](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1598-L1607)) |
 | Counter | "Fragment warps" with min=0, max=0, fragment=256 |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition |
 |-------------|-----------|

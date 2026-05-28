@@ -149,7 +149,7 @@ Graphics pipeline variants of struct conversion and mixed-type layout tests. Obs
 | ShaderTemplate | `TYPES`, `STRIDE32BIT_STD140`, `STRIDE32BIT_STD430`, `STRIDE16BIT_STD140`, `STRIDE16BIT_STD430`, `STRIDEMIX_STD140`, `STRIDEMIX_STD430` | Layout/packing mode for struct tests |
 | Shader Stage | compute / vertex+fragment | Pipeline stage under test |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - **VK_KHR_16bit_storage** extension (observed in [vktSpvAsm16bitStorageTests.cpp#L8608](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8608))
 - SPIR-V capabilities: [`StorageUniformBufferBlock16`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8624-L8644), [`StorageUniform16`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8626-L8644), [`StoragePushConstant16`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8632-L8635), [`StorageInputOutput16`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8667-L8686)

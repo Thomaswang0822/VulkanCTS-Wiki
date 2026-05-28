@@ -63,7 +63,7 @@ Edge-case tests for property queries and non-present aspect behavior. Contains l
 | Unused resolve attachment | boolean |
 | Sample mask | additional variant for SAMPLE_ZERO |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition |
 |-------------|-----------|

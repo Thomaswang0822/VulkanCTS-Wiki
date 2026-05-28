@@ -55,7 +55,7 @@ Same as `separate/with_sample_decoration` but with interpolation qualifiers on s
 | Sample decoration | no_sample_decoration, with_sample_decoration | Whether the `sample` auxiliary qualifier is included among the interpolation types |
 | Interpolation type | smooth, flat, noperspective, centroid, sample | The interpolation qualifier being tested (used internally for reference comparison) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition | Source |
 |-------------|-----------|--------|

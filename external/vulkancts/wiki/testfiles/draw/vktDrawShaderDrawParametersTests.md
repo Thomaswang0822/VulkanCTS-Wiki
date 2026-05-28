@@ -57,7 +57,7 @@ Tests that `gl_DrawID` returns the correct draw index (0, 1, 2) within a multi-d
 | Base instance only | false, true | Whether only `gl_BaseInstance` is tested in isolation |
 | Topology | `VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP` | Fixed topology for all tests in this file |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition | Source |
 |-------------|-----------|--------|

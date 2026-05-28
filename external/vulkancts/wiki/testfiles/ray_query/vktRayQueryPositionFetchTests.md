@@ -35,7 +35,7 @@ This direct child is listed in the registration hierarchy and is covered by the 
 
 The registration crosses shader source, CPU/GPU build, 15 vertex formats, and flag masks [vktRayQueryPositionFetchTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryPositionFetchTests.cpp#L732-L837).
 
-## Support Requirements
+## Support / Feature Requirements
 
 Cases require ray-query, acceleration-structure, `VK_KHR_ray_tracing_position_fetch`, supported vertex formats, host commands for CPU builds, and stage-specific gates [vktRayQueryPositionFetchTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryPositionFetchTests.cpp#L132-L186).
 

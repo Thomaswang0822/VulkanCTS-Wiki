@@ -91,7 +91,7 @@ Uses `IndirectDrawCountClampTest` class with `IndirectCountType::BUFFER_LIMIT` a
 | Bind index buffer offset | 0, 16 | Offset passed to `vkCmdBindIndexBuffer` |
 | Index buffer allocation offset | 0, 16 | Offset applied to index buffer memory allocation |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition | Source |
 |-------------|-----------|--------|

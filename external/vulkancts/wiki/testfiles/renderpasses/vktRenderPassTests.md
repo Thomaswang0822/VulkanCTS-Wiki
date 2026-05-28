@@ -123,7 +123,7 @@ Defined in this file and added to both suballocation/dedicated_allocation subgro
 | CommandBufferTypes | INLINE, SECONDARY | - |
 | ImageMemory | STRICT, LAZY | - |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Defined at [vktRenderPassTests.cpp#L5504-L5676](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L5504-L5676):
 

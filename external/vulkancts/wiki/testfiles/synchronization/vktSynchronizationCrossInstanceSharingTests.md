@@ -99,7 +99,7 @@ The test iterates over platform-specific combinations of external memory and sem
 
 Only handle types supported by the device are actually executed; unsupported combinations are skipped via `checkSupport`.
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 ### Instance-Level Requirements
 

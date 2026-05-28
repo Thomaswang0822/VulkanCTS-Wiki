@@ -62,7 +62,7 @@ Tests mixed signedness dot product with accumulate and saturate. Includes "all",
 | Input range | all, small, limits, limits-neg, nosat, small-neg, small-nosat | Range of input values to exercise different saturation scenarios |
 | Accumulate addend | max, min | Whether addend values are near max or min for saturation testing |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - [`VK_KHR_shader_integer_dot_product`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L201) extension / [`shaderIntegerDotProduct`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L202) feature
 - [`SPV_KHR_integer_dot_product`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L376-L378) SPIR-V extension

@@ -62,7 +62,7 @@ The root implementation appends this child by calling `createTerminateInvocation
 | Fragment dimensions | Generated maximal fragment cases use a 32 by 32 framebuffer extent | [vktReconvergenceTests.cpp](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L7888-L7891) |
 | Main vs experimental split | Cases with index below one fifth of `numTests` go to the main tree; the remaining four fifths go to the experimental tree | [vktReconvergenceTests.cpp](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L7929-L7933), [vktTestPackage.cpp](../../../modules/vulkan/vktTestPackage.cpp#L1403-L1407) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Generated reconvergence cases require Vulkan 1.1, subgroup operation support for the selected shader stage, and compute workgroup sizes within device limits when the selected stage is compute [vktReconvergenceTests.cpp](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L4395-L4426). Elect cases require `VK_SUBGROUP_FEATURE_BASIC_BIT`, ballot cases require `VK_SUBGROUP_FEATURE_BALLOT_BIT`, uniform-control-flow cases require `shaderSubgroupUniformControlFlow`, and maximal cases require `shaderMaximalReconvergence` [vktReconvergenceTests.cpp](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L4404-L4408), [vktReconvergenceTests.cpp](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L4428-L4433).
 

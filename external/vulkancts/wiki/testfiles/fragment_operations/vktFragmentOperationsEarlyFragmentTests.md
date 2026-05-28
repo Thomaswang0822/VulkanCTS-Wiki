@@ -121,7 +121,7 @@ These switches are carried in [`SampleCountTestParams`](../../../modules/vulkan/
 | Sample count | 2, 4, 8, 16 from the registration arrays at [`vktFragmentOperationsEarlyFragmentTests.cpp`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L2839-L2848) and [`vktFragmentOperationsEarlyFragmentTests.cpp`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L2854-L2856) |
 | Optional sample-count modifiers | `earlyAndLate`, `alphaToCoverage`, `useMaintenance5` fields in [`SampleCountTestParams`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L1941-L1946) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 [`EarlyFragmentTest::checkSupport()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L629-L638) requires `fragmentStoresAndAtomics` for the base family, and additionally requires `VK_AMD_shader_early_and_late_fragment_tests` plus the corresponding feature bit when the early-and-late mode flag is used. [`EarlyFragmentSampleMaskTest::checkSupport()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L1911-L1916) adds a requirement for `VK_KHR_depth_stencil_resolve`. [`EarlyFragmentSampleCountTest::checkSupport()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L2713-L2749) inherits the base checks, re-requires the AMD early-and-late extension when needed, and requires `VK_KHR_maintenance5` when `useMaintenance5` is true.
 

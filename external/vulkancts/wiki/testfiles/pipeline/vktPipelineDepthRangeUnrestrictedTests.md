@@ -50,7 +50,7 @@ Tests unrestricted depth range behavior when depth clamping is disabled. Paramet
 | Depth format | Enum | D16_UNORM, D24_UNORM_S8_UINT, D32_SFLOAT, etc. |
 | PipelineConstructionType | Parameter | All variant types |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

@@ -56,7 +56,7 @@ Amber case tests signed less-than-or-equal comparison on unsigned 32-bit integer
 | Comparison op | [`OpSGreaterThanEqual`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedIntCompareTests.cpp#L50), [`OpSGreaterThan`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedIntCompareTests.cpp#L51), [`OpSLessThan`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedIntCompareTests.cpp#L52), [`OpSLessThanEqual`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedIntCompareTests.cpp#L53) | The signed comparison instruction being tested |
 | Operand type | [`uint` / 32-bit unsigned](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedIntCompareTests.cpp#L50-L53) | The unsigned integer type used as operands |
 
-## Support Requirements
+## Support / Feature Requirements
 
 No special Vulkan extensions or features are added in this source file. The test creation loop is compiled only for
 non-VulkanSC builds through [`#ifndef CTS_USES_VULKANSC`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedIntCompareTests.cpp#L38-L69).

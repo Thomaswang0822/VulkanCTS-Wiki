@@ -134,7 +134,7 @@ The `div_assign` operation maps to `OP_DIVIDE_INTO`, registers direct dynamic-in
 | Dynamic-input pairing rule | The generated cases avoid two dynamic matrix inputs: matrix-matrix, component-wise, vector-vector, and assignment branches use a uniform second input when the first input is dynamic at [`vktShaderRenderMatrixTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderMatrixTests.cpp#L2491-L2521) and [`vktShaderRenderMatrixTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderMatrixTests.cpp#L2538-L2547); shader setup asserts that only one dynamic matrix input is allowed at [`vktShaderRenderMatrixTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderMatrixTests.cpp#L1980-L1993). |
 | Result reduction | Shader output reduces scalar, vector, and matrix results into RGB through `genGLSLMatToVec3Reduction()` at [`vktShaderRenderMatrixTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderMatrixTests.cpp#L2255-L2262) and [`vktShaderRenderMatrixTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderMatrixTests.cpp#L2271-L2323). |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Evidence |
 |---|---|

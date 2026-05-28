@@ -44,7 +44,7 @@ Tests shader stencil export with the VK_FORMAT_D32_SFLOAT_S8_UINT depth/stencil 
 | Depth/stencil format | Enum | D24_UNORM_S8_UINT, D32_SFLOAT_S8_UINT, etc. |
 | PipelineConstructionType | Parameter | All variant types |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

@@ -57,7 +57,7 @@ Source: [vktDrawAhbTests.cpp#L642-L643](../../../modules/vulkan/draw/vktDrawAhbT
 | Image dimensions | 256x256 | Fixed render target size |
 | Color format | VK_FORMAT_R8G8B8A8_UNORM | Fixed color attachment format |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition | Details |
 |-------------|-----------|---------|

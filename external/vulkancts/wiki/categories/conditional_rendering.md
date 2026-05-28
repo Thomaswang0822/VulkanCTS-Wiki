@@ -54,7 +54,7 @@ conditional_rendering
 | Dispatch command names | [`getDispatchCommandTypeName()`](../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L50-L64) |
 | Transform-feedback command names | [`getDrawCommandTypeName()`](../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L64-L90) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 The shared helper requires `VK_EXT_conditional_rendering`, checks the `conditionalRendering` and `inheritedConditionalRendering` feature bits where applicable, requires `VK_EXT_nested_command_buffer` for nested rows, and requires `VK_KHR_maintenance7` for inherited primary-command-buffer cases. Individual files add command-specific gates such as `VK_KHR_draw_indirect_count`, `VK_KHR_device_group` for `dispatch_base`, `VK_EXT_transform_feedback`, `VK_EXT_multi_draw`, `VK_EXT_shader_object`, `VK_KHR_ray_tracing_pipeline`, `VK_KHR_ray_tracing_maintenance1`, `VK_KHR_maintenance5`, and `VK_KHR_device_address_commands` where their source paths require them.
 

@@ -54,7 +54,7 @@ Test principle: Validates that writes to out-of-range sample indices are discard
 
 None at the registration level. Each sub-group enumerates specific test cases as individual Amber tests.
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 - `atomic` sub-group: requires `shaderStorageImageMultisample`. R64 variants additionally require `shaderInt64`. Excluded on VulkanSC by both the parent group registration guard and an internal `#ifndef CTS_USES_VULKANSC` guard (lines 42-100).
 - `invalid_sample_index` sub-group: requires `shaderStorageImageMultisample`. Excluded on VulkanSC because the parent `multisample` group is not registered on VulkanSC (see [vktTextureTests.cpp](../../../modules/vulkan/texture/vktTextureTests.cpp#L60-L66)). No internal VulkanSC guard.

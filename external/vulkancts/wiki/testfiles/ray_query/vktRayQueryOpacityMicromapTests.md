@@ -30,7 +30,7 @@ This direct child is listed in the registration hierarchy and is covered by the 
 
 `render` accesses opacity micromap formats through shader source, flags, map/special-index modes, subdivision level, and non-zero-base variants; `copy` iterates copy types, modes, levels, and a maintenance5 case [vktRayQueryOpacityMicromapTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L1070-L1264).
 
-## Support Requirements
+## Support / Feature Requirements
 
 Cases require ray-query, acceleration-structure, and `VK_EXT_opacity_micromap`; maintenance5 variants require `VK_KHR_maintenance5`, and raygen requires ray-tracing-pipeline support [vktRayQueryOpacityMicromapTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L153-L193).
 

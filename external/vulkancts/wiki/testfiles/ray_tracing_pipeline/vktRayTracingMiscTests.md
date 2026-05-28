@@ -137,7 +137,7 @@ Miscellaneous tests cover callable stress, cull masks, recursion, shader-record 
 |-----------|-----------------|----------|
 | `misc` direct children | `AS_stresstest_AABB`, `AS_stresstest_tri`, `NO_DUPLICATE_ANY_HIT_1TL1BL1G_AABB`, `NO_DUPLICATE_ANY_HIT_1TL1BL1G_tri`, `NO_DUPLICATE_ANY_HIT_1TL1BLnG_AABB`, `NO_DUPLICATE_ANY_HIT_1TL1BLnG_tri`, `NO_DUPLICATE_ANY_HIT_1TLnBL1G_AABB`, `NO_DUPLICATE_ANY_HIT_1TLnBL1G_tri`, `NO_DUPLICATE_ANY_HIT_1TLnBLnG_AABB`, `NO_DUPLICATE_ANY_HIT_1TLnBLnG_tri`, `OpIgnoreIntersectionKHR_AnyHitDynamically`, `OpIgnoreIntersectionKHR_AnyHitStatically` ... | [vktRayTracingMiscTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L10908-L10928) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support is checked in this file; observed gates include ray tracing pipeline and related feature/extension checks at [vktRayTracingMiscTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L8420-L8424).
 

@@ -104,7 +104,7 @@ Verify dstBuffer == srcBuffer
 const uint32_t pixelDataSize = tcuFormat.getPixelSize() * width * height * layers * depth;
 ```
 
-## Support Requirements
+## Support / Feature Requirements
 
 - **Format properties check** ([vktImageTransfer.cpp#L119-L130](../../../modules/vulkan/image/vktImageTransfer.cpp#L119-L130)):
   - `vkGetPhysicalDeviceImageFormatProperties` must return VK_SUCCESS

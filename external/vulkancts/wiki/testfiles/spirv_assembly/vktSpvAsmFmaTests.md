@@ -45,7 +45,7 @@ Tests `OpFmaKHR` with `double` operands across scalar and vector sizes (1–4), 
 | Denorm mode | `denorm_preserve`, `denorm_flush`, `undef` | DenormPreserve, DenormFlushToZero, or undefined |
 | Input mode | `random`, `directed`, `float_controls` | Random inputs, directed special-value inputs, or directed with SignedZeroInfNanPreserve |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - `VK_KHR_shader_fma` / FMA feature coverage is reflected by the file comment and per-bit-depth `shaderFmaFloat16`, `shaderFmaFloat32`, and `shaderFmaFloat64` feature requests ([file comment](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L41), [createFmaTestSpec()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L983-L985))
 - `SPV_KHR_fma` SPIR-V extension ([getFmaCode()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L134-L136))

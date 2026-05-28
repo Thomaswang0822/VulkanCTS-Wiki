@@ -74,7 +74,7 @@ lists 757 paths under `dEQP-VK.graphicsfuzz` ([`graphicsfuzz.txt`](../../mustpas
 | Optional requirements observed | `VK_KHR_shader_terminate_invocation` on 72 entries; `VK_KHR_shader_float_controls` and `FloatControlsProperties.shaderSignedZeroInfNanPreserveFloat32` on 8 entries | Examples in [`index.txt`](../../data/vulkan/amber/graphicsfuzz/index.txt#L2-L4), [`index.txt`](../../data/vulkan/amber/graphicsfuzz/index.txt#L30-L40), [`index.txt`](../../data/vulkan/amber/graphicsfuzz/index.txt#L748-L754) |
 | Common script verification styles in inspected samples | Direct red framebuffer expectations and reference-vs-variant histogram EMD comparisons | [`access-new-vector-inside-if-condition.amber`](../../data/vulkan/amber/graphicsfuzz/access-new-vector-inside-if-condition.amber#L110-L110), [`stable-mergesort-reversed-for-loop.amber`](../../data/vulkan/amber/graphicsfuzz/stable-mergesort-reversed-for-loop.amber#L1555-L1555) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 There is no category-wide support check in [`vktAmberGraphicsFuzzTests.cpp`](../../modules/vulkan/amber/vktAmberGraphicsFuzzTests.cpp#L37-L49). Support requirements are per-case strings read from the index and attached to the `AmberTestCase`
 ([`vktAmberTestCaseUtil.cpp`](../../modules/vulkan/amber/vktAmberTestCaseUtil.cpp#L155-L163)). The shared Amber support code

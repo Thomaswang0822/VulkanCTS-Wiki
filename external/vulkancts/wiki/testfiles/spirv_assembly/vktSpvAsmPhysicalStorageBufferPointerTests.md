@@ -42,7 +42,7 @@ Passes buffer device addresses through an SSBO where addresses are stored both a
 | Pass method | [`PUSH_CONSTANTS`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L57), [`PUSH_CONSTANTS_FUNCTION`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L58), [`ADDRESSES_IN_SSBO`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L59) | How buffer addresses are communicated to the shader |
 | Element count | [`64`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L758-L759) | Number of int32 elements to copy |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - [`VK_KHR_get_physical_device_properties2`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L316-L319) instance extension for feature queries.
 - [`bufferDeviceAddress`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L320-L323) support checked through `isBufferDeviceAddressSupported()`.

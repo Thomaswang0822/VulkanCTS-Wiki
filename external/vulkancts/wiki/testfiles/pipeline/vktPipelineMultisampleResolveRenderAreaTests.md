@@ -35,7 +35,7 @@ Contains individual test cases that verify multisample resolve correctness when 
 | Render area size | Fixed | 32x32 |
 | PipelineConstructionType | Parameter | All variant types |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

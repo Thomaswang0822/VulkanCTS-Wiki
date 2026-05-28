@@ -72,7 +72,7 @@ The placed mapping must be aligned to `max(system_page_size, minPlacedMemoryMapA
 - `minPlacedMemoryMapAlignment` is queried from `VkPhysicalDeviceMapMemoryPlacedPropertiesEXT` ([vktMemoryMapPlacedTests.cpp:147-154](../../../modules/vulkan/memory/vktMemoryMapPlacedTests.cpp#L147))
 - The test rounds the Vulkan allocation size up to a multiple of this alignment ([vktMemoryMapPlacedTests.cpp:162-164](../../../modules/vulkan/memory/vktMemoryMapPlacedTests.cpp#L162))
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Extension/Feature | Required by |
 |-------------------|-------------|

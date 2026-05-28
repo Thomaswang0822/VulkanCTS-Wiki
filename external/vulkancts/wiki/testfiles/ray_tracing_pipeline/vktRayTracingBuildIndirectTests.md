@@ -28,7 +28,7 @@ Indirect acceleration-structure tests vary build/update mode and indirect count/
 |-----------|-----------------|----------|
 | `indirect_acceleration_structure` direct children | `build`, `update` | [vktRayTracingBuildIndirectTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1390-L1410) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support checks are implemented by the file's test cases; common ray tracing pipeline tests require `VK_KHR_ray_tracing_pipeline` and, where acceleration structures are used, `VK_KHR_acceleration_structure`, as illustrated by [vktRayTracingBuildTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L186-L205).
 

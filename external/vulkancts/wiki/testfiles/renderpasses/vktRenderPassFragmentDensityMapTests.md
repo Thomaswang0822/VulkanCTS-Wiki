@@ -66,7 +66,7 @@ Uses renderMultiplier 33.0f/16.0f, densityMapSize {16,16}.
 | Fragment areas | {1,2}, {2,1}, {2,2} ([L4990](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4990)) |
 | Density map types | static_subsampled, deferred_subsampled, dynamic_subsampled, static_nonsubsampled, deferred_nonsubsampled, dynamic_nonsubsampled |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition |
 |-------------|-----------|

@@ -34,7 +34,7 @@ Large shader-set tests vary GPU and host-threaded CPU build modes and square siz
 |-----------|-----------------|----------|
 | `large_shader_set` direct children | `cpu_ht`, `cpu_ht_1`, `cpu_ht_2`, `cpu_ht_3`, `cpu_ht_4`, `cpu_ht_8`, `cpu_ht_max`, `gpu` | [vktRayTracingBuildLargeTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L574-L594) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support is checked in this file; observed gates include ray tracing pipeline and related feature/extension checks at [vktRayTracingBuildLargeTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L191-L205).
 

@@ -69,7 +69,7 @@ Each test case exercises the `ldexp` operation (multiply a floating-point value 
 | Exponent type | int8, int16, int32, int64 | Integer exponent type |
 | Exponent width | scalar, vec2, vec4 | Scalar or vector exponent (matches float width) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Varies per test case. Common requirements observed in [`caseList`](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L45-L130):
 - [`Float16Int8Features.shaderFloat16`](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L46-L58) for float16 results

@@ -156,7 +156,7 @@ The compute variants build a storage-buffer-backed compute pipeline in [`Compute
 
 The single-pool compute case wraps one dispatch (`2 x 2 x 2`) with one query in [`ComputeQueryTest::iterate()`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L1026). The multiple-pool compute case records two queried dispatches, one per pool, in [`ComputeMultiplePoolsTest::iterate()`](../../../modules/vulkan/query_pool/vktQueryPoolPerformanceTests.cpp#L1125).
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | When needed | Source |
 |------------|-------------|--------|

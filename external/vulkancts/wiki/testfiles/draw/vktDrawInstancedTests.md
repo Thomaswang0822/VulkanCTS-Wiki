@@ -1087,7 +1087,7 @@ Tests with `VK_EXT_vertex_input_dynamic_state` enabled, using `vkCmdSetVertexInp
 | Instance count | 0, 1, 2, 4, 20 | Number of instances (iterated at runtime) |
 | First instance | 0, 1, 3, 4, 20 | First instance index (iterated at runtime; limited to 0 when `drawIndirectFirstInstance` unsupported) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition | Source |
 |-------------|-----------|--------|

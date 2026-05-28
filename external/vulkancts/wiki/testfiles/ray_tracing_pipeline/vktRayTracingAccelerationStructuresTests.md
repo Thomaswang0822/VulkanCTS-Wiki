@@ -43,7 +43,7 @@ Acceleration-structure tests cover flags, formats, operations, host threading, f
 |-----------|-----------------|----------|
 | `acceleration_structures` direct children | `complex_geometry`, `copy_within_pipeline`, `device_compability_khr`, `dynamic_indexing`, `empty`, `flags`, `format`, `function_argument`, `header_bottom_address`, `host_threading`, `instance_index`, `instance_triangle_culling` ... | [vktRayTracingAccelerationStructuresTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingAccelerationStructuresTests.cpp#L7740-L7760) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support checks are implemented by the file's test cases; common ray tracing pipeline tests require `VK_KHR_ray_tracing_pipeline` and, where acceleration structures are used, `VK_KHR_acceleration_structure`, as illustrated by [vktRayTracingBuildTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L186-L205).
 

@@ -88,7 +88,7 @@ Verifies that different subresource layout query methods return identical result
 | Default 3D Dimensions | 32 x 48 x 56 |
 | Image Offset Variants | false (no offset), true (with memory offset) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - **Required format features** ([vktImageSubresourceLayoutTests.cpp#L200-L204](../../../modules/vulkan/image/vktImageSubresourceLayoutTests.cpp#L200-L204)):
   - `VK_FORMAT_FEATURE_TRANSFER_DST_BIT`

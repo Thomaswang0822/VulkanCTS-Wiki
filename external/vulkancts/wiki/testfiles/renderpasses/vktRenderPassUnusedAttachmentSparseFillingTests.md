@@ -78,7 +78,7 @@ Tests that sparse filling of input attachment descriptors works correctly with 1
 | Active input attachment counts | {1, 3, 7, 15, 31, 63, 127} | [vktRenderPassUnusedAttachmentSparseFillingTests.cpp#L1053-L1061](../../../modules/vulkan/renderpass/vktRenderPassUnusedAttachmentSparseFillingTests.cpp#L1053-L1061) |
 | Total attachment count | 2 * activeInputAttachmentCount | - |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Defined at [vktRenderPassUnusedAttachmentSparseFillingTests.cpp#L351-L374](../../../modules/vulkan/renderpass/vktRenderPassUnusedAttachmentSparseFillingTests.cpp#L351-L374):
 

@@ -65,7 +65,7 @@ Registered by [vktRayQueryAccelerationStructuresTests.cpp](../../../modules/vulk
 
 Important dimensions include resource residency, shader source/pipeline, host/device build type, geometry type, top-level instance pattern, padding, build flags, vertex/index formats, operation type/target, host thread count, and empty-structure mode; these dimensions are visible in the family builders cited above.
 
-## Support Requirements
+## Support / Feature Requirements
 
 Common support requires ray-query and acceleration-structure functionality; selected device-address-command variants require `VK_KHR_device_address_commands` [vktRayQueryAccelerationStructuresTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryAccelerationStructuresTests.cpp#L1605-L1612). Stage-specific tessellation, geometry, ray-tracing-pipeline, and vertex-pipeline-store gates are checked in [vktRayQueryAccelerationStructuresTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryAccelerationStructuresTests.cpp#L1613-L1645). Host-built cases require `accelerationStructureHostCommands`, vertex formats are checked for AS vertex-buffer support, and sparse-residency cases require `sparseBinding` [vktRayQueryAccelerationStructuresTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryAccelerationStructuresTests.cpp#L1648-L1665).
 

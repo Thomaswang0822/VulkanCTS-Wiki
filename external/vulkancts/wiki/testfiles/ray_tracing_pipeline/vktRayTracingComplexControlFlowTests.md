@@ -36,7 +36,7 @@ Complex-control-flow tests cover conditionals, switches, loops, nested loops, an
 |-----------|-----------------|----------|
 | `complexcontrolflow` direct children | `function_call`, `if`, `loop`, `loop_double_call`, `loop_double_call_sparse`, `nested_function_call`, `nested_loop`, `nested_loop_loop_after`, `nested_loop_loop_before`, `switch` | [vktRayTracingComplexControlFlowTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1845-L1865) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support checks are implemented by the file's test cases; common ray tracing pipeline tests require `VK_KHR_ray_tracing_pipeline` and, where acceleration structures are used, `VK_KHR_acceleration_structure`, as illustrated by [vktRayTracingBuildTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L186-L205).
 

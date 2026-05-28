@@ -58,7 +58,7 @@ The file defines three candidate query types in [`QueryType`](../../../modules/v
 
 For pipeline statistics pools, the test requests `VK_QUERY_PIPELINE_STATISTIC_FRAGMENT_SHADER_INVOCATIONS_BIT` in both constructors; see [`PrimaryCommandBufferConcurrentTestInstance::PrimaryCommandBufferConcurrentTestInstance()`](../../../modules/vulkan/query_pool/vktQueryPoolConcurrentTests.cpp#L323) and [`SecondaryCommandBufferConcurrentTestInstance::SecondaryCommandBufferConcurrentTestInstance()`](../../../modules/vulkan/query_pool/vktQueryPoolConcurrentTests.cpp#L588).
 
-## Support Requirements
+## Support / Feature Requirements
 
 ### Minimum concurrent-query capability
 

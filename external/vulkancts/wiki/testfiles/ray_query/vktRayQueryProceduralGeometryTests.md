@@ -30,7 +30,7 @@ Registered directly with `TestType::TRIANGLE_IN_BETWEEN` [vktRayQueryProceduralG
 
 The visible registration dimension is the two explicit `TestType` cases above.
 
-## Support Requirements
+## Support / Feature Requirements
 
 The cases require `VK_KHR_acceleration_structure`, `VK_KHR_ray_query`, and the ray-query feature bit [vktRayQueryProceduralGeometryTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L398-L403).
 

@@ -81,7 +81,7 @@ Tests passing Workgroup-storage-class array pointers as function parameters with
 | Variable pointer capability | [`VariablePointersStorageBuffer`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L292-L295), [`VariablePointers`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L560-L565) | Level of variable-pointer support exercised |
 | Buffer type | fixed array, runtime array | Storage-buffer arrays are represented by fixed-size and runtime array types in the generated assembly |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - [`VK_KHR_variable_pointers`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L383-L385) extension is requested by the storage-buffer pointer families.
 - [`SPV_KHR_storage_buffer_storage_class`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L292-L295) SPIR-V extension is emitted in storage-buffer assembly.

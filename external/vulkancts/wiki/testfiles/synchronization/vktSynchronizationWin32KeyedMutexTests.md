@@ -468,7 +468,7 @@ Each leaf test is a [Win32KeyedMutexTestCase](../../../modules/vulkan/synchroniz
 | Resource Type | Buffer (16 KiB, 256 KiB), Image 2D (128x128 in R8_UNORM, R16_UINT, R8G8B8A8_UNORM, R16G16B16A16_UINT, R32G32B32A32_SFLOAT) | `s_resourcesWin32KeyedMutex` |
 | Handle Type | NT handle (`_nt`, D3D11 texture only), KMT handle (`_kmt`, opaque Win32 KMT for buffers, D3D11 texture KMT for images) | `cases` array in `createTests()` |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Type | Notes |
 |-------------|------|-------|

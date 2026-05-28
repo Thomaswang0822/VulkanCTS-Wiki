@@ -149,7 +149,7 @@ Both discard rectangles and scissor are set dynamically. Uses exclusive mode.
 | Discard rectangle type | static, dynamic | Whether rectangles are set at pipeline creation or via `vkCmdSetDiscardRectangleEXT` |
 | Scissor mode | none, static, dynamic | Whether a scissor rectangle is active and how it is set |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition | Source |
 |-------------|-----------|--------|

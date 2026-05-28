@@ -85,7 +85,7 @@ the source table include:
 | Operation | [`FindUMsb` through `SNegate`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedOpTests.cpp#L49-L71) | The specific operation being tested |
 | Operand type | [`32bit signed int`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedOpTests.cpp#L50-L53), [`32bit unsigned int`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedOpTests.cpp#L54-L70) | The integer type named in the source-case descriptions |
 
-## Support Requirements
+## Support / Feature Requirements
 
 No special Vulkan extensions or features are added in this source file. The test creation loop is compiled only for
 non-VulkanSC builds through [`#ifndef CTS_USES_VULKANSC`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedOpTests.cpp#L38-L84).

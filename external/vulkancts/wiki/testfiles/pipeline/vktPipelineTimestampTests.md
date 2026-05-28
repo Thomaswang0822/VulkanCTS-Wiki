@@ -66,7 +66,7 @@ Contains standalone and edge-case timestamp tests. Leaf test cases include `time
 | Transfer-only queue | Boolean | Whether to use a dedicated transfer queue |
 | Command buffer level | `VkCommandBufferLevel` | Primary or secondary |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

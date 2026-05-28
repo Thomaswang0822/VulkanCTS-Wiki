@@ -109,7 +109,7 @@ Tests `VK_EXT_separate_stencil_usage` with combined depth/stencil formats. For e
 
 Note: Non-monolithic pipelines skip sample counts > 4.
 
-## Support Requirements
+## Support / Feature Requirements
 
 Defined at [vktRenderPassMultisampleTests.cpp#L2328-L2380](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L2328-L2380):
 

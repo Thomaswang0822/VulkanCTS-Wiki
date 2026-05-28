@@ -55,7 +55,7 @@ Tests `OpBitFieldUExtract` (unsigned extraction) with the same parameter space a
 | Signedness | signed, unsigned | Whether each operand is signed or unsigned |
 | Operand role | result, base, insert, offset, count | Role of each operand in the operation |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - [Vulkan 1.3](../../../modules/vulkan/spirv_assembly/vktSpvAsmMaint9VectorizationTests.cpp#L286-L290) (uses [SPIR-V 1.6](../../../modules/vulkan/spirv_assembly/vktSpvAsmMaint9VectorizationTests.cpp#L713-L716) build options)
 - [`VK_KHR_maintenance9`](../../../modules/vulkan/spirv_assembly/vktSpvAsmMaint9VectorizationTests.cpp#L292-L294) when required by the operand parameters

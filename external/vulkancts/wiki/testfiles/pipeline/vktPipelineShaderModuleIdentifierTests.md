@@ -60,7 +60,7 @@ Verifies miscellaneous shader module identifier behaviors, including capture sta
 | Capturing | Enum | Different capturing modes |
 | PipelineConstructionType | Parameter | Non-shader-object variant types |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

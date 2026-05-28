@@ -69,7 +69,7 @@ Verifies MSRTSS with VK_KHR_dynamic_rendering. This subgroup is always added and
 | sRGB flags | Bool | With/without sRGB conversion |
 | PipelineConstructionType | Parameter | All variant types |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

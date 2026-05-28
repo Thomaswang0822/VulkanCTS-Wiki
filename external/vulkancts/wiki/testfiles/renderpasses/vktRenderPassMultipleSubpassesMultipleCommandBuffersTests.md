@@ -32,7 +32,7 @@ Rendering with multiple subpasses across multiple command buffers with `useGener
 |-----------|--------|
 | Test variants | "test" (useGeneralLayout=false), "test_general_layout" (useGeneralLayout=true) ([L906-L907](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L906-L907)) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 No explicit extension requirements beyond base Vulkan.
 

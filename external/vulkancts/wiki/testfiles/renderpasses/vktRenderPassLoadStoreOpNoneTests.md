@@ -31,7 +31,7 @@ Tests VK_ATTACHMENT_LOAD_OP_NONE_EXT / VK_ATTACHMENT_STORE_OP_NONE_EXT behavior 
 | Depth/stencil load/store ops | Separate depth/stencil ops with test enable/disable variants |
 | Extension preference | KHR vs EXT alternating by format index |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition |
 |-------------|-----------|

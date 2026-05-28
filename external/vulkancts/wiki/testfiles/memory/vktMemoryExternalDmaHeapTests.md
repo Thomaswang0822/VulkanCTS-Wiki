@@ -57,7 +57,7 @@ Same as `shader_access` but with a non-zero offset parameter (`offset = 20000`) 
 | Host-visible buffer | `STORAGE_BUFFER \| TRANSFER_DST` | `HostVisible` |
 | DMA heap buffer | `STORAGE_BUFFER \| TRANSFER_DST` (with external memory) | `Any` (via DmaHeapAllocator) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Extension/Feature | Required by |
 |-------------------|-------------|

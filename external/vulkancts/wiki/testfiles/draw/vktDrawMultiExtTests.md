@@ -126,7 +126,7 @@ cases only for `CONSTANT_RANDOM` while still permitting non-indexed `normal`, an
 [`vktDrawMultiExtTests.cpp`](../../../modules/vulkan/draw/vktDrawMultiExtTests.cpp#L1509-L1512),
 [`vktDrawMultiExtTests.cpp`](../../../modules/vulkan/draw/vktDrawMultiExtTests.cpp#L1529-L1531)).
 
-## Support Requirements
+## Support / Feature Requirements
 
 - `VK_EXT_multi_draw` is required for every case
   ([`checkSupport()`](../../../modules/vulkan/draw/vktDrawMultiExtTests.cpp#L423-L425)).

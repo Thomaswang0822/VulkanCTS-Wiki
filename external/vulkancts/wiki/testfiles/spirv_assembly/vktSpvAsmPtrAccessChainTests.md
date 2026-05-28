@@ -36,7 +36,7 @@ Amber test that applies [`OpPtrAccessChain`](../../../data/vulkan/amber/spirv_as
 |-----------|--------|-------------|
 | Stride correctness | [`workgroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPtrAccessChainTests.cpp#L50), [`workgroup_bad_stride`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPtrAccessChainTests.cpp#L51) | Whether the workgroup pointer `ArrayStride` is correct or intentionally wrong |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - [`VariablePointerFeatures.variablePointers`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPtrAccessChainTests.cpp#L59) feature.
 - [`VK_KHR_workgroup_memory_explicit_layout`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPtrAccessChainTests.cpp#L60) extension.

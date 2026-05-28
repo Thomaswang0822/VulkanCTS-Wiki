@@ -39,7 +39,7 @@ Verifies VK_EXT_pipeline_creation_feedback for compute pipelines. Contains indiv
 | Pipeline type | Enum | Graphics, compute |
 | Feedback flags | Bitfield | VALID, APPLICATION_PIPELINE_CACHE_HIT, BASE_PIPELINE_ACCELERATION |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

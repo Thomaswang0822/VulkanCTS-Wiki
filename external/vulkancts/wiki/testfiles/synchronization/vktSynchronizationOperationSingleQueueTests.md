@@ -150,7 +150,7 @@ When the sync primitive is `event` and `SynchronizationType::SYNCHRONIZATION2`, 
 
 When the sync primitive is `event` and both write and read operations can run on a compute queue, and the resource supports compute queues, a `_cq` variant is added that uses a dedicated compute queue instead of the universal queue.
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition |
 |---|---|

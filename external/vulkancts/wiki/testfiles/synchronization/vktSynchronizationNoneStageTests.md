@@ -301,7 +301,7 @@ Test cases with the `legacy_` name prefix. These use `SynchronizationType::LEGAC
 
 Incompatible write/read aspect combinations are skipped (e.g., color write with depth-only read).
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Type | Notes |
 |-------------|------|-------|

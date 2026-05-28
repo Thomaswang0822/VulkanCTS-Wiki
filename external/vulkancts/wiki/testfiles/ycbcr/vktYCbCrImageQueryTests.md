@@ -34,7 +34,7 @@ ycbcr.query
 | Image sizes | `size_lod` tests six sizes derived from the format's maximum plane divisor; `levels` uses one `16x18` image in [`testImageQuery()`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L418-L439). |
 | Shader type | Executor-supported shader stages are filtered by `executorSupported()` in [`populateQueryGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L581-L589). |
 
-## Support Requirements
+## Support / Feature Requirements
 
 [`checkSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L495-L515) applies shared YCbCr image support only to YCbCr formats, then requires midpoint chroma-sample support for YCbCr formats and checks shader-stage support.
 

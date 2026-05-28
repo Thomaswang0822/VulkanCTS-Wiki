@@ -78,7 +78,7 @@ Tests that updating an index buffer via a transfer operation (cmdCopyBuffer) aft
 | Update index type | uint32, uint16, uint8 | Index type for update-before-draw tests |
 | Rendering variant | renderpass, dynamic_rendering, secondary_cmd_buffer | Controlled by `SharedGroupParams` (not nested variants only) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition |
 |-------------|-----------|

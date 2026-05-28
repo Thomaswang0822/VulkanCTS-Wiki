@@ -59,7 +59,7 @@ Contains individual test cases for cache header validation, invalid size handlin
 | Cache merge stages | Enum | Graphics, compute, mixed |
 | Cache validity | Enum | Valid, invalid, zero-size, incomplete |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

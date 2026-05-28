@@ -111,7 +111,7 @@ Implementation: The [`NonLineDrawInstance::iterate()`](../../../modules/vulkan/d
 | Polygon mode | `VK_POLYGON_MODE_FILL` (_mode_fill), `VK_POLYGON_MODE_LINE` (_mode_line), `VK_POLYGON_MODE_POINT` (_mode_point) |
 | Line rasterization mode | `VK_LINE_RASTERIZATION_MODE_RECTANGULAR_KHR` (_line_raster_rect), `VK_LINE_RASTERIZATION_MODE_BRESENHAM_KHR` (_line_raster_bresenham), `VK_LINE_RASTERIZATION_MODE_RECTANGULAR_SMOOTH_KHR` (_line_raster_smooth) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - `DEVICE_CORE_FEATURE_GEOMETRY_SHADER` when geometry shader is used (checked at [`checkSupport()`](../../../modules/vulkan/draw/vktDrawNonLineTests.cpp#L224))
 - `DEVICE_CORE_FEATURE_SHADER_TESSELLATION_AND_GEOMETRY_POINT_SIZE` when geometry shader is used (checked at [`checkSupport()`](../../../modules/vulkan/draw/vktDrawNonLineTests.cpp#L255))

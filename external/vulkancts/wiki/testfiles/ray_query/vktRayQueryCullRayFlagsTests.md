@@ -80,7 +80,7 @@ Registered as a callable shader source [vktRayQueryCullRayFlagsTests.cpp](../../
 
 The file crosses shader source, four flag families (`opacity`, `terminate_on_first_hit`, `face_culling`, `skip_geometry`), triangle/AABB bottom geometry where nonempty flag lists exist, and concrete ray flag values [vktRayQueryCullRayFlagsTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryCullRayFlagsTests.cpp#L2173-L2245).
 
-## Support Requirements
+## Support / Feature Requirements
 
 Cases require acceleration-structure and ray-query functionality and feature bits [vktRayQueryCullRayFlagsTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryCullRayFlagsTests.cpp#L1245-L1258), with stage-specific tessellation, geometry, vertex-pipeline-store, and ray-tracing-pipeline gates [vktRayQueryCullRayFlagsTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryCullRayFlagsTests.cpp#L1260-L1288).
 

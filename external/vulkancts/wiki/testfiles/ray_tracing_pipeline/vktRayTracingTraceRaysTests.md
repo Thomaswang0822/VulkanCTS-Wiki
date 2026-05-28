@@ -39,7 +39,7 @@ Indirect2 trace-rays tests vary indirect CPU/GPU buffer source, copy style, queu
 | `trace_rays_cmds_maintenance_1` direct children | `indirect2_cpu`, `indirect2_gpu` | [vktRayTracingTraceRaysTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1507-L1527) |
 | `trace_rays_indirect2` direct children | `indirect_cpu`, `indirect_gpu` | [vktRayTracingTraceRaysTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1553-L1573) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Trace-rays indirect support requires acceleration structure and ray tracing pipeline, checks `rayTracingPipelineTraceRaysIndirect`, and conditionally requires ray-tracing maintenance1/indirect2 features for maintenance1 paths [vktRayTracingTraceRaysTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L254-L283). The separate indirect2 cases require acceleration structure, ray-tracing maintenance1, indirect2 support, and the requested queue family [vktRayTracingTraceRaysTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L898-L927).
 

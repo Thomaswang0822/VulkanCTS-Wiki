@@ -57,7 +57,7 @@ These tests do not take a `wsiType` parameter. All tests operate on direct displ
 - **register_display_event**: Uses `VK_DISPLAY_EVENT_TYPE_FIRST_PIXEL_OUT_EXT` as the fixed event type.
 - **register_device_event**: Uses `VK_DEVICE_EVENT_TYPE_DISPLAY_HOTPLUG_EXT` as the fixed event type.
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 - **VK_EXT_display_control**: Required by all tests. Checked via `context.requireDeviceFunctionality("VK_EXT_display_control")` in [checkSupport](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L847-L851) and at the start of each function test case.
 - **VK_KHR_display**: Required by all tests. Checked via `context.requireInstanceFunctionality("VK_KHR_display")` in the swapchain_counter checkSupport, and implicitly required by the direct display surface creation in other tests.

@@ -89,7 +89,7 @@ Verifies that terminated invocations are not included in subgroup vote operation
 | SPIR-V version | 1.0 for ordinary cases, 1.3 for subgroup cases | `spv1p3` controls the API/SPIR-V build options ([source](../../../modules/vulkan/spirv_assembly/vktSpvAsmTerminateInvocationTests.cpp#L86-L88)) |
 | Requirement bundle | Stores, VarPtr, Vote, Ballot | Requirement vectors attached per case ([source](../../../modules/vulkan/spirv_assembly/vktSpvAsmTerminateInvocationTests.cpp#L117-L130)) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - `VK_KHR_shader_terminate_invocation` extension is added to every Amber case ([source](../../../modules/vulkan/spirv_assembly/vktSpvAsmTerminateInvocationTests.cpp#L90-L99)).
 - `Features.fragmentStoresAndAtomics` is used by store/image/atomic and pointer-access cases through the `Stores` and `VarPtr` requirement vectors ([source](../../../modules/vulkan/spirv_assembly/vktSpvAsmTerminateInvocationTests.cpp#L117-L123)).

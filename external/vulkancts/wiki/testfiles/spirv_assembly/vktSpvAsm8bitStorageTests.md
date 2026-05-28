@@ -126,7 +126,7 @@ Graphics pipeline variant of mixed 8-bit/32-bit struct layout tests. Observed in
 | ShaderTemplate | `STRIDE8BIT_STD140`, `STRIDE32BIT_STD140`, `STRIDEMIX_STD140`, `STRIDE8BIT_STD430`, `STRIDE32BIT_STD430`, `STRIDEMIX_STD430` | Layout/packing mode for struct tests |
 | Shader Stage | compute / vertex+fragment | Pipeline stage under test |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - **VK_KHR_8bit_storage** extension (observed in [vktSpvAsm8bitStorageTests.cpp#L1077](../../../modules/vulkan/spirv_assembly/vktSpvAsm8bitStorageTests.cpp#L1077))
 - **VK_KHR_storage_buffer_storage_class** extension (observed in [vktSpvAsm8bitStorageTests.cpp#L1078](../../../modules/vulkan/spirv_assembly/vktSpvAsm8bitStorageTests.cpp#L1078))

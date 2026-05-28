@@ -34,7 +34,7 @@ ycbcr.plane_view
 | Descriptor mode | Descriptor-set, descriptor-buffer, and descriptor-heap variants are generated where executor-supported in [`populateViewTypeGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L991-L1026) and executed in [`testPlaneView()`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L757-L842). |
 | View flags | `VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT` is always included, `VK_IMAGE_CREATE_ALIAS_BIT` is added for memory aliases, and `VK_IMAGE_CREATE_DISJOINT_BIT` is varied in [`populateViewTypeGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L987-L1017). |
 
-## Support Requirements
+## Support / Feature Requirements
 
 [`checkSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L486-L500) delegates YCbCr image support to shared [`checkImageSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrUtil.cpp#L176-L201), requires sampled-image/transfer-destination/midpoint features for the YCbCr format, sampled-image/transfer-destination features for the plane-compatible format, shader support, and `VK_EXT_descriptor_buffer` or `VK_EXT_descriptor_heap` for those descriptor modes.
 

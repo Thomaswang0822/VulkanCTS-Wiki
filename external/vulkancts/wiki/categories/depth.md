@@ -77,7 +77,7 @@ same eight paths under `dEQP-VK.depth`
 | Viewport depth range | Mostly `0.1..0.9`; `bias_outside_range` uses `0.1..0.5` | [`fs_clamp.amber`](../../data/vulkan/amber/depth/fs_clamp.amber#L57-L57), [`bias_outside_range.amber`](../../data/vulkan/amber/depth/bias_outside_range.amber#L56-L56) |
 | Required features/extensions | `DepthClampZeroOneFeatures.depthClampZeroOne`, conditionally `Features.depthClamp`, `Features.fragmentStoresAndAtomics`, and `VK_EXT_depth_range_unrestricted` | [`vktAmberDepthTests.cpp`](../../modules/vulkan/amber/vktAmberDepthTests.cpp#L127-L149) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 The wrapper records feature and extension requirements from the `TestInfo` table and adds
 `VK_EXT_depth_range_unrestricted` only for entries marked `unrestricted`

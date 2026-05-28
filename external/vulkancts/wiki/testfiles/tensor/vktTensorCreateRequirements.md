@@ -116,7 +116,7 @@ Within each test instance, the helper [`getMaxTensorParameters`](../../../module
 - **Packed tensors**: For each dimension count from 1 to `maxTensorDimensionCount`, a packed tensor is constructed with dimensions filled up to `maxPerDimensionTensorElements`, capped by `maxTensorElements` and `maxTensorSize` ([vktTensorCreateRequirements.cpp#L66-L85](../../../modules/vulkan/tensor/vktTensorCreateRequirements.cpp#L66-L85)).
 - **Non-packed (strided) tensors**: For linear tiling only, if the device supports non-packed tensors (`tensorNonPacked` feature), additional tensor configurations are generated with maximum strides. Each dimension has size 1, with the innermost stride set to `getFormatSize(format)` and outer strides set to the maximum allowed stride ([vktTensorCreateRequirements.cpp#L88-L123](../../../modules/vulkan/tensor/vktTensorCreateRequirements.cpp#L88-L123)).
 
-## Support/feature requirements
+## Support / Feature Requirements
 
 - **Extension**: `VK_ARM_tensors` is required. Checked in [`TensorRequirementsTestCase::checkSupport`](../../../modules/vulkan/tensor/vktTensorCreateRequirements.cpp#L222-L230) via `ctx.requireDeviceFunctionality("VK_ARM_tensors")`.
 - **Format support**: Each test case checks that the format/tiling combination supports `VK_FORMAT_FEATURE_2_TENSOR_SHADER_BIT_ARM` via [`formatSupportTensorFlags`](../../../modules/vulkan/tensor/vktTensorTestsUtil.cpp#L341-L363). If not supported, `TCU_THROW(NotSupportedError)` is raised in `checkSupport`, and the test instance also skips unsupported format/tiling combinations at runtime ([vktTensorCreateRequirements.cpp#L146-L149](../../../modules/vulkan/tensor/vktTensorCreateRequirements.cpp#L146-L149)).

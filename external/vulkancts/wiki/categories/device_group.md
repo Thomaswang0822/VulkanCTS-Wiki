@@ -60,7 +60,7 @@ device_group
 | Compute direct children | [`DeviceGroupTestRendering::init()`](../../modules/vulkan/device_group/vktDeviceGroupRendering.cpp#L2692-L2715) |
 | Device-group selection | Command-line group/device IDs used during initialization in rendering and compute paths. |
 
-## Support Requirements
+## Support / Feature Requirements
 
 The rendering support path requires `VK_KHR_device_group_creation` and `VK_KHR_device_group`, adds `VK_KHR_dedicated_allocation` for dedicated variants, validates selected group and device IDs, rejects peer-fetch cases with fewer than two physical devices, and conditionally requires `VK_KHR_bind_memory2`. Tessellated and line-fill variants check `tessellationShader` and `fillModeNonSolid`. The compute path performs corresponding extension, selected-device, peer-memory, and bind-memory2 checks.
 

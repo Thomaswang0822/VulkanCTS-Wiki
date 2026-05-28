@@ -93,7 +93,7 @@ The direct children are condition-data names produced from `s_testsData`. Each c
 
 Parameters come from `ConditionalData` rows in the shared utility header and from the six `DrawCommandType` values. The condition rows cover host versus local condition buffers, primary/secondary/nested command-buffer placement, inherited conditions, inverted conditions, render-pass clear variants, and expected execution versus no-op outcomes.
 
-## Support Requirements
+## Support / Feature Requirements
 
 The constructor calls conditional-rendering and nested-command-buffer capability helpers, and `checkSupport()` requires `VK_KHR_draw_indirect_count` for the two indirect-count command variants plus `VK_KHR_maintenance7` when an inherited condition is recorded outside the secondary command buffer.
 

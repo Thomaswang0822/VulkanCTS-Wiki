@@ -50,7 +50,7 @@ Tests unsigned integer comparison operations on `uint64_t` type. Operations incl
 | NaN preservation | `nonan`, `withnan` (double only) | Whether SignedZeroInfNanPreserve is enabled |
 | Comparison operation | 12 float ops / 6 int ops per type | SPIR-V comparison instruction |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - **shaderFloat64** core feature for double tests (checked in [`checkTypeSupport<double>`](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L1670-L1674) at [vktSpvAsm64bitCompareTests.cpp#L1670-L1674](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L1670-L1674))
 - **shaderInt64** core feature for int64/uint64 tests (checked in [`check64bitIntegers`](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L1676-L1680) at [vktSpvAsm64bitCompareTests.cpp#L1676-L1680](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L1676-L1680))

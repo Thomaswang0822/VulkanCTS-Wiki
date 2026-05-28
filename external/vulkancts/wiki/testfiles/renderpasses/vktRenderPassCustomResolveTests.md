@@ -51,7 +51,7 @@ CustomResolveInstance::iterate() uses `VK_ATTACHMENT_STORE_OP_DONT_CARE` (previo
 | Resolve types | AVERAGE, FIXED_VALUE, SELECTED_SAMPLE |
 | Attachment configurations | Various color/depth/stencil attachment setups |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition |
 |-------------|-----------|

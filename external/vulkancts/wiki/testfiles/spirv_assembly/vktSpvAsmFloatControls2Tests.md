@@ -51,7 +51,7 @@ Tests `FPFastMathMode` decorations for 64-bit float operations. Same registratio
 | FloatUsage | `FLOAT_STORAGE_ONLY`, `FLOAT_ARITHMETIC` | Operation usage classification used by operation metadata, for example [`add_sub_reassociable`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControls2Tests.cpp#L1655-L1657) |
 | Shader Stage | compute / vertex+fragment | Compute uses `VK_SHADER_STAGE_COMPUTE_BIT` in [`ComputeTestGroupBuilder::createOperationTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControls2Tests.cpp#L2486-L2487); graphics iterates vertex and fragment stages in [`GraphicsTestGroupBuilder::createOperationTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControls2Tests.cpp#L2918-L2929) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - **VK_KHR_shader_float_controls2** / SPIR-V extension `SPV_KHR_float_controls2` — observed in the compute shader template at [`OpExtension "SPV_KHR_float_controls2"`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControls2Tests.cpp#L2396-L2402) and in graphics resource features at [`vulkanFeatures.extFloatControls2.shaderFloatControls2`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControls2Tests.cpp#L3300-L3304).
 - **VK_KHR_16bit_storage** / **VK_KHR_shader_float16_int8** related features — requested for FP16 storage/arithmetic through compute feature setup at [`csSpec.requestedVulkanFeatures`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControls2Tests.cpp#L2656-L2663) and graphics feature setup at [`vulkanFeatures`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControls2Tests.cpp#L3300-L3305).

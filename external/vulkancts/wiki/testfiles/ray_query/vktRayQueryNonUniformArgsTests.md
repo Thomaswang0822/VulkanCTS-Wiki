@@ -35,7 +35,7 @@ This direct child is listed in the registration hierarchy and is covered by the 
 
 The file iterates `MissCause` values and registers `no_miss` plus numbered `miss_cause_*` leaves [vktRayQueryNonUniformArgsTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L375-L388).
 
-## Support Requirements
+## Support / Feature Requirements
 
 The cases require acceleration-structure and ray-query functionality [vktRayQueryNonUniformArgsTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L104-L108).
 

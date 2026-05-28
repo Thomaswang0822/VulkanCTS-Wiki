@@ -62,7 +62,7 @@ Identical structure to the `ext` family but requires `VK_KHR_vertex_attribute_di
 | Attribute divisor | 0, 1, 2, 16 | The instance rate divisor value for the instanced vertex binding |
 | Instance count | 0, 1, 2, 4, 20 | Number of instances drawn per iteration (defined at [vktDrawVertexAttribDivisorTests.cpp#L483](../../../modules/vulkan/draw/vktDrawVertexAttribDivisorTests.cpp#L483)) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition | Source |
 |-------------|-----------|--------|

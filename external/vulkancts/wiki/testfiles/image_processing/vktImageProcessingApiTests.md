@@ -36,7 +36,7 @@ Verifies that the `VK_QCOM_image_processing` extension reports property values t
 **Test class:** `ImageProcessingApiTest` ([L48](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L48))
 **Instance class:** `ImageProcessingApiTestInstance` ([L74](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L74))
 
-#### Support Requirements
+#### Support / Feature Requirements
 
 | Requirement | Line | Detail |
 |---|---|---|

@@ -97,7 +97,7 @@ Tests using a single attachment for both input and output.
 
 Note: external, implicit, late fragment, and self dependency tests are excluded for DYNAMIC_RENDERING.
 
-## Support Requirements
+## Support / Feature Requirements
 
 Defined at [vktRenderPassSubpassDependencyTests.cpp#L3924-L3975](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L3924-L3975):
 

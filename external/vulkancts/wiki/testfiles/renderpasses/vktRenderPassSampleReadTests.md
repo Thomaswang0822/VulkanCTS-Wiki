@@ -157,7 +157,7 @@ Reads a specific sample index for a render target with 32 samples. Uses `TESTMOD
 | TestMode | TESTMODE_ADD, TESTMODE_SELECT | [vktRenderPassSampleReadTests.cpp#L497-L503](../../../modules/vulkan/renderpass/vktRenderPassSampleReadTests.cpp#L497-L503) |
 | Selected sample | 0 to sampleCount-1 for SELECT mode | - |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Defined at [vktRenderPassSampleReadTests.cpp#L1110-L1122](../../../modules/vulkan/renderpass/vktRenderPassSampleReadTests.cpp#L1110-L1122):
 

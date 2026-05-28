@@ -68,7 +68,7 @@ Source: [lines 431-600](../../../modules/vulkan/texture/vktTextureCompressedForm
 | Pipeline types | 2: graphics, compute (base formats); graphics only (ASTC 3D) |
 | Filters | NEAREST_MIPMAP_NEAREST / NEAREST (base); NEAREST / NEAREST (ASTC 3D) |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition |
 |-------------|-----------|

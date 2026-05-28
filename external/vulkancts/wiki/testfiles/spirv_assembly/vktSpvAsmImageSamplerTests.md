@@ -76,7 +76,7 @@ Each read operation group contains descriptor type sub-groups, which contain tes
 
 Not all combinations are valid; [`isValidTestCase()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L90-L163) filters invalid combinations.
 
-## Support Requirements
+## Support / Feature Requirements
 
 - **`vertexPipelineStoresAndAtomics`** — requested for vertex, tessellation, and geometry stages in non-Dref graphics tests ([addGraphicsImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1289-L1296))
 - **`fragmentStoresAndAtomics`** — requested for fragment-stage graphics tests ([addGraphicsImageSamplerTest()](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1312-L1316))

@@ -27,7 +27,7 @@ Pipeline-library tests create linked ray tracing pipeline-library configurations
 |-----------|-----------------|----------|
 | `pipeline_library` direct children | `configurations` | [vktRayTracingPipelineLibraryTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineLibraryTests.cpp#L1227-L1247) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support requires `VK_KHR_ray_tracing_pipeline` and `VK_KHR_pipeline_library`; non-default handle-check cases require `VK_EXT_pipeline_library_group_handles`, link-time optimization cases require `VK_EXT_graphics_pipeline_library`, maintenance5 cases require `VK_KHR_maintenance5`, and capture/replay cases require `rayTracingPipelineShaderGroupHandleCaptureReplay` [vktRayTracingPipelineLibraryTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineLibraryTests.cpp#L298-L318).
 

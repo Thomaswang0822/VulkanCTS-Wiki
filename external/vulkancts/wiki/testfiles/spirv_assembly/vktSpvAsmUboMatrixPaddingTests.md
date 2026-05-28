@@ -45,7 +45,7 @@ Uses equivalent UBO and output-buffer decorations for graphics shader stages, wi
 | Element count | 128 | Both compute and graphics paths use 128 data points ([compute](../../../modules/vulkan/spirv_assembly/vktSpvAsmUboMatrixPaddingTests.cpp#L49-L50), [graphics](../../../modules/vulkan/spirv_assembly/vktSpvAsmUboMatrixPaddingTests.cpp#L151-L153)) |
 | Padding layout | `ArrayStride 32`, `MatrixStride 16`, `ColMajor` | Matrix padding and layout decorations under test ([compute](../../../modules/vulkan/spirv_assembly/vktSpvAsmUboMatrixPaddingTests.cpp#L67-L71), [graphics](../../../modules/vulkan/spirv_assembly/vktSpvAsmUboMatrixPaddingTests.cpp#L196-L200)) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - **Compute**: the file sets no special feature or extension fields for the compute `mat2x2` case beyond its SPIR-V assembly and resource declarations ([source](../../../modules/vulkan/spirv_assembly/vktSpvAsmUboMatrixPaddingTests.cpp#L139-L146)).
 - **Graphics vertex/tessellation/geometry**: `vertexPipelineStoresAndAtomics` is enabled before creating vertex, tessellation, and geometry cases ([source](../../../modules/vulkan/spirv_assembly/vktSpvAsmUboMatrixPaddingTests.cpp#L254-L268)).

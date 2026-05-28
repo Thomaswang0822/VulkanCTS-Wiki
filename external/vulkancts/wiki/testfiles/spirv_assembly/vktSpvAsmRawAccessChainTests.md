@@ -52,7 +52,7 @@ Test names are generated in [`addTests()`](../../../modules/vulkan/spirv_assembl
 
 The [`Parameters`](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L91-L121) struct stores the generated case specification. The [`addTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L1000-L1196) function iterates through combinations, applies skip rules, builds each case name, and registers each generated test directly under `raw_access_chain`.
 
-## Support Requirements
+## Support / Feature Requirements
 
 - [`VK_NV_raw_access_chains`](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L448-L453) extension and `shaderRawAccessChains` feature.
 - [`VK_KHR_variable_pointers`](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L455-L464) extension and `variablePointers` plus `variablePointersStorageBuffer` features when `usesVariablePointers` is true.

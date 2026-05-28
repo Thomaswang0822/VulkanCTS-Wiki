@@ -46,7 +46,7 @@ refer to each other before all operands are defined.
 |-----------|--------|-------------|
 | Shader variant | [`static_method_shader`](../../../modules/vulkan/spirv_assembly/vktSpvAsmRelaxedWithForwardReferenceTests.cpp#L289) | Only one test case defined in this file |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - Requires [`VK_KHR_shader_non_semantic_info`](../../../modules/vulkan/spirv_assembly/vktSpvAsmRelaxedWithForwardReferenceTests.cpp#L107-L110).
 - Requires [`VK_KHR_shader_relaxed_extended_instruction`](../../../modules/vulkan/spirv_assembly/vktSpvAsmRelaxedWithForwardReferenceTests.cpp#L107-L110).

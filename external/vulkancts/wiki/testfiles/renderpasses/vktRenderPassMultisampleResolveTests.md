@@ -117,7 +117,7 @@ Tests multisample resolve with 6 array layers. Requires `DEVICE_CORE_FEATURE_GEO
 | Resolve levels | {2, 3, 4} | [vktRenderPassMultisampleResolveTests.cpp#L3140](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3140) |
 | Max attachment counts | Powers of 2 from 4 to 16 | - |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Defined at [vktRenderPassMultisampleResolveTests.cpp#L2995-L3070](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2995-L3070):
 

@@ -80,7 +80,7 @@ Registered as a ray-tracing pipeline source in [vktRayQueryTraversalControlTests
 
 Shader source, generated-vs-skipped intersection mode, and bottom geometry (`triangles`, `aabbs`) are explicit arrays in [vktRayQueryTraversalControlTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L2066-L2138).
 
-## Support Requirements
+## Support / Feature Requirements
 
 Cases require acceleration-structure and ray-query functionality and feature bits [vktRayQueryTraversalControlTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1297-L1310), with stage-specific tessellation, geometry, vertex-pipeline-store, and ray-tracing-pipeline gates [vktRayQueryTraversalControlTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1312-L1340).
 

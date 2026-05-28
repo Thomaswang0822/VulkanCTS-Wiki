@@ -138,7 +138,7 @@ Tests alternate between preferring the EXT and KHR versions of the extensions. I
 - Multiple swapchains (3 or 5) with fence signaling
 - Null fence handles (randomly omitted VK_NULL_HANDLE entries)
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 ### Required Extensions
 

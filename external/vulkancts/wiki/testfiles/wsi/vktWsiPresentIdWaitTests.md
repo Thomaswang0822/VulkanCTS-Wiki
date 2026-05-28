@@ -70,7 +70,7 @@ Note: The `wait2` family does not include `no_frames`, `no_frame_id`, or `future
 | Present ID value | 0, 1, `UINT64_MAX`, absent | Various ID values used across test sequences |
 | Timeout | 0, 1 sec, 10 sec | Nanosecond timeouts for wait operations |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Applicable Families | Details |
 |-------------|---------------------|---------|

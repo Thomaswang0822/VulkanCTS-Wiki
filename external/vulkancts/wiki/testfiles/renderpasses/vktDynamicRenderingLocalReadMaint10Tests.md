@@ -32,7 +32,7 @@ Feedback loop tests combining VK_KHR_dynamic_rendering_local_read with VK_KHR_ma
 - Depth: format-dependent thresholds
 - Stencil: direct byte comparison
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

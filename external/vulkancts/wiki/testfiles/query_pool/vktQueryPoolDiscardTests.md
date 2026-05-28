@@ -72,7 +72,7 @@ All generated cases share the same base rendering setup:
 | Primitive topology | `VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP` | [`makeGraphicsPipeline()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L325) |
 | Draw call | [`vk.cmdDraw()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L381) with vertex count `4` |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support checking is implemented in [`QueryPoolDiscardTestCase::checkSupport()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L477).
 

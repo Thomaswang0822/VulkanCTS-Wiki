@@ -55,7 +55,7 @@ Each format subgroup contains view-mask subgroups (view_mask_0x1, view_mask_0x2,
 - Depth: `tcu::dsThresholdCompare` per layer
 - Stencil: separate stencil buffer verification
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

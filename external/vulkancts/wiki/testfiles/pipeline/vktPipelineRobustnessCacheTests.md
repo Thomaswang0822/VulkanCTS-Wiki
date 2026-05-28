@@ -39,7 +39,7 @@ Tests that pipelines created with VK_KHR_robustness2 (or VK_EXT_robustness2) rob
 | Pipeline type | Enum | Graphics, compute |
 | Robustness feature | Enum | Buffer access, image access |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

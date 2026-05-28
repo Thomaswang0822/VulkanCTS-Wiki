@@ -33,7 +33,7 @@ The `helper_invocations` branch crosses build path (`gpu`, `cpu`), derivative st
 | `misc` | dynamic-indexing use-first flag, scratch-buffer reuse, empty bottom/top updates, workgroup sizes, all/single invocation, single first/last/middle position | [vktRayQueryMiscTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L2212-L2267) |
 | `helper_invocations` | CPU/GPU build, derivative style, mode, screen size, model size | [vktRayQueryMiscTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L2142-L2203) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Common ray-query support requires `VK_KHR_acceleration_structure` and `VK_KHR_ray_query` [vktRayQueryMiscTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L64-L67). Dynamic-indexing cases also check ray-query and acceleration-structure feature bits [vktRayQueryMiscTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L198-L208). Helper-invocation CPU builds require `accelerationStructureHostCommands` [vktRayQueryMiscTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L575-L590).
 

@@ -148,7 +148,7 @@ The 8 formats are ([vktTensorTestsUtil.cpp#L50-L53](../../../modules/vulkan/tens
 
 Total: 8 formats x 2 tilings x 5 shapes = **80 test cases**.
 
-## Support/feature requirements
+## Support / Feature Requirements
 
 The `checkSupport` method ([vktTensorDimensionQuery.cpp#L238-L261](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L238-L261)) performs five checks, each throwing `NotSupportedError` if the condition is not met:
 

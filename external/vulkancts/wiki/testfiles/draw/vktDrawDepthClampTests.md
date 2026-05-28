@@ -227,7 +227,7 @@ Combines `VK_EXT_depth_range_unrestricted` and `VK_EXT_depth_clamp_control` with
 | Depth clamp control | disabled, enabled (pipeline static), enabled (dynamic) | Whether `VK_EXT_depth_clamp_control` is used and whether the clamp range is set statically or dynamically |
 | Epsilon | 1e-5 (UNORM formats), machine epsilon (SFLOAT formats) | Format-dependent tolerance for depth comparison (defined at [vktDrawDepthClampTests.cpp#L90-L92](../../../modules/vulkan/draw/vktDrawDepthClampTests.cpp#L90-L92)) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition | Source |
 |-------------|-----------|--------|

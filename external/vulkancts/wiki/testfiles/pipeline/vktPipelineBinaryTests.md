@@ -79,7 +79,7 @@ Monolithic-only leaf tests:
 | PipelineConstructionType | Parameter | Non-shader-object variant types |
 | Binary creation method | Enum | From data, from key, from cache |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

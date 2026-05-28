@@ -65,7 +65,7 @@ Each plane gets its own storage image view, descriptor set, compute pipeline, di
 | Joint/disjoint | `joint` uses no create flags; `disjoint` uses `VK_IMAGE_CREATE_DISJOINT_BIT | VK_IMAGE_CREATE_EXTENDED_USAGE_BIT` in [`populateStorageImageWriteFormatGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrStorageImageWriteTests.cpp#L911-L916). |
 | Compatible plane format | Plane-compatible formats may be remapped for storage-image writing by [`getPlaneCompatibleFormatForWriting()`](../../../modules/vulkan/ycbcr/vktYCbCrStorageImageWriteTests.cpp#L67-L84). |
 
-## Support Requirements
+## Support / Feature Requirements
 
 [`checkSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrStorageImageWriteTests.cpp#L89-L215) requires bind-memory extensions for disjoint cases when they are not core, checks image-format and plane-compatible image-format support, adds `VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT` when the writable plane format differs from the image format, requires whole-format storage-image support for joint cases, requires disjoint format support for disjoint cases, and requires plane-compatible storage-image support when disjoint plane views are used.
 

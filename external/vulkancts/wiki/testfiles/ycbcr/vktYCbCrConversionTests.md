@@ -91,7 +91,7 @@ The `one_to_one` group uses `VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM`, two image siz
 | Tiling/disjoint | Optimal/linear tiling and disjoint variants are generated in chroma-reconstruction loops in [`buildTests()`](../../../modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp#L1627-L1661) and [`buildTests()`](../../../modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp#L1927-L1963). |
 | Sampler binding | Binding `0` and nonzero sampler bindings are included via `samplerBindings` loops, for example in [`buildTests()`](../../../modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp#L1404-L1420). |
 
-## Support Requirements
+## Support / Feature Requirements
 
 [`checkSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp#L526-L645) checks image-format support, plane-compatible support for disjoint images, `VK_KHR_sampler_ycbcr_conversion`, the `samplerYcbcrConversion` feature, sampled-image support, linear texture filtering, linear chroma filtering, separate reconstruction filtering, explicit reconstruction forceability, disjoint support, and midpoint/cosited chroma-sample support as required by each `TestConfig`.
 

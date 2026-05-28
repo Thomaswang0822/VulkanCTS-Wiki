@@ -187,7 +187,7 @@ Direct children include generated `clear_color_*` and `clear_depth_*` leaves fro
 
 The shared condition rows drive clear-color and clear-depth leaf names. The general command loop varies an `inverted` boolean and appends `_inverted` names for the second pass. Graphics-bind cases vary descriptor-set, index-buffer, pipeline, shader-object, and vertex-buffer binding operations. Ray-tracing cases vary direct, indirect, and indirect2 trace commands.
 
-## Support Requirements
+## Support / Feature Requirements
 
 Clear ignore cases require `VK_EXT_conditional_rendering` and check inherited conditional rendering when requested. General command tests require `VK_EXT_conditional_rendering`; shader-object binding additionally requires `VK_EXT_shader_object`; ray-tracing cases require `VK_KHR_ray_tracing_pipeline`, with indirect2 requiring `VK_KHR_ray_tracing_maintenance1`.
 

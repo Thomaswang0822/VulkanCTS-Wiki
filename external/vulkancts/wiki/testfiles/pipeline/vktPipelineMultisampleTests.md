@@ -195,7 +195,7 @@ Tests the combination of alpha-to-coverage and alpha-to-one features, including 
 | PipelineConstructionType | Parameter | All variant types |
 | useFragmentShadingRate | Bool | false (multisample), true (multisample_with_fragment_shading_rate) |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

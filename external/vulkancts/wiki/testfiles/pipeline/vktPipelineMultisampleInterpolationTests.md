@@ -88,7 +88,7 @@ Verifies `interpolateAtOffset` matches sample positions. Contains sample count s
 | ComponentSource | Enum | CONSTANT, PUSH_CONSTANT, NONE |
 | PipelineConstructionType | Parameter | All variant types |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

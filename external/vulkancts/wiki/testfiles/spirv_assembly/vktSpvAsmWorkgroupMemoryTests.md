@@ -83,7 +83,7 @@ Tests workgroup memory read/write with `OpTypeInt 8 0` data type ([`uint8` case]
 | Array size | [`128`](../../../modules/vulkan/spirv_assembly/vktSpvAsmWorkgroupMemoryTests.cpp#L145-L156) | Number of elements in workgroup array (fixed) |
 | Workgroup size | [`16×4×2 = 128`](../../../modules/vulkan/spirv_assembly/vktSpvAsmWorkgroupMemoryTests.cpp#L152-L168) | Local size matches array size |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - [`Float64`](../../../modules/vulkan/spirv_assembly/vktSpvAsmWorkgroupMemoryTests.cpp#L268-L273) SPIR-V capability + `shaderFloat64` feature (float64)
 - [`Int64`](../../../modules/vulkan/spirv_assembly/vktSpvAsmWorkgroupMemoryTests.cpp#L360-L365) SPIR-V capability + `shaderInt64` feature (int64, uint64)

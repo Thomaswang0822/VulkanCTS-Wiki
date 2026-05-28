@@ -53,7 +53,7 @@ Tests host-device synchronization using imported host memory. The test:
 | Bind offset | 0, `imageMemoryRequirements.alignment` |
 | Allocation size multiplier | 1×, 3× `minImportedHostPointerAlignment` |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Extension/Feature | Required by |
 |-------------------|-------------|

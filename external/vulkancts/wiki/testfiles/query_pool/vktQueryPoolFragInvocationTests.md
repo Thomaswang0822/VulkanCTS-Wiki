@@ -98,7 +98,7 @@ Several important execution parameters are constant across the whole file:
 
 The oversized triangle coordinates `(-1,-1)`, `(3,-1)`, and `(-1,3)` ensure full coverage of the render area.
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support is centralized in [`checkSupport()`](../../../modules/vulkan/query_pool/vktQueryPoolFragInvocationTests.cpp#L92).
 

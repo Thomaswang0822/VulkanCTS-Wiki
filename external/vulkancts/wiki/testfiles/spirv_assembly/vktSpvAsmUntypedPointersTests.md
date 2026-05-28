@@ -58,7 +58,7 @@ Uses the GLSL memory model and registers `basic_usecase`, `type_punning`, `varia
 | Cooperative matrix | `BASIC_LOAD`, `BASIC_STORE`, `TYPE_PUNNING_LOAD`, `TYPE_PUNNING_STORE`, `MIXED_LOAD`, `MIXED_STORE` | Cooperative matrix enum and group registration ([enum](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L262-L272), [groups](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L12667-L12672)) |
 | Matrix layout and role | `ROW_MAJOR`, `COL_MAJOR`; `A`, `B`, `ACCUMULATOR` | Matrix layout/type enums and arrays used by cooperative-matrix generation ([source](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L274-L289), [arrays](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L363-L370)) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - The untyped-pointer setup emits `OpExtension "SPV_KHR_untyped_pointers"`, `OpCapability UntypedPointersKHR`, requests `shaderUntypedPointers`, and adds `VK_KHR_shader_untyped_pointers` ([source](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L1637-L1645)).
 - Data-type helpers add storage/int/float feature requirements according to the generated scalar type; atomic float min/max cases also add `VK_EXT_shader_atomic_float2` where required ([source](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L1600-L1627)).

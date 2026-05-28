@@ -94,7 +94,7 @@ Verifies pipeline behavior when color write mask is set to none for all color at
 | Descriptor binding config | Enum | Backwards, holes, backwards+holes |
 | Rendering mode | Enum | No rendering, unused attachment |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

@@ -45,7 +45,7 @@ Tests coherent advanced blending where two consecutive advanced blend operations
 | VkFormat | Loop | R8G8B8A8_UNORM, R8G8B8A8_SRGB, etc. |
 | PipelineConstructionType | Parameter | All variant types |
 
-## Support/Feature Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

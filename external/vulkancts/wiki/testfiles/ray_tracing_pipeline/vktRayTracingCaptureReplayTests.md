@@ -28,7 +28,7 @@ Capture-replay tests cover shader-binding-table and acceleration-structure captu
 |-----------|-----------------|----------|
 | `capture_replay` direct children | `acceleration_structures`, `shader_binding_tables` | [vktRayTracingCaptureReplayTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingCaptureReplayTests.cpp#L1731-L1751) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Support checks are implemented by the file's test cases; common ray tracing pipeline tests require `VK_KHR_ray_tracing_pipeline` and, where acceleration structures are used, `VK_KHR_acceleration_structure`, as illustrated by [vktRayTracingBuildTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L186-L205).
 

@@ -119,7 +119,7 @@ Renders `N` colored rectangles into `N` viewports using a tessellation evaluatio
 | shaderStage | vertex, fragment, tessellation | Which shader stage writes/reads gl_ViewportIndex |
 | writeFromVertex | false, true | Whether the vertex shader also writes gl_ViewportIndex (fragment tests only) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition | Source |
 |-------------|-----------|--------|

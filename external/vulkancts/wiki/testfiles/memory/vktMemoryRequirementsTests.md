@@ -106,7 +106,7 @@ The `create_info` group is further organized into `buffer`, `image`, and `multip
 | Sparse | Regular, sparse, sparse+residency, sparse+aliased, sparse+residency+aliased |
 | Formats | `formats::planarFormats` |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Feature/Extension | Required by |
 |-------------------|-------------|

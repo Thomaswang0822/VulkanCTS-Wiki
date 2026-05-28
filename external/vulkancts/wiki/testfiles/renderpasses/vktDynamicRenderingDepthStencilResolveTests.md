@@ -48,7 +48,7 @@ Each sample group contains format subgroups (e.g., `d16_unorm`, `d24_unorm_s8_ui
 - `verifyDepth()`: format-specific extraction, compared against `depthExpectedValue` table with epsilon `0.002f`
 - `verifyStencil()`: byte-by-byte against `stencilExpectedValue` table
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Context |
 |---|---|

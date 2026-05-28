@@ -68,7 +68,7 @@ Tests `VK_KHR_maintenance6` individual bind result checking via `VkBindMemorySta
 | Individual result check | Off (default), On (maintenance6) |
 | Overallocation factors | 1.5, 2.3, 3.0 |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Extension/Feature | Required by |
 |-------------------|-------------|

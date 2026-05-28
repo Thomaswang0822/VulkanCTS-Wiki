@@ -43,7 +43,7 @@ The fragment shader contains a bare reference to `gl_SamplePosition` (the built-
 | Sample count | VK_SAMPLE_COUNT_4_BIT | Fixed at 4 samples per pixel |
 | Framebuffer size | 4x4 | Fixed small size for counter-based verification |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition | Source |
 |-------------|-----------|--------|

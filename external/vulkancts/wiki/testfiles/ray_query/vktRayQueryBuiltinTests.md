@@ -35,7 +35,7 @@ The `advanced` branch registers `null_as` and `using_wrapper_function`; the wrap
 | Geometry type | Iterates `geomTypes`; some candidate AABB and triangle-only tests are filtered by geometry | [vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6372-L6404) |
 | Advanced test type | `null_as`, `using_wrapper_function` | [vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6423-L6428) |
 
-## Support Requirements
+## Support / Feature Requirements
 
 Cases require `VK_KHR_acceleration_structure`, `VK_KHR_ray_query`, and the `rayQuery` and `accelerationStructure` feature bits [vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6052-L6067). Graphics-stage variants require vertex-pipeline stores and, when selected, tessellation or geometry features [vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L381-L404). Ray-tracing shader stages require `VK_KHR_ray_tracing_pipeline` and its feature bit [vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L1172-L1181). The `null_as` capability setup adds robustness and extension requirements in [vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6083-L6117).
 

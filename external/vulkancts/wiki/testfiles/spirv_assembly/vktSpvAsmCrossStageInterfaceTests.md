@@ -52,7 +52,7 @@ Observed in [`createCrossStageInterfaceTests()`](../../../modules/vulkan/spirv_a
 
 For `flat` and `no_perspective`, all three decoration placement options are tested. For `relaxedprecision`, only `DECORATION_IN_ALL_SHADERS` is tested, as shown in [`createCrossStageInterfaceTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L2724-L2740).
 
-## Support Requirements
+## Support / Feature Requirements
 
 - **tessellationShader** — queried from device features in [`CrossStageTestInstance::iterate()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L186-L188) and used to add tessellation stage combinations at [`shadersStagesFlagsBits`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L264-L275).
 - **geometryShader** — queried from device features in [`CrossStageTestInstance::iterate()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L186-L188) and used to add geometry stage combinations at [`shadersStagesFlagsBits`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L268-L275).

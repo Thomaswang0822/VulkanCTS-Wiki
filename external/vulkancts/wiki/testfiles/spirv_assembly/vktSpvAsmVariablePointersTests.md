@@ -115,7 +115,7 @@ Tests nullptr usage with variable pointers in graphics pipeline ([`addNullptrVar
 | 64-bit indexing | [`true`, `false`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariablePointersTests.cpp#L2747-L2773) | Whether 64-bit indexing is enabled in the generated `ComputeShaderSpec` (non-VulkanSC only) |
 | Pipeline type | compute, graphics | Shader pipeline under test |
 
-## Support Requirements
+## Support / Feature Requirements
 
 - [`VK_KHR_variable_pointers`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariablePointersTests.cpp#L382-L384) extension (for variable pointer tests)
 - [`SPV_KHR_storage_buffer_storage_class`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariablePointersTests.cpp#L215-L218) SPIR-V extension

@@ -86,7 +86,7 @@ Validates that `ALLOCATE`, `IMPORT` (×2), `UNIMPORT` (×2), and `FREE` events a
 | `VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID` | `VK_ANDROID_external_memory_android_hardware_buffer`, `VK_EXT_queue_family_foreign`, `VK_KHR_sampler_ycbcr_conversion` |
 | `VK_EXTERNAL_MEMORY_HANDLE_TYPE_DMA_BUF_BIT_EXT` | `VK_KHR_external_memory_fd`, `VK_EXT_external_memory_dma_buf` |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Extension/Feature | Required by |
 |-------------------|-------------|

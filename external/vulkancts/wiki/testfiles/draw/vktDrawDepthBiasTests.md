@@ -69,7 +69,7 @@ Source: [vktDrawDepthBiasTests.cpp#L57](../../../modules/vulkan/draw/vktDrawDept
 | Primitive topology | triangle_list, patch_list | The input assembly primitive topology |
 | Polygon mode | fill, line, point | The rasterization polygon mode |
 
-## Support Requirements
+## Support / Feature Requirements
 
 | Requirement | Condition | Details |
 |-------------|-----------|---------|
