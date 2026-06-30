@@ -52,6 +52,8 @@ PATH_COMPONENT_PATTERN = r'[A-Za-z0-9]+(?:_[A-Za-z0-9]+)*'
 TREE_CHILD_PATTERN = re.compile(rf'^(?P<marker>├──|└──)\s+(?P<name>{PATH_COMPONENT_PATTERN}(?:\s*\([^)]*\))?)\s*$')
 TRAILING_PAREN_NOTE_PATTERN = re.compile(r'\s*\([^)]*\)\s*$')
 SIMPLE_GROUP_PATTERN = re.compile(rf'^{PATH_COMPONENT_PATTERN}(?:\.{PATH_COMPONENT_PATTERN})*$')
+TREE_MARKER_PATTERN = re.compile(r'[├└│]')
+HIERARCHY_ERRORS: List[Tuple[Path, int, str]] = []
 
 
 def find_mustpass_files(category: str, mustpass_dir: Path) -> List[Path]:
@@ -183,6 +185,9 @@ def extract_canonical_hierarchy_paths(md_file: Path, category: str) -> Dict[str,
     """Extract full registration prefixes from a canonical Registration Hierarchy section."""
     paths: Dict[str, List[Tuple[Path, int]]] = {}
 
+    def add_error(line_num: int, message: str) -> None:
+        HIERARCHY_ERRORS.append((md_file, line_num, message))
+
     def add_path(line_num: int, full_path: str) -> None:
         loc = (md_file, line_num)
         if full_path not in paths:
@@ -247,10 +252,18 @@ def extract_canonical_hierarchy_paths(md_file: Path, category: str) -> Dict[str,
 
         match = TREE_CHILD_PATTERN.match(bare_line)
         if not match:
+            if TREE_MARKER_PATTERN.search(bare_line):
+                add_error(
+                    idx + 1,
+                    "Malformed or nested Registration Hierarchy line; "
+                    "only direct children using '├── name' or '└── name' are allowed")
+            else:
+                add_error(idx + 1, "Unexpected non-empty line in Registration Hierarchy tree block")
             continue
 
         child_name = strip_trailing_note(match.group('name'))
         if not child_name or not re.fullmatch(PATH_COMPONENT_PATTERN, child_name):
+            add_error(idx + 1, "Invalid Registration Hierarchy child name")
             continue
 
         add_path(idx + 1, f'{root_text}.{child_name}')
@@ -327,6 +340,21 @@ def validate_paths(paths: Dict[str, List[Tuple[Path, int]]],
                     category: str, mustpass_dir: Path, verbose: bool = False) -> int:
     """Validate extracted paths against mustpass files. Returns number of failures."""
     failed = 0
+
+    malformed_files = set()
+    for md_file, line_num, _message in HIERARCHY_ERRORS:
+        if md_file in malformed_files:
+            continue
+        malformed_files.add(md_file)
+        try:
+            rel_md = md_file.relative_to(Path.cwd())
+        except ValueError:
+            rel_md = md_file
+        print("  FAIL: malformed or nested Registration Hierarchy line; "
+              "only direct children using '├── name' or '└── name' are allowed")
+        print(f"        Source: {rel_md}:{line_num}")
+        failed += 1
+
     for full_path, sources in paths.items():
         parts = full_path.split('.', 1)
         group_path = parts[1] if len(parts) > 1 else ''
@@ -392,6 +420,7 @@ def main():
 
         category = wiki_file.parent.name
 
+        HIERARCHY_ERRORS.clear()
         paths = extract_canonical_hierarchy_paths(wiki_file, category)
         if not paths:
             print(f"No canonical hierarchy data found in {wiki_file}", file=sys.stderr)
@@ -403,13 +432,14 @@ def main():
 
         print()
         if failed > 0:
-            print(f"Verification failed: {failed} path(s) not found")
+            print(f"Verification failed: {failed} hierarchy or path issue(s) found")
             sys.exit(1)
         else:
             print("All paths verified successfully")
             sys.exit(0)
 
     elif args.category:
+        HIERARCHY_ERRORS.clear()
         paths = extract_group_paths_from_wiki(wiki_dir, args.category)
         if not paths:
             print(f"No registration paths found in wiki for category '{args.category}'")
@@ -421,7 +451,7 @@ def main():
 
         print()
         if failed > 0:
-            print(f"Verification failed: {failed} path(s) not found")
+            print(f"Verification failed: {failed} hierarchy or path issue(s) found")
             sys.exit(1)
         else:
             print("All paths verified successfully")

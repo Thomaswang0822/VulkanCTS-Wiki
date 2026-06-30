@@ -6,8 +6,10 @@ summaries and per-source-file notes that link back to the implementation evidenc
 
 ## Where to Start
 
+- New to this wiki's page structure and terminology: start with [Reader_Guide.md](Reader_Guide.md).
 - New to Vulkan CTS internals: start with
-  [Vulkan_CTS_Framework_and_Mechanism.md](Vulkan_CTS_Framework_and_Mechanism.md).
+  [CTS_Framework.md](CTS_Framework.md).
+  A good sanity check: what is Vulkan SC and how is it different from Vulkan?
 - Looking for a top-level test area: use the [Category Index](#category-index).
 - Looking for source-file-level behavior: open a category page, then follow its Level-3 testfile links.
 - Investigating naming mismatches between wiki pages, mustpass files, and source directories: see
@@ -17,14 +19,16 @@ summaries and per-source-file notes that link back to the implementation evidenc
 
 | Area | Purpose |
 |------|---------|
-| [Vulkan_CTS_Framework_and_Mechanism.md](Vulkan_CTS_Framework_and_Mechanism.md) | Framework, registration, execution, verification, mustpass, and Vulkan SC overview. |
+| [Reader_Guide.md](Reader_Guide.md) | How to read Level-2 category pages, Level-3 testfile pages, terminology, and source evidence links. |
+| [CTS_Framework.md](CTS_Framework.md) | Framework, registration, execution, verification, mustpass, and Vulkan SC overview. |
 | [categories/](categories/) | One page per top-level Vulkan CTS category, summarizing registration structure and cross-file behavior. |
 | [testfiles/](testfiles/) | Source-file-level pages linked from category pages, covering registered groups, test families, parameters, support checks, and verification methods. |
 
 ```text
 wiki/
 ├── README.md                                   # This navigation entry point
-├── Vulkan_CTS_Framework_and_Mechanism.md       # Framework and mechanism overview
+├── Reader_Guide.md                            # How to read rewritten wiki pages
+├── CTS_Framework.md                            # Framework and mechanism overview
 ├── categories/                                 # Top-level category documentation
 │   ├── api.md
 │   ├── memory.md

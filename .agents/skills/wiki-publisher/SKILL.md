@@ -15,8 +15,14 @@ For normal category publishing, use Orchestrator mode to coordinate multiple Cod
 roles:
 
 - One Level-2 translation worker translates `external/vulkancts/wiki/categories/<category>.md`.
-- One or more Level-3 translation workers translate `external/vulkancts/wiki/testfiles/<category>/*.md`
-  in batches of at most 5 files per worker.
+- One or more Level-3 translation workers translate publishable rewritten pages under
+  `external/vulkancts/wiki/testfiles/<category>/*.md` in batches of at most 5 files per worker.
+- Exclude Understanding Brief files from publisher inputs. Files matching
+  `external/vulkancts/wiki/testfiles/<category>/*_brief.md` are internal English-only audit notes for rewrite work; do not
+  translate, publish, link-convert, or count them in Level-3 batches.
+- Published Level-3 outputs live under the published category directory,
+  `vkcts-wiki-pages/categories/<category>/`, so GitLab Wiki can show a category page and its
+  expandable child pages together in the sidebar.
 - Use smaller Level-3 batches for unusually long or complex pages.
 - Do not exceed the 5-file Level-3 batch cap.
 - One link-conversion worker runs the deterministic conversion script after all translation workers finish.
@@ -54,10 +60,13 @@ Inputs:
 - `external/vulkancts/wiki/testfiles/<category>/<file2>.md`
 - `external/vulkancts/wiki/testfiles/<category>/<file3>.md`
 
+Input rule:
+- Do not include `*_brief.md` files; Understanding Briefs are internal English-only audit notes and must not be published.
+
 Outputs:
-- `vkcts-wiki-pages/testfiles/<category>/<file1>.md`
-- `vkcts-wiki-pages/testfiles/<category>/<file2>.md`
-- `vkcts-wiki-pages/testfiles/<category>/<file3>.md`
+- `vkcts-wiki-pages/categories/<category>/<file1>.md`
+- `vkcts-wiki-pages/categories/<category>/<file2>.md`
+- `vkcts-wiki-pages/categories/<category>/<file3>.md`
 
 Strictly follow the skill's translation-worker requirements. Do not run link conversion. When complete, use `attempt_completion`.
 ```
@@ -69,7 +78,7 @@ Run the publish link-conversion phase for the completed `<category>` translation
 
 Inputs:
 - `vkcts-wiki-pages/categories/<category>.md`
-- all `vkcts-wiki-pages/testfiles/<category>/*.md`
+- all `vkcts-wiki-pages/categories/<category>/*.md`
 
 Script:
 - `.agents/skills/wiki-publisher/scripts/convert_markdown_links.py`
@@ -100,8 +109,10 @@ Hard requirements:
 
 1. Invoke the [`translate-doc`](../translate-doc/SKILL.md) skill first. This step is mandatory.
    - Level-2 translation workers translate only `external/vulkancts/wiki/categories/<category>.md`.
-   - Level-3 translation workers translate only their assigned batch under
+   - Level-3 translation workers translate only their assigned publishable batch under
      `external/vulkancts/wiki/testfiles/<category>/`.
+   - Skip `*_brief.md` files. Understanding Briefs are internal rewrite/audit notes, must remain English-only, and are not
+     publisher inputs.
    - Write translated output to the corresponding path under `vkcts-wiki-pages/`.
    - Do not edit the English canonical wiki during publishing.
    - Preserve code blocks, inline code, identifiers, filenames, directory names, markdown link targets,
@@ -132,15 +143,18 @@ Hard requirements:
      python3 .agents/skills/wiki-publisher/scripts/convert_markdown_links.py vkcts-wiki-pages/categories/<category>.md
      ```
 
-   - Enumerate Level-3 testfile pages under `vkcts-wiki-pages/testfiles/<category>/`.
+   - Enumerate Level-3 testfile pages under `vkcts-wiki-pages/categories/<category>/`.
    - Invoke the script separately for each discovered `.md` file. Do not pass shell globs to the script.
 
      ```bash
-     python3 .agents/skills/wiki-publisher/scripts/convert_markdown_links.py vkcts-wiki-pages/testfiles/<category>/<page>.md
+     python3 .agents/skills/wiki-publisher/scripts/convert_markdown_links.py vkcts-wiki-pages/categories/<category>/<page>.md
      ```
 
 4. Confirm source-code and mustpass links converted to GitLab blob URLs without translated path segments.
 5. Confirm wiki-page links have the expected GitLab Wiki form.
+6. For links from `vkcts-wiki-pages/categories/<category>.md` to child Level-3 pages under the same category,
+   prefer the GitLab-tested form `./<category>/<page>` rather than an unprefixed relative path.
+7. Confirm the category page and its child Level-3 pages appear under the same expandable category node in the GitLab Wiki sidebar.
 
 ### Orchestrator Finalization
 
