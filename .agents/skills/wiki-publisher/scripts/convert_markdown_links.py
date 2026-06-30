@@ -57,6 +57,15 @@ def canonical_path_for_publish_file(markdown_file: Path) -> Path:
 
     if rel == Path("home.md"):
         return CANONICAL_WIKI_ROOT / "README.md"
+
+    if rel.parts[:1] == ("categories",):
+        if len(rel.parts) == 2:
+            return CANONICAL_WIKI_ROOT / rel
+        if len(rel.parts) >= 3:
+            category = rel.parts[1]
+            rest = Path(*rel.parts[2:])
+            return CANONICAL_WIKI_ROOT / "testfiles" / category / rest
+
     return CANONICAL_WIKI_ROOT / rel
 
 
@@ -93,12 +102,31 @@ def wiki_publish_target_from_canonical(repo_relative_path: str) -> str:
 
     prefix = canonical_root + "/"
     rel = repo_relative_path[len(prefix) :]
-    if rel.endswith(".md"):
+
+    if rel.startswith("testfiles/") and rel.endswith(".md"):
+        rel_path = Path(rel)
+        category = rel_path.parts[1]
+        page = rel_path.parts[2]
+        rel = f"categories/{category}/{page}"
+    elif rel.endswith(".md"):
         rel = rel[:-3]
+
     return rel
 
 
 def relative_wiki_link(from_publish_file: Path, wiki_target_without_md: str, fragment: str) -> str:
+    from_rel = from_publish_file.relative_to(PUBLISH_WIKI_ROOT)
+
+    # Special GitLab Wiki page-plus-directory behavior:
+    # from `categories/<category>.md`, links to child pages under the matching
+    # published category directory should use `./<category>/<page>`.
+    if len(from_rel.parts) == 2 and from_rel.parts[0] == "categories" and from_rel.suffix == ".md":
+        current_category = from_rel.stem
+        target_parts = Path(wiki_target_without_md).parts
+        if len(target_parts) >= 3 and target_parts[0] == "categories" and target_parts[1] == current_category:
+            child_rel = posixpath.join(".", current_category, *target_parts[2:])
+            return child_rel + fragment
+
     from_dir = as_posix(from_publish_file.parent)
     target_publish_path = as_posix(PUBLISH_WIKI_ROOT / wiki_target_without_md)
     rel = posixpath.relpath(target_publish_path, from_dir)
