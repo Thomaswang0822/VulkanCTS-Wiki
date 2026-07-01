@@ -21,9 +21,7 @@ geometry
 ```
 
 The direct test families are registered by
-[createChildren()](../../modules/vulkan/geometry/vktGeometryTests.cpp#L41-L52). The registration-only dispatcher page
-[vktGeometryTests.md](../testfiles/geometry/vktGeometryTests.md) is preserved as obsolete source-navigation material; readers should
-use the rewritten family pages below for behavior-oriented explanations.
+[createChildren()](../../modules/vulkan/geometry/vktGeometryTests.cpp#L41-L52).
 
 ## How the Families Fit Together
 
