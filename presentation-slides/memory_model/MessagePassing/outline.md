@@ -150,6 +150,16 @@
 - State the expected behavior as a claim here, after `payload`, `guard`, invocation roles, and `skip` have already been introduced.
 - Visualization required: show the two-invocation protocol as a timeline or message-passing sequence, including the conditional `skip` path.
 
+### Page 08 style/layout decisions
+
+- Mark page 08 as `class="slide active"` in `index.html` so review opens directly on that page (and remove `active` from page 07).
+- Lead with the **expected-behavior claim** as a one-line hero statement at the top of the slide, so the audience leaves with it.
+- Below the claim, render a **4-step protocol timeline** (Step 1 → 2 → 3 → 4), each step on its own row showing: phase number, the operation name (e.g. "write payload"), the responsible lane role (publisher/consume), and a tiny `payload[i]`/`guard[i]` snippet.
+- Two side-by-side consequence cards beneath the timeline: **if partner guard is observed (i.e. `!skip`) → check fires** (the expected outcome, payload matches), and **if partner guard is not observed (i.e. `skip`) → check skipped** (no failure recorded).
+- A short `glsl` code block at the bottom showing the **literal 4-step pattern** as it would appear in the shader (`payload[i] = …; atomicStore(guard[i], 1, …release…); skip = atomicLoad(guard[partner], …acquire…) == 0; if (!skip && r != partnerCoord) fail[…] = 1;`). Use monospace, syntax-light highlight.
+- Speaker notes hold the precise semantics flag tuple (`gl_ScopeSubgroup`, `gl_StorageSemanticsBuffer`, `gl_SemanticsRelease | gl_SemanticsMakeAvailable`, `gl_SemanticsAcquire | gl_SemanticsMakeVisible`) — that detail belongs to page 09, not here.
+- Do not introduce transitive relay, write_after_read inversion, or the host pass/fail loop — those are pages 10/12.
+
 ## 09: Memory Semantics in the Shader: Why the Guard Should Carry the Payload
 
 ### Page 09 intention
@@ -160,6 +170,15 @@
 - Explain why scope and storage semantics matter: the guarantee only applies over the selected synchronization domain and storage class.
 - Use the representative case to show where `gl_ScopeSubgroup`, `gl_StorageSemanticsBuffer`, `gl_SemanticsRelease`, `gl_SemanticsAcquire`, `gl_SemanticsMakeAvailable`, and `gl_SemanticsMakeVisible` enter.
 - Recommended visualization: annotate the guard store/load operations with the semantics flags and show the payload visibility edge they are meant to establish.
+
+### Page 09 style/layout decisions
+
+- Mark page 09 as `class="slide active"` in `index.html` so review opens directly on that page (and remove `active` from page 08).
+- Title and lead framing: "Why the guard should carry the payload — the memory-model mechanism". Skip any preliminary recap of the 4 steps; the audience just saw page 08.
+- Top: a **two-pane symmetry block**. Left pane = the writer side (publisher), right pane = the reader side (consumer). Each pane shows: (a) the GLSL operation as a code line, (b) the four semantics-flags tuple it carries, (c) a one-line plain-English outcome.
+- Middle: a **scope/storage-semantics explainer strip** with three small cards — `gl_ScopeSubgroup` (who can synchronize), `gl_StorageSemanticsBuffer` (which storage class), and a note that the guarantee only applies across this exact scope+storage combination.
+- Bottom: a **drawio-style ASCII or CSS edge diagram** showing the payload-write availability edge crossing the guard signal, the scope boundary, and arriving at the partner payload read. Use a simple two-lane horizontal flow (publisher → consumer) with the guard atom in the middle.
+- Do not introduce the host pass/fail loop, the write_after_read / transitive variation, or the failure-debug angle. Those are pages 10/12.
 
 ## 10: Result Checking: `skip`, `fail`, and Host-Side Pass/Fail
 

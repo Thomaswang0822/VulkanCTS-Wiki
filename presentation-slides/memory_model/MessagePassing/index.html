@@ -243,6 +243,251 @@
     .lane-dot-b { background: var(--yellow); box-shadow: 0 0 10px rgba(224, 175, 104, 0.7); }
 
     .p07-resources { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; width: 100%; }
+
+    .p08-stack { gap: 16px; width: 100%; align-items: stretch; }
+    .p08-claim-card { padding: 18px 26px; }
+    .p08-claim {
+      color: var(--fg);
+      font: 600 22px/1.35 var(--sans);
+      margin: 0;
+    }
+    .p08-claim code { color: var(--cyan); font-size: 20px; }
+    .p08-claim-note {
+      color: var(--muted);
+      font: 600 16px/1.4 var(--sans);
+      margin: 8px 0 0;
+      padding-top: 8px;
+      border-top: 1px solid rgba(125, 207, 255, 0.18);
+    }
+    .p08-claim-note code { color: var(--cyan); font-size: 14px; }
+
+    .p08-timeline {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px 18px;
+    }
+    .p08-step {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 16px;
+      align-items: stretch;
+      padding: 14px 18px;
+      border: 1px solid rgba(125, 207, 255, 0.28);
+      border-radius: 14px;
+      background: rgba(13, 16, 28, 0.42);
+    }
+    .p08-step-num {
+      display: grid;
+      place-items: center;
+      font: 900 24px/1 var(--mono);
+      color: var(--cyan);
+      border-right: 1px solid rgba(125, 207, 255, 0.22);
+      padding-right: 12px;
+    }
+    .p08-step-body {
+      display: grid;
+      gap: 4px;
+      align-content: center;
+    }
+    .p08-step-name {
+      color: var(--fg);
+      font: 800 17px/1.2 var(--sans);
+    }
+    .p08-step-role {
+      color: var(--dim);
+      font: 700 12px/1 var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .p08-step-code {
+      color: var(--green);
+      font: 700 13px/1.35 var(--mono);
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .p08-consequences { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; }
+    .p08-consequence { padding: 18px 22px; }
+    .p08-consequence h3 {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .p08-consequence h3 code { color: var(--cyan); font-size: 20px; }
+    .p08-consequence-tag {
+      color: var(--dim);
+      font: 700 11px/1 var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 3px 8px;
+      border: 1px solid rgba(125, 207, 255, 0.30);
+      border-radius: 999px;
+    }
+    .p08-consequence p { font-size: 16px; line-height: 1.32; }
+
+    .p08-glsl-card { padding: 16px 22px; }
+    .p08-glsl {
+      margin: 0;
+      padding: 12px 14px;
+      background: rgba(13, 16, 28, 0.70);
+      border: 1px solid rgba(125, 207, 255, 0.22);
+      border-radius: 12px;
+      color: var(--fg);
+      font: 700 13px/1.55 var(--mono);
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .p08-glsl .kw { color: var(--purple); }
+    .p08-glsl .op { color: var(--cyan); }
+
+    .p09-stack { gap: 16px; width: 100%; align-items: stretch; }
+    .p09-symmetry { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; }
+    .p09-side { padding: 18px 22px; display: grid; gap: 10px; }
+    .p09-side-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+    .p09-side-tag {
+      color: var(--dim);
+      font: 700 12px/1 var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 10px;
+      border: 1px solid rgba(125, 207, 255, 0.30);
+      border-radius: 999px;
+    }
+    .p09-side h3 { margin: 0; color: var(--fg); font-size: 24px; line-height: 1.25; }
+    .p09-side h3 em { color: var(--cyan); font-style: normal; }
+    .p09-side h3 em.p09-concept { color: var(--yellow); }
+    .p09-glsl {
+      margin: 0;
+      padding: 12px 14px;
+      background: rgba(13, 16, 28, 0.70);
+      border: 1px solid rgba(125, 207, 255, 0.22);
+      border-radius: 10px;
+      color: var(--fg);
+      font: 700 15px/1.55 var(--mono);
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .p09-glsl .op { color: var(--cyan); }
+    .p09-glsl .hl { color: var(--yellow); font-weight: 800; }
+    .p09-flags {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 16px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .p09-flags li {
+      display: grid;
+      grid-template-columns: minmax(0, auto) 1fr;
+      gap: 10px;
+      align-items: baseline;
+      padding-left: 14px;
+      font-size: 16px;
+      line-height: 1.3;
+      position: relative;
+    }
+    .p09-flags li::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0.55em;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 8px rgba(125, 207, 255, 0.6);
+    }
+    .p09-flags li code { color: var(--cyan); font-size: 14px; }
+    .p09-flags li span { color: var(--muted); font-size: 14px; }
+    .p09-side-out { color: var(--muted); font-size: 16px; line-height: 1.4; margin: 0; padding-top: 6px; border-top: 1px solid rgba(125, 207, 255, 0.18); }
+
+    .p09-scope-strip { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 12px; width: 100%; }
+    .p09-scope-card { padding: 16px 18px; }
+    .p09-scope-card p { font-size: 15px; line-height: 1.4; }
+    .p09-scope-key {
+      display: inline-block;
+      color: var(--cyan);
+      font: 800 15px/1.2 var(--mono);
+      margin-bottom: 8px;
+      padding: 4px 10px;
+      border: 1px solid rgba(125, 207, 255, 0.34);
+      border-radius: 8px;
+      background: rgba(125, 207, 255, 0.08);
+    }
+
+    .p09-diagram-card { padding: 18px 22px; }
+    .p09-diagram {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr 1fr;
+      gap: 14px;
+      align-items: stretch;
+      margin-top: 8px;
+    }
+    .p09-diag-lane {
+      display: grid;
+      gap: 6px;
+      align-content: start;
+      padding: 12px;
+      border: 1px solid rgba(125, 207, 255, 0.30);
+      border-radius: 12px;
+      background: rgba(13, 16, 28, 0.46);
+    }
+    .p09-diag-lane-write { border-color: rgba(158, 206, 106, 0.55); }
+    .p09-diag-lane-read { border-color: rgba(224, 175, 104, 0.55); }
+    .p09-diag-title {
+      color: var(--fg);
+      font: 800 14px/1.3 var(--sans);
+    }
+    .p09-diag-title code { color: var(--cyan); font-size: 13px; }
+    .p09-diag-step {
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(13, 16, 28, 0.55);
+      color: var(--fg);
+      font: 700 13px/1.3 var(--mono);
+      text-align: center;
+    }
+    .p09-diag-step code { color: var(--cyan); }
+    .p09-diag-write { color: var(--green); }
+    .p09-diag-guard { color: var(--yellow); border: 1px solid rgba(224, 175, 104, 0.45); }
+    .p09-diag-guard-read { color: var(--yellow); border: 1px solid rgba(224, 175, 104, 0.45); }
+    .p09-diag-read { color: var(--green); }
+    .p09-diag-edge {
+      padding: 6px 8px;
+      border-radius: 8px;
+      font: 800 12px/1.2 var(--mono);
+      text-align: center;
+      letter-spacing: 0.04em;
+    }
+    .p09-diag-edge-release {
+      color: var(--green);
+      background: rgba(158, 206, 106, 0.10);
+      border: 1px dashed rgba(158, 206, 106, 0.45);
+    }
+    .p09-diag-edge-acquire {
+      color: var(--yellow);
+      background: rgba(224, 175, 104, 0.10);
+      border: 1px dashed rgba(224, 175, 104, 0.45);
+    }
+    .p09-diag-scope {
+      display: grid;
+      align-content: center;
+      gap: 8px;
+      padding: 14px 12px;
+      border: 1px dashed rgba(125, 207, 255, 0.40);
+      border-radius: 12px;
+      background: rgba(125, 207, 255, 0.05);
+    }
+    .p09-diag-scope-label {
+      color: var(--cyan);
+      font: 800 15px/1.2 var(--mono);
+      text-align: center;
+    }
+    .p09-diag-scope-edge {
+      color: var(--muted);
+      font: 700 14px/1.35 var(--sans);
+      text-align: center;
+    }
     .p07-resource { padding: 20px 22px; }
     .p07-res-head {
       display: flex;
@@ -730,7 +975,7 @@
       <aside class="notes">This page pins one concrete case so every later walkthrough page has a fixed referent. The chosen path is the wiki's Representative Shader Walkthrough 1: a compute shader, u32, subgroup scope, atomic_atomic sync, buffer payload and guard. Why this case: every parameter is at its least-noisy value, so the core payload-before-guard promise is exposed without 64-bit, float, or alternative-scope confounders. The decode card reads the path token-by-token as a small set of design choices — not as a long token string. Pages 07–10 stay inside this exact case; page 11 zooms out to the full matrix.</aside>
     </section>
 
-    <section class="slide active" data-title="Execution Topology: Pairing Lanes and Locating Data">
+    <section class="slide" data-title="Execution Topology: Pairing Lanes and Locating Data">
       <header class="slide-header">
         <div>
           <div class="kicker">Part B · Walkthrough</div>
@@ -819,6 +1064,159 @@
       </div>
       <footer class="footer"><span>lanes paired, slots indexed, three buffers bound</span><span>←/→ · N notes · S presenter · O overview</span></footer>
       <aside class="notes">The top diagram shows the eight active subgroup lanes paired by XOR with size - 1 (here size = 8). The shader pairs lane i with lane i ^ 7, so the pairs are (0↔7), (1↔6), (2↔5), (3↔4). Each lane has a localId, and the linearization formula is bufferCoord = (gl_WorkGroupID.y * NUM_WORKGROUP_EACH_DIM + gl_WorkGroupID.x) * DIM * DIM + localId.y * DIM + localId.x, and partnerBufferCoord uses subgroupShuffleXor(localId, size - 1) before the same linearization. The bottom row introduces the three host-bound resources: payload at binding 0, guard at binding 1, fail at binding 2. All three are SSBOs at descriptor set 0. Slot indices on each card match the lane index; in the guard card slot 1 is highlighted to suggest "this lane already signaled its guard" — a snapshot of the protocol that page 08 will explain step by step. No GLSL or SPIR-V here; the next slide walks the four-step protocol with the reconstructed shader.</aside>
+    </section>
+
+    <section class="slide" data-title="Core Protocol: Payload Before Guard, Check After Guard">
+      <header class="slide-header">
+        <div>
+          <div class="kicker">Part B · Walkthrough</div>
+          <h2>Payload Before Guard,<br/>Check After Guard</h2>
+        </div>
+        <div class="slide-no">08 / 15</div>
+      </header>
+      <div class="content stack p08-stack">
+        <div class="card accent-blue p08-claim-card">
+          <p class="p08-claim">If lane <code>i</code> observes partner guard <code>i ^ 31</code>, then partner payload <code>i ^ 31</code> must already equal <code>partnerBufferCoord</code>.</p>
+          <p class="p08-claim-note">In this case <code>bufferCoord = i</code> and <code>partnerBufferCoord = 31 - i</code> — each lane's slot is its own ID, and the partner's slot is the mirrored ID.</p>
+        </div>
+        <div class="p08-timeline">
+          <div class="p08-step">
+            <div class="p08-step-num">1</div>
+            <div class="p08-step-body">
+              <div class="p08-step-name">write own payload</div>
+              <div class="p08-step-role">publisher</div>
+              <code class="p08-step-code">payload[bufferCoord] = bufferCoord;</code>
+            </div>
+          </div>
+          <div class="p08-step">
+            <div class="p08-step-num">2</div>
+            <div class="p08-step-body">
+              <div class="p08-step-name">release-store own guard</div>
+              <div class="p08-step-role">publisher</div>
+              <code class="p08-step-code">atomicStore(guard[bufferCoord], 1, …release…);</code>
+            </div>
+          </div>
+          <div class="p08-step">
+            <div class="p08-step-num">3</div>
+            <div class="p08-step-body">
+              <div class="p08-step-name">acquire-load partner guard</div>
+              <div class="p08-step-role">consumer</div>
+              <code class="p08-step-code">skip = atomicLoad(guard[partnerBufferCoord], …acquire…) == 0;</code>
+            </div>
+          </div>
+          <div class="p08-step">
+            <div class="p08-step-num">4</div>
+            <div class="p08-step-body">
+              <div class="p08-step-name">check partner payload, unless skipped</div>
+              <div class="p08-step-role">consumer</div>
+              <code class="p08-step-code">r = payload[partnerBufferCoord]; if (!skip &amp;&amp; r != partnerBufferCoord) fail[bufferCoord] = 1;</code>
+            </div>
+          </div>
+        </div>
+        <div class="p08-consequences">
+          <div class="card accent-green p08-consequence">
+            <h3>if <code>!skip</code> <span class="p08-consequence-tag">observed</span></h3>
+            <p>Guard was signaled. Acquire must have made the partner payload write visible. The check fires; payload matches expected value, no fail written.</p>
+          </div>
+          <div class="card accent-purple p08-consequence">
+            <h3>if <code>skip</code> <span class="p08-consequence-tag">not observed</span></h3>
+            <p>Partner guard was still <code>0</code>. This race instance is not judged; no fail written regardless of payload value.</p>
+          </div>
+        </div>
+        <div class="card accent-yellow p08-glsl-card">
+          <h3>The four steps, in shader order</h3>
+          <pre class="p08-glsl"><span class="kw">// Step 1</span>   payload.x[bufferCoord]        = bufferCoord;
+<span class="kw">// Step 2</span>   <span class="op">atomicStore</span>(guard.x[bufferCoord], <span class="op">1u</span>, …release+makeAvailable…);
+<span class="kw">// Step 3</span>   skip = <span class="op">atomicLoad</span>(guard.x[partnerBufferCoord], …acquire+makeVisible…) == <span class="op">0u</span>;
+<span class="kw">// Step 4</span>   r = payload.x[partnerBufferCoord];
+         <span class="kw">if</span> (!skip &amp;&amp; r != <span class="op">uint</span>(partnerBufferCoord)) fail.x[bufferCoord] = <span class="op">1u</span>;</pre>
+        </div>
+      </div>
+      <footer class="footer"><span>payload then guard, guard then check, skip if not observed</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <aside class="notes">This is the technical heart of message_passing. The expected behavior claim is the one sentence at the top: observing partner guard forces the partner payload to be visible. In this representative case, bufferCoord equals the lane's own subgroup ID and partnerBufferCoord equals 31 minus that, so the partner slot is just the mirrored ID. The four-step timeline walks every lane through the protocol; publisher steps 1-2 and consumer steps 3-4. Step 3 sets skip = (partner guard still 0). Step 4 only writes fail when guard was observed but the payload value does not match. The GLSL block at the bottom shows the literal pattern; the precise semantics flag tuple (gl_ScopeSubgroup, gl_StorageSemanticsBuffer, gl_SemanticsRelease | gl_SemanticsMakeAvailable, gl_SemanticsAcquire | gl_SemanticsMakeVisible) is intentionally hidden in this slide and will be unpacked on page 09. Do not introduce transitive relay or write_after_read early-read timing here; those are pages 12 and 10 respectively. The host pass/fail scan is also page 10.</aside>
+    </section>
+
+    <section class="slide active" data-title="Memory Semantics in the Shader">
+      <header class="slide-header">
+        <div>
+          <div class="kicker">Part B · Walkthrough</div>
+          <h2>Why the Guard<br/>Carries the Payload</h2>
+        </div>
+        <div class="slide-no">09 / 15</div>
+      </header>
+      <div class="content stack p09-stack">
+        <div class="p09-symmetry">
+          <div class="card accent-green p09-side p09-side-write">
+            <div class="p09-side-head">
+              <span class="p09-side-tag">writer</span>
+              <h3>make payload <em class="p09-concept">available</em> <em>before</em> the guard</h3>
+            </div>
+            <pre class="p09-glsl"><span class="op">atomicStore</span>(guard.x[bufferCoord], <span class="op">1u</span>,
+  gl_ScopeSubgroup, gl_StorageSemanticsBuffer,
+  <span class="hl">gl_SemanticsRelease | gl_SemanticsMakeAvailable</span>);</pre>
+            <ul class="p09-flags">
+              <li><code>gl_ScopeSubgroup</code><span>who can synchronize</span></li>
+              <li><code>gl_StorageSemanticsBuffer</code><span>which storage class</span></li>
+              <li><code>gl_SemanticsRelease</code><span>publish prior writes</span></li>
+              <li><code>gl_SemanticsMakeAvailable</code><span>push them toward the scope</span></li>
+            </ul>
+            <p class="p09-side-out">Effect: the prior payload write at <code>bufferCoord</code> becomes available across the subgroup, anchored at the guard signal.</p>
+          </div>
+          <div class="card accent-purple p09-side p09-side-read">
+            <div class="p09-side-head">
+              <span class="p09-side-tag">reader</span>
+              <h3>make partner payload <em class="p09-concept">visible</em> <em>after</em> the guard</h3>
+            </div>
+            <pre class="p09-glsl">skip = <span class="op">atomicLoad</span>(guard.x[partnerBufferCoord],
+  gl_ScopeSubgroup, gl_StorageSemanticsBuffer,
+  <span class="hl">gl_SemanticsAcquire | gl_SemanticsMakeVisible</span>) == <span class="op">0u</span>;</pre>
+            <ul class="p09-flags">
+              <li><code>gl_ScopeSubgroup</code><span>who can synchronize</span></li>
+              <li><code>gl_StorageSemanticsBuffer</code><span>which storage class</span></li>
+              <li><code>gl_SemanticsAcquire</code><span>block on prior signal</span></li>
+              <li><code>gl_SemanticsMakeVisible</code><span>pull writes into local view</span></li>
+            </ul>
+            <p class="p09-side-out">Effect: the partner payload write at <code>partnerBufferCoord</code> becomes visible to the reader after the guard is observed.</p>
+          </div>
+        </div>
+        <div class="p09-scope-strip">
+          <div class="p09-scope-card">
+            <span class="p09-scope-key">gl_ScopeSubgroup</span>
+            <p>Synchronization reach — only the 32 lanes of this subgroup can pair here. <code>device</code>, <code>queuefamily</code>, <code>workgroup</code> are other choices; the protocol changes meaning with each.</p>
+          </div>
+          <div class="p09-scope-card">
+            <span class="p09-scope-key">gl_StorageSemanticsBuffer</span>
+            <p>Storage class under synchronization — the SSBO at binding 0/1. The guarantee only carries payload writes that live in <em>buffer</em> storage, not image / workgroup / physbuffer.</p>
+          </div>
+          <div class="p09-scope-card p09-scope-note">
+            <span class="p09-scope-key">scope + storage</span>
+            <p>The ordering guarantee applies only across this exact combination — the payload edge does not cross scope boundaries or jump between storage classes.</p>
+          </div>
+        </div>
+        <div class="card accent-blue p09-diagram-card">
+          <h3>The visibility edge, end to end</h3>
+          <div class="p09-diagram">
+            <div class="p09-diag-lane p09-diag-lane-write">
+              <div class="p09-diag-title">publisher lane <code>i</code></div>
+              <div class="p09-diag-step p09-diag-write">write payload[<code>i</code>]</div>
+              <div class="p09-diag-edge p09-diag-edge-release">release + make available</div>
+              <div class="p09-diag-step p09-diag-guard">atomicStore guard[<code>i</code>]</div>
+            </div>
+            <div class="p09-diag-scope">
+              <div class="p09-diag-scope-label">gl_ScopeSubgroup</div>
+              <div class="p09-diag-scope-edge">payload write becomes visible across this scope</div>
+            </div>
+            <div class="p09-diag-lane p09-diag-lane-read">
+              <div class="p09-diag-title">consumer lane <code>i ^ 31</code></div>
+              <div class="p09-diag-step p09-diag-guard-read">atomicLoad guard[<code>i</code>]</div>
+              <div class="p09-diag-edge p09-diag-edge-acquire">acquire + make visible</div>
+              <div class="p09-diag-step p09-diag-read">read payload[<code>i</code>]</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <footer class="footer"><span>release + make available on the writer, acquire + make visible on the reader</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <aside class="notes">This page unpacks the four semantics flags hidden on page 08. The two-pane symmetry block shows the writer side (release + make available on the guard store) and the reader side (acquire + make visible on the guard load). Each flag answers one question: scope asks "who can synchronize with me"; storage semantics asks "which memory class"; release/make-available ask "what is being published"; acquire/make-visible ask "what is being pulled in". The scope + storage strip in the middle reminds the audience that the guarantee is narrow: only across this exact scope (subgroup) and this exact storage class (buffer). The bottom edge diagram traces the payload write becoming visible across the scope, gated by the guard atom. Do not introduce the host pass/fail loop, write_after_read timing inversion, or transitive relay here; those are pages 10 and 12.</aside>
     </section>
   </main>
 
