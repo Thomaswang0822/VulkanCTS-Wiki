@@ -110,6 +110,14 @@
 - Establish that later pages follow this one case deeply before generalizing back to the full family.
 - Before the walkthrough finishes, do not introduce parameter variations such as alternative payload storage classes; keep the audience inside this one representative case.
 
+### Page 06 style/layout decisions
+
+- Mark page 06 as `class="slide active"` in `index.html` so review opens directly on that page.
+- Hero code panel showing the full registered path `dEQP-VK.memory_model.message_passing.ext.u32.noncoherent.atomic_atomic.atomicwrite.subgroup.payload_nonlocal.buffer.guard_nonlocal.buffer.comp`, with `message_passing` highlighted in the family color.
+- Token ↔ meaning table on the right: compact 9 rows covering test type, memory-model mode, data type, sync form, atomic op, scope, payload storage, guard storage, stage.
+- Single bottom callout: "pages 07–10 stay inside this exact case".
+- No GLSL, no scope/storage variations, no expected-behavior claim here — those belong to pages 07/08/11.
+
 ## 07: Execution Topology: Pairing Lanes and Locating Data
 
 ### Page 07 intention
@@ -120,6 +128,15 @@
 - Introduce the three key buffers in the representative case: payload buffer, guard buffer, and fail buffer.
 - Prepare the audience to read the shader protocol without getting lost in coordinate setup.
 - Visualization required: show paired subgroup lanes and the mapping from each lane to payload/guard/fail buffer slots.
+
+### Page 07 style/layout decisions
+
+- Mark page 07 as `class="slide active"` in `index.html` so review opens directly on that page (and remove `active` from page 06).
+- Mandatory visualization: a paired-lane diagram. Use the html-ppt in-slide CSS/HTML style (no external image). Concretely, render a row of 8 subgroup lanes paired across the row (e.g. lane `i` ↔ lane `i ^ 7`), with arrows connecting each pair. Below each lane show its `bufferCoord` (payload slot) and `partnerBufferCoord`.
+- Lane-pairing diagram on the top half, in a single wide card.
+- Bottom row: three small cards introducing the three host-created/bound resources: payload buffer (binding 0), guard buffer (binding 1), fail buffer (binding 2). Each card shows binding index, descriptor set, role, and which buffer slot it lives at. No GLSL on this slide; that's page 08.
+- Speaker notes hold the literal `gl_SubgroupInvocationID ^ (gl_SubgroupSize − 1)` rule and the linearization formula `bufferCoord = (gl_WorkGroupID.y * NUM_WORKGROUP_EACH_DIM + gl_WorkGroupID.x) * DIM * DIM + localId.y * DIM + localId.x`.
+- Do not show SPIR-V, do not show the `write_after_read` early-read inversion, do not introduce transitive workgroup relay — those belong on slides 08/09/12.
 
 ## 08: Core Protocol: Payload Before Guard, Check After Guard
 

@@ -86,6 +86,209 @@
     .content { align-self: stretch; display: grid; align-items: center; gap: 24px; }
     .content.top { align-items: start; }
     .two-col { display: grid; grid-template-columns: 1.02fr 0.98fr; gap: 30px; align-items: center; }
+    .p06-stack { gap: 22px; align-items: stretch; width: 100%; }
+    .p06-path-card { padding: 28px 34px; }
+    .p06-decode-card { padding: 28px 34px; }
+    .path-panel {
+      margin-top: 14px;
+      padding: 20px 22px;
+      border: 1px solid rgba(125, 207, 255, 0.34);
+      border-radius: 16px;
+      background: rgba(13, 16, 28, 0.62);
+      color: var(--fg);
+      font: 700 18px/1.55 var(--mono);
+      white-space: pre-wrap;
+      word-break: break-all;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.28);
+    }
+    .path-panel .hl {
+      color: var(--cyan);
+      background: rgba(125, 207, 255, 0.10);
+      padding: 2px 8px;
+      border-radius: 8px;
+      box-shadow: inset 0 0 0 1px rgba(125, 207, 255, 0.28);
+    }
+    .decode-list { gap: 12px; }
+    .decode-list li {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr) auto;
+      gap: 20px;
+      align-items: baseline;
+      padding-left: 26px;
+      font-size: 22px;
+      line-height: 1.35;
+    }
+    .decode-list li:has(> i.v:empty) { grid-template-columns: 220px minmax(0, 1fr); }
+    .decode-list li > * { min-width: 0; }
+    .decode-list li::before {
+      top: 0.55em;
+      width: 9px; height: 9px;
+    }
+    .decode-list li b { color: var(--yellow); font-family: var(--mono); font-size: 19px; font-weight: 800; letter-spacing: -0.01em; }
+    .decode-list li span { color: var(--muted); font-size: 22px; line-height: 1.35; }
+    .decode-list li i.v { color: var(--red); font: 700 14px/1.35 var(--mono); font-style: normal; white-space: nowrap; }
+    .decode-list li i.v:not(:empty)::before { content: "→ "; color: var(--red); }
+
+    .p07-stack { gap: 18px; width: 100%; max-width: none; align-items: stretch; justify-self: stretch; }
+    .p07-topology-card { padding: 24px 28px; }
+    .p07-resources { width: 100%; }
+    .p07-topology-card p { font-size: 18px; line-height: 1.35; margin-bottom: 14px; }
+    .lane-row {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      grid-template-rows: auto auto;
+      gap: 10px 14px;
+      align-items: stretch;
+      margin-top: 10px;
+    }
+    .lane-row .lane { min-height: 76px; padding: 10px 10px; }
+    .lane-row .lane-id { font: 800 18px/1 var(--mono); }
+    .lane-row .lane-coord { font: 700 12px/1.2 var(--mono); }
+    .lane-row .lane-lane-pair-arrow { font: 900 26px/1 var(--mono); }
+    .lane-row .lane-lane-group-sep { font: 800 30px/1 var(--mono); }
+    .lane {
+      display: grid;
+      gap: 3px;
+      align-content: center;
+      justify-items: center;
+      text-align: center;
+      padding: 10px 6px;
+      border-radius: 12px;
+      border: 1px solid rgba(125, 207, 255, 0.30);
+      background: rgba(13, 16, 28, 0.50);
+      color: var(--fg);
+      min-height: 84px;
+    }
+    .lane.lane-a { border-color: rgba(158, 206, 106, 0.55); }
+    .lane.lane-b { border-color: rgba(224, 175, 104, 0.55); }
+    .lane-id { font: 800 16px/1 var(--mono); }
+    .lane.lane-a .lane-id { color: var(--green); }
+    .lane.lane-b .lane-id { color: var(--yellow); }
+    .lane-coord { color: var(--muted); font: 700 12px/1.2 var(--mono); }
+    .lane-slot { color: var(--fg); font: 800 13px/1 var(--mono); }
+    .lane-lane-pair-arrow {
+      display: grid;
+      place-items: center;
+      color: var(--cyan);
+      font: 900 22px/1 var(--mono);
+      text-shadow: 0 0 14px rgba(125, 207, 255, 0.55);
+    }
+    .lane-lane-group-sep {
+      display: grid;
+      place-items: center;
+      color: var(--dim);
+      font: 800 28px/1 var(--mono);
+      letter-spacing: 0;
+      padding: 0 2px;
+      user-select: none;
+    }
+    .xor-examples {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px 14px;
+      margin: 4px 0 12px;
+      padding: 8px 12px;
+      border: 1px dashed rgba(125, 207, 255, 0.22);
+      border-radius: 10px;
+      background: rgba(13, 16, 28, 0.32);
+    }
+    .xor-examples li {
+      font: 600 12px/1.35 var(--mono);
+      color: var(--muted);
+      padding-left: 14px;
+      font-size: 12px;
+    }
+    .xor-examples li::before {
+      top: 0.45em;
+      width: 6px; height: 6px;
+      background: var(--cyan);
+    }
+    .xor-examples code { color: var(--cyan); font-size: 11px; }
+    .lane.lane-ellipsis {
+      border: 1px dashed rgba(125, 207, 255, 0.32);
+      background: rgba(13, 16, 28, 0.20);
+      color: var(--dim);
+      min-height: 84px;
+      grid-column: span 1;
+    }
+    .lane-ellipsis-mark { font: 900 28px/1 var(--mono); color: var(--dim); }
+    .lane-ellipsis-note { font: 700 11px/1.2 var(--mono); color: var(--dim); margin-top: 4px; }
+    .lane-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 22px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(125, 207, 255, 0.18);
+      color: var(--muted);
+      font: 700 14px/1.4 var(--mono);
+    }
+    .lane-legend code { color: var(--cyan); }
+    .lane-legend-foot {
+      flex-basis: 100%;
+      color: var(--dim);
+      font: 700 12px/1.4 var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .lane-legend b { color: var(--fg); font-weight: 800; }
+    .lane-dot {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+    .lane-dot-a { background: var(--green); box-shadow: 0 0 10px rgba(158, 206, 106, 0.7); }
+    .lane-dot-b { background: var(--yellow); box-shadow: 0 0 10px rgba(224, 175, 104, 0.7); }
+
+    .p07-resources { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; width: 100%; }
+    .p07-resource { padding: 20px 22px; }
+    .p07-res-head {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      margin-bottom: 8px;
+    }
+    .p07-res-binding {
+      font: 800 13px/1 var(--mono);
+      color: var(--cyan);
+      padding: 4px 10px;
+      border: 1px solid rgba(125, 207, 255, 0.40);
+      border-radius: 999px;
+      background: rgba(125, 207, 255, 0.10);
+      white-space: nowrap;
+    }
+    .p07-res-name { font: 800 21px/1.1 var(--sans); color: var(--fg); }
+    .p07-resource p { font-size: 17px; line-height: 1.32; margin-bottom: 12px; }
+    .p07-resource code { color: var(--cyan); }
+    .p07-res-slots {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-auto-rows: 26px;
+      gap: 4px;
+    }
+    .p07-res-slot {
+      display: grid;
+      place-items: center;
+      height: 26px;
+      border: 1px solid rgba(125, 207, 255, 0.22);
+      border-radius: 7px;
+      background: rgba(13, 16, 28, 0.46);
+      color: var(--muted);
+      font: 800 12px/1 var(--mono);
+    }
+    .p07-res-slot.p07-res-slot-active {
+      color: var(--green);
+      border-color: rgba(158, 206, 106, 0.62);
+      background: rgba(158, 206, 106, 0.14);
+    }
+    .p07-res-slot.p07-res-slot-data {
+      color: var(--cyan);
+      border-color: rgba(125, 207, 255, 0.62);
+      background: rgba(125, 207, 255, 0.14);
+    }
+    .p07-res-slots + .p07-res-slots { margin-top: 4px; }
     .wiki-work-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 30px; align-items: stretch; }
     .wiki-work-grid .bottom-card { grid-column: 1 / -1; justify-self: center; width: min(720px, 78%); }
     .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: stretch; }
@@ -161,7 +364,8 @@
       font: 800 15px/1 var(--mono);
     }
     .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-    .stack { display: grid; grid-template-columns: 1fr; gap: 22px; align-items: center; max-width: 980px; }
+    .stack { display: grid; grid-template-columns: 1fr; gap: 22px; align-items: center; }
+    .p07-stack, .content.stack.p07-stack { max-width: none; align-items: stretch; width: 100%; }
     .card {
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -308,7 +512,7 @@
           <div class="kicker">Vulkan CTS · Memory Model</div>
           <h1>MessagePassing<br/>Visibility Tests</h1>
         </div>
-        <div class="slide-no">01 / 05</div>
+        <div class="slide-no">01 / 15</div>
       </header>
       <div class="content stack">
         <div class="card accent-blue hero-topic">
@@ -340,7 +544,7 @@
           <div class="kicker">Part A · Context</div>
           <h2>Vulkan CTS:<br/>What and Why</h2>
         </div>
-        <div class="slide-no">02 / 05</div>
+        <div class="slide-no">02 / 15</div>
       </header>
       <div class="content three-col">
         <div class="card accent-blue">
@@ -377,8 +581,8 @@
         <div>
           <div class="kicker">Part A · My Work</div>
           <h2>My Wiki Work (ongoing):<br>Executable Spec → Readable Knowledge</h2>
-        </div>
-        <div class="slide-no">03 / 05</div>
+          </div>
+          <div class="slide-no">03 / 15</div>
       </header>
       <div class="content wiki-work-grid">
         <div class="card accent-yellow">
@@ -418,7 +622,7 @@
           <div class="kicker">Part B · Test Family</div>
           <h2>Focus for This Talk:<br><code>message_passing</code></h2>
         </div>
-        <div class="slide-no">04 / 05</div>
+        <div class="slide-no">04 / 15</div>
       </header>
       <div class="content focus-grid">
         <div class="card accent-blue">
@@ -446,13 +650,13 @@
       <aside class="notes">This slide fixes the entry point into Part B. Do not introduce writer, reader, payload, guard, or the visibility claim yet. First establish that message_passing is a family in the CTS hierarchy, visible as many dEQP-VK.memory_model.message_passing entries in the mustpass list. The right card decodes the path into registration root, category, and family. The next slide introduces the vocabulary needed before the expected behavior can be stated precisely.</aside>
     </section>
 
-    <section class="slide active" data-title="Backgrounds Before the Walkthrough">
+    <section class="slide" data-title="Backgrounds Before the Walkthrough">
       <header class="slide-header">
         <div>
           <div class="kicker">Part B · Vocabulary</div>
           <h2>Backgrounds:<br>Before the Walkthrough</h2>
         </div>
-        <div class="slide-no">05 / 05</div>
+        <div class="slide-no">05 / 15</div>
       </header>
       <div class="content vocab-grid">
         <div class="card accent-blue vocab-card wide-card">
@@ -494,6 +698,128 @@
       <footer class="footer"><span>from familiar mirror pairing to message-passing vocabulary</span><span>←/→ · N notes · S presenter · O overview</span></footer>
       <aside class="notes">This slide uses a simplified warp-like 4 by 8 tile as intuition. In Vulkan terminology, the real representative case uses shader invocations in a subgroup; "warp" is only a familiar mental model, not a Vulkan API term. The mirror example makes partner pairing concrete: thread 1 and thread 6 are a left-right pair in the first row. Payload is not a single variable; conceptually it is a per-invocation slot in a payload buffer, so payload[1] stores T1's value and payload[6] stores T6's value. Guard is also separate per-invocation synchronization storage; guard[1] is the signal associated with payload[1]. There is no extra swap-style temporary variable in the test. The two endpoints connect through release/acquire: T1 writes payload[1], releases and signals guard[1]; T6 observes/acquires guard[1], then reads payload[1].</aside>
     </section>
+
+    <section class="slide" data-title="Representative Case: The Path We Will Walk Through">
+      <header class="slide-header">
+        <div>
+          <div class="kicker">Part B · Representative Case</div>
+          <h2>The Path We Will<br/>Walk Through</h2>
+        </div>
+        <div class="slide-no">06 / 15</div>
+      </header>
+      <div class="content stack p06-stack">
+        <div class="card accent-blue p06-path-card">
+          <h3>The registered path</h3>
+          <div class="path-panel">dEQP-VK.<span class="hl">memory_model.message_passing</span>.ext.u32.noncoherent.atomic_atomic.atomicwrite.subgroup.payload_nonlocal.buffer.guard_nonlocal.buffer.comp</div>
+        </div>
+        <div class="card accent-green p06-decode-card">
+          <h3>Decoding the path</h3>
+          <ul class="decode-list">
+            <li><b>message_passing</b><span>payload-before-guard visibility rule (not <code>write_after_read</code>, not <code>transitive</code>)</span><i class="v"></i></li>
+            <li><b>ext · noncoherent</b><span>Vulkan memory model + explicit MakeAvailable / MakeVisible</span><i class="v"></i></li>
+            <li><b>u32</b><span><code>uint</code> payload &amp; guard — no 64-bit / float atomic noise</span><i class="v"></i></li>
+            <li><b>atomic_atomic · atomicwrite</b><span>release on guard store, acquire on guard load (no RMW)</span><i class="v"></i></li>
+            <li><b>subgroup</b><span>smallest scope — lanes paired by XOR with <code>gl_SubgroupSize - 1</code></span><i class="v">size = subgroup cardinality, e.g. 32</i></li>
+            <li><b>payload_nonlocal.buffer</b><span>SSBO binding 0, one slot per invocation</span><i class="v"></i></li>
+            <li><b>guard_nonlocal.buffer</b><span>SSBO binding 1, one atomic slot per invocation</span><i class="v"></i></li>
+            <li><b>comp</b><span>compute, specialization-controlled dispatch dimensions</span><i class="v">DIM = 31, NUM_WORKGROUP_EACH_DIM = 8</i></li>
+          </ul>
+        </div>
+      </div>
+      <footer class="footer"><span>one case, fully understood, before generalizing</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <aside class="notes">This page pins one concrete case so every later walkthrough page has a fixed referent. The chosen path is the wiki's Representative Shader Walkthrough 1: a compute shader, u32, subgroup scope, atomic_atomic sync, buffer payload and guard. Why this case: every parameter is at its least-noisy value, so the core payload-before-guard promise is exposed without 64-bit, float, or alternative-scope confounders. The decode card reads the path token-by-token as a small set of design choices — not as a long token string. Pages 07–10 stay inside this exact case; page 11 zooms out to the full matrix.</aside>
+    </section>
+
+    <section class="slide active" data-title="Execution Topology: Pairing Lanes and Locating Data">
+      <header class="slide-header">
+        <div>
+          <div class="kicker">Part B · Walkthrough</div>
+          <h2>Pairing Lanes,<br/>Locating Data</h2>
+        </div>
+        <div class="slide-no">07 / 15</div>
+      </header>
+      <div class="content stack p07-stack">
+        <div class="card accent-blue p07-topology-card">
+          <h3>Active subgroup lanes, paired by XOR</h3>
+          <p>With subgroup size = 32, every lane <code>i</code> is paired with lane <code>31 - i</code> by <code>XOR with 31</code>.</p>
+          <ul class="xor-examples">
+            <li><code>i = 0 = 0b000000</code> ↔ <code>31 - 0 = 31 = 0b011111</code></li>
+            <li><code>i = 8 = 0b001000</code> ↔ <code>31 - 8 = 23 = 0b010111</code></li>
+            <li><code>i = 16 = 0b010000</code> ↔ <code>31 - 16 = 15 = 0b001111</code></li>
+            <li><code>i = 24 = 0b011000</code> ↔ <code>31 - 24 = 7 = 0b000111</code></li>
+          </ul>
+          <div class="lane-row">
+            <div class="lane lane-a"><span class="lane-id">i = 0</span><span class="lane-coord">slot 0</span></div>
+            <div class="lane-lane-pair-arrow">↔</div>
+            <div class="lane lane-b"><span class="lane-id">i = 31</span><span class="lane-coord">slot 31</span></div>
+            <div class="lane-lane-group-sep">│</div>
+            <div class="lane lane-a"><span class="lane-id">i = 8</span><span class="lane-coord">slot 8</span></div>
+            <div class="lane-lane-pair-arrow">↔</div>
+            <div class="lane lane-b"><span class="lane-id">i = 23</span><span class="lane-coord">slot 23</span></div>
+            <div class="lane-lane-group-sep"></div>
+            <div class="lane lane-ellipsis"><span class="lane-ellipsis-mark">…</span></div>
+
+            <div class="lane lane-a"><span class="lane-id">i = 16</span><span class="lane-coord">slot 16</span></div>
+            <div class="lane-lane-pair-arrow">↔</div>
+            <div class="lane lane-b"><span class="lane-id">i = 15</span><span class="lane-coord">slot 15</span></div>
+            <div class="lane-lane-group-sep">│</div>
+            <div class="lane lane-a"><span class="lane-id">i = 24</span><span class="lane-coord">slot 24</span></div>
+            <div class="lane-lane-pair-arrow">↔</div>
+            <div class="lane lane-b"><span class="lane-id">i = 7</span><span class="lane-coord">slot 7</span></div>
+            <div class="lane-lane-group-sep"></div>
+            <div class="lane lane-ellipsis"><span class="lane-ellipsis-note">12 more pairs follow the same rule</span></div>
+          </div>
+          <div class="lane-legend">
+            <span><span class="lane-dot lane-dot-a"></span><b>publish:</b> write payload[<code>i</code>], then signal guard[<code>i</code>]</span>
+            <span><span class="lane-dot lane-dot-b"></span><b>consume:</b> observe guard[<code>i ^ 31</code>], then read payload[<code>i ^ 31</code>]</span>
+            <span class="lane-legend-foot">every lane runs both roles on its own pair</span>
+          </div>
+        </div>
+        <div class="p07-resources">
+          <div class="card accent-green p07-resource">
+            <div class="p07-res-head">
+              <span class="p07-res-binding">binding 0</span>
+              <span class="p07-res-name">Payload buffer</span>
+            </div>
+            <p>SSBO, one <code>uint</code> slot per invocation. Writer stores <code>bufferCoord</code>; partner loads <code>partnerBufferCoord</code>.</p>
+            <div class="p07-res-slots">
+              <span class="p07-res-slot p07-res-slot-data">0</span><span class="p07-res-slot p07-res-slot-data">1</span><span class="p07-res-slot p07-res-slot-data">2</span><span class="p07-res-slot p07-res-slot-data">3</span><span class="p07-res-slot p07-res-slot-data">4</span><span class="p07-res-slot p07-res-slot-data">5</span><span class="p07-res-slot p07-res-slot-data">6</span><span class="p07-res-slot p07-res-slot-data">7</span>
+              <span class="p07-res-slot p07-res-slot-data">8</span><span class="p07-res-slot p07-res-slot-data">9</span><span class="p07-res-slot p07-res-slot-data">10</span><span class="p07-res-slot p07-res-slot-data">11</span><span class="p07-res-slot p07-res-slot-data">12</span><span class="p07-res-slot p07-res-slot-data">13</span><span class="p07-res-slot p07-res-slot-data">14</span><span class="p07-res-slot p07-res-slot-data">15</span>
+              <span class="p07-res-slot p07-res-slot-data">16</span><span class="p07-res-slot p07-res-slot-data">17</span><span class="p07-res-slot p07-res-slot-data">18</span><span class="p07-res-slot p07-res-slot-data">19</span><span class="p07-res-slot p07-res-slot-data">20</span><span class="p07-res-slot p07-res-slot-data">21</span><span class="p07-res-slot p07-res-slot-data">22</span><span class="p07-res-slot p07-res-slot-data">23</span>
+              <span class="p07-res-slot p07-res-slot-data">24</span><span class="p07-res-slot p07-res-slot-data">25</span><span class="p07-res-slot p07-res-slot-data">26</span><span class="p07-res-slot p07-res-slot-data">27</span><span class="p07-res-slot p07-res-slot-data">28</span><span class="p07-res-slot p07-res-slot-data">29</span><span class="p07-res-slot p07-res-slot-data">30</span><span class="p07-res-slot p07-res-slot-data">31</span>
+            </div>
+          </div>
+          <div class="card accent-yellow p07-resource">
+            <div class="p07-res-head">
+              <span class="p07-res-binding">binding 1</span>
+              <span class="p07-res-name">Guard buffer</span>
+            </div>
+            <p>SSBO, one atomic <code>uint</code> slot per invocation. Release-store signals <code>guard[i]</code>; acquire-load observes <code>guard[partner]</code>.</p>
+            <div class="p07-res-slots">
+              <span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span>
+              <span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span>
+              <span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span>
+              <span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span>
+            </div>
+          </div>
+          <div class="card accent-purple p07-resource">
+            <div class="p07-res-head">
+              <span class="p07-res-binding">binding 2</span>
+              <span class="p07-res-name">Fail buffer</span>
+            </div>
+            <p>SSBO, host-cleared. Each invocation writes <code>1</code> here iff it observed the guard but found a stale payload. Host scans every slot.</p>
+            <div class="p07-res-slots">
+              <span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span>
+              <span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span>
+              <span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span>
+              <span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <footer class="footer"><span>lanes paired, slots indexed, three buffers bound</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <aside class="notes">The top diagram shows the eight active subgroup lanes paired by XOR with size - 1 (here size = 8). The shader pairs lane i with lane i ^ 7, so the pairs are (0↔7), (1↔6), (2↔5), (3↔4). Each lane has a localId, and the linearization formula is bufferCoord = (gl_WorkGroupID.y * NUM_WORKGROUP_EACH_DIM + gl_WorkGroupID.x) * DIM * DIM + localId.y * DIM + localId.x, and partnerBufferCoord uses subgroupShuffleXor(localId, size - 1) before the same linearization. The bottom row introduces the three host-bound resources: payload at binding 0, guard at binding 1, fail at binding 2. All three are SSBOs at descriptor set 0. Slot indices on each card match the lane index; in the guard card slot 1 is highlighted to suggest "this lane already signaled its guard" — a snapshot of the protocol that page 08 will explain step by step. No GLSL or SPIR-V here; the next slide walks the four-step protocol with the reconstructed shader.</aside>
+    </section>
   </main>
 
   <div class="progress"><div id="progressBar"></div></div>
@@ -504,7 +830,15 @@
     const slides = Array.from(document.querySelectorAll('.slide'));
     const progressBar = document.getElementById('progressBar');
     const notesPanel = document.getElementById('notesPanel');
-    let index = Number(new URLSearchParams(location.search).get('slide') || 0);
+    let index = (function() {
+      const q = Number(new URLSearchParams(location.search).get('slide'));
+      if (!Number.isNaN(q) && q > 0) return q - 1;
+      const h = Number(location.hash.replace('#', ''));
+      if (!Number.isNaN(h) && h > 0) return h - 1;
+      const m = Number(new URLSearchParams(location.search).get('preview'));
+      if (!Number.isNaN(m) && m >= 0) return m;
+      return 0;
+    })();
     let overview = false;
     let presenter = null;
 
