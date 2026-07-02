@@ -488,6 +488,243 @@
       font: 700 14px/1.35 var(--sans);
       text-align: center;
     }
+
+    .p10-stack { gap: 16px; width: 100%; align-items: stretch; }
+    .p10-decisions { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; }
+    .p10-decision { padding: 18px 22px; display: grid; gap: 10px; }
+    .p10-decision-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+    .p10-decision-tag {
+      color: var(--dim);
+      font: 700 12px/1 var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 10px;
+      border: 1px solid rgba(125, 207, 255, 0.30);
+      border-radius: 999px;
+    }
+    .p10-decision-cond {
+      color: var(--cyan);
+      font: 700 12.5px/1.4 var(--mono);
+      background: rgba(13, 16, 28, 0.55);
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+    .p10-decision h3 { margin: 0; color: var(--fg); font-size: 22px; line-height: 1.25; }
+    .p10-decision p { font-size: 15px; line-height: 1.4; }
+    .p10-decision-out { color: var(--muted); font-size: 15px; padding-top: 6px; border-top: 1px solid rgba(125, 207, 255, 0.18); margin: 0; }
+    .p10-decision-out b { color: var(--fg); }
+    .p10-decision-skip .p10-decision-tag { color: var(--purple); border-color: rgba(187, 154, 247, 0.42); }
+    .p10-decision-fail .p10-decision-tag { color: var(--red); border-color: rgba(247, 118, 142, 0.42); }
+
+    .p10-host-card { padding: 18px 22px; }
+    .p10-host-flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .p10-host-step {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 8px;
+      align-items: stretch;
+      padding: 12px;
+      border: 1px solid rgba(125, 207, 255, 0.28);
+      border-radius: 12px;
+      background: rgba(13, 16, 28, 0.42);
+    }
+    .p10-host-step-final { border-color: rgba(247, 118, 142, 0.55); background: rgba(247, 118, 142, 0.06); }
+    .p10-host-num {
+      display: grid;
+      place-items: center;
+      font: 900 18px/1 var(--mono);
+      color: var(--cyan);
+      width: 28px; height: 28px;
+      border: 1px solid rgba(125, 207, 255, 0.40);
+      border-radius: 50%;
+    }
+    .p10-host-step-final .p10-host-num { color: var(--red); border-color: rgba(247, 118, 142, 0.55); }
+    .p10-host-body { display: grid; gap: 4px; align-content: start; }
+    .p10-host-name { color: var(--fg); font: 800 14px/1.25 var(--sans); }
+    .p10-host-body code { color: var(--cyan); font: 700 12px/1.3 var(--mono); }
+    .p10-host-step-final .p10-host-body code { color: var(--red); }
+
+    .p10-meaning-card { padding: 18px 22px; }
+    .p10-meaning-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 10px 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .p10-meaning-list li {
+      display: block;
+      padding: 12px 14px;
+      border: 1px solid rgba(224, 175, 104, 0.22);
+      border-radius: 10px;
+      background: rgba(13, 16, 28, 0.36);
+      font-size: 14px;
+      line-height: 1.4;
+      color: var(--muted);
+    }
+    .p10-meaning-list li::before {
+      content: "▸ ";
+      color: var(--yellow);
+      font-size: 14px;
+      line-height: 1.4;
+      font-weight: 800;
+    }
+    .p10-meaning-list b {
+      color: var(--fg);
+      display: inline;
+      font-size: 14px;
+      font-weight: 800;
+      margin-right: 4px;
+    }
+    .p10-meaning-foot { color: var(--muted); font-size: 14px; margin: 12px 0 0; padding-top: 8px; border-top: 1px solid rgba(125, 207, 255, 0.18); }
+    .p10-meaning-glossary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 14px;
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px dashed rgba(125, 207, 255, 0.22);
+      border-radius: 10px;
+      background: rgba(13, 16, 28, 0.32);
+    }
+    .p10-meaning-glossary span { font-size: 13px; line-height: 1.4; color: var(--muted); }
+    .p10-meaning-glossary b { color: var(--cyan); font-weight: 800; }
+    .p10-meaning-glossary code { color: var(--green); font-size: 12px; }
+
+    .card.accent-red { border-color: rgba(247, 118, 142, 0.55); }
+
+    .p11-stack { gap: 16px; width: 100%; align-items: stretch; }
+    .p11-core-vs-axes { display: grid; grid-template-columns: 1fr; gap: 16px; width: 100%; }
+    .p11-fixed-pair {
+      display: grid;
+      grid-template-columns: 1fr 60px 1fr;
+      gap: 14px;
+      align-items: stretch;
+    }
+    .p11-fixed-card {
+      padding: 18px 22px;
+      display: grid;
+      gap: 10px;
+      align-content: center;
+      min-height: 150px;
+    }
+    .p11-fixed-tag {
+      color: var(--cyan);
+      font: 700 12px/1 var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 10px;
+      border: 1px solid rgba(125, 207, 255, 0.40);
+      border-radius: 999px;
+      align-self: start;
+    }
+    .p11-fixed-text {
+      font: 700 18px/1.4 var(--sans);
+      color: var(--fg);
+      margin: 0;
+    }
+    .p11-fixed-workflow-text {
+      font: 700 16px/1.55 var(--mono);
+      color: var(--green);
+      background: rgba(13, 16, 28, 0.55);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 0;
+      white-space: pre-wrap;
+    }
+    .p11-fixed-arrow {
+      display: grid;
+      place-items: center;
+      color: var(--cyan);
+      font: 900 44px/1 var(--mono);
+      text-shadow: 0 0 18px rgba(125, 207, 255, 0.55);
+    }
+
+    .p11-axes-card { padding: 20px 26px; }
+    .p11-axes-card h3 { margin: 0 0 14px; color: var(--fg); font-size: 24px; }
+    .p11-axes-head {
+      display: grid;
+      grid-template-columns: 200px minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 14px 20px;
+      align-items: baseline;
+      padding: 0 0 8px 4px;
+      border-bottom: 1px solid rgba(125, 207, 255, 0.30);
+      margin-bottom: 4px;
+      color: var(--dim);
+      font: 700 12px/1.2 var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .p11-axes-list {
+      display: grid;
+      gap: 4px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .p11-axes-list li {
+      display: grid;
+      grid-template-columns: 200px minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 14px 20px;
+      align-items: baseline;
+      padding: 12px 0 12px 4px;
+      border-bottom: 1px solid rgba(125, 207, 255, 0.14);
+      font-size: 17px;
+      line-height: 1.4;
+      position: static;
+    }
+    .p11-axes-list li::before { content: none; }
+    .p11-axes-list li:last-child { border-bottom: 0; }
+    .p11-axes-list li b { color: var(--yellow); font-family: var(--mono); font-size: 17px; }
+    .p11-axes-list li span { color: var(--cyan); font-family: var(--mono); font-size: 16px; }
+    .p11-axes-list li i { color: var(--muted); font-style: normal; font-size: 16px; }
+
+    .p11-matrix-card { padding: 16px 22px; }
+    .p11-matrix-card h3 { margin: 0 0 10px; color: var(--fg); font-size: 19px; }
+    .p11-matrix {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .p11-matrix-cell {
+      display: grid;
+      gap: 4px;
+      padding: 10px 12px;
+      border: 1px solid rgba(187, 154, 247, 0.30);
+      border-radius: 10px;
+      background: rgba(187, 154, 247, 0.06);
+    }
+    .p11-matrix-cell-fixed {
+      border-color: rgba(125, 207, 255, 0.55);
+      background: rgba(125, 207, 255, 0.10);
+      grid-column: 1 / -1;
+    }
+    .p11-matrix-label {
+      color: var(--purple);
+      font: 800 11px/1 var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .p11-matrix-cell-fixed .p11-matrix-label { color: var(--cyan); }
+    .p11-matrix-tokens {
+      color: var(--fg);
+      font: 700 11.5px/1.4 var(--mono);
+      white-space: normal;
+    }
+    .p11-matrix-value {
+      color: var(--green);
+      font: 700 14px/1.3 var(--mono);
+    }
+
+    .p11-continuity-card { padding: 14px 20px; }
+    .p11-continuity-card p { font-size: 15px; line-height: 1.45; }
+    .p11-continuity-card em { color: var(--yellow); font-style: normal; font-weight: 800; }
     .p07-resource { padding: 20px 22px; }
     .p07-res-head {
       display: flex;
@@ -1136,7 +1373,7 @@
       <aside class="notes">This is the technical heart of message_passing. The expected behavior claim is the one sentence at the top: observing partner guard forces the partner payload to be visible. In this representative case, bufferCoord equals the lane's own subgroup ID and partnerBufferCoord equals 31 minus that, so the partner slot is just the mirrored ID. The four-step timeline walks every lane through the protocol; publisher steps 1-2 and consumer steps 3-4. Step 3 sets skip = (partner guard still 0). Step 4 only writes fail when guard was observed but the payload value does not match. The GLSL block at the bottom shows the literal pattern; the precise semantics flag tuple (gl_ScopeSubgroup, gl_StorageSemanticsBuffer, gl_SemanticsRelease | gl_SemanticsMakeAvailable, gl_SemanticsAcquire | gl_SemanticsMakeVisible) is intentionally hidden in this slide and will be unpacked on page 09. Do not introduce transitive relay or write_after_read early-read timing here; those are pages 12 and 10 respectively. The host pass/fail scan is also page 10.</aside>
     </section>
 
-    <section class="slide active" data-title="Memory Semantics in the Shader">
+    <section class="slide" data-title="Memory Semantics in the Shader">
       <header class="slide-header">
         <div>
           <div class="kicker">Part B · Walkthrough</div>
@@ -1217,6 +1454,143 @@
       </div>
       <footer class="footer"><span>release + make available on the writer, acquire + make visible on the reader</span><span>←/→ · N notes · S presenter · O overview</span></footer>
       <aside class="notes">This page unpacks the four semantics flags hidden on page 08. The two-pane symmetry block shows the writer side (release + make available on the guard store) and the reader side (acquire + make visible on the guard load). Each flag answers one question: scope asks "who can synchronize with me"; storage semantics asks "which memory class"; release/make-available ask "what is being published"; acquire/make-visible ask "what is being pulled in". The scope + storage strip in the middle reminds the audience that the guarantee is narrow: only across this exact scope (subgroup) and this exact storage class (buffer). The bottom edge diagram traces the payload write becoming visible across the scope, gated by the guard atom. Do not introduce the host pass/fail loop, write_after_read timing inversion, or transitive relay here; those are pages 10 and 12.</aside>
+    </section>
+
+    <section class="slide" data-title="Result Checking: skip, fail, and Host-Side Pass/Fail">
+      <header class="slide-header">
+        <div>
+          <div class="kicker">Part B · Walkthrough</div>
+          <h2>From Shader Observation<br/>to Host Verdict</h2>
+        </div>
+        <div class="slide-no">10 / 15</div>
+      </header>
+      <div class="content stack p10-stack">
+        <div class="p10-decisions">
+          <div class="card accent-purple p10-decision p10-decision-skip">
+            <div class="p10-decision-head">
+              <span class="p10-decision-tag">skip path</span>
+              <code class="p10-decision-cond">if (skip) { /* no fail written */ }</code>
+            </div>
+            <h3>Partner guard was not observed</h3>
+            <p>The reader saw guard[<code>partner</code>] still equal to <code>0</code>. This race instance is not judged. The shader writes nothing to the fail buffer; this invocation contributes no information about memory-model correctness.</p>
+            <p class="p10-decision-out">Outcome: <b>no fail entry</b>. The case can still pass on this iteration.</p>
+          </div>
+          <div class="card accent-red p10-decision p10-decision-fail">
+            <div class="p10-decision-head">
+              <span class="p10-decision-tag">fail path</span>
+              <code class="p10-decision-cond">if (!skip &amp;&amp; r != partnerBufferCoord) { fail[bufferCoord] = 1; }</code>
+            </div>
+            <h3>Guard was observed, payload was wrong</h3>
+            <p>The reader saw guard[<code>partner</code>] non-zero (acquire fired) but the partner payload read returned a stale or incorrect value. The guard promised visibility, but the visibility did not actually carry the payload through.</p>
+            <p class="p10-decision-out">Outcome: <b>fail entry = 1</b> at this invocation's slot.</p>
+          </div>
+        </div>
+        <div class="card accent-blue p10-host-card">
+          <h3>Host-side loop: from fail-buffer entries to a case verdict</h3>
+          <div class="p10-host-flow">
+            <div class="p10-host-step">
+              <div class="p10-host-num">1</div>
+              <div class="p10-host-body">
+                <div class="p10-host-name">clear fail buffer</div>
+                <code>memset(fail, 0, …);</code>
+              </div>
+            </div>
+            <div class="p10-host-step">
+              <div class="p10-host-num">2</div>
+              <div class="p10-host-body">
+                <div class="p10-host-name">clear payload + guard</div>
+                <code>clearBuffer(payload); clearBuffer(guard);</code>
+              </div>
+            </div>
+            <div class="p10-host-step">
+              <div class="p10-host-num">3</div>
+              <div class="p10-host-body">
+                <div class="p10-host-name">dispatch × 50, 4 submits</div>
+                <code>vkCmdDispatch(cmd, …);</code>
+              </div>
+            </div>
+            <div class="p10-host-step">
+              <div class="p10-host-num">4</div>
+              <div class="p10-host-body">
+                <div class="p10-host-name">copy fail → host memory</div>
+                <code>vkCmdCopyBuffer(… fail …);</code>
+              </div>
+            </div>
+            <div class="p10-host-step p10-host-step-final">
+              <div class="p10-host-num">5</div>
+              <div class="p10-host-body">
+                <div class="p10-host-name">scan fail buffer</div>
+                <code>any nonzero → case fails</code>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card accent-yellow p10-meaning-card">
+          <h3>What a failure usually means</h3>
+          <ul class="p10-meaning-list">
+            <li><b>Release/acquire propagation broken</b> — the guard signal was issued but the prior payload write did not reach the partner.</li>
+            <li><b>Scope mishandling</b> — synchronization reached the wrong set of invocations (e.g. workgroup scope where subgroup was needed, or vice versa).</li>
+            <li><b>MakeAvailable / MakeVisible dropped</b> — noncoherent extension-mode cases rely on these bits; a lowered shader that omits them fails this exact path.</li>
+            <li><b>Storage-class lowering</b> — buffer / image / workgroup / physbuffer handled differently in the back-end; this case is buffer-only and exposes that specific lowering.</li>
+            <li><b>Shader-compiler issue</b> — barrier or atomic lowering removed the required ordering; vendor compilers must preserve release/acquire across the optimization pipeline.</li>
+          </ul>
+          <p class="p10-meaning-foot">No tolerance, no partial success: one nonzero entry makes the case fail. Up to 256 failing invocation indices are logged.</p>
+          <p class="p10-meaning-glossary">
+            <span><b>storage-class lowering</b> — the compiler rewriting a high-level GLSL storage class (<code>workgroup</code>, <code>image</code>, …) into the actual backend storage (LDS, texture unit, …).</span>
+            <span><b>barrier / atomic lowering</b> — the compiler translating <code>atomicStore</code>, <code>memoryBarrier</code>, <code>controlBarrier</code> into the actual hardware instruction sequence; release/acquire bits must survive this translation.</span>
+          </p>
+        </div>
+      </div>
+      <footer class="footer"><span>shader writes the fail buffer, host scans the fail buffer</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <aside class="notes">This page closes the loop from per-invocation shader observation to host-side pass/fail. The two-card decision matrix restates step 4 of the protocol (page 08) in terms of its two outcomes: skip leaves the fail buffer untouched, !skip combined with a wrong payload writes 1. The 5-step host flow summarizes runtime execution: clear fail once, clear payload+guard per iteration, dispatch 50 times across 4 submits, copy fail buffer to host-visible memory only on the final submit, then scan for any nonzero entry. The failure-meaning card lists the typical implementation problems this case catches — incomplete release/acquire propagation, scope mishandling, dropped MakeAvailable/MakeVisible semantics, bad storage-class lowering, shader-compiler barrier lowering. There is no partial success rule: one nonzero entry fails the case, and up to 256 failing invocation indices are logged. The wiki cites vktMemoryModelMessagePassing.cpp L1933-L2018 for the execution loop and L1992-L2017 for the scan rule. Do not introduce transitive relay or write_after_read early-read timing here; those are page 12.</aside>
+    </section>
+
+    <section class="slide active" data-title="From One Case Back to the Full Family">
+      <header class="slide-header">
+        <div>
+          <div class="kicker">Part C · Zoom Out</div>
+          <h2>Same <code>message_passing</code> Family,<br/>Many Dimensions</h2>
+        </div>
+        <div class="slide-no">11 / 15</div>
+      </header>
+      <div class="content stack p11-stack">
+        <div class="p11-core-vs-axes">
+          <div class="p11-fixed-pair">
+            <div class="card accent-blue p11-fixed-card p11-fixed-claim">
+              <span class="p11-fixed-tag">fixed claim</span>
+              <p class="p11-fixed-text">If partner guard is observed, partner payload must be visible with the expected value.</p>
+            </div>
+            <div class="p11-fixed-arrow" aria-hidden="true">⟷</div>
+            <div class="card accent-blue p11-fixed-card p11-fixed-workflow">
+              <span class="p11-fixed-tag">fixed workflow</span>
+              <p class="p11-fixed-workflow-text">write payload → release-store guard → acquire-load partner guard → check partner payload, or skip</p>
+            </div>
+          </div>
+          <div class="card accent-yellow p11-axes-card">
+            <h3>varying dimensions</h3>
+            <div class="p11-axes-head">
+              <span>dimension</span>
+              <span>values</span>
+              <span>what it stresses</span>
+            </div>
+            <ul class="p11-axes-list">
+              <li><b>memory-model mode</b><span>core11 / ext</span><i>rules + extensions</i></li>
+              <li><b>data type</b><span>u32 / u64 / f32 / f64</span><i>atomic feature pressure</i></li>
+              <li><b>sync form</b><span>fence_fence / fence_atomic / atomic_fence / atomic_atomic / control_barrier / control_and_memory_barrier</span><i>where the release/acquire lives</i></li>
+              <li><b>atomic op</b><span>atomicwrite / atomicrmw</span><i>store vs exchange</i></li>
+              <li><b>scope</b><span>device / queuefamily / workgroup / subgroup</span><i>who can pair</i></li>
+              <li><b>payload storage</b><span>buffer / image / workgroup / physbuffer</span><i>where the protected data lives</i></li>
+              <li><b>guard storage</b><span>buffer / image / workgroup / physbuffer</span><i>where the signal lives</i></li>
+              <li><b>shader stage</b><span>comp / vert / frag</span><i>pipeline around the protocol</i></li>
+            </ul>
+          </div>
+        </div>
+        <div class="card accent-green p11-continuity-card">
+          <p>The 4-step claim from page 08 is the <em>fixed center</em>. Every row in the mustpass file just picks a different value along one or more of these axes. The protocol structure does not change — only the resources, the operations, and the synchronization domain do.</p>
+        </div>
+      </div>
+      <footer class="footer"><span>one fixed claim, eight varying axes</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <aside class="notes">This page is the controlled zoom-out from the deep walkthrough of one case. The fixed-core card restates the page 08 claim in two short lines. The varying-dimensions list gives the 8 axes that the wiki's parameter table enumerates: memory-model mode (core11/ext), data type (u32/u64/f32/f64), sync form (six forms from fence_fence to control_and_memory_barrier), atomic op (atomicwrite/atomicrmw), scope (device/queuefamily/workgroup/subgroup), payload storage (buffer/image/workgroup/physbuffer), guard storage (buffer/image/workgroup/physbuffer), shader stage (comp/vert/frag). The continuity card at the bottom is the takeaway: the claim is invariant, only the resources and operations vary. No GLSL or host behavior on this page. The next slide is page 12, which compares message_passing with write_after_read and transitive.</aside>
     </section>
   </main>
 

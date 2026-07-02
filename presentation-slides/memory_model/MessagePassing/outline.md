@@ -191,6 +191,21 @@
 - Connect failure meaning to likely implementation problems such as incomplete release/acquire propagation, scope mishandling, or dropped memory semantics.
 - Recommended visualization: shader-side `skip`/`fail` decision feeding into the host-side loop and fail-buffer scan.
 
+### Page 10 style/layout decisions
+
+- Mark page 10 as `class="slide active"` in `index.html` so review opens directly on that page (and remove `active` from page 09).
+- Lead framing: "From a per-invocation observation to a host-side verdict". The audience should leave with the two-step mapping: shader writes fail buffer → host scans fail buffer.
+- Top half: a **2-column decision matrix** mapping (a) `skip = true` → no fail written (left card), (b) `!skip && r != partnerBufferCoord` → fail buffer entry 1 (right card). Use the same green/purple card colors as page 08 for visual continuity.
+- Middle: a **host-side flow strip** as 5 small step pills in a row, each with a number, a host action label, and a tiny code/token:
+  1. clear fail buffer (host-side reset, once)
+  2. clear payload + guard (per iteration)
+  3. dispatch shader (50× iterations, 4 submits)
+  4. copy fail buffer → host-visible memory (only on final submit)
+  5. scan fail buffer; any nonzero = case fails
+- Bottom: a **failure-meaning card** that lists the most likely implementation problems this case catches — incomplete release/acquire propagation, scope mishandling, dropped MakeAvailable/MakeVisible semantics, bad image/buffer storage lowering.
+- Speaker notes hold the wiki citations (the `vktMemoryModelMessagePassing.cpp` line ranges from the wiki) and the exact "fail the case if any entry is nonzero; log up to 256 failing invocation indices" rule.
+- Do not introduce transitive relay, write_after_read early-read timing, or the full failure-debug taxonomy. Those are pages 12 / future.
+
 ## 11: From One Case Back to the Full `message_passing` Family
 
 ### Page 11 intention
@@ -201,6 +216,17 @@
 - Emphasize that the core payload-before-guard claim remains the same while resources, operations, and synchronization domains change.
 - Prepare the transition from Part B's deep walkthrough to Part C's controlled zoom-out.
 - Recommended visualization: a compact matrix/radar-style summary of which dimensions vary around the fixed core protocol.
+
+### Page 11 style/layout decisions
+
+- Mark page 11 as `class="slide active"` in `index.html` so review opens directly on that page (and remove `active` from page 10).
+- Lead framing: "Same protocol, many dimensions". The audience should leave with the mental model of "one fixed claim, N varying axes".
+- Top half: a **fixed-core vs varying-axes block** as a 2-column layout.
+  - Left: a small "core" pill highlighting the fixed 4-step protocol claim from page 08.
+  - Right: a 4×N (or N-row) list of varying dimensions. Each row: dimension name (yellow), values, "what it stresses".
+- Middle: a **single representative radar/matrix summary** that shows all 8 dimensions in a compact visual form. Use simple HTML/CSS — for example, an 8-cell wheel or a horizontal bar where each axis has a label and 2-3 tokens. No external images, no drawio (the outline allows but I prefer the consistent html-ppt look at this scale).
+- Bottom: a **continuity note** in a small footer-style card: the claim (page 08) holds across all dimensions; only the resources, operations, and synchronization domain change. No new GLSL, no host behavior on this page.
+- Speaker notes hold the wiki's full dimension table values for reference and explicitly note that page 12 covers write_after_read / transitive, page 13 covers other memory_model families.
 
 ## 12: How `write_after_read` and `transitive` Differ from `message_passing`
 
