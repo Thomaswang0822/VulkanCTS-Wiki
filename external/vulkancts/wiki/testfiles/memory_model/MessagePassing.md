@@ -511,6 +511,7 @@ void main()
 ```
 
 </details>
+
 ### Representative Shader Walkthrough 2
 
 #### Parameter Values Chosen

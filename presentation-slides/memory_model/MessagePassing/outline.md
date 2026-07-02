@@ -6,6 +6,10 @@
 - Prefer short phrases, bullets, or half-sentences over full prose sentences.
 - Prefer spacious, confident layouts over dense bullet lists.
 - Use technical tags only when they fit the page, such as the title page; do not make them a global habit.
+- Use visualization proactively in Part B: draw.io diagrams, Mermaid diagrams, ASCII structure, code-highlight panels, screenshots, and simple HTML/CSS diagrams are all acceptable depending on the page.
+- When a page says visualization is required, the slide must include an actual visual explanation, not only bullets.
+- Use visualization proactively in Part B: draw.io diagrams, Mermaid diagrams, ASCII structure, code-highlight panels, screenshots, and simple HTML/CSS diagrams are all acceptable depending on the page.
+- When a page says visualization is required, the slide must include an actual visual explanation, not only bullets.
 
 ## 01: MessagePassing Visibility Tests
 
@@ -70,36 +74,99 @@
 
 ### Page 04 intention
 
-- Role: transition from general CTS/wiki context into the concrete test family for the rest of the talk.
-- Left box: clarify that `message_passing` is a test family represented by many mustpass test cases, not one specific case.
+- Role: transition from general CTS/wiki context into Part B without assuming the audience already knows the test vocabulary.
+- Clarify that `message_passing` is a test family represented by many mustpass cases, not one particular case.
 - Use `images/mustpass_list.png` to show repeated `dEQP-VK.memory_model.message_passing...` entries and the large match count.
-- Right box: state the expected behavior as a claim, not as a question.
-- Core claim: when a reader observes the guard/signal, the payload written before that guard must also be visible under the tested synchronization conditions.
+- Include an ASCII structure that labels `dEQP-VK.memory_model.message_passing` as:
+  - `dEQP-VK`: registration root / executable test namespace;
+  - `memory_model`: test category;
+  - `message_passing`: test family.
+- Avoid explaining the expected behavior here; instead, tell the audience that Part B will decode one representative case step by step.
 
-### Page 04 style/layout decisions
+## 05: Backgrounds Before the Walkthrough: Invocations, Payload, Guard
 
-- Mark page 04 as `class="slide active"` in `index.html`.
-- Use a two-card layout.
-- Left card combines a short statement with the mustpass screenshot.
-- Right card uses a compact message-passing flow: writer publishes payload, writer publishes guard, reader sees guard, reader must see payload.
-- Do not show internal scope-control phrases such as “not a full survey” or “later only as contrast” to the audience.
+### Page 05 intention
 
-## 05: Representative Shader: Execution Roles and Data Layout
+- Introduce the minimal vocabulary needed before any expected-behavior claim.
+- Define shader invocation roles in this test: an invocation is one shader execution instance; here it writes its own data and later checks its paired partner's data.
+- Use common memory-ordering intuition only where it clarifies the test: the relevant idea is payload write-before-guard and later read-after-observing-guard, not a generic resource-contention story.
+- Define `payload` as the data whose visibility is tested.
+- Define `guard` as the synchronization signal that makes the payload check meaningful.
+- Introduce `release` / `make-available` as the writer-side operation that publishes prior payload writes toward visibility.
+- Introduce `acquire` / `make-visible` as the reader-side operation that makes the partner payload visible after observing the guard.
+- Define `skip` at a high level: if the partner guard is not observed, that race instance is not judged as a failure.
 
-## 06: payload and guard: The Core Shape of Message Passing
+## 06: Representative Case: The Path We Will Walk Through
 
-## 07: How release/acquire, scope, and storage class Enter the Test Matrix
+### Page 06 intention
 
-## 08: validation and skip: What Counts as Pass, What Is Not Failure
+- Present the exact representative CTS path from `Representative Shader Walkthrough 1`.
+- Explain why this path is a good default case: compute shader, `u32`, subgroup scope, buffer payload, buffer guard, atomic store/load synchronization.
+- Reuse the substance of the `Parameter Values Chosen` table, but compress it into a slide-friendly decoding of the path.
+- Translate the long registered path into a small set of meaningful choices rather than reading every token mechanically.
+- Establish that later pages follow this one case deeply before generalizing back to the full family.
+- Before the walkthrough finishes, do not introduce parameter variations such as alternative payload storage classes; keep the audience inside this one representative case.
 
-## 09: Host-Side Flow: Turning Shader Results into CTS pass/fail
+## 07: Execution Topology: Pairing Lanes and Locating Data
 
-## 10: From One Example Back to the Full message_passing Family
+### Page 07 intention
 
-## 11: How write_after_read and transitive Differ from message_passing
+- Explain who the participants are in the representative shader.
+- Show that each active subgroup lane is paired with another lane using the subgroup XOR partner rule.
+- Explain how local invocation coordinates become payload/guard buffer indices.
+- Introduce the three key buffers in the representative case: payload buffer, guard buffer, and fail buffer.
+- Prepare the audience to read the shader protocol without getting lost in coordinate setup.
+- Visualization required: show paired subgroup lanes and the mapping from each lane to payload/guard/fail buffer slots.
 
-## 12: Zooming Out: Other Test Families in memory_model
+## 08: Core Protocol: Payload Before Guard, Check After Guard
 
-## 13: Zooming Out Again: Applying This Wiki Method to Other CTS Categories
+### Page 08 intention
 
-## 14: Three Takeaways
+- Walk through the technical heart of `message_passing` using the representative shader's main sequence.
+- Step 1: each invocation writes its own payload.
+- Step 2: each invocation publishes its guard with release / make-available semantics.
+- Step 3: each invocation tries to observe the partner guard with acquire / make-visible semantics.
+- Step 4: only after observing the guard, the invocation checks whether the partner payload has the expected value.
+- State the expected behavior as a claim here, after `payload`, `guard`, invocation roles, and `skip` have already been introduced.
+- Visualization required: show the two-invocation protocol as a timeline or message-passing sequence, including the conditional `skip` path.
+
+## 09: Memory Semantics in the Shader: Why the Guard Should Carry the Payload
+
+### Page 09 intention
+
+- Explain the memory-model mechanism behind the protocol, without turning the talk into a full Vulkan memory model lecture.
+- Connect release with making the payload write available before/with the guard signal.
+- Connect acquire with making the partner payload visible after the guard is observed.
+- Explain why scope and storage semantics matter: the guarantee only applies over the selected synchronization domain and storage class.
+- Use the representative case to show where `gl_ScopeSubgroup`, `gl_StorageSemanticsBuffer`, `gl_SemanticsRelease`, `gl_SemanticsAcquire`, `gl_SemanticsMakeAvailable`, and `gl_SemanticsMakeVisible` enter.
+- Recommended visualization: annotate the guard store/load operations with the semantics flags and show the payload visibility edge they are meant to establish.
+
+## 10: Result Checking: `skip`, `fail`, and Host-Side Pass/Fail
+
+### Page 10 intention
+
+- Explain how shader-level observations become a CTS result.
+- Clarify that not observing the partner guard produces `skip`, not failure.
+- Clarify that observing the guard but reading a stale or wrong payload writes to the fail buffer.
+- Summarize host behavior: clear resources, run many iterations, copy back the fail buffer, scan nonzero entries.
+- Connect failure meaning to likely implementation problems such as incomplete release/acquire propagation, scope mishandling, or dropped memory semantics.
+- Recommended visualization: shader-side `skip`/`fail` decision feeding into the host-side loop and fail-buffer scan.
+
+## 11: From One Case Back to the Full `message_passing` Family
+
+### Page 11 intention
+
+- Generalize from the representative shader to the full family without repeating the entire matrix.
+- Explain which dimensions vary: API/memory-model mode, data type, synchronization form, atomic operation, scope, payload storage, guard storage, and shader stage.
+- Reuse the substance of `## Parameter Dimensions and Observed Values`, but compress it into grouped dimensions rather than a full table copy.
+- Emphasize that the core payload-before-guard claim remains the same while resources, operations, and synchronization domains change.
+- Prepare the transition from Part B's deep walkthrough to Part C's controlled zoom-out.
+- Recommended visualization: a compact matrix/radar-style summary of which dimensions vary around the fixed core protocol.
+
+## 12: How `write_after_read` and `transitive` Differ from `message_passing`
+
+## 13: Zooming Out: Other Test Families in `memory_model`
+
+## 14: Zooming Out Again: Applying This Wiki Method to Other CTS Categories
+
+## 15: Three Takeaways
