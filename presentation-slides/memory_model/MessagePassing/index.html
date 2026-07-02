@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vulkan CTS Memory Model: Message Passing</title>
+  <style>
+    :root {
+      --bg: #1a1b26;
+      --bg-2: #16161e;
+      --panel: #24283b;
+      --panel-2: #1f2335;
+      --fg: #c0caf5;
+      --muted: #9aa5ce;
+      --dim: #565f89;
+      --cyan: #7dcfff;
+      --blue: #7aa2f7;
+      --purple: #bb9af7;
+      --green: #9ece6a;
+      --yellow: #e0af68;
+      --red: #f7768e;
+      --border: rgba(125, 207, 255, 0.24);
+      --shadow: 0 22px 70px rgba(0, 0, 0, 0.45);
+      --radius: 24px;
+      --mono: "JetBrains Mono", "Fira Code", "SFMono-Regular", Consolas, monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      overflow: hidden;
+      color: var(--fg);
+      font-family: var(--sans);
+      background:
+        radial-gradient(circle at 16% 18%, rgba(122, 162, 247, 0.24), transparent 28%),
+        radial-gradient(circle at 82% 16%, rgba(187, 154, 247, 0.20), transparent 26%),
+        radial-gradient(circle at 65% 86%, rgba(125, 207, 255, 0.16), transparent 30%),
+        linear-gradient(135deg, var(--bg), var(--bg-2));
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(125, 207, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(125, 207, 255, 0.04) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(circle at center, black, transparent 82%);
+    }
+
+    .deck { position: relative; width: 100vw; height: 100vh; }
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: none;
+      padding: 62px 76px 54px;
+    }
+    .slide.active { display: grid; grid-template-rows: auto 1fr auto; gap: 24px; }
+
+    .slide-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 28px; }
+    .kicker {
+      color: var(--cyan);
+      font: 700 13px/1 var(--mono);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    h1, h2 { margin: 0; line-height: 1.02; letter-spacing: -0.04em; }
+    h1 { font-size: clamp(54px, 6.8vw, 98px); max-width: 1100px; }
+    h2 { font-size: clamp(42px, 4.8vw, 76px); max-width: 1080px; }
+    h3 { margin: 0 0 14px; color: var(--cyan); font-size: 23px; }
+    p { margin: 0; color: var(--muted); font-size: 25px; line-height: 1.45; }
+    strong { color: var(--fg); }
+    code, .code { font-family: var(--mono); color: var(--green); }
+
+    .slide-no {
+      color: var(--dim);
+      font: 700 15px/1 var(--mono);
+      padding-top: 10px;
+      white-space: nowrap;
+    }
+
+    .content { align-self: stretch; display: grid; align-items: center; gap: 24px; }
+    .content.top { align-items: start; }
+    .two-col { display: grid; grid-template-columns: 1.02fr 0.98fr; gap: 30px; align-items: center; }
+    .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: stretch; }
+    .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .stack { display: grid; grid-template-columns: 1fr; gap: 22px; align-items: center; max-width: 980px; }
+    .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(36, 40, 59, 0.92), rgba(31, 35, 53, 0.80));
+      box-shadow: var(--shadow);
+      padding: 26px;
+    }
+    .card.compact { padding: 20px; }
+    .card.hero-topic {
+      padding: 34px 38px;
+      border-width: 2px;
+      border-color: rgba(125, 207, 255, 0.56);
+      background: linear-gradient(180deg, rgba(36, 40, 59, 0.98), rgba(31, 35, 53, 0.88));
+    }
+    .card.hero-topic p { font-size: 31px; line-height: 1.42; }
+    .card.secondary-path { padding: 22px 26px; opacity: 0.92; }
+    .card.secondary-path h3 { font-size: 21px; }
+    .card.secondary-path li { font-size: 22px; }
+    .card.accent-blue { border-color: rgba(122, 162, 247, 0.42); }
+    .card.accent-purple { border-color: rgba(187, 154, 247, 0.42); }
+    .card.accent-green { border-color: rgba(158, 206, 106, 0.42); }
+    .card.accent-yellow { border-color: rgba(224, 175, 104, 0.42); }
+    .big-num { font: 900 64px/1 var(--mono); color: var(--cyan); margin-bottom: 12px; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+    .tag {
+      border: 1px solid rgba(125, 207, 255, 0.28);
+      border-radius: 999px;
+      padding: 8px 12px;
+      color: var(--cyan);
+      background: rgba(125, 207, 255, 0.08);
+      font: 700 15px/1 var(--mono);
+    }
+
+    ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 16px; }
+    li { color: var(--muted); font-size: 25px; line-height: 1.34; padding-left: 32px; position: relative; }
+    li::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0.57em;
+      width: 11px; height: 11px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 18px rgba(125, 207, 255, 0.8);
+    }
+    li strong { color: var(--fg); }
+
+    .diagram { display: grid; gap: 18px; }
+    .flow { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+    .node {
+      min-width: 168px;
+      min-height: 90px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 14px;
+      border: 1px solid rgba(125, 207, 255, 0.34);
+      border-radius: 20px;
+      background: rgba(36, 40, 59, 0.86);
+      color: var(--fg);
+      font-weight: 800;
+      box-shadow: 0 12px 38px rgba(0,0,0,0.25);
+    }
+    .node.payload { border-color: rgba(158, 206, 106, 0.55); color: var(--green); }
+    .node.guard { border-color: rgba(224, 175, 104, 0.55); color: var(--yellow); }
+    .node.check { border-color: rgba(247, 118, 142, 0.55); color: var(--red); }
+    .arrow { color: var(--cyan); font: 900 32px/1 var(--mono); opacity: 0.9; }
+
+    .matrix { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .matrix-item {
+      border: 1px solid rgba(187,154,247,0.26);
+      border-radius: 18px;
+      background: rgba(187,154,247,0.07);
+      padding: 18px;
+      min-height: 132px;
+    }
+    .matrix-item b { display: block; color: var(--purple); font-size: 20px; margin-bottom: 10px; }
+    .matrix-item span { color: var(--muted); font-size: 18px; line-height: 1.38; }
+
+    .code-block {
+      background: rgba(13, 16, 28, 0.86);
+      border: 1px solid rgba(125, 207, 255, 0.20);
+      border-radius: 22px;
+      padding: 24px;
+      font: 18px/1.55 var(--mono);
+      color: var(--fg);
+      white-space: pre-wrap;
+      box-shadow: var(--shadow);
+    }
+    .code-block .comment { color: var(--dim); }
+    .code-block .kw { color: var(--purple); }
+    .code-block .op { color: var(--cyan); }
+    .code-block .bad { color: var(--red); }
+    .code-block .good { color: var(--green); }
+
+    .timeline { display: grid; gap: 14px; }
+    .step { display: grid; grid-template-columns: 150px 1fr; gap: 18px; align-items: start; }
+    .step .phase { font: 900 20px/1 var(--mono); color: var(--cyan); padding-top: 6px; }
+    .step .body { border-left: 2px solid rgba(125,207,255,0.35); padding-left: 20px; color: var(--muted); font-size: 23px; line-height: 1.38; }
+
+    .footer { display: flex; align-items: center; justify-content: space-between; color: var(--dim); font: 700 14px/1 var(--mono); }
+    .progress { position: fixed; left: 0; bottom: 0; height: 4px; width: 100%; background: rgba(86,95,137,0.25); z-index: 20; }
+    .progress > div { height: 100%; width: 0; background: linear-gradient(90deg, var(--cyan), var(--purple)); transition: width 180ms ease; }
+    .help { position: fixed; right: 22px; bottom: 18px; z-index: 30; color: var(--dim); font: 700 12px/1 var(--mono); }
+
+    .notes { display: none; }
+    .notes-panel {
+      position: fixed;
+      left: 28px; right: 28px; bottom: 34px;
+      max-height: 34vh;
+      overflow: auto;
+      display: none;
+      z-index: 50;
+      border: 1px solid rgba(224,175,104,0.36);
+      border-radius: 20px;
+      background: rgba(22,22,30,0.95);
+      padding: 20px 24px;
+      box-shadow: var(--shadow);
+      color: var(--fg);
+      font-size: 19px;
+      line-height: 1.55;
+    }
+    .notes-panel.visible { display: block; }
+    .notes-panel b { color: var(--yellow); }
+
+    @media (max-width: 900px) {
+      .slide { padding: 36px 28px 42px; }
+      .two-col, .three-col, .cards, .matrix { grid-template-columns: 1fr; }
+      h1 { font-size: 50px; }
+      h2 { font-size: 38px; }
+      p, li { font-size: 20px; }
+      .flow { justify-content: flex-start; }
+      .arrow { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck" id="deck">
+    <section class="slide active" data-title="MessagePassing Visibility Tests">
+      <header class="slide-header">
+        <div>
+          <div class="kicker">Vulkan CTS · Memory Model</div>
+          <h1>MessagePassing<br/>Visibility Tests</h1>
+        </div>
+        <div class="slide-no">01 / 01</div>
+      </header>
+      <div class="content stack">
+        <div class="card accent-blue hero-topic">
+          <p><strong>Topic:</strong> how Vulkan CTS turns a classic GPU memory-model question into executable shader tests.</p>
+          <div class="tag-row">
+            <span class="tag">Vulkan CTS</span>
+            <span class="tag">memory model</span>
+            <span class="tag">visibility</span>
+            <span class="tag">guard</span>
+            <span class="tag">payload</span>
+          </div>
+        </div>
+        <div class="card accent-purple secondary-path">
+          <h3>30-minute path</h3>
+          <ul>
+            <li>Start from CTS and the wiki work.</li>
+            <li>Walk through one representative <code>message_passing</code> case.</li>
+            <li>Generalize carefully to nearby families and categories.</li>
+          </ul>
+        </div>
+      </div>
+      <footer class="footer"><span>tokyo-night inspired technical sharing</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <aside class="notes">Opening intent: this is not a full Vulkan memory model lecture. The talk asks how CTS checks a concrete promise: once a synchronization signal is observed, the payload protected by that signal should also be visible. We will first motivate this through CTS and the wiki task, then spend most time on one message_passing walkthrough, and only then zoom out.</aside>
+    </section>
+  </main>
+
+  <div class="progress"><div id="progressBar"></div></div>
+  <div class="help">←/→ navigate · N notes · S presenter · O overview</div>
+  <div class="notes-panel" id="notesPanel"></div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const progressBar = document.getElementById('progressBar');
+    const notesPanel = document.getElementById('notesPanel');
+    let index = Number(new URLSearchParams(location.search).get('slide') || 0);
+    let overview = false;
+    let presenter = null;
+
+    function clamp(n) { return Math.max(0, Math.min(slides.length - 1, n)); }
+
+    function currentNotes(i = index) {
+      const note = slides[i]?.querySelector('.notes');
+      return note ? note.innerHTML : '';
+    }
+
+    function updatePresenter() {
+      if (!presenter || presenter.closed) return;
+      const next = clamp(index + 1);
+      presenter.document.body.innerHTML = `
+        <style>
+          body { margin:0; font-family: Inter, system-ui, sans-serif; background:#1a1b26; color:#c0caf5; }
+          .grid { display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: 48vh 48vh; gap:12px; padding:12px; }
+          .card { border:1px solid rgba(125,207,255,.25); border-radius:18px; background:#24283b; overflow:hidden; box-shadow:0 18px 54px rgba(0,0,0,.35); }
+          .head { padding:10px 14px; color:#7dcfff; font-weight:800; letter-spacing:.08em; border-bottom:1px solid rgba(125,207,255,.18); }
+          iframe { width:100%; height:calc(100% - 41px); border:0; background:#1a1b26; }
+          .notes { padding:18px 22px; font-size:22px; line-height:1.55; overflow:auto; height:calc(100% - 41px); }
+          .timer { display:grid; place-items:center; height:calc(100% - 41px); font-size:42px; color:#9ece6a; font-weight:900; }
+        </style>
+        <div class="grid">
+          <div class="card"><div class="head">CURRENT · ${index + 1}/${slides.length}</div><iframe src="${location.pathname}?preview=${index}"></iframe></div>
+          <div class="card"><div class="head">NEXT · ${next + 1}/${slides.length}</div><iframe src="${location.pathname}?preview=${next}"></iframe></div>
+          <div class="card"><div class="head">SPEAKER NOTES</div><div class="notes">${currentNotes()}</div></div>
+          <div class="card"><div class="head">CONTROLS</div><div class="timer">← / →<br/>N notes<br/>Esc close</div></div>
+        </div>`;
+      presenter.onkeydown = (e) => {
+        if (e.key === 'ArrowRight') go(index + 1);
+        if (e.key === 'ArrowLeft') go(index - 1);
+        if (e.key === 'Escape') presenter.close();
+      };
+    }
+
+    function go(n) {
+      index = clamp(n);
+      slides.forEach((s, i) => s.classList.toggle('active', i === index));
+      progressBar.style.width = `${((index + 1) / slides.length) * 100}%`;
+      notesPanel.innerHTML = `<b>Speaker notes · ${index + 1}/${slides.length}</b><br/>${currentNotes()}`;
+      history.replaceState(null, '', `${location.pathname}#${index + 1}`);
+      updatePresenter();
+    }
+
+    function clearOverviewStyles() {
+      slides.forEach((s) => {
+        s.style.transform = '';
+        s.style.left = '';
+        s.style.top = '';
+        s.style.right = '';
+        s.style.bottom = '';
+        s.style.width = '';
+        s.style.height = '';
+        s.style.border = '';
+        s.style.background = '';
+        s.style.cursor = '';
+        s.onclick = null;
+      });
+    }
+
+    function toggleOverview() {
+      overview = !overview;
+      if (!overview) {
+        document.body.classList.remove('overview');
+        clearOverviewStyles();
+        go(index);
+        return;
+      }
+
+      document.body.classList.add('overview');
+      const marginX = 44;
+      const marginY = 42;
+      const gapX = 22;
+      const gapY = 20;
+      const cols = 4;
+      const thumbW = (window.innerWidth - marginX * 2 - gapX * (cols - 1)) / cols;
+      const thumbH = thumbW * 9 / 16;
+
+      slides.forEach((s, i) => {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        s.classList.add('active');
+        s.style.left = `${marginX + col * (thumbW + gapX)}px`;
+        s.style.top = `${marginY + row * (thumbH + gapY)}px`;
+        s.style.right = 'auto';
+        s.style.bottom = 'auto';
+        s.style.width = '100vw';
+        s.style.height = '100vh';
+        s.style.transform = `scale(${thumbW / window.innerWidth})`;
+        s.style.transformOrigin = 'top left';
+        s.style.border = '1px solid rgba(125,207,255,.25)';
+        s.style.background = 'rgba(26,27,38,.96)';
+        s.style.cursor = 'pointer';
+        s.onclick = () => {
+          overview = false;
+          document.body.classList.remove('overview');
+          clearOverviewStyles();
+          go(i);
+        };
+      });
+    }
+
+    function openPresenter() {
+      presenter = window.open('', 'message-passing-presenter', 'width=1280,height=800');
+      updatePresenter();
+      presenter.focus();
+    }
+
+    const preview = new URLSearchParams(location.search).get('preview');
+    if (preview !== null) {
+      document.querySelector('.help').style.display = 'none';
+      go(Number(preview));
+    } else {
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') go(index + 1);
+        if (e.key === 'ArrowLeft' || e.key === 'PageUp') go(index - 1);
+        if (e.key.toLowerCase() === 'n') notesPanel.classList.toggle('visible');
+        if (e.key.toLowerCase() === 's') openPresenter();
+        if (e.key.toLowerCase() === 'o') toggleOverview();
+        if (e.key === 'Home') go(0);
+        if (e.key === 'End') go(slides.length - 1);
+      });
+      go(index);
+    }
+  </script>
+</body>
+</html>
