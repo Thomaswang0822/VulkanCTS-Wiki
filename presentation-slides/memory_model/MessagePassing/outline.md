@@ -88,13 +88,16 @@
 ### Page 05 intention
 
 - Introduce the minimal vocabulary needed before any expected-behavior claim.
+- Use a concrete toy problem: one warp-like subgroup / 32 shader invocations work on a 4×8 thread-ID tile and mirror left/right endpoints.
 - Define shader invocation roles in this test: an invocation is one shader execution instance; here it writes its own data and later checks its paired partner's data.
 - Use common memory-ordering intuition only where it clarifies the test: the relevant idea is payload write-before-guard and later read-after-observing-guard, not a generic resource-contention story.
-- Define `payload` as the data whose visibility is tested.
-- Define `guard` as the synchronization signal that makes the payload check meaningful.
-- Introduce `release` / `make-available` as the writer-side operation that publishes prior payload writes toward visibility.
-- Introduce `acquire` / `make-visible` as the reader-side operation that makes the partner payload visible after observing the guard.
+- Define `payload` as a per-invocation payload slot in a payload buffer/matrix; for pair T1/T6, T1's payload slot stores `1`, and T6 reads that slot when checking T1.
+- Define `guard` as a separate per-invocation synchronization slot in a guard buffer/matrix; for pair T1/T6, T1's guard slot is the signal that T1's payload write should now be visible to its partner.
+- Clarify that there is no extra swap-style temporary variable in this test; the communication storage is the payload buffer plus the guard buffer.
+- Introduce `release` / `make-available` as the writer-side operation that publishes prior payload writes toward visibility before/with the guard signal.
+- Introduce `acquire` / `make-visible` as the reader-side operation that makes the partner payload visible after observing the partner guard.
 - Define `skip` at a high level: if the partner guard is not observed, that race instance is not judged as a failure.
+- Visualization: top wide card shows the 4×8 thread tile; bottom-left shows payload/guard as separate per-thread slot matrices; bottom-right shows a flow chart with objects and operations separated.
 
 ## 06: Representative Case: The Path We Will Walk Through
 

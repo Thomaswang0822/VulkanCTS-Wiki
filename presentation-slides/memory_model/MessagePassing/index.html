@@ -89,7 +89,7 @@
     .wiki-work-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 30px; align-items: stretch; }
     .wiki-work-grid .bottom-card { grid-column: 1 / -1; justify-self: center; width: min(720px, 78%); }
     .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: stretch; }
-    .focus-grid { display: grid; grid-template-columns: 1.08fr 0.92fr; gap: 30px; align-items: stretch; }
+    .focus-grid { display: grid; grid-template-columns: 1.12fr 0.88fr; gap: 30px; align-items: stretch; }
     .mustpass-shot {
       width: 100%;
       margin-top: 18px;
@@ -97,17 +97,69 @@
       border-radius: 16px;
       box-shadow: 0 18px 54px rgba(0, 0, 0, 0.36);
     }
-    .claim-flow { display: grid; gap: 14px; margin-top: 8px; }
-    .claim-step {
-      border: 1px solid rgba(125, 207, 255, 0.22);
-      border-radius: 16px;
-      padding: 15px 18px;
-      background: rgba(13, 16, 28, 0.38);
-      color: var(--muted);
-      font-size: 22px;
-      line-height: 1.28;
+    .ascii-map {
+      margin-top: 16px;
+      padding: 18px 20px;
+      border: 1px solid rgba(125, 207, 255, 0.24);
+      border-radius: 18px;
+      background: rgba(13, 16, 28, 0.48);
+      color: var(--fg);
+      font: 700 19px/1.45 var(--mono);
+      white-space: pre;
+      overflow: hidden;
     }
-    .claim-step strong { color: var(--fg); }
+    .vocab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 22px; align-items: stretch; }
+    .vocab-grid .wide-card { grid-column: 1 / -1; padding: 22px 26px; }
+    .vocab-card { padding: 22px 26px; }
+    .vocab-card h3 { font-size: 22px; margin-bottom: 10px; }
+    .vocab-card p { font-size: 20px; line-height: 1.30; }
+    .matrix-demo { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin-top: 12px; }
+    .cell {
+      display: grid;
+      place-items: center;
+      height: 28px;
+      border: 1px solid rgba(125, 207, 255, 0.20);
+      border-radius: 9px;
+      background: rgba(13, 16, 28, 0.40);
+      color: var(--muted);
+      font: 800 14px/1 var(--mono);
+    }
+    .cell.hot-a { border-color: rgba(158, 206, 106, 0.72); color: var(--green); background: rgba(158, 206, 106, 0.12); }
+    .cell.hot-b { border-color: rgba(224, 175, 104, 0.72); color: var(--yellow); background: rgba(224, 175, 104, 0.12); }
+    .cell.dimmed { opacity: 0.46; }
+    .slot-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+    .slot-box {
+      border: 1px solid rgba(125, 207, 255, 0.24);
+      border-radius: 14px;
+      padding: 11px;
+      background: rgba(13, 16, 28, 0.40);
+      color: var(--muted);
+      font: 700 15px/1.35 var(--mono);
+    }
+    .slot-box b { display: block; color: var(--fg); margin-bottom: 5px; }
+    .connection-demo { display: grid; grid-template-columns: 1fr 28px 1fr; gap: 9px; align-items: center; margin-top: 12px; }
+    .flow-col { display: grid; gap: 7px; }
+    .flow-node {
+      border: 1px solid rgba(125, 207, 255, 0.24);
+      border-radius: 13px;
+      padding: 8px 10px;
+      background: rgba(13, 16, 28, 0.40);
+      color: var(--muted);
+      font: 700 14px/1.25 var(--mono);
+      text-align: center;
+    }
+    .flow-node.object { color: var(--cyan); border-color: rgba(125, 207, 255, 0.48); }
+    .flow-node.operation { color: var(--yellow); border-color: rgba(224, 175, 104, 0.48); }
+    .connect-arrow { color: var(--cyan); font: 900 28px/1 var(--mono); text-align: center; text-shadow: 0 0 18px rgba(125, 207, 255, 0.65); }
+    .mini-flow { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+    .mini-pill {
+      border: 1px solid rgba(125, 207, 255, 0.28);
+      border-radius: 999px;
+      padding: 9px 13px;
+      color: var(--cyan);
+      background: rgba(125, 207, 255, 0.08);
+      font: 800 15px/1 var(--mono);
+    }
     .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
     .stack { display: grid; grid-template-columns: 1fr; gap: 22px; align-items: center; max-width: 980px; }
     .card {
@@ -239,7 +291,7 @@
 
     @media (max-width: 900px) {
       .slide { padding: 36px 28px 42px; }
-      .two-col, .three-col, .focus-grid, .cards, .matrix { grid-template-columns: 1fr; }
+      .two-col, .three-col, .focus-grid, .vocab-grid, .cards, .matrix { grid-template-columns: 1fr; }
       h1 { font-size: 50px; }
       h2 { font-size: 38px; }
       p, li { font-size: 20px; }
@@ -256,7 +308,7 @@
           <div class="kicker">Vulkan CTS · Memory Model</div>
           <h1>MessagePassing<br/>Visibility Tests</h1>
         </div>
-        <div class="slide-no">01 / 04</div>
+        <div class="slide-no">01 / 05</div>
       </header>
       <div class="content stack">
         <div class="card accent-blue hero-topic">
@@ -288,7 +340,7 @@
           <div class="kicker">Part A · Context</div>
           <h2>Vulkan CTS:<br/>What and Why</h2>
         </div>
-        <div class="slide-no">02 / 04</div>
+        <div class="slide-no">02 / 05</div>
       </header>
       <div class="content three-col">
         <div class="card accent-blue">
@@ -326,7 +378,7 @@
           <div class="kicker">Part A · My Work</div>
           <h2>My Wiki Work (ongoing):<br>Executable Spec → Readable Knowledge</h2>
         </div>
-        <div class="slide-no">03 / 04</div>
+        <div class="slide-no">03 / 05</div>
       </header>
       <div class="content wiki-work-grid">
         <div class="card accent-yellow">
@@ -360,13 +412,13 @@
       <aside class="notes">This page introduces the main-track wiki task. Vulkan CTS is executable and source-backed, but direct source reading is expensive: registration, mustpass paths, parameter combinations, shader builders, and host-side verification are spread across many places. The rewritten wiki is not just a map or navigation layer. It is explanation-first, in-place technical documentation: each page explains intent, execution, validation, failure meaning, and source evidence where the reader needs it. For shader-heavy pages, Shader Analysis is central: a representative walkthrough makes the executable test behavior readable. Once the wiki is complete, it should also become practical engineering infrastructure: when a case or group fails, it helps narrow likely root causes; before implementation, it clarifies what behavior CTS will require.</aside>
     </section>
 
-    <section class="slide active" data-title="Focus for This Talk">
+    <section class="slide" data-title="Focus for This Talk">
       <header class="slide-header">
         <div>
           <div class="kicker">Part B · Test Family</div>
           <h2>Focus for This Talk:<br><code>message_passing</code></h2>
         </div>
-        <div class="slide-no">04 / 04</div>
+        <div class="slide-no">04 / 05</div>
       </header>
       <div class="content focus-grid">
         <div class="card accent-blue">
@@ -378,17 +430,69 @@
           <img class="mustpass-shot" src="images/mustpass_list.png" alt="Mustpass list showing many message_passing entries in memory-model.txt" />
         </div>
         <div class="card accent-green">
-          <h3>The expected behavior</h3>
-          <div class="claim-flow">
-            <div class="claim-step"><strong>Writer:</strong> publishes payload data</div>
-            <div class="claim-step"><strong>Writer:</strong> publishes the guard signal</div>
-            <div class="claim-step"><strong>Reader:</strong> observes that guard</div>
-            <div class="claim-step"><strong>Claim:</strong> the payload must be visible too</div>
+          <h3>Where it sits in CTS</h3>
+          <p>This path names a hierarchy, not a single hand-written shader.</p>
+          <div class="ascii-map">dEQP-VK.memory_model.message_passing
+│       │            └─ test family
+│       └────────────── test category
+└────────────────────── registration root</div>
+          <ul>
+            <li>Part B decodes one representative case from this family</li>
+            <li>The claim comes later, after the vocabulary is clear</li>
+          </ul>
+        </div>
+      </div>
+      <footer class="footer"><span>test family first, representative case next</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <aside class="notes">This slide fixes the entry point into Part B. Do not introduce writer, reader, payload, guard, or the visibility claim yet. First establish that message_passing is a family in the CTS hierarchy, visible as many dEQP-VK.memory_model.message_passing entries in the mustpass list. The right card decodes the path into registration root, category, and family. The next slide introduces the vocabulary needed before the expected behavior can be stated precisely.</aside>
+    </section>
+
+    <section class="slide active" data-title="Backgrounds Before the Walkthrough">
+      <header class="slide-header">
+        <div>
+          <div class="kicker">Part B · Vocabulary</div>
+          <h2>Backgrounds:<br>Before the Walkthrough</h2>
+        </div>
+        <div class="slide-no">05 / 05</div>
+      </header>
+      <div class="content vocab-grid">
+        <div class="card accent-blue vocab-card wide-card">
+          <h3>Concrete problem: mirror a 4×8 work tile</h3>
+          <p>Think of one warp-like subgroup with 32 shader invocations. Each invocation owns one matrix slot, initialized to its thread ID. The toy goal is to mirror left and right endpoints.</p>
+          <div class="matrix-demo" aria-label="4 by 8 matrix with thread IDs">
+            <span class="cell dimmed">0</span><span class="cell hot-a">1</span><span class="cell dimmed">2</span><span class="cell dimmed">3</span><span class="cell dimmed">4</span><span class="cell dimmed">5</span><span class="cell hot-b">6</span><span class="cell dimmed">7</span>
+            <span class="cell dimmed">8</span><span class="cell dimmed">9</span><span class="cell dimmed">10</span><span class="cell dimmed">11</span><span class="cell dimmed">12</span><span class="cell dimmed">13</span><span class="cell dimmed">14</span><span class="cell dimmed">15</span>
+            <span class="cell dimmed">16</span><span class="cell dimmed">17</span><span class="cell dimmed">18</span><span class="cell dimmed">19</span><span class="cell dimmed">20</span><span class="cell dimmed">21</span><span class="cell dimmed">22</span><span class="cell dimmed">23</span>
+            <span class="cell dimmed">24</span><span class="cell dimmed">25</span><span class="cell dimmed">26</span><span class="cell dimmed">27</span><span class="cell dimmed">28</span><span class="cell dimmed">29</span><span class="cell dimmed">30</span><span class="cell dimmed">31</span>
+          </div>
+        </div>
+        <div class="card accent-green vocab-card">
+          <h3><code>payload</code> and <code>guard</code></h3>
+          <p>Payload and guard are separate per-invocation slots. For T1/T6, T1 writes payload[1] = 1, then signals guard[1]; T6 checks that slot after observing guard[1].</p>
+          <div class="slot-pair">
+            <div class="slot-box"><b>Payload buffer</b>payload[1] = 1<br>payload[6] = 6</div>
+            <div class="slot-box"><b>Guard buffer</b>guard[1] = ready<br>guard[6] = ready</div>
+          </div>
+        </div>
+        <div class="card accent-purple vocab-card">
+          <h3><code>release</code> and <code>acquire</code></h3>
+          <p>Pick T1 as writer and T6 as reader. No extra swap temporary is required; the connection is made through payload[1] and guard[1].</p>
+          <div class="connection-demo">
+            <div class="flow-col">
+              <div class="flow-node object">T1 writer</div>
+              <div class="flow-node operation">write payload[1]</div>
+              <div class="flow-node operation">release + signal guard[1]</div>
+            </div>
+            <div class="connect-arrow">⟶</div>
+            <div class="flow-col">
+              <div class="flow-node object">T6 reader</div>
+              <div class="flow-node operation">observe + acquire guard[1]</div>
+              <div class="flow-node operation">read payload[1]</div>
+            </div>
           </div>
         </div>
       </div>
-      <footer class="footer"><span>one test family, many cases, one visibility claim</span><span>←/→ · N notes · S presenter · O overview</span></footer>
-      <aside class="notes">This slide combines the former scope slide and minimal-question slide. The important audience-facing point is not that we are excluding other topics, but that message_passing is a family in the CTS hierarchy. The mustpass screenshot shows many concrete dEQP-VK.memory_model.message_passing entries, so the family is realized as a large set of parameterized cases. The right card states the tested behavior as a claim: once the reader observes the synchronization guard, the payload protected by that guard is expected to be visible under the synchronization conditions being tested.</aside>
+      <footer class="footer"><span>from familiar mirror pairing to message-passing vocabulary</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <aside class="notes">This slide uses a simplified warp-like 4 by 8 tile as intuition. In Vulkan terminology, the real representative case uses shader invocations in a subgroup; "warp" is only a familiar mental model, not a Vulkan API term. The mirror example makes partner pairing concrete: thread 1 and thread 6 are a left-right pair in the first row. Payload is not a single variable; conceptually it is a per-invocation slot in a payload buffer, so payload[1] stores T1's value and payload[6] stores T6's value. Guard is also separate per-invocation synchronization storage; guard[1] is the signal associated with payload[1]. There is no extra swap-style temporary variable in the test. The two endpoints connect through release/acquire: T1 writes payload[1], releases and signals guard[1]; T6 observes/acquires guard[1], then reads payload[1].</aside>
     </section>
   </main>
 
