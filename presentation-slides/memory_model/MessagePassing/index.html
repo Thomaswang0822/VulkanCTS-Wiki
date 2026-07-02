@@ -86,7 +86,28 @@
     .content { align-self: stretch; display: grid; align-items: center; gap: 24px; }
     .content.top { align-items: start; }
     .two-col { display: grid; grid-template-columns: 1.02fr 0.98fr; gap: 30px; align-items: center; }
+    .wiki-work-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 30px; align-items: stretch; }
+    .wiki-work-grid .bottom-card { grid-column: 1 / -1; justify-self: center; width: min(720px, 78%); }
     .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: stretch; }
+    .focus-grid { display: grid; grid-template-columns: 1.08fr 0.92fr; gap: 30px; align-items: stretch; }
+    .mustpass-shot {
+      width: 100%;
+      margin-top: 18px;
+      border: 1px solid rgba(125, 207, 255, 0.24);
+      border-radius: 16px;
+      box-shadow: 0 18px 54px rgba(0, 0, 0, 0.36);
+    }
+    .claim-flow { display: grid; gap: 14px; margin-top: 8px; }
+    .claim-step {
+      border: 1px solid rgba(125, 207, 255, 0.22);
+      border-radius: 16px;
+      padding: 15px 18px;
+      background: rgba(13, 16, 28, 0.38);
+      color: var(--muted);
+      font-size: 22px;
+      line-height: 1.28;
+    }
+    .claim-step strong { color: var(--fg); }
     .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
     .stack { display: grid; grid-template-columns: 1fr; gap: 22px; align-items: center; max-width: 980px; }
     .card {
@@ -111,6 +132,9 @@
     .card.accent-purple { border-color: rgba(187, 154, 247, 0.42); }
     .card.accent-green { border-color: rgba(158, 206, 106, 0.42); }
     .card.accent-yellow { border-color: rgba(224, 175, 104, 0.42); }
+    .title-highlight { color: var(--yellow); }
+    .emphasis { color: var(--fg); font-weight: 800; }
+    .muted-note { color: var(--dim); font: 700 16px/1.25 var(--mono); letter-spacing: 0.03em; text-transform: uppercase; margin-bottom: 12px; }
     .big-num { font: 900 64px/1 var(--mono); color: var(--cyan); margin-bottom: 12px; }
     .tag-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
     .tag {
@@ -215,7 +239,7 @@
 
     @media (max-width: 900px) {
       .slide { padding: 36px 28px 42px; }
-      .two-col, .three-col, .cards, .matrix { grid-template-columns: 1fr; }
+      .two-col, .three-col, .focus-grid, .cards, .matrix { grid-template-columns: 1fr; }
       h1 { font-size: 50px; }
       h2 { font-size: 38px; }
       p, li { font-size: 20px; }
@@ -226,13 +250,13 @@
 </head>
 <body>
   <main class="deck" id="deck">
-    <section class="slide active" data-title="MessagePassing Visibility Tests">
+    <section class="slide" data-title="MessagePassing Visibility Tests">
       <header class="slide-header">
         <div>
           <div class="kicker">Vulkan CTS · Memory Model</div>
           <h1>MessagePassing<br/>Visibility Tests</h1>
         </div>
-        <div class="slide-no">01 / 01</div>
+        <div class="slide-no">01 / 04</div>
       </header>
       <div class="content stack">
         <div class="card accent-blue hero-topic">
@@ -248,7 +272,7 @@
         <div class="card accent-purple secondary-path">
           <h3>30-minute path</h3>
           <ul>
-            <li>Start from CTS and the wiki work.</li>
+            <li>Brief intro to Vulkan CTS and my wiki work.</li>
             <li>Walk through one representative <code>message_passing</code> case.</li>
             <li>Generalize carefully to nearby families and categories.</li>
           </ul>
@@ -256,6 +280,115 @@
       </div>
       <footer class="footer"><span>tokyo-night inspired technical sharing</span><span>←/→ · N notes · S presenter · O overview</span></footer>
       <aside class="notes">Opening intent: this is not a full Vulkan memory model lecture. The talk asks how CTS checks a concrete promise: once a synchronization signal is observed, the payload protected by that signal should also be visible. We will first motivate this through CTS and the wiki task, then spend most time on one message_passing walkthrough, and only then zoom out.</aside>
+    </section>
+
+    <section class="slide" data-title="Vulkan CTS: What and Why">
+      <header class="slide-header">
+        <div>
+          <div class="kicker">Part A · Context</div>
+          <h2>Vulkan CTS:<br/>What and Why</h2>
+        </div>
+        <div class="slide-no">02 / 04</div>
+      </header>
+      <div class="content three-col">
+        <div class="card accent-blue">
+          <h3>What it is</h3>
+          <ul>
+            <li><span class="emphasis">Conformance</span>: this product follows official Vulkan rules</li>
+            <li>Beyond “works”: guarantees compatibility</li>
+            <li><span class="emphasis">Pass Vulkan CTS</span>: chip + driver + compiler + runtime + platform</li>
+          </ul>
+        </div>
+        <div class="card accent-green">
+          <h3>Why it matters <span class="title-highlight">for us</span></h3>
+          <ul>
+            <li>DX11 / DX12 and Vulkan: both need conformance</li>
+            <li>Today: primary push on DX + HLK</li>
+            <li>Later: Vulkan CTS as an open-source window into conformance</li>
+          </ul>
+        </div>
+        <div class="card accent-purple">
+          <h3>Why this talk</h3>
+          <ul>
+            <li><code>memory_model</code>: critical and difficult</li>
+            <li>Audience already cares about it</li>
+            <li>New lens: conformance test as final observable goal</li>
+          </ul>
+        </div>
+      </div>
+      <footer class="footer"><span>conformance: from public spec rule to product-visible behavior</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <aside class="notes">Middle-card narrative: our product needs both DirectX and Vulkan conformance. The DirectX side is HLK, and the Vulkan side is Vulkan CTS. For now, the main engineering priority is DX and HLK, while Vulkan CTS knowledge and resources are still limited. Later we may shift more attention to Vulkan CTS. Its advantage is openness: Vulkan CTS is open source, while HLK is closed source, so understanding Vulkan CTS can still teach us how conformance suites encode graphics-stack requirements.</aside>
+    </section>
+
+    <section class="slide" data-title="Wiki Work">
+      <header class="slide-header">
+        <div>
+          <div class="kicker">Part A · My Work</div>
+          <h2>My Wiki Work (ongoing):<br>Executable Spec → Readable Knowledge</h2>
+        </div>
+        <div class="slide-no">03 / 04</div>
+      </header>
+      <div class="content wiki-work-grid">
+        <div class="card accent-yellow">
+          <h3>Raw CTS is hard to read</h3>
+          <ul>
+            <li>Registration tree</li>
+            <li>Mustpass lists</li>
+            <li>Parameter matrices</li>
+            <li>Shader generation + host verification</li>
+          </ul>
+        </div>
+        <div class="card accent-blue">
+          <h3>Wiki explains it in place</h3>
+          <ul>
+            <li>Test intent and failure meaning</li>
+            <li>Parameters and generated variants</li>
+            <li>Runtime validation flow</li>
+            <li><code>Shader Analysis</code>: representative walkthrough</li>
+          </ul>
+        </div>
+        <div class="card accent-green bottom-card">
+          <h3>How it helps after completion</h3>
+          <ul>
+            <li>Failure triage: locate likely root causes faster</li>
+            <li>Group-level diagnosis: connect related failing cases</li>
+            <li>Test-driven implementation: know required behavior before coding</li>
+          </ul>
+        </div>
+      </div>
+      <footer class="footer"><span>from readable CTS knowledge to debugging and implementation planning</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <aside class="notes">This page introduces the main-track wiki task. Vulkan CTS is executable and source-backed, but direct source reading is expensive: registration, mustpass paths, parameter combinations, shader builders, and host-side verification are spread across many places. The rewritten wiki is not just a map or navigation layer. It is explanation-first, in-place technical documentation: each page explains intent, execution, validation, failure meaning, and source evidence where the reader needs it. For shader-heavy pages, Shader Analysis is central: a representative walkthrough makes the executable test behavior readable. Once the wiki is complete, it should also become practical engineering infrastructure: when a case or group fails, it helps narrow likely root causes; before implementation, it clarifies what behavior CTS will require.</aside>
+    </section>
+
+    <section class="slide active" data-title="Focus for This Talk">
+      <header class="slide-header">
+        <div>
+          <div class="kicker">Part B · Test Family</div>
+          <h2>Focus for This Talk:<br><code>message_passing</code></h2>
+        </div>
+        <div class="slide-no">04 / 04</div>
+      </header>
+      <div class="content focus-grid">
+        <div class="card accent-blue">
+          <h3>A family, not one case</h3>
+          <ul>
+            <li><code>message_passing</code> expands into many registered CTS cases</li>
+            <li>Each line is one concrete parameterized test case</li>
+          </ul>
+          <img class="mustpass-shot" src="images/mustpass_list.png" alt="Mustpass list showing many message_passing entries in memory-model.txt" />
+        </div>
+        <div class="card accent-green">
+          <h3>The expected behavior</h3>
+          <div class="claim-flow">
+            <div class="claim-step"><strong>Writer:</strong> publishes payload data</div>
+            <div class="claim-step"><strong>Writer:</strong> publishes the guard signal</div>
+            <div class="claim-step"><strong>Reader:</strong> observes that guard</div>
+            <div class="claim-step"><strong>Claim:</strong> the payload must be visible too</div>
+          </div>
+        </div>
+      </div>
+      <footer class="footer"><span>one test family, many cases, one visibility claim</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <aside class="notes">This slide combines the former scope slide and minimal-question slide. The important audience-facing point is not that we are excluding other topics, but that message_passing is a family in the CTS hierarchy. The mustpass screenshot shows many concrete dEQP-VK.memory_model.message_passing entries, so the family is realized as a large set of parameterized cases. The right card states the tested behavior as a claim: once the reader observes the synchronization guard, the payload protected by that guard is expected to be visible under the synchronization conditions being tested.</aside>
     </section>
   </main>
 
