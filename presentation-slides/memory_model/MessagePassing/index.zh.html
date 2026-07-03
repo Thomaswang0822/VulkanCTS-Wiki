@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Vulkan CTS Memory Model: Message Passing</title>
+  <title>Vulkan CTS Memory Model：Message Passing</title>
   <style>
     :root {
       --bg: #1a1b26;
@@ -1271,17 +1271,17 @@
 </head>
 <body>
   <main class="deck" id="deck">
-    <section class="slide" data-title="MessagePassing Visibility Tests">
+    <section class="slide" data-title="MessagePassing 可见性测试">
       <header class="slide-header">
         <div>
           <div class="kicker">Vulkan CTS · Memory Model</div>
-          <h1>MessagePassing<br/>Visibility Tests</h1>
+          <h1>MessagePassing<br/>可见性测试</h1>
         </div>
         <div class="slide-no">01 / 15</div>
       </header>
       <div class="content stack">
         <div class="card accent-blue hero-topic">
-          <p><strong>Topic:</strong> how Vulkan CTS turns a classic GPU memory-model question into executable shader tests.</p>
+          <p><strong>主题：</strong>Vulkan CTS 如何把一个经典 GPU memory-model 问题变成可执行的 shader 测试。</p>
           <div class="tag-row">
             <span class="tag">Vulkan CTS</span>
             <span class="tag">memory model</span>
@@ -1291,15 +1291,15 @@
           </div>
         </div>
         <div class="card accent-purple secondary-path">
-          <h3>30-minute path</h3>
+          <h3>30 分钟路线</h3>
           <ul>
-            <li>Brief intro to Vulkan CTS and my wiki work.</li>
-            <li>Walk through one representative <code>message_passing</code> case.</li>
-            <li>Generalize carefully to nearby families and categories.</li>
+            <li>简要介绍 Vulkan CTS 和我的 wiki 工作。</li>
+            <li>讲解一个代表性的 <code>message_passing</code> case。</li>
+            <li>再谨慎扩展到相邻测试子族和测试类别。</li>
           </ul>
         </div>
       </div>
-      <footer class="footer"><span>tokyo-night inspired technical sharing</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <footer class="footer"><span>tokyo-night 风格技术分享</span><span>←/→ · N notes · S presenter · O overview</span></footer>
       <aside class="notes">
       <h3>01: MessagePassing Visibility Tests</h3>
       <ul>
@@ -1310,41 +1310,41 @@
       </aside>
     </section>
 
-    <section class="slide" data-title="Vulkan CTS: What and Why">
+    <section class="slide" data-title="Vulkan CTS：是什么，为什么重要">
       <header class="slide-header">
         <div>
-          <div class="kicker">Part A · Context</div>
-          <h2>Vulkan CTS:<br/>What and Why</h2>
+          <div class="kicker">Part A · 背景</div>
+          <h2>Vulkan CTS：<br/>是什么，为什么重要</h2>
         </div>
         <div class="slide-no">02 / 15</div>
       </header>
       <div class="content three-col">
         <div class="card accent-blue">
-          <h3>What it is</h3>
+          <h3>它是什么</h3>
           <ul>
-            <li><span class="emphasis">Conformance</span>: this product follows official Vulkan rules</li>
-            <li>Beyond “works”: guarantees compatibility</li>
-            <li><span class="emphasis">Pass Vulkan CTS</span>: chip + driver + compiler + runtime + platform</li>
+            <li><span class="emphasis">Conformance</span>：产品遵循官方 Vulkan 规则</li>
+            <li>不只是“能跑”：还要保证兼容性</li>
+            <li><span class="emphasis">Pass Vulkan CTS</span>：芯片 + driver + compiler + runtime + platform</li>
           </ul>
         </div>
         <div class="card accent-green">
-          <h3>Why it matters <span class="title-highlight">for us</span></h3>
+          <h3>为什么<span class="title-highlight">对我们</span>重要</h3>
           <ul>
-            <li>DX11 / DX12 and Vulkan: both need conformance</li>
-            <li>Today: primary push on DX + HLK</li>
-            <li>Later: Vulkan CTS as an open-source window into conformance</li>
+            <li>DX11 / DX12 和 Vulkan：都需要 conformance</li>
+            <li>当前：主要推进 DX + HLK</li>
+            <li>后续：Vulkan CTS 是理解 conformance 的开源窗口</li>
           </ul>
         </div>
         <div class="card accent-purple">
-          <h3>Why this talk</h3>
+          <h3>为什么讲这个</h3>
           <ul>
-            <li><code>memory_model</code>: critical and difficult</li>
-            <li>We care about memory and already have the basics</li>
-            <li>New lens: conformance test as final observable goal</li>
+            <li><code>memory_model</code>：关键且困难</li>
+            <li>我们关心 memory，并已有基本了解</li>
+            <li>新的视角：把 conformance test 作为最终可观察目标</li>
           </ul>
         </div>
       </div>
-      <footer class="footer"><span>conformance: from public spec rule to product-visible behavior</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <footer class="footer"><span>conformance：从公开 spec 规则到产品可见行为</span><span>←/→ · N notes · S presenter · O overview</span></footer>
       <aside class="notes">
       <h3>02: Vulkan CTS: What and Why</h3>
       <ul>
@@ -1355,43 +1355,43 @@
       </aside>
     </section>
 
-    <section class="slide" data-title="Wiki Work">
+    <section class="slide" data-title="Wiki 工作">
       <header class="slide-header">
         <div>
-          <div class="kicker">Part A · My Work</div>
-          <h2>My Wiki Work (ongoing):<br>Executable Spec → Readable Knowledge</h2>
+          <div class="kicker">Part A · 我的工作</div>
+          <h2>我的 Wiki 工作（进行中）：<br>可执行 spec → 可读知识</h2>
           </div>
           <div class="slide-no">03 / 15</div>
       </header>
       <div class="content wiki-work-grid">
         <div class="card accent-yellow">
-          <h3>Raw CTS is hard to read</h3>
+          <h3>原始 CTS 很难读</h3>
           <ul>
-            <li>Registration tree</li>
-            <li>Mustpass lists</li>
-            <li>Parameter matrices</li>
-            <li>Shader generation + host verification</li>
+            <li>注册树 & 注册路径</li>
+            <li>Mustpass 列表</li>
+            <li>参数矩阵</li>
+            <li>Shader 生成 + host 验证</li>
           </ul>
         </div>
         <div class="card accent-blue">
-          <h3>Wiki consolidates and explains</h3>
+          <h3>Wiki 整合并解释这些线索</h3>
           <ul>
-            <li>Test intent and failure meaning</li>
-            <li>Parameters and generated variants</li>
-            <li>Runtime validation flow</li>
-            <li><code>Shader Analysis</code>: representative walkthrough</li>
+            <li>测试意图和失败含义</li>
+            <li>参数和生成出的变体</li>
+            <li>runtime 验证流程</li>
+            <li><code>Shader Analysis</code>：代表性讲解</li>
           </ul>
         </div>
         <div class="card accent-green bottom-card">
-          <h3>How it helps after completion</h3>
+          <h3>完成后如何发挥作用</h3>
           <ul>
-            <li>Failure triage: locate likely root causes faster</li>
-            <li>Group-level diagnosis: connect related failing cases</li>
-            <li>Test-driven implementation: know required behavior before coding</li>
+            <li>Failure triage：更快定位可能根因</li>
+            <li>测试子族级诊断：关联相关失败 cases</li>
+            <li>测试驱动实现：编码前先知道所需行为</li>
           </ul>
         </div>
       </div>
-      <footer class="footer"><span>from readable CTS knowledge to debugging and implementation planning</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <footer class="footer"><span>从可读 CTS 知识到调试与实现规划</span><span>←/→ · N notes · S presenter · O overview</span></footer>
       <aside class="notes">
       <h3>03: Wiki Work: Executable Spec → Readable Knowledge</h3>
       <ul>
@@ -1402,37 +1402,37 @@
       </aside>
     </section>
 
-    <section class="slide" data-title="Focus for This Talk">
+    <section class="slide" data-title="本次分享的焦点">
       <header class="slide-header">
         <div>
-          <div class="kicker">Part B · Test Family</div>
-          <h2>Focus for This Talk:<br><code>message_passing</code></h2>
+          <div class="kicker">Part B · 测试子族</div>
+          <h2>本次分享的焦点：<br><code>message_passing</code></h2>
         </div>
         <div class="slide-no">04 / 15</div>
       </header>
       <div class="content focus-grid">
         <div class="card accent-blue">
-          <h3>A family, not one case</h3>
+          <h3>一个测试子族，而不是一个 case</h3>
           <ul>
-            <li><code>message_passing</code> expands into many registered CTS cases</li>
-            <li>Each line is one concrete parameterized test case</li>
+            <li><code>message_passing</code> 展开成许多已注册 CTS cases</li>
+            <li>每一行都是一个具体的参数化单个测试</li>
           </ul>
-          <img class="mustpass-shot" src="images/mustpass_list.png" alt="Mustpass list showing many message_passing entries in memory-model.txt" />
+          <img class="mustpass-shot" src="images/mustpass_list.png" alt="Mustpass 列表展示 memory-model.txt 中的多个 message_passing 条目" />
         </div>
         <div class="card accent-green">
-          <h3>Where it sits in CTS</h3>
-          <p>This path names a generated test hierarchy, not one standalone test case or shader.</p>
+          <h3>它在 CTS 中的位置</h3>
+          <p>这个路径表示的是生成出的测试层级，而不是某个单独的 test case 或 shader。</p>
           <div class="ascii-map">dEQP-VK.memory_model.message_passing
-│       │            └─ test family
-│       └────────────── test category
-└────────────────────── registration root</div>
+│       │            └─ 测试子族
+│       └────────────── 测试类别
+└────────────────────── 注册根</div>
           <ul>
-            <li>Part B decodes one representative case from this family</li>
-            <li>Build the concepts first, then explain the core principle</li>
+            <li>Part B 从这个测试子族中拆解一个代表性 case</li>
+            <li>先建立概念，再讲核心原理</li>
           </ul>
         </div>
       </div>
-      <footer class="footer"><span>test family first, representative case next</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <footer class="footer"><span>先定位测试子族，再进入代表性 case</span><span>←/→ · N notes · S presenter · O overview</span></footer>
       <aside class="notes">
       <h3>04: Focus for This Talk: `message_passing`</h3>
       <ul>
@@ -1443,26 +1443,26 @@
       </aside>
     </section>
 
-    <section class="slide" data-title="Backgrounds Before the Walkthrough">
+    <section class="slide" data-title="讲解前的背景">
       <header class="slide-header">
         <div>
-          <div class="kicker">Part B · Vocabulary</div>
-          <h2>Backgrounds:<br>Before the Walkthrough</h2>
+          <div class="kicker">Part B · 词汇</div>
+          <h2>背景：<br>进入讲解之前</h2>
         </div>
         <div class="slide-no">05 / 15</div>
       </header>
       <div class="content vocab-grid">
         <div class="card accent-blue vocab-card wide-card">
-          <h3>Concrete problem: mirror a 4×8 work tile</h3>
-          <p>Think of one warp-like subgroup with 32 shader invocations. Each invocation owns one matrix slot, initialized to its thread ID. The toy goal is to mirror left and right endpoints.</p>
-          <div class="matrix-demo" aria-label="4 by 8 matrix with thread IDs">
+          <h3>具体问题：左右镜像一个 4×8 矩阵</h3>
+          <p>可以把它想成一个类似 warp 的 subgroup，里面有 32 个 shader invocations。每个 invocation 拥有一个矩阵 slot，初始值是自己的 thread ID。这个 toy 目标是镜像左右端点。</p>
+          <div class="matrix-demo" aria-label="带 thread ID 的 4×8 矩阵">
             <span class="cell dimmed">0</span><span class="cell hot-a">1</span><span class="cell dimmed">2</span><span class="cell dimmed">3</span><span class="cell dimmed">4</span><span class="cell dimmed">5</span><span class="cell hot-b">6</span><span class="cell dimmed">7</span>
             <span class="cell dimmed">8</span><span class="cell dimmed">9</span><span class="cell dimmed">10</span><span class="cell dimmed">11</span><span class="cell dimmed">12</span><span class="cell dimmed">13</span><span class="cell dimmed">14</span><span class="cell dimmed">15</span>
             <span class="cell dimmed">16</span><span class="cell dimmed">17</span><span class="cell dimmed">18</span><span class="cell dimmed">19</span><span class="cell dimmed">20</span><span class="cell dimmed">21</span><span class="cell dimmed">22</span><span class="cell dimmed">23</span>
             <span class="cell dimmed">24</span><span class="cell dimmed">25</span><span class="cell dimmed">26</span><span class="cell dimmed">27</span><span class="cell dimmed">28</span><span class="cell dimmed">29</span><span class="cell dimmed">30</span><span class="cell dimmed">31</span>
           </div>
           <div class="lane-api-hint">
-            <span>Think of what happens under the hood of</span>
+            <span>也可以理解为这些 API 底层发生了什么</span>
             <code>WaveReadLaneAt</code>
             <code>subgroupBroadcast</code>
             <code>__shfl_sync</code>
@@ -1470,7 +1470,7 @@
         </div>
         <div class="card accent-green vocab-card">
           <h3><code>payload</code> and <code>guard</code></h3>
-          <p>Payload and guard are separate per-invocation slots. For T1/T6, T1 writes payload[1] = 1, then signals guard[1]; T6 checks that slot after observing guard[1].</p>
+          <p>Payload 和 guard 是分开的 per-invocation slots。以 T1/T6 为例，T1 写入 payload[1] = 1，然后发出 guard[1] 信号；T6 在观察到 guard[1] 后检查该 slot。</p>
           <div class="slot-pair">
             <div class="slot-box"><b>Payload buffer</b>payload[1] = 1<br>payload[6] = 6</div>
             <div class="slot-box"><b>Guard buffer</b>guard[1] = ready<br>guard[6] = ready</div>
@@ -1478,23 +1478,23 @@
         </div>
         <div class="card accent-purple vocab-card">
           <h3><code>release</code> and <code>acquire</code></h3>
-          <p>Pick T1 as writer and T6 as reader. No extra swap temporary is required; the connection is made through payload[1] and guard[1].</p>
+          <p>选择 T1 作为 writer，T6 作为 reader。不需要额外的 swap temporary；连接通过 payload[1] 和 guard[1] 建立。</p>
           <div class="connection-demo">
             <div class="flow-col">
               <div class="flow-node object">T1 writer</div>
-              <div class="flow-node operation">write payload[1]</div>
-              <div class="flow-node operation">release + signal guard[1]</div>
+              <div class="flow-node operation">写 payload[1]</div>
+              <div class="flow-node operation">release + 发出 guard[1] 信号</div>
             </div>
             <div class="connect-arrow">⟶</div>
             <div class="flow-col">
               <div class="flow-node object">T6 reader</div>
-              <div class="flow-node operation">observe + acquire guard[1]</div>
-              <div class="flow-node operation">read payload[1]</div>
+              <div class="flow-node operation">观察 + acquire guard[1]</div>
+              <div class="flow-node operation">读取 payload[1]</div>
             </div>
           </div>
         </div>
       </div>
-      <footer class="footer"><span>from familiar mirror pairing to message-passing vocabulary</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <footer class="footer"><span>从熟悉的镜像配对到 message-passing 词汇</span><span>←/→ · N notes · S presenter · O overview</span></footer>
       <aside class="notes">
       <h3>05: Backgrounds Before the Walkthrough</h3>
       <ul>
@@ -1506,34 +1506,34 @@
       </aside>
     </section>
 
-    <section class="slide" data-title="Representative Case: The Path We Will Walk Through">
+    <section class="slide" data-title="代表性 case：本次讲解路径">
       <header class="slide-header">
         <div>
-          <div class="kicker">Part B · Representative Case</div>
-          <h2>The Path We Will<br/>Walk Through</h2>
+          <div class="kicker">Part B · 代表性 case</div>
+          <h2>本次要讲解的<br/>路径</h2>
         </div>
         <div class="slide-no">06 / 15</div>
       </header>
       <div class="content stack p06-stack">
         <div class="card accent-blue p06-path-card">
-          <h3>The registered path</h3>
+          <h3>注册路径</h3>
           <div class="path-panel">dEQP-VK.<span class="hl">memory_model.message_passing</span>.ext.u32.noncoherent.atomic_atomic.atomicwrite.subgroup.payload_nonlocal.buffer.guard_nonlocal.buffer.comp</div>
         </div>
         <div class="card accent-green p06-decode-card">
-          <h3>Decoding the path</h3>
+          <h3>拆解这个路径</h3>
           <ul class="decode-list">
-            <li><b>message_passing</b><span>payload-before-guard visibility rule (not <code>write_after_read</code>, not <code>transitive</code>)</span><i class="v"></i></li>
-            <li><b>ext · noncoherent</b><span>Vulkan memory model + explicit MakeAvailable / MakeVisible</span><i class="v"></i></li>
+            <li><b>message_passing</b><span>payload-before-guard 可见性规则（不是 <code>write_after_read</code>，也不是 <code>transitive</code>）</span><i class="v"></i></li>
+            <li><b>ext · noncoherent</b><span>Vulkan memory model + 显式 MakeAvailable / MakeVisible</span><i class="v"></i></li>
             <li><b>u32</b><span><code>uint</code> payload &amp; guard — no 64-bit / float atomic noise</span><i class="v"></i></li>
-            <li><b>atomic_atomic · atomicwrite</b><span>release on guard store, acquire on guard load (no RMW)</span><i class="v"></i></li>
-            <li><b>subgroup</b><span>smallest scope — lanes paired by XOR with <code>gl_SubgroupSize - 1</code></span><i class="v">size = subgroup cardinality, e.g. 32</i></li>
-            <li><b>payload_nonlocal.buffer</b><span>SSBO binding 0, one slot per invocation</span><i class="v"></i></li>
-            <li><b>guard_nonlocal.buffer</b><span>SSBO binding 1, one atomic slot per invocation</span><i class="v"></i></li>
-            <li><b>comp</b><span>compute, specialization-controlled dispatch dimensions</span><i class="v">DIM = 31, NUM_WORKGROUP_EACH_DIM = 8</i></li>
+            <li><b>atomic_atomic · atomicwrite</b><span>release 放在 guard store 上，acquire 放在 guard load 上（无 RMW）</span><i class="v"></i></li>
+            <li><b>subgroup</b><span>最小 scope — lanes 通过与 <code>gl_SubgroupSize - 1</code> XOR 配对</span><i class="v">size = subgroup 大小，例如 32</i></li>
+            <li><b>payload_nonlocal.buffer</b><span>SSBO binding 0，每个 invocation 一个 slot</span><i class="v"></i></li>
+            <li><b>guard_nonlocal.buffer</b><span>SSBO binding 1，每个 invocation 一个 atomic slot</span><i class="v"></i></li>
+            <li><b>comp</b><span>compute，dispatch 维度由 specialization 控制</span><i class="v">DIM = 31, NUM_WORKGROUP_EACH_DIM = 8</i></li>
           </ul>
         </div>
       </div>
-      <footer class="footer"><span>one case, fully understood, before generalizing</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <footer class="footer"><span>先完整理解一个 case，再做泛化</span><span>←/→ · N notes · S presenter · O overview</span></footer>
       <aside class="notes">
       <h3>06: Representative Case: The Path We Will Walk Through</h3>
       <ul>
@@ -1548,18 +1548,18 @@
       </aside>
     </section>
 
-    <section class="slide" data-title="Execution Topology: Pairing Lanes and Locating Data">
+    <section class="slide" data-title="执行拓扑：配对 lanes 并定位数据">
       <header class="slide-header">
         <div>
-          <div class="kicker">Part B · Walkthrough</div>
-          <h2>Pairing Lanes,<br/>Locating Data</h2>
+          <div class="kicker">Part B · 讲解</div>
+          <h2>配对 lanes，<br/>定位数据</h2>
         </div>
         <div class="slide-no">07 / 15</div>
       </header>
       <div class="content stack p07-stack">
         <div class="card accent-blue p07-topology-card">
-          <h3>Active subgroup lanes, paired by XOR</h3>
-          <p>With subgroup size = 32, every lane <code>i</code> is paired with lane <code>31 - i</code> by <code>XOR with 31</code>.</p>
+          <h3>活跃 subgroup lanes，通过 XOR 配对</h3>
+          <p>当 subgroup size = 32 时，每个 lane <code>i</code> 通过 <code>XOR with 31</code> 与 lane <code>31 - i</code> 配对。</p>
           <ul class="xor-examples">
             <li><code>i = 0 = 0b000000</code> ↔ <code>31 - 0 = 31 = 0b011111</code></li>
             <li><code>i = 8 = 0b001000</code> ↔ <code>31 - 8 = 23 = 0b010111</code></li>
@@ -1585,12 +1585,12 @@
             <div class="lane-lane-pair-arrow">↔</div>
             <div class="lane lane-b"><span class="lane-id">i = 7</span><span class="lane-coord">slot 7</span></div>
             <div class="lane-lane-group-sep"></div>
-            <div class="lane lane-ellipsis"><span class="lane-ellipsis-note">12 more pairs follow the same rule</span></div>
+            <div class="lane lane-ellipsis"><span class="lane-ellipsis-note">另外 12 对遵循同一规则</span></div>
           </div>
           <div class="lane-legend">
-            <span><span class="lane-dot lane-dot-a"></span><b>publish:</b> write payload[<code>i</code>], then signal guard[<code>i</code>]</span>
-            <span><span class="lane-dot lane-dot-b"></span><b>consume:</b> observe guard[<code>i ^ 31</code>], then read payload[<code>i ^ 31</code>]</span>
-            <span class="lane-legend-foot">every lane runs both roles on its own pair</span>
+            <span><span class="lane-dot lane-dot-a"></span><b>publish：</b>写 payload[<code>i</code>]，然后发出 guard[<code>i</code>] 信号</span>
+            <span><span class="lane-dot lane-dot-b"></span><b>consume：</b>观察 guard[<code>i ^ 31</code>]，然后读取 payload[<code>i ^ 31</code>]</span>
+            <span class="lane-legend-foot">每个 lane 都在自己的配对中执行两个角色</span>
           </div>
         </div>
         <div class="p07-resources">
@@ -1599,7 +1599,7 @@
               <span class="p07-res-binding">binding 0</span>
               <span class="p07-res-name">Payload buffer</span>
             </div>
-            <p>SSBO, one <code>uint</code> slot per invocation. Writer stores <code>bufferCoord</code>; partner loads <code>partnerBufferCoord</code>.</p>
+            <p>SSBO，每个 invocation 一个 <code>uint</code> slot。Writer 存储 <code>bufferCoord</code>；partner 加载 <code>partnerBufferCoord</code>。</p>
             <div class="p07-res-slots">
               <span class="p07-res-slot p07-res-slot-data">0</span><span class="p07-res-slot p07-res-slot-data">1</span><span class="p07-res-slot p07-res-slot-data">2</span><span class="p07-res-slot p07-res-slot-data">3</span><span class="p07-res-slot p07-res-slot-data">4</span><span class="p07-res-slot p07-res-slot-data">5</span><span class="p07-res-slot p07-res-slot-data">6</span><span class="p07-res-slot p07-res-slot-data">7</span>
               <span class="p07-res-slot p07-res-slot-data">8</span><span class="p07-res-slot p07-res-slot-data">9</span><span class="p07-res-slot p07-res-slot-data">10</span><span class="p07-res-slot p07-res-slot-data">11</span><span class="p07-res-slot p07-res-slot-data">12</span><span class="p07-res-slot p07-res-slot-data">13</span><span class="p07-res-slot p07-res-slot-data">14</span><span class="p07-res-slot p07-res-slot-data">15</span>
@@ -1612,7 +1612,7 @@
               <span class="p07-res-binding">binding 1</span>
               <span class="p07-res-name">Guard buffer</span>
             </div>
-            <p>SSBO, one atomic <code>uint</code> slot per invocation. Release-store signals <code>guard[i]</code>; acquire-load observes <code>guard[partner]</code>.</p>
+            <p>SSBO，每个 invocation 一个 atomic <code>uint</code> slot。Release-store 发出 <code>guard[i]</code> 信号；acquire-load 观察 <code>guard[partner]</code>。</p>
             <div class="p07-res-slots">
               <span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span>
               <span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span><span class="p07-res-slot p07-res-slot-active">1</span>
@@ -1625,7 +1625,7 @@
               <span class="p07-res-binding">binding 2</span>
               <span class="p07-res-name">Fail buffer</span>
             </div>
-            <p>SSBO, host-cleared. Each invocation writes <code>1</code> here iff it observed the guard but found a stale payload. Host scans every slot.</p>
+            <p>SSBO，由 host 清零。每个 invocation 只有在观察到 guard 但发现 stale payload 时，才在这里写入 <code>1</code>。Host 扫描每个 slot。</p>
             <div class="p07-res-slots">
               <span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span>
               <span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span><span class="p07-res-slot">0</span>
@@ -1635,7 +1635,7 @@
           </div>
         </div>
       </div>
-      <footer class="footer"><span>lanes paired, slots indexed, three buffers bound</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <footer class="footer"><span>lanes 已配对，slots 已索引，三个 buffers 已绑定</span><span>←/→ · N notes · S presenter · O overview</span></footer>
       <aside class="notes">
       <h3>07: Pairing Lanes, Locating Data</h3>
       <ul>
@@ -1646,24 +1646,24 @@
       </aside>
     </section>
 
-    <section class="slide" data-title="Core Protocol: Payload Before Guard, Check After Guard">
+    <section class="slide" data-title="核心协议：Payload Before Guard, Check After Guard">
       <header class="slide-header">
         <div>
-          <div class="kicker">Part B · Walkthrough</div>
-          <h2>Payload Before Guard,<br/>Check After Guard</h2>
+          <div class="kicker">Part B · 讲解</div>
+          <h2>Payload Before Guard，<br/>Check After Guard</h2>
         </div>
         <div class="slide-no">08 / 15</div>
       </header>
       <div class="content stack p08-stack">
         <div class="card accent-blue p08-claim-card">
-          <p class="p08-claim">If lane <code>i</code> observes partner guard <code>i ^ 31</code>, then partner payload <code>i ^ 31</code> must already equal <code>partnerBufferCoord</code>.</p>
-          <p class="p08-claim-note">In this case <code>bufferCoord = i</code> and <code>partnerBufferCoord = 31 - i</code> — each lane's slot is its own ID, and the partner's slot is the mirrored ID.</p>
+          <p class="p08-claim">如果 lane <code>i</code> 观察到 partner guard <code>i ^ 31</code>，那么 partner payload <code>i ^ 31</code> 必须已经等于 <code>partnerBufferCoord</code>。</p>
+          <p class="p08-claim-note">在这个 case 中，<code>bufferCoord = i</code> 且 <code>partnerBufferCoord = 31 - i</code> — 每个 lane 的 slot 是自己的 ID，partner 的 slot 是镜像 ID。</p>
         </div>
         <div class="p08-timeline">
           <div class="p08-step">
             <div class="p08-step-num">1</div>
             <div class="p08-step-body">
-              <div class="p08-step-name">write own payload</div>
+              <div class="p08-step-name">写入自己的 payload</div>
               <div class="p08-step-role">publisher</div>
               <code class="p08-step-code">payload[bufferCoord] = bufferCoord;</code>
             </div>
@@ -1671,7 +1671,7 @@
           <div class="p08-step">
             <div class="p08-step-num">2</div>
             <div class="p08-step-body">
-              <div class="p08-step-name">release-store own guard</div>
+              <div class="p08-step-name">release-store 自己的 guard</div>
               <div class="p08-step-role">publisher</div>
               <code class="p08-step-code">atomicStore(guard[bufferCoord], 1, …release…);</code>
             </div>
@@ -1687,7 +1687,7 @@
           <div class="p08-step">
             <div class="p08-step-num">4</div>
             <div class="p08-step-body">
-              <div class="p08-step-name">check partner payload, unless skipped</div>
+              <div class="p08-step-name">除非 skipped，否则检查 partner payload</div>
               <div class="p08-step-role">consumer</div>
               <code class="p08-step-code">r = payload[partnerBufferCoord]; if (!skip &amp;&amp; r != partnerBufferCoord) fail[bufferCoord] = 1;</code>
             </div>
@@ -1695,16 +1695,16 @@
         </div>
         <div class="p08-consequences">
           <div class="card accent-green p08-consequence">
-            <h3>if <code>!skip</code> <span class="p08-consequence-tag">observed</span></h3>
-            <p>Guard was signaled. Acquire must have made the partner payload write visible. The check fires; payload matches expected value, no fail written.</p>
+            <h3>如果 <code>!skip</code> <span class="p08-consequence-tag">已观察到</span></h3>
+            <p>Guard 已发出信号。Acquire 必须已经让 partner payload write 可见。检查会执行；payload 匹配期望值，不写 fail。</p>
           </div>
           <div class="card accent-purple p08-consequence">
-            <h3>if <code>skip</code> <span class="p08-consequence-tag">not observed</span></h3>
-            <p>Partner guard was still <code>0</code>. This race instance is not judged; no fail written regardless of payload value.</p>
+            <h3>如果 <code>skip</code> <span class="p08-consequence-tag">未观察到</span></h3>
+            <p>Partner guard 仍为 <code>0</code>。这个 race instance 不被判定；无论 payload 值如何，都不写 fail。</p>
           </div>
         </div>
         <div class="card accent-yellow p08-glsl-card">
-          <h3>The four steps, in shader order</h3>
+          <h3>四个步骤，按 shader 顺序</h3>
           <pre class="p08-glsl"><span class="kw">// Step 1</span>   payload.x[bufferCoord]        = bufferCoord;
 <span class="kw">// Step 2</span>   <span class="op">atomicStore</span>(guard.x[bufferCoord], <span class="op">1u</span>, …release+makeAvailable…);
 <span class="kw">// Step 3</span>   skip = <span class="op">atomicLoad</span>(guard.x[partnerBufferCoord], …acquire+makeVisible…) == <span class="op">0u</span>;
@@ -1712,7 +1712,7 @@
          <span class="kw">if</span> (!skip &amp;&amp; r != <span class="op">uint</span>(partnerBufferCoord)) fail.x[bufferCoord] = <span class="op">1u</span>;</pre>
         </div>
       </div>
-      <footer class="footer"><span>payload then guard, guard then check, skip if not observed</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <footer class="footer"><span>先 payload 后 guard，先 guard 后检查，未观察到则 skip</span><span>←/→ · N notes · S presenter · O overview</span></footer>
       <aside class="notes">
       <h3>08: Payload Before Guard, Check After Guard</h3>
       <ul>
@@ -1724,11 +1724,11 @@
       </aside>
     </section>
 
-    <section class="slide" data-title="Memory Semantics in the Shader">
+    <section class="slide" data-title="Shader 中的 memory semantics">
       <header class="slide-header">
         <div>
-          <div class="kicker">Part B · Walkthrough</div>
-          <h2>Why the Guard<br/>Makes Payload Visible</h2>
+          <div class="kicker">Part B · 讲解</div>
+          <h2>为什么 Guard<br/>能让 Payload 可见</h2>
         </div>
         <div class="slide-no">09 / 15</div>
       </header>
@@ -1737,73 +1737,73 @@
           <div class="card accent-green p09-side p09-side-write">
             <div class="p09-side-head">
               <span class="p09-side-tag">writer</span>
-              <h3>make payload <em class="p09-concept">available</em> <em>before</em> the guard</h3>
+              <h3>在 guard 之前让 payload <em class="p09-concept">available</em></h3>
             </div>
             <pre class="p09-glsl"><span class="op">atomicStore</span>(guard.x[bufferCoord], <span class="op">1u</span>,
   gl_ScopeSubgroup, gl_StorageSemanticsBuffer,
   <span class="hl">gl_SemanticsRelease | gl_SemanticsMakeAvailable</span>);</pre>
             <ul class="p09-flags">
-              <li><code>gl_ScopeSubgroup</code><span>who can synchronize</span></li>
-              <li><code>gl_StorageSemanticsBuffer</code><span>which storage class</span></li>
-              <li><code>gl_SemanticsRelease</code><span>publish prior writes</span></li>
-              <li><code>gl_SemanticsMakeAvailable</code><span>push them toward the scope</span></li>
+              <li><code>gl_ScopeSubgroup</code><span>谁可以同步</span></li>
+              <li><code>gl_StorageSemanticsBuffer</code><span>哪个 storage class</span></li>
+              <li><code>gl_SemanticsRelease</code><span>发布之前的 writes</span></li>
+              <li><code>gl_SemanticsMakeAvailable</code><span>将它们推向该 scope</span></li>
             </ul>
-            <p class="p09-side-out">Effect: the prior payload write at <code>bufferCoord</code> becomes available across the subgroup, anchored at the guard signal.</p>
+            <p class="p09-side-out">效果：<code>bufferCoord</code> 处先前的 payload write 以 guard 信号为锚点，在 subgroup 内变为 available。</p>
           </div>
           <div class="card accent-purple p09-side p09-side-read">
             <div class="p09-side-head">
               <span class="p09-side-tag">reader</span>
-              <h3>make partner payload <em class="p09-concept">visible</em> <em>after</em> the guard</h3>
+              <h3>在 guard 之后让 partner payload <em class="p09-concept">visible</em></h3>
             </div>
             <pre class="p09-glsl">skip = <span class="op">atomicLoad</span>(guard.x[partnerBufferCoord],
   gl_ScopeSubgroup, gl_StorageSemanticsBuffer,
   <span class="hl">gl_SemanticsAcquire | gl_SemanticsMakeVisible</span>) == <span class="op">0u</span>;</pre>
             <ul class="p09-flags">
-              <li><code>gl_ScopeSubgroup</code><span>who can synchronize</span></li>
-              <li><code>gl_StorageSemanticsBuffer</code><span>which storage class</span></li>
-              <li><code>gl_SemanticsAcquire</code><span>block on prior signal</span></li>
-              <li><code>gl_SemanticsMakeVisible</code><span>pull writes into local view</span></li>
+              <li><code>gl_ScopeSubgroup</code><span>谁可以同步</span></li>
+              <li><code>gl_StorageSemanticsBuffer</code><span>哪个 storage class</span></li>
+              <li><code>gl_SemanticsAcquire</code><span>依赖之前的信号</span></li>
+              <li><code>gl_SemanticsMakeVisible</code><span>将 writes 拉入本地视图</span></li>
             </ul>
-            <p class="p09-side-out">Effect: the partner payload write at <code>partnerBufferCoord</code> becomes visible to the reader after the guard is observed.</p>
+            <p class="p09-side-out">效果：观察到 guard 后，<code>partnerBufferCoord</code> 处的 partner payload write 对 reader 变为 visible。</p>
           </div>
         </div>
         <div class="p09-scope-strip">
           <div class="p09-scope-card">
             <span class="p09-scope-key">gl_ScopeSubgroup</span>
-            <p>Synchronization reach — only the 32 lanes of this subgroup can pair here. <code>device</code>, <code>queuefamily</code>, <code>workgroup</code> are other choices; the protocol changes meaning with each.</p>
+            <p>同步传播范围 — 这里只有该 subgroup 的 32 个 lanes 可以配对。<code>device</code>、<code>queuefamily</code>、<code>workgroup</code> 是其他选择；每种选择都会改变协议含义。</p>
           </div>
           <div class="p09-scope-card">
             <span class="p09-scope-key">gl_StorageSemanticsBuffer</span>
-            <p>Storage class under synchronization — the SSBO at binding 0/1. The guarantee only carries payload writes that live in <em>buffer</em> storage, not image / workgroup / physbuffer.</p>
+            <p>同步涉及的 storage class — binding 0/1 上的 SSBO。该保证只携带位于 <em>buffer</em> storage 中的 payload writes，而不是 image / workgroup / physbuffer。</p>
           </div>
           <div class="p09-scope-card p09-scope-note">
             <span class="p09-scope-key">scope + storage</span>
-            <p>The ordering guarantee applies only across this exact combination — the payload edge does not cross scope boundaries or jump between storage classes.</p>
+            <p>ordering 保证只适用于这个精确组合 — payload edge 不会跨越 scope 边界，也不会跳到其他 storage classes。</p>
           </div>
         </div>
         <div class="card accent-blue p09-diagram-card">
-          <h3>The visibility edge, end to end</h3>
+          <h3>端到端 visibility edge</h3>
           <div class="p09-diagram">
             <div class="p09-diag-lane p09-diag-lane-write">
               <div class="p09-diag-title">publisher lane <code>i</code></div>
-              <div class="p09-diag-step p09-diag-write">write payload[<code>i</code>]</div>
+              <div class="p09-diag-step p09-diag-write">写 payload[<code>i</code>]</div>
               <div class="p09-diag-edge p09-diag-edge-release">release + make available</div>
               <div class="p09-diag-step p09-diag-guard">atomicStore guard[<code>i</code>]</div>
             </div>
             <div class="p09-diag-scope">
               <div class="p09-diag-scope-label">gl_ScopeSubgroup</div>
-              <div class="p09-diag-scope-edge">payload write becomes visible across this scope</div>
+              <div class="p09-diag-scope-edge">payload write 在该 scope 内变为 visible</div>
             </div>
             <div class="p09-diag-lane p09-diag-lane-read">
               <div class="p09-diag-title">consumer lane <code>i ^ 31</code></div>
               <div class="p09-diag-step p09-diag-guard-read">atomicLoad guard[<code>i</code>]</div>
               <div class="p09-diag-edge p09-diag-edge-acquire">acquire + make visible</div>
-              <div class="p09-diag-step p09-diag-read">read payload[<code>i</code>]</div>
+              <div class="p09-diag-step p09-diag-read">读 payload[<code>i</code>]</div>
             </div>
           </div>
         </div>
       </div>
-      <footer class="footer"><span>release + make available on the writer, acquire + make visible on the reader</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <footer class="footer"><span>writer 上 release + make available，reader 上 acquire + make visible</span><span>←/→ · N notes · S presenter · O overview</span></footer>
       <aside class="notes">
       <h3>09: Why the Guard Makes Payload Visible</h3>
       <ul>
@@ -1822,11 +1822,11 @@
       </aside>
     </section>
 
-    <section class="slide" data-title="Result Checking: skip, fail, and Host-Side Pass/Fail">
+    <section class="slide" data-title="结果检查：skip、fail 和 host-side pass/fail">
       <header class="slide-header">
         <div>
-          <div class="kicker">Part B · Walkthrough</div>
-          <h2>From Shader Logic<br/>to Host Verdict</h2>
+          <div class="kicker">Part B · 讲解</div>
+          <h2>从 Shader 逻辑<br/>到 Host 判定</h2>
         </div>
         <div class="slide-no">10 / 15</div>
       </header>
@@ -1837,77 +1837,77 @@
               <span class="p10-decision-tag">skip path</span>
               <code class="p10-decision-cond">if (skip) { /* no fail written */ }</code>
             </div>
-            <h3>Partner guard was not observed</h3>
-            <p>The reader saw guard[<code>partner</code>] still equal to <code>0</code>. This race instance is not judged. The shader writes nothing to the fail buffer; this invocation contributes no information about memory-model correctness.</p>
-            <p class="p10-decision-out">Outcome: <b>no fail entry</b>. The case can still pass on this iteration.</p>
+            <h3>Partner guard 未被观察到</h3>
+            <p>Reader 看到 guard[<code>partner</code>] 仍等于 <code>0</code>。这个 race instance 不被判定。Shader 不向 fail buffer 写任何内容；这个 invocation 不提供 memory-model correctness 信息。</p>
+            <p class="p10-decision-out">结果：<b>无 fail entry</b>。这个 case 在本轮 iteration 仍可通过。</p>
           </div>
           <div class="card accent-red p10-decision p10-decision-fail">
             <div class="p10-decision-head">
               <span class="p10-decision-tag">fail path</span>
               <code class="p10-decision-cond">if (!skip &amp;&amp; r != partnerBufferCoord) { fail[bufferCoord] = 1; }</code>
             </div>
-            <h3>Guard was observed, payload was wrong</h3>
-            <p>The reader saw guard[<code>partner</code>] non-zero (acquire fired) but the partner payload read returned a stale or incorrect value. The guard promised visibility, but the visibility did not actually carry the payload through.</p>
-            <p class="p10-decision-out">Outcome: <b>fail entry = 1</b> at this invocation's slot.</p>
+            <h3>Guard 已被观察到，但 payload 错误</h3>
+            <p>Reader 看到 guard[<code>partner</code>] 为非零（acquire 触发），但读取 partner payload 返回了 stale 或错误值。Guard 承诺了 visibility，但 visibility 实际上没有把 payload 带过来。</p>
+            <p class="p10-decision-out">结果：在该 invocation 的 slot 上写入 <b>fail entry = 1</b>。</p>
           </div>
         </div>
         <div class="card accent-blue p10-host-card">
-          <h3>Host-side loop: from fail-buffer entries to a case verdict</h3>
+          <h3>Host-side loop：从 fail-buffer entries 到 case 判定</h3>
           <div class="p10-host-flow">
             <div class="p10-host-step">
               <div class="p10-host-num">1</div>
               <div class="p10-host-body">
-                <div class="p10-host-name">clear fail buffer</div>
+                <div class="p10-host-name">清空 fail buffer</div>
                 <code>memset(fail, 0, …);</code>
               </div>
             </div>
             <div class="p10-host-step">
               <div class="p10-host-num">2</div>
               <div class="p10-host-body">
-                <div class="p10-host-name">clear payload + guard</div>
+                <div class="p10-host-name">清空 payload + guard</div>
                 <code>clearBuffer(payload); clearBuffer(guard);</code>
               </div>
             </div>
             <div class="p10-host-step">
               <div class="p10-host-num">3</div>
               <div class="p10-host-body">
-                <div class="p10-host-name">dispatch × 50, 4 submits</div>
+                <div class="p10-host-name">dispatch × 50，4 次 submits</div>
                 <code>vkCmdDispatch(cmd, …);</code>
               </div>
             </div>
             <div class="p10-host-step">
               <div class="p10-host-num">4</div>
               <div class="p10-host-body">
-                <div class="p10-host-name">copy fail → host memory</div>
+                <div class="p10-host-name">复制 fail → host memory</div>
                 <code>vkCmdCopyBuffer(… fail …);</code>
               </div>
             </div>
             <div class="p10-host-step p10-host-step-final">
               <div class="p10-host-num">5</div>
               <div class="p10-host-body">
-                <div class="p10-host-name">scan fail buffer</div>
-                <code>any nonzero → case fails</code>
+                <div class="p10-host-name">扫描 fail buffer</div>
+                <code>任一非零 → case 失败</code>
               </div>
             </div>
           </div>
         </div>
         <div class="card accent-yellow p10-meaning-card">
-          <h3>What a failure usually means</h3>
+          <h3>失败通常意味着什么</h3>
           <ul class="p10-meaning-list">
-            <li><b>Release/acquire propagation broken</b> — the guard signal was issued but the prior payload write did not reach the partner.</li>
-            <li><b>Scope mishandling</b> — synchronization reached the wrong set of invocations (e.g. workgroup scope where subgroup was needed, or vice versa).</li>
-            <li><b>MakeAvailable / MakeVisible dropped</b> — noncoherent extension-mode cases rely on these bits; a lowered shader that omits them fails this exact path.</li>
-            <li><b>Storage-class lowering</b> — buffer / image / workgroup / physbuffer handled differently in the back-end; this case is buffer-only and exposes that specific lowering.</li>
-            <li><b>Shader-compiler issue</b> — barrier or atomic lowering removed the required ordering; vendor compilers must preserve release/acquire across the optimization pipeline.</li>
+            <li><b>Release/acquire propagation broken</b> — guard 信号已发出，但之前的 payload write 没有到达 partner。</li>
+            <li><b>Scope mishandling</b> — synchronization 到达了错误的一组 invocations（例如需要 subgroup scope 时用了 workgroup scope，或反过来）。</li>
+            <li><b>MakeAvailable / MakeVisible dropped</b> — noncoherent extension-mode cases 依赖这些 bits；lowered shader 如果省略它们，就会在这个精确路径上失败。</li>
+            <li><b>Storage-class lowering</b> — buffer / image / workgroup / physbuffer 在 back-end 中处理方式不同；这个 case 仅涉及 buffer，暴露的是该特定 lowering。</li>
+            <li><b>Shader-compiler issue</b> — barrier 或 atomic lowering 移除了所需 ordering；vendor compilers 必须在 optimization pipeline 中保留 release/acquire。</li>
           </ul>
-          <p class="p10-meaning-foot">No tolerance, no partial success: one nonzero entry makes the case fail. Up to 256 failing invocation indices are logged.</p>
+          <p class="p10-meaning-foot">没有容忍度，也没有部分成功：一个非零 entry 就会让 case 失败。最多记录 256 个失败 invocation indices。</p>
           <p class="p10-meaning-glossary">
-            <span><b>storage-class lowering</b> — the compiler rewriting a high-level GLSL storage class (<code>workgroup</code>, <code>image</code>, …) into the actual backend storage (LDS, texture unit, …).</span>
-            <span><b>barrier / atomic lowering</b> — the compiler translating <code>atomicStore</code>, <code>memoryBarrier</code>, <code>controlBarrier</code> into the actual hardware instruction sequence; release/acquire bits must survive this translation.</span>
+            <span><b>storage-class lowering</b> — compiler 将高层 GLSL storage class（<code>workgroup</code>、<code>image</code> 等）重写为实际 backend storage（LDS、texture unit 等）。</span>
+            <span><b>barrier / atomic lowering</b> — compiler 将 <code>atomicStore</code>、<code>memoryBarrier</code>、<code>controlBarrier</code> 翻译成实际硬件指令序列；release/acquire bits 必须在该翻译中保留下来。</span>
           </p>
         </div>
       </div>
-      <footer class="footer"><span>shader writes the fail buffer, host scans the fail buffer</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <footer class="footer"><span>shader 写 fail buffer，host 扫描 fail buffer</span><span>←/→ · N notes · S presenter · O overview</span></footer>
       <aside class="notes">
       <h3>10: From Shader Observation to Host Verdict</h3>
       <ul>
@@ -1918,11 +1918,11 @@
       </aside>
     </section>
 
-    <section class="slide" data-title="From One Case Back to the Full Family">
+    <section class="slide" data-title="从一个 case 回到完整测试子族">
       <header class="slide-header">
         <div>
-          <div class="kicker">Part C · Zoom Out</div>
-          <h2>Same <code>message_passing</code> Family,<br/>Many Dimensions</h2>
+          <div class="kicker">Part C · 拉远视角</div>
+          <h2>同一个 <code>message_passing</code> 测试子族，<br/>多个维度</h2>
         </div>
         <div class="slide-no">11 / 15</div>
       </header>
@@ -1930,39 +1930,39 @@
         <div class="p11-core-vs-axes">
           <div class="p11-fixed-pair">
             <div class="card accent-blue p11-fixed-card p11-fixed-claim">
-              <span class="p11-fixed-tag">fixed claim</span>
-              <p class="p11-fixed-text">If partner guard is observed, partner payload must be visible with the expected value.</p>
+              <span class="p11-fixed-tag">固定断言</span>
+              <p class="p11-fixed-text">如果观察到 partner guard，partner payload 必须以期望值可见。</p>
             </div>
             <div class="p11-fixed-arrow" aria-hidden="true">⟷</div>
             <div class="card accent-blue p11-fixed-card p11-fixed-workflow">
-              <span class="p11-fixed-tag">fixed workflow</span>
-              <p class="p11-fixed-workflow-text">write payload → release-store guard → acquire-load partner guard → check partner payload, or skip</p>
+              <span class="p11-fixed-tag">固定流程</span>
+              <p class="p11-fixed-workflow-text">写 payload → release-store guard → acquire-load partner guard → 检查 partner payload，或 skip</p>
             </div>
           </div>
           <div class="card accent-yellow p11-axes-card">
-            <h3>varying dimensions</h3>
+            <h3>变化的维度</h3>
             <div class="p11-axes-head">
-              <span>dimension</span>
-              <span>values</span>
-              <span>what it stresses</span>
+              <span>维度</span>
+              <span>取值</span>
+              <span>压测点</span>
             </div>
             <ul class="p11-axes-list">
-              <li><b>memory-model mode</b><span>core11 / ext</span><i>rules + extensions</i></li>
-              <li><b>data type</b><span>u32 / u64 / f32 / f64</span><i>atomic feature pressure</i></li>
-              <li><b>sync form</b><span>fence_fence / fence_atomic / atomic_fence / atomic_atomic / control_barrier / control_and_memory_barrier</span><i>where the release/acquire lives</i></li>
+              <li><b>memory-model mode</b><span>core11 / ext</span><i>规则 + extensions</i></li>
+              <li><b>data type</b><span>u32 / u64 / f32 / f64</span><i>atomic feature 压力</i></li>
+              <li><b>sync form</b><span>fence_fence / fence_atomic / atomic_fence / atomic_atomic / control_barrier / control_and_memory_barrier</span><i>release/acquire 放在哪里</i></li>
               <li><b>atomic op</b><span>atomicwrite / atomicrmw</span><i>store vs exchange</i></li>
-              <li><b>scope</b><span>device / queuefamily / workgroup / subgroup</span><i>who can pair</i></li>
-              <li><b>payload storage</b><span>buffer / image / workgroup / physbuffer</span><i>where the protected data lives</i></li>
-              <li><b>guard storage</b><span>buffer / image / workgroup / physbuffer</span><i>where the signal lives</i></li>
-              <li><b>shader stage</b><span>comp / vert / frag</span><i>pipeline around the protocol</i></li>
+              <li><b>scope</b><span>device / queuefamily / workgroup / subgroup</span><i>谁能配对</i></li>
+              <li><b>payload storage</b><span>buffer / image / workgroup / physbuffer</span><i>受保护数据在哪里</i></li>
+              <li><b>guard storage</b><span>buffer / image / workgroup / physbuffer</span><i>信号在哪里</i></li>
+              <li><b>shader stage</b><span>comp / vert / frag</span><i>协议周围的 pipeline</i></li>
             </ul>
           </div>
         </div>
         <div class="card accent-green p11-continuity-card">
-          <p>The 4-step claim from page 08 is the <em>fixed center</em>. Every row in the mustpass file just picks a different value along one or more of these axes. The protocol structure does not change — only the resources, the operations, and the synchronization domain do.</p>
+          <p>第 08 页的 4 步流程针对的是<em>那个具体的 test case</em>。mustpass 文件中的每一行只是沿这些轴中的一个或多个选择不同取值。协议结构大体不变 — 改变的是 resources、operations 和 synchronization domain。</p>
         </div>
       </div>
-      <footer class="footer"><span>one fixed claim, eight varying axes</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <footer class="footer"><span>一个固定断言，八个变化轴</span><span>←/→ · N notes · S presenter · O overview</span></footer>
       <aside class="notes">
       <h3>11: Same `message_passing` Family, Many Dimensions</h3>
       <ul>
@@ -1973,17 +1973,17 @@
       </aside>
     </section>
 
-    <section class="slide" data-title="How write_after_read and transitive Differ">
+    <section class="slide" data-title="write_after_read 和 transitive 有何不同">
       <header class="slide-header">
         <div>
-          <div class="kicker">Part C · Controlled Zoom Out</div>
-          <h2>How <code>write_after_read</code><br/>and <code>transitive</code> Differ</h2>
+          <div class="kicker">Part C · 有控制地拉远</div>
+          <h2><code>write_after_read</code><br/>和 <code>transitive</code> 有何不同</h2>
         </div>
         <div class="slide-no">12 / 15</div>
       </header>
       <div class="content stack p12-stack">
         <div class="card accent-blue p12-intro-card">
-          <p>Same concepts — <code>payload</code>, <code>guard</code>, <code>skip</code>, <code>fail</code> — but three different ordering questions.</p>
+          <p>相同概念 — <code>payload</code>、<code>guard</code>、<code>skip</code>、<code>fail</code> — 但对应三个不同 ordering 问题。</p>
         </div>
         <div class="p12-compare-grid">
           <div class="card accent-green p12-compare-card">
@@ -1991,49 +1991,49 @@
               <span class="p12-card-tag">baseline</span>
               <h3><code>message_passing</code></h3>
             </div>
-            <p class="p12-question"><b>Expected:</b> after the guard is observed, the protected payload is visible.</p>
+            <p class="p12-question"><b>Expected：</b>guard 被观察到后，受保护 payload 可见。</p>
             <div class="p12-timeline">
-              <div class="p12-step p12-step-payload"><span class="p12-step-num">1</span><span>write own payload</span></div>
+              <div class="p12-step p12-step-payload"><span class="p12-step-num">1</span><span>写入自己的 payload</span></div>
               <div class="p12-step p12-step-sync"><span class="p12-step-num">2</span><span>release / signal own guard</span></div>
               <div class="p12-step p12-step-sync"><span class="p12-step-num">3</span><span>acquire partner guard</span></div>
-              <div class="p12-step p12-step-read"><span class="p12-step-num">4</span><span>read partner payload</span></div>
+              <div class="p12-step p12-step-read"><span class="p12-step-num">4</span><span>读取 partner payload</span></div>
             </div>
-            <p class="p12-failure"><b>Fail when:</b> guard observed, but partner payload is stale or wrong.</p>
+            <p class="p12-failure"><b>Fail when：</b>guard 已被观察到，但 partner payload stale 或错误。</p>
           </div>
           <div class="card accent-yellow p12-compare-card">
             <div class="p12-card-head">
-              <span class="p12-card-tag">timing inversion</span>
+              <span class="p12-card-tag">时序反转</span>
               <h3><code>write_after_read</code></h3>
             </div>
-            <p class="p12-question"><b>Expected:</b> the early payload read stays zero; it must not see the later write.</p>
+            <p class="p12-question"><b>Expected：</b>early payload read 保持为 zero；它不能看到之后的 write。</p>
             <div class="p12-timeline">
-              <div class="p12-step p12-step-read"><span class="p12-step-num">1</span><span>early-read partner payload</span></div>
-              <div class="p12-step p12-step-sync"><span class="p12-step-num">2</span><span>synchronize through guard path</span></div>
-              <div class="p12-step p12-step-payload"><span class="p12-step-num">3</span><span>partner writes payload later</span></div>
-              <div class="p12-step p12-step-fail"><span class="p12-step-num">4</span><span>early value must stay zero</span></div>
+              <div class="p12-step p12-step-read"><span class="p12-step-num">1</span><span>early-读取 partner payload</span></div>
+              <div class="p12-step p12-step-sync"><span class="p12-step-num">2</span><span>通过 guard path 同步</span></div>
+              <div class="p12-step p12-step-payload"><span class="p12-step-num">3</span><span>partner 稍后写 payload</span></div>
+              <div class="p12-step p12-step-fail"><span class="p12-step-num">4</span><span>early value 必须保持 zero</span></div>
             </div>
-            <p class="p12-failure"><b>Fail when:</b> the early read sees a nonzero value that should not have been visible yet.</p>
+            <p class="p12-failure"><b>Fail when：</b>early read 看到了本不应可见的非零值。</p>
           </div>
           <div class="card accent-purple p12-compare-card">
             <div class="p12-card-head">
               <span class="p12-card-tag">visibility chain</span>
               <h3><code>transitive</code></h3>
             </div>
-            <p class="p12-question"><b>Expected:</b> if the chain is observed, visibility reaches the final payload read through the relay.</p>
+            <p class="p12-question"><b>Expected：</b>如果 chain 被观察到，visibility 通过 relay 到达最终 payload read。</p>
             <div class="p12-timeline">
-              <div class="p12-step p12-step-payload"><span class="p12-step-num">1</span><span>all invocations write payload</span></div>
+              <div class="p12-step p12-step-payload"><span class="p12-step-num">1</span><span>所有 invocations 写 payload</span></div>
               <div class="p12-step p12-step-sync"><span class="p12-step-num">2</span><span>representative release/acquire</span></div>
-              <div class="p12-step p12-step-sync"><span class="p12-step-num">3</span><span>broadcast skip through workgroup</span></div>
-              <div class="p12-step p12-step-read"><span class="p12-step-num">4</span><span>read partner payload after relay</span></div>
+              <div class="p12-step p12-step-sync"><span class="p12-step-num">3</span><span>通过 workgroup broadcast skip</span></div>
+              <div class="p12-step p12-step-read"><span class="p12-step-num">4</span><span>读取 partner payload after relay</span></div>
             </div>
-            <p class="p12-failure"><b>Fail when:</b> the chain was observed, but the final payload read is stale or wrong.</p>
+            <p class="p12-failure"><b>Fail when：</b>chain 已被观察到，但最终 payload read stale 或错误。</p>
           </div>
         </div>
         <div class="card accent-blue p12-bottom-card">
-          <p><em>Part B taught the direct protocol.</em> These nearby families mutate the timing or add a relay, but keep the same CTS pattern: shader detects bad visibility, writes the fail buffer, and the host scans it.</p>
+          <p><em>Part B 讲的是直接协议。</em>这些相邻测试子族改变时序或增加 relay，但保持同一个 CTS 模式：shader 检测错误 visibility，写 fail buffer，然后 host 扫描它。</p>
         </div>
       </div>
-      <footer class="footer"><span>same vocabulary, different ordering questions</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <footer class="footer"><span>相同词汇，不同 ordering 问题</span><span>←/→ · N notes · S presenter · O overview</span></footer>
       <aside class="notes">
       <h3>12: How `write_after_read` and `transitive` Differ</h3>
       <ul>
@@ -2044,17 +2044,17 @@
       </aside>
     </section>
 
-    <section class="slide" data-title="Zooming Out: Other Test Families in memory_model">
+    <section class="slide" data-title="拉远视角：memory_model 中的其他测试子族">
       <header class="slide-header">
         <div>
-          <div class="kicker">Part C · Category View</div>
-          <h2>Other Test Families<br/>in <code>memory_model</code></h2>
+          <div class="kicker">Part C · 测试类别视角</div>
+          <h2><code>memory_model</code> 中的<br/>其他测试子族</h2>
         </div>
         <div class="slide-no">13 / 15</div>
       </header>
       <div class="content stack p13-stack">
         <div class="card accent-blue p13-map-card">
-          <h3>The category has 5 registered families</h3>
+          <h3>该测试类别有 5 个注册测试子族</h3>
           <div class="p13-family-map">
             <div class="p13-root"><code>memory_model</code></div>
             <div class="p13-family-nodes">
@@ -2068,9 +2068,9 @@
         </div>
         <div class="p13-group-grid">
           <div class="card accent-yellow p13-group-card">
-            <span class="p13-group-tag">when values become visible</span>
+            <span class="p13-group-tag">值何时变为 visible</span>
             <h3>Synchronization / visibility</h3>
-            <p><code>message_passing</code>, <code>write_after_read</code>, and <code>transitive</code> all ask timing questions around payload, guard, scope, and visibility.</p>
+            <p><code>message_passing</code>、<code>write_after_read</code> 和 <code>transitive</code> 都围绕 payload、guard、scope 和 visibility 提出时序问题。</p>
             <div class="p13-mini-seq">
               <span class="p13-mini-pill payload">payload</span>
               <span class="p13-mini-pill sync">guard / sync</span>
@@ -2079,9 +2079,9 @@
             </div>
           </div>
           <div class="card accent-green p13-group-card">
-            <span class="p13-group-tag">which bytes are touched</span>
+            <span class="p13-group-tag">哪些 bytes 会被触及</span>
             <h3><code>padding</code></h3>
-            <p>Copies declared <code>std140</code> structure members, then checks that destination padding bytes keep their host-initialized sentinel values.</p>
+            <p>复制声明的 <code>std140</code> structure members，然后检查 destination padding bytes 是否保持 host 初始化的 sentinel values。</p>
             <div class="p13-mini-seq">
               <span class="p13-mini-pill">declared members</span>
               <span class="p13-mini-pill">padding bytes</span>
@@ -2089,9 +2089,9 @@
             </div>
           </div>
           <div class="card accent-purple p13-group-card">
-            <span class="p13-group-tag">which fields survive</span>
+            <span class="p13-group-tag">哪些 fields 能保留下来</span>
             <h3><code>shared</code></h3>
-            <p>Generates GLSL <code>shared</code> objects, writes nested fields, synchronizes within the workgroup, reads them back, and compares values.</p>
+            <p>生成 GLSL <code>shared</code> objects，写入 nested fields，在 workgroup 内同步，读回并比较 values。</p>
             <div class="p13-mini-seq">
               <span class="p13-mini-pill">generated fields</span>
               <span class="p13-mini-pill sync">barrier</span>
@@ -2100,10 +2100,10 @@
           </div>
         </div>
         <div class="card accent-blue p13-synthesis-card">
-          <p><em>Same category, different memory-correctness angles:</em> visibility timing, layout-preserving writes, and workgroup shared-memory value preservation.</p>
+          <p><em>同一测试类别，不同 memory-correctness 角度：</em>visibility timing、保持 layout 的 writes，以及 workgroup shared-memory value preservation。</p>
         </div>
       </div>
-      <footer class="footer"><span>memory_model is broader than release/acquire</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <footer class="footer"><span>memory_model 比 release/acquire 更宽</span><span>←/→ · N notes · S presenter · O overview</span></footer>
       <aside class="notes">
       <h3>13: Other Test Families in `memory_model`</h3>
       <ul>
@@ -2114,50 +2114,50 @@
       </aside>
     </section>
 
-    <section class="slide" data-title="Vulkan CTS Is Much Bigger Than memory_model">
+    <section class="slide" data-title="Vulkan CTS 远大于 memory_model">
       <header class="slide-header">
         <div>
-          <div class="kicker">Part C · Full Suite View</div>
-          <h2>Vulkan CTS Is Much Bigger<br/>Than <code>memory_model</code></h2>
+          <div class="kicker">Part C · 完整 suite 视角</div>
+          <h2>Vulkan CTS 远大于<br/><code>memory_model</code></h2>
         </div>
         <div class="slide-no">14 / 15</div>
       </header>
       <div class="content stack p14-stack">
         <div class="card accent-blue p14-table-card">
-          <h3>53 test categories in Vulkan CTS, grouped by area</h3>
-          <p class="p14-table-note">This is a scale slide, not a new technical taxonomy: names are grouped lightly from the documented category index.</p>
+          <h3>Vulkan CTS 中有 53 个测试类别，按领域分组</h3>
+          <p class="p14-table-note">这是规模感页面，不是新的技术分类法：名称只是根据文档中的 category index 轻量分组。</p>
           <div class="p14-area-table">
             <div class="p14-area-row foundation">
-              <div class="p14-area-name">Foundation / API objects<span class="p14-area-count">7 categories</span></div>
+              <div class="p14-area-name">基础 / API objects<span class="p14-area-count">7 个测试类别</span></div>
               <div class="p14-chip-list"><span class="p14-chip">info</span><span class="p14-chip">api</span><span class="p14-chip">memory</span><span class="p14-chip">query_pool</span><span class="p14-chip">binding_model</span><span class="p14-chip">descriptor_indexing</span><span class="p14-chip">device_group</span></div>
             </div>
             <div class="p14-area-row sync">
-              <div class="p14-area-name">Synchronization / correctness<span class="p14-area-count">6 categories</span></div>
+              <div class="p14-area-name">同步 / correctness<span class="p14-area-count">6 个测试类别</span></div>
               <div class="p14-chip-list"><span class="p14-chip">synchronization</span><span class="p14-chip">synchronization2</span><span class="p14-chip">memory_model</span><span class="p14-chip">robustness</span><span class="p14-chip">protected_memory</span><span class="p14-chip">sparse_resources</span></div>
             </div>
             <div class="p14-area-row render">
-              <div class="p14-area-name">Pipeline / rendering<span class="p14-area-count">12 categories</span></div>
+              <div class="p14-area-name">Pipeline / rendering<span class="p14-area-count">12 个测试类别</span></div>
               <div class="p14-chip-list"><span class="p14-chip">pipeline</span><span class="p14-chip">shader_object</span><span class="p14-chip">renderpasses</span><span class="p14-chip">imageless_framebuffer</span><span class="p14-chip">dynamic_state</span><span class="p14-chip">draw</span><span class="p14-chip">rasterization</span><span class="p14-chip">fragment_operations</span><span class="p14-chip">clipping</span><span class="p14-chip">depth</span><span class="p14-chip">conditional_rendering</span><span class="p14-chip">multiview</span></div>
             </div>
             <div class="p14-area-row resource">
-              <div class="p14-area-name">Resources / formats / presentation<span class="p14-area-count">7 categories</span></div>
+              <div class="p14-area-name">Resources / formats / presentation<span class="p14-area-count">7 个测试类别</span></div>
               <div class="p14-chip-list"><span class="p14-chip">image</span><span class="p14-chip">image_processing</span><span class="p14-chip">texture</span><span class="p14-chip">ycbcr</span><span class="p14-chip">drm_format_modifiers</span><span class="p14-chip">wsi</span><span class="p14-chip">video</span></div>
             </div>
             <div class="p14-area-row shader">
-              <div class="p14-area-name">Shader stages / execution<span class="p14-area-count">11 categories</span></div>
+              <div class="p14-area-name">Shader stages / execution<span class="p14-area-count">11 个测试类别</span></div>
               <div class="p14-chip-list"><span class="p14-chip">geometry</span><span class="p14-chip">tessellation</span><span class="p14-chip">transform_feedback</span><span class="p14-chip">ubo</span><span class="p14-chip">ssbo</span><span class="p14-chip">glsl</span><span class="p14-chip">spirv_assembly</span><span class="p14-chip">subgroups</span><span class="p14-chip">compute</span><span class="p14-chip">graphicsfuzz</span><span class="p14-chip">reconvergence</span></div>
             </div>
             <div class="p14-area-row modern">
-              <div class="p14-area-name">Modern / advanced features<span class="p14-area-count">10 categories</span></div>
+              <div class="p14-area-name">现代 / advanced features<span class="p14-area-count">10 个测试类别</span></div>
               <div class="p14-chip-list"><span class="p14-chip">fragment_shader_interlock</span><span class="p14-chip">fragment_shading_rate</span><span class="p14-chip">fragment_shading_barycentric</span><span class="p14-chip">mesh_shader</span><span class="p14-chip">ray_query</span><span class="p14-chip">ray_tracing_pipeline</span><span class="p14-chip">cooperative_vector</span><span class="p14-chip">tensor</span><span class="p14-chip">data_graph</span><span class="p14-chip">dgc</span></div>
             </div>
           </div>
         </div>
         <div class="card accent-yellow p14-callout-card">
-          <p><em>This talk covered one representative path.</em> The same explanation-first wiki effort makes the much larger CTS landscape navigable.</p>
+          <p><em>本次分享覆盖了一个代表性路径。</em>同样的 explanation-first wiki 工作，会让更大的 CTS 图景变得可导航。</p>
         </div>
       </div>
-      <footer class="footer"><span>one shader protocol → one category → a much larger conformance suite</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <footer class="footer"><span>一个 shader 协议 → 一个测试类别 → 更大的 conformance suite</span><span>←/→ · N notes · S presenter · O overview</span></footer>
       <aside class="notes">
       <h3>14: Vulkan CTS Is Much Bigger Than `memory_model`</h3>
       <ul>
@@ -2168,11 +2168,11 @@
       </aside>
     </section>
 
-    <section class="slide active" data-title="Three Takeaways">
+    <section class="slide active" data-title="三个要点">
       <header class="slide-header">
         <div>
-          <div class="kicker">Closing</div>
-          <h2>Three Takeaways</h2>
+          <div class="kicker">结尾</div>
+          <h2>三个要点</h2>
         </div>
         <div class="slide-no">15 / 15</div>
       </header>
@@ -2181,24 +2181,24 @@
           <div class="card accent-green p15-card">
             <div class="p15-num">01</div>
             <h3 class="p15-title">Visibility contract</h3>
-            <p><code>message_passing</code> checks a precise rule: after observing the guard, the protected payload should be visible.</p>
+            <p><code>message_passing</code> 检查一条精确规则：观察到 guard 后，受保护的 payload 应当可见。</p>
           </div>
           <div class="card accent-yellow p15-card">
             <div class="p15-num">02</div>
             <h3 class="p15-title">Parameterized CTS coverage</h3>
-            <p>The same claim is tested across scopes, storage classes, synchronization forms, data types, and shader stages.</p>
+            <p>同一条断言会跨 scope、storage class、同步形式、data type 和 shader stage 测试。</p>
           </div>
           <div class="card accent-purple p15-card">
             <div class="p15-num">03</div>
-            <h3 class="p15-title">Readable engineering knowledge</h3>
-            <p>The wiki turns executable CTS logic into explanations that support triage, implementation, and future conformance work.</p>
+            <h3 class="p15-title">可读的工程知识</h3>
+            <p>Wiki 将可执行 CTS 逻辑转化为支持 triage、实现和未来 conformance 工作的解释。</p>
           </div>
         </div>
         <div class="card accent-blue p15-final-line">
-          <p>from one shader protocol <em>→</em> one CTS family <em>→</em> one larger documentation effort</p>
+          <p>从一个 shader 协议 <em>→</em> 一个 CTS 测试子族 <em>→</em> 更大的文档工作</p>
         </div>
       </div>
-      <footer class="footer"><span>representative case, controlled zoom-out, practical wiki value</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <footer class="footer"><span>代表性 case，有控制地拉远，实际 wiki 价值</span><span>←/→ · N notes · S presenter · O overview</span></footer>
       <aside class="notes">
       <h3>15: Three Takeaways</h3>
       <ul>
