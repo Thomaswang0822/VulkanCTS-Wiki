@@ -230,8 +230,91 @@
 
 ## 12: How `write_after_read` and `transitive` Differ from `message_passing`
 
+### Page 12 intention
+
+- Role: controlled zoom-out inside the same implementation file after the audience understands regular `message_passing`.
+- Keep `message_passing` as the baseline: write payload first, synchronize through guard, then check partner payload after the guard is observed.
+- Explain `write_after_read` as the timing inversion: read partner payload before the synchronization point, then verify that this early read did not see the later synchronized write.
+- Explain `transitive` as the chain extension: visibility may travel through a representative invocation and workgroup synchronization before other invocations read the partner payload.
+- Emphasize that all three families reuse the same payload/guard/fail-buffer vocabulary, but ask different ordering questions.
+- Avoid diving into a second full shader walkthrough; this is a contrast slide, not another deep walkthrough.
+- Transition message: Part B taught one direct payload/guard protocol; Part C now shows how nearby tests mutate the same idea.
+
+### Page 12 style/layout decisions
+
+- Use a three-column comparison layout: `message_passing`, `write_after_read`, and `transitive`.
+- Each column should have the same internal structure: core question, simplified sequence, failure meaning.
+- Use a small visual timeline per column:
+  - `message_passing`: `write payload → release guard → acquire guard → read payload`.
+  - `write_after_read`: `early read payload → synchronize → partner writes payload → early value must stay zero`.
+  - `transitive`: `payload write → representative release/acquire → workgroup relay → payload read`.
+- Use color continuity from Part B: payload in green, guard/sync in yellow, fail condition in red/pink.
+- Speaker notes can mention `sharedSkip`, representative invocation `(0,0)`, `transvis`, and `nontransvis`, but keep the visible slide lightweight.
+- Do not introduce `padding` or `shared` yet; those belong to page 13.
+
 ## 13: Zooming Out: Other Test Families in `memory_model`
+
+### Page 13 intention
+
+- Role: expand from the `message_passing`-related families to the full `memory_model` category.
+- Show that `memory_model` has five registered families: `message_passing`, `write_after_read`, `transitive`, `padding`, and `shared`.
+- Group the first three as synchronization/visibility tests, because they focus on when shader-visible writes become observable.
+- Introduce `padding` as a layout-preservation test: shader-visible structure copies must not overwrite host-visible `std140` padding bytes.
+- Introduce `shared` as a workgroup shared-memory layout/value-preservation family: generated fields are written, synchronized, read, and compared inside compute workgroups.
+- Make clear that the category is not only about release/acquire; it is broader shader-visible memory correctness.
+- Prepare the final zoom-out to the wiki method: different families need different explanation strategies, but the same documentation discipline applies.
+
+### Page 13 style/layout decisions
+
+- Use a category-map visual, not a dense table.
+- Top: ASCII/tree or simple CSS hierarchy rooted at `memory_model`, with five family nodes.
+- Middle: group cards:
+  - `message_passing / write_after_read / transitive`: visibility timing and synchronization.
+  - `padding`: declared members vs padding bytes.
+  - `shared`: generated shared objects, barriers, readback comparison.
+- Bottom: one synthesis sentence: "same category, different memory-correctness angles".
+- Keep page 13 high-level; no source paths, no code snippets, no mustpass screenshots.
+- Speaker notes can point back to the category page and the three Level-3 pages: `MessagePassing.md`, `Padding.md`, and `SharedLayout.md`.
 
 ## 14: Zooming Out Again: Applying This Wiki Method to Other CTS Categories
 
+### Page 14 intention
+
+- Role: connect the technical case study back to the broader wiki/documentation work.
+- Explain the reusable method: start from registered paths and mustpass hierarchy, then map to generator code, runtime setup, shader behavior, validation rule, and failure meaning.
+- Contrast raw CTS source with explanation-first wiki pages: source is executable authority, wiki is readable engineering knowledge.
+- Show why this method scales beyond `memory_model`: each category has its own domain concepts, but the same reading pipeline applies.
+- Emphasize practical payoff for colleagues: faster failure triage, clearer ownership of failing dimensions, and better test-driven implementation planning.
+- Keep this page about method and workflow, not about adding new Vulkan technical concepts.
+
+### Page 14 style/layout decisions
+
+- Use a left-to-right workflow diagram with 5 steps:
+  1. registered test path / mustpass entry;
+  2. category and generator structure;
+  3. runtime resources and dispatch/draw loop;
+  4. shader or device-side behavior;
+  5. pass/fail rule and failure meaning.
+- Add one side card titled `What the wiki adds` with three bullets: intent, execution, diagnosis.
+- Add another side card titled `What engineers get` with three bullets: triage, implementation clues, regression confidence.
+- Visual style should echo page 03 but be more concrete now that the audience has seen the case study.
+- Do not mention translation/final publishing process here; keep the talk ending focused on technical value.
+
 ## 15: Three Takeaways
+
+### Page 15 intention
+
+- Role: closing slide for a 30-minute technical talk.
+- Takeaway 1: `message_passing` tests a precise visibility contract — after observing the guard, the protected payload should be visible.
+- Takeaway 2: Vulkan CTS encodes this contract through many parameterized cases, varying scope, storage, synchronization form, data type, and shader stage.
+- Takeaway 3: the wiki work turns executable CTS logic into readable engineering knowledge that helps debugging, implementation, and future conformance work.
+- End with a balanced scope: we walked one representative case deeply, then zoomed out enough to locate the rest of the category and the documentation method.
+- Keep the final message confident and concise; no new technical material.
+
+### Page 15 style/layout decisions
+
+- Use three large numbered cards across the center: `Visibility contract`, `Parameterized CTS coverage`, `Readable engineering knowledge`.
+- Each card should have one bold phrase and one short supporting line.
+- Add a small final footer line: `from one shader protocol → one CTS family → one documentation method`.
+- Avoid dense bullets, code, tables, or screenshots.
+- Preserve navigation hint footer, but visually let the three takeaways dominate the slide.

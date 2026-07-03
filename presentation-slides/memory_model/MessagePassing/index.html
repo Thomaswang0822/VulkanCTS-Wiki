@@ -725,6 +725,170 @@
     .p11-continuity-card { padding: 14px 20px; }
     .p11-continuity-card p { font-size: 15px; line-height: 1.45; }
     .p11-continuity-card em { color: var(--yellow); font-style: normal; font-weight: 800; }
+
+    .p12-stack { gap: 16px; width: 100%; align-items: stretch; }
+    .p12-intro-card { padding: 16px 22px; }
+    .p12-intro-card p { font-size: 20px; line-height: 1.35; color: var(--fg); }
+    .p12-intro-card code { color: var(--cyan); }
+    .p12-compare-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      width: 100%;
+    }
+    .p12-compare-card {
+      padding: 18px 18px 16px;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      min-height: 470px;
+    }
+    .p12-card-head {
+      display: grid;
+      gap: 6px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(125, 207, 255, 0.18);
+    }
+    .p12-card-head h3 { margin: 0; color: var(--fg); font-size: 22px; line-height: 1.2; }
+    .p12-card-tag {
+      justify-self: start;
+      color: var(--dim);
+      font: 700 11px/1 var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 9px;
+      border: 1px solid rgba(125, 207, 255, 0.30);
+      border-radius: 999px;
+    }
+    .p12-question { color: var(--muted); font-size: 15px; line-height: 1.35; margin: 0; }
+    .p12-question b { color: var(--cyan); }
+    .p12-timeline { display: grid; gap: 8px; }
+    .p12-step {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 9px;
+      align-items: center;
+      padding: 8px 10px;
+      border: 1px solid rgba(125, 207, 255, 0.22);
+      border-radius: 10px;
+      background: rgba(13, 16, 28, 0.42);
+      color: var(--muted);
+      font: 700 13px/1.28 var(--mono);
+    }
+    .p12-step-num {
+      display: grid;
+      place-items: center;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      color: var(--cyan);
+      border: 1px solid rgba(125, 207, 255, 0.36);
+      font: 900 13px/1 var(--mono);
+    }
+    .p12-step-payload { border-color: rgba(158, 206, 106, 0.40); color: var(--green); }
+    .p12-step-sync { border-color: rgba(224, 175, 104, 0.42); color: var(--yellow); }
+    .p12-step-read { border-color: rgba(187, 154, 247, 0.42); color: var(--purple); }
+    .p12-step-fail { border-color: rgba(247, 118, 142, 0.42); color: var(--red); }
+    .p12-failure {
+      margin: 0;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(13, 16, 28, 0.40);
+      border: 1px dashed rgba(247, 118, 142, 0.30);
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.35;
+    }
+    .p12-failure b { color: var(--red); }
+    .p12-bottom-card { padding: 14px 20px; }
+    .p12-bottom-card p { font-size: 16px; line-height: 1.45; }
+    .p12-bottom-card em { color: var(--yellow); font-style: normal; font-weight: 800; }
+
+    .p13-stack { gap: 16px; width: 100%; align-items: stretch; }
+    .p13-map-card { padding: 20px 24px; }
+    .p13-family-map {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-top: 10px;
+    }
+    .p13-root {
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(125, 207, 255, 0.52);
+      border-radius: 18px;
+      background: rgba(125, 207, 255, 0.10);
+      color: var(--cyan);
+      font: 900 26px/1.2 var(--mono);
+      text-align: center;
+      min-height: 112px;
+      box-shadow: 0 0 24px rgba(125, 207, 255, 0.12);
+    }
+    .p13-family-nodes {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      align-items: stretch;
+    }
+    .p13-family-node {
+      display: grid;
+      gap: 6px;
+      align-content: center;
+      padding: 12px 10px;
+      border: 1px solid rgba(125, 207, 255, 0.28);
+      border-radius: 14px;
+      background: rgba(13, 16, 28, 0.42);
+      min-height: 112px;
+      text-align: center;
+    }
+    .p13-family-node code { color: var(--fg); font-size: 14px; word-break: break-word; }
+    .p13-family-node span { color: var(--muted); font: 700 12px/1.25 var(--mono); text-transform: uppercase; letter-spacing: 0.05em; }
+    .p13-family-node.sync { border-color: rgba(224, 175, 104, 0.45); }
+    .p13-family-node.sync span { color: var(--yellow); }
+    .p13-family-node.layout { border-color: rgba(158, 206, 106, 0.45); }
+    .p13-family-node.layout span { color: var(--green); }
+    .p13-family-node.shared { border-color: rgba(187, 154, 247, 0.45); }
+    .p13-family-node.shared span { color: var(--purple); }
+
+    .p13-group-grid {
+      display: grid;
+      grid-template-columns: 1.22fr 0.89fr 0.89fr;
+      gap: 16px;
+      width: 100%;
+    }
+    .p13-group-card { padding: 18px 20px; display: grid; gap: 10px; align-content: start; min-height: 245px; }
+    .p13-group-card h3 { margin: 0; color: var(--fg); font-size: 22px; line-height: 1.2; }
+    .p13-group-tag {
+      justify-self: start;
+      color: var(--dim);
+      font: 700 11px/1 var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 9px;
+      border: 1px solid rgba(125, 207, 255, 0.30);
+      border-radius: 999px;
+    }
+    .p13-group-card p { font-size: 16px; line-height: 1.38; }
+    .p13-mini-seq {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 2px;
+    }
+    .p13-mini-pill {
+      padding: 7px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(125, 207, 255, 0.24);
+      background: rgba(13, 16, 28, 0.40);
+      color: var(--cyan);
+      font: 800 12px/1 var(--mono);
+    }
+    .p13-mini-pill.payload { color: var(--green); border-color: rgba(158, 206, 106, 0.40); }
+    .p13-mini-pill.sync { color: var(--yellow); border-color: rgba(224, 175, 104, 0.40); }
+    .p13-mini-pill.fail { color: var(--red); border-color: rgba(247, 118, 142, 0.40); }
+    .p13-synthesis-card { padding: 14px 20px; }
+    .p13-synthesis-card p { font-size: 18px; line-height: 1.4; color: var(--fg); }
+    .p13-synthesis-card em { color: var(--yellow); font-style: normal; font-weight: 800; }
     .p07-resource { padding: 20px 22px; }
     .p07-res-head {
       display: flex;
@@ -1545,7 +1709,7 @@
       <aside class="notes">This page closes the loop from per-invocation shader observation to host-side pass/fail. The two-card decision matrix restates step 4 of the protocol (page 08) in terms of its two outcomes: skip leaves the fail buffer untouched, !skip combined with a wrong payload writes 1. The 5-step host flow summarizes runtime execution: clear fail once, clear payload+guard per iteration, dispatch 50 times across 4 submits, copy fail buffer to host-visible memory only on the final submit, then scan for any nonzero entry. The failure-meaning card lists the typical implementation problems this case catches — incomplete release/acquire propagation, scope mishandling, dropped MakeAvailable/MakeVisible semantics, bad storage-class lowering, shader-compiler barrier lowering. There is no partial success rule: one nonzero entry fails the case, and up to 256 failing invocation indices are logged. The wiki cites vktMemoryModelMessagePassing.cpp L1933-L2018 for the execution loop and L1992-L2017 for the scan rule. Do not introduce transitive relay or write_after_read early-read timing here; those are page 12.</aside>
     </section>
 
-    <section class="slide active" data-title="From One Case Back to the Full Family">
+    <section class="slide" data-title="From One Case Back to the Full Family">
       <header class="slide-header">
         <div>
           <div class="kicker">Part C · Zoom Out</div>
@@ -1592,6 +1756,133 @@
       <footer class="footer"><span>one fixed claim, eight varying axes</span><span>←/→ · N notes · S presenter · O overview</span></footer>
       <aside class="notes">This page is the controlled zoom-out from the deep walkthrough of one case. The fixed-core card restates the page 08 claim in two short lines. The varying-dimensions list gives the 8 axes that the wiki's parameter table enumerates: memory-model mode (core11/ext), data type (u32/u64/f32/f64), sync form (six forms from fence_fence to control_and_memory_barrier), atomic op (atomicwrite/atomicrmw), scope (device/queuefamily/workgroup/subgroup), payload storage (buffer/image/workgroup/physbuffer), guard storage (buffer/image/workgroup/physbuffer), shader stage (comp/vert/frag). The continuity card at the bottom is the takeaway: the claim is invariant, only the resources and operations vary. No GLSL or host behavior on this page. The next slide is page 12, which compares message_passing with write_after_read and transitive.</aside>
     </section>
+
+    <section class="slide" data-title="How write_after_read and transitive Differ">
+      <header class="slide-header">
+        <div>
+          <div class="kicker">Part C · Controlled Zoom Out</div>
+          <h2>How <code>write_after_read</code><br/>and <code>transitive</code> Differ</h2>
+        </div>
+        <div class="slide-no">12 / 15</div>
+      </header>
+      <div class="content stack p12-stack">
+        <div class="card accent-blue p12-intro-card">
+          <p>Same concepts — <code>payload</code>, <code>guard</code>, <code>skip</code>, <code>fail</code> — but three different ordering questions.</p>
+        </div>
+        <div class="p12-compare-grid">
+          <div class="card accent-green p12-compare-card">
+            <div class="p12-card-head">
+              <span class="p12-card-tag">baseline</span>
+              <h3><code>message_passing</code></h3>
+            </div>
+            <p class="p12-question"><b>Expected:</b> after the guard is observed, the protected payload is visible.</p>
+            <div class="p12-timeline">
+              <div class="p12-step p12-step-payload"><span class="p12-step-num">1</span><span>write own payload</span></div>
+              <div class="p12-step p12-step-sync"><span class="p12-step-num">2</span><span>release / signal own guard</span></div>
+              <div class="p12-step p12-step-sync"><span class="p12-step-num">3</span><span>acquire partner guard</span></div>
+              <div class="p12-step p12-step-read"><span class="p12-step-num">4</span><span>read partner payload</span></div>
+            </div>
+            <p class="p12-failure"><b>Fail when:</b> guard observed, but partner payload is stale or wrong.</p>
+          </div>
+          <div class="card accent-yellow p12-compare-card">
+            <div class="p12-card-head">
+              <span class="p12-card-tag">timing inversion</span>
+              <h3><code>write_after_read</code></h3>
+            </div>
+            <p class="p12-question"><b>Expected:</b> the early payload read stays zero; it must not see the later write.</p>
+            <div class="p12-timeline">
+              <div class="p12-step p12-step-read"><span class="p12-step-num">1</span><span>early-read partner payload</span></div>
+              <div class="p12-step p12-step-sync"><span class="p12-step-num">2</span><span>synchronize through guard path</span></div>
+              <div class="p12-step p12-step-payload"><span class="p12-step-num">3</span><span>partner writes payload later</span></div>
+              <div class="p12-step p12-step-fail"><span class="p12-step-num">4</span><span>early value must stay zero</span></div>
+            </div>
+            <p class="p12-failure"><b>Fail when:</b> the early read sees a nonzero value that should not have been visible yet.</p>
+          </div>
+          <div class="card accent-purple p12-compare-card">
+            <div class="p12-card-head">
+              <span class="p12-card-tag">visibility chain</span>
+              <h3><code>transitive</code></h3>
+            </div>
+            <p class="p12-question"><b>Expected:</b> if the chain is observed, visibility reaches the final payload read through the relay.</p>
+            <div class="p12-timeline">
+              <div class="p12-step p12-step-payload"><span class="p12-step-num">1</span><span>all invocations write payload</span></div>
+              <div class="p12-step p12-step-sync"><span class="p12-step-num">2</span><span>representative release/acquire</span></div>
+              <div class="p12-step p12-step-sync"><span class="p12-step-num">3</span><span>broadcast skip through workgroup</span></div>
+              <div class="p12-step p12-step-read"><span class="p12-step-num">4</span><span>read partner payload after relay</span></div>
+            </div>
+            <p class="p12-failure"><b>Fail when:</b> the chain was observed, but the final payload read is stale or wrong.</p>
+          </div>
+        </div>
+        <div class="card accent-blue p12-bottom-card">
+          <p><em>Part B taught the direct protocol.</em> These nearby families mutate the timing or add a relay, but keep the same CTS pattern: shader detects bad visibility, writes the fail buffer, and the host scans it.</p>
+        </div>
+      </div>
+      <footer class="footer"><span>same vocabulary, different ordering questions</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <aside class="notes">Page 12 is a contrast slide, not another full shader walkthrough. The left column is the baseline message_passing protocol already covered in pages 08-10. The middle column explains write_after_read as a timing inversion: it reads partner payload before the synchronization step, later the partner writes payload, and the early value should remain zero. The right column explains transitive as a visibility-chain test: invocations write payload, a representative invocation performs device-scope guard synchronization, and in transvis the representative distributes skip/visibility through workgroup synchronization before the rest of the workgroup reads partner payload. Speaker-only details: transitive uses sharedSkip, representative local invocation (0,0), and the transvis/nontransvis distinction. Visible slide should stay lightweight and comparative.</aside>
+    </section>
+
+    <section class="slide active" data-title="Zooming Out: Other Test Families in memory_model">
+      <header class="slide-header">
+        <div>
+          <div class="kicker">Part C · Category View</div>
+          <h2>Other Test Families<br/>in <code>memory_model</code></h2>
+        </div>
+        <div class="slide-no">13 / 15</div>
+      </header>
+      <div class="content stack p13-stack">
+        <div class="card accent-blue p13-map-card">
+          <h3>The category has 5 registered families</h3>
+          <div class="p13-family-map">
+            <div class="p13-root"><code>memory_model</code></div>
+            <div class="p13-family-nodes">
+              <div class="p13-family-node sync"><code>message_passing</code><span>visibility</span></div>
+              <div class="p13-family-node sync"><code>write_after_read</code><span>early read</span></div>
+              <div class="p13-family-node sync"><code>transitive</code><span>visibility chain</span></div>
+              <div class="p13-family-node layout"><code>padding</code><span>std140 bytes</span></div>
+              <div class="p13-family-node shared"><code>shared</code><span>workgroup layout</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="p13-group-grid">
+          <div class="card accent-yellow p13-group-card">
+            <span class="p13-group-tag">when values become visible</span>
+            <h3>Synchronization / visibility</h3>
+            <p><code>message_passing</code>, <code>write_after_read</code>, and <code>transitive</code> all ask timing questions around payload, guard, scope, and visibility.</p>
+            <div class="p13-mini-seq">
+              <span class="p13-mini-pill payload">payload</span>
+              <span class="p13-mini-pill sync">guard / sync</span>
+              <span class="p13-mini-pill payload">payload read</span>
+              <span class="p13-mini-pill fail">fail buffer</span>
+            </div>
+          </div>
+          <div class="card accent-green p13-group-card">
+            <span class="p13-group-tag">which bytes are touched</span>
+            <h3><code>padding</code></h3>
+            <p>Copies declared <code>std140</code> structure members, then checks that destination padding bytes keep their host-initialized sentinel values.</p>
+            <div class="p13-mini-seq">
+              <span class="p13-mini-pill">declared members</span>
+              <span class="p13-mini-pill">padding bytes</span>
+              <span class="p13-mini-pill fail">sentinel check</span>
+            </div>
+          </div>
+          <div class="card accent-purple p13-group-card">
+            <span class="p13-group-tag">which fields survive</span>
+            <h3><code>shared</code></h3>
+            <p>Generates GLSL <code>shared</code> objects, writes nested fields, synchronizes within the workgroup, reads them back, and compares values.</p>
+            <div class="p13-mini-seq">
+              <span class="p13-mini-pill">generated fields</span>
+              <span class="p13-mini-pill sync">barrier</span>
+              <span class="p13-mini-pill">compare</span>
+            </div>
+          </div>
+        </div>
+        <div class="card accent-blue p13-synthesis-card">
+          <p><em>Same category, different memory-correctness angles:</em> visibility timing, layout-preserving writes, and workgroup shared-memory value preservation.</p>
+        </div>
+      </div>
+      <footer class="footer"><span>memory_model is broader than release/acquire</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <aside class="notes">Page 13 expands from the message_passing-related families to the full memory_model category. The category has five registered families: message_passing, write_after_read, transitive, padding, and shared. The first three are synchronization and visibility tests rooted in vktMemoryModelMessagePassing.cpp and covered by MessagePassing.md. Padding is a different angle: std140 structure copies should write declared scalar members but not corrupt destination padding bytes. Shared is another angle: generated GLSL shared objects inside compute workgroups must preserve values across write, barrier, read, and compare steps for many scalar, vector, matrix, array, nested-struct, 16-bit, and 8-bit layouts. The takeaway is that memory_model is not only release/acquire; it is shader-visible memory correctness from several directions. The category page links these to three Level-3 pages: MessagePassing.md, Padding.md, and SharedLayout.md.</aside>
+    </section>
   </main>
 
   <div class="progress"><div id="progressBar"></div></div>
@@ -1609,7 +1900,8 @@
       if (!Number.isNaN(h) && h > 0) return h - 1;
       const m = Number(new URLSearchParams(location.search).get('preview'));
       if (!Number.isNaN(m) && m >= 0) return m;
-      return 0;
+      const active = slides.findIndex((s) => s.classList.contains('active'));
+      return active >= 0 ? active : 0;
     })();
     let overview = false;
     let presenter = null;
