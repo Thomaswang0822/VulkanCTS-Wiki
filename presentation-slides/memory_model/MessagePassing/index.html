@@ -1067,6 +1067,21 @@
     .vocab-card h3 { font-size: 22px; margin-bottom: 10px; }
     .vocab-card p { font-size: 20px; line-height: 1.30; }
     .matrix-demo { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin-top: 12px; }
+    .lane-api-hint {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      padding: 9px 12px;
+      border: 1px dashed rgba(125, 207, 255, 0.24);
+      border-radius: 12px;
+      background: rgba(13, 16, 28, 0.34);
+      color: var(--muted);
+      font: 700 13px/1.25 var(--mono);
+    }
+    .lane-api-hint span { color: var(--dim); font-family: var(--sans); font-weight: 700; }
+    .lane-api-hint code { color: var(--cyan); font-size: 12px; }
     .cell {
       display: grid;
       place-items: center;
@@ -1285,7 +1300,14 @@
         </div>
       </div>
       <footer class="footer"><span>tokyo-night inspired technical sharing</span><span>←/→ · N notes · S presenter · O overview</span></footer>
-      <aside class="notes">Opening intent: this is not a full Vulkan memory model lecture. The talk asks how CTS checks a concrete promise: once a synchronization signal is observed, the payload protected by that signal should also be visible. We will first motivate this through CTS and the wiki task, then spend most time on one message_passing walkthrough, and only then zoom out.</aside>
+      <aside class="notes">
+      <h3>01: MessagePassing Visibility Tests</h3>
+      <ul>
+        <li>Core question: guard observed → payload visible?</li>
+        <li>Scope reminder: not a full Vulkan memory model lecture.</li>
+        <li>Timing: ~1 min.</li>
+      </ul>
+      </aside>
     </section>
 
     <section class="slide" data-title="Vulkan CTS: What and Why">
@@ -1323,7 +1345,14 @@
         </div>
       </div>
       <footer class="footer"><span>conformance: from public spec rule to product-visible behavior</span><span>←/→ · N notes · S presenter · O overview</span></footer>
-      <aside class="notes">Middle-card narrative: our product needs both DirectX and Vulkan conformance. The DirectX side is HLK, and the Vulkan side is Vulkan CTS. For now, the main engineering priority is DX and HLK, while Vulkan CTS knowledge and resources are still limited. Later we may shift more attention to Vulkan CTS. Its advantage is openness: Vulkan CTS is open source, while HLK is closed source, so understanding Vulkan CTS can still teach us how conformance suites encode graphics-stack requirements.</aside>
+      <aside class="notes">
+      <h3>02: Vulkan CTS: What and Why</h3>
+      <ul>
+        <li>Conformance = official rule compatibility, not performance.</li>
+        <li>Our angle: HLK is closed; Vulkan CTS is open-source learning material.</li>
+        <li>Product pass means chip + driver + compiler + runtime + platform.</li>
+      </ul>
+      </aside>
     </section>
 
     <section class="slide" data-title="Wiki Work">
@@ -1363,7 +1392,14 @@
         </div>
       </div>
       <footer class="footer"><span>from readable CTS knowledge to debugging and implementation planning</span><span>←/→ · N notes · S presenter · O overview</span></footer>
-      <aside class="notes">This page introduces the main-track wiki task. Vulkan CTS is executable and source-backed, but direct source reading is expensive: registration, mustpass paths, parameter combinations, shader builders, and host-side verification are spread across many places. The rewritten wiki is not just a map or navigation layer. It is explanation-first, in-place technical documentation: each page explains intent, execution, validation, failure meaning, and source evidence where the reader needs it. For shader-heavy pages, Shader Analysis is central: a representative walkthrough makes the executable test behavior readable. Once the wiki is complete, it should also become practical engineering infrastructure: when a case or group fails, it helps narrow likely root causes; before implementation, it clarifies what behavior CTS will require.</aside>
+      <aside class="notes">
+      <h3>03: Wiki Work: Executable Spec → Readable Knowledge</h3>
+      <ul>
+        <li>Emphasize: wiki is not just navigation; it is explanation-first documentation.</li>
+        <li>Useful for: failure triage, group-level diagnosis, implementation planning.</li>
+        <li>`Shader Analysis` is the bridge to the rest of this talk.</li>
+      </ul>
+      </aside>
     </section>
 
     <section class="slide" data-title="Focus for This Talk">
@@ -1397,7 +1433,14 @@
         </div>
       </div>
       <footer class="footer"><span>test family first, representative case next</span><span>←/→ · N notes · S presenter · O overview</span></footer>
-      <aside class="notes">This slide fixes the entry point into Part B. Do not introduce writer, reader, payload, guard, or the visibility claim yet. First establish that message_passing is a family in the CTS hierarchy, visible as many dEQP-VK.memory_model.message_passing entries in the mustpass list. The right card decodes the path into registration root, category, and family. The next slide introduces the vocabulary needed before the expected behavior can be stated precisely.</aside>
+      <aside class="notes">
+      <h3>04: Focus for This Talk: `message_passing`</h3>
+      <ul>
+        <li>`message_passing` is a family, not a single hand-written shader.</li>
+        <li>Do not introduce payload/guard behavior too early here.</li>
+        <li>Next: build vocabulary before stating the expected behavior.</li>
+      </ul>
+      </aside>
     </section>
 
     <section class="slide" data-title="Backgrounds Before the Walkthrough">
@@ -1417,6 +1460,12 @@
             <span class="cell dimmed">8</span><span class="cell dimmed">9</span><span class="cell dimmed">10</span><span class="cell dimmed">11</span><span class="cell dimmed">12</span><span class="cell dimmed">13</span><span class="cell dimmed">14</span><span class="cell dimmed">15</span>
             <span class="cell dimmed">16</span><span class="cell dimmed">17</span><span class="cell dimmed">18</span><span class="cell dimmed">19</span><span class="cell dimmed">20</span><span class="cell dimmed">21</span><span class="cell dimmed">22</span><span class="cell dimmed">23</span>
             <span class="cell dimmed">24</span><span class="cell dimmed">25</span><span class="cell dimmed">26</span><span class="cell dimmed">27</span><span class="cell dimmed">28</span><span class="cell dimmed">29</span><span class="cell dimmed">30</span><span class="cell dimmed">31</span>
+          </div>
+          <div class="lane-api-hint">
+            <span>Think of what happens under the hood of</span>
+            <code>WaveReadLaneAt</code>
+            <code>subgroupBroadcast</code>
+            <code>__shfl_sync</code>
           </div>
         </div>
         <div class="card accent-green vocab-card">
@@ -1446,7 +1495,15 @@
         </div>
       </div>
       <footer class="footer"><span>from familiar mirror pairing to message-passing vocabulary</span><span>←/→ · N notes · S presenter · O overview</span></footer>
-      <aside class="notes">This slide uses a simplified warp-like 4 by 8 tile as intuition. In Vulkan terminology, the real representative case uses shader invocations in a subgroup; "warp" is only a familiar mental model, not a Vulkan API term. The mirror example makes partner pairing concrete: thread 1 and thread 6 are a left-right pair in the first row. Payload is not a single variable; conceptually it is a per-invocation slot in a payload buffer, so payload[1] stores T1's value and payload[6] stores T6's value. Guard is also separate per-invocation synchronization storage; guard[1] is the signal associated with payload[1]. There is no extra swap-style temporary variable in the test. The two endpoints connect through release/acquire: T1 writes payload[1], releases and signals guard[1]; T6 observes/acquires guard[1], then reads payload[1].</aside>
+      <aside class="notes">
+      <h3>05: Backgrounds Before the Walkthrough</h3>
+      <ul>
+        <li>4×8 tile is a mental model only; Vulkan term is shader invocation/subgroup.</li>
+        <li>Familiar lane-read names: HLSL `WaveReadLaneAt`, GLSL `subgroupBroadcast`, CUDA `__shfl_sync`.</li>
+        <li>Payload and guard are separate storage, not one variable.</li>
+        <li>No swap-style temporary variable; communication is payload + guard.</li>
+      </ul>
+      </aside>
     </section>
 
     <section class="slide" data-title="Representative Case: The Path We Will Walk Through">
@@ -1477,7 +1534,18 @@
         </div>
       </div>
       <footer class="footer"><span>one case, fully understood, before generalizing</span><span>←/→ · N notes · S presenter · O overview</span></footer>
-      <aside class="notes">This page pins one concrete case so every later walkthrough page has a fixed referent. The chosen path is the wiki's Representative Shader Walkthrough 1: a compute shader, u32, subgroup scope, atomic_atomic sync, buffer payload and guard. Why this case: every parameter is at its least-noisy value, so the core payload-before-guard promise is exposed without 64-bit, float, or alternative-scope confounders. The decode card reads the path token-by-token as a small set of design choices — not as a long token string. Pages 07–10 stay inside this exact case; page 11 zooms out to the full matrix.</aside>
+      <aside class="notes">
+      <h3>06: Representative Case: The Path We Will Walk Through</h3>
+      <ul>
+        <li>Chosen because it is a clean case: compute, `u32`, subgroup, buffer payload/guard.</li>
+        <li>`DIM` is like CUDA blockDim.x/blockDim.y for a square block tile: local workgroup size is `DIM × DIM`.</li>
+        <li>`NUM_WORKGROUP_EACH_DIM` is like CUDA gridDim.x/gridDim.y: number of workgroups along each 2D axis.</li>
+        <li>Total launched shader invocations are `(DIM × NUM_WORKGROUP_EACH_DIM)²`, analogous to total CUDA threads in a 2D grid.</li>
+        <li>`DIM = 31` is intentional: large but under common max workgroup invocation limits after `31² = 961`, and non-power-of-two dimensions catch indexing/synchronization bugs that a neat 32 or power-of-two layout might hide.</li>
+        <li>`ext + noncoherent` means explicit MakeAvailable / MakeVisible semantics.</li>
+        <li>Pages 07–10 stay inside this exact path.</li>
+      </ul>
+      </aside>
     </section>
 
     <section class="slide" data-title="Execution Topology: Pairing Lanes and Locating Data">
@@ -1568,7 +1636,14 @@
         </div>
       </div>
       <footer class="footer"><span>lanes paired, slots indexed, three buffers bound</span><span>←/→ · N notes · S presenter · O overview</span></footer>
-      <aside class="notes">The top diagram shows the eight active subgroup lanes paired by XOR with size - 1 (here size = 8). The shader pairs lane i with lane i ^ 7, so the pairs are (0↔7), (1↔6), (2↔5), (3↔4). Each lane has a localId, and the linearization formula is bufferCoord = (gl_WorkGroupID.y * NUM_WORKGROUP_EACH_DIM + gl_WorkGroupID.x) * DIM * DIM + localId.y * DIM + localId.x, and partnerBufferCoord uses subgroupShuffleXor(localId, size - 1) before the same linearization. The bottom row introduces the three host-bound resources: payload at binding 0, guard at binding 1, fail at binding 2. All three are SSBOs at descriptor set 0. Slot indices on each card match the lane index; in the guard card slot 1 is highlighted to suggest "this lane already signaled its guard" — a snapshot of the protocol that page 08 will explain step by step. No GLSL or SPIR-V here; the next slide walks the four-step protocol with the reconstructed shader.</aside>
+      <aside class="notes">
+      <h3>07: Pairing Lanes, Locating Data</h3>
+      <ul>
+        <li>Real pairing rule: `partner = gl_SubgroupInvocationID ^ (gl_SubgroupSize - 1)`.</li>
+        <li>In the slide's simplified 32-lane case: partner is `31 - i`.</li>
+        <li>Bindings: payload = 0, guard = 1, fail = 2.</li>
+      </ul>
+      </aside>
     </section>
 
     <section class="slide" data-title="Core Protocol: Payload Before Guard, Check After Guard">
@@ -1638,7 +1713,15 @@
         </div>
       </div>
       <footer class="footer"><span>payload then guard, guard then check, skip if not observed</span><span>←/→ · N notes · S presenter · O overview</span></footer>
-      <aside class="notes">This is the technical heart of message_passing. The expected behavior claim is the one sentence at the top: observing partner guard forces the partner payload to be visible. In this representative case, bufferCoord equals the lane's own subgroup ID and partnerBufferCoord equals 31 minus that, so the partner slot is just the mirrored ID. The four-step timeline walks every lane through the protocol; publisher steps 1-2 and consumer steps 3-4. Step 3 sets skip = (partner guard still 0). Step 4 only writes fail when guard was observed but the payload value does not match. The GLSL block at the bottom shows the literal pattern; the precise semantics flag tuple (gl_ScopeSubgroup, gl_StorageSemanticsBuffer, gl_SemanticsRelease | gl_SemanticsMakeAvailable, gl_SemanticsAcquire | gl_SemanticsMakeVisible) is intentionally hidden in this slide and will be unpacked on page 09. Do not introduce transitive relay or write_after_read early-read timing here; those are pages 12 and 10 respectively. The host pass/fail scan is also page 10.</aside>
+      <aside class="notes">
+      <h3>08: Payload Before Guard, Check After Guard</h3>
+      <ul>
+        <li>Key expected behavior is now safe to state.</li>
+        <li>`skip` is not failure; it means the guard was not observed.</li>
+        <li>This path has no full-group `barrier()` / CUDA-like `__syncthreads()`; progress is judged only when the peer guard is actually seen.</li>
+        <li>Failure only when `!skip` and payload value is wrong.</li>
+      </ul>
+      </aside>
     </section>
 
     <section class="slide" data-title="Memory Semantics in the Shader">
@@ -1721,7 +1804,22 @@
         </div>
       </div>
       <footer class="footer"><span>release + make available on the writer, acquire + make visible on the reader</span><span>←/→ · N notes · S presenter · O overview</span></footer>
-      <aside class="notes">This page unpacks the four semantics flags hidden on page 08. The two-pane symmetry block shows the writer side (release + make available on the guard store) and the reader side (acquire + make visible on the guard load). Each flag answers one question: scope asks "who can synchronize with me"; storage semantics asks "which memory class"; release/make-available ask "what is being published"; acquire/make-visible ask "what is being pulled in". The scope + storage strip in the middle reminds the audience that the guarantee is narrow: only across this exact scope (subgroup) and this exact storage class (buffer). The bottom edge diagram traces the payload write becoming visible across the scope, gated by the guard atom. Do not introduce the host pass/fail loop, write_after_read timing inversion, or transitive relay here; those are pages 10 and 12.</aside>
+      <aside class="notes">
+      <h3>09: Why the Guard Carries the Payload</h3>
+      <ul>
+        <li>Writer side: Release + MakeAvailable.</li>
+        <li>Reader side: Acquire + MakeVisible.</li>
+        <li>Analogy:
+          <ul>
+            <li>write payload: you write a paper</li>
+            <li>release / MakeAvailable: you publish it to arXiv</li>
+            <li>acquire / MakeVisible: your reader downloads it from arXiv</li>
+            <li>read payload: the reader reads your paper</li>
+          </ul></li>
+        <li>`queuefamily` scope roughly means synchronization across queues from the same Vulkan queue family; broader than workgroup/subgroup, but not necessarily all queues/devices.</li>
+        <li>Guarantee is bounded by both scope and storage semantics.</li>
+      </ul>
+      </aside>
     </section>
 
     <section class="slide" data-title="Result Checking: skip, fail, and Host-Side Pass/Fail">
@@ -1810,7 +1908,14 @@
         </div>
       </div>
       <footer class="footer"><span>shader writes the fail buffer, host scans the fail buffer</span><span>←/→ · N notes · S presenter · O overview</span></footer>
-      <aside class="notes">This page closes the loop from per-invocation shader observation to host-side pass/fail. The two-card decision matrix restates step 4 of the protocol (page 08) in terms of its two outcomes: skip leaves the fail buffer untouched, !skip combined with a wrong payload writes 1. The 5-step host flow summarizes runtime execution: clear fail once, clear payload+guard per iteration, dispatch 50 times across 4 submits, copy fail buffer to host-visible memory only on the final submit, then scan for any nonzero entry. The failure-meaning card lists the typical implementation problems this case catches — incomplete release/acquire propagation, scope mishandling, dropped MakeAvailable/MakeVisible semantics, bad storage-class lowering, shader-compiler barrier lowering. There is no partial success rule: one nonzero entry fails the case, and up to 256 failing invocation indices are logged. The wiki cites vktMemoryModelMessagePassing.cpp L1933-L2018 for the execution loop and L1992-L2017 for the scan rule. Do not introduce transitive relay or write_after_read early-read timing here; those are page 12.</aside>
+      <aside class="notes">
+      <h3>10: From Shader Observation to Host Verdict</h3>
+      <ul>
+        <li>Host does not directly judge payload values; shader writes fail buffer.</li>
+        <li>Fail buffer is cleared, shader runs many times, host scans for any nonzero entry.</li>
+        <li>One nonzero entry fails the CTS case.</li>
+      </ul>
+      </aside>
     </section>
 
     <section class="slide" data-title="From One Case Back to the Full Family">
@@ -1858,7 +1963,14 @@
         </div>
       </div>
       <footer class="footer"><span>one fixed claim, eight varying axes</span><span>←/→ · N notes · S presenter · O overview</span></footer>
-      <aside class="notes">This page is the controlled zoom-out from the deep walkthrough of one case. The fixed-core card restates the page 08 claim in two short lines. The varying-dimensions list gives the 8 axes that the wiki's parameter table enumerates: memory-model mode (core11/ext), data type (u32/u64/f32/f64), sync form (six forms from fence_fence to control_and_memory_barrier), atomic op (atomicwrite/atomicrmw), scope (device/queuefamily/workgroup/subgroup), payload storage (buffer/image/workgroup/physbuffer), guard storage (buffer/image/workgroup/physbuffer), shader stage (comp/vert/frag). The continuity card at the bottom is the takeaway: the claim is invariant, only the resources and operations vary. No GLSL or host behavior on this page. The next slide is page 12, which compares message_passing with write_after_read and transitive.</aside>
+      <aside class="notes">
+      <h3>11: Same `message_passing` Family, Many Dimensions</h3>
+      <ul>
+        <li>Fixed center: the same payload-before-guard claim.</li>
+        <li>Varying axes: mode, type, sync form, operation, scope, storage, stage.</li>
+        <li>This explains why mustpass has many similar-looking paths.</li>
+      </ul>
+      </aside>
     </section>
 
     <section class="slide" data-title="How write_after_read and transitive Differ">
@@ -1922,7 +2034,14 @@
         </div>
       </div>
       <footer class="footer"><span>same vocabulary, different ordering questions</span><span>←/→ · N notes · S presenter · O overview</span></footer>
-      <aside class="notes">Page 12 is a contrast slide, not another full shader walkthrough. The left column is the baseline message_passing protocol already covered in pages 08-10. The middle column explains write_after_read as a timing inversion: it reads partner payload before the synchronization step, later the partner writes payload, and the early value should remain zero. The right column explains transitive as a visibility-chain test: invocations write payload, a representative invocation performs device-scope guard synchronization, and in transvis the representative distributes skip/visibility through workgroup synchronization before the rest of the workgroup reads partner payload. Speaker-only details: transitive uses sharedSkip, representative local invocation (0,0), and the transvis/nontransvis distinction. Visible slide should stay lightweight and comparative.</aside>
+      <aside class="notes">
+      <h3>12: How `write_after_read` and `transitive` Differ</h3>
+      <ul>
+        <li>`write_after_read`: early read must not see the later synchronized write.</li>
+        <li>`transitive`: visibility can be carried through a representative + workgroup relay.</li>
+        <li>These are contrast cases, not full new walkthroughs.</li>
+      </ul>
+      </aside>
     </section>
 
     <section class="slide" data-title="Zooming Out: Other Test Families in memory_model">
@@ -1985,7 +2104,14 @@
         </div>
       </div>
       <footer class="footer"><span>memory_model is broader than release/acquire</span><span>←/→ · N notes · S presenter · O overview</span></footer>
-      <aside class="notes">Page 13 expands from the message_passing-related families to the full memory_model category. The category has five registered families: message_passing, write_after_read, transitive, padding, and shared. The first three are synchronization and visibility tests rooted in vktMemoryModelMessagePassing.cpp and covered by MessagePassing.md. Padding is a different angle: std140 structure copies should write declared scalar members but not corrupt destination padding bytes. Shared is another angle: generated GLSL shared objects inside compute workgroups must preserve values across write, barrier, read, and compare steps for many scalar, vector, matrix, array, nested-struct, 16-bit, and 8-bit layouts. The takeaway is that memory_model is not only release/acquire; it is shader-visible memory correctness from several directions. The category page links these to three Level-3 pages: MessagePassing.md, Padding.md, and SharedLayout.md.</aside>
+      <aside class="notes">
+      <h3>13: Other Test Families in `memory_model`</h3>
+      <ul>
+        <li>`memory_model` is broader than release/acquire.</li>
+        <li>First three families: visibility timing.</li>
+        <li>`padding`: byte/layout preservation. `shared`: workgroup shared-memory value preservation.</li>
+      </ul>
+      </aside>
     </section>
 
     <section class="slide" data-title="Vulkan CTS Is Much Bigger Than memory_model">
@@ -2032,7 +2158,14 @@
         </div>
       </div>
       <footer class="footer"><span>one shader protocol → one category → a much larger conformance suite</span><span>←/→ · N notes · S presenter · O overview</span></footer>
-      <aside class="notes">Page 14 is intentionally lightweight. It uses the 53 documented top-level categories from external/vulkancts/wiki/README.md as a factual anchor, but groups them into six broad areas instead of showing the original 53-row table. The group names are explanatory rather than normative: Foundation/API objects, Synchronization/correctness, Pipeline/rendering, Resources/formats/presentation, Shader stages/execution, and Modern/advanced features. The message is simply that memory_model is only one region of a gigantic conformance suite. This also supports the wiki value proposition: because the suite is this broad, engineers should primarily consume explanation-first wiki pages and only use source code for confirmation when necessary.</aside>
+      <aside class="notes">
+      <h3>14: Vulkan CTS Is Much Bigger Than `memory_model`</h3>
+      <ul>
+        <li>53 documented top-level Vulkan CTS categories in the wiki index.</li>
+        <li>Area grouping is approximate, only for scale awareness.</li>
+        <li>Message: this talk sampled one small region of a much larger suite.</li>
+      </ul>
+      </aside>
     </section>
 
     <section class="slide active" data-title="Three Takeaways">
@@ -2066,7 +2199,14 @@
         </div>
       </div>
       <footer class="footer"><span>representative case, controlled zoom-out, practical wiki value</span><span>←/→ · N notes · S presenter · O overview</span></footer>
-      <aside class="notes">Final slide. Keep it concise and do not add new technical material. The talk's arc was: first, why Vulkan CTS and the wiki work matter; second, a deep walkthrough of one representative message_passing case; third, a controlled zoom-out to nearby memory_model families, the broader memory_model category, and then the larger Vulkan CTS landscape. The three takeaways are the final message: message_passing tests a precise visibility contract; CTS expands that contract across many parameterized cases; and the wiki makes executable conformance logic readable and useful for engineering work.</aside>
+      <aside class="notes">
+      <h3>15: Three Takeaways</h3>
+      <ul>
+        <li>Visibility contract: guard observed → payload visible.</li>
+        <li>CTS coverage: same rule tested across many dimensions.</li>
+        <li>Wiki value: executable conformance logic becomes readable engineering knowledge.</li>
+      </ul>
+      </aside>
     </section>
   </main>
 
