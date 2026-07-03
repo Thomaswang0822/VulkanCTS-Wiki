@@ -276,29 +276,32 @@
 - Keep page 13 high-level; no source paths, no code snippets, no mustpass screenshots.
 - Speaker notes can point back to the category page and the three Level-3 pages: `MessagePassing.md`, `Padding.md`, and `SharedLayout.md`.
 
-## 14: Zooming Out Again: Applying This Wiki Method to Other CTS Categories
+## 14: Zooming Out Again: Vulkan CTS Is Much Bigger Than `memory_model`
 
 ### Page 14 intention
 
-- Role: connect the technical case study back to the broader wiki/documentation work.
-- Explain the reusable method: start from registered paths and mustpass hierarchy, then map to generator code, runtime setup, shader behavior, validation rule, and failure meaning.
-- Contrast raw CTS source with explanation-first wiki pages: source is executable authority, wiki is readable engineering knowledge.
-- Show why this method scales beyond `memory_model`: each category has its own domain concepts, but the same reading pipeline applies.
-- Emphasize practical payoff for colleagues: faster failure triage, clearer ownership of failing dimensions, and better test-driven implementation planning.
-- Keep this page about method and workflow, not about adding new Vulkan technical concepts.
+- Role: pull the audience out from the `memory_model` narrative and remind them that this talk only sampled one small region of Vulkan CTS.
+- Use the 53 documented top-level Vulkan CTS categories from `external/vulkancts/wiki/README.md` as the factual anchor.
+- Do not show a 53-row category table. Instead, group all 53 categories into broad, lightweight "areas" so the audience sees the suite's scale and variety at a glance.
+- Make the page technically lightweight: no new memory-model concepts, no source-reading workflow, no detailed category internals.
+- Core message: Vulkan CTS is a gigantic conformance suite that covers almost every visible part of Vulkan behavior, not just synchronization tests.
+- Connect back to wiki value briefly: because the suite is this broad, explanation-first wiki pages are useful; engineers should not need to reverse-engineer every category directly from source.
+- Prepare the final takeaway slide by moving from one case → one category → the full Vulkan CTS landscape.
 
 ### Page 14 style/layout decisions
 
-- Use a left-to-right workflow diagram with 5 steps:
-  1. registered test path / mustpass entry;
-  2. category and generator structure;
-  3. runtime resources and dispatch/draw loop;
-  4. shader or device-side behavior;
-  5. pass/fail rule and failure meaning.
-- Add one side card titled `What the wiki adds` with three bullets: intent, execution, diagnosis.
-- Add another side card titled `What engineers get` with three bullets: triage, implementation clues, regression confidence.
-- Visual style should echo page 03 but be more concrete now that the audience has seen the case study.
-- Do not mention translation/final publishing process here; keep the talk ending focused on technical value.
+- Use a compact grouped table titled `53 documented top-level categories, grouped by area`.
+- Use `Area` as the grouping word.
+- Table rows / area groups:
+  - Foundation / API objects: `info`, `api`, `memory`, `query_pool`, `binding_model`, `descriptor_indexing`, `device_group`.
+  - Synchronization / correctness: `synchronization`, `synchronization2`, `memory_model`, `robustness`, `protected_memory`, `sparse_resources`.
+  - Pipeline / rendering: `pipeline`, `shader_object`, `renderpasses`, `imageless_framebuffer`, `dynamic_state`, `draw`, `rasterization`, `fragment_operations`, `clipping`, `depth`, `conditional_rendering`, `multiview`.
+  - Resources / formats / presentation: `image`, `image_processing`, `texture`, `ycbcr`, `drm_format_modifiers`, `wsi`, `video`.
+  - Shader stages / shader execution: `geometry`, `tessellation`, `transform_feedback`, `ubo`, `ssbo`, `glsl`, `spirv_assembly`, `subgroups`, `compute`, `graphicsfuzz`, `reconvergence`.
+  - Modern / advanced features: `fragment_shader_interlock`, `fragment_shading_rate`, `fragment_shading_barycentric`, `mesh_shader`, `ray_query`, `ray_tracing_pipeline`, `cooperative_vector`, `tensor`, `data_graph`, `dgc`.
+- Render category names as small monospace chips, not as dense prose.
+- Add a bottom callout: "This talk covered one representative path; the same documentation effort makes the larger suite navigable."
+- Avoid telling the audience to read CTS source code as the normal path. Mention source only as authority/confirmation, not as the main consumption route.
 
 ## 15: Three Takeaways
 

@@ -889,6 +889,110 @@
     .p13-synthesis-card { padding: 14px 20px; }
     .p13-synthesis-card p { font-size: 18px; line-height: 1.4; color: var(--fg); }
     .p13-synthesis-card em { color: var(--yellow); font-style: normal; font-weight: 800; }
+
+    .p14-stack { gap: 14px; width: 100%; align-items: stretch; }
+    .p14-table-card { padding: 20px 24px; }
+    .p14-table-card h3 { margin: 0 0 8px; color: var(--fg); font-size: 24px; }
+    .p14-table-note { color: var(--muted); font-size: 15px; line-height: 1.35; margin-bottom: 12px; }
+    .p14-area-table { display: grid; gap: 7px; width: 100%; }
+    .p14-area-row {
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      gap: 14px;
+      align-items: stretch;
+      padding: 8px 10px;
+      border: 1px solid rgba(125, 207, 255, 0.18);
+      border-radius: 12px;
+      background: rgba(13, 16, 28, 0.34);
+    }
+    .p14-area-name {
+      display: grid;
+      align-content: center;
+      color: var(--fg);
+      font: 800 15px/1.25 var(--sans);
+    }
+    .p14-area-count {
+      color: var(--dim);
+      font: 800 11px/1.2 var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 4px;
+    }
+    .p14-chip-list { display: flex; flex-wrap: wrap; gap: 5px 6px; align-content: center; }
+    .p14-chip {
+      color: var(--cyan);
+      border: 1px solid rgba(125, 207, 255, 0.26);
+      border-radius: 999px;
+      background: rgba(125, 207, 255, 0.07);
+      padding: 4px 7px;
+      font: 800 10.5px/1 var(--mono);
+      white-space: nowrap;
+    }
+    .p14-area-row.foundation .p14-chip { color: var(--blue); border-color: rgba(122, 162, 247, 0.32); }
+    .p14-area-row.sync .p14-chip { color: var(--yellow); border-color: rgba(224, 175, 104, 0.32); }
+    .p14-area-row.render .p14-chip { color: var(--green); border-color: rgba(158, 206, 106, 0.32); }
+    .p14-area-row.resource .p14-chip { color: var(--cyan); border-color: rgba(125, 207, 255, 0.32); }
+    .p14-area-row.shader .p14-chip { color: var(--purple); border-color: rgba(187, 154, 247, 0.32); }
+    .p14-area-row.modern .p14-chip { color: var(--red); border-color: rgba(247, 118, 142, 0.32); }
+    .p14-callout-card { padding: 14px 20px; }
+    .p14-callout-card p { color: var(--fg); font-size: 18px; line-height: 1.38; }
+    .p14-callout-card em { color: var(--yellow); font-style: normal; font-weight: 800; }
+
+    .p15-stack { gap: 24px; width: 100%; align-items: stretch; }
+    .p15-takeaways {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
+      width: 100%;
+      align-items: stretch;
+    }
+    .p15-card {
+      padding: 30px 28px;
+      min-height: 360px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 18px;
+      align-content: start;
+      position: relative;
+      overflow: hidden;
+    }
+    .p15-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -40px -70px auto;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(125, 207, 255, 0.16), transparent 68%);
+      pointer-events: none;
+    }
+    .p15-num {
+      color: var(--cyan);
+      font: 900 58px/1 var(--mono);
+      letter-spacing: -0.06em;
+    }
+    .p15-title {
+      color: var(--fg);
+      font: 900 30px/1.12 var(--sans);
+      letter-spacing: -0.03em;
+      margin: 0;
+    }
+    .p15-card p {
+      color: var(--muted);
+      font-size: 21px;
+      line-height: 1.42;
+      margin: 0;
+    }
+    .p15-card code { color: var(--cyan); font-size: 0.82em; }
+    .p15-card.accent-green .p15-num { color: var(--green); }
+    .p15-card.accent-yellow .p15-num { color: var(--yellow); }
+    .p15-card.accent-purple .p15-num { color: var(--purple); }
+    .p15-final-line { padding: 18px 24px; text-align: center; }
+    .p15-final-line p {
+      color: var(--fg);
+      font: 800 22px/1.35 var(--mono);
+      margin: 0;
+    }
+    .p15-final-line em { color: var(--yellow); font-style: normal; }
     .p07-resource { padding: 20px 22px; }
     .p07-res-head {
       display: flex;
@@ -1821,7 +1925,7 @@
       <aside class="notes">Page 12 is a contrast slide, not another full shader walkthrough. The left column is the baseline message_passing protocol already covered in pages 08-10. The middle column explains write_after_read as a timing inversion: it reads partner payload before the synchronization step, later the partner writes payload, and the early value should remain zero. The right column explains transitive as a visibility-chain test: invocations write payload, a representative invocation performs device-scope guard synchronization, and in transvis the representative distributes skip/visibility through workgroup synchronization before the rest of the workgroup reads partner payload. Speaker-only details: transitive uses sharedSkip, representative local invocation (0,0), and the transvis/nontransvis distinction. Visible slide should stay lightweight and comparative.</aside>
     </section>
 
-    <section class="slide active" data-title="Zooming Out: Other Test Families in memory_model">
+    <section class="slide" data-title="Zooming Out: Other Test Families in memory_model">
       <header class="slide-header">
         <div>
           <div class="kicker">Part C · Category View</div>
@@ -1882,6 +1986,87 @@
       </div>
       <footer class="footer"><span>memory_model is broader than release/acquire</span><span>←/→ · N notes · S presenter · O overview</span></footer>
       <aside class="notes">Page 13 expands from the message_passing-related families to the full memory_model category. The category has five registered families: message_passing, write_after_read, transitive, padding, and shared. The first three are synchronization and visibility tests rooted in vktMemoryModelMessagePassing.cpp and covered by MessagePassing.md. Padding is a different angle: std140 structure copies should write declared scalar members but not corrupt destination padding bytes. Shared is another angle: generated GLSL shared objects inside compute workgroups must preserve values across write, barrier, read, and compare steps for many scalar, vector, matrix, array, nested-struct, 16-bit, and 8-bit layouts. The takeaway is that memory_model is not only release/acquire; it is shader-visible memory correctness from several directions. The category page links these to three Level-3 pages: MessagePassing.md, Padding.md, and SharedLayout.md.</aside>
+    </section>
+
+    <section class="slide" data-title="Vulkan CTS Is Much Bigger Than memory_model">
+      <header class="slide-header">
+        <div>
+          <div class="kicker">Part C · Full Suite View</div>
+          <h2>Vulkan CTS Is Much Bigger<br/>Than <code>memory_model</code></h2>
+        </div>
+        <div class="slide-no">14 / 15</div>
+      </header>
+      <div class="content stack p14-stack">
+        <div class="card accent-blue p14-table-card">
+          <h3>53 test categories in Vulkan CTS, grouped by area</h3>
+          <p class="p14-table-note">This is a scale slide, not a new technical taxonomy: names are grouped lightly from the documented category index.</p>
+          <div class="p14-area-table">
+            <div class="p14-area-row foundation">
+              <div class="p14-area-name">Foundation / API objects<span class="p14-area-count">7 categories</span></div>
+              <div class="p14-chip-list"><span class="p14-chip">info</span><span class="p14-chip">api</span><span class="p14-chip">memory</span><span class="p14-chip">query_pool</span><span class="p14-chip">binding_model</span><span class="p14-chip">descriptor_indexing</span><span class="p14-chip">device_group</span></div>
+            </div>
+            <div class="p14-area-row sync">
+              <div class="p14-area-name">Synchronization / correctness<span class="p14-area-count">6 categories</span></div>
+              <div class="p14-chip-list"><span class="p14-chip">synchronization</span><span class="p14-chip">synchronization2</span><span class="p14-chip">memory_model</span><span class="p14-chip">robustness</span><span class="p14-chip">protected_memory</span><span class="p14-chip">sparse_resources</span></div>
+            </div>
+            <div class="p14-area-row render">
+              <div class="p14-area-name">Pipeline / rendering<span class="p14-area-count">12 categories</span></div>
+              <div class="p14-chip-list"><span class="p14-chip">pipeline</span><span class="p14-chip">shader_object</span><span class="p14-chip">renderpasses</span><span class="p14-chip">imageless_framebuffer</span><span class="p14-chip">dynamic_state</span><span class="p14-chip">draw</span><span class="p14-chip">rasterization</span><span class="p14-chip">fragment_operations</span><span class="p14-chip">clipping</span><span class="p14-chip">depth</span><span class="p14-chip">conditional_rendering</span><span class="p14-chip">multiview</span></div>
+            </div>
+            <div class="p14-area-row resource">
+              <div class="p14-area-name">Resources / formats / presentation<span class="p14-area-count">7 categories</span></div>
+              <div class="p14-chip-list"><span class="p14-chip">image</span><span class="p14-chip">image_processing</span><span class="p14-chip">texture</span><span class="p14-chip">ycbcr</span><span class="p14-chip">drm_format_modifiers</span><span class="p14-chip">wsi</span><span class="p14-chip">video</span></div>
+            </div>
+            <div class="p14-area-row shader">
+              <div class="p14-area-name">Shader stages / execution<span class="p14-area-count">11 categories</span></div>
+              <div class="p14-chip-list"><span class="p14-chip">geometry</span><span class="p14-chip">tessellation</span><span class="p14-chip">transform_feedback</span><span class="p14-chip">ubo</span><span class="p14-chip">ssbo</span><span class="p14-chip">glsl</span><span class="p14-chip">spirv_assembly</span><span class="p14-chip">subgroups</span><span class="p14-chip">compute</span><span class="p14-chip">graphicsfuzz</span><span class="p14-chip">reconvergence</span></div>
+            </div>
+            <div class="p14-area-row modern">
+              <div class="p14-area-name">Modern / advanced features<span class="p14-area-count">10 categories</span></div>
+              <div class="p14-chip-list"><span class="p14-chip">fragment_shader_interlock</span><span class="p14-chip">fragment_shading_rate</span><span class="p14-chip">fragment_shading_barycentric</span><span class="p14-chip">mesh_shader</span><span class="p14-chip">ray_query</span><span class="p14-chip">ray_tracing_pipeline</span><span class="p14-chip">cooperative_vector</span><span class="p14-chip">tensor</span><span class="p14-chip">data_graph</span><span class="p14-chip">dgc</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card accent-yellow p14-callout-card">
+          <p><em>This talk covered one representative path.</em> The same explanation-first wiki effort makes the much larger CTS landscape navigable.</p>
+        </div>
+      </div>
+      <footer class="footer"><span>one shader protocol → one category → a much larger conformance suite</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <aside class="notes">Page 14 is intentionally lightweight. It uses the 53 documented top-level categories from external/vulkancts/wiki/README.md as a factual anchor, but groups them into six broad areas instead of showing the original 53-row table. The group names are explanatory rather than normative: Foundation/API objects, Synchronization/correctness, Pipeline/rendering, Resources/formats/presentation, Shader stages/execution, and Modern/advanced features. The message is simply that memory_model is only one region of a gigantic conformance suite. This also supports the wiki value proposition: because the suite is this broad, engineers should primarily consume explanation-first wiki pages and only use source code for confirmation when necessary.</aside>
+    </section>
+
+    <section class="slide active" data-title="Three Takeaways">
+      <header class="slide-header">
+        <div>
+          <div class="kicker">Closing</div>
+          <h2>Three Takeaways</h2>
+        </div>
+        <div class="slide-no">15 / 15</div>
+      </header>
+      <div class="content stack p15-stack">
+        <div class="p15-takeaways">
+          <div class="card accent-green p15-card">
+            <div class="p15-num">01</div>
+            <h3 class="p15-title">Visibility contract</h3>
+            <p><code>message_passing</code> checks a precise rule: after observing the guard, the protected payload should be visible.</p>
+          </div>
+          <div class="card accent-yellow p15-card">
+            <div class="p15-num">02</div>
+            <h3 class="p15-title">Parameterized CTS coverage</h3>
+            <p>The same claim is tested across scopes, storage classes, synchronization forms, data types, and shader stages.</p>
+          </div>
+          <div class="card accent-purple p15-card">
+            <div class="p15-num">03</div>
+            <h3 class="p15-title">Readable engineering knowledge</h3>
+            <p>The wiki turns executable CTS logic into explanations that support triage, implementation, and future conformance work.</p>
+          </div>
+        </div>
+        <div class="card accent-blue p15-final-line">
+          <p>from one shader protocol <em>→</em> one CTS family <em>→</em> one larger documentation effort</p>
+        </div>
+      </div>
+      <footer class="footer"><span>representative case, controlled zoom-out, practical wiki value</span><span>←/→ · N notes · S presenter · O overview</span></footer>
+      <aside class="notes">Final slide. Keep it concise and do not add new technical material. The talk's arc was: first, why Vulkan CTS and the wiki work matter; second, a deep walkthrough of one representative message_passing case; third, a controlled zoom-out to nearby memory_model families, the broader memory_model category, and then the larger Vulkan CTS landscape. The three takeaways are the final message: message_passing tests a precise visibility contract; CTS expands that contract across many parameterized cases; and the wiki makes executable conformance logic readable and useful for engineering work.</aside>
     </section>
   </main>
 
