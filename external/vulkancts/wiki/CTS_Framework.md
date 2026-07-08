@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides a comprehensive understanding of how Vulkan CTS is organized, how tests are registered, executed, and verified.
+This document explains how Vulkan CTS is organized, how tests are registered, executed, and verified.
 
 ## 1. Vulkan CTS Organization Structure
 
@@ -681,15 +681,10 @@ public:
 
 ## Summary
 
-Vulkan CTS is a comprehensive test suite built on the dEQP framework with:
+Vulkan CTS is a test suite built on the dEQP framework. Tests are organized by category (api, memory, pipeline, etc.) and
+registered using a factory pattern. Parameters vary across formats, sizes, and features. Verification methods include return
+values, state queries, and output validation. A mustpass list defines the minimum tests for conformance. Results are reported as
+XML logs with Pass/Fail/Waiver/NotSupported. The framework supports Windows, Linux, Android, and macOS. Vulkan SC has a separate
+test suite for safety-critical systems.
 
-1. **Hierarchical Organization**: Tests organized by category (api, memory, pipeline, etc.)
-2. **Automated Registration**: Tests registered using factory pattern
-3. **Parameter Variation**: Comprehensive parameter testing across formats, sizes, features
-4. **Multiple Verification Methods**: Return values, state queries, output validation
-5. **Mustpass List**: Defined minimum tests for conformance
-6. **Detailed Reporting**: XML-based logs with Pass/Fail/Waiver/NotSupported
-7. **Platform Abstraction**: Supports Windows, Linux, Android, macOS
-8. **Vulkan SC Variant**: Separate test suite for safety-critical systems
-
-This framework ensures comprehensive validation of Vulkan implementations across all aspects of the API.
+The framework validates Vulkan implementations across all aspects of the API.

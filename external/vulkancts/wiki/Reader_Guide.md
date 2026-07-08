@@ -98,6 +98,30 @@ explain buffers, images, descriptors, memory bindings, attachments, or copyback 
 sections short. When a representative shader walkthrough is present, its `SPIR-V` subsection is a collapsed audit artifact: read it
 when you need compiler-produced assembly evidence, not as the primary explanation path.
 
+## Requesting Additional Shader Analysis
+
+Each Level-3 page includes at most three representative shader walkthroughs. If you need a walkthrough for a different CTS case
+or shader stage not covered by the page, you can request one. The `shader-analyzer` skill reconstructs the exact generated GLSL or
+HLSL for any registered CTS path by walking the source-controlled shader generator, and the `shader-disassembler` skill compiles,
+validates, and disassembles the result into SPIR-V assembly.
+
+Requested walkthroughs are written to a sidecar file next to the Level-3 page:
+
+```text
+external/vulkancts/wiki/testfiles/<category>/<Level3Page>_shader_analysis.md
+```
+
+To request a walkthrough, provide the exact CTS path and the target Level-3 page. For example (replace [contents] accordingly):
+
+```text
+Apply `shader-analyzer` skill on [dEQP-VK.memory_model.message_passing.ext.u32.noncoherent.atomic_atomic.atomicwrite.subgroup.payload_nonlocal.buffer.guard_nonlocal.buffer.comp].
+
+Write the walkthrough to the sidecar for [testfiles/memory_model/MessagePassing.md].
+```
+ 
+The analysis follows the same output contract as the walkthroughs already embedded in wiki pages: parameter values, purpose,
+structural design, annotated shader code, variation summary, and collapsed SPIR-V assembly.
+
 ## Terminology Used by This Wiki
 
 The wiki uses hierarchy terms consistently so that source-code framework terminology does not obscure reader-facing structure.
@@ -149,8 +173,7 @@ A practical reading path is:
 1. Open [memory_model.md](categories/memory_model.md) to identify the category theme and the relevant Level-3 page.
 2. Follow the navigation row for `message_passing`, `write_after_read`, and `transitive` to
    [vktMemoryModelMessagePassing.md](testfiles/memory_model/vktMemoryModelMessagePassing.md).
-3. Read the Level-3 `Overview` and `Test Families` sections to understand how `message_passing`, `write_after_read`, and
-   `transitive` differ.
+3. Read the Level-3 `Overview` and `Behavior Parameters` sections to understand how `message_passing`, `write_after_read`, and `transitive` differ.
 4. Use `Parameter Dimensions and Observed Values` to decode path components such as `ext`, `noncoherent`, `atomic_atomic`,
    `subgroup`, payload storage, guard storage, and shader stage.
 5. Read `Shader Analysis` for the representative payload/guard protocol, variant summary, and collapsed SPIR-V evidence if needed.
