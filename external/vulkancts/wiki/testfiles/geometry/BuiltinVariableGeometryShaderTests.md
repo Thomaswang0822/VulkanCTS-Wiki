@@ -12,7 +12,7 @@ boundaries, and the GLSL/HLSL source boundary?
 ## Background Knowledge
 
 - Geometry-shader built-ins are part of the shader-stage contract. This family checks whether the implementation preserves those
-  contracts when values enter the geometry stage, leave the geometry stage, or reach the fragment stage.
+  contracts when values enter, leave, or pass through the geometry stage to the fragment stage.
 - `gl_PrimitiveIDIn` is an input to the geometry shader. It identifies the input primitive currently being processed.
 - `gl_PrimitiveID` can be written by the geometry shader and then observed by the fragment shader. In this family, fragment color is
   selected from that geometry-written ID.
@@ -36,34 +36,6 @@ The two intermediate nodes are registered by
 The default mustpass list confirms the five executable paths at
 [geometry.txt](../../../mustpass/main/vk-default/geometry.txt#L15-L19).
 
-## Intermediate Nodes
-
-### `in_block` — GLSL built-ins declared through interface blocks
-
-The `in_block` intermediate node contains four leaves:
-
-| Test case leaf | Built-in focus | Essential mechanism |
-|----------------|----------------|---------------------|
-| `point_size` | `gl_PointSize` | The vertex shader forwards a secondary attribute; the geometry shader writes `gl_PointSize = value + 1.0` and emits one white point. |
-| `primitive_id_in` | `gl_PrimitiveIDIn` | A line-strip geometry shader colors generated triangles from `colors[gl_PrimitiveIDIn % 4]`. |
-| `primitive_id_in_restarted` | `gl_PrimitiveIDIn` with primitive restart | Reuses the `primitive_id_in` shader but draws through an index buffer containing a `0xFFFF` restart marker. |
-| `primitive_id` | `gl_PrimitiveID` | The geometry shader writes a derived primitive ID, and the fragment shader maps `gl_PrimitiveID % 4` to a color. |
-
-The shared point, line, and attribute data come from
-[genVertexAttribData()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L103-L132). The indexed
-restart variant switches from `vkCmdDraw` to `vkCmdDrawIndexed` in
-[drawCommand()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L161-L170).
-
-### `outside_block` — HLSL position pass-through
-
-The `outside_block` intermediate node contains one leaf, `position`. It uses a GLSL vertex shader and fragment shader, but the
-geometry shader is generated as HLSL. The HLSL geometry shader receives a triangle in `VSOut input[3]`, copies each input
-`SV_POSITION` to the output structure, and appends three vertices to a `TriangleStream<VSOut>`
-([HLSL generation](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L349-L365)).
-
-This leaf is less about complicated geometry and more about verifying that the HLSL geometry-stage position interface is accepted
-and mapped to the same position semantics expected by the rest of the Vulkan CTS pipeline.
-
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
@@ -74,6 +46,48 @@ and mapped to the same position semantics expected by the rest of the Vulkan CTS
 | Vertex data | five fixed positions and five fixed secondary attributes | Provides deterministic geometry and attribute values. | [genVertexAttribData()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L103-L120) |
 | Indexed restart | off for four leaves; on for `primitive_id_in_restarted` | Tests `gl_PrimitiveIDIn` across an explicit `0xFFFF` primitive-restart marker. | [restart indices](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L121-L130) |
 | Validation target | reference PNG named after the leaf | The rendered image is compared with `vulkan/data/geometry/<leaf>.png`. | [compareWithFileImage()](../../../modules/vulkan/geometry/vktGeometryTestsUtil.cpp#L412-L425) |
+
+## Behavior Parameters
+
+The primary behavioral axis is the executable test case leaf. The `in_block` and `outside_block` intermediate nodes still matter
+because they separate GLSL interface-block cases from the HLSL position case, but each leaf chooses a distinct built-in contract,
+shader shape, draw path, or validation image.
+
+### `in_block.point_size` — geometry-written point size
+
+This leaf checks whether a geometry shader can write `gl_PointSize` through an explicit GLSL `gl_PerVertex` output block. The
+vertex shader forwards the secondary attribute, the geometry shader writes `gl_PointSize = value + 1.0`, emits one white point, and
+the reference image verifies the resulting point sizes. This is the only leaf with the extra `shaderTessellationAndGeometryPointSize`
+feature gate.
+
+### `in_block.primitive_id_in` — input primitive ID for line-strip geometry input
+
+This leaf checks whether `gl_PrimitiveIDIn` has the expected value for each line primitive consumed by the geometry shader. The
+geometry shader uses `colors[gl_PrimitiveIDIn % 4]`, so a wrong input primitive ID changes the color pattern in the output image.
+It uses non-indexed `vkCmdDraw` over the fixed five-vertex line strip.
+
+### `in_block.primitive_id_in_restarted` — input primitive ID across primitive restart
+
+This leaf uses the same `gl_PrimitiveIDIn` shader behavior as `primitive_id_in`, but changes the host draw path to indexed drawing
+with indices `1, 4, 0xFFFF, 2, 1`. Its purpose is to isolate whether primitive restart splits the line strip and numbers the
+geometry-shader input primitives as expected.
+
+### `in_block.primitive_id` — geometry-written primitive ID observed by fragment shading
+
+This leaf checks the output `gl_PrimitiveID` path. The vertex shader forwards a secondary attribute, the geometry shader writes
+`int(floor(value)) + 3` to `gl_PrimitiveID` for each emitted triangle vertex, and the fragment shader maps `gl_PrimitiveID % 4` to a
+color table. The reference image therefore verifies that the geometry-written ID reaches fragment shading.
+
+### `outside_block.position` — HLSL `SV_POSITION` geometry-stage pass-through
+
+This leaf checks the mixed-language position path. The vertex and fragment shaders are GLSL, while the geometry shader is HLSL and
+copies `SV_POSITION` from `triangle VSOut input[3]` into a `TriangleStream<VSOut>`. The fixed yellow fragment output makes the
+emitted triangle shape and placement the observable signal.
+
+The shared point, line, and attribute data come from
+[genVertexAttribData()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L103-L132). The indexed
+restart variant switches from `vkCmdDraw` to `vkCmdDrawIndexed` in
+[drawCommand()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L161-L170).
 
 ## Shader Analysis
 
@@ -451,158 +465,6 @@ void main(triangle VSOut input[3], inout TriangleStream<VSOut> TriStream)
 
 </details>
 
-### Representative Shader Walkthrough 2
-
-#### Parameter Values Chosen
-
-Representative path:
-
-```text
-dEQP-VK.geometry.builtin_variable.outside_block.position
-```
-
-| Parameter choice | Meaning in this representative case |
-|------------------|-------------------------------------|
-| Intermediate node | `outside_block`, so the geometry shader is generated as HLSL instead of GLSL `gl_PerVertex` block syntax. |
-| Input topology | Triangle strip, so each geometry shader invocation receives a triangle as `input[3]`. |
-| Position semantic | `SV_POSITION` carries the position field through the HLSL `VSOut` structure. |
-| Output stream | `TriangleStream<VSOut>` appends three vertices, preserving the triangle positions. |
-| Fragment color | Fixed yellow; visible correctness comes from whether the HLSL geometry stage emits the expected triangle. |
-
-#### Purpose
-
-This shader verifies the HLSL geometry-stage position path used by the `outside_block.position` leaf. The important behavior is that
-`SV_POSITION` inputs are accepted for a geometry shader, copied to output `SV_POSITION`, and emitted through the HLSL triangle stream
-in a form that produces the expected reference image.
-
-#### Structural Design
-
-| Step | Shader behavior | Why it matters |
-|------|-----------------|----------------|
-| HLSL interface struct | `VSOut` contains only `float4 Position : SV_POSITION`. | Keeps the case focused on position semantic mapping rather than user varyings. |
-| Geometry input | The entry point receives `triangle VSOut input[3]`. | Matches the triangle-strip topology selected for `TEST_POSITION`. |
-| Output stream | The entry point writes `output.Position` and calls `TriStream.Append(output)` three times. | Emits the same three positions as one triangle. |
-| Validation signal | The fragment shader writes fixed yellow. | Any wrong position mapping or missing stream append changes the rendered triangle image. |
-
-#### Shader Code
-
-The HLSL geometry shader is the primary shader for this walkthrough because it is the only HLSL-generated stage in the family and
-contains the tested `SV_POSITION` interface.
-
-##### Geometry Shader
-
-```hlsl
-/// The only geometry-stage payload is the position semantic. CTS uses the same struct for input and output.
-struct VSOut
-{
-    float4 Position : SV_POSITION;
-};
-
-/// The source requests room for up to 10 emitted vertices, although this exact case appends only 3.
-[maxvertexcount(10)]
-void main(triangle VSOut input[3], inout TriangleStream<VSOut> TriStream)
-{
-    VSOut output;
-
-    /// Copy the first triangle vertex position from geometry input to output stream.
-    output.Position = input[0].Position;
-    TriStream.Append(output);
-
-    /// Copy the second triangle vertex position.
-    output.Position = input[1].Position;
-    TriStream.Append(output);
-
-    /// Copy the third triangle vertex position, completing one emitted triangle.
-    output.Position = input[2].Position;
-    TriStream.Append(output);
-}
-```
-
-#### Additional Info
-
-- The HLSL shader text is selected only for `TEST_POSITION` and is inserted through `sourceCollections.hlslSources.add("geometry")`
-  ([HLSL insertion](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L349-L365)).
-- The vertex shader for this leaf still comes from the GLSL path and writes both `v_position = a_position` and
-  `gl_Position = a_position`; the HLSL geometry shader consumes the position semantic rather than that user varying
-  ([vertex shader branch](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L240-L247)).
-- The fragment shader is fixed yellow, so this walkthrough's validation signal is the emitted triangle shape and placement rather
-  than a color table
-  ([fragment shader branch](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L406-L412)).
-
-#### Parameter Variation Summary
-
-| Variation | Shader/runtime change | Evidence |
-|-----------|-----------------------|----------|
-| `outside_block.position` | Uses HLSL `SV_POSITION` and `TriangleStream<VSOut>` in the geometry stage. | [HLSL geometry shader](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L349-L365) |
-| `in_block` leaves | Use GLSL geometry shaders with explicit `gl_PerVertex` declarations and built-in variables such as `gl_PointSize`, `gl_PrimitiveIDIn`, or `gl_PrimitiveID`. | [GLSL geometry branches](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L259-L347) |
-| Runtime topology | `TEST_POSITION` selects `VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP`, matching the HLSL geometry input. | [topology selection](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L91-L99) |
-
-#### SPIR-V
-
-- Status: generated and validated
-- Source: reconstructed HLSL from this walkthrough
-- Stage: `geom`
-- Target SPIRV version: `spirv1.0`
-
-<details>
-<summary>Click to expand SPIRV asm code</summary>
-
-```llvm
-; SPIR-V
-; Version: 1.0
-; Generator: Khronos Glslang Reference Front End; 10
-; Bound: 55
-; Schema: 0
-               OpCapability Geometry
-          %1 = OpExtInstImport "GLSL.std.450"
-               OpMemoryModel Logical GLSL450
-               OpEntryPoint Geometry %main "main" %TriStream_Position %input_Position
-               OpExecutionMode %main Triangles
-               OpExecutionMode %main Invocations 1
-               OpExecutionMode %main OutputTriangleStrip
-               OpExecutionMode %main OutputVertices 10
-               OpSource HLSL 500
-               OpName %main "main"
-               OpName %TriStream_Position "TriStream.Position"
-               OpName %input_Position "input.Position"
-               OpDecorate %TriStream_Position BuiltIn Position
-               OpDecorate %input_Position BuiltIn Position
-       %void = OpTypeVoid
-          %3 = OpTypeFunction %void
-      %float = OpTypeFloat 32
-    %v4float = OpTypeVector %float 4
-       %uint = OpTypeInt 32 0
-     %uint_3 = OpConstant %uint 3
-        %int = OpTypeInt 32 1
-      %int_0 = OpConstant %int 0
-%_ptr_Output_v4float = OpTypePointer Output %v4float
-%TriStream_Position = OpVariable %_ptr_Output_v4float Output
-      %int_1 = OpConstant %int 1
-      %int_2 = OpConstant %int 2
-%_arr_v4float_uint_3 = OpTypeArray %v4float %uint_3
-%_ptr_Input__arr_v4float_uint_3 = OpTypePointer Input %_arr_v4float_uint_3
-%input_Position = OpVariable %_ptr_Input__arr_v4float_uint_3 Input
-%_ptr_Input_v4float = OpTypePointer Input %v4float
-       %main = OpFunction %void None %3
-          %5 = OpLabel
-         %47 = OpAccessChain %_ptr_Input_v4float %input_Position %int_0
-         %48 = OpLoad %v4float %47
-         %50 = OpAccessChain %_ptr_Input_v4float %input_Position %int_1
-         %51 = OpLoad %v4float %50
-         %53 = OpAccessChain %_ptr_Input_v4float %input_Position %int_2
-         %54 = OpLoad %v4float %53
-               OpStore %TriStream_Position %48
-               OpEmitVertex
-               OpStore %TriStream_Position %51
-               OpEmitVertex
-               OpStore %TriStream_Position %54
-               OpEmitVertex
-               OpReturn
-               OpFunctionEnd
-```
-
-</details>
-
 ## Runtime Execution and Result Checking
 
 - Each leaf creates a 256x256 `VK_FORMAT_R8G8B8A8_UNORM` color attachment and a host-visible copyback buffer through the shared
@@ -623,9 +485,83 @@ void main(triangle VSOut input[3], inout TriangleStream<VSOut> TriStream)
   then applies integer-threshold position-deviation comparison when appropriate
   ([comparison helper](../../../modules/vulkan/geometry/vktGeometryTestsUtil.cpp#L412-L425)).
 
-A failure means the implementation produced pixels different from the CTS reference image. Because each leaf isolates one built-in
-contract, the failing leaf usually indicates whether the likely issue is point size, input primitive ID, primitive restart handling,
-output primitive ID propagation, or HLSL position handling.
+## Failure Meaning
+
+### Failure Cause Mapping
+
+| If this behavior parameter value fails | Possible failure cause(s) |
+|----------------------------------------|---------------------------|
+| `in_block.point_size` | Geometry-stage point-size output path mismatch. |
+| `in_block.primitive_id_in` | Incorrect input primitive ID assignment for geometry-shader line input. |
+| `in_block.primitive_id_in_restarted` | Incorrect primitive-restart splitting or primitive ID assignment after restart. |
+| `in_block.primitive_id` | Incorrect geometry-written `gl_PrimitiveID` propagation to fragment shading. |
+| `outside_block.position` | Incorrect HLSL `SV_POSITION` mapping or geometry stream emission. |
+
+If all or most leaves fail together, the likely cause shifts away from one built-in variable and toward shared geometry-shader
+execution, vertex input, render target, copyback, or reference-image comparison infrastructure.
+
+### Cause Analysis
+
+#### Geometry-stage point-size output path mismatch
+
+**Possible failure symptoms:** for `in_block.point_size`, the rendered white points have the wrong size or placement relative
+to `point_size.png`.
+
+**Possible implementation causes:** the test derives point size from the secondary vertex attribute and writes it as
+`gl_PointSize = value + 1.0` in the geometry shader, so the failure points to a problem in accepting, lowering, or applying
+geometry-stage `gl_PointSize` writes, or in using that built-in during point rasterization. Because this leaf is gated by
+`shaderTessellationAndGeometryPointSize`, a failure after the support check means the feature was advertised but the rendered behavior
+did not match the CTS reference.
+
+#### Incorrect input primitive ID assignment for geometry-shader line input
+
+**Possible failure symptoms:** for `in_block.primitive_id_in`, the observable error is a wrong color pattern: the geometry
+shader chooses colors from `gl_PrimitiveIDIn % 4` for each consumed line primitive.
+
+**Possible implementation causes:** the geometry shader may receive incorrect primitive IDs for line-strip input, or the
+primitive ID value may not be preserved correctly through shader compilation and geometry-stage execution. Since the fragment shader
+only forwards the color produced by the geometry shader, this leaf mainly isolates the input-side primitive ID contract.
+
+#### Incorrect primitive-restart splitting or primitive ID assignment after restart
+
+**Possible failure symptoms:** for `in_block.primitive_id_in_restarted`, the shader logic is the same as `primitive_id_in`;
+the distinguishing behavior is the indexed draw with a `0xFFFF` restart marker. A failure specific to this leaf means the
+implementation may split the line strip incorrectly at the restart marker, count primitives incorrectly after the restart, or feed an
+unexpected `gl_PrimitiveIDIn` value to the geometry shader for the restarted segment.
+
+**Possible implementation causes:** a failure shared with `primitive_id_in` is less specific and should first be read as a
+basic `gl_PrimitiveIDIn` problem rather than a restart-specific problem. A failure unique to this leaf points to primitive-restart
+assembly or post-restart primitive numbering.
+
+#### Incorrect geometry-written `gl_PrimitiveID` propagation to fragment shading
+
+**Possible failure symptoms:** for `in_block.primitive_id`, emitted triangles receive the wrong colors from the fragment
+shader's `colors[gl_PrimitiveID % 4]` table.
+
+**Possible implementation causes:** the geometry shader writes a deterministic ID from the forwarded vertex attribute
+before each `EmitVertex()`, so a mismatch can mean the write to the output built-in is dropped, substituted with the input primitive
+ID, assigned to the wrong emitted primitive, or not delivered to fragment shading. This leaf specifically tests the geometry-output
+to fragment-input path for `gl_PrimitiveID`.
+
+#### Incorrect HLSL `SV_POSITION` mapping or geometry stream emission
+
+**Possible failure symptoms:** for `outside_block.position`, the fragment shader always writes yellow, so color is not the main
+signal. A failure means the emitted triangle's shape, location, or coverage differs from `position.png`, or the HLSL geometry stage
+does not emit the expected three vertices.
+
+**Possible implementation causes:** the likely implementation areas are HLSL `SV_POSITION` mapping into the SPIR-V
+`Position` built-in, geometry-shader input array handling for `triangle VSOut input[3]`, or `TriangleStream<VSOut>` append lowering.
+
+#### Shared geometry render or image-comparison path mismatch
+
+**Possible failure symptoms:** when multiple unrelated leaves fail together, the common path becomes more important than the
+individual built-in contracts. A broad failure can come from common geometry-shader execution, vertex input interpretation, color
+attachment rendering, image copyback, host-visible memory invalidation, or reference-image comparison setup.
+
+**Possible implementation causes:** the shared path creates the RGBA8 render target, binds fixed vertex data, executes the
+geometry pipeline, copies the image to a host-visible buffer, and compares it with a reference PNG. Source-level investigation is
+needed to separate a shared CTS infrastructure problem from an implementation problem when the failure is not isolated to one behavior
+parameter value.
 
 ## Case Pruning
 
@@ -639,7 +575,7 @@ output primitive ID propagation, or HLSL position handling.
 
 ### Design-based pruning
 
-- The family intentionally keeps one leaf per targeted built-in behavior instead of generating a large parameter matrix.
+- The family keeps one leaf per targeted built-in behavior instead of generating a large parameter matrix.
 - Only `primitive_id_in` has a primitive-restart companion leaf, because primitive restart specifically changes input-primitive
   formation and therefore can affect `gl_PrimitiveIDIn`.
 - The HLSL path is limited to `outside_block.position`; adding HLSL variants for every GLSL built-in leaf would duplicate the core
@@ -647,19 +583,18 @@ output primitive ID propagation, or HLSL position handling.
 
 ## Key Takeaways
 
-- `geometry.builtin_variable` is a compact set of focused built-in-variable image tests, not a broad geometry-shader matrix.
+- `geometry.builtin_variable` is a compact set of built-in-variable image tests, not a broad geometry-shader matrix.
 - The `in_block` leaves validate GLSL interface-block behavior for point size and primitive IDs.
 - `primitive_id_in_restarted` is the only indexed case, and its purpose is specifically to check `gl_PrimitiveIDIn` across a
   primitive-restart boundary.
 - `outside_block.position` covers a mixed GLSL/HLSL path where the geometry shader expresses position through `SV_POSITION`.
-- All leaves share the same render/copyback/reference-image comparison infrastructure, so the visible output image is the final
-  conformance signal.
+- All leaves share the same render/copyback/reference-image comparison infrastructure; use `## Failure Meaning` to distinguish
+  leaf-specific built-in failures from shared-path failures.
 
 ## Source Reference Appendix
 
 | Topic | Source link |
 |-------|-------------|
-| Old source-navigation page preserved | [vktGeometryBuiltinVariableGeometryShaderTests.md](vktGeometryBuiltinVariableGeometryShaderTests.md) |
 | Primary source file | [vktGeometryBuiltinVariableGeometryShaderTests.cpp](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L1) |
 | Built-in mode enum | [VariableTest](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L64-L70) |
 | Test-instance constructor and topology selection | [BuiltinVariableRenderTestInstance::BuiltinVariableRenderTestInstance()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L91-L101) |

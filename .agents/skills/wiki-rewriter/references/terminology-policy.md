@@ -12,6 +12,10 @@ Use `intermediate node` for deeper path components below a test family, such as 
 
 Use `test case` or `test case leaf` for final executable leaves, such as `3` in `dEQP-VK.memory_model.shared.16bit.arrays_of_arrays.3`.
 
+### Category vs test category
+
+Prefer the full phrase `test category` over the bare word `category` in authored prose. The bare word is ambiguous and can be read as a generic grouping rather than a registered CTS hierarchy node. The Chinese equivalent must be `测试类别`, not the bare `类别`.
+
 ## Terms To Avoid
 
 Do not call a test category a `node`.
@@ -23,6 +27,8 @@ Avoid `below-family node`; use `intermediate node` instead.
 Avoid `test group` in authored wiki prose unless explicitly quoting or explaining CTS internal/framework terminology.
 
 Avoid `subgroup` as a wiki hierarchy term because it conflicts with Vulkan subgroup terminology.
+
+Avoid the bare word `category` when referring to a CTS test category; use `test category` instead.
 
 ## Technical Terms
 

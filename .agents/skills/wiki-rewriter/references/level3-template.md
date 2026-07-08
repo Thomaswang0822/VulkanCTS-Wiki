@@ -48,7 +48,7 @@ Keep exact registered path names. Do not use `node` for the test category or the
 do not expand unrelated siblings or delegated test families beyond the `(registration only)` marker.
 
 The parseable tree must expand exactly one level below its root. Do not include deeper descendants, `...`, or descriptive
-placeholder lines inside the fenced tree. Put deeper test case leaves and large generated ranges in `## Intermediate Nodes`,
+placeholder lines inside the fenced tree. Put deeper test case leaves and large generated ranges in `## Behavior Parameters`,
 `## Parameter Dimensions and Observed Values`, or prose tables instead.
 
 Examples:
@@ -81,38 +81,10 @@ memory_model.padding
 └── test
 ```
 
-## <Scope-Specific Structure Section>
-
-Choose the heading based on the page scope. Keep this section even when the structure is trivial, so special cases are explicit.
-
-Use one of these headings:
-
-- `## Test Families` when the page covers multiple test families.
-- `## Intermediate Nodes` when the page covers one test family, including when that test family has no intermediate nodes.
-
-Rules:
-
-- For multiple-test-family pages, keep one subsection for each implemented test family.
-- For one-test-family pages with meaningful intermediate nodes, use `## Intermediate Nodes` and keep one subsection for each
-  intermediate node that needs explanation.
-- For one-test-family pages with no intermediate nodes, use `## Intermediate Nodes` but do not create fake subsections. Add a brief
-  statement that the path goes directly from the test family to the test case leaf or leaves.
-- Use `node` only for intermediate path components below the page's test family; do not use `node` as an alias for the test category
-  or the Level-3 test family/page scope.
-- If the source file also performs registration, mention that responsibility briefly in `Overview` or `Registration Hierarchy`, but
-  keep the page focused on implemented test behavior.
-
-### <test family or intermediate node name> — <very brief description>
-
-Use a concept-first explanation for each subsection when subsections are needed. A useful default shape is:
-
-- one sentence for the property being tested;
-- one sentence for the essential test mechanism;
-- one sentence for relation to other test families, intermediate nodes, special cases, or delegated pages when relevant.
-
-Keep source links as evidence, but do not let line references dominate the explanation.
-
 ## Parameter Dimensions and Observed Values
+
+This section comes before `## Behavior Parameters`. The order is: all parameter dimensions first (the full matrix inventory),
+then the primary behavioral axis (the one dimension that most controls test behavior, explained in depth).
 
 Use this section when the page has a generated matrix, parameterized test families, or important observed values.
 
@@ -129,6 +101,40 @@ Guidelines:
 - If a page has no meaningful parameter matrix, keep this section short or omit it.
 - Explain what each dimension changes in the test design, shader behavior, resource layout, execution mode, or validation logic.
 - Keep values and registered test names exact.
+
+## Behavior Parameters
+
+This section explains the registered parameter that most directly controls test behavior. Identify the primary behavioral axis —
+the registered dimension whose values change *what is being tested*, not just configuration details — and explain each of its
+values in a subsection.
+
+The behavioral axis can be any registered dimension depending on the test family:
+
+- the test case leaf, when leaves are the primary behavior choice (for example, `geometry.layered` where each leaf changes shader
+  logic and validation);
+- an intermediate node, when nodes below the test family are the primary behavior choice (for example, `memory_model.shared` where
+  layout nodes like `scalar_types` or `nested_structs_arrays` are the behavior axis);
+- a test family, when the page covers multiple families that each test a different property (for example, `memory_model` where
+  `message_passing`, `write_after_read`, and `transitive` are the behavior axis);
+- a behavioral group, when leaves cluster into groups with distinct mechanisms (for example, `geometry.basic` where leaves group
+  into fixed-output, runtime-varying, and side-effect behaviors).
+
+Rules:
+
+- Use `### <parameter value name> — <very brief description>` subsections for each value of the primary behavioral axis.
+- For families with multiple important behavioral axes, use multiple groups of subsections, each introduced by a short paragraph
+  identifying the axis.
+- For a test family with no meaningful behavioral axis (for example, a single fixed test case), state that briefly and do not create
+  artificial subsections.
+- Use a concept-first explanation for each subsection. A useful default shape is:
+  - one sentence for the property being tested;
+  - one sentence for the essential test mechanism;
+  - one sentence for relation to other parameter values, special cases, or delegated pages when relevant.
+- Keep source links as evidence, but do not let line references dominate the explanation.
+- If the source file also performs registration, mention that responsibility briefly in `Overview` or `Registration Hierarchy`, but
+  keep the page focused on implemented test behavior.
+- Do not use `node` as an alias for the test category or the test family. Use `intermediate node`, `test case leaf`, or `test
+  family` per the terminology policy when referring to hierarchy positions.
 
 ## Shader Analysis
 
@@ -167,10 +173,61 @@ Useful content includes:
 - resource clearing or synchronization between runs;
 - result copyback;
 - host-side result scan;
-- final pass/fail condition;
-- what a recorded failure means for this specific test.
+- final pass/fail condition.
 
-Avoid repeating detailed shader analysis here. Focus on how shader-observed failures become CTS case results.
+Avoid repeating detailed shader analysis here. Focus on how shader-observed failures become CTS case results. Detailed failure analysis belongs in `## Failure Meaning`, not here.
+
+## Failure Meaning
+
+Explain what a failure of this test means. This section has two fixed subsections.
+
+### Failure Cause Mapping
+
+If an Understanding Brief exists for this page, copy its `### Failure Cause Mapping` table directly from the brief's
+`## What Failure Means` section. Do not craft a new table from scratch when a brief is available.
+
+If no brief exists, map each value of the primary behavioral axis (the axis identified in `## Behavior Parameters`) to the possible
+failure cause(s) that value's failure would point to. Use a table:
+
+| If this behavior parameter value fails | Possible failure cause(s) |
+|----------------------------------------|---------------------------|
+| `<value>` | <cause description> |
+
+Rules:
+
+- The left column uses the same parameter values documented in `## Behavior Parameters`.
+- For families with multiple behavioral axes, use multiple small tables, one per axis.
+- The right column names the cause concisely. Detailed explanation goes in `### Cause Analysis`.
+- If all values share a common failure cause (for example, shared infrastructure), add a row or short paragraph after the table.
+- For a test family with no behavioral axis (single fixed test case), replace the table with a short paragraph stating the cause
+  directly.
+
+### Cause Analysis
+
+Explain each cause named in `### Failure Cause Mapping` in its own `#### <cause name>` subsection.
+
+For each cause, address two questions using the bold lead-in pattern:
+
+**Possible failure symptoms:** the observable failure symptom, derived from what the test actually checks (its validation
+  logic, pass/fail condition, or expected output). This is always written because it is derivable from the test's own checking.
+
+**Possible implementation causes:** the driver, hardware, compiler, or host-side behavior that would produce that
+  symptom. Write this only when the cause can be grounded in Vulkan spec semantics, GPU architecture knowledge, or CTS source
+  inspection. If no evidence-based cause can be found, state that source-level investigation is needed rather than inventing one.
+
+Use the exact bold lead-in labels `**Possible failure symptoms:**` and `**Possible implementation causes:**` so
+the pattern is consistent across all pages and easy to scan.
+
+Rules:
+
+- Derive each page's failure analysis case by case from what that specific test exercises. Do not apply preconceived assumptions
+  about where bugs live (GPU hardware, driver, host); the failure mode depends on what the test checks.
+- The depth of `### Cause Analysis` scales with the number of distinct mechanisms the test exercises. A single-mechanism test gets
+  one short subsection; a multi-mechanism test gets more.
+- Do not add subsections for causes that have no meaningful analysis. No padding.
+- Do not repeat the full runtime execution or behavior parameters content here. Focus on what failure means.
+- If a cause has sub-mechanisms that need separate analysis, use **bold lead-in paragraphs** within the `####` subsection instead of
+  deeper headings. For example: `**Depth/stencil layered rendering.** <analysis>` as a paragraph inside `#### Attachment load and copyback failures`.
 
 ## Case Pruning
 
@@ -210,9 +267,9 @@ Rules:
 
 - Keep takeaways specific to this file, test family, or intermediate node.
 - Avoid generic statements that could be copied to many pages.
-- Prefer conclusions about what the test proves, what failures mean, and which design choices are central.
-- When possible, state what hardware-level, architecture-level, driver-level, or compiler/codegen mistakes this test can expose.
-- Do not repeat the full shader walkthrough or runtime section.
+- Prefer conclusions about what the test proves and which design choices are central.
+- Reference `## Failure Meaning` for failure analysis instead of duplicating it here.
+- Do not repeat the full shader walkthrough, runtime section, or failure-meaning section.
 
 Examples for `memory_model` / `message_passing`:
 

@@ -6,7 +6,7 @@
 
 | English | 中文 | 说明 |
 |---------|------|------|
-| test category | 测试类别 | Level-2 路径组件，例如 `memory_model` |
+| test category | 测试类别 | Level-2 路径组件，例如 `memory_model`。不要简化为"类别"。 |
 | test family | 测试子族 | Level-3 页面范围或路径组件，例如 `shared`、`padding` |
 | intermediate node | 中间节点 | 测试子族下面的中间路径组件，例如 `16bit`、`arrays_of_arrays` |
 | node | 节点 | 仅用于 `intermediate node` 语境；不要用来指测试类别或测试子族 |
@@ -30,6 +30,13 @@
 | implementation evidence | 实现证据 |
 | parameter dimension | 参数维度 |
 | observed value | 可确认的取值 |
+| behavior parameter | 行为参数 |
+| behavior parameter value | 行为参数取值 |
+| failure meaning | 失败含义 |
+| failure cause mapping | 失败原因映射 |
+| cause analysis | 原因分析 |
+| possible failure symptoms | 可能的失败表现 |
+| possible implementation causes | 可能的实现原因 |
 | support requirement | 支持条件 |
 | feature requirement | feature 要求 |
 | runtime execution | runtime 执行逻辑 |

@@ -153,22 +153,33 @@ Useful questions:
 
 Prefer concise lists or tables.
 
+## Behavior Parameter Identification
+
+State the primary behavioral axis and its candidate values for user confirmation before writing the failure analysis below.
+
+> **Behavior parameter:** `<axis name>` (for example: behavior leaf, intermediate node, test family, or behavioral group)
+>
+> **Candidate values:** `<value 1>`, `<value 2>`, ...
+
+If the identification is wrong, the failure analysis below will need to be redone together. Keep this block brief and eye-catching.
+
 ## What Failure Means
 
-Explain what kind of implementation bug a failure suggests.
+### Failure Cause Mapping
 
-Examples:
+Map each behavior parameter value to the possible failure cause(s) that value's failure would point to. Use the same table format
+as the final Level-3 page's `### Failure Cause Mapping` so this table can be copied over directly.
 
-- incorrect shader compiler lowering;
-- wrong descriptor/resource binding behavior;
-- wrong memory layout or addressing;
-- missing synchronization, availability, or visibility;
-- incorrect format conversion;
-- wrong image layout transition behavior;
-- incorrect queue or pipeline ordering;
-- incorrect feature/limit handling.
+| If this behavior parameter value fails | Possible failure cause(s) |
+|----------------------------------------|---------------------------|
+| `<value>` | <cause description> |
 
-Avoid saying only “the test fails”. Explain why the failure is meaningful.
+Rules:
+
+- The left column uses the same values listed in `## Behavior Parameter Identification` above.
+- For families with multiple behavioral axes, use multiple small tables, one per axis.
+- The right column names the cause concisely. Do not include detailed analysis here — the detailed `### Cause Analysis` is written
+  during the final Level-3 rewrite, not in this brief.
 
 ## Important Variations and Special Cases
 
@@ -242,3 +253,10 @@ Examples:
 - Which concepts belong in the final wiki's `Background Knowledge` list?
 - Which brief-only explanations, analogies, or teaching scaffolding should be shortened or removed?
 - Which flow or resource table should be preserved in a more formal style?
+- The `### Failure Cause Mapping` table from `## What Failure Means` should be copied directly into the final page's
+  `## Failure Meaning` → `### Failure Cause Mapping`. The `### Cause Analysis` subsection is written fresh during the final
+  rewrite, not carried from the brief.
+- After the brief is complete, assess whether built-in knowledge is sufficient to write grounded `### Cause Analysis` for every
+  cause in the mapping. If any cause's implementation-level explanation cannot be grounded in Vulkan spec semantics, GPU
+  architecture knowledge, or CTS source inspection, flag it here as a KB gap. A domain knowledge-base file should be created
+  before the final rewrite begins. See `wiki-rewriter/SKILL.md` Step 4 for the KB gap assessment procedure.

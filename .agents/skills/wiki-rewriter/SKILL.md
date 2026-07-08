@@ -37,9 +37,47 @@ Load references as needed:
 - `references/understanding-brief-template.md` when writing an Understanding Brief;
 - `references/terminology-policy.md` before writing reader-facing hierarchy prose;
 - `references/validation-checklist.md` before reporting completion;
-- `references/pilot-examples.md` when a style or structure example is needed.
+- `references/pilot-examples.md` when a style or structure example is needed;
+- `references/gpu-knowledge/<domain>.md` when a domain knowledge-base file exists for the current domain (see Step 4).
 
 Keep template files as templates. Keep workflow decisions in this `SKILL.md`. Keep terminology and validation as separate concerns.
+Domain KB files under `references/gpu-knowledge/` are on-demand knowledge resources, not templates.
+
+## Mandatory Language Worker Dependencies
+
+This skill invokes the English language worker skills as mandatory quality gates for rewritten wiki prose.
+
+Required global worker skills:
+
+| Worker skill | Global install source | Purpose in this workflow |
+|---|---|---|
+| `humanizer` | `blader/humanizer` | Main English naturalness audit for rewritten wiki prose. |
+| `stop-slop` | `hardikpandya/stop-slop` | Final English directness and residual AI-pattern pass. |
+
+Before rewriting any user-facing page, confirm both worker skills are installed globally under `~/.agents/skills/`. Accept either
+of these checks:
+
+```bash
+npx skills ls -g
+```
+
+or direct presence of:
+
+```text
+~/.agents/skills/humanizer/SKILL.md
+~/.agents/skills/stop-slop/SKILL.md
+```
+
+If any required worker skill is missing, STOP before rewriting and ask the user to install the missing skill globally:
+
+```bash
+npx skills add blader/humanizer -g
+npx skills add hardikpandya/stop-slop -g
+```
+
+The language workers are mandatory for every rewritten Level-2 and Level-3 user-facing English wiki page. 
+They are language-quality passes only. 
+They must not change factual claims, evidence scope, source links, registered paths, identifiers, code blocks, shader assembly, mustpass references, filenames, or Vulkan/CTS terminology that must remain exact.
 
 ## Output File Rules
 
@@ -169,7 +207,9 @@ For Level-3 pages, identify whether the old page covers:
 
 Do not make ordinary rewritten Level-3 pages for pure registration-only category files. If the old page is registration-only, report that it should be represented by Level-2 navigation unless the user explicitly asks for a manual exception.
 
-For Level-2 pages, wait until relevant Level-3 rewritten pages are stable when possible. Use Level-2 pages as compact category gateways, not smaller technical deep dives.
+When a Level-3 page covers multiple test families, state the structural reason for grouping them: they are rooted in the same implementation file, or one is in-place while others are delegated to separate files. Do not describe the grouping using shader-content qualifiers such as "shader-heavy", because that conflates "uses shaders" with "is the primary implementation file" and creates ambiguity in translation.
+
+For Level-2 pages, wait until relevant Level-3 rewritten pages are stable when possible. Use Level-2 pages as compact test category gateways, not smaller technical deep dives.
 
 ### 3. Decide whether an Understanding Brief is required
 
@@ -181,17 +221,54 @@ Create an Understanding Brief before the final Level-3 rewrite when any conditio
 - inability to confidently summarize the core mechanism in a few sentences;
 - direct rewriting risks producing source-navigation documentation.
 
-Direct rewrite is allowed only for mechanical pages where the core property, execution flow, validation rule, important variants, and failure meaning are clear.
+Direct rewrite is allowed only for mechanical pages where the core property, execution flow, validation rule, important variants,
+and failure meaning are clear. When a brief is written, its `## Behavior Parameter Identification` and `### Failure Cause Mapping`
+table are prepared for user confirmation and later copy into the final page.
 
 When a brief is required, write it from `references/understanding-brief-template.md`. Use the template as the document shape. Do not insert general workflow rationale into the brief itself.
 
 After writing an Understanding Brief, stop only if the brief records unresolved risk points that affect final page semantics, representative walkthrough selection, or validation claims. If the brief's audit questions are resolved by inspected source, registration, mustpass, shader, or validation evidence, continue directly to the rewrite in the same task.
 
-### 4. Rewrite Level-3 pages
+### 4. Knowledge-base gap assessment
+
+After an Understanding Brief is complete (including its `### Failure Cause Mapping` table), assess whether built-in knowledge is
+sufficient to write grounded `### Cause Analysis` for every cause in the mapping.
+
+This step applies only when an Understanding Brief was written. Skip it entirely for direct-rewrite pages where no brief was needed.
+
+For each cause in the brief's `### Failure Cause Mapping` table:
+- **Failure symptoms** are almost always derivable from the test's own validation logic and CTS source. If they are not, the brief
+  is incomplete; return to the brief and resolve the gap.
+- **Implementation causes** require grounding in Vulkan spec semantics, GPU architecture knowledge, or CTS source inspection.
+  Assess honestly whether you can explain each cause at the depth the `### Cause Analysis` section requires.
+
+Decision:
+- If you can ground every cause's implementation-level explanation -> proceed to Step 5 without a KB.
+- If one or more causes cannot be grounded -> build a domain knowledge-base file before proceeding to Step 5.
+
+**Building a KB file:**
+- Create `references/gpu-knowledge/<domain>.md` under this skill directory.
+- Name the file after the Vulkan domain, not the CTS category. For example, `ray_tracing.md` for acceleration structure
+  traversal and shader binding table semantics, or `subgroup_operations.md` for ballot/shuffle/reduce execution model.
+- Curate content from the Vulkan spec at `external/vulkan-docs/src/chapters/`, the SPIR-V spec, GPU architecture references, and
+  CTS source inspection. Focus on the specific concepts that the Cause Analysis needs, not a general tutorial.
+- Keep each KB file concise and scoped to the gap that triggered it. Do not create a comprehensive GPU textbook.
+- Stop and report the new KB file path to the user before proceeding to the rewrite.
+
+**Loading existing KB files:**
+- Before starting Step 5, check whether `references/gpu-knowledge/` contains a KB file relevant to the current domain.
+- If a relevant KB file exists, load it before writing `### Cause Analysis`.
+- If no relevant KB file exists and no gap was identified, proceed with built-in knowledge.
+
+This assessment is silent by default. It only interrupts the workflow when a knowledge gap is found and a KB file needs to be
+created. Pages where built-in knowledge is sufficient proceed without any KB overhead.
+
+### 5. Rewrite Level-3 pages
 
 Use the skeleton in `references/level3-template.md`. Scale sections by explanatory value:
 - expand `Shader Analysis` for shader-heavy pages;
 - expand `Runtime Execution and Result Checking` for host-behavior-heavy pages;
+- expand `Failure Meaning` for pages with multiple distinct failure mechanisms;
 - expand resource explanations for resource-heavy pages;
 - keep simple pages short;
 - do not force tables, diagrams, or long prose when they do not clarify the specific test.
@@ -202,9 +279,30 @@ For `## Registration Hierarchy`, keep the fenced tree parseable and exactly one 
 - do not include nested descendants, `...`, or descriptive placeholder lines inside the tree;
 - explain deeper test case leaves, generated ranges, and large matrices in the structure, parameter, or prose sections instead.
 
+For `## Behavior Parameters`:
+- identify the primary behavioral axis — the registered dimension whose values change what is being tested;
+- use `### <parameter value name> — <very brief description>` subsections for each value of that axis;
+- if an Understanding Brief exists, carry its `## Behavior Parameter Identification` conclusion into this section;
+- configuration dimensions (data type, size, count, format, etc.) belong in `## Parameter Dimensions and Observed Values`, not here.
+
+For `## Failure Meaning`:
+- if an Understanding Brief exists, copy its `### Failure Cause Mapping` table directly into `### Failure Cause Mapping`; do not
+  craft a new table from scratch;
+- write `### Cause Analysis` fresh during the rewrite — it is not carried from the brief;
+- for each cause, state what specifically could go wrong (derived from the test's validation logic) and what could cause it in the
+  implementation (only when grounded in Vulkan spec semantics, GPU architecture knowledge, or CTS source inspection);
+- derive each page's failure analysis case by case from what that specific test exercises; do not apply preconceived assumptions
+  about where bugs live (GPU hardware, driver, host);
+- if a domain knowledge-base file was loaded in Step 4, use it to ground implementation-level claims; cite the KB concept, not the
+  KB file, in the final page;
+- if not confident about an implementation-level claim, search the relevant Vulkan spec chapter at
+  `external/vulkan-docs/src/chapters/` to verify before stating it; if still unverified, state that source-level investigation is
+  needed rather than inventing a cause;
+- scale the depth of `### Cause Analysis` to the number of distinct mechanisms; do not pad with empty subsections.
+
 Focus every section on test behavior. Keep C++ details as supporting evidence. Move source-navigation material to the final source appendix.
 
-### 5. Integrate shader walkthroughs
+### 6. Integrate shader walkthroughs
 
 Keep `## Shader Analysis` in every Level-3 page.
 
@@ -225,7 +323,7 @@ For representative shader walkthroughs:
 
 Use `shader-analyzer` auto mode only when the exact source file, builder function, target rewritten page, and insertion location are known. Otherwise use manual mode and stop at its confirmation checkpoint before continuing the Level-3 rewrite.
 
-### 6. Rewrite Level-2 pages
+### 7. Rewrite Level-2 pages
 
 Use the skeleton in `references/level2-template.md`.
 
@@ -236,16 +334,63 @@ Write Level-2 pages as category gateways:
 - route readers to rewritten Level-3 pages;
 - avoid duplicating Level-3 matrices, shader walkthroughs, validation mechanics, feature gates, or source appendices.
 
-### 7. Audit before completion
+### 8. Mandatory English language-worker pass
+
+After the rewritten English page is technically complete and before final validation, invoke the required language worker skills in
+this exact order:
+
+1. `humanizer`
+2. `stop-slop`
+
+Use `humanizer` for the main naturalness audit. Use `stop-slop` as the final directness and residual AI-pattern pass. Follow each
+worker skill's own instructions for how to perform its pass; this master skill only defines when the passes are required and the
+project-specific boundaries below.
+
+Project boundaries for both worker passes:
+- Treat the target voice as plain, natural, professional technical English.
+- Do not add personal voice, promotional tone, humor, rhetorical flourishes, or unsupported explanation.
+- Preserve all protected technical content exactly: inline code, code fences, registered paths, source links, filenames, function
+  names, shader identifiers, SPIR-V assembly, mustpass references, Vulkan/CTS terms, and evidence-backed claims.
+- Prefer conservative edits when a wording change could alter technical meaning or traceability.
+- If a worker-suggested wording conflicts with source evidence, registration evidence, shader/SPIR-V facts, or validation logic,
+  reject that wording and keep the technically safer version.
+
+The page is not complete until both worker passes have been applied.
+
+### 9. Audit before completion
 
 Apply `references/terminology-policy.md` to authored hierarchy prose.
 
 Run `references/validation-checklist.md` before reporting completion. At minimum, check:
 - semantic accuracy;
+- behavior parameter identification is correct and matches the behavioral axis;
+- failure cause mapping table aligns with behavior parameters;
+- cause analysis states what could go wrong for every cause; implementation causes are grounded or flagged as needing investigation;
+- if a KB gap was identified after the brief, a domain KB file was created and loaded before writing cause analysis;
+- no preconceived bug-location assumptions are present;
 - registration/mustpass coverage;
 - relative links;
 - shader/SPIR-V handling when applicable;
 - naming and title rules;
-- obsolete-page preservation.
+- obsolete-page preservation;
+- mandatory `humanizer` and `stop-slop` passes completed.
+
+For registration/mustpass coverage and relative links, use the existing validator scripts from `wiki-analyzer` rather than doing
+only a manual check:
+
+```bash
+python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category>
+```
+
+```bash
+python3 .agents/skills/wiki-analyzer/scripts/validate_wiki_links.py \
+  --wiki-dir external/vulkancts/wiki \
+  --files external/vulkancts/wiki/categories/<category>.md external/vulkancts/wiki/testfiles/<category>/*.md \
+  --repo-root . \
+  --verbose
+```
+
+Use `verify_registration_paths.py --wiki-file <path>` when auditing a single Level-3 page in isolation. Re-run the relevant
+validator until it passes or report the remaining validation failure explicitly.
 
 Report the new output file path and any unresolved risk points. Do not delete old pages.

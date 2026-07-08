@@ -48,10 +48,11 @@ README
 |-------------|------------|-----------|
 | Understand what a category covers | Level-2 `Overview` | `How the Families Fit Together` |
 | Find which page explains a test family | Level-2 `Category Structure` | `Level-3 Pages Navigation` |
-| Understand what one test family verifies | Level-3 `Overview` | `Test Families` or `Intermediate Nodes` |
+| Understand what one test family verifies | Level-3 `Overview` | `Behavior Parameters` |
 | Decode a generated test path | Level-3 `Registration Hierarchy` | `Parameter Dimensions and Observed Values` |
 | Understand generated shader behavior | Level-3 `Shader Analysis` | `Runtime Execution and Result Checking` |
 | Understand host-side execution and pass/fail logic | Level-3 `Runtime Execution and Result Checking` | `Key Takeaways` |
+| Understand what a failure means and what could cause it | Level-3 `Failure Meaning` | `Cause Analysis` subsections within it |
 | Understand why cases are unsupported, skipped, or absent | Level-3 `Case Pruning` | Source links in that section or the appendix |
 | Audit a wiki claim against source | Nearby inline source link | `Source Reference Appendix` |
 
@@ -83,12 +84,13 @@ family, or a closely related set of test families.
 | `Overview` | The core correctness question and page scope. |
 | `Background Knowledge` | Only the prerequisite concepts needed for this page. |
 | `Registration Hierarchy` | Where the documented behavior sits in CTS registered paths. |
-| `Test Families` / `Intermediate Nodes` | The meaning of direct test families or path components below a test family. |
 | `Parameter Dimensions and Observed Values` | What important path components or generated values change in behavior. |
+| `Behavior Parameters` | The primary behavioral axis — which registered parameter most directly controls test behavior, and how each value changes what is tested. |
 | `Shader Analysis` | Representative generated shader structure, data flow, synchronization, important variants, and collapsed SPIR-V assembly generated from the reconstructed GLSL when a walkthrough is present. |
 | `Runtime Execution and Result Checking` | Host-side setup, dispatch/draw/submit behavior, readback, and pass/fail decision. |
+| `Failure Meaning` | What a failure of this test means: a mapping from behavior parameter values to possible failure causes, and a detailed analysis of each cause. |
 | `Case Pruning` | Why possible cases are unsupported, invalid, redundant, or intentionally not generated. |
-| `Key Takeaways` | Page-specific conclusions, failure meaning, and likely bug classes. |
+| `Key Takeaways` | Page-specific conclusions about what the test proves and which design choices are central. |
 | `Source Reference Appendix` | Source and mustpass entry points for audit or deeper study. |
 
 Not every page expands every section equally. Shader-heavy pages should have stronger shader analysis; resource-heavy pages should

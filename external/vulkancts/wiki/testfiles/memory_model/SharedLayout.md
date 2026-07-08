@@ -8,8 +8,8 @@ steps for scalar, vector, matrix, array, nested-struct, 16-bit, and 8-bit layout
   [vktMemoryModelSharedLayoutCase.cpp](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayoutCase.cpp).
 - The test family generates compute shaders that declare GLSL `shared` objects, write generated values into their fields, run
   workgroup-memory barriers, read the fields back, and report success through a single storage-buffer counter.
-- The practical focus is shared-memory layout correctness: scalar, vector, matrix, array, array-of-array, nested-struct, 16-bit,
-  and 8-bit fields must remain addressable and comparable after being written in `shared` memory.
+- The test checks shared-memory layout correctness: scalar, vector, matrix, array, array-of-array, nested-struct, 16-bit,
+  and 8-bit fields must remain addressable and comparable after the shader writes them in `shared` memory.
 - The host does not create buffers for the generated shared objects. The only host-visible result resource is the `passed`
   storage buffer used to summarize shader-side checks.
 
@@ -41,25 +41,45 @@ The first seven entries are base intermediate layout nodes. The `16bit` and `8bi
 each repeating those same seven layout nodes with additional type candidates enabled
 [vktMemoryModelSharedLayout.cpp](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L295-L327).
 
-| Area | Layout nodes | Test cases per node | Total test cases | Meaning |
-|------|--------------|---------------------|------------------|---------|
-| base `memory_model.shared` | 7 | 10 | 70 | 32-bit and boolean scalar/vector/matrix/layout nodes. |
+| Area | Layout parameters | Test cases per parameter | Total test cases | Meaning |
+|------|-------------------|--------------------------|------------------|---------|
+| base `memory_model.shared` | 7 | 10 | 70 | 32-bit and boolean scalar/vector/matrix/layout parameters. |
 | `memory_model.shared.16bit` | 7 | 10 | 70 | Same layout shapes with 16-bit type candidates allowed. |
 | `memory_model.shared.8bit` | 7 | 10 | 70 | Same layout shapes with 8-bit type candidates allowed. |
 | Total | 21 | 10 | 210 | Deterministic randomized layout test cases across all intermediate nodes. |
 
-## Intermediate Nodes
+## Parameter Dimensions and Observed Values
+
+| Dimension | Registered values | Meaning in this test | Evidence |
+|-----------|-------------------|----------------------|----------|
+| Layout shape parameter | `scalar_types`, `vector_types`, `basic_types`, `basic_arrays`, `arrays_of_arrays`, `nested_structs`, `nested_structs_arrays` | Controls whether generated shared-memory fields are simple leaves, vectors/matrices, arrays, nested arrays, structs, or combinations. | [registration loop](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L310-L326) |
+| Type-width branch | base, `16bit`, `8bit` | Repeats the same seven layout parameters with base types only, 16-bit candidates, or 8-bit candidates. | [three-pass node loop](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L295-L327) |
+| Test cases per layout parameter | `10`, named `0` through `9` | Provides deterministic random coverage within each layout parameter. | [createRandomCaseGroup()](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L94-L105) |
+| Base seeds | `0`, `25`, `50`, `50`, `950`, `100`, `150`, plus command-line base seed | Keeps random generation deterministic while giving each layout parameter a different starting seed range. | [case creation](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L94-L105), [registration loop](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L310-L326) |
+| Shared object count | `1` to `3` | Controls how many top-level GLSL `shared` objects are declared in the generated shader. | [RandomSharedLayoutCase constructor](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L108-L123) |
+| Members per shared object | `2` to `4` | Controls how many members each generated `S1` / `s1`-style object contains. | [generateSharedMemoryObject()](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L134-L143) |
+| Array length | `1` to `3` when arrays are enabled | Controls generated array sizes and therefore the number of leaf checks produced by flattening. | [array generation](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L185-L191) |
+| Type depth | `3` for struct or arrays-of-arrays layout parameters, otherwise `1` | Determines whether the random generator may recurse into nested structs or nested arrays. | [generateSharedMemoryVar()](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L145-L153) |
+| Base type candidates | `float`, `int`, `uint`, `bool`, optional vectors and matrices | Provides the ordinary 32-bit/bool value space checked by the base layout parameters. | [base type selection](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L234-L268) |
+| 16-bit candidates | `uint16`, `int16`, `float16`, optional 16-bit vectors | Adds narrow 16-bit fields that require feature gates and promoted comparison values. | [16-bit type selection](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L195-L218) |
+| 8-bit candidates | `uint8`, `int8`, optional 8-bit vectors | Adds narrow 8-bit integer fields that require feature gates and promoted comparison values. | [8-bit type selection](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L219-L233) |
+
+## Behavior Parameters
+
+The primary behavioral axis is the registered layout parameter: it changes the shape of the GLSL `shared` objects and therefore
+which addressing, flattening, and comparison paths the generated shader exercises. The type-width branch is a secondary
+configuration dimension that repeats the same layout behavior with base, 16-bit, or 8-bit candidate types.
 
 ### scalar_types — Scalar shared-memory layouts
 
 `scalar_types` generates cases whose checked members come from scalar type choices plus intentionally unused variables and
-members. Its role is to establish the simplest shared-memory object shapes before vectors, matrices, arrays, or nested structs
+members. Its role is to establish the smallest shared-memory object shapes before vectors, matrices, arrays, or nested structs
 are added [vktMemoryModelSharedLayout.cpp](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L310-L314).
 
 ### vector_types — Vector field layouts
 
-`vector_types` enables vector type candidates. These cases stress component addressing and vector storage in shared-memory
-objects while keeping the overall object structure comparatively simple
+`vector_types` enables vector type candidates. These cases exercise component addressing and vector storage in shared-memory
+objects while keeping the overall object structure small
 [vktMemoryModelSharedLayout.cpp](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L310-L314).
 
 ### basic_types — Scalars, vectors, and matrices
@@ -70,13 +90,13 @@ values, so the generated comparisons must handle matrix column/vector decomposit
 
 ### basic_arrays — Arrays of basic types
 
-`basic_arrays` adds array generation to the basic scalar/vector/matrix type set. The important change is that the flattening and
-write/compare generation must step through array elements rather than only standalone fields
+`basic_arrays` adds array generation to the basic scalar/vector/matrix type set. The flattening and write/compare generation
+must step through array elements rather than only standalone fields
 [vktMemoryModelSharedLayout.cpp](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L315-L316).
 
 ### arrays_of_arrays — Nested array layouts
 
-`arrays_of_arrays` enables both arrays and arrays-of-arrays. These cases stress recursive indexing and flattening through nested
+`arrays_of_arrays` enables both arrays and arrays-of-arrays. These cases exercise recursive indexing and flattening through nested
 array levels [vktMemoryModelSharedLayout.cpp](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L317-L320).
 
 ### nested_structs — Nested structure layouts
@@ -88,36 +108,20 @@ correct when the shader writes and compares individual leaves
 ### nested_structs_arrays — Structs combined with arrays
 
 `nested_structs_arrays` combines basic types, structs, arrays, and arrays-of-arrays. It is the most structurally complex base
-intermediate layout node because a check path may cross both struct-member and array-index boundaries
+layout parameter because a check path may cross both struct-member and array-index boundaries
 [vktMemoryModelSharedLayout.cpp](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L323-L326).
 
-### 16bit — 16-bit intermediate variants of the seven layout nodes
+### 16bit — 16-bit variants of the seven layout parameters
 
-`16bit` is an intermediate node that repeats the seven layout nodes with `FEATURE_16BIT_TYPES` enabled. The
+`16bit` is an intermediate node that repeats the seven layout parameters with `FEATURE_16BIT_TYPES` enabled. The
 same structural shapes are used, but type generation may choose `uint16`, `int16`, `float16`, and 16-bit vector forms
 [vktMemoryModelSharedLayout.cpp](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L195-L218).
 
-### 8bit — 8-bit intermediate variants of the seven layout nodes
+### 8bit — 8-bit variants of the seven layout parameters
 
-`8bit` is an intermediate node that repeats the seven layout nodes with `FEATURE_8BIT_TYPES` enabled. These
+`8bit` is an intermediate node that repeats the seven layout parameters with `FEATURE_8BIT_TYPES` enabled. These
 cases add `uint8`, `int8`, and 8-bit vector candidates, then rely on promotion-aware generated comparisons
 [vktMemoryModelSharedLayout.cpp](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L219-L233).
-
-## Parameter Dimensions and Observed Values
-
-| Dimension | Registered values | Meaning in this test | Evidence |
-|-----------|-------------------|----------------------|----------|
-| Layout shape node | `scalar_types`, `vector_types`, `basic_types`, `basic_arrays`, `arrays_of_arrays`, `nested_structs`, `nested_structs_arrays` | Controls whether generated shared-memory fields are simple leaves, vectors/matrices, arrays, nested arrays, structs, or combinations. | [registration loop](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L310-L326) |
-| Type-width branch | base, `16bit`, `8bit` | Repeats the same seven layout nodes with base types only, 16-bit candidates, or 8-bit candidates. | [three-pass node loop](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L295-L327) |
-| Test cases per layout node | `10`, named `0` through `9` | Provides deterministic random coverage within each layout node. | [createRandomCaseGroup()](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L94-L105) |
-| Base seeds | `0`, `25`, `50`, `50`, `950`, `100`, `150`, plus command-line base seed | Keeps random generation deterministic while giving each layout node a different starting seed range. | [case creation](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L94-L105), [registration loop](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L310-L326) |
-| Shared object count | `1` to `3` | Controls how many top-level GLSL `shared` objects are declared in the generated shader. | [RandomSharedLayoutCase constructor](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L108-L123) |
-| Members per shared object | `2` to `4` | Controls how many members each generated `S1` / `s1`-style object contains. | [generateSharedMemoryObject()](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L134-L143) |
-| Array length | `1` to `3` when arrays are enabled | Controls generated array sizes and therefore the number of leaf checks produced by flattening. | [array generation](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L185-L191) |
-| Type depth | `3` for struct or arrays-of-arrays layout nodes, otherwise `1` | Determines whether the random generator may recurse into nested structs or nested arrays. | [generateSharedMemoryVar()](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L145-L153) |
-| Base type candidates | `float`, `int`, `uint`, `bool`, optional vectors and matrices | Provides the ordinary 32-bit/bool value space checked by the base layout nodes. | [base type selection](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L234-L268) |
-| 16-bit candidates | `uint16`, `int16`, `float16`, optional 16-bit vectors | Adds narrow 16-bit fields that require feature gates and promoted comparison values. | [16-bit type selection](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L195-L218) |
-| 8-bit candidates | `uint8`, `int8`, optional 8-bit vectors | Adds narrow 8-bit integer fields that require feature gates and promoted comparison values. | [8-bit type selection](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L219-L233) |
 
 ## Shader Analysis
 
@@ -142,7 +146,7 @@ dEQP-VK.memory_model.shared.16bit.nested_structs_arrays.3
 #### Purpose
 
 This shader tests whether a complex 16-bit-capable GLSL `shared` memory layout can preserve every generated leaf value after
-shader-side writes, workgroup synchronization, and promoted comparisons. It is a concrete stress case for nested struct, array,
+shader-side writes, workgroup synchronization, and promoted comparisons. It is a representative case for nested struct, array,
 matrix, vector, and 16-bit field addressing.
 
 #### Structural Design
@@ -560,8 +564,7 @@ void main (void) {
   separate expected-value buffer for the shared-memory fields
   [generateValue()](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayoutCase.cpp#L90-L139),
   [generateSharedMemoryWrites()](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayoutCase.cpp#L197-L269).
-- The `16bit` branch is not only a naming prefix: it enables 16-bit type generation and requires the narrow-type support path before
-  this shader can run
+- The `16bit` branch also enables 16-bit type generation and requires the narrow-type support path before this shader can run
   [vktMemoryModelSharedLayout.cpp](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L195-L218),
   [SharedLayoutCase::checkSupport()](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayoutCase.cpp#L347-L358).
 
@@ -570,7 +573,7 @@ void main (void) {
 | Parameter dimension | GLSL-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | Type-width branch | Base cases omit `GL_EXT_shader_explicit_arithmetic_types`; 8-bit cases use `GL_EXT_shader_explicit_arithmetic_types_int8`; this 16-bit case emits 16-bit scalar and vector declarations plus promoted comparisons. | [extension emission](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayoutCase.cpp#L277-L280), [16-bit type selection](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L195-L218) |
-| Layout shape node | Less complex nodes remove parts of this structure: scalar/vector/basic nodes avoid nested struct-array paths, while `nested_structs_arrays` allows both recursive structs and array indexing. | [feature sets](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L310-L326), [recursive type generation](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L162-L191) |
+| Layout shape parameter | Smaller parameters remove parts of this structure: scalar/vector/basic parameters avoid nested struct-array paths, while `nested_structs_arrays` allows both recursive structs and array indexing. | [feature sets](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L310-L326), [recursive type generation](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L162-L191) |
 | Case number | The exact member graph and literals change with the deterministic random seed; case `3` is one concrete generated layout, not a hand-written sample. | [case seed construction](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L94-L105), [value generation](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayoutCase.cpp#L90-L139) |
 | Shared object count | This case generated three top-level shared objects; other cases may generate one, two, or three, changing declaration and write/compare volume. | [shared object loop](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L115-L123), [shared declarations](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayoutCase.cpp#L309-L310) |
 | Compare helper set | The helper functions are generated only for the basic types and dependencies present in the selected case. | [helper collection](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayoutCase.cpp#L178-L195), [helper emission](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayoutCase.cpp#L304-L307) |
@@ -2820,6 +2823,7 @@ void main (void) {
 ```
 
 </details>
+
 ## Runtime Execution and Result Checking
 
 - Before shader execution, delayed initialization flattens every generated shared-object member and generates expected values for
@@ -2844,6 +2848,73 @@ void main (void) {
 | Generated compute pipeline | Yes | Pipeline state | Executes generated code | No | Contains struct declarations, writes, barriers, and comparisons. |
 | Images, samplers, attachments, expected-value buffers | No | No | No | No | Not part of this test design. |
 
+## Failure Meaning
+
+### Failure Cause Mapping
+
+| If this behavior parameter value fails | Possible failure cause(s) |
+|----------------------------------------|---------------------------|
+| `scalar_types` | Basic shared-memory declaration, scalar addressing, write/read, comparison, or result-counter behavior failed. |
+| `vector_types` | Vector component storage or vector shared-memory addressing failed, or the common scalar/result path failed. |
+| `basic_types` | Matrix/vector decomposition, scalar/vector/matrix shared-memory layout, or comparison helper behavior failed. |
+| `basic_arrays` | Array element indexing or flattening failed for arrays of basic scalar, vector, or matrix types. |
+| `arrays_of_arrays` | Recursive array indexing, nested array layout, or flattened array-leaf comparison failed. |
+| `nested_structs` | Struct member layout, nested member addressing, or flattened struct-leaf comparison failed. |
+| `nested_structs_arrays` | Combined struct-member and array-index traversal failed in the most complex generated layout shape. |
+| `16bit` | 16-bit type declaration, feature-enabled shader compilation, narrow shared-memory access, promotion, or comparison failed. |
+| `8bit` | 8-bit type declaration, feature-enabled shader compilation, narrow shared-memory access, promotion, or comparison failed. |
+
+All values also share the same final result path: if the shader computes `allOk` correctly but the `passed` storage buffer is not
+updated or read back correctly, the host still observes a failed case.
+
+### Cause Analysis
+
+#### Generated shared-memory layout or addressing failure
+
+**Possible failure symptoms:** The shader reaches the compare phase but one or more reads from GLSL `shared` objects return a
+value different from the value written earlier. The host then observes `passed == 0` instead of the required `passed == 1`.
+Affected cases point to the layout parameter that generated the failing access pattern: simple scalar access for `scalar_types`,
+component access for `vector_types`, matrix column/vector access for `basic_types`, recursive indexing for array parameters, and
+member traversal for struct parameters.
+
+**Possible implementation causes:** The implementation may lower GLSL `shared` composite objects to workgroup storage with an
+incorrect offset, stride, component selection, matrix column layout, array index calculation, or struct member address. This is
+grounded in the generated shader structure: the CTS writes hard-coded values through flattened paths, then reads those same paths
+after `barrier(); memoryBarrier();` and compares each leaf independently.
+
+#### Narrow-type shared-memory and promotion failure
+
+**Possible failure symptoms:** `16bit` or `8bit` cases fail while the corresponding base layout shapes pass, or failures concentrate
+on generated fields that use `uint16`, `int16`, `float16`, `uint8`, `int8`, or narrow vector forms. The shader-side comparison can
+fail even though the same struct/array shape works with base 32-bit or boolean fields.
+
+**Possible implementation causes:** The implementation may mishandle the enabled narrow scalar or vector types in workgroup shared
+memory, or the shader compiler may lower conversions used by the generated comparison helpers incorrectly. The page's generated
+16-bit walkthrough shows the relevant pattern: narrow values are written to `shared` fields, then read back and promoted to 32-bit
+integer or floating-point comparison forms before `allOk` is reduced.
+
+#### Generated shader comparison or result reduction failure
+
+**Possible failure symptoms:** A case reports failure even though the shared-memory values would be correct, because the generated
+helper comparison, `allOk` reduction chain, or `passed++` result update does not reflect the field checks correctly. The host only
+reads the final counter, so any failure in this reduction path appears as an incorrect `passed` value.
+
+**Possible implementation causes:** The implementation may miscompile ordinary shader control/data flow, comparison helper calls,
+short-circuit-style boolean accumulation, or the storage-buffer increment used for the result. CTS source-level investigation is
+needed to distinguish such a reduction failure from an earlier shared-memory access failure, because both ultimately produce the
+same host-visible `passed != 1` symptom.
+
+#### Dispatch, synchronization, or readback path failure
+
+**Possible failure symptoms:** The result buffer contains a value other than `1` after a single-workgroup, single-invocation
+dispatch, even when shader generation and shared-memory access are otherwise correct. A zero value means the shader did not
+complete the successful increment path; another value would indicate an unexpected result-buffer update.
+
+**Possible implementation causes:** The dispatch, pipeline binding, descriptor binding, host-visible storage-buffer update, memory
+invalidation, or generated `barrier(); memoryBarrier();` ordering path may be wrong. Because this test uses one workgroup with one
+local invocation, a failure here is not evidence by itself of broken multi-invocation communication; source-level investigation
+should separate result-path problems from shared-memory layout/addressing problems.
+
 ## Case Pruning
 
 ### Requirement-based pruning
@@ -2859,14 +2930,14 @@ void main (void) {
 
 ### Design-based pruning
 
-- The generator uses layout-node feature flags to decide which shapes are meaningful for each layout node: arrays are disabled outside array
-  nodes, arrays-of-arrays are disabled outside the corresponding nodes, and struct recursion is enabled only for struct
-  nodes [vktMemoryModelSharedLayout.cpp](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L145-L153).
+- The generator uses layout-parameter feature flags to decide which shapes are meaningful for each layout parameter: arrays are disabled outside array
+  parameters, arrays-of-arrays are disabled outside the corresponding parameters, and struct recursion is enabled only for struct
+  parameters [vktMemoryModelSharedLayout.cpp](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L145-L153).
 - Array length is zero when arrays are not enabled and at most three when arrays are enabled, keeping random layouts bounded while
   still producing indexable shared-memory paths
   [vktMemoryModelSharedLayout.cpp](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L108-L113).
-- The dispatch shape is intentionally fixed to one local invocation and one workgroup. This makes the test a shared-memory layout
-  and access test rather than a multi-invocation communication test
+- The dispatch shape is fixed to one local invocation and one workgroup. This makes the test a shared-memory layout and access
+  test rather than a multi-invocation communication test
   [vktMemoryModelSharedLayoutCase.cpp](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayoutCase.cpp#L282-L285),
   [vktMemoryModelSharedLayoutCase.cpp](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayoutCase.cpp#L464-L468).
 
@@ -2880,8 +2951,8 @@ void main (void) {
   field.
 - `16bit` and `8bit` are real intermediate nodes that repeat the first seven layout nodes with additional
   narrow-type candidates and feature requirements.
-- Failures can indicate wrong shared-memory layout/addressing, incorrect compiler lowering for shared-memory objects, incorrect
-  narrow-type promotion/comparison behavior, or broken shader-side write/read synchronization around the generated barrier pattern.
+- The `Failure Meaning` section separates layout/addressing failures from narrow-type, result-reduction, and dispatch/readback
+  paths, because all of them can surface as the same host-visible `passed != 1` result.
 
 ## Source Reference Appendix
 

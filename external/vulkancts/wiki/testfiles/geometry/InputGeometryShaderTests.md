@@ -9,7 +9,7 @@ count, and adjacency data, and does its emitted output render as expected?
   triangle-strip-adjacency vertex-count sweep, and deliberate input-to-output primitive conversion.
 - Each test case generates a small graphics pipeline with vertex, geometry, and fragment shaders. The geometry shader
   expands each received `gl_in` entry into visible output, and the host compares the rendered image with a reference PNG.
-- The central failure signal is visual: a wrong input topology, wrong adjacency interpretation, wrong `gl_in.length()`,
+- The failure signal is visual: a wrong input topology, wrong adjacency interpretation, wrong `gl_in.length()`,
   or wrong output topology changes the rendered pattern.
 
 ## Background Knowledge
@@ -19,7 +19,7 @@ count, and adjacency data, and does its emitted output render as expected?
   `line_strip`, or `triangle_strip`.
 - Vulkan pipeline primitive topology and GLSL geometry-shader input layout must agree. For example,
   `VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY` maps to the geometry-shader input layout `lines_adjacency`.
-- The test intentionally amplifies geometry for observability. It is not modeling-style mesh subdivision; it emits a
+- The test amplifies geometry for observability. It is not modeling-style mesh subdivision; it emits a
   small repeated shape so image comparison can reveal whether the shader received the expected input vertices.
 - Validation is image-based. The test does not read back per-primitive records; it renders to a color attachment, copies
   the image to host-visible memory, and compares it against `vulkan/data/geometry/<test-name>.png`.
@@ -41,7 +41,21 @@ default mustpass list includes the corresponding `dEQP-VK.geometry.input.*` leav
 canonical tree, because the registration validator expects this block to contain exact one-level prefixes under the
 `geometry.input` test family.
 
-## Intermediate Nodes
+## Parameter Dimensions and Observed Values
+
+| Dimension | Registered values | Meaning in this test | Evidence |
+|-----------|-------------------|----------------------|----------|
+| Input topology for `basic_primitive` | `points`, `lines`, `line_strip`, `triangles`, `triangle_strip`, `triangle_fan`, `lines_adjacency`, `line_strip_adjacency`, `triangles_adjacency` | Selects both the Vulkan input assembly topology and the GLSL geometry input layout. | [inputPrimitives[]](../../../modules/vulkan/geometry/vktGeometryInputGeometryShaderTests.cpp#L267-L277) |
+| Output topology for `basic_primitive` | `points`, `line_strip`, `triangle_strip` | Chooses the geometry-shader output stream used to render the visible expanded shape. | [inputPrimitives[]](../../../modules/vulkan/geometry/vktGeometryInputGeometryShaderTests.cpp#L267-L277) |
+| Triangle-strip-adjacency draw vertex count | `0` through `12` | Exercises the fixed adjacency topology across small draw sizes. | [vertex-count loop](../../../modules/vulkan/geometry/vktGeometryInputGeometryShaderTests.cpp#L283-L290) |
+| Conversion pairs | `triangles_to_points`, `lines_to_points`, `points_to_lines`, `triangles_to_lines`, `points_to_triangles`, `lines_to_triangles` | Deliberately separates input primitive class from output primitive class. | [conversionPrimitives[]](../../../modules/vulkan/geometry/vktGeometryInputGeometryShaderTests.cpp#L293-L305) |
+| Generated maximum emitted vertices | input vertex count per primitive multiplied by 3 | Gives the shader enough output budget to emit three visible vertices for each `gl_in` entry. | [calcOutputVertices()](../../../modules/vulkan/geometry/vktGeometryTestsUtil.cpp#L349-L367) |
+
+## Behavior Parameters
+
+The primary behavioral axis is the intermediate node under the `geometry.input` test family. Each value checks a
+different geometry-shader input path: ordinary topology reception, fixed-topology vertex-count edge cases, or deliberate
+input/output primitive conversion.
 
 ### `basic_primitive` — ordinary topology reception
 
@@ -49,7 +63,7 @@ canonical tree, because the registration validator expects this block to contain
 inputs with the expected GLSL geometry input layout. Its output topology is not always textually identical to the input
 topology: line-like inputs render as `line_strip`, triangle-like inputs render as `triangle_strip`, point inputs render
 as `points`, and adjacency inputs emit non-adjacency output strips. This lets all cases use one common shader-expansion
-mechanism while preserving the broad primitive class that should be visible in the image.
+mechanism while preserving the primitive class that should be visible in the image.
 
 ### `triangle_strip_adjacency` — adjacency input with varying draw vertex counts
 
@@ -62,16 +76,6 @@ provides too few, exactly enough, or more than enough vertices to form triangle-
 `conversion` keeps the same generated shader shape but pairs an input topology with a different output topology. Examples
 include `triangles_to_points`, `lines_to_points`, and `points_to_triangles`. These cases check that the implementation
 can feed one primitive class into the geometry shader and emit another primitive class from it.
-
-## Parameter Dimensions and Observed Values
-
-| Dimension | Registered values | Meaning in this test | Evidence |
-|-----------|-------------------|----------------------|----------|
-| Input topology for `basic_primitive` | `points`, `lines`, `line_strip`, `triangles`, `triangle_strip`, `triangle_fan`, `lines_adjacency`, `line_strip_adjacency`, `triangles_adjacency` | Selects both the Vulkan input assembly topology and the GLSL geometry input layout. | [inputPrimitives[]](../../../modules/vulkan/geometry/vktGeometryInputGeometryShaderTests.cpp#L267-L277) |
-| Output topology for `basic_primitive` | `points`, `line_strip`, `triangle_strip` | Chooses the geometry-shader output stream used to render the visible expanded shape. | [inputPrimitives[]](../../../modules/vulkan/geometry/vktGeometryInputGeometryShaderTests.cpp#L267-L277) |
-| Triangle-strip-adjacency draw vertex count | `0` through `12` | Exercises the fixed adjacency topology across small draw sizes. | [vertex-count loop](../../../modules/vulkan/geometry/vktGeometryInputGeometryShaderTests.cpp#L283-L290) |
-| Conversion pairs | `triangles_to_points`, `lines_to_points`, `points_to_lines`, `triangles_to_lines`, `points_to_triangles`, `lines_to_triangles` | Deliberately separates input primitive class from output primitive class. | [conversionPrimitives[]](../../../modules/vulkan/geometry/vktGeometryInputGeometryShaderTests.cpp#L293-L305) |
-| Generated maximum emitted vertices | input vertex count per primitive multiplied by 3 | Gives the shader enough output budget to emit three visible vertices for each `gl_in` entry. | [calcOutputVertices()](../../../modules/vulkan/geometry/vktGeometryTestsUtil.cpp#L349-L367) |
 
 ## Shader Analysis
 
@@ -189,10 +193,10 @@ void main (void)
 #### Additional Info
 
 - The vertex shader is stable across this page's generated topology cases: it forwards position and color so the geometry
-  shader can test primitive reception while preserving a visible per-vertex color signal.
+  shader can test primitive reception while keeping a visible per-vertex color signal.
 - The fragment shader is stable across this representative line-output path: it writes the geometry shader's forwarded color
-  directly, so image differences come from geometry input and emission behavior rather than fragment logic.
-- The `lines_adjacency` input spelling comes from `inputTypeToGLString()` mapping both line adjacency Vulkan topologies
+  directly, so image differences come from geometry input and emission behavior, not fragment logic.
+- The `lines_adjacency` input spelling comes from `inputTypeToGLString()`, which maps both line adjacency Vulkan topologies
   to the same GLSL geometry input layout.
 - The output spelling comes from `outputTypeToGLString()`: both line-list and line-strip output requests generate
   `line_strip`, because geometry-shader line output is declared as a strip.
@@ -383,10 +387,80 @@ void main (void)
   `tcu::intThresholdPositionDeviationCompare()` with per-channel threshold `(1, 1, 1, 1)` and position deviation
   `(2, 2, 2)`.
 
-A failure means the final image no longer matches the expected topology-driven pattern. Depending on the leaf, that can
-point to wrong primitive assembly, wrong adjacency handling, wrong `gl_in` length, wrong output primitive emission,
-incorrect point-size handling for point output, or a shader-interface/rasterization issue that changes the colors or
-positions.
+## Failure Meaning
+
+### Failure Cause Mapping
+
+| If this behavior parameter value fails | Possible failure cause(s) |
+|----------------------------------------|---------------------------|
+| `basic_primitive` | Incorrect primitive-topology reception; incorrect adjacency input handling; incorrect geometry-shader output expansion or point-size handling; image-generation or comparison mismatch. |
+| `triangle_strip_adjacency` | Incorrect triangle-strip-with-adjacency assembly for small draw vertex counts; incorrect adjacency input handling; incorrect handling of draws that form zero or only a few primitives; image-generation or comparison mismatch. |
+| `conversion` | Incorrect separation of geometry-shader input and output primitive classes; incorrect geometry-shader output expansion or point-size handling; image-generation or comparison mismatch. |
+
+### Cause Analysis
+
+#### Incorrect primitive-topology reception
+
+**Possible failure symptoms:** for `basic_primitive`, the shader input layout must match the Vulkan primitive topology
+selected by the pipeline. The geometry shader may have received the wrong primitive class or the wrong number of `gl_in` entries for
+a leaf such as `points`, `lines`, or `triangles`. The visible symptom is a rendered pattern whose shape, offsets, or colors no longer
+match the reference image.
+
+**Possible implementation causes:** the relevant implementation area is primitive assembly feeding the geometry stage,
+including the mapping from Vulkan input-assembly topology to the GLSL geometry input execution mode generated by
+`inputTypeToGLString()`.
+
+#### Incorrect adjacency input handling
+
+**Possible failure symptoms:** adjacency leaves rely on the implementation making adjacent vertices available to the geometry
+shader in the expected `gl_in` positions. The shader may see too few vertices, vertices in the wrong order, or endpoint data where
+adjacency data should appear. Because the shader emits three visible vertices for every `gl_in` element, these mistakes change both
+the amount and placement of rendered output.
+
+**Possible implementation causes:** this cause is grounded in the page's adjacency cases: line adjacency maps to four
+input vertices, while triangle adjacency maps to six input vertices through the generated geometry input layout and
+`calcOutputVertices()`.
+
+#### Incorrect triangle-strip-with-adjacency assembly for small draw vertex counts
+
+**Possible failure symptoms:** `triangle_strip_adjacency` fixes the topology and varies only the draw vertex count from `0`
+through `12`. The implementation may form primitives when too few vertices are available, drop primitives when enough vertices are
+available, or mishandle the transition from zero formed primitives to valid triangle-strip-adjacency primitives.
+
+**Possible implementation causes:** the observed result is still an image mismatch, but the likely tested mechanism is
+small-count strip-with-adjacency primitive assembly rather than broad topology selection.
+
+#### Incorrect separation of input and output primitive classes
+
+**Possible failure symptoms:** `conversion` deliberately feeds one primitive class into the geometry shader and asks it to emit
+another. Wrong conversion behavior changes whether the visible output is points, line strips, or triangle strips. The rendered
+reference distinguishes cases such as `triangles_to_points`, `lines_to_points`, and `points_to_triangles`.
+
+**Possible implementation causes:** the implementation may incorrectly couple the input assembly topology to the geometry
+shader output topology, reject or lower a valid input/output combination incorrectly, or emit the wrong primitive stream after a
+valid geometry shader invocation.
+
+#### Incorrect geometry-shader output expansion or point-size handling
+
+**Possible failure symptoms:** all three behavior parameters share the same expansion pattern: the geometry shader loops over
+`gl_in.length()`, emits three offset vertices for each input entry, and calls `EndPrimitive()` after each three-vertex group.
+`EmitVertex()`, `EndPrimitive()`, output variable forwarding, `gl_PrimitiveIDIn` offsetting, or `max_vertices` handling may not
+produce the expected output stream. For point-list output, incorrect support for `GL_EXT_geometry_point_size` or `gl_PointSize` can
+also change the visible point result.
+
+**Possible implementation causes:** the runtime may select the `geometry_pointsize` variant for point-list output, so a
+failure after the support check means the point-size feature path was advertised but not correctly applied during point rasterization.
+
+#### Image-generation or comparison mismatch
+
+**Possible failure symptoms:** the final CTS verdict comes from comparing the rendered RGBA8 image against the PNG reference.
+A failure can come from behavior after geometry-shader execution: color attachment rendering, rasterization of the emitted primitive
+stream, image layout transitions, transfer to the host-visible buffer, cache invalidation, reference image loading, or the
+fuzzy/position-deviation comparison path.
+
+**Possible implementation causes:** these mechanisms are shared infrastructure for this page, so they are most plausible
+when failures are broad across otherwise different behavior parameter values rather than isolated to one topology or conversion leaf.
+Source-level investigation is needed when the failure is not isolated to one behavior parameter value.
 
 ## Case Pruning
 
@@ -395,16 +469,16 @@ positions.
 - All cases require the Vulkan `geometryShader` core feature.
 - `triangle_fan` is not run on portability-subset implementations when `triangleFans` is unsupported.
 - The point-list output path generates a `geometry_pointsize` variant and uses it only when the device supports the
-  required point-size behavior. This is a point-output special case, not the main organizing principle of the test family.
+  required point-size behavior. This is a point-output special case, not the organizing principle of the test family.
 
 ### Design-based pruning
 
-- `basic_primitive` does not attempt every possible input/output pair. It keeps the broad primitive class visible:
+- `basic_primitive` does not attempt every possible input/output pair. It keeps the primitive class visible:
   points render as points, line-like inputs render as line strips, and triangle-like inputs render as triangle strips.
-- `conversion` contains the deliberate cross-primitive pairs. This keeps ordinary topology reception separate from cases
+- `conversion` contains the cross-primitive pairs. This keeps ordinary topology reception separate from cases
   whose purpose is conversion.
 - `triangle_strip_adjacency` fixes the topology and varies only draw vertex count, so failures can be attributed to small
-  vertex-count handling for that adjacency topology rather than to a broader topology matrix.
+  vertex-count handling for that adjacency topology, not a broader topology matrix.
 
 ## Key Takeaways
 
@@ -412,12 +486,13 @@ positions.
   the selected Vulkan topology.
 - The 3x output amplification is a test-visibility technique. It turns each input vertex visible in the rendered image;
   it is not production mesh subdivision.
-- `basic_primitive` preserves the broad output primitive class but often uses strip output forms, because geometry-shader
+- `basic_primitive`, `triangle_strip_adjacency`, and `conversion` are the behavior parameters that separate ordinary
+  topology reception, small-count adjacency assembly, and input/output primitive conversion.
+- `basic_primitive` preserves the output primitive class but often uses strip output forms, because geometry-shader
   output declarations are `points`, `line_strip`, or `triangle_strip`.
-- `conversion` is where the page intentionally changes primitive class, such as triangles to points or points to
-  triangles.
-- The pass/fail decision is ultimately image comparison against reference PNGs, so geometry input mistakes become visible
-  pixel differences.
+- For failure interpretation, use [Failure Meaning](#failure-meaning): image mismatches are mapped back to the behavior
+  parameter that failed and then to topology reception, adjacency handling, output expansion, conversion, or shared
+  image/rendering causes.
 
 ## Source Reference Appendix
 

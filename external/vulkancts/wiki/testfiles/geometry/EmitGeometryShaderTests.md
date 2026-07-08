@@ -9,7 +9,7 @@ for point, line-strip, and triangle-strip topologies?
   count.
 - Each case draws one input point. The geometry shader emits zero or more fixed-position output vertices, optionally ends
   the current primitive one or more times, and the host compares the rendered image with a reference PNG.
-- The central failure signal is visual: output that appears, disappears, joins across a primitive boundary, or fails to
+- The failure signal is visual: output that appears, disappears, joins across a primitive boundary, or fails to
   appear when expected changes the reference image.
 
 ## Background Knowledge
@@ -60,31 +60,6 @@ appear in the default geometry mustpass list at
 [geometry.txt](../../../mustpass/main/vk-default/geometry.txt#L20-L42). The test family has no intermediate nodes below
 `geometry.emit`; every child in the tree is an executable test case leaf.
 
-## Intermediate Nodes
-
-`geometry.emit` goes directly from the test family to executable leaves. The leaves are organized by output topology and by
-the encoded emit/end sequence in the test case leaf name.
-
-### Point output leaves — zero or one visible point
-
-The `points_*` leaves use point output. They cover zero emitted vertices and one emitted vertex, with zero, one, or two
-`EndPrimitive()` calls. The important distinction is that `EndPrimitive()` alone must not produce a point, while one emitted
-vertex is enough to create point output.
-
-### Line-strip output leaves — minimum two-vertex line segments
-
-The `line_strip_*` leaves cover zero, one, or two emitted vertices. Zero or one emitted vertex must not create a visible line
-segment. Two emitted vertices can create a line segment, and the two-segment leaf
-`line_strip_emit_2_end_2_emit_2_end_0` checks that output after repeated termination becomes a separate strip segment rather
-than being joined to the first one.
-
-### Triangle-strip output leaves — minimum three-vertex triangles
-
-The `triangle_strip_*` leaves cover zero through three emitted vertices. Three emitted vertices are enough for one visible
-triangle, while zero, one, or two vertices should not produce a triangle. The two-segment leaf
-`triangle_strip_emit_3_end_2_emit_3_end_0` checks that a terminated first triangle and a later second triangle remain
-separate output segments.
-
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
@@ -95,6 +70,32 @@ separate output segments.
 | Segment B emitted vertices | `0`, `2`, `3` | Adds a second output segment in the line-strip and triangle-strip stress cases. | [two-segment registrations](../../../modules/vulkan/geometry/vktGeometryEmitGeometryShaderTests.cpp#L245-L255) |
 | Segment B `EndPrimitive()` calls | `0` in two-segment cases | Leaves the second segment unterminated at shader exit. | [name generation](../../../modules/vulkan/geometry/vktGeometryEmitGeometryShaderTests.cpp#L267-L273) |
 | Optional point-size path | `geometry_pointsize` for point output | Lets the shared base choose a point-size-writing geometry shader when applicable. | [point-size variant generation](../../../modules/vulkan/geometry/vktGeometryEmitGeometryShaderTests.cpp#L147-L150) |
+
+## Behavior Parameters
+
+The primary behavioral axis is the test case leaf, grouped by output topology. `geometry.emit` goes directly from the test
+family to executable leaves, and each leaf's name encodes the output topology plus the `EmitVertex()` and `EndPrimitive()`
+sequence.
+
+### Point output leaves — zero or one visible point
+
+The `points_*` leaves use point output. They cover zero emitted vertices and one emitted vertex, with zero, one, or two
+`EndPrimitive()` calls. The tested behavior is that `EndPrimitive()` alone must not produce a point, while one emitted
+vertex is enough to create point output.
+
+### Line-strip output leaves — minimum two-vertex line segments
+
+The `line_strip_*` leaves cover zero, one, or two emitted vertices. The tested behavior is that zero or one emitted vertex
+must not create a visible line segment, while two emitted vertices can create one line segment. The two-segment leaf
+`line_strip_emit_2_end_2_emit_2_end_0` checks that output after repeated termination becomes a separate strip segment rather
+than being joined to the first one.
+
+### Triangle-strip output leaves — minimum three-vertex triangles
+
+The `triangle_strip_*` leaves cover zero through three emitted vertices. The tested behavior is that three emitted vertices
+are enough for one visible triangle, while zero, one, or two vertices should not produce a triangle. The two-segment leaf
+`triangle_strip_emit_3_end_2_emit_3_end_0` checks that a terminated first triangle and a later second triangle remain
+separate output segments.
 
 ## Shader Analysis
 
@@ -390,9 +391,69 @@ void main (void)
 - Host validation compares the copied image with `vulkan/data/geometry/<test-name>.png` using the shared image comparison
   helper.
 
-A failure means the emitted geometry does not match the expected topology-and-sequence pattern. For example, a zero-emission
-case might incorrectly produce output, a line or triangle strip might rasterize with too few vertices, or a two-segment case
-might incorrectly connect vertices across an `EndPrimitive()` boundary.
+## Failure Meaning
+
+### Failure Cause Mapping
+
+| If this behavior parameter value fails | Possible failure cause(s) |
+|----------------------------------------|---------------------------|
+| `points_*` leaves | Point-output emission or termination handling is incorrect; point-size variant selection or point rasterization may also affect point visibility. |
+| `line_strip_*` leaves | Line-strip minimum-vertex handling, `EndPrimitive()` termination, or strip restart across a termination boundary is incorrect. |
+| `triangle_strip_*` leaves | Triangle-strip minimum-vertex handling, `EndPrimitive()` termination, or strip restart across a termination boundary is incorrect. |
+
+All behavior-parameter values also depend on the shared generated shader path, fixed vertex/color forwarding, render setup,
+copyback, and PNG image comparison path.
+
+### Cause Analysis
+
+#### Output primitive minimum-count handling
+
+**Possible failure symptoms:** A case with too few emitted vertices could still produce visible pixels, or a case with
+the minimum useful count could fail to produce its expected point, line segment, or triangle. The host observes this only as a
+reference-image mismatch: unexpected white geometry appears in a no-output reference, or expected white geometry is missing
+from a visible-output reference.
+
+**Possible implementation causes:** The tested behavior depends on the geometry stage assembling emitted vertices
+according to the declared output topology. For `points`, one emitted vertex is already a complete primitive; for
+`line_strip`, two emitted vertices are needed for one segment; for `triangle_strip`, three emitted vertices are needed for
+one triangle. A failure in this cause class points to incorrect geometry-stage output assembly, primitive formation, or
+rasterization of the geometry-stage output stream for the selected topology.
+
+#### `EndPrimitive()` termination and redundant termination handling
+
+**Possible failure symptoms:** `EndPrimitive()` could create output without preceding `EmitVertex()` calls, remove a
+valid primitive that was already emitted, or treat repeated termination as meaningful geometry. In the single-segment leaves,
+that appears as extra pixels in zero-emission cases or missing pixels in cases that emitted enough vertices before
+termination.
+
+**Possible implementation causes:** These cases exercise geometry-stage stream termination rather than host-side
+state changes: the generated shader inserts the requested number of `EndPrimitive()` instructions directly after the emitted
+vertices. A failure points to incorrect handling of strip or primitive finalization in the geometry shader output stream,
+including the no-op behavior expected when a termination call has no active complete primitive to finish.
+
+#### Strip segmentation across `EndPrimitive()` boundaries
+
+**Possible failure symptoms:** In the two-segment `line_strip` and `triangle_strip` leaves, vertices emitted after the
+repeated `EndPrimitive()` sequence could be incorrectly joined with the first segment. The resulting line or triangle pattern
+would differ from the reference PNG because geometry would cross a boundary that should split the strip.
+
+**Possible implementation causes:** The source generates a first complete strip segment, two `EndPrimitive()`
+calls, and then a second complete segment without a final `EndPrimitive()` call. A failure in this cause class points to
+incorrect stream-boundary tracking in geometry-shader output assembly, especially failure to reset strip connectivity after
+termination or incorrect implicit finalization at shader invocation exit.
+
+#### Shared rendering, forwarding, and image-comparison path
+
+**Possible failure symptoms:** The geometry-stage sequence could be correct, but the final image could still mismatch
+if the single input point, forwarded white color, generated point-size variant, color attachment copyback, or reference-image
+comparison path is wrong. The visible symptom is still a PNG comparison failure, but it would not necessarily isolate
+`EmitVertex()` or `EndPrimitive()` semantics.
+
+**Possible implementation causes:** This page reuses the shared geometry render path: one point-list draw, a
+256x256 RGBA8 color attachment, copyback to a host-visible buffer, and comparison against `vulkan/data/geometry/<test-name>.png`.
+If source-level investigation shows the emitted primitives are correct, the next likely evidence path is the surrounding
+pipeline, point-size variant selection, color forwarding, transfer synchronization, or image comparison logic documented in
+the runtime section and appendix.
 
 ## Case Pruning
 
@@ -402,7 +463,7 @@ might incorrectly connect vertices across an `EndPrimitive()` boundary.
 
 ### Design-based pruning
 
-- The matrix is intentionally topology-sensitive instead of exhaustive. Point output stops at one emitted vertex because that
+- The matrix is topology-sensitive instead of exhaustive. Point output stops at one emitted vertex because that
   is enough to prove point visibility. Line-strip output reaches two emitted vertices because that is the minimum visible
   line segment. Triangle-strip output reaches three emitted vertices because that is the minimum visible triangle.
 - Only line-strip and triangle-strip outputs include two-segment cases, because strip segmentation is the behavior that
@@ -414,7 +475,8 @@ might incorrectly connect vertices across an `EndPrimitive()` boundary.
   and one color.
 - The case names are semantic: they directly encode output topology, emitted-vertex count, and primitive-termination count.
 - Repeated `EndPrimitive()` calls must not create geometry by themselves or disturb later output.
-- Two-segment cases can expose implementations that incorrectly join strips across a termination boundary.
+- Two-segment cases can expose strip-connectivity bugs across a termination boundary; `## Failure Meaning` explains how to
+  separate that from shared render or image-comparison failures.
 
 ## Source Reference Appendix
 

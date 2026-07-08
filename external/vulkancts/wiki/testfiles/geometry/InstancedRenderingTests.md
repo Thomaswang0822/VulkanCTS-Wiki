@@ -14,7 +14,7 @@ for every instance/invocation pair?
 
 - Draw instancing is the API form of the common “draw many copies of one object” technique: a renderer can reuse one mesh, such
   as a model, while per-instance data supplies the transform, color, or object-specific parameters for each copy.
-- This test uses the same idea in a deliberately minimal form. The shared “mesh” is only one point, and the per-instance data is
+- This test uses the same idea in a minimal form. The shared “mesh” is one point, and the per-instance data is
   one position per point instance. The vertex binding advances once per instance through `VK_VERTEX_INPUT_RATE_INSTANCE`, so
   instance 0 reads position 0, instance 1 reads position 1, and so on.
 - Geometry shader invocations are separate executions of the geometry shader for the same input primitive. The invocation count is
@@ -58,22 +58,6 @@ All children are executable test case leaves registered by
 mustpass list confirms these cases at
 [geometry.txt](../../../mustpass/main/vk-default/geometry.txt#L71-L94).
 
-## Intermediate Nodes
-
-`geometry.instanced` goes directly from the test family to executable leaves. There are no intermediate nodes below the test
-family. Each leaf name is itself a compact parameter record:
-
-```text
-draw_<D>_instances_<G>_geometry_invocations
-```
-
-- `<D>` is the draw instance count.
-- `<G>` is the geometry shader invocation count per input point.
-- The expected number of generated rectangles is `<D> × <G>`.
-
-For example, `draw_4_instances_8_geometry_invocations` expects 32 rectangles: four input points, with eight geometry shader
-invocations generating rectangles for each input point.
-
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
@@ -83,6 +67,26 @@ invocations generating rectangles for each input point.
 | Case name | `draw_<D>_instances_<G>_geometry_invocations` | Encodes both multipliers in the executable leaf name. | [case-name construction](../../../modules/vulkan/geometry/vktGeometryInstancedRenderingTests.cpp#L438-L451) |
 | Render target | 128x128 `VK_FORMAT_R8G8B8A8_UNORM` | Fixed image size and format for all cases. | [test() setup](../../../modules/vulkan/geometry/vktGeometryInstancedRenderingTests.cpp#L371-L376) |
 | Per-instance positions | deterministic random values from seed `1234` | Gives each draw instance a reproducible point position. | [generatePerInstancePosition()](../../../modules/vulkan/geometry/vktGeometryInstancedRenderingTests.cpp#L205-L220) |
+
+## Behavior Parameters
+
+The primary behavioral axis is the executable test case leaf. `geometry.instanced` has no intermediate nodes below the test
+family; each leaf name records the two multipliers that jointly define the behavior under test:
+
+```text
+draw_<D>_instances_<G>_geometry_invocations
+```
+
+- `<D>` is the draw instance count.
+- `<G>` is the geometry shader invocation count per input point.
+- The expected number of generated rectangles is `<D> × <G>`.
+
+### `draw_<D>_instances_<G>_geometry_invocations` — combined instance/invocation multiplication
+
+Each executable leaf asks whether the implementation combines draw instancing with geometry shader invocations correctly for one
+specific `<D>, <G>` pair. The draw call should produce `<D>` input points from the per-instance vertex buffer, and the geometry
+shader should run `<G>` invocations for each point. For example, `draw_4_instances_8_geometry_invocations` expects 32 rectangles:
+four input points, with eight geometry shader invocations generating rectangles for each input point.
 
 ## Shader Analysis
 
@@ -385,6 +389,58 @@ void main(void)
   per-instance position and every invocation index.
 - The final pass/fail decision comes from `tcu::fuzzyCompare()` with threshold `0.01f`.
 
+## Failure Meaning
+
+### Failure Cause Mapping
+
+| If this behavior parameter value fails | Possible failure cause(s) |
+|----------------------------------------|---------------------------|
+| `draw_<D>_instances_<G>_geometry_invocations` | Per-instance input advancement or draw instance count is wrong; geometry shader invocation launch or `gl_InvocationID` handling is wrong; generated rectangle attributes or framebuffer output differ from the reference image; support-limit pruning for the requested invocation count is wrong. |
+
+### Cause Analysis
+
+#### Per-instance input advancement or draw instance count is wrong
+
+**Possible failure symptoms:** the rendered image can miss an entire per-instance point pattern, duplicate a pattern, or draw
+rectangles at positions that belong to the wrong instance.
+
+**Possible implementation causes:** the test exposes this because the vertex input binding uses
+`VK_VERTEX_INPUT_RATE_INSTANCE`, the draw call uses `instanceCount = numDrawInstances`, and the CPU reference generates one
+deterministic input position per draw instance. An implementation issue in instanced draw execution, per-instance vertex attribute
+advancement, vertex buffer fetch, or first-instance handling could make the vertex shader receive the wrong `in_position` for one or
+more instances.
+
+#### Geometry shader invocation launch or `gl_InvocationID` handling is wrong
+
+**Possible failure symptoms:** the rendered image can contain too few or too many rectangles for each input point, or the
+rectangles can have the wrong sequence of offsets, sizes, and blue-channel values.
+
+**Possible implementation causes:** the test is sensitive to this because the geometry shader declares
+`layout(points, invocations = N) in`, then derives its `modifier`, horizontal offset, vertical sinusoid, size, and color from
+`gl_InvocationID`. A grounded implementation cause is incorrect handling of the geometry shader invocation count, incorrect
+population of the `InvocationId` built-in, or incorrect enforcement of the device's `maxGeometryShaderInvocations` limit for the
+compiled shader.
+
+#### Generated rectangle attributes or framebuffer output differ from the reference image
+
+**Possible failure symptoms:** the shader and CPU reference use the same formulas for position, rectangle size, and color, so
+a mismatch can mean a rectangle was emitted at the wrong coordinates, rasterized with the wrong color, omitted, or overwritten in an
+unexpected order.
+
+**Possible implementation causes:** possible grounded causes include shader compilation or lowering errors in the
+geometry-stage arithmetic, incorrect geometry output emission, fragment-stage color forwarding problems, renderpass/framebuffer
+output problems, or image copyback/cache visibility issues before the host-side `tcu::fuzzyCompare()` reads the result.
+
+#### Support-limit pruning for the requested invocation count is wrong
+
+**Possible failure symptoms:** a case whose requested invocation count exceeds `maxGeometryShaderInvocations` should be
+skipped before execution, while supported counts should run. If the case is executed despite an insufficient limit, the rendered
+result is not a valid correctness signal for that device. If the case is skipped even though the limit is sufficient, CTS coverage
+is lost for a legal configuration.
+
+**Possible implementation causes:** this cause is tied to the host-side support check, not to the image-comparison path.
+A failure here means the support check logic or the limit query reported the wrong value.
+
 ## Case Pruning
 
 ### Requirement-based pruning
@@ -402,13 +458,11 @@ void main(void)
 
 ## Key Takeaways
 
-- The test case name is the main decoder: `draw_<D>_instances_<G>_geometry_invocations` should produce `<D> × <G>` rectangles.
+- The test case name is the decoder: `draw_<D>_instances_<G>_geometry_invocations` should produce `<D> × <G>` rectangles.
 - Draw instance count changes how many input points enter the pipeline; geometry invocation count changes how many rectangles are
   generated from each point.
-- The shader and CPU reference intentionally use the same math. A mismatch means the implementation did not reproduce the
-  expected instance/invocation behavior in the rendered image.
-- Failures can expose wrong per-instance vertex input advancement, missing geometry shader invocations, incorrect
-  `gl_InvocationID`, shader code generation errors, or incorrect limit handling.
+- The shader and CPU reference use the same math, so the rendered image must reproduce the expected instance/invocation pattern.
+- Use `Failure Meaning` for the detailed interpretation of image mismatches and support-limit failures.
 
 ## Source Reference Appendix
 

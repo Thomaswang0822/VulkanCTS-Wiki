@@ -71,6 +71,24 @@ Rules:
   mappings in `references/level3-template.zh.md` and `references/terminology.zh.md`. These mappings
   cover the current `shader-analyzer` output contract.
 
+## Mandatory Language Worker Dependencies
+
+This skill invokes the Chinese language worker skills as mandatory quality gates for translated wiki prose.
+
+Required global worker skills:
+
+| Worker skill | Purpose in this workflow |
+|---|---|
+| `shuorenhua` | Primary Chinese technical-doc naturalness and translationese cleanup pass. |
+| `humanizer-zh` | Secondary Chinese residual AI-pattern pass. |
+
+The publishing workflow checks that these workers are installed before invoking this skill. If this skill is used directly, the
+worker skills are still required and must be available globally.
+
+The language workers are mandatory for every translated publish-target Chinese wiki page.
+They are language-quality passes only.
+They must not change factual claims, source links, GitLab URLs, registered paths, identifiers, code blocks, shader assembly, filename or directory names, markdown link targets before `#`, mustpass references, or Vulkan/CTS terminology that must remain exact.
+
 ## Trigger
 
 ```text
@@ -269,7 +287,12 @@ Bad:
 7. Translate `#fragment` section-heading references when their target headings are translated, while
    preserving link paths before `#` exactly.
 8. Write or overwrite the publish target file.
-9. Report source file, target file, reference files used, and any translated heading-fragment links.
+9. Invoke the required Chinese language worker skills on the written target file in this exact order:
+   1. `shuorenhua`
+   2. `humanizer-zh`
+10. Run the validation checklist below.
+11. Report source file, target file, reference files used, language worker passes completed, and any translated heading-fragment
+    links.
 
 ### Category Mode
 
@@ -284,7 +307,11 @@ Bad:
    - Level-2 page -> `vkcts-wiki-pages/categories/<category>.md`
    - Level-3 page -> `vkcts-wiki-pages/categories/<category>/<page>.md`
 7. Translate heading fragments after `#` in markdown links when their target headings are translated.
-8. Report translated file count, skipped files, reference files used, and any unresolved warnings.
+8. Invoke the required Chinese language worker skills on every translated output file in this exact order:
+   1. `shuorenhua`
+   2. `humanizer-zh`
+9. Run the validation checklist below for every translated output file.
+10. Report translated file count, skipped files, reference files used, language worker passes completed, and any unresolved warnings.
 
 ### Directory Mode
 
@@ -293,7 +320,11 @@ Bad:
 3. Translate files to matching relative paths under `vkcts-wiki-pages/`.
 4. Preserve filenames. Preserve the canonical category identity, but allow the publish-tree layout transformation where Level-3 pages move under `vkcts-wiki-pages/categories/<category>/`.
 5. Translate heading fragments after `#` in markdown links when their target headings are translated.
-6. Report translated file count, skipped files, reference files used, and any unresolved warnings.
+6. Invoke the required Chinese language worker skills on every translated output file in this exact order:
+   1. `shuorenhua`
+   2. `humanizer-zh`
+7. Run the validation checklist below for every translated output file.
+8. Report translated file count, skipped files, reference files used, language worker passes completed, and any unresolved warnings.
 
 ## Validation Checklist
 
@@ -317,3 +348,4 @@ After translation, verify:
   and wiki-authored `///` GLSL comments.
 - No obsolete version-1 heading assumptions were introduced.
 - Explanatory prose is readable Mandarin Chinese with limited, intentional English technical terms.
+- Mandatory `shuorenhua` and `humanizer-zh` passes were completed after translation and before reporting.

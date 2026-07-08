@@ -23,7 +23,7 @@ produce different numbers of user varyings?
   case, `v_geom_0[0]`, `v_geom_0[1]`, and `v_geom_0[2]` correspond to the three triangle input vertices.
 - The geometry shader always emits three vertices for a triangle-strip output. The tested variable is not topology expansion;
   it is whether data moves correctly through the stage interfaces.
-- Missing user varyings are handled deliberately by generated fallback paths. For example, when the vertex shader does not
+- Missing user varyings are handled by generated fallback paths. For example, when the vertex shader does not
   write a color varying, the geometry shader uses constant red.
 - Validation is image-based: shader-interface behavior is converted into a rendered color pattern and compared with a
   reference PNG.
@@ -45,19 +45,6 @@ and appear in the default geometry mustpass list at
 [geometry.txt](../../../mustpass/main/vk-default/geometry.txt#L195-L199). This test family has no intermediate nodes below
 `geometry.varying`; every child in the tree is an executable test case leaf.
 
-## Intermediate Nodes
-
-`geometry.varying` goes directly from the test family to executable leaves. The leaves are best understood as selected
-combinations of vertex-output mode and geometry-output mode rather than as registered intermediate nodes.
-
-| Test case leaf | Vertex-stage behavior | Geometry-stage behavior | Fragment-stage behavior |
-|----------------|-----------------------|-------------------------|-------------------------|
-| `vertex_no_op_geometry_out_1` | Empty vertex shader body. | Uses hard-coded positions and fallback red; writes `v_frag_0`. | Writes `v_frag_0`. |
-| `vertex_out_0_geometry_out_1` | Writes `gl_Position` only. | Uses `gl_in[]` positions and fallback red; writes `v_frag_0`. | Writes `v_frag_0`. |
-| `vertex_out_0_geometry_out_2` | Writes `gl_Position` only. | Uses fallback red and writes `v_frag_0` plus `v_frag_1`. | Recombines the two varyings. |
-| `vertex_out_1_geometry_out_0` | Writes `gl_Position` and `v_geom_0`. | Reads no geometry-to-fragment output path. | Writes constant red. |
-| `vertex_out_1_geometry_out_2` | Writes `gl_Position` and `v_geom_0`. | Reads `v_geom_0[]`, splits color into two varyings. | Recombines the two varyings. |
-
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
@@ -67,6 +54,41 @@ combinations of vertex-output mode and geometry-output mode rather than as regis
 | Registered combinations | five explicit leaves | Covers representative absent, one-output, and two-output interface cases without exhaustive enumeration. | [varyingTests[]](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L279-L285) |
 | Input topology | triangle strip with three vertices | Provides one triangle input for the geometry shader. | [GeometryVaryingTestInstance](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L85-L103) |
 | Validation observable | final fragment color in reference image | Converts varying-interface behavior into image comparison. | [fragment shader generation](../../../modules/vulkan/geometry/vktGeometryVaryingGeometryShaderTests.cpp#L244-L262) |
+
+## Behavior Parameters
+
+The primary behavioral axis is the executable test case leaf. Each leaf selects one explicit combination of vertex-stage output
+mode and geometry-stage output mode, so the leaf name directly determines which stage interface is under test.
+
+### `vertex_no_op_geometry_out_1` — geometry-owned position and one fragment varying
+
+The vertex shader has an empty body, so the geometry shader does not receive `gl_in[]` positions from a meaningful vertex-stage
+write and does not receive a user varying. The geometry shader uses hard-coded positions, uses fallback red as its input color,
+and writes one geometry-to-fragment varying at location `0`. The fragment shader writes that single varying.
+
+### `vertex_out_0_geometry_out_1` — position-only vertex output and one fragment varying
+
+The vertex shader writes `gl_Position` but no user varying. The geometry shader must read the three `gl_in[]` positions, use
+fallback red for color, and forward that color through one location-`0` geometry-to-fragment varying. This separates built-in
+position flow from user-varying flow.
+
+### `vertex_out_0_geometry_out_2` — position-only vertex output and two fragment varyings
+
+The vertex shader still writes only `gl_Position`, so color comes from the geometry shader's fallback red path. The geometry
+shader splits that color across `v_frag_0` and `v_frag_1`, and the fragment shader recombines the two locations with a swizzle.
+This checks two-location geometry-to-fragment output without depending on vertex-to-geometry user varyings.
+
+### `vertex_out_1_geometry_out_0` — vertex color input with no geometry fragment varying
+
+The vertex shader writes both `gl_Position` and the location-`0` color varying. The fragment shader, however, uses constant red
+because the geometry shader declares no geometry-to-fragment user varying. This leaf checks that a vertex-to-geometry varying can
+exist without forcing a fragment-stage varying path in this case.
+
+### `vertex_out_1_geometry_out_2` — vertex color input split across two fragment varyings
+
+This is the richest leaf. The geometry shader reads `v_geom_0[]`, preserving the per-vertex association from the vertex shader,
+then splits each input color across two geometry-to-fragment varyings. The fragment shader recombines those varyings, so the final
+image depends on both the vertex-to-geometry input array and the two-location geometry-to-fragment interface.
 
 ## Shader Analysis
 
@@ -362,9 +384,106 @@ void main (void)
 - Host validation compares the copied image with `vulkan/data/geometry/<test-name>.png` through the shared image comparison
   helper.
 
-A failure means the final image no longer matches the expected interface-driven color pattern. Depending on the leaf, that can
-indicate missing vertex-to-geometry varyings, wrong geometry input array indexing, wrong geometry-to-fragment location
-matching, incorrect fallback-path compilation, or incorrect swizzle/arithmetic behavior.
+## Failure Meaning
+
+A failure means the final image no longer matches the expected interface-driven color pattern for the selected leaf.
+
+### Failure Cause Mapping
+
+| If this behavior parameter value fails | Possible failure cause(s) |
+|----------------------------------------|---------------------------|
+| `vertex_no_op_geometry_out_1` | Fallback geometry generation or one-location geometry-to-fragment forwarding failure. |
+| `vertex_out_0_geometry_out_1` | Built-in position handoff through `gl_in[]`, fallback color, or one-location geometry-to-fragment forwarding failure. |
+| `vertex_out_0_geometry_out_2` | Built-in position handoff through `gl_in[]`, fallback color, two-location geometry-to-fragment forwarding, or fragment recombination failure. |
+| `vertex_out_1_geometry_out_0` | Vertex-stage position/color interface handling with intentionally absent geometry-to-fragment varying path, or constant-fragment-output failure. |
+| `vertex_out_1_geometry_out_2` | Vertex-to-geometry user-varying array handling, two-location geometry-to-fragment forwarding, or fragment recombination failure. |
+
+All leaves also share the rendered-image comparison path. If shader interface behavior is correct but the copied image differs
+from the reference PNG, the shared render, copyback, or image-comparison path would need source-level investigation.
+
+### Cause Analysis
+
+#### Fallback geometry generation or fallback color failure
+
+**Possible failure symptoms:** leaves that do not receive a vertex-stage color varying should use the generated fallback
+red color in the geometry shader. In `vertex_no_op_geometry_out_1`, the geometry shader also uses hard-coded positions because
+the vertex shader body is empty. A failure can therefore mean the generated fallback path produced the wrong position, the wrong
+red color, or a color pattern that no longer matches the reference image.
+
+**Possible implementation causes:** this path is grounded in the generated GLSL, where the geometry shader chooses
+`vec4(1.0, 0.0, 0.0, 1.0)` unless `VERTEXT_ONE` is selected and uses hard-coded positions only for `VERTEXT_NO_OP`. An
+implementation issue could be incorrect compilation of that geometry shader control path, incorrect handling of a vertex shader
+that writes no `gl_Position` while a following geometry shader provides positions, or incorrect propagation of the single
+geometry-to-fragment output carrying the fallback color.
+
+#### Built-in position handoff through `gl_in[]` failure
+
+**Possible failure symptoms:** leaves with `VERTEXT_ZERO` or `VERTEXT_ONE` expect the geometry shader to read the three
+vertex positions through `gl_in[0]`, `gl_in[1]`, and `gl_in[2]`. If those positions are not preserved, are associated with the
+wrong input vertex, or are offset from the wrong source value, the rendered triangle no longer matches the reference image even
+when color values are correct.
+
+**Possible implementation causes:** the source uses triangle input, triangle-strip output, and per-vertex reads from
+`gl_in[]`. A grounded implementation cause is incorrect geometry-shader lowering or execution for built-in per-vertex input
+arrays, including wrong indexing of `gl_in[]` or wrong association between the vertex shader's `gl_Position` outputs and the
+geometry shader's input primitive.
+
+#### Vertex-to-geometry user-varying array handling failure
+
+**Possible failure symptoms:** `vertex_out_1_geometry_out_2` expects the location-`0` vertex color to arrive in
+`v_geom_0[0]`, `v_geom_0[1]`, and `v_geom_0[2]`, aligned with the corresponding `gl_in[]` positions. A failure can mean the color
+varying is missing, matched to the wrong location, indexed as the wrong per-vertex element, or associated with the wrong emitted
+vertex.
+
+**Possible implementation causes:** geometry-shader user inputs are declared as arrays in this test. A grounded
+implementation cause is incorrect shader-interface matching for location-`0` vertex outputs to geometry inputs, or incorrect
+compiler/runtime handling of user-varying input arrays for geometry shaders.
+
+#### Geometry-to-fragment varying forwarding failure
+
+**Possible failure symptoms:** `geometry_out_1` leaves expect the geometry shader's `v_frag_0` value to reach the fragment
+shader at location `0`. `geometry_out_2` leaves expect both `v_frag_0` at location `0` and `v_frag_1` at location `1` to arrive
+with their per-vertex values intact. If one location is missing, swapped, stale, or interpolated from the wrong emitted vertex,
+the final image differs from the reference.
+
+**Possible implementation causes:** this is grounded in the generated geometry and fragment declarations. A possible
+implementation cause is incorrect cross-stage interface matching between geometry shader outputs and fragment shader inputs,
+especially when two explicit locations are declared, or incorrect interpolation/primitive assembly after the geometry shader emits
+the triangle-strip vertices.
+
+#### Fragment recombination or swizzle/arithmetic failure
+
+**Possible failure symptoms:** the two-output leaves rely on `v_frag_0 = inputColor * 0.5`,
+`v_frag_1 = inputColor.yxzw * 0.5`, and fragment-side `v_frag_0 + v_frag_1.yxzw`. A failure can mean the split values are correct
+at the geometry output but the fragment shader reconstructs the wrong color because the swizzle, multiplication, addition, or
+location use is wrong.
+
+**Possible implementation causes:** the operations are simple floating-point vector operations and swizzles in GLSL.
+A grounded implementation cause is shader compiler lowering that mishandles vector swizzles or arithmetic across the
+geometry/fragment boundary, or an interface-location issue that causes the fragment shader to recombine the wrong inputs.
+
+#### Intentionally absent geometry-to-fragment varying path failure
+
+**Possible failure symptoms:** `vertex_out_1_geometry_out_0` intentionally has a vertex color varying but no
+geometry-to-fragment varying declarations. The fragment shader should write constant red. A failure can mean the pipeline did not
+handle the unused vertex-to-geometry color path correctly, the absence of geometry-to-fragment varyings affected pipeline linking,
+or the constant fragment output did not produce the expected image.
+
+**Possible implementation causes:** the generated shaders form a legal pipeline shape where one stage may produce or
+consume user varyings differently from another as long as declared interfaces match between adjacent stages. A grounded cause is
+incorrect pipeline compilation or cross-stage interface validation/lowering when a user varying exists before the geometry stage
+but no user varying is consumed by the fragment stage.
+
+#### Shared render, copyback, or reference-image comparison failure
+
+**Possible failure symptoms:** the final pass/fail decision is image-based. A failure can occur even when the generated
+shader logic is correct if the draw does not render into the expected attachment, the rendered image is copied back incorrectly,
+or the reference comparison sees pixel values outside its tolerance and position-deviation thresholds.
+
+**Possible implementation causes:** the shared render path creates the color attachment, records the draw, copies the
+image to a host-visible buffer, invalidates the allocation, and compares against `vulkan/data/geometry/<test-name>.png`. If the
+failure does not line up with one of the leaf-specific shader-interface mechanisms above, source-level investigation should focus
+on that shared path and the logged image-comparison output rather than assuming a specific shader-interface bug.
 
 ## Case Pruning
 
@@ -381,12 +500,12 @@ matching, incorrect fallback-path compilation, or incorrect swizzle/arithmetic b
 
 ## Key Takeaways
 
-- `geometry.varying` is a compact cross-stage interface test: it intentionally changes which varyings exist at each stage.
+- `geometry.varying` is a compact cross-stage interface test: it changes which varyings exist at each stage.
 - The representative `vertex_out_1_geometry_out_2` case proves both arrayed vertex-to-geometry input and two-location
   geometry-to-fragment output.
 - Fallback red paths are deliberate: they make absent varyings produce defined, image-comparable behavior.
-- The test can expose location mismatches, missing geometry-stage varying arrays, wrong per-vertex association, or compiler
-  mistakes in swizzle/arithmetic lowering across shader stages.
+- For detailed failure interpretation, use `## Failure Meaning`; the important first step is to identify which behavior-parameter
+  leaf failed, then map that leaf to the relevant interface, shader-generation, or shared render path.
 
 ## Source Reference Appendix
 

@@ -97,10 +97,21 @@ Hard requirements:
 
 - Read the full `../translate-doc/SKILL.md` file before translating.
 - Treat every rule in `translate-doc` as part of this skill's required workflow.
+- Confirm the mandatory Chinese language worker skills required by `translate-doc` are installed globally under `~/.agents/skills/`:
+  - `shuorenhua`
+  - `humanizer-zh`
+- If either Chinese language worker skill is missing, STOP before translating and ask the user to install the missing skill globally:
+
+  ```bash
+  npx skills add MrGeDiao/shuorenhua -g
+  npx skills add op7418/humanizer-zh -g
+  ```
+
 - Translate only from the canonical English source under `external/vulkancts/wiki/`.
 - Write translated output only under `vkcts-wiki-pages/`.
 - Do not perform generic or ad-hoc translation.
-- Do not run link conversion until the `translate-doc` validation checklist passes.
+- Do not run link conversion until the `translate-doc` validation checklist passes, including the mandatory `shuorenhua` and
+  `humanizer-zh` worker passes.
 - If the worker cannot confirm `translate-doc` was applied, STOP and report failure instead of publishing.
 
 ## Workflow
@@ -118,6 +129,8 @@ Hard requirements:
    - Preserve code blocks, inline code, identifiers, filenames, directory names, markdown link targets,
      URL targets, registered test paths, and YAML/machine markers exactly as required by `translate-doc`.
    - Use the heading and terminology rules from `translate-doc`; do not invent a separate translation style.
+   - Invoke the mandatory Chinese language worker skills through the `translate-doc` workflow, in the order required there:
+     `shuorenhua` first, then `humanizer-zh`.
    - Complete the `translate-doc` validation checklist for the assigned files before reporting completion.
 
 2. Run a pre-publish translation guard for every assigned translated markdown file.
@@ -175,6 +188,7 @@ The completion summary MUST include:
 - The canonical source paths translated.
 - The publish target paths written.
 - A statement that `translate-doc` was invoked and its validation checklist passed.
+- A statement that the mandatory `shuorenhua` and `humanizer-zh` language worker passes were invoked for the translated files.
 - The link conversion commands or files processed.
 - Confirmation that the `vkcts-wiki-pages/home.md` category-index link was updated for the published category.
 - Any skipped files or unresolved validation warnings.

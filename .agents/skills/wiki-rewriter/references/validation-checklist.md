@@ -10,13 +10,25 @@ Run this checklist before reporting a rewritten page as complete.
 - [ ] Level-3 filename is shortened CamelCase family/source suffix style, such as `MessagePassing.md`.
 - [ ] Rewritten output page omits the top `#` title and starts at `## Overview`.
 
+## Structural Audit
+
+- [ ] Section order matches the Level-3 template: Overview → Background Knowledge → Registration Hierarchy → Parameter Dimensions and Observed Values → Behavior Parameters → Shader Analysis → Runtime Execution and Result Checking → Failure Meaning → Case Pruning → Key Takeaways → Source Reference Appendix.
+- [ ] `## Parameter Dimensions and Observed Values` appears before `## Behavior Parameters`.
+- [ ] `## Failure Meaning` appears between `## Runtime Execution and Result Checking` and `## Case Pruning`.
+
 ## Semantic Audit
 
 - [ ] Core question or category purpose is clear.
 - [ ] Test intent matches source behavior.
 - [ ] Execution flow is understandable without source reading as the main path.
 - [ ] Validation and pass/fail conditions are explicit.
-- [ ] Failure meaning names plausible implementation bug classes.
+- [ ] `## Behavior Parameters` identifies the primary behavioral axis with subsections for each value.
+- [ ] `## Failure Meaning` exists with `### Failure Cause Mapping` and `### Cause Analysis`.
+- [ ] Failure cause mapping table aligns with the behavior parameter values.
+- [ ] Cause analysis states possible failure symptoms for every cause (derived from test validation logic).
+- [ ] Each `####` cause uses the bold lead-in labels `**Possible failure symptoms:**` and `**Possible implementation causes:**`.
+- [ ] Implementation causes are grounded in spec, architecture, or source; unverified causes are flagged as needing investigation.
+- [ ] No preconceived bug-location assumptions (GPU hardware, driver, host) are present; analysis is derived case by case.
 - [ ] C++ details support understanding instead of dominating it.
 - [ ] No speculative hardware, driver, or Vulkan implementation claims are presented as facts.
 
@@ -121,6 +133,11 @@ Use when the page includes shader analysis.
 Use when an Understanding Brief was created.
 
 - [ ] Final page distills the brief rather than copying beginner scaffolding verbatim.
+- [ ] Brief's `### Failure Cause Mapping` table is copied directly into the final page's `### Failure Cause Mapping`.
+- [ ] Brief's `## Behavior Parameter Identification` conclusion is carried into `## Behavior Parameters`.
+- [ ] `### Cause Analysis` is written fresh during the rewrite, not carried from the brief.
 - [ ] Brief source mapping becomes a focused source appendix.
 - [ ] Important concrete examples become formal walkthroughs, tables, or concise explanations.
+- [ ] If a KB gap was identified after the brief, a domain KB file was created under `references/gpu-knowledge/` before the rewrite.
+- [ ] If a domain KB file exists for this domain, it was loaded before writing `### Cause Analysis`.
 - [ ] Risk points are resolved or reported.
