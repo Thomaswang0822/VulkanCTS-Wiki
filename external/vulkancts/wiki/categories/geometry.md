@@ -3,9 +3,9 @@
 The `geometry` test category collects tests that check Vulkan geometry-shader input handling, output emission, layered rendering,
 instanced geometry execution, varying transport, and selected built-in-variable behavior.
 
-All families share the same broad idea: a graphics pipeline inserts a geometry shader between vertex processing and rasterization,
-then turns geometry-stage behavior into an observable image or side effect. The category is therefore useful for understanding both
-shader-stage interface correctness and host-visible validation of geometry-shader output.
+All families share the same idea: a graphics pipeline inserts a geometry shader between vertex processing and rasterization,
+then turns geometry-stage behavior into an observable image or side effect. The category covers both shader-stage interface
+correctness and host-visible validation of geometry-shader output.
 
 ## Category Structure
 
@@ -25,7 +25,7 @@ The direct test families are registered by
 
 ## How the Families Fit Together
 
-The category is organized by which part of geometry-shader behavior is being stressed:
+The category is organized by which part of geometry-shader behavior each family tests:
 
 - `input`, `basic`, and `emit` focus on geometry construction: what primitive shape the shader receives, how many vertices it emits,
   and how `EmitVertex()` / `EndPrimitive()` form output primitives.
@@ -34,7 +34,7 @@ The category is organized by which part of geometry-shader behavior is being str
 - `layered` and `instanced` focus on geometry-shader execution context: emitted primitives can target image layers through
   `gl_Layer`, and geometry invocations can multiply with draw instancing.
 - Most families validate behavior by rendering deterministic output and comparing pixels with a reference image. Some cases add
-  side-effect checks, storage-image feedback, copyback paths, or layered attachment inspection when pixels alone are not enough.
+  side-effect checks, storage-image feedback, copyback paths, or layered attachment inspection when pixels alone do not suffice.
 
 Together, these families cover whether an implementation can receive geometry correctly, expand or suppress it correctly, route it
 to the right destination, and preserve the shader-visible values that make the result meaningful.

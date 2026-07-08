@@ -4,19 +4,19 @@
 partner payload that happened before that guard visible across the selected scope, storage class, stage, and synchronization form?
 
 - [vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp) is the main
-  `memory_model` test category implementation: `createTests(testCtx, name)` creates the category root and registers most test families.
-- The file's shader-heavy test families are `message_passing`, `write_after_read`, and `transitive`; it also attaches delegated
-  `padding` and `shared` test families implemented in separate files.
-- The core test logic is to stress Vulkan/SPIR-V memory-model ordering by separating **payload** data from a **guard** signal:
+  `memory_model` test category implementation: `createTests(testCtx, name)` creates the test category root and registers most test families.
+- The file directly roots the `message_passing`, `write_after_read`, and `transitive` test families; the same test category
+  setup also attaches the delegated `padding` and `shared` test families implemented in separate files.
+- The core test checks Vulkan/SPIR-V memory-model ordering by separating **payload** data from a **guard** signal:
   once a shader invocation observes the partner's guard, it checks whether the payload that should have happened before that
   guard is visible.
-- The C++ code mainly builds the parameter matrix, generates GLSL, allocates resources, repeats dispatch/draw work, and scans a
-  fail buffer. The most concrete test logic is in the generated shaders.
+- The C++ code builds the parameter matrix, generates GLSL, allocates resources, repeats dispatch/draw work, and scans a
+  fail buffer. The generated shaders contain the test-specific checks.
 
 ## Background Knowledge
 
 - **Payload and guard.** The payload is the data whose visibility is being tested; the guard is the synchronization signal. The
-  important rule is not that the guard is always observed, but that observing the guard implies the expected payload visibility.
+  rule is not that the guard is always observed, but that observing the guard implies the expected payload visibility.
 - **Release and acquire.** The writer side uses release semantics or a release-like barrier before/with the guard signal. The
   reader side uses acquire semantics or an acquire-like barrier after/with the guard observation.
 - **Availability and visibility.** Extension-mode memory-model shaders can add `gl_SemanticsMakeAvailable` on the writer side
@@ -40,11 +40,38 @@ memory_model
 
 `padding` and `shared` are registered by this file but implemented and explained in separate Level-3 pages.
 
-## Test Families
+## Parameter Dimensions and Observed Values
+
+The regular generated matrix is built from `TestGroupCase` arrays and nested loops
+[vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2070-L2167) and
+[vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2169-L2339). The table below
+keeps the registered values but adds why each dimension matters for this test.
+
+| Dimension | Registered values | Meaning in this test | Evidence |
+|-----------|-------------------|----------------------|----------|
+| Test type | `message_passing`, `write_after_read` | Selects whether the shader checks payload visibility after observing the guard, or checks that an earlier read did not see a later partner write. | [ttCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2070-L2073) |
+| API/memory-model mode | `core11`, `ext` | Chooses legacy Vulkan 1.1 memory semantics versus extension-mode shaders using `#pragma use_vulkan_memory_model` and make-available / make-visible flags. | [core11Cases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2075-L2080), [shader header](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L481-L500) |
+| Data type | `u32`, `u64`, `f32`, `f64` | Changes payload type and atomic-feature pressure; non-`u32` cases mainly stress atomic support and are heavily pruned outside atomic-atomic synchronization. | [dtCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2082-L2091), [atomic-testing pruning](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2285-L2292) |
+| Payload coherence | `coherent`, `noncoherent` | Controls memory qualifiers and whether extension-mode shaders need explicit make-available / make-visible semantics for payload visibility. | [cohCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2093-L2098), [semantic flags](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L468-L479) |
+| Synchronization form | `fence_fence`, `fence_atomic`, `atomic_fence`, `atomic_atomic`, `control_barrier`, `control_and_memory_barrier` | Moves release/acquire responsibility among explicit memory barriers, guard atomics, and control barriers. | [stCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2100-L2113), [sync generation](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L815-L951) |
+| Atomic operation kind | `atomicwrite`, `atomicrmw` | Chooses simple atomic store/load guard signaling or RMW exchange signaling; RMW is limited to `atomic_atomic`. | [rmwCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2115-L2118), [RMW pruning](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2279-L2283) |
+| Scope | `device`, `queuefamily`, `workgroup`, `subgroup` | Changes the synchronization reach and also changes coordinate pairing: global mirror, local workgroup mirror, or subgroup-lane pairing. | [scopeCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2120-L2125), [coordinate formulas](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L617-L723) |
+| Payload locality | `payload_nonlocal`, `payload_local` | Selects non-local versus device-local memory allocation for buffer/image payload resources where that distinction is meaningful. | [plCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2127-L2132), [allocation selection](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1402-L1436) |
+| Payload storage | `buffer`, `image`, `workgroup`, `physbuffer` | Places the payload in storage buffers, storage images, shared workgroup memory, or physical storage buffers to test the same ordering rule across storage classes. | [pscCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2134-L2143), [payload declarations](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L546-L567) |
+| Guard locality | `guard_nonlocal`, `guard_local` | Selects non-local versus device-local memory allocation for guard resources where external memory allocation is involved. | [glCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2145-L2150), [allocation selection](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1402-L1436) |
+| Guard storage | `buffer`, `image`, `workgroup`, `physbuffer` | Places the synchronization signal in different atomic-capable storage classes. | [gscCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2152-L2161), [guard declarations](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L568-L591) |
+| Shader stage | `comp`, `vert`, `frag` | Runs the ordering protocol through compute, vertex, or fragment execution when the selected scope and storage combination is valid. | [stageCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2163-L2167), [pipeline setup](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1649-L1691) |
+| Transitive visibility | `nontransvis`, `transvis` | For transitive cases, selects whether the destination invocation performs acquire/visibility itself or local `(0,0)` performs it and broadcasts the result. | [transVisCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2341-L2346), [transitive visibility branch](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1273-L1327) |
+
+## Behavior Parameters
+
+The primary behavioral axis for this page is the **test family** under `memory_model`. Each implemented family changes the
+ordering question that the shader asks; the remaining path components configure API mode, storage, synchronization form, scope,
+stage, and resource placement.
 
 ### message_passing — Payload-before-guard synchronization
 
-`message_passing` checks the classic message-passing property: if invocation A writes payload A before signaling guard A, then
+`message_passing` checks the message-passing property: if invocation A writes payload A before signaling guard A, then
 invocation B must see payload A once it observes guard A. The generated shader writes its own payload, performs one selected
 release/acquire synchronization form through a guard or control barrier, then checks the partner payload only when the partner
 guard was observed [vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L749-L973).
@@ -73,34 +100,11 @@ This family uses a separate shader builder because the shader has a different wo
 uses make-available / make-visible paths
 [vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1075-L1344).
 
-## Parameter Dimensions and Observed Values
-
-The regular generated matrix is built from `TestGroupCase` arrays and nested loops
-[vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2070-L2167) and
-[vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2169-L2339). The table below
-keeps the registered values but adds why each dimension matters for this test.
-
-| Dimension | Registered values | Meaning in this test | Evidence |
-|-----------|-------------------|----------------------|----------|
-| Test type | `message_passing`, `write_after_read` | Selects whether the shader checks payload visibility after observing the guard, or checks that an earlier read did not see a later partner write. | [ttCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2070-L2073) |
-| API/memory-model mode | `core11`, `ext` | Chooses legacy Vulkan 1.1 memory semantics versus extension-mode shaders using `#pragma use_vulkan_memory_model` and make-available / make-visible flags. | [core11Cases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2075-L2080), [shader header](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L481-L500) |
-| Data type | `u32`, `u64`, `f32`, `f64` | Changes payload type and atomic-feature pressure; non-`u32` cases mainly stress atomic support and are heavily pruned outside atomic-atomic synchronization. | [dtCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2082-L2091), [atomic-testing pruning](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2285-L2292) |
-| Payload coherence | `coherent`, `noncoherent` | Controls memory qualifiers and whether extension-mode shaders need explicit make-available / make-visible semantics for payload visibility. | [cohCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2093-L2098), [semantic flags](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L468-L479) |
-| Synchronization form | `fence_fence`, `fence_atomic`, `atomic_fence`, `atomic_atomic`, `control_barrier`, `control_and_memory_barrier` | Moves release/acquire responsibility among explicit memory barriers, guard atomics, and control barriers. | [stCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2100-L2113), [sync generation](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L815-L951) |
-| Atomic operation kind | `atomicwrite`, `atomicrmw` | Chooses simple atomic store/load guard signaling or RMW exchange signaling; RMW is limited to `atomic_atomic`. | [rmwCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2115-L2118), [RMW pruning](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2279-L2283) |
-| Scope | `device`, `queuefamily`, `workgroup`, `subgroup` | Changes the synchronization reach and also changes coordinate pairing: global mirror, local workgroup mirror, or subgroup-lane pairing. | [scopeCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2120-L2125), [coordinate formulas](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L617-L723) |
-| Payload locality | `payload_nonlocal`, `payload_local` | Selects non-local versus device-local memory allocation for buffer/image payload resources where that distinction is meaningful. | [plCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2127-L2132), [allocation selection](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1402-L1436) |
-| Payload storage | `buffer`, `image`, `workgroup`, `physbuffer` | Places the payload in storage buffers, storage images, shared workgroup memory, or physical storage buffers to test the same ordering rule across storage classes. | [pscCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2134-L2143), [payload declarations](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L546-L567) |
-| Guard locality | `guard_nonlocal`, `guard_local` | Selects non-local versus device-local memory allocation for guard resources where external memory allocation is involved. | [glCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2145-L2150), [allocation selection](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1402-L1436) |
-| Guard storage | `buffer`, `image`, `workgroup`, `physbuffer` | Places the synchronization signal in different atomic-capable storage classes. | [gscCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2152-L2161), [guard declarations](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L568-L591) |
-| Shader stage | `comp`, `vert`, `frag` | Runs the ordering protocol through compute, vertex, or fragment execution when the selected scope and storage combination is valid. | [stageCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2163-L2167), [pipeline setup](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1649-L1691) |
-| Transitive visibility | `nontransvis`, `transvis` | For transitive cases, selects whether the destination invocation performs acquire/visibility itself or local `(0,0)` performs it and broadcasts the result. | [transVisCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2341-L2346), [transitive visibility branch](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1273-L1327) |
-
 ## Shader Analysis
 
-The main shaders in this file are generated as GLSL strings rather than stored as checked-in shader files. This page uses two
-walkthroughs because the regular `initPrograms()` shader family and the `initProgramsTransitive()` shader family have
-significantly different synchronization structure
+The shaders in this file are generated as GLSL strings rather than stored as checked-in shader files. This page uses two
+walkthroughs because the regular `initPrograms()` shader family and the `initProgramsTransitive()` shader family use different
+synchronization structures
 [vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L368-L374). Ordinary
 parameter differences are summarized in the variation tables instead of receiving separate walkthroughs.
 
@@ -127,7 +131,7 @@ memory_model.message_passing.ext.u32.noncoherent.atomic_atomic.atomicwrite.subgr
 
 #### Purpose
 
-This shader checks the classic message-passing guarantee inside a subgroup: if an invocation observes its partner's guard through an
+This shader checks the message-passing guarantee inside a subgroup: if an invocation observes its partner's guard through an
 acquire atomic load, the payload written before the partner's release guard store must be visible with the expected value.
 
 #### Structural Design
@@ -511,6 +515,7 @@ void main()
 ```
 
 </details>
+
 ### Representative Shader Walkthrough 2
 
 #### Parameter Values Chosen
@@ -942,6 +947,7 @@ void main()
 ```
 
 </details>
+
 ## Runtime Execution and Result Checking
 
 - **Runtime dimensions and resource sizes.** The host normally uses `DIM = 31` and `NUM_WORKGROUP_EACH_DIM = 8`, shrinking `DIM`
@@ -970,6 +976,69 @@ void main()
 - **Pass/fail rule.** The host scans every fail-buffer entry. Any nonzero entry fails the case and logs up to the first 256
   failed invocation indices [vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1992-L2017).
 
+## Failure Meaning
+
+### Failure Cause Mapping
+
+| If this behavior parameter value fails | Possible failure cause(s) |
+|----------------------------------------|---------------------------|
+| `message_passing` | Guard observation did not make the partner payload visible, or the generated release/acquire path did not preserve the selected scope, storage, stage, or synchronization semantics. |
+| `write_after_read` | The early read observed a partner payload write that should not yet have been visible in this test's ordered sequence. |
+| `transitive` | Availability/visibility did not propagate through the representative-based chain, including the selected `nontransvis` or `transvis` handoff path. |
+
+All three families report failure through the same fail-buffer mechanism: a shader writes a nonzero fail entry and the host fails
+on any nonzero copied entry.
+
+### Cause Analysis
+
+#### Guard observation without required payload visibility
+
+**Possible failure symptoms:** A `message_passing` case writes a nonzero fail-buffer entry after `skip` is false. In that
+situation the shader observed the partner guard, but the partner payload load returned a value other than the expected partner
+coordinate.
+
+**Possible implementation causes:** The failing path depends on the selected parameters. Evidence from the generator shows that
+release/acquire can be expressed by `memoryBarrier`, guard atomics, `controlBarrier`, or combinations of those operations, with
+scope, storage semantics, coherence mode, storage class, and shader stage all varied by the registered path. A grounded
+implementation investigation should therefore check whether the compiler and runtime preserve the requested SPIR-V memory
+semantics, including `MakeAvailable` / `MakeVisible` for extension noncoherent paths, and whether the selected scope and storage
+class are honored for buffer, image, workgroup, or physical-buffer accesses.
+
+#### Early read observed a later partner write
+
+**Possible failure symptoms:** A `write_after_read` case writes a nonzero fail-buffer entry when the shader's early read of the
+partner payload is nonzero. The test expects that read to happen before the partner publishes the payload through the synchronized
+sequence.
+
+**Possible implementation causes:** This points to ordering that is too permissive for the generated sequence rather than to a
+missing positive visibility handoff. Source inspection shows that `write_after_read` uses the regular shader generator but moves
+the partner-payload read before the synchronization-controlled write. A grounded investigation should focus on whether the
+compiler or execution model allowed the later payload store to become visible to the earlier read, or otherwise reordered the
+shader-side memory operations across the synchronization structure selected by the case.
+
+#### Transitive availability/visibility chain break
+
+**Possible failure symptoms:** A `transitive` case writes a nonzero fail-buffer entry after the representative guard or chain was
+observed. The final payload read did not see the partner workgroup's expected payload value.
+
+**Possible implementation causes:** The transitive shader is not just a direct two-invocation release/acquire test. It uses a
+workgroup representative, device-scope guard synchronization, and either direct destination acquire (`nontransvis`) or a
+representative acquire followed by a workgroup handoff through `sharedSkip` (`transvis`). A grounded investigation should check
+whether device-scope availability/visibility chains are implemented correctly, whether the representative's make-visible effect
+is preserved through the workgroup barrier in `transvis`, and whether the selected payload and guard storage classes carry the
+same visibility guarantees as the generated semantics request.
+
+#### Fail-buffer reporting or host-side copyback error
+
+**Possible failure symptoms:** The host reports failure because at least one copied fail-buffer entry is nonzero. If shader-side
+reasoning does not explain the entry, the observable problem is still the same host validation condition: a nonzero value remained
+in the fail buffer at copyback time.
+
+**Possible implementation causes:** The host clears the fail buffer once before repeated submissions, clears payload/guard
+resources before each iteration, inserts transfer/shader barriers, and copies the fail buffer only on the final submit. Source-level
+investigation would be needed to distinguish an actual shader-detected ordering violation from an unexpected problem in buffer
+clear, shader write visibility to transfer, final copyback, or host invalidation.
+
 ## Case Pruning
 
 ### Requirement-based pruning
@@ -996,7 +1065,7 @@ void main()
 
 ### Design-based pruning
 
-- `core11` cases intentionally exclude noncoherent extension behavior, atomic synchronization forms, queue-family scope,
+- `core11` cases exclude noncoherent extension behavior, atomic synchronization forms, queue-family scope,
   64-bit data types, and physical storage buffers because those combinations are outside the Vulkan 1.1 must-pass expectation or
   legacy decoration model [vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2235-L2251).
 - Workgroup scope is limited to compute-stage cases, and workgroup-memory payload/guard cases are also limited to compute with
@@ -1010,24 +1079,24 @@ void main()
 - `u64`, `f32`, and `f64` testing is primarily for atomics, so those data types are only tested with `atomic_atomic`; additional
   64-bit image restrictions remove combinations that cannot express the intended atomic/image behavior
   [vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2285-L2305).
-- Transitive cases are intentionally fixed to extension-mode `uint` message passing with device scope, compute stage, and
+- Transitive cases are fixed to extension-mode `uint` message passing with device scope, compute stage, and
   non-RMW atomics, and they skip workgroup storage and control-barrier forms because the family focuses on device-scope
   availability/visibility chains through representatives
   [vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2370-L2394).
 
 ## Key Takeaways
 
-- Observing the guard is not itself the success condition. The core rule is: if an invocation observes the partner guard, then
-  the corresponding partner payload must be visible with the expected value.
+- Observing the guard is not itself the success condition. If an invocation observes the partner guard, then the corresponding
+  partner payload must be visible with the expected value.
 - `skip` is part of the race design. It means this particular invocation did not observe the partner signal, so the payload check
   is not meaningful for that instance.
 - `write_after_read` checks the opposite timing hazard from normal message passing: the early read must not see a partner write
   that is only performed after synchronization.
-- `transitive` is not just another parameter setting. It uses a separate shader structure to test chained availability/visibility,
-  including whether visibility is performed by a workgroup representative or by destination invocations.
-- Failures can expose hardware, cache, interconnect, driver, or shader-compiler problems such as incomplete release/acquire
-  propagation, scope mishandling, guard visibility without payload visibility, or lowered memory semantics that drop required
-  availability/visibility behavior.
+- `transitive` uses a separate shader structure to test chained availability/visibility, including whether a workgroup
+  representative or the destination invocations perform the visibility step.
+- The failure analysis is tied to the behavior parameter that failed: direct payload visibility for `message_passing`, early-read
+  timing for `write_after_read`, transitive chain propagation for `transitive`, and fail-buffer/copyback behavior only when the
+  shader-side reason is not enough to explain the observed nonzero entry.
 
 ## Source Reference Appendix
 

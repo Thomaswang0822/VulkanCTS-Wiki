@@ -1,13 +1,13 @@
 ## Overview
 
-**Core question:** Does layered geometry-shader rendering put each generated primitive on the intended layer, face, or 3D slice,
-and do the host checks observe the expected per-layer image contents?
+**Core question:** Does layered geometry-shader rendering route each generated primitive to the intended layer, face, or 3D slice,
+and does host validation see the expected image contents in each destination?
 
 - This page covers the `geometry.layered` test family implemented by
   [vktGeometryLayeredRenderingTests.cpp](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1).
-- The family combines one image-shape prefix, one size prefix, and one behavior leaf. The behavior leaf is the main semantic
-  axis: it changes shader logic, execution path, and validation expectations.
-- The same ten behavior leaves repeat under 1D-array, 2D-array, cube, cube-array, and 3D image-view prefixes.
+- The family combines one image-shape prefix, one size prefix, and one behavior leaf. The behavior leaf is the main test choice:
+  it changes shader logic, execution path, and validation expectations.
+- The same ten behavior leaves appear under the 1D-array, 2D-array, cube, cube-array, and 3D image-view prefixes.
 - Most leaves draw into a layered color attachment. The `readback` leaf adds depth/stencil and two-pass attachment-load checks,
   while the `secondary_cmd_buffer` leaves add secondary command buffer execution and storage-image feedback.
 
@@ -16,9 +16,9 @@ and do the host checks observe the expected per-layer image contents?
 - A layered framebuffer exposes multiple destinations through one framebuffer: array layers, cube faces, cube-array face slices,
   or 3D image z slices.
 - A geometry shader selects the destination for emitted primitives by writing `gl_Layer` before `EmitVertex()`.
-- The host validates all effective layers after rendering. A wrong `gl_Layer`, wrong cube-face mapping, or wrong 3D-slice mapping
-  becomes a wrong image in one or more layers.
-- `geometry.layered.2d_array.64_64_4.<leaf>` is the easiest concrete model: a 64x64 2D-array image with exactly four layers.
+- The host validates all effective layers after rendering. An incorrect `gl_Layer`, cube-face mapping, or 3D-slice mapping
+  produces incorrect image contents in one or more layers.
+- `geometry.layered.2d_array.64_64_4.<leaf>` is the simplest concrete example: a 64x64 2D-array image with exactly four layers.
 
 ## Registration Hierarchy
 
@@ -37,34 +37,37 @@ child contains two size intermediate nodes, and each size intermediate node cont
 mustpass list confirms the generated `geometry.layered` leaves in
 [geometry.txt](../../../mustpass/main/vk-default/geometry.txt#L95-L194).
 
-## Intermediate Nodes
+## Parameter Dimensions and Observed Values
 
-The direct intermediate nodes say what a layer number means:
+| Dimension | Registered values | Meaning in this test | Evidence |
+|-----------|-------------------|----------------------|----------|
+| Image-view prefix | `1d_array`, `2d_array`, `cube`, `cube_array`, `3d` | Changes what a layer number names: array layer, cube face, cube-array face slice, or 3D z slice. | [imageParamGroups[]](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2023-L2036) |
+| Size prefix | `64_1_4`, `12_1_6`, `64_64_4`, `12_36_6`, `64_64_6`, `36_36_6`, `64_64_12`, `36_36_12`, `64_64_8` | Changes width, height, and effective layer count or 3D depth. | [size-name generation](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2043-L2052) |
+| Behavior leaf | `render_to_default_layer`, `render_to_one`, `render_to_all`, `render_different_content`, `fragment_layer`, `invocation_per_layer`, `multiple_layers_per_invocation`, `readback`, `secondary_cmd_buffer`, `secondary_cmd_buffer_inherit_framebuffer` | Changes shader logic, runtime path, and validation rule; this is the main behavior choice. | [behavior registration](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2000-L2068) |
+| Effective layer count | array layer count, cube face count, cube-array face-slice count, or 3D depth | Determines shader loop bounds and host validation count. | [numLayers calculation](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L870-L871) |
+| Secondary-command-buffer inheritance | false or true | Splits `secondary_cmd_buffer` from `secondary_cmd_buffer_inherit_framebuffer`. | [inheritance info](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1871-L1889) |
 
-| Intermediate node | Layer interpretation | Registered sizes |
-|-------------------|----------------------|------------------|
-| `1d_array` | A 1D array layer. | `64_1_4`, `12_1_6` |
-| `2d_array` | A 2D array layer. | `64_64_4`, `12_36_6` |
-| `cube` | One cube face. | `64_64_6`, `36_36_6` |
-| `cube_array` | One face of one cube in a cube array. | `64_64_12`, `36_36_12` |
-| `3d` | One z slice of a 3D image. | `64_64_8`, `12_36_6` |
+## Behavior Parameters
 
-The size intermediate node encodes width, height, and layer count or 3D depth. For example, `2d_array.64_64_4` means a 64x64
-2D-array image with four layers. The behavior leaf below the size is what changes the shader and validation rule.
-
-## Behavior Leaves
-
-Use this fixed prefix as the concrete mental model:
+The primary behavioral axis is the final behavior leaf below each image-view and size prefix. Use this fixed prefix as the example
+path:
 
 ```text
 dEQP-VK.geometry.layered.2d_array.64_64_4.<leaf>
 ```
 
-All ten leaves below that prefix render to the same four-layer 64x64 2D-array image. Only the final leaf changes what happens.
+All ten leaves below that prefix render to the same four-layer 64x64 2D-array image. Only the final leaf changes the rendered behavior.
+The image-view and size prefixes still matter, but they are configuration dimensions: they define what `gl_Layer` indexes and how
+many destinations the shader and host validation must cover.
+
+| Configuration dimension | Registered values | Meaning in this test |
+|-------------------------|-------------------|----------------------|
+| Image-view prefix | `1d_array`, `2d_array`, `cube`, `cube_array`, `3d` | Changes what a layer number names: a 1D array layer, 2D array layer, cube face, cube-array face slice, or 3D z slice. |
+| Size prefix | `64_1_4`, `12_1_6`, `64_64_4`, `12_36_6`, `64_64_6`, `36_36_6`, `64_64_12`, `36_36_12`, `64_64_8` | Encodes width, height, and effective layer count or 3D depth. |
 
 ### `render_to_default_layer` — implicit layer 0
 
-The geometry shader emits one rectangle and does not write `gl_Layer`. The expected result is:
+The geometry shader emits one rectangle without writing `gl_Layer`. The expected result is:
 
 ```text
 layer 0: left half is white
@@ -73,12 +76,12 @@ layer 2: black
 layer 3: black
 ```
 
-This checks the default rule: without explicit layer selection, rendering lands in layer 0.
+This leaf checks the default rule: without explicit layer selection, rendering lands in layer 0.
 
 ### `render_to_one` — one explicit target layer
 
-The geometry shader emits one rectangle and writes `gl_Layer = 2`, the middle target layer for four layers. The expected result
-is:
+The geometry shader emits one rectangle and writes `gl_Layer = 2`, the middle target layer in this four-layer image. The expected
+result is:
 
 ```text
 layer 0: black
@@ -87,12 +90,12 @@ layer 2: left half is white
 layer 3: black
 ```
 
-This checks the simplest explicit `gl_Layer` assignment away from layer 0.
+This leaf checks an explicit `gl_Layer` assignment away from layer 0.
 
 ### `render_to_all` — one invocation targets every layer
 
 One geometry shader invocation loops over all four layers. For each layer, it writes `gl_Layer = layerNdx`, emits one rectangle,
-and assigns a layer-specific color. The expected result is:
+and assigns a color for that layer. The expected result is:
 
 ```text
 layer 0: left half is white
@@ -101,11 +104,11 @@ layer 2: left half is green
 layer 3: left half is blue
 ```
 
-This checks repeated layer selection from one geometry shader invocation.
+This leaf checks repeated layer selection from one geometry shader invocation.
 
 ### `render_different_content` — layers must keep independent contents
 
-The geometry shader loops over layers but changes the rectangle width by layer. Layer 0 intentionally remains empty. The expected
+The geometry shader loops over layers and changes the rectangle width for each layer. Layer 0 remains empty. The expected
 result is:
 
 ```text
@@ -115,7 +118,7 @@ layer 2: a wider white bar, about 1/2 image width
 layer 3: a still wider white bar, about 3/4 image width
 ```
 
-This checks that layers do not accidentally share, duplicate, or overwrite the same content.
+This leaf checks that layers keep separate contents instead of sharing, duplicating, or overwriting the same image data.
 
 ### `fragment_layer` — fragment-stage `gl_Layer`
 
@@ -129,11 +132,11 @@ layer 2: left half has the color for fragment gl_Layer == 2
 layer 3: left half has the color for fragment gl_Layer == 3
 ```
 
-This checks that layer identity is preserved into the fragment stage, not only that pixels land in the right layer.
+This leaf checks that layer identity reaches the fragment stage, in addition to proving that pixels land in the right layer.
 
 ### `invocation_per_layer` — one geometry invocation per layer
 
-The geometry shader runs with four invocations for one input point. Invocation 0 writes layer 0, invocation 1 writes layer 1,
+The geometry shader runs four invocations for one input point. Invocation 0 writes layer 0, invocation 1 writes layer 1,
 invocation 2 writes layer 2, and invocation 3 writes layer 3, using `gl_InvocationID` as the layer number. The expected image
 matches `render_to_all`:
 
@@ -144,11 +147,11 @@ layer 2: left half is green
 layer 3: left half is blue
 ```
 
-This separates loop-based layer targeting from geometry-shader invocation handling.
+This leaf separates loop-based layer targeting from geometry-shader invocation handling.
 
 ### `multiple_layers_per_invocation` — one invocation writes multiple layers
 
-The geometry shader again uses multiple invocations, but each invocation writes both its own layer and the next layer, wrapping
+The geometry shader again uses multiple invocations. Each invocation writes both its own layer and the next layer, wrapping
 from layer 3 back to layer 0. The expected image is:
 
 ```text
@@ -158,12 +161,12 @@ layer 2: a wider white bar, about 1/2 image width
 layer 3: a still wider white bar, about 3/4 image width
 ```
 
-This checks the harder case where one geometry shader invocation emits primitives for more than one layer.
+This leaf checks the case where one geometry shader invocation emits primitives for more than one layer.
 
 ### `readback` — layered rendering plus color/depth/stencil copyback
 
 The host initializes color, depth, and stencil attachments, renders twice, and copies all three result images back to CPU-visible
-buffers. A pass uniform tells the geometry shader whether it is pass 0 or pass 1. The expected per-layer shape is:
+buffers. A pass uniform identifies pass 0 or pass 1 to the geometry shader. The expected per-layer shape is:
 
 ```text
 left region: result from pass 1
@@ -171,12 +174,12 @@ middle region: result from pass 0
 right region: original cleared content
 ```
 
-This is a layered-rendering test plus an attachment-load and copyback test. It can expose issues in depth/stencil layered
-rendering, image layouts, attachment load behavior, image copies, or CPU-visible result interpretation.
+This leaf combines layered rendering with attachment-load and copyback checks. Because it exercises several mechanisms at once,
+it has the broadest failure surface of any leaf; see [`## Failure Meaning`](#failure-meaning) for a per-mechanism breakdown.
 
 ### `secondary_cmd_buffer` — layered rendering through a secondary command buffer
 
-The rendering commands are recorded into a secondary command buffer that does not inherit a concrete framebuffer. The host also
+The host records the rendering commands into a secondary command buffer that does not inherit a concrete framebuffer. The host also
 pre-fills a layered storage image. During two draws, the fragment shader averages the geometry color with the storage-image color
 and stores the result back. The expected color is:
 
@@ -184,31 +187,20 @@ and stores the result back. The expected color is:
 final color = average(average(initial storage-image color, geometry color), geometry color)
 ```
 
-This checks layered rendering when execution goes through a secondary command buffer and when fragment shader image load/store
-ordering matters.
+This leaf checks layered rendering through a secondary command buffer, including the fragment shader image load/store ordering.
 
 ### `secondary_cmd_buffer_inherit_framebuffer` — inherited-framebuffer variant
 
-This leaf uses the same shader behavior and expected image as `secondary_cmd_buffer`. The difference is command-buffer setup:
+This leaf uses the same shader behavior and expected image as `secondary_cmd_buffer`. They differ only in command-buffer setup:
 `secondary_cmd_buffer` begins without an inherited framebuffer, while `secondary_cmd_buffer_inherit_framebuffer` provides the
 actual framebuffer in the secondary command buffer inheritance info.
 
-If only this leaf fails, the likely problem is framebuffer inheritance rather than basic `gl_Layer` routing.
-
-## Parameter Dimensions and Observed Values
-
-| Dimension | Registered values | Meaning in this test | Evidence |
-|-----------|-------------------|----------------------|----------|
-| Image-view prefix | `1d_array`, `2d_array`, `cube`, `cube_array`, `3d` | Changes what a layer number names: array layer, cube face, cube-array face slice, or 3D z slice. | [imageParamGroups[]](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2023-L2036) |
-| Size prefix | `64_1_4`, `12_1_6`, `64_64_4`, `12_36_6`, `64_64_6`, `36_36_6`, `64_64_12`, `36_36_12`, `64_64_8` | Changes width, height, and effective layer count or 3D depth. | [size-name generation](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2043-L2052) |
-| Behavior leaf | `render_to_default_layer`, `render_to_one`, `render_to_all`, `render_different_content`, `fragment_layer`, `invocation_per_layer`, `multiple_layers_per_invocation`, `readback`, `secondary_cmd_buffer`, `secondary_cmd_buffer_inherit_framebuffer` | Changes shader logic, runtime path, and validation rule; this is the main semantic axis. | [behavior registration](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L2000-L2068) |
-| Effective layer count | array layer count, cube face count, cube-array face-slice count, or 3D depth | Determines shader loop bounds and host validation count. | [numLayers calculation](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L870-L871) |
-| Secondary-command-buffer inheritance | false or true | Splits `secondary_cmd_buffer` from `secondary_cmd_buffer_inherit_framebuffer`. | [inheritance info](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L1871-L1889) |
+If only this leaf fails, the likely problem is framebuffer inheritance, not basic `gl_Layer` routing.
 
 ## Shader Analysis
 
-The representative walkthrough uses `dEQP-VK.geometry.layered.2d_array.64_64_4.render_to_all` because it shows the central
-layer-routing mechanism without the extra readback or secondary-command-buffer machinery: one geometry shader invocation loops
+The representative walkthrough uses `dEQP-VK.geometry.layered.2d_array.64_64_4.render_to_all` because it shows the
+layer-routing mechanism without the extra readback or secondary-command-buffer setup: one geometry shader invocation loops
 over all four layers and writes `gl_Layer` before emitting each rectangle.
 
 ### Representative Shader Walkthrough 1
@@ -231,7 +223,7 @@ dEQP-VK.geometry.layered.2d_array.64_64_4.render_to_all
 #### Purpose
 
 This shader verifies that repeatedly assigning `gl_Layer` in one geometry shader invocation routes generated primitives to all
-array layers, with different colors making layer swaps or missing layers visible.
+array layers, and uses different colors to make layer swaps or missing layers visible.
 
 #### Structural Design
 
@@ -245,8 +237,7 @@ array layers, with different colors making layer swaps or missing layers visible
 
 #### Shader Code
 
-The vertex shader is empty and the fragment shader only writes `o_color = vert_color`; the geometry shader is the stage whose
-logic matters for this representative case.
+The vertex shader is empty and the fragment shader only writes `o_color = vert_color`; the geometry shader contains the relevant logic for this representative case.
 
 ##### Geometry Shader
 
@@ -310,8 +301,8 @@ void main(void)
 
 - `render_to_all` uses one geometry shader invocation with a loop. `invocation_per_layer` produces a similar expected image but
   uses multiple geometry shader invocations and `gl_InvocationID` instead.
-- The fragment shader is intentionally simple for this representative case; `fragment_layer` is the leaf where fragment-stage
-  `gl_Layer` becomes the central behavior.
+- The fragment shader is simple for this representative case; `fragment_layer` is the leaf where fragment-stage
+  `gl_Layer` becomes the tested behavior.
 - The walkthrough disassembly was generated for Vulkan 1.0 / SPIR-V 1.0 from the reconstructed primary geometry shader.
 
 #### Parameter Variation Summary
@@ -496,9 +487,9 @@ void main(void)
 The seven simple leaves are `render_to_default_layer`, `render_to_one`, `render_to_all`, `render_different_content`,
 `fragment_layer`, `invocation_per_layer`, and `multiple_layers_per_invocation`.
 
-- The host creates one layered color image, a layered image view, a framebuffer exposing all effective layers, a graphics
+- The host creates one layered color image, a layered image view, a framebuffer that exposes all effective layers, a graphics
   pipeline, and a host-visible copyback buffer.
-- It clears all layers to black, draws one point, copies all layers to the buffer, and invalidates the host-visible memory.
+- The host clears all layers to black, draws one point, copies all layers to the buffer, and invalidates the host-visible memory.
 - `verifyResults()` iterates every effective layer or slice through `LayeredImageAccess` and delegates the expected content rule
   to `verifyLayerContent()`.
 
@@ -513,11 +504,121 @@ The seven simple leaves are `render_to_default_layer`, `render_to_one`, `render_
 ### Secondary command buffer leaves
 
 - The host creates a layered color attachment and a layered storage image, then pre-fills the storage image with per-layer colors.
-- It records clears, two draws, and a fragment-stage shader memory barrier into a secondary command buffer.
+- The host records clears, two draws, and a fragment-stage shader memory barrier into a secondary command buffer.
 - `secondary_cmd_buffer` begins the secondary command buffer without a concrete inherited framebuffer;
   `secondary_cmd_buffer_inherit_framebuffer` supplies the framebuffer in inheritance info.
 - The host executes the secondary command buffer inside a primary render pass, copies the color attachment, and validates the
   final blended per-layer result.
+
+## Failure Meaning
+
+### Failure Cause Mapping
+
+| If this behavior parameter value fails | Possible failure cause(s) |
+|----------------------------------------|---------------------------|
+| `render_to_default_layer` | Default layer selection when `gl_Layer` is not written. |
+| `render_to_one` | Explicit `gl_Layer` assignment to one nonzero layer. |
+| `render_to_all` | Repeated layer assignment from one geometry shader invocation. |
+| `render_different_content` | Independent per-layer storage and rasterization of layer-specific geometry. |
+| `fragment_layer` | Fragment-stage `gl_Layer` value propagation. |
+| `invocation_per_layer` | Geometry shader invocation handling and `gl_InvocationID`-based layer selection. |
+| `multiple_layers_per_invocation` | Multiple layer targets emitted by one geometry shader invocation. |
+| `readback` | Two-pass layered attachment load, depth/stencil output, image layout transition, copyback, or host interpretation. |
+| `secondary_cmd_buffer` | Layered rendering through secondary command buffer execution, storage-image feedback, or shader memory barriers. |
+| `secondary_cmd_buffer_inherit_framebuffer` | Same as `secondary_cmd_buffer`, plus framebuffer inheritance handling. |
+
+All rows also depend on the configured image-view prefix. A failure that appears only for `cube`, `cube_array`, or `3d` prefixes may
+point to the interpretation of `gl_Layer` as a cube face, cube-array face slice, or 3D z slice rather than to the leaf-specific
+shader mechanism alone.
+
+### Cause Analysis
+
+#### Default layer selection when `gl_Layer` is not written
+
+**Possible failure symptoms:** `render_to_default_layer` expects only layer 0 to contain the white left-half rectangle; every
+other layer must remain black. The observable problem is either missing pixels in layer 0 or unexpected pixels in another layer.
+
+**Possible implementation causes:** because this leaf deliberately omits `gl_Layer`, it isolates the implementation's
+default layer routing for geometry-shader output primitives, plus the same layered framebuffer and copyback path used by the simple
+leaves. A failure points to incorrect default layer assignment when no explicit `gl_Layer` is written, or to a shared infrastructure
+issue in layered framebuffer creation or copyback.
+
+#### Explicit and repeated `gl_Layer` assignment
+
+**Possible failure symptoms:** `render_to_one` and `render_to_all` both depend on explicit geometry-shader writes to
+`gl_Layer`. A failure in `render_to_one` means a single nonzero target layer was not selected correctly, or non-target layers were
+modified. A failure in `render_to_all` means one or more loop-selected layers received the wrong color, no color, or another layer's
+color.
+
+**Possible implementation causes:** these symptoms point to lowering or execution of the geometry shader's `gl_Layer`
+output, rasterization into the selected layered attachment, or image-view-specific mapping of the layer number to an array layer, cube
+face, cube-array face slice, or 3D slice.
+
+#### Independent per-layer contents
+
+**Possible failure symptoms:** `render_different_content` validates a different bar width per layer and expects layer 0 to
+remain empty. A failure can mean that layer contents are aliased, duplicated, overwritten, or validated with the wrong layer ordering.
+
+**Possible implementation causes:** the leaf is stronger than an all-layer color check because the shape varies by layer;
+an implementation that routes all primitives to several layers or reuses one layer's contents can pass a simpler coverage check but
+fail this one. A failure points to incorrect per-layer isolation in the layered framebuffer or in the geometry shader's layer-routing
+output stream.
+
+#### Fragment-stage `gl_Layer` value propagation
+
+**Possible failure symptoms:** `fragment_layer` expects the fragment shader's `gl_Layer` value to match the layer chosen by the
+geometry shader and to encode that value into color. If pixels appear in the correct destination but with the wrong encoded color, the
+failure is not basic layer routing. If destination layers are also wrong, the failure overlaps with the explicit `gl_Layer` assignment
+causes above.
+
+**Possible implementation causes:** the likely cause is propagation of the layer identity into the fragment stage or
+compilation of the fragment shader's `gl_Layer` expression — for example, the shader compiler does not pass the `Layer` built-in from
+the geometry stage output to the fragment stage input.
+
+#### Geometry shader invocation handling and multi-target emission
+
+**Possible failure symptoms:** `invocation_per_layer` uses `layout(points, invocations = numLayers) in` and selects the
+destination from `gl_InvocationID`. A failure means invocation count, invocation ID, or per-invocation geometry-shader output is not
+producing one rectangle per layer. `multiple_layers_per_invocation` expects each invocation to emit primitives for two different
+layers; a failure there means one of the two layer-targeted strips is missing or incorrect.
+
+**Possible implementation causes:** the implementation may incorrectly assume one layer target per invocation, mishandle
+`EndPrimitive()` boundaries after changing `gl_Layer`, or lose one of the two layer-targeted triangle strips. This points to
+geometry-shader invocation launch, `gl_InvocationID` population, or output-stream management after layer changes.
+
+#### Two-pass layered attachment load and copyback
+
+**Possible failure symptoms:** `readback` validates three attachments: color, depth, and stencil. Each layer must contain a
+three-region pattern where pass 1, pass 0, and the original cleared content remain distinguishable. The failing attachment and region
+narrow the investigation: a color-only mismatch differs from a depth/stencil mismatch, and a missing preserved region differs from a
+wrong pass-1 region.
+
+**Possible implementation causes:** a failure can come from several checked mechanisms: the geometry shader may route
+pass-dependent primitives to the wrong layer, attachment load behavior may fail to preserve earlier content, depth or stencil output
+may not be layered consistently with color, image layout transitions may not make the rendered data available for copying, or the
+copyback/host interpretation path may read the wrong data.
+
+#### Secondary command buffer execution and storage-image feedback
+
+**Possible failure symptoms:** `secondary_cmd_buffer` validates layered rendering when the rendering commands are recorded in a
+secondary command buffer. It also checks a fragment shader feedback path: the first draw averages the pre-filled storage-image color
+with the geometry color, a shader memory barrier separates the draws, and the second draw averages the previous result again. A
+failure means the final per-layer color does not match the expected blended result.
+
+**Possible implementation causes:** the secondary command buffer did not execute the layered draw as recorded, the storage
+image was addressed with the wrong `gl_Layer`, the fragment shader image load/store operations did not observe the expected ordering
+across the barrier, or the final color attachment did not receive the computed blended result.
+
+#### Framebuffer inheritance handling
+
+**Possible failure symptoms:** `secondary_cmd_buffer_inherit_framebuffer` has the same shader and expected image as
+`secondary_cmd_buffer`, but the secondary command buffer is begun with the actual framebuffer in its inheritance info. If only this
+leaf fails, the most specific cause is the inherited framebuffer path. If both secondary-command-buffer leaves fail, the shared causes
+above are more likely than inheritance alone.
+
+**Possible implementation causes:** the driver handles the case where the secondary command buffer inherits a concrete
+framebuffer differently from the case where it does not — specifically, how `VkCommandBufferInheritanceInfo` supplies the framebuffer
+to the secondary buffer. If only the inherit variant fails, this inheritance info path is the suspect, not basic `gl_Layer` routing.
 
 ## Case Pruning
 
@@ -539,13 +640,13 @@ The seven simple leaves are `render_to_default_layer`, `render_to_one`, `render_
 
 ## Key Takeaways
 
-- The behavior leaf is the most important part of a `geometry.layered` path; it determines the shader behavior, runtime path, and
+- The behavior leaf is the most important part of a `geometry.layered` path: it determines the shader behavior, runtime path, and
   validation rule.
-- The image-view and size prefixes still matter because they change what `gl_Layer` indexes and how many destinations are checked.
+- The image-view and size prefixes matter because they change what `gl_Layer` indexes and how many destinations host validation checks.
 - The family separates similar-looking outcomes by mechanism: one loop to all layers, one invocation per layer, one invocation to
   multiple layers, fragment-stage layer reads, two-pass readback, and secondary command buffer execution.
-- A failure usually identifies a specific class of bug: default layer routing, explicit `gl_Layer` writes, geometry shader
-  invocations, fragment-stage `gl_Layer`, attachment load/copyback, or secondary command buffer inheritance.
+- Use `Failure Meaning` to interpret a failure by behavior leaf, then refine the investigation with the image-view prefix and the
+  failing attachment, region, layer, or secondary-command-buffer variant.
 
 ## Source Reference Appendix
 

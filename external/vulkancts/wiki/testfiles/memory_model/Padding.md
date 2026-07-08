@@ -31,14 +31,27 @@ memory_model.padding
 └── test
 ```
 
-The hierarchy is intentionally small: there is one registered case, `test`, and no generated matrix of padding variants.
+The hierarchy is small: there is one registered case, `test`, and no generated matrix of padding variants.
 
-## Intermediate Nodes
+## Parameter Dimensions and Observed Values
 
-There are no intermediate nodes under the `padding` test family. The registered path goes directly from `memory_model.padding` to
-the single `test` case leaf.
+This page has no generated parameter matrix. The fixed values below are part of the single `memory_model.padding.test` case; the
+path has no intermediate nodes between the `padding` test family and the final test case leaf.
 
-The test case copies three arrays from input to output: `subA`, `subB`, and `subC`. Each array has three elements, so three
+| Fixed value | Value in this test | Meaning in this test | Evidence |
+|-------------|--------------------|----------------------|----------|
+| Registered case count | one case: `test` | Confirms there are no intermediate nodes under `memory_model.padding` before the final test case leaf. | [registration](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L360-L367), [mustpass](../../../mustpass/main/vk-default/memory-model.txt#L8256-L8260) |
+| Array length | `3` | Creates three elements in each of `subA`, `subB`, and `subC`; dispatch x dimension is also `3`. | [kArrayLength](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L68-L75), [dispatch](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L340-L345) |
+| Host padding regions | 12, 8, and 4 bytes | Makes the trailing `std140` padding of the three structure shapes directly checkable on the host. | [host structures](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L44-L75) |
+| Scalar input values | `a = 1`, `b = 2`, `c = 3` | Distinguishes copied declared members from untouched padding bytes. | [constants](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L242-L247) |
+| Padding sentinels | input padding `0xFE`, output-initial padding `0x7F` | Verifies output padding is not overwritten by the shader copy, even though input padding has a different value. | [constants and initialization](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L242-L270) |
+
+## Behavior Parameters
+
+There is no multi-value behavioral axis under the `padding` test family. The registered path goes directly from
+`memory_model.padding` to the single `test` case leaf, so the behavior parameter is the fixed leaf `test`.
+
+The `test` case copies three arrays from input to output: `subA`, `subB`, and `subC`. Each array has three elements, so three
 compute invocations copy one element from each array
 [vktMemoryModelPadding.cpp](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L68-L75),
 [vktMemoryModelPadding.cpp](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L214-L220),
@@ -53,19 +66,6 @@ The shader-side structures are compact declarations:
 The host-side mirror structures deliberately expose the corresponding trailing padding as byte arrays: 12 bytes for `Pad12`,
 8 bytes for `Pad8`, and 4 bytes for `Pad4`
 [vktMemoryModelPadding.cpp](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L44-L75).
-
-## Parameter Dimensions and Observed Values
-
-This page has no generated parameter matrix. The fixed values below are part of the single `memory_model.padding.test` case; the
-path has no intermediate nodes between the `padding` test family and the final test case leaf.
-
-| Fixed value | Value in this test | Meaning in this test | Evidence |
-|-------------|--------------------|----------------------|----------|
-| Registered case count | one case: `test` | Confirms there are no intermediate nodes under `memory_model.padding` before the final test case leaf. | [registration](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L360-L367), [mustpass](../../../mustpass/main/vk-default/memory-model.txt#L8256-L8260) |
-| Array length | `3` | Creates three elements in each of `subA`, `subB`, and `subC`; dispatch x dimension is also `3`. | [kArrayLength](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L68-L75), [dispatch](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L340-L345) |
-| Host padding regions | 12, 8, and 4 bytes | Makes the trailing `std140` padding of the three structure shapes directly checkable on the host. | [host structures](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L44-L75) |
-| Scalar input values | `a = 1`, `b = 2`, `c = 3` | Distinguishes copied declared members from untouched padding bytes. | [constants](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L242-L247) |
-| Padding sentinels | input padding `0xFE`, output-initial padding `0x7F` | Verifies output padding is not overwritten by the shader copy, even though input padding has a different value. | [constants and initialization](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L242-L270) |
 
 ## Shader Analysis
 
@@ -303,6 +303,7 @@ values above are fixed by the single registered case.
 ```
 
 </details>
+
 ## Runtime Execution and Result Checking
 
 - The host allocates two host-visible buffers with the size of `BufferStructure`: binding `0` is a uniform buffer input, and
@@ -328,6 +329,34 @@ values above are fixed by the single registered case.
 | Compute pipeline | Yes | Pipeline state | Executes structure assignments | No | Runs the generated GLSL compute shader. |
 | Padding byte arrays | Host-side struct fields only | No descriptor | Not directly addressed as shader fields | Yes, through output struct mirror | Oracle for bytes not declared in shader structures. |
 
+## Failure Meaning
+
+### Failure Cause Mapping
+
+Because `memory_model.padding.test` is a single fixed case with no multi-value behavioral axis, any failure points to the same
+combined check: declared scalar members must be copied correctly, and destination padding bytes must remain untouched.
+
+| If this behavior parameter value fails | Possible failure cause(s) |
+|----------------------------------------|---------------------------|
+| `test` | Incorrect declared-member copy or padding preservation for `std140` structure assignment. |
+
+### Cause Analysis
+
+#### Incorrect declared-member copy or padding preservation for `std140` structure assignment
+
+**Possible failure symptoms:** The host-side `checkValues(kA, kB, kC, kOutputPaddingByte)` check fails because at least one copied
+scalar member is not `1`, `2`, or `3` as expected, or at least one destination padding byte changed from the output sentinel
+value `0x7F` [vktMemoryModelPadding.cpp](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L99-L133),
+[vktMemoryModelPadding.cpp](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L350-L355).
+
+**Possible implementation causes:** The generated compute shader assigns whole GLSL structures in `std140` input and output
+blocks, but the shader-declared structures contain only scalar members and no padding fields
+[vktMemoryModelPadding.cpp](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L177-L223). A failure can therefore
+come from compiler lowering or buffer-access code that copies, stores, or coalesces more bytes than the shader-declared members
+require, from incorrect `std140` offset/stride handling for the three structure shapes, or from the host/device visibility path
+failing to make the initialized input or written output data visible at the points checked by the test
+[vktMemoryModelPadding.cpp](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L322-L355).
+
 ## Case Pruning
 
 ### Requirement-based pruning
@@ -338,24 +367,25 @@ values above are fixed by the single registered case.
 
 ### Design-based pruning
 
-- There is no generated padding-case matrix to prune. The test family intentionally registers one test case leaf, `test`
+- There is no generated padding-case matrix to prune. The test family registers one test case leaf, `test`
   [vktMemoryModelPadding.cpp](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L360-L367).
 - The fixed structure shapes cover trailing padding sizes of 12, 8, and 4 bytes under the selected `std140` layout. Other possible
   structure shapes are not registered as separate CTS cases in this file.
 
 ## Key Takeaways
 
-- `memory_model.padding.test` is a single fixed case, not a family of generated padding variants.
+- `memory_model.padding.test` is a single fixed case, so the behavioral axis is the fixed `test` leaf rather than a generated
+  matrix of padding variants.
 - The shader copies only declared structure members, while the host checks explicit padding byte arrays in mirror structures.
 - Different sentinel values make corruption visible: input padding is `0xFE`, while output padding must remain `0x7F`.
-- A failure means the shader copy or compiler lowering touched destination padding bytes that should not be part of the
-  shader-declared structure assignment, or failed to copy declared scalar members correctly.
+- See `## Failure Meaning` for the failure interpretation: a failing result means the declared scalar copy, padding preservation,
+  layout handling, or host/device visibility path did not satisfy the test's validation rule.
 
 ## Source Reference Appendix
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Delegated test family attachment | [vktMemoryModelMessagePassing.cpp#L2410-L2413](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2410-L2413) | Adds the `padding` test family under the main `memory_model` test category. |
+| Delegated test family attachment | [vktMemoryModelMessagePassing.cpp#L2410-L2413](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2410-L2413) | Adds the `padding` test family under the `memory_model` test category. |
 | Factory declaration | [vktMemoryModelPadding.hpp#L30-L35](../../../modules/vulkan/memory_model/vktMemoryModelPadding.hpp#L30-L35) | Declares `createPaddingTests`. |
 | Host mirror structures | [vktMemoryModelPadding.cpp#L44-L75](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L44-L75) | Defines host-visible scalar fields and explicit padding byte arrays. |
 | Initialization and padding checks | [vktMemoryModelPadding.cpp#L77-L133](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L77-L133) | Initializes scalar values and padding sentinels, then checks copied members and untouched padding. |

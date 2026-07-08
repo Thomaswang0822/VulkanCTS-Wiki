@@ -6,16 +6,16 @@ and side-effect-only emission patterns?
 - This page covers the `geometry.basic` test family implemented by
   [vktGeometryBasicGeometryShaderTests.cpp](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1).
 - The test family has three behavioral groups: fixed output-count cases, runtime-varying output-count cases, and
-  side-effect cases that write an SSBO while leaving the color buffer unchanged.
+  side-effect cases that write an SSBO and leave the color buffer unchanged.
 - Most cases render generated geometry into a small color attachment and compare the copied image with a reference PNG.
   The side-effect cases instead validate an SSBO sentinel plus exact color-buffer invariance.
 - Failures point to geometry-stage emit-count handling, geometry-shader instancing, geometry-stage resource access,
-  storage-buffer side effects, or rasterization of deliberately empty/degenerate output.
+  storage-buffer side effects, or rasterization of empty/degenerate output.
 
 ## Background Knowledge
 
 - A geometry shader declares `max_vertices`, but each invocation can emit any legal count up to that limit. These cases
-  deliberately exercise counts such as `0`, `6`, `10`, `100`, and `128`.
+  exercise counts such as `0`, `6`, `10`, `100`, and `128`.
 - `EmitVertex()` appends the current output values to the active output primitive. A wrong loop bound, skipped emit, or
   mishandled zero-count path changes the rendered reference image.
 - Geometry-shader instancing runs multiple geometry invocations for one input primitive. The instanced varying-output
@@ -51,10 +51,22 @@ and appear in the default geometry mustpass list at
 [geometry.txt](../../../mustpass/main/vk-default/geometry.txt#L1-L14). This test family has no intermediate nodes below
 `geometry.basic`; each listed child is an executable test case leaf.
 
-## Intermediate Nodes
+## Parameter Dimensions and Observed Values
 
-`geometry.basic` goes directly from the test family to executable test case leaves. The leaves are best understood as three
-behavioral groups rather than as registered intermediate nodes.
+| Dimension | Registered values | Meaning in this test | Evidence |
+|-----------|-------------------|----------------------|----------|
+| Fixed output pattern | `10`, `128`, `10/100`, `100/10`, `0/128`, `128/0` | Selects how many vertices each point-input geometry invocation emits. | [fixed registrations](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1004-L1011) |
+| Runtime count source | `attribute`, `uniform`, `texture` | Changes whether the geometry shader reads the count from vertex input, a uniform buffer, or a sampled texture. | [varying registrations](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1013-L1025) |
+| Instancing mode | non-instanced, instanced | Changes whether one input point is processed by one geometry invocation or four invocations indexed by `gl_InvocationID`. | [instancing mode enum](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L72-L78) |
+| Canonical varying counts | `6`, `0`, `128`, `10` | Exercises small, zero, maximum, and medium emit counts through every runtime count source. | [count constants](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L79-L85) |
+| Side-effect scenario | `condition`, `degenerate` | Changes how the shader prevents visible color output after writing the SSBO sentinel. | [side-effect registrations](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1027-L1043) |
+| Shared image comparison | reference PNG named from the test case leaf | Converts geometry-stage output correctness into a host-visible pass/fail image comparison. | [compareWithFileImage()](../../../modules/vulkan/geometry/vktGeometryTestsUtil.cpp#L412-L425) |
+
+## Behavior Parameters
+
+`geometry.basic` goes directly from the test family to executable test case leaves. The primary behavioral axis is the
+behavioral group represented by each leaf: fixed output-count rendering, runtime-varying output-count rendering, or
+side-effect-only execution.
 
 ### Fixed output-count leaves — deterministic emit patterns
 
@@ -63,8 +75,8 @@ behavioral groups rather than as registered intermediate nodes.
 draws one point per pattern entry. The geometry shader chooses a fixed emit count, or chooses between two emit counts with
 `gl_PrimitiveIDIn`, and emits a triangle-strip row whose visible size reflects the selected count.
 
-These leaves are especially useful for catching implementation mistakes around large geometry output, zero-output
-invocations, and changes in output count between consecutive input primitives.
+These leaves catch implementation mistakes around large geometry output, zero-output invocations, and changes in output count
+between consecutive input primitives.
 
 ### Runtime-varying output-count leaves — count source and instancing behavior
 
@@ -89,21 +101,10 @@ output either by taking a false conditional path or by emitting only two vertice
 
 The host checks both observations: the SSBO must contain `777u`, and the 1x1 color buffer must still equal the clear color.
 
-## Parameter Dimensions and Observed Values
-
-| Dimension | Registered values | Meaning in this test | Evidence |
-|-----------|-------------------|----------------------|----------|
-| Fixed output pattern | `10`, `128`, `10/100`, `100/10`, `0/128`, `128/0` | Selects how many vertices each point-input geometry invocation emits. | [fixed registrations](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1004-L1011) |
-| Runtime count source | `attribute`, `uniform`, `texture` | Changes whether the geometry shader reads the count from vertex input, a uniform buffer, or a sampled texture. | [varying registrations](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1013-L1025) |
-| Instancing mode | non-instanced, instanced | Changes whether one input point is processed by one geometry invocation or four invocations indexed by `gl_InvocationID`. | [instancing mode enum](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L72-L78) |
-| Canonical varying counts | `6`, `0`, `128`, `10` | Exercises small, zero, maximum, and medium emit counts through every runtime count source. | [count constants](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L79-L85) |
-| Side-effect scenario | `condition`, `degenerate` | Changes how the shader prevents visible color output after writing the SSBO sentinel. | [side-effect registrations](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L1027-L1043) |
-| Shared image comparison | reference PNG named from the test case leaf | Converts geometry-stage output correctness into a host-visible pass/fail image comparison. | [compareWithFileImage()](../../../modules/vulkan/geometry/vktGeometryTestsUtil.cpp#L412-L425) |
-
 ## Shader Analysis
 
-The representative walkthrough uses `dEQP-VK.geometry.basic.output_vary_by_texture_instancing` because it combines the most
-important moving parts in this test family: descriptor-backed count selection, texture sampling in the geometry stage,
+The representative walkthrough uses `dEQP-VK.geometry.basic.output_vary_by_texture_instancing` because it covers the most
+moving parts in this test family: descriptor-backed count selection, texture sampling in the geometry stage,
 `gl_InvocationID`, four invocations, a zero-output invocation, and the maximum `128` output count. Fixed-pattern cases use the
 same `EmitVertex()` principle with simpler count selection, while side-effect cases replace the image-reference shader with an
 SSBO-writing shader described in the variation summary.
@@ -128,8 +129,8 @@ dEQP-VK.geometry.basic.output_vary_by_texture_instancing
 #### Purpose
 
 This shader verifies that a geometry shader can use `gl_InvocationID` to sample a per-invocation texture slot and then use the
-sampled channel to control a dynamic `EmitVertex()` loop. The rendered arcs prove the count source, invocation indexing, loop
-bound, emitted positions, and output colors are all coherent.
+sampled channel to control a dynamic `EmitVertex()` loop. The rendered arcs show that the count source, invocation indexing, loop
+bound, emitted positions, and output colors all match.
 
 #### Structural Design
 
@@ -590,9 +591,90 @@ For side-effect leaves:
 - validation requires the storage buffer value to equal `777u` and the copied 1x1 color buffer to remain exactly equal to the
   clear color.
 
-A rendered-image failure means the emitted geometry did not match the expected pattern. A side-effect failure means either the
-geometry-stage storage-buffer write was lost/incorrect or the shader produced visible raster output when the case design says
-it should not.
+## Failure Meaning
+
+### Failure Cause Mapping
+
+| If this behavior parameter value fails | Possible failure cause(s) |
+|----------------------------------------|---------------------------|
+| Fixed output-count leaves | Fixed geometry emit-count or primitive-pattern handling failure; reference-image mismatch from wrong emitted positions, colors, or rasterized triangle-strip output. |
+| Runtime-varying output-count leaves | Runtime count-source or descriptor access failure; geometry-shader instancing or `gl_InvocationID` indexing failure; dynamic emit-count or zero/max-output handling failure. |
+| Side-effect leaves | Geometry-stage storage-buffer side effect lost or incorrect; unexpected visible raster output from conditional or degenerate geometry. |
+
+### Cause Analysis
+
+#### Fixed geometry emit-count or primitive-pattern handling failure
+
+**Possible failure symptoms:** a fixed-output failure means the rendered 256x256 image does not match the reference PNG for
+the selected output-count pattern. For single-count leaves, the shader emitted too few, too many, or wrongly positioned vertices for
+a fixed `emitCount`. For two-count leaves, `gl_PrimitiveIDIn` may have selected the wrong pattern entry for consecutive input points.
+
+**Possible implementation causes:** because the fixed shader derives `max_vertices` from the registered pattern and emits
+two vertices per loop iteration, a mismatch can be caused by incorrect geometry-shader `EmitVertex()` execution, wrong handling of
+`max_vertices`, or incorrect primitive-ID input to the geometry stage.
+
+#### Reference-image mismatch from wrong emitted positions, colors, or rasterized triangle-strip output
+
+**Possible failure symptoms:** the common render path only reports pass after copying the color attachment and comparing it
+with the named reference image. A failure can come from any stage that changes the final pixels. The image comparison tolerance makes
+small per-pixel deviations acceptable, so a CTS failure usually means a visible pattern, color, or position difference.
+
+**Possible implementation causes:** possible stages include vertex input forwarding, geometry-stage position calculation,
+color output from the geometry shader to the fragment shader, triangle-strip assembly, rasterization, or the final fragment color
+write. If source-level investigation shows the emit-count logic is correct, the surrounding pipeline or image-comparison path should
+be audited.
+
+#### Runtime count-source or descriptor access failure
+
+**Possible failure symptoms:** the runtime-varying leaves expect the same count vector, `6`, `0`, `128`, and `10`, regardless
+of whether the geometry shader gets it from vertex attributes, a uniform buffer, or a sampled RGBA8 texture. If only one count source
+fails, the fault is near that data path.
+
+**Possible implementation causes:** for attribute cases, vertex attribute delivery may be wrong. For uniform cases,
+uniform-buffer descriptor binding or reads may be wrong. For texture cases, image upload, sampler/view binding, texture sampling, or
+channel decoding may be wrong. These causes are grounded in the CTS setup because the uniform and texture paths bind their resources
+at descriptor binding `0` for the geometry stage before the draw.
+
+#### Geometry-shader instancing or `gl_InvocationID` indexing failure
+
+**Possible failure symptoms:** an instanced-varying failure means the implementation did not produce the expected four
+independent geometry-shader invocations for one input point, or did not give each invocation the correct `gl_InvocationID`. In the
+representative texture-instancing case, a wrong invocation ID selects the wrong texel coordinate, output color, base position, and
+emit count.
+
+**Possible implementation causes:** this can be caused by incorrect lowering or execution of `layout(points, invocations=4)
+in`, incorrect built-in `gl_InvocationID` values, or a compiler optimization that incorrectly treats per-invocation values as uniform
+across invocations.
+
+#### Dynamic emit-count or zero/max-output handling failure
+
+**Possible failure symptoms:** the varying leaves combine dynamic loop bounds with the stress counts `0` and `128`. A failure
+can mean the zero-count path emitted vertices when it should emit none, the maximum-count path did not emit all required vertices, or
+dynamic loop control used the wrong count after resource or invocation selection.
+
+**Possible implementation causes:** this points to geometry-shader control-flow, loop-bound, or output budget handling
+rather than to the image comparator itself, because the expected image is generated from the same canonical count vector across all
+runtime count sources.
+
+#### Geometry-stage storage-buffer side effect lost or incorrect
+
+**Possible failure symptoms:** a side-effect SSBO failure means the host read back a value other than `777u` after the draw.
+The test initializes the storage buffer to zero, binds it as a geometry-stage storage buffer, and the geometry shader writes the
+sentinel before the conditional or degenerate output path can suppress visible fragments.
+
+**Possible implementation causes:** a mismatch can be caused by missing support for geometry-stage storage writes,
+incorrect descriptor binding or memory visibility for the storage buffer, or shader compilation that wrongly eliminates or reorders
+the write even though the buffer value is externally observed.
+
+#### Unexpected visible raster output from conditional or degenerate geometry
+
+**Possible failure symptoms:** a side-effect color-buffer failure means the SSBO write may have happened, but the copied 1x1
+color image no longer equals the clear color. In `side_effect_with_condition`, visible output would imply the false conditional path
+emitted a triangle. In `side_effect_with_degenerate`, visible output would imply that two emitted vertices for a triangle-strip
+output primitive produced fragments.
+
+**Possible implementation causes:** this points to incorrect control flow, geometry primitive assembly, or rasterization
+of incomplete or degenerate geometry in the side-effect shader path.
 
 ## Case Pruning
 
@@ -604,23 +686,23 @@ it should not.
 
 ### Design-based pruning
 
-- The fixed-output matrix is intentionally small: it uses representative single-count and two-count patterns rather than every
+- The fixed-output matrix is small: it uses representative single-count and two-count patterns rather than every
   possible `max_vertices` value.
 - Runtime-varying cases reuse the same canonical count vector across attributes, uniforms, and textures so differences in
   output isolate the count source or instancing behavior.
-- Side-effect cases are separated from image-reference output cases because their central property is the preservation of a
+- Side-effect cases are separated from image-reference output cases because their core property is preserving a
   geometry-stage side effect when visible raster output should be absent.
 
 ## Key Takeaways
 
-- `geometry.basic` checks more than ordinary geometry-shader rendering; it combines fixed emission, resource-derived dynamic
+- `geometry.basic` checks more than ordinary geometry-shader rendering. It covers fixed emission, resource-derived dynamic
   emission, geometry-shader instancing, and side-effect preservation.
-- The zero-count and `128`-count paths are central stress points: they can expose skipped invocation handling, loop-bound bugs,
+- The zero-count and `128`-count paths are stress points: they can expose skipped invocation handling, loop-bound bugs,
   or incorrect maximum-output handling.
 - Descriptor-backed variants can expose implementations that do not correctly make uniform buffers or sampled images available
   to the geometry stage.
-- Side-effect leaves can expose shader compiler or driver optimizations that incorrectly remove geometry-stage storage-buffer
-  writes when raster output is conditional or degenerate.
+- For detailed failure interpretation, use `## Failure Meaning`; the important split is whether the failing leaf belongs to
+  fixed output-count rendering, runtime-varying output-count rendering, or side-effect-only execution.
 
 ## Source Reference Appendix
 
