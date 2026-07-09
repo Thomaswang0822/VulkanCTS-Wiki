@@ -256,7 +256,5 @@ Examples:
 - The `### Failure Cause Mapping` table from `## What Failure Means` should be copied directly into the final page's
   `## Failure Meaning` → `### Failure Cause Mapping`. The `### Cause Analysis` subsection is written fresh during the final
   rewrite, not carried from the brief.
-- After the brief is complete, assess whether built-in knowledge is sufficient to write grounded `### Cause Analysis` for every
-  cause in the mapping. If any cause's implementation-level explanation cannot be grounded in Vulkan spec semantics, GPU
-  architecture knowledge, or CTS source inspection, flag it here as a KB gap. A domain knowledge-base file should be created
-  before the final rewrite begins. See `wiki-rewriter/SKILL.md` Step 4 for the KB gap assessment procedure.
+- Read the relevant Vulkan spec chapters at `external/vulkan-docs/src/chapters/` before writing the brief, so that Background
+  Knowledge and Failure Cause Mapping are grounded in spec semantics.

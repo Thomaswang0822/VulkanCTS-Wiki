@@ -37,11 +37,9 @@ Load references as needed:
 - `references/understanding-brief-template.md` when writing an Understanding Brief;
 - `references/terminology-policy.md` before writing reader-facing hierarchy prose;
 - `references/validation-checklist.md` before reporting completion;
-- `references/pilot-examples.md` when a style or structure example is needed;
-- `references/gpu-knowledge/<domain>.md` when a domain knowledge-base file exists for the current domain (see Step 4).
+- `references/pilot-examples.md` when a style or structure example is needed.
 
 Keep template files as templates. Keep workflow decisions in this `SKILL.md`. Keep terminology and validation as separate concerns.
-Domain KB files under `references/gpu-knowledge/` are on-demand knowledge resources, not templates.
 
 ## Mandatory Language Worker Dependencies
 
@@ -227,43 +225,15 @@ table are prepared for user confirmation and later copy into the final page.
 
 When a brief is required, write it from `references/understanding-brief-template.md`. Use the template as the document shape. Do not insert general workflow rationale into the brief itself.
 
+Write the brief to the same directory as the target Level-3 page, using the naming convention `<Level3PageName>_brief.md`. For example, a brief for `testfiles/memory_model/MessagePassing.md` is written to `testfiles/memory_model/MessagePassing_brief.md`.
+
+Before writing the brief, read the relevant Vulkan spec chapters at `external/vulkan-docs/src/chapters/` for the domain the test
+exercises. This ensures the brief's Background Knowledge and Failure Cause Mapping are grounded in spec semantics, not just CTS
+source structure.
+
 After writing an Understanding Brief, stop only if the brief records unresolved risk points that affect final page semantics, representative walkthrough selection, or validation claims. If the brief's audit questions are resolved by inspected source, registration, mustpass, shader, or validation evidence, continue directly to the rewrite in the same task.
 
-### 4. Knowledge-base gap assessment
-
-After an Understanding Brief is complete (including its `### Failure Cause Mapping` table), assess whether built-in knowledge is
-sufficient to write grounded `### Cause Analysis` for every cause in the mapping.
-
-This step applies only when an Understanding Brief was written. Skip it entirely for direct-rewrite pages where no brief was needed.
-
-For each cause in the brief's `### Failure Cause Mapping` table:
-- **Failure symptoms** are almost always derivable from the test's own validation logic and CTS source. If they are not, the brief
-  is incomplete; return to the brief and resolve the gap.
-- **Implementation causes** require grounding in Vulkan spec semantics, GPU architecture knowledge, or CTS source inspection.
-  Assess honestly whether you can explain each cause at the depth the `### Cause Analysis` section requires.
-
-Decision:
-- If you can ground every cause's implementation-level explanation -> proceed to Step 5 without a KB.
-- If one or more causes cannot be grounded -> build a domain knowledge-base file before proceeding to Step 5.
-
-**Building a KB file:**
-- Create `references/gpu-knowledge/<domain>.md` under this skill directory.
-- Name the file after the Vulkan domain, not the CTS category. For example, `ray_tracing.md` for acceleration structure
-  traversal and shader binding table semantics, or `subgroup_operations.md` for ballot/shuffle/reduce execution model.
-- Curate content from the Vulkan spec at `external/vulkan-docs/src/chapters/`, the SPIR-V spec, GPU architecture references, and
-  CTS source inspection. Focus on the specific concepts that the Cause Analysis needs, not a general tutorial.
-- Keep each KB file concise and scoped to the gap that triggered it. Do not create a comprehensive GPU textbook.
-- Stop and report the new KB file path to the user before proceeding to the rewrite.
-
-**Loading existing KB files:**
-- Before starting Step 5, check whether `references/gpu-knowledge/` contains a KB file relevant to the current domain.
-- If a relevant KB file exists, load it before writing `### Cause Analysis`.
-- If no relevant KB file exists and no gap was identified, proceed with built-in knowledge.
-
-This assessment is silent by default. It only interrupts the workflow when a knowledge gap is found and a KB file needs to be
-created. Pages where built-in knowledge is sufficient proceed without any KB overhead.
-
-### 5. Rewrite Level-3 pages
+### 4. Rewrite Level-3 pages
 
 Use the skeleton in `references/level3-template.md`. Scale sections by explanatory value:
 - expand `Shader Analysis` for shader-heavy pages;
@@ -293,8 +263,6 @@ For `## Failure Meaning`:
   implementation (only when grounded in Vulkan spec semantics, GPU architecture knowledge, or CTS source inspection);
 - derive each page's failure analysis case by case from what that specific test exercises; do not apply preconceived assumptions
   about where bugs live (GPU hardware, driver, host);
-- if a domain knowledge-base file was loaded in Step 4, use it to ground implementation-level claims; cite the KB concept, not the
-  KB file, in the final page;
 - if not confident about an implementation-level claim, search the relevant Vulkan spec chapter at
   `external/vulkan-docs/src/chapters/` to verify before stating it; if still unverified, state that source-level investigation is
   needed rather than inventing a cause;
@@ -302,7 +270,7 @@ For `## Failure Meaning`:
 
 Focus every section on test behavior. Keep C++ details as supporting evidence. Move source-navigation material to the final source appendix.
 
-### 6. Integrate shader walkthroughs
+### 5. Integrate shader walkthroughs
 
 Keep `## Shader Analysis` in every Level-3 page.
 
@@ -323,7 +291,7 @@ For representative shader walkthroughs:
 
 Use `shader-analyzer` auto mode only when the exact source file, builder function, target rewritten page, and insertion location are known. Otherwise use manual mode and stop at its confirmation checkpoint before continuing the Level-3 rewrite.
 
-### 7. Rewrite Level-2 pages
+### 6. Rewrite Level-2 pages
 
 Use the skeleton in `references/level2-template.md`.
 
@@ -334,7 +302,7 @@ Write Level-2 pages as category gateways:
 - route readers to rewritten Level-3 pages;
 - avoid duplicating Level-3 matrices, shader walkthroughs, validation mechanics, feature gates, or source appendices.
 
-### 8. Mandatory English language-worker pass
+### 7. Mandatory English language-worker pass
 
 After the rewritten English page is technically complete and before final validation, invoke the required language worker skills in
 this exact order:
@@ -357,7 +325,7 @@ Project boundaries for both worker passes:
 
 The page is not complete until both worker passes have been applied.
 
-### 9. Audit before completion
+### 8. Audit before completion
 
 Apply `references/terminology-policy.md` to authored hierarchy prose.
 
@@ -366,7 +334,6 @@ Run `references/validation-checklist.md` before reporting completion. At minimum
 - behavior parameter identification is correct and matches the behavioral axis;
 - failure cause mapping table aligns with behavior parameters;
 - cause analysis states what could go wrong for every cause; implementation causes are grounded or flagged as needing investigation;
-- if a KB gap was identified after the brief, a domain KB file was created and loaded before writing cause analysis;
 - no preconceived bug-location assumptions are present;
 - registration/mustpass coverage;
 - relative links;

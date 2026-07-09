@@ -138,6 +138,5 @@ Use when an Understanding Brief was created.
 - [ ] `### Cause Analysis` is written fresh during the rewrite, not carried from the brief.
 - [ ] Brief source mapping becomes a focused source appendix.
 - [ ] Important concrete examples become formal walkthroughs, tables, or concise explanations.
-- [ ] If a KB gap was identified after the brief, a domain KB file was created under `references/gpu-knowledge/` before the rewrite.
-- [ ] If a domain KB file exists for this domain, it was loaded before writing `### Cause Analysis`.
+- [ ] Relevant Vulkan spec chapters were read before writing the brief.
 - [ ] Risk points are resolved or reported.
