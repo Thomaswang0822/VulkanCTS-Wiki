@@ -14,15 +14,10 @@ count, and adjacency data, and does its emitted output render as expected?
 
 ## Background Knowledge
 
-- A geometry shader declares its input primitive class separately from its output primitive class. The input side can use
-  `points`, `lines`, `triangles`, `lines_adjacency`, or `triangles_adjacency`; the output side uses `points`,
-  `line_strip`, or `triangle_strip`.
-- Vulkan pipeline primitive topology and GLSL geometry-shader input layout must agree. For example,
-  `VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY` maps to the geometry-shader input layout `lines_adjacency`.
-- The test amplifies geometry for observability. It is not modeling-style mesh subdivision; it emits a
-  small repeated shape so image comparison can reveal whether the shader received the expected input vertices.
-- Validation is image-based. The test does not read back per-primitive records; it renders to a color attachment, copies
-  the image to host-visible memory, and compares it against `vulkan/data/geometry/<test-name>.png`.
+- **Input and output primitive classes.** A geometry shader declares its input primitive class separately from its output primitive class. The input side can use `points`, `lines`, `triangles`, `lines_adjacency`, or `triangles_adjacency`; the output side emits `points`, `line_strip`, or `triangle_strip`.
+- **Pipeline topology agreement.** Vulkan input-assembly topology and the GLSL geometry-shader input layout must describe the same primitive class. For example, `VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY` maps to a `lines_adjacency` geometry input layout.
+- **Adjacency inputs.** Adjacency topologies provide neighboring vertices in addition to the main line or triangle vertices. The geometry shader sees those extra vertices through `gl_in`, so vertex count and ordering matter.
+- **Amplifying input for observability.** A geometry shader can emit multiple visible vertices for each input entry. This is useful for exposing whether the shader received the expected input primitive, but it is distinct from modeling-style mesh subdivision.
 
 ## Registration Hierarchy
 

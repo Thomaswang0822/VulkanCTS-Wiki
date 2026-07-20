@@ -18,15 +18,20 @@ Rules:
 
 ## Background Knowledge
 
-Explain only the concepts needed to understand this test before the concrete example and flow.
+Explain only the concepts needed to understand this test before the concrete example and flow. This brief may use more teaching
+scaffolding than the final Level-3 page, but every topic must support later test reasoning.
 
 Guidelines:
 
 - Prefer one or two focused topics, not a general tutorial.
-- Choose concepts that can later be reused in the final Level-3 page's `Background Knowledge` section.
+- Choose concepts that can later be distilled into the final Level-3 page's `Background Knowledge` section.
 - Explain the domain/scope of key terms, such as whether memory is per invocation, per workgroup, per queue, or device-wide.
+- Use a concise realistic example or analogy when an abstract definition would not build the right mental model.
+- When ordinary use of a concept would mislead the reader about an unconventional test design, explain the ordinary use first and
+  then identify the unusual relationship and its interpretive consequence.
 - Explain important caveats early when they prevent wrong mental models.
 - For shader-heavy tests, include the minimum shader execution model needed to understand the test.
+- Keep detailed setup, parameters, execution, expected results, correctness contracts, and failure meaning in later brief sections.
 
 Good shape:
 
@@ -243,8 +248,12 @@ Briefly record how this Understanding Brief should influence the final Level-3 p
 Important rule:
 
 - Do not copy the brief's beginner-friendly `Background Knowledge` section directly into the final wiki page. Distill it into
-  the final Level-3 template style: a brief unordered list of page-specific prerequisites, similar to the
-  `vktMemoryModelMessagePassing.md` pilot page.
+  the final Level-3 template style: a brief unordered list of necessary prerequisites.
+- Preserve a realistic example only when it remains the most efficient way to build the required mental model.
+- Preserve only the bounded ordinary-use versus unconventional-test-use contrast needed to prevent a wrong interpretation; move
+  its detailed application to the appropriate final-page section.
+- If no prerequisite remains after comparison with the target-reader baseline, use the canonical no-prerequisite sentence instead
+  of omitting `## Background Knowledge`.
 
 Examples:
 

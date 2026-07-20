@@ -1,16 +1,41 @@
-# ray_query
+## Overview
 
-The `ray_query` category documents Vulkan CTS tests for `VK_KHR_ray_query` behavior across graphics, compute, and ray-tracing shader stages. The category dispatcher creates the registered children in [vktRayQueryTests.cpp](../../modules/vulkan/ray_query/vktRayQueryTests.cpp#L49-L71), and the build file lists the implementation sources in [CMakeLists.txt](../../modules/vulkan/ray_query/CMakeLists.txt#L6-L37).
+The `ray_query` test category collects tests that check device-side ray traversal through `VK_KHR_ray_query` across graphics, compute, and ray-tracing shader stages.
 
-## Registration Entry Point
+## Background Knowledge
 
-| Item | Evidence |
-|------|----------|
-| Category root | [vktRayQueryTests.cpp](../../modules/vulkan/ray_query/vktRayQueryTests.cpp#L49-L71) |
-| Root header includes | [vktRayQueryTests.cpp](../../modules/vulkan/ray_query/vktRayQueryTests.cpp#L24-L38) |
-| Build inventory | [CMakeLists.txt](../../modules/vulkan/ray_query/CMakeLists.txt#L6-L37) |
+These concepts form the shared model used throughout the `ray_query` test category. Level-3 pages briefly restate the
+part they need, then add family-specific prerequisites.
 
-## Registration Hierarchy
+- **Acceleration-structure hierarchy and spaces.** A bottom-level acceleration structure (BLAS) stores triangle or
+  AABB geometry in object space. A top-level acceleration structure (TLAS) stores transformed instances that reference
+  BLASes and supply metadata. For example, one bunny BLAS can be reused by several differently transformed bunny
+  instances inside a Cornell Box scene. Traversal selects a TLAS instance, transforms the ray into the instance's
+  object space, and traverses the referenced BLAS. See [Acceleration
+  Structures](../../../vulkan-docs/src/chapters/accelstructures.adoc) for more details.
+
+- **Parametric rays and intervals.** A ray is evaluated as `origin + t * direction`. `Tmin` and `Tmax` bound the
+  accepted interval of `t`; because `direction` need not be normalized, `t` is not necessarily world-space distance.
+
+- **Inline traversal versus pipeline tracing.** A `rayQueryEXT` object keeps traversal state inside the shader
+  invocation that calls `rayQueryInitializeEXT`. The shader advances that state explicitly with `rayQueryProceedEXT`.
+  By contrast, `traceRayEXT` launches traversal through a ray tracing pipeline and transfers control through
+  shader-binding-table stages. A ray-tracing shader can host an inline query, but the pipeline trace and the query
+  remain separate traversals.
+
+- **Candidate and committed state.** `rayQueryProceedEXT` can expose a provisional candidate while the query
+  separately retains the closest accepted, or committed, intersection. Candidate selectors read the currently exposed
+  intersection; committed selectors read the retained result. If traversal finishes without an accepted hit, the
+  committed type remains none.
+
+- **Triangle and AABB acceptance.** An opaque triangle can commit without being exposed for shader confirmation, while
+  a non-opaque triangle candidate can be accepted with `rayQueryConfirmIntersectionEXT`. An AABB represents a
+  procedural opportunity rather than a built-in surface hit, so it is exposed as a candidate and requires
+  `rayQueryGenerateIntersectionEXT` with an application-supplied `t` to create an intersection. Calling neither
+  acceptance operation discards an exposed candidate and lets traversal continue. See the [ray traversal
+  chapter](../../../vulkan-docs/src/chapters/raytraversal.adoc).
+
+## Category Structure
 
 ```text
 ray_query
@@ -33,113 +58,42 @@ ray_query
 └── stress
 ```
 
-## Test Families
+The dispatcher [vktRayQueryTests.cpp](../../modules/vulkan/ray_query/vktRayQueryTests.cpp#L49-L71) is registration-only: it adds 17 child groups and delegates each to a separate `create*Tests` function. The 17 registered families map to 14 Level-3 pages because three pages each cover two families rooted in the same implementation file:
 
-### builtin — Ray-query built-ins
+- [Builtin.md](../testfiles/ray_query/Builtin.md) covers `builtin` and `advanced` (both in `vktRayQueryBuiltinTests.cpp`).
+- [Misc.md](../testfiles/ray_query/Misc.md) covers `misc` and `helper_invocations` (both in `vktRayQueryMiscTests.cpp`).
+- [DirectionLength.md](../testfiles/ray_query/DirectionLength.md) covers `direction_length` and `inside_aabbs` (both in `vktRayQueryDirectionTests.cpp`).
 
-The built-in branch covers flow, primitive/instance identifiers, transforms, ray origin/direction, intersection attributes, barycentrics, SBT record offsets, termination, and intersection types [vktRayQueryBuiltinTests.cpp](../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6296-L6328). See [vktRayQueryBuiltinTests](../testfiles/ray_query/vktRayQueryBuiltinTests.md).
+## How the Families Fit Together
 
-### traversal_control — Generated and skipped intersections
+All families exercise inline ray-query operations in shader code. Several run those operations from ray-tracing shader stages, but the query maintains its own traversal state rather than launching a separate `traceRayEXT` traversal; the `stress` family also includes one `traceRayEXT` control path for comparison.
 
-The traversal-control branch crosses shader source, `generate_intersection`/`skip_intersection`, and triangle/AABB bottom geometry [vktRayQueryTraversalControlTests.cpp](../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L2066-L2165). See [vktRayQueryTraversalControlTests](../testfiles/ray_query/vktRayQueryTraversalControlTests.md).
+- `builtin`, `traversal_control`, and `barycentric_coordinates` test **what values** the query built-ins return for hit candidates, generated/skipped intersections, and triangle barycentric coordinates.
+- `watertightness`, `ray_flags`, `non_uniform_args`, and `direction_length` test **which candidates** survive traversal under edge conditions: watertightness cracks, cull and flag masks, miss-causing arguments, and non-unit direction scaling.
+- `acceleration_structures`, `procedural_geometry`, and `misc` test **how the query behaves** when the acceleration structure or query infrastructure varies: build flags, AABB scenes, dynamic indexing, empty-AS updates, and helper-invocation contexts.
+- `opacity_micromap`, `position_fetch`, `multiple_ray_queries`, and `stress` test **extension-specific features and scale**: opacity micromap, position fetch, concurrent query objects, and large ray counts across all shader stages.
 
-### acceleration_structures — AS construction and operation variants
+## Level-3 Pages Navigation
 
-This branch covers build flags, formats, operations, host threading, function arguments, instance culling/update, dynamic indexing, and empty AS cases [vktRayQueryAccelerationStructuresTests.cpp](../../modules/vulkan/ray_query/vktRayQueryAccelerationStructuresTests.cpp#L4744-L4768). See [vktRayQueryAccelerationStructuresTests](../testfiles/ray_query/vktRayQueryAccelerationStructuresTests.md).
+| Registered test family or area | Level-3 page | What to read there |
+|--------------------------------|--------------|--------------------|
+| `builtin`, `advanced` | [Builtin.md](../testfiles/ray_query/Builtin.md) | Ray-query result built-ins across shader stages, plus null-AS and wrapper-function cases. |
+| `traversal_control` | [TraversalControl.md](../testfiles/ray_query/TraversalControl.md) | `generate_intersection` and `skip_intersection` behavior across shader stages and triangle/AABB geometry. |
+| `acceleration_structures` | [AccelerationStructures.md](../testfiles/ray_query/AccelerationStructures.md) | Build flags, formats, operations, host threading, instance culling/update, dynamic indexing, and empty AS cases. |
+| `procedural_geometry` | [ProceduralGeometry.md](../testfiles/ray_query/ProceduralGeometry.md) | Two procedural AABB arrangements and result-buffer comparison. |
+| `watertightness` | [Watertightness.md](../testfiles/ray_query/Watertightness.md) | `nomiss` and `singlehit` consistency across shader stages and geometry types. |
+| `ray_flags` | [CullRayFlags.md](../testfiles/ray_query/CullRayFlags.md) | Opacity, terminate-on-first-hit, face culling, and skip-geometry flag families. |
+| `misc`, `helper_invocations` | [Misc.md](../testfiles/ray_query/Misc.md) | Dynamic indexing, scratch-buffer reuse, empty-AS updates, per-invocation ray counts, and helper-invocation ray queries. |
+| `direction_length`, `inside_aabbs` | [DirectionLength.md](../testfiles/ray_query/DirectionLength.md) | Direction scaling and rotation, plus rays starting inside AABBs. |
+| `barycentric_coordinates` | [BarycentricCoordinates.md](../testfiles/ray_query/BarycentricCoordinates.md) | Triangle barycentric result verification with a deterministic seed. |
+| `non_uniform_args` | [NonUniformArgs.md](../testfiles/ray_query/NonUniformArgs.md) | `MissCause` iteration: `no_miss` and `miss_cause_1` through `miss_cause_6`. |
+| `opacity_micromap` | [OpacityMicromap.md](../testfiles/ray_query/OpacityMicromap.md) | `VK_EXT_opacity_micromap` render and copy families: formats, modes, levels, copy types. |
+| `position_fetch` | [PositionFetch.md](../testfiles/ray_query/PositionFetch.md) | `VK_KHR_ray_tracing_position_fetch`: 15 vertex formats, CPU/GPU build, flag masks, fetched-position tolerance. |
+| `multiple_ray_queries` | [MultipleRayQueries.md](../testfiles/ray_query/MultipleRayQueries.md) | One case per shader source traversing multiple query objects in parallel. |
+| `stress` | [Stress.md](../testfiles/ray_query/Stress.md) | Larger ray-count scenes across shader sources and triangle/AABB leaves. |
 
-### procedural_geometry — AABB procedural geometry scenes
+## Category Notes
 
-The branch registers two explicit procedural-geometry arrangements [vktRayQueryProceduralGeometryTests.cpp](../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L495-L503). See [vktRayQueryProceduralGeometryTests](../testfiles/ray_query/vktRayQueryProceduralGeometryTests.md).
-
-### advanced — Null AS and wrapper-function cases
-
-The advanced branch is registered from the built-in source file and contains `null_as` and `using_wrapper_function` [vktRayQueryBuiltinTests.cpp](../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6419-L6428). See [vktRayQueryBuiltinTests](../testfiles/ray_query/vktRayQueryBuiltinTests.md).
-
-### watertightness — No-miss and single-hit consistency
-
-The branch registers `nomiss` and `singlehit` across shader stages and geometry types [vktRayQueryWatertightnessTests.cpp](../../modules/vulkan/ray_query/vktRayQueryWatertightnessTests.cpp#L2251-L2344). See [vktRayQueryWatertightnessTests](../testfiles/ray_query/vktRayQueryWatertightnessTests.md).
-
-### ray_flags — Ray flag effects
-
-The branch covers opacity, terminate-on-first-hit, face culling, and skip-geometry flag families [vktRayQueryCullRayFlagsTests.cpp](../../modules/vulkan/ray_query/vktRayQueryCullRayFlagsTests.cpp#L2173-L2245). See [vktRayQueryCullRayFlagsTests](../testfiles/ray_query/vktRayQueryCullRayFlagsTests.md).
-
-### misc — Miscellaneous cases
-
-The misc branch includes ray-query dynamic indexing, scratch-buffer reuse, empty-AS update cases, and per-invocation ray counts [vktRayQueryMiscTests.cpp](../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L2207-L2270). See [vktRayQueryMiscTests](../testfiles/ray_query/vktRayQueryMiscTests.md).
-
-### direction_length — Ray direction scale/rotation
-
-The branch varies triangle/AABB geometry, generated scaling factors, and generated rotations [vktRayQueryDirectionTests.cpp](../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L546-L614). See [vktRayQueryDirectionTests](../testfiles/ray_query/vktRayQueryDirectionTests.md).
-
-### inside_aabbs — Ray origins inside AABBs
-
-The branch varies ray end positions, scaling factors, and rotations for rays starting inside AABBs [vktRayQueryDirectionTests.cpp](../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L617-L681). See [vktRayQueryDirectionTests](../testfiles/ray_query/vktRayQueryDirectionTests.md).
-
-### barycentric_coordinates — Triangle barycentric results
-
-This branch registers one compute case with deterministic seed [vktRayQueryBarycentricCoordinatesTests.cpp](../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L381-L390). See [vktRayQueryBarycentricCoordinatesTests](../testfiles/ray_query/vktRayQueryBarycentricCoordinatesTests.md).
-
-### non_uniform_args — Non-uniform arguments
-
-The branch iterates `MissCause` values to register `no_miss` and numbered miss causes [vktRayQueryNonUniformArgsTests.cpp](../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L375-L388). See [vktRayQueryNonUniformArgsTests](../testfiles/ray_query/vktRayQueryNonUniformArgsTests.md).
-
-### helper_invocations — Helper invocation behavior
-
-This branch crosses CPU/GPU build, derivative style, mode, screen size, and model size [vktRayQueryMiscTests.cpp](../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L2142-L2203). See [vktRayQueryMiscTests](../testfiles/ray_query/vktRayQueryMiscTests.md).
-
-### opacity_micromap — Opacity micromap integration
-
-This branch registers render and copy families and requires `VK_EXT_opacity_micromap` support [vktRayQueryOpacityMicromapTests.cpp](../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L1267-L1275). See [vktRayQueryOpacityMicromapTests](../testfiles/ray_query/vktRayQueryOpacityMicromapTests.md).
-
-### position_fetch — Vertex position fetch
-
-This branch crosses shader source, CPU/GPU build, vertex formats, and flag masks [vktRayQueryPositionFetchTests.cpp](../../modules/vulkan/ray_query/vktRayQueryPositionFetchTests.cpp#L732-L837). See [vktRayQueryPositionFetchTests](../testfiles/ray_query/vktRayQueryPositionFetchTests.md).
-
-### multiple_ray_queries — Multiple query objects
-
-This branch registers one case per shader source and traverses multiple ray-query objects in parallel [vktRayQueryMultipleRayQueries.cpp](../../modules/vulkan/ray_query/vktRayQueryMultipleRayQueries.cpp#L401-L470). See [vktRayQueryMultipleRayQueries](../testfiles/ray_query/vktRayQueryMultipleRayQueries.md).
-
-### stress — Larger ray-query scenes
-
-This branch registers shader-source groups with triangle/AABB leaves and a larger ray count [vktRayQueryStressTests.cpp](../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L474-L572). See [vktRayQueryStressTests](../testfiles/ray_query/vktRayQueryStressTests.md).
-
-## File Inventory
-
-| Wiki page | Source role | Registered path roots |
-|-----------|-------------|-----------------------|
-| [vktRayQueryTests](../testfiles/ray_query/vktRayQueryTests.md) | Category dispatcher | `ray_query` |
-| [vktRayQueryBuiltinTests](../testfiles/ray_query/vktRayQueryBuiltinTests.md) | Built-in and advanced implementation | `ray_query.builtin`, `ray_query.advanced` |
-| [vktRayQueryTraversalControlTests](../testfiles/ray_query/vktRayQueryTraversalControlTests.md) | Traversal-control implementation | `ray_query.traversal_control` |
-| [vktRayQueryAccelerationStructuresTests](../testfiles/ray_query/vktRayQueryAccelerationStructuresTests.md) | Acceleration-structure implementation | `ray_query.acceleration_structures` |
-| [vktRayQueryProceduralGeometryTests](../testfiles/ray_query/vktRayQueryProceduralGeometryTests.md) | Procedural-geometry implementation | `ray_query.procedural_geometry` |
-| [vktRayQueryWatertightnessTests](../testfiles/ray_query/vktRayQueryWatertightnessTests.md) | Watertightness implementation | `ray_query.watertightness` |
-| [vktRayQueryCullRayFlagsTests](../testfiles/ray_query/vktRayQueryCullRayFlagsTests.md) | Ray-flags implementation | `ray_query.ray_flags` |
-| [vktRayQueryMiscTests](../testfiles/ray_query/vktRayQueryMiscTests.md) | Misc and helper-invocation implementation | `ray_query.misc`, `ray_query.helper_invocations` |
-| [vktRayQueryDirectionTests](../testfiles/ray_query/vktRayQueryDirectionTests.md) | Direction and inside-AABB implementation | `ray_query.direction_length`, `ray_query.inside_aabbs` |
-| [vktRayQueryBarycentricCoordinatesTests](../testfiles/ray_query/vktRayQueryBarycentricCoordinatesTests.md) | Barycentric implementation | `ray_query.barycentric_coordinates` |
-| [vktRayQueryNonUniformArgsTests](../testfiles/ray_query/vktRayQueryNonUniformArgsTests.md) | Non-uniform argument implementation | `ray_query.non_uniform_args` |
-| [vktRayQueryOpacityMicromapTests](../testfiles/ray_query/vktRayQueryOpacityMicromapTests.md) | Opacity micromap implementation | `ray_query.opacity_micromap` |
-| [vktRayQueryPositionFetchTests](../testfiles/ray_query/vktRayQueryPositionFetchTests.md) | Position-fetch implementation | `ray_query.position_fetch` |
-| [vktRayQueryMultipleRayQueries](../testfiles/ray_query/vktRayQueryMultipleRayQueries.md) | Multiple ray-query implementation | `ray_query.multiple_ray_queries` |
-| [vktRayQueryStressTests](../testfiles/ray_query/vktRayQueryStressTests.md) | Stress implementation | `ray_query.stress` |
-
-## Recurring Parameter Dimensions
-
-| Theme | Observed dimensions | Evidence |
-|-------|---------------------|----------|
-| Shader stages | Graphics, compute, and ray-tracing shader source groups recur in built-in, traversal, flags, multiple-query, stress, and selected extension files | [vktRayQueryBuiltinTests.cpp](../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6359-L6413), [vktRayQueryMultipleRayQueries.cpp](../../modules/vulkan/ray_query/vktRayQueryMultipleRayQueries.cpp#L401-L470) |
-| Geometry | Triangle and AABB geometry is explicit in traversal, flags, watertightness, stress, and direction tests | [vktRayQueryTraversalControlTests.cpp](../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L2131-L2138), [vktRayQueryStressTests.cpp](../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L538-L545) |
-| AS construction | Residency, CPU/GPU build, flags, formats, operation type, and empty-structure modes | [vktRayQueryAccelerationStructuresTests.cpp](../../modules/vulkan/ray_query/vktRayQueryAccelerationStructuresTests.cpp#L3522-L3773), [vktRayQueryAccelerationStructuresTests.cpp](../../modules/vulkan/ray_query/vktRayQueryAccelerationStructuresTests.cpp#L4572-L4741) |
-| Extension-specific options | Opacity micromap flags/modes/levels/copy types and position-fetch vertex formats | [vktRayQueryOpacityMicromapTests.cpp](../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L1070-L1264), [vktRayQueryPositionFetchTests.cpp](../../modules/vulkan/ray_query/vktRayQueryPositionFetchTests.cpp#L764-L837) |
-
-## Recurring Support Requirements
-
-Most implementations require `VK_KHR_acceleration_structure`, `VK_KHR_ray_query`, and the corresponding feature bits, as shown in built-in support checks [vktRayQueryBuiltinTests.cpp](../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6052-L6067). Stage matrices add tessellation, geometry, vertex-pipeline-store, and `VK_KHR_ray_tracing_pipeline` gates [vktRayQueryTraversalControlTests.cpp](../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1312-L1340). Extension branches add `VK_EXT_opacity_micromap` or `VK_KHR_ray_tracing_position_fetch` [vktRayQueryOpacityMicromapTests.cpp](../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L153-L193), [vktRayQueryPositionFetchTests.cpp](../../modules/vulkan/ray_query/vktRayQueryPositionFetchTests.cpp#L132-L186).
-
-## Recurring Verification Methods
-
-Observed verification methods include result-buffer comparison against expected integers/fixed-point values [vktRayQueryBuiltinTests.cpp](../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L1591-L1608), image/reference comparison with `tcu::intThresholdCompare` [vktRayQueryTraversalControlTests.cpp](../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L580-L688), scalar/vector tolerance checks [vktRayQueryDirectionTests.cpp](../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L476-L503), and extension-specific output-buffer comparisons [vktRayQueryOpacityMicromapTests.cpp](../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L1032-L1065).
-
-## Scope Notes
-
-Helper-only files were not present in this category directory; every `.cpp` file under [ray_query](../../modules/vulkan/ray_query/) that registers tests received a Level-3 page.
+- The dispatcher [vktRayQueryTests.cpp](../../modules/vulkan/ray_query/vktRayQueryTests.cpp#L49-L71) contains no test implementation. It adds 17 child groups, each delegated to a separate `create*Tests` function.
+- Most families require `VK_KHR_acceleration_structure` and `VK_KHR_ray_query`. Extension families add `VK_EXT_opacity_micromap` or `VK_KHR_ray_tracing_position_fetch`. Stage-sweep families add `VK_KHR_ray_tracing_pipeline` and tessellation or geometry feature gates as needed.
+- The build file [CMakeLists.txt](../../modules/vulkan/ray_query/CMakeLists.txt#L6-L37) lists all implementation sources.

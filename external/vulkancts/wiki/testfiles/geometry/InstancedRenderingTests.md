@@ -12,16 +12,10 @@ for every instance/invocation pair?
 
 ## Background Knowledge
 
-- Draw instancing is the API form of the common “draw many copies of one object” technique: a renderer can reuse one mesh, such
-  as a model, while per-instance data supplies the transform, color, or object-specific parameters for each copy.
-- This test uses the same idea in a minimal form. The shared “mesh” is one point, and the per-instance data is
-  one position per point instance. The vertex binding advances once per instance through `VK_VERTEX_INPUT_RATE_INSTANCE`, so
-  instance 0 reads position 0, instance 1 reads position 1, and so on.
-- Geometry shader invocations are separate executions of the geometry shader for the same input primitive. The invocation count is
-  declared in shader text as `layout(points, invocations = N) in`.
-- `gl_InvocationID` identifies which geometry shader invocation is running. The shader uses it to vary rectangle position, size,
-  and blue-channel color.
-- Validation is image-based. The test does not read a counter; it compares rendered pixels to a CPU-generated reference image.
+- **Draw instancing.** Instanced drawing reuses one draw setup for multiple logical copies. Per-instance vertex attributes advance once per instance, allowing each copy to receive different data such as position, transform, or color.
+- **Geometry-shader invocations.** A geometry shader can request multiple invocations for each input primitive with `layout(..., invocations = N) in`. Each invocation runs separately over the same input primitive.
+- **`gl_InvocationID`.** This built-in identifies which geometry-shader invocation is running. It lets the shader vary output position, size, color, or other attributes per invocation.
+- **Multiplicative execution.** Draw instance count and geometry-shader invocation count are independent multipliers: each draw instance supplies an input primitive, and each such primitive can launch several geometry-shader invocations.
 
 ## Registration Hierarchy
 

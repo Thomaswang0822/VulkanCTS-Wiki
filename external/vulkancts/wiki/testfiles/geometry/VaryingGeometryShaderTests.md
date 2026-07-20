@@ -13,20 +13,11 @@ produce different numbers of user varyings?
 
 ## Background Knowledge
 
-- A **varying** is a shader user-defined value passed from one pipeline stage to the next, such as a color produced by the
-  vertex shader and consumed by the geometry shader, or a value produced by the geometry shader and consumed by the fragment
-  shader. In modern GLSL the old `varying` keyword is replaced by matching `out` and `in` declarations, but CTS still uses
-  “varying” as the test-family name for this cross-stage data path.
-- User varyings are matched between shader stages by declared location. This test uses location `0` from vertex to geometry
-  and locations `0` and `1` from geometry to fragment.
-- Geometry-shader inputs for user varyings are arrays, with one element per input primitive vertex. In the representative
-  case, `v_geom_0[0]`, `v_geom_0[1]`, and `v_geom_0[2]` correspond to the three triangle input vertices.
-- The geometry shader always emits three vertices for a triangle-strip output. The tested variable is not topology expansion;
-  it is whether data moves correctly through the stage interfaces.
-- Missing user varyings are handled by generated fallback paths. For example, when the vertex shader does not
-  write a color varying, the geometry shader uses constant red.
-- Validation is image-based: shader-interface behavior is converted into a rendered color pattern and compared with a
-  reference PNG.
+- **User varyings.** A user varying is an application-defined shader value passed between adjacent pipeline stages. In modern GLSL, these values are declared with matching `out` and `in` variables rather than the older `varying` keyword.
+- **Location-based interface matching.** User varyings are matched between stages by declared location and compatible type. A value can flow from vertex to geometry, from geometry to fragment, or through both links when each adjacent interface declares the corresponding variable.
+- **Geometry-shader input arrays.** Geometry-shader inputs for per-vertex built-ins and user varyings are arrays, with one element for each vertex in the input primitive. Correct indexing preserves which input vertex produced each value.
+- **Geometry-to-fragment outputs.** A geometry shader can write one or more user varyings for each emitted vertex. Fragment shading then receives the interpolated values associated with the generated primitive.
+- **Defined fallback paths.** Tests or shaders may deliberately use constants when a preceding stage does not provide a user varying. Such fallback logic is different from undefined interface matching; it is ordinary shader control flow that creates a defined value for later stages.
 
 ## Registration Hierarchy
 
@@ -501,6 +492,8 @@ on that shared path and the logged image-comparison output rather than assuming 
 ## Key Takeaways
 
 - `geometry.varying` is a compact cross-stage interface test: it changes which varyings exist at each stage.
+- Geometry output stays fixed at one three-vertex triangle; the matrix varies cross-stage interface data rather than topology
+  expansion.
 - The representative `vertex_out_1_geometry_out_2` case proves both arrayed vertex-to-geometry input and two-location
   geometry-to-fragment output.
 - Fallback red paths are deliberate: they make absent varyings produce defined, image-comparable behavior.

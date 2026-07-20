@@ -3,6 +3,10 @@
 The `memory_model` test category collects tests that check whether shader-visible memory operations preserve the right values
 under Vulkan/SPIR-V memory semantics and layout rules.
 
+## Background Knowledge
+
+No common prerequisite concepts need category-level explanation for this test category.
+
 ## Category Structure
 
 ```text

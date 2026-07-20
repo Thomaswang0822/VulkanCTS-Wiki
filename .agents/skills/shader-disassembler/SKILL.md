@@ -34,30 +34,10 @@ Require the caller to provide:
 
 ## Output Contract
 
-Return a wiki-ready `#### SPIR-V` subsection.
+This skill owns the complete `#### SPIR-V` subsection. The caller must insert the returned subsection unchanged.
 
-Output fields:
-
-- `Status`: `generated and validated`, `failed`, or `skipped`.
-- `Source`: state whether the input was reconstructed GLSL or reconstructed HLSL from the walkthrough.
-- `Stage`: the shader stage used for compilation.
-- `Target SPIRV version`: the SPIR-V target version used for compilation and validation.
-- Full SPIR-V assembly in a default-collapsed HTML details block when generation succeeds.
-
-Use this exact collapsed-block shape for generated assembly:
-
-````md
-<details>
-<summary>Click to expand SPIRV asm code</summary>
-
-```llvm
-<full spirv-dis output>
-```
-
-</details>
-````
-
-Never output selected SPIR-V snippets as a substitute for the full assembly. If the full assembly is extremely long, still output the full assembly when generation is requested and succeeds.
+The shapes in step 5 are exact. Do not rename, reorder, add, or replace fields with prose. Do not add build commands, validation
+commands, header summaries, `Bound`, or CTS enum notes. Successful output always contains the full unmodified disassembly.
 
 ## CCVDO Workflow
 
@@ -161,18 +141,14 @@ Disassemble only a successfully validated SPIR-V binary:
 spirv-dis <temp>.spv -o <temp>.spvasm
 ```
 
-Use the unmodified `spirv-dis` output as generated evidence.
+Preserve the full output exactly. Do not annotate or edit instructions, IDs, headers, capabilities, decorations, or comments.
 
-Rules:
-
-- do not insert wiki-authored `///` comments into SPIR-V assembly;
-- do not annotate inside the `llvm` block;
-- do not manually edit opcodes, IDs, headers, capabilities, decorations, or comments;
-- preserve the full disassembly exactly as produced.
+Require the assembly `; Version:` header to match `<spirv-env>`. On mismatch, report `Status: failed`; do not edit the header or
+present the assembly as successful output.
 
 ### 5. Output
 
-Return the `#### SPIR-V` subsection.
+Return exactly one of these complete `#### SPIR-V` shapes.
 
 Generated output shape:
 
@@ -229,8 +205,5 @@ Do not delete source wiki pages, committed examples, or user-provided shader fil
 
 ## Boundary With Shader Analyzer
 
-Let `shader-analyzer` reconstruct and explain GLSL or HLSL. Let this skill compile, validate, disassemble, and format SPIR-V output.
-
-Do not reinterpret CTS parameters, source branches, resource roles, synchronization intent, Vulkan runtime API version, or feature support here. Use the provided source language, shader source, shader stage, and target SPIR-V environment as inputs.
-
-The SPIR-V version reported by `spirv-dis` should match the caller-provided SPIR-V target environment on successful generation; do not emit it as a separate metadata field in normal wiki output.
+Let `shader-analyzer` reconstruct the shader and choose the CTS target. This skill compiles, validates, disassembles, and returns the
+canonical SPIR-V subsection. Do not reinterpret test semantics or the target environment.

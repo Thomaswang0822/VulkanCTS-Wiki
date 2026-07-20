@@ -15,17 +15,11 @@ partner payload that happened before that guard visible across the selected scop
 
 ## Background Knowledge
 
-- **Payload and guard.** The payload is the data whose visibility is being tested; the guard is the synchronization signal. The
-  rule is not that the guard is always observed, but that observing the guard implies the expected payload visibility.
-- **Release and acquire.** The writer side uses release semantics or a release-like barrier before/with the guard signal. The
-  reader side uses acquire semantics or an acquire-like barrier after/with the guard observation.
-- **Availability and visibility.** Extension-mode memory-model shaders can add `gl_SemanticsMakeAvailable` on the writer side
-  and `gl_SemanticsMakeVisible` on the reader side. Intuitively, availability pushes writes toward a domain where they can be
-  seen, and visibility lets the reader observe those writes.
-- **Scope.** The same protocol is tested at device, queue-family, workgroup, and subgroup scopes. Scope controls how far the
-  synchronization guarantee is supposed to reach.
-- **Skipped race instances.** A shader may set `skip` when it does not observe the partner guard. That race instance is not a
-  failure; the failure condition only applies after the guard is observed.
+- **Payload and guard.** In message-passing synchronization, the payload is the data being communicated and the guard is a separate signal indicating that publication has occurred. Separating them makes it possible to ask whether observing the signal also carries visibility of earlier payload writes.
+- **Release and acquire.** Release semantics order earlier memory operations before publication; acquire semantics order later memory operations after observation. A release/acquire relationship can therefore carry data from a publishing invocation to an observing invocation.
+- **Availability and visibility.** Under the Vulkan memory model, making writes available publishes them to a synchronization domain, while making memory visible allows a reader in that domain to observe those writes. Availability and visibility are related but distinct steps in a cross-invocation handoff.
+- **Synchronization scope.** Scope identifies the set of invocations covered by a synchronization operation, such as subgroup, workgroup, queue family, or device. A synchronization guarantee does not extend automatically beyond its declared scope.
+- **Racy observation.** Synchronization protocols may allow an observer not to see a competing guard in a particular execution. That absence is different from observing the guard but failing to see the writes whose visibility the guard is meant to establish.
 
 ## Registration Hierarchy
 

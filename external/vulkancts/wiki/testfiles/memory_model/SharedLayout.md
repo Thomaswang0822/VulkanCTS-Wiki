@@ -15,12 +15,9 @@ steps for scalar, vector, matrix, array, nested-struct, 16-bit, and 8-bit layout
 
 ## Background Knowledge
 
-- **GLSL `shared` memory.** A `shared` variable is workgroup shared memory: each compute workgroup has its own instance, and the
-  memory is visible to invocations in that workgroup, not to all workgroups or the whole device.
-- **Compute workgroup.** A compute workgroup is the execution scope that owns a `shared` variable; workgroup-local memory is
-  separate from descriptor-backed buffer or image resources.
-- **Composite shader data.** Structs, arrays, vectors, and matrices create nested member, index, and component paths that shader
-  code can address individually.
+- **GLSL `shared` memory.** A `shared` variable lives in workgroup storage. Each compute workgroup owns a separate instance that its invocations can access; it is not a descriptor-backed buffer and is not shared across the whole device.
+- **Workgroup synchronization.** Invocations that exchange values through shared memory need workgroup-scoped execution and memory ordering before later reads can rely on earlier writes.
+- **Composite shader data.** Structs, arrays, vectors, and matrices create nested member, index, column, and component paths. Correct layout and address calculation must preserve every leaf value through those paths, including when narrow scalar types are embedded in larger composites.
 
 ## Registration Hierarchy
 

@@ -14,16 +14,10 @@ for point, line-strip, and triangle-strip topologies?
 
 ## Background Knowledge
 
-- `EmitVertex()` appends the current geometry-shader output values to the current output primitive.
-- `EndPrimitive()` terminates the current output primitive. Later emitted vertices start a new primitive or strip segment.
-- The minimum useful emitted-vertex count depends on output topology: one for `points`, two for `line_strip`, and three for
-  `triangle_strip`.
-- Calling `EndPrimitive()` without enough preceding emitted vertices should not create visible geometry.
-- A final `EndPrimitive()` is not required for the last emitted primitive or strip segment to exist; shader invocation exit
-  finishes the remaining output stream. In these tests, final `EndPrimitive()` calls are included only when that termination
-  behavior is itself being tested.
-- Repeating `EndPrimitive()` should be harmless with respect to visible output; it must not synthesize extra primitives or
-  join later output with earlier terminated output.
+- **`EmitVertex()`.** This call appends the current geometry-shader output values to the active output primitive stream.
+- **`EndPrimitive()`.** This call terminates the current output primitive or strip segment. Later emitted vertices start a new primitive or strip segment.
+- **Minimum visible output.** The minimum useful emitted-vertex count depends on output topology: one vertex for `points`, two for `line_strip`, and three for `triangle_strip`.
+- **Implicit and redundant termination.** Shader invocation exit finalizes the remaining output stream, so a final `EndPrimitive()` is not required for the last primitive. Calling `EndPrimitive()` when no complete primitive is active should not synthesize extra geometry or disturb later output.
 
 ## Registration Hierarchy
 

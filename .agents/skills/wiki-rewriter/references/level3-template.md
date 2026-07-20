@@ -16,19 +16,47 @@ Keep C++ details as support for understanding the test, not as source-structure 
 
 ## Background Knowledge
 
-Provide only the prerequisite concepts needed to understand this page.
+Keep this heading in every Level-3 page. During initial Level-3 drafting, make this section self-contained: do not depend on a future Level-2 page or another Level-3 page for prerequisite concepts. A later category-level consolidation pass may move repeated shared concepts into the Level-2 page and compact the affected Level-3 bullets.
 
-Use an unordered list. Keep each item brief and page-specific.
+Use this section only for the minimum external concepts that the target reader must understand before the rest of this page makes sense. It supplies conceptual tools; it does not preview or summarize the test.
 
-Examples for `memory_model` / `message_passing`:
+Use a brief unordered list. Each item should:
 
-- release/acquire synchronization;
-- availability and visibility;
-- payload versus guard;
-- synchronization scope, such as device, workgroup, and subgroup;
-- why a race instance may be skipped when the guard is not observed.
+- define one prerequisite concept outside the target-reader baseline;
+- be needed by a later behavior, shader, runtime, validation, pruning, or failure explanation;
+- explain the minimum concept and, only when useful, briefly identify why later reasoning depends on it;
+- remain understandable as a concept rather than becoming narration of the concrete CTS case.
 
-Do not turn this section into a generic Vulkan tutorial.
+A concise realistic example or analogy is allowed when it materially improves the reader's mental model. Make clear that it is
+illustrative rather than the actual CTS setup. For example, explain BLAS/TLAS separation through multiple transformed instances of
+one mesh in a larger scene when an abstract definition would not explain why the two levels exist.
+
+A brief test-specific contrast is also allowed when ordinary use of a concept would otherwise create a wrong mental model. State
+the ordinary use, flag the unconventional use in this test, and give only the interpretive consequence needed for later sections.
+Stop before the detailed setup or mechanism. For example, a procedural-geometry page may note that AABBs normally enclose a custom
+surface but this test also uses controlled non-enclosing proxies, so proxy location must not be read as the surface bounds.
+
+Do not include concrete test setup, registered values, parameter matrices, execution steps, expected outputs, pass/fail rules,
+correctness contracts, conclusions, or failure meaning. Those belong in the page body, `## Overview`, or `## Key Takeaways`.
+Keep substantive overlap with those two sections minimal, and do not turn this section into a generic Vulkan tutorial.
+
+During later category Background Knowledge consolidation, classify every existing Level-3 BGK item before editing it:
+
+| Item type | Consolidation action |
+|-----------|----------------------|
+| Repeated category-shared prerequisite | Move the full explanation to Level-2; leave only a concise local recap if this page still needs it. |
+| Mixed shared concept plus page-local consequence | Shorten only the shared explanation; preserve the local consequence. |
+| Definitely page-local prerequisite | Preserve the bullet title and wording unless a confirmed meaningful defect requires a minimal edit. |
+| Concrete setup, parameters, execution, validation, expected result, or conclusion | Remove from BGK or relocate only if the correct later section does not already explain it. |
+| Helpful illustrative example for a shared concept | Preserve once in Level-2 BGK when it materially improves the shared mental model. |
+
+Do not rewrite this section wholesale during consolidation.
+
+If the target reader needs no additional prerequisite concepts, keep the heading and write exactly:
+
+```text
+No additional prerequisite concepts are needed for this page.
+```
 
 ## Registration Hierarchy
 
@@ -157,6 +185,7 @@ Workflow:
 - Invoke `shader-analyzer` in auto mode when the exact source file, builder function, target page, and insertion location are known.
 - If the source file or builder function is not confirmed, use `shader-analyzer` manual mode and stop at its confirmation checkpoint.
 - Insert or keep only the final `shader-analyzer` output here, including the generated `#### SPIR-V` subsection.
+- In each walkthrough's `#### Structural Design`, avoid raw ASCII flowcharts or plain-text decision trees. Use Mermaid for flowchart-like or tree-like control flow, while still allowing tables, mappings, or other structured non-plain-text formats when they explain the shader better.
 - This template intentionally omits walkthrough subsection details, which are kept in SKILL `shader-analyzer` instead of here.
 
 ## Runtime Execution and Result Checking

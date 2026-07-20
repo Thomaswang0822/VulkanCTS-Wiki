@@ -13,12 +13,11 @@ and does host validation see the expected image contents in each destination?
 
 ## Background Knowledge
 
-- A layered framebuffer exposes multiple destinations through one framebuffer: array layers, cube faces, cube-array face slices,
-  or 3D image z slices.
-- A geometry shader selects the destination for emitted primitives by writing `gl_Layer` before `EmitVertex()`.
-- The host validates all effective layers after rendering. An incorrect `gl_Layer`, cube-face mapping, or 3D-slice mapping
-  produces incorrect image contents in one or more layers.
-- `geometry.layered.2d_array.64_64_4.<leaf>` is the simplest concrete example: a 64x64 2D-array image with exactly four layers.
+- **Layered rendering destinations.** A layered framebuffer exposes multiple destinations through one framebuffer: array layers, cube faces, cube-array face slices, or 3D image z slices.
+- **`gl_Layer`.** A geometry shader selects the destination layer for emitted primitives by writing `gl_Layer` before `EmitVertex()`. If the shader does not write `gl_Layer`, rendering targets the default layer.
+- **Layer identity in fragment shading.** Fragment shaders can read the layer identity for fragments produced by layered rendering. This allows validation of both destination routing and propagation of the selected layer value.
+- **Layer meaning depends on image view type.** The same numeric layer can name different physical destinations depending on whether the image view is an array, cube, cube-array, or 3D view.
+- **Secondary command buffers and inheritance.** Secondary command buffers can record rendering commands for execution inside a primary render pass. Framebuffer inheritance changes how much framebuffer state the secondary command buffer receives when it is begun.
 
 ## Registration Hierarchy
 

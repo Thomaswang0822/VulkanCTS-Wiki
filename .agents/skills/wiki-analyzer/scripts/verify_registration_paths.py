@@ -48,7 +48,7 @@ from typing import Dict, List, Optional, Tuple
 
 
 CANONICAL_HIERARCHY_HEADING = '## Registration Hierarchy'
-PATH_COMPONENT_PATTERN = r'[A-Za-z0-9]+(?:_[A-Za-z0-9]+)*'
+PATH_COMPONENT_PATTERN = r'[A-Za-z0-9]+(?:[-_][A-Za-z0-9]+)*'
 TREE_CHILD_PATTERN = re.compile(rf'^(?P<marker>├──|└──)\s+(?P<name>{PATH_COMPONENT_PATTERN}(?:\s*\([^)]*\))?)\s*$')
 TRAILING_PAREN_NOTE_PATTERN = re.compile(r'\s*\([^)]*\)\s*$')
 SIMPLE_GROUP_PATTERN = re.compile(rf'^{PATH_COMPONENT_PATTERN}(?:\.{PATH_COMPONENT_PATTERN})*$')
