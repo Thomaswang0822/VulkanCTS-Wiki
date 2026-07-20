@@ -56,7 +56,7 @@ Representative path:
 
 #### Structural Design
 
-<Use a compact table, flow, mapping, decision tree, or short diagram to show the shader logic before code.>
+<Use a compact table, Mermaid flowchart, mapping, decision tree, short diagram, or another compact non-plain-text form to show the shader logic before code. Avoid raw ASCII flowcharts; use Mermaid when the structure is flowchart-like or tree-like, but do not force Mermaid when a table or other format is clearer.>
 
 #### Shader Code
 
@@ -117,19 +117,8 @@ Do not include:
 
 #### SPIR-V
 
-- Status: `<generated and validated / failed / skipped>`
-- Source: reconstructed `<GLSL or HLSL>` from this walkthrough. For multi-shader walkthroughs, this is the primary shader unless otherwise labeled by stage.
-- Stage: `<shader stage>`
-- Target SPIRV version: `<SPIR-V target version, such as spirv1.0 or spirv1.3>`
-
-<details>
-<summary>Click to expand SPIRV asm code</summary>
-
-```llvm
-<full spirv-dis output when generated and validated>
-```
-
-</details>
+Insert the complete `#### SPIR-V` subsection returned by `shader-disassembler` unchanged.
+See `shader-disassembler/SKILL.md` and strictly follow the output format.
 
 ## Destination Rules
 

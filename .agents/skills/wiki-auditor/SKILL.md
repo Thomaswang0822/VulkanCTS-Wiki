@@ -1,255 +1,305 @@
 ---
 name: wiki-auditor
-description: Performs skeptical semantic audits of generated Vulkan CTS wiki documentation against repository evidence. This skill should be used after wiki pages are generated or modified, especially for category-level and per-test-file documentation, to find false claims, overclaims, stale statements, hierarchy mistakes, unsupported parameter claims, and source-link evidence mismatches beyond what validators can catch.
+description: Audits explanation-first Vulkan CTS wiki pages produced by wiki-rewriter, corrects confirmed technical and explanatory defects in place, validates the edited pages, and writes a compact page-centered category audit summary. This skill should be used after Level-3 rewrites stabilize, before or after Level-2 synthesis, or whenever rewritten pages need low-burden expert review in sequential or parallel mode.
 ---
 
 # Wiki Auditor
 
-## Overview
+Audit rewritten Vulkan CTS wiki pages as an expert technical-writing professor. Verify technical truth and explanatory sufficiency, correct confirmed meaningful defects directly in the rewritten pages, and leave the user a compact findings summary rather than a transcript of the review reasoning.
 
-Perform evidence-first semantic audits of Vulkan CTS wiki documentation by comparing each generated wiki claim against the corresponding source files, test-plan text, mustpass registration paths, and validation scripts.
+Optimize for reducing human review burden. Treat rewritten pages as generally strong. Find consequential defects; do not perform another broad rewrite or optional polishing pass.
 
-Use this skill to answer the question: "Does the wiki say anything that the inspected source does not actually prove?" Treat link validation and registration validation as necessary but insufficient; the core work is skeptical source-vs-wiki reading.
+## Scope
 
-## Relationship to Other Skills
+Use this skill for:
 
-Use this skill after wiki authoring skill [`wiki-analyzer`](../wiki-analyzer/SKILL.md) has generated or updated documentation. This skill does not replace generation; it audits finished or draft wiki pages for semantic correctness.
+- one rewritten Level-3 page;
+- all rewritten Level-3 pages in one test category;
+- a rewritten Level-2 category page after its Level-3 pages stabilize;
+- a full rewritten category audit in sequential or orchestrated parallel mode;
+- re-auditing pages after source or documentation changes.
 
-When auditing Vulkan CTS wiki pages, preserve the factual scope used by `wiki-analyzer`:
+Target explanation-first outputs created under [`wiki-rewriter`](../wiki-rewriter/SKILL.md), not first-version source-navigation pages created by the old wiki-analysis workflow.
 
-- Rely on `external/vulkancts/` and `doc/testspecs/VK/apitests.adoc` for factual claims.
-- Prefer inspected code over existing wiki prose.
-- Require source links for important claims.
-- Use GitHub fragment syntax in wiki source links: `file.cpp#L82` or `file.cpp#L82-L95`.
-- Treat colon-style source line links in wiki pages as invalid: `file.cpp:82` is not acceptable.
-- Treat `doc/testspecs/VK/apitests.adoc` as historical objective-level context only; current source and mustpass evidence remain authoritative for exact behavior.
-- Audit repository-local links for local relative paths. Do not allow `https://github.com/KhronosGroup/VK-GL-CTS/blob/main/` links to repository files in generated wiki pages.
+Do not treat Understanding Briefs, obsolete navigation-style originals, rewrite outlines, or other internal tracking files as user-facing audit targets unless explicitly requested. Never delete obsolete originals.
 
-## Core Principle
-
-Audit meaning, not presentation.
-
-Do not stop after checking broken links, duplicate headings, or validator output. Those checks are useful final guards, but semantic audit requires reading generated wiki files beside their corresponding source files and identifying statements such as:
-
-- "The page claims X, but source line Y shows Z."
-- "The page implies all cases do X, but the loop/guard only applies to a subset."
-- "The registration tree says child A exists here, but source constructs child B or places A under a different root."
-- "The page says this feature is required, but the code only checks it conditionally."
-- "The page says verification compares every byte, but source masks selected low bits before comparison."
-- "The page still contains stale workflow text that became false after later generated files were added."
-
-## Audit Triggers
-
-Apply this skill when asked to:
-
-- Review generated wiki documentation for correctness.
-- Audit a category after workers or another agent generated Level-2 and Level-3 pages.
-- Check whether wiki claims are source-backed.
-- Find actual documentation errors rather than only run validators.
-- Verify that documentation follows a harness after generation.
-- Perform a skeptical source-vs-wiki review before marking a category complete.
+If a requested page is still navigation-first rather than a rewritten output, stop and route it through `wiki-rewriter` instead of adapting this audit to the old page shape.
 
 ## Required Inputs
 
-Identify or derive these inputs before starting:
+Resolve before auditing:
 
-1. Target wiki scope: one page, one test-file directory, or one full category.
-2. Source scope: the source files cited by the wiki pages and registration files that define hierarchy.
-3. Harness rules: applicable wiki conventions, especially hierarchy, link, evidence, and validation requirements.
-4. Validation commands: category-scoped link and registration validators when available.
+- target page or test category;
+- rewritten Level-2 and/or Level-3 scope;
+- implementation source cited by each page;
+- registration and mustpass evidence;
+- relevant Vulkan specification chapters for semantic claims;
+- applicable rewrite templates and validation policy.
 
-If scope is ambiguous and cannot be inferred from files or the user's request, ask for the target category or wiki paths before auditing.
+For a category audit, enumerate the complete target set before assigning work. Include every rewritten Level-3 page and the rewritten Level-2 page when present. Exclude files ending in `_brief.md` and files under `wiki/internal_doc/` from user-facing page ownership.
+
+## References
+
+Load these resources as needed:
+
+- [`references/review-protocol.md`](references/review-protocol.md) for the professor model, meaningful-defect threshold, internal worksheet, editing policy, worker contract, and category summary template;
+- [`../shader-analyzer/SKILL.md`](../shader-analyzer/SKILL.md) when a shader walkthrough's source-level reconstruction or explanation is defective;
+- [`../shader-disassembler/SKILL.md`](../shader-disassembler/SKILL.md) for the canonical `#### SPIR-V` output contract whenever a page contains generated SPIR-V;
+- [`../wiki-rewriter/references/level3-template.md`](../wiki-rewriter/references/level3-template.md) for Level-3 structure and section semantics;
+- [`../wiki-rewriter/references/level2-template.md`](../wiki-rewriter/references/level2-template.md) for Level-2 gateway semantics;
+- [`../wiki-rewriter/references/terminology-policy.md`](../wiki-rewriter/references/terminology-policy.md) for hierarchy terminology;
+- [`../wiki-rewriter/references/validation-checklist.md`](../wiki-rewriter/references/validation-checklist.md) for mechanical and semantic completion gates.
+
+Keep detailed review procedure in `references/review-protocol.md`. Keep orchestration and mandatory workflow decisions in this file.
+
+## Core Review Rule
+
+Apply two internal judgments to every load-bearing point:
+
+1. Determine whether the point is technically true, properly scoped, and supported.
+2. Determine whether the page itself explains the point clearly enough for a graphics/GPU-literate reader who understands general pipeline and shader concepts but may lack raw-Vulkan programming experience, Vulkan-specific API knowledge, and CTS internals.
+
+Use the full target-reader definition in `references/review-protocol.md`. Require brief, page-specific explanations of Vulkan concepts needed for this test; do not require a general Vulkan tutorial.
+
+Use all available expert knowledge. Do not pretend to forget Vulkan or CTS knowledge. Never treat the ability to infer an intended argument as proof that the page made that argument.
+
+Do not expose the complete internal worksheet in normal results. Report only confirmed corrections, unresolved findings, validation failures, and requested audit coverage.
 
 ## Workflow
 
-### Step 1: Enumerate the Complete Audit Set
+### 1. Resolve the target and execution mode
 
-List every wiki file in scope before reading details. For a category audit, include:
+For one page, use page mode.
 
-- The Level-2 category page.
-- Every Level-3 page under the category's `testfiles/{category}/` directory.
-- Relevant tracker or README rows only if the task includes progress tracking.
+For a category, select:
 
-Do not sample only representative files unless the user explicitly requests sampling. For a full category audit, every generated Level-3 page and the Level-2 page must be audited.
+- **Sequential mode:** process each Level-3 page one at a time when the category is small, only one agent is available, or source knowledge is strongly shared.
+- **Orchestrated parallel mode:** assign non-overlapping Level-3 pages to workers when multi-agent execution is available and parallelism reduces elapsed work.
 
-### Step 2: Map Wiki Pages to Source Evidence
+In parallel mode:
 
-For each wiki page, map major sections to source evidence:
+- assign each Level-3 page to exactly one worker;
+- permit each worker to edit only its assigned page;
+- prohibit workers from editing the combined audit summary;
+- reserve Level-2 review, category validation, and summary ownership for the orchestrator;
+- require workers to return the compact result contract from `references/review-protocol.md`.
 
-- Overview and role → registration source, file comments, test-plan references.
-- Registration hierarchy → factory functions, `TestCaseGroup` construction, `addChild()` calls, loops, guards, and mustpass paths.
-- Test families → direct children in the hierarchy tree plus deeper generated cases.
-- Parameter dimensions → enums, arrays, structs, vectors, loops, name builders, skip conditions.
-- Support requirements → `checkSupport()` methods, runtime `NotSupportedError` branches, feature/extension checks, queue/device creation helpers.
-- Verification methods → pass/fail checks, comparisons, shader result validation, buffer/image copy readbacks, fences, semaphores, metadata/property checks.
-- Notes and uncertainties → statements about omissions, generated scope, helper files, device-group roots, or incomplete work.
+Do not let convenience sampling replace the declared category audit. Audit every rewritten page in scope, varying depth according to complexity while preserving the same meaningful-defect threshold.
 
-Open source files at cited lines and nearby context. If a source link points to a broad range, inspect enough surrounding code to verify the claim, not just the linked line.
+### 2. Run the mechanical gate
 
-### Step 3: Audit Test-Plan Usage and Repository-Local Links
+Before semantic edits, check the page against the applicable rewrite template and terminology policy.
 
-If wiki pages cite `doc/testspecs/VK/apitests.adoc`, verify that each mention follows the `wiki-analyzer` policy:
+At minimum verify:
 
-- The cited section provides useful objective-level context for the category or specific Level-3 file.
-- The page does not use `apitests.adoc` as evidence for exact current registration, parameter matrices, support gates, feature requirements, or verification logic.
-- Level-3 citations map directly to a concrete test-plan section or bullet, not merely to broad category similarity.
-- The page does not include negative boilerplate such as "the API test plan does not mention this category" or "no test-plan coverage was found".
-- Generic framework `TestCase` / `TestInstance` context is not repeated in category or testfile pages.
-- `apitests.adoc` links use local relative paths with `#L` fragments, not external repository URLs.
+- naming and title rules;
+- required section order and applicable sections;
+- mandatory `## Background Knowledge`, using the Level-3 no-prerequisite sentence or Level-2 no-common-concepts sentence when no
+  bullets are needed;
+- canonical registration hierarchy shape;
+- exact registered identifiers;
+- behavior parameter and failure mapping alignment;
+- exact `shader-disassembler` output shape and target/header agreement when generated SPIR-V is present;
+- local relative source links and GitHub `#L` fragments;
+- absence of stale workflow text;
+- preservation of obsolete originals.
 
-Also search the audit scope for repository-local GitHub URLs that validators may ignore:
+Run the canonical page-scoped registration and link validators from `../wiki-rewriter/references/validation-checklist.md` for each
+Level-3 page. Treat validator success as necessary but insufficient. Continue to professor review.
 
-```bash
-grep -RIn "https://github.com/KhronosGroup/VK-GL-CTS/blob/main/" \
-  external/vulkancts/wiki/categories/<category>.md \
-  external/vulkancts/wiki/testfiles/<category>
+### 3. Audit category-shared Background Knowledge ownership
+
+For a category audit where a rewritten Level-2 page exists, audit the Level-2 `## Background Knowledge` section before auditing
+Level-3 BGK sections. Verify that it:
+- contains the mandatory heading;
+- explains repeated category-shared prerequisites needed by multiple Level-3 pages;
+- uses the canonical no-common-concepts sentence from the Level-2 template when no shared prerequisite explanation is needed;
+- preserves concise realistic examples when they materially improve the category-level mental model;
+- avoids Level-3 setup, parameter matrices, validation mechanics, expected results, and failure meaning.
+
+Then audit each Level-3 BGK section against that shared owner:
+- verify local sufficiency from the Level-3 page alone when the Level-2 BGK uses the no-common-concepts sentence, or from the
+  Level-3 page plus the linked Level-2 BGK when an upward link exists;
+- identify repeated shared concepts that should be consolidated upward instead of patched independently on many pages;
+- preserve definitely page-local BGK bullets, including titles and wording, unless a confirmed meaningful defect requires a minimal
+  edit;
+- for mixed shared/local bullets, shorten only the shared explanation and preserve the local consequence;
+- do not rewrite a Level-3 `## Background Knowledge` section wholesale during audit.
+
+If the Level-2 page is not in the audit scope yet, audit Level-3 BGK for local sufficiency only and record repeated shared concepts
+as a category-level follow-up rather than forcing cross-page consolidation prematurely.
+
+### 4. Build the evidence-derived reference model
+
+Read the page and inspect authoritative evidence near cited ranges and relevant surrounding control flow.
+
+Derive the compact reference model defined in `references/review-protocol.md`. Focus on:
+
+- core purpose and registered scope;
+- required knowledge prerequisites relative to the target-reader baseline;
+- primary behavioral axis or groups;
+- parameter-to-mechanism relationships;
+- generated artifacts and bound resources;
+- host/device execution;
+- observable result and actual pass condition;
+- support checks and pruning;
+- failure-localization limits;
+- representative walkthrough coverage.
+
+Use current source and registration/mustpass evidence as authoritative. Use relevant Vulkan specification chapters for Vulkan semantic and implementation-cause claims. Treat existing wiki prose and historical test plans as non-authoritative context.
+
+Keep this reference model transient. Do not write it into the page or category summary.
+
+### 5. Review load-bearing claims and knowledge prerequisites
+
+Apply the truth, exposition, and knowledge prerequisite tests from `references/review-protocol.md`.
+
+Audit `## Background Knowledge` first in both directions:
+
+1. **Completeness:** derive the prerequisites needed by later behavior, shader, runtime, validation, pruning, or failure explanations;
+   compare them with the target-reader baseline; and verify that each missing concept is explained with enough brief relevance to
+   support the later reasoning.
+2. **Responsibility boundary:** classify each existing item and remove or relocate content that has become concrete test setup,
+   parameters, execution, expected results, correctness contracts, conclusions, failure meaning, unused tutorial material, or
+   substantive duplication of `## Overview` and `## Key Takeaways`.
+
+Preserve concise realistic examples that materially improve the required mental model. Also preserve a bounded ordinary-use versus
+unconventional-test-use contrast when the ordinary concept would otherwise mislead the reader, but require it to stop after the
+unusual relationship and its interpretive consequence. Do not reject content merely because it uses an example or briefly mentions
+this test. Follow the detailed classification and editing rules in `references/review-protocol.md`.
+
+Then check whether necessary concepts are explained adequately near first use elsewhere. A syntax form, API name, or dictionary
+definition is insufficient when it leaves the causal role unclear. Do not duplicate adequate explanations or add general Vulkan
+teaching material.
+
+Prioritize claims and prerequisite gaps whose failure would change the reader’s mental model. Pay particular attention to:
+
+- broad words such as `all`, `every`, `only`, `always`, `exactly`, and `required`;
+- conditional support or generated subsets;
+- behavior parameters mislabeled as configuration dimensions;
+- comparison tolerances, masks, aggregation, and pass/fail strength;
+- host/device chronology and resource roles;
+- failure causes stated more strongly than validation can localize;
+- representative walkthroughs presented beyond their actual coverage;
+- explanations understandable only by opening source links;
+- contradictions between behavior, runtime, failure, pruning, and takeaway sections.
+
+Apply the meaningful-defect threshold. Ignore optional improvements that do not materially affect correctness or comprehension.
+
+### 6. Correct confirmed defects in place
+
+Edit the rewritten target page directly.
+
+- Make the smallest evidence-backed correction, except where the generated-shader boundary below requires complete regeneration.
+- Preserve exact identifiers, links, code fences, registered paths, and generated artifacts that are not being regenerated through their owning skill.
+- Avoid broad restructuring and added tutorial material.
+- Keep the established natural technical voice.
+- Do not reopen already completed language-worker wording merely for stylistic preference.
+- If a defect requires substantial re-analysis or broad rewriting rather than a surgical correction, report it as unresolved and route the page back through `wiki-rewriter`.
+- If evidence remains uncertain after reasonable inspection, leave the point unchanged and record an unresolved finding.
+
+Treat each shader walkthrough as a generated unit. Follow the mandatory `Generated shader boundary` decision table in
+`references/review-protocol.md`; it determines whether to edit prose, regenerate a complete walkthrough, regenerate only the SPIR-V
+subsection, or leave the artifact unchanged as unresolved. Never hand-edit generated or CTS-authored SPIR-V assembly.
+
+After each edit or complete generated-unit replacement, reread dependent sections and correct any inconsistency introduced or exposed
+by the change.
+
+### 7. Revalidate the page
+
+Rerun the page-scoped registration and link validators after edits. Fix validator failures only when the correction remains semantically accurate.
+
+Return compact findings using the worker contract when operating under an orchestrator. Report `no-confirmed-issues` when no meaningful defect was found.
+
+### 8. Aggregate category-level patterns
+
+After all Level-3 pages finish, inspect worker results or sequential findings for repeated patterns.
+
+Before writing page-specific findings for a recurring issue, first check whether the same root-cause defect appears across multiple pages and should be treated as a category-level pattern. If the same defect appears on 3 or more pages with the same evidence-backed Mistake and Correction, consolidate it into the category summary instead of repeating it page by page.
+
+Check whether a finding indicates:
+
+- a shared helper was misunderstood across pages;
+- one comparison or support rule was repeatedly overstated;
+- repeated behavior/failure mapping defects;
+- a Level-2 synthesis assumption is now wrong;
+- a generated-artifact or shader-target convention was misapplied across pages;
+- further pages require re-audit.
+
+Expand or repeat affected page reviews when a shared defect pattern is confirmed. Do not merely mention a systemic problem while leaving known affected pages uncorrected.
+
+### 9. Audit the Level-2 page
+
+Audit Level-2 only after Level-3 pages in scope stabilize.
+
+Verify that it:
+
+- represents the direct category hierarchy accurately;
+- includes the mandatory `## Background Knowledge` section with either shared prerequisites or the canonical no-common-concepts
+  sentence;
+- routes each family or conceptual area to the correct rewritten Level-3 page;
+- explains family relationships at category level;
+- reflects corrected Level-3 meanings;
+- avoids duplicating Level-3 mechanisms, matrices, validation details, or shader walkthroughs.
+
+Edit confirmed defects in place and validate its links.
+
+### 10. Run category validation
+
+After all page edits, run the canonical category-scoped registration and link validators from
+`../wiki-rewriter/references/validation-checklist.md`. Exclude Understanding Briefs from semantic target accounting even when a
+glob includes them in link validation.
+
+Rerun until validation passes or record the remaining limitation compactly.
+
+### 11. Write the combined audit summary
+
+For a category audit, write:
+
+```text
+external/vulkancts/wiki/internal_doc/<category>_audit_summary.md
 ```
 
-Convert any such links to local relative markdown links before completion.
+Make the orchestrator or sequential lead the sole writer.
 
-### Step 4: Audit Registration Semantics
+Use the exact page-centered structure in `references/review-protocol.md`:
 
-Verify the documented tree against actual registration code.
+- create one `## <page>.md` section for each page with resolved or unresolved findings;
+- place all findings under that page;
+- append `(UNRESOLVED)` to unresolved finding headings;
+- consolidate defects recurring across 3 or more pages into `## Recurring Defect Patterns` before the page-specific sections, and list pages whose only finding is a recurring pattern under `## Pages With Only Recurring Findings`;
+- collect all pages without confirmed issues under `## Pages With No Confirmed Issues`;
+- do not create separate global resolved and unresolved sections;
+- omit internal worksheets, passed claim inventories, severity, confidence, and verbose validator logs.
 
-Check:
-
-- Root group name from `TestCaseGroup(testCtx, "name")`, `createTestGroup(...)`, or equivalent.
-- Direct child names from one level below the documented root.
-- Conditional children guarded by preprocessor macros or runtime conditions.
-- Device-group roots that reuse common builders.
-- Nested subgroup files that may deserve separate Level-3 pages under the documentation harness.
-
-For Level-3 hierarchy trees, enforce one canonical parseable root unless the active harness explicitly allows more. If one source file registers multiple top-level roots, document one canonical tree and describe the additional roots in prose or tables, or follow the project-specific convention for multi-root files.
-
-### Step 5: Audit Parameter Claims
-
-Trace every parameter claim to code constructs.
-
-Verify:
-
-- Image types, buffer types, formats, sizes, sample counts, operations, flags, operands, queue counts, semaphore counts, and device-group variants.
-- Skip logic, such as YCbCr alignment filters, Vulkan SC guards, unsupported image types, feature gates, or conditional extra formats.
-- Claims using words like `all`, `every`, `only`, `same`, `always`, `fully`, `strict`, `exactly`, and `required`.
-
-Treat broad wording as suspicious. Rewrite broad statements to narrower statements when the source only proves a subset.
-
-### Step 6: Audit Support and Feature Gates
-
-Compare support sections against `checkSupport()` and runtime checks.
-
-Distinguish:
-
-- Compile-time or registration guards.
-- Static per-case support checks.
-- Runtime checks inside `iterate()` or helper setup.
-- Conditional feature checks for specific formats, operands, sample counts, queue families, device groups, or memory types.
-- Shared helper requirements inherited from base classes.
-
-Avoid writing that a feature is required for the whole page when the code requires it only for a format, operand, or branch.
-
-### Step 7: Audit Verification Claims
-
-Inspect the actual pass/fail logic.
-
-Check whether verification is:
-
-- Host-visible byte comparison.
-- Masked byte comparison rather than exact comparison.
-- Integer, fixed-point, or floating-point comparison with tolerances.
-- Shader output or rendered-image comparison.
-- Fence or semaphore wait result.
-- Property/metadata comparison.
-- Conditional on strict sparse-residency behavior.
-
-Ensure the wiki does not claim verification happens when the source only prepares resources, logs images, or relies on successful API calls.
-
-### Step 8: Audit Stale or Workflow-Derived Text
-
-Look for statements created during earlier drafting stages that may have become false after later work, such as:
-
-- "The Level-2 summary is not created yet."
-- "This is an initial page."
-- "Other files are not complete."
-- "The full category has not been audited."
-- Temporary worker coordination notes in user-facing docs.
-
-Remove or update stale text before completion.
-
-### Step 9: Fix Confirmed Errors
-
-Edit only confirmed issues. For each fix, preserve evidence links or add better links.
-
-Prefer precise wording such as:
-
-- "Observed in the inspected source..."
-- "The regular root documents...; the device-group root is registered separately with the same direct children..."
-- "The code requests N generic queues, then filters duplicate sparse-queue handles, so distinct non-sparse queues can be fewer than N."
-- "The comparison masks selected low bits before comparing."
-
-Do not invent missing source evidence to support a claim. If a plausible behavior is not proven, say it is not confirmed from inspected files or omit it.
-
-### Step 10: Run Validators After Semantic Fixes
-
-Run validators only after manual semantic auditing and fixes. Use category-scoped validation when possible.
-
-Typical Vulkan CTS wiki commands:
-
-```bash
-python3 .agents/skills/wiki-analyzer/scripts/validate_wiki_links.py \
-  --wiki-dir external/vulkancts/wiki \
-  --files external/vulkancts/wiki/categories/<category>.md external/vulkancts/wiki/testfiles/<category>/*.md \
-  --repo-root . \
-  --verbose
-
-python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category>
-
-grep -RIn "https://github.com/KhronosGroup/VK-GL-CTS/blob/main/" \
-  external/vulkancts/wiki/categories/<category>.md \
-  external/vulkancts/wiki/testfiles/<category>
-```
-
-If validators fail, fix validation problems only after checking that the fix remains semantically accurate. If the repository-local GitHub URL grep reports matches, convert them to local relative links and rerun link validation.
-
-### Step 11: Report Audit Results
-
-Report the audit as a source-backed review, not as a validator run.
-
-Include:
-
-- The complete list of audited pages.
-- Confirmed false or unsupported claims found.
-- For each correction: the previous claim, the source evidence, and the new corrected meaning.
-- Pages where no confirmed semantic errors were found after source comparison.
-- Validator results as secondary confirmation.
-
-Avoid vague summaries like "I checked the files." Show concrete audit coverage and concrete findings.
-
-## Error Categories
-
-Use these categories when recording findings:
-
-| Category | Meaning |
-|---|---|
-| False claim | Wiki states something contradicted by source. |
-| Overclaim | Wiki uses broader wording than source proves. |
-| Conditionality error | Wiki omits guards, skip logic, or feature conditions. |
-| Registration mismatch | Wiki hierarchy/root/child does not match registration code or harness contract. |
-| Verification mismatch | Wiki describes the wrong pass/fail mechanism or comparison strength. |
-| Parameter mismatch | Wiki lists wrong values, counts, formats, sizes, operations, or generated names. |
-| Stale workflow text | Wiki contains temporary or outdated drafting statements. |
-| Unsupported claim | Wiki claim lacks inspected source/test-plan evidence. |
+For a single-page audit, do not create a category summary unless requested. Return compact findings directly.
 
 ## Completion Criteria
 
-Consider the audit complete only when:
+Complete a page audit only when:
 
-- Every page in the declared scope has been compared against source evidence.
-- Every major nontrivial claim has either source support, narrower wording, or removal.
-- Registration trees match the harness contract and source registration semantics.
-- Support/verification/parameter claims reflect conditional code paths.
-- Temporary coordination text is absent from user-facing pages.
-- `apitests.adoc` mentions, if present, are relevant historical objective-level context and not current-behavior evidence.
-- Repository-local links use local relative paths, and the audit scope has no `https://github.com/KhronosGroup/VK-GL-CTS/blob/main/` links to repository files.
-- Category-scoped link validation passes, unless a documented external issue is out of scope.
-- Registration-path validation passes for documented trees, unless a documented validator limitation is out of scope.
-- Final report distinguishes semantic audit findings from automated validation results.
+- mechanical checks have been applied;
+- load-bearing claims have undergone truth and exposition review;
+- confirmed meaningful defects have been edited in place;
+- uncertain points remain unchanged and are reported as unresolved;
+- page-scoped validators pass or their limitation is reported.
+
+Complete a category audit only when:
+
+- every rewritten Level-3 page in declared scope has one completed owner result;
+- repeated defect patterns have been handled;
+- the Level-2 page has been audited when present;
+- category validators pass or remaining limitations are recorded;
+- the page-centered audit summary has been written by one owner.
+
+## Final Report
+
+Keep the task completion response brief. Report only:
+
+- audited scope;
+- paths edited;
+- category audit summary path, when applicable;
+- validator result;
+- unresolved findings, if any.
+
+Do not repeat the summary contents or narrate the full review process.

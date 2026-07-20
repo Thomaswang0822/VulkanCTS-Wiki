@@ -14,16 +14,10 @@ and side-effect-only emission patterns?
 
 ## Background Knowledge
 
-- A geometry shader declares `max_vertices`, but each invocation can emit any legal count up to that limit. These cases
-  exercise counts such as `0`, `6`, `10`, `100`, and `128`.
-- `EmitVertex()` appends the current output values to the active output primitive. A wrong loop bound, skipped emit, or
-  mishandled zero-count path changes the rendered reference image.
-- Geometry-shader instancing runs multiple geometry invocations for one input primitive. The instanced varying-output
-  cases use `gl_InvocationID` to select one of four expected output counts.
-- The runtime count source is part of the test: some cases read counts from vertex attributes, some from a uniform buffer,
-  and some from a sampled texture.
-- Storage-buffer writes from a geometry shader are observable side effects. The side-effect cases prove those writes occur
-  even when the geometry path should not produce visible color output.
+- **Geometry-shader output budget.** A geometry shader declares `max_vertices`, which is the upper bound on how many vertices one invocation may emit. The invocation may emit fewer vertices, including none, as long as it stays within the declared limit.
+- **Output emission.** `EmitVertex()` appends the currently written output values to the active output primitive. The visible primitive stream therefore depends on loop bounds, output values written before each emit, and how incomplete output primitives are handled.
+- **Geometry-shader instancing.** `layout(..., invocations = N) in` launches multiple geometry-shader invocations for one input primitive. `gl_InvocationID` identifies which invocation is running and is commonly used to select per-invocation behavior.
+- **Geometry-stage side effects.** A geometry shader can perform storage-buffer writes in addition to emitting primitives. Such side effects are observable even when the emitted geometry produces no visible fragments.
 
 ## Registration Hierarchy
 

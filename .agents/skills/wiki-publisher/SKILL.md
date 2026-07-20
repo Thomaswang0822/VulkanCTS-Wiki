@@ -30,108 +30,26 @@ roles:
 For rare narrower requests, such as publishing or repairing a single markdown file, the current agent may
 act as the worker directly while still following this skill and its mandatory dependencies.
 
-### Orchestrator Worker Dispatch Templates
+### Orchestrator worker dispatch
 
-Keep dispatch prompts intentionally minimal. The category name and assigned file list are the variable
-inputs; this skill remains the canonical source for workflow details. Do not duplicate the workflow in a
-dispatch prompt unless a specific request needs extra scope clarification.
-
-#### Level-2 Translation Worker
-
-```text
-Translate the Level-2 `<category>` category page using `.agents/skills/wiki-publisher/SKILL.md`.
-
-Input:
-- `external/vulkancts/wiki/categories/<category>.md`
-
-Output:
-- `vkcts-wiki-pages/categories/<category>.md`
-
-Strictly follow the skill's translation-worker requirements. Do not run link conversion. When complete, use `attempt_completion`.
-```
-
-#### Level-3 Translation Worker
-
-```text
-Translate this `<category>` Level-3 page batch using `.agents/skills/wiki-publisher/SKILL.md`.
-
-Inputs:
-- `external/vulkancts/wiki/testfiles/<category>/<file1>.md`
-- `external/vulkancts/wiki/testfiles/<category>/<file2>.md`
-- `external/vulkancts/wiki/testfiles/<category>/<file3>.md`
-
-Input rule:
-- Do not include `*_brief.md` files; Understanding Briefs are internal English-only audit notes and must not be published.
-
-Outputs:
-- `vkcts-wiki-pages/categories/<category>/<file1>.md`
-- `vkcts-wiki-pages/categories/<category>/<file2>.md`
-- `vkcts-wiki-pages/categories/<category>/<file3>.md`
-
-Strictly follow the skill's translation-worker requirements. Do not run link conversion. When complete, use `attempt_completion`.
-```
-
-#### Link-Conversion Worker
-
-```text
-Run the publish link-conversion phase for the completed `<category>` translations using `.agents/skills/wiki-publisher/SKILL.md`.
-
-Inputs:
-- `vkcts-wiki-pages/categories/<category>.md`
-- all `vkcts-wiki-pages/categories/<category>/*.md`
-
-Script:
-- `.agents/skills/wiki-publisher/scripts/convert_markdown_links.py`
-
-Strictly follow the skill's link-conversion requirements. Do not translate content. When complete, use `attempt_completion`.
-```
+Load `references/worker-dispatch-templates.md` before assigning workers. Supply only the category name and assigned file list unless a
+specific request needs extra scope clarification; this skill remains the canonical source for workflow details.
 
 ## Mandatory Dependency
 
-This skill is only a publishing harness. It MUST NOT translate content by itself.
-
-Before any link conversion, the worker MUST explicitly invoke and follow the
-[`translate-doc`](../translate-doc/SKILL.md) skill for the requested category.
-
-Hard requirements:
-
-- Read the full `../translate-doc/SKILL.md` file before translating.
-- Treat every rule in `translate-doc` as part of this skill's required workflow.
-- Confirm the mandatory Chinese language worker skills required by `translate-doc` are installed globally under `~/.agents/skills/`:
-  - `shuorenhua`
-  - `humanizer-zh`
-- If either Chinese language worker skill is missing, STOP before translating and ask the user to install the missing skill globally:
-
-  ```bash
-  npx skills add MrGeDiao/shuorenhua -g
-  npx skills add op7418/humanizer-zh -g
-  ```
-
-- Translate only from the canonical English source under `external/vulkancts/wiki/`.
-- Write translated output only under `vkcts-wiki-pages/`.
-- Do not perform generic or ad-hoc translation.
-- Do not run link conversion until the `translate-doc` validation checklist passes, including the mandatory `shuorenhua` and
-  `humanizer-zh` worker passes.
-- If the worker cannot confirm `translate-doc` was applied, STOP and report failure instead of publishing.
+This skill is a publishing harness; it does not translate content. Before link conversion, every translation worker must read and
+follow [`translate-doc`](../translate-doc/SKILL.md), which owns translation paths, protected content, terminology, language-worker
+dependencies, and validation. Do not continue unless the worker confirms that skill and its checklist completed successfully.
 
 ## Workflow
 
 ### Translation Workers
 
-1. Invoke the [`translate-doc`](../translate-doc/SKILL.md) skill first. This step is mandatory.
-   - Level-2 translation workers translate only `external/vulkancts/wiki/categories/<category>.md`.
-   - Level-3 translation workers translate only their assigned publishable batch under
-     `external/vulkancts/wiki/testfiles/<category>/`.
-   - Skip `*_brief.md` files. Understanding Briefs are internal rewrite/audit notes, must remain English-only, and are not
-     publisher inputs.
-   - Write translated output to the corresponding path under `vkcts-wiki-pages/`.
-   - Do not edit the English canonical wiki during publishing.
-   - Preserve code blocks, inline code, identifiers, filenames, directory names, markdown link targets,
-     URL targets, registered test paths, and YAML/machine markers exactly as required by `translate-doc`.
-   - Use the heading and terminology rules from `translate-doc`; do not invent a separate translation style.
-   - Invoke the mandatory Chinese language worker skills through the `translate-doc` workflow, in the order required there:
-     `shuorenhua` first, then `humanizer-zh`.
-   - Complete the `translate-doc` validation checklist for the assigned files before reporting completion.
+1. Invoke [`translate-doc`](../translate-doc/SKILL.md) for the assigned files.
+   - The Level-2 worker owns only `external/vulkancts/wiki/categories/<category>.md`.
+   - Each Level-3 worker owns only its assigned publishable batch under `external/vulkancts/wiki/testfiles/<category>/`.
+   - Exclude `*_brief.md` internal notes and do not edit the canonical English wiki.
+   - Complete all `translate-doc` dependency, output, and validation requirements before reporting completion.
 
 2. Run a pre-publish translation guard for every assigned translated markdown file.
    - Fail the translation task if protected content appears translated or corrupted.

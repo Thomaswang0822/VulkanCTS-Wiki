@@ -73,21 +73,22 @@ Rules:
 
 ## Mandatory Language Worker Dependencies
 
-This skill invokes the Chinese language worker skills as mandatory quality gates for translated wiki prose.
-
-Required global worker skills:
+This skill invokes two global language workers as mandatory quality gates for every translated page:
 
 | Worker skill | Purpose in this workflow |
 |---|---|
 | `shuorenhua` | Primary Chinese technical-doc naturalness and translationese cleanup pass. |
 | `humanizer-zh` | Secondary Chinese residual AI-pattern pass. |
 
-The publishing workflow checks that these workers are installed before invoking this skill. If this skill is used directly, the
-worker skills are still required and must be available globally.
+Before translating, confirm both exist under `~/.agents/skills/`. If either is missing, stop and ask the user to install it:
 
-The language workers are mandatory for every translated publish-target Chinese wiki page.
-They are language-quality passes only.
-They must not change factual claims, source links, GitLab URLs, registered paths, identifiers, code blocks, shader assembly, filename or directory names, markdown link targets before `#`, mustpass references, or Vulkan/CTS terminology that must remain exact.
+```bash
+npx skills add MrGeDiao/shuorenhua -g
+npx skills add op7418/humanizer-zh -g
+```
+
+Run `shuorenhua` before `humanizer-zh`. These workers may improve language only; preserve factual claims, links, paths, identifiers,
+code, shader assembly, filenames, mustpass references, and exact Vulkan/CTS terminology.
 
 ## Trigger
 
@@ -330,22 +331,12 @@ Bad:
 
 After translation, verify:
 
-- Output is under `vkcts-wiki-pages/`, not under `external/vulkancts/wiki/`.
-- Filename and relative directory path are preserved, except `README.md` → `home.md`.
-- Required reference files were read and applied.
-- Code tokens, inline code, and source-generated code comments are unchanged; wiki-authored `///` GLSL comments may be translated.
-- Markdown links still exist.
-- Markdown link paths before `#` are preserved, including `.md` suffixes.
-- Source-code and mustpass/source-adjacent links were not accidentally rewritten unless explicitly requested.
-- Headings are translated using the relevant reference template, and same-page or cross-page heading
-  links use translated `#fragment` anchors.
-- Category names, registered paths, filenames, and symbols remain unchanged.
-- Registration-tree path components remain unchanged; only explanatory comments such as
-  `(registration only)` may be translated.
-- Redesigned hierarchy terminology follows `references/terminology.zh.md`.
-- `## Shader Analysis` preserves all `shader-analyzer` code fences and code tokens exactly, while translating
-  the surrounding walkthrough headings, purpose, structural-design prose, additional-info bullets, variation tables,
-  and wiki-authored `///` GLSL comments.
-- No obsolete version-1 heading assumptions were introduced.
+- Output follows the canonical-to-publish path mapping, including the `README.md` → `home.md` exception.
+- Required terminology and page-type references were applied.
+- Every rule in `Content That Must Remain Unchanged` passes, including the special handling for wiki-authored `///` comments and
+  registration-tree annotations.
+- Markdown paths before `#` remain unchanged and translated heading fragments resolve to translated headings.
+- `## Shader Analysis` preserves generated code and SPIR-V while translating only the permitted explanatory content.
+- No obsolete version-1 structure was introduced.
 - Explanatory prose is readable Mandarin Chinese with limited, intentional English technical terms.
-- Mandatory `shuorenhua` and `humanizer-zh` passes were completed after translation and before reporting.
+- `shuorenhua` and `humanizer-zh` completed in that order after translation.

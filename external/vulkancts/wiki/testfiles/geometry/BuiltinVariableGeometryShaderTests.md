@@ -11,17 +11,10 @@ boundaries, and the GLSL/HLSL source boundary?
 
 ## Background Knowledge
 
-- Geometry-shader built-ins are part of the shader-stage contract. This family checks whether the implementation preserves those
-  contracts when values enter, leave, or pass through the geometry stage to the fragment stage.
-- `gl_PrimitiveIDIn` is an input to the geometry shader. It identifies the input primitive currently being processed.
-- `gl_PrimitiveID` can be written by the geometry shader and then observed by the fragment shader. In this family, fragment color is
-  selected from that geometry-written ID.
-- `gl_PointSize` written by the geometry shader controls point rasterization size, but only when the device supports
-  `shaderTessellationAndGeometryPointSize`.
-- The `in_block` and `outside_block` names describe interface style. The GLSL leaves explicitly declare built-ins inside
-  `gl_PerVertex` blocks; the `outside_block.position` leaf uses HLSL `SV_POSITION` instead.
-- Validation is image-based. The tests do not read built-in values back directly; incorrect built-in behavior must show up as a
-  changed reference image.
+- **Geometry-stage built-ins.** Built-in variables are part of the contract between pipeline stages and fixed-function behavior. A geometry shader can consume input built-ins, write output built-ins, and pass values that later stages or rasterization interpret specially.
+- **Input and output primitive IDs.** `gl_PrimitiveIDIn` identifies the input primitive being processed by the geometry shader. `gl_PrimitiveID` can be written by the geometry shader and then observed by fragment shading as the primitive ID for emitted geometry.
+- **Geometry-stage point size.** `gl_PointSize` written by the geometry shader controls rasterized point size when the device supports geometry-stage point-size writes.
+- **Interface style and language mapping.** GLSL can declare built-ins inside `gl_PerVertex` blocks, while HLSL expresses position through semantics such as `SV_POSITION`. Both forms must map to the same pipeline-visible built-in meanings.
 
 ## Registration Hierarchy
 

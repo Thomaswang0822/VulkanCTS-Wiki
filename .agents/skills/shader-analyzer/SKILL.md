@@ -251,9 +251,11 @@ Draft in this order:
 Structural Design rule:
 - choose the format after reconstructing and annotating the shader;
 - use a compact table, flow, mapping, decision tree, or short diagram according to what the reader must understand before code;
+- when the structure is flowchart-like, a decision tree, or another visual control-flow sketch, use Mermaid rather than raw ASCII text;
 - when using a Mermaid `flowchart`, always use top-down direction with `flowchart TD` for consistent, readable wiki rendering;
 - do not use horizontal Mermaid directions such as `flowchart LR` in shader walkthroughs, even for short flows;
-- do not default to a phase table when another concise form better exposes the shader's core mental model.
+- do not default to a phase table when another concise form better exposes the shader's core mental model;
+- do not force Mermaid when a table, mapping, or other structured non-text format explains the shader better.
 
 Additional Info boundary:
 - include exact source evidence only when it supports a non-obvious reconstruction branch or generator rule;
@@ -276,9 +278,9 @@ For multiple walkthroughs in the same destination, use sequential human-facing h
 
 Treat SPIR-V assembly as mandatory final walkthrough output.
 
-Delegate SPIR-V generation to the `shader-disassembler` helper skill after reconstructed GLSL or HLSL is complete and before final placement is considered complete. Provide `shader-disassembler` with:
+`shader-disassembler` owns the complete `#### SPIR-V` subsection and its exact format. Delegate generation after reconstructed GLSL
+or HLSL is complete. Provide:
 - the primary reconstructed GLSL or HLSL from `#### Shader Code`, or a specific stage subsection under it when multiple shader blocks are present;
-- the source language, `GLSL` or `HLSL`, derived from the CTS source collection and selected code block;
 - the source language, `GLSL` or `HLSL`, derived from the CTS source collection and selected code block;
 - the shader stage derived from the exact CTS case and selected code block, such as `comp`, `vert`, `geom`, or `frag`;
 - the target SPIR-V environment derived from CTS shader build options, such as `spirv1.0` or `spirv1.3`;
@@ -286,23 +288,21 @@ Delegate SPIR-V generation to the `shader-disassembler` helper skill after recon
 
 For multi-shader walkthroughs, generate SPIR-V for the primary shader by default. Generate additional collapsed SPIR-V blocks for secondary shaders only when their generated assembly materially helps audit the tested property; otherwise describe the secondary stages in `#### Shader Code`, `#### Structural Design`, and required `#### Additional Info` bullets.
 
-Target SPIR-V environment policy:
-- inspect the shader insertion path in source;
-- when the shader is inserted with an explicit `vk::ShaderBuildOptions`, use its `targetVersion` as the SPIR-V target environment;
-- when the shader has no explicit `vk::ShaderBuildOptions`, follow the `vk::SourceCollections` default, which is constructed from `vk::getBaselineSpirvVersion()` and currently defaults GLSL/HLSL shaders to SPIR-V 1.0;
-- do not infer the compile target from Vulkan runtime API version, feature support, or `vk::getMaxSpirvVersionForVulkan()`; that helper describes the maximum SPIR-V version supported by a Vulkan version without extension, not the emitted shader target;
-- pass a SPIR-V environment such as `spirv1.0` or `spirv1.3` to `shader-disassembler`, not a Vulkan environment such as `vulkan1.1`;
-- use `Target SPIRV version` as the single version metadata field in the final `#### SPIR-V` output; do not add a duplicate `SPIR-V version` field from the `spirv-dis` header.
+Choose the target from the shader insertion path:
 
-Accept the `shader-disassembler` result as the final `#### SPIR-V` subsection. Do not hand-edit SPIR-V assembly, do not insert `///` comments into assembly, and do not replace the full assembly with selected excerpts.
+1. Explicit `vk::ShaderBuildOptions` -> use its `targetVersion`.
+2. No explicit build options -> use the `vk::SourceCollections` default from `vk::getBaselineSpirvVersion()` (currently SPIR-V 1.0).
+
+Do not use the Vulkan runtime version or `vk::getMaxSpirvVersionForVulkan()`. Pass `spirv1.X`, never `vulkan1.X`.
+
+Insert the complete `shader-disassembler` result unchanged. Do not reformat its fields, add generation prose, or edit its assembly.
 
 If `shader-disassembler` fails, do not treat the failure as only a final-output status. Return to shader reconstruction and audit whether the GLSL differs from actual generator behavior, especially around non-local helpers, declarations, extensions, type aliases, precision qualifiers, feature gates, casts, and generated validation helpers.
 
 ## Output Formatting Rules
 
-Read the bundled references before producing final output:
-- [`references/output-template.md`](references/output-template.md)
-- [`references/workflow-notes.md`](references/workflow-notes.md)
+Read [`references/output-template.md`](references/output-template.md) before producing final output. Load
+[`references/workflow-notes.md`](references/workflow-notes.md) only when its annotation examples or review cues are useful.
 
 Formatting requirements:
 - keep all output markdown-renderable;

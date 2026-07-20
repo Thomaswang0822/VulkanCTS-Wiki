@@ -1,17 +1,15 @@
-# ray_tracing_pipeline
+## Overview
 
-The `ray_tracing_pipeline` category documents Vulkan CTS tests registered from the `ray_tracing` source directory for `VK_KHR_ray_tracing_pipeline` behavior, including ray tracing shader built-ins, pipeline/SBT construction, trace commands, acceleration-structure interaction, pipeline libraries, shader execution reorder, opacity micromap, position fetch, and related edge cases. The root is registered as `ray_tracing_pipeline` in [vktTestPackage.cpp](../../modules/vulkan/vktTestPackage.cpp#L1387), and dispatches through [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L65-L104).
+The `ray_tracing_pipeline` test category collects tests that check device-side ray traversal through `VK_KHR_ray_tracing_pipeline` across raygen, closest-hit, any-hit, miss, callable, and intersection shader stages.
 
-## Registration Entry Point
+## Background Knowledge
 
-| Item | Evidence |
-|------|----------|
-| Category root registration | [vktTestPackage.cpp](../../modules/vulkan/vktTestPackage.cpp#L1387) |
-| Category dispatcher | [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L65-L104) |
-| Dispatcher includes | [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L24-L54) |
-| Build inventory | [CMakeLists.txt](../../modules/vulkan/ray_tracing/CMakeLists.txt#L6-L70) |
+- **TLAS and BLAS.** A ray tracing pipeline traverses a top-level acceleration structure (TLAS) that references one or more bottom-level acceleration structures (BLAS). Each BLAS holds geometry (triangles or AABBs). Each TLAS instance references a BLAS, applies a 3x4 transform, and carries an `instanceCustomIndex`, a `mask`, an `instanceShaderBindingTableRecordOffset`, and `VkGeometryInstanceFlagsKHR`. Multiple Level-3 pages in this category (e.g., [Build](../testfiles/ray_tracing_pipeline/Build.md), [AccelerationStructures](../testfiles/ray_tracing_pipeline/AccelerationStructures.md), [ProceduralGeometry](../testfiles/ray_tracing_pipeline/ProceduralGeometry.md)) assume this two-level structure when describing their geometry setup.
+- **Acceleration structure build types.** `VK_KHR_acceleration_structure` defines `VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR` (build recorded and executed on the device via command buffer) and `VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_KHR` (build performed by the host). The build type selects where the build work runs, not the resulting traversal semantics. Pages exercising build-type variation include [Build](../testfiles/ray_tracing_pipeline/Build.md), [BuildLarge](../testfiles/ray_tracing_pipeline/BuildLarge.md), [BuildIndirect](../testfiles/ray_tracing_pipeline/BuildIndirect.md), [AccelerationStructures](../testfiles/ray_tracing_pipeline/AccelerationStructures.md), and [PipelineFlags](../testfiles/ray_tracing_pipeline/PipelineFlags.md).
+- **Deferred host operations.** `VK_KHR_deferred_host_operations` lets a host-side AS build be split across multiple host threads. The application partitions the build work by calling `vkDeferredOperationJoinKHR` from each worker thread; the implementation joins them. A non-zero worker-thread count is what turns a plain host build into a deferred host build. This mechanism underlies the `cpuht_*` / `cpu_ht_*` leaves in [Build](../testfiles/ray_tracing_pipeline/Build.md), [BuildLarge](../testfiles/ray_tracing_pipeline/BuildLarge.md), and [BuildIndirect](../testfiles/ray_tracing_pipeline/BuildIndirect.md), and the `host_threading` dimension in [AccelerationStructures](../testfiles/ray_tracing_pipeline/AccelerationStructures.md).
+- **Shader Binding Table regions.** `cmdTraceRaysKHR` consumes four `VkStridedDeviceAddressRegionKHR` regions: raygen, miss, hit, and callable. Each region is an array of records; a record begins with a shader-group handle and may carry a shader-record data block after it. Hit-group indexing resolves `instanceContributionToHitGroupIndex + sbtRecordOffset + geometryIndex * sbtRecordStride`; miss indexing uses `missIndex` strides. Pages that depend on SBT layout include [ShaderBindingTable](../testfiles/ray_tracing_pipeline/ShaderBindingTable.md), [NullAS](../testfiles/ray_tracing_pipeline/NullAS.md), [CallableShaders](../testfiles/ray_tracing_pipeline/CallableShaders.md), and [TraceRays](../testfiles/ray_tracing_pipeline/TraceRays.md).
 
-## Registration Hierarchy
+## Category Structure
 
 ```text
 ray_tracing_pipeline
@@ -51,197 +49,62 @@ ray_tracing_pipeline
 └── rtir_activity
 ```
 
-## Test Families
-
-### amber — Registered branch
-
-Amber-scripted ray tracing cases require ray tracing pipeline, acceleration structure, buffer device address, and selected pipeline-library/deferred-host-operation features declared in the Amber requirement arrays. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingAmberTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L35). See [vktRayTracingAmberTests](../testfiles/ray_tracing_pipeline/vktRayTracingAmberTests.md).
-
-### builtin — Registered branch
-
-Shader built-in result checks cover launch IDs/sizes, primitive and instance identifiers, ray parameters, transforms, incoming flags, hit attributes, and indirect variants. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingBuiltinTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingBuiltinTests.cpp#L4794). See [vktRayTracingBuiltinTests](../testfiles/ray_tracing_pipeline/vktRayTracingBuiltinTests.md).
-
-### spec_constants — Registered branch
-
-Specialization-constant cases register shader-stage leaves for raygen, hit, miss, callable, and intersection stage coverage. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingBuiltinTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingBuiltinTests.cpp#L4811). See [vktRayTracingBuiltinTests](../testfiles/ray_tracing_pipeline/vktRayTracingBuiltinTests.md).
-
-### large_shader_set — Registered branch
-
-Large shader-set tests vary GPU and host-threaded CPU build modes and square sizes to exercise many callable groups. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingBuildLargeTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L574). See [vktRayTracingBuildLargeTests](../testfiles/ray_tracing_pipeline/vktRayTracingBuildLargeTests.md).
-
-### build — Registered branch
-
-Build tests compare ray tracing results when acceleration structures are built on GPU, CPU, and CPU host-threaded paths. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingBuildTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L756). See [vktRayTracingBuildTests](../testfiles/ray_tracing_pipeline/vktRayTracingBuildTests.md).
-
-### callable_shader — Registered branch
-
-Callable-shader tests cover callable invocation through raygen, miss, closest-hit, and callable stages, including single and multiple invocations. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingCallableShadersTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1978). See [vktRayTracingCallableShadersTests](../testfiles/ray_tracing_pipeline/vktRayTracingCallableShadersTests.md).
-
-### trace_rays_cmds — Registered branch
-
-Trace-rays command tests cover direct and indirect CPU/GPU buffer-source paths for `vkCmdTraceRays*` style dispatch. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingTraceRaysTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1462). See [vktRayTracingTraceRaysTests](../testfiles/ray_tracing_pipeline/vktRayTracingTraceRaysTests.md).
-
-### trace_rays_cmds_maintenance_1 — Registered branch
-
-Maintenance1 trace-rays command tests cover indirect2 CPU and GPU buffer-source paths. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingTraceRaysTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1507). See [vktRayTracingTraceRaysTests](../testfiles/ray_tracing_pipeline/vktRayTracingTraceRaysTests.md).
-
-### shader_binding_table — Registered branch
-
-Shader-binding-table tests cover hit/miss/callable indexing and shader-group handle alignment. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingShaderBindingTableTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingShaderBindingTableTests.cpp#L1620). See [vktRayTracingShaderBindingTableTests](../testfiles/ray_tracing_pipeline/vktRayTracingShaderBindingTableTests.md).
-
-### traversal_control — Registered branch
-
-Traversal-control tests verify any-hit ignore/pass-through/terminate behavior and intersection shader report/donot-report behavior. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingTraversalControlTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L769). See [vktRayTracingTraversalControlTests](../testfiles/ray_tracing_pipeline/vktRayTracingTraversalControlTests.md).
-
-### acceleration_structures — Registered branch
-
-Acceleration-structure tests cover flags, formats, operations, host threading, function arguments, instance indexing/culling/update, dynamic indexing, empty structures, query results, and pipeline-stage use. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingAccelerationStructuresTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingAccelerationStructuresTests.cpp#L7740). See [vktRayTracingAccelerationStructuresTests](../testfiles/ray_tracing_pipeline/vktRayTracingAccelerationStructuresTests.md).
-
-### procedural_geometry — Registered branch
-
-Procedural-geometry tests register explicit AABB arrangements for objects behind bounding boxes and triangles between boxes. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingProceduralGeometryTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L614). See [vktRayTracingProceduralGeometryTests](../testfiles/ray_tracing_pipeline/vktRayTracingProceduralGeometryTests.md).
-
-### indirect_acceleration_structure — Registered branch
-
-Indirect acceleration-structure tests vary build/update mode and indirect count/offset fields for triangles, AABBs, and instances. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingBuildIndirectTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1390). See [vktRayTracingBuildIndirectTests](../testfiles/ray_tracing_pipeline/vktRayTracingBuildIndirectTests.md).
-
-### watertightness — Registered branch
-
-Watertightness tests generate fan and closed-fan triangle arrangements and check no-miss/single-hit consistency. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingWatertightnessTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L875). See [vktRayTracingWatertightnessTests](../testfiles/ray_tracing_pipeline/vktRayTracingWatertightnessTests.md).
-
-### pipeline_library — Registered branch
-
-Pipeline-library tests create linked ray tracing pipeline-library configurations and check shader group handles, capture-replay, and optimization variants. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingPipelineLibraryTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingPipelineLibraryTests.cpp#L1227). See [vktRayTracingPipelineLibraryTests](../testfiles/ray_tracing_pipeline/vktRayTracingPipelineLibraryTests.md).
-
-### memguarantee — Registered branch
-
-Memory-guarantee tests register inside and between cases around shader-call memory behavior. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingMemGuaranteeTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L877). See [vktRayTracingMemGuaranteeTests](../testfiles/ray_tracing_pipeline/vktRayTracingMemGuaranteeTests.md).
-
-### null_as — Registered branch
-
-Null acceleration-structure tests check always-miss behavior and mixed dispatches using null descriptors. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingNullASTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L759). See [vktRayTracingNullASTests](../testfiles/ray_tracing_pipeline/vktRayTracingNullASTests.md).
-
-### capture_replay — Registered branch
-
-Capture-replay tests cover shader-binding-table and acceleration-structure capture/replay configurations. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingCaptureReplayTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingCaptureReplayTests.cpp#L1731). See [vktRayTracingCaptureReplayTests](../testfiles/ray_tracing_pipeline/vktRayTracingCaptureReplayTests.md).
-
-### misc — Registered branch
-
-Miscellaneous tests cover callable stress, cull masks, recursion, shader-record layouts, empty pipeline layouts, null miss, memory access, and related edge cases. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingMiscTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L10908). See [vktRayTracingMiscTests](../testfiles/ray_tracing_pipeline/vktRayTracingMiscTests.md).
-
-### complexcontrolflow — Registered branch
-
-Complex-control-flow tests cover conditionals, switches, loops, nested loops, and function-call patterns around ray tracing shader calls. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingComplexControlFlowTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1845). See [vktRayTracingComplexControlFlowTests](../testfiles/ray_tracing_pipeline/vktRayTracingComplexControlFlowTests.md).
-
-### barrier — Registered branch
-
-Barrier tests cross resource types, barrier types, and writer/reader stages involving ray tracing stages. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingBarrierTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingBarrierTests.cpp#L1753). See [vktRayTracingBarrierTests](../testfiles/ray_tracing_pipeline/vktRayTracingBarrierTests.md).
-
-### data_spill — Registered branch
-
-Data-spill tests cover data spilling around trace-ray, report-intersection, execute-callable, and pipeline-interface paths. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingDataSpillTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L2890). See [vktRayTracingDataSpillTests](../testfiles/ray_tracing_pipeline/vktRayTracingDataSpillTests.md).
-
-### direction_length — Registered branch
-
-Direction-length tests vary hit/intersection stages, geometry, scaling factors, and rotation angles. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingDirectionTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L684). See [vktRayTracingDirectionTests](../testfiles/ray_tracing_pipeline/vktRayTracingDirectionTests.md).
-
-### inside_aabbs — Registered branch
-
-Inside-AABB tests vary stages, ray-end choices, scaling factors, and rotation angles for rays starting inside AABBs. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingDirectionTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L778). See [vktRayTracingDirectionTests](../testfiles/ray_tracing_pipeline/vktRayTracingDirectionTests.md).
-
-### barycentric_coordinates — Registered branch
-
-Barycentric-coordinate tests register closest-hit, any-hit, and terminating any-hit cases with deterministic seeds. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingBarycentricCoordinatesTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L503). See [vktRayTracingBarycentricCoordinatesTests](../testfiles/ray_tracing_pipeline/vktRayTracingBarycentricCoordinatesTests.md).
-
-### non_uniform_args — Registered branch
-
-Non-uniform argument tests generate closest-hit ray-type combinations and miss-cause cases. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingNonUniformArgsTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L520). See [vktRayTracingNonUniformArgsTests](../testfiles/ray_tracing_pipeline/vktRayTracingNonUniformArgsTests.md).
-
-### pipeline_no_null_shaders_flag — Registered branch
-
-Pipeline flag tests exercise `VK_PIPELINE_CREATE_RAY_TRACING_NO_NULL_*_SHADERS_BIT_KHR` combinations over CPU/GPU processors, geometry, stride, offset, and library mode. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingPipelineFlagsTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1573). See [vktRayTracingPipelineFlagsTests](../testfiles/ray_tracing_pipeline/vktRayTracingPipelineFlagsTests.md).
-
-### trace_rays_indirect2 — Registered branch
-
-Indirect2 trace-rays tests vary indirect CPU/GPU buffer source, copy style, queue submission path, and dimensions. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingTraceRaysTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1553). See [vktRayTracingTraceRaysTests](../testfiles/ray_tracing_pipeline/vktRayTracingTraceRaysTests.md).
-
-### opacity_micromap — Registered branch
-
-Opacity-micromap tests combine opacity flags, special-index use, modes, levels, copy behavior, and non-zero base variants. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingOpacityMicromapTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L821). See [vktRayTracingOpacityMicromapTests](../testfiles/ray_tracing_pipeline/vktRayTracingOpacityMicromapTests.md).
-
-### position_fetch — Registered branch
-
-Position-fetch tests vary CPU/GPU build modes, vertex formats, and flag masks for ray pipeline shaders using vertex position fetch. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingPositionFetchTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L532). See [vktRayTracingPositionFetchTests](../testfiles/ray_tracing_pipeline/vktRayTracingPositionFetchTests.md).
-
-### ser — Registered branch
-
-Shader execution reorder tests register built-in, large-dimension, motion, and reorder cases for invocation reorder behavior. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingShaderExecutionReorderTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingShaderExecutionReorderTests.cpp#L2256). See [vktRayTracingShaderExecutionReorderTests](../testfiles/ray_tracing_pipeline/vktRayTracingShaderExecutionReorderTests.md).
-
-### linear_swept_spheres — Registered branch
-
-Linear swept spheres tests compare sphere and linear-swept-sphere geometry modes across copy, endcap, ray-query, hit-object, vertex-format, and radius-format choices. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingLinearSweptSpheresTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingLinearSweptSpheresTests.cpp#L1029). See [vktRayTracingLinearSweptSpheresTests](../testfiles/ray_tracing_pipeline/vktRayTracingLinearSweptSpheresTests.md).
-
-### limits — Registered branch
-
-Limits tests query acceleration-structure and ray-tracing pipeline property groups. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingLimitsTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingLimitsTests.cpp#L279). See [vktRayTracingLimitsTests](../testfiles/ray_tracing_pipeline/vktRayTracingLimitsTests.md).
-
-### rtir_activity — Registered branch
-
-RTIR activity tests register a single activity case for invocation reorder activity with ray pipelines. Registered by the dispatcher in [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69-L102) and constructed in [vktRayTracingInvocationReorderActivityTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L637). See [vktRayTracingInvocationReorderActivityTests](../testfiles/ray_tracing_pipeline/vktRayTracingInvocationReorderActivityTests.md).
-
-## File Inventory
-
-| Wiki page | Source role | Registered path roots |
-|-----------|-------------|-----------------------|
-| [vktRayTracingAccelerationStructuresTests](../testfiles/ray_tracing_pipeline/vktRayTracingAccelerationStructuresTests.md) | Registered implementation | `ray_tracing_pipeline.acceleration_structures` |
-| [vktRayTracingAmberTests](../testfiles/ray_tracing_pipeline/vktRayTracingAmberTests.md) | Registered implementation | `ray_tracing_pipeline.amber` |
-| [vktRayTracingBarrierTests](../testfiles/ray_tracing_pipeline/vktRayTracingBarrierTests.md) | Registered implementation | `ray_tracing_pipeline.barrier` |
-| [vktRayTracingBarycentricCoordinatesTests](../testfiles/ray_tracing_pipeline/vktRayTracingBarycentricCoordinatesTests.md) | Registered implementation | `ray_tracing_pipeline.barycentric_coordinates` |
-| [vktRayTracingBuildIndirectTests](../testfiles/ray_tracing_pipeline/vktRayTracingBuildIndirectTests.md) | Registered implementation | `ray_tracing_pipeline.indirect_acceleration_structure` |
-| [vktRayTracingBuildLargeTests](../testfiles/ray_tracing_pipeline/vktRayTracingBuildLargeTests.md) | Registered implementation | `ray_tracing_pipeline.large_shader_set` |
-| [vktRayTracingBuildTests](../testfiles/ray_tracing_pipeline/vktRayTracingBuildTests.md) | Registered implementation | `ray_tracing_pipeline.build` |
-| [vktRayTracingBuiltinTests](../testfiles/ray_tracing_pipeline/vktRayTracingBuiltinTests.md) | Registered implementation | `ray_tracing_pipeline.builtin`, `ray_tracing_pipeline.spec_constants` |
-| [vktRayTracingCallableShadersTests](../testfiles/ray_tracing_pipeline/vktRayTracingCallableShadersTests.md) | Registered implementation | `ray_tracing_pipeline.callable_shader` |
-| [vktRayTracingCaptureReplayTests](../testfiles/ray_tracing_pipeline/vktRayTracingCaptureReplayTests.md) | Registered implementation | `ray_tracing_pipeline.capture_replay` |
-| [vktRayTracingComplexControlFlowTests](../testfiles/ray_tracing_pipeline/vktRayTracingComplexControlFlowTests.md) | Registered implementation | `ray_tracing_pipeline.complexcontrolflow` |
-| [vktRayTracingDataSpillTests](../testfiles/ray_tracing_pipeline/vktRayTracingDataSpillTests.md) | Registered implementation | `ray_tracing_pipeline.data_spill` |
-| [vktRayTracingDirectionTests](../testfiles/ray_tracing_pipeline/vktRayTracingDirectionTests.md) | Registered implementation | `ray_tracing_pipeline.direction_length`, `ray_tracing_pipeline.inside_aabbs` |
-| [vktRayTracingInvocationReorderActivityTests](../testfiles/ray_tracing_pipeline/vktRayTracingInvocationReorderActivityTests.md) | Registered implementation | `ray_tracing_pipeline.rtir_activity` |
-| [vktRayTracingLimitsTests](../testfiles/ray_tracing_pipeline/vktRayTracingLimitsTests.md) | Registered implementation | `ray_tracing_pipeline.limits` |
-| [vktRayTracingLinearSweptSpheresTests](../testfiles/ray_tracing_pipeline/vktRayTracingLinearSweptSpheresTests.md) | Registered implementation | `ray_tracing_pipeline.linear_swept_spheres` |
-| [vktRayTracingMemGuaranteeTests](../testfiles/ray_tracing_pipeline/vktRayTracingMemGuaranteeTests.md) | Registered implementation | `ray_tracing_pipeline.memguarantee` |
-| [vktRayTracingMiscTests](../testfiles/ray_tracing_pipeline/vktRayTracingMiscTests.md) | Registered implementation | `ray_tracing_pipeline.misc` |
-| [vktRayTracingNonUniformArgsTests](../testfiles/ray_tracing_pipeline/vktRayTracingNonUniformArgsTests.md) | Registered implementation | `ray_tracing_pipeline.non_uniform_args` |
-| [vktRayTracingNullASTests](../testfiles/ray_tracing_pipeline/vktRayTracingNullASTests.md) | Registered implementation | `ray_tracing_pipeline.null_as` |
-| [vktRayTracingOpacityMicromapTests](../testfiles/ray_tracing_pipeline/vktRayTracingOpacityMicromapTests.md) | Registered implementation | `ray_tracing_pipeline.opacity_micromap` |
-| [vktRayTracingPipelineFlagsTests](../testfiles/ray_tracing_pipeline/vktRayTracingPipelineFlagsTests.md) | Registered implementation | `ray_tracing_pipeline.pipeline_no_null_shaders_flag` |
-| [vktRayTracingPipelineLibraryTests](../testfiles/ray_tracing_pipeline/vktRayTracingPipelineLibraryTests.md) | Registered implementation | `ray_tracing_pipeline.pipeline_library` |
-| [vktRayTracingPositionFetchTests](../testfiles/ray_tracing_pipeline/vktRayTracingPositionFetchTests.md) | Registered implementation | `ray_tracing_pipeline.position_fetch` |
-| [vktRayTracingProceduralGeometryTests](../testfiles/ray_tracing_pipeline/vktRayTracingProceduralGeometryTests.md) | Registered implementation | `ray_tracing_pipeline.procedural_geometry` |
-| [vktRayTracingShaderBindingTableTests](../testfiles/ray_tracing_pipeline/vktRayTracingShaderBindingTableTests.md) | Registered implementation | `ray_tracing_pipeline.shader_binding_table` |
-| [vktRayTracingShaderExecutionReorderTests](../testfiles/ray_tracing_pipeline/vktRayTracingShaderExecutionReorderTests.md) | Registered implementation | `ray_tracing_pipeline.ser` |
-| [vktRayTracingTests](../testfiles/ray_tracing_pipeline/vktRayTracingTests.md) | Category dispatcher | `ray_tracing_pipeline` |
-| [vktRayTracingTraceRaysTests](../testfiles/ray_tracing_pipeline/vktRayTracingTraceRaysTests.md) | Registered implementation | `ray_tracing_pipeline.trace_rays_cmds`, `ray_tracing_pipeline.trace_rays_cmds_maintenance_1`, `ray_tracing_pipeline.trace_rays_indirect2` |
-| [vktRayTracingTraversalControlTests](../testfiles/ray_tracing_pipeline/vktRayTracingTraversalControlTests.md) | Registered implementation | `ray_tracing_pipeline.traversal_control` |
-| [vktRayTracingWatertightnessTests](../testfiles/ray_tracing_pipeline/vktRayTracingWatertightnessTests.md) | Registered implementation | `ray_tracing_pipeline.watertightness` |
-
-## Recurring Parameter Dimensions
-
-| Theme | Observed dimensions | Evidence |
-|-------|---------------------|----------|
-| Build and execution modes | CPU/GPU AS build, host-thread counts, direct/indirect trace commands, indirect2 queue/copy choices | [vktRayTracingBuildTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L758-L787), [vktRayTracingTraceRaysTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1459-L1590) |
-| Shader stages and shader roles | Raygen, closest-hit, any-hit, miss, callable, and intersection roles recur in built-in, callable, SBT, data-spill, and direction tests | [vktRayTracingBuiltinTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingBuiltinTests.cpp#L4772-L4803), [vktRayTracingDataSpillTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L2887-L3003) |
-| Geometry and acceleration structures | Triangle, AABB, instance, top/bottom AS layouts, flags, formats, operations, and update/copy/query variants | [vktRayTracingAccelerationStructuresTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingAccelerationStructuresTests.cpp#L7738-L7741), [vktRayTracingBuildIndirectTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1258-L1399) |
-| Extension-specific branches | Pipeline libraries, opacity micromap, position fetch, shader execution reorder, linear swept spheres, and invocation reorder activity | [vktRayTracingPipelineLibraryTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingPipelineLibraryTests.cpp#L298-L318), [vktRayTracingOpacityMicromapTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L818-L932) |
-
-## Recurring Support Requirements
-
-Most implementation files require `VK_KHR_ray_tracing_pipeline`; acceleration-structure scenarios also require `VK_KHR_acceleration_structure` and feature bits, as shown by build-test support checks [vktRayTracingBuildTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L186-L205). Some branches add specific extension gates such as `VK_KHR_pipeline_library`, `VK_EXT_pipeline_library_group_handles`, `VK_EXT_graphics_pipeline_library`, and `VK_KHR_maintenance5` in pipeline-library tests [vktRayTracingPipelineLibraryTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingPipelineLibraryTests.cpp#L298-L318).
-
-## Recurring Verification Methods
-
-Observed verification patterns include ray tracing pipeline and SBT creation followed by shader-output checking [vktRayTracingBuildTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L437-L450), large pipeline creation with watchdog management [vktRayTracingBuildLargeTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L385-L395), pipeline-library run collection [vktRayTracingPipelineLibraryTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingPipelineLibraryTests.cpp#L615-L625), and explicit edge-case pass conditions such as empty-layout pipeline creation without crash [vktRayTracingMiscTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L8753-L8765).
-
-## Scope Notes
-
-The actual registered source location is [external/vulkancts/modules/vulkan/ray_tracing](../../modules/vulkan/ray_tracing/) even though the category is named `ray_tracing_pipeline`. Helper/model headers without direct registration were not given separate Level-3 pages.
+The dispatcher [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L65-L104) is registration-only: it adds 34 child groups and delegates each to a separate `create*Tests` function. The 34 registered families map to 30 Level-3 pages because four pages each cover multiple families rooted in the same implementation file:
+
+- [Builtin.md](../testfiles/ray_tracing_pipeline/Builtin.md) covers `builtin` and `spec_constants` (both in `vktRayTracingBuiltinTests.cpp`).
+- [TraceRays.md](../testfiles/ray_tracing_pipeline/TraceRays.md) covers `trace_rays_cmds`, `trace_rays_cmds_maintenance_1`, and `trace_rays_indirect2` (all in `vktRayTracingTraceRaysTests.cpp`).
+- [DirectionLength.md](../testfiles/ray_tracing_pipeline/DirectionLength.md) covers `direction_length` and `inside_aabbs` (both in `vktRayTracingDirectionTests.cpp`).
+
+The source directory is `ray_tracing/` even though the category is `ray_tracing_pipeline`.
+
+## How the Families Fit Together
+
+All families exercise `vkCmdTraceRays*` dispatch through a ray tracing pipeline, but they target different aspects of the pipeline contract:
+
+- `builtin`, `spec_constants`, `callable_shader`, and `shader_binding_table` test **what values** the pipeline produces: shader built-in results, specialization-constant substitution, callable invocation, and SBT record indexing.
+- `traversal_control`, `watertightness`, `barycentric_coordinates`, `non_uniform_args`, and `direction_length` test **which candidates survive traversal** under control-flow, edge, and argument conditions.
+- `build`, `large_shader_set`, `acceleration_structures`, `indirect_acceleration_structure`, `procedural_geometry`, `null_as`, `capture_replay`, and `pipeline_no_null_shaders_flag` test **how the pipeline and acceleration structure behave** when build mode, geometry, flags, or descriptors vary.
+- `barrier`, `memguarantee`, `complexcontrolflow`, and `data_spill` test **synchronization and shader-call mechanics** around `traceRayEXT`, `executeCallableEXT`, and `reportIntersectionEXT`.
+- `opacity_micromap`, `position_fetch`, `ser`, `linear_swept_spheres`, and `rtir_activity` test **extension-specific features** integrated into the pipeline.
+- `amber` and `limits` test **Amber-scripted scenarios and property queries** that do not fit the C++-shader pattern.
+
+## Level-3 Pages Navigation
+
+| Registered test family or area | Level-3 page | What to read there |
+|--------------------------------|--------------|--------------------|
+| `builtin`, `spec_constants` | [Builtin.md](../testfiles/ray_tracing_pipeline/Builtin.md) | Shader built-in result checks and specialization-constant substitution across raygen, hit, miss, callable, and intersection stages. |
+| `traversal_control` | [TraversalControl.md](../testfiles/ray_tracing_pipeline/TraversalControl.md) | Any-hit ignore, pass-through, and terminate behavior plus intersection report and do-not-report cases. |
+| `shader_binding_table` | [ShaderBindingTable.md](../testfiles/ray_tracing_pipeline/ShaderBindingTable.md) | SBT hit, miss, and callable indexing plus shader-group handle alignment. |
+| `callable_shader` | [CallableShaders.md](../testfiles/ray_tracing_pipeline/CallableShaders.md) | Callable invocation through raygen, miss, closest-hit, and callable stages, including single and multiple invocations. |
+| `trace_rays_cmds`, `trace_rays_cmds_maintenance_1`, `trace_rays_indirect2` | [TraceRays.md](../testfiles/ray_tracing_pipeline/TraceRays.md) | Direct, indirect, and indirect2 CPU and GPU dispatch paths, copy styles, and queue submission variants. |
+| `build` | [Build.md](../testfiles/ray_tracing_pipeline/Build.md) | CPU, GPU, and host-threaded acceleration-structure build comparison via result-buffer checking. |
+| `large_shader_set` | [BuildLarge.md](../testfiles/ray_tracing_pipeline/BuildLarge.md) | Large pipeline with many callable groups, watchdog-managed creation, and CPU and GPU build modes. |
+| `indirect_acceleration_structure` | [BuildIndirect.md](../testfiles/ray_tracing_pipeline/BuildIndirect.md) | Indirect build and update with count and offset fields for triangles, AABBs, and instances. |
+| `procedural_geometry` | [ProceduralGeometry.md](../testfiles/ray_tracing_pipeline/ProceduralGeometry.md) | Two explicit AABB arrangements and result-buffer comparison. |
+| `amber` | [Amber.md](../testfiles/ray_tracing_pipeline/Amber.md) | Amber-scripted ray tracing cases with pipeline, AS, and buffer-device-address requirements. |
+| `barycentric_coordinates` | [BarycentricCoordinates.md](../testfiles/ray_tracing_pipeline/BarycentricCoordinates.md) | Closest-hit, any-hit, and terminating any-hit barycentric result verification with deterministic seeds. |
+| `acceleration_structures` | [AccelerationStructures.md](../testfiles/ray_tracing_pipeline/AccelerationStructures.md) | Build flags, formats, operations, host threading, instance culling and update, dynamic indexing, empty structures, and query results. |
+| `pipeline_library` | [PipelineLibrary.md](../testfiles/ray_tracing_pipeline/PipelineLibrary.md) | Linked pipeline-library configurations, shader group handles, capture-replay, and optimization variants. |
+| `capture_replay` | [CaptureReplay.md](../testfiles/ray_tracing_pipeline/CaptureReplay.md) | SBT and acceleration-structure capture and replay configurations. |
+| `pipeline_no_null_shaders_flag` | [PipelineFlags.md](../testfiles/ray_tracing_pipeline/PipelineFlags.md) | `VK_PIPELINE_CREATE_RAY_TRACING_NO_NULL_*_SHADERS_BIT_KHR` flag combinations over CPU and GPU build, geometry, stride, offset, and library mode. |
+| `null_as` | [NullAS.md](../testfiles/ray_tracing_pipeline/NullAS.md) | Null descriptor always-miss behavior and mixed dispatches between ray tracing and compute. |
+| `watertightness` | [Watertightness.md](../testfiles/ray_tracing_pipeline/Watertightness.md) | Fan and closed-fan triangle arrangements with no-miss and single-hit consistency. |
+| `direction_length`, `inside_aabbs` | [DirectionLength.md](../testfiles/ray_tracing_pipeline/DirectionLength.md) | Direction scaling and rotation, plus rays starting inside AABBs. |
+| `non_uniform_args` | [NonUniformArgs.md](../testfiles/ray_tracing_pipeline/NonUniformArgs.md) | Closest-hit ray-type combinations and miss-cause cases via non-uniform SBT offsets. |
+| `misc` | [Misc.md](../testfiles/ray_tracing_pipeline/Misc.md) | Callable stress, cull masks, recursion, shader-record layouts, empty pipeline layouts, null miss, memory access, and related edge cases. |
+| `limits` | [Limits.md](../testfiles/ray_tracing_pipeline/Limits.md) | Acceleration-structure and ray-tracing pipeline property queries against spec-required bounds. |
+| `barrier` | [Barrier.md](../testfiles/ray_tracing_pipeline/Barrier.md) | Barrier synchronization crossing resource types, barrier types, and writer and reader stages involving ray tracing stages. |
+| `memguarantee` | [MemGuarantee.md](../testfiles/ray_tracing_pipeline/MemGuarantee.md) | Shader-call memory behavior: inside and between cases with `shadercallcoherent` qualifiers. |
+| `complexcontrolflow` | [ComplexControlFlow.md](../testfiles/ray_tracing_pipeline/ComplexControlFlow.md) | Conditionals, switches, loops, nested loops, and function-call patterns around trace-ray calls. |
+| `data_spill` | [DataSpill.md](../testfiles/ray_tracing_pipeline/DataSpill.md) | Data spilling around trace-ray, report-intersection, execute-callable, and pipeline-interface paths. |
+| `opacity_micromap` | [OpacityMicromap.md](../testfiles/ray_tracing_pipeline/OpacityMicromap.md) | `VK_EXT_opacity_micromap` integration: opacity flags, special-index use, modes, levels, copy behavior, and non-zero base variants. |
+| `position_fetch` | [PositionFetch.md](../testfiles/ray_tracing_pipeline/PositionFetch.md) | `VK_KHR_ray_tracing_position_fetch`: vertex formats, CPU and GPU build, flag masks, and fetched-position tolerance. |
+| `ser` | [ShaderExecutionReorder.md](../testfiles/ray_tracing_pipeline/ShaderExecutionReorder.md) | `VK_NV_shader_invocation_reorder`: built-in, large-dimension, motion, and reorder cases. |
+| `linear_swept_spheres` | [LinearSweptSpheres.md](../testfiles/ray_tracing_pipeline/LinearSweptSpheres.md) | `VK_NV_ray_tracing_linear_swept_spheres`: sphere and LSS geometry modes, copy, endcap, ray-query, hit-object, vertex-format, and radius-format choices. |
+| `rtir_activity` | [InvocationReorderActivity.md](../testfiles/ray_tracing_pipeline/InvocationReorderActivity.md) | Single activity case for invocation reorder with `hitObjectTraceRayEXT` and conditional `reorderThreadEXT`. |
+
+## Category Notes
+
+- The dispatcher [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L65-L104) contains no test implementation. It adds 34 child groups, each delegated to a separate `create*Tests` function.
+- Most families require `VK_KHR_ray_tracing_pipeline` and `VK_KHR_acceleration_structure`. Extension families add `VK_EXT_opacity_micromap`, `VK_KHR_ray_tracing_position_fetch`, `VK_NV_shader_invocation_reorder`, or `VK_NV_ray_tracing_linear_swept_spheres`. Pipeline-library tests add `VK_KHR_pipeline_library` and related extension gates.
+- The build file [CMakeLists.txt](../../modules/vulkan/ray_tracing/CMakeLists.txt#L6-L70) lists all implementation sources.

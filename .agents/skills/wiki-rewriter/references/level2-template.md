@@ -14,6 +14,28 @@ Guidelines:
 - Do not repeat generic wiki-reading guidance such as “details live in Level-3 pages.” That belongs in the future reader guide.
 - Do not mention source files here unless the source file itself is part of the test category identity.
 
+## Background Knowledge
+
+Keep this heading in every Level-2 category page. Use it for prerequisite concepts that are shared by multiple Level-3 pages and are
+better explained once at category level than repeated in every test-family page.
+
+Use a brief unordered list when common concepts exist. Each item should:
+
+- define one prerequisite concept outside the target-reader baseline;
+- be needed by multiple Level-3 pages in the category;
+- explain the minimum concept and, only when useful, briefly identify why later Level-3 reasoning depends on it;
+- remain category-level background rather than becoming a summary of concrete test setup, parameters, validation, expected results,
+  or failure meaning.
+
+A concise realistic example or analogy is allowed when it materially improves the shared mental model. Make clear that it is
+illustrative rather than the actual CTS setup.
+
+If no common prerequisite concepts need category-level explanation, keep the heading and write exactly:
+
+```text
+No common prerequisite concepts need category-level explanation for this test category.
+```
+
 ## Category Structure
 
 Show the direct test category hierarchy using the textual tree format.

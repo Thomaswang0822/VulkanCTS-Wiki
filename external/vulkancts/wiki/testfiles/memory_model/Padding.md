@@ -16,13 +16,9 @@ padding from the shader's point of view?
 
 ## Background Knowledge
 
-- **`std140` structure layout.** `std140` gives structures a 16-byte alignment rule, so structures with one, two, or three
-  32-bit integers have trailing bytes that are padding in the shader-visible layout.
-- **Shader-declared members versus host-visible bytes.** The shader can assign `A`, `B`, and `C` structure values, but it does not
-  declare explicit padding members. The host-side mirror types include byte arrays for those padding regions so the test can
-  inspect them.
-- **Padding preservation.** A correct structure copy should copy declared members without treating padding bytes as shader-visible
-  data that may be rewritten arbitrarily.
+- **`std140` structure layout.** `std140` applies alignment and array-stride rules that can leave bytes between or after declared members. For example, a structure containing one 32-bit integer can occupy a 16-byte array stride, leaving 12 bytes that are not a declared shader member.
+- **Declared values versus representation bytes.** Shader structure assignment operates on declared members and their values, not on padding as if it were an additional field. Host code can nevertheless represent and inspect the complete byte layout, including bytes the shader cannot name directly.
+- **Padding preservation.** Because padding is outside the declared value, copying a structure's members does not grant the shader an independent value to store in those bytes. This distinction matters whenever byte-level observation is used to check a higher-level shader assignment.
 
 ## Registration Hierarchy
 

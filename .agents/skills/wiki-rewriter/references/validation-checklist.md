@@ -22,6 +22,16 @@ Run this checklist before reporting a rewritten page as complete.
 - [ ] Test intent matches source behavior.
 - [ ] Execution flow is understandable without source reading as the main path.
 - [ ] Validation and pass/fail conditions are explicit.
+- [ ] `## Background Knowledge` is present in every Level-3 page.
+- [ ] Each Background Knowledge item is a necessary prerequisite outside the target-reader baseline and is consumed later.
+- [ ] Background Knowledge stops before concrete setup, registered values, parameters, execution, expected results, correctness
+  contracts, conclusions, and failure meaning.
+- [ ] Background Knowledge has minimal substantive overlap with `## Overview` and `## Key Takeaways`.
+- [ ] Realistic examples are concise, technically faithful, clearly illustrative, and materially improve the required mental model.
+- [ ] Test-specific contrasts are used only when ordinary usage would otherwise mislead, and stop after the unusual relationship
+  and its interpretive consequence.
+- [ ] General tutorial material and unused prerequisites are absent.
+- [ ] The canonical no-prerequisite sentence is used when no Background Knowledge bullets are needed.
 - [ ] `## Behavior Parameters` identifies the primary behavioral axis with subsections for each value.
 - [ ] `## Failure Meaning` exists with `### Failure Cause Mapping` and `### Cause Analysis`.
 - [ ] Failure cause mapping table aligns with the behavior parameter values.
@@ -53,11 +63,9 @@ python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py \
 
 # Check all extracted paths for a category.
 python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category>
-
-# Save category results for review when needed.
-python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category> \
-  > external/vulkancts/wiki/internal_doc/error_paths_<category>.txt 2>&1
 ```
+
+Redirect a command's output to an internal review file only when persistent diagnostics are needed.
 
 Notes:
 
@@ -95,15 +103,9 @@ python3 .agents/skills/wiki-analyzer/scripts/validate_wiki_links.py \
   --files external/vulkancts/wiki/categories/<category>.md external/vulkancts/wiki/testfiles/<category>/*.md \
   --repo-root . \
   --verbose
-
-# Save category results for review when needed.
-python3 .agents/skills/wiki-analyzer/scripts/validate_wiki_links.py \
-  --wiki-dir external/vulkancts/wiki \
-  --files external/vulkancts/wiki/categories/<category>.md external/vulkancts/wiki/testfiles/<category>/*.md \
-  --repo-root . \
-  --verbose \
-  > external/vulkancts/wiki/internal_doc/error_urls_<category>.txt 2>&1
 ```
+
+Redirect a command's output to an internal review file only when persistent diagnostics are needed.
 
 Notes:
 
@@ -123,16 +125,19 @@ Use when the page includes shader analysis.
 - [ ] `shader-analyzer` produced the walkthrough material.
 - [ ] Reconstructed GLSL/HLSL preserves source-generated `//` comments and uses concise wiki-authored `///` comments.
 - [ ] Important resource facts appear near shader declarations when concise.
-- [ ] Every representative walkthrough ends with `#### SPIR-V`.
-- [ ] `shader-disassembler` generated the SPIR-V subsection from reconstructed GLSL or HLSL.
-- [ ] Target SPIR-V environment comes from CTS shader build options, not from guessed Vulkan runtime version.
-- [ ] SPIR-V assembly is full, collapsed, fenced as `llvm`, and not hand-edited.
+- [ ] Every walkthrough ends with a complete `#### SPIR-V` subsection in the exact generated-output shape from
+  `../../shader-disassembler/SKILL.md`; its fields are not renamed, reordered, augmented, or replaced by prose.
+- [ ] `shader-disassembler` generated the subsection from reconstructed GLSL or HLSL; the target comes from CTS shader build options,
+  and `Target SPIRV version: spirv1.X` matches the assembly `; Version: 1.X` header.
+- [ ] SPIR-V assembly is full, collapsed, fenced as `llvm`, and unmodified.
 
 ## Brief-to-Page Audit
 
 Use when an Understanding Brief was created.
 
 - [ ] Final page distills the brief rather than copying beginner scaffolding verbatim.
+- [ ] Final Background Knowledge retains only necessary prerequisites, useful bounded examples, and necessary ordinary-to-special
+  contrast bridges; detailed application is moved to the appropriate section.
 - [ ] Brief's `### Failure Cause Mapping` table is copied directly into the final page's `### Failure Cause Mapping`.
 - [ ] Brief's `## Behavior Parameter Identification` conclusion is carried into `## Behavior Parameters`.
 - [ ] `### Cause Analysis` is written fresh during the rewrite, not carried from the brief.
