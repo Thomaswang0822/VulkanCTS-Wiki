@@ -98,13 +98,15 @@ def is_wiki_page(repo_relative_path: str) -> bool:
     if "/internal_doc/" in repo_relative_path:
         return False
 
-    # Normal authoring input uses .md wiki links. Already-converted wiki links have
-    # the .md suffix removed; keep those idempotent instead of turning them into
-    # source-code blob URLs on a second run.
+    # Normal authoring input uses .md wiki links.
     if repo_relative_path.endswith(".md"):
         return True
     suffix = Path(repo_relative_path).suffix
-    return suffix == ""
+    if suffix != "":
+        return False
+    # Extensionless: a real wiki page has a .md source file at this path.
+    # A directory (e.g. testfiles/<category>/) is not a page.
+    return Path(repo_relative_path + ".md").is_file()
 
 
 def wiki_publish_target_from_canonical(repo_relative_path: str) -> str:
@@ -143,7 +145,9 @@ def relative_wiki_link(from_publish_file: Path, wiki_target_without_md: str, fra
     target_publish_path = as_posix(PUBLISH_WIKI_ROOT / wiki_target_without_md)
     rel = posixpath.relpath(target_publish_path, from_dir)
     if rel == ".":
-        rel = posixpath.basename(target_publish_path)
+        # Target page is the directory containing the current file (e.g. a child
+        # page linking to its category page). Go up one level to reach it.
+        rel = "../" + posixpath.basename(target_publish_path)
     return rel + fragment
 
 
@@ -165,12 +169,29 @@ def external_source_url(repo_relative_path: str, fragment: str) -> str | None:
     return None
 
 
+def is_converted_publish_link(path_part: str, publish_file: Path) -> bool:
+    """Return True if an extensionless relative link already resolves to a
+    published wiki page (i.e. the link is already in publish form)."""
+    if not path_part or Path(path_part).suffix != "":
+        return False
+    resolved = normalize_repo_relative(publish_file.parent, path_part)
+    publish_root = as_posix(PUBLISH_WIKI_ROOT)
+    if not resolved.startswith(publish_root + "/"):
+        return False
+    return Path(resolved + ".md").is_file()
+
+
 def convert_target(target: str, publish_file: Path, canonical_file: Path) -> str:
     if is_external_or_special(target):
         return target
 
     path_part, fragment = split_fragment(target)
     if is_external_or_special(path_part):
+        return target
+
+    # Idempotency: if the link is already in publish form (extensionless,
+    # resolves to a published .md page), leave it unchanged.
+    if is_converted_publish_link(path_part, publish_file):
         return target
 
     repo_relative = normalize_repo_relative(canonical_file.parent, path_part)
