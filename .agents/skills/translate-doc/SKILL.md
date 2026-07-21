@@ -287,7 +287,12 @@ Bad:
 6. Preserve protected content.
 7. Translate `#fragment` section-heading references when their target headings are translated, while
    preserving link paths before `#` exactly.
-8. Write or overwrite the publish target file.
+8. Write the translation incrementally, never the whole file in one action:
+   1. Create the empty publish target file at the path determined in step 4.
+   2. Append the translation one section at a time, where a section is one `##` block together with
+      its subsections, tables, and fenced code.
+   3. After the final section, re-read the assembled file once to verify section boundaries and
+      ordering before running the language workers.
 9. Invoke the required Chinese language worker skills on the written target file in this exact order:
    1. `shuorenhua`
    2. `humanizer-zh`
@@ -300,7 +305,8 @@ Bad:
 1. Resolve the category to:
    - `external/vulkancts/wiki/categories/<category>.md`
    - all `external/vulkancts/wiki/testfiles/<category>/*.md`
-2. Translate each file to the corresponding path under `vkcts-wiki-pages/`.
+2. Translate each file to the corresponding path under `vkcts-wiki-pages/`, following the Single File
+   Mode procedure: read the whole source first, then write incrementally section by section.
 3. For the Level-2 page, use `references/level2-template.zh.md` plus `references/terminology.zh.md`.
 4. For each Level-3 page, use `references/level3-template.zh.md` plus `references/terminology.zh.md`.
 5. Preserve filenames.

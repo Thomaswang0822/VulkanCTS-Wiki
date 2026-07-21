@@ -24,6 +24,18 @@ GITLAB_BLOB_PREFIX = "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/
 PUBLISH_WIKI_ROOT = Path("vkcts-wiki-pages")
 CANONICAL_WIKI_ROOT = Path("external/vulkancts/wiki")
 
+# External source trees fetched by external/fetch_sources.py are gitignored (see
+# external/.gitignore), so they are absent from the wiki repo and GitLab blob URLs
+# into them 404. Rewrite links that target these trees to the upstream GitHub
+# repository so published links resolve. The ref is pinned to the same revision
+# external/fetch_sources.py checks out, so the cited content matches what the CTS
+# and the wiki's factual claims are grounded against. Add new entries here as new
+# external source trees are referenced in the wiki.
+EXTERNAL_SOURCE_UPSTREAMS = {
+    "external/vulkan-docs/src": "https://github.com/KhronosGroup/Vulkan-Docs/blob/45285e2553e499bbcdb885f71fd789c1f20cab80/",
+    "external/spirv-headers/src": "https://github.com/KhronosGroup/SPIRV-Headers/blob/main/",
+}
+
 LINK_RE = re.compile(r"(?<!!)\[([^\]\n]+)\]\(([^)\s]+)(\s+[^)]*)?\)")
 SCHEME_RE = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:")
 
@@ -141,6 +153,18 @@ def gitlab_blob_url(repo_relative_path: str, fragment: str) -> str:
     return GITLAB_BLOB_PREFIX + quoted_path + fragment
 
 
+def external_source_url(repo_relative_path: str, fragment: str) -> str | None:
+    """Return the upstream GitHub blob URL if repo_relative_path targets a
+    gitignored fetched source tree, else None."""
+    for prefix, upstream in EXTERNAL_SOURCE_UPSTREAMS.items():
+        if repo_relative_path == prefix:
+            return upstream + fragment
+        if repo_relative_path.startswith(prefix + "/"):
+            rest = repo_relative_path[len(prefix) + 1 :]
+            return upstream + quote(rest, safe="/") + fragment
+    return None
+
+
 def convert_target(target: str, publish_file: Path, canonical_file: Path) -> str:
     if is_external_or_special(target):
         return target
@@ -150,6 +174,10 @@ def convert_target(target: str, publish_file: Path, canonical_file: Path) -> str
         return target
 
     repo_relative = normalize_repo_relative(canonical_file.parent, path_part)
+
+    external = external_source_url(repo_relative, fragment)
+    if external is not None:
+        return external
 
     if is_wiki_page(repo_relative):
         wiki_target = wiki_publish_target_from_canonical(repo_relative)
