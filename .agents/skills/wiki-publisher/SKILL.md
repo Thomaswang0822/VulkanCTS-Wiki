@@ -51,11 +51,20 @@ dependencies, and validation. Do not continue unless the worker confirms that sk
    - Complete all `translate-doc` dependency, output, and validation requirements before reporting completion.
 
 2. Run a pre-publish translation guard for every assigned translated markdown file.
-   - Fail the translation task if protected content appears translated or corrupted.
-   - Check for Chinese characters inside inline-code identifiers, source filenames, URL path segments,
-     and registered test names.
-   - Check for excessive untranslated English prose outside protected technical terms.
-   - If any guard fails, fix the translation before reporting completion.
+    - Fail the translation task if protected content appears translated or corrupted.
+    - Check for Chinese characters inside inline-code identifiers, source filenames, URL path segments,
+      and registered test names.
+    - Check for excessive untranslated English prose outside protected technical terms.
+    - Run the structural verification script for each translated file:
+      ```bash
+      python3 .agents/skills/wiki-publisher/scripts/verify_translation_structure.py \
+        --source external/vulkancts/wiki/testfiles/<category>/<page>.md \
+        --target vkcts-wiki-pages/categories/<category>/<page>.md
+      ```
+      This sanity check compares per-section structural element counts (list items, table rows, code
+      blocks, registration tree children) between source and target. A failure means a structural
+      omission occurred during translation.
+    - If any guard fails, fix the translation before reporting completion.
 
 3. Translation workers must not run link conversion.
    - Leave markdown link targets in the pre-conversion form required by `translate-doc`.
