@@ -7,6 +7,10 @@ All families share the same idea: a graphics pipeline inserts a geometry shader 
 then turns geometry-stage behavior into an observable image or side effect. The category covers both shader-stage interface
 correctness and host-visible validation of geometry-shader output.
 
+## Background Knowledge
+
+No common prerequisite concepts need category-level explanation for this test category.
+
 ## Category Structure
 
 ```text
