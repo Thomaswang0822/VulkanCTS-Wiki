@@ -10,8 +10,7 @@ This page covers the `barycentric_coordinates` test family registered by [vktRay
 
 ## Background Knowledge
 
-For the shared acceleration-structure and traversal model, see the
-[ray-query category background](../../categories/ray_query.md#background-knowledge).
+For the shared concept acceleration-structure and traversal, see [Background Knowledge](../../categories/ray_query.md#background-knowledge) of the `ray_query` page.
 
 - **Barycentric coordinates.** For triangle vertices `v0`, `v1`, and `v2`, an interior point can be written as `p = a*v0 + b*v1 + c*v2`, where `a + b + c = 1` and all three weights are non-negative. Ray-query triangle intersections expose `(b, c)`; the remaining weight is `a = 1 - b - c`.
 - **Candidate and committed state.** During `rayQueryProceedEXT`, `false` in `rayQueryGetIntersectionBarycentricsEXT(rq, false)` selects the current candidate intersection. Passing `true` selects the closest committed intersection found so far. This page must therefore identify which traversal state supplies the reported barycentrics. The [ray traversal chapter](../../../../vulkan-docs/src/chapters/raytraversal.adoc) defines these states.

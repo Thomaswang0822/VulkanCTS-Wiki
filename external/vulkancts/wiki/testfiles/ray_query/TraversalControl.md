@@ -11,8 +11,7 @@ This page covers the `traversal_control` test family registered by [vktRayQueryT
 
 ## Background Knowledge
 
-For the shared acceleration-structure and traversal model, see the
-[ray-query category background](../../categories/ray_query.md#background-knowledge).
+For the shared concept acceleration-structure and traversal, see [Background Knowledge](../../categories/ray_query.md#background-knowledge) of the `ray_query` page.
 
 - **Candidate acceptance.** `rayQueryProceedEXT` exposes a provisional candidate while the query separately retains
   the committed result. A triangle candidate uses `rayQueryConfirmIntersectionEXT`; an AABB candidate uses

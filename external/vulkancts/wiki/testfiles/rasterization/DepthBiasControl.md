@@ -19,7 +19,9 @@ within a format-sensitive threshold of `sampleDepth + min(targetBias, depthBiasC
 
 ## Background Knowledge
 
-- **Classic depth bias and its format coupling.** See the category-level [Background Knowledge](../../categories/rasterization.md#background-knowledge) for the unextended depth-bias equation. The constant factor is a multiple of the minimum resolvable difference `r` for the depth attachment format, so the same factor produces different effective biases on different formats and forces the implementation to choose how to round; `VK_EXT_depth_bias_control` decouples this coupling.
+For the shared concept depth bias, see [Background Knowledge](../../categories/rasterization.md#background-knowledge) of the `rasterization` page.
+
+- **`VK_EXT_depth_bias_control` decouples the format coupling.** The constant factor is a multiple of the minimum resolvable difference `r` for the depth attachment format, so the same factor produces different effective biases on different formats and forces the implementation to choose how to round; `VK_EXT_depth_bias_control` decouples this coupling.
 - **`VK_EXT_depth_bias_control` representation info.** A `VkDepthBiasRepresentationInfoEXT` pNext
   decouples the constant factor's representation from the format by selecting
   `LEAST_REPRESENTABLE_VALUE_FORMAT_EXT`, `LEAST_REPRESENTABLE_VALUE_FORCE_UNORM_EXT`, or `FLOAT_EXT`.

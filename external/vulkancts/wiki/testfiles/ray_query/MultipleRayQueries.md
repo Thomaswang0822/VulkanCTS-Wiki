@@ -11,8 +11,7 @@ This page covers the `multiple_ray_queries` test family registered by [vktRayQue
 
 ## Background Knowledge
 
-For the shared acceleration-structure and traversal model, see the
-[ray-query category background](../../categories/ray_query.md#background-knowledge).
+For the shared concept acceleration-structure and traversal, see [Background Knowledge](../../categories/ray_query.md#background-knowledge) of the `ray_query` page.
 
 - **Independent ray-query objects.** Every `rayQueryEXT` object is a separate traversal state machine. Arrays of query objects may be initialized and advanced in an interleaved order, but a `proceed`, candidate, or committed result for one element must not alter a sibling element. See the [ray traversal chapter](../../../../vulkan-docs/src/chapters/raytraversal.adoc).
 - **Candidate and committed state.** `rayQueryProceedEXT` exposes provisional candidates. A triangle candidate can be committed with `rayQueryConfirmIntersectionEXT`; an AABB candidate needs `rayQueryGenerateIntersectionEXT` with an application-supplied parametric distance. Committed-state queries then describe the accepted intersection.

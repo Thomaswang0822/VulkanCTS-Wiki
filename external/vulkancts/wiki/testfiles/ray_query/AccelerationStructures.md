@@ -12,8 +12,7 @@ This page covers the `acceleration_structures` test family registered by [vktRay
 
 ## Background Knowledge
 
-For the shared acceleration-structure and traversal model, see the
-[ray-query category background](../../categories/ray_query.md#background-knowledge).
+For the shared concept acceleration-structure and traversal, see [Background Knowledge](../../categories/ray_query.md#background-knowledge) of the `ray_query` page.
 
 - **Acceleration-structure hierarchy.** A BLAS stores geometry, while a TLAS stores transformed instances that
   reference BLASes. This family varies how those structures are built, represented, and changed while requiring

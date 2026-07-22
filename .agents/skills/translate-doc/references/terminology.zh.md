@@ -25,7 +25,7 @@
 |---------|------|
 | Level-2 page | Level-2 页面 |
 | Level-3 page | Level-3 页面 |
-| category page | 类别页面 |
+| category page | 测试类别页面 |
 | source evidence | 源码证据 |
 | implementation evidence | 实现证据 |
 | parameter dimension | 参数维度 |
@@ -96,6 +96,19 @@
 | that race instance | 该 race instance |
 | generated tests | 一组生成测试 / 生成出的多个测试 |
 | parameter combinations | 多个参数组合 / 一组参数组合 |
+
+## 固定句式翻译
+
+Level-3 `## Background Knowledge` 开头的类别级向上链接句使用固定翻译：
+
+| English | 中文 |
+|---------|------|
+| For the shared concept(s) `<concept>`, see [Background Knowledge](...) of the `<category>` page. | `<category>` 的通用概念 `<concept>` 在页面的[背景知识](...)。 |
+
+说明：
+- `<concept>` 处保留英文技术术语原样（如 `depth bias`、`helper invocations`、`acceleration-structure and traversal`）。
+- `<category>` 使用带下划线的精确注册类别名（如 `ray_query`、`rasterization`）。
+- 链接目标路径保持 pre-conversion 形式，由 `wiki-publisher` 链接转换阶段处理。
 
 ## 保护规则
 

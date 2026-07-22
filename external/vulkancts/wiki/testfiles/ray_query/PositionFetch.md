@@ -12,8 +12,7 @@ This page covers the `position_fetch` test family registered by [vktRayQueryPosi
 
 ## Background Knowledge
 
-For the shared acceleration-structure and traversal model, see the
-[ray-query category background](../../categories/ray_query.md#background-knowledge).
+For the shared concept acceleration-structure and traversal, see [Background Knowledge](../../categories/ray_query.md#background-knowledge) of the `ray_query` page.
 
 - **Object-space vertex positions.** BLAS triangle vertices are stored in object space. A TLAS instance transform places that object in world space, but `rayQueryGetIntersectionTriangleVertexPositionsEXT` returns the original object-space vertices rather than transformed world-space positions.
 - **Candidate versus committed fetch.** Position fetch can target the current candidate triangle or the committed triangle. The selector must match the traversal state whose vertices the caller intends to inspect.

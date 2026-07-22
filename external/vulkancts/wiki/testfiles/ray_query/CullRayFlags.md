@@ -11,8 +11,7 @@ This page covers the `ray_flags` test family registered by [vktRayQueryCullRayFl
 
 ## Background Knowledge
 
-For the shared acceleration-structure and traversal model, see the
-[ray-query category background](../../categories/ray_query.md#background-knowledge).
+For the shared concept acceleration-structure and traversal, see [Background Knowledge](../../categories/ray_query.md#background-knowledge) of the `ray_query` page.
 
 - **Ray flags.** The `rayFlags` argument to `rayQueryInitializeEXT` changes traversal by overriding opacity, culling intersections, skipping a geometry type, or terminating after the first committed hit. The [ray traversal chapter](../../../../vulkan-docs/src/chapters/raytraversal.adoc) defines the individual `gl_RayFlags*EXT` values.
 - **Effective opacity.** Opacity begins with the geometry's opaque state and can be overridden by mutually exclusive per-instance force-opaque or force-non-opaque flags, then by ray flags that force all intersections opaque or non-opaque. Opacity determines whether a triangle can commit automatically (opaque) or must be exposed for shader confirmation (partially transparent).

@@ -10,8 +10,7 @@ This page covers the `misc` and `helper_invocations` test families registered by
 
 ## Background Knowledge
 
-For the shared acceleration-structure and traversal model, see the
-[ray-query category background](../../categories/ray_query.md#background-knowledge).
+For the shared concept acceleration-structure and traversal, see [Background Knowledge](../../categories/ray_query.md#background-knowledge) of the `ray_query` page.
 
 - **Arrays of ray-query objects.** Each `rayQueryEXT` object owns independent traversal state. Runtime indexing must select the same object consistently across initialization, `proceed`, and intersection queries, even when source control flow does not place those operations in simple textual order.
 - **Acceleration-structure scratch memory.** Build scratch storage is temporary workspace rather than part of the final acceleration structure. One scratch range may be reused by sequential builds only when synchronization orders the earlier build before the later reuse.

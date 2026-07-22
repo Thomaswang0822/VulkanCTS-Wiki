@@ -16,12 +16,14 @@ after the side effect?
 
 ## Background Knowledge
 
+For the shared concept helper invocations, see [Background Knowledge](../../categories/rasterization.md#background-knowledge) of the `rasterization` page.
+
 - **Fragment-shader side effects versus color output visibility.** A fragment shader may execute stores and
   atomics to storage buffers, storage images, or other non-color storage. Whether the per-fragment color
   survives `OpKill`, sample mask, stencil/depth/depth-bounds rejection, or alpha-to-coverage does not change
   the fact that the shader executed and its side effects must be visible to the host after the pipeline
   completes. This independence is the property under test.
-- **Helper invocation and `demote`.** See the category-level [Background Knowledge](../../categories/rasterization.md#background-knowledge) for helper invocations. `VK_EXT_shader_demote_to_helper_invocation` introduces `OpDemoteToHelperInvocation` (GLSL `demote`), which converts the current invocation to a helper invocation. This differs from `OpKill`/`discard`, which terminates the invocation.
+- **Helper invocation and `demote`.** `VK_EXT_shader_demote_to_helper_invocation` introduces `OpDemoteToHelperInvocation` (GLSL `demote`), which converts the current invocation to a helper invocation. This differs from `OpKill`/`discard`, which terminates the invocation.
 - **`terminateInvocation` versus `OpKill`.** `VK_KHR_shader_terminate_invocation` introduces
   `OpTerminateInvocation` (GLSL `terminateInvocation`). Like `OpKill`, it ends the invocation immediately, but
   the spec restricts it from affecting derivative computations or other invocations' execution. For

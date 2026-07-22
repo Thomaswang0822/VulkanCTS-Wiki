@@ -12,8 +12,7 @@ This page covers the `opacity_micromap` test family registered by [vktRayQueryOp
 
 ## Background Knowledge
 
-For the shared acceleration-structure and traversal model, see the
-[ray-query category background](../../categories/ray_query.md#background-knowledge).
+For the shared concept acceleration-structure and traversal, see [Background Knowledge](../../categories/ray_query.md#background-knowledge) of the `ray_query` page.
 
 - **Opacity micromaps.** An opacity micromap is compact per-subtriangle data attached to triangle geometry. It lets traversal classify fine regions as transparent, opaque, or unknown without running an any-hit shader for every microtriangle.
 - **Two-state and four-state formats.** A two-state micromap stores transparent or opaque with one bit per subtriangle. A four-state micromap uses two bits to add unknown-transparent and unknown-opaque states. Subdivision level controls how a base triangle is partitioned into microtriangles.

@@ -12,8 +12,7 @@ This page covers the `watertightness` test family registered by [vktRayQueryWate
 
 ## Background Knowledge
 
-For the shared acceleration-structure and traversal model, see the
-[ray-query category background](../../categories/ray_query.md#background-knowledge).
+For the shared concept acceleration-structure and traversal, see [Background Knowledge](../../categories/ray_query.md#background-knowledge) of the `ray_query` page.
 
 - **Traversal watertightness.** Adjacent triangles share edges and vertices, but finite-precision intersection rules must assign boundary rays consistently. A crack occurs when both adjacent triangles reject such a ray; a double hit occurs when both accept it where only one candidate should be reported.
 - **Candidate counts versus committed hits.** A shader can count candidates exposed by `rayQueryProceedEXT` independently of the final committed intersection. Confirming a triangle or generating an AABB hit does not turn that explicit candidate counter into a committed-hit counter.

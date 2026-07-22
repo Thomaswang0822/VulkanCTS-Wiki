@@ -24,7 +24,7 @@ Choose the opening shape according to prerequisite ownership:
 
 - If the page has only page-local prerequisites, begin directly with the local prerequisite bullets.
 - If category-shared prerequisites were consolidated into the Level-2 page, begin with a standalone upward-link sentence that names the shared concept and links to the Level-2 `## Background Knowledge` section. Put any remaining page-local bullets after that sentence.
-- Use a recommended sentence shape such as `For the shared <concept> model, see the [category-level Background Knowledge](...).`. The ownership and link are required; the exact English wording is not.
+- Use the canonical sentence shape: `For the shared concept(s) <concept A>, <concept B>, ..., see [Background Knowledge](<link>) of the `<category>` page.` Name only the shared concept(s) this page actually depends on, not all concepts in the Level-2 page. Use the exact registered category name with underscores (e.g. `ray_query`, not `ray-query`). The ownership and link are required; the exact English wording is not.
 - If no prerequisites remain, use the canonical no-prerequisite sentence below instead of an upward link or bullets.
 
 When bullets are present, use a brief unordered list. Each item should:

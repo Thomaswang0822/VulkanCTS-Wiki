@@ -11,8 +11,7 @@ This page covers the `stress` test family registered by [vktRayQueryStressTests.
 
 ## Background Knowledge
 
-For the shared acceleration-structure and traversal model, see the
-[ray-query category background](../../categories/ray_query.md#background-knowledge).
+For the shared concept acceleration-structure and traversal, see [Background Knowledge](../../categories/ray_query.md#background-knowledge) of the `ray_query` page.
 
 - **Inline ray queries across stages.** A ray query runs inside the shader stage that initializes it and does not transfer control to separate hit or miss shaders. Supported graphics, compute, and ray tracing shader stages can therefore host the same inline traversal logic.
 - **Triangle and AABB commitment.** Non-opaque triangle candidates are accepted with `rayQueryConfirmIntersectionEXT`. AABB candidates have no built-in surface hit and require `rayQueryGenerateIntersectionEXT` with an application-supplied parametric distance.

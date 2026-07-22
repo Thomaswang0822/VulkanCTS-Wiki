@@ -11,8 +11,7 @@ This page covers the `builtin` and `advanced` test families registered by [vktRa
 
 ## Background Knowledge
 
-For the shared acceleration-structure and traversal model, see the
-[ray-query category background](../../categories/ray_query.md#background-knowledge).
+For the shared concept acceleration-structure and traversal, see [Background Knowledge](../../categories/ray_query.md#background-knowledge) of the `ray_query` page.
 
 - **Instance metadata.** A TLAS instance carries a transform, visibility mask, custom index, shader-binding-table record offset, flags, and a reference to a BLAS. Its position in the TLAS instance array is the instance ID, which is distinct from the application-provided custom index.
 - **Object and world space.** TLAS instance transforms connect object-space BLAS geometry to world-space rays. Ray-query built-ins may report vectors or matrices in either space, so the direction of the transform and its inverse matters when interpreting their values.

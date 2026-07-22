@@ -11,8 +11,7 @@ This page covers the `non_uniform_args` test family registered by [vktRayQueryNo
 
 ## Background Knowledge
 
-For the shared acceleration-structure and traversal model, see the
-[ray-query category background](../../categories/ray_query.md#background-knowledge).
+For the shared concept acceleration-structure and traversal, see [Background Knowledge](../../categories/ray_query.md#background-knowledge) of the `ray_query` page.
 
 - **Ray-query initialization inputs.** Besides the acceleration structure, `rayQueryInitializeEXT` receives ray flags, a cull mask, origin, parametric lower bound `Tmin`, direction, and upper bound `Tmax`. Each input independently constrains which instances and primitives traversal can expose. See the [ray traversal chapter](../../../../vulkan-docs/src/chapters/raytraversal.adoc).
 - **Cull masks.** A TLAS instance is eligible only when the bitwise AND of its instance mask and the ray's cull mask is nonzero. The instance mask is a visibility filter, not an identifier like `instanceCustomIndex`. For example, a renderer can give all opaque instances mask `0x01` and all alpha-tested foliage mask `0x02`, then trace opaque-only rays with cull mask `0x01` or shadow rays through both groups with cull mask `0x03`.

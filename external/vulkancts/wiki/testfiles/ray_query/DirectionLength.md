@@ -10,8 +10,7 @@ This page covers the `direction_length` and `inside_aabbs` test families registe
 
 ## Background Knowledge
 
-For the shared acceleration-structure and traversal model, see the
-[ray-query category background](../../categories/ray_query.md#background-knowledge).
+For the shared concept acceleration-structure and traversal, see [Background Knowledge](../../categories/ray_query.md#background-knowledge) of the `ray_query` page.
 
 - **Parametric distance.** A ray is `origin + t * direction`; `t` is not necessarily world-space distance. Scaling
   `direction` by a factor scales the `t` needed to reach the same point by the inverse factor.

@@ -10,6 +10,8 @@
 
 ## Background Knowledge
 
+For the shared concept helper invocations, see [Background Knowledge](../../categories/rasterization.md#background-knowledge) of the `rasterization` page.
+
 ### VK_EXT_shader_tile_image and tile-image reads
 
 `VK_EXT_shader_tile_image` exposes fragment-shader built-ins that read the current pixel's color, depth, or stencil attachment directly from tile memory within a dynamic-rendering pass. The shader-side reads are `colorAttachmentReadEXT`, `depthAttachmentReadEXT`, and `stencilAttachmentReadEXT`; color reads optionally take a sample ID for per-sample access. The corresponding tile-image variables are declared as `attachmentEXT` / `iattachmentEXT` / `uattachmentEXT` selected by the color format's channel class at [`initPrograms()`](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L900-L944). The test relies on these reads to chain per-patch values across fragment shader invocations.
@@ -24,7 +26,7 @@ Coherent reads are the default tile-image behavior: a fragment shader invocation
 
 ### Helper fragment invocations
 
-See the category-level [Background Knowledge](../../categories/rasterization.md#background-knowledge) for helper invocations. The Vulkan property `shaderTileImageReadFromHelperInvocation` reports whether tile-image reads from helper invocations return valid values. The `helper_class_*` test types verify this property by using a second draw whose pipeline disables color0, depth, and stencil writes so its fragment shader runs as helper invocations.
+The Vulkan property `shaderTileImageReadFromHelperInvocation` reports whether tile-image reads from helper invocations return valid values. The `helper_class_*` test types verify this property by using a second draw whose pipeline disables color0, depth, and stencil writes so its fragment shader runs as helper invocations.
 
 ### MSAA sample-rate reads
 

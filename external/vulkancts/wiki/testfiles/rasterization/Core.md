@@ -10,11 +10,12 @@
 
 ## Background Knowledge
 
+For the shared concept depth bias, see [Background Knowledge](../../categories/rasterization.md#background-knowledge) of the `rasterization` page.
+
 - **Reference-rasterizer comparison.** The implemented families compare the device image against a software reference rasterizer in `tcuRasterizationVerifier`, not against a hand-curated image. The verifier computes per-pixel coverage from floating-point vertex positions and selected subpixel precision, then flags pixels covered by the reference but missing in the result, or present in the result but uncovered by the reference [tcuRasterizationVerifier.hpp](../../../../../framework/common/tcuRasterizationVerifier.hpp#L183-L237). Strict modes narrow the accepted range; relaxed modes widen it.
 - **Line rasterization modes.** `VK_KHR_line_rasterization` exposes `DEFAULT`, `RECTANGULAR`, `BRESENHAM`, and `RECTANGULAR_SMOOTH` modes through `VkLineRasterizationModeEXT`. Strictness is a separate axis (`STRICT`, `NONSTRICT`, `IGNORE`) that selects whether the verifier applies strict or relaxed coverage thresholds [vktRasterizationTests.cpp](../../../modules/vulkan/rasterization/vktRasterizationTests.cpp#L146-L153).
 - **Conservative rasterization.** `VK_EXT_conservative_rasterization` adds `OVERESTIMATE` (rasterize every pixel partially or fully covered by an expanded primitive) and `UNDERESTIMATE` (rasterize only pixels fully covered). An extra overestimation size inflates the primitive further; degenerate primitives get a separate, smaller size set because the spec gives implementations latitude over whether to rasterize them.
 - **Polygon fill rules and overdraw.** The Vulkan spec's fill rule determines which pixels on a shared edge or at a vertex belong to a triangle. Per-triangle coverage checking cannot detect double coverage on shared edges, so the `fill_rules` family uses additive blending as a separate overdraw detector and scans the result for pixels brighter than the triangle color [vktRasterizationTests.cpp](../../../modules/vulkan/rasterization/vktRasterizationTests.cpp#L6128-L6204).
-- **Depth bias.** See the category-level [Background Knowledge](../../categories/rasterization.md#background-knowledge) for the depth-bias formula and its format coupling. The Amber `depth_bias` cases verify the resulting depth buffer against the formula within tolerance for `D16_UNORM`, `D32_SFLOAT`, and `D24_UNORM_S8_UINT`.
 
 ## Registration Hierarchy
 

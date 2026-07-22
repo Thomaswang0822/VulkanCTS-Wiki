@@ -11,8 +11,7 @@ This page covers the `procedural_geometry` test family registered by [vktRayQuer
 
 ## Background Knowledge
 
-For the shared acceleration-structure and traversal model, see the
-[ray-query category background](../../categories/ray_query.md#background-knowledge).
+For the shared concept acceleration-structure and traversal, see [Background Knowledge](../../categories/ray_query.md#background-knowledge) of the `ray_query` page.
 
 - **Procedural geometry.** Vulkan natively intersects triangles, but application-defined surfaces use AABBs to request shader-side intersection work. The shader evaluates the actual surface and reports a valid parametric hit with `rayQueryGenerateIntersectionEXT`; the AABB itself is not the surface.
 - **AABB proxies.** Normally, a procedural-geometry AABB conservatively encloses the custom surface so any ray that could hit the surface reaches the intersection shader. This test also uses controlled, non-enclosing AABBs as traversal proxies, so proxy location must not be interpreted as the location or bounds of the ellipsoid itself. This is an uncommon test-specific AABB usage.
