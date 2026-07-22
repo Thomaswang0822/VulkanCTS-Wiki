@@ -32,8 +32,7 @@ act as the worker directly while still following this skill and its mandatory de
 
 ### Orchestrator worker dispatch
 
-Load `references/worker-dispatch-templates.md` before assigning workers. Supply only the category name and assigned file list unless a
-specific request needs extra scope clarification; this skill remains the canonical source for workflow details.
+Before assigning any worker, read `references/worker-dispatch-templates.md`. This is mandatory, not optional. That reference is the sole canonical owner of the dispatch prompt and output-path templates for Level-2, Level-3, and link-conversion workers. Supply only the category name and assigned file list unless a specific request needs extra scope clarification; this `SKILL.md` remains the canonical source for workflow ordering, scope rules, and completion requirements.
 
 ## Mandatory Dependency
 

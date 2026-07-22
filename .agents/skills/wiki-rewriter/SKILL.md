@@ -31,16 +31,17 @@ If the old page is missing, stop and request the old wiki page or use the separa
 
 ## Reference Files
 
-Load references as needed:
-- `references/rewrite-outline-template.md` when starting a category rewrite;
-- `references/level3-template.md` for Level-3 output structure;
-- `references/level2-template.md` for Level-2 output structure;
-- `references/understanding-brief-template.md` when writing an Understanding Brief;
-- `references/terminology-policy.md` before writing reader-facing hierarchy prose;
-- `references/validation-checklist.md` before reporting completion;
-- `references/pilot-examples.md` when a style or structure example is needed.
+Before starting any rewrite work, read all reference files under `references/`. This is mandatory; do not skip a reference based on expected relevance:
 
-Keep template files as templates. Keep workflow decisions in this `SKILL.md`. Keep terminology and validation as separate concerns.
+- `references/rewrite-outline-template.md` — canonical category rewrite outline shape and batching rules.
+- `references/level3-template.md` — canonical Level-3 output structure, section semantics, and Background Knowledge ownership rules.
+- `references/level2-template.md` — canonical Level-2 output structure and gateway semantics.
+- `references/understanding-brief-template.md` — canonical Understanding Brief shape.
+- `references/terminology-policy.md` — canonical hierarchy terminology and terms-to-avoid rules.
+- `references/validation-checklist.md` — canonical completion validation assertions.
+- `references/pilot-examples.md` — accepted style and structure examples.
+
+Each reference is the sole canonical owner of its detailed contract. This `SKILL.md` owns workflow, phase ordering, decisions, dependencies, checkpoints, and reporting; it does not restate the detailed template, terminology, or validation contracts.
 
 ## Mandatory Language Worker Dependencies
 
@@ -164,7 +165,9 @@ After writing an Understanding Brief, stop only if the brief records unresolved 
 
 ### 4. Rewrite Level-3 pages
 
-Use the skeleton in `references/level3-template.md`. Scale sections by explanatory value:
+Use the skeleton in `references/level3-template.md`. That template is the sole canonical owner of every Level-3 section contract: Background Knowledge, Registration Hierarchy, Parameter Dimensions, Behavior Parameters, Shader Analysis, Runtime Execution, Failure Meaning, Case Pruning, Key Takeaways, and Source Reference Appendix. Follow it directly; this workflow does not restate those contracts.
+
+Page-scope scaling guidance:
 - expand `Shader Analysis` for shader-heavy pages;
 - expand `Runtime Execution and Result Checking` for host-behavior-heavy pages;
 - expand `Failure Meaning` for pages with multiple distinct failure mechanisms;
@@ -172,88 +175,36 @@ Use the skeleton in `references/level3-template.md`. Scale sections by explanato
 - keep simple pages short;
 - do not force tables, diagrams, or long prose when they do not clarify the specific test.
 
-For `## Background Knowledge` during initial Level-3 drafting:
-- follow the prerequisite and section-boundary rules in `references/level3-template.md`;
-- keep each page self-contained until the later category consolidation pass;
-- distill any Understanding Brief teaching material instead of copying it verbatim;
-- keep the heading and use the template's canonical no-prerequisite sentence when no bullets are needed.
-
-For `## Registration Hierarchy`, keep the fenced tree parseable and exactly one level deep below its root:
-- use the category-qualified Level-3 root path as the first line;
-- list only direct children of that root;
-- do not include nested descendants, `...`, or descriptive placeholder lines inside the tree;
-- explain deeper test case leaves, generated ranges, and large matrices in the structure, parameter, or prose sections instead.
-
-For `## Behavior Parameters`:
-- identify the primary behavioral axis — the registered dimension whose values change what is being tested;
-- use `### <parameter value name> — <very brief description>` subsections for each value of that axis;
-- if an Understanding Brief exists, carry its `## Behavior Parameter Identification` conclusion into this section;
-- configuration dimensions (data type, size, count, format, etc.) belong in `## Parameter Dimensions and Observed Values`, not here.
-
-For `## Failure Meaning`:
-- if an Understanding Brief exists, copy its `### Failure Cause Mapping` table directly into `### Failure Cause Mapping`; do not
-  craft a new table from scratch;
-- write `### Cause Analysis` fresh during the rewrite — it is not carried from the brief;
-- for each cause, state what specifically could go wrong (derived from the test's validation logic) and what could cause it in the
-  implementation (only when grounded in Vulkan spec semantics, GPU architecture knowledge, or CTS source inspection);
-- derive each page's failure analysis case by case from what that specific test exercises; do not apply preconceived assumptions
-  about where bugs live (GPU hardware, driver, host);
-- if not confident about an implementation-level claim, search the relevant Vulkan spec chapter at
-  `external/vulkan-docs/src/chapters/` to verify before stating it; if still unverified, state that source-level investigation is
-  needed rather than inventing a cause;
-- scale the depth of `### Cause Analysis` to the number of distinct mechanisms; do not pad with empty subsections.
+Brief-to-page carryover decisions (not restated in the template):
+- distill Understanding Brief teaching material into the final page instead of copying it verbatim;
+- if a brief exists, copy its `### Failure Cause Mapping` table directly into the page's `### Failure Cause Mapping`;
+- write `### Cause Analysis` fresh during the rewrite; it is not carried from the brief;
+- carry the brief's `## Behavior Parameter Identification` conclusion into `## Behavior Parameters`;
+- if not confident about an implementation-level failure claim, search the relevant Vulkan spec chapter at
+  `external/vulkan-docs/src/chapters/` before stating it; if still unverified, state that source-level investigation is needed.
 
 Focus every section on test behavior. Keep C++ details as supporting evidence. Move source-navigation material to the final source appendix.
 
 ### 5. Integrate shader walkthroughs
 
-Keep `## Shader Analysis` in every Level-3 page.
+The Level-3 template owns the `## Shader Analysis` section contract, including walkthrough count limits, format requirements, and the mandatory `shader-disassembler` SPIR-V subsection. The workflow decision here is timing: handle `## Shader Analysis` in-place when the section is reached during drafting, not as a placeholder to fill later.
 
-When drafting a Level-3 page, handle `## Shader Analysis` in-place at the moment the section is reached:
-- first decide whether shader code is part of the tested behavior;
-- if shader code is not part of the tested behavior, state that briefly and do not create walkthrough subsections;
-- if shader code is part of the tested behavior, select the representative CTS case or parameter path before drafting the section body;
-- invoke `shader-analyzer` immediately for each selected walkthrough and insert its final output directly under `## Shader Analysis`;
-- do not draft a placeholder walkthrough, hand-written shader reconstruction, or temporary shader explanation to be replaced later.
-
-For representative shader walkthroughs:
-- select exact CTS cases or parameter paths;
-- use at most three walkthroughs, with one as the default;
-- add a second or third only when materially different and central to the test;
-- invoke `shader-analyzer` for each walkthrough;
-- ensure each walkthrough's `#### Structural Design` uses a structured non-plain-text format: use Mermaid for flowchart-like or decision-tree logic, but allow tables, mappings, or other compact formats when they are clearer;
-- ensure the final walkthrough contains the complete `#### SPIR-V` subsection returned by `shader-disassembler` unchanged;
-- do not author, reformat, or replace SPIR-V output with prose or excerpts.
-
-Use `shader-analyzer` auto mode only when the exact source file, builder function, target rewritten page, and insertion location are known. Otherwise use manual mode and stop at its confirmation checkpoint before continuing the Level-3 rewrite.
+- Invoke `shader-analyzer` immediately for each selected walkthrough and insert its final output directly under `## Shader Analysis`.
+- Do not draft a placeholder walkthrough, hand-written shader reconstruction, or temporary shader explanation to be replaced later.
+- Use `shader-analyzer` auto mode only when the exact source file, builder function, target rewritten page, and insertion location are known. Otherwise use manual mode and stop at its confirmation checkpoint.
 
 ### 6. Rewrite Level-2 pages
 
-Use the skeleton in `references/level2-template.md`.
+Use the skeleton in `references/level2-template.md`. That template is the sole canonical owner of the Level-2 gateway section contract.
 
-Write Level-2 pages as category gateways:
-- identify the shared testing theme;
-- include the mandatory `## Background Knowledge` section;
-- show the direct category hierarchy;
-- explain how test families relate and differ at category level;
-- route readers to rewritten Level-3 pages;
-- avoid duplicating Level-3 matrices, shader walkthroughs, validation mechanics, feature gates, or source appendices.
+After the ordinary gateway sections are drafted using stabilized Level-3 pages, run the category Background Knowledge consolidation pass. This is a workflow decision: when to consolidate, not how to classify items. The classification rules and BGK ownership shapes are owned by `references/level3-template.md` and `references/level2-template.md`.
 
-Draft the ordinary gateway sections first, using the stabilized Level-3 pages to form the category-level view. After those sections
-are drafted, run the category Background Knowledge consolidation pass:
+Consolidation workflow:
 - inspect the `## Background Knowledge` sections of all rewritten Level-3 pages in the category;
-- identify repeated category-shared prerequisite concepts that are needed by multiple Level-3 pages;
-- explain those shared concepts in the Level-2 `## Background Knowledge` section, following the same prerequisite boundaries used
-  for Level-3 pages;
-- preserve concise realistic examples when they materially improve the shared mental model;
-- if no repeated category-shared prerequisites need explanation, write exactly:
-  `No common prerequisite concepts need category-level explanation for this test category.`
-- in Level-3 pages, add an upward link to the Level-2 background when shared concepts were consolidated;
-- compact only the shared portion of Level-3 BGK items;
-- preserve definitely page-local BGK bullets, including their titles and wording, unless a confirmed meaningful defect requires a
-  minimal edit;
-- for mixed shared/local bullets, remove or shorten only the shared explanation and keep the local consequence;
-- do not rewrite a Level-3 `## Background Knowledge` section wholesale during consolidation.
+- identify repeated category-shared prerequisite concepts needed by multiple Level-3 pages;
+- move those shared concepts into the Level-2 `## Background Knowledge` section;
+- apply the Level-3 template's consolidation classification table to each affected Level-3 page;
+- if no shared prerequisites need explanation, use the Level-2 template's canonical no-common-concepts sentence.
 
 ### 7. Mandatory English language-worker pass
 

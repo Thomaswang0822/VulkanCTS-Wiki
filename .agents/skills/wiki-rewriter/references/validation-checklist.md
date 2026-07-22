@@ -24,6 +24,12 @@ Run this checklist before reporting a rewritten page as complete.
 - [ ] Validation and pass/fail conditions are explicit.
 - [ ] `## Background Knowledge` is present in every Level-3 page.
 - [ ] Each Background Knowledge item is a necessary prerequisite outside the target-reader baseline and is consumed later.
+- [ ] When the page has only page-local prerequisites, the section begins directly with those bullets.
+- [ ] When category-shared prerequisites were consolidated into Level-2, the section begins with a standalone upward-link sentence
+  that identifies the shared concept and links to the Level-2 `## Background Knowledge` section.
+- [ ] Any page-local prerequisite bullets follow the standalone upward-link sentence; the category link is not embedded inside a
+  prerequisite bullet.
+- [ ] The upward-link sentence follows the recommended canonical shape while allowing natural page-specific and translated wording.
 - [ ] Background Knowledge stops before concrete setup, registered values, parameters, execution, expected results, correctness
   contracts, conclusions, and failure meaning.
 - [ ] Background Knowledge has minimal substantive overlap with `## Overview` and `## Key Takeaways`.
@@ -31,7 +37,7 @@ Run this checklist before reporting a rewritten page as complete.
 - [ ] Test-specific contrasts are used only when ordinary usage would otherwise mislead, and stop after the unusual relationship
   and its interpretive consequence.
 - [ ] General tutorial material and unused prerequisites are absent.
-- [ ] The canonical no-prerequisite sentence is used when no Background Knowledge bullets are needed.
+- [ ] The canonical no-prerequisite sentence is used exactly when no prerequisites remain.
 - [ ] `## Behavior Parameters` identifies the primary behavioral axis with subsections for each value.
 - [ ] `## Failure Meaning` exists with `### Failure Cause Mapping` and `### Cause Analysis`.
 - [ ] Failure cause mapping table aligns with the behavior parameter values.
@@ -138,6 +144,8 @@ Use when an Understanding Brief was created.
 - [ ] Final page distills the brief rather than copying beginner scaffolding verbatim.
 - [ ] Final Background Knowledge retains only necessary prerequisites, useful bounded examples, and necessary ordinary-to-special
   contrast bridges; detailed application is moved to the appropriate section.
+- [ ] If shared prerequisites were consolidated into Level-2, the final page uses the standalone upward-link sentence before any
+  retained page-local prerequisite bullets.
 - [ ] Brief's `### Failure Cause Mapping` table is copied directly into the final page's `### Failure Cause Mapping`.
 - [ ] Brief's `## Behavior Parameter Identification` conclusion is carried into `## Behavior Parameters`.
 - [ ] `### Cause Analysis` is written fresh during the rewrite, not carried from the brief.

@@ -1,8 +1,6 @@
 # Shader Analyzer Output Template
 
-Use this reference when producing final `shader-analyzer` output.
-
-The output should be markdown that can be:
+The final walkthrough output is markdown that can be:
 - inserted directly under `## Shader Analysis` in auto mode; or
 - written/appended to a Level-3 sidecar shader-analysis file in manual mode.
 
@@ -60,6 +58,9 @@ Representative path:
 
 #### Shader Code
 
+Use `glsl` fences for GLSL and `hlsl` fences for HLSL. Preserve source-generated `//` comments and apply the annotation
+procedure and examples in [`workflow-notes.md`](workflow-notes.md) for added wiki-authored `///` comments.
+
 For a single-stage walkthrough:
 
 ```<glsl-or-hlsl>
@@ -80,15 +81,6 @@ dataflow, validation signal, or reader mental model:
 ```<glsl-or-hlsl>
 <secondary shader code with preserved source-generated // comments and added /// wiki comments>
 ```
-
-Comment targets:
-- runtime constants, stage shape, dispatch/draw shape, or specialization constants;
-- resource declarations, bindings/locations, host-created or shader-local status, format/type, and size/extent rule;
-- generated structs, shared objects, or address/reference forms;
-- coordinate, index, lane, primitive, texel, or invocation mapping;
-- synchronization, ordering, availability, visibility, and scope semantics;
-- validation checks, skip conditions, fail writes, and pass counters;
-- generated-code artifacts or variant-sensitive branches.
 
 #### Additional Info
 
@@ -117,16 +109,5 @@ Do not include:
 
 #### SPIR-V
 
-Insert the complete `#### SPIR-V` subsection returned by `shader-disassembler` unchanged.
-See `shader-disassembler/SKILL.md` and strictly follow the output format.
-
-## Destination Rules
-
-Auto mode:
-- write one walkthrough into the target Level-3 wiki page under `## Shader Analysis`;
-- use the caller-provided human-facing heading number or the next available `Representative Shader Walkthrough N` heading number.
-
-Manual mode:
-- write to `<level3-wiki-stem>_shader_analysis.md` next to the target Level-3 wiki page;
-- append additional walkthroughs for the same Level-3 wiki page to the same sidecar file;
-- use the next available `Representative Shader Walkthrough N` heading number in that sidecar file.
+Insert the complete `#### SPIR-V` subsection returned by `shader-disassembler` unchanged. It must be the final walkthrough
+subsection. See [`../../shader-disassembler/SKILL.md`](../../shader-disassembler/SKILL.md) and strictly preserve its output format.

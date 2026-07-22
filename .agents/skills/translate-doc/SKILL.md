@@ -47,29 +47,13 @@ Exclude `external/vulkancts/wiki/internal_doc/` from translation and publishing.
 
 ## Translation References
 
-Before translating, read the required reference files under `.agents/skills/translate-doc/references/`.
+Before translating any page, read all reference files under `.agents/skills/translate-doc/references/`. This is mandatory; do not skip a reference based on expected relevance:
 
-Always read:
+- `references/terminology.zh.md` — canonical Chinese terminology and protection rules.
+- `references/level2-template.zh.md` — canonical Level-2 Chinese output shape.
+- `references/level3-template.zh.md` — canonical Level-3 Chinese output shape, including shader-walkthrough heading mappings.
 
-- `references/terminology.zh.md`
-
-Also read according to page type:
-
-- Level-2 category page: `references/level2-template.zh.md`
-- Level-3 page: `references/level3-template.zh.md`
-
-Rules:
-
-- Treat the reference files as the canonical Chinese structural and terminology guide.
-- Do not copy English template guideline prose into Chinese output.
-- Use reference templates only for fixed elements: headings, fixed labels, fixed opening sentence
-  shapes, fixed table headers, and fixed tree-comment translations.
-- If a source heading exactly matches a reference heading, use the reference Chinese heading exactly.
-- If a source heading begins with a protected identifier or registered path component, preserve that
-  identifier and translate only the explanatory suffix.
-- For Level-3 `## Shader Analysis`, apply the dedicated shader-walkthrough heading and terminology
-  mappings in `references/level3-template.zh.md` and `references/terminology.zh.md`. These mappings
-  cover the current `shader-analyzer` output contract.
+The reference files are the sole canonical owners of Chinese structural shapes, fixed labels, terminology choices, and protection rules. This `SKILL.md` owns workflow, phase ordering, path mapping, dependency gating, and reporting; it does not restate the detailed reference contracts.
 
 ## Mandatory Language Worker Dependencies
 
@@ -168,108 +152,16 @@ Rules:
 - Do not add compatibility HTML anchors such as `<a id="category-index"></a>` unless there is a
   specific verified need.
 
-## Content That Must Remain Unchanged
+## Content Protection and Terminology
 
-Do not translate these elements:
+`references/terminology.zh.md` is the sole canonical owner of the protection rules (what must remain unchanged), the hierarchy terminology mappings, the singular/plural preservation rules, and the allowed tree-comment translations. Apply it directly; this workflow does not restate those contracts.
 
-1. **Code blocks** fenced by triple backticks — preserve code tokens exactly, including `glsl`, `mermaid`, `drawio`, and `text` fences. The only allowed content translation inside code blocks is wiki-authored explanatory `///` comments in reconstructed GLSL.
-2. **Inline code** inside backticks — preserve exactly.
-3. **File paths and URL targets** — preserve exactly.
-4. **Markdown link target paths before `#`** — preserve exactly; only translate `#fragment` heading
-   references when their target headings are translated.
-5. **Function names, class names, enum names, struct names, variables, constants, macros, CLI flags**.
-6. **Registered test paths and test case names**, such as `dEQP-VK.memory_model.shared.16bit.arrays_of_arrays.3`.
-7. **Source filenames and wiki filenames**, such as `vktMemoryModelMessagePassing.cpp` and
-   `vktMemoryModelMessagePassing.md`.
-8. **Directory names**, such as `categories/`, `testfiles/`, `modules/vulkan/`, `mustpass/`.
-9. **YAML frontmatter** — preserve exactly.
-10. **Markdown table structure** — translate cell prose while preserving `|` and separator rows.
-11. **ASCII diagrams and registration trees** — preserve registered path components exactly.
-12. **HTML comments or machine markers** — preserve exactly.
-13. **Source-generated comments inside code blocks** — preserve exact `//` comments from generated shader source. Translate wiki-authored explanatory `///` GLSL comments while preserving the `///` marker, indentation, and referenced identifiers.
+`references/level2-template.zh.md` and `references/level3-template.zh.md` are the sole canonical owners of fixed Chinese headings, heading translation rules, and heading-detail examples. Apply the relevant template directly.
 
-Allowed tree-comment translation:
-
-- Translate explanatory comments in registration trees when they are not registered path components.
-- Example: `(registration only)` becomes `(仅注册)`.
-
-## VK-GL-CTS Terminology Policy
-
-Use `references/terminology.zh.md` as the authoritative terminology reference.
-
-Core rules:
-
-- Translate ordinary explanatory prose naturally into Mandarin Chinese.
-- Preserve exact registered path components, filenames, identifiers, inline code, and code blocks.
-- Use the redesigned wiki hierarchy terminology consistently:
-  - `test category` → `测试类别`.
-  - `test family` → `测试子族`.
-  - `intermediate node` → `中间节点`.
-  - `test case` / `test case leaf` → `单个测试`.
-- Do not use `节点` for a test category or a page-scope test family.
-- Preserve technical Vulkan/GLSL terms such as `subgroup`, `workgroup`, and `shader` when translating them would be less familiar
-  or would confuse technical meaning.
-- Preserve singular/plural distinctions when they affect technical scope:
-  - If a technical term is kept in English, keep its English singular or plural form, for example `race instance` vs
-    `race instances`.
-  - If a plural term is translated into Chinese and plurality matters, add a natural scope marker such as `多个`, `一组`,
-    `一系列`, `这些`, `若干`, `集合`, or use a context-specific rephrasing.
-  - Do not mechanically mark every English plural; apply this only when plurality affects scope, behavior, or interpretation.
-- Preserve exact test paths, for example `memory_model.shared.16bit.arrays_of_arrays.3`.
-
-Use natural Chinese sentence structure around preserved English terms.
-
-Good:
-
-```markdown
-`memory_model` 测试类别包含五个注册测试子族。
-```
-
-Bad:
-
-```markdown
-`memory_model` test category 包含 five registered test families。
-```
-
-## Heading Translation Rules
-
-- Translate Markdown headings to Mandarin Chinese for readability.
-- Preserve heading levels and numbering.
-- Use the relevant reference template for fixed headings:
-  - `references/level2-template.zh.md` for Level-2 pages.
-  - `references/level3-template.zh.md` for Level-3 pages.
-- Same-page links should target the translated heading anchor directly.
-- Cross-page links with a `#fragment` should preserve everything before `#` and translate only the
-  heading fragment when it points to a translated heading.
-- Do not keep English headings merely to preserve old English anchors.
-- Do not add compatibility HTML anchors unless the user explicitly asks.
-
-### Heading Details
-
-- If a heading has a numeric prefix, preserve the prefix and translate the heading text.
-- If a heading begins with a protected identifier, registered path component, source filename, or test
-  family name, preserve that identifier and translate only the explanatory suffix.
-  - Example: `### basic_arrays — Arrays of basic types` becomes
-    `### basic_arrays — 基本类型数组`.
-- If a markdown link points to a canonical heading, update only the `#fragment` to the translated
-  Chinese heading anchor.
-
-## Translation Quality Requirements
-
-- Preserve Markdown formatting: headings, lists, tables, links, emphasis, code fences.
-- Use natural Mandarin Chinese for explanatory prose.
-- Avoid excessive English-Chinese mixing for ordinary explanatory terms.
-- Keep domain terms in English when translating them would be less familiar to Vulkan/CTS readers.
-- Translate table cell prose, list descriptions, and category explanations unless they are identifiers
-  or domain terms that should remain English.
-- Keep left-side category names, path components, and filenames unchanged; translate right-side explanations.
-- Preserve `shader-analyzer` factual precision in `## Shader Analysis`: translate surrounding prose, table prose,
-  bullets, and wiki-authored `///` GLSL comments, but do not simplify, remove, or re-interpret annotated GLSL,
-  resource facts, synchronization semantics, validation meaning, parameter-variation coverage, or source-evidence links.
-- In `#### SPIR-V` sections, keep the `spirv-dis` assembly inside `llvm` code fences exactly unchanged. Translate only
-  fixed header fields and HTML summary text using the reference mapping, for example `Status` -> `状态`,
-  `Source` -> `来源`, `Stage` -> `阶段`, and `Target SPIRV version` -> `目标 SPIRV 版本`.
+Workflow-specific protection notes not restated in the references:
+- In `#### SPIR-V` sections, keep the `spirv-dis` assembly inside `llvm` code fences exactly unchanged. Translate only fixed header fields and HTML summary text using the reference mapping.
 - Do not introduce a separate translated `SPIR-V version` field; `Target SPIRV version` is the single version metadata field.
+- Preserve `shader-analyzer` factual precision in `## Shader Analysis`: translate surrounding prose, table prose, bullets, and wiki-authored `///` GLSL comments, but do not simplify, remove, or re-interpret annotated GLSL, resource facts, synchronization semantics, validation meaning, parameter-variation coverage, or source-evidence links.
 - Do not introduce new factual claims while translating.
 - Do not remove source links, mustpass links, or evidence links.
 - Do not change code examples.

@@ -87,27 +87,19 @@ Insert one generated walkthrough directly under `## Shader Analysis` in the targ
 
 ## Output Contract
 
-Produce markdown with the wiki heading depth intact.
+Apply the exact output shapes, heading structure, section-level content rules, and formatting requirements in the mandatory
+[`references/output-template.md`](references/output-template.md). Do not reproduce or improvise a parallel output contract here.
 
-Mandatory final output:
-1. `### Representative Shader Walkthrough N`
-2. `#### Parameter Values Chosen`
-3. `#### Purpose`
-4. `#### Structural Design`
-5. `#### Shader Code`
-6. `#### Additional Info`
-7. `#### Parameter Variation Summary`
-8. `#### SPIR-V`
+Workflow-level selection rules for multi-shader walkthroughs:
+- Default to the stage whose logic is central to the selected CTS case as the one primary shader.
+- Select a secondary shader only when it is part of the tested property, dataflow, validation signal, or reader mental model; do
+  not select boilerplate stages merely for completeness.
+- Keep the primary shader first unless producer-before-consumer order is clearer for the tested dataflow.
+- Generate SPIR-V for the primary shader by default. Select secondary stages for SPIR-V only when their assembly materially aids
+  audit of the tested property.
 
-`#### SPIR-V` must remain the final subsection of the walkthrough and must be produced by the `shader-disassembler` helper skill from the reconstructed GLSL or HLSL.
-
-Multi-shader walkthroughs:
-- Default to one primary shader code block: the stage whose logic is central to the selected CTS case.
-- Add secondary shader code blocks only when another stage is part of the tested property, dataflow, validation signal, or reader mental model; do not add boilerplate stages only for completeness.
-- When secondary shaders are included, put them under `#### Shader Code` with stage-specific `#####` headings, such as `##### Vertex Shader`, `##### Geometry Shader`, and `##### Fragment Shader`.
-- Keep the primary shader first unless a producer-before-consumer order is clearer for the tested dataflow.
-- When secondary shader blocks are added, `#### Additional Info` must include at least one bullet for each non-primary shader, stating whether that shader varies across the page's cases or stays fixed and why it matters to the representative case.
-- Generate `#### SPIR-V` for the primary shader by default. Generate multiple collapsed SPIR-V blocks only when multiple stages are central enough that their assembly materially aids audit; label each block by stage.
+The final `#### SPIR-V` subsection is mandatory, must remain last, and must be produced by `shader-disassembler` from the
+reconstructed GLSL or HLSL. Its ownership and safety rules are defined under "Generate SPIR-V assembly" below.
 
 ## Manual Mode Confirmation Checkpoint
 
@@ -185,14 +177,12 @@ Assemble the shader from branch outcomes grounded in the implementation.
 
 ### 5. Expand non-local helper behavior
 
-Before finalizing reconstructed shader source, list every non-local helper, utility wrapper, or generated-code printer that affects:
-- shader text emission;
-- type spelling, precision, array, struct, or layout declarations;
-- extension or feature gating;
-- resource declarations and bindings;
-- literal generation, casts, comparison helpers, or validation expressions.
+Before finalizing reconstructed shader source, list every non-local helper, utility wrapper, or generated-code printer that can
+change emitted shader text or semantics. Use the already-loaded
+[`references/shader-utility-index.md`](references/shader-utility-index.md) for canonical lookup and navigation content.
 
-For each helper, inspect its definition or explicitly mark it irrelevant to the emitted GLSL. Do not infer helper behavior from the call-site name alone. Use `references/shader-utility-index.md` only as a lookup aid for likely source locations; do not rely on it as a factual replacement for source inspection.
+For each helper, inspect its source definition or explicitly establish that it is irrelevant to emitted GLSL or HLSL. Never infer
+behavior from a call-site name or treat the index as factual evidence replacing source inspection.
 
 ### 6. Build the resource annotation facts
 
@@ -212,25 +202,22 @@ Use exact static facts when source proves them. Use a size or extent rule when t
 
 ### 7. Annotate reconstructed GLSL or HLSL
 
-Use a two-pass annotation workflow:
-1. reconstruct faithful GLSL or HLSL while preserving source-generated `//` comments;
-2. add concise wiki comments using `///` after the full shader structure is known.
+Use two passes:
+1. Reconstruct faithful GLSL or HLSL while preserving every source-generated `//` comment.
+2. After the full shader or stage set is known, add concise wiki-authored `///` comments.
 
-Add `///` comments for important:
-- execution shape and runtime knobs;
-- shader-visible interface roles;
-- resource type, binding/location, format/type, and size/extent rules;
-- data layout or addressing model;
-- control-flow phases;
-- synchronization and ordering semantics;
-- validation and failure recording;
-- generated-code artifacts or variant-sensitive blocks.
+Put declaration facts next to the declarations they explain and block-level comments before semantic phases. Declarations before
+`main()` must explain enough shader-visible context for a reader without prior knowledge of the specific stage, including relevant
+inputs, outputs, descriptor resources, execution layouts, built-in blocks, and stage-to-stage transport. For example, annotate a
+geometry shader's `layout(...) in` and `layout(..., max_vertices = ...) out` declarations when primitive shape, invocation count,
+or emitted-vertex budget participates in the tested behavior.
 
-Keep comments compact. Put resource facts near the relevant declarations. Use block-level comments before semantic phases. For shader walkthroughs, declarations before `main()` need enough annotation for readers to understand shader-visible inputs, outputs, descriptor resources, execution layout, built-in blocks, and stage-to-stage transport without prior knowledge of the specific shader stage. For example, comment geometry-shader `layout(...) in` / `layout(..., max_vertices = ...) out` lines when their primitive shape, invocation count, or emitted-vertex budget is part of the tested behavior.
+For annotation examples and review cues, see [`references/workflow-notes.md`](references/workflow-notes.md).
 
 ### 8. Compose the walkthrough
 
-Read `references/output-template.md` before writing final output. Use the template as the final reader-facing order, not as the drafting order.
+Apply the already-loaded [`references/output-template.md`](references/output-template.md) as the final reader-facing order, not as
+the drafting order.
 
 Draft in this order:
 1. keep the representative path as the anchor input;
@@ -257,14 +244,8 @@ Structural Design rule:
 - do not default to a phase table when another concise form better exposes the shader's core mental model;
 - do not force Mermaid when a table, mapping, or other structured non-text format explains the shader better.
 
-Additional Info boundary:
-- include exact source evidence only when it supports a non-obvious reconstruction branch or generator rule;
-- include host/runtime facts only when they are needed to interpret this shader and do not belong better in the page-level runtime section;
-- include feature assumptions, representative-case caveats, deterministic-generation notes, runtime-dependent values, or readability
-  normalizations only when they prevent a likely misunderstanding of this exact walkthrough;
-- do not include mustpass line proof unless it resolves an ambiguity about the selected case;
-- do not repeat parameter meanings, inline resource comments, page-level runtime/pruning content, source inventory, or generic CTS mechanics;
-- do not discuss SPIR-V generation status here; `#### SPIR-V` is always the final subsection and is owned by `shader-disassembler`.
+The exact `Additional Info` inclusion, exclusion, and multi-shader content contract is owned by the mandatory output template.
+Apply it without adding a parallel filter here.
 
 ### 9. Place the walkthrough
 
@@ -297,20 +278,15 @@ Do not use the Vulkan runtime version or `vk::getMaxSpirvVersionForVulkan()`. Pa
 
 Insert the complete `shader-disassembler` result unchanged. Do not reformat its fields, add generation prose, or edit its assembly.
 
-If `shader-disassembler` fails, do not treat the failure as only a final-output status. Return to shader reconstruction and audit whether the GLSL differs from actual generator behavior, especially around non-local helpers, declarations, extensions, type aliases, precision qualifiers, feature gates, casts, and generated validation helpers.
+If `shader-disassembler` fails, do not treat the failure as only a final-output status. Return to shader reconstruction and perform
+the detailed reconstruction-failure audit in the already-loaded
+[`references/workflow-notes.md`](references/workflow-notes.md) before accepting the failure as final.
 
 ## Output Formatting Rules
 
-Read [`references/output-template.md`](references/output-template.md) before producing final output. Load
-[`references/workflow-notes.md`](references/workflow-notes.md) only when its annotation examples or review cues are useful.
-
-Formatting requirements:
-- keep all output markdown-renderable;
-- use the exact heading structure from the output template;
-- keep parameter and variation tables wiki-ready;
-- use `glsl` fences for GLSL shader code and `hlsl` fences for HLSL shader code;
-- preserve exact CTS identifiers;
-- include `#### SPIR-V` as the final subsection of every representative walkthrough, using `shader-disassembler` output.
+Apply the exact, canonical formatting contract in the mandatory
+[`references/output-template.md`](references/output-template.md). Preserve exact CTS identifiers and do not introduce local
+formatting variants in this workflow file.
 
 ## Suggested Tool Strategy
 

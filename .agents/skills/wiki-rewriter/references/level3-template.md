@@ -20,7 +20,14 @@ Keep this heading in every Level-3 page. During initial Level-3 drafting, make t
 
 Use this section only for the minimum external concepts that the target reader must understand before the rest of this page makes sense. It supplies conceptual tools; it does not preview or summarize the test.
 
-Use a brief unordered list. Each item should:
+Choose the opening shape according to prerequisite ownership:
+
+- If the page has only page-local prerequisites, begin directly with the local prerequisite bullets.
+- If category-shared prerequisites were consolidated into the Level-2 page, begin with a standalone upward-link sentence that names the shared concept and links to the Level-2 `## Background Knowledge` section. Put any remaining page-local bullets after that sentence.
+- Use a recommended sentence shape such as `For the shared <concept> model, see the [category-level Background Knowledge](...).`. The ownership and link are required; the exact English wording is not.
+- If no prerequisites remain, use the canonical no-prerequisite sentence below instead of an upward link or bullets.
+
+When bullets are present, use a brief unordered list. Each item should:
 
 - define one prerequisite concept outside the target-reader baseline;
 - be needed by a later behavior, shader, runtime, validation, pruning, or failure explanation;
@@ -44,13 +51,13 @@ During later category Background Knowledge consolidation, classify every existin
 
 | Item type | Consolidation action |
 |-----------|----------------------|
-| Repeated category-shared prerequisite | Move the full explanation to Level-2; leave only a concise local recap if this page still needs it. |
-| Mixed shared concept plus page-local consequence | Shorten only the shared explanation; preserve the local consequence. |
+| Repeated category-shared prerequisite | Move the full explanation to Level-2; add the standalone upward-link sentence at the beginning of the affected Level-3 section. |
+| Mixed shared concept plus page-local consequence | Move or remove the shared explanation, add the standalone upward-link sentence, and preserve the local prerequisite consequence as a bullet after it. |
 | Definitely page-local prerequisite | Preserve the bullet title and wording unless a confirmed meaningful defect requires a minimal edit. |
 | Concrete setup, parameters, execution, validation, expected result, or conclusion | Remove from BGK or relocate only if the correct later section does not already explain it. |
 | Helpful illustrative example for a shared concept | Preserve once in Level-2 BGK when it materially improves the shared mental model. |
 
-Do not rewrite this section wholesale during consolidation.
+Do not leave the upward link embedded inside a prerequisite bullet after consolidation. Do not rewrite this section wholesale during consolidation.
 
 If the target reader needs no additional prerequisite concepts, keep the heading and write exactly:
 

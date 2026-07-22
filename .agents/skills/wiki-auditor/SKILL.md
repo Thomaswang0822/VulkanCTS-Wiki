@@ -40,17 +40,17 @@ For a category audit, enumerate the complete target set before assigning work. I
 
 ## References
 
-Load these resources as needed:
+Before starting any audit, read all bundled references. This is mandatory, not optional:
 
-- [`references/review-protocol.md`](references/review-protocol.md) for the professor model, meaningful-defect threshold, internal worksheet, editing policy, worker contract, and category summary template;
-- [`../shader-analyzer/SKILL.md`](../shader-analyzer/SKILL.md) when a shader walkthrough's source-level reconstruction or explanation is defective;
-- [`../shader-disassembler/SKILL.md`](../shader-disassembler/SKILL.md) for the canonical `#### SPIR-V` output contract whenever a page contains generated SPIR-V;
-- [`../wiki-rewriter/references/level3-template.md`](../wiki-rewriter/references/level3-template.md) for Level-3 structure and section semantics;
-- [`../wiki-rewriter/references/level2-template.md`](../wiki-rewriter/references/level2-template.md) for Level-2 gateway semantics;
-- [`../wiki-rewriter/references/terminology-policy.md`](../wiki-rewriter/references/terminology-policy.md) for hierarchy terminology;
-- [`../wiki-rewriter/references/validation-checklist.md`](../wiki-rewriter/references/validation-checklist.md) for mechanical and semantic completion gates.
+- [`references/review-protocol.md`](references/review-protocol.md) — sole canonical owner of the professor model, meaningful-defect threshold, internal worksheet, editing policy, generated-shader boundary, worker contract, and category summary template.
+- [`../shader-analyzer/SKILL.md`](../shader-analyzer/SKILL.md) — read when a shader walkthrough's source-level reconstruction or explanation is defective.
+- [`../shader-disassembler/SKILL.md`](../shader-disassembler/SKILL.md) — read for the canonical `#### SPIR-V` output contract whenever a page contains generated SPIR-V.
+- [`../wiki-rewriter/references/level3-template.md`](../wiki-rewriter/references/level3-template.md) — canonical Level-3 structure and section semantics, including Background Knowledge ownership rules.
+- [`../wiki-rewriter/references/level2-template.md`](../wiki-rewriter/references/level2-template.md) — canonical Level-2 gateway semantics.
+- [`../wiki-rewriter/references/terminology-policy.md`](../wiki-rewriter/references/terminology-policy.md) — canonical hierarchy terminology.
+- [`../wiki-rewriter/references/validation-checklist.md`](../wiki-rewriter/references/validation-checklist.md) — canonical mechanical and semantic completion gates.
 
-Keep detailed review procedure in `references/review-protocol.md`. Keep orchestration and mandatory workflow decisions in this file.
+This `SKILL.md` owns audit orchestration, scope, phase ordering, severity decisions, dependencies, checkpoints, and reporting. The detailed review procedure and classification rules live in `references/review-protocol.md`; the rewritten-page structure contracts live in the rewriter templates. This file does not restate those contracts.
 
 ## Core Review Rule
 
@@ -109,25 +109,9 @@ Level-3 page. Treat validator success as necessary but insufficient. Continue to
 
 ### 3. Audit category-shared Background Knowledge ownership
 
-For a category audit where a rewritten Level-2 page exists, audit the Level-2 `## Background Knowledge` section before auditing
-Level-3 BGK sections. Verify that it:
-- contains the mandatory heading;
-- explains repeated category-shared prerequisites needed by multiple Level-3 pages;
-- uses the canonical no-common-concepts sentence from the Level-2 template when no shared prerequisite explanation is needed;
-- preserves concise realistic examples when they materially improve the category-level mental model;
-- avoids Level-3 setup, parameter matrices, validation mechanics, expected results, and failure meaning.
+For a category audit where a rewritten Level-2 page exists, audit Level-2 BGK before Level-3. The BGK section contracts — mandatory heading, shared-prerequisite ownership, opening shapes, consolidation classification, and no-prerequisite sentences — are owned by `../wiki-rewriter/references/level2-template.md` and `../wiki-rewriter/references/level3-template.md`. The detailed prerequisite review and classification procedure is owned by `references/review-protocol.md`. Verify each page against those contracts.
 
-Then audit each Level-3 BGK section against that shared owner:
-- verify local sufficiency from the Level-3 page alone when the Level-2 BGK uses the no-common-concepts sentence, or from the
-  Level-3 page plus the linked Level-2 BGK when an upward link exists;
-- identify repeated shared concepts that should be consolidated upward instead of patched independently on many pages;
-- preserve definitely page-local BGK bullets, including titles and wording, unless a confirmed meaningful defect requires a minimal
-  edit;
-- for mixed shared/local bullets, shorten only the shared explanation and preserve the local consequence;
-- do not rewrite a Level-3 `## Background Knowledge` section wholesale during audit.
-
-If the Level-2 page is not in the audit scope yet, audit Level-3 BGK for local sufficiency only and record repeated shared concepts
-as a category-level follow-up rather than forcing cross-page consolidation prematurely.
+If the Level-2 page is not in scope yet, audit Level-3 BGK for local sufficiency only and record repeated shared concepts as a category-level follow-up.
 
 ### 4. Build the evidence-derived reference model
 
@@ -152,39 +136,7 @@ Keep this reference model transient. Do not write it into the page or category s
 
 ### 5. Review load-bearing claims and knowledge prerequisites
 
-Apply the truth, exposition, and knowledge prerequisite tests from `references/review-protocol.md`.
-
-Audit `## Background Knowledge` first in both directions:
-
-1. **Completeness:** derive the prerequisites needed by later behavior, shader, runtime, validation, pruning, or failure explanations;
-   compare them with the target-reader baseline; and verify that each missing concept is explained with enough brief relevance to
-   support the later reasoning.
-2. **Responsibility boundary:** classify each existing item and remove or relocate content that has become concrete test setup,
-   parameters, execution, expected results, correctness contracts, conclusions, failure meaning, unused tutorial material, or
-   substantive duplication of `## Overview` and `## Key Takeaways`.
-
-Preserve concise realistic examples that materially improve the required mental model. Also preserve a bounded ordinary-use versus
-unconventional-test-use contrast when the ordinary concept would otherwise mislead the reader, but require it to stop after the
-unusual relationship and its interpretive consequence. Do not reject content merely because it uses an example or briefly mentions
-this test. Follow the detailed classification and editing rules in `references/review-protocol.md`.
-
-Then check whether necessary concepts are explained adequately near first use elsewhere. A syntax form, API name, or dictionary
-definition is insufficient when it leaves the causal role unclear. Do not duplicate adequate explanations or add general Vulkan
-teaching material.
-
-Prioritize claims and prerequisite gaps whose failure would change the reader’s mental model. Pay particular attention to:
-
-- broad words such as `all`, `every`, `only`, `always`, `exactly`, and `required`;
-- conditional support or generated subsets;
-- behavior parameters mislabeled as configuration dimensions;
-- comparison tolerances, masks, aggregation, and pass/fail strength;
-- host/device chronology and resource roles;
-- failure causes stated more strongly than validation can localize;
-- representative walkthroughs presented beyond their actual coverage;
-- explanations understandable only by opening source links;
-- contradictions between behavior, runtime, failure, pruning, and takeaway sections.
-
-Apply the meaningful-defect threshold. Ignore optional improvements that do not materially affect correctness or comprehension.
+The truth test, exposition test, meaningful-defect threshold, BGK classification table, and editing rules are all owned by `references/review-protocol.md`. Apply them as specified there. This section defines only the workflow ordering: audit `## Background Knowledge` first, then other load-bearing claims, then apply the threshold.
 
 ### 6. Correct confirmed defects in place
 

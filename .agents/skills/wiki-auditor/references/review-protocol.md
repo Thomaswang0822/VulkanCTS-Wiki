@@ -110,8 +110,9 @@ For a category audit with a rewritten Level-2 page, audit the Level-2 `## Backgr
 sections. The Level-2 section is the owner for repeated category-shared prerequisites. It must either explain those shared concepts
 or use the canonical Level-2 no-common-concepts sentence when no category-level prerequisite explanation is needed. When the
 no-common-concepts sentence is used, Level-3 pages have no upward link and their local sufficiency is judged from the Level-3 page
-alone; when shared concepts are explained, Level-3 pages link upward and their local sufficiency is judged from the Level-3 page
-plus the linked Level-2 BGK.
+alone. When shared concepts are explained, each affected Level-3 section begins with a standalone upward-link sentence naming the
+shared concept; local prerequisite bullets follow that sentence, and sufficiency is judged from the Level-3 page plus the linked
+Level-2 BGK. The sentence should follow the recommended canonical shape, but natural page-specific and translated wording is valid.
 
 Derive the concepts a reader must understand before the page's behavior, walkthrough, runtime, validation, pruning, or failure
 explanation becomes meaningful. Compare those prerequisites with the target-reader baseline before judging the existing
@@ -134,8 +135,8 @@ Classify each existing Background Knowledge item internally:
 |---|---|
 | Necessary prerequisite concept | Keep; tighten only when needed. |
 | Necessary concept with brief relevance | Keep when the relevance stops before concrete case narration. |
-| Repeated category-shared prerequisite | Prefer consolidation into Level-2 BGK; leave only a concise local recap in Level-3 when still needed. |
-| Mixed shared concept plus page-local consequence | Shorten only the shared explanation; preserve the local consequence. |
+| Repeated category-shared prerequisite | Consolidate into Level-2 BGK; add a standalone upward-link sentence at the beginning of the affected Level-3 section. |
+| Mixed shared concept plus page-local prerequisite consequence | Move or remove the shared explanation, add the standalone upward-link sentence, and preserve the local prerequisite consequence as a bullet after it. |
 | Definitely page-local prerequisite | Preserve the bullet title and wording unless a confirmed meaningful defect requires a minimal edit. |
 | Helpful realistic example or analogy | Keep when technically faithful, concise, clearly illustrative, and materially clearer than an abstract definition alone; preserve shared examples once in Level-2 when they clarify a category-wide prerequisite. |
 | Necessary ordinary-use versus unconventional-test-use contrast | Keep only the unusual relationship and interpretive consequence needed to prevent a wrong mental model. |
@@ -156,7 +157,8 @@ reject an item merely because it uses an example or briefly mentions this test.
 
 When correcting overreach:
 
-- retain the conceptual portion of a mixed item;
+- retain the conceptual portion of a mixed item only when it remains a page-local prerequisite;
+- when shared content was consolidated, replace its in-bullet routing with the standalone upward-link sentence before all bullets;
 - delete concrete application already explained adequately in the correct section;
 - relocate unique necessary application detail to the appropriate later section;
 - preserve definitely page-local bullets by default during shared-BGK cleanup;

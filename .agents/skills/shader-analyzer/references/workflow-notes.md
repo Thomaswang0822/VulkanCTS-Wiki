@@ -1,7 +1,4 @@
-# Shader Analyzer Annotation Examples
-
-Use this reference when concrete annotation examples help apply the authoritative workflow in
-[`../SKILL.md`](../SKILL.md). Do not treat it as a second workflow definition.
+# Shader Analyzer Annotation Examples and Review Cues
 
 ## Declaration annotation examples
 
@@ -29,7 +26,8 @@ shared sAL s3;
 
 ## Annotation review cues
 
-Before finalizing the walkthrough, verify that comments expose the facts a reader cannot safely infer from syntax alone:
+Keep comments compact and source-grounded. Before finalizing the walkthrough, verify that comments expose the facts a reader
+cannot safely infer from syntax alone:
 
 - execution shape and runtime knobs;
 - shader-visible interface and resource roles;
@@ -55,7 +53,17 @@ structural-design, inline-comment, variation-summary, or page-level runtime/prun
 
 Do not repeat parameter meanings, declaration comments, source inventory, generic CTS mechanics, or SPIR-V generation details.
 
-## Reconstruction failure cue
+## Reconstruction failure audit
 
-If SPIR-V generation fails, recheck non-local helpers, declaration printers, source-language flags, entry points, extension emission,
-type aliases, precision qualifiers, feature gates, casts, and generated validation helpers before accepting the failure as final.
+When the owning workflow routes a `shader-disassembler` failure back to reconstruction, compare the reconstructed GLSL or HLSL
+against actual generator behavior. Recheck:
+
+- non-local helpers and generated-code/declaration printers;
+- source-language flags and entry points;
+- declarations, extensions, and extension emission;
+- type aliases and precision qualifiers;
+- feature gates and variant branches;
+- literal generation and casts;
+- comparison and generated validation helpers.
+
+Do not accept the failure as final until this source-grounded audit is complete.
