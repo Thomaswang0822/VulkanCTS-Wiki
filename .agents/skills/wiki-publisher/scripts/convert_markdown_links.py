@@ -120,7 +120,7 @@ def wiki_publish_target_from_canonical(repo_relative_path: str) -> str:
     if rel.startswith("testfiles/") and rel.endswith(".md"):
         rel_path = Path(rel)
         category = rel_path.parts[1]
-        page = rel_path.parts[2]
+        page = rel_path.stem
         rel = f"categories/{category}/{page}"
     elif rel.endswith(".md"):
         rel = rel[:-3]
