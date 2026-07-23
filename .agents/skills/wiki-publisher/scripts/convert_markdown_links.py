@@ -148,6 +148,11 @@ def relative_wiki_link(from_publish_file: Path, wiki_target_without_md: str, fra
         # Target page is the directory containing the current file (e.g. a child
         # page linking to its category page). Go up one level to reach it.
         rel = "../" + posixpath.basename(target_publish_path)
+    elif not rel.startswith("."):
+        # GitLab Wiki resolves naked relative links against the wiki root, not
+        # the current page's directory. Prepend "./" so same-directory links
+        # (e.g. sibling pages) resolve correctly.
+        rel = "./" + rel
     return rel + fragment
 
 
@@ -171,8 +176,15 @@ def external_source_url(repo_relative_path: str, fragment: str) -> str | None:
 
 def is_converted_publish_link(path_part: str, publish_file: Path) -> bool:
     """Return True if an extensionless relative link already resolves to a
-    published wiki page (i.e. the link is already in publish form)."""
+    published wiki page (i.e. the link is already in publish form).
+
+    GitLab Wiki resolves naked relative links against the wiki root, not the
+    current page's directory. Therefore a converted link must start with "./"
+    or "../" to be considered stable.
+    """
     if not path_part or Path(path_part).suffix != "":
+        return False
+    if not (path_part.startswith("./") or path_part.startswith("../")):
         return False
     resolved = normalize_repo_relative(publish_file.parent, path_part)
     publish_root = as_posix(PUBLISH_WIKI_ROOT)
