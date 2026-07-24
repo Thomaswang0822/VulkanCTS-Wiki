@@ -69,15 +69,25 @@
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
 
-        <mxCell id="shaderCall1" value="shader-heavy 页面时调用" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;exitX=0.25;exitY=1;entryX=0.5;entryY=0;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="rwHelpers" target="shaderAnalyzer">
-          <mxGeometry relative="1" as="geometry"/>
+        <mxCell id="shaderCall1" value="shader-heavy 页面时调用" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;exitX=0;exitY=0.5;entryX=0;entryY=0.5;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="rewriter" target="shaderAnalyzer">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="20" y="155"/>
+              <mxPoint x="20" y="655"/>
+            </Array>
+          </mxGeometry>
         </mxCell>
         <mxCell id="shaderCall2" value="委托 SPIR-V 生成" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;exitX=1;exitY=0.5;entryX=0;entryY=0.5;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="shaderAnalyzer" target="shaderDisassembler">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
 
-        <mxCell id="lang1" value="技术起草后运行" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;exitX=0.5;exitY=0;entryX=0.5;entryY=1;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="enWorkers" target="rwHelpers">
-          <mxGeometry relative="1" as="geometry"/>
+        <mxCell id="lang1" value="技术起草后运行" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;exitX=1;exitY=0.5;entryX=1;entryY=0;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="enWorkers" target="rwHelpers">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="440" y="865"/>
+              <mxPoint x="440" y="530"/>
+            </Array>
+          </mxGeometry>
         </mxCell>
         <mxCell id="lang2" value="翻译后运行" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;exitX=0.5;exitY=0;entryX=0.5;entryY=1;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="zhWorkers" target="trHelpers">
           <mxGeometry relative="1" as="geometry"/>
