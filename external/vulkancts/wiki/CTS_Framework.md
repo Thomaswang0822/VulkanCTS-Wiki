@@ -2,6 +2,9 @@
 
 ## Overview
 
+The Vulkan Conformance Test Suite (CTS) contains 53 test categories, 1,445 test families, and a total of
+3,251,483 test cases.
+
 This document explains how Vulkan CTS is organized, how tests are registered, executed, and verified.
 
 ## 1. Vulkan CTS Organization Structure
