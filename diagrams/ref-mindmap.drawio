@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="29.7.9">
+  <diagram name="Skill Relationships">
+    <mxGraphModel dx="1800" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="rewriter" value="1. wiki-rewriter&#xa;主 workflow&#xa;把 source-navigation 页面改写为&#xa;explanation-first 的英文 canonical wiki" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="70" y="100" width="320" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="auditor" value="2. wiki-auditor&#xa;主 review workflow&#xa;审查技术正确性与解释充分性，&#xa;就地修正已确认的缺陷" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="480" y="100" width="320" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="translate" value="3. translate-doc&#xa;主 translation workflow&#xa;把稳定的英文 canonical 页面翻译为&#xa;受保护、结构对齐的中文页面" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=14;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="890" y="100" width="320" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="publisher" value="4. wiki-publisher&#xa;publishing orchestrator&#xa;分发类别翻译、校验结构、转换链接、&#xa;并完成发布导航" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="100" width="320" height="110" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rwHelpers" value="• rewrite-outline-template.md — 类别范围与分批&#xa;• level3-template.md — Level-3 页面 contract&#xa;• level2-template.md — 类别 gateway contract&#xa;• understanding-brief-template.md — 改写前的学习模型&#xa;• terminology-policy.md — 层级术语规则&#xa;• validation-checklist.md — 完成校验项&#xa;• pilot-examples.md — 已接受的风格示例" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="70" y="330" width="320" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="auditHelpers" value="• review-protocol.md&#xa;    target-reader 与 professor model&#xa;    meaningful-defect 阈值&#xa;    truth 与 exposition 审查工作表&#xa;    generated-artifact 编辑边界&#xa;    worker result contract&#xa;    以页面为中心的类别 summary 格式&#xa;&#xa;同时复用 rewriter 的页面 templates、&#xa;terminology policy 与 validation checklist" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="480" y="330" width="320" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="trHelpers" value="• terminology.zh.md — 中文术语与保护规则&#xa;• level2-template.zh.md — 固定的 Level-2 中文结构&#xa;• level3-template.zh.md — 固定的 Level-3 标题与翻译规则&#xa;• .skillfish.json — skill 来源元数据&#xa;&#xa;共同保证 identifier、链接、代码、&#xa;registration tree 与结构对齐" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="890" y="330" width="320" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="pubHelpers" value="• worker-dispatch-templates.md — Level-2、Level-3 与 link-worker 的固定分配&#xa;• verify_translation_structure.py — 逐 section 比对 list、table、code block 与 tree&#xa;• convert_markdown_links.py — 把 canonical 本地链接映射为 GitLab Wiki 与 blob URL&#xa;&#xa;这些 helper 在翻译之后、category-index&#xa;收尾之前运行" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="330" width="320" height="200" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="shaderAnalyzer" value="shader-analyzer&#xa;helper skill（wiki-rewriter 调用）&#xa;重构并讲解代表性 shader case，&#xa;产出 Representative Shader Walkthrough" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=13;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="70" y="600" width="320" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="shaderDisassembler" value="shader-disassembler&#xa;helper skill（shader-analyzer 调用）&#xa;把重构的 GLSL/HLSL 编译、验证、&#xa;反汇编为 SPIR-V assembly" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=13;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="480" y="600" width="320" height="110" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="enWorkers" value="强制英文 language gate&#xa;humanizer → stop-slop&#xa;先做自然度审查，再做 directness / 残留 AI-pattern 清理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="70" y="820" width="320" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="zhWorkers" value="强制中文 language gate&#xa;shuorenhua → humanizer-zh&#xa;先做技术中文自然度审查，再做残留 AI-pattern 清理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="890" y="820" width="320" height="90" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="flow1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=block;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="rewriter" target="auditor">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=block;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="auditor" target="translate">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=block;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="translate" target="publisher">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="helper1" value="拥有 contract" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;exitX=0.5;exitY=1;entryX=0.5;entryY=0;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="rewriter" target="rwHelpers">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="helper2" value="拥有 review protocol" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;exitX=0.5;exitY=1;entryX=0.5;entryY=0;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="auditor" target="auditHelpers">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="helper3" value="拥有翻译规则" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;exitX=0.5;exitY=1;entryX=0.5;entryY=0;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="translate" target="trHelpers">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="helper4" value="拥有发布工具" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;exitX=0.5;exitY=1;entryX=0.5;entryY=0;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="publisher" target="pubHelpers">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="shaderCall1" value="shader-heavy 页面时调用" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;exitX=0.25;exitY=1;entryX=0.5;entryY=0;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="rwHelpers" target="shaderAnalyzer">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="shaderCall2" value="委托 SPIR-V 生成" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;exitX=1;exitY=0.5;entryX=0;entryY=0.5;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="shaderAnalyzer" target="shaderDisassembler">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="lang1" value="技术起草后运行" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;exitX=0.5;exitY=0;entryX=0.5;entryY=1;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="enWorkers" target="rwHelpers">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="lang2" value="翻译后运行" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;exitX=0.5;exitY=0;entryX=0.5;entryY=1;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="zhWorkers" target="trHelpers">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="legend" value="图例" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#666666;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="780" width="320" height="190" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg1" value="" style="rounded=0;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="legend">
+          <mxGeometry x="15" y="35" width="30" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg1t" value="helper files / contract（各 skill 拥有的参考文件）" style="text;html=1;align=left;verticalAlign=middle;" vertex="1" parent="legend">
+          <mxGeometry x="55" y="32" width="250" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg2" value="" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="legend">
+          <mxGeometry x="15" y="75" width="30" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg2t" value="helper skill（被其它 skill 调用的子 skill）" style="text;html=1;align=left;verticalAlign=middle;" vertex="1" parent="legend">
+          <mxGeometry x="55" y="72" width="250" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg3" value="" style="rounded=0;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="legend">
+          <mxGeometry x="15" y="115" width="30" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg3t" value="language quality gate（强制语言质量审查）" style="text;html=1;align=left;verticalAlign=middle;" vertex="1" parent="legend">
+          <mxGeometry x="55" y="112" width="250" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg4" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="legend">
+          <mxGeometry x="15" y="155" width="30" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg4t" value="实线箭头 = 主流程顺序；虚线箭头 = 拥有 / 调用关系" style="text;html=1;align=left;verticalAlign=middle;" vertex="1" parent="legend">
+          <mxGeometry x="55" y="152" width="250" height="20" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
