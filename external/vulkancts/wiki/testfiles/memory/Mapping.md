@@ -8,7 +8,7 @@
 
 ## Background Knowledge
 
-For the shared concepts memory types, heaps, resource compatibility, and host-visible and non-coherent memory, see [Background Knowledge](../../categories/memory.md#background-knowledge) of the `memory` page.
+For the shared concepts memory types, heaps, resource compatibility, host-visible and non-coherent memory, and flush and invalidate direction, see [Background Knowledge](../../categories/memory.md#background-knowledge) of the `memory` page.
 
 - A suballocation is a range in a larger allocation. A dedicated allocation backs one selected resource and can have different compatible memory types from a general allocation.
 - `ReferenceMemory` is host-side test state. It records which bytes are defined and which non-coherent atoms have been flushed; it is not a Vulkan resource.

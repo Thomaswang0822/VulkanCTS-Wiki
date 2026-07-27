@@ -8,11 +8,12 @@
 
 ## Background Knowledge
 
-For the shared concepts memory types, heaps, and resource compatibility, host-visible and non-coherent memory, and memory dependencies, see [Background Knowledge](../../categories/memory.md#background-knowledge) of the `memory` page.
+For the shared concepts memory types, heaps, and resource compatibility, host-visible and non-coherent memory, flush and invalidate direction, and memory dependencies, see [Background Knowledge](../../categories/memory.md#background-knowledge) of the `memory` page.
 
 - **Host-pointer import:** `VkImportMemoryHostPointerInfoEXT` attaches an application-owned host allocation to a `VkDeviceMemory` allocation. The pointer and allocation size must meet `minImportedHostPointerAlignment`. `vkGetMemoryHostPointerPropertiesEXT` supplies the memory types available for that pointer, which must also satisfy the bound resource's memory requirements.
-- **Imported memory and host mapping:** imported host memory already has an original host address, but Vulkan does not consider it host-mapped device memory until `vkMapMemory` succeeds. Flush and invalidate operations apply to accesses through the mapped pointer; platform synchronization remains the application's responsibility for accesses through the original pointer.
-- **Host-to-device ordering:** a host-signaled timeline semaphore can release queued device work. Memory barriers still define which host and transfer accesses participate in the dependency.
+- **Imported memory and host mapping:** imported host memory already has an original host address, but Vulkan does not consider it host-mapped device memory until `vkMapMemory` succeeds. Vulkan flush and invalidate operations cover accesses through the mapped pointer. Cache synchronization for accesses through the original imported pointer requires platform mechanisms outside Vulkan.
+- **Semaphores and timeline values:** a Vulkan semaphore gates queue work: a queue can wait on it, and another queue or the host can signal it. A binary semaphore has an unsignaled or signaled state. A timeline semaphore instead stores a counter that only moves to higher values. A queue submission can wait for the counter to reach a chosen value, and the host can advance it with [`vkSignalSemaphore`](../../../../vulkan-docs/src/chapters/synchronization.adoc#L4760-L4788).
+- **Semaphore wait versus memory barrier:** a semaphore orders execution between queue submissions or between the host and a queue. A memory barrier defines which memory access types participate and which writes become available and visible to later accesses. A host-to-queue memory handoff may need both: the semaphore controls when the queue may proceed, while the barrier controls which earlier writes its reads can observe. See [memory dependencies](../../../../vulkan-docs/src/chapters/synchronization.adoc#L137-L160).
 
 ## Registration Hierarchy
 

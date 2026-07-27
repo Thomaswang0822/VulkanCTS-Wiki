@@ -9,6 +9,8 @@
 
 ## Background Knowledge
 
+For the shared concept flush and invalidate direction, see [Background Knowledge](../../categories/memory.md#background-knowledge) of the `memory` page.
+
 - **External queue-family ownership:** An exclusive image can move between a Vulkan queue family and a special external queue family. `VK_QUEUE_FAMILY_FOREIGN_EXT` represents queues outside the current Vulkan instance regardless of their physical device or driver version.
 - **Unmodified acquisition:** Chaining `VkExternalMemoryAcquireUnmodifiedEXT` to an acquire barrier with `acquireUnmodifiedMemory = VK_TRUE` asserts that no memory range bound to the covered resource subresource changed after its most recent release to the source queue family. The implementation may use that fact to reduce acquisition cost. The application remains responsible for making a valid assertion.
 - **DRM format modifiers:** A modifier describes an image's implementation-specific memory layout. DMA-BUF cases must select modifiers that support the required transfer operations and external-image use.

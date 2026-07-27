@@ -9,7 +9,7 @@
 
 ## Background Knowledge
 
-For the shared concepts memory dependencies and host-visible and non-coherent memory, see [Background Knowledge](../../categories/memory.md#background-knowledge) of the `memory` page.
+For the shared concepts memory dependencies, host-visible and non-coherent memory, and flush and invalidate direction, see [Background Knowledge](../../categories/memory.md#background-knowledge) of the `memory` page.
 
 - **Image layout transition:** an image memory barrier can change layout between the dependency's availability and visibility operations. The transition must match the image's next use.
 

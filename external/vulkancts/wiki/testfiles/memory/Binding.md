@@ -8,7 +8,7 @@
 
 ## Background Knowledge
 
-For the shared concepts memory types, heaps, and resource compatibility, host-visible and non-coherent memory, and memory dependencies, see [Background Knowledge](../../categories/memory.md#background-knowledge) of the `memory` page.
+For the shared concepts memory types, heaps, and resource compatibility, host-visible and non-coherent memory, flush and invalidate direction, and memory dependencies, see [Background Knowledge](../../categories/memory.md#background-knowledge) of the `memory` page.
 
 - **Resource-memory binding:** The `*Memory2` commands accept an array of bind descriptions and bind several resources in one call.
 - **Dedicated and non-dedicated allocations:** A dedicated allocation names its buffer or image in a `VkMemoryDedicatedAllocateInfo` chain. A non-dedicated allocation omits that identity. The registered name `suballocated` denotes the latter path here, although this implementation still creates one allocation for each target.

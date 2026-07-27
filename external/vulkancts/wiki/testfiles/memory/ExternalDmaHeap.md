@@ -9,7 +9,7 @@
 
 ## Background Knowledge
 
-For the shared concept host-visible and non-coherent memory, see [Background Knowledge](../../categories/memory.md#background-knowledge) of the `memory` page.
+For the shared concepts host-visible and non-coherent memory, and flush and invalidate direction, see [Background Knowledge](../../categories/memory.md#background-knowledge) of the `memory` page.
 
 - A Linux dma-buf file descriptor can identify memory allocated outside Vulkan. `VkImportMemoryFdInfoKHR` imports that payload into `VkDeviceMemory`, and a successful import transfers file-descriptor ownership to Vulkan.
 - A buffer binding offset must satisfy the buffer memory alignment. The CTS allocator also aligns a requested offset to `nonCoherentAtomSize`, which keeps mapped non-coherent ranges suitable for flush or invalidation operations.

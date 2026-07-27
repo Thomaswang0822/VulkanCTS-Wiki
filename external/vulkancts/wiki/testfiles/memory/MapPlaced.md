@@ -8,7 +8,7 @@
 
 ## Background Knowledge
 
-For the shared concept host-visible and non-coherent memory, see [Background Knowledge](../../categories/memory.md#background-knowledge) of the `memory` page.
+For the shared concepts host-visible and non-coherent memory, and flush and invalidate direction, see [Background Knowledge](../../categories/memory.md#background-knowledge) of the `memory` page.
 
 - `vkMapMemory2` accepts a `VkMemoryMapInfoKHR` chain; `VK_MEMORY_MAP_PLACED_BIT_EXT` and `VkMemoryMapPlacedInfoEXT` request a specific virtual address. A successful call returns that address. [Vulkan memory mapping rules](../../../../vulkan-docs/src/chapters/memory.adoc#L4971-L5108)
 - `VK_MEMORY_UNMAP_RESERVE_BIT_EXT` separates unmapping from releasing the process address range. The reservation cases use OS-visible mapping checks to observe that distinction.

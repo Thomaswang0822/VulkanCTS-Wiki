@@ -8,7 +8,7 @@
 
 ## Background Knowledge
 
-For the shared concepts memory types, heaps, and resource compatibility, host-visible and non-coherent memory, and memory dependencies, see [Background Knowledge](../../categories/memory.md#background-knowledge) of the `memory` page.
+For the shared concepts memory types, heaps, and resource compatibility, host-visible and non-coherent memory, flush and invalidate direction, and memory dependencies, see [Background Knowledge](../../categories/memory.md#background-knowledge) of the `memory` page.
 
 - `VK_EXT_zero_initialize_device_memory` adds an allocation flag that requests zeroed device-memory contents. The tested resource must still be bound to that allocation and read through a legal access path. [Feature definition](../../../../vulkan-docs/src/chapters/features.adoc#L6380-L6386)
 - An image created in `VK_IMAGE_LAYOUT_ZERO_INITIALIZED_EXT` must transition to the layout needed by the selected read path. The source transitions the complete image subresource range before access. [Image layout transition validity](../../../../vulkan-docs/src/chapters/commonvalidity/image_layout_transition_common.adoc#L170-L180)
