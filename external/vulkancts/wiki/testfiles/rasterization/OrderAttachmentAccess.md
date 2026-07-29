@@ -63,7 +63,7 @@ The primary behavioral axis for this page is the **overlap pattern** registered 
 
 ## Shader Analysis
 
-The fragment shader in subpass 0 is part of the tested behavior: it reads the attachment through an input attachment, computes a per-invocation `curIndex`, and writes a new value that depends on what was read. Two walkthroughs follow. The first covers the simplest color case with explicit synchronization. The second covers the depth variant, which uses a materially different shader that writes `gl_FragDepth` and reads the depth/stencil input attachment with a tolerance comparison. The stencil variant is similar to the depth variant and is described in `### stencil` and the Parameter Variation Summary rather than receiving a separate walkthrough.
+The fragment shader in subpass 0 is part of the tested behavior: it reads the attachment through an input attachment, computes a per-invocation `curIndex`, and writes a new value that depends on what was read. Two walkthroughs follow. The first covers the simplest color case with explicit synchronization. The second covers the depth variant, which uses a materially different shader that writes `gl_FragDepth` and reads the depth/stencil input attachment with a tolerance comparison. The stencil variant is similar to the depth variant and is described in the Parameter Variation Summary rather than receiving a separate walkthrough.
 
 ### Representative Shader Walkthrough 1
 
