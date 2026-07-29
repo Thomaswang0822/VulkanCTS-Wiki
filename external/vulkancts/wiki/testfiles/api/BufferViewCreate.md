@@ -4,7 +4,7 @@
 
 [`vktApiBufferViewCreateTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L1) implements the `buffer_view.create` test family. The family is registered as the `create` child of the `buffer_view` group at [`createBufferViewTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L78-L84), which the `api` test category mounts via [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L106).
 
-- The family sweeps every core Vulkan format from `VK_FORMAT_UNDEFINED + 1` through `VK_CORE_FORMAT_LAST` and asks the implementation to create a `VkBufferView` for each format that the device reports as supporting the corresponding texel buffer feature.
+- The family sweeps every core Vulkan format from `VK_FORMAT_UNDEFINED + 1` through `VK_CORE_FORMAT_LAST - 1` and asks the implementation to create a `VkBufferView` for each format that the device reports as supporting the corresponding texel buffer feature.
 - Two intermediate nodes split the family by memory binding strategy: `suballocation` exercises the standard `vkAllocateMemory` plus `vkBindBufferMemory` path, and `dedicated_alloc` exercises the `VK_KHR_dedicated_allocation` path with `VkMemoryDedicatedAllocateInfo` in the `pNext` chain.
 - Each allocation kind nests a `uniform` and a `storage` intermediate node, selecting `VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT` or `VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT` and the matching `VK_FORMAT_FEATURE_*_TEXEL_BUFFER_BIT` flag.
 - Each test case leaf is named after a Vulkan format (for example, `r8_unorm`). The mustpass file lists 736 test case leaves under this family.

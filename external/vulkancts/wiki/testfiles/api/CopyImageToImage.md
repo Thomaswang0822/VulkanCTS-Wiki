@@ -77,7 +77,7 @@ Tests copies involving `VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT` images: `cube_to_ar
 
 ### `array` — 2D-array image copies
 
-Tests copies between 2D-array images: `array_to_array_layers`, `array_to_array_partial`, `array_to_array_whole`, `array_to_array_whole_remaining_layers` and `array_to_array_partial_remaining_layers` (which set `imageSubresource.layerCount = VK_REMAINING_ARRAY_LAYERS` and require `VK_KHR_maintenance5`), and `array_to_array_whole_mipmap_*` (which use the separate `CopyImageToImageMipmap` test instance to iterate over all mip levels in one command buffer with one `VkImageCopy` region per level).
+Tests copies between 2D-array images: `array_to_array_layers`, `array_to_array_whole`, `array_to_array_whole_remaining_layers` and `array_to_array_partial_remaining_layers` (which set `imageSubresource.layerCount = VK_REMAINING_ARRAY_LAYERS` and require `VK_KHR_maintenance5`), and `array_to_array_whole_mipmap_*` (which use the separate `CopyImageToImageMipmap` test instance to iterate over all mip levels in one command buffer with one `VkImageCopy` region per level).
 
 ### `misc` — multi-sample then single-sample copy regression (TransferOnly only)
 

@@ -29,7 +29,7 @@ The family is created by [`createDeviceDrmPropertiesTests()`](../../../modules/v
 | Direct test case leaf | `drm_files_exist` | Single executable case that runs the full DRM-properties query and file-existence check. | [`createTestCases()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L110-L114) |
 | Internal test type enum | `TEST_FILES_EXIST` | Selects the file-existence validation branch inside `testDeviceDrmProperties()`. The only enum value defined in `TestType`. | [`enum TestType`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L42-L45) |
 | DRM node category | `primary`, `render` | Two parallel validation targets driven by the `hasPrimary` / `hasRender` flags and corresponding major/minor fields. | [`testFilesExist()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L53-L78) |
-| Property-query fill pattern | `0xaa` | Pre-fills `VkPhysicalDeviceProperties2` before the query so uninitialized extension fields are detectable during debugging. | [`testDeviceDrmProperties()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L84-L94) |
+| Property-query fill pattern | `0xaa` | Pre-fills `VkPhysicalDeviceProperties2` before the query so uninitialized fields are detectable during debugging. The DRM extension struct itself is zero-initialized separately. | [`testDeviceDrmProperties()`](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L84-L94) |
 
 ## Behavior Parameters
 

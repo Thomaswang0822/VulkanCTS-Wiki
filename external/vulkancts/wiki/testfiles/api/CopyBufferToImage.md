@@ -116,7 +116,7 @@ No shader is involved in this test family. All work is recorded by the host thro
 | Whole-image and tightly-packed copies (`whole`, `whole_unaligned`, `tightly_sized_buffer`) | Texel layout conversion or buffer-to-image row/height stride handling for the destination format. |
 | Larger buffer copies (`larger_buffer`) | Non-zero `bufferRowLength` / `bufferImageHeight` stride computation. |
 | Multi-region copies (`regions`, 2D only) | Multi-region dispatch, per-region buffer offset, or image subregion handling; for `DEVICE_ADDRESS_COMMANDS`, region overlap handling per VUID-VkCopyDeviceMemoryImageInfoKHR-addressRange-13026. |
-| Buffer offset copies (`buffer_offset`, `buffer_offset_relaxed`, `tightly_sized_buffer_offset`, 2D only) | `bufferOffset` alignment handling, especially relaxed alignment on a non-universal queue. |
+| Buffer offset copies (`buffer_offset`, `buffer_offset_relaxed`, `tightly_sized_buffer_offset`, 2D only) | `bufferOffset` alignment handling, including relaxed alignment on the universal queue (where `buffer_offset_relaxed` is registered). |
 | Per-layer array copies (`array`, `array_tightly_sized_buffer`, `array_larger_buffer`) | Per-layer `bufferOffset` computation and layer-count dispatch. |
 | `VK_REMAINING_ARRAY_LAYERS` copies (`array_all_remaining_layers`, `array_not_all_remaining_layers`) | `VK_REMAINING_ARRAY_LAYERS` resolution from a non-zero base layer (requires `VK_KHR_maintenance5`). |
 | All leaves under `*_transfer_queue` variants (`core`, `dedicated_allocation`, `copy_commands2`) | Transfer-only queue selection, granularity, or command execution. |
@@ -142,7 +142,7 @@ No shader is involved in this test family. All work is recorded by the host thro
 
 #### Buffer offset alignment handling
 
-**Possible failure symptoms:** The `buffer_offset`, `buffer_offset_relaxed`, or `tightly_sized_buffer_offset` leaf fails: the copied subregion is shifted, truncated, or filled with the wrong texels, while whole-buffer copies with `bufferOffset = 0` pass. The `buffer_offset_relaxed` leaf may fail on a non-universal queue while passing on the universal queue.
+**Possible failure symptoms:** The `buffer_offset`, `buffer_offset_relaxed`, or `tightly_sized_buffer_offset` leaf fails: the copied subregion is shifted, truncated, or filled with the wrong texels, while whole-buffer copies with `bufferOffset = 0` pass. The `buffer_offset` leaf may fail on a non-universal queue while passing on the universal queue; `buffer_offset_relaxed` is registered only for the universal queue, so its failure specifically indicates relaxed-alignment rejection.
 
 **Possible implementation causes:** Per Vulkan spec, `bufferOffset` must be a multiple of the texel block size, except that on a universal queue family the implementation may accept a smaller alignment. A driver that rejects a valid relaxed alignment, rounds `bufferOffset` in the wrong direction, or applies a queue-family-specific alignment rule to the universal queue would produce this symptom. The test gates `buffer_offset_relaxed` to the universal queue specifically because relaxed alignment is only guaranteed there. Source-level investigation is needed to determine whether the failure is in alignment validation or in offset application during the copy.
 

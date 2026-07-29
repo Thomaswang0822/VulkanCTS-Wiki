@@ -55,7 +55,7 @@ The `null_handle` test family is created by [createNullHandleTests()](../../../m
 
 ## Behavior Parameters
 
-The primary behavioral axis is the test case leaf. The 24 leaves cluster into three behavioral groups based on how the destroy/free call is constructed.
+The primary behavioral axis is the test case leaf. The 24 leaves cluster into two behavioral groups based on how the destroy/free call is constructed.
 
 ### Single-object destroy or free — `destroy_*` and `free_memory`
 
@@ -130,7 +130,7 @@ The check is per-case. Results are not aggregated across object types; each leaf
 
 **Possible implementation causes:** the free entry point iterates the handle array and dereferences each entry without checking for `VK_NULL_HANDLE`, or it allocates temporary tracking state per array element. Both violate the Vulkan contract that null handles in the array are silently ignored.
 
-#### SC-specific feature gates (`destroy_event`, `free_descriptor_sets`)
+#### Support gate skips (`destroy_event`, `free_descriptor_sets`)
 
 **Possible failure symptoms:** the case throws `NotSupportedError` instead of returning a pass or fail status. This is not a test failure; it is the support gate skipping the case.
 

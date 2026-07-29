@@ -57,7 +57,7 @@ The category has 38 direct children registered by [`createApiTests()`](../../mod
 - [`vktApiTests.cpp`](../../modules/vulkan/api/vktApiTests.cpp#L1) assembles the 38 top-level groups into the `api` tree and contains no test logic.
 - [`vktApiCopiesAndBlittingTests.cpp`](../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L1) dispatches the `copy_and_blit` family to 14 delegated implementation files via `addCopiesAndBlittingTests()` and friends.
 
-The `buffer_view` group is a composite created locally in `vktApiTests.cpp` from two implementation files (`vktApiBufferViewCreateTests.cpp` for `create`, `vktApiBufferViewAccessTests.cpp` for `access`) rather than through a single external factory. The 51 rewritten Level-3 pages exceed the 38 direct children because `copy_and_blit` alone produces 14 Level-3 pages from its delegated files. Fifteen of the 38 groups are excluded from Vulkan SC builds via `#ifndef CTS_USES_VULKANSC` in `vktApiTests.cpp`.
+The `buffer_view` group is a composite created locally in `vktApiTests.cpp` from two implementation files (`vktApiBufferViewCreateTests.cpp` for `create`, `vktApiBufferViewAccessTests.cpp` for `access`) rather than through a single external factory. The 52 rewritten Level-3 pages exceed the 38 direct children because `copy_and_blit` produces 14 Level-3 pages from its delegated files and `buffer_view` produces 2 (`create` and `access`). Fifteen of the 38 groups are excluded from Vulkan SC builds via `#ifndef CTS_USES_VULKANSC` in `vktApiTests.cpp`.
 
 ## How the Families Fit Together
 

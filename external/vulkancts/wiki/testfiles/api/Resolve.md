@@ -220,7 +220,7 @@ Shader code is not part of the tested behavior. The test records `vkCmdResolveIm
 
 - The test reduces the resolve-averaging rule to a sample-invariant fill pattern, so the host reference is a simple region copy. A driver that picks one sample instead of averaging still passes the direct-resolve leaves but is exposed by the intermediate-copy leaves through the verification shader.
 - The 13 intermediate nodes are not 13 unrelated tests; they are three behavior clusters. Direct-resolve shape variants vary region geometry; resolve-after-multisampled-copy variants vary the copy's queue, layout, and region pattern; array-image variants vary layer handling.
-- The verification fragment shader is the only shader in this test, and it is verification infrastructure rather than tested behavior. It runs with `VK_SAMPLE_COUNT_1_BIT` and iterates samples in software to avoid the `sampleRateShading` feature.
+- The verification fragment shader is verification infrastructure rather than tested behavior. It runs with `VK_SAMPLE_COUNT_1_BIT` and iterates samples in software to avoid the `sampleRateShading` feature.
 - `VK_KHR_copy_commands2` is exercised by an entire variant root, not a leaf flag; the `copy_commands2` root uses `vkCmdResolveImage2` and `vkCmdCopyImage2` everywhere the `core` and `dedicated_allocation` roots use the unsuffixed commands.
 - The `whole_array_image_one_region` maintenance5 leaves are the only place `VK_REMAINING_ARRAY_LAYERS` is exercised; a maintenance5-specific failure localizes to those leaves.
 - See `## Failure Meaning` for the failure analysis grouped by behavior cluster.

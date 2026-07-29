@@ -1,6 +1,6 @@
 ## Overview
 
-**Core question:** does the implementation report a valid `vkGetDeviceMemoryCommitment` value for lazily allocated memory (never exceeding the relevant upper bound) both when the memory is bound to a transient image and when it is allocated but never bound?
+**Core question:** does the implementation report a valid `vkGetDeviceMemoryCommitment` value for lazily allocated memory (never exceeding the relevant upper bound), both when checked against a bound transient image's memory requirements and when checked against the size of each unbound allocation?
 
 - Source file: [vktApiGetMemoryCommitment.cpp](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L1) in the `api` source directory.
 - Test category `api`, test family `get_memory_commitment`, registered under `dEQP-VK.api.get_memory_commitment`.
@@ -111,7 +111,7 @@ The `memory_commitment_allocate_only` leaf logs `Warning: Memory commitment not 
 ## Key Takeaways
 
 - The test family verifies the upper-bound contract of `vkGetDeviceMemoryCommitment` for lazily allocated memory: the reported commitment must not exceed the allocation size, and (in the bound case) must not exceed the bound resource's memory requirements size.
-- `memory_commitment` exercises the bound-memory path through a transient color attachment image and a render pass; `memory_commitment_allocate_only` exercises the unbound path with randomized allocation sizes. The two leaves cover the same invariant from different allocation states.
+- `memory_commitment` checks commitment of a fresh lazy allocation against a bound transient image's `memoryRequirements.size` (with a render pass driving work on the image); `memory_commitment_allocate_only` checks commitment against each unbound allocation's own size. The two leaves cover the same upper-bound invariant with different upper bounds.
 - A non-zero commitment before binding is logged as a warning but does not fail the test, because the Vulkan specification permits that behavior for lazy memory types.
 - Both leaves skip on implementations without `VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT` memory types, which is common on desktop GPUs.
 - See `## Failure Meaning` for why a failure points to driver-side lazy-memory accounting and why the test cannot identify the specific memory type or counter at fault.

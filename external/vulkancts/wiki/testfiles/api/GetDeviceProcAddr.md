@@ -72,7 +72,7 @@ This test does not use a shader. It exercises host-side entry-point resolution o
 ### Design-based pruning
 
 - `scripts/gen_framework.py` generates the function-name list from `vk.xml`, not from a hand-picked selection. The list changes whenever the script regenerates against the evolving Vulkan registry, so its exact size and contents vary over time.
-- The list includes only device-level extension entry points and WSI entry points that are not device-level commands. Core device-level commands and instance-level core commands are absent because their expected return values would not exercise the `non_enabled` property.
+- The list includes only extension entry points at device-level, physical-device-level, and instance-level (including WSI). Core device-level commands and instance-level core commands are absent because their expected return values would not exercise the `non_enabled` property.
 - The test does not vary the device extension set. Varying which extensions are enabled would test a different property (correct exposure of enabled extension entry points) and is out of scope for this family.
 
 ## Key Takeaways

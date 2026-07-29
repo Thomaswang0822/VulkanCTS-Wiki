@@ -85,9 +85,9 @@ No shader runs in any test case under `copy_memory_indirect`. The in-file behavi
 
 [host] Invalidate the destination allocation and, for each `copyNum` in `[0, copyCount)`, `memcpy` `copySize` bytes from `dstBuffer + copyOffset + copyNum * copySize` and `memcmp` against the corresponding source bytes ([line 2052 through line 2077](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2052-L2077)). On mismatch, log source offset, destination offset, and hex dumps of source and destination data.
 
-[host] For `count_0`, verify the device did not write to the destination by checking that the first destination byte does not equal the first source byte; if they match, the implementation performed a copy when `copyCount` was zero, violating the no-op contract ([line 2079 through line 2088](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2079-L2088)).
+[host] For `count_0`, sanity-check that the source data's first byte is not `'\0'`; if it is, the test logs `No copies but first char in source data is '\0', which should not happen` and fails ([line 2079 through line 2088](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2079-L2088)). `copiedData` is zero-initialized and the per-copy loop does not run when `copyCount` is zero, so the check fires on the source byte rather than the destination buffer; the destination's no-write state is not directly checked.
 
-Pass condition: every copied region matches the source bytes, and `count_0` leaves the destination untouched.
+Pass condition: every copied region matches the source bytes, and the `count_0` source-data sanity check passes (first source byte is not `'\0'`).
 
 ### Mandatory format support (`mandatory_formats.memory_to_image`)
 
@@ -115,9 +115,9 @@ Runtime execution lives in [`vktApiUseAfterCopyTests.cpp`](../../../modules/vulk
 
 #### Indirect buffer-to-buffer copy data mismatch
 
-**Possible failure symptoms:** the test logs `Copy <N> failed: source offset <S> and destination offset <D>` followed by hex dumps of the source and destination ranges, then returns `fail`. For `count_0`, the test logs `No copies but first char in source data is '\0', which should not happen` when the first destination byte equals the first source byte. Both checks come from the `memcmp` validation at [line 2059](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2059) and the `count_0` no-write check at [line 2079 through line 2088](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2079-L2088).
+**Possible failure symptoms:** the test logs `Copy <N> failed: source offset <S> and destination offset <D>` followed by hex dumps of the source and destination ranges, then returns `fail`. For `count_0`, the test logs `No copies but first char in source data is '\0', which should not happen` when the source data's first byte is `'\0'` (a test-data sanity check; the destination buffer is not directly checked). Both checks come from the `memcmp` validation at [line 2059](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2059) and the `count_0` source-data sanity check at [line 2079 through line 2088](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2079-L2088).
 
-**Possible implementation causes:** the device read the wrong bytes from `indirectBuffer` because the `stride` field of `VkStridedDeviceAddressRangeKHR` was not applied when `stride > sizeof(VkCopyMemoryIndirectCommandKHR)`; the device computed a wrong `dstAddress` for `copyCount > 1` (each record's destination is `dstBufferAddress + copyOffset + i * copySize`); the device wrote data when `copyCount == 0`, violating the no-op contract; or the implementation advertised a queue family in `VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR::supportedQueues` but failed to dispatch the command on that queue family. Source-level investigation would be needed to confirm which path applies to a specific failing case.
+**Possible implementation causes:** the device read the wrong bytes from `indirectBuffer` because the `stride` field of `VkStridedDeviceAddressRangeKHR` was not applied when `stride > sizeof(VkCopyMemoryIndirectCommandKHR)`; the device computed a wrong `dstAddress` for `copyCount > 1` (each record's destination is `dstBufferAddress + copyOffset + i * copySize`); or the implementation advertised a queue family in `VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR::supportedQueues` but failed to dispatch the command on that queue family. Source-level investigation would be needed to confirm which path applies to a specific failing case.
 
 #### Mandatory format feature bit missing
 
@@ -143,7 +143,7 @@ Runtime execution lives in [`vktApiUseAfterCopyTests.cpp`](../../../modules/vulk
 
 - The `copy_memory_indirect` test family exercises one device-side command (`vkCmdCopyMemoryIndirectKHR`) and one host-side query path (`VkFormatProperties3` with `VK_KHR_format_feature_flags2`). The third sub-behavior delegates to `use_after_copy`.
 - The `long_stride` matrix is the only path that exercises the `stride` field of `VkStridedDeviceAddressRangeKHR`; it wraps each command in a larger struct with dummy fields.
-- `count_0` is a behavioral boundary: the implementation must perform no copy when `copyCount` is zero. The test detects a violation by checking that the first destination byte still differs from the first source byte after the `0xFF` clear.
+- `count_0` is a behavioral boundary: the implementation must perform no copy when `copyCount` is zero. The test only sanity-checks that the source data's first byte is not `'\0'` so the no-op case is testable; the destination buffer's no-write state is not directly checked.
 - `mandatory_formats` aggregates all format failures into a single pass/fail verdict; the failure message lists every non-compliant format before returning.
 - [`vktApiUseAfterCopyTests.md`](./vktApiUseAfterCopyTests.md) owns the failure analysis for `use_after_copy`; this page does not duplicate it.
 

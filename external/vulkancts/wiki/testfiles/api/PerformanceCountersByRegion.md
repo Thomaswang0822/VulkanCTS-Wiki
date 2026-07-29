@@ -76,7 +76,7 @@ No shader is involved. The test verifies host-side behavior of an instance-level
 
 **Possible failure symptoms:** `"Unexpected count when requesting few counters."` (undersized case), or `"Unexpected number of performance counters returned."` (exact-fit and oversized cases).
 
-**Possible implementation causes:** The implementation updated `*pCount` to a value inconsistent with the requested buffer size or with the total counter count discovered during the initial probe. For the undersized case, the implementation must report `count = 1` when asked for one slot. For the exact-fit and oversized cases, the implementation must report exactly `perfCounterCount`. A mismatch suggests the implementation is miscounting, or returning a stale or computed value rather than the true device counter count. Source-level investigation is needed to attribute the bug to a specific driver path.
+**Possible implementation causes:** The implementation updated `*pCount` to a value inconsistent with the requested buffer size or with the total counter count discovered during the initial probe. For the undersized case, the implementation must report `count` no greater than `1` when asked for one slot (the test fails only when `count > 1`). For the exact-fit and oversized cases, the implementation must report exactly `perfCounterCount`. A mismatch suggests the implementation is miscounting, or returning a stale or computed value rather than the true device counter count. Source-level investigation is needed to attribute the bug to a specific driver path.
 
 #### Counter set empty when extension support is reported
 
@@ -98,7 +98,7 @@ No shader is involved. The test verifies host-side behavior of an instance-level
 - The undersized-buffer sub-case (`count = 1`) is only executed when `perfCounterCount > 1`. If the device exposes exactly one counter, that sub-case is skipped because there is no underrun to test against. ([vktApiPerformanceCountersByRegionTests.cpp#L212](../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L212))
 - The main test calls only exercise queue family `0` and do not iterate other queue families. ([vktApiPerformanceCountersByRegionTests.cpp#L189](../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L189))
 - The oversized-buffer case only exercises the both-arrays variant; the counters-only and descriptions-only variants would duplicate the exact-fit overwrite check already covered for those arrays. ([vktApiPerformanceCountersByRegionTests.cpp#L327-L343](../../../modules/vulkan/api/vktApiPerformanceCountersByRegionTests.cpp#L327-L343))
-- The test inspects only the `counterID` field of `VkPerformanceCounterARM` and the `flags` field of `VkPerformanceCounterDescriptionARM`. Beyond zeroing `name[0]` as part of the sentinel reset, the test does not validate the `data`, `name`, or `description` fields.
+- The test inspects only the `counterID` field of `VkPerformanceCounterARM` and the `flags` field of `VkPerformanceCounterDescriptionARM`. Beyond zeroing `name[0]` as part of the sentinel reset, the test does not validate the `name` field of `VkPerformanceCounterDescriptionARM` (the only other non-`sType`/`pNext` field on these ARM structs).
 
 ## Key Takeaways
 

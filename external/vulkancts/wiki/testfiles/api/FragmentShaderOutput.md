@@ -6,7 +6,7 @@
 - The family registers three intermediate nodes: `location_no_attachment`, `attachment_no_location`, and `different_signedness`. The first two exercise shader/attachment location mismatches in opposite directions. The third exercises render passes whose two color attachments use shader/render format pairs drawn from a same-integer-class matrix.
 - The core test idea is pixel-level verification: the test renders a triangle into multiple `R8` color attachments, copies each attachment back to a host-visible buffer, and compares per-pixel values against an expected value derived from the case type.
 - The page covers the registered path matrix, the per-intermediate-node behavior, runtime setup, the pass/fail rule, and what a failure points to. It does not analyze shaders because the fragment shader is generated test infrastructure whose only role is to write a known value to each output location.
-- The family is registered unconditionally; `createApiTests()` attaches it to the `api` test category at [vktApiTests.cpp#L134](../../../modules/vulkan/api/vktApiTests.cpp#L134).
+- The family is registered for non-Vulkan SC builds only; the call at [vktApiTests.cpp#L134](../../../modules/vulkan/api/vktApiTests.cpp#L134) is guarded by `#ifndef CTS_USES_VULKANSC` (lines 128-137), and the family is absent from the `vksc-default` mustpass.
 
 ## Background Knowledge
 
@@ -130,7 +130,7 @@ A leaf returns `tcu::TestStatus::pass` if `verifyResults` returns true, otherwis
 
 #### Normalized value not written as expected
 
-**Possible failure symptoms:** In a `different_signedness` leaf with a `unorm` or `snorm` render attachment, the readback pixel is not `1.0f` (within the `0.001f` tolerance used by the float comparator).
+**Possible failure symptoms:** In a `different_signedness` leaf with a `unorm` or `snorm` render attachment, the readback pixel is not exactly `1.0f`. `isBufferRendered` compares the float channel against `1.0f` with exact equality at [vktApiFragmentShaderOutputTests.cpp#L528](../../../modules/vulkan/api/vktApiFragmentShaderOutputTests.cpp#L528); the `0.001f` tolerance in `isBufferUnchanged` applies only to the clear-color check, not to the rendered-value check.
 
 **Possible implementation causes:** The implementation writes a different normalized value, applies unexpected clamping, or stores the value in a way that does not round-trip through `R8_UNORM`/`R8_SNORM`. Source-level investigation is needed to determine whether the issue is in shader output conversion or in attachment storage.
 

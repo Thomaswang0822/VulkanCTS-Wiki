@@ -29,9 +29,9 @@ This page has no generated parameter matrix. The values below are fixed inputs t
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
 | Format ranges | YCbCr formats, YCbCr extended formats, `VK_FORMAT_R16G16_S10_5_NV` | Each range contributes formats whose per-format `combinedImageSamplerDescriptorCount` must be bounded by the maintenance6 limit. | [s_formatRanges](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L68-L81) |
-| Image type | `VK_IMAGE_TYPE_2D` | Fixed `VkPhysicalDeviceImageFormatInfo2` input; per-format descriptor count is queried only for 2D images. | [imageInfo](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L96) |
-| Tiling | `VK_IMAGE_TILING_OPTIMAL` | Fixed; only optimal-tiling 2D images are queried for the per-format descriptor count. | [imageInfo](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L97) |
-| Usage | `VK_IMAGE_USAGE_TRANSFER_DST_BIT` | Fixed usage flag passed to `getPhysicalDeviceImageFormatProperties2`. | [imageInfo](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L98) |
+| Image type | `VK_IMAGE_TYPE_2D` | Fixed `VkPhysicalDeviceImageFormatInfo2` input; per-format descriptor count is queried only for 2D images. | [imageInfo](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L95) |
+| Tiling | `VK_IMAGE_TILING_OPTIMAL` | Fixed; only optimal-tiling 2D images are queried for the per-format descriptor count. | [imageInfo](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L96) |
+| Usage | `VK_IMAGE_USAGE_TRANSFER_DST_BIT` | Fixed usage flag passed to `getPhysicalDeviceImageFormatProperties2`. | [imageInfo](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L97) |
 | Flags | `0U` | No creation flags; the query reflects the base format properties. | [imageInfo](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L98) |
 
 The three format ranges are:

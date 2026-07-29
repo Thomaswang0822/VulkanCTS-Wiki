@@ -25,7 +25,7 @@ api.buffer
 └── invalid_buffer_features
 ```
 
-The `buffer` test family is registered by [`createBufferTests()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L748) and attached to the `api` test category by [`vktApiTests.cpp`](../../../modules/vulkan/api/vktApiTests.cpp#L101). The four intermediate nodes are added at [`vktApiBufferTests.cpp#L753`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L753) (`suballocation`), [`vktApiBufferTests.cpp#L759`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L759) (`dedicated_alloc`), [`vktApiBufferTests.cpp#L765`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L765) (`basic`), and [`vktApiBufferTests.cpp#L782`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L782) (`invalid_buffer_features`).
+The `buffer` test family is registered by [`createBufferTests()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L748) and attached to the `api` test category by [`vktApiTests.cpp`](../../../modules/vulkan/api/vktApiTests.cpp#L102). The four intermediate nodes are added at [`vktApiBufferTests.cpp#L753`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L753) (`suballocation`), [`vktApiBufferTests.cpp#L759`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L759) (`dedicated_alloc`), [`vktApiBufferTests.cpp#L765`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L765) (`basic`), and [`vktApiBufferTests.cpp#L782`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L782) (`invalid_buffer_features`).
 
 ## Parameter Dimensions and Observed Values
 
@@ -188,4 +188,4 @@ For each registered format, [`testDepthStencilBufferFeatures()`](../../../module
 | `testDepthStencilBufferFeatures()` | [`vktApiBufferTests.cpp#L658`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L658) | `invalid_buffer_features` test instance function; queries `vkGetPhysicalDeviceFormatProperties` and asserts `bufferFeatures == 0`. |
 | `AllocationKind` enum | [`vktApiBufferTests.cpp#L49`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L49) | Defines the `ALLOCATION_KIND_SUBALLOCATED` and `ALLOCATION_KIND_DEDICATED` values used by `createBufferUsageCases()`. |
 | `BufferCaseParameters` struct | [`vktApiBufferTests.cpp#L85`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L85) | Per-case parameter bundle: usage flags, create flags, and sharing mode. |
-| Parent registration | [`vktApiTests.cpp#L101`](../../../modules/vulkan/api/vktApiTests.cpp#L101) | `apiTests->addChild(createBufferTests(testCtx))` attaches the `buffer` family to the `api` test category. |
+| Parent registration | [`vktApiTests.cpp#L102`](../../../modules/vulkan/api/vktApiTests.cpp#L102) | `apiTests->addChild(createBufferTests(testCtx))` attaches the `buffer` family to the `api` test category. |

@@ -43,7 +43,7 @@ The primary behavioral axis is the **test case leaf** under `api.version_check`.
 
 ### version — Device API version bound check
 
-`version` reads the framework maximum Vulkan version, the available instance version, the device version, and the used API version, logs all four, and fails if the device's major or minor version is newer than the framework maximum [vktApiVersionCheck.cpp](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L76-L102). The check uses the framework maximum rather than the used API version because the test detects when CTS runs against a Vulkan version it was not built to understand. On pass, the leaf returns the used API version string as the status message.
+`version` reads the framework maximum Vulkan version, the available instance version, the device version, and the used API version, logs the available instance, device, and used API versions, and fails if the device's major or minor version is newer than the framework maximum [vktApiVersionCheck.cpp](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L76-L102). The check uses the framework maximum rather than the used API version because the test detects when CTS runs against a Vulkan version it was not built to understand. On pass, the leaf returns the used API version string as the status message.
 
 ### entry_points — Core and extension proc-address resolution
 

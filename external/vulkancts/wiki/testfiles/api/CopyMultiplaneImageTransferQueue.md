@@ -143,7 +143,7 @@ This test family does not use shaders. All work is recorded through `vkCmdCopyIm
 
 #### LSB don't-care tolerance failures
 
-**Possible failure symptoms:** only `g10x6_*` source format pairs fail (LSB6) or only `g12x4_*` source format pairs fail (LSB4); mismatches are confined to even bytes (the high byte of the 16-bit container) and the low 6 or 4 bits differ; 8-bit and 16-bit format pairs pass.
+**Possible failure symptoms:** only `g10x6_*` source format pairs fail (LSB6) or only `g12x4_*` source format pairs fail (LSB4); mismatches are confined to even bytes (the low byte of each 16-bit value, which holds the unused 6 or 4 LSBs) and the low 6 or 4 bits differ; 8-bit and 16-bit format pairs pass.
 
 **Possible implementation causes:** the implementation writes nonzero low bits where the reference expects zero, or writes high bits that differ from the canonical value the host reference computes. Whether the LSB values are spec-legal is implementation-defined; the test only requires the masked high bits to match. If failures persist outside the masked bits, the cause is in the copy mechanics rather than the LSB tolerance.
 
@@ -163,7 +163,7 @@ This test family does not use shaders. All work is recorded through `vkCmdCopyIm
 
 **Possible failure symptoms:** all leaves fail regardless of format or disjoint combination; or failures are intermittent and timing-dependent.
 
-**Possible implementation causes:** the transfer queue's `minImageTransferGranularity` is reported coarser than the implementation actually requires, causing `genCopies` to generate regions that violate the implementation's real granularity; the implementation does not correctly synchronize the universal-queue upload with the transfer-queue copy when `VK_QUEUE_FAMILY_IGNORED` is used (the test relies on `submitCommandsAndWait` providing a host-level synchronization point); or the transfer-queue submission in `submitCommandsAndWaitWithSync` does not correctly wait for completion before the download. Whether the test exercises explicit queue-family ownership transfer is unclear from source inspection alone — `VK_QUEUE_FAMILY_IGNORED` is used for all image and buffer memory barriers, so no explicit ownership transfer is recorded; source-level investigation is needed to confirm whether `submitCommandsAndWaitWithSync` provides additional synchronization beyond `vkQueueWaitIdle`.
+**Possible implementation causes:** the transfer queue's `minImageTransferGranularity` is reported finer than the implementation's real requirement, causing `genCopies` to generate regions that violate the implementation's real granularity; the implementation does not correctly synchronize the universal-queue upload with the transfer-queue copy when `VK_QUEUE_FAMILY_IGNORED` is used (the test relies on `submitCommandsAndWait` providing a host-level synchronization point); or the transfer-queue submission in `submitCommandsAndWaitWithSync` does not correctly wait for completion before the download. Whether the test exercises explicit queue-family ownership transfer is unclear from source inspection alone — `VK_QUEUE_FAMILY_IGNORED` is used for all image and buffer memory barriers, so no explicit ownership transfer is recorded; source-level investigation is needed to confirm whether `submitCommandsAndWaitWithSync` provides additional synchronization beyond `vkQueueWaitIdle`.
 
 ## Case Pruning
 

@@ -2,7 +2,7 @@
 
 **Core question:** Does the implementation correctly report physical-device features, properties, format capabilities, and promoted-extension state through every Vulkan query path, and do the reported values satisfy spec-required minimums?
 
-- Covers the `api.info` test family implemented in [`vktApiFeatureInfo.cpp`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L1) and registered as a direct child of the `api` test category by [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L96) via [`createFeatureInfoTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8639).
+- Covers the `api.info` test family implemented in [`vktApiFeatureInfo.cpp`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L1) and registered as a direct child of the `api` test category by [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L95) via [`createFeatureInfoTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8639).
 - Exercises `vkGetPhysicalDeviceFormatProperties`, `vkGetPhysicalDeviceImageFormatProperties`, `vkGetPhysicalDeviceProperties2` and the related `*2` queries, Vulkan 1.2/1.3/1.4 feature/property consistency, limits validation, Vulkan profile conformance, and subgroup feature-flag consistency.
 - The core test idea is query-result consistency: legacy Vulkan 1.0 queries must match their `*2` counterparts, reported values must satisfy spec-required minimums, promoted extensions must be reflected in the corresponding core version, and unsupported usage/feature combinations must not be reported as supported.
 - The family is organized as 15 direct intermediate nodes, each covering one query area with its own behavior parameters, validation rule, and failure meaning; the shared validation mechanism (offset-table field-by-field comparison, guard-byte initialization checks, `tcu::ResultCollector` aggregation) underlies every leaf.
@@ -149,7 +149,7 @@ No shader is involved in this test family. Every check runs on the host against 
 | `image_format_properties2` | vk1/vk2 image-format query mismatch: different result codes or different `VkImageFormatProperties` contents for the same query parameters. |
 | `sparse_image_format_properties2` | vk1/vk2 sparse-image-format query mismatch: different reported property counts, different per-property contents, or non-zero sparse properties reported by a device without the `sparseBinding` feature. |
 | `profiles` | Device does not satisfy the mandatory features, properties, or limits required by the named Vulkan profile. |
-| `subgroup_features` | Subgroup feature-flag inconsistency: `shaderSubgroupPartitioned` feature reported without the corresponding `VK_SUBGROUP_FEATURE_PARTITIONED_BIT_EXT` operation bit, or vice versa. |
+| `subgroup_features` | Subgroup feature-flag inconsistency: `shaderSubgroupPartitioned` feature reported without the corresponding `VK_SUBGROUP_FEATURE_PARTITIONED_BIT_EXT` operation bit. |
 
 All leaves share a common pass/fail mechanism (`ResultCollector` or direct `TCU_FAIL`), so a mismatch between any two reported values for the same logical field surfaces as a failure of the leaf that performs the comparison.
 
@@ -211,7 +211,7 @@ All leaves share a common pass/fail mechanism (`ResultCollector` or direct `TCU_
 
 #### Subgroup feature-flag inconsistency
 
-**Possible failure symptoms:** the `subgroup_features.flags` leaf reports that `VK_SUBGROUP_FEATURE_PARTITIONED_BIT_EXT` is not set in `subgroupSupportedOperations` despite `shaderSubgroupPartitioned` being supported, or vice versa.
+**Possible failure symptoms:** the `subgroup_features.flags` leaf reports that `VK_SUBGROUP_FEATURE_PARTITIONED_BIT_EXT` is not set in `subgroupSupportedOperations` despite `shaderSubgroupPartitioned` being supported.
 
 **Possible implementation causes:** the driver's subgroup capability table does not keep the partitioned feature bit and the partitioned operation bit in sync. The spec requires that the operation bit be set whenever the feature is supported; the relationship is defined in the `VK_EXT_shader_subgroup_partitioned` extension specification.
 
@@ -244,7 +244,7 @@ All leaves share a common pass/fail mechanism (`ResultCollector` or direct `TCU_
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Parent registration in `createApiTests()` | [`vktApiTests.cpp#L96`](../../../modules/vulkan/api/vktApiTests.cpp#L96) | Attaches the `info` test family to the `api` test category. |
+| Parent registration in `createApiTests()` | [`vktApiTests.cpp#L95`](../../../modules/vulkan/api/vktApiTests.cpp#L95) | Attaches the `info` test family to the `api` test category. |
 | Local registration in `createFeatureInfoTests()` | [`vktApiFeatureInfo.cpp#L8639-L8925`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8639-L8925) | Registers the 15 direct intermediate nodes (plus source-only `android`) and delegates format/image-format subgroups to their helpers. |
 | `formatProperties` per-format validator | [`vktApiFeatureInfo.cpp#L4308-L4402`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L4308-L4402) | Implements the `format_properties` leaves. |
 | `createFormatTests` generator | [`vktApiFeatureInfo.cpp#L4606-L4641`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L4606-L4641) | Generates per-format leaves under `format_properties`. |

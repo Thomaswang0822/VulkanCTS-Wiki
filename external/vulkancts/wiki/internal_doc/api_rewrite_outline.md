@@ -9,12 +9,12 @@
 
 ## Page Count
 
-- Old Level-3 pages found: 53
+- Old Level-3 pages found: 54
 - Registration-only dispatcher pages to fold into Level-2: 2
-- Implementation-bearing Level-3 pages to rewrite: 51
+- Implementation-bearing Level-3 pages to rewrite: 52
 - Counted rewrite files for batching: 63
   - 11 Understanding Briefs
-  - 51 rewritten Level-3 pages
+  - 52 rewritten Level-3 pages
 
 ## Dispatcher Decision
 
@@ -199,7 +199,7 @@ After all batches finish and rewritten Level-3 pages stabilize:
 
 - Rewrite `api.md` as the compact Level-2 category gateway.
 - Include folded dispatcher information for both `vktApiTests.cpp` (root) and `vktApiCopiesAndBlittingTests.cpp` (nested), since both are registration-only.
-- Route readers to the 51 rewritten Level-3 pages via the navigation table.
+- Route readers to the 52 rewritten Level-3 pages via the navigation table.
 - The `copy_and_blit` family is represented by 14 rewritten Level-3 pages; the Level-2 navigation table groups them under a `copy_and_blit` heading and notes the shared allocation/queue/extension variant structure.
 - Avoid duplicating detailed parameter matrices, verification mechanics, and source appendices from Level-3 pages.
 - After the ordinary Level-2 gateway sections are drafted, run the category Background Knowledge consolidation pass.

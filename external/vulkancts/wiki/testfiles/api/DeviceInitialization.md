@@ -76,7 +76,7 @@ Six intermediate nodes drive `vkCreateInstance` with a controlled `VkApplication
 
 ### Device enumeration and allocation tracking (`enumerate_devices_alloc_leak`)
 
-Single intermediate node, excluded from Vulkan SC. Installs an `AllocationCallbackRecorder` around the instance, calls `vkEnumeratePhysicalDevices` twice, and asserts that the number of recorded allocations matches the number of non-NULL frees ([`enumerateDevicesAllocLeakTest()`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L579-L628)). A non-zero allocation balance fails the test; `VK_ERROR_OUT_OF_HOST_MEMORY` from the implementation produces a quality warning rather than a hard failure.
+Single intermediate node, excluded from Vulkan SC. Installs an `AllocationCallbackRecorder` around the instance, calls `vkEnumeratePhysicalDevices` twice, and asserts that the number of recorded allocations matches the number of non-NULL frees ([`enumerateDevicesAllocLeakTest()`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L579-L628)). A non-zero allocation balance fails the test; an out-of-memory error other than `VK_ERROR_OUT_OF_HOST_MEMORY` (such as `VK_ERROR_OUT_OF_DEVICE_MEMORY`) from `vkEnumeratePhysicalDevices` produces a quality warning rather than continuing to the balance check, while `VK_ERROR_OUT_OF_HOST_MEMORY` falls through to the balance check.
 
 ### Basic device creation (`create_device`, `create_multiple_devices`, `create_device_unsupported_extensions`, `create_device_various_queue_counts`)
 
@@ -188,7 +188,7 @@ Pass conditions per cluster:
 
 #### Allocation leak inside `vkEnumeratePhysicalDevices`
 
-**Possible failure symptoms:** `enumerateDevicesAllocLeakTest` returns `Fail, enumeratePhysicalDevices leaked memory` with a non-zero `allocationRecords` balance; the test may also produce a quality warning if `vkEnumeratePhysicalDevices` itself throws `VK_ERROR_OUT_OF_HOST_MEMORY` before leak accounting can occur.
+**Possible failure symptoms:** `enumerateDevicesAllocLeakTest` returns `Fail, enumeratePhysicalDevices leaked memory` with a non-zero `allocationRecords` balance; the test may also produce a quality warning if `vkEnumeratePhysicalDevices` itself throws an out-of-memory error other than `VK_ERROR_OUT_OF_HOST_MEMORY` (such as `VK_ERROR_OUT_OF_DEVICE_MEMORY`), in which case the catch returns early and leak accounting is skipped, while `VK_ERROR_OUT_OF_HOST_MEMORY` falls through to the balance check.
 
 **Possible implementation causes:** The implementation allocates host memory during enumeration through the instance-provided allocator but does not free it before the call returns; the implementation routes some internal allocations outside the user-supplied `VkAllocationCallbacks` and then frees them later, breaking the recorder's accounting. Both would surface as a non-zero allocation balance in [`enumerateDevicesAllocLeakTest()`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L579-L628). Source-level investigation is needed to identify which allocations are leaked.
 

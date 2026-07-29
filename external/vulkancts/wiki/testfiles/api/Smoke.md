@@ -164,7 +164,7 @@ No parameter matrix is generated. The family contains six hand-written cases, ea
 ## Key Takeaways
 
 - The `smoke` family is a small set of independent leaves that each touch one basic Vulkan code path; nothing in the family generates a parameter matrix.
-- The four rendering cases share [`renderTriangleTest()`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L325) and a software-reference comparison through `rr::Renderer`, so a difference between them points to the dimension each one varies: shader source language, `OpName` presence, or the unused-resolve render-pass configuration.
+- The four rendering cases share a common pipeline structure and a software-reference comparison through `rr::Renderer`, so a difference between them points to the dimension each one varies: shader source language, `OpName` presence, or the unused-resolve render-pass configuration.
 - The `triangle` case uses non-zero memory binding offsets equal to the reported alignment; `unused_resolve_attachment` uses zero offsets. Comparing the two confirms whether the offset path is exercised.
 - Per spec, `OpName` and other debug instructions must not affect SPIR-V executable behavior. A pass on `asm_triangle` and a fail on `asm_triangle_no_opname` (or vice versa) is a strong signal of a SPIR-V parser bug, not a rendering bug.
 - Per spec, `VK_ATTACHMENT_UNUSED` in `pResolveAttachments` must skip the resolve operation. A render-pass creation failure on `unused_resolve_attachment` is a conformance failure.

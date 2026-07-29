@@ -6,7 +6,7 @@
 - The family registers three intermediate nodes: `core`, `sync2`, and `wsi`. The first two exercise queue submission through `VkSubmitInfo` and `VkSubmitInfo2` respectively; the third exercises swapchain present through `VkPresentInfoKHR`.
 - The core test idea is API acceptance: the test builds a `VkFrameBoundaryEXT`, chains it into the relevant submit or present structure, and passes only if `vk.queueSubmit`, `vk.queueSubmit2`, or `vk.queuePresentKHR` returns `VK_SUCCESS` and the surrounding fence wait or present call also succeeds.
 - The page covers registered paths, the per-leaf submission patterns, runtime setup, pass/fail condition, and what a failure points to. It does not analyze shaders because no shader runs as part of the tested behavior.
-- This test family is registered only when `CTS_USES_VULKANSC` is not defined; Vulkan SC builds do not include `frame_boundary` [vktApiTests.cpp#L127-L136](../../../modules/vulkan/api/vktApiTests.cpp#L127-L136).
+- This test family is registered only when `CTS_USES_VULKANSC` is not defined; Vulkan SC builds do not include `frame_boundary` [vktApiTests.cpp#L128-L137](../../../modules/vulkan/api/vktApiTests.cpp#L128-L137).
 
 ## Background Knowledge
 
@@ -24,7 +24,7 @@ api.frame_boundary
 └── wsi
 ```
 
-`createFrameBoundaryTests` creates the `frame_boundary` test family and [vktApiTests.cpp#L131](../../../modules/vulkan/api/vktApiTests.cpp#L131) attaches it to the `api` test category. [createTestCases](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L494-L500) registers the three intermediate nodes, dispatching `core` and `sync2` to the shared `createExecTestCases` generator and `wsi` to `createWsiTestCases`.
+`createFrameBoundaryTests` creates the `frame_boundary` test family and [vktApiTests.cpp#L132](../../../modules/vulkan/api/vktApiTests.cpp#L132) attaches it to the `api` test category. [createTestCases](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L494-L500) registers the three intermediate nodes, dispatching `core` and `sync2` to the shared `createExecTestCases` generator and `wsi` to `createWsiTestCases`.
 
 ## Parameter Dimensions and Observed Values
 
@@ -120,7 +120,7 @@ All three intermediate nodes share the same pass condition shape: a `VK_CHECK` m
 
 ### Design-based pruning
 
-- The image format (`VK_FORMAT_R8G8B8A8_UNORM`), image extent (`16x16`), and image usage flags are fixed across all leaves. The test does not vary them because the frame boundary extension accepts any image handle; the image is only a placeholder payload.
+- For `core` and `sync2`, the dummy image's format (`VK_FORMAT_R8G8B8A8_UNORM`), extent (`16x16`), and usage flags (`VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT`) are fixed; the `wsi` path instead uses the swapchain's first surface format, an extent clamped to surface capabilities, and only `VK_IMAGE_USAGE_TRANSFER_DST_BIT` [createSwapchain](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L367-L383). The test does not vary these per-case because the frame boundary extension accepts any image handle; the image is only a placeholder payload.
 - The `VkFrameBoundaryEXT` payload is fixed to populate only `frameID`, `imageCount`, `pImages`, and the frame-end flag. Buffer and tag fields are intentionally left zero or null in every inspected path; the test does not exercise the buffer or tag portions of the structure.
 - The execution test type matrix is shared between `core` and `sync2`. The two intermediate nodes use the same five leaves because the only meaningful difference between them is the submission API path, not the submission pattern.
 - The `wsi` path uses a fixed `frameID = 1` and a single present per leaf. It does not iterate the multi-frame or multi-submission patterns because the present operation is the focus of that path.
@@ -138,7 +138,7 @@ All three intermediate nodes share the same pass condition shape: a `VK_CHECK` m
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Parent registration | [vktApiTests.cpp#L131](../../../modules/vulkan/api/vktApiTests.cpp#L131) | Attaches `createFrameBoundaryTests` to the `api` test category inside the `#ifndef CTS_USES_VULKANSC` block. |
+| Parent registration | [vktApiTests.cpp#L132](../../../modules/vulkan/api/vktApiTests.cpp#L132) | Attaches `createFrameBoundaryTests` to the `api` test category inside the `#ifndef CTS_USES_VULKANSC` block. |
 | Family factory | [vktApiFrameBoundaryTests.cpp#L504-L508](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L504-L508) | Creates the `frame_boundary` test family root. |
 | Intermediate node registration | [createTestCases](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L494-L500) | Registers `core`, `sync2`, and `wsi` and dispatches their generators. |
 | Execution test type registration | [createExecTestCases](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L469-L484) | Registers the five shared leaves under `core` and `sync2`. |

@@ -52,7 +52,7 @@ This case iterates over every combination of descriptor types from size 1 to the
 
 ### `support_count_*` — Variable descriptor count layout support matrix
 
-These 176 generated leaves query `VkDescriptorSetVariableDescriptorCountLayoutSupport` for a single tested binding of a specific descriptor type, with optional extra bindings, variable-size flag, binding offset, and layout creation. Each case verifies that `maxVariableDescriptorCount` is consistent across zero, one, and maximum descriptor counts, and that the reported maximum is usable. Inline uniform block cases check that the count is a multiple of 4 and within `maxInlineUniformBlockSize`. [testCountLayoutSupport()](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L682-L855) implements the case body.
+These 176 generated leaves query `VkDescriptorSetVariableDescriptorCountLayoutSupport` for a single tested binding of a specific descriptor type, with optional extra bindings, variable-size flag, binding offset, and layout creation. Cases with `useVariableSize=true` verify that `maxVariableDescriptorCount` is consistent across zero, one, and maximum descriptor counts, and that the reported maximum is usable; inline uniform block cases additionally check that the count is a multiple of 4 and within `maxInlineUniformBlockSize`. Cases with `useVariableSize=false` verify that `maxVariableDescriptorCount` is zero. [testCountLayoutSupport()](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L682-L855) implements the case body.
 
 ## Shader Analysis
 

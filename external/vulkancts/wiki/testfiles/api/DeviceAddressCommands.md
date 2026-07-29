@@ -9,7 +9,7 @@
 - Intermediate node: `misc`, the only direct child of `device_address`.
 - Test case leaves (six), all under `misc`: `copy_to_memory_with_unbound_ranges`, `copy_from_memory_with_unbound_ranges`, `use_all_vertex_index_binds`, `basic_set_stride`, `complex_set_stride`, `memory_range_barrier`.
 
-The family splits into three behavioral clusters. Two leaves exercise `vkCmdCopyMemoryKHR` against sparse buffers with one bound chunk. Three leaves exercise the address-form vertex/index binding commands (`vkCmdBindVertexBuffers3KHR`, `vkCmdBindIndexBuffer3KHR`, `vkCmdBindIndexBuffer2`) and the `setStride` toggle. One leaf exercises `VkMemoryRangeBarrierKHR` between two compute dispatches.
+The family splits into three behavioral clusters. Two leaves exercise `vkCmdCopyMemoryKHR` against sparse buffers with one bound chunk. Three leaves exercise the address-form vertex/index binding commands (`vkCmdBindVertexBuffers3KHR` and `vkCmdBindIndexBuffer3KHR`) and the `setStride` toggle. One leaf exercises `VkMemoryRangeBarrierKHR` between two compute dispatches.
 
 ## Background Knowledge
 
@@ -69,7 +69,7 @@ Three vertex buffers and three index buffers are allocated with `VK_BUFFER_USAGE
 - `vkCmdBindVertexBuffers2` + `vkCmdBindIndexBuffer2`
 - `vkCmdBindVertexBuffers3KHR` + `vkCmdBindIndexBuffer3KHR`
 
-Index buffers use distinct non-zero offsets so the wrong buffer would produce visibly wrong geometry. The rendered image's red channel must show the expected red/black interleaved pattern across all three quads.
+Index buffers use distinct offsets (zero for the first draw, non-zero for the others) so the wrong buffer would produce visibly wrong geometry. The rendered image's red channel must show the expected red/black interleaved pattern across all three quads.
 
 Establishes the baseline that the three command generations are behaviorally equivalent; `basic_set_stride` and `complex_set_stride` then test stride-state interactions.
 
@@ -109,7 +109,7 @@ Shader code is not part of the tested behavior. The vertex/fragment shaders used
 
 - The host creates a dense source or destination buffer (512 bytes) and a sparse buffer (`1<<18` bytes) with `VK_BUFFER_CREATE_SPARSE_BINDING_BIT | VK_BUFFER_CREATE_SPARSE_RESIDENCY_BIT`.
 - `bindBufferMemory()` binds only one chunk of the sparse buffer at offset = `m_chunkSize` (the second chunk). The first chunk's address range is left unbacked.
-- The dense side is filled with `253`; the sparse bound chunk is populated from a host-visible staging buffer via `vkCmdCopyBuffer`.
+- The source side is filled with `253` and the destination side is initialized to `0`. For `copy_from_memory_with_unbound_ranges`, the staging buffer (filled with `253`) is uploaded to the sparse source's bound chunk via `vkCmdCopyBuffer` before `vkCmdCopyMemoryKHR`; for `copy_to_memory_with_unbound_ranges`, `vkCmdCopyMemoryKHR` populates the sparse destination's bound chunk directly from the dense source.
 - `vkCmdCopyMemoryKHR` copies 512 bytes between the dense buffer and the sparse buffer's bound chunk, addressed by `VkDeviceAddressRangeKHR`.
 - For sparse destinations, the result is copied back to the staging buffer; for sparse sources, the dense destination is read directly.
 - The host scans every byte of the result and requires all 512 bytes to equal `253` ([`iterate()` byte scan](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L239-L246)).

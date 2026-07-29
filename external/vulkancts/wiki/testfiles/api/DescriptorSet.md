@@ -104,7 +104,7 @@ No `shader-analyzer` walkthrough is produced for this page. The shaders used by 
 ### Requirement-based pruning
 
 - `descriptor_set_layout.empty_set.push_descriptor` is excluded from the Vulkan SC test set by [`#ifndef CTS_USES_VULKANSC`](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L628-L633) because `VK_KHR_push_descriptor` is not part of Vulkan SC.
-- `descriptor_set_layout_binding.layout_binding_order` is excluded from the Vulkan SC test set by [`#ifndef CTS_USES_VULKANSC`](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L645-L650) for the same reason: the Amber case targets a behavior that depends on extension support that is not in Vulkan SC.
+- `descriptor_set_layout_binding.layout_binding_order` is excluded from the Vulkan SC test set by [`#ifndef CTS_USES_VULKANSC`](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L645-L650). Unlike the `push_descriptor` leaf, the source does not document the specific Vulkan SC incompatibility for this Amber case, and the Amber script is not in the working tree.
 - The `push_descriptor` leaf additionally self-skips at runtime through `context.requireDeviceFunctionality("VK_KHR_push_descriptor")` if the device does not advertise the extension.
 
 ### Design-based pruning

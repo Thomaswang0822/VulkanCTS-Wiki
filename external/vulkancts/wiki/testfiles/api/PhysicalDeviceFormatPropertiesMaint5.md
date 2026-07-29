@@ -22,7 +22,7 @@ api.maintenance5
 └── flags
 ```
 
-The `maintenance5` group is created by [`createMaintenance5Tests()`](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L335-L361) and added under `api` only for non-VulkanSC builds via [`vktApiTests.cpp`](../../../modules/vulkan/api/vktApiTests.cpp#L128-L137). The two intermediate nodes (`format`, `flags`) each contain the same set of six test case leaves when both `HAS_FORMAT_PARAM` and `HAS_FLAGS_PARAM` apply; leaves with only one of the two bits set appear in just one node.
+The `maintenance5` group is created by [`createMaintenance5Tests()`](../../../modules/vulkan/api/vktApiPhysicalDeviceFormatPropertiesMaint5Tests.cpp#L335-L361) and added under `api` only for non-VulkanSC builds via [`vktApiTests.cpp`](../../../modules/vulkan/api/vktApiTests.cpp#L128-L137). The two intermediate nodes (`format`, `flags`) share the test case leaves whose `FuncIDs` carry both `HAS_FORMAT_PARAM` and `HAS_FLAGS_PARAM`; leaves with only `HAS_FORMAT_PARAM` appear only in the `format` node.
 
 | Intermediate node | Registered test case leaves |
 |---|---|

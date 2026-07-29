@@ -70,7 +70,7 @@ No shader is involved in this test family. The test only queries implementation-
 
 Host-side flow per test case leaf, in order:
 
-- `GranularityCase::checkSupport` is called before instance creation. It throws `NotSupportedError` if every attachment format lacks both `VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT` and `VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT` in `optimalTilingFeatures`, and requires `VK_KHR_maintenance5` for the dynamic-rendering node. See [`vktApiGranularityTests.cpp#L437-L454`](../../../modules/vulkan/api/vktApiGranularityTests.cpp#L437-L454).
+- `GranularityCase::checkSupport` is called before instance creation. It iterates every attachment and throws `NotSupportedError` if any one attachment format lacks both `VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT` and `VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT` in `optimalTilingFeatures`, and requires `VK_KHR_maintenance5` for the dynamic-rendering node. See [`vktApiGranularityTests.cpp#L437-L454`](../../../modules/vulkan/api/vktApiGranularityTests.cpp#L437-L454).
 - `GranularityInstance::initAttachmentDescriptions` builds one `VkAttachmentDescription` per attachment with `loadOp`/`storeOp` set to `VK_ATTACHMENT_LOAD_OP_DONT_CARE` / `VK_ATTACHMENT_STORE_OP_DONT_CARE` and `finalLayout` of `VK_IMAGE_LAYOUT_GENERAL`. See [`vktApiGranularityTests.cpp#L119-L138`](../../../modules/vulkan/api/vktApiGranularityTests.cpp#L119-L138).
 - `initImages` creates one `VkImage` and `VkImageView` per attachment with `VK_IMAGE_TILING_OPTIMAL`, single-sample, and usage derived from the format's depth, stencil, or color aspect. See [`vktApiGranularityTests.cpp#L140-L217`](../../../modules/vulkan/api/vktApiGranularityTests.cpp#L140-L217).
 - `initObjects` creates the `VkRenderPass` and `VkFramebuffer` for non-dynamic modes (with a single no-op subpass that references no attachments), then allocates a primary command buffer. See [`vktApiGranularityTests.cpp#L219-L280`](../../../modules/vulkan/api/vktApiGranularityTests.cpp#L219-L280).
@@ -129,7 +129,7 @@ The render area passed to `vkCmdBeginRenderPass` and `vkCmdBeginRendering` is fi
 
 ### Design-based pruning
 
-- The format sweep stops at `VK_FORMAT_D32_SFLOAT_S8_UINT` (integer value `130`). It does not cover extension formats such as ASTC HDR, PVRTC, or the 16-bit depth/stencil packed formats, which sit above that enum value and are intentionally out of scope for this test family. See [`vktApiGranularityTests.cpp#L531`](../../../modules/vulkan/api/vktApiGranularityTests.cpp#L531).
+- The format sweep stops at `VK_FORMAT_D32_SFLOAT_S8_UINT` (integer value `130`). It does not cover standard compressed texture formats (BC, ETC2, EAC, ASTC LDR) starting at enum value `131` or extension formats such as ASTC HDR and PVRTC, which sit above that enum value and are intentionally out of scope for this test family. See [`vktApiGranularityTests.cpp#L531`](../../../modules/vulkan/api/vktApiGranularityTests.cpp#L531).
 - The `mandatoryFormats` pool used by the `random` node is a fixed 47-format list. It does not include every format in the sweep, so the random companion attachments are bounded to a curated set rather than the full `VkFormat` range.
 - The render area passed into `vkCmdBeginRenderPass` and `vkCmdBeginRendering` is fixed at `1x1`, so no test case leaf exercises non-`1x1` render areas. The granularity value itself, not its relationship to a chosen render area, is what the test validates.
 
