@@ -253,6 +253,8 @@ A failure means that the final color did not match the source-generated expected
 
 ### Cause Analysis
 
+The three copy rows classify operation shape, not an exclusive fault location. `DescriptorOps::copyDescriptor` first records writes for both bindings, and the generated shader compares every source member that the status model marks as written, along with every marked destination member. A non-green copy leaf can therefore result from the prerequisite source write even when the descriptor-copy step itself is correct ([operation construction](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L374-L385), [comparison generation](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L743-L755)).
+
 #### Complete inline uniform write handling
 
 **Possible failure symptoms:** Any of `write_size_4`, `write_size_8`, or `write_size_16` produces a non-green pixel, so one or more generated members does not equal its host-side expected value.

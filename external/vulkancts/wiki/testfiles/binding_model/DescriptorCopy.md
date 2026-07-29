@@ -2,8 +2,8 @@
 
 **Core question:** Do descriptor copies make the source descriptor state visible through the destination binding in every registered pipeline and layout variant?
 
-- [`vktBindingDescriptorCopyTests.cpp`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp) implements `binding_model.descriptor_copy` and creates the `compute`, `graphics`, `graphics_uab`, and `misc` test families.
-- `compute`, `graphics`, and `graphics_uab` generate descriptor-copy cases for multiple descriptor types, array ranges, descriptor-set placements, and copy histories. `graphics_uab` repeats the eligible graphics cases with update-after-bind layouts and post-bind updates.
+- [`vktBindingDescriptorCopyTests.cpp`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp) implements the `binding_model.descriptor_copy` test family and creates its `compute`, `graphics`, `graphics_uab`, and `misc` intermediate nodes.
+- `compute`, `graphics`, and `graphics_uab` generate descriptor-copy cases for multiple descriptor types, array ranges, descriptor-set placements, and copy histories. `graphics_uab` uses the common graphics registration path with update-after-bind layouts and post-bind updates; its inline-uniform branch does not apply the Vulkan feature gate required for that binding flag.
 - `misc` contains four graphics cases that copy combined-image-sampler descriptors with immutable samplers while a storage-buffer binding appears before or after the sampler bindings.
 - The page explains how the host reference model tracks copied descriptors, how generated shaders check shader-visible values, how compute and graphics results are validated, and why unsupported or intentionally omitted cases are pruned.
 
@@ -14,7 +14,7 @@ For the shared concepts of descriptor writes, copies, and active state, see [Bac
 - **Descriptor-copy semantics.** `vkUpdateDescriptorSets` applies descriptor writes before descriptor copies. A `VkCopyDescriptorSet` copies the descriptor reference from a source set, binding, and array range to a destination range. It does not use the referenced resource. The source and destination binding types must match, and an in-place copy must not overlap ([descriptor set updates](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L2900-L2951), [`VkCopyDescriptorSet`](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L3888-L3971)).
 - **Descriptor representations.** Buffer descriptors expose `VkDescriptorBufferInfo`, texel-buffer descriptors expose `VkBufferView` handles, image descriptors expose image views and layouts, and inline uniform blocks expose byte data. For inline uniform blocks, copy offsets and counts are bytes rather than descriptor elements ([descriptor binding counts](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L435-L455), [descriptor-type source members](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L3129-L3160)).
 - **Immutable samplers.** An immutable sampler is part of the descriptor-set layout and cannot be replaced by a descriptor update. A combined-image-sampler update can still change its image view while the layout-provided sampler remains fixed ([immutable samplers](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L470-L480)).
-- **Update-after-bind.** `VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT` permits supported descriptor bindings to be updated after the set is bound. The layout and pool need the corresponding update-after-bind flags, and the device needs a feature matching the descriptor type ([layout flag](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L363-L376), [update-after-bind features](../../../../vulkan-docs/src/chapters/features.adoc#L2078-L2121)).
+- **Update-after-bind.** `VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT` permits supported descriptor bindings to be updated after the set is bound. The layout and pool need the corresponding update-after-bind flags, and the device needs a feature matching the descriptor type ([layout flag](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L363-L376), [standard update-after-bind features](../../../../vulkan-docs/src/chapters/features.adoc#L2078-L2121), [inline-uniform update-after-bind feature](../../../../vulkan-docs/src/chapters/features.adoc#L2362-L2377)).
 
 ## Registration Hierarchy
 
@@ -26,7 +26,7 @@ binding_model.descriptor_copy
 └── misc
 ```
 
-The parent binding-model factory attaches `descriptor_copy` under `binding_model` ([`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L60)). The descriptor-copy factory creates all four children in [`createDescriptorCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3754-L3786). These children are implemented in the same source file, so none is registration only.
+The parent binding-model factory attaches the `descriptor_copy` test family under `binding_model` ([`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L60)). The descriptor-copy factory creates all four intermediate nodes in [`createDescriptorCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3754-L3786). The same source file implements each branch, so none is registration only.
 
 ## Parameter Dimensions and Observed Values
 
@@ -34,7 +34,7 @@ The default Vulkan mustpass file contains 289 descriptor-copy leaves: 99 under `
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Test family | `compute`, `graphics`, `graphics_uab`, `misc` | Selects the execution path and descriptor-layout contract. | [`createDescriptorCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3754-L3786) |
+| Intermediate node | `compute`, `graphics`, `graphics_uab`, `misc` | Selects the execution path and descriptor-layout contract within the `descriptor_copy` test family. | [`createDescriptorCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3754-L3786) |
 | Standard descriptor type | `uniform_buffer`, `storage_buffer`, `combined_image_sampler`, `storage_image`, `uniform_texel_buffer`, `storage_texel_buffer` | Selects the resource representation and shader verification operation. | [`createTestsForAllDescriptorTypes()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3713-L3728) |
 | Inline uniform descriptor type | `inline_uniform_block` | Tests byte-addressed inline uniform data. This value is excluded from Vulkan SC builds. | [`createTestsForAllDescriptorTypes()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3729-L3732), [`InlineUniformBlockDescriptor`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L831-L915) |
 | Dynamic descriptor type | `uniform_buffer_dynamic`, `storage_buffer_dynamic` | Selects descriptors whose shader read uses a runtime dynamic offset. These values are ordinary compute and graphics cases only. | [`createTestsForAllDescriptorTypes()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3734-L3741), [`setDynamicAreas()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L1666-L1683) |
@@ -42,17 +42,17 @@ The default Vulkan mustpass file contains 289 descriptor-copy leaves: 99 under `
 | Descriptor-copy case suffix | `_0` through `_6`, `array0`, `array1`, `array2` | Selects same-set, cross-set, partial, repeated, reverse, non-consecutive-set, and array-range copy shapes. | [`addDescriptorCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L2605-L2865) |
 | Descriptor-specific cases | `sampler_0`, `sampler_array0`, `sampler_array1`, `sampled_image_0`, `sampled_image_array0` | Separates standalone sampler and sampled-image copies from combined-image-sampler copies. | [`addSamplerCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L2867-L2939), [`addSampledImageCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L2941-L2986) |
 | Mixed descriptor cases | `mix_0`, `mix_1`, `mix_2`, `mix_3`, `mix_array0`, `mix_array1` | Combines descriptor classes and copy ranges in one test. `mix_2` and `mix_3` are graphics-only. | [`addMixedDescriptorCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L2988-L3244) |
-| Immutable-sampler count | `1`, `4` | Selects one sampled image or four quadrant-selected sampled images in the `misc` family. | [`createDescriptorCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3770-L3778) |
+| Immutable-sampler count | `1`, `4` | Selects one sampled image or four quadrant-selected sampled images in the `misc` intermediate node. | [`createDescriptorCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3770-L3778) |
 | Immutable-sampler binding order | `buffer_first`, no suffix | Places the storage-buffer binding before or after the immutable combined-image-sampler bindings. | [`CopyImmutableSamplerParams`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3246-L3270), [`CopyImmutableSamplerTest::iterate()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3490-L3569) |
 | Update-after-bind mode | disabled for `compute` and `graphics`; enabled for `graphics_uab` | Chooses whether descriptor writes and copies occur before binding or after the set is bound. | [`DescriptorCommands::run()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L1978-L1988), [`DescriptorCommands::run()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L2122-L2124) |
 
 ## Behavior Parameters
 
-The primary behavioral axis is the top-level test family. Each value selects a distinct execution or descriptor-layout contract; the descriptor type and copy-shape dimensions configure the behavior within that family.
+The primary behavioral axis is the direct intermediate node below the `descriptor_copy` test family. Each value selects a distinct execution or descriptor-layout contract; the descriptor type and copy-shape dimensions configure that branch.
 
 ### `compute` - Compute verification of copied descriptors
 
-The test builds a compute pipeline and a generated shader that checks each written or copied descriptor. The shader stores `1` in the result storage buffer only when all checks succeed. The family includes dynamic buffers and mixed descriptor cases when update-after-bind is disabled.
+The test builds a compute pipeline and a generated shader that checks each written or copied descriptor. The shader stores `1` in the result storage buffer only when all checks succeed. This intermediate node includes dynamic buffers and mixed descriptor cases when update-after-bind is disabled.
 
 ### `graphics` - Graphics verification of copied descriptors
 
@@ -60,7 +60,7 @@ The test builds a graphics pipeline with a fixed vertex shader and a generated f
 
 ### `graphics_uab` - Post-bind graphics descriptor updates
 
-The test uses the graphics verification path with update-after-bind pool, layout, and binding flags. It binds the pipeline and descriptor sets before `updateDescriptorSets` applies the writes and copies. The fragment shader then observes the post-bind state. Dynamic buffers, input attachments, and mixed descriptor cases are not registered in this family.
+The test uses the graphics verification path with update-after-bind pool, layout, and binding flags. It binds the pipeline and descriptor sets before `updateDescriptorSets` applies the writes and copies. The fragment shader then observes the post-bind state. Dynamic buffers, input attachments, and mixed descriptor cases are not registered in this intermediate node; `inline_uniform_block` remains part of the common descriptor-type registration path.
 
 ### `misc` - Immutable-sampler copy layout stress
 
@@ -245,7 +245,7 @@ storageBuffer2750.data = result;
 
 - Each descriptor object receives a deterministic ID starting at `0xabc`. Its backing buffer or image is initialized with a value derived from that ID and array element. The host stores whether each element was written directly and whether a copy overwrote it ([descriptor initialization](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L618-L641)).
 - `DescriptorCommands::copyDescriptor()` records source and destination set, binding, array element, and count for the Vulkan update. It also updates the reference model by copying the source data into the destination model. For inline uniform blocks it converts integer element indices to byte offsets and counts before creating `VkCopyDescriptorSet` ([copy recording](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L1590-L1615)).
-- Support checks reject too many descriptor sets or descriptors for device limits. `graphics_uab` requires `VK_EXT_descriptor_indexing`; the source checks the matching update-after-bind feature for the standard buffer, image, sampler, and texel-buffer types. Inline uniform block cases also query inline-uniform support and properties ([support checks](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L1695-L1943)).
+- Support checks reject too many descriptor sets or descriptors for device limits. `graphics_uab` requires `VK_EXT_descriptor_indexing`; for its buffer, image, sampler, and texel-buffer cases, the source checks the matching descriptor-indexing update-after-bind feature. The registered inline-uniform `graphics_uab` cases instead rely on the inline-uniform feature/property query; this implementation does not test `descriptorBindingInlineUniformBlockUpdateAfterBind` before applying the binding flag ([standard update-after-bind checks](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L1916-L1941), [inline-uniform query](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L1707-L1723), [inline-uniform binding-flag requirement](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L697-L703)).
 - The descriptor pool counts each descriptor type. The descriptor-set layouts use one binding per descriptor object and the selected shader stage. Update-after-bind cases add the pool, layout, and binding flags before allocating their sets ([pool and layout creation](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L1978-L2124)).
 
 ### Compute path
@@ -277,7 +277,7 @@ storageBuffer2750.data = result;
 
 ## Failure Meaning
 
-A failure means that the case's descriptor-copy contract did not produce the expected shader-visible value or framebuffer. The result does not identify a driver, hardware, compiler, or host location by itself. The failing family and exact suffix narrow the contract that needs investigation.
+A failure means that the case's descriptor-copy contract did not produce the expected shader-visible value or framebuffer. The result does not identify a driver, hardware, compiler, or host location by itself. The failing intermediate node and exact suffix narrow the contract that needs investigation.
 
 ### Failure Cause Mapping
 
@@ -290,25 +290,25 @@ A failure means that the case's descriptor-copy contract did not produce the exp
 
 ### Cause Analysis
 
-#### Descriptor copy or descriptor-type handling failure visible through the verification compute shader, dynamic-offset or inline-uniform byte-range handling failure, or compute result-buffer failure
+#### Descriptor copy, descriptor-type, dynamic-offset, or inline-uniform handling
 
 **Possible failure symptoms:** The compute result buffer contains `0` and the case reports `Data validation failed`. The failed case may be a scalar descriptor, an array-range copy, a dynamic-buffer case, a mixed descriptor case, or an inline-uniform block case.
 
 **Possible implementation causes:** The implementation may copy the wrong descriptor reference, use the wrong descriptor type representation, apply a dynamic offset to the wrong buffer range, or interpret inline-uniform copy indices as elements instead of bytes. The host model and the Vulkan rules establish the expected source and destination ranges, but a zero result cannot isolate descriptor lookup, shader resource access, dynamic-offset application, or result-buffer handling. The exact failing case needs source-level investigation.
 
-#### Descriptor copy or descriptor-type handling failure visible through the verification fragment shader, graphics resource or input-attachment setup failure, or result-image failure
+#### Graphics descriptor handling, input attachments, or result-image setup
 
 **Possible failure symptoms:** One or more pixels are not `(0, 1, 0, 1)`, and the test reports `Result image validation failed`. Input-attachment cases can also fail if a copied attachment index or framebuffer attachment does not match the descriptor visible to the fragment shader.
 
 **Possible implementation causes:** The implementation may expose the wrong copied image view, buffer view, sampler, buffer range, or inline-uniform data to the shader. It may also create an incorrect input-attachment mapping, image layout transition, render-pass attachment, draw result, or image-to-buffer copy. The source and descriptor specification define the intended descriptor type and resource members, but the uniform green or magenta result cannot distinguish descriptor state from graphics setup or readback behavior. The exact failing case needs source-level investigation.
 
-#### Incorrect update-after-bind layout, feature, post-bind update, or descriptor-copy behavior, or graphics result-image failure
+#### Update-after-bind feature, layout, or post-bind update handling
 
 **Possible failure symptoms:** A `graphics_uab` case fails support checks, fails during descriptor update, or produces a non-green result image after the descriptor set was bound. A successful API call followed by a wrong pixel means the fragment shader did not observe the expected post-bind descriptor state or the graphics result path failed.
 
-**Possible implementation causes:** The implementation may mishandle the required update-after-bind pool and layout flags, apply the wrong per-type update-after-bind feature rule, fail to make a post-bind write or copy visible, or process the copy before the write despite the required order. The Vulkan specification requires update-after-bind layout compatibility for copies and defines the per-type feature requirements ([copy compatibility](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L3987-L4020), [feature requirements](../../../../vulkan-docs/src/chapters/features.adoc#L2078-L2121)). A framebuffer mismatch can still come from graphics setup or readback, so the exact failing case needs source-level investigation.
+**Possible implementation causes:** The implementation may mishandle the required update-after-bind pool and layout flags, apply the wrong per-type update-after-bind feature rule, fail to make a post-bind write or copy visible, or process the copy before the write despite the required order. The CTS currently omits the inline-uniform update-after-bind feature check even though the Vulkan layout rule requires that feature for an inline-uniform binding with `VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT`; such a failure may therefore occur during layout creation rather than through a `NotSupported` result ([CTS feature checks](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L1916-L1941), [Vulkan layout requirement](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L697-L703)). A framebuffer mismatch can still come from graphics setup or readback, so the exact failing case needs source-level investigation.
 
-#### Immutable-sampler copy sizing or binding-order failure, incorrect sampled image or storage-buffer descriptor state, or framebuffer/reference construction failure
+#### Immutable-sampler copy sizing or binding-order handling
 
 **Possible failure symptoms:** One or more quadrants in the `2 x 2` framebuffer differs from the reference image, and the case reports `Unexpected result in color buffer`. The mismatch can affect the sampled image color, the red value supplied by the storage-buffer range, or both.
 
@@ -318,8 +318,8 @@ A failure means that the case's descriptor-copy contract did not produce the exp
 
 ### Requirement-based pruning
 
-- `graphics_uab` requires `VK_EXT_descriptor_indexing`. The implementation checks the matching update-after-bind feature for the standard buffer, image, sampler, and texel-buffer types. If one of those features is absent, the case is `NotSupported`, not a descriptor-copy failure ([support gate](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L1704-L1705), [per-type gates](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L1916-L1941)).
-- Inline uniform block cases query `VK_EXT_inline_uniform_block` features and properties when the extension is available. The implementation rejects a block larger than `maxInlineUniformBlockSize` and rejects descriptor counts above the inline-uniform limits ([inline-uniform checks](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L1707-L1723), [size and count checks](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L1762-L1779)).
+- `graphics_uab` requires `VK_EXT_descriptor_indexing`. For buffer, image, sampler, and texel-buffer descriptors, the implementation checks the matching descriptor-indexing update-after-bind feature. If one of those features is absent, the case is `NotSupported`, not a descriptor-copy failure ([support gate](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L1704-L1705), [standard per-type gates](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L1916-L1941)).
+- Inline uniform block cases query `VK_EXT_inline_uniform_block` features and properties when the extension is available. The implementation rejects a block larger than `maxInlineUniformBlockSize` and rejects too many inline-uniform blocks for a descriptor set or shader stage, but it does not test the queried `inlineUniformBlock` feature or, for `graphics_uab.inline_uniform_block_*`, `descriptorBindingInlineUniformBlockUpdateAfterBind` before setting `VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT`. The Vulkan layout rule requires the latter feature, so this is a CTS support-check coverage gap rather than an implementation requirement ([inline-uniform query](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L1707-L1723), [size check](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L1762-L1779), [inline-uniform block-count limits](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L1909-L1914), [binding-flag requirement](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L697-L703)).
 - The support path checks maximum bound descriptor sets, per-set descriptor counts, per-stage counts, dynamic-buffer counts, inline-uniform block sizes, and inline-uniform block counts. Cases exceeding those device limits are skipped as unsupported ([limit checks](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L1695-L1779), [descriptor counts](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L1855-L1915)).
 - Inline uniform block cases are excluded under `CTS_USES_VULKANSC` because the implementation compiles their descriptor class only outside that build mode ([conditional registration](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3729-L3732)).
 - `graphics_uab` excludes dynamic buffer descriptors because update-after-bind layouts cannot contain `VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC` or `VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC` bindings ([layout restriction](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L161-L170), [registration](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3734-L3748)).
@@ -339,7 +339,7 @@ Design-based pruning reduces redundant combinations. An omitted combination is n
 
 - The test copies descriptor references, then checks the copied state through the descriptor type's real shader access operation.
 - The host model distinguishes directly written elements from destination elements overwritten by a copy. Generated checks cover both categories and ignore unwritten elements that the case does not intend to access.
-- Compute reports a scalar result-buffer value. Ordinary graphics and `graphics_uab` report an all-green framebuffer. The immutable-sampler family compares a small reference image with separate sampled-image and storage-buffer contributions.
+- Compute reports a scalar result-buffer value. Ordinary graphics and `graphics_uab` report an all-green framebuffer. The `misc` immutable-sampler branch compares a small reference image with separate sampled-image and storage-buffer contributions.
 - `graphics_uab` changes update timing, not shader logic. The descriptor set is bound before writes and copies, so the case exercises the update-after-bind contract and its per-type feature gates.
 - Inline uniform block copies use byte offsets and byte counts. Immutable-sampler cases vary descriptor storage layout by moving the storage-buffer binding across the sampler bindings.
 - A failure identifies a mismatch in the selected descriptor-copy observation path. The exact suffix and result log are needed before assigning the cause to descriptor state, shader access, pipeline setup, or readback.
@@ -349,8 +349,8 @@ Design-based pruning reduces redundant combinations. An omitted combination is n
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Binding-model category attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L60) | Attaches `descriptor_copy` under `binding_model`. |
-| Descriptor-copy factory | [`createDescriptorCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3754-L3786) | Creates the four test families and the immutable-sampler leaves. |
-| Descriptor-type family registration | [`createTestsForAllDescriptorTypes()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3713-L3751) | Applies ordinary, graphics-only, update-after-bind, and Vulkan SC registration gates. |
+| Descriptor-copy factory | [`createDescriptorCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3754-L3786) | Creates the four intermediate nodes and the immutable-sampler leaves. |
+| Descriptor-type branch registration | [`createTestsForAllDescriptorTypes()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3713-L3751) | Applies ordinary, graphics-only, update-after-bind, and Vulkan SC registration gates. |
 | Ordinary copy scenarios | [`addDescriptorCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L2605-L2865) | Defines set placement, copy histories, array ranges, and dynamic-offset scenarios. |
 | Sampler and sampled-image scenarios | [`addSamplerCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L2867-L2939), [`addSampledImageCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L2941-L2986) | Defines standalone sampler, sampled-image, and combined-image-sampler cases. |
 | Mixed descriptor scenarios | [`addMixedDescriptorCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L2988-L3244) | Defines mixed descriptor and inline-uniform cases. |
@@ -364,5 +364,5 @@ Design-based pruning reduces redundant combinations. An omitted combination is n
 | Immutable-sampler runtime | [`CopyImmutableSamplerTest::iterate()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3379-L3709) | Creates immutable layouts, copies descriptors, renders, and compares the reference image. |
 | Mustpass evidence | [`binding-model.txt`](../../../mustpass/main/vk-default/binding-model.txt#L10152-L10440) | Confirms the exact 289-leaf descriptor-copy inventory. |
 | Descriptor-copy specification | [Descriptor Set Updates](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L2900-L2951), [`VkCopyDescriptorSet`](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L3888-L4047) | Defines operation order, reference-copy behavior, range rules, type matching, immutable-sampler restrictions, and update-after-bind compatibility. |
-| Update-after-bind specification | [Descriptor indexing features](../../../../vulkan-docs/src/chapters/features.adoc#L2078-L2121) | Defines the per-type features required by `graphics_uab`. |
+| Update-after-bind specification | [Descriptor indexing features](../../../../vulkan-docs/src/chapters/features.adoc#L2078-L2121), [inline-uniform update-after-bind feature](../../../../vulkan-docs/src/chapters/features.adoc#L2362-L2377) | Defines the per-type features required by `graphics_uab` and exposes the missing inline-uniform support gate. |
 | Shader target selection | [`getBaselineSpirvVersion()`](../../../framework/vulkan/vkPrograms.cpp#L1048-L1052) | Shows why the representative shader targets SPIR-V 1.0. |

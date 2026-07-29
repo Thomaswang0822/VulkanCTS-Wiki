@@ -3,7 +3,7 @@
 **Core question:** Can a partially bound descriptor array execute correctly when an unaccessed element is undefined or incompatible with shader access?
 
 - This page covers the `binding_model.unused_invalid_descriptor` test family implemented in [`vktBindingUnusedInvalidDescriptorTests.cpp`](../../../modules/vulkan/binding_model/vktBindingUnusedInvalidDescriptorTests.cpp).
-- The `write` family compares an array with an unpopulated element against one whose third element would be incompatible with the generated shader's image type if accessed.
+- The `write` family independently checks an array with an unpopulated element and an array whose third element would be incompatible with the generated shader's image type if accessed.
 - The `copy` family destroys the resource behind a source element, copies the descriptors to a destination set, and checks that the destination's unaccessed undefined element does not affect execution.
 - All cases use a three-element descriptor binding with `VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT`, but the generated compute shader accesses only elements `0` and `1`.
 - The host validates the device result by copying a 32 by 32 result image to a host-visible buffer and comparing every pixel with `(1.0, 1.0, 1.0, 1.0)`.
@@ -59,7 +59,7 @@ The host writes valid resources to binding `1` elements `0` and `1` and does not
 
 The host writes two valid resources and then writes element `2` with a live image resource that would not match the generated shader if accessed. Sampled-image and combined-image-sampler cases use a four-sample image while the shader declares a non-multisampled image. The storage-image case uses a `VK_FORMAT_R32_UINT` view while the shader declares `rgba32f image2D`. The shader still accesses only elements `0` and `1`, so this case checks that an unaccessed access-incompatible descriptor does not affect the dispatch.
 
-### `copy`: copy a descriptor after its resource becomes undefined
+### `copy`: copy a descriptor after its referenced resource is destroyed
 
 The source set receives three valid resources. The host destroys the resource internals behind source element `2`: the buffer, or the image and view, plus the per-resource sampler in `combined_image_sampler` cases. It then copies binding `1` elements `0` through `2` into a new destination set. The destination element `2` becomes undefined because the source descriptor references a destroyed resource. The shader executes with the destination set and accesses only elements `0` and `1`.
 

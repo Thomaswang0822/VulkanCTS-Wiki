@@ -65,7 +65,7 @@ Each selected array access uses `accum + ai`. Correct descriptor values keep `ac
 
 ### `runtimesize`: Runtime-sized descriptor arrays
 
-The shader emits unsized arrays and uses the same dependent index form as `dynindexed`. The generator can mark the last eligible binding as variable count, records its allocation size, and omits shader checks outside that allocated range.
+For array-valued bindings, the shader emits an unsized declaration and uses the same dependent index form as `dynindexed`; scalar bindings remain scalar. Variable descriptor count is a separate randomized choice available to every indexing mode: the generator can mark the last eligible binding, record its allocation size, and omit shader checks outside that allocated range.
 
 ## Shader Analysis
 
@@ -151,8 +151,8 @@ void main()
 #### Additional Info
 
 - The CTS `deRandom` replay with internal seed `7512` produces 7, 18, 16, and 29 binding slots for sets 0 through 3. Only the four declarations shown above have nonzero descriptor counts.
-- The registered `uab` choice makes eligible bindings candidates for update-after-bind. This generated layout has no update-after-bind binding, so its shader walkthrough focuses on the `dynindexed` access path.
-- [`initPrograms`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L832-L841) requests `SPIRV_VERSION_1_4`. The CCVDO run compiled the annotated GLSL, validated the binary with the matching SPIR-V environment, and disassembled it without edits.
+- The registered `uab` choice makes eligible bindings candidates for update-after-bind. Runtime selection then uses an additional 1-in-8 draw and per-descriptor-type feature checks, so this representative path does not establish that any particular binding receives the flag ([runtime selection](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L1558-L1585)).
+- The selected compute source is added without the local `buildOptions` override, so it inherits the collection's SPIR-V 1.0 baseline ([compute insertion](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L1102-L1125), [baseline selection](../../../framework/vulkan/vkPrograms.cpp#L1048-L1052), [collection default](../../../modules/vulkan/vktTestPackage.cpp#L476-L483)). The explicit SPIR-V 1.4 options are attached to KHR ray-tracing, task, and mesh programs instead ([explicit option uses](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L1167-L1413)).
 
 #### Parameter Variation Summary
 
@@ -168,21 +168,21 @@ void main()
 - Status: generated and validated
 - Source: reconstructed `GLSL` from this walkthrough
 - Stage: `comp`
-- Target SPIRV version: `spirv1.4`
+- Target SPIRV version: `spirv1.0`
 
 <details>
 <summary>Click to expand SPIRV asm code</summary>
 
 ```llvm
 ; SPIR-V
-; Version: 1.4
+; Version: 1.0
 ; Generator: Khronos Glslang Reference Front End; 11
-; Bound: 145
+; Bound: 147
 ; Schema: 0
                OpCapability Shader
           %1 = OpExtInstImport "GLSL.std.450"
                OpMemoryModel Logical GLSL450
-               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID %ubo1_0 %ubo2_10 %ubo3_0 %simage0_0
+               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
                OpExecutionMode %main LocalSize 1 1 1
                OpSource GLSL 450
                OpSourceExtension "GL_EXT_nonuniform_qualifier"
@@ -261,9 +261,10 @@ void main()
        %bool = OpTypeBool
         %131 = OpConstantComposite %v4int %int_0 %int_0 %int_0 %int_0
         %132 = OpConstantComposite %v4int %int_1 %int_0 %int_0 %int_1
-        %134 = OpTypeImage %int 2D 0 0 0 2 R32i
-%_ptr_UniformConstant_134 = OpTypePointer UniformConstant %134
-  %simage0_0 = OpVariable %_ptr_UniformConstant_134 UniformConstant
+     %v4bool = OpTypeVector %bool 4
+        %136 = OpTypeImage %int 2D 0 0 0 2 R32i
+%_ptr_UniformConstant_136 = OpTypePointer UniformConstant %136
+  %simage0_0 = OpVariable %_ptr_UniformConstant_136 UniformConstant
      %v2uint = OpTypeVector %uint 2
       %v2int = OpTypeVector %int 2
 %gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
@@ -375,14 +376,15 @@ void main()
                OpStore %accum %124
         %128 = OpLoad %int %accum
         %130 = OpINotEqual %bool %128 %int_0
-        %133 = OpSelect %v4int %130 %131 %132
-               OpStore %color %133
-        %137 = OpLoad %134 %simage0_0
-        %139 = OpLoad %v3uint %gl_GlobalInvocationID
-        %140 = OpVectorShuffle %v2uint %139 %139 0 1
-        %142 = OpBitcast %v2int %140
-        %143 = OpLoad %v4int %color
-               OpImageWrite %137 %142 %143 SignExtend
+        %134 = OpCompositeConstruct %v4bool %130 %130 %130 %130
+        %135 = OpSelect %v4int %134 %131 %132
+               OpStore %color %135
+        %139 = OpLoad %136 %simage0_0
+        %141 = OpLoad %v3uint %gl_GlobalInvocationID
+        %142 = OpVectorShuffle %v2uint %141 %141 0 1
+        %144 = OpBitcast %v2int %142
+        %145 = OpLoad %v4int %color
+               OpImageWrite %139 %144 %145
                OpReturn
                OpFunctionEnd
 ```
@@ -440,11 +442,17 @@ A failure in any value can also come from the shared descriptor-resource setup, 
 
 **Possible implementation causes:** dynamic descriptor indexing may select the wrong element, or shader compilation may lower the dependent index and descriptor access incorrectly. A failure can also begin with an ordinary descriptor delivery error and then spread through the deliberate dependency chain.
 
-#### Runtime-sized or variable-count descriptor-array failure
+#### Runtime-sized descriptor-array failure
 
-**Possible failure symptoms:** `runtimesize` fails while a fixed-size dependent-index case with a similar resource mix passes. Failures may correlate with the final binding in a set or a reduced allocated count.
+**Possible failure symptoms:** `runtimesize` fails while a fixed-size dependent-index case with a similar resource mix passes.
 
-**Possible implementation causes:** the implementation may mishandle an unsized shader declaration, ignore the allocated variable descriptor count, expose the wrong elements, or lower a legal in-range access incorrectly. The generator omits accesses beyond the allocated count, so an out-of-range check generated by the test is not the expected cause.
+**Possible implementation causes:** the implementation may mishandle an unsized shader declaration or lower a legal in-range dependent access incorrectly.
+
+#### Variable descriptor count allocation or access failure
+
+**Possible failure symptoms:** any indexing mode may fail when the last eligible binding receives a reduced allocated count. Failures can correlate with that final binding while cases without a variable count pass.
+
+**Possible implementation causes:** the implementation may ignore the count supplied during descriptor-set allocation, expose the wrong elements, or mishandle an otherwise legal in-range access. The generator omits shader checks and descriptor writes beyond the allocated count ([generation and shader filtering](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L757-L787), [allocation and update filtering](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L1648-L1664)).
 
 #### Shared descriptor-resource, execution, synchronization, or readback failure
 
@@ -482,7 +490,7 @@ A failure in any value can also come from the shared descriptor-resource setup, 
 |-------------|------|----------------|
 | Support checks | [`DescriptorSetRandomTestCase::checkSupport`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L347-L477) | Gates stages, indexing modes, set count, descriptor limits, and inline uniform blocks. |
 | Random layout generation | [`generateRandomLayout`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L512-L788) | Chooses binding counts, types, arrays, write targets, and variable descriptor counts. |
-| Shader generation | [`DescriptorSetRandomTestCase::initPrograms`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L832-L1449) | Emits declarations, indexing expressions, checks, stage wrappers, and the SPIR-V 1.4 build target. |
+| Shader generation | [`DescriptorSetRandomTestCase::initPrograms`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L832-L1449) | Emits declarations, indexing expressions, checks, stage wrappers, and stage-specific build-option overrides. |
 | Runtime setup and descriptor updates | [`DescriptorSetRandomTestInstance::iterate`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L1472-L2492) | Creates resources, allocates sets, writes descriptor data, binds sets, and applies update-after-bind writes. |
 | Execution and verification | [command recording and final checks](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L2946-L3145) | Runs the selected stage, copies results, and computes the failure count. |
 | Registration matrix | [`createDescriptorSetRandomTests`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L3150-L3435) | Defines the exact hierarchy, values, pruning rules, test case leaf names, and internal seed order. |

@@ -61,7 +61,7 @@ The host creates descriptor buffers with `VK_BUFFER_CREATE_SPARSE_BINDING_BIT`, 
 
 ### `sparse_residency_buffer`: Sparse-residency allocation path
 
-This mode requires both `sparseBinding` and `sparseResidencyBuffer`. When direct host-visible device-local memory is available, the allocation includes extra alignment padding before the code binds the reported descriptor-buffer range. The shader still accesses descriptors within the bound range; the mode does not assign meaning to unbound descriptor bytes.
+This mode requires both `sparseBinding` and `sparseResidencyBuffer`. When direct host-visible device-local memory is available, the allocation is enlarged by one alignment unit so the reported descriptor-buffer range can be sparsely bound. The shader still accesses descriptors within the bound range; the mode does not assign meaning to unbound descriptor bytes.
 
 Scenario-family axis:
 

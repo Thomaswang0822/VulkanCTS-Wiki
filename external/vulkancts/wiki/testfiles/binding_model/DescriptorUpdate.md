@@ -3,7 +3,7 @@
 **Core question:** Do descriptor updates select and expose the intended descriptor state when the layout contains a reserved binding, image writes carry unusable sampler fields, or updates change repeatedly between submissions?
 
 - [`vktBindingDescriptorUpdateTests.cpp`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp) implements the `binding_model.descriptor_update` test family and registers the `empty_descriptor`, `samplerless`, and `random` intermediate nodes.
-- The same factory attaches the Vulkan-only `acceleration_structure` intermediate node. This page documents that child as registration only. Its implementation belongs to the separate `DescriptorUpdateAS` assignment.
+- The same factory attaches the Vulkan-only `acceleration_structure` intermediate node. This page documents that child as registration only. Its ray-query and ray-tracing behavior is documented in [`DescriptorUpdateAS.md`](DescriptorUpdateAS.md).
 - `empty_descriptor` checks that a zero-count binding does not displace a later binding. `samplerless` checks descriptor-type-directed use of `VkDescriptorImageInfo`. `random` checks repeated uniform-buffer descriptor changes through graphics and compute submissions.
 
 ## Background Knowledge
@@ -79,7 +79,7 @@ The generated shaders are small observation programs. `samplerless` reads one de
 - The host creates empty descriptor-set layouts before the selected set when `descriptorSet` is 1, then adds binding 0 with the selected image descriptor type. The compute path also adds a storage-image output binding.
 - The host writes the selected `VkDescriptorImageInfo`, using the selected sampler field, image view, and image layout. The graphics path records a full-screen draw. The compute path dispatches `64 x 64 x 1` invocations.
 - The host copies the output image to a host-visible buffer. It scans the result and fails with `Pixel mismatch` if any pixel differs from the green descriptor color.
-- The support check requires the selected format to support transfer-destination, color-attachment, and descriptor-type-specific features. Unsupported formats are reported as not supported before execution ([format support](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L288-L325)).
+- The support check requires transfer-destination and color-attachment support for the shared format, plus the one feature selected by the case's descriptor type: sampled image, storage image, or color attachment for an input attachment. Unsupported formats are reported as not supported before execution ([feature selection and format support](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L288-L325)).
 
 ### `random`
 
@@ -124,9 +124,9 @@ A failure identifies a mismatch between the selected descriptor-update contract 
 
 ### Requirement-based pruning
 
-- `samplerless` checks the optimal-tiling features for `VK_FORMAT_R8G8B8A8_UNORM`. A device that lacks transfer-destination, color-attachment, sampled-image, storage-image, or input-attachment support for the selected case receives `NotSupported` ([support check](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L311-L325)).
+- `samplerless` checks the optimal-tiling features for `VK_FORMAT_R8G8B8A8_UNORM`. Every case requires transfer-destination and color-attachment support. It then requires only the feature selected by that case's descriptor type: sampled image, storage image, or color attachment for an input attachment. A device missing that combination receives `NotSupported` ([feature selection and support check](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L288-L325)).
 - The input-attachment form is fragment-shader-only. The registration loop removes its compute variant, matching the descriptor-set stage restriction for input attachments ([matrix pruning](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L904-L911), [stage rule](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L463-L469)).
-- The acceleration-structure child is compiled and registered only outside `CTS_USES_VULKANSC`. Its feature and extension checks belong to the separate `DescriptorUpdateAS` page.
+- The acceleration-structure child is compiled and registered only outside `CTS_USES_VULKANSC`. Its feature and extension checks are documented in [`DescriptorUpdateAS.md`](DescriptorUpdateAS.md).
 
 ### Design-based pruning
 
@@ -139,7 +139,7 @@ A failure identifies a mismatch between the selected descriptor-update contract 
 - A zero-count binding reserves its binding number. `empty_descriptor` writes binding 2 after the reserved binding 1 to check that the layout keeps that numbering intact.
 - The `samplerless` matrix makes the sampler field unusable on purpose. The expected green result depends on the implementation using the image view and layout only for the selected descriptor types.
 - `random` uses completed submissions and a host-side mutation model. Each result checks the descriptor state that the last applied write should expose to the following graphics or compute work.
-- `acceleration_structure` is visible in this registration tree, but its ray-query and ray-tracing behavior belongs to the separate `DescriptorUpdateAS` assignment.
+- `acceleration_structure` is visible in this registration tree, but its ray-query and ray-tracing behavior is documented in [`DescriptorUpdateAS.md`](DescriptorUpdateAS.md).
 
 ## Source Reference Appendix
 
