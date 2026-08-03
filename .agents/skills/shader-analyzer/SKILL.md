@@ -301,6 +301,36 @@ Prefer this tool order inside the VK-GL-CTS repository:
 8. call `shader-disassembler` for mandatory `#### SPIR-V` output;
 9. write or insert the complete walkthrough.
 
+## TEMP-SPIRV-ASSEMBLY: spirv_assembly Category Deviation
+
+> **TEMPORARY, category-scoped deviation. Revert before merging spirv_assembly to vkcts-wiki.**
+
+For the `spirv_assembly` category only, tests construct SPIR-V assembly shader text directly in C++ string templates rather than authoring GLSL/HLSL. Apply this deviation instead of the GLSL/HLSL reconstruction path:
+
+### Extraction instead of reconstruction
+
+- Extract the authored SPIR-V assembly text from the C++ string-template builder (e.g., the `OpMemoryBarrier`/`OpControlBarrier` + `sharedData` template in `vktSpvAsmWorkgroupMemoryTests.cpp`).
+- Do not reconstruct GLSL or HLSL.
+- Preserve CTS-generated `;` comments (SPIR-V comment syntax) instead of `//` comments.
+- Add concise wiki-authored annotations using `;` comment syntax (not `///`).
+
+### Annotation stage unchanged
+
+The annotation stage is source-language-agnostic and still applies:
+- decorations, descriptor bindings, push constants, I/O variables, storage classes, image formats;
+- execution modes, control flow, pass/fail logic;
+- resource and semantic facts derived from host/runtime setup.
+
+### Validation gate, not published output
+
+Delegate to `shader-disassembler` for the round-trip validation gate (Decision 1): `spirv-as` → `spirv-val` → `spirv-dis` validates that the extracted assembly is well-formed. If assembly or validation fails, re-extract before the page ships.
+
+The `shader-disassembler` output is **NOT** published as a `#### SPIR-V` subsection (Decision 2). The extracted SPIR-V assembly is placed once under `#### Source Code` (unfoldable). The `#### SPIR-V` subsection is omitted for this category.
+
+### Amber-backed pages (Batch 9) — not this skill
+
+Amber-backed pages in Batch 9 do not invoke this skill. Their SPIR-V assembly is literal CTS test data extracted verbatim from Amber scripts; no reconstruction and no validation gate applies.
+
 ## Scope Boundary
 
 Keep the scope to one exact case at a time. When multiple representative shaders are needed, run this skill separately for each selected case.

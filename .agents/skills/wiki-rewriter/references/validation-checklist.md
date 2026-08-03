@@ -137,6 +137,15 @@ Use when the page includes shader analysis.
   and `Target SPIRV version: spirv1.X` matches the assembly `; Version: 1.X` header.
 - [ ] SPIR-V assembly is full, collapsed, fenced as `llvm`, and unmodified.
 
+> **TEMP-SPIRV-ASSEMBLY: spirv_assembly category deviation (temporary, revert before merge to vkcts-wiki).**
+>
+> For the `spirv_assembly` category only, the following checklist items are waived or modified:
+> - `shader-analyzer` extracts SPIR-V assembly from C++ string templates (not reconstructs GLSL/HLSL); the `//` and `///` comment rules do not apply. CTS-generated `;` comments are preserved; wiki-authored annotations use `;` comment syntax.
+> - `#### Source Code` holds the extracted SPIR-V assembly (unfoldable), not GLSL/HLSL.
+> - The `#### SPIR-V` subsection is **omitted** (it would duplicate the assembly under `#### Source Code`). The "every walkthrough ends with `#### SPIR-V`" requirement is waived.
+> - `shader-disassembler` runs as a generation-time validation gate only (`spirv-as` → `spirv-val` → `spirv-dis`); its output is not published.
+> - Amber-backed pages in Batch 9 do not invoke `shader-analyzer`/`shader-disassembler`; the assembly is literal CTS test data extracted verbatim from Amber scripts, placed under `#### Source Code`, with `#### SPIR-V` omitted.
+
 ## Brief-to-Page Audit
 
 Use when an Understanding Brief was created.
