@@ -55,11 +55,11 @@ Before translating any page, read all reference files under `.agents/skills/tran
 
 The reference files are the sole canonical owners of Chinese structural shapes, fixed labels, terminology choices, and protection rules. This `SKILL.md` owns workflow, phase ordering, path mapping, dependency gating, and reporting; it does not restate the detailed reference contracts.
 
-## Mandatory Language Worker Dependencies
+## Mandatory Language-Skill Dependencies
 
-This skill invokes two global language workers as mandatory quality gates for every translated page:
+Apply two global language skills as mandatory, per-page quality gates. The translation worker loads and applies both skills itself; do not create another subagent, chat, session, or external process for either pass:
 
-| Worker skill | Purpose in this workflow |
+| Language skill | Purpose in this workflow |
 |---|---|
 | `shuorenhua` | Primary Chinese technical-doc naturalness and translationese cleanup pass. |
 | `humanizer-zh` | Secondary Chinese residual AI-pattern pass. |
@@ -71,7 +71,7 @@ npx skills add MrGeDiao/shuorenhua -g
 npx skills add op7418/humanizer-zh -g
 ```
 
-Run `shuorenhua` before `humanizer-zh`. These workers may improve language only; preserve factual claims, links, paths, identifiers,
+Apply `shuorenhua` before `humanizer-zh`. The in-agent passes may improve language only; preserve factual claims, links, paths, identifiers,
 code, shader assembly, filenames, mustpass references, and exact Vulkan/CTS terminology.
 
 ## Trigger
@@ -184,12 +184,12 @@ Workflow-specific protection notes not restated in the references:
    2. Append the translation one section at a time, where a section is one `##` block together with
       its subsections, tables, and fenced code.
    3. After the final section, re-read the assembled file once to verify section boundaries and
-      ordering before running the language workers.
-9. Invoke the required Chinese language worker skills on the written target file in this exact order:
+      ordering before applying the language skills.
+9. Load and apply the required Chinese language skills to the written target file in this exact order, within the current translation worker:
    1. `shuorenhua`
    2. `humanizer-zh`
 10. Run the validation checklist below.
-11. Report source file, target file, reference files used, language worker passes completed, and any translated heading-fragment
+11. Report source file, target file, reference files used, language-skill passes completed, and any translated heading-fragment
     links.
 
 ### Category Mode
@@ -206,11 +206,11 @@ Workflow-specific protection notes not restated in the references:
    - Level-2 page -> `vkcts-wiki-pages/categories/<category>.md`
    - Level-3 page -> `vkcts-wiki-pages/categories/<category>/<page>.md`
 7. Translate heading fragments after `#` in markdown links when their target headings are translated.
-8. Invoke the required Chinese language worker skills on every translated output file in this exact order:
+8. For every translated output file, load and apply the required Chinese language skills within the current translation worker in this exact order:
    1. `shuorenhua`
    2. `humanizer-zh`
 9. Run the validation checklist below for every translated output file.
-10. Report translated file count, skipped files, reference files used, language worker passes completed, and any unresolved warnings.
+10. Report translated file count, skipped files, reference files used, language-skill passes completed, and any unresolved warnings.
 
 ### Directory Mode
 
@@ -219,11 +219,11 @@ Workflow-specific protection notes not restated in the references:
 3. Translate files to matching relative paths under `vkcts-wiki-pages/`.
 4. Preserve filenames. Preserve the canonical category identity, but allow the publish-tree layout transformation where Level-3 pages move under `vkcts-wiki-pages/categories/<category>/`.
 5. Translate heading fragments after `#` in markdown links when their target headings are translated.
-6. Invoke the required Chinese language worker skills on every translated output file in this exact order:
+6. For every translated output file, load and apply the required Chinese language skills within the current translation worker in this exact order:
    1. `shuorenhua`
    2. `humanizer-zh`
 7. Run the validation checklist below for every translated output file.
-8. Report translated file count, skipped files, reference files used, language worker passes completed, and any unresolved warnings.
+8. Report translated file count, skipped files, reference files used, language-skill passes completed, and any unresolved warnings.
 
 ## Validation Checklist
 
@@ -237,4 +237,4 @@ After translation, verify:
 - `## Shader Analysis` preserves generated code and SPIR-V while translating only the permitted explanatory content.
 - No obsolete version-1 structure was introduced.
 - Explanatory prose is readable Mandarin Chinese with limited, intentional English technical terms.
-- `shuorenhua` and `humanizer-zh` completed in that order after translation.
+- `shuorenhua` and `humanizer-zh` were loaded and applied by the current translation worker, in that order after translation; no separate agent, session, chat, or process is required.

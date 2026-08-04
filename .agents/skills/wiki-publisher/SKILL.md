@@ -37,7 +37,7 @@ Before assigning any worker, read `references/worker-dispatch-templates.md`. Thi
 ## Mandatory Dependency
 
 This skill is a publishing harness; it does not translate content. Before link conversion, every translation worker must read and
-follow [`translate-doc`](../translate-doc/SKILL.md), which owns translation paths, protected content, terminology, language-worker
+follow [`translate-doc`](../translate-doc/SKILL.md), which owns translation paths, protected content, terminology, language-skill
 dependencies, and validation. Do not continue unless the worker confirms that skill and its checklist completed successfully.
 
 ## Workflow
@@ -48,6 +48,7 @@ dependencies, and validation. Do not continue unless the worker confirms that sk
    - The Level-2 worker owns only `external/vulkancts/wiki/categories/<category>.md`.
    - Each Level-3 worker owns only its assigned publishable batch under `external/vulkancts/wiki/testfiles/<category>/`.
    - Exclude `*_brief.md` internal notes and do not edit the canonical English wiki.
+   - For each assigned page, load and apply `shuorenhua` followed by `humanizer-zh` inside the translation worker, as required by `translate-doc`. Do not dispatch a separate language-review agent or launch a separate chat, session, or process.
    - Complete all `translate-doc` dependency, output, and validation requirements before reporting completion.
 
 2. Run a pre-publish translation guard for every assigned translated markdown file.
@@ -114,7 +115,7 @@ The completion summary MUST include:
 - The canonical source paths translated.
 - The publish target paths written.
 - A statement that `translate-doc` was invoked and its validation checklist passed.
-- A statement that the mandatory `shuorenhua` and `humanizer-zh` language worker passes were invoked for the translated files.
+- A statement that the mandatory `shuorenhua` and `humanizer-zh` language-skill passes were applied by the translation workers for the translated files, in that order.
 - The link conversion commands or files processed.
 - Confirmation that the `vkcts-wiki-pages/home.md` category-index link was updated for the published category.
 - Any skipped files or unresolved validation warnings.

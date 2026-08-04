@@ -14,7 +14,7 @@ Input:
 Output:
 - `vkcts-wiki-pages/categories/<category>.md`
 
-Strictly follow the skill's translation-worker requirements. Do not run link conversion. When complete, use `attempt_completion`.
+Strictly follow the skill's translation-worker requirements. For this page, load and apply `shuorenhua` then `humanizer-zh` yourself; do not dispatch another language-review agent or launch a separate chat, session, or process. Do not run link conversion. When complete, use `attempt_completion`.
 ```
 
 ## Level-3 translation worker
@@ -32,7 +32,7 @@ Outputs:
 - `vkcts-wiki-pages/categories/<category>/<file2>.md`
 - `vkcts-wiki-pages/categories/<category>/<file3>.md`
 
-Do not assign `*_brief.md` files. Strictly follow the skill's translation-worker requirements. Do not run link conversion. When
+Do not assign `*_brief.md` files. Strictly follow the skill's translation-worker requirements. For each page, load and apply `shuorenhua` then `humanizer-zh` yourself; do not dispatch another language-review agent or launch a separate chat, session, or process. Do not run link conversion. When
 complete, use `attempt_completion`.
 ```
 

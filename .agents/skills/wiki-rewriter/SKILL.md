@@ -43,13 +43,13 @@ Before starting any rewrite work, read all reference files under `references/`. 
 
 Each reference is the sole canonical owner of its detailed contract. This `SKILL.md` owns workflow, phase ordering, decisions, dependencies, checkpoints, and reporting; it does not restate the detailed template, terminology, or validation contracts.
 
-## Mandatory Language Worker Dependencies
+## Mandatory Language-Skill Dependencies
 
-This skill invokes the English language worker skills as mandatory quality gates for rewritten wiki prose.
+Apply two global language skills as mandatory, per-page quality gates. The rewrite worker loads and applies both skills itself; do not create another subagent, chat, session, or external process for either pass.
 
-Required global worker skills:
+Required global language skills:
 
-| Worker skill | Global install source | Purpose in this workflow |
+| Language skill | Global install source | Purpose in this workflow |
 |---|---|---|
 | `humanizer` | `blader/humanizer` | Main English naturalness audit for rewritten wiki prose. |
 | `stop-slop` | `hardikpandya/stop-slop` | Final English directness and residual AI-pattern pass. |
@@ -75,8 +75,8 @@ npx skills add blader/humanizer -g
 npx skills add hardikpandya/stop-slop -g
 ```
 
-The language workers are mandatory for every rewritten Level-2 and Level-3 user-facing English wiki page. 
-They are language-quality passes only. 
+The language-skill passes are mandatory for every rewritten Level-2 and Level-3 user-facing English wiki page.
+They are language-quality passes only and must be applied by the current rewrite worker.
 They must not change factual claims, evidence scope, source links, registered paths, identifiers, code blocks, shader assembly, mustpass references, filenames, or Vulkan/CTS terminology that must remain exact.
 
 ## Output File Rules
@@ -206,19 +206,19 @@ Consolidation workflow:
 - apply the Level-3 template's consolidation classification table to each affected Level-3 page;
 - if no shared prerequisites need explanation, use the Level-2 template's canonical no-common-concepts sentence.
 
-### 7. Mandatory English language-worker pass
+### 7. Mandatory English language-skill pass
 
-After the rewritten English page is technically complete and before final validation, invoke the required language worker skills in
-this exact order:
+After the rewritten English page is technically complete and before final validation, load and apply the required language skills
+within the current rewrite worker in this exact order:
 
 1. `humanizer`
 2. `stop-slop`
 
 Use `humanizer` for the main naturalness audit. Use `stop-slop` as the final directness and residual AI-pattern pass. Follow each
-worker skill's own instructions for how to perform its pass; this master skill only defines when the passes are required and the
+skill's own instructions for how to perform its pass; this master skill only defines when the passes are required and the
 project-specific boundaries below.
 
-Project boundaries for both worker passes:
+Project boundaries for both language-skill passes:
 - Treat the target voice as plain, natural, professional technical English.
 - Do not add personal voice, promotional tone, humor, rhetorical flourishes, or unsupported explanation.
 - Preserve all protected technical content exactly: inline code, code fences, registered paths, source links, filenames, function
@@ -227,7 +227,7 @@ Project boundaries for both worker passes:
 - If a worker-suggested wording conflicts with source evidence, registration evidence, shader/SPIR-V facts, or validation logic,
   reject that wording and keep the technically safer version.
 
-The page is not complete until both worker passes have been applied.
+The page is not complete until both language-skill passes have been applied by the current rewrite worker.
 
 ### 8. Audit before completion
 
@@ -244,7 +244,7 @@ Run `references/validation-checklist.md` before reporting completion. At minimum
 - shader/SPIR-V handling when applicable;
 - naming and title rules;
 - obsolete-page preservation;
-- mandatory `humanizer` and `stop-slop` passes completed.
+- mandatory `humanizer` and `stop-slop` passes loaded and applied by the current rewrite worker.
 
 For registration/mustpass coverage and relative links, run the canonical page- or category-scoped commands in
 `references/validation-checklist.md`; manual inspection alone is insufficient. Re-run the relevant validator until it passes or
