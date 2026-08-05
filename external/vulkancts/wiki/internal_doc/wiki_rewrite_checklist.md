@@ -14,8 +14,8 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [x] 4. pipeline — 62 (UB: 62)
 - [x] 5. binding_model — 15 (UB: 15)
 - [x] 6. spirv_assembly — 40 (UB: 27)
-- [ ] 7. glsl — 23
-- [ ] 8. renderpasses — 29
+- [x] 7. glsl — 23 (UB: 0)
+- [x] 8. renderpasses — 29 (UB: 0)
 - [x] 9. ubo — 1 (UB: 1)
 - [ ] 10. dynamic_state — 10
 - [ ] 11. ssbo — 3
@@ -62,4 +62,4 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [ ] 52. tensor — 7
 - [ ] 53. data_graph — 4
 
-**Summary**: 12 done (246 L3 pages, 168 UBs), 41 todo (469 L3 pages).
+**Summary**: 14 done (298 L3 pages, 168 UBs), 39 todo (417 L3 pages).
