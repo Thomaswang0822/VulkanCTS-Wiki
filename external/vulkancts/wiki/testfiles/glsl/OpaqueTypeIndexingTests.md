@@ -1,12 +1,8 @@
-# vktOpaqueTypeIndexingTests.cpp
-
 ## Overview
 
-Tests for opaque type array indexing in Vulkan shaders. Verifies correct behavior when indexing into arrays of samplers, uniform buffer objects (UBOs), shader storage buffer objects (SSBOs), and atomic counters using various index expression types (constant literal, constant expression, uniform, dynamically uniform).
+[`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L174-L2048) implements `glsl.opaque_type_indexing`, a shader-executor family that checks indexing into arrays of opaque shader resources. It generates cases for combined image samplers, uniform-buffer block instances, storage-buffer block instances, and atomic-counter storage buffers; each case selects resource elements through a constant literal, constant expression, uniform value, or dynamically uniform expression. `createOpaqueTypeIndexingTests()` returns the group, and the Vulkan package adds it under `glsl` ([factory](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L2045-L2048), [package registration](../../../modules/vulkan/vktTestPackage.cpp#L1275-L1277)).
 
-## Role
-
-Combined registration and implementation file. Contains the `OpaqueTypeIndexingTests` TestCaseGroup class with its `init()` method that builds the test hierarchy, as well as the test case classes (`SamplerIndexingCase`, `BlockArrayIndexingCase`, `AtomicCounterIndexingCase`) and their corresponding test instance implementations.
+The generator shares four index-expression modes and six stage names across the resource families, but deliberately limits sampler leaves to vertex, fragment, and compute. Shader-executor readback is then compared with resource-specific CPU expectations; successful compilation or dispatch alone does not pass a case.
 
 ## Source Code
 

@@ -1,5 +1,3 @@
-# vktShaderBFloat16Tests.cpp
-
 ## Overview
 
 [`vktShaderBFloat16Tests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderBFloat16Tests.cpp#L1) is the
@@ -127,7 +125,7 @@ registered runtime variants (`ret_in` and `ret_ref`) in
 - Compute specialization-constant cases build a CPU reference set from the same specialization values, including the
   local-size constants, and compare the first three output `vec4` records component-by-component after invalidating the
   buffer at
-  [`BFloat16ComputeInstance::verifyResult()`](../../../modules/vulkan/shaderexecutor/vktShaderBFloat16ConstantTests.cpp#L606-L680).
+  [`BFloat16ComputeInstance::verifyResult()`](../../../modules/vulkan/shaderexecutor/vktShaderBFloat16ConstantTests.cpp#L653-L681).
 - Vertex specialization-constant cases compare storage-buffer values with prepared vertices and sample the barycentric
   point of each expected triangle for white pixels at
   [`BFloat16VertexInstance::verifyResult()`](../../../modules/vulkan/shaderexecutor/vktShaderBFloat16ConstantTests.cpp#L947-L996).
