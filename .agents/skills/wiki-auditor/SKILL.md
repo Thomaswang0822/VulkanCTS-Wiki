@@ -167,6 +167,8 @@ Return compact findings using the worker contract when operating under an orches
 
 After all Level-3 pages finish, inspect worker results or sequential findings for repeated patterns.
 
+The orchestrator maintains the category audit summary incrementally: create it before dispatching the first audit batch, then append each completed batch's page sections and no-issue entries immediately after collecting that batch's worker results. Do not defer ordinary finding capture until the entire category finishes. Workers still never edit the summary. After all Level-3 results are available, reconcile the accumulated entries into recurring-defect patterns where required, then continue with the Level-2 audit and final validation.
+
 Before writing page-specific findings for a recurring issue, first check whether the same root-cause defect appears across multiple pages and should be treated as a category-level pattern. If the same defect appears on 3 or more pages with the same evidence-backed Mistake and Correction, consolidate it into the category summary instead of repeating it page by page.
 
 Check whether a finding indicates:
@@ -204,7 +206,7 @@ glob includes them in link validation.
 
 Rerun until validation passes or record the remaining limitation compactly.
 
-### 11. Write the combined audit summary
+### 11. Finalize the combined audit summary
 
 For a category audit, write:
 
@@ -212,7 +214,7 @@ For a category audit, write:
 external/vulkancts/wiki/internal_doc/<category>_audit_summary.md
 ```
 
-Make the orchestrator or sequential lead the sole writer.
+Make the orchestrator or sequential lead the sole writer. It has already been created and updated after every completed audit batch; finalize it after the Level-2 audit and category validation.
 
 Use the exact page-centered structure in `references/review-protocol.md`:
 

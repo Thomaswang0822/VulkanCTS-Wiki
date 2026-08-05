@@ -285,6 +285,12 @@ Do not edit the category audit summary. The orchestrator owns summary aggregatio
 
 Write the combined result to `external/vulkancts/wiki/internal_doc/<category>_audit_summary.md`.
 
+### Incremental lead-owned updates
+
+For a batched category audit, the orchestrator creates the summary before dispatching the first batch. Immediately after each batch completes and its worker results have been collected, append that batch's page findings and no-issue entries to the summary. Do not wait for every page in the category before recording ordinary results. Workers must not edit this file.
+
+After the final Level-3 batch, the orchestrator reconciles the accumulated entries: promote a defect recurring across three or more pages into `## Recurring Defect Patterns`, move pages whose only finding is that pattern into `## Pages With Only Recurring Findings`, then append the Level-2 result and any validation limitation. This final reconciliation may rewrite earlier summary sections, but it must preserve every evidence-backed finding.
+
 Include sections only for pages with resolved or unresolved findings. Place both kinds of findings under the affected page. Mark unresolved finding headings with `(UNRESOLVED)`.
 
 Before writing page-specific findings, check whether the same root-cause defect recurs across multiple pages. When the same evidence-backed defect appears across 3 or more pages with the same Mistake and Correction, consolidate it into a `## Recurring Defect Patterns` section placed before the page-specific sections. Give the pattern one `Mistake` bullet, one `Correction` bullet, and one `Pages` bullet listing every affected page. Do not add back-references to the recurring pattern from page-specific sections; pages whose only finding is a recurring pattern go under `## Pages With Only Recurring Findings` instead of getting their own page section.
