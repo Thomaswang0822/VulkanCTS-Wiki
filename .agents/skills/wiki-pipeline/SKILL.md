@@ -29,13 +29,15 @@ Read their required references and helper skills as those primary skills direct.
 ## Non-negotiable workflow
 
 1. Run wiki-rewriter Step 0 yourself as lead agent: inspect category state and create or resume `external/vulkancts/wiki/internal_doc/<category>_rewrite_outline.md`.
-2. **Hard stop for user approval:** if a new outline was created, stop and ask the user to approve it before inspecting, briefing, or rewriting pages. Resume only after approval or an explicit request to continue.
+2. **Hard stop 1 for user approval:** when Step 0 creates a new outline for a new category, stop and ask the user to approve it before inspecting, briefing, or rewriting pages. Resume only after approval or an explicit request to continue. A resumed category with an existing approved outline skips only this checkpoint.
 3. Follow the approved outline's batches exactly for rewrite dispatch.
 4. Rewrite all assigned Level-3 pages, then synthesize the Level-2 page after Level-3 pages stabilize.
-5. Audit the Level-2 page and every rewritten Level-3 page.
-6. Translate and publish every Level-2 and Level-3 page.
-7. Convert links only after every translation worker has completed.
-8. Verify the final category, update `home.md` and the rewrite checklist, then report.
+5. Stage the changes produced by the rewrite phase, preserving unrelated pre-existing work, and continue directly into audit without stopping.
+6. Audit the Level-2 page and every rewritten Level-3 page.
+7. **Hard stop 2 for user approval:** after audit repairs, Level-2 audit, category validation, and audit-summary finalization pass, stop before publish and ask the user to review and approve the audited result. Do not translate, publish, convert links, or update publish indexes before approval.
+8. After approval, translate and publish every Level-2 and Level-3 page.
+9. Convert links only after every translation worker has completed.
+10. Verify the final category, update `home.md` and the rewrite checklist, then report.
 
 ## Dispatch invariant
 
@@ -65,7 +67,7 @@ Workers own only their assigned page in their assigned phase. They must not edit
 
 Before dispatching each phase, read `references/phase-input-contracts.md`. For batching, barriers, retry policy, and verification, read `references/orchestration-and-batching.md` and `references/recovery-and-verification.md`.
 
-Use the filesystem and validators as evidence, not worker claims alone. On a failed or rate-limited worker, enumerate missing or suspect pages and retry only those pages with fresh single-page workers. Preserve successful pages and the user's Git index.
+Use the filesystem and validators as evidence, not worker claims alone. Classify HTTP 429 responses from the provider payload: retry transient concurrency/short-window rate-limit failures with bounded, page-level retries; treat token-usage, quota, billing, or other account-limit 429s as terminal blockers and stop without retrying. For ordinary failed or missing pages, enumerate missing or suspect outputs and retry only those pages with fresh single-page workers. Preserve successful pages and unrelated pre-existing index state.
 
 ## Completion gate
 

@@ -7,7 +7,7 @@ The lead agent performs wiki-rewriter Step 0 directly. Never delegate outline cr
 1. Inspect category state and the old Level-2/Level-3 inventory.
 2. If an outline exists, treat the task as resumed work and establish which entries are unfinished.
 3. If no outline exists and the category is new, create the canonical outline under `external/vulkancts/wiki/internal_doc/` using wiki-rewriter's outline template.
-4. If a new outline was created, hard stop for user approval. Do not inspect page implementations deeply, create briefs, or rewrite pages before approval.
+4. If a new outline was created, hard stop 1 for user approval. Do not inspect page implementations deeply, create briefs, or rewrite pages before approval. A resumed category with an existing approved outline skips this checkpoint.
 5. Once approved, retain the outline as the batching and page-classification authority for rewrite.
 
 The lead writes the outline because its category-wide survey is required context for later coordination. This reason need not be exposed in worker prompts.
@@ -36,7 +36,7 @@ For each approved outline batch:
 5. Retry missing, failed, or provenance-suspect pages individually.
 6. Mark the outline batch stable only when every page passes.
 
-After all Level-3 batches stabilize, perform lead-owned Level-2 synthesis and category Background Knowledge consolidation. Then run category validation before audit.
+After all Level-3 batches stabilize, perform lead-owned Level-2 synthesis and category Background Knowledge consolidation. Then validate the rewrite phase, stage the changes produced by this rewrite (without staging unrelated pre-existing work), and continue into audit without stopping.
 
 ## Audit phase
 
@@ -47,6 +47,7 @@ After all Level-3 batches stabilize, perform lead-owned Level-2 synthesis and ca
 5. After each wave, verify edits and immediately append page findings/no-issue entries to the lead-owned summary.
 6. Retry failed pages individually.
 7. Reconcile recurring patterns, audit the rest of Level-2, run category validation, and finalize the summary.
+8. **Hard stop 2:** stop before any publish translation or link conversion and ask the user to review and approve the complete audit result. Do not update publish outputs or publish indexes before approval.
 
 ## Publish phase
 
@@ -62,8 +63,10 @@ After all Level-3 batches stabilize, perform lead-owned Level-2 synthesis and ca
 
 Do not cross a barrier until its condition is true:
 
-- **Outline barrier:** a new outline has explicit user approval.
+- **Outline barrier:** when a new outline was created, it has explicit user approval.
 - **Rewrite barrier:** all outline-assigned Level-3 outputs/briefs and Level-2 synthesis exist and validate.
+- **Rewrite staging checkpoint:** the rewrite-produced paths are staged, unrelated pre-existing work is preserved, and the lead continues into audit without stopping.
 - **Audit barrier:** every Level-3 page and Level-2 page has an audit outcome; repairs and category validation pass; summary is final.
+- **Publish-approval barrier:** the user has explicitly approved the completed audit result.
 - **Publish barrier:** every translation exists, contains target-language text, and passes structural verification.
 - **Completion barrier:** conversion is idempotent, `home.md` and checklist are correct, counts are reconciled, and safety checks pass.

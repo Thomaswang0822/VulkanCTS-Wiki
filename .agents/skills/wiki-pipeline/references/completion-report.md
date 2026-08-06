@@ -40,6 +40,7 @@ Use this compact structure. Replace every count with independently verified file
 
 ### Recovery
 - Failed/retried pages: <list or none>
+- Terminal provider blockers: <none or provider error class and affected pages>
 - Final retry result: <result>
 ```
 

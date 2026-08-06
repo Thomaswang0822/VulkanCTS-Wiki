@@ -16,14 +16,32 @@ Use the filesystem and validator output to determine completion. A delegation ma
 
 ## Failure and retry policy
 
-For HTTP 429, timeout, interrupted worker, missing output, validator failure, or uncertain provenance:
+First classify the provider failure. HTTP status `429` alone is not enough to choose a recovery path.
+
+### Retryable transient 429
+
+If the provider payload indicates temporary concurrency pressure, a short rate window, `Too Many Requests`, or an explicit retry-after condition, use the existing accurate page-level recovery:
 
 1. Enumerate expected outputs and compare them with disk state.
 2. Preserve verified successful pages.
-3. Retry each failed, missing, or suspect page with a fresh single-page worker for the same phase.
-4. Re-run that phase's validators after the retry.
-5. Do not compensate by assigning multiple pages to one worker.
-6. Do not cross the phase barrier while retries remain unresolved.
+3. Retry only the failed, missing, or suspect page with a fresh single-page worker.
+4. Keep the retry budget bounded; do not loop indefinitely.
+5. Re-run that phase's validators after the retry.
+
+### Terminal usage/quota 429
+
+If the provider payload indicates token usage, quota, billing, credit, account, daily/monthly/long-window limit, or usage reset, treat it as a terminal external blocker:
+
+1. Preserve completed work and verified successful pages.
+2. Do not retry or re-dispatch the affected page.
+3. Do not advance the phase or cross a phase barrier.
+4. Report the provider error and current page-level completion state to the user, then stop for the user to resolve the model/provider limit.
+
+### Ambiguous provider failure
+
+If a `429` payload does not provide enough information to distinguish a transient window from an account usage limit, do not start an unbounded retry loop. Make at most the explicitly supported bounded diagnostic retry; if classification remains unclear, stop and report the blocker.
+
+For non-429 ordinary interruptions, missing outputs, validator failures, or uncertain provenance, enumerate expected outputs, retry only the affected page with a fresh single-page worker, and revalidate before crossing the phase barrier. Never compensate by assigning multiple pages to one worker.
 
 If an erroneous multi-page worker was accidentally dispatched, its outputs are untrusted. Re-run every affected page through the correct single-page worker and verify the final on-disk version after all competing workers finish.
 
@@ -82,6 +100,10 @@ Derive values from disk:
 - recompute done/todo category counts and L3/UB totals arithmetically;
 - ensure spoken counts match the file and final report exactly.
 
+## Rewrite staging checkpoint
+
+After rewrite and Level-2 synthesis validate, the lead agent stages the paths produced by the rewrite phase before starting audit. Preserve unrelated pre-existing staged or unstaged work; do not stage broad globs that could capture it. This staging checkpoint is not a user-approval stop. Audit continues immediately.
+
 ## Repository safety
 
-Before final reporting, compare Git status and index state with the initial state. Never stage, unstage, restore, commit, push, or rewrite history unless separately authorized. Report any unauthorized-path write instead of silently deleting or repairing it.
+Before final reporting, compare Git status and index state with the initial state. The pipeline's explicit rewrite staging checkpoint authorizes staging rewrite-produced paths only; do not stage unrelated work. Never unstage, restore, commit, push, or rewrite history unless separately authorized. Report any unauthorized-path write instead of silently deleting or repairing it.
