@@ -1,145 +1,57 @@
-# Dynamic State
-
 ## Overview
 
-The dynamic_state category tests Vulkan's dynamic state mechanism, which allows certain pipeline state to be set dynamically at command buffer recording time rather than being baked into the pipeline object. Tests verify that dynamic state commands correctly override pipeline static state, that state persists across pipeline binds, and that dynamic state does not interfere with compute or transfer operations.
+The `dynamic_state` test category collects tests that check Vulkan's dynamic state mechanism, which allows certain pipeline state to be set dynamically at command buffer recording time rather than being baked into the pipeline object.
 
-## Registration Entry Point
+## Background Knowledge
 
-[`createTests()`](../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L108) in `vktDynamicStateTests.cpp` creates the root group. The [`initDynamicStateTestGroup()`](../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L74) function creates 7 pipeline construction type subgroups, each populated by [`createChildren()`](../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L49). Most direct child groups are added for every pipeline construction type; `compute_transfer` is added only for `monolithic` and `shader_object_unlinked_spirv`.
+- **Dynamic state.** Vulkan lets the application set certain pipeline state dynamically via `vkCmdSet*` commands recorded into the command buffer, instead of fixing it at pipeline creation time. A pipeline created with a dynamic state enabled does not use the corresponding static value from `VkGraphicsPipelineCreateInfo`; instead, the most recent dynamic command recorded before a draw supplies the value. This category verifies that dynamic state commands correctly override static pipeline state, that state persists across pipeline binds, and that dynamic state does not interfere with compute or transfer operations.
+- **Pipeline construction type subgroups.** The dispatcher `createTests()` in [`vktDynamicStateTests.cpp`](../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L108) creates seven pipeline-construction-type subgroups: `monolithic`, `pipeline_library`, `fast_linked_library`, `shader_object_unlinked_spirv`, `shader_object_unlinked_binary`, `shader_object_linked_spirv`, and `shader_object_linked_binary`. Each subgroup attaches the same set of implementation files as direct children through `createChildren()`, so the same test families appear under each construction type. The `compute_transfer` family is an exception: it is registered only under `monolithic` and `shader_object_unlinked_spirv`.
+- **Shared `DynamicStateBaseClass` harness.** Every implementation file in this category inherits from `DynamicStateBaseClass`, which provides the common resource setup, render-pass recording, software reference rasterization, and image comparison logic. Each test family overrides `setDynamicStates()` to issue the specific `vkCmdSet*` commands it tests, and overrides the reference rendering to apply the same state. `vktDynamicStateTestCaseUtil.hpp` provides the `InstanceFactory` template that instantiates the correct test instance per pipeline construction type.
 
-## Subgroup Structure
+## Category Structure
 
 ```text
 dynamic_state
 ├── monolithic
-│   ├── vp_state
-│   ├── rs_state
-│   ├── cb_state
-│   ├── ds_state
-│   ├── general_state
-│   ├── inheritance
-│   ├── image
-│   ├── discard
-│   ├── line_width
-│   └── compute_transfer        (conditional)
 ├── pipeline_library
-│   ├── vp_state
-│   ├── rs_state
-│   ├── cb_state
-│   ├── ds_state
-│   ├── general_state
-│   ├── inheritance
-│   ├── image
-│   ├── discard
-│   └── line_width
 ├── fast_linked_library
-│   └── (same as pipeline_library)
 ├── shader_object_unlinked_spirv
-│   ├── vp_state
-│   ├── rs_state
-│   ├── cb_state
-│   ├── ds_state
-│   ├── general_state
-│   ├── inheritance
-│   ├── image
-│   ├── discard
-│   ├── line_width
-│   └── compute_transfer        (conditional)
 ├── shader_object_unlinked_binary
-│   └── (same as pipeline_library)
 ├── shader_object_linked_spirv
-│   └── (same as pipeline_library)
 └── shader_object_linked_binary
-    └── (same as pipeline_library)
 ```
 
-The 7 pipeline construction type subgroups are created at [lines 78-95](../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L78). The `compute_transfer` group is only added for `monolithic` and `shader_object_unlinked_spirv` construction types at [lines 63-65](../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L63).
+Each construction-type subgroup holds the same ten direct test families: `vp_state`, `rs_state`, `cb_state`, `ds_state`, `general_state`, `inheritance`, `image`, `discard`, `line_width`, and `compute_transfer`. The `compute_transfer` family appears only under `monolithic` and `shader_object_unlinked_spirv`; it is absent from the other five construction types because the dispatcher conditionally attaches it ([dispatcher guard](../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L63-L66)). The `image` family name refers to image-manipulation commands (clear, blit, copy, resolve), not image-related dynamic state. The registration-only dispatcher `vktDynamicStateTests.cpp` has no Level-3 page; its facts are folded into this Level-2 page.
 
-## File Inventory
+## How the Families Fit Together
 
-### Registration / dispatcher files
+The families share one theme: each verifies that a specific set of dynamic state commands produces correct rendering or does not corrupt other state. They differ in which dynamic states they target.
 
-| File | Role | Group Name |
-|---|---|---|
-| [`vktDynamicStateTests.cpp`](../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L1) | Root registration | (root) |
+- **Viewport and rasterization** families (`vp_state`, `rs_state`) test geometric dynamic state: viewport/scissor transforms and depth bias or line width. The test compares rendered geometry against a software reference that applies the same dynamic values.
+- **Color and depth/stencil** families (`cb_state`, `ds_state`) test per-fragment dynamic state: blend constants and stencil parameters or depth bounds. The test checks that the dynamic values override the static pipeline configuration.
+- **General state** (`general_state`) tests state switching, reordering, persistence across pipeline binds, and the static-mask-zero edge case, catching interaction bugs that single-state families would miss.
+- **Inheritance** (`inheritance`) tests whether secondary command buffers correctly inherit viewport/scissor state from the primary under `VK_NV_inherited_viewport_scissor`, including nested command buffer variants.
+- **Side-effect isolation** families (`image`, `compute_transfer`) verify that image-manipulation or compute/transfer commands recorded between dynamic state setup and a draw do not corrupt the dynamic state.
+- **Edge-case families** (`discard`, `line_width`) cover discard-rectangle extension behavior and line-width dynamic state.
 
-### Implementation files
+## Level-3 Pages Navigation
 
-| File | Group Name | Level-3 Doc |
-|---|---|---|
-| [`vktDynamicStateVPTests.cpp`](../../modules/vulkan/dynamic_state/vktDynamicStateVPTests.cpp#L1) | `vp_state` | [vktDynamicStateVPTests.md](../testfiles/dynamic_state/vktDynamicStateVPTests.md) |
-| [`vktDynamicStateRSTests.cpp`](../../modules/vulkan/dynamic_state/vktDynamicStateRSTests.cpp#L1) | `rs_state` | [vktDynamicStateRSTests.md](../testfiles/dynamic_state/vktDynamicStateRSTests.md) |
-| [`vktDynamicStateCBTests.cpp`](../../modules/vulkan/dynamic_state/vktDynamicStateCBTests.cpp#L1) | `cb_state` | [vktDynamicStateCBTests.md](../testfiles/dynamic_state/vktDynamicStateCBTests.md) |
-| [`vktDynamicStateDSTests.cpp`](../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1) | `ds_state` | [vktDynamicStateDSTests.md](../testfiles/dynamic_state/vktDynamicStateDSTests.md) |
-| [`vktDynamicStateGeneralTests.cpp`](../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L1) | `general_state` | [vktDynamicStateGeneralTests.md](../testfiles/dynamic_state/vktDynamicStateGeneralTests.md) |
-| [`vktDynamicStateInheritanceTests.cpp`](../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1) | `inheritance` | [vktDynamicStateInheritanceTests.md](../testfiles/dynamic_state/vktDynamicStateInheritanceTests.md) |
-| [`vktDynamicStateClearTests.cpp`](../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L1) | `image` | [vktDynamicStateClearTests.md](../testfiles/dynamic_state/vktDynamicStateClearTests.md) |
-| [`vktDynamicStateDiscardTests.cpp`](../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L1) | `discard` | [vktDynamicStateDiscardTests.md](../testfiles/dynamic_state/vktDynamicStateDiscardTests.md) |
-| [`vktDynamicStateLineWidthTests.cpp`](../../modules/vulkan/dynamic_state/vktDynamicStateLineWidthTests.cpp#L1) | `line_width` | [vktDynamicStateLineWidthTests.md](../testfiles/dynamic_state/vktDynamicStateLineWidthTests.md) |
-| [`vktDynamicStateComputeTests.cpp`](../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L1) | `compute_transfer` | [vktDynamicStateComputeTests.md](../testfiles/dynamic_state/vktDynamicStateComputeTests.md) |
+| Registered test family | Level-3 page | What to read there |
+|------------------------|--------------|--------------------|
+| `vp_state` | [VP](../testfiles/dynamic_state/VP.md) | Dynamic viewport/scissor with multi-viewport routing |
+| `rs_state` | [RS](../testfiles/dynamic_state/RS.md) | Dynamic depth bias and line width |
+| `cb_state` | [CB](../testfiles/dynamic_state/CB.md) | Dynamic blend constants |
+| `ds_state` | [DS](../testfiles/dynamic_state/DS.md) | Dynamic depth bounds, stencil compare/write mask, stencil reference |
+| `general_state` | [General](../testfiles/dynamic_state/General.md) | State switching, reordering, persistence, static-mask-zero, double static bind |
+| `inheritance` | [Inheritance](../testfiles/dynamic_state/Inheritance.md) | `VK_NV_inherited_viewport_scissor` secondary command buffer inheritance |
+| `image` | [Clear](../testfiles/dynamic_state/Clear.md) | Image-manipulation commands do not corrupt dynamic blend constants |
+| `discard` | [Discard](../testfiles/dynamic_state/Discard.md) | GLSL `discard` interaction with dynamic state |
+| `line_width` | [LineWidth](../testfiles/dynamic_state/LineWidth.md) | Dynamic line width with draw-order interaction |
+| `compute_transfer` | [Compute](../testfiles/dynamic_state/Compute.md) | Compute/transfer commands do not corrupt dynamic state |
 
-### Helper / utility files (no Level-3 docs)
+## Category Notes
 
-| File | Purpose |
-|---|---|
-| [`vktDynamicStateBaseClass.cpp`](../../modules/vulkan/dynamic_state/vktDynamicStateBaseClass.cpp#L1) / [`.hpp`](../../modules/vulkan/dynamic_state/vktDynamicStateBaseClass.hpp#L43) | Shared base class for dynamic state test instances with common Vulkan resource setup |
-| [`vktDynamicStateTestCaseUtil.hpp`](../../modules/vulkan/dynamic_state/vktDynamicStateTestCaseUtil.hpp#L1) | `InstanceFactory` template and support check helpers |
-
-## Cross-File Recurring Test Families
-
-### Dynamic state type coverage
-
-The category covers Vulkan dynamic states organized by functional area:
-
-| Functional Area | Dynamic States | Files |
-|---|---|---|
-| Viewport/Scissor | `VK_DYNAMIC_STATE_VIEWPORT`, `VK_DYNAMIC_STATE_SCISSOR`, `VK_DYNAMIC_STATE_VIEWPORT_WITH_COUNT_EXT`, `VK_DYNAMIC_STATE_SCISSOR_WITH_COUNT_EXT` | VP, General, Compute, Discard |
-| Rasterization | `VK_DYNAMIC_STATE_LINE_WIDTH`, `VK_DYNAMIC_STATE_DEPTH_BIAS`, `VK_DYNAMIC_STATE_DEPTH_BIAS_CLAMP` | RS, LineWidth, Compute, Discard |
-| Color Blend | `VK_DYNAMIC_STATE_BLEND_CONSTANTS` | CB, Compute, Discard, Clear |
-| Depth/Stencil | `VK_DYNAMIC_STATE_DEPTH_BOUNDS`, `VK_DYNAMIC_STATE_STENCIL_COMPARE_MASK`, `VK_DYNAMIC_STATE_STENCIL_WRITE_MASK`, `VK_DYNAMIC_STATE_STENCIL_REFERENCE` | DS, Compute, Discard |
-| Extended Dynamic State | `VK_DYNAMIC_STATE_CULL_MODE_EXT`, `VK_DYNAMIC_STATE_FRONT_FACE_EXT`, `VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY_EXT`, and 9 more | Compute |
-| NV/EXT extensions | `VK_DYNAMIC_STATE_DISCARD_RECTANGLE_EXT`, `VK_DYNAMIC_STATE_VIEWPORT_W_SCALING_NV`, etc. | Compute |
-
-### Mesh shader variants
-
-Most implementation files create both traditional vertex-shader and mesh-shader variants of their tests (suffixed `_mesh`), excluded on Vulkan SC builds. This pattern is observed in VP, RS, CB, DS, and General test files.
-
-## Cross-File Recurring Parameter Dimensions
-
-| Dimension | Values | Files |
-|---|---|---|
-| Pipeline construction type | `MONOLITHIC`, `LINK_TIME_OPTIMIZED_LIBRARY`, `FAST_LINKED_LIBRARY`, `SHADER_OBJECT_UNLINKED_SPIRV`, `SHADER_OBJECT_UNLINKED_BINARY`, `SHADER_OBJECT_LINKED_SPIRV`, `SHADER_OBJECT_LINKED_BINARY` | All files (from root) |
-| Shader type | Vertex+Fragment vs. Mesh+Fragment | VP, RS, CB, DS, General |
-| Vulkan SC exclusion | `#ifndef CTS_USES_VULKANSC` guards | VP, RS, CB, DS, General, Inheritance, Compute |
-
-## Cross-File Recurring Support Requirements
-
-| Requirement | Files |
-|---|---|
-| `VK_EXT_mesh_shader` | VP, RS, CB, DS, General (all mesh variants) |
-| `DEVICE_CORE_FEATURE_WIDE_LINES` | RS, LineWidth |
-| `DEVICE_CORE_FEATURE_DEPTH_BOUNDS` | DS |
-| `DEVICE_CORE_FEATURE_DEPTH_BIAS_CLAMP` | RS |
-| `DEVICE_CORE_FEATURE_GEOMETRY_SHADER` + `MULTI_VIEWPORT` | VP (viewport_array) |
-| `VK_NV_inherited_viewport_scissor` | Inheritance |
-| `VK_EXT_extended_dynamic_state` | Inheritance (with-count variants), Compute |
-| `VK_EXT_nested_command_buffer` | Inheritance (nested variants) |
-| Pipeline construction requirements | All files |
-
-## Cross-File Recurring Verification Methods
-
-| Method | Threshold | Files |
-|---|---|---|
-| `tcu::fuzzyCompare()` | 0.05f | VP, RS, CB, DS, General (state_switch, bind_order, state_persistence), Clear, Discard |
-| `tcu::floatThresholdCompare()` | 0.0f (exact) | RS (nonzero), General (static_stencil_mask_zero, double_static_bind) |
-| `tcu::dsThresholdCompare()` | 0.0f | General (static_stencil_mask_zero) |
-| Pixel counting | N/A | LineWidth |
-| CPU reference rasterization + exact comparison | N/A | Inheritance |
-| Buffer content comparison | N/A | Compute |
-
-## Notes
-
-- The root registration file creates 7 pipeline construction type subgroups. Most direct child groups are registered under all 7 construction types, but individual children can still have narrower registration; for example, `compute_transfer` appears only under `monolithic` and `shader_object_unlinked_spirv`, and `double_static_bind` is omitted for shader-object construction types.
-- The `compute_transfer` group is only registered for `monolithic` and `shader_object_unlinked_spirv` construction types.
-- The `image` group name (from `vktDynamicStateClearTests.cpp`) refers to image manipulation commands (clear, blit, copy, resolve) being tested for non-interference with dynamic state, not to image-related dynamic state.
+- The `compute_transfer` family is registered only under `monolithic` and `shader_object_unlinked_spirv`; it is absent from the other five construction types ([dispatcher guard](../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L63-L66)).
+- The `general_state` family omits the `double_static_bind` group for shader-object construction types.
+- Mesh-shader variants (`_mesh` suffix) are registered for several families but are excluded from VulkanSC builds under `CTS_USES_VULKANSC` guards.
+- The `vktDynamicStateBaseClass.cpp`/`.hpp` shared base and `vktDynamicStateTestCaseUtil.hpp` instance-factory template have no Level-3 pages; Level-3 pages reference them as supporting evidence.
