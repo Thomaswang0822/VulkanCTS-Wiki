@@ -1,0 +1,69 @@
+# Orchestration and Batching
+
+## Step 0: lead-owned outline
+
+The lead agent performs wiki-rewriter Step 0 directly. Never delegate outline creation.
+
+1. Inspect category state and the old Level-2/Level-3 inventory.
+2. If an outline exists, treat the task as resumed work and establish which entries are unfinished.
+3. If no outline exists and the category is new, create the canonical outline under `external/vulkancts/wiki/internal_doc/` using wiki-rewriter's outline template.
+4. If a new outline was created, hard stop for user approval. Do not inspect page implementations deeply, create briefs, or rewrite pages before approval.
+5. Once approved, retain the outline as the batching and page-classification authority for rewrite.
+
+The lead writes the outline because its category-wide survey is required context for later coordination. This reason need not be exposed in worker prompts.
+
+## Batch semantics
+
+An approved outline batch defines:
+
+- which pages belong to the same logical wave;
+- page order;
+- brief/direct-rewrite decisions;
+- dispatcher and Level-2 synthesis notes.
+
+It does not define worker granularity. For a batch containing pages A, B, and C, dispatch three workers: one for A, one for B, and one for C.
+
+If the runtime permits fewer workers than the batch contains, preserve outline order and split the batch into successive dispatch waves. Do not move pages between outline batches merely to fill concurrency slots.
+
+## Rewrite phase
+
+For each approved outline batch:
+
+1. Resolve one input contract per page.
+2. Dispatch one rewrite worker per page.
+3. Wait for the complete wave result.
+4. Check each expected brief/output on disk and run page validators.
+5. Retry missing, failed, or provenance-suspect pages individually.
+6. Mark the outline batch stable only when every page passes.
+
+After all Level-3 batches stabilize, perform lead-owned Level-2 synthesis and category Background Knowledge consolidation. Then run category validation before audit.
+
+## Audit phase
+
+1. Enumerate the full rewritten Level-3 set and Level-2 page; exclude briefs and internal documentation.
+2. Audit Level-2 Background Knowledge first so workers have the correct shared-concept ownership model.
+3. Create the combined audit summary before dispatching Level-3 workers.
+4. Dispatch one audit worker per Level-3 page. Concurrency waves may differ from rewrite batches, but page granularity never changes.
+5. After each wave, verify edits and immediately append page findings/no-issue entries to the lead-owned summary.
+6. Retry failed pages individually.
+7. Reconcile recurring patterns, audit the rest of Level-2, run category validation, and finalize the summary.
+
+## Publish phase
+
+1. Confirm every English page is audit-stable.
+2. Dispatch one translation worker per Level-3 page and one worker for the Level-2 page.
+3. Check every target file for existence, target-language text, and structural verification.
+4. Retry only missing, failed, or suspect translations.
+5. After all translations pass, run link conversion per file.
+6. Run link-conversion check mode to prove idempotency.
+7. Verify or update `home.md`, then run final category checks.
+
+## Phase barriers
+
+Do not cross a barrier until its condition is true:
+
+- **Outline barrier:** a new outline has explicit user approval.
+- **Rewrite barrier:** all outline-assigned Level-3 outputs/briefs and Level-2 synthesis exist and validate.
+- **Audit barrier:** every Level-3 page and Level-2 page has an audit outcome; repairs and category validation pass; summary is final.
+- **Publish barrier:** every translation exists, contains target-language text, and passes structural verification.
+- **Completion barrier:** conversion is idempotent, `home.md` and checklist are correct, counts are reconciled, and safety checks pass.
