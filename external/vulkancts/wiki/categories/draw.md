@@ -1,199 +1,73 @@
-# Draw Tests
-
 ## Overview
 
-The [`draw`](../../modules/vulkan/draw/vktDrawTests.cpp#L126) category tests Vulkan draw commands and their interactions with rendering state. It verifies that draw parameters (vertex input, instancing, indexing, indirect buffers) are respected, that viewport and scissor transformations produce correct results, and that extension-gated features (discard rectangles, vertex attribute divisor, multi-draw, AHB external format) integrate correctly with the draw pipeline.
+The `draw` test category collects Vulkan CTS tests that check draw-command behavior and the rendering state that determines their results. The category compares direct, indexed, indirect, instanced, multi-draw, rasterization, interpolation, shader-built-in, external-resource, and extension-specific behavior across render-pass and eligible dynamic-rendering command-buffer paths.
 
-As stated in the [test plan](../../../../doc/testspecs/VK/apitests.adoc#L674): "Draw command tests verify that all draw parameters are respected (including vertex input state) and various draw call sizes work correctly."
+## Background Knowledge
 
-## Registration Entry Point
+- A Vulkan draw command consumes vertex and instance data through vertex-input bindings, attributes, indices, and draw parameters such as `firstVertex`, `firstIndex`, `baseVertex`, `firstInstance`, and `instanceCount`.
+- A render pass and dynamic rendering establish attachment scope, load and store behavior, layouts, and subpass relationships. Secondary command buffers add recording and inheritance constraints.
+- Rasterization state transforms primitives into fragments. Viewport, depth range, scissor, depth bias, point-size limits, discard rectangles, interpolation qualifiers, and line-rasterization state affect which values reach an attachment.
+- Shader interfaces and built-ins carry values between stages. Several draw families generate shaders to test interpolation, `gl_Layer`, `gl_ViewportIndex`, helper invocations, sample-qualified inputs, and explicit vertex parameters.
+- Many families use a readback image or buffer and compare it with a source-generated reference. A support skip means a prerequisite is unavailable; it is distinct from a failed result comparison.
 
-The category is rooted in [`createTests()`](../../modules/vulkan/draw/vktDrawTests.cpp#L126), which creates two direct children under `draw`:
+## Category Structure
 
 ```text
 draw
-├── renderpass                              (VK + VKSC)
-└── dynamic_rendering                       (VK only)
+├── renderpass
+└── dynamic_rendering
 ```
 
-Source: [`createTests()`](../../modules/vulkan/draw/vktDrawTests.cpp#L126).
+`renderpass` is present for Vulkan and Vulkan SC where supported. `dynamic_rendering` is a Vulkan-only root with `primary_cmd_buff`, `partial_secondary_cmd_buff`, `complete_secondary_cmd_buff`, `nested_partial_secondary_cmd_buff`, and `nested_complete_secondary_cmd_buff` variants. The dispatcher omits families whose implementation requires render-pass subpasses, Amber restrictions, or other explicitly excluded paths.
 
-## Variant-Root Architecture
+## How the Families Fit Together
 
-Unlike most categories where each source file registers under one flat group, the draw category uses a two-axis structure:
+The families share draw-category setup and readback conventions, but each isolates a different stage of the draw pipeline:
 
-- **Variant root axis**: `renderpass` (always present) and `dynamic_rendering` (VK only, with 5 sub-variants)
-- **Topic group axis**: Content groups registered under each variant root by [`createChildren()`](../../modules/vulkan/draw/vktDrawTests.cpp#L70)
+- **Command and input behavior** covers direct, indexed, instanced, indirect, concurrent, shader-visible draw parameters, multi-draw, and vertex attribute divisors.
+- **Rasterization and depth behavior** covers viewport-height and depth-range transformations, depth clamping, depth bias, point-size clamping, scissors, discard rectangles, and non-line rasterization.
+- **Shader interface and fragment behavior** covers differing and multiple interpolation, multisample linear interpolation, explicit vertex parameters, sample attributes, shader layer and viewport index, shader invocation, and output locations.
+- **External and extension-heavy resources** covers Android hardware buffers and external-format resolve, while retaining the same category-level rendering and result-checking model.
 
-### Variant Root to Mustpass Mapping
+The Level-3 pages explain the implementation-specific parameters and verdict rules. The dispatcher itself is represented here as category structure rather than as a separate implementation-bearing page.
 
-Both variant roots are in the **same** `draw.txt` mustpass file:
+## Level-3 Pages Navigation
 
-| Variant root | Mustpass file | Sub-variants |
+| Registered test family or area | Level-3 page | What to read there |
 |---|---|---|
-| `renderpass` | `draw.txt` | None |
-| `dynamic_rendering` | `draw.txt` | `primary_cmd_buff`, `partial_secondary_cmd_buff`, `complete_secondary_cmd_buff`, `nested_partial_secondary_cmd_buff`, `nested_complete_secondary_cmd_buff` |
+| `basic_draw` | [BasicDrawTests.md](../testfiles/draw/BasicDrawTests.md) | Direct and indexed draw parameters, topology, and command-buffer variants. |
+| `simple_draw` | [SimpleTest.md](../testfiles/draw/SimpleTest.md) | Fixed triangle-list and triangle-strip rendering and image comparison. |
+| `indexed_draw` | [IndexedTest.md](../testfiles/draw/IndexedTest.md) | Index types, offsets, base vertex, and indexed instancing. |
+| `instanced` | [InstancedTests.md](../testfiles/draw/InstancedTests.md) | Instance count, first instance, and instance-rate input behavior. |
+| `indirect_draw` | [IndirectTest.md](../testfiles/draw/IndirectTest.md) | Indirect command records, generated commands, count buffers, and synchronization. |
+| `indirect_instanced` | [IndirectInstancedTests.md](../testfiles/draw/IndirectInstancedTests.md) | Indirect commands combined with instancing and command counts. |
+| `concurrent` | [ConcurrentTests.md](../testfiles/draw/ConcurrentTests.md) | Interleaved compute and graphics work and observable synchronization. |
+| `shader_draw_parameters` | [ShaderDrawParametersTests.md](../testfiles/draw/ShaderDrawParametersTests.md) | Shader-visible base vertex, base instance, and draw index. |
+| `depth_clamp` | [DepthClampTests.md](../testfiles/draw/DepthClampTests.md) | Depth clamping, depth formats, and clipping behavior. |
+| `inverted_depth_ranges` | [InvertedDepthRangesTests.md](../testfiles/draw/InvertedDepthRangesTests.md) | Inverted viewport depth ranges with and without clamping. |
+| `negative_viewport_height`, `zero_viewport_height`, `offscreen_viewport` | [NegativeViewportHeightTests.md](../testfiles/draw/NegativeViewportHeightTests.md) | Negative and zero viewport heights and offscreen viewport placement. |
+| `depth_bias` | [DepthBiasTests.md](../testfiles/draw/DepthBiasTests.md) | Depth-bias factors, dynamic state, and depth comparison. |
+| `point_size_clamp` | [PointClampTests.md](../testfiles/draw/PointClampTests.md) | Device point-size limits and oversized point behavior. |
+| `scissor` | [ScissorTests.md](../testfiles/draw/ScissorTests.md) | Static and dynamic scissors applied to draws and clears. |
+| `discard_rectangles` | [DiscardRectanglesTests.md](../testfiles/draw/DiscardRectanglesTests.md) | Inclusive and exclusive discard rectangles and scissor interaction. |
+| `multiple_clears_within_render_pass` | [MultipleClearsWithinRenderPass.md](../testfiles/draw/MultipleClearsWithinRenderPass.md) | Ordered load, clear, draw, blending, depth, and attachment results. |
+| `output_location` | [OutputLocationTests.md](../testfiles/draw/OutputLocationTests.md) | Amber output arrays, formats, precision, and output-location shuffling. |
+| `shader_invocation` | [ShaderInvocationTests.md](../testfiles/draw/ShaderInvocationTests.md) | Helper invocations, demotion, subgroup quad operations, atomics, and memory model behavior. |
+| `differing_interpolation` | [DifferingInterpolationTests.md](../testfiles/draw/DifferingInterpolationTests.md) | Qualifier mismatch between vertex outputs and fragment inputs. |
+| `multiple_interpolation` | [MultipleInterpolationTests.md](../testfiles/draw/MultipleInterpolationTests.md) | Multiple interpolation qualifiers across variables, blocks, arrays, and samples. |
+| `linear_interpolation` | [MultisampleLinearInterpolationTests.md](../testfiles/draw/MultisampleLinearInterpolationTests.md) | Multisample interpolation offsets and explicit sample interpolation. |
+| `explicit_vertex_parameter` | [ExplicitVertexParameterTests.md](../testfiles/draw/ExplicitVertexParameterTests.md) | AMD barycentric interpolation and explicit vertex parameters. |
+| `implicit_sample_shading` | [SampleAttributeTests.md](../testfiles/draw/SampleAttributeTests.md) | Implicit sample shading triggered by sample-qualified inputs and built-ins. |
+| `shader_layer` | [ShaderLayerTests.md](../testfiles/draw/ShaderLayerTests.md) | Layered rendering and `gl_Layer` output from shader stages. |
+| `shader_viewport_index` | [ShaderViewportIndexTests.md](../testfiles/draw/ShaderViewportIndexTests.md) | `gl_ViewportIndex`, multiple viewports, and stage-specific behavior. |
+| `non_line_with_params` | [NonLineTests.md](../testfiles/draw/NonLineTests.md) | Non-line primitives under line-rasterization modes. |
+| `multi_draw` | [MultiExtTests.md](../testfiles/draw/MultiExtTests.md) | `VK_EXT_multi_draw`, mosaic and overlapping workloads, and draw identity. |
+| `ahb` | [AhbTests.md](../testfiles/draw/AhbTests.md) | Android hardware-buffer import, layered rendering, and readback. |
+| `ahb_external_format_resolve` | [AhbExternalFormatResolveTests.md](../testfiles/draw/AhbExternalFormatResolveTests.md) | External-format resolve, YUV decoding, AHB readback, and subpass input attachments. |
+| `vertex_attribute_divisor` | [VertexAttribDivisorTests.md](../testfiles/draw/VertexAttribDivisorTests.md) | Extension variants, divisor values, command forms, and instance-rate attributes. |
 
-### SharedGroupParams
+## Category Notes
 
-Each variant is configured with [`GroupParams`](../../modules/vulkan/draw/vktDrawGroupParams.hpp#L1) controlling rendering mode and command buffer usage:
+The registration-only dispatcher `vktDrawTests.cpp` is folded into this page. Shared utility files provide common image, buffer, create-info, command-recording, and group-parameter infrastructure and are not separate Level-3 test families. The exact registration leaves and profile-specific inclusion remain source and mustpass responsibilities documented by each Level-3 page.
 
-| Parameter | renderpass | primary_cmd_buff | partial_secondary | complete_secondary | nested_partial | nested_complete |
-|---|---|---|---|---|---|---|
-| `useDynamicRendering` | false | true | true | true | true | true |
-| `useSecondaryCmdBuffer` | false | false | true | true | true | true |
-| `secondaryCmdBufferCompletelyContainsDynamicRenderpass` | false | false | false | true | false | true |
-| `nestedSecondaryCmdBuffer` | false | false | false | false | true | true |
-
-## Topic-Group Registration Matrix
-
-The following table shows each topic group's variant coverage, verified against [`createChildren()`](../../modules/vulkan/draw/vktDrawTests.cpp#L70).
-
-| Topic group | Condition | VKSC | Level-3 doc |
-|---|---|---|---|
-| `basic_draw` | All variants (including nested) | Available | [vktBasicDrawTests.cpp](../testfiles/draw/vktBasicDrawTests.md) |
-| `simple_draw` | Not nested | Available | [vktDrawSimpleTest.cpp](../testfiles/draw/vktDrawSimpleTest.md) |
-| `concurrent` | Not nested | Available | [vktDrawConcurrentTests.cpp](../testfiles/draw/vktDrawConcurrentTests.md) |
-| `indexed_draw` | Not nested | Available | [vktDrawIndexedTest.cpp](../testfiles/draw/vktDrawIndexedTest.md) |
-| `indirect_draw` | Not nested | Available | [vktDrawIndirectTest.cpp](../testfiles/draw/vktDrawIndirectTest.md) |
-| `instanced` | Not nested | Available | [vktDrawInstancedTests.cpp](../testfiles/draw/vktDrawInstancedTests.md) |
-| `shader_draw_parameters` | Not nested | Available | [vktDrawShaderDrawParametersTests.cpp](../testfiles/draw/vktDrawShaderDrawParametersTests.md) |
-| `negative_viewport_height` | Not nested | Available | [vktDrawNegativeViewportHeightTests.cpp](../testfiles/draw/vktDrawNegativeViewportHeightTests.md) |
-| `zero_viewport_height` | Not nested | Available | [vktDrawNegativeViewportHeightTests.cpp](../testfiles/draw/vktDrawNegativeViewportHeightTests.md) |
-| `offscreen_viewport` | Not nested | Available | [vktDrawNegativeViewportHeightTests.cpp](../testfiles/draw/vktDrawNegativeViewportHeightTests.md) |
-| `inverted_depth_ranges` | Not nested | Available | [vktDrawInvertedDepthRangesTests.cpp](../testfiles/draw/vktDrawInvertedDepthRangesTests.md) |
-| `differing_interpolation` | Not nested | Available | [vktDrawDifferingInterpolationTests.cpp](../testfiles/draw/vktDrawDifferingInterpolationTests.md) |
-| `shader_layer` | Not nested | Available | [vktDrawShaderLayerTests.cpp](../testfiles/draw/vktDrawShaderLayerTests.md) |
-| `shader_viewport_index` | Not nested | Available | [vktDrawShaderViewportIndexTests.cpp](../testfiles/draw/vktDrawShaderViewportIndexTests.md) |
-| `scissor` | Not nested | Available | [vktDrawScissorTests.cpp](../testfiles/draw/vktDrawScissorTests.md) |
-| `multiple_interpolation` | Not nested | Available | [vktDrawMultipleInterpolationTests.cpp](../testfiles/draw/vktDrawMultipleInterpolationTests.md) |
-| `linear_interpolation` | Not nested | Available | [vktDrawMultisampleLinearInterpolationTests.cpp](../testfiles/draw/vktDrawMultisampleLinearInterpolationTests.md) |
-| `discard_rectangles` | Not nested | Available | [vktDrawDiscardRectanglesTests.cpp](../testfiles/draw/vktDrawDiscardRectanglesTests.md) |
-| `explicit_vertex_parameter` | Not nested | Available | [vktDrawExplicitVertexParameterTests.cpp](../testfiles/draw/vktDrawExplicitVertexParameterTests.md) |
-| `depth_clamp` | Not nested | Available | [vktDrawDepthClampTests.cpp](../testfiles/draw/vktDrawDepthClampTests.md) |
-| `multiple_clears_within_render_pass` | Not nested | Available | [vktDrawMultipleClearsWithinRenderPass.cpp](../testfiles/draw/vktDrawMultipleClearsWithinRenderPass.md) |
-| `implicit_sample_shading` | Not nested | Available | [vktDrawSampleAttributeTests.cpp](../testfiles/draw/vktDrawSampleAttributeTests.md) |
-| `vertex_attribute_divisor` | Not nested | Available | [vktDrawVertexAttribDivisorTests.cpp](../testfiles/draw/vktDrawVertexAttribDivisorTests.md) |
-| `indirect_instanced` | Not nested | Available | [vktDrawIndirectInstancedTests.cpp](../testfiles/draw/vktDrawIndirectInstancedTests.md) |
-| `multi_draw` | Not nested, VK only | N/A | [vktDrawMultiExtTests.cpp](../testfiles/draw/vktDrawMultiExtTests.md) |
-| `depth_bias` | Renderpass-only, VK only | N/A | [vktDrawDepthBiasTests.cpp](../testfiles/draw/vktDrawDepthBiasTests.md) |
-| `output_location` | Renderpass-only, VK only | N/A | [vktDrawOutputLocationTests.cpp](../testfiles/draw/vktDrawOutputLocationTests.md) |
-| `shader_invocation` | Renderpass-only, VK only | N/A | [vktDrawShaderInvocationTests.cpp](../testfiles/draw/vktDrawShaderInvocationTests.md) |
-| `ahb` | Renderpass-only, VK only | N/A | [vktDrawAhbTests.cpp](../testfiles/draw/vktDrawAhbTests.md) |
-| `non_line_with_params` | Renderpass-only, VK only | N/A | [vktDrawNonLineTests.cpp](../testfiles/draw/vktDrawNonLineTests.md) |
-| `ahb_external_format_resolve` | Not nested, VK only | N/A | [vktDrawAhbExternalFormatResolveTests.cpp](../testfiles/draw/vktDrawAhbExternalFormatResolveTests.md) |
-| `point_size_clamp` | Renderpass-only | Available | [vktDrawPointClampTests.cpp](../testfiles/draw/vktDrawPointClampTests.md) |
-
-## File Inventory
-
-### Registration Files
-
-| File | Role |
-|---|---|
-| [`vktDrawTests.cpp`](../../modules/vulkan/draw/vktDrawTests.cpp#L1) | Root dispatcher; creates variant roots and delegates to `createChildren()` |
-
-### Implementation Files
-
-| File | Topic group(s) |
-|---|---|
-| [`vktBasicDrawTests.cpp`](../../modules/vulkan/draw/vktBasicDrawTests.cpp#L1) | `basic_draw` |
-| [`vktDrawSimpleTest.cpp`](../../modules/vulkan/draw/vktDrawSimpleTest.cpp#L1) | `simple_draw` |
-| [`vktDrawConcurrentTests.cpp`](../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L1) | `concurrent` |
-| [`vktDrawIndexedTest.cpp`](../../modules/vulkan/draw/vktDrawIndexedTest.cpp#L1) | `indexed_draw` |
-| [`vktDrawIndirectTest.cpp`](../../modules/vulkan/draw/vktDrawIndirectTest.cpp#L1) | `indirect_draw` |
-| [`vktDrawInstancedTests.cpp`](../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L1) | `instanced` |
-| [`vktDrawShaderDrawParametersTests.cpp`](../../modules/vulkan/draw/vktDrawShaderDrawParametersTests.cpp#L1) | `shader_draw_parameters` |
-| [`vktDrawShaderInvocationTests.cpp`](../../modules/vulkan/draw/vktDrawShaderInvocationTests.cpp#L1) | `shader_invocation` |
-| [`vktDrawNegativeViewportHeightTests.cpp`](../../modules/vulkan/draw/vktDrawNegativeViewportHeightTests.cpp#L1) | `negative_viewport_height`, `zero_viewport_height`, `offscreen_viewport` |
-| [`vktDrawInvertedDepthRangesTests.cpp`](../../modules/vulkan/draw/vktDrawInvertedDepthRangesTests.cpp#L1) | `inverted_depth_ranges` |
-| [`vktDrawDifferingInterpolationTests.cpp`](../../modules/vulkan/draw/vktDrawDifferingInterpolationTests.cpp#L1) | `differing_interpolation` |
-| [`vktDrawShaderLayerTests.cpp`](../../modules/vulkan/draw/vktDrawShaderLayerTests.cpp#L1) | `shader_layer` |
-| [`vktDrawShaderViewportIndexTests.cpp`](../../modules/vulkan/draw/vktDrawShaderViewportIndexTests.cpp#L1) | `shader_viewport_index` |
-| [`vktDrawScissorTests.cpp`](../../modules/vulkan/draw/vktDrawScissorTests.cpp#L1) | `scissor` |
-| [`vktDrawMultipleInterpolationTests.cpp`](../../modules/vulkan/draw/vktDrawMultipleInterpolationTests.cpp#L1) | `multiple_interpolation` |
-| [`vktDrawMultisampleLinearInterpolationTests.cpp`](../../modules/vulkan/draw/vktDrawMultisampleLinearInterpolationTests.cpp#L1) | `linear_interpolation` |
-| [`vktDrawDiscardRectanglesTests.cpp`](../../modules/vulkan/draw/vktDrawDiscardRectanglesTests.cpp#L1) | `discard_rectangles` |
-| [`vktDrawExplicitVertexParameterTests.cpp`](../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L1) | `explicit_vertex_parameter` |
-| [`vktDrawDepthClampTests.cpp`](../../modules/vulkan/draw/vktDrawDepthClampTests.cpp#L1) | `depth_clamp` |
-| [`vktDrawMultipleClearsWithinRenderPass.cpp`](../../modules/vulkan/draw/vktDrawMultipleClearsWithinRenderPass.cpp#L1) | `multiple_clears_within_render_pass` |
-| [`vktDrawSampleAttributeTests.cpp`](../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L1) | `implicit_sample_shading` |
-| [`vktDrawVertexAttribDivisorTests.cpp`](../../modules/vulkan/draw/vktDrawVertexAttribDivisorTests.cpp#L1) | `vertex_attribute_divisor` |
-| [`vktDrawOutputLocationTests.cpp`](../../modules/vulkan/draw/vktDrawOutputLocationTests.cpp#L1) | `output_location` |
-| [`vktDrawDepthBiasTests.cpp`](../../modules/vulkan/draw/vktDrawDepthBiasTests.cpp#L1) | `depth_bias` |
-| [`vktDrawAhbTests.cpp`](../../modules/vulkan/draw/vktDrawAhbTests.cpp#L1) | `ahb` |
-| [`vktDrawAhbExternalFormatResolveTests.cpp`](../../modules/vulkan/draw/vktDrawAhbExternalFormatResolveTests.cpp#L1) | `ahb_external_format_resolve` |
-| [`vktDrawMultiExtTests.cpp`](../../modules/vulkan/draw/vktDrawMultiExtTests.cpp#L1) | `multi_draw` |
-| [`vktDrawPointClampTests.cpp`](../../modules/vulkan/draw/vktDrawPointClampTests.cpp#L1) | `point_size_clamp` |
-| [`vktDrawNonLineTests.cpp`](../../modules/vulkan/draw/vktDrawNonLineTests.cpp#L1) | `non_line_with_params` |
-| [`vktDrawIndirectInstancedTests.cpp`](../../modules/vulkan/draw/vktDrawIndirectInstancedTests.cpp#L1) | `indirect_instanced` |
-
-### Utility / Helper Files
-
-These files provide shared infrastructure and do not register tests directly:
-
-| File | Purpose |
-|---|---|
-| [`vktDrawBaseClass.cpp`](../../modules/vulkan/draw/vktDrawBaseClass.cpp#L1) | Base test class with common draw setup |
-| [`vktDrawBufferObjectUtil.cpp`](../../modules/vulkan/draw/vktDrawBufferObjectUtil.cpp#L1) | Buffer object creation and management helpers |
-| [`vktDrawCreateInfoUtil.cpp`](../../modules/vulkan/draw/vktDrawCreateInfoUtil.cpp#L1) | Create-info struct builders |
-| [`vktDrawGroupParams.hpp`](../../modules/vulkan/draw/vktDrawGroupParams.hpp#L1) | Shared `GroupParams` struct for variant configuration |
-| [`vktDrawImageObjectUtil.cpp`](../../modules/vulkan/draw/vktDrawImageObjectUtil.cpp#L1) | Image object creation and management helpers |
-| [`vktDrawTestCaseUtil.hpp`](../../modules/vulkan/draw/vktDrawTestCaseUtil.hpp#L1) | Test case utility declarations |
-
-## Cross-File Recurring Themes
-
-### Draw Command Coverage
-
-The category systematically covers all Vulkan draw commands: `vkCmdDraw`, `vkCmdDrawIndexed`, `vkCmdDrawIndirect`, `vkCmdDrawIndexedIndirect`, `vkCmdDrawIndirectCount`, `vkCmdDrawIndexedIndirectCount`, and the multi-draw extensions (`VK_EXT_multi_draw`). Each draw command is tested across multiple primitive topologies, vertex counts, and instancing configurations.
-
-### Viewport and Depth Range Transformations
-
-Multiple topic groups test viewport-related behavior: negative viewport height (Y-flip), zero viewport height, off-screen viewports, inverted depth ranges, and depth clamping. These verify the coordinate transformation pipeline from clip space through viewport transform to framebuffer coordinates.
-
-### Interpolation Qualifiers
-
-Three topic groups cover interpolation: `differing_interpolation` (mismatching qualifiers), `multiple_interpolation` (simultaneous qualifiers), and `linear_interpolation` (multisample linear interpolation with `interpolateAtOffset`/`interpolateAtSample`). The `explicit_vertex_parameter` group tests AMD's manual barycentric interpolation.
-
-### Dynamic Rendering Compatibility
-
-The variant-root structure ensures that draw functionality works correctly under both renderpass-based and dynamic rendering modes, including secondary command buffer scenarios. Some groups (amber tests, subpass-dependent tests) are restricted to renderpass-only mode.
-
-## Cross-File Recurring Parameter Dimensions
-
-| Dimension | Observed in | Values |
-|---|---|---|
-| Primitive topology | basic_draw, instanced, indirect_draw, indexed_draw | All 10 `VkPrimitiveTopology` values |
-| Instance count | instanced, indirect_instanced, multi_draw | 0–20, firstInstance offsets |
-| Sample count | multiple_interpolation, linear_interpolation, explicit_vertex_parameter | 1, 2, 4, 8, 16, 32, 64 |
-| Vertex/instance divisor | vertex_attribute_divisor, instanced | 0, 1, 2, 16 |
-| Dynamic rendering mode | All topic groups | Renderpass vs dynamic rendering with 5 command buffer configurations |
-
-## Cross-File Recurring Support Requirements
-
-| Requirement | Topic groups |
-|---|---|
-| `VK_KHR_maintenance1` | negative_viewport_height, zero_viewport_height, offscreen_viewport |
-| `VK_KHR_maintenance5` | basic_draw, indexed_draw |
-| `VK_KHR_dynamic_rendering` | All dynamic_rendering variant tests |
-| `VK_EXT_discard_rectangles` | discard_rectangles |
-| `VK_EXT_vertex_attribute_divisor` / `VK_KHR_vertex_attribute_divisor` | vertex_attribute_divisor, instanced |
-| `VK_EXT_multi_draw` | multi_draw |
-| `VK_EXT_depth_range_unrestricted` | inverted_depth_ranges, depth_clamp |
-| `VK_EXT_depth_clamp_control` | depth_clamp |
-| `VK_AMD_shader_explicit_vertex_parameter` | explicit_vertex_parameter |
-| `VK_EXT_shader_demote_to_helper_invocation` | shader_invocation |
-| `VK_ANDROID_external_memory_android_hardware_buffer` | ahb |
-| `VK_ANDROID_external_format_resolve` | ahb_external_format_resolve |
-| `largePoints` feature | point_size_clamp |
-| `multiDrawIndirect` feature | indirect_draw, indirect_instanced, multi_draw |
-
-## Cross-File Recurring Verification Methods
-
-| Method | Topic groups |
-|---|---|
-| Fuzzy image comparison (`tcu::fuzzyCompare`) | simple_draw, concurrent, basic_draw, instanced, ahb |
-| Integer threshold comparison (`tcu::intThresholdCompare`) | ahb_external_format_resolve |
-| Software reference renderer (`rr::Renderer`) | basic_draw, indexed_draw, indirect_draw, indirect_instanced |
-| Amber test framework | shader_invocation, output_location, depth_bias, basic_draw (misc) |
-| Atomic counter verification | implicit_sample_shading |
-| Two-pass rendering comparison | differing_interpolation, non_line_with_params |
+The category has two important scope boundaries. First, nested dynamic-rendering variants intentionally contain only the families selected by the dispatcher, notably the basic family. Second, Vulkan SC and platform-specific Android hardware-buffer paths have explicit compile-time or support gates. A missing path in one profile should not be interpreted as a missing implementation in the source.
