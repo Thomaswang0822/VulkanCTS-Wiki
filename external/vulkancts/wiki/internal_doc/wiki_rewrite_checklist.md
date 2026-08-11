@@ -21,7 +21,7 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [x] 11. ssbo — 3 (UB: 2)
 - [x] 12. query_pool — 7 (UB: 5)
 - [x] 13. draw — 30 (UB: 24)
-- [ ] 14. compute — 8
+- [x] 14. compute — 7 (UB: 4)
 - [x] 15. image — 24 (UB: 17)
 - [ ] 16. image_processing — 3
 - [ ] 17. wsi — 14
@@ -62,4 +62,4 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [ ] 52. tensor — 7
 - [ ] 53. data_graph — 4
 
-**Summary**: 19 done (372 L3 pages, 216 UBs), 34 todo (372 L3 pages).
+**Summary**: 20 done, 33 todo.
