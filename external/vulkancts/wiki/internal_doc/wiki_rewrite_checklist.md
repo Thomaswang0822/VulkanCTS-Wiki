@@ -25,8 +25,8 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [x] 15. image — 24 (UB: 17)
 - [ ] 16. image_processing — 3
 - [x] 17. wsi — 13 (UB: 10)
-- [ ] 18. synchronization — 17
-- [ ] 19. synchronization2 (should be done together with synchronization)
+- [x] 18. synchronization — 16 (UB: 16)
+- [x] 19. synchronization2 — shared with synchronization (UB: shared)
 - [ ] 20. sparse_resources — 14
 - [ ] 21. tessellation — 17
 - [x] 22. rasterization — 6 (UB: 5)
@@ -62,4 +62,4 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [ ] 52. tensor — 7
 - [ ] 53. data_graph — 4
 
-**Summary**: 21 done, 32 todo.
+**Summary**: 23 done, 30 todo.

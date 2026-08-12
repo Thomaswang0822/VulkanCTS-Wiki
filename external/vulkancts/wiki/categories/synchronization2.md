@@ -1,105 +1,61 @@
-# synchronization2
-
 ## Overview
 
-The [`synchronization2`](../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L186) category tests Vulkan's `VK_KHR_synchronization2` extension (promoted to Vulkan 1.3 core), which introduces simplified synchronization APIs using unified `VkDependencyInfo` structs, `VkSubmitInfo2`, and more granular pipeline stage/access flags.
+The `synchronization2` test category checks Vulkan synchronization behavior through `VK_KHR_synchronization2` and its Vulkan 1.3 core APIs, including `VkDependencyInfo`, `VkSubmitInfo2`, and the more granular stage/access model. Its implementation is shared with `synchronization`, but this page covers the `SynchronizationType::SYNCHRONIZATION2` registration and mustpass scope.
 
-The historical Vulkan API test plan predates this modern API family, but its synchronization objective still provides useful conceptual background: execution-ordering primitives should work across non-trivial workloads, with fences, semaphores, and events treated as recurring primitive families ([`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L370-L425)). The synchronization2-specific registration and behavior documented here come from current source and mustpass evidence, not from that older plan.
+## Background Knowledge
 
-This category uses `SynchronizationType::SYNCHRONIZATION2`, meaning it calls the new APIs such as `vkCmdPipelineBarrier2()`, `vkQueueSubmit2()`, and `vkCmdSetEvent2()`/`vkCmdWaitEvents2()`. A companion category [`synchronization`](synchronization.md) tests the same concepts using the legacy Vulkan 1.0 API.
+- **Synchronization scopes:** a synchronization2 barrier names execution and memory scopes separately. The stage/access pair identifies which earlier operations are made available and which later operations can observe them; `NONE` is an empty scope rather than a substitute for the later consumer operation.
+- **Queue-family ownership transfer:** an exclusive resource released by one queue family must be acquired by another before the consumer uses it. Synchronization2 operation pages combine this ownership transfer with `VkDependencyInfo` and semaphore submission structures.
 
-## Registration Entry Point
-
-The category is rooted in [`createSynchronization2Tests()`](../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L186), which delegates to [`createTestsInternal()`](../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L114) with `SynchronizationType::SYNCHRONIZATION2`. Group names below are verified against [`synchronization2.txt`](../../mustpass/main/vk-default/synchronization2.txt).
+## Category Structure
 
 ```text
 synchronization2
 ├── smoke
 ├── timeline_semaphore
-├── none_stage                         [not in Vulkan SC]
-├── internally_synchronized_queues     [not in Vulkan SC]
+├── none_stage
+├── internally_synchronized_queues
 ├── layout_transition
 ├── basic
-│   ├── event
-│   ├── binary_semaphore
-│   └── timeline_semaphore
 ├── op
-│   ├── single_queue
-│   └── multi_queue
-├── cross_instance                     [not in Vulkan SC]
-├── signal_order                       [not in Vulkan SC]
-└── implicit                           [not in Vulkan SC]
+├── cross_instance
+├── signal_order
+└── implicit
 ```
 
-## File Inventory
+`basic` and `op` contain intermediate nodes in the registered hierarchy. The dispatcher `vktSynchronizationTests.cpp` is registration-only; implementation-bearing pages are shared with `synchronization` because the source selects behavior through `SynchronizationType`.
 
-| File | Role | Verified group name | Level-3 doc |
-|---|---|---|---|
-| [`vktSynchronizationTests.cpp`](../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L1) | Registration / dispatcher | (root) | [`vktSynchronizationTests.md`](../testfiles/synchronization/vktSynchronizationTests.md) |
-| [`vktSynchronizationSmokeTests.cpp`](../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1) | Implementation | `smoke` | [`vktSynchronizationSmokeTests.md`](../testfiles/synchronization/vktSynchronizationSmokeTests.md) |
-| [`vktSynchronizationBasicSemaphoreTests.cpp`](../../modules/vulkan/synchronization/vktSynchronizationBasicSemaphoreTests.cpp#L1) | Implementation | `basic.binary_semaphore`, `basic.timeline_semaphore` | [`vktSynchronizationBasicSemaphoreTests.md`](../testfiles/synchronization/vktSynchronizationBasicSemaphoreTests.md) |
-| [`vktSynchronizationBasicEventTests.cpp`](../../modules/vulkan/synchronization/vktSynchronizationBasicEventTests.cpp#L1) | Implementation | `basic.event` | [`vktSynchronizationBasicEventTests.md`](../testfiles/synchronization/vktSynchronizationBasicEventTests.md) |
-| [`vktSynchronizationOperationSingleQueueTests.cpp`](../../modules/vulkan/synchronization/vktSynchronizationOperationSingleQueueTests.cpp#L1) | Implementation | `op.single_queue` | [`vktSynchronizationOperationSingleQueueTests.md`](../testfiles/synchronization/vktSynchronizationOperationSingleQueueTests.md) |
-| [`vktSynchronizationOperationMultiQueueTests.cpp`](../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L1) | Implementation | `op.multi_queue` | [`vktSynchronizationOperationMultiQueueTests.md`](../testfiles/synchronization/vktSynchronizationOperationMultiQueueTests.md) |
-| [`vktSynchronizationCrossInstanceSharingTests.cpp`](../../modules/vulkan/synchronization/vktSynchronizationCrossInstanceSharingTests.cpp#L1) | Implementation | `cross_instance` | [`vktSynchronizationCrossInstanceSharingTests.md`](../testfiles/synchronization/vktSynchronizationCrossInstanceSharingTests.md) |
-| [`vktSynchronizationSignalOrderTests.cpp`](../../modules/vulkan/synchronization/vktSynchronizationSignalOrderTests.cpp#L1) | Implementation | `signal_order` | [`vktSynchronizationSignalOrderTests.md`](../testfiles/synchronization/vktSynchronizationSignalOrderTests.md) |
-| [`vktSynchronizationTimelineSemaphoreTests.cpp`](../../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.cpp#L1) | Implementation | `timeline_semaphore` | [`vktSynchronizationTimelineSemaphoreTests.md`](../testfiles/synchronization/vktSynchronizationTimelineSemaphoreTests.md) |
-| [`vktSynchronizationNoneStageTests.cpp`](../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L1) | Implementation | `none_stage` | [`vktSynchronizationNoneStageTests.md`](../testfiles/synchronization/vktSynchronizationNoneStageTests.md) |
-| [`vktSynchronizationImageLayoutTransitionTests.cpp`](../../modules/vulkan/synchronization/vktSynchronizationImageLayoutTransitionTests.cpp#L1) | Implementation | `layout_transition` | [`vktSynchronizationImageLayoutTransitionTests.md`](../testfiles/synchronization/vktSynchronizationImageLayoutTransitionTests.md) |
-| [`vktSynchronizationInternallySynchronizedTests.cpp`](../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedTests.cpp#L1) | Implementation | `internally_synchronized_queues` | [`vktSynchronizationInternallySynchronizedTests.md`](../testfiles/synchronization/vktSynchronizationInternallySynchronizedTests.md) |
-| [`vktSynchronizationImplicitTests.cpp`](../../modules/vulkan/synchronization/vktSynchronizationImplicitTests.cpp#L1) | Implementation | `implicit` | [`vktSynchronizationImplicitTests.md`](../testfiles/synchronization/vktSynchronizationImplicitTests.md) |
+## How the Families Fit Together
 
-## Cross-file Recurring Themes
+The category uses the synchronization2 API model to exercise both shared synchronization concepts and sync2-specific semantics:
 
-### SynchronizationType parameterization
+- Shared primitive and operation families compare legacy and synchronization2 paths while keeping the underlying resource and verification logic aligned.
+- `none_stage` isolates `VK_PIPELINE_STAGE_2_NONE_KHR` and `VK_ACCESS_2_NONE_KHR` behavior across image layouts and aspects.
+- `layout_transition` checks synchronization2 image-layout transitions, including the intentional `UNDEFINED`-to-`UNDEFINED` dependency and cross-queue multisample reads.
+- `internally_synchronized_queues` checks the extension's internally synchronized queue behavior and has no legacy counterpart.
+- Sync2 operation variants use more granular `COPY`, `BLIT`, `RESOLVE`, and `CLEAR` stage values and include maintenance8/maintenance9 coverage where registered.
 
-Most implementation files accept a [`SynchronizationType`](../../modules/vulkan/synchronization/vktSynchronizationUtil.hpp#L43) parameter and are shared with [`synchronization`](synchronization.md). The SYNCHRONIZATION2 path uses `vkCmdPipelineBarrier2()`, `vkQueueSubmit2()`, and `vkCmdSetEvent2()`/`vkCmdWaitEvents2()` with `VkDependencyInfo` structs.
+The legacy gateway documents the parallel `synchronization` category and its legacy-only families; shared implementation pages explain both API paths without duplicating source documentation.
 
-### More granular pipeline stages
+## Level-3 Pages Navigation
 
-The synchronization2 path uses operation-specific pipeline stages in the `op` subgroups: copy, blit, resolve, and clear operations can use `VK_PIPELINE_STAGE_2_COPY_BIT`, `VK_PIPELINE_STAGE_2_BLIT_BIT`, `VK_PIPELINE_STAGE_2_RESOLVE_BIT`, and `VK_PIPELINE_STAGE_2_CLEAR_BIT` instead of the generic transfer stage used by the legacy path ([`vktSynchronizationOperation.cpp`](../../modules/vulkan/synchronization/vktSynchronizationOperation.cpp#L1216-L1301), [`vktSynchronizationOperation.cpp`](../../modules/vulkan/synchronization/vktSynchronizationOperation.cpp#L4132-L4168)).
+| Registered test family or area | Level-3 page | What to read there |
+|---|---|---|
+| `smoke` | [`SmokeTests.md`](../testfiles/synchronization/SmokeTests.md) | Basic barrier and primitive smoke checks and API routing. |
+| `basic.binary_semaphore`, `basic.timeline_semaphore` | [`BasicSemaphore.md`](../testfiles/synchronization/BasicSemaphore.md) | Synchronization2 semaphore sequencing and host/queue variants. |
+| `basic.event` | [`BasicEvent.md`](../testfiles/synchronization/BasicEvent.md) | Event state transitions, `NONE` forms, and device-only variants. |
+| `op.single_queue` | [`OperationSingleQueue.md`](../testfiles/synchronization/OperationSingleQueue.md) | Synchronization2 operation/resource dependency checks within one queue. |
+| `op.multi_queue` | [`OperationMultiQueue.md`](../testfiles/synchronization/OperationMultiQueue.md) | Cross-queue visibility, ownership transfer, and maintenance variants. |
+| `cross_instance` | [`CrossInstanceSharing.md`](../testfiles/synchronization/CrossInstanceSharing.md) | External resource/semaphore sharing through sync2 submission/barrier APIs. |
+| `signal_order` | [`SignalOrder.md`](../testfiles/synchronization/SignalOrder.md) | Synchronization2 binary and timeline signal-order guarantees. |
+| `timeline_semaphore` | [`TimelineSemaphore.md`](../testfiles/synchronization/TimelineSemaphore.md) | Synchronization2 timeline semaphore behavior outside the basic matrix. |
+| `none_stage` | [`NoneStageTests.md`](../testfiles/synchronization/NoneStageTests.md) | `NONE` stage/access scopes and image-layout matrix. |
+| `layout_transition` | [`ImageLayoutTransition.md`](../testfiles/synchronization/ImageLayoutTransition.md) | Synchronization2 image layout transitions and multisample paths. |
+| `internally_synchronized_queues` | [`InternallySynchronized.md`](../testfiles/synchronization/InternallySynchronized.md) | Internally synchronized queue behavior. |
+| `implicit` | [`ImplicitTests.md`](../testfiles/synchronization/ImplicitTests.md) | Synchronization2 implicit ordering and visibility behavior. |
 
-### NONE stage and access flags
+The source dispatcher page `vktSynchronizationTests.md` is retained as an obsolete navigation aid, not as an implementation Level-3 page.
 
-The `none_stage` group tests `VK_PIPELINE_STAGE_2_NONE_KHR` and `VK_ACCESS_2_NONE_KHR`, which are new concepts introduced by `VK_KHR_synchronization2` and have no LEGACY equivalent.
+## Category Notes
 
-### Device-only events
-
-The `basic.event` subgroup in sync2 includes `*_device_only` variants using `VK_EVENT_CREATE_DEVICE_ONLY_BIT_KHR`, which is a sync2 feature not available in the LEGACY API.
-
-## Cross-file Recurring Parameter Dimensions
-
-| Dimension | Observed Values |
-|---|---|
-| Synchronization primitive | fence, binary_semaphore, timeline_semaphore, barrier, event |
-| Queue topology | single_queue, multi_queue |
-| Allocation strategy | suballocated, dedicated |
-| Resource type | buffer, image (multiple formats) |
-| External handle type | opaque_fd, dma_buf, fence_fd, opaque_win32, opaque_win32_kmt, zircon_handle |
-| Pipeline stage granularity | sync2-specific COPY, BLIT, RESOLVE, CLEAR in operation implementations vs. generic TRANSFER in the legacy path |
-
-## Cross-file Recurring Support / Feature Requirements
-
-| Feature / Extension | Used By |
-|---|---|
-| VK_KHR_synchronization2 | Sync2 cases check this extension, including smoke, basic semaphore/event, timeline semaphore, operation, cross-instance, signal-order, implicit, layout-transition, none-stage, and internally synchronized queue cases |
-| VK_KHR_timeline_semaphore | Timeline-semaphore branches in `timeline_semaphore`, `basic.timeline_semaphore`, `op`, `cross_instance`, `signal_order`, and `implicit` |
-| VK_KHR_external_memory / VK_KHR_external_semaphore | `cross_instance` external-memory and external-semaphore sharing cases |
-| VK_KHR_maintenance8 | `op.multi_queue` use-all-stages and intermediate-barrier use-all cases |
-| VK_KHR_maintenance9 | `op.single_queue` event maintenance9 cases, `op.multi_queue` concurrent and intermediate-barrier maintenance9 cases |
-| VK_KHR_internally_synchronized_queues | `internally_synchronized_queues` |
-
-## Cross-file Recurring Verification Methods
-
-- **Fence/semaphore wait**: Submit work with a sync primitive, wait on CPU, then read back and compare results
-- **Pixel comparison**: Image operations verified by reading back and comparing against expected values
-- **Buffer content comparison**: Buffer operations verified by mapping and comparing memory contents
-- **Implicit ordering validation**: Verify that operations within a single submit happen in the documented order
-
-## Notes / Uncertainties
-
-- This category shares its source code folder with [`synchronization`](synchronization.md). See the root registration doc [`vktSynchronizationTests.md`](../testfiles/synchronization/vktSynchronizationTests.md) for the full dual-category structure.
-- The `basic.fence` subgroup does NOT exist in this category because fences are not affected by `VK_KHR_synchronization2`.
-- The group name `internally_synchronized_queues` differs from the LEGACY equivalent `internally_synchronized_objects` and from the source filename `vktSynchronizationInternallySynchronizedTests.cpp`.
-- The group name `layout_transition` differs from the source filename `vktSynchronizationImageLayoutTransitionTests.cpp`.
-- 5 of 10 top-level groups are guarded by `#ifndef CTS_USES_VULKANSC`.
+The synchronization2 category has no `basic.fence`, `win32_keyed_mutex`, `global_priority_transition`, or `internally_synchronized_objects` family. Those are legacy-only families. Shared pages must preserve exact category-qualified paths when one source file serves both categories.
