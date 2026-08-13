@@ -1,104 +1,58 @@
-# tessellation
-
 ## Overview
 
-The [`tessellation`](../../modules/vulkan/tessellation/vktTessellationTests.cpp#L47) category documents Vulkan tessellation shader coverage registered by [`createChildren()`](../../modules/vulkan/tessellation/vktTessellationTests.cpp#L64-L81). Inspected files cover required tessellation limits, generated coordinates, winding/domain-origin behavior, shader input/output built-ins, miscellaneous draw paths, common-edge continuity, fractional spacing, primitive discard, invariance, user-defined IO, geometry-stage interaction, maximum IO usage, and a matrix multiplication regression.
+The `tessellation` test category collects tests that check Vulkan tessellation limits, primitive generation, shader interfaces, and interactions with drawing and geometry processing.
 
-## Registration Entry Point
+## Background Knowledge
 
-The category is rooted in [`createTests()`](../../modules/vulkan/tessellation/vktTessellationTests.cpp#L85-L88), with child registration performed in [`createChildren()`](../../modules/vulkan/tessellation/vktTessellationTests.cpp#L64-L81):
+- **Tessellation pipeline.** A tessellation control shader runs once per output control point of a patch, writes per-vertex and per-patch data, and selects inner and outer tessellation levels. The fixed-function primitive generator subdivides the patch. A tessellation evaluation shader runs for generated coordinates and produces vertices for rasterization or a later geometry stage.
+- **Primitive domains and spacing.** Triangle, quad, and isoline domains interpret tessellation coordinates and levels differently. Equal, fractional-even, and fractional-odd spacing select segment counts and placement. Winding, point mode, and domain origin further control generated primitives.
+- **Patch interfaces and invocations.** Tessellation shaders exchange both per-control-point arrays and data shared by the whole patch. Control-shader invocations can communicate through outputs when barriers establish the required ordering. Geometry shaders can then amplify, route, or resize tessellated primitives.
+
+## Category Structure
 
 ```text
 tessellation
+├── limits
+├── tesscoord
+├── winding
+├── shader_input_output
+├── misc_draw
 ├── common_edge
 ├── fractional_spacing
-├── geometry_interaction
-├── invariance
-├── limits
-├── matrix_multiplication
-├── misc_draw
 ├── primitive_discard
-├── shader_input_output
-├── tess_io
-├── tesscoord
+├── invariance
 ├── user_defined_io
-└── winding
+├── geometry_interaction
+├── tess_io
+└── matrix_multiplication
 ```
 
-## File Inventory
+The registration-only category dispatcher also assembles four children below `geometry_interaction`: `passthrough`, `limits`, `scatter`, and `point_size`. They are documented in separate Level-3 pages.
 
-| File | Role | Notes |
-|---|---|---|
-| [`vktTessellationTests.cpp`](../../modules/vulkan/tessellation/vktTessellationTests.cpp#L1) | Registration | Top-level category dispatcher and local `geometry_interaction` group |
-| [`vktTessellationLimitsTests.cpp`](../../modules/vulkan/tessellation/vktTessellationLimitsTests.cpp#L1) | Implementation | Required tessellation device limits |
-| [`vktTessellationCoordinatesTests.cpp`](../../modules/vulkan/tessellation/vktTessellationCoordinatesTests.cpp#L1) | Implementation | Tessellation coordinate reference matching |
-| [`vktTessellationWindingTests.cpp`](../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L1) | Implementation | Winding and tessellation domain origin |
-| [`vktTessellationShaderInputOutputTests.cpp`](../../modules/vulkan/tessellation/vktTessellationShaderInputOutputTests.cpp#L1) | Implementation | Built-in and cross-invocation shader IO |
-| [`vktTessellationMiscDrawTests.cpp`](../../modules/vulkan/tessellation/vktTessellationMiscDrawTests.cpp#L1) | Implementation | Draw modes, instancing, and state switching |
-| [`vktTessellationCommonEdgeTests.cpp`](../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L1) | Implementation | Adjacent primitive continuity |
-| [`vktTessellationFractionalSpacingTests.cpp`](../../modules/vulkan/tessellation/vktTessellationFractionalSpacingTests.cpp#L1) | Implementation | Fractional odd/even spacing validity |
-| [`vktTessellationPrimitiveDiscardTests.cpp`](../../modules/vulkan/tessellation/vktTessellationPrimitiveDiscardTests.cpp#L1) | Implementation | Primitive discard from non-positive levels |
-| [`vktTessellationInvarianceTests.cpp`](../../modules/vulkan/tessellation/vktTessellationInvarianceTests.cpp#L1) | Implementation | Primitive and coordinate invariance properties |
-| [`vktTessellationUserDefinedIO.cpp`](../../modules/vulkan/tessellation/vktTessellationUserDefinedIO.cpp#L1) | Implementation | User-defined per-patch/per-vertex IO |
-| [`vktTessellationGeometryPassthroughTests.cpp`](../../modules/vulkan/tessellation/vktTessellationGeometryPassthroughTests.cpp#L1) | Implementation | Passthrough geometry/tessellation interaction |
-| [`vktTessellationGeometryGridRenderTests.cpp`](../../modules/vulkan/tessellation/vktTessellationGeometryGridRenderTests.cpp#L1) | Implementation | Geometry interaction limits and scatter |
-| [`vktTessellationGeometryPointSizeTests.cpp`](../../modules/vulkan/tessellation/vktTessellationGeometryPointSizeTests.cpp#L1) | Implementation | Point-size propagation through tessellation/geometry stages |
-| [`vktTessellationMaxIOTests.cpp`](../../modules/vulkan/tessellation/vktTessellationMaxIOTests.cpp#L1) | Implementation | Maximum tessellation IO and tessellation-level IO |
-| [`vktTessellationMatrixMultiplicationTests.cpp`](../../modules/vulkan/tessellation/vktTessellationMatrixMultiplicationTests.cpp#L1) | Implementation | TCS matrix multiplication cases |
-| [`vktTessellationUtil.cpp`](../../modules/vulkan/tessellation/vktTessellationUtil.cpp#L802-L824) | Helper | Shared feature gates and tessellation utility logic |
+## How the Families Fit Together
 
-## Level-3 Documents
+- **Capability and primitive-generation families** cover required limits, generated coordinates, spacing, winding, discard behavior, common edges, and invariance rules.
+- **Shader-interface families** cover built-ins, user-defined per-vertex and per-patch data, maximum IO configurations, barriers, and control-shader matrix operations.
+- **Draw and geometry-interaction families** put tessellation into complete graphics pipelines, including indirect or instanced draws and geometry-stage passthrough, amplification, layer routing, and point-size propagation.
+- Each family selects an oracle suited to the contract: property bounds, exact or tolerant data comparison, primitive-set comparison, or framebuffer analysis.
 
-| Source file | Wiki document |
-|---|---|
-| [`vktTessellationCommonEdgeTests.cpp`](../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L1) | [`vktTessellationCommonEdgeTests.md`](../testfiles/tessellation/vktTessellationCommonEdgeTests.md) |
-| [`vktTessellationCoordinatesTests.cpp`](../../modules/vulkan/tessellation/vktTessellationCoordinatesTests.cpp#L1) | [`vktTessellationCoordinatesTests.md`](../testfiles/tessellation/vktTessellationCoordinatesTests.md) |
-| [`vktTessellationFractionalSpacingTests.cpp`](../../modules/vulkan/tessellation/vktTessellationFractionalSpacingTests.cpp#L1) | [`vktTessellationFractionalSpacingTests.md`](../testfiles/tessellation/vktTessellationFractionalSpacingTests.md) |
-| [`vktTessellationGeometryGridRenderTests.cpp` (`scatter` subgroup)](../../modules/vulkan/tessellation/vktTessellationGeometryGridRenderTests.cpp#L765-L782) | [`vktTessellationGeometryGridRenderScatterTests.md`](../testfiles/tessellation/vktTessellationGeometryGridRenderScatterTests.md) |
-| [`vktTessellationGeometryGridRenderTests.cpp`](../../modules/vulkan/tessellation/vktTessellationGeometryGridRenderTests.cpp#L1) | [`vktTessellationGeometryGridRenderTests.md`](../testfiles/tessellation/vktTessellationGeometryGridRenderTests.md) |
-| [`vktTessellationGeometryPassthroughTests.cpp`](../../modules/vulkan/tessellation/vktTessellationGeometryPassthroughTests.cpp#L1) | [`vktTessellationGeometryPassthroughTests.md`](../testfiles/tessellation/vktTessellationGeometryPassthroughTests.md) |
-| [`vktTessellationGeometryPointSizeTests.cpp`](../../modules/vulkan/tessellation/vktTessellationGeometryPointSizeTests.cpp#L1) | [`vktTessellationGeometryPointSizeTests.md`](../testfiles/tessellation/vktTessellationGeometryPointSizeTests.md) |
-| [`vktTessellationInvarianceTests.cpp`](../../modules/vulkan/tessellation/vktTessellationInvarianceTests.cpp#L1) | [`vktTessellationInvarianceTests.md`](../testfiles/tessellation/vktTessellationInvarianceTests.md) |
-| [`vktTessellationLimitsTests.cpp`](../../modules/vulkan/tessellation/vktTessellationLimitsTests.cpp#L1) | [`vktTessellationLimitsTests.md`](../testfiles/tessellation/vktTessellationLimitsTests.md) |
-| [`vktTessellationMatrixMultiplicationTests.cpp`](../../modules/vulkan/tessellation/vktTessellationMatrixMultiplicationTests.cpp#L1) | [`vktTessellationMatrixMultiplicationTests.md`](../testfiles/tessellation/vktTessellationMatrixMultiplicationTests.md) |
-| [`vktTessellationMaxIOTests.cpp`](../../modules/vulkan/tessellation/vktTessellationMaxIOTests.cpp#L1) | [`vktTessellationMaxIOTests.md`](../testfiles/tessellation/vktTessellationMaxIOTests.md) |
-| [`vktTessellationMiscDrawTests.cpp`](../../modules/vulkan/tessellation/vktTessellationMiscDrawTests.cpp#L1) | [`vktTessellationMiscDrawTests.md`](../testfiles/tessellation/vktTessellationMiscDrawTests.md) |
-| [`vktTessellationPrimitiveDiscardTests.cpp`](../../modules/vulkan/tessellation/vktTessellationPrimitiveDiscardTests.cpp#L1) | [`vktTessellationPrimitiveDiscardTests.md`](../testfiles/tessellation/vktTessellationPrimitiveDiscardTests.md) |
-| [`vktTessellationShaderInputOutputTests.cpp`](../../modules/vulkan/tessellation/vktTessellationShaderInputOutputTests.cpp#L1) | [`vktTessellationShaderInputOutputTests.md`](../testfiles/tessellation/vktTessellationShaderInputOutputTests.md) |
-| [`vktTessellationTests.cpp`](../../modules/vulkan/tessellation/vktTessellationTests.cpp#L1) | [`vktTessellationTests.md`](../testfiles/tessellation/vktTessellationTests.md) |
-| [`vktTessellationUserDefinedIO.cpp`](../../modules/vulkan/tessellation/vktTessellationUserDefinedIO.cpp#L1) | [`vktTessellationUserDefinedIO.md`](../testfiles/tessellation/vktTessellationUserDefinedIO.md) |
-| [`vktTessellationWindingTests.cpp`](../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L1) | [`vktTessellationWindingTests.md`](../testfiles/tessellation/vktTessellationWindingTests.md) |
+## Level-3 Pages Navigation
 
-## Subgroup Structure and Major Themes
-
-- [`limits`](../../modules/vulkan/tessellation/vktTessellationLimitsTests.cpp#L117-L141): required minimum tessellation limits.
-- [`tesscoord`](../../modules/vulkan/tessellation/vktTessellationCoordinatesTests.cpp#L871-L886): generated coordinate sets across primitive and spacing modes.
-- [`winding`](../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L610-L624): clockwise/counter-clockwise layout and domain-origin behavior.
-- [`shader_input_output`](../../modules/vulkan/tessellation/vktTessellationShaderInputOutputTests.cpp#L974-L1080): built-in variables, patch data, barriers, and cross-invocation values.
-- [`misc_draw`](../../modules/vulkan/tessellation/vktTessellationMiscDrawTests.cpp#L1859-L2080): draw variants, indirect draw, instancing, and state switching.
-- [`geometry_interaction`](../../modules/vulkan/tessellation/vktTessellationTests.cpp#L52-L61): interaction with geometry shaders through passthrough, grid, scatter, and point-size cases.
-- [`tess_io`](../../modules/vulkan/tessellation/vktTessellationMaxIOTests.cpp#L1800-L1988): maximum IO permutations and tessellation-level reads/writes.
-
-## Recurring Parameter Dimensions
-
-| Dimension | Observed examples |
-|---|---|
-| Primitive type | Triangles, quads, and isolines from loops such as [`createCoordinatesTests()`](../../modules/vulkan/tessellation/vktTessellationCoordinatesTests.cpp#L875-L883) |
-| Spacing mode | Equal, fractional-even, and fractional-odd modes in coordinate and invariance loops |
-| Winding and point mode | Winding/point-mode nested loops in [`createInvarianceTests()`](../../modules/vulkan/tessellation/vktTessellationInvarianceTests.cpp#L2479-L2500) |
-| Domain origin | Default/lower-left/upper-left groups in [`createWindingTests()`](../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L615-L622) |
-| Shader language | GLSL/HLSL variants in winding and fractional-spacing registrations |
-| IO type and width | Owner, data type, bit width, vector dimension, interpolation, and feature groups in [`createTessIOTests()`](../../modules/vulkan/tessellation/vktTessellationMaxIOTests.cpp#L1807-L1935) |
-
-## Recurring Support Requirements
-
-The central support gate is tessellation-shader support, checked directly in files such as [`vktTessellationLimitsTests.cpp`](../../modules/vulkan/tessellation/vktTessellationLimitsTests.cpp#L79-L80) and through [`requireFeatures()`](../../modules/vulkan/tessellation/vktTessellationUtil.cpp#L802-L824). Other observed gates include geometry-shader support, shader float/int width features, vertex/fragment stores and atomics, `shaderTessellationAndGeometryPointSize`, portability-subset primitive/point-mode checks, and [`VK_KHR_maintenance2`](../../modules/vulkan/tessellation/vktTessellationMiscDrawTests.cpp#L667-L668) for non-default domain origin.
-
-## Recurring Verification Methods
-
-Observed verification methods include device-limit comparisons, generated coordinate set comparison in [`compareTessCoords()`](../../modules/vulkan/tessellation/vktTessellationCoordinatesTests.cpp#L330-L347), image fuzzy/threshold comparison in draw tests, pixel/color counting for winding and common-edge behavior, exact primitive/triangle-set comparisons in invariance tests, and shader-side comparison status using SSBO or color output in user-defined IO.
-
-
-## Notes / Uncertainties
-
-- The summary is based on inspected source and mustpass-observed registration paths. Some implementation files generate many deeper cases; Level-3 hierarchy trees intentionally list only one level below each documented root.
+| Registered test family or area | Level-3 page | What to read there |
+|--------------------------------|--------------|--------------------|
+| `limits` | [Limits](../testfiles/tessellation/Limits.md) | Required tessellation feature and device-limit checks. |
+| `tesscoord` | [Coordinates](../testfiles/tessellation/Coordinates.md) | Reference generation and comparison of tessellation-coordinate sets. |
+| `winding` | [Winding](../testfiles/tessellation/Winding.md) | Winding, domain-origin, viewport-flip, and shader-language cases. |
+| `shader_input_output` | [Shader Input and Output](../testfiles/tessellation/ShaderInputOutput.md) | Patch sizes, built-ins, stage interfaces, barriers, and cross-invocation values. |
+| `misc_draw` | [Miscellaneous Draw](../testfiles/tessellation/MiscDraw.md) | Draw commands, instancing, state changes, no-patch behavior, and the barrier regression. |
+| `common_edge` | [Common Edge](../testfiles/tessellation/CommonEdge.md) | Continuity along shared edges across primitive and spacing modes. |
+| `fractional_spacing` | [Fractional Spacing](../testfiles/tessellation/FractionalSpacing.md) | Fractional-even and fractional-odd segment rules. |
+| `primitive_discard` | [Primitive Discard](../testfiles/tessellation/PrimitiveDiscard.md) | Patch discard when relevant outer tessellation levels are non-positive. |
+| `invariance` | [Invariance](../testfiles/tessellation/Invariance.md) | Primitive, edge, triangle-set, and coordinate invariance guarantees. |
+| `user_defined_io` | [User-Defined IO](../testfiles/tessellation/UserDefinedIO.md) | Per-vertex, per-patch, array, and interface-block transport. |
+| `geometry_interaction.passthrough` | [Geometry Passthrough](../testfiles/tessellation/GeometryPassthrough.md) | Identity behavior across tessellation and geometry stages. |
+| `geometry_interaction.limits` | [Geometry Limits](../testfiles/tessellation/GeometryLimits.md) | Required-value tessellation and geometry amplification workloads. |
+| `geometry_interaction.scatter` | [Geometry Scatter](../testfiles/tessellation/GeometryScatter.md) | Geometry instances, primitives, and layer routing. |
+| `geometry_interaction.point_size` | [Geometry Point Size](../testfiles/tessellation/GeometryPointSize.md) | Point-size values written and transformed across shader stages. |
+| `tess_io` | [Maximum IO](../testfiles/tessellation/MaxIO.md) | Maximum tessellation-stage interfaces and tessellation-level IO. |
+| `matrix_multiplication` | [Matrix Multiplication](../testfiles/tessellation/MatrixMultiplication.md) | Tessellation-control matrix multiplication and framebuffer validation. |
