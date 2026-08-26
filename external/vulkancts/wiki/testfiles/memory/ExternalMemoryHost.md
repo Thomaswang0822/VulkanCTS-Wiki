@@ -139,6 +139,8 @@ void main() {
 
 #### SPIR-V
 
+##### Vertex Shader
+
 - Status: generated and validated
 - Source: reconstructed `GLSL` from this walkthrough
 - Stage: `vert`
@@ -200,6 +202,49 @@ void main() {
          %24 = OpLoad %v4float %23
          %26 = OpAccessChain %_ptr_Output_v4float %_ %int_0
                OpStore %26 %24
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 13
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %my_FragColor
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 430
+               OpName %main "main"
+               OpName %my_FragColor "my_FragColor"
+               OpDecorate %my_FragColor Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%my_FragColor = OpVariable %_ptr_Output_v4float Output
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+         %12 = OpConstantComposite %v4float %float_0 %float_1 %float_0 %float_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+               OpStore %my_FragColor %12
                OpReturn
                OpFunctionEnd
 ```

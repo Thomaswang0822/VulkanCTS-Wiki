@@ -48,9 +48,134 @@ This intermediate node retains identity component mapping and changes the view r
 
 ## Shader Analysis
 
-`ImageViewTest::initPrograms()` generates the shader source for each leaf. It chooses a sampler type from the `VkImageViewType`: `sampler1D`, `sampler1DArray`, `sampler2D`, `sampler2DArray`, `sampler3D`, `samplerCube`, or `samplerCubeArray`, with `i` or `u` prefixes for signed or unsigned integer formats. The graphics path passes the mosaic texture coordinates from vertex to fragment shader; the compute path interpolates that mosaic from a storage-buffer vertex list.
+### Representative Shader Walkthrough 1
 
-Both paths execute either `texture(texSampler, coordinates)` or `textureLod(texSampler, coordinates, samplerLod)`, then apply the generated scale and bias. That sample instruction is central to the tested property, but a fixed representative GLSL or SPIR-V listing would not represent the matrix because sampler declaration, coordinate arity, LOD form, format class, and graphics/compute path vary by leaf. This page records the generated forms from source rather than presenting an artificial single-case disassembly.
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.monolithic.image_view.view_type.1d.format.a1b5g5r5_unorm_pack16.component_swizzle.a_r_g_b
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `monolithic` graphics path | Generates the vertex/fragment pair and samples into a color attachment through a monolithic graphics pipeline. |
+| `view_type.1d` | Selects `sampler1D`; the fragment shader therefore consumes only the `x` component of the interpolated texture coordinate. |
+| `a1b5g5r5_unorm_pack16` | Selects a normalized floating-point sampler and identity lookup scale/bias values. The format requires `VK_KHR_maintenance5` outside Vulkan SC. |
+| `component_swizzle.a_r_g_b` | Makes the image view return source alpha, red, green, and blue as the sampled result's R, G, B, and A components, respectively. |
+| No `_compute` suffix and sampler LOD `0.0` | Uses fragment sampling with implicit LOD rather than the compute shader or `textureLod()`. |
+
+#### Purpose
+
+This shader samples a 1D packed UNORM image through a view whose component mapping rotates ARGB into the shader-visible RGBA result. The rendered output lets the software reference detect an incorrect view swizzle, format interpretation, or sampler/view-type pairing.
+
+#### Structural Design
+
+| Shader element | Exact representative-case role |
+|----------------|--------------------------------|
+| `sampler1D texSampler` | Combined image sampler for the tested 1D image view at set 0, binding 0. |
+| `vtxTexCoords.x` | One-dimensional coordinate selected from the vertex shader's interpolated mosaic coordinate. |
+| `texture(...)` | Performs implicit-LOD sampling through the component-swizzled image view. |
+| Scale `vec4(1.0)` and bias `vec4(0.0)` | Preserve the normalized A1B5G5R5 sample for color-attachment output. |
+| `fragColor` | Carries the shader-visible swizzled sample to the host-side image validator. |
+
+#### Shader Code
+
+```glsl
+#version 440
+/// The combined sampler exposes the tested 1D view at descriptor set 0, binding 0.
+layout(set = 0, binding = 0) uniform highp sampler1D texSampler;
+/// The vertex stage supplies a vec4 mosaic coordinate; a 1D view consumes only x.
+layout(location = 0) in highp vec4 vtxTexCoords;
+/// The sampled and normalized value is written to the sole color attachment.
+layout(location = 0) out highp vec4 fragColor;
+void main (void)
+{
+    /// Sample through the A1B5G5R5 view; the view applies the A,R,G,B component mapping.
+    fragColor = texture(texSampler, vtxTexCoords.x) * vec4(1.000000e+00, 1.000000e+00, 1.000000e+00, 1.000000e+00) + vec4(0.000000e+00, 0.000000e+00, 0.000000e+00, 0.000000e+00);
+}
+```
+
+#### Additional Info
+
+- The graphics vertex shader is fixed for this leaf: it writes the input position to `gl_Position` and forwards the input texture-coordinate vector unchanged to location 0 ([generated graphics shaders](../../../modules/vulkan/pipeline/vktPipelineImageViewTests.cpp#L271-L307)).
+- `createComponentSwizzleTests()` gives these leaves the complete mip and layer range and sampler LOD `0.0`, so this representative isolates component mapping rather than subresource selection ([component-swizzle construction](../../../modules/vulkan/pipeline/vktPipelineImageViewTests.cpp#L702-L753)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| View type | Changes the sampler declaration and selects `.x`, `.xy`, `.xyz`, or `.xyzw` coordinates. | [`getGlslSamplerType()` and coordinate selection](../../../modules/vulkan/pipeline/vktPipelineImageViewTests.cpp#L194-L214) |
+| Format class | Adds `i` or `u` to the sampler for signed or unsigned integer formats; format normalization also changes the emitted scale and bias. | [`getGlslSamplerType()`](../../../modules/vulkan/pipeline/vktPipelineImageViewTests.cpp#L318-L363), [`initPrograms()` scale/bias setup](../../../modules/vulkan/pipeline/vktPipelineImageViewTests.cpp#L179-L193) |
+| Subresource-range case | A positive sampler LOD replaces `texture()` with `textureLod()` and embeds that LOD as a fixed decimal value. | [sample-call generation](../../../modules/vulkan/pipeline/vktPipelineImageViewTests.cpp#L287-L304) |
+| Graphics versus compute | The `_compute` leaf replaces the vertex/fragment pair with a compute shader that reconstructs mosaic coordinates from a storage buffer and writes a storage image. | [compute shader generation](../../../modules/vulkan/pipeline/vktPipelineImageViewTests.cpp#L216-L270) |
+| Component mapping | Does not change the sample expression's coordinate or sampler type, but changes the image-view result and rotates the generated scale and bias to match it. | [mapping and scale/bias generation](../../../modules/vulkan/pipeline/vktPipelineImageViewTests.cpp#L169-L193) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 29
+; Schema: 0
+               OpCapability Shader
+               OpCapability Sampled1D
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %fragColor %vtxTexCoords
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 440
+               OpName %main "main"
+               OpName %fragColor "fragColor"
+               OpName %texSampler "texSampler"
+               OpName %vtxTexCoords "vtxTexCoords"
+               OpDecorate %fragColor Location 0
+               OpDecorate %texSampler Binding 0
+               OpDecorate %texSampler DescriptorSet 0
+               OpDecorate %vtxTexCoords Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %fragColor = OpVariable %_ptr_Output_v4float Output
+         %10 = OpTypeImage %float 1D 0 0 0 1 Unknown
+         %11 = OpTypeSampledImage %10
+%_ptr_UniformConstant_11 = OpTypePointer UniformConstant %11
+ %texSampler = OpVariable %_ptr_UniformConstant_11 UniformConstant
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%vtxTexCoords = OpVariable %_ptr_Input_v4float Input
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_float = OpTypePointer Input %float
+    %float_1 = OpConstant %float 1
+         %24 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
+    %float_0 = OpConstant %float 0
+         %27 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %14 = OpLoad %11 %texSampler
+         %20 = OpAccessChain %_ptr_Input_float %vtxTexCoords %uint_0
+         %21 = OpLoad %float %20
+         %22 = OpImageSampleImplicitLod %v4float %14 %21
+         %25 = OpFMul %v4float %22 %24
+         %28 = OpFAdd %v4float %25 %27
+               OpStore %fragColor %28
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

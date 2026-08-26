@@ -70,9 +70,363 @@ The geometry shader provides the compatible array, while the fragment input arra
 
 ## Shader Analysis
 
-[`initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMaxVaryingsTests.cpp#L98-L702) builds inline SPIR-V assembly rather than loading a standalone shader file. The producer modules declare a flat `ivec4` array at `Location 0` whose length comes from `SpecId 0`, then write `ivec4(i)` to every element. The fragment module declares the corresponding flat input array, compares each element with `ivec4(i)`, and writes green only if all comparisons pass. The source's vertex, tessellation-evaluation, and geometry variants differ in stage setup and position handling, but share this varying payload pattern.
+### Representative Shader Walkthrough 1
 
-The test does not embed a representative disassembly here. The inline SPIR-V assembly in the implementation is the authoritative shader source, and a full listing would duplicate it without improving the explanation of the shared interface mechanism.
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.shader_object_linked_binary.max_varyings.test_fragment_io_between_geometry_fragment
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `shader_object_linked_binary` | Builds the same inline SPIR-V modules through the linked-binary shader-object construction path. |
+| `outputStage = VK_SHADER_STAGE_GEOMETRY_BIT` | Selects the geometry shader as the producer of the varying array and emits the source triangle as a triangle strip. |
+| `inputStage = VK_SHADER_STAGE_FRAGMENT_BIT` | Selects the fragment shader as the consumer of the varying array. |
+| `stageToStressIO = VK_SHADER_STAGE_FRAGMENT_BIT` | Requires the geometry producer to support the fragment stage's full reported input capacity; unsupported asymmetric limits are pruned. |
+| specialization constant `SpecId 0` | Sets both array types to `min((maxGeometryOutputComponents / 4) - 1, maxFragmentInputComponents / 4)` `ivec4` elements for the device. |
+
+#### Purpose
+
+This case fills a specialization-sized, location-0 geometry output array with `ivec4(i)` values and verifies every element in the fragment shader. A green image proves that the complete fragment-input-capacity payload survived the geometry-to-fragment interface.
+
+#### Structural Design
+
+```mermaid
+flowchart TD
+    A[Host derives common ivec4 count] --> B[SpecId 0 specializes geometry and fragment arrays]
+    B --> C[Geometry shader copies each triangle vertex position]
+    C --> D[Geometry shader writes outputData j = ivec4 j]
+    D --> E[Geometry shader emits the vertex]
+    E --> F[Fragment shader checks every flat inputData i]
+    F -->|all match| G[Write green]
+    F -->|any mismatch| H[Keep red]
+```
+
+#### Shader Code
+
+##### Fragment Shader
+
+```glsl
+#version 450
+/// SpecId 0 is supplied to both interface stages from the device's common geometry-output/fragment-input capacity.
+layout(constant_id = 0) const int arraySize = 1;
+/// This flat array begins at Location 0 and consumes one location per ivec4 element.
+layout(location = 0) flat in ivec4 inputData[arraySize];
+/// Red reports an interface mismatch; green reports that every specialized array element arrived intact.
+layout(location = 0) out vec4 color;
+void main()
+{
+    color = vec4(1.0, 0.0, 0.0, 1.0);
+    int i;
+    bool result = true;
+    /// Compare the complete fragment-input interface payload against the producer's index pattern.
+    for (i = 0; i < arraySize; i++)
+    {
+        if (result && inputData[i] != ivec4(i))
+            result = false;
+    }
+    if (result)
+        color = vec4(0.0, 1.0, 0.0, 1.0);
+}
+```
+
+##### Geometry Shader
+
+```glsl
+#version 450
+/// Consume triangles and re-emit each input triangle as a three-vertex strip.
+layout (triangles) in;
+layout (triangle_strip, max_vertices = 3) out;
+/// The same SpecId 0 value specializes the producer and fragment-consumer array types.
+layout(constant_id = 0) const int arraySize = 1;
+/// Each ivec4 consumes one user-defined output location beginning at Location 0.
+layout(location = 0) out ivec4 outputData[arraySize];
+in gl_PerVertex {
+    vec4 gl_Position;
+} gl_in[];
+void main()
+{
+    int i;
+    int j;
+    /// Preserve triangle geometry while regenerating the complete varying payload for every emitted vertex.
+    for(i = 0; i < gl_in.length(); i++)
+    {
+        gl_Position = gl_in[i].gl_Position;
+        for (j = 0; j < arraySize; j++)
+        {
+            outputData[j] = ivec4(j);
+        }
+        EmitVertex();
+    }
+    EndPrimitive();
+}
+```
+
+#### Additional Info
+
+- The geometry shader is the non-primary stage shown here. Geometry cases use it while vertex and tessellation-evaluation cases replace it with their corresponding producer; its per-emitted-vertex stores are what supply the fragment shader's checked interface payload.
+- [`initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMaxVaryingsTests.cpp#L98-L702) stores inline SPIR-V assembly and includes the GLSL origins reconstructed above in source comments; the test builds those modules for SPIR-V 1.3.
+- The support check permits this fragment-stress leaf only when usable geometry outputs, after reserving one `vec4` for `gl_Position`, can cover all reported fragment inputs.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Stressed interface side | Producer-stress leaves size and validate the selected producer's usable output capacity; this leaf stresses the fragment declaration at its reported input capacity. | [`supportedCheck`](../../../modules/vulkan/pipeline/vktPipelineMaxVaryingsTests.cpp#L727-L793) |
+| Producer stage | Vertex cases write the same indexed array directly in the vertex shader; tessellation cases interpolate position in the tessellation-evaluation shader before writing it; geometry cases write it once per emitted vertex. | [`initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMaxVaryingsTests.cpp#L98-L702) |
+| Pipeline construction type | The shader logic and specialization remain the same while module and pipeline construction changes across monolithic, pipeline-library, and shader-object roots. | [`createPipelineTests`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L166-L176) |
+| Device interface limits | `SpecId 0` changes the concrete array length to the common producer-output and fragment-input capacity reported by the device. | [`getMaxIOComponents` and `test`](../../../modules/vulkan/pipeline/vktPipelineMaxVaryingsTests.cpp#L915-L1025) |
+
+#### SPIR-V
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.3`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.3
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 56
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %color %inputData
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %color "color"
+               OpName %result "result"
+               OpName %i "i"
+               OpName %arraySize "arraySize"
+               OpName %inputData "inputData"
+               OpDecorate %color Location 0
+               OpDecorate %arraySize SpecId 0
+               OpDecorate %inputData Flat
+               OpDecorate %inputData Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+      %color = OpVariable %_ptr_Output_v4float Output
+    %float_1 = OpConstant %float 1
+    %float_0 = OpConstant %float 0
+         %12 = OpConstantComposite %v4float %float_1 %float_0 %float_0 %float_1
+       %bool = OpTypeBool
+%_ptr_Function_bool = OpTypePointer Function %bool
+       %true = OpConstantTrue %bool
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+      %int_0 = OpConstant %int 0
+  %arraySize = OpSpecConstant %int 1
+      %v4int = OpTypeVector %int 4
+%_arr_v4int_arraySize = OpTypeArray %v4int %arraySize
+%_ptr_Input__arr_v4int_arraySize = OpTypePointer Input %_arr_v4int_arraySize
+  %inputData = OpVariable %_ptr_Input__arr_v4int_arraySize Input
+%_ptr_Input_v4int = OpTypePointer Input %v4int
+     %v4bool = OpTypeVector %bool 4
+      %false = OpConstantFalse %bool
+      %int_1 = OpConstant %int 1
+         %55 = OpConstantComposite %v4float %float_0 %float_1 %float_0 %float_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+     %result = OpVariable %_ptr_Function_bool Function
+          %i = OpVariable %_ptr_Function_int Function
+               OpStore %color %12
+               OpStore %result %true
+               OpStore %i %int_0
+               OpBranch %21
+         %21 = OpLabel
+               OpLoopMerge %23 %24 None
+               OpBranch %25
+         %25 = OpLabel
+         %26 = OpLoad %int %i
+         %28 = OpSLessThan %bool %26 %arraySize
+               OpBranchConditional %28 %22 %23
+         %22 = OpLabel
+         %29 = OpLoad %bool %result
+               OpSelectionMerge %31 None
+               OpBranchConditional %29 %30 %31
+         %30 = OpLabel
+         %36 = OpLoad %int %i
+         %38 = OpAccessChain %_ptr_Input_v4int %inputData %36
+         %39 = OpLoad %v4int %38
+         %40 = OpLoad %int %i
+         %41 = OpCompositeConstruct %v4int %40 %40 %40 %40
+         %43 = OpINotEqual %v4bool %39 %41
+         %44 = OpAny %bool %43
+               OpBranch %31
+         %31 = OpLabel
+         %45 = OpPhi %bool %29 %22 %44 %30
+               OpSelectionMerge %47 None
+               OpBranchConditional %45 %46 %47
+         %46 = OpLabel
+               OpStore %result %false
+               OpBranch %47
+         %47 = OpLabel
+               OpBranch %24
+         %24 = OpLabel
+         %49 = OpLoad %int %i
+         %51 = OpIAdd %int %49 %int_1
+               OpStore %i %51
+               OpBranch %21
+         %23 = OpLabel
+         %52 = OpLoad %bool %result
+               OpSelectionMerge %54 None
+               OpBranchConditional %52 %53 %54
+         %53 = OpLabel
+               OpStore %color %55
+               OpBranch %54
+         %54 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Geometry Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `geom`
+- Target SPIRV version: `spirv1.3`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.3
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 61
+; Schema: 0
+               OpCapability Geometry
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Geometry %main "main" %_ %gl_in %outputData
+               OpExecutionMode %main Triangles
+               OpExecutionMode %main Invocations 1
+               OpExecutionMode %main OutputTriangleStrip
+               OpExecutionMode %main OutputVertices 3
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %i "i"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex 2 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex 3 "gl_CullDistance"
+               OpName %_ ""
+               OpName %gl_PerVertex_0 "gl_PerVertex"
+               OpMemberName %gl_PerVertex_0 0 "gl_Position"
+               OpName %gl_in "gl_in"
+               OpName %j "j"
+               OpName %arraySize "arraySize"
+               OpName %outputData "outputData"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex 3 BuiltIn CullDistance
+               OpDecorate %gl_PerVertex_0 Block
+               OpMemberDecorate %gl_PerVertex_0 0 BuiltIn Position
+               OpDecorate %arraySize SpecId 0
+               OpDecorate %outputData Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+      %int_0 = OpConstant %int 0
+      %int_3 = OpConstant %int 3
+       %bool = OpTypeBool
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_arr_float_uint_1 = OpTypeArray %float %uint_1
+%gl_PerVertex = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+%gl_PerVertex_0 = OpTypeStruct %v4float
+     %uint_3 = OpConstant %uint 3
+%_arr_gl_PerVertex_0_uint_3 = OpTypeArray %gl_PerVertex_0 %uint_3
+%_ptr_Input__arr_gl_PerVertex_0_uint_3 = OpTypePointer Input %_arr_gl_PerVertex_0_uint_3
+      %gl_in = OpVariable %_ptr_Input__arr_gl_PerVertex_0_uint_3 Input
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %arraySize = OpSpecConstant %int 1
+      %v4int = OpTypeVector %int 4
+%_arr_v4int_arraySize = OpTypeArray %v4int %arraySize
+%_ptr_Output__arr_v4int_arraySize = OpTypePointer Output %_arr_v4int_arraySize
+ %outputData = OpVariable %_ptr_Output__arr_v4int_arraySize Output
+%_ptr_Output_v4int = OpTypePointer Output %v4int
+      %int_1 = OpConstant %int 1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %i = OpVariable %_ptr_Function_int Function
+          %j = OpVariable %_ptr_Function_int Function
+               OpStore %i %int_0
+               OpBranch %10
+         %10 = OpLabel
+               OpLoopMerge %12 %13 None
+               OpBranch %14
+         %14 = OpLabel
+         %15 = OpLoad %int %i
+         %18 = OpSLessThan %bool %15 %int_3
+               OpBranchConditional %18 %11 %12
+         %11 = OpLabel
+         %32 = OpLoad %int %i
+         %34 = OpAccessChain %_ptr_Input_v4float %gl_in %32 %int_0
+         %35 = OpLoad %v4float %34
+         %37 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %37 %35
+               OpStore %j %int_0
+               OpBranch %39
+         %39 = OpLabel
+               OpLoopMerge %41 %42 None
+               OpBranch %43
+         %43 = OpLabel
+         %44 = OpLoad %int %j
+         %46 = OpSLessThan %bool %44 %arraySize
+               OpBranchConditional %46 %40 %41
+         %40 = OpLabel
+         %51 = OpLoad %int %j
+         %52 = OpLoad %int %j
+         %53 = OpCompositeConstruct %v4int %52 %52 %52 %52
+         %55 = OpAccessChain %_ptr_Output_v4int %outputData %51
+               OpStore %55 %53
+               OpBranch %42
+         %42 = OpLabel
+         %56 = OpLoad %int %j
+         %58 = OpIAdd %int %56 %int_1
+               OpStore %j %58
+               OpBranch %39
+         %41 = OpLabel
+               OpEmitVertex
+               OpBranch %13
+         %13 = OpLabel
+         %59 = OpLoad %int %i
+         %60 = OpIAdd %int %59 %int_1
+               OpStore %i %60
+               OpBranch %10
+         %12 = OpLabel
+               OpEndPrimitive
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

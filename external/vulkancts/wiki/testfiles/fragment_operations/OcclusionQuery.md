@@ -1,6 +1,6 @@
 ## Overview
 
-**Core question: does the implementation's occlusion query correctly count samples that survive the per-fragment test pipeline when scissor, depth, and stencil operations modify which fragments pass, under both conservative (any non-zero) and precise (exact count) query modes?**
+**Core question:** Does the implementation's occlusion query correctly count samples that survive the per-fragment test pipeline when scissor, depth, and stencil operations modify which fragments pass, under both conservative (any non-zero) and precise (exact count) query modes?
 
 - The source file [`vktFragmentOperationsOcclusionQueryTests.cpp`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsOcclusionQueryTests.cpp#L1) implements and registers the `occlusion_query` test family under [`fragment_operations`](../../categories/fragment_operations.md).
 - Each test case draws a full-screen quad inside an active occlusion query, with optional scissor clipping, mid-pass depth/stencil clears, and occluder draws that write depth or stencil values. The query result is then checked against a precision-dependent pass rule.

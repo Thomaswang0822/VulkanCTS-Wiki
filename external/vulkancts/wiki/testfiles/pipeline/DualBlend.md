@@ -272,9 +272,14 @@ void main()
 
 ## Case Pruning
 
+### Requirement-based pruning
+
 - `checkSupport()` prunes construction types that do not meet their pipeline requirements, devices without `dualSrcBlend`, devices with fewer than four fragment output attachments, unsupported blend or transfer formats, and shader-object paths without `VK_EXT_shader_object` or `VK_EXT_color_write_enable`.
 - The source places this family under `#ifndef CTS_USES_VULKANSC`, so Vulkan SC builds do not register it.
-- A zero destination buffer causes a quality warning for that iteration. It is not reported as a pass and does not become a comparison failure.
+
+### Design-based pruning
+
+The source applies no additional design-based pruning after the requirement checks: every registered blend-factor, blend-operation, format, and construction combination enters the iteration matrix. A zero destination buffer is not pruning; it produces a quality warning for that iteration and skips the comparison rather than removing a registered case.
 
 ## Key Takeaways
 

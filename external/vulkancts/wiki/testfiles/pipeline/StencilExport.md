@@ -60,12 +60,18 @@ The shader code supplies the stencil reference and simple color output. The fixe
 
 #### Parameter Values Chosen
 
-| Parameter | Selected value |
+Representative path:
+
+```text
+dEQP-VK.pipeline.monolithic.shader_stencil_export.s8_uint.op_replace
+```
+
+| Parameter choice | Meaning in this representative case |
 |---|---|
-| Leaf | `op_replace` |
-| Fragment source | `frag-stencil0` |
-| Shader stage | Fragment |
-| Stencil export | `gl_FragStencilRefARB` with `GL_ARB_shader_stencil_export` |
+| Leaf: `op_replace` | Selects the ordinary shader-stencil-export leaf. |
+| Fragment source: `frag-stencil0` | Names the representative GLSL fragment source. |
+| Shader stage: Fragment | Identifies the stage that writes the exported stencil reference. |
+| Stencil export: `gl_FragStencilRefARB` with `GL_ARB_shader_stencil_export` | Supplies the shader-written stencil reference used by the test. |
 
 #### Purpose
 
@@ -99,15 +105,17 @@ void main(void)
 }
 ```
 
-#### Parameter Variation Summary
-
-`op_replace_early_and_late` uses six CTS-authored SPIR-V strings. They preserve the coordinate calculation and `FragStencilRefEXT` output, add `OpExecutionMode ... EarlyAndLateFragmentTestsAMD`, and select one of the six `ExecutionModeStencil` values.
-
 #### Additional Info
 
 - The vertex shader emits six indexed positions covering the viewport.
 - The second fragment shader writes `vec4(0, 0, 1, 1)`; it does not export stencil.
 - The source builds the ordinary GLSL fragment shader with `GL_ARB_shader_stencil_export`. CTS source uses `gl_FragStencilRefARB`; SPIR-V disassembly expresses the output as `FragStencilRefEXT`.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---|---|---|
+| `op_replace_early_and_late` | Uses six CTS-authored SPIR-V strings. They preserve the coordinate calculation and `FragStencilRefEXT` output, add `OpExecutionMode ... EarlyAndLateFragmentTestsAMD`, and select one of the six `ExecutionModeStencil` values. | [`vktPipelineStencilExportTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineStencilExportTests.cpp#L82-L85); [`vktPipelineStencilExportTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineStencilExportTests.cpp#L121-L203) |
 
 #### SPIR-V
 

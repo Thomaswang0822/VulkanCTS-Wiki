@@ -53,7 +53,331 @@ Builds an intentionally wrong structure first - the indirect fields point at pad
 
 ## Shader Analysis
 
-Shader code is not part of the tested behavior. Two rgen shaders (`wr-asb`, `wr-ast`) only write the `VkAccelerationStructureBuildRangeInfoKHR` struct into a storage buffer so the build can read it indirectly; their contents are baked from the case's `CaseDef` and do not vary the tested property. The probe rgen traces one ray per launch ID straight down the -z axis into the TLAS, and the closest-hit and miss shaders write a fixed `HIT` or `MISS` value into the result image. The intersection shader reports an intersection for AABB geometry. No shader text varies with the build range field or the build/update mode, so no representative shader walkthrough is needed.
+This walkthrough follows the shader-visible dataflow in producer-before-consumer order. `wr-asb` writes the indirect BLAS build-range records; the trace ray-generation shader then consumes the TLAS built from those records. The closest-hit, miss, and AABB intersection stages are fixed result/traversal support stages and are summarized under `#### Additional Info`.
+
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.ray_tracing_pipeline.indirect_acceleration_structure.build.triangles_no_index.primitive_count.5
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `build` | The acceleration structure is built once from a device-filled indirect range buffer; no in-place update is performed. |
+| `triangles_no_index` | The BLAS uses non-indexed triangles, so the producer emits the same four-field record for each of the eight BLAS geometries. |
+| `primitive_count.5` | `wr-asb` embeds `primitiveCount = 5`; `primitiveOffset`, `firstVertex`, and `transformOffset` are zero. Only the first five primitives are built. |
+| `wr-asb` → trace `rgen` | The first shader produces the indirect records; after the host build, the trace shader launches the 5x5x8 probe grid and generates the hit/miss signal. |
+| `spirv1.4` | `initProgramsHelper` applies `ShaderBuildOptions(..., SPIRV_VERSION_1_4, ...)` to every generated stage. |
+
+#### Purpose
+
+The producer shader exercises the device-written `VkAccelerationStructureBuildRangeInfoKHR` path, while the trace shader turns the resulting BLAS/TLAS contents into a deterministic hit/miss signal. Together they test that indirect `primitiveCount` is consumed as a primitive count rather than ignored, shifted, or interpreted as a byte offset.
+
+#### Structural Design
+
+| Stage | Dataflow | Observable role |
+|-------|----------|-----------------|
+| `wr-asb` raygen | Loop `i = 0..7`; construct `uvec4(5, 0, 0, 0)`; store record `i` | Produces eight contiguous indirect BLAS range records with a 16-byte `uvec4` stride. |
+| Host AS build | `vkCmdBuildAccelerationStructuresIndirectKHR` reads the producer buffer | Resolves the four build-range fields for each geometry. |
+| Trace raygen | Map `gl_LaunchIDEXT` to `(x, y, z)`; trace from `(x + 200z, y, 0.5)` along `-z` | Probes the corresponding scene cell. |
+| Fixed hit/miss stages | Closest-hit writes `HIT`; miss writes `MISS` | Supplies the value compared with the host-generated expected pattern. |
+
+#### Shader Code
+
+##### Indirect BLAS-Range Producer (`wr-asb`) Shader
+
+This is the exact source emitted by `initProgramsHelper` for `primitiveCount = 5`, `primitiveOffset = 0`, `firstVertex = 0`, `transformOffset = 0`, and `depth = 8`. `updateRayTracingGLSL` is an identity function in this tree.
+
+```glsl
+#version 460 core
+#extension GL_EXT_ray_tracing : require
+/// Binding 0 is the storage buffer later consumed as the indirect BLAS range-info array.
+/// Each std140 uvec4 occupies 16 bytes, matching one VkAccelerationStructureBuildRangeInfoKHR record.
+layout(set = 0, binding = 0, std140) writeonly buffer OutBuf
+{
+  uvec4 accelerationStructureBuildOffsetInfoKHR[8];
+} b_out;
+
+void main()
+{
+  /// Emit one indirect range record for every BLAS geometry.
+  for (uint i = 0; i < 8; i++)
+  {
+    /// This representative leaf varies only primitiveCount; the other fields are zero.
+    uint primitiveCount  = 5u;
+    uint primitiveOffset = 0u;
+    uint firstVertex     = 0u;
+    uint transformOffset = 0u;
+
+    b_out.accelerationStructureBuildOffsetInfoKHR[i] = uvec4(
+      primitiveCount, primitiveOffset, firstVertex, transformOffset);
+  }
+}
+```
+
+##### Trace Ray-Generation Shader
+
+This is the exact fixed `rgen` source from the same generator. The depth term separates the eight slices by `SQUARE_OFFSET_X * 2`, while x/y retain the grid coordinates.
+
+```glsl
+#version 460 core
+#extension GL_EXT_ray_tracing : require
+/// Payload is declared for the hit/miss stages; this shader does not read it after tracing.
+layout(location = 0) rayPayloadEXT vec3 hitValue;
+/// TLAS assembled from the indirectly built BLAS instances.
+layout(set = 0, binding = 1) uniform accelerationStructureEXT topLevelAS;
+
+void main()
+{
+  uint  rayFlags = 0;
+  uint  cullMask = 0xFF;
+  float tmin     = 0.0;
+  float tmax     = 9.0;
+  float x        = float(gl_LaunchIDEXT.x);
+  x              += float(gl_LaunchIDEXT.z) * float(100) * 2.0f;
+  float y        = float(gl_LaunchIDEXT.y);
+  vec3  origin   = vec3(x, y, 0.5);
+  vec3  direct   = vec3(0.0, 0.0, -1.0);
+  /// One ray per launch ID; hit/miss writes the result image.
+  traceRayEXT(topLevelAS, rayFlags, cullMask, 0, 0, 0, origin, tmin, direct, tmax, 0);
+}
+```
+
+#### Additional Info
+
+- `wr-asb` is the producer for BLAS geometries. The analogous `wr-ast` shader writes one record for the TLAS: `instancesCount` occupies `primitiveCount`, and `instancesOffset` occupies `primitiveOffset` [producer generation](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L171-L242).
+- The trace rgen is fixed across `build` and `update`, all geometry types, and all field leaves. Closest-hit stores `uvec4(1,0,0,1)`, miss stores `uvec4(2,0,0,1)`, and AABB cases additionally use an intersection shader that calls `reportIntersectionEXT(1.5, 0)` [trace/result stage generation](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L243-L314).
+- The producer literals vary with `CaseDef`; its loop bound remains `depth = 8`. The update path changes host-side AS build sequencing and geometry/address setup, not generated shader text [CaseDef](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L74-L89) [initProgramsHelper](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L171-L242).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| Build range field/value | `wr-asb` keeps the same declarations and loop but embeds the selected `primitiveCount`, `primitiveOffset`, `firstVertex`, and `transformOffset` literals. `wr-ast` embeds the instance count/offset variant. | [initProgramsHelper](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L171-L242) |
+| Geometry type | The three BLAS groups share the `wr-asb` producer shape; `instances` uses the single-record `wr-ast` variant. The trace rgen is unchanged. | [geometry-group registration](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1256-L1387) |
+| Build/update mode | No generated shader changes; only the host AS build sequence and geometry/address setup change. | [update build sequence](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L615-L624) |
+| Launch dimensions | The trace rgen uses `gl_LaunchIDEXT` directly. Fixed `width = height = 5`, `depth = 8` changes invocation count, not shader structure. | [CaseDef dimensions](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L74-L89) |
+
+#### SPIR-V
+
+##### Indirect BLAS-Range Producer (`wr-asb`) Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `rgen` (`wr-asb` producer)
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 42
+; Schema: 0
+               OpCapability RayTracingKHR
+               OpExtension "SPV_KHR_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint RayGenerationKHR %main "main" %b_out
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_ray_tracing"
+               OpName %main "main"
+               OpName %i "i"
+               OpName %primitiveCount "primitiveCount"
+               OpName %primitiveOffset "primitiveOffset"
+               OpName %firstVertex "firstVertex"
+               OpName %transformOffset "transformOffset"
+               OpName %OutBuf "OutBuf"
+               OpMemberName %OutBuf 0 "accelerationStructureBuildOffsetInfoKHR"
+               OpName %b_out "b_out"
+               OpDecorate %_arr_v4uint_uint_8 ArrayStride 16
+               OpDecorate %OutBuf Block
+               OpMemberDecorate %OutBuf 0 NonReadable
+               OpMemberDecorate %OutBuf 0 Offset 0
+               OpDecorate %b_out NonReadable
+               OpDecorate %b_out Binding 0
+               OpDecorate %b_out DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_ptr_Function_uint = OpTypePointer Function %uint
+     %uint_0 = OpConstant %uint 0
+     %uint_8 = OpConstant %uint 8
+       %bool = OpTypeBool
+     %uint_5 = OpConstant %uint 5
+     %v4uint = OpTypeVector %uint 4
+%_arr_v4uint_uint_8 = OpTypeArray %v4uint %uint_8
+     %OutBuf = OpTypeStruct %_arr_v4uint_uint_8
+%_ptr_StorageBuffer_OutBuf = OpTypePointer StorageBuffer %OutBuf
+      %b_out = OpVariable %_ptr_StorageBuffer_OutBuf StorageBuffer
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_StorageBuffer_v4uint = OpTypePointer StorageBuffer %v4uint
+      %int_1 = OpConstant %int 1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %i = OpVariable %_ptr_Function_uint Function
+%primitiveCount = OpVariable %_ptr_Function_uint Function
+%primitiveOffset = OpVariable %_ptr_Function_uint Function
+%firstVertex = OpVariable %_ptr_Function_uint Function
+%transformOffset = OpVariable %_ptr_Function_uint Function
+               OpStore %i %uint_0
+               OpBranch %10
+         %10 = OpLabel
+               OpLoopMerge %12 %13 None
+               OpBranch %14
+         %14 = OpLabel
+         %15 = OpLoad %uint %i
+         %18 = OpULessThan %bool %15 %uint_8
+               OpBranchConditional %18 %11 %12
+         %11 = OpLabel
+               OpStore %primitiveCount %uint_5
+               OpStore %primitiveOffset %uint_0
+               OpStore %firstVertex %uint_0
+               OpStore %transformOffset %uint_0
+         %31 = OpLoad %uint %i
+         %32 = OpLoad %uint %primitiveCount
+         %33 = OpLoad %uint %primitiveOffset
+         %34 = OpLoad %uint %firstVertex
+         %35 = OpLoad %uint %transformOffset
+         %36 = OpCompositeConstruct %v4uint %32 %33 %34 %35
+         %38 = OpAccessChain %_ptr_StorageBuffer_v4uint %b_out %int_0 %31
+               OpStore %38 %36
+               OpBranch %13
+         %13 = OpLabel
+         %39 = OpLoad %uint %i
+         %41 = OpIAdd %uint %39 %int_1
+               OpStore %i %41
+               OpBranch %10
+         %12 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Trace Ray-Generation Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `rgen` (trace consumer)
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 65
+; Schema: 0
+               OpCapability RayTracingKHR
+               OpExtension "SPV_KHR_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint RayGenerationKHR %main "main" %gl_LaunchIDEXT %topLevelAS %hitValue
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_ray_tracing"
+               OpName %main "main"
+               OpName %rayFlags "rayFlags"
+               OpName %cullMask "cullMask"
+               OpName %tmin "tmin"
+               OpName %tmax "tmax"
+               OpName %x "x"
+               OpName %gl_LaunchIDEXT "gl_LaunchIDEXT"
+               OpName %y "y"
+               OpName %origin "origin"
+               OpName %direct "direct"
+               OpName %topLevelAS "topLevelAS"
+               OpName %hitValue "hitValue"
+               OpDecorate %gl_LaunchIDEXT BuiltIn LaunchIdKHR
+               OpDecorate %topLevelAS Binding 1
+               OpDecorate %topLevelAS DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_ptr_Function_uint = OpTypePointer Function %uint
+     %uint_0 = OpConstant %uint 0
+   %uint_255 = OpConstant %uint 255
+      %float = OpTypeFloat 32
+%_ptr_Function_float = OpTypePointer Function %float
+    %float_0 = OpConstant %float 0
+    %float_9 = OpConstant %float 9
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_LaunchIDEXT = OpVariable %_ptr_Input_v3uint Input
+%_ptr_Input_uint = OpTypePointer Input %uint
+     %uint_2 = OpConstant %uint 2
+  %float_100 = OpConstant %float 100
+    %float_2 = OpConstant %float 2
+     %uint_1 = OpConstant %uint 1
+    %v3float = OpTypeVector %float 3
+%_ptr_Function_v3float = OpTypePointer Function %v3float
+  %float_0_5 = OpConstant %float 0.5
+   %float_n1 = OpConstant %float -1
+         %50 = OpConstantComposite %v3float %float_0 %float_0 %float_n1
+         %51 = OpTypeAccelerationStructureKHR
+%_ptr_UniformConstant_51 = OpTypePointer UniformConstant %51
+ %topLevelAS = OpVariable %_ptr_UniformConstant_51 UniformConstant
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_RayPayloadKHR_v3float = OpTypePointer RayPayloadKHR %v3float
+   %hitValue = OpVariable %_ptr_RayPayloadKHR_v3float RayPayloadKHR
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+   %rayFlags = OpVariable %_ptr_Function_uint Function
+   %cullMask = OpVariable %_ptr_Function_uint Function
+       %tmin = OpVariable %_ptr_Function_float Function
+       %tmax = OpVariable %_ptr_Function_float Function
+          %x = OpVariable %_ptr_Function_float Function
+          %y = OpVariable %_ptr_Function_float Function
+     %origin = OpVariable %_ptr_Function_v3float Function
+     %direct = OpVariable %_ptr_Function_v3float Function
+               OpStore %rayFlags %uint_0
+               OpStore %cullMask %uint_255
+               OpStore %tmin %float_0
+               OpStore %tmax %float_9
+         %23 = OpAccessChain %_ptr_Input_uint %gl_LaunchIDEXT %uint_0
+         %24 = OpLoad %uint %23
+         %25 = OpConvertUToF %float %24
+               OpStore %x %25
+         %27 = OpAccessChain %_ptr_Input_uint %gl_LaunchIDEXT %uint_2
+         %28 = OpLoad %uint %27
+         %29 = OpConvertUToF %float %28
+         %31 = OpFMul %float %29 %float_100
+         %33 = OpFMul %float %31 %float_2
+         %34 = OpLoad %float %x
+         %35 = OpFAdd %float %34 %33
+               OpStore %x %35
+         %38 = OpAccessChain %_ptr_Input_uint %gl_LaunchIDEXT %uint_1
+         %39 = OpLoad %uint %38
+         %40 = OpConvertUToF %float %39
+               OpStore %y %40
+         %44 = OpLoad %float %x
+         %45 = OpLoad %float %y
+         %47 = OpCompositeConstruct %v3float %44 %45 %float_0_5
+               OpStore %origin %47
+               OpStore %direct %50
+         %54 = OpLoad %51 %topLevelAS
+         %55 = OpLoad %uint %rayFlags
+         %56 = OpLoad %uint %cullMask
+         %57 = OpLoad %v3float %origin
+         %58 = OpLoad %float %tmin
+         %59 = OpLoad %v3float %direct
+         %60 = OpLoad %float %tmax
+               OpTraceRayKHR %54 %55 %56 %uint_0 %uint_0 %uint_0 %57 %58 %59 %60 %hitValue
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

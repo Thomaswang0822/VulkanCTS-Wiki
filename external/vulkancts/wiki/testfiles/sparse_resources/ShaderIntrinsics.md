@@ -71,13 +71,13 @@ The selected representative case is a storage-image compute case because its gen
 Representative path:
 
 ```text
-dEQP-VK.sparse_resources.shader_intrinsics.2d_sparse_read.<format>.11_37_1
+dEQP-VK.sparse_resources.shader_intrinsics.2d_sparse_read.r32ui.11_37_1
 ```
 
 | Parameter choice | Meaning in this representative case |
 |---|---|
 | `2d_sparse_read` | Selects `SparseCaseOpImageSparseRead` and the compute storage-image path. |
-| `<format>` | Keeps the format-dependent component and image declarations symbolic because the registration matrix supplies multiple formats. |
+| `r32ui` | Selects one unsigned 32-bit component per plane, `%type_uint`/`%type_uvec4`, and the `R32ui` image format operand. |
 | `11_37_1` | Selects the smallest 2D extent, which also has a `_nontemporal` sibling. |
 
 #### Purpose
@@ -95,7 +95,7 @@ The generated compute program applies `OpImageSparseRead` at the invocation coor
 
 #### Shader Code
 
-The source generator emits SPIR-V directly. The central generated sequence is [`sparseImageOpString`](../../../modules/vulkan/sparse_resources/vktSparseResourcesShaderIntrinsicsStorage.cpp#L451-L463), followed by the result extraction and output writes in [`SparseShaderIntrinsicsCaseStorage::initPrograms`](../../../modules/vulkan/sparse_resources/vktSparseResourcesShaderIntrinsicsStorage.cpp#L327-L399). The source uses a format-dependent `OpTypeImage`, so this page does not substitute a hand-translated GLSL or HLSL reconstruction.
+The source generator emits SPIR-V directly. The central generated sequence is [`sparseImageOpString`](../../../modules/vulkan/sparse_resources/vktSparseResourcesShaderIntrinsicsStorage.cpp#L451-L463), followed by the result extraction and output writes in [`SparseShaderIntrinsicsCaseStorage::initPrograms`](../../../modules/vulkan/sparse_resources/vktSparseResourcesShaderIntrinsicsStorage.cpp#L327-L399). Because this test directly supplies SPIR-V assembly through `programCollection.spirvAsmSources`, the `#### SPIR-V` subsection below is the primary shader artifact; no hand-translated GLSL or HLSL block is expected.
 
 #### Additional Info
 
@@ -112,140 +112,154 @@ The source generator emits SPIR-V directly. The central generated sequence is [`
 | Format | Changes component types, image format operands, and plane declarations. | [`initPrograms`](../../../modules/vulkan/sparse_resources/vktSparseResourcesShaderIntrinsicsStorage.cpp#L50-L63) |
 | Operand | Adds `Nontemporal` to the generated sparse instruction and selects SPIR-V 1.6. | [`initPrograms`](../../../modules/vulkan/sparse_resources/vktSparseResourcesShaderIntrinsicsStorage.cpp#L65-L72) |
 
-#### Source Code
-116|
-117|The following is the exact single-plane `R32_UINT` specialization emitted by `SparseShaderIntrinsicsCaseStorage::initPrograms`: `2d_sparse_read` selects `SparseCaseOpImageSparseRead`, the `11_37_1` extent selects a 2D coordinate, and the `R32_UINT` format supplies `%type_uint`, `%type_uvec4`, and `R32ui` image operands. The `sparseImageOpString` helper emits `OpImageSparseRead` without a mip-level operand because this case has no optional operand. The assembly was mechanically round-tripped through `spirv-as --target-env spv1.0`, `spirv-val --target-env spv1.0`, and `spirv-dis`; the matching `; Version: 1.0` header passed the validation gate.
-118|
-119|```llvm
-OpCapability Shader
-OpCapability ImageCubeArray
-OpCapability SparseResidency
-OpCapability StorageImageExtendedFormats
-%ext_import = OpExtInstImport "GLSL.std.450"
-OpMemoryModel Logical GLSL450
-OpEntryPoint GLCompute %func_main "main" %input_GlobalInvocationID
-OpExecutionMode %func_main LocalSize 1 1 1
-OpSource GLSL 440
-OpName %func_main "main"
-OpName %input_GlobalInvocationID "gl_GlobalInvocationID"
-OpName %input_WorkGroupSize "gl_WorkGroupSize"
-OpName %uniform_image_sparse_plane0 "u_imageSparse_plane0"
-OpName %uniform_image_texels_plane0 "u_imageTexels_plane0"
-OpName %uniform_image_residency_plane0 "u_imageResidency_plane0"
-OpDecorate %input_GlobalInvocationID BuiltIn GlobalInvocationId
-OpDecorate %input_WorkGroupSize BuiltIn WorkgroupSize
-OpDecorate %constant_uint_grid_x SpecId 1
-OpDecorate %constant_uint_grid_y SpecId 2
-OpDecorate %constant_uint_grid_z SpecId 3
-OpDecorate %constant_uint_work_group_size_x SpecId 4
-OpDecorate %constant_uint_work_group_size_y SpecId 5
-OpDecorate %constant_uint_work_group_size_z SpecId 6
-OpDecorate %uniform_image_sparse_plane0 DescriptorSet 0
-OpDecorate %uniform_image_sparse_plane0 Binding 0
-OpDecorate %uniform_image_texels_plane0 DescriptorSet 0
-OpDecorate %uniform_image_texels_plane0 Binding 1
-OpDecorate %uniform_image_texels_plane0 NonReadable
-OpDecorate %uniform_image_residency_plane0 DescriptorSet 0
-OpDecorate %uniform_image_residency_plane0 Binding 2
-OpDecorate %uniform_image_residency_plane0 NonReadable
-%type_bool = OpTypeBool
-%type_int = OpTypeInt 32 1
-%type_uint = OpTypeInt 32 0
-%type_float = OpTypeFloat 32
-%type_ivec2 = OpTypeVector %type_int 2
-%type_ivec3 = OpTypeVector %type_int 3
-%type_ivec4 = OpTypeVector %type_int 4
-%type_uvec3 = OpTypeVector %type_uint 3
-%type_uvec4 = OpTypeVector %type_uint 4
-%type_vec2 = OpTypeVector %type_float 2
-%type_vec3 = OpTypeVector %type_float 3
-%type_vec4 = OpTypeVector %type_float 4
-%type_input_uint = OpTypePointer Input %type_uint
-%type_input_uvec3 = OpTypePointer Input %type_uvec3
-%type_function_int = OpTypePointer Function %type_int
-%type_function_img_comp_vec4 = OpTypePointer Function %type_uvec4
-%type_void = OpTypeVoid
-%type_void_func = OpTypeFunction %type_void
-%type_struct_int_img_comp_vec4_plane0 = OpTypeStruct %type_int %type_uvec4
-%type_image_sparse_fmt98 = OpTypeImage %type_uint 2D 0 0 0 2 R32ui
-%type_uniformconst_image_sparse_plane0 = OpTypePointer UniformConstant %type_image_sparse_fmt98
-%type_uniformconst_image_residency_plane0 = OpTypePointer UniformConstant %type_image_sparse_fmt98
-%uniform_image_sparse_plane0 = OpVariable %type_uniformconst_image_sparse_plane0 UniformConstant
-%uniform_image_texels_plane0 = OpVariable %type_uniformconst_image_sparse_plane0 UniformConstant
-%uniform_image_residency_plane0 = OpVariable %type_uniformconst_image_residency_plane0 UniformConstant
-%input_GlobalInvocationID = OpVariable %type_input_uvec3 Input
-%constant_uint_grid_x = OpSpecConstant %type_uint 1
-%constant_uint_grid_y = OpSpecConstant %type_uint 1
-%constant_uint_grid_z = OpSpecConstant %type_uint 1
-%constant_uint_work_group_size_x = OpSpecConstant %type_uint 1
-%constant_uint_work_group_size_y = OpSpecConstant %type_uint 1
-%constant_uint_work_group_size_z = OpSpecConstant %type_uint 1
-%input_WorkGroupSize = OpSpecConstantComposite %type_uvec3 %constant_uint_work_group_size_x %constant_uint_work_group_size_y %constant_uint_work_group_size_z
-%constant_uint_0 = OpConstant %type_uint 0
-%constant_uint_1 = OpConstant %type_uint 1
-%constant_uint_2 = OpConstant %type_uint 2
-%constant_int_0 = OpConstant %type_int 0
-%constant_int_1 = OpConstant %type_int 1
-%constant_int_2 = OpConstant %type_int 2
-%constant_bool_true = OpConstantTrue %type_bool
-%constant_uint_resident = OpConstant %type_uint 1
-%constant_uvec4_resident = OpConstantComposite %type_uvec4 %constant_uint_resident %constant_uint_resident %constant_uint_resident %constant_uint_resident
-%constant_uint_not_resident = OpConstant %type_uint 0
-%constant_uvec4_not_resident = OpConstantComposite %type_uvec4 %constant_uint_not_resident %constant_uint_not_resident %constant_uint_not_resident %constant_uint_not_resident
-%func_main = OpFunction %type_void None %type_void_func
-%label_func_main = OpLabel
-%access_GlobalInvocationID_x = OpAccessChain %type_input_uint %input_GlobalInvocationID %constant_uint_0
-%local_uint_GlobalInvocationID_x = OpLoad %type_uint %access_GlobalInvocationID_x
-%local_int_GlobalInvocationID_x = OpBitcast %type_int %local_uint_GlobalInvocationID_x
-%access_GlobalInvocationID_y = OpAccessChain %type_input_uint %input_GlobalInvocationID %constant_uint_1
-%local_uint_GlobalInvocationID_y = OpLoad %type_uint %access_GlobalInvocationID_y
-%local_int_GlobalInvocationID_y = OpBitcast %type_int %local_uint_GlobalInvocationID_y
-%access_GlobalInvocationID_z = OpAccessChain %type_input_uint %input_GlobalInvocationID %constant_uint_2
-%local_uint_GlobalInvocationID_z = OpLoad %type_uint %access_GlobalInvocationID_z
-%local_int_GlobalInvocationID_z = OpBitcast %type_int %local_uint_GlobalInvocationID_z
-%local_ivec2_GlobalInvocationID_xy = OpCompositeConstruct %type_ivec2 %local_int_GlobalInvocationID_x %local_int_GlobalInvocationID_y
-%local_ivec3_GlobalInvocationID_xyz = OpCompositeConstruct %type_ivec3 %local_int_GlobalInvocationID_x %local_int_GlobalInvocationID_y %local_int_GlobalInvocationID_z
-%comparison_range_x = OpULessThan %type_bool %local_uint_GlobalInvocationID_x %constant_uint_grid_x
-OpSelectionMerge %label_out_range_x None
-OpBranchConditional %comparison_range_x %label_in_range_x %label_out_range_x
-%label_in_range_x = OpLabel
-%comparison_range_y = OpULessThan %type_bool %local_uint_GlobalInvocationID_y %constant_uint_grid_y
-OpSelectionMerge %label_out_range_y None
-OpBranchConditional %comparison_range_y %label_in_range_y %label_out_range_y
-%label_in_range_y = OpLabel
-%comparison_range_z = OpULessThan %type_bool %local_uint_GlobalInvocationID_z %constant_uint_grid_z
-OpSelectionMerge %label_out_range_z None
-OpBranchConditional %comparison_range_z %label_in_range_z %label_out_range_z
-%label_in_range_z = OpLabel
-%local_image_sparse_plane0 = OpLoad %type_image_sparse_fmt98 %uniform_image_sparse_plane0
-%local_sparse_op_result_plane0 = OpImageSparseRead %type_struct_int_img_comp_vec4_plane0 %local_image_sparse_plane0 %local_ivec2_GlobalInvocationID_xy
-%local_img_comp_vec4_plane0 = OpCompositeExtract %type_uvec4 %local_sparse_op_result_plane0 1
-%local_residency_code_plane0 = OpCompositeExtract %type_int %local_sparse_op_result_plane0 0
-%local_image_texels_plane0 = OpLoad %type_image_sparse_fmt98 %uniform_image_texels_plane0
-OpImageWrite %local_image_texels_plane0 %local_ivec2_GlobalInvocationID_xy %local_img_comp_vec4_plane0
-%local_image_residency_plane0 = OpLoad %type_image_sparse_fmt98 %uniform_image_residency_plane0
-%local_texel_resident_plane0 = OpImageSparseTexelsResident %type_bool %local_residency_code_plane0
-OpSelectionMerge %branch_texel_resident_plane0 None
-OpBranchConditional %local_texel_resident_plane0 %label_texel_resident_plane0 %label_texel_not_resident_plane0
-%label_texel_resident_plane0 = OpLabel
-OpImageWrite %local_image_residency_plane0 %local_ivec2_GlobalInvocationID_xy %constant_uvec4_resident
-OpBranch %branch_texel_resident_plane0
-%label_texel_not_resident_plane0 = OpLabel
-OpImageWrite %local_image_residency_plane0 %local_ivec2_GlobalInvocationID_xy %constant_uvec4_not_resident
-OpBranch %branch_texel_resident_plane0
-%branch_texel_resident_plane0 = OpLabel
-OpBranch %label_out_range_z
-%label_out_range_z = OpLabel
-OpBranch %label_out_range_y
-%label_out_range_y = OpLabel
-OpBranch %label_out_range_x
-%label_out_range_x = OpLabel
-OpReturn
-OpFunctionEnd
+#### SPIR-V
 
-246|```
-247|
-248|## Runtime Execution and Result Checking
+The following is the hand-reconstructed single-plane `R32_UINT` specialization emitted by `SparseShaderIntrinsicsCaseStorage::initPrograms`: `2d_sparse_read` selects `SparseCaseOpImageSparseRead`, the `11_37_1` extent selects a 2D coordinate, and the `R32_UINT` format supplies `%type_uint`, `%type_uvec4`, and `R32ui` image operands. The `sparseImageOpString` helper emits `OpImageSparseRead` without a mip-level operand because this case has no optional operand. The assembly was round-tripped through `spirv-as --target-env spv1.0`, `spirv-val --target-env spv1.0`, and `spirv-dis`; the matching `; Version: 1.0` header passed the validation gate.
+
+- Status: generated and validated
+- Source: reconstructed direct `SPIR-V` assembly from the CTS generator
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 78
+; Schema: 0
+               OpCapability Shader
+               OpCapability ImageCubeArray
+               OpCapability SparseResidency
+               OpCapability StorageImageExtendedFormats
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 440
+               OpName %main "main"
+               OpName %gl_GlobalInvocationID "gl_GlobalInvocationID"
+               OpName %gl_WorkGroupSize "gl_WorkGroupSize"
+               OpName %u_imageSparse_plane0 "u_imageSparse_plane0"
+               OpName %u_imageTexels_plane0 "u_imageTexels_plane0"
+               OpName %u_imageResidency_plane0 "u_imageResidency_plane0"
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+               OpDecorate %8 SpecId 1
+               OpDecorate %9 SpecId 2
+               OpDecorate %10 SpecId 3
+               OpDecorate %11 SpecId 4
+               OpDecorate %12 SpecId 5
+               OpDecorate %13 SpecId 6
+               OpDecorate %u_imageSparse_plane0 DescriptorSet 0
+               OpDecorate %u_imageSparse_plane0 Binding 0
+               OpDecorate %u_imageTexels_plane0 DescriptorSet 0
+               OpDecorate %u_imageTexels_plane0 Binding 1
+               OpDecorate %u_imageTexels_plane0 NonReadable
+               OpDecorate %u_imageResidency_plane0 DescriptorSet 0
+               OpDecorate %u_imageResidency_plane0 Binding 2
+               OpDecorate %u_imageResidency_plane0 NonReadable
+       %bool = OpTypeBool
+        %int = OpTypeInt 32 1
+       %uint = OpTypeInt 32 0
+      %float = OpTypeFloat 32
+      %v2int = OpTypeVector %int 2
+      %v3int = OpTypeVector %int 3
+      %v4int = OpTypeVector %int 4
+     %v3uint = OpTypeVector %uint 3
+     %v4uint = OpTypeVector %uint 4
+    %v2float = OpTypeVector %float 2
+    %v3float = OpTypeVector %float 3
+    %v4float = OpTypeVector %float 4
+%_ptr_Input_uint = OpTypePointer Input %uint
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%_ptr_Function_int = OpTypePointer Function %int
+%_ptr_Function_v4uint = OpTypePointer Function %v4uint
+       %void = OpTypeVoid
+         %31 = OpTypeFunction %void
+ %_struct_32 = OpTypeStruct %int %v4uint
+         %33 = OpTypeImage %uint 2D 0 0 0 2 R32ui
+%_ptr_UniformConstant_33 = OpTypePointer UniformConstant %33
+%_ptr_UniformConstant_33_0 = OpTypePointer UniformConstant %33
+%u_imageSparse_plane0 = OpVariable %_ptr_UniformConstant_33 UniformConstant
+%u_imageTexels_plane0 = OpVariable %_ptr_UniformConstant_33 UniformConstant
+%u_imageResidency_plane0 = OpVariable %_ptr_UniformConstant_33_0 UniformConstant
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+          %8 = OpSpecConstant %uint 1
+          %9 = OpSpecConstant %uint 1
+         %10 = OpSpecConstant %uint 1
+         %11 = OpSpecConstant %uint 1
+         %12 = OpSpecConstant %uint 1
+         %13 = OpSpecConstant %uint 1
+%gl_WorkGroupSize = OpSpecConstantComposite %v3uint %11 %12 %13
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+     %uint_2 = OpConstant %uint 2
+      %int_0 = OpConstant %int 0
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+       %true = OpConstantTrue %bool
+   %uint_1_0 = OpConstant %uint 1
+         %44 = OpConstantComposite %v4uint %uint_1_0 %uint_1_0 %uint_1_0 %uint_1_0
+   %uint_0_0 = OpConstant %uint 0
+         %46 = OpConstantComposite %v4uint %uint_0_0 %uint_0_0 %uint_0_0 %uint_0_0
+       %main = OpFunction %void None %31
+         %47 = OpLabel
+         %48 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %49 = OpLoad %uint %48
+         %50 = OpBitcast %int %49
+         %51 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_1
+         %52 = OpLoad %uint %51
+         %53 = OpBitcast %int %52
+         %54 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_2
+         %55 = OpLoad %uint %54
+         %56 = OpBitcast %int %55
+         %57 = OpCompositeConstruct %v2int %50 %53
+         %58 = OpCompositeConstruct %v3int %50 %53 %56
+         %59 = OpULessThan %bool %49 %8
+               OpSelectionMerge %60 None
+               OpBranchConditional %59 %61 %60
+         %61 = OpLabel
+         %62 = OpULessThan %bool %52 %9
+               OpSelectionMerge %63 None
+               OpBranchConditional %62 %64 %63
+         %64 = OpLabel
+         %65 = OpULessThan %bool %55 %10
+               OpSelectionMerge %66 None
+               OpBranchConditional %65 %67 %66
+         %67 = OpLabel
+         %68 = OpLoad %33 %u_imageSparse_plane0
+         %69 = OpImageSparseRead %_struct_32 %68 %57
+         %70 = OpCompositeExtract %v4uint %69 1
+         %71 = OpCompositeExtract %int %69 0
+         %72 = OpLoad %33 %u_imageTexels_plane0
+               OpImageWrite %72 %57 %70
+         %73 = OpLoad %33 %u_imageResidency_plane0
+         %74 = OpImageSparseTexelsResident %bool %71
+               OpSelectionMerge %75 None
+               OpBranchConditional %74 %76 %77
+         %76 = OpLabel
+               OpImageWrite %73 %57 %44
+               OpBranch %75
+         %77 = OpLabel
+               OpImageWrite %73 %57 %46
+               OpBranch %75
+         %75 = OpLabel
+               OpBranch %66
+         %66 = OpLabel
+               OpBranch %63
+         %63 = OpLabel
+               OpBranch %60
+         %60 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+## Runtime Execution and Result Checking
 
 - The shared instance creates a `VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT | VK_IMAGE_CREATE_SPARSE_BINDING_BIT` image with transfer-destination usage plus sampled or storage usage. Cube cases add cube compatibility; multi-planar cases add the required mutable and extended-usage flags.
 - The host obtains sparse image memory requirements, binds alternating mip levels, binds the mip tail as resident, and fills reference data with resident and nonresident markers.
@@ -305,5 +319,3 @@ OpFunctionEnd
 | Sparse image setup | [`SparseShaderIntrinsicsInstanceBase::iterate`](../../../modules/vulkan/sparse_resources/vktSparseResourcesShaderIntrinsicsBase.cpp#L574-L845) | Creates images and binds mip-level memory |
 | Storage command recording | [`SparseShaderIntrinsicsInstanceStorage::recordCommands`](../../../modules/vulkan/sparse_resources/vktSparseResourcesShaderIntrinsicsStorage.cpp#L531-L751) | Records barriers, descriptors, and dispatches |
 | Result checking | [`SparseShaderIntrinsicsInstanceBase::iterate`](../../../modules/vulkan/sparse_resources/vktSparseResourcesShaderIntrinsicsBase.cpp#L986-L1238) | Compares texel and residency outputs |
-
-309|

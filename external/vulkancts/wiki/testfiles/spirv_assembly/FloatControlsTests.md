@@ -97,88 +97,9 @@ Verify that the implementation preserves a denormal FP32 operand through `OpFAdd
 | Decorations | `%ssbo_in` and `%ssbo_out` are `BufferBlock`-decorated SSBOs bound to descriptor set 0 bindings 0 and 1; arrays carry `ArrayStride 4`. | The input SSBO carries two FP32 operands; the output SSBO receives one FP32 result. ArrayStride is required by `spirv-val` for block layout. |
 | Body | `OpAccessChain` into `%ssbo_in[0][0]` and `%ssbo_in[0][1]`; `OpLoad` both operands; `OpFAdd`; `OpAccessChain` into `%ssbo_out[0][0]`; `OpStore`. | `OpFAdd` is the only arithmetic operation. Under `DenormPreserve`, adding two denorms must yield twice the denorm, not zero. |
 
-#### Source Code
+#### Shader Code
 
-SPIR-V assembly extracted from `m_operationShaderTemplate` in [`ComputeTestGroupBuilder::init`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3978-L4044) for `VariableType=FP32`, `argumentsFromInput=true`, `OperationId=OID_ADD`, `BehaviorFlags=B_DENORM_PRESERVE`. The C++ template carries no `;` comments; the annotations below are wiki-authored per the `spirv_assembly` category convention.
-
-```llvm
-; SPIR-V
-; Version: 1.0
-; Generator: Vulkan CTS vktSpvAsmFloatControlsTests; 0
-; Bound: 100
-; Schema: 0
-; Walkthrough: spirv_assembly.instruction.compute.float_controls.fp32.input_args.denorm_add_denorm_preserve
-; Extracted from m_operationShaderTemplate (ComputeTestGroupBuilder::init)
-; Specialized for: VariableType=FP32, argumentsFromInput=true, OperationId=OID_ADD, BehaviorFlags=B_DENORM_PRESERVE
-OpCapability Shader
-OpCapability DenormPreserve
-OpExtension "SPV_KHR_float_controls"
-%std450            = OpExtInstImport "GLSL.std.450"
-OpMemoryModel Logical GLSL450
-OpEntryPoint GLCompute %main "main" %id
-OpExecutionMode %main LocalSize 1 1 1
-; Float-control execution mode under test: preserve denormals for 32-bit floats.
-OpExecutionMode %main DenormPreserve 32
-OpDecorate %id BuiltIn GlobalInvocationId
-OpMemberDecorate %SSBO_in 0 Offset 0
-OpDecorate %SSBO_in BufferBlock
-OpDecorate %ssbo_in DescriptorSet 0
-OpDecorate %ssbo_in Binding 0
-OpDecorate %ssbo_in NonWritable
-OpMemberDecorate %SSBO_out 0 Offset 0
-OpDecorate %SSBO_out BufferBlock
-OpDecorate %ssbo_out DescriptorSet 0
-OpDecorate %ssbo_out Binding 1
-; ArrayStride is required by spirv-val for BufferBlock arrays.
-OpDecorate %type_f32_arr_1 ArrayStride 4
-OpDecorate %type_f32_arr_2 ArrayStride 4
-%type_void            = OpTypeVoid
-%type_voidf           = OpTypeFunction %type_void
-%type_bool            = OpTypeBool
-%type_u32             = OpTypeInt 32 0
-%type_i32             = OpTypeInt 32 1
-%type_i32_fptr        = OpTypePointer Function %type_i32
-%type_u32_vec2        = OpTypeVector %type_u32 2
-%type_u32_vec3        = OpTypeVector %type_u32 3
-%type_u32_vec3_ptr    = OpTypePointer Input %type_u32_vec3
-%c_i32_0              = OpConstant %type_i32 0
-%c_i32_1              = OpConstant %type_i32 1
-%c_i32_2              = OpConstant %type_i32 2
-%c_u32_1              = OpConstant %type_u32 1
-%type_f32             = OpTypeFloat 32
-%type_f32_uptr        = OpTypePointer Uniform %type_f32
-%type_f32_fptr        = OpTypePointer Function %type_f32
-%type_f32_vec2        = OpTypeVector %type_f32 2
-%type_f32_vec3        = OpTypeVector %type_f32 3
-%type_f32_vec4        = OpTypeVector %type_f32 4
-%type_f32_vec4_iptr   = OpTypePointer Input %type_f32_vec4
-%type_f32_vec4_optr   = OpTypePointer Output %type_f32_vec4
-%type_f32_mat2x2      = OpTypeMatrix %type_f32_vec2 2
-%type_f32_arr_1       = OpTypeArray %type_f32 %c_i32_1
-%type_f32_arr_2       = OpTypeArray %type_f32 %c_i32_2
-; Input SSBO: struct wrapping a 2-element FP32 array (the two operands).
-%SSBO_in              = OpTypeStruct %type_f32_arr_2
-%up_SSBO_in           = OpTypePointer Uniform %SSBO_in
-%ssbo_in              = OpVariable %up_SSBO_in Uniform
-; Output SSBO: struct wrapping a 1-element FP32 array (the result).
-%SSBO_out             = OpTypeStruct %type_f32_arr_1
-%up_SSBO_out          = OpTypePointer Uniform %SSBO_out
-%ssbo_out             = OpVariable %up_SSBO_out Uniform
-%id                   = OpVariable %type_u32_vec3_ptr Input
-%main                 = OpFunction %type_void None %type_voidf
-%label                = OpLabel
-; Load both operands from the input SSBO.
-%arg1loc              = OpAccessChain %type_f32_uptr %ssbo_in %c_i32_0 %c_i32_0
-%arg1                 = OpLoad %type_f32 %arg1loc
-%arg2loc              = OpAccessChain %type_f32_uptr %ssbo_in %c_i32_0 %c_i32_1
-%arg2                 = OpLoad %type_f32 %arg2loc
-; The tested operation. Under DenormPreserve 32, OpFAdd of two denorms yields twice the denorm.
-%result               = OpFAdd %type_f32 %arg1 %arg2
-%outloc               = OpAccessChain %type_f32_uptr %ssbo_out %c_i32_0 %c_i32_0
-OpStore %outloc %result
-OpReturn
-OpFunctionEnd
-```
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -192,9 +113,92 @@ OpFunctionEnd
 |---------------------|---------------------------------------|----------|
 | `BehaviorFlags` | Swaps `OpCapability` and `OpExecutionMode` lines (e.g. `DenormFlushToZero 32`, `SignedZeroInfNanPreserve 32`, `RoundingModeRTE 32`, `RoundingModeRTZ 32`). | [`getBehaviorCapabilityAndExecutionMode()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3793-L3818) |
 | `OperationId` | Replaces the `%result = OpFAdd ...` line with the operation's command snippet (e.g. `OpFSub`, `OpFMul`, `OpFma`, `OpFConvert`, `OpExtInst` for trig/log/sqrt). | [`createOperationMap()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L2142-L2650) |
-| `VariableType` | Swaps the float type, array stride, capabilities, and load/store snippets for FP16 or FP64. | per-width `TypeSnippets` |
+| `VariableType` | Swaps the float type, array stride, capabilities, and load/store snippets for FP16 or FP64. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
 | Argument source | `input_args` keeps the SSBO load; `generated_args` replaces it with constant construction. | [`fillShaderSpec(OperationTestCaseInfo)`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4271-L4460) |
 | Rounding override | `rounding_rte_override_from_fp32_*` / `rounding_rtz_override_from_fp32_*` add `OpDecorate %result FPRoundingMode RTE|RTZ` on an `OpFConvert` from FP32 to FP16. | [`createOperationMap()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L2142-L2650) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 41
+; Schema: 0
+               OpCapability Shader
+               OpCapability DenormPreserve
+               OpExtension "SPV_KHR_float_controls"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %2 "main" %gl_GlobalInvocationID
+               OpExecutionMode %2 LocalSize 1 1 1
+               OpExecutionMode %2 DenormPreserve 32
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpMemberDecorate %_struct_4 0 Offset 0
+               OpDecorate %_struct_4 BufferBlock
+               OpDecorate %5 DescriptorSet 0
+               OpDecorate %5 Binding 0
+               OpDecorate %5 NonWritable
+               OpMemberDecorate %_struct_6 0 Offset 0
+               OpDecorate %_struct_6 BufferBlock
+               OpDecorate %7 DescriptorSet 0
+               OpDecorate %7 Binding 1
+               OpDecorate %_arr_float_int_1 ArrayStride 4
+               OpDecorate %_arr_float_int_2 ArrayStride 4
+       %void = OpTypeVoid
+         %11 = OpTypeFunction %void
+       %bool = OpTypeBool
+       %uint = OpTypeInt 32 0
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+     %v2uint = OpTypeVector %uint 2
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+      %int_0 = OpConstant %int 0
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+     %uint_1 = OpConstant %uint 1
+      %float = OpTypeFloat 32
+%_ptr_Uniform_float = OpTypePointer Uniform %float
+%_ptr_Function_float = OpTypePointer Function %float
+    %v2float = OpTypeVector %float 2
+    %v3float = OpTypeVector %float 3
+    %v4float = OpTypeVector %float 4
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%mat2v2float = OpTypeMatrix %v2float 2
+%_arr_float_int_1 = OpTypeArray %float %int_1
+%_arr_float_int_2 = OpTypeArray %float %int_2
+  %_struct_4 = OpTypeStruct %_arr_float_int_2
+%_ptr_Uniform__struct_4 = OpTypePointer Uniform %_struct_4
+          %5 = OpVariable %_ptr_Uniform__struct_4 Uniform
+  %_struct_6 = OpTypeStruct %_arr_float_int_1
+%_ptr_Uniform__struct_6 = OpTypePointer Uniform %_struct_6
+          %7 = OpVariable %_ptr_Uniform__struct_6 Uniform
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+          %2 = OpFunction %void None %11
+         %34 = OpLabel
+         %35 = OpAccessChain %_ptr_Uniform_float %5 %int_0 %int_0
+         %36 = OpLoad %float %35
+         %37 = OpAccessChain %_ptr_Uniform_float %5 %int_0 %int_1
+         %38 = OpLoad %float %37
+         %39 = OpFAdd %float %36 %38
+         %40 = OpAccessChain %_ptr_Uniform_float %7 %int_0 %int_0
+               OpStore %40 %39
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ### Representative Shader Walkthrough 2
 
@@ -227,99 +231,9 @@ Verify that the implementation can sustain different rounding modes for FP16 and
 | Decorations | Three SSBOs: `%ssbo_in` (binding 0, input), `%ssbo_f32_out` (binding 1), `%ssbo_f16_out` (binding 2). Input struct packs FP32 array then FP16 array, ordered 64 → 16 for storage layout. | One input buffer carries operands for all active widths; one output buffer per width so independence can be observed per width. |
 | Body | Load FP32 operands from `%ssbo_in[0]`, `OpFAdd`, store to `%ssbo_f32_out`; load FP16 operands from `%ssbo_in[1]`, `OpFAdd`, store to `%ssbo_f16_out`. | The same `OpFAdd` runs on both widths. The expected result differs per width because the rounding modes differ. |
 
-#### Source Code
+#### Shader Code
 
-SPIR-V assembly extracted from `m_settingsShaderTemplate` in [`ComputeTestGroupBuilder::init`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4046-L4099) for `SettingsMode=SM_ROUNDING`, `independence=ALL`, `fp16=RTE`, `fp32=RTZ`, `fp64=UNUSED`. The C++ template carries no `;` comments; the annotations below are wiki-authored per the `spirv_assembly` category convention.
-
-```llvm
-; SPIR-V
-; Version: 1.0
-; Generator: Vulkan CTS vktSpvAsmFloatControlsTests; 0
-; Bound: 100
-; Schema: 0
-; Walkthrough: spirv_assembly.instruction.compute.float_controls.independence_settings.rounding_ind_all_fp16_rte_fp32_rtz
-; Extracted from m_settingsShaderTemplate (ComputeTestGroupBuilder::init)
-; Specialized for: SettingsMode=SM_ROUNDING, independence=ALL, fp16=RTE, fp32=RTZ, fp64=UNUSED
-OpCapability Shader
-OpCapability RoundingModeRTE
-OpCapability RoundingModeRTZ
-OpCapability StorageUniform16
-OpCapability Float16
-OpExtension "SPV_KHR_float_controls"
-OpExtension "SPV_KHR_16bit_storage"
-%std450 = OpExtInstImport "GLSL.std.450"
-OpMemoryModel Logical GLSL450
-OpEntryPoint GLCompute %main "main" %id
-OpExecutionMode %main LocalSize 1 1 1
-; Two execution modes, one per active width. FP32 rounds toward zero; FP16 rounds to nearest even.
-OpExecutionMode %main RoundingModeRTZ 32
-OpExecutionMode %main RoundingModeRTE 16
-OpDecorate %SSBO_in BufferBlock
-OpDecorate %ssbo_in DescriptorSet 0
-OpDecorate %ssbo_in Binding 0
-OpDecorate %ssbo_in NonWritable
-OpMemberDecorate %SSBO_in 0 Offset 0
-OpMemberDecorate %SSBO_f32_out 0 Offset 0
-OpDecorate %type_f32_arr_2 ArrayStride 4
-OpDecorate %SSBO_f32_out BufferBlock
-OpDecorate %ssbo_f32_out DescriptorSet 0
-OpDecorate %ssbo_f32_out Binding 1
-OpMemberDecorate %SSBO_in 1 Offset 8
-OpMemberDecorate %SSBO_f16_out 0 Offset 0
-OpDecorate %type_f16_arr_2 ArrayStride 2
-OpDecorate %SSBO_f16_out BufferBlock
-OpDecorate %ssbo_f16_out DescriptorSet 0
-OpDecorate %ssbo_f16_out Binding 2
-OpDecorate %id BuiltIn GlobalInvocationId
-%type_void            = OpTypeVoid
-%type_voidf           = OpTypeFunction %type_void
-%type_u32             = OpTypeInt 32 0
-%type_i32             = OpTypeInt 32 1
-%type_i32_fptr        = OpTypePointer Function %type_i32
-%type_u32_vec3        = OpTypeVector %type_u32 3
-%type_u32_vec3_ptr    = OpTypePointer Input %type_u32_vec3
-%c_i32_0              = OpConstant %type_i32 0
-%c_i32_1              = OpConstant %type_i32 1
-%c_i32_2              = OpConstant %type_i32 2
-%type_f32             = OpTypeFloat 32
-%type_f32_uptr        = OpTypePointer Uniform %type_f32
-%type_f32_arr_2       = OpTypeArray %type_f32 %c_i32_2
-%type_f16             = OpTypeFloat 16
-%type_f16_uptr        = OpTypePointer Uniform %type_f16
-%type_f16_arr_2       = OpTypeArray %type_f16 %c_i32_2
-; Input SSBO packs FP32 operands (member 0) then FP16 operands (member 1).
-%SSBO_in              = OpTypeStruct %type_f32_arr_2 %type_f16_arr_2
-%up_SSBO_in           = OpTypePointer Uniform %SSBO_in
-%ssbo_in              = OpVariable %up_SSBO_in Uniform
-; One output SSBO per active width so independence can be observed per width.
-%SSBO_f32_out         = OpTypeStruct %type_f32
-%up_SSBO_f32_out      = OpTypePointer Uniform %SSBO_f32_out
-%ssbo_f32_out         = OpVariable %up_SSBO_f32_out Uniform
-%SSBO_f16_out         = OpTypeStruct %type_f16
-%up_SSBO_f16_out      = OpTypePointer Uniform %SSBO_f16_out
-%ssbo_f16_out         = OpVariable %up_SSBO_f16_out Uniform
-%id                   = OpVariable %type_u32_vec3_ptr Input
-%main                 = OpFunction %type_void None %type_voidf
-%label                = OpLabel
-; FP32 path: load operands, OpFAdd under RoundingModeRTZ 32, store to its own output.
-%arg1_f32_loc         = OpAccessChain %type_f32_uptr %ssbo_in %c_i32_0 %c_i32_0
-%arg2_f32_loc         = OpAccessChain %type_f32_uptr %ssbo_in %c_i32_0 %c_i32_1
-%arg1_f32             = OpLoad %type_f32 %arg1_f32_loc
-%arg2_f32             = OpLoad %type_f32 %arg2_f32_loc
-%result32             = OpFAdd %type_f32 %arg1_f32 %arg2_f32
-; FP16 path: load operands, OpFAdd under RoundingModeRTE 16, store to its own output.
-%arg1_f16_loc         = OpAccessChain %type_f16_uptr %ssbo_in %c_i32_1 %c_i32_0
-%arg2_f16_loc         = OpAccessChain %type_f16_uptr %ssbo_in %c_i32_1 %c_i32_1
-%arg1_f16             = OpLoad %type_f16 %arg1_f16_loc
-%arg2_f16             = OpLoad %type_f16 %arg2_f16_loc
-%result16             = OpFAdd %type_f16 %arg1_f16 %arg2_f16
-%outloc32             = OpAccessChain %type_f32_uptr %ssbo_f32_out %c_i32_0
-OpStore %outloc32 %result32
-%outloc16             = OpAccessChain %type_f16_uptr %ssbo_f16_out %c_i32_0
-OpStore %outloc16 %result16
-OpReturn
-OpFunctionEnd
-```
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -334,7 +248,102 @@ OpFunctionEnd
 | `SettingsMode` | `SM_DENORMS` swaps the rounding-mode capabilities and execution modes for `DenormPreserve`/`DenormFlushToZero` per width. | [`fillShaderSpec(SettingsTestCaseInfo)`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4462-L4554) |
 | `Independence` | `32_BIT_ONLY` restricts the probed combination so only 32-bit-only independence is required; `ALL` requires all widths to be independently controllable. | [`createSettingsTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4130-L4140) |
 | Per-width option | Swaps which execution mode is declared per width (e.g. FP16 RTZ + FP32 RTE, or FP16 preserve + FP32 flush). | [`fillShaderSpec(SettingsTestCaseInfo)`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4462-L4554) |
-| FP64 active | Adds `%type_f64`, a third output SSBO, a third `OpFAdd` path, and the FP64 execution mode. | per-width `TypeSnippets` |
+| FP64 active | Adds `%type_f64`, a third output SSBO, a third `OpFAdd` path, and the FP64 execution mode. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 42
+; Schema: 0
+               OpCapability Shader
+               OpCapability RoundingModeRTE
+               OpCapability RoundingModeRTZ
+               OpCapability UniformAndStorageBuffer16BitAccess
+               OpCapability Float16
+               OpExtension "SPV_KHR_float_controls"
+               OpExtension "SPV_KHR_16bit_storage"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %2 "main" %gl_GlobalInvocationID
+               OpExecutionMode %2 LocalSize 1 1 1
+               OpExecutionMode %2 RoundingModeRTZ 32
+               OpExecutionMode %2 RoundingModeRTE 16
+               OpDecorate %_struct_4 BufferBlock
+               OpDecorate %5 DescriptorSet 0
+               OpDecorate %5 Binding 0
+               OpDecorate %5 NonWritable
+               OpMemberDecorate %_struct_4 0 Offset 0
+               OpMemberDecorate %_struct_6 0 Offset 0
+               OpDecorate %_arr_float_int_2 ArrayStride 4
+               OpDecorate %_struct_6 BufferBlock
+               OpDecorate %8 DescriptorSet 0
+               OpDecorate %8 Binding 1
+               OpMemberDecorate %_struct_4 1 Offset 8
+               OpMemberDecorate %_struct_9 0 Offset 0
+               OpDecorate %_arr_half_int_2 ArrayStride 2
+               OpDecorate %_struct_9 BufferBlock
+               OpDecorate %11 DescriptorSet 0
+               OpDecorate %11 Binding 2
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+       %void = OpTypeVoid
+         %13 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+      %int_0 = OpConstant %int 0
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+      %float = OpTypeFloat 32
+%_ptr_Uniform_float = OpTypePointer Uniform %float
+%_arr_float_int_2 = OpTypeArray %float %int_2
+       %half = OpTypeFloat 16
+%_ptr_Uniform_half = OpTypePointer Uniform %half
+%_arr_half_int_2 = OpTypeArray %half %int_2
+  %_struct_4 = OpTypeStruct %_arr_float_int_2 %_arr_half_int_2
+%_ptr_Uniform__struct_4 = OpTypePointer Uniform %_struct_4
+          %5 = OpVariable %_ptr_Uniform__struct_4 Uniform
+  %_struct_6 = OpTypeStruct %float
+%_ptr_Uniform__struct_6 = OpTypePointer Uniform %_struct_6
+          %8 = OpVariable %_ptr_Uniform__struct_6 Uniform
+  %_struct_9 = OpTypeStruct %half
+%_ptr_Uniform__struct_9 = OpTypePointer Uniform %_struct_9
+         %11 = OpVariable %_ptr_Uniform__struct_9 Uniform
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+          %2 = OpFunction %void None %13
+         %29 = OpLabel
+         %30 = OpAccessChain %_ptr_Uniform_float %5 %int_0 %int_0
+         %31 = OpAccessChain %_ptr_Uniform_float %5 %int_0 %int_1
+         %32 = OpLoad %float %30
+         %33 = OpLoad %float %31
+         %34 = OpFAdd %float %32 %33
+         %35 = OpAccessChain %_ptr_Uniform_half %5 %int_1 %int_0
+         %36 = OpAccessChain %_ptr_Uniform_half %5 %int_1 %int_1
+         %37 = OpLoad %half %35
+         %38 = OpLoad %half %36
+         %39 = OpFAdd %half %37 %38
+         %40 = OpAccessChain %_ptr_Uniform_float %8 %int_0
+               OpStore %40 %34
+         %41 = OpAccessChain %_ptr_Uniform_half %11 %int_0
+               OpStore %41 %39
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

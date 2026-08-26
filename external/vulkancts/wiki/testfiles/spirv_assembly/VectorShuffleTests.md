@@ -45,18 +45,27 @@ A 6-component `float` vector `p[0]` is loaded from the input SSBO and shuffled a
 
 The two cases share a near-identical compute shell: entry point `%21 "main"`, `GLCompute` execution model, `Logical GLSL450` memory model, specialization-constant `gl_WorkGroupSize` of `(1, 1, 1)`, and two SSBO bindings. They differ in the vector type, the second shuffle operand, the shuffle indices, and the post-shuffle work. The `vector_shuffle` case is the representative walkthrough because it exercises the `0xFFFFFFFF` undef marker, the more semantically interesting behavior. The `long_vector_shuffle` case is explained by contrast below and in `## Behavior Parameters`.
 
-### Representative Shader Walkthrough 1: `vector_shuffle`
+### Representative Shader Walkthrough 1
 
-#### Resources and Bindings
+#### Parameter Values Chosen
 
-| Resource | Type | Storage class | Decoration | Role |
-|----------|------|---------------|------------|------|
-| `%17` | `_ptr_StorageBuffer__struct_4` (runtime array of `v4float`, `ArrayStride 16`) | StorageBuffer | `DescriptorSet 0`, `Binding 0` | Input SSBO `p` |
-| `%18` | `_ptr_StorageBuffer__struct_7` (runtime array of `float`, `ArrayStride 4`) | StorageBuffer | `DescriptorSet 0`, `Binding 1` | Output SSBO `res` |
-| `%16` | `_ptr_Private_v3uint` | Private | `BuiltIn WorkgroupSize` | `gl_WorkGroupSize` = `(1, 1, 1)` via specialization constants `%12`, `%13`, `%14` (`SpecId 0/1/2`) |
-| `%29` | `v4float` | (not a variable) | none | `OpUndef` value used as `Vector 2` of the shuffle |
+Representative path:
 
-Both SSBO blocks are decorated as `Block` with member `Offset 0`. The `SPV_KHR_storage_buffer_storage_class` extension is declared for the `StorageBuffer` storage class.
+```text
+dEQP-VK.spirv_assembly.instruction.compute.vector_shuffle.vector_shuffle
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| Test case leaf `vector_shuffle` | Selects the standard-width vector-shuffle Amber module rather than the `long_vector_shuffle` extension case. |
+| Vector type `v4float` | Uses `OpTypeVector %float 4` for the loaded input, the `OpUndef` operand, and the shuffle result. |
+| Shuffle operands `%28` and `%29` | Shuffles the loaded input vector against an undefined vector. |
+| Indices `1 4294967295 4294967295 4294967295` | Selects input component 1 for result component 0 and marks result components 1–3 undefined. |
+| Scalar result path | Adds the shuffled vector to the input, extracts component 0, and stores the resulting `6.0` to the output SSBO. |
+
+#### Purpose
+
+This representative module isolates the SPIR-V behavior selected by the test path and exposes its result through the test family’s normal verification path.
 
 #### Structural Design
 
@@ -72,8 +81,6 @@ flowchart TD
     F --> H
 ```
 
-#### Walkthrough
-
 The entry point `%21 "main"` runs once for the single invocation in the `1×1×1` dispatch.
 
 - `%25 = OpAccessChain %_ptr_StorageBuffer_v4float %17 %uint_0 %uint_0`: pointer to `p[0]` (binding 0).
@@ -87,81 +94,101 @@ The entry point `%21 "main"` runs once for the single invocation in the `1×1×1
 
 The Amber `[test]` block dispatches `compute 1 1 1` and probes `ssbo float 0:1 0 == 6.0`. The exact probe observes only component 0: a pass establishes `res[0] == 6.0` for this input, while components 1-3 remain unconstrained and an output mismatch alone does not localize the fault to the shuffle rather than the surrounding shader or Amber execution path.
 
-#### Source Code
+#### Shader Code
+
+This representative case does not use GLSL or HLSL. CTS supplies the tested shader module directly as SPIR-V assembly. The complete assembled, validated, and freshly disassembled module is shown in the final `SPIR-V` subsection.
+
+#### Additional Info
+
+- `%17` is the input SSBO at descriptor set 0, binding 0: a `StorageBuffer` block containing a runtime array of `v4float` with `ArrayStride 16`; `%18` is the output SSBO at binding 1, containing a runtime array of `float` with `ArrayStride 4`.
+- `%16` is the private `gl_WorkGroupSize` object, initialized to `(1, 1, 1)` through specialization constants `%12`, `%13`, and `%14` (`SpecId 0`, `1`, and `2`).
+- `long_vector_shuffle` replaces `OpTypeVector %float 4` with `OpTypeVectorIdEXT %float %uint_6`, adds `LongVectorEXT` and `SPV_EXT_long_vector`, shuffles the loaded vector against itself with indices `1 0 9 8 11 10`, and stores the full six-component result through two `v6float` SSBOs with `ArrayStride 32`; it has no `OpFAdd` or `OpCompositeExtract`.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Vector width and type declaration | `long_vector_shuffle` replaces the four-component `%v4float = OpTypeVector %float 4` with six-component `%v6float = OpTypeVectorIdEXT %float %uint_6` and changes both SSBOs to runtime arrays of `v6float` with `ArrayStride 32`. | [`vector_shuffle` types and buffers](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/vector_shuffle.amber#L38-L45), [`long_vector_shuffle` types and buffers](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/long_vector_shuffle.amber#L38-L44) |
+| Shuffle operands and indices | The representative case shuffles `%28` against `%29 = OpUndef` with `1 4294967295 4294967295 4294967295`; `long_vector_shuffle` shuffles `%28` against itself with the fully defined permutation `1 0 9 8 11 10`. | [`vector_shuffle` operation](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/vector_shuffle.amber#L58-L71), [`long_vector_shuffle` operation](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/long_vector_shuffle.amber#L56-L68) |
+| Post-shuffle result path | The representative case applies `OpFAdd`, extracts component 0, and stores one float; `long_vector_shuffle` stores the six-component shuffle result directly. | [`vector_shuffle` result path](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/vector_shuffle.amber#L69-L72), [`long_vector_shuffle` result path](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/long_vector_shuffle.amber#L67-L68) |
+| Extension and feature controls | `long_vector_shuffle` adds `OpCapability LongVectorEXT`, `OpExtension "SPV_EXT_long_vector"`, and the `ShaderLongVectorFeaturesEXT.longVector` requirement; both leaves retain the variable-pointers requirement. | [`long_vector_shuffle` requirements and declarations](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/long_vector_shuffle.amber#L10-L23), [`cases` requirements](../../../modules/vulkan/spirv_assembly/vktSpvAsmVectorShuffleTests.cpp#L46-L50) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.0`
 
 <details>
-<summary>SPIR-V assembly from <code>vector_shuffle.amber</code></summary>
+<summary>Click to expand SPIRV asm code</summary>
 
 ```llvm
 ; SPIR-V
 ; Version: 1.0
-; Generator: Google Clspv; 0
-; Bound: 45
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 35
 ; Schema: 0
                OpCapability Shader
                OpExtension "SPV_KHR_storage_buffer_storage_class"
                OpMemoryModel Logical GLSL450
-               OpEntryPoint GLCompute %21 "main"
+               OpEntryPoint GLCompute %1 "main"
                OpSource OpenCL_C 120
                OpDecorate %_runtimearr_v4float ArrayStride 16
-               OpMemberDecorate %_struct_4 0 Offset 0
-               OpDecorate %_struct_4 Block
+               OpMemberDecorate %_struct_3 0 Offset 0
+               OpDecorate %_struct_3 Block
                OpDecorate %_runtimearr_float ArrayStride 4
-               OpMemberDecorate %_struct_7 0 Offset 0
-               OpDecorate %_struct_7 Block
+               OpMemberDecorate %_struct_5 0 Offset 0
+               OpDecorate %_struct_5 Block
                OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
-               OpDecorate %17 DescriptorSet 0
-               OpDecorate %17 Binding 0
-               OpDecorate %18 DescriptorSet 0
-               OpDecorate %18 Binding 1
-               OpDecorate %12 SpecId 0
-               OpDecorate %13 SpecId 1
-               OpDecorate %14 SpecId 2
+               OpDecorate %7 DescriptorSet 0
+               OpDecorate %7 Binding 0
+               OpDecorate %8 DescriptorSet 0
+               OpDecorate %8 Binding 1
+               OpDecorate %9 SpecId 0
+               OpDecorate %10 SpecId 1
+               OpDecorate %11 SpecId 2
       %float = OpTypeFloat 32
     %v4float = OpTypeVector %float 4
 %_runtimearr_v4float = OpTypeRuntimeArray %v4float
-  %_struct_4 = OpTypeStruct %_runtimearr_v4float
-%_ptr_StorageBuffer__struct_4 = OpTypePointer StorageBuffer %_struct_4
+  %_struct_3 = OpTypeStruct %_runtimearr_v4float
+%_ptr_StorageBuffer__struct_3 = OpTypePointer StorageBuffer %_struct_3
 %_runtimearr_float = OpTypeRuntimeArray %float
-  %_struct_7 = OpTypeStruct %_runtimearr_float
-%_ptr_StorageBuffer__struct_7 = OpTypePointer StorageBuffer %_struct_7
+  %_struct_5 = OpTypeStruct %_runtimearr_float
+%_ptr_StorageBuffer__struct_5 = OpTypePointer StorageBuffer %_struct_5
        %uint = OpTypeInt 32 0
      %v3uint = OpTypeVector %uint 3
 %_ptr_Private_v3uint = OpTypePointer Private %v3uint
-         %12 = OpSpecConstant %uint 1
-         %13 = OpSpecConstant %uint 1
-         %14 = OpSpecConstant %uint 1
-%gl_WorkGroupSize = OpSpecConstantComposite %v3uint %12 %13 %14
+          %9 = OpSpecConstant %uint 1
+         %10 = OpSpecConstant %uint 1
+         %11 = OpSpecConstant %uint 1
+%gl_WorkGroupSize = OpSpecConstantComposite %v3uint %9 %10 %11
        %void = OpTypeVoid
          %20 = OpTypeFunction %void
 %_ptr_StorageBuffer_v4float = OpTypePointer StorageBuffer %v4float
      %uint_0 = OpConstant %uint 0
 %_ptr_StorageBuffer_float = OpTypePointer StorageBuffer %float
-         %29 = OpUndef %v4float
+         %24 = OpUndef %v4float
      %uint_1 = OpConstant %uint 1
      %uint_2 = OpConstant %uint 2
-         %16 = OpVariable %_ptr_Private_v3uint Private %gl_WorkGroupSize
-         %17 = OpVariable %_ptr_StorageBuffer__struct_4 StorageBuffer
-         %18 = OpVariable %_ptr_StorageBuffer__struct_7 StorageBuffer
-         %21 = OpFunction %void None %20
-         %22 = OpLabel
-         %25 = OpAccessChain %_ptr_StorageBuffer_v4float %17 %uint_0 %uint_0
-         %27 = OpAccessChain %_ptr_StorageBuffer_float %18 %uint_0 %uint_0
-         %28 = OpLoad %v4float %25
-         %30 = OpVectorShuffle %v4float %28 %29 1 4294967295 4294967295 4294967295
-         %31 = OpFAdd %v4float %28 %30
-         %32 = OpCompositeExtract %float %31 0
-               OpStore %27 %32
+         %27 = OpVariable %_ptr_Private_v3uint Private %gl_WorkGroupSize
+          %7 = OpVariable %_ptr_StorageBuffer__struct_3 StorageBuffer
+          %8 = OpVariable %_ptr_StorageBuffer__struct_5 StorageBuffer
+          %1 = OpFunction %void None %20
+         %28 = OpLabel
+         %29 = OpAccessChain %_ptr_StorageBuffer_v4float %7 %uint_0 %uint_0
+         %30 = OpAccessChain %_ptr_StorageBuffer_float %8 %uint_0 %uint_0
+         %31 = OpLoad %v4float %29
+         %32 = OpVectorShuffle %v4float %31 %24 1 4294967295 4294967295 4294967295
+         %33 = OpFAdd %v4float %31 %32
+         %34 = OpCompositeExtract %float %33 0
+               OpStore %30 %34
                OpReturn
                OpFunctionEnd
-
 ```
 
 </details>
-
-#### Contrast with `long_vector_shuffle`
-
-The `long_vector_shuffle` case replaces `OpTypeVector %float 4` with `OpTypeVectorIdEXT %float %uint_6` (declared under `OpCapability LongVectorEXT` and `OpExtension "SPV_EXT_long_vector"`), drops the `OpUndef` second operand (using the loaded vector as both `Vector 1` and `Vector 2`), uses indices `1 0 9 8 11 10` instead of the undef marker, and stores the full 6-component result directly. The output SSBO has the same struct type as the input (runtime array of `v6float`, `ArrayStride 32`) rather than a separate `float` array. There is no `OpFAdd` or `OpCompositeExtract`; the shuffle result is stored verbatim.
 
 ## Runtime Execution and Result Checking
 

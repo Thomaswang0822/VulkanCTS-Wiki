@@ -1,6 +1,6 @@
 ## Overview
 
-**Core question: when several viewport-scissor pairs are bound at once, does each fragment get clipped by the scissor rectangle indexed by its own viewport, rather than by one shared rectangle?**
+**Core question:** When several viewport-scissor pairs are bound at once, does each fragment get clipped by the scissor rectangle indexed by its own viewport, rather than by one shared rectangle?
 
 [`vktFragmentOperationsScissorMultiViewportTests.cpp`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L1) implements the `multi_viewport` test family nested under `fragment_operations.scissor`. It registers test case leaves `scissor_1` through `scissor_16`, one per active viewport count from 1 to the guaranteed `multiViewport` floor of 16.
 
@@ -101,8 +101,6 @@ Verify that a geometry shader can direct each emitted primitive to a distinct vi
 The four `EmitVertex()` calls repeat the same `gl_ViewportIndex` assignment before each vertex. This satisfies the spec rule that a primitive's `ViewportIndex` be consistent across all its vertices.
 
 #### Shader Code
-
-##### Geometry Shader
 
 ```glsl
 #version 450

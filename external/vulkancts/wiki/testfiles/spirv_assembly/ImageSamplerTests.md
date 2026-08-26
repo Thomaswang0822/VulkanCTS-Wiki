@@ -3,6 +3,7 @@
 **Core question:** Do SPIR-V image-read instructions return the expected texel or depth-comparison result when CTS supplies storage, sampled, and combined image-sampler descriptors through compute and graphics pipelines?
 
 `ImageSamplerTests` implements the `image_sampler` test family under both `spirv_assembly.instruction.compute` and `spirv_assembly.instruction.graphics`. It emits SPIR-V assembly directly from C++ string templates and varies the instruction, descriptor representation, function-parameter route, declared image-depth property, and, for compute, SPIR-V version. The ordinary cases copy image data into an output storage buffer; Dref cases use a depth-comparison oracle, while `optypeimage_mismatch` only requires the pipeline to run without failure.
+
 ## Background Knowledge
 
 - **SPIR-V image types and descriptors.** A shader uses `OpTypeImage` for image access. A storage image uses `Sampled=2`; sampled-image cases use `Sampled=1` with a separate sampler, a combined `OpTypeSampledImage`, or two combined descriptors whose image and sampler are selected from different bindings. Vulkan matches the shader's descriptor decorations and image properties to the bound image view ([image access rules](../../../../vulkan-docs/src/chapters/interfaces.adoc#L1239-L1278), [SPIR-V image access](../../../../vulkan-docs/src/chapters/images.adoc#L198-L222)).
@@ -69,134 +70,152 @@ The graphics-only Dref form uses `OpImageSampleDrefExplicitLod` with reference v
 
 ## Shader Analysis
 
-This family does not reconstruct GLSL or HLSL. The implementation authors SPIR-V assembly as C++ string fragments and combines shared declarations with operation- and descriptor-specific fragments. The compute `imageread` case below is the smallest representative path; its full extracted assembly is preserved under `#### Source Code`.
+`ImageSamplerTests` does not reconstruct GLSL or HLSL. CTS authors SPIR-V assembly directly by concatenating a common compute or graphics scaffold with fragments selected for the image operation, descriptor representation, function routing, image depth property, data format, and SPIR-V version. The representative case below specializes the compute assembly generator in [`addComputeImageSamplerTest()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L788-L1028). Its complete assembled, validated, and freshly disassembled module appears in the final `SPIR-V` subsection.
 
-### Representative Shader Walkthrough 1: `spirv_assembly.instruction.compute.image_sampler.imageread.storage_image.all_local_variables.depth_property.non_depth`
+### Representative Shader Walkthrough 1
 
 #### Parameter Values Chosen
 
 Representative path:
 
 ```text
-spirv_assembly.instruction.compute.image_sampler.imageread.storage_image.all_local_variables.depth_property.non_depth
+dEQP-VK.spirv_assembly.instruction.compute.image_sampler.imageread.storage_image.all_local_variables.depth_property.non_depth
 ```
 
 | Parameter choice | Meaning in this representative case |
 |------------------|-------------------------------------|
-| `compute` | Uses `SpvAsmComputeShaderCase` and a `64 x 1 x 1` dispatch. |
-| `imageread` | Emits `OpImageRead`. |
-| `storage_image` | Declares `OpTypeImage ... Sampled=2` and no sampler resource. |
-| `all_local_variables` | Loads `%InputData` inside `read_func`. |
-| `non_depth` | Uses `Depth=0` in `OpTypeImage`. |
+| `compute` | Uses `SpvAsmComputeShaderCase`, dispatching `64 x 1 x 1` workgroups with `LocalSize 1 1 1`. |
+| `imageread` | Selects `OpImageRead`. |
+| `storage_image` | Declares an `OpTypeImage` with `Sampled=2`, binds it at set `0`, binding `0`, and declares no sampler. |
+| `all_local_variables` | Loads `%InputData` inside `read_func` rather than passing an opaque image or sampler as a function parameter. |
+| `non_depth` | Sets the `Depth` operand of `OpTypeImage` to `0`. |
+| SPIR-V 1.0 base variant | Uses the `Uniform`/`BufferBlock` output-buffer encoding and omits the SPIR-V 1.6 `Nontemporal` image operand. |
 
 #### Purpose
 
-Check the simplest image-read path: each invocation reads one texel from the storage image and writes it to the matching output-buffer element.
+The case checks the simplest generated storage-image path. Each compute invocation converts its X invocation index into one coordinate of the 8-by-8 image, executes `OpImageRead`, and stores the returned `vec4` in the output buffer at the original linear index. The host expects all 64 output elements to equal the uploaded image data.
 
 #### Structural Design
 
-```mermaid
-flowchart TD
-    A["gl_GlobalInvocationID.x"] --> B["index = invocation index"]
-    B --> C["row = index % 8; col = index / 8"]
-    C --> D["OpImageRead image (row, col)"]
-    D --> E["output[index] = color"]
-```
+| Phase | Authored assembly behavior | Role in the check |
+|-------|----------------------------|-------------------|
+| Invocation selection | `main` loads `gl_GlobalInvocationID.x` and passes it to `read_func`. | Assigns one output element and one image texel to each invocation. |
+| Coordinate construction | `row = index % 8` and `col = index / 8`; `OpCompositeConstruct` forms the unsigned two-component coordinate. | Maps linear indices `0..63` onto the 8-by-8 image. |
+| Image access | `read_func` loads the `Rgba32f` storage image and executes `OpImageRead`. | Exercises the storage-image instruction under test. |
+| Observable result | `OpAccessChain` selects `OutputData.values[index]`, then `OpStore` writes the returned color. | Makes every image result available to the host verifier. |
 
-#### Source Code
+#### Shader Code
 
-The following complete assembly is extracted by selecting `imageread`, `storage_image`, `all_local_variables`, `non_depth`, and SPIR-V 1.0 in [`addComputeImageSamplerTest()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L788-L1028). It is the exact concatenated string-template result for that selection.
-
-```llvm
-                       OpCapability Shader
-                  %1 = OpExtInstImport "GLSL.std.450"
-                       OpMemoryModel Logical GLSL450
-                       OpEntryPoint GLCompute %main "main" %id
-                       OpExecutionMode %main LocalSize 1 1 1
-                       OpSource GLSL 430
-                       OpDecorate %id BuiltIn GlobalInvocationId
-                       OpDecorate %_arr_v4type_u32_64 ArrayStride 16
-                       OpMemberDecorate %Output 0 Offset 0
-                       OpDecorate %Output BufferBlock
-                       OpDecorate %InputData DescriptorSet 0
-                       OpDecorate %InputData Binding 0
-                       OpDecorate %OutputData DescriptorSet 0
-                       OpDecorate %OutputData Binding 1
-               %void = OpTypeVoid
-                  %3 = OpTypeFunction %void
-                %u32 = OpTypeInt 32 0
-                %i32 = OpTypeInt 32 1
-                %f32 = OpTypeFloat 32
- %_ptr_Function_uint = OpTypePointer Function %u32
-              %v3u32 = OpTypeVector %u32 3
-   %_ptr_Input_v3u32 = OpTypePointer Input %v3u32
-                 %id = OpVariable %_ptr_Input_v3u32 Input
-            %c_f32_0 = OpConstant %f32 0.0
-            %c_u32_0 = OpConstant %u32 0
-            %c_i32_0 = OpConstant %i32 0
-    %_ptr_Input_uint = OpTypePointer Input %u32
-              %v2u32 = OpTypeVector %u32 2
-              %v2f32 = OpTypeVector %f32 2
-              %v4f32 = OpTypeVector %f32 4
-              %v4u32 = OpTypeVector %u32 4
-              %v4i32 = OpTypeVector %i32 4
-           %uint_128 = OpConstant %u32 128
-           %c_u32_64 = OpConstant %u32 64
-            %c_u32_8 = OpConstant %u32 8
-            %c_f32_8 = OpConstant %f32 8.0
-        %c_v2f32_8_8 = OpConstantComposite %v2f32 %c_f32_8 %c_f32_8
- %_arr_v4type_u32_64 = OpTypeArray %v4f32 %c_u32_64
-%_ptr_Uniform_v4type = OpTypePointer Uniform %v4f32
-             %Output = OpTypeStruct %_arr_v4type_u32_64
-%_ptr_Uniform_Output = OpTypePointer Uniform %Output
-         %OutputData = OpVariable %_ptr_Uniform_Output Uniform
-              %Image = OpTypeImage %f32 2D 0 0 0 2 Rgba32f
-           %ImagePtr = OpTypePointer UniformConstant %Image
-          %InputData = OpVariable %ImagePtr UniformConstant
-     %read_func_type = OpTypeFunction %void %u32
-          %read_func = OpFunction %void None %read_func_type
-           %func_ndx = OpFunctionParameter %u32
-          %funcentry = OpLabel
-                %row = OpUMod %u32 %func_ndx %c_u32_8
-                %col = OpUDiv %u32 %func_ndx %c_u32_8
-              %coord = OpCompositeConstruct %v2u32 %row %col
-             %coordf = OpConvertUToF %v2f32 %coord
-       %normalcoordf = OpFDiv %v2f32 %coordf %c_v2f32_8_8
-           %func_img = OpLoad %Image %InputData
-              %color = OpImageRead %v4f32 %func_img %coord
-                 %36 = OpAccessChain %_ptr_Uniform_v4type %OutputData %c_u32_0 %func_ndx
-                       OpStore %36 %color
-                       OpReturn
-                       OpFunctionEnd
-               %main = OpFunction %void None %3
-                  %5 = OpLabel
-                  %i = OpVariable %_ptr_Function_uint Function
-                 %14 = OpAccessChain %_ptr_Input_uint %id %c_u32_0
-                 %15 = OpLoad %u32 %14
-                       OpStore %i %15
-              %index = OpLoad %u32 %14
-                %res = OpFunctionCall %void %read_func %index
-                       OpReturn
-                       OpFunctionEnd
-```
-
-The source-extracted assembly passed the temporary round-trip gate: `spirv-as --target-env spv1.0`, `spirv-val --target-env spv1.0`, and `spirv-dis` completed successfully; the generated disassembly reports `Version: 1.0`. The page publishes the source-template assembly once, as required for `spirv_assembly` pages.
+This representative case has no GLSL or HLSL shader source. CTS supplies the shader module directly as SPIR-V assembly: [`addComputeImageSamplerTest()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L911-L1014) concatenates the common module text with the storage-image declarations from [`getImageSamplerTypeStr()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L663-L729), the local image load selected by the function-routing helpers, and the `OpImageRead` text from [`getImageReadOpStr()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L630-L655). The source template is therefore the authoritative shader code; the complete validated assembly is published once, as fresh disassembly, in the final `SPIR-V` subsection.
 
 #### Additional Info
 
-- `imagefetch` adds a sampled-image route and may use `OpImage`; sampling operations create a `OpSampledImage` value from an image and sampler.
-- Graphics uses signed coordinates and a loop that writes 64 elements from each selected shader stage. Dref cases use a one-component depth input and skip vertex, tessellation, and geometry stages.
-- The compute SPIR-V 1.6 variant changes the output decoration/storage class and appends `Nontemporal` to the non-Dref image instruction.
+- The image is descriptor set `0`, binding `0`; the output buffer is descriptor set `0`, binding `1`.
+- `%coordf` and `%normalcoordf` are generated by the common scaffold but are unused by `OpImageRead`. Sampling variants consume `%normalcoordf` instead.
+- The `Rgba32f` image declaration is `%Image = OpTypeImage %f32 2D 0 0 0 2 Rgba32f`: `Depth=0`, non-arrayed, non-multisampled, and `Sampled=2` for storage-image use.
+- The source generator creates both SPIR-V 1.0 and SPIR-V 1.6 compute variants. This walkthrough uses the un-suffixed SPIR-V 1.0 leaf; the sibling `_nontemporal` leaf uses SPIR-V 1.6.
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
-|---------------------|---------------------------------------|----------|
-| Read operation | Replaces `OpImageRead` with `OpImageFetch`, `OpImageSampleExplicitLod`, or one of the Dref sample instructions. | [`getImageReadOpStr()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L630-L652) |
-| Descriptor representation | Adds `%SamplerData`, `%SampledImage`, `%InputData2`, and/or `%SamplerData2`, with decorations at bindings 0 and 1. | [`getImageSamplerTypeStr()` and `getSamplerDecoration()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L663-L779) |
-| Function routing | Moves image and sampler loads between `read_func` and `main`, and changes function parameter types. | [`getFunctionSrcVariableStr()` and `getFunctionDstVariableStr()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L300-L465) |
-| Depth property | Changes the third `OpTypeImage` operand among `0`, `1`, and `2`. | [`DepthProperty` handling](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L241-L263) |
-| SPIR-V version | SPIR-V 1.6 selects `StorageBuffer`/`Block`, an interface list, and `Nontemporal`; SPIR-V 1.0 keeps `Uniform`/`BufferBlock`. | [`addComputeImageSamplerTest()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L873-L889) |
+|---------------------|-------------------------------------------|----------|
+| Read operation | `imagefetch` substitutes `OpImageFetch`; `imagesample` constructs or loads a sampled image and uses `OpImageSampleExplicitLod`; graphics adds the two Dref instructions. | [`getImageReadOpStr()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L630-L652) |
+| Descriptor representation | Sampled and combined forms add sampler, sampled-image, and in one form second-image/second-sampler declarations with corresponding descriptor decorations. | [`getImageSamplerTypeStr()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L663-L729), [`getSamplerDecoration()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L753-L779) |
+| Function routing | Other test types pass the image, sampler, or both as opaque function parameters instead of loading all resources in `read_func`; `optypeimage_mismatch` also changes the declared image format. | [function fragment helpers](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L300-L600) |
+| Depth property | Replaces the `Depth` operand of `OpTypeImage` with `1` (`depth`) or `2` (`unknown`). | [depth-property handling](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L241-L263) |
+| SPIR-V version | The 1.6 compute variant supplies entry-point interfaces, changes the output buffer to `StorageBuffer`/`Block`, and adds `Nontemporal` to the image operation. | [SPIR-V-version specialization](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L873-L889) |
+| Pipeline and stage | Graphics uses signed coordinates and stage-specific wrappers; Dref variants are fragment-only and return a scalar comparison result. | [`generateGraphicsImageSamplerSource()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1030-L1152), [stage registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1289-L1316) |
+
+#### SPIR-V
+
+- Status: assembled, validated, disassembled, and binary round-trip verified
+- Source: CTS-authored SPIR-V assembly specialized by `addComputeImageSamplerTest()`
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 52
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %2 "main" %gl_GlobalInvocationID
+               OpExecutionMode %2 LocalSize 1 1 1
+               OpSource GLSL 430
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %_arr_v4float_uint_64 ArrayStride 16
+               OpMemberDecorate %_struct_5 0 Offset 0
+               OpDecorate %_struct_5 BufferBlock
+               OpDecorate %6 DescriptorSet 0
+               OpDecorate %6 Binding 0
+               OpDecorate %7 DescriptorSet 0
+               OpDecorate %7 Binding 1
+       %void = OpTypeVoid
+          %9 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+        %int = OpTypeInt 32 1
+      %float = OpTypeFloat 32
+%_ptr_Function_uint = OpTypePointer Function %uint
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+    %float_0 = OpConstant %float 0
+     %uint_0 = OpConstant %uint 0
+      %int_0 = OpConstant %int 0
+%_ptr_Input_uint = OpTypePointer Input %uint
+     %v2uint = OpTypeVector %uint 2
+    %v2float = OpTypeVector %float 2
+    %v4float = OpTypeVector %float 4
+     %v4uint = OpTypeVector %uint 4
+      %v4int = OpTypeVector %int 4
+   %uint_128 = OpConstant %uint 128
+    %uint_64 = OpConstant %uint 64
+     %uint_8 = OpConstant %uint 8
+    %float_8 = OpConstant %float 8
+         %29 = OpConstantComposite %v2float %float_8 %float_8
+%_arr_v4float_uint_64 = OpTypeArray %v4float %uint_64
+%_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
+  %_struct_5 = OpTypeStruct %_arr_v4float_uint_64
+%_ptr_Uniform__struct_5 = OpTypePointer Uniform %_struct_5
+          %7 = OpVariable %_ptr_Uniform__struct_5 Uniform
+         %32 = OpTypeImage %float 2D 0 0 0 2 Rgba32f
+%_ptr_UniformConstant_32 = OpTypePointer UniformConstant %32
+          %6 = OpVariable %_ptr_UniformConstant_32 UniformConstant
+         %34 = OpTypeFunction %void %uint
+         %35 = OpFunction %void None %34
+         %36 = OpFunctionParameter %uint
+         %37 = OpLabel
+         %38 = OpUMod %uint %36 %uint_8
+         %39 = OpUDiv %uint %36 %uint_8
+         %40 = OpCompositeConstruct %v2uint %38 %39
+         %41 = OpConvertUToF %v2float %40
+         %42 = OpFDiv %v2float %41 %29
+         %43 = OpLoad %32 %6
+         %44 = OpImageRead %v4float %43 %40
+         %45 = OpAccessChain %_ptr_Uniform_v4float %7 %uint_0 %36
+               OpStore %45 %44
+               OpReturn
+               OpFunctionEnd
+          %2 = OpFunction %void None %9
+         %46 = OpLabel
+         %47 = OpVariable %_ptr_Function_uint Function
+         %48 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %49 = OpLoad %uint %48
+               OpStore %47 %49
+         %50 = OpLoad %uint %48
+         %51 = OpFunctionCall %void %35 %50
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 
@@ -252,11 +271,16 @@ A cross-cutting cause shared by every readOp: the `optypeimage_mismatch` subtree
 
 ## Case Pruning
 
+### Requirement-based pruning
+
+- Graphics vertex, tessellation, and geometry cases require `vertexPipelineStoresAndAtomics`; every graphics fragment case, including Dref, requires `fragmentStoresAndAtomics` ([feature setup](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1289-L1316)).
+
+### Design-based pruning
+
 - `isValidTestCase()` removes descriptor/read-operation combinations that do not match the SPIR-V image model or the generated variable routes ([filter](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L90-L163)).
 - Compute stops at `imagesample`; Dref operations are graphics-only.
 - Graphics Dref cases skip vertex, tessellation, and geometry stages and emit fragment cases only.
 - `optypeimage_mismatch` does not register Dref operations and expands to the 12 format pairs in `optypeimageFormatMismatchSpirvData`.
-- Graphics vertex, tessellation, and geometry cases require `vertexPipelineStoresAndAtomics`; every graphics fragment case, including Dref, requires `fragmentStoresAndAtomics` ([feature setup](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1289-L1316)).
 
 ## Key Takeaways
 

@@ -135,13 +135,13 @@ void main()
 
 #### SPIR-V
 
-- Status: compiled and validated.
-- Source language: GLSL.
-- Shader stage: `comp`.
-- Target SPIR-V version: `spirv1.0`.
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
 
 <details>
-<summary>Click to expand SPIR-V assembly</summary>
+<summary>Click to expand SPIRV asm code</summary>
 
 ```llvm
 ; SPIR-V
@@ -251,8 +251,13 @@ void main()
 
 ## Case Pruning
 
-- The factory adds `compute` only to the monolithic root, so non-monolithic construction types expose graphics leaves only.
+### Requirement-based pruning
+
 - Shader-object construction omits input-attachment leaves because input attachments are unsupported with dynamic rendering.
+
+### Design-based pruning
+
+- The factory adds `compute` only to the monolithic root, so non-monolithic construction types expose graphics leaves only.
 - Graphics buffer leaves register only when `numCalls <= 2`; the `binding1_numcalls128_storage_buffer` matrix entry supplies compute coverage.
 - Maintenance5 and incremental-update leaves are monolithic-only special cases.
 

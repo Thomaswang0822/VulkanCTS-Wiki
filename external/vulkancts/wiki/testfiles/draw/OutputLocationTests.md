@@ -44,7 +44,274 @@ The two cases exercise the corresponding location-shuffle Amber scripts.
 
 ## Shader Analysis
 
-Shader declarations and expected output values are defined in the referenced Amber scripts. The C++ wrapper does not generate a representative shader body, so this page does not infer one.
+The registered cases use Amber-provided GLSL rather than a C++ shader generator. The two families have distinct fragment interfaces: `array` declares one location-0 array of three outputs, while `shuffle` declares three scalar/vector outputs and deliberately writes them in a different order. The representative walkthroughs below use the exact Amber sources and the compiler-produced SPIR-V for the central fragment stage.
+
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.draw.renderpass.output_location.array.b8g8r8a8-unorm-highp
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `array` | Selects the three-element fragment-output-array family and three color attachments at locations 0, 1, and 2. |
+| `b8g8r8a8-unorm` | Makes each array element a `vec4` and compares the rendered attachment against a same-format reference image. |
+| `highp` | Selects `highp` precision on the fragment output array; the matching input is smooth-interpolated. |
+| `output` omitted | Uses the full `vec4` value from each array element rather than the `.x`, `.xy`, or `.xyz` projections used by output-type variants. |
+
+#### Purpose
+
+The vertex shader forwards three per-vertex colors through one location-0 array, and the fragment shader copies each array element into the corresponding output-array element. Amber binds those elements to three color attachments, then renders one reference pipeline per attachment and verifies every result image is green.
+
+#### Structural Design
+
+| Stage | Interface | Core operation | Observable result |
+|-------|-----------|----------------|-------------------|
+| Vertex | `color_in[3]` at location 1 to `color_out[3]` at location 0 | Copy all three array elements in a bounded loop. | Three independent interpolated values reach the fragment stage. |
+| Fragment | `color_in[3]` at location 0 to `frag_out[3]` at location 0 | Copy `color_in[i]` to `frag_out[i]` for `i = 0..2`. | Output-array element `i` routes to color attachment location `i`. |
+| Host comparison | `framebuffer0..2` versus `ref0..2` | Verification pipelines sample each result/reference pair. | Any missing, reordered, or incorrectly typed output makes the corresponding result red instead of green. |
+
+#### Shader Code
+
+##### Vertex Shader
+
+```glsl
+#version 430
+/// Vertex positions are supplied at location 0 and determine the full-screen triangle-strip coverage.
+layout(location = 0) in vec2 position_in;
+/// Three per-vertex colors arrive as one array at location 1; the loop preserves each element's identity.
+layout(location = 1) in vec4 color_in[3];
+/// The color array is passed smoothly to the fragment stage at location 0.
+layout(location = 0) smooth out vec4 color_out[3];
+
+void main()
+{
+    /// Place the four input vertices in clip space without changing their color-array payload.
+    gl_Position = vec4(position_in, 0, 1);
+    for (int i = 0; i < 3; i++)
+        color_out[i] = color_in[i];
+}
+```
+
+##### Fragment Shader
+
+```glsl
+#version 430
+/// One smooth-interpolated vec4 array is supplied at location 0 by the vertex stage.
+layout(location = 0) smooth in vec4 color_in[3];
+/// The three array elements occupy consecutive fragment output locations and are bound to three B8G8R8A8_UNORM attachments.
+layout(location = 0) out highp vec4 frag_out[3];
+void main()
+{
+    /// Preserve array-element identity: element i must be written to output location i.
+    for (int i = 0; i < 3; i++)
+        frag_out[i] = color_in[i];
+}
+```
+
+#### Additional Info
+
+- The exact Amber source also defines `vert_shader`, which assigns `gl_Position = vec4(position_in, 0, 1)` and copies `color_in[i]` to `color_out[i]`; this producer remains fixed across the 28 array cases ([source](../../../data/vulkan/amber/draw/output_location/array/b8g8r8a8-unorm-highp.amber#L16-L32)).
+- The three draw pipelines bind `framebuffer0`, `framebuffer1`, and `framebuffer2` as color locations 0, 1, and 2. Separate reference and verification pipelines make attachment routing observable rather than relying on a single combined image ([pipeline setup](../../../data/vulkan/amber/draw/output_location/array/b8g8r8a8-unorm-highp.amber#L95-L167)).
+- The source comparison is exact (`result != ref`): a mismatch writes red, while equality writes green; the final `EXPECT` requires green for each 60x60 result image ([verification shader](../../../data/vulkan/amber/draw/output_location/array/b8g8r8a8-unorm-highp.amber#L64-L82), [expectations](../../../data/vulkan/amber/draw/output_location/array/b8g8r8a8-unorm-highp.amber#L212-L214)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|----------------------------------------|----------|
+| Attachment format | Selects the input/output scalar or vector type: `float`, `vec2`, `vec3`, `vec4`, or `uvec2`, matching the format family. | [array Amber files](../../../data/vulkan/amber/draw/output_location/array/) |
+| Precision | Changes the fragment output precision between `highp` and `mediump`; integer cases use the same array-copy structure with flat integer inputs. | [highp example](../../../data/vulkan/amber/draw/output_location/array/b8g8r8a8-unorm-highp.amber#L29-L35), [mediump example](../../../data/vulkan/amber/draw/output_location/array/b8g8r8a8-unorm-mediump.amber#L29-L35), [uint example](../../../data/vulkan/amber/draw/output_location/array/r8g8-uint-highp.amber#L16-L31) |
+| Explicit output type | Replaces the full assignment with `color_in[i].x`, `.xy`, or `.xyz` and changes the declared output type accordingly. | [vec2 variant](../../../data/vulkan/amber/draw/output_location/array/b8g8r8a8-unorm-highp-output-vec2.amber#L29-L35), [vec3 variant](../../../data/vulkan/amber/draw/output_location/array/b8g8r8a8-unorm-highp-output-vec3.amber#L29-L35) |
+
+#### SPIR-V
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 53
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %position_in %color_out %color_in
+               OpSource GLSL 430
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex 2 "gl_ClipDistance"
+               OpName %_ ""
+               OpName %position_in "position_in"
+               OpName %i "i"
+               OpName %color_out "color_out"
+               OpName %color_in "color_in"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn ClipDistance
+               OpDecorate %position_in Location 0
+               OpDecorate %color_out Location 0
+               OpDecorate %color_in Location 1
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_arr_float_uint_1 = OpTypeArray %float %uint_1
+%gl_PerVertex = OpTypeStruct %v4float %float %_arr_float_uint_1
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+    %v2float = OpTypeVector %float 2
+%_ptr_Input_v2float = OpTypePointer Input %v2float
+%position_in = OpVariable %_ptr_Input_v2float Input
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%_ptr_Function_int = OpTypePointer Function %int
+      %int_3 = OpConstant %int 3
+       %bool = OpTypeBool
+     %uint_3 = OpConstant %uint 3
+%_arr_v4float_uint_3 = OpTypeArray %v4float %uint_3
+%_ptr_Output__arr_v4float_uint_3 = OpTypePointer Output %_arr_v4float_uint_3
+  %color_out = OpVariable %_ptr_Output__arr_v4float_uint_3 Output
+%_ptr_Input__arr_v4float_uint_3 = OpTypePointer Input %_arr_v4float_uint_3
+   %color_in = OpVariable %_ptr_Input__arr_v4float_uint_3 Input
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+      %int_1 = OpConstant %int 1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %i = OpVariable %_ptr_Function_int Function
+         %19 = OpLoad %v2float %position_in
+         %22 = OpCompositeExtract %float %19 0
+         %23 = OpCompositeExtract %float %19 1
+         %24 = OpCompositeConstruct %v4float %22 %23 %float_0 %float_1
+         %26 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %26 %24
+               OpStore %i %int_0
+               OpBranch %29
+         %29 = OpLabel
+               OpLoopMerge %31 %32 None
+               OpBranch %33
+         %33 = OpLabel
+         %34 = OpLoad %int %i
+         %37 = OpSLessThan %bool %34 %int_3
+               OpBranchConditional %37 %30 %31
+         %30 = OpLabel
+         %42 = OpLoad %int %i
+         %45 = OpLoad %int %i
+         %47 = OpAccessChain %_ptr_Input_v4float %color_in %45
+         %48 = OpLoad %v4float %47
+         %49 = OpAccessChain %_ptr_Output_v4float %color_out %42
+               OpStore %49 %48
+               OpBranch %32
+         %32 = OpLabel
+         %50 = OpLoad %int %i
+         %52 = OpIAdd %int %50 %int_1
+               OpStore %i %52
+               OpBranch %29
+         %31 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 38
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %frag_out %color_in
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 430
+               OpName %main "main"
+               OpName %i "i"
+               OpName %frag_out "frag_out"
+               OpName %color_in "color_in"
+               OpDecorate %frag_out Location 0
+               OpDecorate %color_in Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+      %int_0 = OpConstant %int 0
+      %int_3 = OpConstant %int 3
+       %bool = OpTypeBool
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+       %uint = OpTypeInt 32 0
+     %uint_3 = OpConstant %uint 3
+%_arr_v4float_uint_3 = OpTypeArray %v4float %uint_3
+%_ptr_Output__arr_v4float_uint_3 = OpTypePointer Output %_arr_v4float_uint_3
+   %frag_out = OpVariable %_ptr_Output__arr_v4float_uint_3 Output
+%_ptr_Input__arr_v4float_uint_3 = OpTypePointer Input %_arr_v4float_uint_3
+   %color_in = OpVariable %_ptr_Input__arr_v4float_uint_3 Input
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+      %int_1 = OpConstant %int 1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %i = OpVariable %_ptr_Function_int Function
+               OpStore %i %int_0
+               OpBranch %10
+         %10 = OpLabel
+               OpLoopMerge %12 %13 None
+               OpBranch %14
+         %14 = OpLabel
+         %15 = OpLoad %int %i
+         %18 = OpSLessThan %bool %15 %int_3
+               OpBranchConditional %18 %11 %12
+         %11 = OpLabel
+         %26 = OpLoad %int %i
+         %29 = OpLoad %int %i
+         %31 = OpAccessChain %_ptr_Input_v4float %color_in %29
+         %32 = OpLoad %v4float %31
+         %34 = OpAccessChain %_ptr_Output_v4float %frag_out %26
+               OpStore %34 %32
+               OpBranch %13
+         %13 = OpLabel
+         %35 = OpLoad %int %i
+         %37 = OpIAdd %int %35 %int_1
+               OpStore %i %37
+               OpBranch %10
+         %12 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 
@@ -113,7 +380,7 @@ Array cases can be skipped by the portability-subset and alignment gate in the w
 
 The dispatcher excludes the group for VulkanSC and dynamic-rendering paths.
 
-### Support and pruning behavior
+Support and pruning details:
 
 There are two independent registration gates:
 
@@ -124,11 +391,11 @@ For `array` cases, `checkSupport()` raises `NotSupportedError` when all of the f
 
 A `NotSupportedError` from this callback means the case was pruned for the declared portability-subset stride constraint; it is not a rendering failure. Other Amber execution or image-comparison failures indicate a failure in the behavior encoded by the relevant Amber script or in the implementation path exercised by it.
 
-### Mustpass cross-check
+Mustpass cross-check:
 
 The default Vulkan draw mustpass lists the registered path under `draw.renderpass.output_location`, including the `array` and `shuffle` cases ([`draw.txt`](../../../mustpass/main/vk-default/draw.txt#L28946-L28975)). The mustpass names are the compatibility-sensitive identifiers; they should remain exactly as registered in the C++ arrays.
 
-### Source evidence
+Source evidence:
 
 - [`vktDrawOutputLocationTests.cpp`](../../../modules/vulkan/draw/vktDrawOutputLocationTests.cpp#L40-L131): support callback, family groups, exact case arrays, Amber registration, and public group creation.
 - [`vktDrawOutputLocationTests.hpp`](../../../modules/vulkan/draw/vktDrawOutputLocationTests.hpp#L27-L40): public declaration.

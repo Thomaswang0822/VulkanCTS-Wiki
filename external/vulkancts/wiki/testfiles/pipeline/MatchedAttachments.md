@@ -89,7 +89,13 @@ The shaders establish a valid interface for pipeline construction but shader exe
 
 ## Case Pruning
 
-[`addMatchedAttachmentsTestCasesWithFunctions`](../../../modules/vulkan/pipeline/vktPipelineMatchedAttachmentsTests.cpp#L238-L249) does not register these leaves for shader-object construction types. The source states that input attachments are not supported with dynamic rendering, and the test requires a render pass to express its input-attachment subpass. This is an applicability boundary, not an additional behavior variant.
+### Requirement-based pruning
+
+The source states that input attachments are not supported with dynamic rendering, and the test requires a render pass to express its input-attachment subpass.
+
+### Design-based pruning
+
+[`addMatchedAttachmentsTestCasesWithFunctions`](../../../modules/vulkan/pipeline/vktPipelineMatchedAttachmentsTests.cpp#L238-L249) does not register these leaves for shader-object construction types. This is an applicability boundary, not an additional behavior variant.
 
 ## Key Takeaways
 

@@ -65,20 +65,26 @@ The block path applies `RelaxedPrecision` through its selected stages and compar
 
 The shaders are CTS-authored SPIR-V assembly, not generated GLSL or HLSL. The following exact representative source is extracted from `CrossStageBasicTestsCase::initPrograms` for `basic_type.flat`, option 0 (`DECORATION_IN_VERTEX`). The source appends the five displayed `Flat` decorations after the fixed location decorations. It was assembled and validated as SPIR-V 1.3; per the `spirv_assembly` category rule, the round-trip disassembly is a validation artifact and is not published a second time.
 
-### Representative Shader Walkthrough 1: `basic_type.flat` vertex producer, `DECORATION_IN_VERTEX`
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.spirv_assembly.instruction.graphics.cross_stage.basic_type.flat
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| Registered leaf `basic_type.flat` | Selects the separately declared basic-variable interface and the `Flat` qualifier ([registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L2717-L2746)). |
+| Internal decoration option `DECORATION_IN_VERTEX` | Selects the first `flat` decoration set, which adds `Flat` to the five vertex outputs only ([decoration sets](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L690-L723)). |
+| Primary shader `Vertex` | Shows the producer-side interface declarations and writes from the direct SPIR-V builder ([vertex module](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L811-L900)). |
+| SPIR-V target `1.3` | Matches the authored module's `; Version: 1.3` header ([module header](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L811-L815)). |
 
 #### Purpose
 
 The vertex module copies input position and color, then writes the color in five equivalent forms to locations 0 through 4. `Flat` appears on all five user outputs. The matching fragment module uses the same locations and detects disagreement between the forms.
-
-#### Parameter Values Chosen
-
-| Parameter | Selected value | Consequence |
-|-----------|----------------|-------------|
-| CTS path | `spirv_assembly.instruction.graphics.cross_stage.basic_type.flat` | Selects basic variables and `Flat`. |
-| Internal decoration option | `DECORATION_IN_VERTEX` | Inserts `Flat` on vertex outputs, not on the fragment declarations. |
-| Representative stage | Vertex | Shows the producer-side interface declarations and writes. |
-| SPIR-V target | 1.3 | Matches the `; Version: 1.3` authored assembly header. |
 
 #### Structural Design
 
@@ -92,113 +98,131 @@ The vertex module copies input position and color, then writes the color in five
 
 `%13` is the built-in vertex-output block. `%17` is the location-0 position input and `%color_in` is the location-1 color input supplied by the host vertex buffer. `%color_out` and the four derived outputs are `Output` variables. `OpAccessChain`, `OpLoad`, `OpCompositeConstruct`, and `OpStore` implement the copies; this producer has no descriptors or device memory resources.
 
-#### Source Code
+#### Shader Code
 
-<details>
-<summary>Click to expand CTS-authored SPIR-V assembly</summary>
-
-```llvm
-; SPIR-V
-; Version: 1.3
-; Generator: Khronos Glslang Reference Front End; 2
-; Bound: 60
-; Schema: 0
-OpCapability Shader
-%1 = OpExtInstImport "GLSL.std.450"
-OpMemoryModel Logical GLSL450
-OpEntryPoint Vertex %4 "main" %13 %17 %color_out %color_in %r_float_out %rg_float_out %rgb_float_out %rgba_float_out
-OpMemberDecorate %11 0 BuiltIn Position
-OpMemberDecorate %11 1 BuiltIn PointSize
-OpMemberDecorate %11 2 BuiltIn ClipDistance
-OpMemberDecorate %11 3 BuiltIn CullDistance
-OpDecorate %11 Block
-OpDecorate %17 Location 0
-OpDecorate %color_out Location 0
-OpDecorate %color_in Location 1
-OpDecorate %r_float_out Location 1
-OpDecorate %rg_float_out Location 2
-OpDecorate %rgb_float_out Location 3
-OpDecorate %rgba_float_out Location 4
-OpDecorate %color_out Flat
-OpDecorate %r_float_out Flat
-OpDecorate %rg_float_out Flat
-OpDecorate %rgb_float_out Flat
-OpDecorate %rgba_float_out Flat
-%2 = OpTypeVoid
-%3 = OpTypeFunction %2
-%6 = OpTypeFloat 32
-%7 = OpTypeVector %6 4
-%8 = OpTypeInt 32 0
-%9 = OpConstant %8 1
-%10 = OpTypeArray %6 %9
-%11 = OpTypeStruct %7 %6 %10 %10
-%12 = OpTypePointer Output %11
-%13 = OpVariable %12 Output
-%14 = OpTypeInt 32 1
-%15 = OpConstant %14 0
-%16 = OpTypePointer Input %7
-%17 = OpVariable %16 Input
-%19 = OpTypePointer Output %7
-%color_out = OpVariable %19 Output
-%color_in = OpVariable %16 Input
-%24 = OpTypePointer Output %6
-%r_float_out = OpVariable %24 Output
-%26 = OpConstant %8 0
-%27 = OpTypePointer Input %6
-%30 = OpTypeVector %6 2
-%31 = OpTypePointer Output %30
-%rg_float_out = OpVariable %31 Output
-%38 = OpTypeVector %6 3
-%39 = OpTypePointer Output %38
-%rgb_float_out = OpVariable %39 Output
-%45 = OpConstant %8 2
-%rgba_float_out = OpVariable %19 Output
-%56 = OpConstant %8 3
-%4 = OpFunction %2 None %3
-%5 = OpLabel
-%18 = OpLoad %7 %17
-%20 = OpAccessChain %19 %13 %15
-OpStore %20 %18
-%23 = OpLoad %7 %color_in
-OpStore %color_out %23
-%28 = OpAccessChain %27 %color_in %26
-%29 = OpLoad %6 %28
-OpStore %r_float_out %29
-%33 = OpAccessChain %27 %color_in %26
-%34 = OpLoad %6 %33
-%35 = OpAccessChain %27 %color_in %9
-%36 = OpLoad %6 %35
-%37 = OpCompositeConstruct %30 %34 %36
-OpStore %rg_float_out %37
-%41 = OpAccessChain %27 %color_in %26
-%42 = OpLoad %6 %41
-%43 = OpAccessChain %27 %color_in %9
-%44 = OpLoad %6 %43
-%46 = OpAccessChain %27 %color_in %45
-%47 = OpLoad %6 %46
-%48 = OpCompositeConstruct %38 %42 %44 %47
-OpStore %rgb_float_out %48
-%50 = OpAccessChain %27 %color_in %26
-%51 = OpLoad %6 %50
-%52 = OpAccessChain %27 %color_in %9
-%53 = OpLoad %6 %52
-%54 = OpAccessChain %27 %color_in %45
-%55 = OpLoad %6 %54
-%57 = OpAccessChain %27 %color_in %56
-%58 = OpLoad %6 %57
-%59 = OpCompositeConstruct %7 %51 %53 %55 %58
-OpStore %rgba_float_out %59
-OpReturn
-OpFunctionEnd
-```
-
-</details>
+This representative case does not use GLSL or HLSL. CTS supplies the tested shader module directly as SPIR-V assembly. The complete assembled, validated, and freshly disassembled module is shown in the final `SPIR-V` subsection.
 
 #### Additional Info
 
 - The representative assembly deliberately preserves the source IDs and instruction order. The assembler's disassembly canonicalizes IDs and spacing, so it is not text-identical to the authored source even though the binary validates.
 - The corresponding fragment assembly reads the same five locations, calculates relative error for each scalar/vector form, and writes `vec4(1.0)` or component-wise `1.0` on an inconsistency ([fragment builder](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L901-L1059)).
 - `no_perspective` substitutes `NoPerspective` decoration strings; `relaxedprecision` substitutes `RelaxedPrecision` strings and changes the comparison epsilon. `interface_blocks` changes the location-1 variables to a `Block` struct and has a different fragment checker ([basic variants](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L690-L787), [block variants](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L1810-L2005)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| Qualifier leaf | `no_perspective` replaces the five vertex-output `Flat` decorations with `NoPerspective`; `relaxedprecision` decorates all relevant interfaces with `RelaxedPrecision` and raises the comparison epsilon from `0.0` to `2e-3`. | [qualifier branches](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L690-L787) |
+| Decoration placement | The other `flat` options move the decorations to fragment inputs or apply them to both vertex outputs and fragment inputs; this remains an internal iteration rather than a registered path component. | [flat decoration sets](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L692-L721) |
+| Interface representation | `interface_blocks` replaces the separate scalar/vector payload with a `Block` containing `colorVec` and `colorMat` and uses its block-specific stage modules and checker. | [interface-block builder](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L1808-L2713) |
+| Stage chain | Supported VTF, VGF, and VTGF variants insert tessellation and/or geometry relays between the same vertex producer and fragment consumer. | [stage-chain construction](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L253-L275) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Stage: `Vertex`
+- Target SPIRV version: `spv1.3`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.3
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 60
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %2 "main" %3 %4 %5 %6 %7 %8 %9 %10
+               OpMemberDecorate %_struct_11 0 BuiltIn Position
+               OpMemberDecorate %_struct_11 1 BuiltIn PointSize
+               OpMemberDecorate %_struct_11 2 BuiltIn ClipDistance
+               OpMemberDecorate %_struct_11 3 BuiltIn CullDistance
+               OpDecorate %_struct_11 Block
+               OpDecorate %4 Location 0
+               OpDecorate %5 Location 0
+               OpDecorate %6 Location 1
+               OpDecorate %7 Location 1
+               OpDecorate %8 Location 2
+               OpDecorate %9 Location 3
+               OpDecorate %10 Location 4
+               OpDecorate %5 Flat
+               OpDecorate %7 Flat
+               OpDecorate %8 Flat
+               OpDecorate %9 Flat
+               OpDecorate %10 Flat
+       %void = OpTypeVoid
+         %13 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_arr_float_uint_1 = OpTypeArray %float %uint_1
+ %_struct_11 = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+%_ptr_Output__struct_11 = OpTypePointer Output %_struct_11
+          %3 = OpVariable %_ptr_Output__struct_11 Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+          %4 = OpVariable %_ptr_Input_v4float Input
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+          %5 = OpVariable %_ptr_Output_v4float Output
+          %6 = OpVariable %_ptr_Input_v4float Input
+%_ptr_Output_float = OpTypePointer Output %float
+          %7 = OpVariable %_ptr_Output_float Output
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_float = OpTypePointer Input %float
+    %v2float = OpTypeVector %float 2
+%_ptr_Output_v2float = OpTypePointer Output %v2float
+          %8 = OpVariable %_ptr_Output_v2float Output
+    %v3float = OpTypeVector %float 3
+%_ptr_Output_v3float = OpTypePointer Output %v3float
+          %9 = OpVariable %_ptr_Output_v3float Output
+     %uint_2 = OpConstant %uint 2
+         %10 = OpVariable %_ptr_Output_v4float Output
+     %uint_3 = OpConstant %uint 3
+          %2 = OpFunction %void None %13
+         %33 = OpLabel
+         %34 = OpLoad %v4float %4
+         %35 = OpAccessChain %_ptr_Output_v4float %3 %int_0
+               OpStore %35 %34
+         %36 = OpLoad %v4float %6
+               OpStore %5 %36
+         %37 = OpAccessChain %_ptr_Input_float %6 %uint_0
+         %38 = OpLoad %float %37
+               OpStore %7 %38
+         %39 = OpAccessChain %_ptr_Input_float %6 %uint_0
+         %40 = OpLoad %float %39
+         %41 = OpAccessChain %_ptr_Input_float %6 %uint_1
+         %42 = OpLoad %float %41
+         %43 = OpCompositeConstruct %v2float %40 %42
+               OpStore %8 %43
+         %44 = OpAccessChain %_ptr_Input_float %6 %uint_0
+         %45 = OpLoad %float %44
+         %46 = OpAccessChain %_ptr_Input_float %6 %uint_1
+         %47 = OpLoad %float %46
+         %48 = OpAccessChain %_ptr_Input_float %6 %uint_2
+         %49 = OpLoad %float %48
+         %50 = OpCompositeConstruct %v3float %45 %47 %49
+               OpStore %9 %50
+         %51 = OpAccessChain %_ptr_Input_float %6 %uint_0
+         %52 = OpLoad %float %51
+         %53 = OpAccessChain %_ptr_Input_float %6 %uint_1
+         %54 = OpLoad %float %53
+         %55 = OpAccessChain %_ptr_Input_float %6 %uint_2
+         %56 = OpLoad %float %55
+         %57 = OpAccessChain %_ptr_Input_float %6 %uint_3
+         %58 = OpLoad %float %57
+         %59 = OpCompositeConstruct %v4float %52 %54 %56 %58
+               OpStore %10 %59
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

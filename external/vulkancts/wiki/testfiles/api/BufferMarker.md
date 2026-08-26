@@ -69,9 +69,144 @@ The `draw` and `dispatch` methods bind the marker buffer as a storage buffer thr
 
 ## Shader Analysis
 
-No shader is involved for `sequential` or `overwrite`; both rely only on `vkCmdWriteBufferMarkerAMD` and host readback.
+No shader is involved for `sequential` or `overwrite`; both rely only on `vkCmdWriteBufferMarkerAMD` and host readback. The following auto-mode walkthrough reconstructs the compute shader for the representative `memory_dep` dispatch case. It is the non-marker writer whose storage-buffer store participates in the per-slot synchronization dataflow.
 
-The `memory_dep` test type uses trivial GLSL shaders only as the non-marker writer. The fragment shader used by the `draw` method writes `data.elems[pc.params.x] = pc.params.y;` to a `std430` storage buffer, and the compute shader used by the `dispatch` method does the same with `local_size = (1,1,1)`. These shaders exist solely to produce a non-marker shader write that competes with marker writes for the same buffer slot. The tested behavior is the host-side synchronization around those writes, so no representative shader walkthrough is provided here. Shader generation is in [`initMemoryDepPrograms()`](../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1001-L1050).
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.api.buffer_marker.compute.default_mem.bottom_of_pipe.memory_dep.dispatch
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `compute` queue | Registers the compute queue branch and permits the `dispatch` non-marker method. |
+| `default_mem` | Uses the ordinary host-visible allocation path rather than `VK_EXT_external_memory_host`; the buffer remains the shader's storage-buffer target. |
+| `bottom_of_pipe` | Passes `VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT` to marker writes; compute writes use `VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT` in dependency barriers. |
+| `memory_dep.dispatch` | Alternates marker writes with one-workgroup compute dispatches, using a 128-slot buffer and push constants to select the slot and value. |
+
+#### Purpose
+
+This compute shader produces the non-marker `VK_ACCESS_SHADER_WRITE_BIT` operation that competes with `vkCmdWriteBufferMarkerAMD` writes to the same buffer. The host test inserts per-slot barriers when ownership changes, then makes the accumulated writes visible to host readback and compares every slot with the expected final value.
+
+#### Structural Design
+
+| Phase | Shader-visible mechanism | Effect |
+|-------|--------------------------|--------|
+| Dispatch setup | `local_size = (1, 1, 1)` | Each `vkCmdDispatch(1, 1, 1)` launches exactly one invocation. |
+| Transport | Push constant `pc.params : uvec2` | `params.x` is the selected uint slot; `params.y` is the current iteration value. |
+| Target | Descriptor set 0, binding 0, `std430` SSBO `data` | The descriptor aliases the marker buffer. |
+| Store | `data.elems[pc.params.x] = pc.params.y` | Performs the competing shader write whose stage/access pair is compute/shader-write. |
+
+#### Shader Code
+
+```glsl
+#version 450
+
+/// One invocation handles the single dispatch launched by the CTS case.
+layout(local_size_x = 1u, local_size_y = 1u, local_size_z = 1u) in;
+
+/// The host writes {slot, value} before each dispatch through the compute push-constant range.
+layout(push_constant) uniform Constants { uvec2 params; } pc;
+
+/// Binding 0 aliases the marker buffer; this non-marker writer updates one uint32 slot.
+layout(std430, set = 0, binding = 0) buffer Data { uint elems[]; } data;
+
+void main()
+{
+    /// Select the slot and value supplied by vkCmdPushConstants, then perform the competing write.
+    data.elems[pc.params.x] = pc.params.y;
+}
+```
+
+#### Additional Info
+
+- `initMemoryDepPrograms()` emits this compute source only for `MEMORY_DEP_DISPATCH`; the builder registers it for `compute` and `graphics` queues, but not `transfer` ([vktApiBufferMarkerTests.cpp#L1001-L1047](../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1001-L1047), [vktApiBufferMarkerTests.cpp#L1215-L1223](../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1215-L1223)).
+- The selected registration fixes `size = 128` and uses offset `0`; `bufferMarkerMemoryDep()` performs 1000 random slot/owner iterations and binds the storage buffer at descriptor binding 0 ([vktApiBufferMarkerTests.cpp#L484-L513](../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L484-L513), [vktApiBufferMarkerTests.cpp#L1193-L1203](../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1193-L1203)).
+- For this dispatch variant, `computeMemoryDepBarrier()` maps a non-marker owner to `VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT` and `VK_ACCESS_SHADER_WRITE_BIT`; marker ownership maps to `params.base.stage | VK_PIPELINE_STAGE_TRANSFER_BIT` and `VK_ACCESS_TRANSFER_WRITE_BIT` ([vktApiBufferMarkerTests.cpp#L452-L480](../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L452-L480)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| Queue type | `dispatch` is present for `graphics` and `compute`; `transfer` omits this shader method. | [vktApiBufferMarkerTests.cpp#L1215-L1223](../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1215-L1223) |
+| Memory type | `default_mem` versus `external_host_mem` changes host allocation/import and coherency handling, not the generated compute GLSL. | [vktApiBufferMarkerTests.cpp#L1097-L1106](../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1097-L1106), [vktApiBufferMarkerTests.cpp#L1001-L1047](../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1001-L1047) |
+| Marker stage | `top_of_pipe` versus `bottom_of_pipe` changes marker producer stage and barrier masks; the compute shader remains unchanged. | [vktApiBufferMarkerTests.cpp#L457-L472](../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L457-L472), [vktApiBufferMarkerTests.cpp#L1108-L1116](../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1108-L1116) |
+| Memory-dependency method | `draw` uses a fragment shader, `buffer_copy` uses `vkCmdUpdateBuffer` and no shader, while `dispatch` uses this compute shader. | [vktApiBufferMarkerTests.cpp#L1001-L1047](../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1001-L1047) |
+| Buffer offset | `0` versus `24` changes the bound allocation offset; the generated compute source and logical slot indexing remain unchanged. | [vktApiBufferMarkerTests.cpp#L1193-L1203](../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L1193-L1203), [vktApiBufferMarkerTests.cpp#L508-L510](../../../modules/vulkan/api/vktApiBufferMarkerTests.cpp#L508-L510) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 28
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %Data "Data"
+               OpMemberName %Data 0 "elems"
+               OpName %data "data"
+               OpName %Constants "Constants"
+               OpMemberName %Constants 0 "params"
+               OpName %pc "pc"
+               OpDecorate %_runtimearr_uint ArrayStride 4
+               OpDecorate %Data BufferBlock
+               OpMemberDecorate %Data 0 Offset 0
+               OpDecorate %data Binding 0
+               OpDecorate %data DescriptorSet 0
+               OpDecorate %Constants Block
+               OpMemberDecorate %Constants 0 Offset 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_runtimearr_uint = OpTypeRuntimeArray %uint
+       %Data = OpTypeStruct %_runtimearr_uint
+%_ptr_Uniform_Data = OpTypePointer Uniform %Data
+       %data = OpVariable %_ptr_Uniform_Data Uniform
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+     %v2uint = OpTypeVector %uint 2
+  %Constants = OpTypeStruct %v2uint
+%_ptr_PushConstant_Constants = OpTypePointer PushConstant %Constants
+         %pc = OpVariable %_ptr_PushConstant_Constants PushConstant
+     %uint_0 = OpConstant %uint 0
+%_ptr_PushConstant_uint = OpTypePointer PushConstant %uint
+     %uint_1 = OpConstant %uint 1
+%_ptr_Uniform_uint = OpTypePointer Uniform %uint
+     %v3uint = OpTypeVector %uint 3
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %19 = OpAccessChain %_ptr_PushConstant_uint %pc %int_0 %uint_0
+         %20 = OpLoad %uint %19
+         %22 = OpAccessChain %_ptr_PushConstant_uint %pc %int_0 %uint_1
+         %23 = OpLoad %uint %22
+         %25 = OpAccessChain %_ptr_Uniform_uint %data %int_0 %20
+               OpStore %25 %23
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

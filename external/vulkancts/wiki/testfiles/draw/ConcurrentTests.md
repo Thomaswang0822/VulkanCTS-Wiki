@@ -22,10 +22,13 @@ Relevant Vulkan specification topics are [device queues](https://registry.khrono
 ```text
 draw.renderpass.concurrent
 └── compute_and_triangle_list
+
 draw.dynamic_rendering.primary_cmd_buff.concurrent
 └── compute_and_triangle_list
+
 draw.dynamic_rendering.partial_secondary_cmd_buff.concurrent
 └── compute_and_triangle_list
+
 draw.dynamic_rendering.complete_secondary_cmd_buff.concurrent
 └── compute_and_triangle_list
 ```
@@ -50,9 +53,214 @@ This test family has no varying behavioral axis. Its sole test case always runs 
 
 ## Shader Analysis
 
-`ConcurrentPayload.comp` has a `1 x 1 x 1` local size. Because the host dispatches one workgroup, its sole invocation loops over the complete 1024-element storage buffer and replaces each value with its bitwise complement.
+The fixed case has two independent shader contracts and therefore uses two walkthroughs. The compute walkthrough covers the storage-buffer result, while the graphics walkthrough covers the vertex-index signal that reaches the color attachment. There is no shader dataflow between them.
 
-`VertexFetch.vert` forwards the input color only when `gl_VertexIndex` equals the fetched `in_refVertexIndex`; otherwise it emits red. For the six vertices beginning at `firstVertex = 2`, the stored reference indices are 2 through 7, so the expected rectangle is blue. `VertexFetch.frag` forwards that color unchanged. The buffer and image checks therefore validate the outputs of the compute and graphics shader paths separately; neither shader consumes the other workload's output.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.draw.renderpass.concurrent.compute_and_triangle_list
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `compute_and_triangle_list` | Registers `ConcurrentPayload.comp` alongside the separate vertex/fragment graphics pipeline. |
+| `vkCmdDispatch(1, 1, 1)` with `local_size = (1, 1, 1)` | Creates one invocation, which processes all 1024 storage-buffer elements. |
+| Storage buffer binding `0` | Exposes the host-initialized `uint[1024]` array as the compute result resource. |
+
+#### Purpose
+
+The compute shader independently proves that the compute submission ran to completion by replacing every input word with its bitwise complement for host validation.
+
+#### Structural Design
+
+| Phase | Exact-case operation | Observable contract |
+|-------|----------------------|---------------------|
+| Work partition | Multiply `gl_NumWorkGroups` by `gl_WorkGroupSize`, then derive a per-invocation slice. | One dispatched invocation obtains offset 0 and length 1024. |
+| Payload update | Apply unary bitwise NOT to every word in that slice. | `values[i]` becomes `~inputData[i]` for every index. |
+| Independent validation | The host invalidates and reads the storage-buffer allocation after the compute fence. | A single unequal word fails the compute result independently of image comparison. |
+
+#### Shader Code
+
+```glsl
+#version 310 es
+
+/// One 1x1x1 workgroup is dispatched, so one global invocation owns all 1024 elements.
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+/// Descriptor set 0, binding 0 is the host-visible 4096-byte storage buffer checked after completion.
+layout(binding = 0) buffer InOut {
+    uint values[1024];
+} sb_inout;
+
+void main (void) {
+    /// Derive a contiguous slice per invocation; this case has size=(1,1,1), groupNdx=0, and a 1024-value slice.
+    uvec3 size           = gl_NumWorkGroups * gl_WorkGroupSize;
+    uint numValuesPerInv = uint(sb_inout.values.length()) / (size.x*size.y*size.z);
+    uint groupNdx        = size.x*size.y*gl_GlobalInvocationID.z + size.x*gl_GlobalInvocationID.y + gl_GlobalInvocationID.x;
+    uint offset          = numValuesPerInv*groupNdx;
+
+    /// Complement each assigned value in place; the host later compares every element with ~inputData[ndx].
+    for (uint ndx = 0u; ndx < numValuesPerInv; ndx++)
+        sb_inout.values[offset + ndx] = ~sb_inout.values[offset + ndx];
+}
+```
+
+#### Additional Info
+
+- The host binds exactly 4096 bytes (`1024 * sizeof(uint32_t)`) to descriptor set 0, binding 0, and records host-to-compute and compute-to-host buffer barriers around the dispatch ([compute setup and recording](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L234-L312)).
+- No explicit `ShaderBuildOptions` accompanies the data-file shader registration, so the CTS baseline target is SPIR-V 1.0.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Rendering path | None. Render-pass versus dynamic-rendering selection changes only graphics command recording; the same compute module, descriptor, and `1 x 1 x 1` dispatch are used. | [`ConcurrentDraw::iterate`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L286-L395) |
+| Registered case | None. The family registers only `compute_and_triangle_list`, with this fixed compute shader. | [`ConcurrentDrawTests::init`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L535-L546) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 84
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_NumWorkGroups %gl_GlobalInvocationID
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource ESSL 310
+               OpName %main "main"
+               OpName %size "size"
+               OpName %gl_NumWorkGroups "gl_NumWorkGroups"
+               OpName %numValuesPerInv "numValuesPerInv"
+               OpName %groupNdx "groupNdx"
+               OpName %gl_GlobalInvocationID "gl_GlobalInvocationID"
+               OpName %offset "offset"
+               OpName %ndx "ndx"
+               OpName %InOut "InOut"
+               OpMemberName %InOut 0 "values"
+               OpName %sb_inout "sb_inout"
+               OpDecorate %gl_NumWorkGroups BuiltIn NumWorkgroups
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %_arr_uint_uint_1024 ArrayStride 4
+               OpDecorate %InOut BufferBlock
+               OpMemberDecorate %InOut 0 Offset 0
+               OpDecorate %sb_inout Binding 0
+               OpDecorate %sb_inout DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Function_v3uint = OpTypePointer Function %v3uint
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_NumWorkGroups = OpVariable %_ptr_Input_v3uint Input
+     %uint_1 = OpConstant %uint 1
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+%_ptr_Function_uint = OpTypePointer Function %uint
+  %uint_1024 = OpConstant %uint 1024
+     %uint_0 = OpConstant %uint 0
+     %uint_2 = OpConstant %uint 2
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+%_ptr_Input_uint = OpTypePointer Input %uint
+       %bool = OpTypeBool
+%_arr_uint_uint_1024 = OpTypeArray %uint %uint_1024
+      %InOut = OpTypeStruct %_arr_uint_uint_1024
+%_ptr_Uniform_InOut = OpTypePointer Uniform %InOut
+   %sb_inout = OpVariable %_ptr_Uniform_InOut Uniform
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Uniform_uint = OpTypePointer Uniform %uint
+      %int_1 = OpConstant %int 1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+       %size = OpVariable %_ptr_Function_v3uint Function
+%numValuesPerInv = OpVariable %_ptr_Function_uint Function
+   %groupNdx = OpVariable %_ptr_Function_uint Function
+     %offset = OpVariable %_ptr_Function_uint Function
+        %ndx = OpVariable %_ptr_Function_uint Function
+         %12 = OpLoad %v3uint %gl_NumWorkGroups
+         %15 = OpIMul %v3uint %12 %gl_WorkGroupSize
+               OpStore %size %15
+         %20 = OpAccessChain %_ptr_Function_uint %size %uint_0
+         %21 = OpLoad %uint %20
+         %22 = OpAccessChain %_ptr_Function_uint %size %uint_1
+         %23 = OpLoad %uint %22
+         %24 = OpIMul %uint %21 %23
+         %26 = OpAccessChain %_ptr_Function_uint %size %uint_2
+         %27 = OpLoad %uint %26
+         %28 = OpIMul %uint %24 %27
+         %29 = OpUDiv %uint %uint_1024 %28
+               OpStore %numValuesPerInv %29
+         %31 = OpAccessChain %_ptr_Function_uint %size %uint_0
+         %32 = OpLoad %uint %31
+         %33 = OpAccessChain %_ptr_Function_uint %size %uint_1
+         %34 = OpLoad %uint %33
+         %35 = OpIMul %uint %32 %34
+         %38 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_2
+         %39 = OpLoad %uint %38
+         %40 = OpIMul %uint %35 %39
+         %41 = OpAccessChain %_ptr_Function_uint %size %uint_0
+         %42 = OpLoad %uint %41
+         %43 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_1
+         %44 = OpLoad %uint %43
+         %45 = OpIMul %uint %42 %44
+         %46 = OpIAdd %uint %40 %45
+         %47 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %48 = OpLoad %uint %47
+         %49 = OpIAdd %uint %46 %48
+               OpStore %groupNdx %49
+         %51 = OpLoad %uint %numValuesPerInv
+         %52 = OpLoad %uint %groupNdx
+         %53 = OpIMul %uint %51 %52
+               OpStore %offset %53
+               OpStore %ndx %uint_0
+               OpBranch %55
+         %55 = OpLabel
+               OpLoopMerge %57 %58 None
+               OpBranch %59
+         %59 = OpLabel
+         %60 = OpLoad %uint %ndx
+         %61 = OpLoad %uint %numValuesPerInv
+         %63 = OpULessThan %bool %60 %61
+               OpBranchConditional %63 %56 %57
+         %56 = OpLabel
+         %70 = OpLoad %uint %offset
+         %71 = OpLoad %uint %ndx
+         %72 = OpIAdd %uint %70 %71
+         %73 = OpLoad %uint %offset
+         %74 = OpLoad %uint %ndx
+         %75 = OpIAdd %uint %73 %74
+         %77 = OpAccessChain %_ptr_Uniform_uint %sb_inout %int_0 %75
+         %78 = OpLoad %uint %77
+         %79 = OpNot %uint %78
+         %80 = OpAccessChain %_ptr_Uniform_uint %sb_inout %int_0 %72
+               OpStore %80 %79
+               OpBranch %58
+         %58 = OpLabel
+         %81 = OpLoad %uint %ndx
+         %83 = OpIAdd %uint %81 %int_1
+               OpStore %ndx %83
+               OpBranch %55
+         %57 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

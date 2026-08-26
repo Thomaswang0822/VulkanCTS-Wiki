@@ -1,15 +1,18 @@
 ## Overview
 
-[`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L174-L2048) implements `glsl.opaque_type_indexing`, a shader-executor family that checks indexing into arrays of opaque shader resources. It generates cases for combined image samplers, uniform-buffer block instances, storage-buffer block instances, and atomic-counter storage buffers; each case selects resource elements through a constant literal, constant expression, uniform value, or dynamically uniform expression. `createOpaqueTypeIndexingTests()` returns the group, and the Vulkan package adds it under `glsl` ([factory](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L2045-L2048), [package registration](../../../modules/vulkan/vktTestPackage.cpp#L1275-L1277)).
+**Core question:** Do shaders select the correct opaque resource when an array index comes from a literal, a constant expression, a uniform, or a dynamically uniform shader input?
 
-The generator shares four index-expression modes and six stage names across the resource families, but deliberately limits sampler leaves to vertex, fragment, and compute. Shader-executor readback is then compared with resource-specific CPU expectations; successful compilation or dispatch alone does not pass a case.
+- [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L150-L2048) implements `glsl.opaque_type_indexing` for combined image samplers, uniform-buffer block instances, storage-buffer block instances, and storage-buffer-backed atomic counters.
+- The generator applies four index-expression forms across six shader stages. Sampler test case leaves use vertex, fragment, and compute stages; block and atomic-counter leaves use all six stages.
+- Each test runs through the shared shader-executor framework. The host checks sampled texels, block values, or atomic results rather than treating successful compilation and execution as sufficient.
+- The Vulkan default mustpass list contains 372 test case leaves: 276 sampler leaves and 24 leaves in each of the four other test families ([mustpass range](../../../mustpass/main/vk-default/glsl.txt#L10489-L10860)).
 
-## Source Code
+## Background Knowledge
 
-- [vktOpaqueTypeIndexingTests.cpp](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1-L2051) (full file)
-- Registration class: [OpaqueTypeIndexingTests](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1898-L1907)
-- Init/hierarchy: [OpaqueTypeIndexingTests::init()](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1918-L2041)
-- Entry point: [createOpaqueTypeIndexingTests()](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L2045-L2048)
+- Opaque GLSL types represent resources whose contents cannot be copied into ordinary shader variables. The shader accesses them through operations such as texture sampling or by selecting an interface-block instance.
+- Vulkan descriptor arrays contain multiple descriptors at one binding. An index selects one descriptor for a shader access. Runtime indexing of sampled-image, uniform-buffer, and storage-buffer descriptor arrays has separate device feature bits.
+- A dynamically uniform expression has the same value for the relevant shader invocations even though the compiler cannot treat it as a compile-time constant. This permits resource selection without allowing different invocations to diverge onto unrelated descriptors.
+- An atomic add updates one counter indivisibly and returns its previous value. Concurrent increments can arrive in any order, so a correct oracle must accept the legal orderings rather than expect one invocation order.
 
 ## Registration Hierarchy
 
@@ -22,83 +25,404 @@ glsl.opaque_type_indexing
 └── atomic_counter
 ```
 
-## Test Families
+`createOpaqueTypeIndexingTests()` returns the `opaque_type_indexing` group, and the Vulkan test package places that group directly under `glsl` ([factory](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L2045-L2048), [package registration](../../../modules/vulkan/vktTestPackage.cpp#L1274-L1277)). The registration loop creates the five test families shown above ([family generation](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1918-L2041)).
 
-### sampler — Combined image sampler array indexing
+## Parameter Dimensions and Observed Values
 
-The `sampler` child is added directly under `glsl.opaque_type_indexing` before the block and atomic-counter groups are created in [`OpaqueTypeIndexingTests::init()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1944-L1975). Its generated hierarchy is `sampler/{indexing type}/{shader stage}/{sampler type}`: `indexingTypes[]` defines `const_literal`, `const_expression`, `uniform`, and `dynamically_uniform` at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1920-L1931), `shaderTypes[]` defines vertex, fragment, geometry, tessellation-control, tessellation-evaluation, and compute groups at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1933-L1942), and the sampler-type table contains 23 GLSL sampler, integer sampler, unsigned sampler, and shadow-sampler variants at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1946-L1970).
+| Dimension | Registered values | Meaning in this test | Evidence |
+|-----------|-------------------|----------------------|----------|
+| Test family | `sampler`, `ubo`, `ssbo`, `ssbo_storage_buffer_decoration`, `atomic_counter` | Selects the opaque resource form, descriptor layout, shader operation, and host oracle. | [Family registration](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1944-L2040) |
+| Index expression | `const_literal`, `const_expression`, `uniform`, `dynamically_uniform` | Changes where the resource index comes from and whether the host must provide an index buffer or shader input. | [Index table](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1920-L1931) |
+| Shader stage | `vertex`, `fragment`, `geometry`, `tess_ctrl`, `tess_eval`, `compute` | Moves the same resource-selection logic through different shader-executor paths. Sampler leaves use only vertex, fragment, and compute. | [Stage table and sampler filter](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1933-L1942), [sampler stage filter](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1982-L1992) |
+| Sampler type | 23 float, shadow, signed-integer, and unsigned-integer sampler types | Changes image dimensionality, coordinate shape, image format, filtering, and output type. | [Sampler type table](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1946-L1970), [type mapping](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L289-L401) |
+| Sampler workload | 8 samplers, 4 lookups, 64 invocations | Each lookup selects one of eight one-texel images, and every invocation must produce an accepted value. | [Sampler constants](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L636-L644) |
+| Block workload | 4 block instances, 4 reads, 32 invocations | Each read selects one separately backed `uint` block instance. | [Block constants](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1138-L1146) |
+| Atomic workload | 4 counters, 4 operations, 32 observed invocations | Each operation selects one counter, increments it, and returns the old counter value. | [Atomic constants](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1511-L1519) |
+| Extra resource set | Descriptor set 1 | Keeps tested resources separate from the shader executor's input and output buffers in set 0. | [Set definition](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.hpp#L87-L91) |
 
-The source still creates shader-stage groups for all six stages, but it only populates vertex, fragment, and compute with sampler cases; geometry and tessellation stage groups are present but skipped for sampler case creation by the CTS 1.0.2 compatibility guard at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1982-L1992). Each populated sampler leaf is a `SamplerIndexingCase` named with the lower-case GLSL sampler type, created at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1994-L2002).
+The sampler path has the form `sampler/<index expression>/<shader stage>/<sampler type>`. The other test families use flat test case leaf names of the form `<index expression>_<shader stage>` ([sampler generation](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1972-L2003), [block and atomic generation](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L2007-L2038)).
 
-`SamplerIndexingCase` builds a shader that declares an array of eight combined image samplers at descriptor set `EXTRA_RESOURCES_DESCRIPTOR_SET_INDEX`, binding 0, emits four texture lookups, and chooses the array index from a literal, a `const` expression, a uniform block, or dynamically uniform shader inputs depending on `IndexExprType` at [`SamplerIndexingCase::createShaderSpec()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1070-L1128). The runtime creates one 1-pixel texture per sampler array element, binds eight combined image samplers plus an optional index uniform buffer, executes 64 invocations, and gathers four output streams at [`SamplerIndexingCaseInstance::iterate()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L679-L889).
+The source seeds each test's pseudo-random indices and values from its parameters. Repeated runs of the same test case leaf therefore use the same generated selections and resource contents ([sampler generation](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1070-L1083), [block generation](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1441-L1457), [atomic generation](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1837-L1845)).
 
-### ubo — Uniform-block instance array indexing
+## Behavior Parameters
 
-The `ubo` child is created with the other non-sampler groups at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L2007-L2018). It registers one flat case for every combination of the four indexing names and the six shader-stage names, using case names such as `{indexing type}_{shader stage}` at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L2020-L2032).
+The primary behavioral axis is the test family. It determines which opaque resource the shader selects and which independent result check the host applies. The four index-expression values then exercise different compiler and descriptor-indexing paths within that behavior.
 
-Each `ubo` case is a `BlockArrayIndexingCase` with `BLOCKTYPE_UNIFORM`, so its generated shader declares `layout(... ) uniform Block { highp uint value; } block[4];`, performs four reads, and writes four `uint` outputs at [`BlockArrayIndexingCase::createShaderSpec()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1441-L1505). The runtime uses four separate uniform buffers, fills each one with a random `uint`, optionally binds an index uniform buffer for `uniform` indexing, and then executes 32 invocations at [`BlockArrayIndexingCaseInstance::iterate()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1186-L1344).
+### `sampler`: select and sample a combined image sampler
 
-### ssbo — Storage-buffer instance array indexing
+The shader declares an array of eight combined image samplers and performs four texture lookups. Each array element refers to a separate one-texel image, so selecting the wrong descriptor changes the sampled value. The 23 sampler types cover float, shadow, signed-integer, and unsigned-integer outputs across 1D, 1D-array, 2D, cube, 2D-array, and 3D image forms ([shader construction](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1070-L1128), [runtime resources](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L679-L889)).
 
-The `ssbo` child is registered beside `ubo`, `ssbo_storage_buffer_decoration`, and `atomic_counter` at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L2010-L2018). Like `ubo`, it receives one flat `{indexing type}_{shader stage}` case for each of the four index-expression modes and six shader stages at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L2020-L2038).
+### `ubo`: read an indexed uniform-block instance
 
-Each `ssbo` case is a `BlockArrayIndexingCase` with `BLOCKTYPE_BUFFER`, causing the generated interface declaration to use `readonly buffer` rather than `uniform` at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1446-L1471). Runtime descriptor setup uses four separate storage-buffer descriptors and the same four-read, 32-invocation comparison path used by `ubo` at [`BlockArrayIndexingCaseInstance::iterate()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1198-L1300).
+The shader declares four uniform-block instances, each containing one `highp uint`, and emits four indexed reads. The host backs the descriptor array with four separate uniform buffers and compares every returned value with the selected buffer's seeded value ([shader construction](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1441-L1505), [execution and check](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1186-L1365)).
 
-### ssbo_storage_buffer_decoration — SSBO indexing with the storage-buffer storage class build flag
+### `ssbo`: read an indexed storage-block instance
 
-The `ssbo_storage_buffer_decoration` child is a second storage-buffer branch registered next to `ssbo` at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L2010-L2018). Its case matrix is the same four index-expression modes by six shader stages, but each case passes `BlockArrayIndexingCaseInstance::FLAG_USE_STORAGE_BUFFER` to `BlockArrayIndexingCase` at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L2033-L2037).
+This test uses the same four-read structure as `ubo`, but the generated declaration is `readonly buffer` and the descriptors are storage buffers. The comparison remains exact because each selected block contains one host-generated `uint` ([interface selection](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1446-L1471), [descriptor selection](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1198-L1201)).
 
-The flag has two source-visible effects: runtime support requires `VK_KHR_storage_buffer_storage_class` at [`BlockArrayIndexingCaseInstance::iterate()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1217-L1221), and shader build options add `ShaderBuildOptions::FLAG_USE_STORAGE_BUFFER_STORAGE_CLASS` at [`BlockArrayIndexingCase::createShaderSpec()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1507-L1509). The data generation, descriptor layout, and output comparison otherwise follow the `ssbo` storage-buffer path.
+### `ssbo_storage_buffer_decoration`: use the storage-buffer storage-class build path
 
-### atomic_counter — Atomic-add indexing over a storage-buffer counter array
+This family repeats the `ssbo` behavior while setting `FLAG_USE_STORAGE_BUFFER_STORAGE_CLASS` in the shader build options. The runtime also requires `VK_KHR_storage_buffer_storage_class`. Data generation, descriptors, execution, and result checking otherwise use the storage-block path ([case registration](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L2033-L2037), [extension check](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1217-L1221), [build flag](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1507-L1508)).
 
-The `atomic_counter` child is added directly under `glsl.opaque_type_indexing` with the other non-sampler groups at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L2010-L2018). It receives one flat `{indexing type}_{shader stage}` case for each index-expression mode and shader stage at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L2020-L2032).
+### `atomic_counter`: atomically increment an indexed counter
 
-`AtomicCounterIndexingCase` generates a storage-buffer-backed counter array with four counters and four `atomicAdd(counter[index], uint(1))` operations; the selected counter index comes from the same literal, const-expression, uniform, or dynamically uniform sources used elsewhere in this file at [`AtomicCounterIndexingCase::createShaderSpec()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1837-L1893). At runtime, `AtomicCounterIndexingCaseInstance` initializes the four counters to zero, optionally binds a uniform index buffer, executes 32 invocations, invalidates the counter buffer, and validates both final counter ranges and per-operation returned values at [`AtomicCounterIndexingCaseInstance::iterate()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1545-L1798).
+The shader declares four `uint` counters in one storage buffer and performs four `atomicAdd(counter[index], 1)` operations. The host checks the final counter values and the old values returned by the atomic operations. This family tests indexed storage access together with stage-specific atomic execution ([shader construction](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1837-L1893), [execution and oracle](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1545-L1798)).
 
-## Parameter Dimensions
+The index-expression values change the generated shader as follows:
 
-| Dimension | Observed values / evidence |
-|---|---|
-| Direct registration children | `sampler`, `ubo`, `ssbo`, `ssbo_storage_buffer_decoration`, and `atomic_counter` are direct children added in [`OpaqueTypeIndexingTests::init()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1972-L2018). |
-| Index-expression modes | `const_literal`, `const_expression`, `uniform`, and `dynamically_uniform` from `indexingTypes[]` at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1920-L1931). Non-literal modes emit `#extension GL_EXT_gpu_shader5 : require` in sampler, block, and atomic shader generation at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1086-L1104), [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1459-L1482), and [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1851-L1869). |
-| Shader stages | The shared stage table contains `vertex`, `fragment`, `geometry`, `tess_ctrl`, `tess_eval`, and `compute` at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1933-L1942). Sampler leaves are generated only for vertex, fragment, and compute, while the block and atomic branches generate cases for all six stages at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1982-L2002) and [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L2025-L2038). |
-| Sampler types | 23 sampler variants are enumerated in `samplerTypes[]`, covering 1D, 1D array, 2D, cube, 2D array, 3D, shadow, signed-integer, and unsigned-integer sampler forms at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1946-L1970). |
-| Sampler runtime sizes | Sampler tests use `NUM_INVOCATIONS = 64`, `NUM_SAMPLERS = 8`, and `NUM_LOOKUPS = 4` at [`SamplerIndexingCaseInstance`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L636-L644). |
-| Texture forms and formats | Sampler type maps to 1D, 1D array, 2D, cube, 2D array, or 3D image/view types at [`getTextureType()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L289-L331), [`getVkImageType()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L464-L482), and [`getVkImageViewType()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L484-L504); output scalar class selects depth, RGBA UNORM8, signed-int8, or unsigned-int8 texture data at [`getSamplerTextureFormat()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L380-L401). |
-| Block runtime sizes | UBO/SSBO branches use `NUM_INVOCATIONS = 32`, `NUM_INSTANCES = 4`, and `NUM_READS = 4` at [`BlockArrayIndexingCaseInstance`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1138-L1151). |
-| Block descriptor type | `BLOCKTYPE_UNIFORM` selects uniform buffers; `BLOCKTYPE_BUFFER` selects storage buffers at [`BlockArrayIndexingCaseInstance::iterate()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1198-L1201). |
-| Atomic runtime sizes | Atomic-counter tests use `NUM_INVOCATIONS = 32`, `NUM_COUNTERS = 4`, and `NUM_OPS = 4` at [`AtomicCounterIndexingCaseInstance`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1511-L1519). |
-| Descriptor set index | Extra resources are declared at descriptor set `EXTRA_RESOURCES_DESCRIPTOR_SET_INDEX`, which is defined as set `1` in [`vktShaderExecutor.hpp`](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.hpp#L87-L91) and used by the sampler, block, and atomic shader declarations in [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1092-L1093), [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1465-L1471), and [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1857-L1858). |
+| Index-expression value | Generated selection mechanism |
+|------------------------|-------------------------------|
+| `const_literal` | Places the selected integer directly inside each subscript. |
+| `const_expression` | Declares `const highp int indexBase = 1` and uses `indexBase + offset`. |
+| `uniform` | Reads each index from a `std140` uniform block in descriptor set 1. |
+| `dynamically_uniform` | Reads each index from a shader-executor input. The host repeats one selected value across every invocation for that operation. |
 
-## Support / Feature Requirements
+All forms except `const_literal` request `GL_EXT_gpu_shader5`. The `uniform` and `dynamically_uniform` paths also run the appropriate dynamic descriptor-array indexing feature check ([sampler generation](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1086-L1123), [block generation](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1459-L1501), [atomic generation](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1851-L1888), [feature checks](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L249-L275)).
 
-| Requirement | Evidence |
-|---|---|
-| Shader-stage availability | All cases inherit `OpaqueTypeIndexingCase::checkSupport()`, which delegates to `checkSupportShader(context, m_shaderType)` for the selected stage at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L174-L187) and [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L208-L211). |
-| Dynamic descriptor-array indexing features | `checkSupported()` only runs descriptor-array dynamic-indexing feature checks for `uniform` and `dynamically_uniform` modes; constant literal and constant-expression cases bypass this dynamic-indexing feature gate at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L249-L275). The checked features are `shaderSampledImageArrayDynamicIndexing`, `shaderUniformBufferArrayDynamicIndexing`, and `shaderStorageBufferArrayDynamicIndexing` for combined-image-sampler, uniform-buffer, and storage-buffer descriptors respectively at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L255-L270). |
-| 1D shadow image format support | Sampler cases for `sampler1DShadow` and `sampler1DArrayShadow` query `VK_FORMAT_D16_UNORM` with `VK_IMAGE_TYPE_1D` and reject unsupported format/image-type combinations at [`SamplerIndexingCase::checkSupport()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1042-L1062). |
-| Storage-buffer descriptor limit for block cases | `BlockArrayIndexingCase::checkSupport()` compares the required number of storage-buffer descriptors against `maxPerStageDescriptorStorageBuffers`, adding two extra storage buffers for compute to account for `ComputeShaderExecutor` at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1407-L1433). |
-| Storage-buffer storage class extension | Only `ssbo_storage_buffer_decoration` cases set `FLAG_USE_STORAGE_BUFFER`; those runtime instances require `VK_KHR_storage_buffer_storage_class` at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1217-L1221). |
-| Atomic stores and atomics | Atomic-counter cases require `vertexPipelineStoresAndAtomics` for vertex, tessellation-control, tessellation-evaluation, and geometry stages, require `fragmentStoresAndAtomics` for fragment stage, and add no extra stores/atomics feature check for compute at [`AtomicCounterIndexingCaseInstance::iterate()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1555-L1578). |
-| Render-target / vertex-format support in shader executor | Graphics-stage execution validates vertex-buffer attribute formats and color-attachment formats before drawing in [`FragmentOutExecutor`](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.cpp#L683-L702) and [`FragmentOutExecutor::executeCommon()`](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.cpp#L1164-L1183). |
+## Shader Analysis
 
-## Verification Methods
+The representative shader uses a block test because it exposes the tested descriptor-array access without texture-coordinate setup or concurrent atomic ordering. Nearby `uniform`, `dynamically_uniform`, SSBO, sampler, and atomic variants change the index source or operation as summarized after the code.
 
-- Sampler cases verify shader texture lookup results against CPU-side reference texture access. Shadow samplers compare each invocation against `sample2DCompare()` with a `0.005f` tolerance at [`SamplerIndexingCaseInstance::iterate()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L895-L924). Non-shadow floating-point sampler outputs compare against the selected reference texel with a `1.0f / 256.0f` per-component threshold, while integer outputs require exact `uvec4` equality at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L930-L969).
-- Sampler cases also require all invocations after the first to reproduce the first invocation's result for each lookup, failing on inconsistent lookup results at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L971-L997).
-- UBO and SSBO cases compare each read result from each of 32 invocations to the random input value selected by `m_readIndices[readNdx]`, failing on any mismatched `uint` at [`BlockArrayIndexingCaseInstance::iterate()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1346-L1365).
-- Atomic-counter cases first validate final counter values: a counter hit by generated operations must be at least the expected hit count, while a counter with zero expected hits must remain zero at [`AtomicCounterIndexingCaseInstance::iterate()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1713-L1752). They then verify each returned `atomicAdd` value lies in range and no returned value is duplicated for the same counter at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1754-L1797).
-- Graphics-stage output readback is performed by `FragmentOutExecutor::executeCommon()`, which renders point primitives, copies color attachments to host-visible buffers, invalidates the memory, and copies pixels into the output arrays at [`vktShaderExecutor.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.cpp#L1552-L1665). Compute execution uses `ComputeShaderExecutor::execute()` to upload inputs and bind storage-buffer outputs before dispatch at [`vktShaderExecutor.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.cpp#L3124-L3180).
+### Representative Shader Walkthrough 1
 
-## Test Principles
+#### Parameter Values Chosen
 
-- The file organizes one opaque-type indexing test group into five direct resource-family children and then varies index-expression type and shader stage from shared tables, so the same indexing modes are applied across samplers, block arrays, and atomic-counter storage-buffer arrays at [`OpaqueTypeIndexingTests::init()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1918-L2041).
-- The test data is deterministic per shader stage, resource type, and index-expression mode because sampler, block, and atomic cases seed `de::Random` from hashes of those parameters before choosing lookup/read/operation indices and input values at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1070-L1083), [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1441-L1457), and [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1837-L1845).
-- Uniform index-expression cases bind a uniform buffer containing the chosen indices, while dynamically uniform cases pass per-invocation input arrays filled with the same index for every invocation of a given lookup/read/op; this distinction is visible in the sampler, block, and atomic runtime setup paths at [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L771-L883), [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1230-L1334), and [`vktOpaqueTypeIndexingTests.cpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1594-L1694).
-- Correctness is determined from shader-visible resource contents and readback values, not from successful API calls alone: sampler outputs are compared to reference texture access, block outputs are compared to seeded buffer values, and atomic outputs are checked against counter-update behavior.
+Representative path:
 
-## Notes / Uncertainties
+```text
+dEQP-VK.glsl.opaque_type_indexing.ubo.const_literal_compute
+```
 
-- The documented hierarchy covers the direct children registered by this file under `glsl.opaque_type_indexing`; deeper generated sampler and flat block/atomic case names are described in `## Test Families` rather than expanded in the parseable hierarchy tree.
-- The inspected source does not show a separate helper file for opaque-type indexing registration; the source header only declares `createOpaqueTypeIndexingTests()` at [`vktOpaqueTypeIndexingTests.hpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.hpp#L30-L36), and the Vulkan package attaches it under the `glsl` group at [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1275-L1277).
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `ubo` | Declares an array of four uniform-block instances in descriptor set 1, binding 0. |
+| `const_literal` | Places the source-generated indices `3`, `2`, `3`, and `0` directly in the four subscripts. |
+| `compute` | Runs 32 one-invocation workgroups and writes four `uint` results per invocation. |
+
+#### Purpose
+
+This shader checks that literal indexing selects the correct uniform-buffer descriptor for four reads and that every compute invocation returns the selected block values.
+
+#### Structural Design
+
+| Shader element | Role |
+|----------------|------|
+| `block[4]` | Descriptor array under test. Each element contains one host-seeded `uint`. |
+| Four literal reads | Select block elements 3, 2, 3, and 0. Repeating index 3 also checks repeated access to one descriptor. |
+| `outputs[]` | Shader-executor storage buffer that carries the four selected values to the host. |
+| `invocationNdx` | Maps each one-invocation workgroup to one output record. |
+
+#### Shader Code
+
+```glsl
+#version 450
+#extension GL_EXT_long_vector : enable
+
+/// Descriptor set 1 contains the tested array of four uniform-buffer descriptors.
+layout(set = 1, binding = 0) uniform Block
+{
+    highp uint value;
+} block[4];
+
+layout(local_size_x = 1) in;
+
+struct Outputs
+{
+    highp uint result0;
+    highp uint result1;
+    highp uint result2;
+    highp uint result3;
+};
+
+/// Descriptor set 0 is shader-executor plumbing for host-visible results.
+layout(set = 0, binding = 1, std430) buffer OutBuffer
+{
+    Outputs outputs[];
+};
+
+void main (void)
+{
+    uint invocationNdx = gl_NumWorkGroups.x*gl_NumWorkGroups.y*gl_WorkGroupID.z
+                       + gl_NumWorkGroups.x*gl_WorkGroupID.y + gl_WorkGroupID.x;
+    highp uint result0;
+    highp uint result1;
+    highp uint result2;
+    highp uint result3;
+
+    /// These literals come from the deterministic generator for this exact case.
+    result0 = block[3].value;
+    result1 = block[2].value;
+    result2 = block[3].value;
+    result3 = block[0].value;
+
+    outputs[invocationNdx].result0 = result0;
+    outputs[invocationNdx].result1 = result1;
+    outputs[invocationNdx].result2 = result2;
+    outputs[invocationNdx].result3 = result3;
+}
+```
+
+#### Additional Info
+
+- `BlockArrayIndexingCase::createShaderSpec()` supplies the block declaration, output symbols, and four tested reads. `ComputeShaderExecutor::generateComputeShader()` supplies the GLSL version, local-size declaration, invocation index, set 0 output block, and `main()` wrapper ([case generator](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1441-L1508), [compute wrapper](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.cpp#L3061-L3121), [buffer I/O generation](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.cpp#L2034-L2130)).
+- The deterministic seed for shader type `compute`, block type `uniform`, and index form `const_literal` produces indices `3`, `2`, `3`, and `0`. The host values are also deterministic, but the shader source does not contain them ([seed and value generation](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1441-L1457)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| Index expression | `const_expression` replaces literals with `indexBase + offset`; `uniform` reads indices from a set 1 uniform block; `dynamically_uniform` reads them from set 0 shader-executor inputs. | [Index generation](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1459-L1501) |
+| Resource family | `ssbo` changes `uniform` to `readonly buffer`; sampler leaves replace the reads with `texture()` calls; atomic leaves use `atomicAdd()` on a counter array. | [Block declaration](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1446-L1471), [sampler calls](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1110-L1123), [atomic calls](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1877-L1888) |
+| Shader stage | The shared shader executor wraps the same `ShaderSpec` for vertex, fragment, geometry, tessellation-control, tessellation-evaluation, or compute execution. | [Source generation dispatch](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L174-L184), [registered stages](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1933-L1942) |
+| Storage-buffer decoration | `ssbo_storage_buffer_decoration` adds `FLAG_USE_STORAGE_BUFFER_STORAGE_CLASS` during shader compilation. | [Build option](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1507-L1508) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 75
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_NumWorkGroups %gl_WorkGroupID
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpSourceExtension "GL_EXT_long_vector"
+               OpName %main "main"
+               OpName %invocationNdx "invocationNdx"
+               OpName %gl_NumWorkGroups "gl_NumWorkGroups"
+               OpName %gl_WorkGroupID "gl_WorkGroupID"
+               OpName %result0 "result0"
+               OpName %Block "Block"
+               OpMemberName %Block 0 "value"
+               OpName %block "block"
+               OpName %result1 "result1"
+               OpName %result2 "result2"
+               OpName %result3 "result3"
+               OpName %Outputs "Outputs"
+               OpMemberName %Outputs 0 "result0"
+               OpMemberName %Outputs 1 "result1"
+               OpMemberName %Outputs 2 "result2"
+               OpMemberName %Outputs 3 "result3"
+               OpName %OutBuffer "OutBuffer"
+               OpMemberName %OutBuffer 0 "outputs"
+               OpName %_ ""
+               OpDecorate %gl_NumWorkGroups BuiltIn NumWorkgroups
+               OpDecorate %gl_WorkGroupID BuiltIn WorkgroupId
+               OpDecorate %Block Block
+               OpMemberDecorate %Block 0 Offset 0
+               OpDecorate %block Binding 0
+               OpDecorate %block DescriptorSet 1
+               OpMemberDecorate %Outputs 0 Offset 0
+               OpMemberDecorate %Outputs 1 Offset 4
+               OpMemberDecorate %Outputs 2 Offset 8
+               OpMemberDecorate %Outputs 3 Offset 12
+               OpDecorate %_runtimearr_Outputs ArrayStride 16
+               OpDecorate %OutBuffer BufferBlock
+               OpMemberDecorate %OutBuffer 0 Offset 0
+               OpDecorate %_ Binding 1
+               OpDecorate %_ DescriptorSet 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_ptr_Function_uint = OpTypePointer Function %uint
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_NumWorkGroups = OpVariable %_ptr_Input_v3uint Input
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_uint = OpTypePointer Input %uint
+     %uint_1 = OpConstant %uint 1
+%gl_WorkGroupID = OpVariable %_ptr_Input_v3uint Input
+     %uint_2 = OpConstant %uint 2
+      %Block = OpTypeStruct %uint
+     %uint_4 = OpConstant %uint 4
+%_arr_Block_uint_4 = OpTypeArray %Block %uint_4
+%_ptr_Uniform__arr_Block_uint_4 = OpTypePointer Uniform %_arr_Block_uint_4
+      %block = OpVariable %_ptr_Uniform__arr_Block_uint_4 Uniform
+        %int = OpTypeInt 32 1
+      %int_3 = OpConstant %int 3
+      %int_0 = OpConstant %int 0
+%_ptr_Uniform_uint = OpTypePointer Uniform %uint
+      %int_2 = OpConstant %int 2
+    %Outputs = OpTypeStruct %uint %uint %uint %uint
+%_runtimearr_Outputs = OpTypeRuntimeArray %Outputs
+  %OutBuffer = OpTypeStruct %_runtimearr_Outputs
+%_ptr_Uniform_OutBuffer = OpTypePointer Uniform %OutBuffer
+          %_ = OpVariable %_ptr_Uniform_OutBuffer Uniform
+      %int_1 = OpConstant %int 1
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+%invocationNdx = OpVariable %_ptr_Function_uint Function
+    %result0 = OpVariable %_ptr_Function_uint Function
+    %result1 = OpVariable %_ptr_Function_uint Function
+    %result2 = OpVariable %_ptr_Function_uint Function
+    %result3 = OpVariable %_ptr_Function_uint Function
+         %14 = OpAccessChain %_ptr_Input_uint %gl_NumWorkGroups %uint_0
+         %15 = OpLoad %uint %14
+         %17 = OpAccessChain %_ptr_Input_uint %gl_NumWorkGroups %uint_1
+         %18 = OpLoad %uint %17
+         %19 = OpIMul %uint %15 %18
+         %22 = OpAccessChain %_ptr_Input_uint %gl_WorkGroupID %uint_2
+         %23 = OpLoad %uint %22
+         %24 = OpIMul %uint %19 %23
+         %25 = OpAccessChain %_ptr_Input_uint %gl_NumWorkGroups %uint_0
+         %26 = OpLoad %uint %25
+         %27 = OpAccessChain %_ptr_Input_uint %gl_WorkGroupID %uint_1
+         %28 = OpLoad %uint %27
+         %29 = OpIMul %uint %26 %28
+         %30 = OpIAdd %uint %24 %29
+         %31 = OpAccessChain %_ptr_Input_uint %gl_WorkGroupID %uint_0
+         %32 = OpLoad %uint %31
+         %33 = OpIAdd %uint %30 %32
+               OpStore %invocationNdx %33
+         %44 = OpAccessChain %_ptr_Uniform_uint %block %int_3 %int_0
+         %45 = OpLoad %uint %44
+               OpStore %result0 %45
+         %48 = OpAccessChain %_ptr_Uniform_uint %block %int_2 %int_0
+         %49 = OpLoad %uint %48
+               OpStore %result1 %49
+         %51 = OpAccessChain %_ptr_Uniform_uint %block %int_3 %int_0
+         %52 = OpLoad %uint %51
+               OpStore %result2 %52
+         %54 = OpAccessChain %_ptr_Uniform_uint %block %int_0 %int_0
+         %55 = OpLoad %uint %54
+               OpStore %result3 %55
+         %61 = OpLoad %uint %invocationNdx
+         %62 = OpLoad %uint %result0
+         %63 = OpAccessChain %_ptr_Uniform_uint %_ %int_0 %61 %int_0
+               OpStore %63 %62
+         %64 = OpLoad %uint %invocationNdx
+         %66 = OpLoad %uint %result1
+         %67 = OpAccessChain %_ptr_Uniform_uint %_ %int_0 %64 %int_1
+               OpStore %67 %66
+         %68 = OpLoad %uint %invocationNdx
+         %69 = OpLoad %uint %result2
+         %70 = OpAccessChain %_ptr_Uniform_uint %_ %int_0 %68 %int_2
+               OpStore %70 %69
+         %71 = OpLoad %uint %invocationNdx
+         %72 = OpLoad %uint %result3
+         %73 = OpAccessChain %_ptr_Uniform_uint %_ %int_0 %71 %int_3
+               OpStore %73 %72
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+## Runtime Execution and Result Checking
+
+- Every test first creates the extra descriptor-set layout and resources required by its family, then asks `createExecutor()` for the selected shader stage. The executor runs the generated `ShaderSpec` and copies its declared outputs into host arrays.
+- Sampler tests create eight one-texel images and matching samplers. They execute 64 invocations and collect four lookup streams. Shadow results use reference compare sampling with tolerance `0.005`; non-shadow float vectors use a per-component threshold of `1/256`; signed and unsigned integer vectors require exact equality. The checker also requires each lookup to remain consistent across invocations where the reference is invocation-independent ([setup and execution](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L679-L889), [sampler checks](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L891-L1000)).
+- Block tests create four separate one-`uint` buffers, write and flush one seeded value into each, and optionally create a uniform index buffer. After 32 invocations, the host compares all four output streams with `m_inValues[m_readIndices[readNdx]]` using exact `uint` equality ([resource setup](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1186-L1337), [comparison](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1339-L1365)).
+- Atomic-counter tests zero and flush a four-counter storage buffer, optionally upload uniform indices, and run 32 observed invocations. The host invalidates the counter buffer, checks that every selected counter reached at least the expected number of increments, and requires an untouched counter to remain zero. It then checks that each returned old value lies below the final value of its counter and that no observed old value is duplicated for that counter ([setup and execution](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1545-L1704), [atomic checks](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1706-L1798)).
+
+A pass means every host-observed result satisfies the family-specific oracle. It does not mean only that the shader compiled, the pipeline ran, or the descriptor set was accepted.
+
+## Failure Meaning
+
+### Failure Cause Mapping
+
+| If this behavior parameter value fails | Possible failure cause(s) |
+|----------------------------------------|---------------------------|
+| `sampler` | Wrong combined-image-sampler descriptor selection, texture lookup lowering, image/view setup, or typed sample result |
+| `ubo` | Wrong uniform-buffer descriptor selection, block-array access, or returned block value |
+| `ssbo` | Wrong storage-buffer descriptor selection, storage-block access, or returned block value |
+| `ssbo_storage_buffer_decoration` | Wrong storage-buffer storage-class compilation path in addition to the ordinary SSBO causes |
+| `atomic_counter` | Wrong indexed counter selection, atomic increment, returned old value, stage-specific atomic execution, or memory visibility |
+
+A failure limited to `uniform` or `dynamically_uniform` can point to runtime index transport or dynamic descriptor-array indexing. A failure limited to one shader stage can point to that stage's shader-executor wrapper or resource-operation lowering.
+
+### Cause Analysis
+
+#### Sampler selection or lookup failure
+
+**Possible failure symptoms:** The log reports an incorrect lookup value, an inconsistent value across invocations, or both. Float and shadow mismatches exceed their stated tolerances; integer sampler mismatches differ exactly.
+
+**Possible implementation causes:** The implementation may select the wrong descriptor, lower a sampler-array subscript incorrectly, sample with the wrong dimensional or shadow form, or return the wrong typed value. A failure confined to one sampler type can narrow the investigation to that image, coordinate, comparison, or result-type path.
+
+#### Uniform or storage block selection failure
+
+**Possible failure symptoms:** One of the four output streams contains a `uint` different from the seeded value in the selected buffer. The log identifies the invocation and read number.
+
+**Possible implementation causes:** The implementation may select the wrong descriptor, lower the interface-block instance array incorrectly, or use the wrong descriptor/storage-class path. Comparing `ubo`, `ssbo`, and `ssbo_storage_buffer_decoration` with the same index form and stage separates resource-class handling from the common indexing expression.
+
+#### Index-source failure
+
+**Possible failure symptoms:** Literal cases pass while `const_expression`, `uniform`, or `dynamically_uniform` cases fail for several resource families. Failures may follow one index-expression token across otherwise different test families.
+
+**Possible implementation causes:** The compiler may fold the constant expression incorrectly, the runtime uniform block may be read from the wrong binding or layout, or shader-executor inputs may reach the tested stage incorrectly. For runtime index forms, descriptor-array dynamic indexing can also be lowered incorrectly even when the feature is advertised.
+
+#### Atomic counter failure
+
+**Possible failure symptoms:** A selected counter finishes below its expected minimum, an unselected counter changes, a returned old value lies outside its counter's final range, or two observed operations return the same old value for one counter.
+
+**Possible implementation causes:** The implementation may select the wrong counter, lose atomic increments, return an incorrect pre-increment value, execute storage atomics incorrectly in one stage, or expose stale counter memory to the host. The oracle permits valid concurrent orderings, so it does not require one fixed order of old values.
+
+#### Shared execution or readback failure
+
+**Possible failure symptoms:** Unrelated sampler, block, and atomic leaves fail broadly, return unchanged data, or fail before their family-specific comparisons.
+
+**Possible implementation causes:** Shader compilation, pipeline creation, descriptor binding, executor input/output buffers, submission, or host memory flush and invalidation may be involved. The family-specific log and stage clustering are needed before assigning the defect to one layer.
+
+## Case Pruning
+
+### Requirement-based pruning
+
+Registered test case leaves can return `NotSupported` before their main comparison:
+
+- Every leaf checks support for its selected shader stage through `checkSupportShader()` ([common support check](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L174-L211)).
+- `uniform` and `dynamically_uniform` leaves require the matching device feature: `shaderSampledImageArrayDynamicIndexing`, `shaderUniformBufferArrayDynamicIndexing`, or `shaderStorageBufferArrayDynamicIndexing`. Literal and constant-expression leaves skip this dynamic-indexing gate ([descriptor feature checks](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L249-L275)).
+- `sampler1DShadow` and `sampler1DArrayShadow` leaves require `VK_FORMAT_D16_UNORM` support for a 1D image with sampled-image usage ([format check](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1042-L1062)).
+- `BlockArrayIndexingCase::checkSupport()` compares a source-calculated storage-buffer descriptor requirement with `maxPerStageDescriptorStorageBuffers`. The source applies this check to both UBO and SSBO block cases and adds two descriptors for compute execution ([limit check](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1407-L1433)).
+- `ssbo_storage_buffer_decoration` requires `VK_KHR_storage_buffer_storage_class` ([extension check](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1217-L1221)).
+- Atomic-counter leaves require `vertexPipelineStoresAndAtomics` in vertex, geometry, and tessellation stages, or `fragmentStoresAndAtomics` in the fragment stage. Compute adds no corresponding optional-feature check ([atomic stage checks](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1555-L1578)).
+
+These checks do not remove names from the registered hierarchy. They classify a test case leaf as unsupported on a device that lacks a required capability.
+
+### Design-based pruning
+
+The registration code intentionally limits the matrix before creating test case leaves:
+
+- Sampler test case leaves exist only for vertex, fragment, and compute. The generator still creates empty geometry and tessellation intermediate groups under each sampler index-expression group because it adds the stage group before applying the Vulkan CTS 1.0.2 stage filter ([sampler stage generation](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1982-L1992)).
+- Block and atomic test families use all six registered stages and all four index-expression values ([block and atomic matrix](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L2020-L2038)).
+- Sampler coverage stops at the 23 listed combined sampler types. The table contains no separate-image, separate-sampler, multisample, buffer, or external sampler forms ([sampler table](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1946-L1970)).
+- Block tests use one separate buffer per descriptor-array element. The source explicitly leaves offsets within one buffer as possible future coverage, so this family does not vary buffer offsets or pack all elements into one allocation ([block resource setup](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1206-L1208)).
+
+## Key Takeaways
+
+- `glsl.opaque_type_indexing` executes each opaque-array indexing form and checks the selected resource's contents.
+- The five test families supply distinct oracles: texture reference sampling, exact block-value comparison, and concurrent atomic-result validation.
+- Literal, constant-expression, uniform, and dynamically uniform subscripts select the same kinds of generated indices through different shader and descriptor paths.
+- The registration matrix has 372 test case leaves. Sampler coverage is deliberately limited to three stages, while block and atomic coverage uses six.
+- Requirement-based `NotSupported` results are separate from design exclusions. See `Failure Meaning` for how failures cluster by resource family, index source, and shader stage.
+
+## Source Reference Appendix
+
+| Entry point | Link | Why it matters |
+|-------------|------|----------------|
+| Public factory declaration | [`vktOpaqueTypeIndexingTests.hpp`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.hpp#L23-L36) | Declares the test-family factory. |
+| Common case and support logic | [`OpaqueTypeIndexingCase` and `checkSupported()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L150-L276) | Defines index-expression values, stage support, and descriptor dynamic-indexing gates. |
+| Sampler type and format helpers | [`getTextureType()` through sampler helpers](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L289-L504) | Maps GLSL sampler types to image forms, coordinates, outputs, and formats. |
+| Sampler execution and oracle | [`SamplerIndexingCaseInstance::iterate()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L679-L1000) | Creates images and descriptors, executes lookups, and checks sampled values. |
+| Sampler shader generator | [`SamplerIndexingCase`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1002-L1128) | Generates the sampler array, index source, texture calls, and outputs. |
+| Block execution and oracle | [`BlockArrayIndexingCaseInstance::iterate()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1138-L1365) | Creates UBO or SSBO descriptor arrays and checks every returned value. |
+| Block support and shader generator | [`BlockArrayIndexingCase`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1368-L1508) | Defines the descriptor-limit check, interface declaration, indexed reads, and storage-class build flag. |
+| Atomic execution and oracle | [`AtomicCounterIndexingCaseInstance::iterate()`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1511-L1798) | Runs indexed atomic adds and validates final counters plus returned old values. |
+| Atomic shader generator | [`AtomicCounterIndexingCase`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1801-L1894) | Generates the counter array and four indexed `atomicAdd` calls. |
+| Family matrix and factory | [`OpaqueTypeIndexingTests::init()` and factory](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1896-L2048) | Defines all registered families, dimensions, stage exclusions, names, and the public entry point. |
+| Shader-executor wrapper | [`BufferIoExecutor` and `ComputeShaderExecutor`](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.cpp#L2034-L2130), [`compute generation and execution`](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.cpp#L3061-L3187) | Supplies stage wrappers, set 0 input/output resources, dispatch, and readback infrastructure. |
+| GLSL package registration | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1274-L1277) | Places `opaque_type_indexing` directly below `glsl`. |
+| Vulkan default mustpass coverage | [`glsl.txt`](../../../mustpass/main/vk-default/glsl.txt#L10489-L10860) | Lists all 372 concrete test case leaves. |

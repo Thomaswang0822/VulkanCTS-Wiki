@@ -125,6 +125,8 @@ void main() {
 
 #### SPIR-V
 
+##### Vertex Shader
+
 - Status: generated and validated
 - Source: reconstructed `GLSL` from this walkthrough
 - Stage: `vert`
@@ -192,6 +194,51 @@ void main() {
 
 </details>
 
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 13
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %outColor %vtxColor
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 460
+               OpName %main "main"
+               OpName %outColor "outColor"
+               OpName %vtxColor "vtxColor"
+               OpDecorate %outColor Location 0
+               OpDecorate %vtxColor Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %outColor = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+   %vtxColor = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %12 = OpLoad %v4float %vtxColor
+               OpStore %outColor %12
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
 ## Runtime Execution and Result Checking
 
 - The host clears the color attachment, resets the one-slot query pool, begins the query, and begins the render pass.
@@ -241,7 +288,13 @@ void main() {
 
 ## Case Pruning
 
-No cases are pruned by the registration code. The complete Cartesian product registers 12 leaves. Runtime support checks skip cases when their required core feature is unavailable: `inheritedQueries` for secondary cases, `occlusionQueryPrecise` for `occlusion`, `pipelineStatisticsQuery` for `frag_invs`, and `fragmentStoresAndAtomics` for atomic variants.
+### Requirement-based pruning
+
+Runtime support checks skip cases when their required core feature is unavailable: `inheritedQueries` for secondary cases, `occlusionQueryPrecise` for `occlusion`, `pipelineStatisticsQuery` for `frag_invs`, and `fragmentStoresAndAtomics` for atomic variants.
+
+### Design-based pruning
+
+No cases are pruned by the registration code. The complete Cartesian product registers 12 leaves.
 
 ## Key Takeaways
 

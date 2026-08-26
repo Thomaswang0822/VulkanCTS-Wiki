@@ -201,7 +201,7 @@ void main (void)
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level variation from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | Output topology | Changes the output layout string from `triangle_strip` to `points` or `line_strip`. | [outputTypeToGLString() use](../../../modules/vulkan/geometry/vktGeometryEmitGeometryShaderTests.cpp#L178-L180) |
 | Emit counts | Changes how many fixed-position `EmitVertex()` blocks are generated before and after the first termination sequence. | [emit loops](../../../modules/vulkan/geometry/vktGeometryEmitGeometryShaderTests.cpp#L191-L216) |

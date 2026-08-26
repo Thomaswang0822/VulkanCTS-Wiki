@@ -51,7 +51,354 @@ The framebuffer layer count is again `depth - baseLayer`, but now `instanceCount
 
 ## Shader Analysis
 
-The shaders are not the tested behavior. The vertex shader generates a full-coverage triangle from `gl_VertexIndex`, the optional geometry shader forwards `gl_InstanceIndex` to `gl_Layer`, and the fragment shader outputs a constant white. They exist only to fill the rendered layers with a known color so the host can verify which layers received output. No representative walkthrough is needed.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.renderpasses.renderpass1.remaining_array_layers.multi_layer_fb_gl_layer.1_4
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `renderpass1` | Uses the legacy render-pass path. Shader generation is identical for the `renderpass2` cases. |
+| `multi_layer_fb_gl_layer` | Enables the geometry stage, creates a five-layer framebuffer, and draws five instances so the shader can route one instance to each framebuffer layer. |
+| `1_4` | Sets `baseLayer = 1` and `additionalLayers = 4`. The 3D image depth is 6, and the `VK_REMAINING_ARRAY_LAYERS` view exposes five slices, 1 through 5. |
+
+#### Purpose
+
+The geometry shader carries each draw instance's index into `gl_Layer`, routing the five full-coverage triangles to framebuffer layers 0 through 4. The vertex and fragment stages provide full attachment coverage and a constant white validation value.
+
+#### Structural Design
+
+| Stage | Shader-visible operation | Effect in this case |
+|-------|--------------------------|---------------------|
+| Vertex | Build an oversized triangle from `gl_VertexIndex`; write `gl_InstanceIndex` to location 0. | Each of the five instances covers the framebuffer and carries one layer number on all three vertices. |
+| Geometry | Copy the three input positions and assign each input `layerIndex` to `gl_Layer`. | Instance *n* is rasterized into framebuffer layer *n*. |
+| Fragment | Write `vec4(1.0f)` at location 0. | Every covered pixel in each routed layer becomes white for host readback. |
+
+#### Shader Code
+
+##### Geometry Shader
+
+```glsl
+#version 450
+
+/// Location 0 receives the per-instance layer number emitted on each vertex by the vertex stage.
+layout(location = 0) in int layerIndex[];
+/// One invocation consumes each input triangle produced by a draw instance.
+layout(triangles) in;
+/// The shader forwards exactly three vertices as one triangle strip.
+layout(triangle_strip, max_vertices = 3) out;
+
+void main() {
+    /// Preserve the full-coverage triangle while routing it to the instance-selected framebuffer layer.
+    for (int i = 0; i < 3; i++) {
+        gl_Position = gl_in[i].gl_Position;
+        gl_Layer = layerIndex[i];
+        EmitVertex();
+    }
+    EndPrimitive();
+}
+```
+
+##### Vertex Shader
+
+```glsl
+#version 450
+/// Location 0 transports the current draw instance to the geometry stage as its destination layer.
+layout(location = 0) out int layerIndex;
+void main() {
+    /// The three vertex indices generate (-1,-1), (3,-1), and (-1,3), covering the 32x32 viewport.
+    vec2 pos = vec2(float(gl_VertexIndex & 1), float((gl_VertexIndex >> 1) & 1)) * 4.0f - 1.0f;
+    gl_Position = vec4(pos, 0.0f, 1.0f);
+    layerIndex = gl_InstanceIndex;
+}
+```
+
+##### Fragment Shader
+
+```glsl
+#version 450
+/// Location 0 writes the framebuffer's R8G8B8A8_UNORM color attachment.
+layout (location=0) out vec4 outColor;
+void main() {
+    /// White is the exact value required by the host-side pixel scan.
+    outColor = vec4(1.0f);
+}
+```
+
+#### Additional Info
+
+- The vertex shader is fixed across the page's cases. It matters here because `gl_InstanceIndex` is the geometry shader's only layer-selection input; there are no vertex buffers, descriptors, or push constants ([shader generation](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L427-L439), [pipeline layout and vertex input](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L252-L293)).
+- The fragment shader is also fixed across all cases and supplies the white value checked after readback. It does not select or observe a layer ([fragment shader](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L456-L460), [result check](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L385-L405)).
+- For `1_4`, the host sets both `framebufferLayers` and `instanceCount` to 5; the shader itself contains no literal layer count ([framebuffer layer count](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L226), [instance count and draw](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L327-L351)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|------------------------------------------|----------|
+| Framebuffer variant | `multi_layer_fb_gl_layer` attaches the geometry module. `single_layer_fb` and `multi_layer_fb` omit it, draw one instance, and therefore use the default framebuffer layer 0. | [module and pipeline selection](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L242-L246), [draw instance count](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L327-L351) |
+| Base/additional layer pair | The generated shader text is unchanged. The pair changes the host-computed framebuffer layer count and, for this geometry variant, the number of instances and destination `gl_Layer` values. | [layer cases](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L493-L503), [runtime counts](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L226-L227) |
+| Render-pass API | Legacy render pass and render pass 2 use the same vertex, geometry, and fragment sources; only host-side render-pass construction and commands differ. | [shader generation](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L427-L465), [render-pass selection](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L219-L224) |
+
+#### SPIR-V
+
+##### Geometry Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `geom`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 50
+; Schema: 0
+               OpCapability Geometry
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Geometry %main "main" %_ %gl_in %gl_Layer %layerIndex
+               OpExecutionMode %main Triangles
+               OpExecutionMode %main Invocations 1
+               OpExecutionMode %main OutputTriangleStrip
+               OpExecutionMode %main OutputVertices 3
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %i "i"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex 2 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex 3 "gl_CullDistance"
+               OpName %_ ""
+               OpName %gl_PerVertex_0 "gl_PerVertex"
+               OpMemberName %gl_PerVertex_0 0 "gl_Position"
+               OpMemberName %gl_PerVertex_0 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex_0 2 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex_0 3 "gl_CullDistance"
+               OpName %gl_in "gl_in"
+               OpName %gl_Layer "gl_Layer"
+               OpName %layerIndex "layerIndex"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex 3 BuiltIn CullDistance
+               OpDecorate %gl_PerVertex_0 Block
+               OpMemberDecorate %gl_PerVertex_0 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex_0 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex_0 2 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex_0 3 BuiltIn CullDistance
+               OpDecorate %gl_Layer BuiltIn Layer
+               OpDecorate %layerIndex Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+      %int_0 = OpConstant %int 0
+      %int_3 = OpConstant %int 3
+       %bool = OpTypeBool
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_arr_float_uint_1 = OpTypeArray %float %uint_1
+%gl_PerVertex = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+%gl_PerVertex_0 = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+     %uint_3 = OpConstant %uint 3
+%_arr_gl_PerVertex_0_uint_3 = OpTypeArray %gl_PerVertex_0 %uint_3
+%_ptr_Input__arr_gl_PerVertex_0_uint_3 = OpTypePointer Input %_arr_gl_PerVertex_0_uint_3
+      %gl_in = OpVariable %_ptr_Input__arr_gl_PerVertex_0_uint_3 Input
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%_ptr_Output_int = OpTypePointer Output %int
+   %gl_Layer = OpVariable %_ptr_Output_int Output
+%_arr_int_uint_3 = OpTypeArray %int %uint_3
+%_ptr_Input__arr_int_uint_3 = OpTypePointer Input %_arr_int_uint_3
+ %layerIndex = OpVariable %_ptr_Input__arr_int_uint_3 Input
+%_ptr_Input_int = OpTypePointer Input %int
+      %int_1 = OpConstant %int 1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %i = OpVariable %_ptr_Function_int Function
+               OpStore %i %int_0
+               OpBranch %10
+         %10 = OpLabel
+               OpLoopMerge %12 %13 None
+               OpBranch %14
+         %14 = OpLabel
+         %15 = OpLoad %int %i
+         %18 = OpSLessThan %bool %15 %int_3
+               OpBranchConditional %18 %11 %12
+         %11 = OpLabel
+         %32 = OpLoad %int %i
+         %34 = OpAccessChain %_ptr_Input_v4float %gl_in %32 %int_0
+         %35 = OpLoad %v4float %34
+         %37 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %37 %35
+         %43 = OpLoad %int %i
+         %45 = OpAccessChain %_ptr_Input_int %layerIndex %43
+         %46 = OpLoad %int %45
+               OpStore %gl_Layer %46
+               OpEmitVertex
+               OpBranch %13
+         %13 = OpLabel
+         %47 = OpLoad %int %i
+         %49 = OpIAdd %int %47 %int_1
+               OpStore %i %49
+               OpBranch %10
+         %12 = OpLabel
+               OpEndPrimitive
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 46
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %gl_VertexIndex %_ %layerIndex %gl_InstanceIndex
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %pos "pos"
+               OpName %gl_VertexIndex "gl_VertexIndex"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex 2 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex 3 "gl_CullDistance"
+               OpName %_ ""
+               OpName %layerIndex "layerIndex"
+               OpName %gl_InstanceIndex "gl_InstanceIndex"
+               OpDecorate %gl_VertexIndex BuiltIn VertexIndex
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex 3 BuiltIn CullDistance
+               OpDecorate %layerIndex Location 0
+               OpDecorate %gl_InstanceIndex BuiltIn InstanceIndex
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v2float = OpTypeVector %float 2
+%_ptr_Function_v2float = OpTypePointer Function %v2float
+        %int = OpTypeInt 32 1
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_VertexIndex = OpVariable %_ptr_Input_int Input
+      %int_1 = OpConstant %int 1
+    %float_4 = OpConstant %float 4
+    %float_1 = OpConstant %float 1
+    %v4float = OpTypeVector %float 4
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_arr_float_uint_1 = OpTypeArray %float %uint_1
+%gl_PerVertex = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+      %int_0 = OpConstant %int 0
+    %float_0 = OpConstant %float 0
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%_ptr_Output_int = OpTypePointer Output %int
+ %layerIndex = OpVariable %_ptr_Output_int Output
+%gl_InstanceIndex = OpVariable %_ptr_Input_int Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+        %pos = OpVariable %_ptr_Function_v2float Function
+         %13 = OpLoad %int %gl_VertexIndex
+         %15 = OpBitwiseAnd %int %13 %int_1
+         %16 = OpConvertSToF %float %15
+         %17 = OpLoad %int %gl_VertexIndex
+         %18 = OpShiftRightArithmetic %int %17 %int_1
+         %19 = OpBitwiseAnd %int %18 %int_1
+         %20 = OpConvertSToF %float %19
+         %21 = OpCompositeConstruct %v2float %16 %20
+         %23 = OpVectorTimesScalar %v2float %21 %float_4
+         %25 = OpCompositeConstruct %v2float %float_1 %float_1
+         %26 = OpFSub %v2float %23 %25
+               OpStore %pos %26
+         %35 = OpLoad %v2float %pos
+         %37 = OpCompositeExtract %float %35 0
+         %38 = OpCompositeExtract %float %35 1
+         %39 = OpCompositeConstruct %v4float %37 %38 %float_0 %float_1
+         %41 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %41 %39
+         %45 = OpLoad %int %gl_InstanceIndex
+               OpStore %layerIndex %45
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 12
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %outColor
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %outColor "outColor"
+               OpDecorate %outColor Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %outColor = OpVariable %_ptr_Output_v4float Output
+    %float_1 = OpConstant %float 1
+         %11 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+               OpStore %outColor %11
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

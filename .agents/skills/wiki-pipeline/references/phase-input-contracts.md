@@ -79,4 +79,4 @@ Supply the audited Level-2 source and its exact target `vkcts-wiki-pages/categor
 
 ## Link conversion
 
-Run only after all translation outputs exist and pass structural and target-language checks. Follow wiki-publisher's link-conversion contract exactly. Convert each publishable file individually; never run conversion on `home.md`.
+Run only after all translation outputs exist and pass structural and target-language checks. Follow wiki-publisher's link-conversion contract exactly. Convert each publishable file individually; `home.md` remains outside publish scope.

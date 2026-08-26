@@ -115,8 +115,13 @@ All image types share common failure causes: unsupported sparse format propertie
 
 ## Case Pruning
 
+### Requirement-based pruning
+
 - `checkSupport()` prunes unsupported image sizes, image types, sparse formats, and the R64 atomic feature combination with `NotSupportedError`.
 - The generator prunes an image extent when its width or height is not a multiple of the format's required alignment. This prevents invalid YCbCr extent cases while retaining the registered matrix for compatible formats.
+
+### Design-based pruning
+
 - The test does not prune individual mip levels. It derives the mip count from image format properties and validates every resulting level.
 
 ## Key Takeaways

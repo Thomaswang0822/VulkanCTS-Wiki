@@ -88,61 +88,9 @@ This shader proves that `OpSGreaterThan` uses signed ordering even when its oper
 | Comparison | Executes `OpSGreaterThan %bool %23 %25`. | Forces signed interpretation of those 32-bit values. |
 | Encoding and store | `OpSelect` changes the Boolean to `%uint_1` or `%uint_0`, then stores through `%17`. | Produces a buffer value that Amber can compare directly. |
 
-#### Source Code
+#### Shader Code
 
-<details>
-<summary>Click to expand CTS-authored SPIR-V assembly for <code>uint_sgreaterthan</code></summary>
-
-```llvm
-               OpCapability Shader
-               OpMemoryModel Logical GLSL450
-               OpEntryPoint GLCompute %18 "main" %gl_GlobalInvocationID
-               OpExecutionMode %18 LocalSize 1 1 1
-               OpSource OpenCL_C 120
-               OpDecorate %_runtimearr_uint ArrayStride 4
-               OpMemberDecorate %_struct_3 0 Offset 0
-               OpDecorate %_struct_3 BufferBlock
-               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
-               OpDecorate %15 DescriptorSet 0
-               OpDecorate %15 Binding 0
-               OpDecorate %16 DescriptorSet 0
-               OpDecorate %16 Binding 1
-               OpDecorate %17 DescriptorSet 0
-               OpDecorate %17 Binding 2
-       %uint = OpTypeInt 32 0
-%_runtimearr_uint = OpTypeRuntimeArray %uint
-  %_struct_3 = OpTypeStruct %_runtimearr_uint
-%_ptr_Uniform__struct_3 = OpTypePointer Uniform %_struct_3
-       %void = OpTypeVoid
-          %6 = OpTypeFunction %void
-     %v3uint = OpTypeVector %uint 3
-%_ptr_Input_v3uint = OpTypePointer Input %v3uint
-%_ptr_Input_uint = OpTypePointer Input %uint
-%_ptr_Uniform_uint = OpTypePointer Uniform %uint
-       %bool = OpTypeBool
-     %uint_0 = OpConstant %uint 0
-     %uint_1 = OpConstant %uint 1
-%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
-         %15 = OpVariable %_ptr_Uniform__struct_3 Uniform
-         %16 = OpVariable %_ptr_Uniform__struct_3 Uniform
-         %17 = OpVariable %_ptr_Uniform__struct_3 Uniform
-         %18 = OpFunction %void None %6
-         %19 = OpLabel
-         %20 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
-         %21 = OpLoad %uint %20
-         %22 = OpAccessChain %_ptr_Uniform_uint %15 %uint_0 %21
-         %23 = OpLoad %uint %22
-         %24 = OpAccessChain %_ptr_Uniform_uint %16 %uint_0 %21
-         %25 = OpLoad %uint %24
-         %26 = OpSGreaterThan %bool %23 %25
-         %27 = OpSelect %uint %26 %uint_1 %uint_0
-         %28 = OpAccessChain %_ptr_Uniform_uint %17 %uint_0 %21
-               OpStore %28 %27
-               OpReturn
-               OpFunctionEnd
-```
-
-</details>
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -152,11 +100,78 @@ This shader proves that `OpSGreaterThan` uses signed ordering even when its oper
 
 #### Parameter Variation Summary
 
-| Parameter dimension | Change from the representative | Amber result effect |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|--------------------------------|---------------------|
-| Relation | Replaces `OpSGreaterThan` with `OpSGreaterThanEqual`, `OpSLessThan`, or `OpSLessThanEqual`. | Changes only which signed relation maps each pair to `0` or `1`. |
-| Equality handling | The two `Equal` opcodes accept equal input values; strict opcodes reject them. | Alters expected results at equal pairs such as `-7`/`-7` and `0`/`0`. |
-| SSBO layout and dispatch | Unchanged across all four files. | Every script has two input buffers, one output buffer, 16 elements, and `compute 16 1 1`. |
+| Relation | Replaces `OpSGreaterThan` with `OpSGreaterThanEqual`, `OpSLessThan`, or `OpSLessThanEqual`. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
+| Equality handling | The two `Equal` opcodes accept equal input values; strict opcodes reject them. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
+| SSBO layout and dispatch | Unchanged across all four files. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 29
+; Schema: 0
+               OpCapability Shader
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %1 "main" %gl_GlobalInvocationID
+               OpExecutionMode %1 LocalSize 1 1 1
+               OpSource OpenCL_C 120
+               OpDecorate %_runtimearr_uint ArrayStride 4
+               OpMemberDecorate %_struct_4 0 Offset 0
+               OpDecorate %_struct_4 BufferBlock
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %5 DescriptorSet 0
+               OpDecorate %5 Binding 0
+               OpDecorate %6 DescriptorSet 0
+               OpDecorate %6 Binding 1
+               OpDecorate %7 DescriptorSet 0
+               OpDecorate %7 Binding 2
+       %uint = OpTypeInt 32 0
+%_runtimearr_uint = OpTypeRuntimeArray %uint
+  %_struct_4 = OpTypeStruct %_runtimearr_uint
+%_ptr_Uniform__struct_4 = OpTypePointer Uniform %_struct_4
+       %void = OpTypeVoid
+         %11 = OpTypeFunction %void
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%_ptr_Input_uint = OpTypePointer Input %uint
+%_ptr_Uniform_uint = OpTypePointer Uniform %uint
+       %bool = OpTypeBool
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+          %5 = OpVariable %_ptr_Uniform__struct_4 Uniform
+          %6 = OpVariable %_ptr_Uniform__struct_4 Uniform
+          %7 = OpVariable %_ptr_Uniform__struct_4 Uniform
+          %1 = OpFunction %void None %11
+         %19 = OpLabel
+         %20 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %21 = OpLoad %uint %20
+         %22 = OpAccessChain %_ptr_Uniform_uint %5 %uint_0 %21
+         %23 = OpLoad %uint %22
+         %24 = OpAccessChain %_ptr_Uniform_uint %6 %uint_0 %21
+         %25 = OpLoad %uint %24
+         %26 = OpSGreaterThan %bool %23 %25
+         %27 = OpSelect %uint %26 %uint_1 %uint_0
+         %28 = OpAccessChain %_ptr_Uniform_uint %7 %uint_0 %21
+               OpStore %28 %27
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 
@@ -199,8 +214,13 @@ This shader proves that `OpSGreaterThan` uses signed ordering even when its oper
 
 ## Case Pruning
 
+### Requirement-based pruning
+
 - The source wraps test creation in `#ifndef CTS_USES_VULKANSC`; these four leaves are therefore registered only in non-VulkanSC builds.
 - No special Vulkan extension or feature request is added by `vktSpvAsmSignedIntCompareTests.cpp`.
+
+### Design-based pruning
+
 - The commented-out `foo` case in the C++ `cases` array is intentionally not a registered leaf and is not part of this page's hierarchy.
 - The Amber files use 32-bit storage and `LocalSize 1 1 1`; there are no width, vector, graphics-stage, or multi-workgroup variants in this family.
 

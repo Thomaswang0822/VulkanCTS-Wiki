@@ -101,7 +101,214 @@ The non-zero `outputOffset` deliberately exercises offset-aware barrier scoping.
 
 ## Shader Analysis
 
-Shader code is not part of the tested behavior. The vertex/fragment shaders used by the three binding-command leaves are trivial position-passthrough and constant-red shaders; the compute shaders used by the memory-range-barrier leaf write `v[i] = i` and add 3 per element. These leaves validate device-address command behavior, not shader logic. No representative shader walkthrough is included.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.api.device_address.misc.memory_range_barrier
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `MEMORY_RANGE_BARRIER` | Selects the address-scoped synchronization leaf and its two compute stages, `comp0` and `comp1`. |
+| `groupCount = 16`, `outputOffset = 16`, `outputSize = 64` | The producer and consumer each cover 16 `uint` elements, while the barrier begins at a deliberately non-zero buffer offset. |
+| First dispatch `(16, 1, 1)`; second dispatch `(1, 16, 1)` | `comp0` indexes `gl_WorkGroupID.x`, while `comp1` indexes `gl_WorkGroupID.y`, so both stages visit the same 16-element range. |
+
+#### Purpose
+
+This representative tests whether an address-scoped `VkMemoryRangeBarrierKHR` makes the first compute dispatch's storage writes visible to the second dispatch's storage reads over the exact `{outputBufferAddress + outputOffset, outputSize}` range. The host expects the producer's `v[i] = i` values to become `i + 3` after the consumer dispatch.
+
+#### Structural Design
+
+| Phase | Dispatch geometry | Shader access | Synchronization or observation |
+|-------|-------------------|---------------|--------------------------------|
+| Produce | `vkCmdDispatch(16, 1, 1)` | `comp0`: write `v[gl_WorkGroupID.x] = gl_WorkGroupID.x` | `VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT` is the source access of the address-range barrier. |
+| Consume | `vkCmdDispatch(1, 16, 1)` | `comp1`: read, add 3, and write `v[gl_WorkGroupID.y]` | The barrier makes the producer writes visible as shader-storage reads. |
+| Host check | CPU reads the 16 `uint` values at offset 16 | Requires `bufferPtr[i] == i + 3` | A second barrier changes the destination access to `VK_ACCESS_2_HOST_READ_BIT_KHR`. |
+
+#### Shader Code
+
+##### Producer (`comp0`) Shader
+
+```glsl
+#version 450
+/// One invocation per x workgroup writes its index into the address-ranged buffer.
+layout (local_size_x = 1) in;
+/// The host descriptor binds the 64-byte output range at binding 0 with a 16-byte buffer offset.
+layout(binding = 0) writeonly buffer Output {
+    uint v[];
+};
+void main (void) {
+    v[gl_WorkGroupID.x] = gl_WorkGroupID.x;
+}
+```
+
+##### Consumer (`comp1`) Shader
+
+```glsl
+#version 450
+/// One invocation per y workgroup reads the producer result and adds the expected increment.
+layout (local_size_x = 1) in;
+/// This read/write declaration consumes the same binding-0 range after the memory-range barrier.
+layout(binding = 0) buffer Output {
+    uint v[];
+};
+void main (void) {
+    v[gl_WorkGroupID.y] += 3;
+}
+```
+
+#### Additional Info
+
+- `BufferAddressCommandTestCase::initPrograms()` emits `comp0` and `comp1` only for `MEMORY_RANGE_BARRIER`; the host creates both compute pipelines from those named modules ([`initPrograms()`](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L865-L910), [`iterate()`](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L750-L756)).
+- The descriptor is binding 0 and covers `outputOffset = 16` through `outputSize = 64`; the shaders therefore use a runtime array whose index 0 corresponds to the offset range, not the beginning of the allocation ([`iterate()`](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L720-L743)).
+- The producer uses `gl_WorkGroupID.x` because its dispatch varies x, whereas the consumer uses `gl_WorkGroupID.y` because its dispatch varies y; this is a deliberate host/shader geometry pairing ([`iterate()`](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L780-L794)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Test leaf / mode | Only `MEMORY_RANGE_BARRIER` emits `comp0` and `comp1`; the vertex/index leaves emit `vert` and `frag`, while the copy leaves emit no shader source in this builder. | [`initPrograms()`](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L865-L910) |
+| Dispatch geometry | The two fixed dispatch shapes select the work-group coordinate used by each stage: x for `comp0`, y for `comp1`; changing the geometry without changing the shader index would alter coverage. | [`iterate()`](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L718-L723), [`iterate()`](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L782-L789) |
+| Output range | The shader declarations stay fixed, while host-side `outputOffset` and `outputSize` determine which descriptor/barrier range the runtime array addresses. | [`iterate()`](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L720-L743), [`iterate()`](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L758-L767) |
+
+#### SPIR-V
+
+##### Producer (`comp0`) Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 26
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_WorkGroupID
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %Output "Output"
+               OpMemberName %Output 0 "v"
+               OpName %_ ""
+               OpName %gl_WorkGroupID "gl_WorkGroupID"
+               OpDecorate %_runtimearr_uint ArrayStride 4
+               OpDecorate %Output BufferBlock
+               OpMemberDecorate %Output 0 NonReadable
+               OpMemberDecorate %Output 0 Offset 0
+               OpDecorate %_ NonReadable
+               OpDecorate %_ Binding 0
+               OpDecorate %_ DescriptorSet 0
+               OpDecorate %gl_WorkGroupID BuiltIn WorkgroupId
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_runtimearr_uint = OpTypeRuntimeArray %uint
+     %Output = OpTypeStruct %_runtimearr_uint
+%_ptr_Uniform_Output = OpTypePointer Uniform %Output
+          %_ = OpVariable %_ptr_Uniform_Output Uniform
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_WorkGroupID = OpVariable %_ptr_Input_v3uint Input
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_uint = OpTypePointer Input %uint
+%_ptr_Uniform_uint = OpTypePointer Uniform %uint
+     %uint_1 = OpConstant %uint 1
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %18 = OpAccessChain %_ptr_Input_uint %gl_WorkGroupID %uint_0
+         %19 = OpLoad %uint %18
+         %20 = OpAccessChain %_ptr_Input_uint %gl_WorkGroupID %uint_0
+         %21 = OpLoad %uint %20
+         %23 = OpAccessChain %_ptr_Uniform_uint %_ %int_0 %19
+               OpStore %23 %21
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Consumer (`comp1`) Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 27
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_WorkGroupID
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %Output "Output"
+               OpMemberName %Output 0 "v"
+               OpName %_ ""
+               OpName %gl_WorkGroupID "gl_WorkGroupID"
+               OpDecorate %_runtimearr_uint ArrayStride 4
+               OpDecorate %Output BufferBlock
+               OpMemberDecorate %Output 0 Offset 0
+               OpDecorate %_ Binding 0
+               OpDecorate %_ DescriptorSet 0
+               OpDecorate %gl_WorkGroupID BuiltIn WorkgroupId
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_runtimearr_uint = OpTypeRuntimeArray %uint
+     %Output = OpTypeStruct %_runtimearr_uint
+%_ptr_Uniform_Output = OpTypePointer Uniform %Output
+          %_ = OpVariable %_ptr_Uniform_Output Uniform
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_WorkGroupID = OpVariable %_ptr_Input_v3uint Input
+     %uint_1 = OpConstant %uint 1
+%_ptr_Input_uint = OpTypePointer Input %uint
+     %uint_3 = OpConstant %uint 3
+%_ptr_Uniform_uint = OpTypePointer Uniform %uint
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %18 = OpAccessChain %_ptr_Input_uint %gl_WorkGroupID %uint_1
+         %19 = OpLoad %uint %18
+         %22 = OpAccessChain %_ptr_Uniform_uint %_ %int_0 %19
+         %23 = OpLoad %uint %22
+         %24 = OpIAdd %uint %23 %uint_3
+         %25 = OpAccessChain %_ptr_Uniform_uint %_ %int_0 %19
+               OpStore %25 %24
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

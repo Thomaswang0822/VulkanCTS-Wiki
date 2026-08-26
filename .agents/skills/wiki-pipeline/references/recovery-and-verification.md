@@ -87,8 +87,7 @@ After conversion:
 
 - converter succeeds separately for every published page;
 - check mode reports no remaining changes;
-- source-code and mustpass links resolve to the expected publication URLs without translated path segments;
-- `home.md` has the correct extensionless category link and was not passed through the converter.
+- source-code and mustpass links resolve to the expected publication URLs without translated path segments.
 
 ## Checklist reconciliation
 

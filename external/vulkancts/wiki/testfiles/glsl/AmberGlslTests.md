@@ -54,11 +54,352 @@ Both graphics scripts declare `Bar` with two scalar members and a two-element ar
 
 ## Shader Analysis
 
-Amber scripts store their GLSL directly rather than generating it from a CTS builder function. The page therefore uses the script-level behavior as its shader evidence instead of a reconstructed generated-shader walkthrough.
+Amber keeps the GLSL source in the `.amber` recipe. The representative case below is the compute variant of `crash_test`, whose shader is compiled by `AmberTestCase::initPrograms()` with the recipe's default `spv1.0` target (`SPIRV_VERSION_1_0`) and then executed by Amber. The source, registration, mustpass entry, and generated SPIR-V all describe the same case.
 
-- In `notxor`, the fragment shader receives two `uint` values through a push-constant block and writes the complement of their XOR to the color attachment. The selected constants make all channels of the expected `B8G8R8A8_UNORM` framebuffer white. [`notxor.amber`](../../../data/vulkan/amber/combined_operations/notxor.amber#L20-L50)
-- In the SSBO-backed `crash_test` stages, the risky expressions precede `ssbo.data[0] = 42`. The sentinel makes the check independent of each unspecified result while showing that shader execution reached the final store. [`divbyzero_vert.amber`](../../../data/vulkan/amber/crash_test/divbyzero_vert.amber#L17-L106)
-- In `initialized_struct`, the vertex shader writes the aggregate-initialized local struct through a `std430` storage-buffer declaration. The fragment shader only supplies a color output for the graphics pipeline and does not participate in the buffer check. [`initialized_struct.amber`](../../../data/vulkan/amber/logical_copy/initialized_struct.amber#L17-L59)
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.glsl.crash_test.divbyzero_comp
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `crash_test` | Selects the family that exercises zero-divisor and zero-length calculations for completion, not for a portable numeric result. |
+| `divbyzero_comp` | Selects the compute-stage recipe: one `local_size` 1 workgroup reads zero from an SSBO, performs the complete scalar/vector operation matrix, then writes the completion sentinel `42`. |
+| Default Amber shader target | The recipe has no `TARGET_ENV`; `AmberTestCase::initPrograms()` therefore leaves `spirvVersion` at `SPIRV_VERSION_1_0`, which is the target used for the canonical disassembly below. |
+
+#### Purpose
+
+This shader checks that Vulkan execution survives integer and floating-point division, normalization, modulo, `smoothstep`, and two-argument `atan` when their divisor or input length is zero. The pass signal is the final `ssbo.data[0] = 42` store, not any value produced by the unspecified operations.
+
+#### Structural Design
+
+| Phase | Shader-visible operation | Observable role |
+|---|---|---|
+| Initialization | Load `ssbo.data[0]` and convert it from `int` to `float`. | The recipe initializes the SSBO element to zero, so `ival == 0` and `val == 0.0`. |
+| Operation matrix | Write results of scalar and vector forms of division, `normalize`, `mod`, `smoothstep`, and `atan(7, value)` to `ssbo.data[1..19]`. | Exercises explicit and implied zero-division paths without comparing those result slots. |
+| Completion | Store `42` to `ssbo.data[0]`. | Proves that execution reached the known-good store. |
+| Host check | Dispatch `1 1 1`, then run `EXPECT ssbo_buffer IDX 0 EQ 42`. | Converts completion into the Amber/CTS pass condition. |
+
+#### Shader Code
+
+```glsl
+#version 450
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+/// The SSBO is descriptor set 0, binding 0. Its first element is the zero
+/// input; the remaining elements receive the operation results.
+layout(binding = 0) buffer block0
+{
+    int data[20];
+} ssbo;
+
+void main()
+{
+  // Zero constants
+  int ival = ssbo.data[0];
+  float val = float(ival);
+
+  /// Each assignment deliberately covers one scalar or vector form. The
+  /// recipe does not compare these intermediate values because zero-divisor
+  /// results are unspecified.
+  // int div
+  ssbo.data[1] = 7 / ival;
+  // float div
+  ssbo.data[2] = int(7.0 / val);
+  // normalize float
+  ssbo.data[3] = int(normalize(val));
+  // normalize vec2
+  ssbo.data[4] = int(normalize(vec2(val))[ival]);
+  // normalize vec3
+  ssbo.data[5] = int(normalize(vec3(val))[ival]);
+  // normalize vec4
+  ssbo.data[6] = int(normalize(vec4(val))[ival]);
+  // integer mod
+  ssbo.data[7] = 7 % ival;
+  // float mod
+  ssbo.data[8] = int(mod(7.0, val));
+  // vec2 mod
+  ssbo.data[9] = int(mod(vec2(7.0), vec2(val))[ival]);
+  // vec3 mod
+  ssbo.data[10] = int(mod(vec3(7.0), vec3(val))[ival]);
+  // vec4 mod
+  ssbo.data[11] = int(mod(vec4(7.0), vec4(val))[ival]);
+  // float smoothstep
+  ssbo.data[12] = int(smoothstep(val, val, 0.3));
+  // vec2 smoothstep
+  ssbo.data[13] = int(smoothstep(vec2(val), vec2(val), vec2(0.3))[ival]);
+  // vec3 smoothstep
+  ssbo.data[14] = int(smoothstep(vec3(val), vec3(val), vec3(0.3))[ival]);
+  // vec4 smoothstep
+  ssbo.data[15] = int(smoothstep(vec4(val), vec4(val), vec4(0.3))[ival]);
+  // float atan2
+  ssbo.data[16] = int(atan(7.0, val));
+  // vec2 atan2
+  ssbo.data[17] = int(atan(vec2(7.0), vec2(val))[ival]);
+  // vec3 atan2
+  ssbo.data[18] = int(atan(vec3(7.0), vec3(val))[ival]);
+  // vec4 atan2
+  ssbo.data[19] = int(atan(vec4(7.0), vec4(val))[ival]);
+
+  // Known good value
+  ssbo.data[0] = 42;
+}
+```
+
+#### Additional Info
+
+- The exact Amber recipe initializes all 20 `int32` elements to zero, binds `ssbo_buffer` as storage at descriptor set 0/binding 0, dispatches one workgroup, and checks only index 0. [`divbyzero_comp.amber`](../../../data/vulkan/amber/crash_test/divbyzero_comp.amber#L16-L87)
+- The C++ registration supplies no extra CTS-side feature requirement for `divbyzero_comp`; the mustpass list contains the exact leaf `dEQP-VK.glsl.crash_test.divbyzero_comp`. [`vktAmberGlslTests.cpp`](../../../modules/vulkan/amber/vktAmberGlslTests.cpp#L62-L76) and [`glsl.txt`](../../../mustpass/main/vk-default/glsl.txt#L5244-L5249)
+- `AmberTestCase::initPrograms()` wraps this source in `glu::ComputeSource` and uses the parsed target environment, defaulting to SPIR-V 1.0 when the Amber shader has no explicit target. [`vktAmberTestCase.cpp`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L435-L475)
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| `crash_test` stage | The same operation matrix is placed in vertex, tessellation-control, tessellation-evaluation, geometry, fragment, or compute shaders; the compute case uses `local_size = 1,1,1` and a single dispatch. | [`crash_test` recipes](../../../data/vulkan/amber/crash_test) |
+| Operation form | `divbyzero_comp` includes scalar and vector forms of division, normalization, modulo, `smoothstep`, and `atan`; the fragment recipe instead sweeps zero divisors over `gl_FragCoord` and preserves a known red pixel. | [`divbyzero_comp.amber`](../../../data/vulkan/amber/crash_test/divbyzero_comp.amber#L27-L72) and [`divbyzero_frag.amber`](../../../data/vulkan/amber/crash_test/divbyzero_frag.amber#L25-L136) |
+| Shader target environment | No explicit `TARGET_ENV` in this recipe selects the C++ default SPIR-V 1.0 path; other Amber recipes can override the parsed target. | [`vktAmberTestCase.cpp`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L442-L455) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 176
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %ival "ival"
+               OpName %block0 "block0"
+               OpMemberName %block0 0 "data"
+               OpName %ssbo "ssbo"
+               OpName %val "val"
+               OpDecorate %_arr_int_uint_20 ArrayStride 4
+               OpDecorate %block0 BufferBlock
+               OpMemberDecorate %block0 0 Offset 0
+               OpDecorate %ssbo Binding 0
+               OpDecorate %ssbo DescriptorSet 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+       %uint = OpTypeInt 32 0
+    %uint_20 = OpConstant %uint 20
+%_arr_int_uint_20 = OpTypeArray %int %uint_20
+     %block0 = OpTypeStruct %_arr_int_uint_20
+%_ptr_Uniform_block0 = OpTypePointer Uniform %block0
+       %ssbo = OpVariable %_ptr_Uniform_block0 Uniform
+      %int_0 = OpConstant %int 0
+%_ptr_Uniform_int = OpTypePointer Uniform %int
+      %float = OpTypeFloat 32
+%_ptr_Function_float = OpTypePointer Function %float
+      %int_1 = OpConstant %int 1
+      %int_7 = OpConstant %int 7
+      %int_2 = OpConstant %int 2
+    %float_7 = OpConstant %float 7
+      %int_3 = OpConstant %int 3
+      %int_4 = OpConstant %int 4
+    %v2float = OpTypeVector %float 2
+      %int_5 = OpConstant %int 5
+    %v3float = OpTypeVector %float 3
+      %int_6 = OpConstant %int 6
+    %v4float = OpTypeVector %float 4
+      %int_8 = OpConstant %int 8
+      %int_9 = OpConstant %int 9
+         %76 = OpConstantComposite %v2float %float_7 %float_7
+     %int_10 = OpConstant %int 10
+         %85 = OpConstantComposite %v3float %float_7 %float_7 %float_7
+     %int_11 = OpConstant %int 11
+         %94 = OpConstantComposite %v4float %float_7 %float_7 %float_7 %float_7
+     %int_12 = OpConstant %int 12
+%float_0_300000012 = OpConstant %float 0.300000012
+     %int_13 = OpConstant %int 13
+        %114 = OpConstantComposite %v2float %float_0_300000012 %float_0_300000012
+     %int_14 = OpConstant %int 14
+        %125 = OpConstantComposite %v3float %float_0_300000012 %float_0_300000012 %float_0_300000012
+     %int_15 = OpConstant %int 15
+        %136 = OpConstantComposite %v4float %float_0_300000012 %float_0_300000012 %float_0_300000012 %float_0_300000012
+     %int_16 = OpConstant %int 16
+     %int_17 = OpConstant %int 17
+     %int_18 = OpConstant %int 18
+     %int_19 = OpConstant %int 19
+     %int_42 = OpConstant %int 42
+     %v3uint = OpTypeVector %uint 3
+     %uint_1 = OpConstant %uint 1
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+       %ival = OpVariable %_ptr_Function_int Function
+        %val = OpVariable %_ptr_Function_float Function
+         %17 = OpAccessChain %_ptr_Uniform_int %ssbo %int_0 %int_0
+         %18 = OpLoad %int %17
+               OpStore %ival %18
+         %22 = OpLoad %int %ival
+         %23 = OpConvertSToF %float %22
+               OpStore %val %23
+         %26 = OpLoad %int %ival
+         %27 = OpSDiv %int %int_7 %26
+         %28 = OpAccessChain %_ptr_Uniform_int %ssbo %int_0 %int_1
+               OpStore %28 %27
+         %31 = OpLoad %float %val
+         %32 = OpFDiv %float %float_7 %31
+         %33 = OpConvertFToS %int %32
+         %34 = OpAccessChain %_ptr_Uniform_int %ssbo %int_0 %int_2
+               OpStore %34 %33
+         %36 = OpLoad %float %val
+         %37 = OpExtInst %float %1 Normalize %36
+         %38 = OpConvertFToS %int %37
+         %39 = OpAccessChain %_ptr_Uniform_int %ssbo %int_0 %int_3
+               OpStore %39 %38
+         %41 = OpLoad %float %val
+         %43 = OpCompositeConstruct %v2float %41 %41
+         %44 = OpExtInst %v2float %1 Normalize %43
+         %45 = OpLoad %int %ival
+         %46 = OpVectorExtractDynamic %float %44 %45
+         %47 = OpConvertFToS %int %46
+         %48 = OpAccessChain %_ptr_Uniform_int %ssbo %int_0 %int_4
+               OpStore %48 %47
+         %50 = OpLoad %float %val
+         %52 = OpCompositeConstruct %v3float %50 %50 %50
+         %53 = OpExtInst %v3float %1 Normalize %52
+         %54 = OpLoad %int %ival
+         %55 = OpVectorExtractDynamic %float %53 %54
+         %56 = OpConvertFToS %int %55
+         %57 = OpAccessChain %_ptr_Uniform_int %ssbo %int_0 %int_5
+               OpStore %57 %56
+         %59 = OpLoad %float %val
+         %61 = OpCompositeConstruct %v4float %59 %59 %59 %59
+         %62 = OpExtInst %v4float %1 Normalize %61
+         %63 = OpLoad %int %ival
+         %64 = OpVectorExtractDynamic %float %62 %63
+         %65 = OpConvertFToS %int %64
+         %66 = OpAccessChain %_ptr_Uniform_int %ssbo %int_0 %int_6
+               OpStore %66 %65
+         %67 = OpLoad %int %ival
+         %68 = OpSMod %int %int_7 %67
+         %69 = OpAccessChain %_ptr_Uniform_int %ssbo %int_0 %int_7
+               OpStore %69 %68
+         %71 = OpLoad %float %val
+         %72 = OpFMod %float %float_7 %71
+         %73 = OpConvertFToS %int %72
+         %74 = OpAccessChain %_ptr_Uniform_int %ssbo %int_0 %int_8
+               OpStore %74 %73
+         %77 = OpLoad %float %val
+         %78 = OpCompositeConstruct %v2float %77 %77
+         %79 = OpFMod %v2float %76 %78
+         %80 = OpLoad %int %ival
+         %81 = OpVectorExtractDynamic %float %79 %80
+         %82 = OpConvertFToS %int %81
+         %83 = OpAccessChain %_ptr_Uniform_int %ssbo %int_0 %int_9
+               OpStore %83 %82
+         %86 = OpLoad %float %val
+         %87 = OpCompositeConstruct %v3float %86 %86 %86
+         %88 = OpFMod %v3float %85 %87
+         %89 = OpLoad %int %ival
+         %90 = OpVectorExtractDynamic %float %88 %89
+         %91 = OpConvertFToS %int %90
+         %92 = OpAccessChain %_ptr_Uniform_int %ssbo %int_0 %int_10
+               OpStore %92 %91
+         %95 = OpLoad %float %val
+         %96 = OpCompositeConstruct %v4float %95 %95 %95 %95
+         %97 = OpFMod %v4float %94 %96
+         %98 = OpLoad %int %ival
+         %99 = OpVectorExtractDynamic %float %97 %98
+        %100 = OpConvertFToS %int %99
+        %101 = OpAccessChain %_ptr_Uniform_int %ssbo %int_0 %int_11
+               OpStore %101 %100
+        %103 = OpLoad %float %val
+        %104 = OpLoad %float %val
+        %106 = OpExtInst %float %1 SmoothStep %103 %104 %float_0_300000012
+        %107 = OpConvertFToS %int %106
+        %108 = OpAccessChain %_ptr_Uniform_int %ssbo %int_0 %int_12
+               OpStore %108 %107
+        %110 = OpLoad %float %val
+        %111 = OpCompositeConstruct %v2float %110 %110
+        %112 = OpLoad %float %val
+        %113 = OpCompositeConstruct %v2float %112 %112
+        %115 = OpExtInst %v2float %1 SmoothStep %111 %113 %114
+        %116 = OpLoad %int %ival
+        %117 = OpVectorExtractDynamic %float %115 %116
+        %118 = OpConvertFToS %int %117
+        %119 = OpAccessChain %_ptr_Uniform_int %ssbo %int_0 %int_13
+               OpStore %119 %118
+        %121 = OpLoad %float %val
+        %122 = OpCompositeConstruct %v3float %121 %121 %121
+        %123 = OpLoad %float %val
+        %124 = OpCompositeConstruct %v3float %123 %123 %123
+        %126 = OpExtInst %v3float %1 SmoothStep %122 %124 %125
+        %127 = OpLoad %int %ival
+        %128 = OpVectorExtractDynamic %float %126 %127
+        %129 = OpConvertFToS %int %128
+        %130 = OpAccessChain %_ptr_Uniform_int %ssbo %int_0 %int_14
+               OpStore %130 %129
+        %132 = OpLoad %float %val
+        %133 = OpCompositeConstruct %v4float %132 %132 %132 %132
+        %134 = OpLoad %float %val
+        %135 = OpCompositeConstruct %v4float %134 %134 %134 %134
+        %137 = OpExtInst %v4float %1 SmoothStep %133 %135 %136
+        %138 = OpLoad %int %ival
+        %139 = OpVectorExtractDynamic %float %137 %138
+        %140 = OpConvertFToS %int %139
+        %141 = OpAccessChain %_ptr_Uniform_int %ssbo %int_0 %int_15
+               OpStore %141 %140
+        %143 = OpLoad %float %val
+        %144 = OpExtInst %float %1 Atan2 %float_7 %143
+        %145 = OpConvertFToS %int %144
+        %146 = OpAccessChain %_ptr_Uniform_int %ssbo %int_0 %int_16
+               OpStore %146 %145
+        %148 = OpLoad %float %val
+        %149 = OpCompositeConstruct %v2float %148 %148
+        %150 = OpExtInst %v2float %1 Atan2 %76 %149
+        %151 = OpLoad %int %ival
+        %152 = OpVectorExtractDynamic %float %150 %151
+        %153 = OpConvertFToS %int %152
+        %154 = OpAccessChain %_ptr_Uniform_int %ssbo %int_0 %int_17
+               OpStore %154 %153
+        %156 = OpLoad %float %val
+        %157 = OpCompositeConstruct %v3float %156 %156 %156
+        %158 = OpExtInst %v3float %1 Atan2 %85 %157
+        %159 = OpLoad %int %ival
+        %160 = OpVectorExtractDynamic %float %158 %159
+        %161 = OpConvertFToS %int %160
+        %162 = OpAccessChain %_ptr_Uniform_int %ssbo %int_0 %int_18
+               OpStore %162 %161
+        %164 = OpLoad %float %val
+        %165 = OpCompositeConstruct %v4float %164 %164 %164 %164
+        %166 = OpExtInst %v4float %1 Atan2 %94 %165
+        %167 = OpLoad %int %ival
+        %168 = OpVectorExtractDynamic %float %166 %167
+        %169 = OpConvertFToS %int %168
+        %170 = OpAccessChain %_ptr_Uniform_int %ssbo %int_0 %int_19
+               OpStore %170 %169
+        %172 = OpAccessChain %_ptr_Uniform_int %ssbo %int_0 %int_0
+               OpStore %172 %int_42
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

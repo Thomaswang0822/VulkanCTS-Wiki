@@ -55,7 +55,7 @@ Both Amber scripts embed the same compute shader; the only difference is the sin
 Representative path:
 
 ```text
-spirv_assembly.instruction.compute.ptr_access_chain.workgroup
+dEQP-VK.spirv_assembly.instruction.compute.ptr_access_chain.workgroup
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -91,92 +91,9 @@ flowchart TD
     K --> L[Host: probe C ==<br/>1 2 3 ... 15 0]
 ```
 
-#### Source Code
+#### Shader Code
 
-The SPIR-V assembly below is the literal contents of `workgroup.amber` between `[compute shader spirv]` and `[test]`. It is test data, not reconstructed source, so it is shown verbatim.
-
-```llvm
-               OpCapability Shader
-               OpCapability VariablePointers
-			   OpCapability WorkgroupMemoryExplicitLayoutKHR
-               OpExtension "SPV_KHR_storage_buffer_storage_class"
-               OpExtension "SPV_KHR_variable_pointers"
-			   OpExtension "SPV_KHR_workgroup_memory_explicit_layout"
-               OpMemoryModel Logical GLSL450
-               OpEntryPoint GLCompute %30 "main" %gl_LocalInvocationID %20 %22 %23 %24
-               OpExecutionMode %30 LocalSize 16 1 1
-               OpSource OpenCL_C 120
-               OpDecorate %_runtimearr_uint ArrayStride 4
-               OpMemberDecorate %_struct_3 0 Offset 0
-               OpDecorate %_struct_3 Block
-               OpDecorate %gl_LocalInvocationID BuiltIn LocalInvocationId
-               OpDecorate %22 DescriptorSet 0
-               OpDecorate %22 Binding 0
-               OpDecorate %23 DescriptorSet 0
-               OpDecorate %23 Binding 1
-               OpDecorate %24 DescriptorSet 0
-               OpDecorate %24 Binding 2
-               OpDecorate %_arr_uint_uint_17 ArrayStride 4
-               OpDecorate %_ptr_Workgroup_uint ArrayStride 4
-       %uint = OpTypeInt 32 0
-%_runtimearr_uint = OpTypeRuntimeArray %uint
-  %_struct_3 = OpTypeStruct %_runtimearr_uint
-%_ptr_StorageBuffer__struct_3 = OpTypePointer StorageBuffer %_struct_3
-%_ptr_Workgroup_uint = OpTypePointer Workgroup %uint
-          %6 = OpTypeFunction %uint %_ptr_Workgroup_uint
-       %void = OpTypeVoid
-          %8 = OpTypeFunction %void
-     %v3uint = OpTypeVector %uint 3
-%_ptr_Input_v3uint = OpTypePointer Input %v3uint
-%_ptr_Input_uint = OpTypePointer Input %uint
-%_ptr_StorageBuffer_uint = OpTypePointer StorageBuffer %uint
-    %uint_17 = OpConstant %uint 17
-%_arr_uint_uint_17 = OpTypeArray %uint %uint_17
-%_ptr_Workgroup__arr_uint_uint_17 = OpTypePointer Workgroup %_arr_uint_uint_17
-       %bool = OpTypeBool
-     %uint_1 = OpConstant %uint 1
-     %uint_2 = OpConstant %uint 2
-     %uint_0 = OpConstant %uint 0
-    %uint_16 = OpConstant %uint 16
-   %uint_264 = OpConstant %uint 264
-         %20 = OpVariable %_ptr_Workgroup__arr_uint_uint_17 Workgroup
-%gl_LocalInvocationID = OpVariable %_ptr_Input_v3uint Input
-         %22 = OpVariable %_ptr_StorageBuffer__struct_3 StorageBuffer
-         %23 = OpVariable %_ptr_StorageBuffer__struct_3 StorageBuffer
-         %24 = OpVariable %_ptr_StorageBuffer__struct_3 StorageBuffer
-         %25 = OpFunction %uint Pure %6
-         %26 = OpFunctionParameter %_ptr_Workgroup_uint
-         %27 = OpLabel
-         %28 = OpPtrAccessChain %_ptr_Workgroup_uint %26 %uint_1
-         %29 = OpLoad %uint %28
-               OpReturnValue %29
-               OpFunctionEnd
-         %30 = OpFunction %void None %8
-         %31 = OpLabel
-         %32 = OpAccessChain %_ptr_Input_uint %gl_LocalInvocationID %uint_0
-         %33 = OpLoad %uint %32
-         %34 = OpAccessChain %_ptr_StorageBuffer_uint %22 %uint_0 %33
-         %35 = OpLoad %uint %34
-         %36 = OpAccessChain %_ptr_StorageBuffer_uint %23 %uint_0 %33
-         %37 = OpLoad %uint %36
-         %38 = OpIMul %uint %37 %35
-         %39 = OpAccessChain %_ptr_Workgroup_uint %20 %33
-               OpStore %39 %38
-         %40 = OpIEqual %bool %33 %uint_0
-               OpSelectionMerge %43 None
-               OpBranchConditional %40 %41 %43
-         %41 = OpLabel
-         %42 = OpAccessChain %_ptr_Workgroup_uint %20 %uint_16
-               OpStore %42 %uint_0
-               OpBranch %43
-         %43 = OpLabel
-               OpControlBarrier %uint_2 %uint_1 %uint_264
-         %44 = OpFunctionCall %uint %25 %39
-         %45 = OpAccessChain %_ptr_StorageBuffer_uint %24 %uint_0 %33
-               OpStore %45 %44
-               OpReturn
-               OpFunctionEnd
-```
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -190,13 +107,110 @@ The SPIR-V assembly below is the literal contents of `workgroup.amber` between `
 
 #### Parameter Variation Summary
 
-The `workgroup_bad_stride` case shares the entire shader body, descriptor layout, workgroup array, control barrier, and probe with the `workgroup` case. The only difference is the single decoration line:
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---|---|---|
+| Variation 1 | The `workgroup_bad_stride` case shares the entire shader body, descriptor layout, workgroup array, control barrier, and probe with the `workgroup` case. The only difference is the single decoration line:  ```text OpDecorate %_ptr_Workgroup_uint ArrayStride 8   ; workgroup_bad_stride only ```  The header comment in `workgroup_bad_stride.amber` records the intended comparison: its added `ArrayStride 8` should be ignored and should give the same results as `ArrayStride == 4`. Accordingly, its expected probe output is identical to the baseline: `1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 0`. That is the CTS-script expectation being exercised here, not proof that the decoration is normatively ignored; the applicable SPIR-V 1.4 plus workgroup-explicit-layout rule says the Base type's stride is used for explicitly laid-out Workgroup objects. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
 
-```text
-OpDecorate %_ptr_Workgroup_uint ArrayStride 8   ; workgroup_bad_stride only
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 48
+; Schema: 0
+               OpCapability Shader
+               OpCapability VariablePointers
+               OpCapability WorkgroupMemoryExplicitLayoutKHR
+               OpExtension "SPV_KHR_storage_buffer_storage_class"
+               OpExtension "SPV_KHR_variable_pointers"
+               OpExtension "SPV_KHR_workgroup_memory_explicit_layout"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %1 "main" %gl_LocalInvocationID %3 %4 %5 %6
+               OpExecutionMode %1 LocalSize 16 1 1
+               OpSource OpenCL_C 120
+               OpDecorate %_runtimearr_uint ArrayStride 4
+               OpMemberDecorate %_struct_8 0 Offset 0
+               OpDecorate %_struct_8 Block
+               OpDecorate %gl_LocalInvocationID BuiltIn LocalInvocationId
+               OpDecorate %4 DescriptorSet 0
+               OpDecorate %4 Binding 0
+               OpDecorate %5 DescriptorSet 0
+               OpDecorate %5 Binding 1
+               OpDecorate %6 DescriptorSet 0
+               OpDecorate %6 Binding 2
+               OpDecorate %_arr_uint_uint_17 ArrayStride 4
+               OpDecorate %_ptr_Workgroup_uint ArrayStride 4
+       %uint = OpTypeInt 32 0
+%_runtimearr_uint = OpTypeRuntimeArray %uint
+  %_struct_8 = OpTypeStruct %_runtimearr_uint
+%_ptr_StorageBuffer__struct_8 = OpTypePointer StorageBuffer %_struct_8
+%_ptr_Workgroup_uint = OpTypePointer Workgroup %uint
+         %13 = OpTypeFunction %uint %_ptr_Workgroup_uint
+       %void = OpTypeVoid
+         %15 = OpTypeFunction %void
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%_ptr_Input_uint = OpTypePointer Input %uint
+%_ptr_StorageBuffer_uint = OpTypePointer StorageBuffer %uint
+    %uint_17 = OpConstant %uint 17
+%_arr_uint_uint_17 = OpTypeArray %uint %uint_17
+%_ptr_Workgroup__arr_uint_uint_17 = OpTypePointer Workgroup %_arr_uint_uint_17
+       %bool = OpTypeBool
+     %uint_1 = OpConstant %uint 1
+     %uint_2 = OpConstant %uint 2
+     %uint_0 = OpConstant %uint 0
+    %uint_16 = OpConstant %uint 16
+   %uint_264 = OpConstant %uint 264
+          %3 = OpVariable %_ptr_Workgroup__arr_uint_uint_17 Workgroup
+%gl_LocalInvocationID = OpVariable %_ptr_Input_v3uint Input
+          %4 = OpVariable %_ptr_StorageBuffer__struct_8 StorageBuffer
+          %5 = OpVariable %_ptr_StorageBuffer__struct_8 StorageBuffer
+          %6 = OpVariable %_ptr_StorageBuffer__struct_8 StorageBuffer
+         %28 = OpFunction %uint Pure %13
+         %29 = OpFunctionParameter %_ptr_Workgroup_uint
+         %30 = OpLabel
+         %31 = OpPtrAccessChain %_ptr_Workgroup_uint %29 %uint_1
+         %32 = OpLoad %uint %31
+               OpReturnValue %32
+               OpFunctionEnd
+          %1 = OpFunction %void None %15
+         %33 = OpLabel
+         %34 = OpAccessChain %_ptr_Input_uint %gl_LocalInvocationID %uint_0
+         %35 = OpLoad %uint %34
+         %36 = OpAccessChain %_ptr_StorageBuffer_uint %4 %uint_0 %35
+         %37 = OpLoad %uint %36
+         %38 = OpAccessChain %_ptr_StorageBuffer_uint %5 %uint_0 %35
+         %39 = OpLoad %uint %38
+         %40 = OpIMul %uint %39 %37
+         %41 = OpAccessChain %_ptr_Workgroup_uint %3 %35
+               OpStore %41 %40
+         %42 = OpIEqual %bool %35 %uint_0
+               OpSelectionMerge %43 None
+               OpBranchConditional %42 %44 %43
+         %44 = OpLabel
+         %45 = OpAccessChain %_ptr_Workgroup_uint %3 %uint_16
+               OpStore %45 %uint_0
+               OpBranch %43
+         %43 = OpLabel
+               OpControlBarrier %uint_2 %uint_1 %uint_264
+         %46 = OpFunctionCall %uint %28 %41
+         %47 = OpAccessChain %_ptr_StorageBuffer_uint %6 %uint_0 %35
+               OpStore %47 %46
+               OpReturn
+               OpFunctionEnd
 ```
 
-The header comment in `workgroup_bad_stride.amber` records the intended comparison: its added `ArrayStride 8` should be ignored and should give the same results as `ArrayStride == 4`. Accordingly, its expected probe output is identical to the baseline: `1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 0`. That is the CTS-script expectation being exercised here, not proof that the decoration is normatively ignored; the applicable SPIR-V 1.4 plus workgroup-explicit-layout rule says the Base type's stride is used for explicitly laid-out Workgroup objects.
+</details>
 
 ## Runtime Execution and Result Checking
 

@@ -67,26 +67,38 @@ The `miss_cause` leaves set `miss=true` and fix `rayTypeCount=1`, `rayType=0`. O
 
 The rgen shader is the representative walkthrough because it is where `traceRayEXT` receives every argument from the storage buffer. The closest-hit and miss shaders are trivial: each writes a single specialization-constant value to the result buffer. The rgen text is identical across all 16 leaves; only the buffer contents and the specialization constants differ.
 
-### Representative Shader Walkthrough 1: `non_uniform_args.chit_2_types_1` rgen
+### Representative Shader Walkthrough 1
 
-**CTS case:** `dEQP-VK.ray_tracing_pipeline.non_uniform_args.chit_2_types_1`
+#### Parameter Values Chosen
 
-**Source:** reconstructed from [NonUniformArgsCase::initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L135-L205), which adds `glu::RaygenSource(rgen.str())` with `ShaderBuildOptions` targeting `SPIRV_VERSION_1_4`. The case `chit_2_types_1` feeds `sbtRecordOffset=1`, `sbtRecordStride=2`, and good values for the other arguments, so the ray hits the onscreen triangle and the closest-hit shader at SBT index `2 + 1 = 3` runs.
+Representative path:
 
-**Stage:** Ray generation (`VK_SHADER_STAGE_RAYGEN_BIT_KHR`).
+```text
+dEQP-VK.ray_tracing_pipeline.non_uniform_args.chit_4_types_3
+```
 
-**Resources:**
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `chit` leaf group | Uses the hit path to test closest-hit SBT record selection rather than a forced miss. |
+| `rayTypeCount = 4` | Supplies `sbtRecordStride = 4` and creates four closest-hit records per geometry. |
+| `rayType = 3` | Supplies `sbtRecordOffset = 3`, selecting the fourth ray type for the hit geometry. |
 
-- `topLevelAS` (set 0, binding 0): `accelerationStructureEXT`. The TLAS instances one BLAS with two triangle geometries. The instance mask is `0x0F` and triangle facing cull is disabled.
-- `args` (set 0, binding 1): `ArgumentsBlock` storage buffer holding `origin`, `direction`, `Tmin`, `Tmax`, `rayFlags`, `cullMask`, `sbtRecordOffset`, `sbtRecordStride`, `missIndex`. The host fills this with the case's good or bad values before the trace.
-- `result` (set 0, binding 2): `ResultBlock` storage buffer holding one `uint shaderId`. It is zeroed before the trace; the hit or miss shader writes its specialization-constant ID here.
-- `unused` (location 0): `rayPayloadEXT vec4`. Declared to satisfy `traceRayEXT`'s signature; neither rgen nor the hit/miss shaders read or write it.
+#### Purpose
 
-**Shader logic:**
+This walkthrough shows that all `traceRayEXT` arguments are loaded from the `args` storage buffer and, for the selected hit case, route execution to closest-hit SBT record `1 * 4 + 3 = 7`.
 
-The rgen loads the TLAS descriptor, then loads each argument field from the `args` storage buffer. It swizzles `origin.xyz` and `direction.xyz` from their `vec4` storage. It calls `traceRayEXT(topLevelAS, args.rayFlags, args.cullMask, args.sbtRecordOffset, args.sbtRecordStride, args.missIndex, args.origin.xyz, args.Tmin, args.direction.xyz, args.Tmax, 0)`. No argument is a compile-time constant, so the driver must apply each one at trace time. For `chit_2_types_1` the buffer holds `sbtRecordOffset=1`, `sbtRecordStride=2`, and good values for origin, direction, Tmin, Tmax, flags, and cull mask, so traversal hits the onscreen triangle and the hit SBT index resolves to `1 * 2 + 1 = 3`.
+#### Structural Design
 
-#### Reconstructed GLSL
+```mermaid
+flowchart TD
+    A[Load every traceRayEXT argument from args] --> B[Trace toward the onscreen triangle]
+    B --> C[Hit geometry index 1]
+    C --> D[Apply stride 4 and offset 3]
+    D --> E[Run closest-hit SBT record 7]
+    E --> F[Closest-hit shader writes its specialized ID]
+```
+
+#### Shader Code
 
 ```glsl
 #version 460 core
@@ -124,6 +136,20 @@ void main()
     0);
 }
 ```
+
+#### Additional Info
+
+- The ray-generation source is shared by all 16 leaves; case-specific buffer contents determine whether traversal reaches a closest-hit or miss shader ([shader generation](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L135-L205), [buffer fill](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L463-L480)).
+- The ray-generation shader does not write `result.shaderId`; the selected closest-hit or miss shader performs that write, so the result identifies the SBT record that actually executed ([shader generation](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L135-L205)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Leaf group | `chit_*` keeps hit-producing ray arguments; `miss_cause_*` changes one loaded argument so the same `traceRayEXT` call routes to a miss shader. | [case registration](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L517-L558), [buffer fill](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L463-L480) |
+| Ray type count | In `chit_*` cases, values `1` through `4` change the runtime `sbtRecordStride` loaded by the shader. | [closest-hit case loop](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L522-L539) |
+| Ray type | Values from `0` through `rayTypeCount - 1` change the runtime `sbtRecordOffset` loaded by the shader. | [closest-hit case loop](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L522-L539) |
+| Miss cause | Values `1` through `6` change one of `rayFlags`, `cullMask`, `origin`, `Tmin`, `direction`, or `Tmax`; `missIndex` also selects the corresponding miss record. | [MissCause definition](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L50-L60), [miss case loop](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L541-L555) |
 
 #### SPIR-V
 
@@ -241,7 +267,9 @@ void main()
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
+
+## Runtime Execution and Result Checking
 
 ### Scene construction
 

@@ -149,36 +149,171 @@ Two further dimensions vary behavior without changing the feedback declaration i
 
 ## Shader Analysis
 
-The test builds four fragment shaders plus a shared vertex shader. The shaders themselves are not the
-behavior under test; they exist to load, read back, transform, and verify attachment data. The
-interesting behavior is the host-side feedback-loop declaration and the input attachment read it
-enables. The shaders are summarized here so the runtime section can focus on the feedback-loop
-mechanics.
+`DRLRFeedbackLoopCase::initPrograms()` always generates `vert`, `frag-load`, `frag-modify`, and
+`frag-grad`; it additionally generates `frag-copy` for multisampled cases. `frag-modify` is the
+shader that carries the core validation signal: it reads an input attachment after `frag-load` has
+written it in the same rendering instance, applies a detectable transform, and writes the result.
+The other shaders establish coverage and source data, overwrite the right half with an independent
+reference gradient, or expand multisample data for host comparison
+([shader inventory](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L308-L564)).
+The representative walkthrough therefore uses the single-sample `loop_Y` color path and reconstructs
+only `frag-modify`; multisample, depth/stencil, and multiple-attachment generator branches are covered
+in the variation table.
 
-- **`vert`** draws a full-screen triangle from three hardcoded positions, so every fragment is covered
-  ([vert shader](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L317-L327)).
-- **`frag-load`** fills each output attachment with pseudo-random data read from storage buffers. For
-  depth/stencil it writes `gl_FragDepth` and `gl_FragStencilRefARB` from the same buffer data. This
-  establishes the values that the next pass must read back
-  ([frag-load](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L337-L377)).
-- **`frag-modify`** is the feedback-loop shader. It loads each attachment through `subpassLoad`
-  (multiplied by the ones-and-zeros modifiers to defeat optimization), then writes a transformed
-  value back: color components are swizzled (`.gbra`), depth is complemented (`1.0 - d`), and stencil
-  is complemented (`255 - s`). The transform makes a skipped or stale read immediately visible,
-  because the output would then match the loaded value instead of the transformed one
-  ([frag-modify](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L438-L517)).
-- **`frag-grad`** overwrites the right half of the framebuffer with a position-based gradient. Its
-  output is independent of the feedback loop and lets the test distinguish the looped region from the
-  overwritten region on readback
-  ([frag-grad](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L519-L563)).
-- **`frag-copy`** exists only for the 4x case. It expands each multisample pixel into a horizontal
-  block of single-sample pixels using `texelFetch` on `sampler2DMS`, so the host can compare each
-  sample individually
-  ([frag-copy](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L379-L436)).
+### Representative Shader Walkthrough 1
 
-No separate `### Representative Shader Walkthrough` subsection is provided because shader correctness
-is not the property under test. The shaders are deterministic data movers; the pass/fail signal comes
-from whether the feedback-loop read returned the locally written value.
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.renderpasses.dynamic_rendering.primary_cmd_buff.m10_feedback_loop.r8g8b8a8_unorm_samples_1_loop_Y
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `attFormat = VK_FORMAT_R8G8B8A8_UNORM` | Selects one floating-point color input attachment and one `vec4` fragment output. |
+| `samples = VK_SAMPLE_COUNT_1_BIT`, no fixed `sampleId` | Selects `subpassInput` and the single-sample `subpassLoad(srcImage0)` form. |
+| `feedback = {true}` (`loop_Y`) | Attachment 0 is both input and output, so `outColor0` stays at location 0 and the case exercises the explicit feedback-loop declaration. |
+| `generalLayout = false` | Uses `VK_IMAGE_LAYOUT_RENDERING_LOCAL_READ`; this parameter changes host image layout, not shader text. |
+
+#### Purpose
+
+This fragment shader turns the locally read attachment value into an observable result. It loads the
+value previously written by `frag-load`, preserves the load through buffer-sourced identity arithmetic,
+then swizzles `.rgba` to `.gbra`; the host expects that exact transformed value in the left half of the
+image.
+
+#### Structural Design
+
+| Phase | Shader operation | Why it matters |
+|-------|------------------|----------------|
+| Declare output | Bind `outColor0` to location 0 | In `loop_Y`, location 0 routes the transformed value back to the same attachment being read. |
+| Declare resources | Bind the modifiers SSBO at binding 0 and input attachment 0 at binding 1 | The descriptor interface exposes both the anti-folding values and the locally readable attachment. |
+| Read | Execute `subpassLoad(srcImage0)` | This is the shader operation whose value depends on correct dynamic-rendering local-read feedback behavior. |
+| Preserve | Multiply by `modifiers.ones` and add `modifiers.zeros` | The host supplies identity values, but the buffer loads prevent compile-time replacement of the attachment read with a constant. |
+| Transform and write | Store `color0.gbra` to `outColor0` | The channel rotation gives host comparison a distinct expected result derived from the input value. |
+
+#### Shader Code
+
+```glsl
+#version 460
+/// Location 0 writes back to the same color attachment used by this loop_Y case.
+layout (location=0) out vec4 outColor0;
+/// Binding 0 is a host-filled std430 storage buffer containing vec4(0) followed by vec4(1).
+/// The arithmetic that uses these values is a semantic no-op but keeps the attachment load observable.
+layout (set=0, binding=0) readonly buffer BufferBlock { vec4 zeros; vec4 ones; } modifiers;
+/// Binding 1 reads color attachment 0 at the current fragment coordinates through input attachment index 0.
+layout (set=0, binding=1, input_attachment_index=0) uniform subpassInput srcImage0;
+void main(void) {
+    /// Read the value written by frag-load in this rendering instance; at 1x, subpassLoad has no sample operand.
+    vec4 color0 = subpassLoad(srcImage0) * modifiers.ones + modifiers.zeros;
+    /// Rotate RGB left while preserving alpha so stale or missing input data differs from the host reference.
+    outColor0 = color0.gbra;
+}
+```
+
+#### Additional Info
+
+- The host binds the modifiers storage buffer at binding 0 and the color input-attachment view at
+  binding 1, matching the reconstructed declarations
+  ([modification descriptors](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L993-L1060)).
+- `frag-load`, `frag-grad`, and the shared vertex shader are fixed supporting stages for this selected
+  path. They provide the source attachment value, the independently generated right-half gradient,
+  and full-screen coverage; none changes the `frag-modify` input-attachment operation.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| `attFormat` / aspects | Color emits `vec4` outputs and floating `subpassInput`; depth writes `gl_FragDepth = 1.0 - depth.x`; stencil enables `GL_ARB_shader_stencil_export`, uses `usubpassInput`, and writes `255 - int(stencil.x)`. Packed depth/stencil emits both input declarations and both writes. | [aspect branches](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L447-L511) |
+| `feedback` | The vector length controls how many color input declarations, loads, and outputs are emitted. Each output location is either the same attachment index for `Y` or the corresponding second-set attachment index for `N`; the input indices remain `0..attCount-1`. | [output and input generation](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L450-L495) |
+| `samples` | A multisampled case changes each input declaration to `subpassInputMS` or `usubpassInputMS` and adds a sample operand to `subpassLoad`; it also causes generation of the separate `frag-copy` shader. | [sample-dependent generation](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L379-L436), [modify load form](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L439-L509) |
+| `sampleId` | In multisampled cases, an absent fixed id uses `gl_SampleID`; values `0` through `3` become literal sample operands. It has no shader effect at 1x. | [sample-index selection](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L438-L441) |
+| `generalLayout` | No shader text changes. The host selects `GENERAL` instead of `RENDERING_LOCAL_READ` for the attachment and descriptors. | [layout selection](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L631-L633) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 34
+; Schema: 0
+               OpCapability Shader
+               OpCapability InputAttachment
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %outColor0
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 460
+               OpName %main "main"
+               OpName %color0 "color0"
+               OpName %srcImage0 "srcImage0"
+               OpName %BufferBlock "BufferBlock"
+               OpMemberName %BufferBlock 0 "zeros"
+               OpMemberName %BufferBlock 1 "ones"
+               OpName %modifiers "modifiers"
+               OpName %outColor0 "outColor0"
+               OpDecorate %srcImage0 Binding 1
+               OpDecorate %srcImage0 DescriptorSet 0
+               OpDecorate %srcImage0 InputAttachmentIndex 0
+               OpDecorate %BufferBlock BufferBlock
+               OpMemberDecorate %BufferBlock 0 NonWritable
+               OpMemberDecorate %BufferBlock 0 Offset 0
+               OpMemberDecorate %BufferBlock 1 NonWritable
+               OpMemberDecorate %BufferBlock 1 Offset 16
+               OpDecorate %modifiers NonWritable
+               OpDecorate %modifiers Binding 0
+               OpDecorate %modifiers DescriptorSet 0
+               OpDecorate %outColor0 Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+         %10 = OpTypeImage %float SubpassData 0 0 0 2 Unknown
+%_ptr_UniformConstant_10 = OpTypePointer UniformConstant %10
+  %srcImage0 = OpVariable %_ptr_UniformConstant_10 UniformConstant
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+      %v2int = OpTypeVector %int 2
+         %17 = OpConstantComposite %v2int %int_0 %int_0
+%BufferBlock = OpTypeStruct %v4float %v4float
+%_ptr_Uniform_BufferBlock = OpTypePointer Uniform %BufferBlock
+  %modifiers = OpVariable %_ptr_Uniform_BufferBlock Uniform
+      %int_1 = OpConstant %int 1
+%_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %outColor0 = OpVariable %_ptr_Output_v4float Output
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+     %color0 = OpVariable %_ptr_Function_v4float Function
+         %13 = OpLoad %10 %srcImage0
+         %18 = OpImageRead %v4float %13 %17
+         %24 = OpAccessChain %_ptr_Uniform_v4float %modifiers %int_1
+         %25 = OpLoad %v4float %24
+         %26 = OpFMul %v4float %18 %25
+         %27 = OpAccessChain %_ptr_Uniform_v4float %modifiers %int_0
+         %28 = OpLoad %v4float %27
+         %29 = OpFAdd %v4float %26 %28
+               OpStore %color0 %29
+         %32 = OpLoad %v4float %color0
+         %33 = OpVectorShuffle %v4float %32 %32 1 2 0 3
+               OpStore %outColor0 %33
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

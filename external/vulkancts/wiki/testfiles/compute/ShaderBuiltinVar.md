@@ -146,6 +146,12 @@ void main (void)
 }
 ```
 
+#### Additional Info
+
+- The five vector cases all share the same shader template; only the substituted GLSL identifier (`gl_NumWorkGroups`, `gl_WorkGroupSize`, `gl_WorkGroupID`, `gl_LocalInvocationID`, `gl_GlobalInvocationID`) changes. The differences in test behavior come from the host's `computeReference` formula and from the `(localSize, numWorkGroups)` subcase matrix chosen by each case class.
+- The `work_group_size` case is the only one where the generator's `layout(local_size_*_id)` declarations are functionally relevant: they prevent GLSL frontends from constant-folding the builtin read away. For the other cases the layout spec IDs exist for symmetry but do not change the test contract.
+- The `local_invocation_index` case uses `glu::TYPE_UINT` (scalar), so the shader's `buffer Output { uint result[]; }` is one element wide per invocation and the `resultBufferStride` in `iterate()` reduces to `sizeof(uint32_t)`.
+
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
@@ -154,12 +160,6 @@ void main (void)
 | Read mode | `readByComponent = true` flips the write to a per-component ladder that assigns `.x`, `.y`, `.z` (and `.w` for uvec4) individually. Only the uvec3/uvec4 data types take this branch; the scalar `gl_LocalInvocationIndex` stays on the vector store form. | [genBuiltinVarSource per-component branch](../../../modules/vulkan/compute/vktComputeShaderBuiltinVarTests.cpp#L258-L276) |
 | Local size | The `(localSize.x, localSize.y, localSize.z)` triple is substituted into the `layout(local_size_*)` qualifiers, with the same triple feeding `OpSpecConstant` IDs 0-2. The shader text looks identical aside from those substitutions. | [genBuiltinVarSource header](../../../modules/vulkan/compute/vktComputeShaderBuiltinVarTests.cpp#L235-L242) |
 | Pipeline construction type | The shader text is identical under all three dispatcher roots. `ComputePipelineWrapper` decides at build time whether to create a compute pipeline or a shader object; the binary variant first creates a SPIR-V shader object, retrieves its binary, then recreates it from that binary. | [dispatcher](../../../modules/vulkan/compute/vktComputeTests.cpp#L68-L85), [wrapper build](../../../framework/vulkan/vkComputePipelineConstructionUtil.cpp#L210-L289) |
-
-#### Additional Info
-
-- The five vector cases all share the same shader template; only the substituted GLSL identifier (`gl_NumWorkGroups`, `gl_WorkGroupSize`, `gl_WorkGroupID`, `gl_LocalInvocationID`, `gl_GlobalInvocationID`) changes. The differences in test behavior come from the host's `computeReference` formula and from the `(localSize, numWorkGroups)` subcase matrix chosen by each case class.
-- The `work_group_size` case is the only one where the generator's `layout(local_size_*_id)` declarations are functionally relevant: they prevent GLSL frontends from constant-folding the builtin read away. For the other cases the layout spec IDs exist for symmetry but do not change the test contract.
-- The `local_invocation_index` case uses `glu::TYPE_UINT` (scalar), so the shader's `buffer Output { uint result[]; }` is one element wide per invocation and the `resultBufferStride` in `iterate()` reduces to `sizeof(uint32_t)`.
 
 #### SPIR-V
 

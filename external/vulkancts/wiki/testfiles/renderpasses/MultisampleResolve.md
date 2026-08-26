@@ -79,7 +79,160 @@ The instance builds two compatible render passes ([source](../../../modules/vulk
 
 ## Shader Analysis
 
-Shader code is not part of the tested behavior. The `RESOLVE` and `COMPATIBILITY` shapes use a minimal fragment shader that writes a per-format constant into color outputs gated by a push-constant-driven `gl_SampleMask`; the `MAX_ATTACHMENTS` shape uses a two-fragment-shader pair where the second performs a fixed input-attachment blend. In all cases the shader is a deterministic generator of known pixel values, and the correctness property under test is the resolve operation and its plumbing, not shader logic. No representative shader walkthrough is needed.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.renderpasses.renderpass1.suballocation.multisample_resolve.r8g8b8a8_unorm.samples_4
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `renderpass1` | Uses the legacy render-pass path. The fragment shader is shared with the `renderpass2` and dynamic-rendering paths; only host-side render-pass construction changes. |
+| `r8g8b8a8_unorm` | Selects the unsigned fixed-point generator branch, so each of the four color outputs is a floating-point `vec4` set to `1.0`. The attachments are cleared to `0.0` before each draw. |
+| `samples_4` | Uses four samples per pixel. The host iterates all 16 four-bit sample masks through the fragment-stage push constant. |
+| Basic `RESOLVE`, 4 attachments | The default `TestConfig` emits four color outputs and resolves each multisample attachment into its paired single-sample attachment. |
+
+#### Purpose
+
+This fragment shader supplies the controlled per-sample input for the fixed-function resolve test. It writes white to the sample locations selected by the host-provided mask, allowing the host to check that four-sample unsigned fixed-point resolve produces the expected average of written white and cleared black samples.
+
+#### Structural Design
+
+| Phase | Shader operation | Role in the test |
+|-------|------------------|------------------|
+| Runtime control | Load the 32-bit `sampleMask` push constant and assign it to `gl_SampleMask[0]`. | Select exactly which of the four sample locations receive the fragment outputs during this draw. |
+| Known-value generation | Write `vec4(1.0)` to color locations 0 through 3. | Give every enabled sample and attachment the same known render value; disabled samples retain the `vec4(0.0)` clear value. |
+| Fixed-function resolve | No resolve instruction appears in the shader. | At subpass end, Vulkan resolves each four-sample attachment into its paired single-sample attachment; host verification checks the resulting average. |
+
+#### Shader Code
+
+```glsl
+#version 450
+
+/// The fragment-stage push-constant range is four bytes. The host updates
+/// sampleMask before every draw while cycling all 16 masks for 4x MSAA.
+layout(push_constant) uniform PushConstant {
+    highp uint sampleMask;
+} pushConstants;
+
+/// The basic RESOLVE configuration has four R8G8B8A8_UNORM color attachments.
+/// Each output writes the same known value so attachment-to-resolve routing can
+/// be checked independently of shader arithmetic.
+layout(location = 0) out vec4 o_color0;
+layout(location = 1) out vec4 o_color1;
+layout(location = 2) out vec4 o_color2;
+layout(location = 3) out vec4 o_color3;
+
+void main (void)
+{
+    /// Enable only the sample locations selected by the current host mask.
+    gl_SampleMask[0] = int(pushConstants.sampleMask);
+
+    /// Enabled samples become white; disabled samples keep the black clear value.
+    o_color0 = vec4(1.0);
+    o_color1 = vec4(1.0);
+    o_color2 = vec4(1.0);
+    o_color3 = vec4(1.0);
+}
+```
+
+#### Additional Info
+
+- The pipeline layout exposes exactly one four-byte push-constant range to the fragment stage, and `drawCommands` pushes the current `m_sampleMask` immediately before drawing six vertices [pipeline layout](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L1665-L1680), [draw commands](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L696-L709).
+- The shared vertex shader procedurally emits a full-screen quad from `gl_VertexIndex`; it has no resources and does not vary with format, sample count, or resolve mode [vertex generation](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2812-L2821).
+- Resolve itself is fixed-function behavior. The shader deliberately contains no sampling or averaging operation; its only tested-data contribution is the known value and coverage mask consumed by the attachment resolve.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| Format channel class | Unsigned integer formats use `uvec4(255)`, signed integer formats use `ivec4(127)`, and floating/fixed-point formats use `vec4(1.0)`. | [channel-class specialization](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2871-L2889) |
+| Attachment count | Basic `RESOLVE` emits four output declarations and stores; `COMPATIBILITY` emits one. The generator creates one output at each location from zero through `attachmentCount - 1`. | [output generation loop](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2895-L2907), [registered configurations](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3167-L3169) |
+| Sample count | The fragment source is unchanged for 2x, 4x, and 8x MSAA. The host changes the rasterization sample count and cycles a correspondingly wider runtime mask. | [sample-count registration](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3138-L3168), [mask iteration](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L1368-L1530) |
+| Layer count | The fragment source stays unchanged. Layer counts 3 and 6 add a geometry shader that broadcasts each triangle and assigns `gl_Layer`. | [geometry-shader branch](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2823-L2853) |
+| `MAX_ATTACHMENTS` test type | This shape replaces the mask-controlled fragment shader with two generated fragment stages: the first writes a format-specific constant to 4, 8, or 16 attachments, and the second combines pairs of resolved input attachments. | [max-attachments shader generation](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2909-L2990) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 31
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %gl_SampleMask %o_color0 %o_color1 %o_color2 %o_color3
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %gl_SampleMask "gl_SampleMask"
+               OpName %PushConstant "PushConstant"
+               OpMemberName %PushConstant 0 "sampleMask"
+               OpName %pushConstants "pushConstants"
+               OpName %o_color0 "o_color0"
+               OpName %o_color1 "o_color1"
+               OpName %o_color2 "o_color2"
+               OpName %o_color3 "o_color3"
+               OpDecorate %gl_SampleMask BuiltIn SampleMask
+               OpDecorate %PushConstant Block
+               OpMemberDecorate %PushConstant 0 Offset 0
+               OpDecorate %o_color0 Location 0
+               OpDecorate %o_color1 Location 1
+               OpDecorate %o_color2 Location 2
+               OpDecorate %o_color3 Location 3
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_arr_int_uint_1 = OpTypeArray %int %uint_1
+%_ptr_Output__arr_int_uint_1 = OpTypePointer Output %_arr_int_uint_1
+%gl_SampleMask = OpVariable %_ptr_Output__arr_int_uint_1 Output
+      %int_0 = OpConstant %int 0
+%PushConstant = OpTypeStruct %uint
+%_ptr_PushConstant_PushConstant = OpTypePointer PushConstant %PushConstant
+%pushConstants = OpVariable %_ptr_PushConstant_PushConstant PushConstant
+%_ptr_PushConstant_uint = OpTypePointer PushConstant %uint
+%_ptr_Output_int = OpTypePointer Output %int
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %o_color0 = OpVariable %_ptr_Output_v4float Output
+    %float_1 = OpConstant %float 1
+         %27 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
+   %o_color1 = OpVariable %_ptr_Output_v4float Output
+   %o_color2 = OpVariable %_ptr_Output_v4float Output
+   %o_color3 = OpVariable %_ptr_Output_v4float Output
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %17 = OpAccessChain %_ptr_PushConstant_uint %pushConstants %int_0
+         %18 = OpLoad %uint %17
+         %19 = OpBitcast %int %18
+         %21 = OpAccessChain %_ptr_Output_int %gl_SampleMask %int_0
+               OpStore %21 %19
+               OpStore %o_color0 %27
+               OpStore %o_color1 %27
+               OpStore %o_color2 %27
+               OpStore %o_color3 %27
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

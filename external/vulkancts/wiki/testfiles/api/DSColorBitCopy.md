@@ -19,10 +19,19 @@
 
 ```text
 api.ds_color_copy
-└── d16_unorm_r16_sfloat_depth_level0_to_level0
+└── d16_unorm_r16_sfloat_depth_level0_to_level0 (format pair, aspect, source level, destination level, and optional usage or queue suffix)
 ```
 
-The group `ds_color_copy` is created at [vktApiDSColorBitCopyTests.cpp#L877](../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L877) and added directly under `api` from [vktApiTests.cpp#L109](../../../modules/vulkan/api/vktApiTests.cpp#L109). The 1320 generated test case leaves are added directly under `ds_color_copy` with no intermediate nodes; representative leaves appear in `## Parameter Dimensions and Observed Values` and `## Behavior Parameters`.
+The generated form is `<srcFormat>_<dstFormat>_<aspect>_level<srcLevel>_to_level<dstLevel>[_unrestricted][_att_usage][_<queue>]`.
+
+- The depth/stencil formats are `d32_sfloat`, `d32_sfloat_s8_uint`, `x8_d24_unorm_pack32`, `d24_unorm_s8_uint`, `d16_unorm`, `d16_unorm_s8_uint`, and `s8_uint`.
+- The color formats are `r32_sfloat`, `r32_sint`, `r32_uint`, `r16_sfloat`, `r16_unorm`, `r16_snorm`, `r16_uint`, `r16_sint`, `r8_uint`, `r8_sint`, `r8_unorm`, and `r8_snorm`.
+- `<aspect>` is `depth` or `stencil`.
+- Both mip-level variables take `0` or `3`.
+- `_unrestricted` and `_att_usage` are independently present or absent.
+- `<queue>` is absent for the universal queue, `cq` for compute-only, or `tq` for transfer-only.
+
+The group is created at [vktApiDSColorBitCopyTests.cpp#L877](../../../modules/vulkan/api/vktApiDSColorBitCopyTests.cpp#L877) and added directly under `api` from [vktApiTests.cpp#L109](../../../modules/vulkan/api/vktApiTests.cpp#L109).
 
 ## Parameter Dimensions and Observed Values
 

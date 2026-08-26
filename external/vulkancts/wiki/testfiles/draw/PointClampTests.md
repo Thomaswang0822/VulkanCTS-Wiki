@@ -42,12 +42,222 @@ The test reads the device's maximum point size, doubles it, and floors the resul
 
 ## Shader Analysis
 
-The source builds two GLSL programs in `createPointSizeClampProgs`:
+The source builds a vertex and fragment program in `createPointSizeClampProgs`. The walkthrough below follows the only registered path and uses the vertex shader as the primary stage because its `gl_PointSize` write establishes the shader-to-rasterizer contract under test.
 
-- The vertex shader accepts position at location `0` and color at location `1`. A one-float push-constant block named `pointSizeBlk` supplies `psize`; `main` writes it to `gl_PointSize`, copies the input position to `gl_Position`, and forwards the color.
-- The fragment shader receives the flat color and writes it to the color attachment.
+### Representative Shader Walkthrough 1
 
-The shader contains no branching or generated value matrix. The behavior under test comes from the rasterizer's handling of the vertex shader's oversized `gl_PointSize` value. The source shader construction is at [`createPointSizeClampProgs`](../../../modules/vulkan/draw/vktDrawPointClampTests.cpp#L59-L91).
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.draw.renderpass.point_size_clamp.point_size_clamp_max
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `point_size_clamp_max` | Selects the sole registered case, which requests a point larger than the advertised maximum. |
+| `psize = floor(pointSizeRange[1] * 2.0)` | Deliberately exceeds the upper point-size limit and is delivered to the vertex stage through four push-constant bytes. |
+| `VK_PRIMITIVE_TOPOLOGY_POINT_LIST`, one vertex | Makes the vertex shader's `gl_PointSize` output control the rasterization of one point primitive. |
+| One-row `R8G8B8A8_UNORM` target | Reduces the observed result to horizontal point coverage: black covered pixels replace the green clear color. |
+
+#### Purpose
+
+The shaders request an oversized point and carry a contrasting color to the attachment. The test checks that fixed-function rasterization clamps the vertex shader's `gl_PointSize` to `pointSizeRange[1]` rather than rasterizing the unbounded request.
+
+#### Structural Design
+
+| Stage or interface | Value flow | Role in the check |
+|--------------------|------------|-------------------|
+| Vertex inputs | Location `0` position; location `1` black color | Supplies the single point's center and distinguishable output color. |
+| Vertex push constant | `in_pointSize.psize = floor(pointSizeRange[1] * 2.0)` | Carries the deliberately oversized requested point size. |
+| Vertex built-ins | Position -> `gl_Position`; `psize` -> `gl_PointSize` | Establishes point placement and the size value that must be clamped. |
+| Location `0` varying | Vertex `out_color` -> fragment `in_color` | Carries black through the graphics pipeline. |
+| Fragment output | `in_color` -> location `0` attachment output | Replaces the green clear color wherever the clamped point covers the target. |
+
+#### Shader Code
+
+##### Vertex Shader
+
+```glsl
+#version 450
+/// Vertex location 0 supplies the single point position as a 32-bit float vector.
+layout(location = 0) in vec4 in_position;
+/// Vertex location 1 supplies the point color; the host uses R8G8B8A8_UNORM and black.
+layout(location = 1) in vec4 in_color;
+/// Four vertex-stage push-constant bytes carry floor(pointSizeRange[1] * 2.0).
+layout(push_constant) uniform pointSizeBlk {
+    float psize;
+} in_pointSize;
+/// Location 0 transports the point color to the fragment shader.
+layout(location = 0) out vec4 out_color;
+
+out gl_PerVertex {
+    vec4  gl_Position;
+    float gl_PointSize;
+};
+void main() {
+    /// Request the deliberately oversized point; fixed-function rasterization must clamp it.
+    gl_PointSize = in_pointSize.psize;
+    /// Place the point near the right edge of the one-row framebuffer.
+    gl_Position  = in_position;
+    /// Forward black so covered samples differ from the green clear color.
+    out_color    = in_color;
+}
+```
+
+##### Fragment Shader
+
+```glsl
+#version 450
+/// Flat location 0 receives the point color without interpolation.
+layout(location = 0) flat in vec4 in_color;
+/// Location 0 writes to the R8G8B8A8_UNORM color attachment.
+layout(location = 0) out vec4 out_color;
+void main()
+{
+    /// Store black at every fragment covered by the clamped point.
+    out_color = in_color;
+}
+```
+
+#### Additional Info
+
+- The fragment shader stays fixed because this family has one case. It matters as the final shader stage that turns point coverage into black attachment pixels for host comparison.
+- The pipeline layout exposes no descriptor sets; its only shader-visible non-vertex-buffer resource is the four-byte vertex-stage push-constant range ([source](../../../modules/vulkan/draw/vktDrawPointClampTests.cpp#L115-L118), [pipeline layout](../../../modules/vulkan/draw/vktDrawPointClampTests.cpp#L205-L215)).
+- No explicit `ShaderBuildOptions` are attached when the GLSL sources are added, so the walkthrough uses the `SourceCollections` baseline target, SPIR-V 1.0 ([source](../../../modules/vulkan/draw/vktDrawPointClampTests.cpp#L89-L90)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| Registered case | There is no nearby shader variant: the group registers only `point_size_clamp_max` with this shared builder. | [`createDrawPointClampTests`](../../../modules/vulkan/draw/vktDrawPointClampTests.cpp#L393-L400) |
+| Device maximum point size | The GLSL declaration and control flow remain fixed, while the host-derived float placed in `in_pointSize.psize` changes with `pointSizeRange[1]`. | [`renderPointSizeClampTest`](../../../modules/vulkan/draw/vktDrawPointClampTests.cpp#L105-L118) |
+
+#### SPIR-V
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 30
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %in_position %out_color %in_color
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpName %_ ""
+               OpName %pointSizeBlk "pointSizeBlk"
+               OpMemberName %pointSizeBlk 0 "psize"
+               OpName %in_pointSize "in_pointSize"
+               OpName %in_position "in_position"
+               OpName %out_color "out_color"
+               OpName %in_color "in_color"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpDecorate %pointSizeBlk Block
+               OpMemberDecorate %pointSizeBlk 0 Offset 0
+               OpDecorate %in_position Location 0
+               OpDecorate %out_color Location 0
+               OpDecorate %in_color Location 1
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%gl_PerVertex = OpTypeStruct %v4float %float
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_1 = OpConstant %int 1
+%pointSizeBlk = OpTypeStruct %float
+%_ptr_PushConstant_pointSizeBlk = OpTypePointer PushConstant %pointSizeBlk
+%in_pointSize = OpVariable %_ptr_PushConstant_pointSizeBlk PushConstant
+      %int_0 = OpConstant %int 0
+%_ptr_PushConstant_float = OpTypePointer PushConstant %float
+%_ptr_Output_float = OpTypePointer Output %float
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%in_position = OpVariable %_ptr_Input_v4float Input
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %out_color = OpVariable %_ptr_Output_v4float Output
+   %in_color = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %18 = OpAccessChain %_ptr_PushConstant_float %in_pointSize %int_0
+         %19 = OpLoad %float %18
+         %21 = OpAccessChain %_ptr_Output_float %_ %int_1
+               OpStore %21 %19
+         %24 = OpLoad %v4float %in_position
+         %26 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %26 %24
+         %29 = OpLoad %v4float %in_color
+               OpStore %out_color %29
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 13
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %out_color %in_color
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %out_color "out_color"
+               OpName %in_color "in_color"
+               OpDecorate %out_color Location 0
+               OpDecorate %in_color Flat
+               OpDecorate %in_color Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %out_color = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+   %in_color = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %12 = OpLoad %v4float %in_color
+               OpStore %out_color %12
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

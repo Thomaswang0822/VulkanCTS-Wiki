@@ -195,63 +195,49 @@ The page uses one representative walkthrough because the raygen shader is the sa
 
 ### Representative Shader Walkthrough 1
 
-**CTS case:** `ray_tracing_pipeline.opacity_micromap.NoFlags.map_value.2.level_0`
+#### Parameter Values Chosen
 
-**Source location:** [vktRayTracingOpacityMicromapTests.cpp#L163-L214](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L163-L214)
+Representative path:
 
-**What this shader tests:** The raygen shader reads a ray origin from the origins SSBO, initializes the payload to `0xFFFFFFFF`, traces a ray downward through the triangle, and writes the payload result into the modes SSBO. With `NoFlags`, `flagsString` is `gl_RayFlagsNoneEXT`, so the implementation resolves opacity purely from the micromap data. With subdivision level 0, there is one subtriangle and one ray. The any-hit, closest-hit, or miss shader runs depending on the resolved opacity state, and the payload value (0, 1, or 2) records which stage executed.
-
-**Shader-visible resources:**
-
-- `%topLevelAS` (`accelerationStructureEXT`, set 0, binding 0): top-level acceleration structure with one instance.
-- `%origins` (`RayOrigins`, set 0, binding 1, `std430`): SSBO with `vec4` ray origins, one per subtriangle.
-- `%modes` (`OutputModes`, set 0, binding 2, `std430`): SSBO receiving `uint` output modes, one per ray.
-- `%value` (`rayPayloadEXT`, location 0): `uint` payload set to `0xFFFFFFFF` before tracing, then overwritten by miss (0), any-hit (1), or closest-hit (2).
-- `%gl_LaunchIDEXT` (`vec3 uint`, `BuiltIn LaunchIdKHR`): input built-in indexing the current ray.
-
-**Reconstructed GLSL:**
-
-```glsl
-#version 460 core
-#extension GL_EXT_ray_tracing : require
-#extension GL_EXT_opacity_micromap : require
-/// Ray payload: 0xFFFFFFFF before trace, 0 (miss), 1 (any-hit), or 2 (closest-hit) after.
-layout(location=0) rayPayloadEXT uint value;
-/// Top-level AS at binding 0; one instance with flag-dependent instance flags.
-layout(set=0, binding=0) uniform accelerationStructureEXT topLevelAS;
-/// Ray origins at binding 1; one vec4 per subtriangle centroid.
-layout(set=0, binding=1, std430) buffer RayOrigins {
-  vec4 values[1];
-} origins;
-/// Output modes at binding 2; one uint per ray.
-layout(set=0, binding=2, std430) buffer OutputModes {
-  uint values[1];
-} modes;
-
-void main()
-{
-  const uint  cullMask  = 0xFF;
-  /// Origin comes from the SSBO, indexed by launch id.
-  const vec3  origin    = origins.values[gl_LaunchIDEXT.x].xyz;
-  const vec3  direction = vec3(0.0, 0.0, -1.0);
-  const float tMin      = 0.0;
-  const float tMax      = 2.0;
-  value                 = 0xFFFFFFFF;
-  /// NoFlags case: gl_RayFlagsNoneEXT. Other cases OR in force/cull flags here.
-  traceRayEXT(topLevelAS, gl_RayFlagsNoneEXT, cullMask, 0, 0, 0, origin, tMin, direction, tMax, 0);
-  modes.values[gl_LaunchIDEXT.x] = value;
-}
+```text
+dEQP-VK.ray_tracing_pipeline.opacity_micromap.NoFlags.map_value.2.level_0
 ```
 
-**Any-hit shader (fixed across all cases):** Sets `value = 1` and calls `terminateRayEXT`, preventing the closest-hit shader from running.
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `NoFlags` | Uses the baseline opacity-resolution path with no instance or ray opacity flags. |
+| `map_value.2.level_0` | Uses per-subtriangle map data in 2-state format at subdivision level 0, so one ray is traced for the single subtriangle. |
 
-**Closest-hit shader (fixed across all cases):** Sets `value = 2` only if `value != 1`, meaning the any-hit shader did not already run.
+#### Purpose
 
-**Miss shader (fixed across all cases):** Sets `value = 0`.
+This walkthrough shows how the raygen shader traces a ray from the host-provided origin and stores the resulting miss, any-hit, or closest-hit mode for host comparison.
 
-Built with `glslangValidator -V --target-env spirv1.4 -S rgen`. Validated with `spirv-val --target-env spv1.4`. SPIR-V version 1.4, Bound 52. **Target SPIR-V environment:** `spirv1.4` (CTS build options target `vk::SPIRV_VERSION_1_4`).
+#### Structural Design
 
-**Parameter variation note:** When the test flag mask includes force-opaque, no-opaque, cull-opaque, cull-no-opaque, or force-2-state ray flags, the source generator ORs the corresponding `gl_RayFlags*EXT` constant into `flagsString` before passing it to `traceRayEXT`. The shader structure, resource layout, and payload logic are otherwise identical across all 120 flag combinations. For subdivision levels above 0, the `values` array size in both SSBOs grows to `4^level`, and the host writes one ray origin per subtriangle centroid.
+| Shader phase | Shader-visible operation | Result |
+|--------------|--------------------------|--------|
+| Input | Load `origins.values[gl_LaunchIDEXT.x].xyz` from set 0, binding 1. | Ray origin for the current launch. |
+| Trace | Call `traceRayEXT` with the top-level AS at set 0, binding 0 and `gl_RayFlagsNoneEXT`. | Traversal resolves the opacity micromap state. |
+| Output | Store the ray payload in `modes.values[gl_LaunchIDEXT.x]` at set 0, binding 2. | Host-readable output mode. |
+
+#### Shader Code
+
+This representative case uses the CTS-authored SPIR-V module directly rather than GLSL or HLSL. The stage, entry point, capabilities, and execution modes are encoded in the module; the complete assembly remains in the final SPIR-V subsection.
+
+The shader source and stage-specific declarations for the representative case are described here; the generated artifact is kept in the final SPIR-V subsection.
+
+#### Additional Info
+
+- The raygen module uses one ray payload initialized to `0xFFFFFFFF`; the hit shaders replace it with the observed output mode before the value is written to the output buffer.
+- The `map_value` level-0 case is the page-local baseline path; registration also creates levels 0 through 15 and a separate `special_index` subgroup.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|----------------------------------------|----------|
+| Test flag mask | Changes the `flagsString` passed to `traceRayEXT`; `NoFlags` emits `gl_RayFlagsNoneEXT`. | [initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L163-L214) |
+| Micromap data source and mode | Registration selects `map_value` with 2- or 4-state modes, or `special_index`; only `map_value` receives mode and level subgroups. | [createOpacityMicromapTests](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L869-L928) |
+| Subdivision level | Changes the generated SSBO array length and ray count; `special_index` remains at level 0. | [initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L163-L176), [createOpacityMicromapTests](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L874-L915) |
 
 #### SPIR-V
 
@@ -361,7 +347,9 @@ Built with `glslangValidator -V --target-env spirv1.4 -S rgen`. Validated with `
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
+
+## Runtime Execution and Result Checking
 
 1. The host generates random micromap data using a per-case seed, sized to `triangleMicromapBytes * triangleCount` where `triangleCount` is 2 for non-zero-base cases and 1 otherwise.
 2. The host builds the opacity micromap via `vkCmdBuildMicromapsEXT` with format `VK_OPACITY_MICROMAP_FORMAT_2_STATE_EXT` or `VK_OPACITY_MICROMAP_FORMAT_4_STATE_EXT` and the configured subdivision level. A memory barrier with `VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT` to `VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR` separates the micromap build from the AS build.

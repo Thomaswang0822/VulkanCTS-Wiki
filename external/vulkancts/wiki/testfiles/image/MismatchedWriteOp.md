@@ -53,15 +53,24 @@ The runtime follows the shared upload, dispatch, download sequence, but [`Mismat
 
 ## Shader Analysis
 
-The source authors SPIR-V assembly directly through [`getProgramCodeAndVariables()`](../../../modules/vulkan/image/vktImageMismatchedWriteOpTests.cpp#L600-L779), rather than generating GLSL or HLSL. The direct assembly generator is the authoritative shader representation, so this page does not present a reconstructed GLSL walkthrough or a duplicate compiler-produced SPIR-V disassembly.
+The source authors SPIR-V assembly directly through [`getProgramCodeAndVariables()`](../../../modules/vulkan/image/vktImageMismatchedWriteOpTests.cpp#L600-L779), rather than generating GLSL or HLSL. The direct assembly generator is therefore the authoritative shader representation. The walkthrough specializes that generator for one exact registered case and validates the reconstructed module with SPIR-V Tools.
 
-### Representative shader walkthrough: `mismatched_vector_sizes.rg32f_from_vec4`
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
 
 Representative path:
 
 ```text
-image.mismatched_write_op.mismatched_vector_sizes.rg32f_from_vec4
+dEQP-VK.image.mismatched_write_op.mismatched_vector_sizes.rg32f_from_vec4
 ```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `mismatched_vector_sizes` | Selects `MismatchedVectorSizesTest::initPrograms()` and its source-width-specific `OpImageWrite` value construction. |
+| `rg32f` | Selects `VK_FORMAT_R32G32_SFLOAT`, sampled type `%float`, storage image format `Rg32f`, and two used target channels. |
+| `from_vec4` | Selects `sourceWidth = 4`, so the generator constructs `%v4float` from four buffer components even though the target uses only two channels. |
+| Extent `48 x 24` | The factory computes width as `12 * 4` and height as `8 * (6 - 4 + 1)`. With `LocalSize 1 1 1`, one invocation writes each texel. |
 
 #### Purpose
 
@@ -76,19 +85,9 @@ The representative leaf targets a two-channel 32-bit floating-point image and bu
 | Buffer access | Computes `y * imageWidth + x`, then loads `red`, `green`, `blue`, and `alpha` from the storage-buffer RGBA element. | Supplies data for the selected operand width. |
 | Four-component write | Constructs `%rgba` from the four scalar loads and executes `OpImageWrite %img %id_xy %rgba`. | Exercises an operand wider than the target's two used channels. |
 
-#### Source Code
+#### Shader Code
 
-```llvm
-; Source-derived specialization emitted by MismatchedVectorSizesTest::initPrograms().
-; The surrounding common template declares the entry point, descriptors, types,
-; coordinate/index calculation, and %red/%green/%blue/%alpha loads.
-%image_type = OpTypeImage %float 2D 0 0 0 2 Rg32f
-
-; %id_xy is ivec2(GlobalInvocationId.xy).
-; %red, %green, %blue, and %alpha come from buffer[index].rgba.
-%rgba = OpCompositeConstruct %v4float %red %green %blue %alpha
-        OpImageWrite %img %id_xy %rgba
-```
+This test does not generate GLSL or HLSL. [`getProgramCodeAndVariables()`](../../../modules/vulkan/image/vktImageMismatchedWriteOpTests.cpp#L600-L779) creates the complete SPIR-V assembly template, and [`MismatchedVectorSizesTest::initPrograms()`](../../../modules/vulkan/image/vktImageMismatchedWriteOpTests.cpp#L792-L829) selects the four-component write fragment. The complete source-derived specialization appears in `#### SPIR-V` below; a translated high-level shader would hide the deliberately mismatched `OpImageWrite` operand type.
 
 #### Additional Info
 
@@ -98,12 +97,107 @@ The representative leaf targets a two-channel 32-bit floating-point image and bu
 
 #### Parameter Variation Summary
 
-| Parameter dimension | Assembly-level variation from this representative case | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|--------------------------------------------------------|----------|
 | Source width | Replaces the `v4float` composite with a scalar write or `v2`, `v3`, or `v5` composite. Width 5 adds LongVector declarations and capability support. | [Write templates](../../../modules/vulkan/image/vktImageMismatchedWriteOpTests.cpp#L797-L825), [long-vector setup](../../../modules/vulkan/image/vktImageMismatchedWriteOpTests.cpp#L761-L769) |
 | Target channel class | Replaces `%float` with `%sint`, `%uint`, `%slong`, or `%ulong` as selected by the target-derived buffer format. | [`getChannelStr()` and buffer format selection](../../../modules/vulkan/image/vktImageMismatchedWriteOpTests.cpp#L516-L559), [template substitution](../../../modules/vulkan/image/vktImageMismatchedWriteOpTests.cpp#L745-L776) |
 | Target image format | Replaces the `Rg32f` image-format token and can change the target used-channel count that admits source widths. | [Format list](../../../modules/vulkan/image/vktImageMismatchedWriteOpTests.cpp#L459-L502), [factory condition](../../../modules/vulkan/image/vktImageMismatchedWriteOpTests.cpp#L1111-L1119) |
 | Direct test family | Always builds a four-component composite in `mismatched_signedness_and_type`; its format-pair field does not replace the target-derived image declaration in the common template. | [Second-family generator](../../../modules/vulkan/image/vktImageMismatchedWriteOpTests.cpp#L831-L848), [parameter uses](../../../modules/vulkan/image/vktImageMismatchedWriteOpTests.cpp#L745-L776) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: CTS-authored SPIR-V assembly reconstructed from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 56
+; Schema: 0
+               OpCapability Shader
+               OpCapability StorageImageExtendedFormats
+               OpExtension "SPV_KHR_variable_pointers"
+               OpExtension "SPV_KHR_storage_buffer_storage_class"
+               OpExtension "SPV_EXT_long_vector"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %2 "main" %gl_GlobalInvocationID %4 %5
+               OpExecutionMode %2 LocalSize 1 1 1
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %4 DescriptorSet 0
+               OpDecorate %4 Binding 0
+               OpDecorate %_runtimearr_v4float ArrayStride 16
+               OpMemberDecorate %_struct_7 0 Offset 0
+               OpDecorate %_struct_7 Block
+               OpDecorate %5 DescriptorSet 0
+               OpDecorate %5 Binding 1
+       %void = OpTypeVoid
+          %9 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+        %int = OpTypeInt 32 1
+       %uint = OpTypeInt 32 0
+    %v4float = OpTypeVector %float 4
+    %v3float = OpTypeVector %float 3
+    %v2float = OpTypeVector %float 2
+      %v4int = OpTypeVector %int 4
+      %v3int = OpTypeVector %int 3
+      %v2int = OpTypeVector %int 2
+     %v4uint = OpTypeVector %uint 4
+     %v3uint = OpTypeVector %uint 3
+     %v2uint = OpTypeVector %uint 2
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+         %23 = OpTypeImage %float 2D 0 0 0 2 Rg32f
+%_ptr_UniformConstant_23 = OpTypePointer UniformConstant %23
+          %4 = OpVariable %_ptr_UniformConstant_23 UniformConstant
+     %int_48 = OpConstant %int 48
+     %int_24 = OpConstant %int 24
+     %uint_0 = OpConstant %uint 0
+%_runtimearr_v4float = OpTypeRuntimeArray %v4float
+  %_struct_7 = OpTypeStruct %_runtimearr_v4float
+%_ptr_StorageBuffer__struct_7 = OpTypePointer StorageBuffer %_struct_7
+          %5 = OpVariable %_ptr_StorageBuffer__struct_7 StorageBuffer
+   %uint_0_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+     %uint_2 = OpConstant %uint 2
+     %uint_3 = OpConstant %uint 3
+%_ptr_StorageBuffer_float = OpTypePointer StorageBuffer %float
+%_ptr_Function_int = OpTypePointer Function %int
+          %2 = OpFunction %void None %9
+         %35 = OpLabel
+         %36 = OpVariable %_ptr_Function_int Function
+         %37 = OpLoad %v3uint %gl_GlobalInvocationID
+         %38 = OpCompositeExtract %uint %37 0
+         %39 = OpBitcast %int %38
+         %40 = OpCompositeExtract %uint %37 1
+         %41 = OpBitcast %int %40
+         %42 = OpCompositeConstruct %v2int %39 %41
+         %43 = OpIMul %int %41 %int_48
+         %44 = OpIAdd %int %43 %39
+               OpStore %36 %44
+         %45 = OpLoad %23 %4
+         %46 = OpLoad %int %36
+         %47 = OpAccessChain %_ptr_StorageBuffer_float %5 %uint_0 %46 %uint_3
+         %48 = OpAccessChain %_ptr_StorageBuffer_float %5 %uint_0 %46 %uint_2
+         %49 = OpAccessChain %_ptr_StorageBuffer_float %5 %uint_0 %46 %uint_1
+         %50 = OpAccessChain %_ptr_StorageBuffer_float %5 %uint_0 %46 %uint_0_0
+         %51 = OpLoad %float %50
+         %52 = OpLoad %float %49
+         %53 = OpLoad %float %48
+         %54 = OpLoad %float %47
+         %55 = OpCompositeConstruct %v4float %51 %52 %53 %54
+               OpImageWrite %45 %42 %55
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

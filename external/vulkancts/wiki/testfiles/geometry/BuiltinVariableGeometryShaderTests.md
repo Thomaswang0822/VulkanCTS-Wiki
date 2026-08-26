@@ -129,8 +129,6 @@ shading, the rendered color pattern differs from the reference PNG.
 The vertex shader is a simple position and attribute forwarder. The fragment shader maps `gl_PrimitiveID` to one of four colors.
 The geometry shader is the primary shader because it writes the built-in being tested.
 
-##### Geometry Shader
-
 ```glsl
 #version 450
 /// Geometry input built-ins for the single point currently being expanded.
@@ -182,7 +180,7 @@ void main (void)
 
 #### Parameter Variation Summary
 
-| Variation | Shader/runtime change | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |-----------|-----------------------|----------|
 | `point_size` | Geometry shader writes `gl_PointSize` and emits points with white color; requires `GL_EXT_geometry_point_size`. | [point-size geometry shader](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L259-L284) |
 | `primitive_id_in` | Geometry shader reads `gl_PrimitiveIDIn` for line-strip input and uses it to choose output color. | [primitive-ID-in geometry shader](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L285-L319) |
@@ -344,8 +342,6 @@ in a form that produces the expected reference image.
 The HLSL geometry shader is the primary shader for this walkthrough because it is the only HLSL-generated stage in the family and
 contains the tested `SV_POSITION` interface.
 
-##### Geometry Shader
-
 ```hlsl
 /// The only geometry-stage payload is the position semantic. CTS uses the same struct for input and output.
 struct VSOut
@@ -386,7 +382,7 @@ void main(triangle VSOut input[3], inout TriangleStream<VSOut> TriStream)
 
 #### Parameter Variation Summary
 
-| Variation | Shader/runtime change | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |-----------|-----------------------|----------|
 | `outside_block.position` | Uses HLSL `SV_POSITION` and `TriangleStream<VSOut>` in the geometry stage. | [HLSL geometry shader](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L349-L365) |
 | `in_block` leaves | Use GLSL geometry shaders with explicit `gl_PerVertex` declarations and built-in variables such as `gl_PointSize`, `gl_PrimitiveIDIn`, or `gl_PrimitiveID`. | [GLSL geometry branches](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L259-L347) |

@@ -16,7 +16,7 @@ metadata:
 
 Orchestrate one complete project-local wiki category lifecycle:
 
-`outline → rewrite → Level-2 synthesis → audit → Chinese publish → final verification`
+`outline → rewrite → Level-2 synthesis → audit → Chinese publish → final verification → checklist`
 
 This is a **lead-agent orchestration skill**. Load and follow the project-local primary skills instead of duplicating their page-writing, auditing, translation, shader, or link-conversion rules:
 
@@ -34,10 +34,15 @@ Read their required references and helper skills as those primary skills direct.
 4. Rewrite all assigned Level-3 pages, then synthesize the Level-2 page after Level-3 pages stabilize.
 5. Stage the changes produced by the rewrite phase, preserving unrelated pre-existing work, and continue directly into audit without stopping.
 6. Audit the Level-2 page and every rewritten Level-3 page.
-7. **Hard stop 2 for user approval:** after audit repairs, Level-2 audit, category validation, and audit-summary finalization pass, stop before publish and ask the user to review and approve the audited result. Do not translate, publish, convert links, or update publish indexes before approval.
+7. **Hard stop 2 for user approval:** after audit repairs, Level-2 audit, category validation, and audit-summary finalization pass, stop before publish and ask the user to review and approve the audited result. Do not translate, publish, or convert links before approval.
 8. After approval, translate and publish every Level-2 and Level-3 page.
 9. Convert links only after every translation worker has completed.
-10. Verify the final category, update `home.md` and the rewrite checklist, then report.
+10. Verify the fully published category.
+11. **Final mandatory update:** only after all publication and verification gates pass, update `external/vulkancts/wiki/internal_doc/wiki_rewrite_checklist.md`, then report.
+    - Mark the category done.
+    - Count rewritten Level-3 pages only: exclude `_brief.md`, legacy `vkt*.md`, and dispatcher pages folded into Level-2.
+    - Set `UB` from the category's `*_brief.md` count.
+    - Recount checked and unchecked rows and update the summary.
 
 ## Dispatch invariant
 
@@ -58,7 +63,7 @@ The lead agent owns:
 - audit-summary creation, incremental aggregation, and finalization;
 - category-wide validation;
 - link conversion and idempotency checks;
-- `home.md` and checklist updates;
+- the final checklist update;
 - final counts and completion report.
 
 Workers own only their assigned page in their assigned phase. They must not edit shared summaries, enter a later phase, translate during rewrite/audit, or run link conversion during translation.
@@ -71,6 +76,6 @@ Use the filesystem and validators as evidence, not worker claims alone. Classify
 
 ## Completion gate
 
-Do not report completion until every outline page is accounted for; rewrite, audit, translation, structural, registration/link, and category validations pass; all links are converted and idempotent; `home.md` is correct; checklist counts match filesystem evidence; and canonical English pages, unauthorized paths, and the Git index remain untouched.
+Do not report completion until every outline page is accounted for; rewrite, audit, translation, structural, registration/link, and category validations pass; all links are converted and idempotent; the final checklist update matches filesystem evidence; and canonical English pages, unauthorized paths, and the Git index remain untouched.
 
 Use `references/completion-report.md` for the final report shape.

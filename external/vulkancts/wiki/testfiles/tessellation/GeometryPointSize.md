@@ -194,6 +194,282 @@ void main (void)
 
 #### SPIR-V
 
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 22
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_
+               OpSource ESSL 310
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpName %_ ""
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%gl_PerVertex = OpTypeStruct %v4float %float
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+         %15 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_1
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+      %int_1 = OpConstant %int 1
+    %float_2 = OpConstant %float 2
+%_ptr_Output_float = OpTypePointer Output %float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %17 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %17 %15
+         %21 = OpAccessChain %_ptr_Output_float %_ %int_1
+               OpStore %21 %float_2
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Tessellation Control Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `tesc`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 52
+; Schema: 0
+               OpCapability Tessellation
+               OpCapability TessellationPointSize
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint TessellationControl %main "main" %gl_TessLevelOuter %gl_TessLevelInner %gl_out %gl_InvocationID %gl_in
+               OpExecutionMode %main OutputVertices 1
+               OpSource ESSL 310
+               OpSourceExtension "GL_EXT_shader_io_blocks"
+               OpSourceExtension "GL_EXT_tessellation_point_size"
+               OpSourceExtension "GL_EXT_tessellation_shader"
+               OpName %main "main"
+               OpName %gl_TessLevelOuter "gl_TessLevelOuter"
+               OpName %gl_TessLevelInner "gl_TessLevelInner"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpName %gl_out "gl_out"
+               OpName %gl_InvocationID "gl_InvocationID"
+               OpName %gl_PerVertex_0 "gl_PerVertex"
+               OpMemberName %gl_PerVertex_0 0 "gl_Position"
+               OpMemberName %gl_PerVertex_0 1 "gl_PointSize"
+               OpName %gl_in "gl_in"
+               OpDecorate %gl_TessLevelOuter BuiltIn TessLevelOuter
+               OpDecorate %gl_TessLevelOuter Patch
+               OpDecorate %gl_TessLevelInner BuiltIn TessLevelInner
+               OpDecorate %gl_TessLevelInner Patch
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpDecorate %gl_InvocationID BuiltIn InvocationId
+               OpDecorate %gl_PerVertex_0 Block
+               OpMemberDecorate %gl_PerVertex_0 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex_0 1 BuiltIn PointSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+       %uint = OpTypeInt 32 0
+     %uint_4 = OpConstant %uint 4
+%_arr_float_uint_4 = OpTypeArray %float %uint_4
+%_ptr_Output__arr_float_uint_4 = OpTypePointer Output %_arr_float_uint_4
+%gl_TessLevelOuter = OpVariable %_ptr_Output__arr_float_uint_4 Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+    %float_3 = OpConstant %float 3
+%_ptr_Output_float = OpTypePointer Output %float
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+     %uint_2 = OpConstant %uint 2
+%_arr_float_uint_2 = OpTypeArray %float %uint_2
+%_ptr_Output__arr_float_uint_2 = OpTypePointer Output %_arr_float_uint_2
+%gl_TessLevelInner = OpVariable %_ptr_Output__arr_float_uint_2 Output
+    %v4float = OpTypeVector %float 4
+%gl_PerVertex = OpTypeStruct %v4float %float
+     %uint_1 = OpConstant %uint 1
+%_arr_gl_PerVertex_uint_1 = OpTypeArray %gl_PerVertex %uint_1
+%_ptr_Output__arr_gl_PerVertex_uint_1 = OpTypePointer Output %_arr_gl_PerVertex_uint_1
+     %gl_out = OpVariable %_ptr_Output__arr_gl_PerVertex_uint_1 Output
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_InvocationID = OpVariable %_ptr_Input_int Input
+%gl_PerVertex_0 = OpTypeStruct %v4float %float
+    %uint_32 = OpConstant %uint 32
+%_arr_gl_PerVertex_0_uint_32 = OpTypeArray %gl_PerVertex_0 %uint_32
+%_ptr_Input__arr_gl_PerVertex_0_uint_32 = OpTypePointer Input %_arr_gl_PerVertex_0_uint_32
+      %gl_in = OpVariable %_ptr_Input__arr_gl_PerVertex_0_uint_32 Input
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%_ptr_Input_float = OpTypePointer Input %float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %16 = OpAccessChain %_ptr_Output_float %gl_TessLevelOuter %int_0
+               OpStore %16 %float_3
+         %18 = OpAccessChain %_ptr_Output_float %gl_TessLevelOuter %int_1
+               OpStore %18 %float_3
+         %20 = OpAccessChain %_ptr_Output_float %gl_TessLevelOuter %int_2
+               OpStore %20 %float_3
+         %25 = OpAccessChain %_ptr_Output_float %gl_TessLevelInner %int_0
+               OpStore %25 %float_3
+         %34 = OpLoad %int %gl_InvocationID
+         %40 = OpLoad %int %gl_InvocationID
+         %42 = OpAccessChain %_ptr_Input_v4float %gl_in %40 %int_0
+         %43 = OpLoad %v4float %42
+         %45 = OpAccessChain %_ptr_Output_v4float %gl_out %34 %int_0
+               OpStore %45 %43
+         %46 = OpLoad %int %gl_InvocationID
+         %47 = OpLoad %int %gl_InvocationID
+         %49 = OpAccessChain %_ptr_Input_float %gl_in %47 %int_1
+         %50 = OpLoad %float %49
+         %51 = OpAccessChain %_ptr_Output_float %gl_out %46 %int_1
+               OpStore %51 %50
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Tessellation Evaluation Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `tese`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 49
+; Schema: 0
+               OpCapability Tessellation
+               OpCapability TessellationPointSize
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint TessellationEvaluation %main "main" %gl_TessCoord %_ %gl_in
+               OpExecutionMode %main Triangles
+               OpExecutionMode %main SpacingEqual
+               OpExecutionMode %main VertexOrderCcw
+               OpExecutionMode %main PointMode
+               OpSource ESSL 310
+               OpSourceExtension "GL_EXT_shader_io_blocks"
+               OpSourceExtension "GL_EXT_tessellation_point_size"
+               OpSourceExtension "GL_EXT_tessellation_shader"
+               OpName %main "main"
+               OpName %gl_TessCoord "gl_TessCoord"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpName %_ ""
+               OpName %gl_PerVertex_0 "gl_PerVertex"
+               OpMemberName %gl_PerVertex_0 0 "gl_Position"
+               OpMemberName %gl_PerVertex_0 1 "gl_PointSize"
+               OpName %gl_in "gl_in"
+               OpDecorate %gl_TessCoord BuiltIn TessCoord
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpDecorate %gl_PerVertex_0 Block
+               OpMemberDecorate %gl_PerVertex_0 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex_0 1 BuiltIn PointSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v3float = OpTypeVector %float 3
+%_ptr_Input_v3float = OpTypePointer Input %v3float
+%gl_TessCoord = OpVariable %_ptr_Input_v3float Input
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_float = OpTypePointer Input %float
+%float_0_99000001 = OpConstant %float 0.99000001
+       %bool = OpTypeBool
+    %v4float = OpTypeVector %float 4
+%gl_PerVertex = OpTypeStruct %v4float %float
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+   %float_n2 = OpConstant %float -2
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+         %29 = OpConstantComposite %v4float %float_n2 %float_0 %float_0 %float_1
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%gl_PerVertex_0 = OpTypeStruct %v4float %float
+    %uint_32 = OpConstant %uint 32
+%_arr_gl_PerVertex_0_uint_32 = OpTypeArray %gl_PerVertex_0 %uint_32
+%_ptr_Input__arr_gl_PerVertex_0_uint_32 = OpTypePointer Input %_arr_gl_PerVertex_0_uint_32
+      %gl_in = OpVariable %_ptr_Input__arr_gl_PerVertex_0_uint_32 Input
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+      %int_1 = OpConstant %int 1
+    %float_2 = OpConstant %float 2
+%_ptr_Output_float = OpTypePointer Output %float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %13 = OpAccessChain %_ptr_Input_float %gl_TessCoord %uint_0
+         %14 = OpLoad %float %13
+         %17 = OpFOrdLessThan %bool %14 %float_0_99000001
+               OpSelectionMerge %19 None
+               OpBranchConditional %17 %18 %32
+         %18 = OpLabel
+         %31 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %31 %29
+               OpBranch %19
+         %32 = OpLabel
+         %39 = OpAccessChain %_ptr_Input_v4float %gl_in %int_0 %int_0
+         %40 = OpLoad %v4float %39
+         %41 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %41 %40
+               OpBranch %19
+         %19 = OpLabel
+         %43 = OpAccessChain %_ptr_Input_float %gl_in %int_0 %int_1
+         %44 = OpLoad %float %43
+         %46 = OpFAdd %float %44 %float_2
+         %48 = OpAccessChain %_ptr_Output_float %_ %int_1
+               OpStore %48 %46
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Geometry Shader
+
 - Status: generated and validated
 - Source: reconstructed `GLSL` from this walkthrough
 - Stage: `geom`

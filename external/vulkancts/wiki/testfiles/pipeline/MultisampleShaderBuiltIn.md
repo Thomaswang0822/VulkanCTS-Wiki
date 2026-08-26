@@ -68,21 +68,118 @@ The first subpass writes `gl_SampleMask` while rendering to a multisampled attac
 
 ## Shader Analysis
 
-The implementation generates GLSL at runtime rather than loading a standalone shader artifact. The representative `sample_id` fragment shader is built in [`MSCaseSampleID::initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderBuiltInTests.cpp#L343-L376):
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.pipeline_library.multisample_shader_builtin.sample_id.128_128_1.samples_16
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `pipeline_library` | Selects the pipeline-library construction root; the selected `sample_id` case is registered for this root and uses the common graphics multisample path. |
+| `sample_id` | Selects `MSCaseSampleID`, whose fragment shader reads `gl_SampleID` and encodes it into the red color channel. |
+| `128_128_1` | Selects a 128 x 128 x 1 raster target. The multisampled color attachment uses `VK_FORMAT_R8G8B8A8_UNORM`; a single-sample resolve image is also created by the shared base path. |
+| `samples_16` | Selects 16 samples per pixel. The host fetches every sample and requires sample N to contain the encoded value N. |
+
+#### Purpose
+
+This fragment shader checks that `gl_SampleID` identifies the actual sample invocation. It writes the sample index as an 8-bit-normalized red value so host-side per-sample readback can compare every sample against its fetch index.
+
+#### Structural Design
+
+| Phase | Exact generated behavior |
+|---|---|
+| Invocation identity | The fragment invocation reads the built-in `gl_SampleID`, which is represented as an integer sample index. |
+| Encoding | The index is converted to `float` and divided by `255`, preserving each possible sample index in the red channel for the registered maximum of 64 samples. |
+| Output | The shader writes `(sampleID / 255, 0, 0, 1)` to color location 0. |
+| Validation | `MSInstanceSampleID::verifyImageData` fetches each multisample image sample independently and requires the decoded red channel to equal that sample's index. |
+
+#### Shader Code
 
 ```glsl
+#version 440
+
+/// The only fragment output is the RGBA8 color attachment used to transport the sample index to readback.
 layout(location = 0) out vec4 fs_out_color;
+
 void main (void)
 {
+    /// Each invocation encodes its built-in sample index in the red channel; the host later reads this value per sample.
     fs_out_color = vec4(float(gl_SampleID) / float(255), 0.0, 0.0, 1.0);
 }
 ```
 
-Each fragment invocation writes its own sample index in a lossless 8-bit channel encoding. The per-sample host fetch in [`MSInstance<MSInstanceSampleID>::verifyImageData`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderBuiltInTests.cpp#L295-L319) decodes the channel and compares it against the fetch index. The `sample_position` and `sample_mask` shader builders reuse the same generated-program approach but change the encoded observation or mask operation. `image_write_sample` instead generates compute programs; `write_sample_mask` generates the two graphics subpass programs.
+#### Additional Info
 
-### SPIR-V artifact boundary
+- The selected case's companion vertex shader only forwards the full-screen NDC position to `gl_Position`; it is fixed boilerplate and does not participate in the sample-ID oracle.
+- `sampleRateShading` is required for this built-in case, ensuring the fragment execution path exposes sample-qualified behavior; image-size, color-attachment, multisample, and resolve support are checked before execution.
 
-This page does not embed a representative SPIR-V disassembly. The CTS generates several case-specific GLSL programs in C++, and the source is the maintained artifact. A fixed assembly listing would cover only one generated variant and would not add evidence beyond the linked builders.
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| `sample_id` versus `sample_position` / `sample_mask` | Selects a different specialized fragment builder and verification oracle; the shown shader specifically emits `gl_SampleID`, while the neighboring families encode sample positions or inspect/write sample masks. | [`MSCaseSampleID::initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderBuiltInTests.cpp#L342-L375) |
+| Image size | Does not change the generated fragment declarations or instructions; it changes the raster target and host iteration bounds. | [`imageSizes`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderBuiltInTests.cpp#L2233-L2238) |
+| Sample count | Does not change this GLSL source; it changes the number of samples rendered and the number of per-sample results checked. | [`samplesSetFull`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderBuiltInTests.cpp#L2240-L2250) |
+| Pipeline construction type | Does not change this shader source; it selects the pipeline construction root. `sample_id` is registered for monolithic, pipeline-library, and fast-linked-library roots. | [`createPipelineTests`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L130-L143) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 20
+; Schema: 0
+               OpCapability Shader
+               OpCapability SampleRateShading
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %fs_out_color %gl_SampleID
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 440
+               OpName %main "main"
+               OpName %fs_out_color "fs_out_color"
+               OpName %gl_SampleID "gl_SampleID"
+               OpDecorate %fs_out_color Location 0
+               OpDecorate %gl_SampleID BuiltIn SampleId
+               OpDecorate %gl_SampleID Flat
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%fs_out_color = OpVariable %_ptr_Output_v4float Output
+        %int = OpTypeInt 32 1
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_SampleID = OpVariable %_ptr_Input_int Input
+  %float_255 = OpConstant %float 255
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %13 = OpLoad %int %gl_SampleID
+         %14 = OpConvertSToF %float %13
+         %16 = OpFDiv %float %14 %float_255
+         %19 = OpCompositeConstruct %v4float %16 %float_0 %float_0 %float_1
+               OpStore %fs_out_color %19
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

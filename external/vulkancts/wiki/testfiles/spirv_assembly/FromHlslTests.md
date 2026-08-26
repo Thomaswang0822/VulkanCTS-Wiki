@@ -64,7 +64,7 @@ The shader reads `bar` from the `cbIn` cbuffer and writes that value to `result[
 | Entry point | `[numthreads(1, 1, 1)] void main(...)` runs a single compute invocation. | One invocation is enough because the shader only copies one scalar. |
 | Body | `result[0] = bar;` loads `bar` from the uniform buffer and stores it to the storage buffer. | The copy is the only behavior the host checks. |
 
-#### Source Code
+#### Shader Code
 
 Reconstructed HLSL from [`Programs::init()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFromHlslTests.cpp#L59-L79); `///` lines are wiki annotations, while the remaining shader text is the CTS source:
 
@@ -95,7 +95,9 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID)
 
 #### Parameter Variation Summary
 
-There are no shader-level parameter variants for this test family. The only registered path is `spirv_assembly.instruction.compute.hlsl_cases.cbuffer_packing`; all values above are fixed by the single registered case.
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---|---|---|
+| Variation 1 | There are no shader-level parameter variants for this test family. The only registered path is `spirv_assembly.instruction.compute.hlsl_cases.cbuffer_packing`; all values above are fixed by the single registered case. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
 
 #### SPIR-V
 

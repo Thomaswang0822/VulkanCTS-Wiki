@@ -61,7 +61,420 @@ Builds both BLAS and TLAS with `VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_KHR` a
 
 ## Shader Analysis
 
-Shader code is not part of the tested behavior. The rgen, any-hit, miss, and intersection shaders are a fixed probe identical across all build-path and scaling leaves; they produce a per-pixel hit/miss value that the host compares against the expected pattern. The rgen shader is the shared [getCommonRayGenerationShader](../../../framework/vulkan/vkRayTracingUtil.cpp#L118-L138) helper, which traces one ray per launch ID straight down the -z axis into the TLAS. The any-hit shader writes `1` to the result image, the miss shader writes `2`, and the intersection shader reports an intersection for AABB geometry. No shader text varies with the build path or the AS scaling level, so no representative shader walkthrough is needed.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.ray_tracing_pipeline.build.gpu.level_geometries.triangles_1_16_1
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `gpu` | Builds the BLAS and TLAS on the device before the shared ray tracing shader probe runs. |
+| `level_geometries` | Places the large count at the geometries-per-BLAS level. |
+| `triangles_1_16_1` | Uses a `4 x 4` launch, one triangle BLAS instance, 16 geometries, and one primitive per geometry. |
+
+#### Purpose
+
+The shaders turn traversal of the newly built acceleration structures into a 16-pixel hit/miss image. This makes the device-built structure observable: the any-hit stage writes `1` for a hit, while the miss stage writes `2`.
+
+#### Structural Design
+
+| Stage | Role in the probe | Observable effect |
+|-------|-------------------|-------------------|
+| Ray generation (`rgen`) | Launches one downward ray from the center of each image cell into the TLAS. | Selects either the hit or miss path for every output pixel. |
+| Any-hit (`ahit`) | Runs for an accepted triangle or procedural hit. | Stores `1` in the `r32ui` result image. |
+| Intersection (`sect`) | Supplies an intersection at `t = 1.0` for procedural AABB geometry. | Makes AABB variants reach the same any-hit result path; it is generated but not invoked by this triangle case. |
+| Miss (`miss`) | Runs when traversal finds no accepted intersection. | Stores `2` in the result image. |
+
+#### Shader Code
+
+##### Ray Generation Shader
+
+```glsl
+#version 460 core
+#extension GL_EXT_ray_tracing : require
+/// Carries traversal payload state at location 0; the hit/miss shaders do not consume its value.
+layout(location = 0) rayPayloadEXT vec3 hitValue;
+/// Descriptor set 0, binding 1 is the TLAS traversed by every launch.
+layout(set = 0, binding = 1) uniform accelerationStructureEXT topLevelAS;
+
+void main()
+{
+  uint  rayFlags = 0;
+  uint  cullMask = 0xFF;
+  float tmin     = 0.0;
+  float tmax     = 9.0;
+  /// Map this launch to the center of its normalized image cell on z = 0.
+  vec3  origin   = vec3((float(gl_LaunchIDEXT.x) + 0.5f) / float(gl_LaunchSizeEXT.x), (float(gl_LaunchIDEXT.y) + 0.5f) / float(gl_LaunchSizeEXT.y), 0.0);
+  vec3  direct   = vec3(0.0, 0.0, -1.0);
+  /// SBT offsets select hit-group 0 for triangles; TLAS instance offsets add 1 for AABBs.
+  traceRayEXT(topLevelAS, rayFlags, cullMask, 0, 0, 0, origin, tmin, direct, tmax, 0);
+}
+```
+
+##### Any-Hit Shader
+
+```glsl
+#version 460 core
+#extension GL_EXT_ray_tracing : require
+/// Incoming payload and hit attributes are declared for the ray-tracing interface but are not read.
+layout(location = 0) rayPayloadInEXT vec3 hitValue;
+hitAttributeEXT vec3 attribs;
+/// Descriptor set 0, binding 0 is the single-component unsigned result image.
+layout(r32ui, set = 0, binding = 0) uniform uimage2D result;
+void main()
+{
+  /// Mark the launch pixel as a hit; only the x component is stored by the r32ui image.
+  uvec4 color = uvec4(1,0,0,1);
+  imageStore(result, ivec2(gl_LaunchIDEXT.xy), color);
+}
+```
+
+##### Intersection Shader
+
+```glsl
+#version 460 core
+#extension GL_EXT_ray_tracing : require
+/// Procedural AABB hits expose this attribute to the following hit stage; its value is unused here.
+hitAttributeEXT vec3 hitAttribute;
+void main()
+{
+  /// Report a candidate procedural intersection one unit along the ray.
+  reportIntersectionEXT(1.0f, 0);
+}
+```
+
+##### Miss Shader
+
+```glsl
+#version 460 core
+#extension GL_EXT_ray_tracing : require
+/// The payload declaration matches location 0 used by the ray-generation stage but is not read.
+layout(location = 0) rayPayloadInEXT vec3 unusedPayload;
+/// Descriptor set 0, binding 0 is shared with the any-hit stage.
+layout(r32ui, set = 0, binding = 0) uniform uimage2D result;
+void main()
+{
+  /// Mark the launch pixel as a miss.
+  uvec4 color = uvec4(2,0,0,1);
+  imageStore(result, ivec2(gl_LaunchIDEXT.xy), color);
+}
+```
+
+#### Additional Info
+
+- The any-hit and miss shaders stay fixed across every leaf. Together they encode traversal as the exact values consumed by `validateBuffer`: `1` for hit and `2` for miss.
+- The intersection shader also stays fixed. It matters to the page's `aabbs` and `mixed` leaves, whose second hit-group record combines this stage with the same any-hit shader; the selected triangle leaf uses the first hit-group record and does not invoke it.
+- `updateRayTracingGLSL` is an identity wrapper, so the displayed stage sources preserve the strings assembled by `RayTracingTestCase::initPrograms`. All four are compiled with the explicit SPIR-V 1.4 target.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| Build path (`gpu`, `cpu`, `cpuht_*`) | None. It changes where and how the acceleration structures are built, not the generated shader source. | [build-path registration and `CaseDef`](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L753-L798) |
+| Scaling level, size, and factor | None. These dimensions change launch dimensions and BLAS/TLAS contents; all leaves call the same shader builder. | [`buildTest`](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L641-L751) |
+| Geometry type (`triangles`, `aabbs`, `mixed`) | None in generated source. Runtime TLAS SBT record offsets select the triangle hit group or the AABB hit group that adds the intersection stage. | [TLAS instance setup](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L268-L290) and [pipeline/SBT setup](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L437-L464) |
+
+#### SPIR-V
+
+##### Ray Generation Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `rgen`
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 62
+; Schema: 0
+               OpCapability RayTracingKHR
+               OpExtension "SPV_KHR_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint RayGenerationKHR %main "main" %gl_LaunchIDEXT %gl_LaunchSizeEXT %topLevelAS %hitValue
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_ray_tracing"
+               OpName %main "main"
+               OpName %rayFlags "rayFlags"
+               OpName %cullMask "cullMask"
+               OpName %tmin "tmin"
+               OpName %tmax "tmax"
+               OpName %origin "origin"
+               OpName %gl_LaunchIDEXT "gl_LaunchIDEXT"
+               OpName %gl_LaunchSizeEXT "gl_LaunchSizeEXT"
+               OpName %direct "direct"
+               OpName %topLevelAS "topLevelAS"
+               OpName %hitValue "hitValue"
+               OpDecorate %gl_LaunchIDEXT BuiltIn LaunchIdKHR
+               OpDecorate %gl_LaunchSizeEXT BuiltIn LaunchSizeKHR
+               OpDecorate %topLevelAS Binding 1
+               OpDecorate %topLevelAS DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_ptr_Function_uint = OpTypePointer Function %uint
+     %uint_0 = OpConstant %uint 0
+   %uint_255 = OpConstant %uint 255
+      %float = OpTypeFloat 32
+%_ptr_Function_float = OpTypePointer Function %float
+    %float_0 = OpConstant %float 0
+    %float_9 = OpConstant %float 9
+    %v3float = OpTypeVector %float 3
+%_ptr_Function_v3float = OpTypePointer Function %v3float
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_LaunchIDEXT = OpVariable %_ptr_Input_v3uint Input
+%_ptr_Input_uint = OpTypePointer Input %uint
+  %float_0_5 = OpConstant %float 0.5
+%gl_LaunchSizeEXT = OpVariable %_ptr_Input_v3uint Input
+     %uint_1 = OpConstant %uint 1
+   %float_n1 = OpConstant %float -1
+         %47 = OpConstantComposite %v3float %float_0 %float_0 %float_n1
+         %48 = OpTypeAccelerationStructureKHR
+%_ptr_UniformConstant_48 = OpTypePointer UniformConstant %48
+ %topLevelAS = OpVariable %_ptr_UniformConstant_48 UniformConstant
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_RayPayloadKHR_v3float = OpTypePointer RayPayloadKHR %v3float
+   %hitValue = OpVariable %_ptr_RayPayloadKHR_v3float RayPayloadKHR
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+   %rayFlags = OpVariable %_ptr_Function_uint Function
+   %cullMask = OpVariable %_ptr_Function_uint Function
+       %tmin = OpVariable %_ptr_Function_float Function
+       %tmax = OpVariable %_ptr_Function_float Function
+     %origin = OpVariable %_ptr_Function_v3float Function
+     %direct = OpVariable %_ptr_Function_v3float Function
+               OpStore %rayFlags %uint_0
+               OpStore %cullMask %uint_255
+               OpStore %tmin %float_0
+               OpStore %tmax %float_9
+         %25 = OpAccessChain %_ptr_Input_uint %gl_LaunchIDEXT %uint_0
+         %26 = OpLoad %uint %25
+         %27 = OpConvertUToF %float %26
+         %29 = OpFAdd %float %27 %float_0_5
+         %31 = OpAccessChain %_ptr_Input_uint %gl_LaunchSizeEXT %uint_0
+         %32 = OpLoad %uint %31
+         %33 = OpConvertUToF %float %32
+         %34 = OpFDiv %float %29 %33
+         %36 = OpAccessChain %_ptr_Input_uint %gl_LaunchIDEXT %uint_1
+         %37 = OpLoad %uint %36
+         %38 = OpConvertUToF %float %37
+         %39 = OpFAdd %float %38 %float_0_5
+         %40 = OpAccessChain %_ptr_Input_uint %gl_LaunchSizeEXT %uint_1
+         %41 = OpLoad %uint %40
+         %42 = OpConvertUToF %float %41
+         %43 = OpFDiv %float %39 %42
+         %44 = OpCompositeConstruct %v3float %34 %43 %float_0
+               OpStore %origin %44
+               OpStore %direct %47
+         %51 = OpLoad %48 %topLevelAS
+         %52 = OpLoad %uint %rayFlags
+         %53 = OpLoad %uint %cullMask
+         %54 = OpLoad %v3float %origin
+         %55 = OpLoad %float %tmin
+         %56 = OpLoad %v3float %direct
+         %57 = OpLoad %float %tmax
+               OpTraceRayKHR %51 %52 %53 %uint_0 %uint_0 %uint_0 %54 %55 %56 %57 %hitValue
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Any-Hit Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `rahit`
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 33
+; Schema: 0
+               OpCapability RayTracingKHR
+               OpExtension "SPV_KHR_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint AnyHitKHR %main "main" %result %gl_LaunchIDEXT %hitValue %attribs
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_ray_tracing"
+               OpName %main "main"
+               OpName %color "color"
+               OpName %result "result"
+               OpName %gl_LaunchIDEXT "gl_LaunchIDEXT"
+               OpName %hitValue "hitValue"
+               OpName %attribs "attribs"
+               OpDecorate %result Binding 0
+               OpDecorate %result DescriptorSet 0
+               OpDecorate %gl_LaunchIDEXT BuiltIn LaunchIdKHR
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+     %v4uint = OpTypeVector %uint 4
+%_ptr_Function_v4uint = OpTypePointer Function %v4uint
+     %uint_1 = OpConstant %uint 1
+     %uint_0 = OpConstant %uint 0
+         %12 = OpConstantComposite %v4uint %uint_1 %uint_0 %uint_0 %uint_1
+         %13 = OpTypeImage %uint 2D 0 0 0 2 R32ui
+%_ptr_UniformConstant_13 = OpTypePointer UniformConstant %13
+     %result = OpVariable %_ptr_UniformConstant_13 UniformConstant
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_LaunchIDEXT = OpVariable %_ptr_Input_v3uint Input
+     %v2uint = OpTypeVector %uint 2
+        %int = OpTypeInt 32 1
+      %v2int = OpTypeVector %int 2
+      %float = OpTypeFloat 32
+    %v3float = OpTypeVector %float 3
+%_ptr_IncomingRayPayloadKHR_v3float = OpTypePointer IncomingRayPayloadKHR %v3float
+   %hitValue = OpVariable %_ptr_IncomingRayPayloadKHR_v3float IncomingRayPayloadKHR
+%_ptr_HitAttributeKHR_v3float = OpTypePointer HitAttributeKHR %v3float
+    %attribs = OpVariable %_ptr_HitAttributeKHR_v3float HitAttributeKHR
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+      %color = OpVariable %_ptr_Function_v4uint Function
+               OpStore %color %12
+         %16 = OpLoad %13 %result
+         %21 = OpLoad %v3uint %gl_LaunchIDEXT
+         %22 = OpVectorShuffle %v2uint %21 %21 0 1
+         %25 = OpBitcast %v2int %22
+         %26 = OpLoad %v4uint %color
+               OpImageWrite %16 %25 %26 ZeroExtend
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Intersection Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `rint`
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 15
+; Schema: 0
+               OpCapability RayTracingKHR
+               OpExtension "SPV_KHR_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint IntersectionKHR %main "main" %hitAttribute
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_ray_tracing"
+               OpName %main "main"
+               OpName %hitAttribute "hitAttribute"
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %float_1 = OpConstant %float 1
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+       %bool = OpTypeBool
+    %v3float = OpTypeVector %float 3
+%_ptr_HitAttributeKHR_v3float = OpTypePointer HitAttributeKHR %v3float
+%hitAttribute = OpVariable %_ptr_HitAttributeKHR_v3float HitAttributeKHR
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %11 = OpReportIntersectionKHR %bool %float_1 %uint_0
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Miss Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `rmiss`
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 32
+; Schema: 0
+               OpCapability RayTracingKHR
+               OpExtension "SPV_KHR_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint MissKHR %main "main" %result %gl_LaunchIDEXT %unusedPayload
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_ray_tracing"
+               OpName %main "main"
+               OpName %color "color"
+               OpName %result "result"
+               OpName %gl_LaunchIDEXT "gl_LaunchIDEXT"
+               OpName %unusedPayload "unusedPayload"
+               OpDecorate %result Binding 0
+               OpDecorate %result DescriptorSet 0
+               OpDecorate %gl_LaunchIDEXT BuiltIn LaunchIdKHR
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+     %v4uint = OpTypeVector %uint 4
+%_ptr_Function_v4uint = OpTypePointer Function %v4uint
+     %uint_2 = OpConstant %uint 2
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+         %13 = OpConstantComposite %v4uint %uint_2 %uint_0 %uint_0 %uint_1
+         %14 = OpTypeImage %uint 2D 0 0 0 2 R32ui
+%_ptr_UniformConstant_14 = OpTypePointer UniformConstant %14
+     %result = OpVariable %_ptr_UniformConstant_14 UniformConstant
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_LaunchIDEXT = OpVariable %_ptr_Input_v3uint Input
+     %v2uint = OpTypeVector %uint 2
+        %int = OpTypeInt 32 1
+      %v2int = OpTypeVector %int 2
+      %float = OpTypeFloat 32
+    %v3float = OpTypeVector %float 3
+%_ptr_IncomingRayPayloadKHR_v3float = OpTypePointer IncomingRayPayloadKHR %v3float
+%unusedPayload = OpVariable %_ptr_IncomingRayPayloadKHR_v3float IncomingRayPayloadKHR
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+      %color = OpVariable %_ptr_Function_v4uint Function
+               OpStore %color %13
+         %17 = OpLoad %14 %result
+         %22 = OpLoad %v3uint %gl_LaunchIDEXT
+         %23 = OpVectorShuffle %v2uint %22 %22 0 1
+         %26 = OpBitcast %v2int %23
+         %27 = OpLoad %v4uint %color
+               OpImageWrite %17 %26 %27 ZeroExtend
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

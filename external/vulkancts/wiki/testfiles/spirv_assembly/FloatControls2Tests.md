@@ -121,86 +121,9 @@ flowchart TD
     D --> F["%outloc = OpAccessChain %ssbo_out[0][0]<br/>OpStore %outloc %result  →  output SSBO"]
 ```
 
-#### Source Code
+#### Shader Code
 
-The compute SPIR-V assembly fence below is the complete source-equivalent representative specialization built from the [`m_operationShaderTemplate`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControls2Tests.cpp#L2397-L2466) skeleton, the FP32 snippets from [`TypeSnippets<float>::TypeSnippets`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControls2Tests.cpp#L915-L938), the behavior snippets from [`getBehaviorCapabilityAndExecutionModeDecoration`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControls2Tests.cpp#L2319-L2336), and the `OID_ADD` command `%result = OpFAdd %type_float %arg1 %arg2` from [`TestCasesBuilder::init`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControls2Tests.cpp#L1643-L1644). Its fast-math numeric literals are the source generator's unsigned `FPFastMathModeMask` values. CTS-authored `;` comments are preserved verbatim; wiki-authored section markers also use `;` comment syntax.
-
-```llvm
-; --- capabilities ---
-OpCapability Shader
-OpCapability FloatControls2
-; --- extensions ---
-OpExtension "SPV_KHR_float_controls2"
-%std450            = OpExtInstImport "GLSL.std.450"
-OpMemoryModel Logical GLSL450
-OpEntryPoint GLCompute %main "main" %id
-OpExecutionMode %main LocalSize 1 1 1
-; --- function-wide FPFastMathDefault: allBits = 458767 (everything allowed) ---
-OpExecutionModeId %main FPFastMathDefault %type_f32 %bc_u32_fp_exec_mode
-OpDecorate %id BuiltIn GlobalInvocationId
-; --- per-result FPFastMathMode decoration: invert(NSZ) = 458763 ---
-; NotNaN|NotInf|AllowRecip|AllowContract|AllowReassoc|AllowTransform
-OpDecorate %result FPFastMathMode NotNaN|NotInf|AllowRecip|AllowContract|AllowReassoc|AllowTransform
-; --- SSBO annotations (input binding 0, output binding 1) ---
-OpMemberDecorate %SSBO_in 0 Offset 0
-OpDecorate %SSBO_in BufferBlock
-OpDecorate %ssbo_in DescriptorSet 0
-OpDecorate %ssbo_in Binding 0
-OpDecorate %ssbo_in NonWritable
-OpMemberDecorate %SSBO_out 0 Offset 0
-OpDecorate %SSBO_out BufferBlock
-OpDecorate %ssbo_out DescriptorSet 0
-OpDecorate %ssbo_out Binding 1
-OpDecorate %type_f32_arr_1 ArrayStride 4
-OpDecorate %type_f32_arr_2 ArrayStride 4
-; --- common scalar/vector types ---
-%type_void            = OpTypeVoid
-%type_voidf           = OpTypeFunction %type_void
-%type_bool            = OpTypeBool
-%type_u32             = OpTypeInt 32 0
-%type_i32             = OpTypeInt 32 1
-%type_i32_fptr        = OpTypePointer Function %type_i32
-%type_u32_vec2        = OpTypeVector %type_u32 2
-%type_u32_vec3        = OpTypeVector %type_u32 3
-%type_u32_vec3_ptr    = OpTypePointer Input %type_u32_vec3
-%c_i32_0              = OpConstant %type_i32 0
-%c_i32_1              = OpConstant %type_i32 1
-%c_i32_2              = OpConstant %type_i32 2
-; --- FP32 type family ---
-%type_f32             = OpTypeFloat 32
-%type_f32_uptr        = OpTypePointer Uniform %type_f32
-%type_f32_fptr        = OpTypePointer Function %type_f32
-%type_f32_vec2        = OpTypeVector %type_f32 2
-%type_f32_vec3        = OpTypeVector %type_f32 3
-%type_f32_vec4        = OpTypeVector %type_f32 4
-%type_f32_vec4_iptr   = OpTypePointer Input %type_f32_vec4
-%type_f32_vec4_optr   = OpTypePointer Output %type_f32_vec4
-%type_f32_mat2x2      = OpTypeMatrix %type_f32_vec2 2
-%type_f32_arr_1       = OpTypeArray %type_f32 %c_i32_1
-%type_f32_arr_2       = OpTypeArray %type_f32 %c_i32_2
-; --- SSBO variables (binding 0 input, binding 1 output) ---
-%SSBO_in              = OpTypeStruct %type_f32_arr_2
-%up_SSBO_in           = OpTypePointer Uniform %SSBO_in
-%ssbo_in              = OpVariable %up_SSBO_in Uniform
-%SSBO_out             = OpTypeStruct %type_f32_arr_1
-%up_SSBO_out          = OpTypePointer Uniform %SSBO_out
-%ssbo_out             = OpVariable %up_SSBO_out Uniform
-%id                   = OpVariable %type_u32_vec3_ptr Input
-; --- behavior constant: function-wide FPFastMathDefault mask = 458767 ---
-%bc_u32_fp_exec_mode  = OpConstant %type_u32 458767
-; --- main function ---
-%main                 = OpFunction %type_void None %type_voidf
-%label                = OpLabel
-%arg1loc              = OpAccessChain %type_f32_uptr %ssbo_in %c_i32_0 %c_i32_0
-%arg1                 = OpLoad %type_f32 %arg1loc
-%arg2loc              = OpAccessChain %type_f32_uptr %ssbo_in %c_i32_0 %c_i32_1
-%arg2                 = OpLoad %type_f32 %arg2loc
-%result               = OpFAdd %type_f32 %arg1 %arg2
-%outloc               = OpAccessChain %type_f32_uptr %ssbo_out %c_i32_0 %c_i32_0
-OpStore %outloc %result
-OpReturn
-OpFunctionEnd
-```
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -221,6 +144,90 @@ OpFunctionEnd
 | Application point `_exec` | Removes the `OpDecorate %result FPFastMathMode ...` line; sets `%bc_u32_fp_exec_mode` to the inverted mask directly. | [`OperationTestCase` constructor](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControls2Tests.cpp#L1097-L1119) |
 | `requireRte = true` | Adds `OpCapability RoundingModeRTE`, `OpExtension "SPV_KHR_float_controls"`, and `OpExecutionMode %main RoundingModeRTE <width>`; sets the matching `shaderRoundingModeRTEFloatN` property. | [`ComputeTestGroupBuilder::fillShaderSpec`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControls2Tests.cpp#L2629-L2634) |
 | Graphics pipeline | Two SPIR-V modules (`vert` + `frag`) replace the single compute module. The tested stage runs `%result = OpFAdd`; the other stage passes its result through a bitcast `u32`/`u32vec2` varying (`%BP_vertex_result`). Only the fragment stage writes `%ssbo_out`. | [`getGraphicsShaderCode`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControls2Tests.cpp#L2670-L2868) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.2`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.2
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 41
+; Schema: 0
+               OpCapability Shader
+               OpCapability FloatControls2
+               OpExtension "SPV_KHR_float_controls2"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %2 "main" %gl_GlobalInvocationID
+               OpExecutionMode %2 LocalSize 1 1 1
+               OpExecutionModeId %2 FPFastMathDefault %float %uint_458767
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %6 FPFastMathMode NotNaN|NotInf|AllowRecip|AllowContract|AllowReassoc|AllowTransform
+               OpMemberDecorate %_struct_7 0 Offset 0
+               OpDecorate %_struct_7 BufferBlock
+               OpDecorate %8 DescriptorSet 0
+               OpDecorate %8 Binding 0
+               OpDecorate %8 NonWritable
+               OpMemberDecorate %_struct_9 0 Offset 0
+               OpDecorate %_struct_9 BufferBlock
+               OpDecorate %10 DescriptorSet 0
+               OpDecorate %10 Binding 1
+               OpDecorate %_arr_float_int_1 ArrayStride 4
+               OpDecorate %_arr_float_int_2 ArrayStride 4
+       %void = OpTypeVoid
+         %14 = OpTypeFunction %void
+       %bool = OpTypeBool
+       %uint = OpTypeInt 32 0
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+     %v2uint = OpTypeVector %uint 2
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+      %int_0 = OpConstant %int 0
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+      %float = OpTypeFloat 32
+%_ptr_Uniform_float = OpTypePointer Uniform %float
+%_ptr_Function_float = OpTypePointer Function %float
+    %v2float = OpTypeVector %float 2
+    %v3float = OpTypeVector %float 3
+    %v4float = OpTypeVector %float 4
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%mat2v2float = OpTypeMatrix %v2float 2
+%_arr_float_int_1 = OpTypeArray %float %int_1
+%_arr_float_int_2 = OpTypeArray %float %int_2
+  %_struct_7 = OpTypeStruct %_arr_float_int_2
+%_ptr_Uniform__struct_7 = OpTypePointer Uniform %_struct_7
+          %8 = OpVariable %_ptr_Uniform__struct_7 Uniform
+  %_struct_9 = OpTypeStruct %_arr_float_int_1
+%_ptr_Uniform__struct_9 = OpTypePointer Uniform %_struct_9
+         %10 = OpVariable %_ptr_Uniform__struct_9 Uniform
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+%uint_458767 = OpConstant %uint 458767
+          %2 = OpFunction %void None %14
+         %35 = OpLabel
+         %36 = OpAccessChain %_ptr_Uniform_float %8 %int_0 %int_0
+         %37 = OpLoad %float %36
+         %38 = OpAccessChain %_ptr_Uniform_float %8 %int_0 %int_1
+         %39 = OpLoad %float %38
+          %6 = OpFAdd %float %37 %39
+         %40 = OpAccessChain %_ptr_Uniform_float %10 %int_0 %int_0
+               OpStore %40 %6
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

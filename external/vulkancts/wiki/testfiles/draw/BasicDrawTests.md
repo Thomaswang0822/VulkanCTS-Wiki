@@ -69,7 +69,27 @@ The Vulkan cases use the following generated GLSL pair. The shaders only pass po
 
 ### Representative Shader Walkthrough 1
 
-The vertex stage consumes location 0 position and location 1 color, writes `gl_Position` and a fixed `gl_PointSize`, and forwards color at location 0. The fragment stage writes that interpolated color to the color attachment. The source builder is [`DrawTestCase<T>::initShaderSources`](../../../modules/vulkan/draw/vktBasicDrawTests.cpp#L858-L888).
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.draw.renderpass.basic_draw.draw.line_list.1
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `renderpass` | Uses the ordinary render-pass/framebuffer path rather than dynamic rendering. |
+| `draw` | Records a direct, non-indexed `vkCmdDraw` command. |
+| `line_list` | Assembles each pair of vertices as an independent line. |
+| `1` | Draws one logical primitive. |
+| `GLSL` | Both shown stages are generated as GLSL sources. |
+| `vert` and `frag` | The program collection contains one vertex shader and one fragment shader. |
+| `#version 430` | Both generated shader sources declare GLSL version 4.30. |
+
+#### Purpose
+
+The minimal pass-through shaders keep the expected image determined by the host-generated vertices, colors, topology, and draw parameters. That makes a mismatch attributable to command execution, primitive assembly, buffer addressing, rendering mode, or image handling rather than application shader logic.
 
 #### Structural Design
 
@@ -78,11 +98,9 @@ The vertex stage consumes location 0 position and location 1 color, writes `gl_P
 | Vertex | `in_position`, `in_color` | `gl_Position`, `gl_PointSize`, `out_color` | Preserve generated vertex attributes and set point size to 1.0. |
 | Fragment | `in_color` | `out_color` | Store the interpolated color without a test-specific calculation. |
 
-#### Purpose
-
-The minimal pass-through shaders keep the expected image determined by the host-generated vertices, colors, topology, and draw parameters. That makes a mismatch attributable to command execution, primitive assembly, buffer addressing, rendering mode, or image handling rather than application shader logic.
-
 #### Shader Code
+
+##### Vertex Shader
 
 ```glsl
 #version 430
@@ -100,6 +118,8 @@ void main() {
 }
 ```
 
+##### Fragment Shader
+
 ```glsl
 #version 430
 layout(location = 0) in vec4 in_color;
@@ -110,25 +130,26 @@ void main()
 }
 ```
 
-#### Parameter Values Chosen
-
-| Parameter | Representative value | Evidence |
-|-----------|----------------------|----------|
-| Source language | `GLSL` | [`initShaderSources`](../../../modules/vulkan/draw/vktBasicDrawTests.cpp#L858-L888) |
-| Vertex stage | `vert` | [`initPrograms`](../../../modules/vulkan/draw/vktBasicDrawTests.cpp#L809-L813) |
-| Fragment stage | `frag` | [`initPrograms`](../../../modules/vulkan/draw/vktBasicDrawTests.cpp#L809-L813) |
-| GLSL version | `#version 430` | [`initShaderSources`](../../../modules/vulkan/draw/vktBasicDrawTests.cpp#L860-L885) |
-
-#### Parameter Variation Summary
-
-Draw-family, topology, offset, and rendering-mode variations occur in host-side setup and command recording. They do not alter these shader bodies. Adjacency topologies still require the geometry-shader device feature because the topology is a graphics-pipeline property, even though this page's vertex and fragment stages remain unchanged.
-
 #### Additional Info
 
 - The software reference uses matching pass-through vertex and fragment behavior through `rr::Program`.
 - The vertex shader declares `gl_PerVertex` explicitly so it writes position and point size for every topology.
 
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Draw command family | None. Direct, indexed, indirect, and indexed-indirect cases use the same vertex and fragment shader bodies; the host changes command recording and parameter transport. | [`createDrawTests`](../../../modules/vulkan/draw/vktBasicDrawTests.cpp#L1853-L1880) |
+| Primitive topology | None in shader source. The selected topology changes primitive assembly and the host-generated vertex count. | [`populateSubGroup`](../../../modules/vulkan/draw/vktBasicDrawTests.cpp#L1743-L1780) |
+| Primitive count | None. The count changes generated geometry and draw parameters without changing either stage. | [`populateSubGroup`](../../../modules/vulkan/draw/vktBasicDrawTests.cpp#L1732-L1741) |
+| Direct and indexed offsets | None. Randomized `firstVertex`, `firstIndex`, and `vertexOffset` values affect host-side buffer addressing only. | [`populateSubGroup`](../../../modules/vulkan/draw/vktBasicDrawTests.cpp#L1787-L1806) |
+| Indirect command shape | None. Single-command, separate multi-command, and one-call multi-draw variants retain the same shader pair. | [`populateSubGroup`](../../../modules/vulkan/draw/vktBasicDrawTests.cpp#L1811-L1844) |
+| Rendering and command-buffer mode | None. Render-pass, dynamic-rendering, secondary, and nested-secondary variants change setup and recording rather than generated GLSL. | [`DrawTestInstanceBase`](../../../modules/vulkan/draw/vktBasicDrawTests.cpp#L365-L414) |
+| Adjacency topology | The shader bodies remain unchanged, but selecting an adjacency topology requires the geometry-shader device feature because of the pipeline topology. | [`DrawTestCase<T>::checkSupport`](../../../modules/vulkan/draw/vktBasicDrawTests.cpp#L816-L824) |
+
 #### SPIR-V
+
+##### Vertex Shader
 
 - Status: generated and validated
 - Source: reconstructed `GLSL` from this walkthrough
@@ -189,6 +210,51 @@ Draw-family, topology, offset, and rendering-mode variations occur in host-side 
                OpStore %21 %19
          %24 = OpLoad %v4float %in_color
                OpStore %out_color %24
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 13
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %out_color %in_color
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 430
+               OpName %main "main"
+               OpName %out_color "out_color"
+               OpName %in_color "in_color"
+               OpDecorate %out_color Location 0
+               OpDecorate %in_color Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %out_color = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+   %in_color = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %12 = OpLoad %v4float %in_color
+               OpStore %out_color %12
                OpReturn
                OpFunctionEnd
 ```

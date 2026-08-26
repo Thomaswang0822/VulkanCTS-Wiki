@@ -70,8 +70,203 @@ Same pipeline as `asm_triangle` but the SPIR-V assembly strings omit `OpName` an
 Same GLSL rendering pipeline as `triangle`, but the render pass declares a `pResolveAttachments` array whose single entry is `VK_ATTACHMENT_UNUSED`. The case creates no resolve attachment image. The test verifies that the implementation accepts a non-NULL `pResolveAttachments` array with an unused entry and produces the same triangle rendering as the regular `triangle` case. Unlike `triangle`, this case uses zero memory binding offsets.
 
 ## Shader Analysis
+The representative `asm_triangle_no_opname` case is the strongest shader-focused walkthrough because it keeps the shared triangle pipeline and software-reference oracle fixed while replacing the ordinary GLSL/annotated SPIR-V path with structurally distinct SPIR-V assembly that has no `OpName` instructions. The source entrypoint is [`createProgsNoOpName`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L192-L259), registered for [`dEQP-VK.api.smoke.asm_triangle_no_opname`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L864-L874) and executed by [`renderTriangleTest`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L325-L573).
 
-Shader code is not part of the tested behavior of the `smoke` test family. The rendering cases use trivial GLSL or SPIR-V assembly shaders only as a vehicle to drive the rendering pipeline; the test compares a single triangle against a software reference, not shader semantics. No `### Representative Shader Walkthrough` subsection is created.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.api.smoke.asm_triangle_no_opname
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| Test case leaf `asm_triangle_no_opname` | Selects `createProgsNoOpName()` and the shared `renderTriangleTest()` path; the shader modules are authored SPIR-V assembly without debug `OpName` instructions. |
+| Shader stages `vert` + `frag` | The vertex stage copies the position and writes the fixed magenta varying; the fragment stage forwards that varying to color output. |
+| Vertex output layout | `gl_Position` is represented by a two-member output struct containing `Position` and `PointSize`, reached through `OpAccessChain`; the varying is a separate `Location 2` output. |
+| Shared rendering oracle | Three fixed vertices are drawn into a `256x256` `VK_FORMAT_R8G8B8A8_UNORM` target and compared with the software reference triangle. |
+
+#### Purpose
+
+This case checks that an implementation accepts and executes structurally distinct SPIR-V without `OpName`, including a struct-based built-in `Position` decorated through `OpMemberDecorate`. The software-reference comparison verifies the resulting triangle, while the fragment stage provides the fixed magenta output used by the common rendering path.
+
+#### Structural Design
+
+```mermaid
+flowchart TD
+    A["Vertex input: Location 0 vec4 a_position"] --> B["Load position"]
+    B --> C["OpAccessChain output struct member 0: BuiltIn Position"]
+    C --> D["Store gl_Position"]
+    D --> E["Store PointSize = 1.0"]
+    E --> F["Store magenta vec4 at Location 2"]
+    F --> G["Fragment loads Location 2"]
+    G --> H["Store color at Location 0"]
+    H --> I["Triangle image compared with rr::Renderer reference"]
+```
+
+#### Shader Code
+
+##### Vertex Shader
+
+```glsl
+#version 310 es
+/// Reconstructed from createProgsNoOpName: the input position is copied to
+/// the Position member of the built-in output block.
+layout(location = 0) in highp vec4 a_position;
+/// Location 2 is the stage interface consumed by the fixed fragment module.
+layout(location = 2) out highp vec4 v_color;
+void main (void)
+{
+    /// The source assembly reaches Position and PointSize through OpAccessChain
+    /// on a two-member output struct; these are equivalent GLSL assignments.
+    gl_Position = a_position;
+    gl_PointSize = 1.0;
+    v_color = vec4(1.0, 0.0, 1.0, 1.0);
+}
+```
+
+##### Fragment Shader
+
+```glsl
+#version 310 es
+/// Location 2 matches the vertex output; color is written at Location 0.
+layout(location = 2) in highp vec4 v_color;
+layout(location = 0) out lowp vec4 o_color;
+void main (void)
+{
+    o_color = v_color;
+}
+```
+
+#### Additional Info
+
+- The fragment module is fixed across the smoke triangle variants: it consumes the stage value at `Location 2` and stores it at color `Location 0`; it matters here because the no-`OpName` vertex module must link into the same interface.
+- `createProgsNoOpName()` intentionally omits `OpName` while retaining executable declarations and decorations. The reconstructed GLSL is a semantic equivalent, so the compiler-generated verification assembly can contain harmless `OpName` metadata.
+- The host test does not inspect shader outputs directly. It uploads `(-0.5,-0.5,0,1)`, `(+0.5,-0.5,0,1)`, and `(0,+0.5,0,1)`, then compares the device image against `renderReferenceTriangle()` with zero color threshold and one-pixel position deviation.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| `asm_triangle` vs `asm_triangle_no_opname` | Keeps the same vertex/fragment dataflow but changes from assembly with `OpName` decorations to assembly without `OpName`; the no-name case also uses the struct-based `Position`/`PointSize` output layout. | [`createTriangleAsmProgs`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L118-L180), [`createProgsNoOpName`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L192-L259) |
+| `triangle` / `unused_resolve_attachment` vs this case | Uses GLSL sources instead of SPIR-V assembly; the host rendering and reference comparison remain shared or equivalent. | [`createTriangleProgs`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L182-L190), [`renderTriangleTest`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L325-L573) |
+| Render-pass configuration | Does not change the shader: `unused_resolve_attachment` changes only the render pass to include `VK_ATTACHMENT_UNUSED`, while the no-`OpName` case uses the normal render pass. | [`renderTriangleUnusedResolveAttachmentTest`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L581-L860) |
+
+#### SPIR-V
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 25
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %a_position %v_color
+               OpSource ESSL 310
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpName %_ ""
+               OpName %a_position "a_position"
+               OpName %v_color "v_color"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpDecorate %a_position Location 0
+               OpDecorate %v_color Location 2
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%gl_PerVertex = OpTypeStruct %v4float %float
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+ %a_position = OpVariable %_ptr_Input_v4float Input
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+      %int_1 = OpConstant %int 1
+    %float_1 = OpConstant %float 1
+%_ptr_Output_float = OpTypePointer Output %float
+    %v_color = OpVariable %_ptr_Output_v4float Output
+    %float_0 = OpConstant %float 0
+         %24 = OpConstantComposite %v4float %float_1 %float_0 %float_1 %float_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %15 = OpLoad %v4float %a_position
+         %17 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %17 %15
+         %21 = OpAccessChain %_ptr_Output_float %_ %int_1
+               OpStore %21 %float_1
+               OpStore %v_color %24
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 13
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %o_color %v_color
+               OpExecutionMode %main OriginUpperLeft
+               OpSource ESSL 310
+               OpName %main "main"
+               OpName %o_color "o_color"
+               OpName %v_color "v_color"
+               OpDecorate %o_color RelaxedPrecision
+               OpDecorate %o_color Location 0
+               OpDecorate %v_color Location 2
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+    %o_color = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+    %v_color = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %12 = OpLoad %v4float %v_color
+               OpStore %o_color %12
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

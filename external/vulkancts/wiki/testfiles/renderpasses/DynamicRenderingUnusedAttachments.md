@@ -161,28 +161,103 @@ transition from used to unused (color) and from unused to used (depth) across re
 
 ## Shader Analysis
 
-The shaders are simple and not the tested behavior; they exist only to write a deterministic value into every active
-attachment so the host can distinguish written from cleared pixels. The tested behavior is whether the implementation honors
-the used/unused pairing, so this page does not include a representative SPIR-V walkthrough.
+### Representative Shader Walkthrough 1
 
-The vertex shader
-([vert](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L380-L391)) emits a fullscreen
-triangle from `gl_VertexIndex` with no vertex inputs. When the case is not multiview but has more than one layer, it also
-writes `gl_Layer` from a push constant so the host can target a specific layer
-([vertExportsLayer](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L212-L215)). The shader
-is built twice, once targeting SPIR-V 1.0 with the `ShaderViewportIndexLayerEXT` capability and once targeting SPIR-V 1.5
-with the `ShaderLayer` capability, and the runtime picks the right module based on whether the context is Vulkan 1.2 or
-later ([vert-spv10 / vert-spv15](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L417-L422)).
+#### Parameter Values Chosen
 
-The fragment shader
-([frag](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L434-L486)) is generated per case.
-It declares `fragAttachmentCount` color outputs, skipping any output whose corresponding pipeline format is
-`VK_FORMAT_UNDEFINED`, and writes `colorN = uvec4(layerIndex, 255, N, 255)` into each active output. The
-`layerIndex` expression is `gl_ViewIndex` in multiview mode, `gl_Layer` when the vertex shader exports the layer, and `0u` otherwise. The
-`largeRenderAttCount` variants also declare `kExtraRenderAttCount` float outputs so the fragment shader covers the
-extra render attachments. The `misc` intermediate node uses a separate, simpler vertex/fragment pair
-([usedThenUnusedPrograms](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L1154-L1174)) that
-outputs a push-constant `vec4` color to location 0.
+Representative path:
+
+```text
+dEQP-VK.renderpasses.dynamic_rendering.primary_cmd_buff.unused_attachments.comb.color.pipe_1_frag_1_layers_1_mask_0x01_formats_0xffffffff_handles_0xffffffff_depth_no_undef_null_stencil_no_undef_null
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `pipe_1_frag_1` | The pipeline and fragment shader each expose one color slot, so the walkthrough isolates the output-to-attachment mapping without count-mismatch extras. |
+| `layers_1_mask_0x01` | There is one layer and its mask bit is set; the fragment shader therefore uses the fixed layer index `0u`. |
+| `formats_0xffffffff_handles_0xffffffff` | The pipeline format is defined and the framebuffer view is valid for the color slot, making the slot active on both sides. |
+| `depth_no_undef_null_stencil_no_undef_null` | No depth or stencil attachment participates, leaving the color output as the sole validation payload. |
+
+#### Purpose
+
+This fragment shader writes a deterministic unsigned color encoding to the active color attachment. The host compares that value with the expected encoding and checks that attachment combinations unused on either side remain at their clear values.
+
+#### Structural Design
+
+| Phase | Shader action | Validation meaning |
+|-------|---------------|--------------------|
+| Output declaration | Declare `color0` at location 0 only when the selected pipeline format is defined. | The shader cannot target a pipeline-side-unused slot. |
+| Layer selection | Set `layerIndex` to `0u` for this single-layer, non-multiview case. | The first component identifies the rendered layer. |
+| Attachment encoding | Store `uvec4(layerIndex, 255, 0, 255)` in `color0`. | The host can identify both the layer and attachment index, while an untouched slot remains clear. |
+
+#### Shader Code
+
+```glsl
+#version 460
+#extension GL_ARB_shader_viewport_layer_array : enable
+layout (location=0) out uvec4 color0;
+void main (void) {
+    const uint layerIndex = 0u;
+    color0 = uvec4(layerIndex, 255, 0, 255);
+}
+```
+
+#### Additional Info
+
+- The selected leaf uses the generated `frag` program from `DynamicUnusedAttachmentsCase::initPrograms()`; its output declaration and store are selected from `formatMask`, while the `largeRenderAttCount` extra-output branch is inactive for this case ([shader generation](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L424-L486)).
+- The companion vertex program emits a fullscreen triangle. Layer-exporting and multiview variants change how the fragment shader obtains its layer index, but not the per-attachment encoding used here ([vertex generation](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L376-L422)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| `formatMask` | A clear bit changes the corresponding pipeline format to `VK_FORMAT_UNDEFINED`, so the generated fragment shader omits that color output declaration and store. | [pipeline format and output selection](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L424-L446) |
+| `layerMask` / `layerCount` / `multiView` | For non-multiview multi-layer cases, the vertex shader exports `gl_Layer` from the push constant; for multiview cases, the fragment shader reads `gl_ViewIndex`; otherwise it uses `0u`. | [layer routing](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L457-L464), [vertex layer export](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L389-L391) |
+| `fragAttachmentCount` | The generator emits one output declaration/store per fragment attachment, subject to the selected pipeline formats; extra render-side attachments add float outputs in the dedicated count-mismatch branch. | [fragment output generation](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L441-L480) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 13
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %color0
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 460
+               OpSourceExtension "GL_ARB_shader_viewport_layer_array"
+               OpName %main "main"
+               OpName %color0 "color0"
+               OpDecorate %color0 Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+     %v4uint = OpTypeVector %uint 4
+%_ptr_Output_v4uint = OpTypePointer Output %v4uint
+     %color0 = OpVariable %_ptr_Output_v4uint Output
+     %uint_0 = OpConstant %uint 0
+   %uint_255 = OpConstant %uint 255
+         %12 = OpConstantComposite %v4uint %uint_0 %uint_255 %uint_0 %uint_255
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+               OpStore %color0 %12
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

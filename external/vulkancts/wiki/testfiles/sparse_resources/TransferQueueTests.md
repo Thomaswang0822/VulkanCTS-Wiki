@@ -102,9 +102,9 @@ A mismatch returns `tcu::TestStatus::fail("Failed")`. If every checked byte matc
 
 **Possible implementation causes:** The transfer path may alter significant bits, or the comparison may expose a format-specific conversion or readback problem. For eligible formats the source masks low six or low four bits on even byte positions, so differences outside those masked bits remain failures. A fault in format handling or comparison assumptions requires investigation.
 
-### Case Pruning
+## Case Pruning
 
-#### Requirement-based pruning
+### Requirement-based pruning
 
 - The support check requires the sparse binding device feature.
 - The `512_256_1` extent must satisfy device image-size support and the format's alignment requirements. Registration skips a size when either the width or height is not aligned.
@@ -113,7 +113,7 @@ A mismatch returns `tcu::TestStatus::fail("Failed")`. If every checked byte matc
 - The shared sparse base must find a queue supporting both `VK_QUEUE_SPARSE_BINDING_BIT` and `VK_QUEUE_TRANSFER_BIT`.
 - The R64 support branch requires `VK_EXT_shader_image_atomic_int64` and `sparseImageInt64Atomics`, although this file's registered basic format list contains no R64 format.
 
-#### Design-based pruning
+### Design-based pruning
 
 The registration fixes the image type to `2d` and uses one extent, `512_256_1`. It does not generate other image types or sizes in this test family. The basic format list also limits coverage to the listed floating-point, integer, and normalized formats.
 

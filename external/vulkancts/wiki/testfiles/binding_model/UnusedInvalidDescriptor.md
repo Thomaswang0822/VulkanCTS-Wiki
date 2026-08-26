@@ -334,7 +334,6 @@ A mismatch shared by all three values can instead come from their common dynamic
 - Each case is skipped with `NotSupportedError` when `VK_EXT_descriptor_indexing`, `descriptorBindingPartiallyBound`, or the selected resource-array dynamic-indexing feature is unavailable. A skip is not a conformance failure.
 - `write.invalid` uses only image resource types because `makeImageCI()` provides controlled sample-count and format incompatibilities for images. The source does not construct an equivalent invalid buffer case.
 
-
 ### Design-based pruning
 
 - The API binding has three elements, while the generated GLSL array has two and the host fixes `index` at zero. This deliberate shape makes element `2` the unaccessed state under test.

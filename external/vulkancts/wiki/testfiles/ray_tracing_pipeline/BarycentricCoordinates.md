@@ -194,6 +194,8 @@ void main()
 
 #### SPIR-V
 
+##### Any-Hit Shader (ahitTerminate)
+
 - Status: generated and validated
 - Source: reconstructed `GLSL` from this walkthrough
 - Stage: `rahit`
@@ -290,7 +292,217 @@ void main()
                OpFunctionEnd
 ```
 
-</details>## Failure Meaning
+</details>
+
+##### Closest-Hit Shader (chit)
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `rchit`
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 50
+; Schema: 0
+               OpCapability RayTracingKHR
+               OpExtension "SPV_KHR_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint AnyHitKHR %main "main" %coordinates %gl_LaunchIDEXT %baryCoord %topLevelAS %directions
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_ray_tracing"
+               OpName %main "main"
+               OpName %OutputBarycentrics "OutputBarycentrics"
+               OpMemberName %OutputBarycentrics 0 "values"
+               OpName %coordinates "coordinates"
+               OpName %gl_LaunchIDEXT "gl_LaunchIDEXT"
+               OpName %baryCoord "baryCoord"
+               OpName %topLevelAS "topLevelAS"
+               OpName %RayDirections "RayDirections"
+               OpMemberName %RayDirections 0 "values"
+               OpName %directions "directions"
+               OpDecorate %_arr_v4float_uint_20 ArrayStride 16
+               OpDecorate %OutputBarycentrics Block
+               OpMemberDecorate %OutputBarycentrics 0 Offset 0
+               OpDecorate %coordinates Binding 2
+               OpDecorate %coordinates DescriptorSet 0
+               OpDecorate %gl_LaunchIDEXT BuiltIn LaunchIdKHR
+               OpDecorate %topLevelAS Binding 0
+               OpDecorate %topLevelAS DescriptorSet 0
+               OpDecorate %_arr_v4float_uint_20_0 ArrayStride 16
+               OpDecorate %RayDirections Block
+               OpMemberDecorate %RayDirections 0 Offset 0
+               OpDecorate %directions Binding 1
+               OpDecorate %directions DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+       %uint = OpTypeInt 32 0
+    %uint_20 = OpConstant %uint 20
+%_arr_v4float_uint_20 = OpTypeArray %v4float %uint_20
+%OutputBarycentrics = OpTypeStruct %_arr_v4float_uint_20
+%_ptr_StorageBuffer_OutputBarycentrics = OpTypePointer StorageBuffer %OutputBarycentrics
+%coordinates = OpVariable %_ptr_StorageBuffer_OutputBarycentrics StorageBuffer
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_LaunchIDEXT = OpVariable %_ptr_Input_v3uint Input
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_uint = OpTypePointer Input %uint
+%float_0_999000013 = OpConstant %float 0.999000013
+     %uint_2 = OpConstant %uint 2
+%_ptr_StorageBuffer_float = OpTypePointer StorageBuffer %float
+    %v2float = OpTypeVector %float 2
+%_ptr_HitAttributeKHR_v2float = OpTypePointer HitAttributeKHR %v2float
+  %baryCoord = OpVariable %_ptr_HitAttributeKHR_v2float HitAttributeKHR
+%_ptr_HitAttributeKHR_float = OpTypePointer HitAttributeKHR %float
+%float_0_699999988 = OpConstant %float 0.699999988
+       %bool = OpTypeBool
+  %float_0_5 = OpConstant %float 0.5
+         %43 = OpTypeAccelerationStructureKHR
+%_ptr_UniformConstant_43 = OpTypePointer UniformConstant %43
+ %topLevelAS = OpVariable %_ptr_UniformConstant_43 UniformConstant
+%_arr_v4float_uint_20_0 = OpTypeArray %v4float %uint_20
+%RayDirections = OpTypeStruct %_arr_v4float_uint_20_0
+%_ptr_Uniform_RayDirections = OpTypePointer Uniform %RayDirections
+ %directions = OpVariable %_ptr_Uniform_RayDirections Uniform
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %21 = OpAccessChain %_ptr_Input_uint %gl_LaunchIDEXT %uint_0
+         %22 = OpLoad %uint %21
+         %26 = OpAccessChain %_ptr_StorageBuffer_float %coordinates %int_0 %22 %uint_2
+               OpStore %26 %float_0_999000013
+         %31 = OpAccessChain %_ptr_HitAttributeKHR_float %baryCoord %uint_0
+         %32 = OpLoad %float %31
+         %35 = OpFOrdLessThan %bool %32 %float_0_699999988
+               OpSelectionMerge %37 None
+               OpBranchConditional %35 %36 %37
+         %36 = OpLabel
+               OpTerminateRayKHR
+         %37 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Raygen Shader (rgen)
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `rgen`
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 50
+; Schema: 0
+               OpCapability RayTracingKHR
+               OpExtension "SPV_KHR_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint AnyHitKHR %main "main" %coordinates %gl_LaunchIDEXT %baryCoord %topLevelAS %directions
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_ray_tracing"
+               OpName %main "main"
+               OpName %OutputBarycentrics "OutputBarycentrics"
+               OpMemberName %OutputBarycentrics 0 "values"
+               OpName %coordinates "coordinates"
+               OpName %gl_LaunchIDEXT "gl_LaunchIDEXT"
+               OpName %baryCoord "baryCoord"
+               OpName %topLevelAS "topLevelAS"
+               OpName %RayDirections "RayDirections"
+               OpMemberName %RayDirections 0 "values"
+               OpName %directions "directions"
+               OpDecorate %_arr_v4float_uint_20 ArrayStride 16
+               OpDecorate %OutputBarycentrics Block
+               OpMemberDecorate %OutputBarycentrics 0 Offset 0
+               OpDecorate %coordinates Binding 2
+               OpDecorate %coordinates DescriptorSet 0
+               OpDecorate %gl_LaunchIDEXT BuiltIn LaunchIdKHR
+               OpDecorate %topLevelAS Binding 0
+               OpDecorate %topLevelAS DescriptorSet 0
+               OpDecorate %_arr_v4float_uint_20_0 ArrayStride 16
+               OpDecorate %RayDirections Block
+               OpMemberDecorate %RayDirections 0 Offset 0
+               OpDecorate %directions Binding 1
+               OpDecorate %directions DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+       %uint = OpTypeInt 32 0
+    %uint_20 = OpConstant %uint 20
+%_arr_v4float_uint_20 = OpTypeArray %v4float %uint_20
+%OutputBarycentrics = OpTypeStruct %_arr_v4float_uint_20
+%_ptr_StorageBuffer_OutputBarycentrics = OpTypePointer StorageBuffer %OutputBarycentrics
+%coordinates = OpVariable %_ptr_StorageBuffer_OutputBarycentrics StorageBuffer
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_LaunchIDEXT = OpVariable %_ptr_Input_v3uint Input
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_uint = OpTypePointer Input %uint
+%float_0_999000013 = OpConstant %float 0.999000013
+     %uint_2 = OpConstant %uint 2
+%_ptr_StorageBuffer_float = OpTypePointer StorageBuffer %float
+    %v2float = OpTypeVector %float 2
+%_ptr_HitAttributeKHR_v2float = OpTypePointer HitAttributeKHR %v2float
+  %baryCoord = OpVariable %_ptr_HitAttributeKHR_v2float HitAttributeKHR
+%_ptr_HitAttributeKHR_float = OpTypePointer HitAttributeKHR %float
+%float_0_699999988 = OpConstant %float 0.699999988
+       %bool = OpTypeBool
+  %float_0_5 = OpConstant %float 0.5
+         %43 = OpTypeAccelerationStructureKHR
+%_ptr_UniformConstant_43 = OpTypePointer UniformConstant %43
+ %topLevelAS = OpVariable %_ptr_UniformConstant_43 UniformConstant
+%_arr_v4float_uint_20_0 = OpTypeArray %v4float %uint_20
+%RayDirections = OpTypeStruct %_arr_v4float_uint_20_0
+%_ptr_Uniform_RayDirections = OpTypePointer Uniform %RayDirections
+ %directions = OpVariable %_ptr_Uniform_RayDirections Uniform
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %21 = OpAccessChain %_ptr_Input_uint %gl_LaunchIDEXT %uint_0
+         %22 = OpLoad %uint %21
+         %26 = OpAccessChain %_ptr_StorageBuffer_float %coordinates %int_0 %22 %uint_2
+               OpStore %26 %float_0_999000013
+         %31 = OpAccessChain %_ptr_HitAttributeKHR_float %baryCoord %uint_0
+         %32 = OpLoad %float %31
+         %35 = OpFOrdLessThan %bool %32 %float_0_699999988
+               OpSelectionMerge %37 None
+               OpBranchConditional %35 %36 %37
+         %36 = OpLabel
+               OpTerminateRayKHR
+         %37 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+## Runtime Execution and Result Checking
+
+- **Geometry and reference generation.** The host builds one BLAS containing a single triangle at `kZCoord`, marks it with `VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR`, and instances it once in a TLAS with facing culling disabled. It then generates 20 ray directions from known barycentric pairs: three fixed permutations followed by seeded random interior points with nonzero `b` and `c`. The same pairs form the host's expected `vec4` records [geometry and ray construction](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L277-L345).
+- **Output initialization and descriptors.** Directions are flushed to a uniform buffer. A host-visible storage buffer holding one `vec4` per ray is zero-filled and flushed before dispatch, so untouched `z` and `w` components have a defined reference value. The descriptor set binds the TLAS, directions UBO, and barycentric output SSBO to exactly the stages used by the selected leaf [buffer and descriptor setup](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L299-L392).
+- **Pipeline variant.** Every pipeline has raygen and miss groups plus one hit group. `chit` places the shared reporting shader in the closest-hit slot, `ahit` places it in the any-hit slot, and `ahitTerminate` combines the reporting closest-hit shader with the terminating any-hit shader in the same group. Separate raygen, miss, and hit SBT regions are created from those group indices [pipeline and SBT assembly](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L395-L454).
+- **Dispatch and visibility.** The host binds the pipeline and descriptors, launches `kNumRays × 1 × 1`, and inserts a `VK_ACCESS_SHADER_WRITE_BIT` to `VK_ACCESS_HOST_READ_BIT` barrier from the ray tracing stage to HOST before submitting and waiting [trace and output barrier](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L456-L469).
+- **Exact result rule.** After invalidating the output allocation, the host compares every ray. `z` must equal `0.0` for `chit`/`ahit` and `0.999` for `ahitTerminate`; `w` must remain exactly zero; reported `x` and `y` barycentrics may differ from the generated reference by at most `kThreshold`. The first violation raises `TCU_FAIL` with the ray index and both vectors [result comparison](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L471-L493).
+
+## Failure Meaning
 
 ### Failure Cause Mapping
 

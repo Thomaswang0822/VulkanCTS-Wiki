@@ -1,14 +1,18 @@
-# Texture Tests
-
 ## Overview
 
-The [`texture`](../../modules/vulkan/texture/vktTextureTests.cpp#L48) category tests Vulkan texture sampling operations across multiple texture types (including 1D, 2D, 3D, cube, and array cases in the groups that register them), covering filtering, mipmapping, shadow comparison, anisotropic filtering, compressed format decoding, swizzle, format conversion, texel buffers, multisample textures, and subgroup LOD consistency. The category verifies that GPU texture sampling matches CPU-computed reference results or Amber-script expectations using a variety of verification strategies.
+The `texture` test category collects tests that check sampled-image lookup, image-format conversion, texel addressing, mip selection, multisample access, and related sampler behavior.
 
-The historical Vulkan API test plan provides concise sampler context: sampler parameters should map to hardware state and be exercised by sampling selected formats, all texture types, and mipmapping with explicit and implicit LOD, while exhaustive texture filtering belongs to separate focused coverage ([`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L549-L557)). This aligns with the category's recurring sampling themes, but current source and mustpass files remain the evidence for exact groups, parameter matrices, support requirements, and verification logic.
+The category combines generated C++ matrices with focused Amber recipes. Its pages explain the contract each family observes rather than mirroring the source-file layout.
 
-## Registration Entry Point
+## Background Knowledge
 
-The category is rooted in [`createTextureTests()`](../../modules/vulkan/texture/vktTextureTests.cpp#L48), which creates 13 direct children under `texture`:
+- **Image views and sampled access.** A Vulkan image view selects an image subresource range and format interpretation. A sampler then controls filtering, address modes, mip selection, comparison, and optional anisotropy for sampled-image instructions.
+- **Coordinates, footprints, and LOD.** Normalized coordinates identify positions relative to an image extent. Derivatives or explicit gradients define a texture footprint, which determines minification, magnification, and mip-level selection. Explicit LOD and texel-fetch instructions bypass parts of that implicit calculation.
+- **Format conversion.** The view format defines how stored bits become shader-visible components. This includes normalized conversion, sRGB transfer, packed-field extraction, compressed-block decoding, and component swizzling.
+- **Precision-aware verification.** Vulkan permits bounded implementation precision in coordinate interpolation, LOD, filtering, and format conversion. Many texture tests therefore accept a set or interval of legal results instead of comparing against one ideal floating-point value.
+- **Sparse and ordinary backing.** Some families run the same logical image operation with ordinary memory or fully resident sparse bindings. The operation under test stays the same while resource creation, binding, and upload paths differ.
+
+## Category Structure
 
 ```text
 texture
@@ -20,136 +24,45 @@ texture
 ├── compressed
 ├── compressed_3D
 ├── swizzle
-├── subgroup_lod                  (VK only)
-├── conversion                    (VK only)
-├── texel_buffer                  (VK only)
-├── multisample                   (VK only)
-└── texel_offset                  (VK only)
+├── conversion
+├── subgroup_lod
+├── texel_buffer
+├── multisample
+└── texel_offset
 ```
 
-Source: [`createTextureTests()`](../../modules/vulkan/texture/vktTextureTests.cpp#L48-L67).
+`compressed` and `compressed_3D` share one Level-3 page because the same implementation owns both direct families. The registration-only texture dispatcher is represented here rather than receiving a separate Level-3 page.
 
-## Subgroup Structure
+## How the Families Fit Together
 
-| Group | Factory Function | Source File | VKSC | Level-3 doc |
-|---|---|---|---|---|
-| `filtering` | `createTextureFilteringTests` | [`vktTextureFilteringTests.cpp`](../../modules/vulkan/texture/vktTextureFilteringTests.cpp#L2079) | Available | [vktTextureFilteringTests.cpp](../testfiles/texture/vktTextureFilteringTests.md) |
-| `mipmap` | `createTextureMipmappingTests` | [`vktTextureMipmapTests.cpp`](../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L4198) | Available | [vktTextureMipmapTests.cpp](../testfiles/texture/vktTextureMipmapTests.md) |
-| `explicit_lod` | `createExplicitLodTests` | [`vktTextureFilteringExplicitLodTests.cpp`](../../modules/vulkan/texture/vktTextureFilteringExplicitLodTests.cpp#L1411) | Available | [vktTextureFilteringExplicitLodTests.cpp](../testfiles/texture/vktTextureFilteringExplicitLodTests.md) |
-| `shadow` | `createTextureShadowTests` | [`vktTextureShadowTests.cpp`](../../modules/vulkan/texture/vktTextureShadowTests.cpp#L2080) | Available | [vktTextureShadowTests.cpp](../testfiles/texture/vktTextureShadowTests.md) |
-| `filtering_anisotropy` | `createFilteringAnisotropyTests` | [`vktTextureFilteringAnisotropyTests.cpp`](../../modules/vulkan/texture/vktTextureFilteringAnisotropyTests.cpp#L207) | Available | [vktTextureFilteringAnisotropyTests.cpp](../testfiles/texture/vktTextureFilteringAnisotropyTests.md) |
-| `compressed` | `createTextureCompressedFormatTests` | [`vktTextureCompressedFormatTests.cpp`](../../modules/vulkan/texture/vktTextureCompressedFormatTests.cpp#L721) | Available | [vktTextureCompressedFormatTests.cpp](../testfiles/texture/vktTextureCompressedFormatTests.md) |
-| `compressed_3D` | `create3DTextureCompressedFormatTests` | [`vktTextureCompressedFormatTests.cpp`](../../modules/vulkan/texture/vktTextureCompressedFormatTests.cpp#L726) | Available | [vktTextureCompressedFormatTests.cpp](../testfiles/texture/vktTextureCompressedFormatTests.md) |
-| `swizzle` | `createTextureSwizzleTests` | [`vktTextureSwizzleTests.cpp`](../../modules/vulkan/texture/vktTextureSwizzleTests.cpp#L651) | Available | [vktTextureSwizzleTests.cpp](../testfiles/texture/vktTextureSwizzleTests.md) |
-| `subgroup_lod` | `createTextureSubgroupLodTests` | [`vktTextureSubgroupLodTests.cpp`](../../modules/vulkan/texture/vktTextureSubgroupLodTests.cpp#L59) | Excluded | [vktTextureSubgroupLodTests.cpp](../testfiles/texture/vktTextureSubgroupLodTests.md) |
-| `conversion` | `createTextureConversionTests` | [`vktTextureConversionTests.cpp`](../../modules/vulkan/texture/vktTextureConversionTests.cpp#L438) | Excluded | [vktTextureConversionTests.cpp](../testfiles/texture/vktTextureConversionTests.md) |
-| `texel_buffer` | `createTextureTexelBufferTests` | [`vktTextureTexelBufferTests.cpp`](../../modules/vulkan/texture/vktTextureTexelBufferTests.cpp#L167) | Excluded | [vktTextureTexelBufferTests.cpp](../testfiles/texture/vktTextureTexelBufferTests.md) |
-| `multisample` | `createTextureMultisampleTests` | [`vktTextureMultisampleTests.cpp`](../../modules/vulkan/texture/vktTextureMultisampleTests.cpp#L149) | Excluded | [vktTextureMultisampleTests.cpp](../testfiles/texture/vktTextureMultisampleTests.md) |
-| `texel_offset` | `createTextureTexelOffsetTests` | [`vktTextureTexelOffsetTests.cpp`](../../modules/vulkan/texture/vktTextureTexelOffsetTests.cpp#L36) | Excluded | [vktTextureTexelOffsetTests.cpp](../testfiles/texture/vktTextureTexelOffsetTests.md) |
+The families isolate different points in the path from stored image data to a shader-visible result.
 
-## File Inventory
+- **Lookup and level selection:** `filtering`, `mipmap`, `explicit_lod`, `shadow`, `filtering_anisotropy`, `subgroup_lod`, and `texel_offset` vary coordinates, footprints, sampler state, comparison, or explicit level controls.
+- **Stored representation:** `compressed`, `compressed_3D`, `conversion`, and `texel_buffer` check how encoded bits or formatted elements become shader values.
+- **View interpretation:** `swizzle` checks component selection and shader-side coordinate rearrangement.
+- **Per-sample access:** `multisample` addresses individual storage-image samples and applies atomics or out-of-range sample operands.
 
-### Registration Files
+Together, the pages cover resource interpretation, coordinate and LOD rules, sampler behavior, and the verification paths that decide whether each observed result is permitted.
 
-| File | Role |
-|---|---|
-| [`vktTextureTests.cpp`](../../modules/vulkan/texture/vktTextureTests.cpp#L1) | Root dispatcher; creates 13 direct children |
+## Level-3 Pages Navigation
 
-### Implementation Files
+| Registered test family or area | Level-3 page | What to read there |
+|--------------------------------|--------------|--------------------|
+| `filtering` | [Filtering](../testfiles/texture/Filtering.md) | Normalized and unnormalized 2D, cube, array, and 3D sampling across filters, address modes, formats, and coordinate spans. |
+| `mipmap` | [Mipmap](../testfiles/texture/Mipmap.md) | Implicit and explicit mip selection, LOD clamps, view level ranges, image-view minimum LOD, and gather behavior. |
+| `explicit_lod` | [FilteringExplicitLod](../testfiles/texture/FilteringExplicitLod.md) | `textureLod` and `textureGrad` with interval-based filtering verification. |
+| `shadow` | [Shadow](../testfiles/texture/Shadow.md) | Depth-comparison sampling, PCF result ranges, cube handling, sparse variants, and border texel replacement. |
+| `filtering_anisotropy` | [FilteringAnisotropy](../testfiles/texture/FilteringAnisotropy.md) | Anisotropic versus isotropic output across single-level and mipmapped graphics or compute cases. |
+| `compressed`, `compressed_3D` | [CompressedFormat](../testfiles/texture/CompressedFormat.md) | ETC2/EAC, ASTC, and BC block decoding for 2D or 3D images, including sparse and ASTC special cases. |
+| `swizzle` | [Swizzle](../testfiles/texture/Swizzle.md) | Image-view component mapping and shader-side coordinate swizzles. |
+| `conversion` | [Conversion](../testfiles/texture/Conversion.md) | UFLOAT storage conversion and SNORM endpoint behavior under direct or linear-filtered sampling. |
+| `subgroup_lod` | [SubgroupLod](../testfiles/texture/SubgroupLod.md) | Vertex-stage `texelFetch`, `textureGrad`, and `textureLod` selection using mip-colored Amber images. |
+| `texel_buffer` | [TexelBuffer](../testfiles/texture/TexelBuffer.md) | sRGB, packed-format, and SNORM conversion through uniform texel-buffer views. |
+| `multisample` | [Multisample](../testfiles/texture/Multisample.md) | Per-sample storage-image atomics and mixed valid/out-of-range sample writes. |
+| `texel_offset` | [TexelOffset](../testfiles/texture/TexelOffset.md) | Constant one-texel offsets with nearest sampling and a four-direction result mask. |
 
-| File | Group(s) |
-|---|---|
-| [`vktTextureFilteringTests.cpp`](../../modules/vulkan/texture/vktTextureFilteringTests.cpp#L1) | `filtering` |
-| [`vktTextureMipmapTests.cpp`](../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L1) | `mipmap` |
-| [`vktTextureFilteringExplicitLodTests.cpp`](../../modules/vulkan/texture/vktTextureFilteringExplicitLodTests.cpp#L1) | `explicit_lod` |
-| [`vktTextureShadowTests.cpp`](../../modules/vulkan/texture/vktTextureShadowTests.cpp#L1) | `shadow` |
-| [`vktTextureFilteringAnisotropyTests.cpp`](../../modules/vulkan/texture/vktTextureFilteringAnisotropyTests.cpp#L1) | `filtering_anisotropy` |
-| [`vktTextureCompressedFormatTests.cpp`](../../modules/vulkan/texture/vktTextureCompressedFormatTests.cpp#L1) | `compressed`, `compressed_3D` |
-| [`vktTextureSwizzleTests.cpp`](../../modules/vulkan/texture/vktTextureSwizzleTests.cpp#L1) | `swizzle` |
-| [`vktTextureSubgroupLodTests.cpp`](../../modules/vulkan/texture/vktTextureSubgroupLodTests.cpp#L1) | `subgroup_lod` |
-| [`vktTextureConversionTests.cpp`](../../modules/vulkan/texture/vktTextureConversionTests.cpp#L1) | `conversion` |
-| [`vktTextureTexelBufferTests.cpp`](../../modules/vulkan/texture/vktTextureTexelBufferTests.cpp#L1) | `texel_buffer` |
-| [`vktTextureMultisampleTests.cpp`](../../modules/vulkan/texture/vktTextureMultisampleTests.cpp#L1) | `multisample` |
-| [`vktTextureTexelOffsetTests.cpp`](../../modules/vulkan/texture/vktTextureTexelOffsetTests.cpp#L1) | `texel_offset` |
+## Category Notes
 
-### Utility Files (no Level-3 docs)
-
-| File | Purpose |
-|---|---|
-| [`vktTextureTestUtil.cpp`](../../modules/vulkan/texture/vktTextureTestUtil.cpp#L1) | Shared texture test infrastructure (TextureRenderer, test case classes, program definitions) |
-| [`vktSampleVerifier.cpp`](../../modules/vulkan/texture/vktSampleVerifier.cpp#L1) | Per-sample mathematical verification for explicit LOD tests |
-| [`vktSampleVerifierUtil.cpp`](../../modules/vulkan/texture/vktSampleVerifierUtil.cpp#L1) | Utility functions for sample verification |
-
-## Cross-File Recurring Themes
-
-### Texture Type Coverage
-
-Most test groups cover multiple texture types with a consistent structure:
-
-| Texture Type | filtering | mipmap | shadow | swizzle | compressed |
-|---|---|---|---|---|---|
-| 1D | — | — | ✓ | — | — |
-| 2D | ✓ | ✓ | ✓ | ✓ | ✓ |
-| 3D | ✓ | ✓ | — | — | ✓ |
-| Cube | ✓ | ✓ | ✓ | — | — |
-| 2D Array | ✓ | — | ✓ | — | — |
-| 1D Array | — | — | ✓ | — | — |
-| Cube Array | — | — | ✓ | — | — |
-
-### Graphics + Compute Dual Pipeline
-
-Several implementation-heavy test groups generate both graphics pipeline and compute pipeline variants. Compute variants are typically named with a `_compute` suffix. This pattern appears in filtering, mipmap, explicit_lod, filtering_anisotropy, compressed, compressed_3D, swizzle, and conversion tests.
-
-### Sparse Backing Mode
-
-Many test groups offer both regular and sparse backing modes for texture memory. Sparse variants are excluded on VulkanSC. This pattern appears in filtering, shadow, compressed, compressed_3D, and swizzle tests.
-
-## Cross-File Recurring Parameter Dimensions
-
-| Dimension | Typical Values | Used In |
-|---|---|---|
-| Filter modes | nearest, linear, mipmap variants, cubic | filtering, mipmap, shadow, explicit_lod, filtering_anisotropy |
-| Wrap modes | repeat, mirrored_repeat, clamp_to_edge, clamp_to_border, mirror_clamp_to_edge | filtering, mipmap |
-| Texture sizes | POT, NPOT, various dimensions | filtering, mipmap, explicit_lod, compressed, swizzle |
-| Formats | UNORM, SNORM, SFLOAT, SRGB, depth, compressed | filtering, shadow, compressed, swizzle, conversion, texel_buffer |
-| Compare ops | less_or_equal, greater_or_equal, less, greater, equal, not_equal, always, never | shadow |
-| Component mappings | IDENTITY, ZERO, ONE, R, G, B, A | swizzle |
-
-## Cross-File Recurring Support Requirements
-
-| Requirement | Extension/Feature | Used In |
-|---|---|---|
-| Anisotropic filtering | `samplerAnisotropy` | filtering_anisotropy |
-| Cubic filtering | `VK_EXT_filter_cubic` | filtering |
-| Mirror clamp to edge | `VK_KHR_sampler_mirror_clamp_to_edge` | filtering |
-| Non-seamless cube map | `VK_EXT_non_seamless_cube_map` | filtering, shadow |
-| Image view min LOD | `VK_EXT_image_view_min_lod` | mipmap |
-| Robustness2 | `VK_EXT_robustness2` | mipmap (gather minLod) |
-| Depth comparison | `VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_DEPTH_COMPARISON_BIT_KHR` | shadow |
-| Compressed formats | `textureCompressionETC2`, `textureCompressionASTC_LDR`, `textureCompressionBC` | compressed, compressed_3D |
-| ASTC 3D | `VK_EXT_texture_compression_astc_3d` | compressed_3D |
-| Depth/stencil swizzle | `VK_KHR_maintenance5` + `depthStencilSwizzleOneSupport` | swizzle |
-| RGBA10x6 without YCbCr | `VK_EXT_rgba10x6_formats` | filtering |
-| Storage image multisample | `shaderStorageImageMultisample` | multisample |
-| Sparse binding | `sparseBinding` + `sparseResidencyImage2D` | filtering, shadow, compressed, swizzle |
-
-## Cross-File Recurring Verification Methods
-
-| Method | Description | Used In |
-|---|---|---|
-| Image comparison (two-tier) | High-precision `verifyTextureResult()` with low-precision fallback | filtering |
-| Image comparison (lookup diff) | `computeTextureLookupDiff()` with grid-based verification | mipmap |
-| Per-sample mathematical | `SampleVerifier` with device-aware precision | explicit_lod |
-| PCF comparison (two-tier) | `computeTextureCompareDiff()` with high/low precision tiers | shadow |
-| Self-referential comparison | Anisotropic vs isotropic output comparison | filtering_anisotropy |
-| Neighborhood search | `validateTexture()` with coordinate tolerance | compressed |
-| Direct pixel comparison | `compareImages()` after software swizzle application | swizzle |
-| Pixel + out-of-range | Lookup diff plus [-1,+1] range check | conversion (snorm_clamp_linear) |
-| Amber delegation | All verification in Amber scripts | subgroup_lod, texel_buffer, multisample, texel_offset, conversion (partial) |
-
-## Notes
-
-- The `compressed` and `compressed_3D` groups both originate from [`vktTextureCompressedFormatTests.cpp`](../../modules/vulkan/texture/vktTextureCompressedFormatTests.cpp#L1) and have flat leaf test cases (no sub-groups). Test names encode all parameter dimensions.
-- The `explicit_lod` group uses a fundamentally different verification approach (per-sample mathematical verification via `SampleVerifier`) compared to the image-level comparison used by filtering and mipmap tests.
-- Five groups (`subgroup_lod`, `conversion`, `texel_buffer`, `multisample`, `texel_offset`) are excluded on VulkanSC builds via `#ifndef CTS_USES_VULKANSC` guards.
-- The `vktTextureTestUtil.cpp` utility file provides shared infrastructure (`TextureRenderer`, `TextureTestCase`, program definitions) used across multiple implementation files.
+- The current `filtering` implementation does not register sparse leaves, although related texture families do exercise sparse backing.
+- `subgroup_lod` is a historical registration name; its shaders vary LOD inputs between vertex invocations but do not use subgroup operations.
+- `multisample` documents unresolved source-level defects found during reconstruction. Those findings do not authorize source changes in this documentation workflow.

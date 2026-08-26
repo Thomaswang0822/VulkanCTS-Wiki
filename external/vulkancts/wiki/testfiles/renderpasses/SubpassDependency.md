@@ -69,12 +69,230 @@ This family uses one color attachment as both input attachment and color output 
 
 ## Shader Analysis
 
-The shaders in this file are tools that produce the data flow each dependency must order. They are not the behavior under test. No representative shader walkthrough is included for that reason. The notable shader roles are:
+### Representative Shader Walkthrough 1
 
-- External and implicit families generate a fullscreen quad in the vertex shader, a four-color pattern in the first fragment shader, and alternating horizontal or vertical blur in later fragment shaders, all built as GLSL strings parameterized by image size and blur kernel ([ExternalPrograms](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L3824-L3933)).
-- Late fragment tests use a vertex shader that takes depth from vertex data in subpass 0 and a fullscreen-quad vertex shader in later subpasses, with a fragment shader that loads the previous depth from an input attachment and subtracts `0.02` ([SubpassPrograms](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L3990-L4051)).
-- Self-dependency uses a geometry shader that emits a quad and writes the indirect draw parameters into a storage buffer bound at binding 0 ([SubpassSelfDependencyBackwardsPrograms](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L4054-L4114)).
-- Separate channels and single attachment use short vertex and fragment shaders that read input attachments with `subpassLoad` or sample textures and write computed colors ([SeparateChannelsPrograms](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L4116-L4149), [SingleAttachmentPrograms](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L4151-L4193)).
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.renderpasses.renderpass1.suballocation.subpass_dependencies.self_dependency.render_size_128_128.geometry_to_indirectdraw
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `self_dependency` / `geometry_to_indirectdraw` | Selects the one-subpass case whose geometry shader writes an indirect command buffer that a later `vkCmdDrawIndirect` reads. |
+| `render_size_128_128` | The host creates a 128x128 single-sample color attachment and generates 128 point positions; the shader's interface and control flow do not vary with this size. |
+| `renderpass1` | Uses the legacy render-pass path. The same shader collection is used by the render-pass-2 registration, while dynamic rendering does not register this family. |
+
+#### Purpose
+
+The geometry shader both expands each input point into a red quad and writes the parameters for the second indirect draw. The test checks that the storage-buffer write is visible to the later indirect-command read within the subpass synchronization scope.
+
+#### Structural Design
+
+| Phase | Shader operation | Dependency-relevant value |
+|-------|------------------|----------------------------|
+| Input | Consume one point through `gl_in[0].gl_Position`. | The vertex shader supplies 128 point positions. |
+| Expansion | Emit four positions around the point as a triangle strip. | `max_vertices = 4`; the fragment shader colors the resulting quads red. |
+| Command production | Write `{vertexCount=64, instanceCount=1, firstVertex=64, firstInstance=0}` to set 0, binding 0. | This replaces the initially uploaded `{64,1,0,0}` command for the second draw. |
+| Consumer | The command buffer executes `vkCmdDrawIndirect` again after the barrier. | The self-dependency is from geometry shader writes to indirect command reads; the recorded barrier applies that ordering. |
+
+#### Shader Code
+
+```glsl
+#version 450
+layout(points) in;
+layout(triangle_strip, max_vertices = 4) out;
+in gl_PerVertex {
+    vec4 gl_Position;
+} gl_in[];
+out gl_PerVertex {
+    vec4 gl_Position;
+};
+/// Set 0, binding 0 is the host-created 16-byte storage/indirect buffer.
+/// The geometry shader rewrites its four VkDrawIndirectCommand fields.
+layout (binding = 0) buffer IndirectBuffer
+{
+    uint vertexCount;
+    uint instanceCount;
+    uint firstVertex;
+    uint firstInstance;
+} indirectBuffer;
+void main (void) {
+    /// Each input point becomes a four-vertex triangle strip with a 0.03 NDC half-size.
+    vec4 p = gl_in[0].gl_Position;
+    float offset = 0.03f;
+    gl_Position = p + vec4(-offset, offset, 0, 0);
+    EmitVertex();
+    gl_Position = p + vec4(-offset, -offset, 0, 0);
+    EmitVertex();
+    gl_Position = p + vec4(offset, offset, 0, 0);
+    EmitVertex();
+    gl_Position = p + vec4(offset, -offset, 0, 0);
+    EmitVertex();
+    EndPrimitive();
+    /// This write changes the second indirect draw from the initial firstVertex=0
+    /// to vertexCount=64, firstVertex=64; the in-subpass dependency must make it visible.
+    indirectBuffer.vertexCount = 64;
+    indirectBuffer.instanceCount = 1;
+    indirectBuffer.firstVertex = 64;
+    indirectBuffer.firstInstance = 0;
+}
+```
+
+#### Additional Info
+
+- The vertex shader is fixed across this family: it passes `layout(location = 0) in highp vec4 position` directly to `gl_Position`; its only role is to feed the geometry-stage point input ([shader generator](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L4060-L4068)).
+- The fragment shader is also fixed: it writes `vec4(1, 0, 0, 1)` to location 0, making quads produced by either indirect draw red against the green clear color ([shader generator](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L4107-L4112)).
+- The host initializes the four command fields to `{64, 1, 0, 0}`, binds the same 16-byte buffer as both `VK_BUFFER_USAGE_STORAGE_BUFFER_BIT` and `VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT`, and records the second draw after a `GEOMETRY_SHADER`→`DRAW_INDIRECT` pipeline barrier ([setup](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L1907-L1932), [barrier and draws](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L2150-L2167)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Render size | `64x64`, `128x128`, and `512x512` change the point-coordinate generation and framebuffer extent, but not the generated vertex, geometry, or fragment shader text. | [registration](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L4513-L4531), [point generation](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L2089-L2094) |
+| Rendering API | `renderpass1` and `renderpass2` use the same shader stages; dynamic rendering omits this family at registration. | [render-pass-only guard](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L4510-L4512) |
+| Dependency declaration | The shader text is unchanged; the render-pass setup declares a geometry-write to indirect-read self-dependency, and the command recording supplies the matching barrier. | [dependency](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L1994-L2004), [barrier](../../../modules/vulkan/renderpass/vktRenderPassSubpassDependencyTests.cpp#L2153-L2163) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `geom`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 69
+; Schema: 0
+               OpCapability Geometry
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Geometry %main "main" %gl_in %_
+               OpExecutionMode %main InputPoints
+               OpExecutionMode %main Invocations 1
+               OpExecutionMode %main OutputTriangleStrip
+               OpExecutionMode %main OutputVertices 4
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %p "p"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpName %gl_in "gl_in"
+               OpName %offset "offset"
+               OpName %gl_PerVertex_0 "gl_PerVertex"
+               OpMemberName %gl_PerVertex_0 0 "gl_Position"
+               OpName %_ ""
+               OpName %IndirectBuffer "IndirectBuffer"
+               OpMemberName %IndirectBuffer 0 "vertexCount"
+               OpMemberName %IndirectBuffer 1 "instanceCount"
+               OpMemberName %IndirectBuffer 2 "firstVertex"
+               OpMemberName %IndirectBuffer 3 "firstInstance"
+               OpName %indirectBuffer "indirectBuffer"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpDecorate %gl_PerVertex_0 Block
+               OpMemberDecorate %gl_PerVertex_0 0 BuiltIn Position
+               OpDecorate %IndirectBuffer BufferBlock
+               OpMemberDecorate %IndirectBuffer 0 Offset 0
+               OpMemberDecorate %IndirectBuffer 1 Offset 4
+               OpMemberDecorate %IndirectBuffer 2 Offset 8
+               OpMemberDecorate %IndirectBuffer 3 Offset 12
+               OpDecorate %indirectBuffer Binding 0
+               OpDecorate %indirectBuffer DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+%gl_PerVertex = OpTypeStruct %v4float
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_arr_gl_PerVertex_uint_1 = OpTypeArray %gl_PerVertex %uint_1
+%_ptr_Input__arr_gl_PerVertex_uint_1 = OpTypePointer Input %_arr_gl_PerVertex_uint_1
+      %gl_in = OpVariable %_ptr_Input__arr_gl_PerVertex_uint_1 Input
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%_ptr_Function_float = OpTypePointer Function %float
+%float_0_0299999993 = OpConstant %float 0.0299999993
+%gl_PerVertex_0 = OpTypeStruct %v4float
+%_ptr_Output_gl_PerVertex_0 = OpTypePointer Output %gl_PerVertex_0
+          %_ = OpVariable %_ptr_Output_gl_PerVertex_0 Output
+    %float_0 = OpConstant %float 0
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%IndirectBuffer = OpTypeStruct %uint %uint %uint %uint
+%_ptr_Uniform_IndirectBuffer = OpTypePointer Uniform %IndirectBuffer
+%indirectBuffer = OpVariable %_ptr_Uniform_IndirectBuffer Uniform
+    %uint_64 = OpConstant %uint 64
+%_ptr_Uniform_uint = OpTypePointer Uniform %uint
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+      %int_3 = OpConstant %int 3
+     %uint_0 = OpConstant %uint 0
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %p = OpVariable %_ptr_Function_v4float Function
+     %offset = OpVariable %_ptr_Function_float Function
+         %19 = OpAccessChain %_ptr_Input_v4float %gl_in %int_0 %int_0
+         %20 = OpLoad %v4float %19
+               OpStore %p %20
+               OpStore %offset %float_0_0299999993
+         %27 = OpLoad %v4float %p
+         %28 = OpLoad %float %offset
+         %29 = OpFNegate %float %28
+         %30 = OpLoad %float %offset
+         %32 = OpCompositeConstruct %v4float %29 %30 %float_0 %float_0
+         %33 = OpFAdd %v4float %27 %32
+         %35 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %35 %33
+               OpEmitVertex
+         %36 = OpLoad %v4float %p
+         %37 = OpLoad %float %offset
+         %38 = OpFNegate %float %37
+         %39 = OpLoad %float %offset
+         %40 = OpFNegate %float %39
+         %41 = OpCompositeConstruct %v4float %38 %40 %float_0 %float_0
+         %42 = OpFAdd %v4float %36 %41
+         %43 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %43 %42
+               OpEmitVertex
+         %44 = OpLoad %v4float %p
+         %45 = OpLoad %float %offset
+         %46 = OpCompositeConstruct %v4float %45 %45 %float_0 %float_0
+         %47 = OpFAdd %v4float %44 %46
+         %48 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %48 %47
+               OpEmitVertex
+         %49 = OpLoad %v4float %p
+         %50 = OpLoad %float %offset
+         %51 = OpLoad %float %offset
+         %52 = OpFNegate %float %51
+         %53 = OpCompositeConstruct %v4float %50 %52 %float_0 %float_0
+         %54 = OpFAdd %v4float %49 %53
+         %55 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %55 %54
+               OpEmitVertex
+               OpEndPrimitive
+         %61 = OpAccessChain %_ptr_Uniform_uint %indirectBuffer %int_0
+               OpStore %61 %uint_64
+         %63 = OpAccessChain %_ptr_Uniform_uint %indirectBuffer %int_1
+               OpStore %63 %uint_1
+         %65 = OpAccessChain %_ptr_Uniform_uint %indirectBuffer %int_2
+               OpStore %65 %uint_64
+         %68 = OpAccessChain %_ptr_Uniform_uint %indirectBuffer %int_3
+               OpStore %68 %uint_0
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

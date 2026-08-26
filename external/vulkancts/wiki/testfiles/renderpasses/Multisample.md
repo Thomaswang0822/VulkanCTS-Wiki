@@ -162,11 +162,449 @@ exercises only the selected aspect through the matching input attachment view
 
 ## Shader Analysis
 
-The shaders are generated per format class and are not the focus of the tested behavior; the per-sample isolation is
-enforced by `gl_SampleMask` and the multisample input-attachment read, both of which are fixed-function or
-straightforward GLSL constructs. A representative walkthrough would add no insight beyond the behavior already
-described, so no `### Representative Shader Walkthrough` subsection is included. The generated fragment shaders live
-in [`Programs::init()`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L1938-L2326).
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.renderpasses.renderpass1.suballocation.multisample.r8g8b8a8_unorm.samples_4
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `r8g8b8a8_unorm` | Selects the unsigned fixed-point color branch: the producer writes a `vec4`, and the split reader uses `subpassInputMS` with `vec4` outputs. |
+| `samples_4` | Four draws select one sample at a time; one split subpass can export all four through four color attachments. |
+| `renderpass1` | Selects the legacy render-pass path. The shader-visible input-attachment and push-constant interfaces are shared by the render-pass 2 and dynamic-rendering variants. |
+
+#### Purpose
+
+The producer fragment shader writes a deterministic value to exactly one multisample sample on each draw. The split reader loads the four samples independently through a multisample input attachment, making sample aliasing or incorrect sample-index routing observable after resolve.
+
+#### Structural Design
+
+| Phase | Shader operation | Evidence carried forward |
+|-------|------------------|---------------------------|
+| Per-sample producer | Read `sampleIndex`, set `gl_SampleMask[0]` to `1 << sampleIndex`, and derive `x`/`y` by XORing fragment coordinates with that index. | Coverage identifies one sample and the XOR pattern distinguishes samples. |
+| Pattern construction | Accumulate selected coordinate bits into four channels using weights `0.5`, `0.25`, and `0.125`. | Every pixel/sample receives a deterministic value. |
+| Split reader | Read sample `4 * splitSubpassIndex + attachmentNdx` into a separate output. | Each resolve attachment corresponds to one source sample. |
+
+#### Shader Code
+
+##### Fragment Producer Shader
+
+```glsl
+#version 450
+layout(location = 0) out highp vec4 o_color;
+layout(push_constant) uniform PushConstant {
+\thighp uint sampleIndex;
+} pushConstants;
+void main (void)
+{
+\thighp uint sampleIndex = pushConstants.sampleIndex;
+\tgl_SampleMask[0] = int(0x1u << sampleIndex);
+\thighp float color[4];
+\thighp uint x = sampleIndex ^ uint(gl_FragCoord.x);
+\thighp uint y = sampleIndex ^ uint(gl_FragCoord.y);
+\tcolor[0] = 0;
+\tcolor[1] = 0;
+\tcolor[2] = 0;
+\tcolor[3] = 0;
+\tcolor[0] += 0.5 * float(bitfieldExtract(x, 0, 1));
+\tcolor[1] += 0.5 * float(bitfieldExtract(y, 0, 1));
+\tcolor[2] += 0.5 * float(bitfieldExtract(x, 1, 1));
+\tcolor[3] += 0.5 * float(bitfieldExtract(y, 1, 1));
+\tcolor[0] += 0.25 * float(bitfieldExtract(x, 2, 1));
+\tcolor[1] += 0.25 * float(bitfieldExtract(y, 2, 1));
+\tcolor[2] += 0.25 * float(bitfieldExtract(x, 3, 1));
+\tcolor[3] += 0.25 * float(bitfieldExtract(y, 3, 1));
+\tcolor[0] += 0.125 * float(bitfieldExtract(x, 4, 1));
+\tcolor[1] += 0.125 * float(bitfieldExtract(y, 4, 1));
+\tcolor[2] += 0.125 * float(bitfieldExtract(x, 5, 1));
+\tcolor[3] += 0.125 * float(bitfieldExtract(y, 5, 1));
+\to_color = vec4(color[0], color[1], color[2], color[3]);
+}
+```
+
+##### Fragment Split-Reader Shader
+
+```glsl
+#version 450
+/// Binding 0 is the multisample color input attachment produced by the first subpass.
+layout(input_attachment_index = 0, set = 0, binding = 0) uniform highp subpassInputMS i_color;
+/// The host selects which group of at most four samples this split subpass exports.
+layout(push_constant) uniform PushConstant {
+\thighp uint splitSubpassIndex;
+} pushConstants;
+/// Four color attachments provide the fan-out; each is resolved separately.
+layout(location = 0) out highp vec4 o_color0;
+layout(location = 1) out highp vec4 o_color1;
+layout(location = 2) out highp vec4 o_color2;
+layout(location = 3) out highp vec4 o_color3;
+void main (void)
+{
+\to_color0 = subpassLoad(i_color, int(4 * pushConstants.splitSubpassIndex + 0u));
+\to_color1 = subpassLoad(i_color, int(4 * pushConstants.splitSubpassIndex + 1u));
+\to_color2 = subpassLoad(i_color, int(4 * pushConstants.splitSubpassIndex + 2u));
+\to_color3 = subpassLoad(i_color, int(4 * pushConstants.splitSubpassIndex + 3u));
+}
+```
+
+#### Additional Info
+
+- The split-reader is primary because the defining operation is the per-sample `subpassLoad`; the producer is included because it supplies the distinct values that make a wrong read observable.
+- `quad-vert` is a fixed single-triangle stage shared by the format branches. Its only visible triangle fully covers fragments, which is required for reliable multisample input-attachment access.
+- For `r8g8b8a8_unorm`, the generator uses `valueMin = 0`, `valueMax = 1`, four used channels, and ten source bits, yielding the literals shown above.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Format channel class | Integer classes select `uvec4` or `ivec4`; fixed-point/floating classes select `vec4`; depth/stencil formats select aspect-specific readers. | [`Programs::init()`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L1938-L2326) |
+| Sample count | The push-constant sample index remains the same; the split reader emits at most four outputs and uses `4 * splitSubpassIndex + attachmentNdx`, adding split subpasses above four samples. | [`Programs::init()`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L2206-L2326) |
+| Separate stencil usage | The selected aspect changes the producer and split-reader declarations for depth versus stencil. | [`Programs::init()`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L1942-L2013) |
+
+#### SPIR-V
+
+##### Fragment Producer Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 169
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %gl_SampleMask %gl_FragCoord %o_color
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %sampleIndex "sampleIndex"
+               OpName %PushConstant "PushConstant"
+               OpMemberName %PushConstant 0 "sampleIndex"
+               OpName %pushConstants "pushConstants"
+               OpName %gl_SampleMask "gl_SampleMask"
+               OpName %x "x"
+               OpName %gl_FragCoord "gl_FragCoord"
+               OpName %y "y"
+               OpName %color "color"
+               OpName %o_color "o_color"
+               OpDecorate %PushConstant Block
+               OpMemberDecorate %PushConstant 0 Offset 0
+               OpDecorate %gl_SampleMask BuiltIn SampleMask
+               OpDecorate %gl_FragCoord BuiltIn FragCoord
+               OpDecorate %o_color Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_ptr_Function_uint = OpTypePointer Function %uint
+%PushConstant = OpTypeStruct %uint
+%_ptr_PushConstant_PushConstant = OpTypePointer PushConstant %PushConstant
+%pushConstants = OpVariable %_ptr_PushConstant_PushConstant PushConstant
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_PushConstant_uint = OpTypePointer PushConstant %uint
+     %uint_1 = OpConstant %uint 1
+%_arr_int_uint_1 = OpTypeArray %int %uint_1
+%_ptr_Output__arr_int_uint_1 = OpTypePointer Output %_arr_int_uint_1
+%gl_SampleMask = OpVariable %_ptr_Output__arr_int_uint_1 Output
+%_ptr_Output_int = OpTypePointer Output %int
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%gl_FragCoord = OpVariable %_ptr_Input_v4float Input
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_float = OpTypePointer Input %float
+     %uint_4 = OpConstant %uint 4
+%_arr_float_uint_4 = OpTypeArray %float %uint_4
+%_ptr_Function__arr_float_uint_4 = OpTypePointer Function %_arr_float_uint_4
+    %float_0 = OpConstant %float 0
+%_ptr_Function_float = OpTypePointer Function %float
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+      %int_3 = OpConstant %int 3
+  %float_0_5 = OpConstant %float 0.5
+ %float_0_25 = OpConstant %float 0.25
+%float_0_125 = OpConstant %float 0.125
+      %int_4 = OpConstant %int 4
+      %int_5 = OpConstant %int 5
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+    %o_color = OpVariable %_ptr_Output_v4float Output
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+%sampleIndex = OpVariable %_ptr_Function_uint Function
+          %x = OpVariable %_ptr_Function_uint Function
+          %y = OpVariable %_ptr_Function_uint Function
+      %color = OpVariable %_ptr_Function__arr_float_uint_4 Function
+         %15 = OpAccessChain %_ptr_PushConstant_uint %pushConstants %int_0
+         %16 = OpLoad %uint %15
+               OpStore %sampleIndex %16
+         %21 = OpLoad %uint %sampleIndex
+         %22 = OpShiftLeftLogical %uint %uint_1 %21
+         %23 = OpBitcast %int %22
+         %25 = OpAccessChain %_ptr_Output_int %gl_SampleMask %int_0
+               OpStore %25 %23
+         %27 = OpLoad %uint %sampleIndex
+         %34 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_0
+         %35 = OpLoad %float %34
+         %36 = OpConvertFToU %uint %35
+         %37 = OpBitwiseXor %uint %27 %36
+               OpStore %x %37
+         %39 = OpLoad %uint %sampleIndex
+         %40 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_1
+         %41 = OpLoad %float %40
+         %42 = OpConvertFToU %uint %41
+         %43 = OpBitwiseXor %uint %39 %42
+               OpStore %y %43
+         %50 = OpAccessChain %_ptr_Function_float %color %int_0
+               OpStore %50 %float_0
+         %52 = OpAccessChain %_ptr_Function_float %color %int_1
+               OpStore %52 %float_0
+         %54 = OpAccessChain %_ptr_Function_float %color %int_2
+               OpStore %54 %float_0
+         %56 = OpAccessChain %_ptr_Function_float %color %int_3
+               OpStore %56 %float_0
+         %58 = OpLoad %uint %x
+         %59 = OpBitFieldUExtract %uint %58 %int_0 %int_1
+         %60 = OpConvertUToF %float %59
+         %61 = OpFMul %float %float_0_5 %60
+         %62 = OpAccessChain %_ptr_Function_float %color %int_0
+         %63 = OpLoad %float %62
+         %64 = OpFAdd %float %63 %61
+         %65 = OpAccessChain %_ptr_Function_float %color %int_0
+               OpStore %65 %64
+         %66 = OpLoad %uint %y
+         %67 = OpBitFieldUExtract %uint %66 %int_0 %int_1
+         %68 = OpConvertUToF %float %67
+         %69 = OpFMul %float %float_0_5 %68
+         %70 = OpAccessChain %_ptr_Function_float %color %int_1
+         %71 = OpLoad %float %70
+         %72 = OpFAdd %float %71 %69
+         %73 = OpAccessChain %_ptr_Function_float %color %int_1
+               OpStore %73 %72
+         %74 = OpLoad %uint %x
+         %75 = OpBitFieldUExtract %uint %74 %int_1 %int_1
+         %76 = OpConvertUToF %float %75
+         %77 = OpFMul %float %float_0_5 %76
+         %78 = OpAccessChain %_ptr_Function_float %color %int_2
+         %79 = OpLoad %float %78
+         %80 = OpFAdd %float %79 %77
+         %81 = OpAccessChain %_ptr_Function_float %color %int_2
+               OpStore %81 %80
+         %82 = OpLoad %uint %y
+         %83 = OpBitFieldUExtract %uint %82 %int_1 %int_1
+         %84 = OpConvertUToF %float %83
+         %85 = OpFMul %float %float_0_5 %84
+         %86 = OpAccessChain %_ptr_Function_float %color %int_3
+         %87 = OpLoad %float %86
+         %88 = OpFAdd %float %87 %85
+         %89 = OpAccessChain %_ptr_Function_float %color %int_3
+               OpStore %89 %88
+         %91 = OpLoad %uint %x
+         %92 = OpBitFieldUExtract %uint %91 %int_2 %int_1
+         %93 = OpConvertUToF %float %92
+         %94 = OpFMul %float %float_0_25 %93
+         %95 = OpAccessChain %_ptr_Function_float %color %int_0
+         %96 = OpLoad %float %95
+         %97 = OpFAdd %float %96 %94
+         %98 = OpAccessChain %_ptr_Function_float %color %int_0
+               OpStore %98 %97
+         %99 = OpLoad %uint %y
+        %100 = OpBitFieldUExtract %uint %99 %int_2 %int_1
+        %101 = OpConvertUToF %float %100
+        %102 = OpFMul %float %float_0_25 %101
+        %103 = OpAccessChain %_ptr_Function_float %color %int_1
+        %104 = OpLoad %float %103
+        %105 = OpFAdd %float %104 %102
+        %106 = OpAccessChain %_ptr_Function_float %color %int_1
+               OpStore %106 %105
+        %107 = OpLoad %uint %x
+        %108 = OpBitFieldUExtract %uint %107 %int_3 %int_1
+        %109 = OpConvertUToF %float %108
+        %110 = OpFMul %float %float_0_25 %109
+        %111 = OpAccessChain %_ptr_Function_float %color %int_2
+        %112 = OpLoad %float %111
+        %113 = OpFAdd %float %112 %110
+        %114 = OpAccessChain %_ptr_Function_float %color %int_2
+               OpStore %114 %113
+        %115 = OpLoad %uint %y
+        %116 = OpBitFieldUExtract %uint %115 %int_3 %int_1
+        %117 = OpConvertUToF %float %116
+        %118 = OpFMul %float %float_0_25 %117
+        %119 = OpAccessChain %_ptr_Function_float %color %int_3
+        %120 = OpLoad %float %119
+        %121 = OpFAdd %float %120 %118
+        %122 = OpAccessChain %_ptr_Function_float %color %int_3
+               OpStore %122 %121
+        %124 = OpLoad %uint %x
+        %126 = OpBitFieldUExtract %uint %124 %int_4 %int_1
+        %127 = OpConvertUToF %float %126
+        %128 = OpFMul %float %float_0_125 %127
+        %129 = OpAccessChain %_ptr_Function_float %color %int_0
+        %130 = OpLoad %float %129
+        %131 = OpFAdd %float %130 %128
+        %132 = OpAccessChain %_ptr_Function_float %color %int_0
+               OpStore %132 %131
+        %133 = OpLoad %uint %y
+        %134 = OpBitFieldUExtract %uint %133 %int_4 %int_1
+        %135 = OpConvertUToF %float %134
+        %136 = OpFMul %float %float_0_125 %135
+        %137 = OpAccessChain %_ptr_Function_float %color %int_1
+        %138 = OpLoad %float %137
+        %139 = OpFAdd %float %138 %136
+        %140 = OpAccessChain %_ptr_Function_float %color %int_1
+               OpStore %140 %139
+        %141 = OpLoad %uint %x
+        %143 = OpBitFieldUExtract %uint %141 %int_5 %int_1
+        %144 = OpConvertUToF %float %143
+        %145 = OpFMul %float %float_0_125 %144
+        %146 = OpAccessChain %_ptr_Function_float %color %int_2
+        %147 = OpLoad %float %146
+        %148 = OpFAdd %float %147 %145
+        %149 = OpAccessChain %_ptr_Function_float %color %int_2
+               OpStore %149 %148
+        %150 = OpLoad %uint %y
+        %151 = OpBitFieldUExtract %uint %150 %int_5 %int_1
+        %152 = OpConvertUToF %float %151
+        %153 = OpFMul %float %float_0_125 %152
+        %154 = OpAccessChain %_ptr_Function_float %color %int_3
+        %155 = OpLoad %float %154
+        %156 = OpFAdd %float %155 %153
+        %157 = OpAccessChain %_ptr_Function_float %color %int_3
+               OpStore %157 %156
+        %160 = OpAccessChain %_ptr_Function_float %color %int_0
+        %161 = OpLoad %float %160
+        %162 = OpAccessChain %_ptr_Function_float %color %int_1
+        %163 = OpLoad %float %162
+        %164 = OpAccessChain %_ptr_Function_float %color %int_2
+        %165 = OpLoad %float %164
+        %166 = OpAccessChain %_ptr_Function_float %color %int_3
+        %167 = OpLoad %float %166
+        %168 = OpCompositeConstruct %v4float %161 %163 %165 %167
+               OpStore %o_color %168
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Split-Reader Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 58
+; Schema: 0
+               OpCapability Shader
+               OpCapability InputAttachment
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %o_color0 %o_color1 %o_color2 %o_color3
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %o_color0 "o_color0"
+               OpName %i_color "i_color"
+               OpName %PushConstant "PushConstant"
+               OpMemberName %PushConstant 0 "splitSubpassIndex"
+               OpName %pushConstants "pushConstants"
+               OpName %o_color1 "o_color1"
+               OpName %o_color2 "o_color2"
+               OpName %o_color3 "o_color3"
+               OpDecorate %o_color0 Location 0
+               OpDecorate %i_color Binding 0
+               OpDecorate %i_color DescriptorSet 0
+               OpDecorate %i_color InputAttachmentIndex 0
+               OpDecorate %PushConstant Block
+               OpMemberDecorate %PushConstant 0 Offset 0
+               OpDecorate %o_color1 Location 1
+               OpDecorate %o_color2 Location 2
+               OpDecorate %o_color3 Location 3
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %o_color0 = OpVariable %_ptr_Output_v4float Output
+         %10 = OpTypeImage %float SubpassData 0 0 1 2 Unknown
+%_ptr_UniformConstant_10 = OpTypePointer UniformConstant %10
+    %i_color = OpVariable %_ptr_UniformConstant_10 UniformConstant
+       %uint = OpTypeInt 32 0
+     %uint_4 = OpConstant %uint 4
+%PushConstant = OpTypeStruct %uint
+%_ptr_PushConstant_PushConstant = OpTypePointer PushConstant %PushConstant
+%pushConstants = OpVariable %_ptr_PushConstant_PushConstant PushConstant
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_PushConstant_uint = OpTypePointer PushConstant %uint
+     %uint_0 = OpConstant %uint 0
+      %v2int = OpTypeVector %int 2
+         %29 = OpConstantComposite %v2int %int_0 %int_0
+   %o_color1 = OpVariable %_ptr_Output_v4float Output
+     %uint_1 = OpConstant %uint 1
+   %o_color2 = OpVariable %_ptr_Output_v4float Output
+     %uint_2 = OpConstant %uint 2
+   %o_color3 = OpVariable %_ptr_Output_v4float Output
+     %uint_3 = OpConstant %uint 3
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %13 = OpLoad %10 %i_color
+         %22 = OpAccessChain %_ptr_PushConstant_uint %pushConstants %int_0
+         %23 = OpLoad %uint %22
+         %24 = OpIMul %uint %uint_4 %23
+         %26 = OpIAdd %uint %24 %uint_0
+         %27 = OpBitcast %int %26
+         %30 = OpImageRead %v4float %13 %29 Sample %27
+               OpStore %o_color0 %30
+         %32 = OpLoad %10 %i_color
+         %33 = OpAccessChain %_ptr_PushConstant_uint %pushConstants %int_0
+         %34 = OpLoad %uint %33
+         %35 = OpIMul %uint %uint_4 %34
+         %37 = OpIAdd %uint %35 %uint_1
+         %38 = OpBitcast %int %37
+         %39 = OpImageRead %v4float %32 %29 Sample %38
+               OpStore %o_color1 %39
+         %41 = OpLoad %10 %i_color
+         %42 = OpAccessChain %_ptr_PushConstant_uint %pushConstants %int_0
+         %43 = OpLoad %uint %42
+         %44 = OpIMul %uint %uint_4 %43
+         %46 = OpIAdd %uint %44 %uint_2
+         %47 = OpBitcast %int %46
+         %48 = OpImageRead %v4float %41 %29 Sample %47
+               OpStore %o_color2 %48
+         %50 = OpLoad %10 %i_color
+         %51 = OpAccessChain %_ptr_PushConstant_uint %pushConstants %int_0
+         %52 = OpLoad %uint %51
+         %53 = OpIMul %uint %uint_4 %52
+         %55 = OpIAdd %uint %53 %uint_3
+         %56 = OpBitcast %int %55
+         %57 = OpImageRead %v4float %50 %29 Sample %56
+               OpStore %o_color3 %57
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

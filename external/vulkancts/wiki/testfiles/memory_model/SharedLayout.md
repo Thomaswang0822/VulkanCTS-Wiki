@@ -567,7 +567,7 @@ void main (void) {
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level variation from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | Type-width branch | Base cases omit `GL_EXT_shader_explicit_arithmetic_types`; 8-bit cases use `GL_EXT_shader_explicit_arithmetic_types_int8`; this 16-bit case emits 16-bit scalar and vector declarations plus promoted comparisons. | [extension emission](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayoutCase.cpp#L277-L280), [16-bit type selection](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L195-L218) |
 | Layout shape parameter | Smaller parameters remove parts of this structure: scalar/vector/basic parameters avoid nested struct-array paths, while `nested_structs_arrays` allows both recursive structs and array indexing. | [feature sets](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L310-L326), [recursive type generation](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L162-L191) |

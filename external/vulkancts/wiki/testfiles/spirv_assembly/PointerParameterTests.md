@@ -99,7 +99,7 @@ This page uses two walkthroughs. The first is the simplest aliased `Function` po
 Representative path:
 
 ```text
-spirv_assembly.instruction.compute.pointer_parameter.param_to_param
+dEQP-VK.spirv_assembly.instruction.compute.pointer_parameter.param_to_param
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -121,79 +121,9 @@ This shader checks that a SPIR-V function with two `Aliased` `Function` pointer 
 | 2 | `func(%a, %b)` | `%f` and `%g` are distinct | `5.0` | `OpStore %g 5.0` writes `%a`; `OpStore %f 2.0` writes `%b`; `OpLoad %g` returns `%a`'s `5.0`. |
 | 3 | `main` | (none) | `ret0 + ret1 = 7.0` | The sum is stored to `dataOutput[invocation]`. |
 
-#### Source Code
+#### Shader Code
 
-Extracted SPIR-V assembly from [vktSpvAsmPointerParameterTests.cpp#L68-L129](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L68-L129). Target SPIR-V environment: `spirv1.0` (the `ComputeShaderSpec` default). `;` comments are wiki-authored annotations; the instruction text is verbatim from the CTS source.
-
-```llvm
-; Capabilities and memory model: plain Shader, no variable-pointer extensions needed for Function pointers.
-                          OpCapability Shader
-                     %1 = OpExtInstImport "GLSL.std.450"
-                          OpMemoryModel Logical GLSL450
-                          OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
-                          OpExecutionMode %main LocalSize 1 1 1
-                          OpSource GLSL 430
-; Output buffer decorations: legacy Uniform/BufferBlock at descriptor set 0, binding 0.
-                          OpDecorate %_arr_float_uint_128 ArrayStride 4
-                          OpMemberDecorate %Output 0 Offset 0
-                          OpDecorate %Output BufferBlock
-                          OpDecorate %dataOutput DescriptorSet 0
-                          OpDecorate %dataOutput Binding 0
-; Aliased decoration on both function parameters: the compiler must not assume %f and %g are distinct.
-                          OpDecorate %f Aliased
-                          OpDecorate %g Aliased
-                          OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
-; Types. %func0_decl is the function type taking two Function float pointers and returning float.
-                  %void = OpTypeVoid
-             %void_func = OpTypeFunction %void
-                 %float = OpTypeFloat 32
-   %_ptr_Function_float = OpTypePointer Function %float
-            %func0_decl = OpTypeFunction %float %_ptr_Function_float %_ptr_Function_float
-               %float_0 = OpConstant %float 0
-               %float_5 = OpConstant %float 5
-               %float_2 = OpConstant %float 2
-                  %uint = OpTypeInt 32 0
-              %uint_128 = OpConstant %uint 128
-   %_arr_float_uint_128 = OpTypeArray %float %uint_128
-                %Output = OpTypeStruct %_arr_float_uint_128
-   %_ptr_Uniform_Output = OpTypePointer Uniform %Output
-            %dataOutput = OpVariable %_ptr_Uniform_Output Uniform
-                   %int = OpTypeInt 32 1
-                 %int_0 = OpConstant %int 0
-                %v3uint = OpTypeVector %uint 3
-     %_ptr_Input_v3uint = OpTypePointer Input %v3uint
- %gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
-                %uint_0 = OpConstant %uint 0
-       %_ptr_Input_uint = OpTypePointer Input %uint
-    %_ptr_Uniform_float = OpTypePointer Uniform %float
-; Entry function: declare locals a, b, o; call func twice and store the sum into the output slot for this invocation.
-                  %main = OpFunction %void None %void_func
-                 %entry = OpLabel
-                     %a = OpVariable %_ptr_Function_float Function %float_0
-                     %b = OpVariable %_ptr_Function_float Function %float_0
-                     %o = OpVariable %_ptr_Function_float Function %float_0
-                  %ret0 = OpFunctionCall %float %func %a %a
-                          OpStore %o %ret0
-                  %ret1 = OpFunctionCall %float %func %a %b
-                 %o_val = OpLoad %float %o
-                   %sum = OpFAdd %float %o_val %ret1
-            %inv_id_ptr = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
-                %inv_id = OpLoad %uint %inv_id_ptr
-               %out_ptr = OpAccessChain %_ptr_Uniform_float %dataOutput %int_0 %inv_id
-                          OpStore %out_ptr %sum
-                          OpReturn
-                          OpFunctionEnd
-; Helper func(%f, %g): write 5.0 via g, write 2.0 via f, return *g. Aliasing makes ret0=2.0, non-aliasing makes ret1=5.0.
-                  %func = OpFunction %float None %func0_decl
-                     %f = OpFunctionParameter %_ptr_Function_float
-                     %g = OpFunctionParameter %_ptr_Function_float
-            %func_entry = OpLabel
-                          OpStore %g %float_5
-                          OpStore %f %float_2
-                   %ret = OpLoad %float %g
-                          OpReturnValue %ret
-                          OpFunctionEnd
-```
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -209,6 +139,88 @@ Extracted SPIR-V assembly from [vktSpvAsmPointerParameterTests.cpp#L68-L129](../
 | `buffer_memory_variable_pointers` | Near-identical to `buffer_memory`; still emits `VariablePointersStorageBuffer`, only the `OpExtension` order differs. | [assembly](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L420-L497) |
 | Pipeline | Graphics variants move the `func` definition into `fragments["pre_main"]` and the caller into `fragments["testfun"]`, returning `param` to satisfy the stage template. | [graphics fragments](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L718-L756) |
 
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 41
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %2 "main" %gl_GlobalInvocationID
+               OpExecutionMode %2 LocalSize 1 1 1
+               OpSource GLSL 430
+               OpDecorate %_arr_float_uint_128 ArrayStride 4
+               OpMemberDecorate %_struct_5 0 Offset 0
+               OpDecorate %_struct_5 BufferBlock
+               OpDecorate %6 DescriptorSet 0
+               OpDecorate %6 Binding 0
+               OpDecorate %7 Aliased
+               OpDecorate %8 Aliased
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+       %void = OpTypeVoid
+         %10 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+%_ptr_Function_float = OpTypePointer Function %float
+         %13 = OpTypeFunction %float %_ptr_Function_float %_ptr_Function_float
+    %float_0 = OpConstant %float 0
+    %float_5 = OpConstant %float 5
+    %float_2 = OpConstant %float 2
+       %uint = OpTypeInt 32 0
+   %uint_128 = OpConstant %uint 128
+%_arr_float_uint_128 = OpTypeArray %float %uint_128
+  %_struct_5 = OpTypeStruct %_arr_float_uint_128
+%_ptr_Uniform__struct_5 = OpTypePointer Uniform %_struct_5
+          %6 = OpVariable %_ptr_Uniform__struct_5 Uniform
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_uint = OpTypePointer Input %uint
+%_ptr_Uniform_float = OpTypePointer Uniform %float
+          %2 = OpFunction %void None %10
+         %27 = OpLabel
+         %28 = OpVariable %_ptr_Function_float Function %float_0
+         %29 = OpVariable %_ptr_Function_float Function %float_0
+         %30 = OpVariable %_ptr_Function_float Function %float_0
+         %31 = OpFunctionCall %float %32 %28 %28
+               OpStore %30 %31
+         %33 = OpFunctionCall %float %32 %28 %29
+         %34 = OpLoad %float %30
+         %35 = OpFAdd %float %34 %33
+         %36 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %37 = OpLoad %uint %36
+         %38 = OpAccessChain %_ptr_Uniform_float %6 %int_0 %37
+               OpStore %38 %35
+               OpReturn
+               OpFunctionEnd
+         %32 = OpFunction %float None %13
+          %7 = OpFunctionParameter %_ptr_Function_float
+          %8 = OpFunctionParameter %_ptr_Function_float
+         %39 = OpLabel
+               OpStore %8 %float_5
+               OpStore %7 %float_2
+         %40 = OpLoad %float %8
+               OpReturnValue %40
+               OpFunctionEnd
+```
+
+</details>
+
 ### Representative Shader Walkthrough 2
 
 #### Parameter Values Chosen
@@ -216,7 +228,7 @@ Extracted SPIR-V assembly from [vktSpvAsmPointerParameterTests.cpp#L68-L129](../
 Representative path:
 
 ```text
-spirv_assembly.instruction.compute.pointer_parameter.workgroup_memory_variable_pointers
+dEQP-VK.spirv_assembly.instruction.compute.pointer_parameter.workgroup_memory_variable_pointers
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -242,119 +254,9 @@ flowchart TD
     E --> F["Read sharedData.arr0[(idx+1) mod 16] -> dataOutput.arr1[idx]"]
 ```
 
-#### Source Code
+#### Shader Code
 
-Extracted SPIR-V assembly from [vktSpvAsmPointerParameterTests.cpp#L559-L661](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L559-L661). Target SPIR-V environment: `spirv1.4` (explicit `spec.spirvVersion = SPIRV_VERSION_1_4`). `;` comments are wiki-authored annotations; the instruction text is verbatim from the CTS source.
-
-```llvm
-; Capabilities and extensions: full VariablePointers (covers Workgroup) + WorkgroupMemoryExplicitLayoutKHR.
-                          OpCapability Shader
-                          OpCapability VariablePointers
-                          OpCapability WorkgroupMemoryExplicitLayoutKHR
-                          OpExtension "SPV_KHR_variable_pointers"
-                          OpExtension "SPV_KHR_storage_buffer_storage_class"
-                          OpExtension "SPV_KHR_workgroup_memory_explicit_layout"
-                     %1 = OpExtInstImport "GLSL.std.450"
-                          OpMemoryModel Logical GLSL450
-                          OpEntryPoint GLCompute %main "main" %gl_LocalInvocationID %dataOutput %sharedData
-                          OpExecutionMode %main LocalSize 16 1 1
-                          OpSource GLSL 430
-; Output block (StorageBuffer) and Workgroup struct both laid out with explicit member offsets and array strides.
-                          OpMemberDecorate %Output 0 Offset 0
-                          OpMemberDecorate %Output 1 Offset 256
-                          OpMemberDecorate %struct 0 Offset 0
-                          OpMemberDecorate %struct 1 Offset 256
-                          OpDecorate %arr_vec4_16 ArrayStride 16
-                          OpDecorate %arr_vec4_rt ArrayStride 16
-                          OpDecorate %Output Block
-                          OpDecorate %dataOutput DescriptorSet 0
-                          OpDecorate %dataOutput Binding 0
-                          OpDecorate %gl_LocalInvocationID BuiltIn LocalInvocationId
-; Types. %func_decl takes a Workgroup pointer to vec4[16] plus a Function uint pointer (the index).
-                  %void = OpTypeVoid
-             %void_func = OpTypeFunction %void
-                 %float = OpTypeFloat 32
-   %_ptr_Function_float = OpTypePointer Function %float
-                  %uint = OpTypeInt 32 0
-    %_ptr_Function_uint = OpTypePointer Function %uint
-                %uint_1 = OpConstant %uint 1
-                %uint_2 = OpConstant %uint 2
-                %uint_5 = OpConstant %uint 5
-               %uint_16 = OpConstant %uint 16
-              %uint_264 = OpConstant %uint 264
-                  %vec4 = OpTypeVector %float 4
-           %arr_vec4_16 = OpTypeArray %vec4 %uint_16
-           %arr_vec4_rt = OpTypeRuntimeArray %vec4
-    %arr_vec4_16_sb_ptr = OpTypePointer StorageBuffer %arr_vec4_16
-    %arr_vec4_rt_sb_ptr = OpTypePointer StorageBuffer %arr_vec4_rt
-    %arr_vec4_16_wg_ptr = OpTypePointer Workgroup %arr_vec4_16
-             %func_decl = OpTypeFunction %void %arr_vec4_16_wg_ptr %_ptr_Function_uint
-                %Output = OpTypeStruct %arr_vec4_16 %arr_vec4_rt
-                %struct = OpTypeStruct %arr_vec4_16 %arr_vec4_16
-        %_ptr_sb_struct = OpTypePointer StorageBuffer %Output
-        %_ptr_wg_struct = OpTypePointer Workgroup %struct
-            %dataOutput = OpVariable %_ptr_sb_struct StorageBuffer
-            %sharedData = OpVariable %_ptr_wg_struct Workgroup
-                   %int = OpTypeInt 32 1
-                 %int_0 = OpConstant %int 0
-                 %int_1 = OpConstant %int 1
-                %v3uint = OpTypeVector %uint 3
-     %_ptr_Input_v3uint = OpTypePointer Input %v3uint
-  %gl_LocalInvocationID = OpVariable %_ptr_Input_v3uint Input
-                %uint_0 = OpConstant %uint 0
-       %_ptr_Input_uint = OpTypePointer Input %uint
-          %_ptr_sb_vec4 = OpTypePointer StorageBuffer %vec4
-          %_ptr_wg_vec4 = OpTypePointer Workgroup %vec4
-; main: get idx, obtain Workgroup array pointers via OpAccessChain, call func0/func1, barrier, then read shuffled partner slots.
-                  %main = OpFunction %void None %void_func
-                 %entry = OpLabel
-                   %idx = OpVariable %_ptr_Function_uint Function
-            %inv_id_ptr = OpAccessChain %_ptr_Input_uint %gl_LocalInvocationID %uint_0
-                %inv_id = OpLoad %uint %inv_id_ptr
-                          OpStore %idx %inv_id
-                  %ptr0 = OpAccessChain %arr_vec4_16_wg_ptr %sharedData %int_0
-                  %ptr1 = OpAccessChain %arr_vec4_16_wg_ptr %sharedData %int_1
-                  %ret0 = OpFunctionCall %void %func0 %ptr0 %idx
-                  %ret1 = OpFunctionCall %void %func1 %ptr1 %idx
-                          OpControlBarrier %uint_2 %uint_2 %uint_264
-          %inv_id_plus1 = OpIAdd %uint %inv_id %uint_1
-            %inv_id_mod = OpUMod %uint %inv_id_plus1 %uint_16
-       %shared_arr1_ptr = OpAccessChain %_ptr_wg_vec4 %sharedData %int_1 %inv_id_mod
-      %shared_arr1_data = OpLoad %vec4 %shared_arr1_ptr
-               %outPtr0 = OpAccessChain %_ptr_sb_vec4 %dataOutput %int_0 %inv_id
-                          OpStore %outPtr0 %shared_arr1_data
-       %shared_arr0_ptr = OpAccessChain %_ptr_wg_vec4 %sharedData %int_0 %inv_id_mod
-      %shared_arr0_data = OpLoad %vec4 %shared_arr0_ptr
-               %outPtr1 = OpAccessChain %_ptr_sb_vec4 %dataOutput %int_1 %inv_id
-                          OpStore %outPtr1 %shared_arr0_data
-                          OpReturn
-                          OpFunctionEnd
-; func0: write vec4(idx) into the Workgroup array slot idx via the pointer parameter.
-                 %func0 = OpFunction %void None %func_decl
-                    %f0 = OpFunctionParameter %arr_vec4_16_wg_ptr
-                    %i0 = OpFunctionParameter %_ptr_Function_uint
-           %func0_entry = OpLabel
-                  %idx0 = OpLoad %uint %i0
-              %out_ptr0 = OpAccessChain %_ptr_wg_vec4 %f0 %idx0
-             %idxFloat0 = OpConvertUToF %float %idx0
-              %outData0 = OpCompositeConstruct %vec4 %idxFloat0 %idxFloat0 %idxFloat0 %idxFloat0
-                          OpStore %out_ptr0 %outData0
-                          OpReturn
-                          OpFunctionEnd
-; func1: write vec4(idx+5) into the Workgroup array slot idx via the pointer parameter.
-                 %func1 = OpFunction %void None %func_decl
-                    %f1 = OpFunctionParameter %arr_vec4_16_wg_ptr
-                    %i1 = OpFunctionParameter %_ptr_Function_uint
-           %func1_entry = OpLabel
-                  %idx1 = OpLoad %uint %i1
-              %out_ptr1 = OpAccessChain %_ptr_wg_vec4 %f1 %idx1
-              %idxPlus5 = OpIAdd %uint %idx1 %uint_5
-             %idxFloat1 = OpConvertUToF %float %idxPlus5
-              %outData1 = OpCompositeConstruct %vec4 %idxFloat1 %idxFloat1 %idxFloat1 %idxFloat1
-                          OpStore %out_ptr1 %outData1
-                          OpReturn
-                          OpFunctionEnd
-```
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -370,6 +272,128 @@ Extracted SPIR-V assembly from [vktSpvAsmPointerParameterTests.cpp#L559-L661](..
 | Capability | `buffer_memory`/`buffer_memory_variable_pointers` use `VariablePointersStorageBuffer` only; this case uses full `VariablePointers` plus `WorkgroupMemoryExplicitLayoutKHR`. | [capability declarations](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L560-L565) |
 | Synchronization | Only this family issues `OpControlBarrier` and reads a partner slot; the other families have no cross-invocation dependency. | [barrier and shuffle](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L622-L637) |
 | Target SPIR-V version | Only this family sets `spec.spirvVersion = SPIRV_VERSION_1_4`; the others default to `SPIRV_VERSION_1_0`. | [spirv version](../../../modules/vulkan/spirv_assembly/vktSpvAsmPointerParameterTests.cpp#L687) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 70
+; Schema: 0
+               OpCapability Shader
+               OpCapability VariablePointers
+               OpCapability WorkgroupMemoryExplicitLayoutKHR
+               OpExtension "SPV_KHR_variable_pointers"
+               OpExtension "SPV_KHR_storage_buffer_storage_class"
+               OpExtension "SPV_KHR_workgroup_memory_explicit_layout"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %2 "main" %gl_LocalInvocationID %4 %5
+               OpExecutionMode %2 LocalSize 16 1 1
+               OpSource GLSL 430
+               OpMemberDecorate %_struct_6 0 Offset 0
+               OpMemberDecorate %_struct_6 1 Offset 256
+               OpMemberDecorate %_struct_7 0 Offset 0
+               OpMemberDecorate %_struct_7 1 Offset 256
+               OpDecorate %_arr_v4float_uint_16 ArrayStride 16
+               OpDecorate %_runtimearr_v4float ArrayStride 16
+               OpDecorate %_struct_6 Block
+               OpDecorate %4 DescriptorSet 0
+               OpDecorate %4 Binding 0
+               OpDecorate %gl_LocalInvocationID BuiltIn LocalInvocationId
+       %void = OpTypeVoid
+         %11 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+%_ptr_Function_float = OpTypePointer Function %float
+       %uint = OpTypeInt 32 0
+%_ptr_Function_uint = OpTypePointer Function %uint
+     %uint_1 = OpConstant %uint 1
+     %uint_2 = OpConstant %uint 2
+     %uint_5 = OpConstant %uint 5
+    %uint_16 = OpConstant %uint 16
+   %uint_264 = OpConstant %uint 264
+    %v4float = OpTypeVector %float 4
+%_arr_v4float_uint_16 = OpTypeArray %v4float %uint_16
+%_runtimearr_v4float = OpTypeRuntimeArray %v4float
+%_ptr_StorageBuffer__arr_v4float_uint_16 = OpTypePointer StorageBuffer %_arr_v4float_uint_16
+%_ptr_StorageBuffer__runtimearr_v4float = OpTypePointer StorageBuffer %_runtimearr_v4float
+%_ptr_Workgroup__arr_v4float_uint_16 = OpTypePointer Workgroup %_arr_v4float_uint_16
+         %25 = OpTypeFunction %void %_ptr_Workgroup__arr_v4float_uint_16 %_ptr_Function_uint
+  %_struct_6 = OpTypeStruct %_arr_v4float_uint_16 %_runtimearr_v4float
+  %_struct_7 = OpTypeStruct %_arr_v4float_uint_16 %_arr_v4float_uint_16
+%_ptr_StorageBuffer__struct_6 = OpTypePointer StorageBuffer %_struct_6
+%_ptr_Workgroup__struct_7 = OpTypePointer Workgroup %_struct_7
+          %4 = OpVariable %_ptr_StorageBuffer__struct_6 StorageBuffer
+          %5 = OpVariable %_ptr_Workgroup__struct_7 Workgroup
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+      %int_1 = OpConstant %int 1
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_LocalInvocationID = OpVariable %_ptr_Input_v3uint Input
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_uint = OpTypePointer Input %uint
+%_ptr_StorageBuffer_v4float = OpTypePointer StorageBuffer %v4float
+%_ptr_Workgroup_v4float = OpTypePointer Workgroup %v4float
+          %2 = OpFunction %void None %11
+         %37 = OpLabel
+         %38 = OpVariable %_ptr_Function_uint Function
+         %39 = OpAccessChain %_ptr_Input_uint %gl_LocalInvocationID %uint_0
+         %40 = OpLoad %uint %39
+               OpStore %38 %40
+         %41 = OpAccessChain %_ptr_Workgroup__arr_v4float_uint_16 %5 %int_0
+         %42 = OpAccessChain %_ptr_Workgroup__arr_v4float_uint_16 %5 %int_1
+         %43 = OpFunctionCall %void %44 %41 %38
+         %45 = OpFunctionCall %void %46 %42 %38
+               OpControlBarrier %uint_2 %uint_2 %uint_264
+         %47 = OpIAdd %uint %40 %uint_1
+         %48 = OpUMod %uint %47 %uint_16
+         %49 = OpAccessChain %_ptr_Workgroup_v4float %5 %int_1 %48
+         %50 = OpLoad %v4float %49
+         %51 = OpAccessChain %_ptr_StorageBuffer_v4float %4 %int_0 %40
+               OpStore %51 %50
+         %52 = OpAccessChain %_ptr_Workgroup_v4float %5 %int_0 %48
+         %53 = OpLoad %v4float %52
+         %54 = OpAccessChain %_ptr_StorageBuffer_v4float %4 %int_1 %40
+               OpStore %54 %53
+               OpReturn
+               OpFunctionEnd
+         %44 = OpFunction %void None %25
+         %55 = OpFunctionParameter %_ptr_Workgroup__arr_v4float_uint_16
+         %56 = OpFunctionParameter %_ptr_Function_uint
+         %57 = OpLabel
+         %58 = OpLoad %uint %56
+         %59 = OpAccessChain %_ptr_Workgroup_v4float %55 %58
+         %60 = OpConvertUToF %float %58
+         %61 = OpCompositeConstruct %v4float %60 %60 %60 %60
+               OpStore %59 %61
+               OpReturn
+               OpFunctionEnd
+         %46 = OpFunction %void None %25
+         %62 = OpFunctionParameter %_ptr_Workgroup__arr_v4float_uint_16
+         %63 = OpFunctionParameter %_ptr_Function_uint
+         %64 = OpLabel
+         %65 = OpLoad %uint %63
+         %66 = OpAccessChain %_ptr_Workgroup_v4float %62 %65
+         %67 = OpIAdd %uint %65 %uint_5
+         %68 = OpConvertUToF %float %67
+         %69 = OpCompositeConstruct %v4float %68 %68 %68 %68
+               OpStore %66 %69
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

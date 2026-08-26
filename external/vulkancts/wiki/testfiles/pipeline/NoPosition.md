@@ -65,7 +65,7 @@ The generator emits GLSL directly from the declaration, stage, write-mask, and S
 Representative path:
 
 ```text
-pipeline.monolithic.no_position.explicit_declarations.basic.single_view.v0
+dEQP-VK.pipeline.monolithic.no_position.explicit_declarations.basic.single_view.v0
 ```
 
 | Parameter choice | Meaning in this representative case |

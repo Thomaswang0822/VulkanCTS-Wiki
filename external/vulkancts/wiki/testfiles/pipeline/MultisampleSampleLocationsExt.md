@@ -73,7 +73,7 @@ The file generates GLSL at runtime. The representative interpolation shader is c
 Representative path:
 
 ```text
-pipeline.monolithic.multisample.sample_locations_ext.verify_interpolation.samples_4_dynamic
+dEQP-VK.pipeline.monolithic.multisample.sample_locations_ext.verify_interpolation.samples_4_dynamic
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -89,7 +89,9 @@ The shader checks whether the rasterizer evaluates the sample-qualified input at
 
 #### Structural Design
 
-The vertex shader copies the position to `o_position`. The fragment shader receives it as `sample in vec2 in_value`, derives an SSBO index from `gl_FragCoord` and `gl_SampleID`, loads the expected coordinate, and compares it with a fixed tolerance. The host prepares the SSBO from the same selected grid before the draw.
+- The vertex shader copies the position to `o_position`.
+- The fragment shader receives it as `sample in vec2 in_value`, derives an SSBO index from `gl_FragCoord` and `gl_SampleID`, loads the expected coordinate, and compares it with a fixed tolerance.
+- The host prepares the SSBO from the same selected grid before the draw.
 
 #### Shader Code
 
@@ -124,15 +126,162 @@ void main(void)
 
 #### Additional Info
 
-The full source emits this fragment program through [`addProgramsVerifyInterpolation()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleSampleLocationsExtTests.cpp#L1438-L1485). The host-side `VerifyInterpolationTest` fills `data[]` with expected positions from `genFramebufferSampleLocations()` before submitting the draw ([setup](../../../modules/vulkan/pipeline/vktPipelineMultisampleSampleLocationsExtTests.cpp#L1899-L1930)).
+- The full source emits this fragment program through [`addProgramsVerifyInterpolation()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleSampleLocationsExtTests.cpp#L1438-L1485). The host-side `VerifyInterpolationTest` fills `data[]` with expected positions from `genFramebufferSampleLocations()` before submitting the draw ([setup](../../../modules/vulkan/pipeline/vktPipelineMultisampleSampleLocationsExtTests.cpp#L1899-L1930)).
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level change relative to this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|--------------------------------------------|----------|
 | Sample count | The same indexing structure uses the selected `samplesPerPixel` and corresponding SSBO data. | [`addCases()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleSampleLocationsExtTests.cpp#L1934-L1991) |
 | Programmable versus standard locations | The generated verification shader remains the same; support and grid preparation choose programmable or standard positions. | [Support selection](../../../modules/vulkan/pipeline/vktPipelineMultisampleSampleLocationsExtTests.cpp#L152-L162) |
 | Dynamic state and packed pattern | These alter the configured sample pattern and registration options, not this GLSL comparison. | [`addCases()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleSampleLocationsExtTests.cpp#L1951-L1989) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 76
+; Schema: 0
+               OpCapability Shader
+               OpCapability SampleRateShading
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %gl_FragCoord %gl_SampleID %in_value %o_color
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %fragCoord "fragCoord"
+               OpName %gl_FragCoord "gl_FragCoord"
+               OpName %index "index"
+               OpName %SampleData "SampleData"
+               OpMemberName %SampleData 0 "renderSize"
+               OpMemberName %SampleData 1 "gridSize"
+               OpMemberName %SampleData 2 "samplesPerPixel"
+               OpMemberName %SampleData 3 "data"
+               OpName %sb_data "sb_data"
+               OpName %gl_SampleID "gl_SampleID"
+               OpName %diff "diff"
+               OpName %in_value "in_value"
+               OpName %threshold "threshold"
+               OpName %o_color "o_color"
+               OpDecorate %gl_FragCoord BuiltIn FragCoord
+               OpDecorate %_runtimearr_v2float ArrayStride 8
+               OpDecorate %SampleData BufferBlock
+               OpMemberDecorate %SampleData 0 NonWritable
+               OpMemberDecorate %SampleData 0 Offset 0
+               OpMemberDecorate %SampleData 1 NonWritable
+               OpMemberDecorate %SampleData 1 Offset 8
+               OpMemberDecorate %SampleData 2 NonWritable
+               OpMemberDecorate %SampleData 2 Offset 16
+               OpMemberDecorate %SampleData 3 NonWritable
+               OpMemberDecorate %SampleData 3 Offset 24
+               OpDecorate %sb_data NonWritable
+               OpDecorate %sb_data Binding 0
+               OpDecorate %sb_data DescriptorSet 0
+               OpDecorate %gl_SampleID BuiltIn SampleId
+               OpDecorate %gl_SampleID Flat
+               OpDecorate %in_value Sample
+               OpDecorate %in_value Location 0
+               OpDecorate %o_color Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+     %v2uint = OpTypeVector %uint 2
+%_ptr_Function_v2uint = OpTypePointer Function %v2uint
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%gl_FragCoord = OpVariable %_ptr_Input_v4float Input
+    %v2float = OpTypeVector %float 2
+%_ptr_Function_uint = OpTypePointer Function %uint
+     %uint_1 = OpConstant %uint 1
+%_runtimearr_v2float = OpTypeRuntimeArray %v2float
+ %SampleData = OpTypeStruct %v2uint %v2uint %uint %_runtimearr_v2float
+%_ptr_Uniform_SampleData = OpTypePointer Uniform %SampleData
+    %sb_data = OpVariable %_ptr_Uniform_SampleData Uniform
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+     %uint_0 = OpConstant %uint 0
+%_ptr_Uniform_uint = OpTypePointer Uniform %uint
+      %int_2 = OpConstant %int 2
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_SampleID = OpVariable %_ptr_Input_int Input
+%_ptr_Function_v2float = OpTypePointer Function %v2float
+      %int_3 = OpConstant %int 3
+%_ptr_Uniform_v2float = OpTypePointer Uniform %v2float
+%_ptr_Input_v2float = OpTypePointer Input %v2float
+   %in_value = OpVariable %_ptr_Input_v2float Input
+%float_0_00200000009 = OpConstant %float 0.00200000009
+         %60 = OpConstantComposite %v2float %float_0_00200000009 %float_0_00200000009
+       %bool = OpTypeBool
+     %v2bool = OpTypeVector %bool 2
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+    %o_color = OpVariable %_ptr_Output_v4float Output
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+         %73 = OpConstantComposite %v4float %float_0 %float_1 %float_0 %float_1
+         %75 = OpConstantComposite %v4float %float_1 %float_0 %float_0 %float_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+  %fragCoord = OpVariable %_ptr_Function_v2uint Function
+      %index = OpVariable %_ptr_Function_uint Function
+       %diff = OpVariable %_ptr_Function_v2float Function
+  %threshold = OpVariable %_ptr_Function_v2float Function
+         %15 = OpLoad %v4float %gl_FragCoord
+         %16 = OpVectorShuffle %v2float %15 %15 0 1
+         %17 = OpConvertFToU %v2uint %16
+               OpStore %fragCoord %17
+         %21 = OpAccessChain %_ptr_Function_uint %fragCoord %uint_1
+         %22 = OpLoad %uint %21
+         %31 = OpAccessChain %_ptr_Uniform_uint %sb_data %int_0 %uint_0
+         %32 = OpLoad %uint %31
+         %33 = OpIMul %uint %22 %32
+         %34 = OpAccessChain %_ptr_Function_uint %fragCoord %uint_0
+         %35 = OpLoad %uint %34
+         %36 = OpIAdd %uint %33 %35
+         %38 = OpAccessChain %_ptr_Uniform_uint %sb_data %int_2
+         %39 = OpLoad %uint %38
+         %40 = OpIMul %uint %36 %39
+         %43 = OpLoad %int %gl_SampleID
+         %44 = OpBitcast %uint %43
+         %45 = OpIAdd %uint %40 %44
+               OpStore %index %45
+         %49 = OpLoad %uint %index
+         %51 = OpAccessChain %_ptr_Uniform_v2float %sb_data %int_3 %49
+         %52 = OpLoad %v2float %51
+         %55 = OpLoad %v2float %in_value
+         %56 = OpFSub %v2float %52 %55
+         %57 = OpExtInst %v2float %1 FAbs %56
+               OpStore %diff %57
+               OpStore %threshold %60
+         %61 = OpLoad %v2float %diff
+         %62 = OpLoad %v2float %threshold
+         %65 = OpFOrdLessThan %v2bool %61 %62
+         %66 = OpAll %bool %65
+               OpSelectionMerge %68 None
+               OpBranchConditional %66 %67 %74
+         %67 = OpLabel
+               OpStore %o_color %73
+               OpBranch %68
+         %74 = OpLabel
+               OpStore %o_color %75
+               OpBranch %68
+         %68 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

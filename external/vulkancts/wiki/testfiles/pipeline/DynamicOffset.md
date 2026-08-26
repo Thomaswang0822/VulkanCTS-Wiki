@@ -64,7 +64,178 @@ Within this intermediate node, `all_offsets` exercises every instance in a repea
 
 ## Shader Analysis
 
-The shaders support the descriptor-offset check but do not introduce a separate shader behavior matrix. Ordinary graphics and compute programs consume the selected UBO or SSBO values; combined programs are generated in [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineDynamicOffsetTests.cpp#L2204-L2293) with binding numbers switched for `same_order` and `reverse_order`. The tested contract is the host-provided descriptor binding and effective offset, not shader control flow.
+The representative case is the graphics `arrays` path with one dynamic storage-buffer descriptor and no non-dynamic descriptors. `DynamicOffsetGraphicsTest::initPrograms()` emits a vertex shader that sums the selected descriptor element into the vertex color; the fragment shader simply forwards that color. The host creates the aligned color blocks, binds the descriptor array at set 0/binding 0, and supplies one dynamic offset per bind operation, so the shader makes an incorrect offset-to-region association visible as an image mismatch.
+
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.shader_object_linked_binary.dynamic_offset.graphics.arrays.storage_buffer.numcmdbuffers_1.sameorder.numdescriptorsetbindings_1.numdynamicbindings_1.numnondynamicbindings_0.bind
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `graphics` | Selects the vertex/fragment graphics path and image-comparison oracle. |
+| `arrays` + `storage_buffer` | Places dynamic descriptors in an array at set 0/binding 0 and uses `VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC`, so the host-selected offset addresses a padded color block. |
+| `numcmdbuffers_1` + `sameorder` + `numdescriptorsetbindings_1` | Records one command buffer, one descriptor-set bind, and one draw without command-buffer reordering. |
+| `numdynamicbindings_1` + `numnondynamicbindings_0` + `bind` | Supplies one dynamic offset and no fixed-offset descriptor, using `vkCmdBindDescriptorSets`. |
+
+#### Purpose
+
+The shader renders the vertex geometry with the RGB value read from the dynamically selected storage-buffer region. The image check therefore detects whether the implementation consumes the dynamic offset for the descriptor-array element and selects the intended aligned color block.
+
+#### Structural Design
+
+| Phase | Shader operation | Observable effect |
+|---|---|---|
+| Inputs | Read `position` and the interpolated `color` input interface; declare `inputDataDyn[1]`. | Vertex position is supplied by the host; the descriptor is the shader-visible dynamic resource. |
+| Vertex setup | Copy `position` to `gl_Position` and initialize `vtxColor` to opaque black. | Geometry is unchanged by descriptor addressing. |
+| Descriptor contribution | Add `inputDataDyn[0].color.rgb` to `vtxColor.rgb`. | The effective dynamic offset selects the rendered RGB block. |
+| Fragment handoff | Pass `vtxColor` to the fragment stage, which writes it unchanged. | A wrong descriptor region becomes an image-color mismatch. |
+
+#### Shader Code
+
+The vertex stage is the primary shader because it reads the dynamic descriptor; the fragment stage is fixed pass-through code and is not independently varied by this case.
+
+```glsl
+#version 450
+/// Per-vertex position and color arrive from the host vertex buffer at locations 0 and 1.
+layout(location = 0) in highp vec4 position;
+layout(location = 1) in highp vec4 color;
+/// The fragment stage consumes the accumulated color at location 0.
+layout(location = 0) out highp vec4 vtxColor;
+/// This one-element descriptor array is set 0, binding 0. Its readonly storage-buffer descriptor is dynamic on the host.
+layout(set = 0, binding = 0) readonly buffer Block0
+{
+    vec4 color;
+} inputDataDyn[1];
+
+/// The explicit block exposes the vertex-stage built-in position written below.
+out gl_PerVertex { vec4 gl_Position; };
+
+void main()
+{
+    /// Geometry comes directly from the vertex input; the descriptor affects only the rendered color.
+    gl_Position = position;
+    vtxColor = vec4(0, 0, 0, 1);
+    /// The dynamically selected buffer region supplies the sole RGB contribution in this case.
+    vtxColor.rgb += inputDataDyn[0].color.rgb;
+}
+```
+
+#### Additional Info
+
+- `colorBlockInputSize` is `kColorSize` rounded up to the selected storage-buffer alignment; each descriptor's base offset is then combined with the dynamic offset supplied at bind time ([graphics initialization](../../../modules/vulkan/pipeline/vktPipelineDynamicOffsetTests.cpp#L227-L239), [descriptor updates](../../../modules/vulkan/pipeline/vktPipelineDynamicOffsetTests.cpp#L498-L545)).
+- The source emits `inputDataDyn[1]` once for the arrays strategy and accesses element zero for this one-dynamic-binding representative case ([shader generation](../../../modules/vulkan/pipeline/vktPipelineDynamicOffsetTests.cpp#L810-L852)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| Grouping strategy | `single_set` and `multiset` change descriptor set/binding declarations and access suffixes; `arrays` declares dynamic and non-dynamic descriptor arrays once per type. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineDynamicOffsetTests.cpp#L810-L852) |
+| Descriptor type | `uniform_buffer` changes the block qualifier to `uniform`; `storage_buffer` uses `readonly buffer`, as in this representative shader. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineDynamicOffsetTests.cpp#L799-L802) |
+| Dynamic/non-dynamic binding counts | The generator emits one contribution per descriptor; increasing either count changes declarations and the RGB sum. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineDynamicOffsetTests.cpp#L799-L853) |
+| Command/bind parameters | Command-buffer count, submission order, descriptor-set bind count, and `bind` versus `bind2` alter host binding behavior but do not change this generated vertex source. | [`init()`](../../../modules/vulkan/pipeline/vktPipelineDynamicOffsetTests.cpp#L636-L687), [`createDynamicOffsetTests()`](../../../modules/vulkan/pipeline/vktPipelineDynamicOffsetTests.cpp#L2332-L2370) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 46
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %position %vtxColor %color
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpName %_ ""
+               OpName %position "position"
+               OpName %vtxColor "vtxColor"
+               OpName %Block0 "Block0"
+               OpMemberName %Block0 0 "color"
+               OpName %inputDataDyn "inputDataDyn"
+               OpName %color "color"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpDecorate %position Location 0
+               OpDecorate %vtxColor Location 0
+               OpDecorate %Block0 BufferBlock
+               OpMemberDecorate %Block0 0 NonWritable
+               OpMemberDecorate %Block0 0 Offset 0
+               OpDecorate %inputDataDyn NonWritable
+               OpDecorate %inputDataDyn Binding 0
+               OpDecorate %inputDataDyn DescriptorSet 0
+               OpDecorate %color Location 1
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%gl_PerVertex = OpTypeStruct %v4float
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+   %position = OpVariable %_ptr_Input_v4float Input
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %vtxColor = OpVariable %_ptr_Output_v4float Output
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+         %21 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_1
+     %Block0 = OpTypeStruct %v4float
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_arr_Block0_uint_1 = OpTypeArray %Block0 %uint_1
+%_ptr_Uniform__arr_Block0_uint_1 = OpTypePointer Uniform %_arr_Block0_uint_1
+%inputDataDyn = OpVariable %_ptr_Uniform__arr_Block0_uint_1 Uniform
+    %v3float = OpTypeVector %float 3
+%_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
+     %uint_0 = OpConstant %uint 0
+%_ptr_Output_float = OpTypePointer Output %float
+     %uint_2 = OpConstant %uint 2
+      %color = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %15 = OpLoad %v4float %position
+         %17 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %17 %15
+               OpStore %vtxColor %21
+         %30 = OpAccessChain %_ptr_Uniform_v4float %inputDataDyn %int_0 %int_0
+         %31 = OpLoad %v4float %30
+         %32 = OpVectorShuffle %v3float %31 %31 0 1 2
+         %33 = OpLoad %v4float %vtxColor
+         %34 = OpVectorShuffle %v3float %33 %33 0 1 2
+         %35 = OpFAdd %v3float %34 %32
+         %38 = OpAccessChain %_ptr_Output_float %vtxColor %uint_0
+         %39 = OpCompositeExtract %float %35 0
+               OpStore %38 %39
+         %40 = OpAccessChain %_ptr_Output_float %vtxColor %uint_1
+         %41 = OpCompositeExtract %float %35 1
+               OpStore %40 %41
+         %43 = OpAccessChain %_ptr_Output_float %vtxColor %uint_2
+         %44 = OpCompositeExtract %float %35 2
+               OpStore %43 %44
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 
@@ -113,10 +284,15 @@ The shaders support the descriptor-offset check but do not introduce a separate 
 
 ## Case Pruning
 
+### Requirement-based pruning
+
+- The source omits `bind2` on Vulkan SC at compile time. On supported non-SC builds, the test's support check requires the pipeline construction requirements and `VK_KHR_maintenance6` for the `bind2` path ([support check](../../../modules/vulkan/pipeline/vktPipelineDynamicOffsetTests.cpp#L789-L795)).
+
+### Design-based pruning
+
 - The factory skips `reverseorder` when `numCmdBuffers` is one because there is no second command buffer to reorder.
 - It skips `numDescriptorSetBindings == 2` when two command buffers are selected, avoiding that combination in the registered matrix.
 - It omits `compute` and `combined_descriptors` for non-monolithic construction types because the implementation excludes compute from those pipeline construction modes.
-- It omits `bind2` on VulkanSC at compile time. On supported non-SC builds, the test's support check requires the pipeline construction requirements and `VK_KHR_maintenance6` for the `bind2` path ([support check](../../../modules/vulkan/pipeline/vktPipelineDynamicOffsetTests.cpp#L789-L795)).
 - The inspected split `vk-default/pipeline` mustpass scope contains 1,560 matching leaves: 408 in `monolithic/monolithic.txt` and 192 in each of `pipeline-library.txt`, `fast-linked-library.txt`, `shader-object-linked-binary.txt`, `shader-object-linked-spirv.txt`, `shader-object-unlinked-binary.txt`, and `shader-object-unlinked-spirv/shader-object-unlinked-spirv.txt`.
 
 ## Key Takeaways

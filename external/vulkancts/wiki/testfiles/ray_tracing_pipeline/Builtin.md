@@ -41,6 +41,7 @@ ray_tracing_pipeline.builtin
 ├── worldrayoriginext
 ├── worldtoobject3x4ext
 └── worldtoobjectext
+
 ray_tracing_pipeline.spec_constants
 ├── ahit
 ├── call
@@ -92,47 +93,73 @@ The page uses one representative walkthrough because the `spec_constants.rgen` s
 
 ### Representative Shader Walkthrough 1
 
-**CTS case:** `ray_tracing_pipeline.spec_constants.rgen`
+#### Parameter Values Chosen
 
-**Source location:** [vktRayTracingBuiltinTests.cpp#L410-L425](../../../modules/vulkan/ray_tracing/vktRayTracingBuiltinTests.cpp#L410-L425)
+Representative path:
 
-**What this shader tests:** The raygen shader reads `gl_LaunchIDEXT`, computes `r = x + factor1 * (y + int(factor2) * z) + 1`, and stores the result into a 3D `r32i` storage image. The host supplies `factor1 = 256` and `factor2 = 256.0f` through `VkSpecializationInfo`. If the implementation fails to substitute these constants, the shader uses the default values `1` and `2.0`, producing a different result image that the host validation catches.
+```text
+dEQP-VK.ray_tracing_pipeline.spec_constants.rgen
+```
 
-**Shader-visible resources:**
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `spec_constants` | Enables host-supplied specialization values for the launch-id shader instead of the literal `256` coefficients. |
+| `rgen` | Selects the ray-generation stage, where `gl_LaunchIDEXT` directly supplies both the image coordinate and the value formula's input vector. |
+| `LaunchIDEXT`, `256x256x1`, `VK_FORMAT_R32_SINT` | Uses the launch id as the 3D image coordinate and computes `x + 256 * (y + 256 * z) + 1` into the signed integer result image. |
 
-- `%result` (`iimage3D`, set 0, binding 0, `r32i`): 3D storage image, one texel per launch invocation. Written by `OpImageWrite` with `SignExtend`.
-- `%gl_LaunchIDEXT` (`vec3 uint`, `BuiltIn LaunchIdKHR`): input built-in giving the current invocation coordinates.
-- `%factor1` (`SpecId 0`, `int`, default 1): specialization constant supplied by host as 256.
-- `%factor2` (`SpecId 1`, `float`, default 2.0): specialization constant supplied by host as 256.0.
+#### Purpose
 
-**Reconstructed GLSL:**
+This shader verifies that a ray-generation shader reads `gl_LaunchIDEXT` correctly and encodes the launch coordinates into the expected result value. It also verifies that `VkSpecializationInfo` replaces the two default specialization constants with the host values `256` and `256.0f`.
+
+#### Structural Design
+
+| Shader phase | Dataflow and validation role |
+|--------------|------------------------------|
+| Launch-id reads | Convert `gl_LaunchIDEXT` to signed `ivec3` values; use one copy as the `imageStore` coordinate and one as the formula input. |
+| Specialization arithmetic | Convert `factor2` to `int`, compute `x + factor1 * (y + int(factor2) * z) + 1`, and retain the host-supplied coefficients. |
+| Result write | Pack the scalar into `ivec4(r, 0, 0, 1)` and write it to the `r32i` 3D storage image at binding 0. |
+
+#### Shader Code
 
 ```glsl
 #version 460 core
 #extension GL_EXT_ray_tracing : require
-/// Spec constants supplied by host: factor1=256, factor2=256.0 at runtime.
-/// Default values (1, 2.0) are overridden by VkSpecializationInfo at pipeline creation.
-layout (constant_id=0) const highp int factor1   = 1;
+
+/// The host substitutes 256 and 256.0f through VkSpecializationInfo.
+layout (constant_id=0) const highp int factor1 = 1;
 layout (constant_id=1) const highp float factor2 = 2.0;
-/// 3D r32i storage image at binding 0; one texel per launch invocation.
+
+/// Direct-case result image: one signed integer value per launch coordinate.
 layout(set = 0, binding = 0, r32i) uniform iimage3D result;
 
 void main()
 {
-  /// p selects the result texel for this invocation.
+  /// Store at the invocation's launch coordinate.
   ivec3 p = ivec3(gl_LaunchIDEXT);
-  /// v is the tested builtin (LaunchIDEXT here); encoding matches builtin.launchidext cases.
+  /// Reuse the launch coordinate components in the expected-value formula.
   ivec3 v = ivec3(gl_LaunchIDEXT);
-  /// r = x + factor1 * (y + int(factor2) * z) + 1; with host values this is x + 256*(y + 256*z) + 1.
+  /// factor1 and factor2 are specialized to 256 and 256.0f by the host.
   int   r = v.x + factor1 * (v.y + int(factor2) * v.z) + 1;
+  /// The red component carries the encoded value; alpha marks a valid write.
   ivec4 c = ivec4(r,0,0,1);
   imageStore(result, p, c);
 }
 ```
 
-Built with `glslangValidator -V --target-env spirv1.4 -S rgen`. Validated with `spirv-val --target-env spv1.4`. SPIR-V version 1.4, Bound 52. **Target SPIR-V environment:** `spirv1.4` (CTS build options target `vk::SPIRV_VERSION_1_4`).
+#### Additional Info
 
-**Parameter variation note:** When `useSpecConstants` is false (the `builtin.launchidext` cases), the source generator replaces `factor1` with the literal `256` and `int(factor2)` with the literal `256`. The specialization constant declarations are omitted entirely. The computation and image store are otherwise identical. The six stage variants (`ahit`, `chit`, `miss`, `sect`, `call`) for `spec_constants` use the same `updateImage` logic but receive the built-in value through different stage-specific mechanisms (`rayPayloadInEXT`, `callableDataInEXT`, or intersection reporting).
+- The generator uses `vk::ShaderBuildOptions` with SPIR-V 1.4 for this ray-generation module: [initPrograms launch-id branch](../../../modules/vulkan/ray_tracing/vktRayTracingBuiltinTests.cpp#L386-L420).
+- The host deliberately places the specialization values at mapped byte offsets with padding, so substitution must honor each `VkSpecializationMapEntry`: [SpecConstantsHelper](../../../modules/vulkan/ray_tracing/vktRayTracingBuiltinTests.cpp#L1735-L1775).
+- The matching non-specialized launch-id shader keeps the same dataflow but emits literal `256` coefficients: [launch-id shader generator](../../../modules/vulkan/ray_tracing/vktRayTracingBuiltinTests.cpp#L386-L420).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|----------------------------------------|----------|
+| Specialization constants | `spec_constants` replaces the literal `256` terms with `factor1` and `int(factor2)`; the host supplies `256` and `256.0f`. | [initPrograms launch-id branch](../../../modules/vulkan/ray_tracing/vktRayTracingBuiltinTests.cpp#L386-L420) |
+| Shader stage | `spec_constants` retains the same launch-id computation while registering one case for each of `rgen`, `ahit`, `chit`, `miss`, `sect`, and `call`; the surrounding pipeline stages differ. | [createSpecConstantTests](../../../modules/vulkan/ray_tracing/vktRayTracingBuiltinTests.cpp#L4809-L4861) |
+| Launch dimensions | The representative specialization-constant case fixes the dispatch to `256x256x1`; ordinary `builtin.launchidext` cases use several registered extents, changing the range of `gl_LaunchIDEXT`. | [createSpecConstantTests](../../../modules/vulkan/ray_tracing/vktRayTracingBuiltinTests.cpp#L4809-L4861), [createBuiltinTests](../../../modules/vulkan/ray_tracing/vktRayTracingBuiltinTests.cpp#L4753-L4807) |
+| Built-in id | The regular launch shader generator can select `LaunchIDEXT` or `LaunchSizeEXT`; this walkthrough selects `LaunchIDEXT`, so `v` varies per invocation rather than being the constant launch extent. | [initPrograms launch-id/size branch](../../../modules/vulkan/ray_tracing/vktRayTracingBuiltinTests.cpp#L386-L420) |
 
 #### SPIR-V
 
@@ -230,7 +257,9 @@ Built with `glslangValidator -V --target-env spirv1.4 -S rgen`. Validated with `
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
+
+## Runtime Execution and Result Checking
 
 Direct cases (`builtin.*` except `indirect`):
 

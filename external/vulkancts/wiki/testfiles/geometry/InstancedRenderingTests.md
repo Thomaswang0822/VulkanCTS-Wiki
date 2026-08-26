@@ -124,8 +124,6 @@ This shader verifies that geometry shader invocations run once per invocation fo
 The vertex and fragment shaders are simple pass-through stages. The geometry shader is the primary shader because it contains the
 instanced-invocation pattern under test.
 
-##### Geometry Shader
-
 ```glsl
 #version 450
 /// Eight geometry shader invocations run for each input point in the representative case.
@@ -185,7 +183,7 @@ void main(void)
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level variation from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | Draw instance count | Does not change shader text; it changes `vkCmdDraw(..., instanceCount, ...)` and per-instance input data count. | [draw call](../../../modules/vulkan/geometry/vktGeometryInstancedRenderingTests.cpp#L191-L196) |
 | Geometry invocation count | Changes `layout(points, invocations = N) in`, modifier divisor, and horizontal step divisor. | [geometry shader generation](../../../modules/vulkan/geometry/vktGeometryInstancedRenderingTests.cpp#L296-L345) |

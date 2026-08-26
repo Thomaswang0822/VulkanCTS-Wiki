@@ -154,9 +154,15 @@ This test family has no shader code or device-side rendering. The checks use Vul
 
 ## Case Pruning
 
+### Requirement-based pruning
+
 - The implementation does not prune registered leaves based on a parameter matrix. Each leaf maps directly to one `DrmTestIndex` value and one test method.
 - Runtime prerequisite checks can report `NotSupportedError` when the build lacks DRM support, the required instance extensions are missing, no matching DRM primary node exists, no connected connector exists, no compatible CRTC exists, or the environment cannot provide the requested DRM ownership state.
 - The two unowned-connector cases need two connected displays. The master-dependent cases also need an environment in which the test process can obtain DRM master permissions, such as a system without another client owning the display.
+
+### Design-based pruning
+
+The source registers the ten leaves directly; environment-dependent support checks determine whether a registered leaf can execute.
 
 ## Key Takeaways
 

@@ -65,9 +65,25 @@ The test is shader-heavy because every leaf generates stage-specific GLSL. The r
 
 ### Representative Shader Walkthrough 1
 
-#### Representative CTS path
+#### Parameter Values Chosen
 
-`dEQP-VK.pipeline.pipeline_library.interface_matching.shader_layout_component_matching.vert_frag.loose_var.float32.single_location.scalar_vec3`
+Representative path:
+
+```text
+dEQP-VK.pipeline.pipeline_library.interface_matching.shader_layout_component_matching.vert_frag.loose_var.float32.single_location.scalar_vec3
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `vert_frag` | The vertex shader writes the decorated interface values and the fragment shader consumes them directly. |
+| `loose_var` | The decorated values use standalone interface variables rather than an interface block. |
+| `float32` | The interface payload uses 32-bit floating-point scalar and vector types. |
+| `single_location` | The decorated interface variables use no array extent. |
+| `scalar_vec3` | One scalar starts at component 0 and one `vec3` starts at component 1 of the same location. |
+
+#### Purpose
+
+This case checks adjacent vertex-to-fragment matching with one scalar followed by one `vec3` inside one 32-bit location.
 
 #### Structural Design
 
@@ -77,29 +93,6 @@ The test is shader-heavy because every leaf generates stage-specific GLSL. The r
 | Position | Converts the input rectangle position into `gl_Position`. |
 | Interface payload | Writes `0.125` to the scalar and `(0.25, 0.5, 1.0)` to the vector. |
 | Fragment use | Reconstructs the four reference color components from matching decorated inputs. |
-
-#### Purpose
-
-This case checks adjacent vertex-to-fragment matching with one scalar followed by one `vec3` inside one 32-bit location.
-
-#### Parameter Values Chosen
-
-| Parameter | Value |
-|---|---|
-| Flow | `vert_frag` |
-| Mode | `loose_var` |
-| Width | `float32` |
-| Location count | `single_location` |
-| Component pattern | `scalar_vec3` |
-
-#### Parameter Variation Summary
-
-Changing the width changes the GLSL type and feature requirements. Changing the component pattern changes which components the fragment shader consumes. Adding geometry or tessellation inserts stage interfaces and value compensation, while `in_block` wraps the same decorated members in interface blocks.
-
-#### Additional Info
-
-- The source generator filters component patterns by width instead of producing invalid 64-bit combinations.
-- The test uses a `VK_FORMAT_R32G32B32A32_SFLOAT` color attachment and a 16 x 16 framebuffer, so the shader result becomes an exact image comparison.
 
 #### Shader Code
 
@@ -117,6 +110,20 @@ void main()
 ```
 
 The source generator emits the declarations through [`genLayout()`](../../../modules/vulkan/pipeline/vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp#L430-L454), writes the vertex payload in [`ShaderGen<Vert>::genCode()`](../../../modules/vulkan/pipeline/vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp#L456-L520), and constructs the fragment output in [`ShaderGen<Frag>::genCode()`](../../../modules/vulkan/pipeline/vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp#L675-L717). The exact registered leaf names are generated from the `Components::testName()` helper.
+
+#### Additional Info
+
+- The source generator filters component patterns by width instead of producing invalid 64-bit combinations.
+- The test uses a `VK_FORMAT_R32G32B32A32_SFLOAT` color attachment and a 16 x 16 framebuffer, so the shader result becomes an exact image comparison.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| Scalar width | Changes the GLSL scalar and vector types and the required shader features. | [`widths`](../../../modules/vulkan/pipeline/vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp#L1179-L1179) |
+| Component pattern | Changes which scalar/vector declarations and component positions the fragment shader consumes. | [`componentSeries`](../../../modules/vulkan/pipeline/vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp#L1180-L1188) |
+| Stage flow | Adding geometry or tessellation inserts stage interfaces and value compensation between this vertex producer and the fragment consumer. | [`Flow` constants](../../../modules/vulkan/pipeline/vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp#L1158-L1162) |
+| Declaration mode | `in_block` wraps the same decorated members in interface blocks instead of using this shader's standalone variables. | [`modes`](../../../modules/vulkan/pipeline/vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp#L1175-L1178) |
 
 #### SPIR-V
 

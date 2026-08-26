@@ -74,6 +74,31 @@ The test uses a generated vertex shader and a fixed fragment shader. One represe
 
 ### Representative Shader Walkthrough 1
 
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.monolithic.vertex_input.srgb_vertex_formats.r8_srgb.r
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `monolithic` construction | Builds the graphics pipeline through the monolithic pipeline path while leaving the vertex-fetch operation under test. |
+| `r8_srgb` format | Uses the one-channel `VK_FORMAT_R8_SRGB` vertex attribute; the selected red byte is the fetched value. |
+| `r` component | Selects `inCoords.x` in the generated vertex shader, and assigns that value to the quad's Y coordinate. |
+| Non-strict `r` leaf | Runs the expected sRGB-to-linear check first, then permits a pre-linearized retry to report a quality warning if conversion is absent. |
+
+#### Purpose
+
+This walkthrough isolates the shader behavior exercised by the selected representative case.
+
+#### Structural Design
+
+1. `gl_VertexIndex % 4` selects one of four positions for a triangle strip.
+2. `inCoords.x` replaces the placeholder Y coordinate. Alternating zero and nonzero vertex values create a horizontal coverage boundary.
+3. The scale and offset convert coordinates from 0..1 into clip space. The fragment shader writes blue, so blue coverage identifies the geometry produced by the fetched value.
+
 #### Shader Code
 
 The following is reconstructed from [`SRGBVertexInputCase::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputSRGBTests.cpp#L175-L210) for an `r8_srgb.r` case. The host writes four vertex records and the shader uses the fetched `x` component as the quad's Y coordinate.
@@ -95,22 +120,18 @@ void main(void) {
 }
 ```
 
-#### Structural Design
-
-1. `gl_VertexIndex % 4` selects one of four positions for a triangle strip.
-2. `inCoords.x` replaces the placeholder Y coordinate. Alternating zero and nonzero vertex values create a horizontal coverage boundary.
-3. The scale and offset convert coordinates from 0..1 into clip space. The fragment shader writes blue, so blue coverage identifies the geometry produced by the fetched value.
-
-#### Parameter Variation Summary
-
-- The source substitutes `x`, `y`, `z`, or `w` for the selected component.
-- The host packs the byte into the correct channel for RGB or BGR formats. Unused bytes receive `255` padding.
-- The fragment shader is unchanged across the matrix. Strictness changes the host-side result policy, not shader code.
-
 #### Additional Info
 
 - The generated vertex source uses SPIR-V 1.0 baseline compilation in this reconstruction.
 - The shader has no descriptor, image, buffer, or push-constant resource. The vertex attribute is its only external input.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---|---|---|
+| Selected component | The generated source substitutes `x`, `y`, `z`, or `w` for the component read from `inCoords`. | [`SRGBVertexInputCase::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputSRGBTests.cpp#L175-L210) |
+| Vertex format | The host packs the byte into the selected channel for RGB or BGR formats; unused bytes receive `255` padding. | [case generation](../../../modules/vulkan/pipeline/vktPipelineVertexInputSRGBTests.cpp#L457-L479) |
+| Strictness | The fragment shader remains unchanged; strictness changes the host-side result policy rather than shader code. | [result checking](../../../modules/vulkan/pipeline/vktPipelineVertexInputSRGBTests.cpp#L386-L429) |
 
 #### SPIR-V
 

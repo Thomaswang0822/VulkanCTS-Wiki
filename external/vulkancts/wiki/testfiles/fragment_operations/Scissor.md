@@ -14,6 +14,7 @@ This page covers the implementation and registration rooted at `fragment_operati
 For the shared concept of viewport and scissor selection by `ViewportIndex`, see [Background Knowledge](../../categories/fragment_operations.md#background-knowledge) of the `fragment_operations` page.
 
 - Scissor rectangles are graphics pipeline state in these cases. The test does not exercise clear operations, because scissor state affects drawing commands rather than independent color, depth, or stencil clears.
+
 ## Registration Hierarchy
 
 ```text

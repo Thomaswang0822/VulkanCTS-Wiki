@@ -73,7 +73,7 @@ One walkthrough covers the `trace_ray.int32` case because it is the simplest exp
 Representative path:
 
 ```text
-ray_tracing_pipeline.data_spill.trace_ray.int32
+dEQP-VK.ray_tracing_pipeline.data_spill.trace_ray.int32
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -102,6 +102,8 @@ This case checks that the rgen shader's view of `inputBuffer.val` is preserved a
 
 Reconstructed rgen (the source emits equivalent SPIR-V assembly through the template; the GLSL below is the equivalent reconstruction):
 
+##### Ray Generation Shader
+
 ```glsl
 #version 460 core
 #extension GL_EXT_ray_tracing : require
@@ -128,6 +130,8 @@ void main()
 
 Reconstructed closest-hit shader (from the inline GLSL in the source):
 
+##### Closest-Hit Shader
+
 ```glsl
 #version 460 core
 #extension GL_EXT_ray_tracing : require
@@ -153,13 +157,15 @@ void main()
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level variation from this walkthrough | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|--------------------------------------------|----------|
 | `CallType` | Swaps the call instruction (`OpTraceRayKHR`, `OpExecuteCallableKHR`, `OpReportIntersectionKHR`) and the callee stage (chit, call, ahit). The calling-shader template body for the pre-call load, post-call load, and equality check stays the same; only the entry-point stage changes (rgen for `trace_ray`/`execute_callable`, rint for `report_intersection`). | [call statements](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1326-L1413) |
 | `DataType` | Swaps `INPUT_BUFFER_VALUE_TYPE`, the constant used in the subtraction, the conversion to `uint`, and the equality operator (`OpIEqual` for integers, `OpFOrdEqual` for floats, custom member-wise comparison for structs and samplers). | [per-DataType specialization](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L678-L996) |
 | `VectorType` | Adds component pointers, a component-wise sum, and a vector equality with `OpAll` (or per-component `OpLogicalAnd` for arrays). | [vector specialization](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1155-L1289) |
 
 #### SPIR-V
+
+##### Ray Generation Shader
 
 - Status: generated and validated
 - Source: reconstructed `GLSL` from this walkthrough
@@ -289,7 +295,95 @@ void main()
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
+
+##### Closest-Hit Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `rchit`
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 30
+; Schema: 0
+               OpCapability RayTracingKHR
+               OpExtension "SPV_KHR_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint ClosestHitKHR %main "main" %calleeBuffer %hitValue %attribs %topLevelAS %outputBuffer %inputBuffer
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_ray_tracing"
+               OpSourceExtension "GL_EXT_shader_explicit_arithmetic_types"
+               OpName %main "main"
+               OpName %CalleeBlock "CalleeBlock"
+               OpMemberName %CalleeBlock 0 "val"
+               OpName %calleeBuffer "calleeBuffer"
+               OpName %hitValue "hitValue"
+               OpName %attribs "attribs"
+               OpName %topLevelAS "topLevelAS"
+               OpName %OutputBlock "OutputBlock"
+               OpMemberName %OutputBlock 0 "val"
+               OpName %outputBuffer "outputBuffer"
+               OpName %InputBlock "InputBlock"
+               OpMemberName %InputBlock 0 "val"
+               OpName %inputBuffer "inputBuffer"
+               OpDecorate %CalleeBlock Block
+               OpMemberDecorate %CalleeBlock 0 Offset 0
+               OpDecorate %calleeBuffer Binding 1
+               OpDecorate %calleeBuffer DescriptorSet 0
+               OpDecorate %topLevelAS Binding 0
+               OpDecorate %topLevelAS DescriptorSet 0
+               OpDecorate %OutputBlock Block
+               OpMemberDecorate %OutputBlock 0 Offset 0
+               OpDecorate %outputBuffer Binding 2
+               OpDecorate %outputBuffer DescriptorSet 0
+               OpDecorate %InputBlock Block
+               OpMemberDecorate %InputBlock 0 Offset 0
+               OpDecorate %inputBuffer Binding 3
+               OpDecorate %inputBuffer DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%CalleeBlock = OpTypeStruct %uint
+%_ptr_StorageBuffer_CalleeBlock = OpTypePointer StorageBuffer %CalleeBlock
+%calleeBuffer = OpVariable %_ptr_StorageBuffer_CalleeBlock StorageBuffer
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+     %uint_1 = OpConstant %uint 1
+%_ptr_StorageBuffer_uint = OpTypePointer StorageBuffer %uint
+      %float = OpTypeFloat 32
+    %v3float = OpTypeVector %float 3
+%_ptr_IncomingRayPayloadKHR_v3float = OpTypePointer IncomingRayPayloadKHR %v3float
+   %hitValue = OpVariable %_ptr_IncomingRayPayloadKHR_v3float IncomingRayPayloadKHR
+%_ptr_HitAttributeKHR_v3float = OpTypePointer HitAttributeKHR %v3float
+    %attribs = OpVariable %_ptr_HitAttributeKHR_v3float HitAttributeKHR
+         %21 = OpTypeAccelerationStructureKHR
+%_ptr_UniformConstant_21 = OpTypePointer UniformConstant %21
+ %topLevelAS = OpVariable %_ptr_UniformConstant_21 UniformConstant
+%OutputBlock = OpTypeStruct %uint
+%_ptr_StorageBuffer_OutputBlock = OpTypePointer StorageBuffer %OutputBlock
+%outputBuffer = OpVariable %_ptr_StorageBuffer_OutputBlock StorageBuffer
+ %InputBlock = OpTypeStruct %int
+%_ptr_StorageBuffer_InputBlock = OpTypePointer StorageBuffer %InputBlock
+%inputBuffer = OpVariable %_ptr_StorageBuffer_InputBlock StorageBuffer
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %14 = OpAccessChain %_ptr_StorageBuffer_uint %calleeBuffer %int_0
+               OpStore %14 %uint_1
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+## Runtime Execution and Result Checking
 
 - **Buffer setup.** The host creates three host-visible SSBOs: `calleeBuffer` and `outputBuffer` (both zeroed, one `uint32_t` each) and `inputBuffer` (filled with values that sum to 37 for the case's `DataType`/`VectorType`) [buffer setup](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1702-L1739). For sampler and storage-image cases, `inputBuffer` is zeroed and the value 37 is placed in the textures or storage image instead.
 - **Acceleration structure.** A default BLAS/TLAS pair is built using `setDefaultGeometryData` with the stage matching the call type (closest-hit for `trace_ray`, callable for `execute_callable`, intersection for `report_intersection`) [AS build](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1742-L1757).

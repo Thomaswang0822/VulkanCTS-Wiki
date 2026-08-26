@@ -63,7 +63,7 @@ The test creates framebuffers with increasing attachment counts up to the select
 
 The shaders provide output colors and depth; they do not implement the attachment-write control under test. The ordinary family emits a vertex shader that positions a triangle fan from push constants and a fragment shader that writes one attenuated color to each of three output locations. Fixed-function color-write-enable state decides which attachment components are stored.
 
-### Representative Shader Walkthrough
+### Representative Shader Walkthrough 1
 
 #### Parameter Values Chosen
 
@@ -73,8 +73,8 @@ Representative path:
 dEQP-VK.pipeline.monolithic.color_write_enable.red_channel.before_draw.enable_first
 ```
 
-| Parameter choice | Meaning |
-|------------------|---------|
+| Parameter choice | Meaning in this representative case |
+|------------------|---------------------------------------|
 | `red_channel` | The static component mask leaves only R writable. |
 | `before_draw` | The test records `vkCmdSetColorWriteEnableEXT` immediately before drawing. |
 | `enable_first` | The dynamic array enables attachment 0 and disables attachments 1 and 2. |
@@ -120,23 +120,28 @@ void main() {
 
 The snippet is the exact fragment source emitted by `ColorWriteEnableTest::initPrograms()` for `kNumColorAttachments == 3` ([source](../../../modules/vulkan/pipeline/vktPipelineColorWriteEnableTests.cpp#L310-L351)). The representative dynamic leaf configures triangle color `(1.0, 0.75, 0.5, 0.25)`, clear color `(0.25, 0.5, 0.75, 0.5)`, and an all-disabled static array before enabling only attachment 0 dynamically. With `red_channel`, attachment 0 should retain source red and clear GBA; attachments 1 and 2 should retain their clear colors. Depth is checked independently.
 
+#### Additional Info
+
+- The surrounding runtime setup and feature requirements are described in the page sections outside this walkthrough.
+
 #### Parameter Variation Summary
 
-| Variation | Shader effect | Fixed-function effect |
-|-----------|---------------|-----------------------|
-| Component mask | None | Selects writable R, G, B, A, all, or no components. |
-| Enable pattern | None | Enables or disables complete attachments. |
-| Ordinary ordering | None | Changes when the dynamic array takes effect relative to binds and draws. |
-| Max-attachment count | The second family emits the required number of output declarations. | Changes attachment count and dynamic-state array length. |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Component mask | None; the fragment shader outputs remain unchanged. Fixed-function state selects writable R, G, B, A, all, or no components. | [channel cases](../../../modules/vulkan/pipeline/vktPipelineColorWriteEnableTests.cpp#L1678-L1691) |
+| Enable pattern | None; the fragment shader outputs remain unchanged. Fixed-function state enables or disables complete attachments. | [leaf creation](../../../modules/vulkan/pipeline/vktPipelineColorWriteEnableTests.cpp#L1666-L1768) |
+| Ordinary ordering | None; the fragment shader outputs remain unchanged. Fixed-function state changes when the dynamic array takes effect relative to binds and draws. | [ordering cases](../../../modules/vulkan/pipeline/vktPipelineColorWriteEnableTests.cpp#L1693-L1817) |
+| Max-attachment count | The second family changes the number of fragment output declarations to match the selected attachment count. Fixed-function state changes attachment count and dynamic-state array length. | [maxa registration](../../../modules/vulkan/pipeline/vktPipelineColorWriteEnableTests.cpp#L1825-L1859) |
 
 #### SPIR-V
 
-- Status: compiled with `glslangValidator -V --target-env spirv1.0`, then validated with `spirv-val --target-env spv1.0`.
-- Source: the reconstructed representative GLSL above.
-- Stage: `frag`; target: `spirv1.0`.
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
 
 <details>
-<summary>Click to expand SPIR-V assembly</summary>
+<summary>Click to expand SPIRV asm code</summary>
 
 ```llvm
 ; SPIR-V

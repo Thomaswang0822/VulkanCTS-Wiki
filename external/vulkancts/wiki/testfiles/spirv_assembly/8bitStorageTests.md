@@ -108,7 +108,7 @@ Each compute case shares the same SPIR-V template structure: a `StorageBuffer` b
 Representative path:
 
 ```text
-spirv_assembly.instruction.compute.8bit_storage.storagebuffer_32_to_8.storage_buffer_scalar_sint
+dEQP-VK.spirv_assembly.instruction.compute.8bit_storage.storagebuffer_32_to_8.storage_buffer_scalar_sint
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -137,109 +137,9 @@ flowchart TD
     G --> H[Host: deMemCmp input bytes<br/>vs output allocation]
 ```
 
-#### Source Code
+#### Shader Code
 
-The SPIR-V assembly below is the specialization of the `StringTemplate shaderTemplate(...)` at [vktSpvAsm8bitStorageTests.cpp#L934-L1003](../../../modules/vulkan/spirv_assembly/vktSpvAsm8bitStorageTests.cpp#L934-L1003) for the `scalar_sint` case. The `${capability}`, `${stride}`, `${base32}`, `${base8}`, `${types}`, and `${convert}` slots are filled in from the `cTypes[0]` row of the [CompositeType cTypes](../../../modules/vulkan/spirv_assembly/vktSpvAsm8bitStorageTests.cpp#L1042-L1051) array; the optional `${matrix_decor:opt}`, `${rounding:opt}`, `${matrix_types:opt}`, `${matrix_prefix:opt}`, `${index0:opt}`, and `${matrix_store:opt}` slots expand to empty for the scalar case. The round-trip (`spirv-as` → `spirv-val` → `spirv-dis` against `spv1.0`) was run as a generation-time validation gate and passed; the disassembler output is not published per the `spirv_assembly` category deviation.
-
-```llvm
-; Capability and extension block
-; StorageBuffer8BitAccess gates 8-bit loads/stores in StorageBuffer.
-; SPV_KHR_storage_buffer_storage_class is required because the shader uses
-; the StorageBuffer storage class (Vulkan 1.0 did not have it).
-; SPV_KHR_8bit_storage is the SPIR-V side of VK_KHR_8bit_storage.
-OpCapability Shader
-OpCapability StorageBuffer8BitAccess
-OpExtension "SPV_KHR_storage_buffer_storage_class"
-OpExtension "SPV_KHR_8bit_storage"
-OpMemoryModel Logical GLSL450
-OpEntryPoint GLCompute %main "main" %id
-OpExecutionMode %main LocalSize 1 1 1
-OpDecorate %id BuiltIn GlobalInvocationId
-
-; Per-case stride decorations, substituted from the scalar_sint row of cTypes.
-; i32 array stride 4 (natural); i8 array stride 1 (tight, std430-style).
-OpDecorate %i32arr ArrayStride 4
-OpDecorate %i8arr ArrayStride 1
-
-; Block decorations: two SSBOs in descriptor set 0, bindings 0 (input) and 1 (output).
-OpDecorate %SSBO32 Block
-OpDecorate %SSBO8 Block
-OpMemberDecorate %SSBO32 0 Offset 0
-OpMemberDecorate %SSBO8 0 Offset 0
-OpDecorate %ssbo32 DescriptorSet 0
-OpDecorate %ssbo8 DescriptorSet 0
-OpDecorate %ssbo32 Binding 0
-OpDecorate %ssbo8 Binding 1
-
-
-; Base types. f32 and fvec3 are unused in the scalar_sint case but emitted by
-; the shared template for the matrix variants; they are harmless here.
-%bool      = OpTypeBool
-%void      = OpTypeVoid
-%voidf     = OpTypeFunction %void
-%u32       = OpTypeInt 32 0
-%i32       = OpTypeInt 32 1
-%f32       = OpTypeFloat 32
-%uvec3     = OpTypeVector %u32 3
-%fvec3     = OpTypeVector %f32 3
-%uvec3ptr  = OpTypePointer Input %uvec3
-%i32ptr    = OpTypePointer StorageBuffer %i32
-%f32ptr    = OpTypePointer StorageBuffer %f32
-
-; Compile-time constants used for array sizes.
-%zero      = OpConstant %i32 0
-%c_i32_1   = OpConstant %i32 1
-%c_i32_16  = OpConstant %i32 16
-%c_i32_32  = OpConstant %i32 32
-%c_i32_64  = OpConstant %i32 64
-%c_i32_128 = OpConstant %i32 128
-
-; 128-element arrays for input (i32) and the unused f32 template slot.
-%i32arr    = OpTypeArray %i32 %c_i32_128
-%f32arr    = OpTypeArray %f32 %c_i32_128
-
-; scalar_sint type block from cTypes[0].types (sintTypes).
-; v2i8/v4i8/v2i32/v4i32 and their arrays are emitted but unused in scalar_sint;
-; they are used by the vector_sint case which reuses the same sintTypes string.
-%i8       = OpTypeInt 8 1
-%i8ptr    = OpTypePointer StorageBuffer %i8
-%i8arr    = OpTypeArray %i8 %c_i32_128
-%v2i8     = OpTypeVector %i8 2
-%v4i8     = OpTypeVector %i8 4
-%v2i32    = OpTypeVector %i32 2
-%v4i32    = OpTypeVector %i32 4
-%v2i8ptr  = OpTypePointer StorageBuffer %v2i8
-%v2i32ptr = OpTypePointer StorageBuffer %v2i32
-%v2i8arr  = OpTypeArray %v2i8 %c_i32_64
-%v2i32arr = OpTypeArray %v2i32 %c_i32_64
-
-; SSBO block types. SSBO32 wraps i32arr[128]; SSBO8 wraps i8arr[128].
-%SSBO32    = OpTypeStruct %i32arr
-%SSBO8     = OpTypeStruct %i8arr
-%up_SSBO32 = OpTypePointer StorageBuffer %SSBO32
-%up_SSBO8  = OpTypePointer StorageBuffer %SSBO8
-%ssbo32    = OpVariable %up_SSBO32 StorageBuffer
-%ssbo8     = OpVariable %up_SSBO8 StorageBuffer
-
-; GlobalInvocationId built-in.
-%id        = OpVariable %uvec3ptr Input
-
-; Entry point. Each invocation handles exactly one element.
-%main      = OpFunction %void None %voidf
-%label     = OpLabel
-%idval     = OpLoad %uvec3 %id
-%x         = OpCompositeExtract %u32 %idval 0
-; Access SSBO32[0][x], member 0 of the block, element x.
-%inloc     = OpAccessChain %i32ptr %ssbo32 %zero %x
-%val32     = OpLoad %i32 %inloc
-; OpSConvert narrows i32 to i8 with sign extension.
-%val8      = OpSConvert %i8 %val32
-; Access SSBO8[0][x] and store the narrowed value.
-%outloc    = OpAccessChain %i8ptr %ssbo8 %zero %x
-             OpStore %outloc %val8
-             OpReturn
-             OpFunctionEnd
-```
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -250,16 +150,102 @@ OpDecorate %ssbo8 Binding 1
 
 #### Parameter Variation Summary
 
-The other three `cTypes` rows in [`addCompute8bitStorage32To8Group`](../../../modules/vulkan/spirv_assembly/vktSpvAsm8bitStorageTests.cpp#L1042-L1051) reuse the same SPIR-V template with different slot values:
+The other three composite-type variants in [`addCompute8bitStorage32To8Group`](../../../modules/vulkan/spirv_assembly/vktSpvAsm8bitStorageTests.cpp#L1042-L1051) reuse the same SPIR-V template with different slot values:
 
-| CompositeType | `base32` / `base8` | `convert` | stride decorations |
-|---|---|---|---|
-| `scalar_sint` | `i32` / `i8` | `OpSConvert` | `i32arr ArrayStride 4` / `i8arr ArrayStride 1` |
-| `scalar_uint` | `u32` / `u8` | `OpUConvert` | `u32arr ArrayStride 4` / `u8arr ArrayStride 1` |
-| `vector_sint` | `v2i32` / `v2i8` | `OpSConvert` | `v2i32arr ArrayStride 8` / `v2i8arr ArrayStride 2` |
-| `vector_uint` | `v2u32` / `v2u8` | `OpUConvert` | `v2u32arr ArrayStride 8` / `v2u8arr ArrayStride 2` |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Signedness (`scalar_sint` → `scalar_uint`) | Replaces signed `i32`/`i8` types with unsigned `u32`/`u8` types and changes `OpSConvert` to `OpUConvert`; scalar array strides remain 4 bytes and 1 byte. | [`cTypes` scalar rows](../../../modules/vulkan/spirv_assembly/vktSpvAsm8bitStorageTests.cpp#L1042-L1046) |
+| Composite width (`scalar_sint` → `vector_sint`) | Replaces scalar `i32`/`i8` operands with two-component `v2i32`/`v2i8` operands, changes array strides from 4/1 bytes to 8/2 bytes, and halves the workgroup count so each invocation converts two values. | [`cTypes` signed scalar/vector rows](../../../modules/vulkan/spirv_assembly/vktSpvAsm8bitStorageTests.cpp#L1042-L1048), [`spec.numWorkGroups`](../../../modules/vulkan/spirv_assembly/vktSpvAsm8bitStorageTests.cpp#L1072-L1073) |
+| Signedness plus composite width (`scalar_sint` → `vector_uint`) | Uses unsigned two-component `v2u32`/`v2u8` operands with `OpUConvert`, 8-byte/2-byte array strides, and half as many workgroups as the scalar case. | [`cTypes` scalar/vector rows](../../../modules/vulkan/spirv_assembly/vktSpvAsm8bitStorageTests.cpp#L1042-L1050), [`spec.numWorkGroups`](../../../modules/vulkan/spirv_assembly/vktSpvAsm8bitStorageTests.cpp#L1072-L1073) |
 
 The vector cases dispatch `(64, 1, 1)` workgroups because each invocation handles one `v2i*` element (two `i32` values). The `uniform_8_to_32` family swaps the binding order (`ssbo8` becomes the `Uniform` input at binding 0, `ssbo32` becomes the `StorageBuffer` output at binding 1) and uses `OpTypePointer Uniform` for the 8-bit pointers, but the load-convert-store skeleton is identical. The `push_constant_8_to_32` family replaces the `Uniform` input with a `PushConstant` variable and uses `OpTypePointer PushConstant` for the 8-bit pointer. The struct families replace the bare array block with `OpTypeStruct %i8StructArr7` (or its 32-bit or mixed counterpart) and use `getStructShaderComponet` to emit the appropriate `OpMemberDecorate … Offset` and `OpDecorate … ArrayStride` lines for the chosen std140/std430 × 8/32/mixed variant. The mixed-struct cases additionally use [`beginLoop`/`endLoop`](../../../modules/vulkan/spirv_assembly/vktSpvAsm8bitStorageTests.cpp#L899-L926) to iterate the inner `v2b8[11]` and `b32[11]` nested arrays with a runtime index, since the struct layout has 11 nested elements per outer struct.
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 46
+; Schema: 0
+               OpCapability Shader
+               OpCapability StorageBuffer8BitAccess
+               OpExtension "SPV_KHR_storage_buffer_storage_class"
+               OpExtension "SPV_KHR_8bit_storage"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %1 "main" %gl_GlobalInvocationID
+               OpExecutionMode %1 LocalSize 1 1 1
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %_arr_int_int_128 ArrayStride 4
+               OpDecorate %_arr_char_int_128 ArrayStride 1
+               OpDecorate %_struct_5 Block
+               OpDecorate %_struct_6 Block
+               OpMemberDecorate %_struct_5 0 Offset 0
+               OpMemberDecorate %_struct_6 0 Offset 0
+               OpDecorate %7 DescriptorSet 0
+               OpDecorate %8 DescriptorSet 0
+               OpDecorate %7 Binding 0
+               OpDecorate %8 Binding 1
+       %bool = OpTypeBool
+       %void = OpTypeVoid
+         %11 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+        %int = OpTypeInt 32 1
+      %float = OpTypeFloat 32
+     %v3uint = OpTypeVector %uint 3
+    %v3float = OpTypeVector %float 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%_ptr_StorageBuffer_int = OpTypePointer StorageBuffer %int
+%_ptr_StorageBuffer_float = OpTypePointer StorageBuffer %float
+      %int_0 = OpConstant %int 0
+      %int_1 = OpConstant %int 1
+     %int_16 = OpConstant %int 16
+     %int_32 = OpConstant %int 32
+     %int_64 = OpConstant %int 64
+    %int_128 = OpConstant %int 128
+%_arr_int_int_128 = OpTypeArray %int %int_128
+%_arr_float_int_128 = OpTypeArray %float %int_128
+       %char = OpTypeInt 8 1
+%_ptr_StorageBuffer_char = OpTypePointer StorageBuffer %char
+%_arr_char_int_128 = OpTypeArray %char %int_128
+     %v2char = OpTypeVector %char 2
+     %v4char = OpTypeVector %char 4
+      %v2int = OpTypeVector %int 2
+      %v4int = OpTypeVector %int 4
+%_ptr_StorageBuffer_v2char = OpTypePointer StorageBuffer %v2char
+%_ptr_StorageBuffer_v2int = OpTypePointer StorageBuffer %v2int
+%_arr_v2char_int_64 = OpTypeArray %v2char %int_64
+%_arr_v2int_int_64 = OpTypeArray %v2int %int_64
+  %_struct_5 = OpTypeStruct %_arr_int_int_128
+  %_struct_6 = OpTypeStruct %_arr_char_int_128
+%_ptr_StorageBuffer__struct_5 = OpTypePointer StorageBuffer %_struct_5
+%_ptr_StorageBuffer__struct_6 = OpTypePointer StorageBuffer %_struct_6
+          %7 = OpVariable %_ptr_StorageBuffer__struct_5 StorageBuffer
+          %8 = OpVariable %_ptr_StorageBuffer__struct_6 StorageBuffer
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+          %1 = OpFunction %void None %11
+         %39 = OpLabel
+         %40 = OpLoad %v3uint %gl_GlobalInvocationID
+         %41 = OpCompositeExtract %uint %40 0
+         %42 = OpAccessChain %_ptr_StorageBuffer_int %7 %int_0 %41
+         %43 = OpLoad %int %42
+         %44 = OpSConvert %char %43
+         %45 = OpAccessChain %_ptr_StorageBuffer_char %8 %int_0 %41
+               OpStore %45 %44
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

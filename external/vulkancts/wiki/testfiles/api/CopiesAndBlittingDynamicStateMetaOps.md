@@ -55,7 +55,550 @@ The sequence is identical to `copy`, but the meta-operation is `vkCmdBlitImage` 
 
 ## Shader Analysis
 
-Shader code is not part of the tested behavior. The vertex, fragment, and fragment-verification shaders are test infrastructure: the fragment shader writes a per-sample pattern into the multisampled image so that corruption is observable, and the verification fragment shader reads the multisampled image back as an input attachment and writes both actual and expected values to storage buffers for host comparison. No `### Representative Shader Walkthrough` subsection is created.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.api.copy_and_blit.dynamic_state.copy.draw_multisampled_image_r8g8b8a8_unorm_samples_4
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `copy` | Selects the whole-image copy meta-operation between the two multisampled-image draws; the copy source and destination are separate single-sampled images. |
+| `VK_FORMAT_R8G8B8A8_UNORM`, `64×64×1`, samples `4` | Fixes the generated resource format and extent while selecting four dynamically configured rasterization samples, producing even and odd sample values that can be checked independently. |
+| `frag` plus `fragVerify` from `DynamicStateMetaOpsTestCase::initPrograms()` | The draw fragment shader produces the corruption-sensitive pattern; the verification fragment shader reloads every sample and exports actual and expected values for host comparison. |
+
+#### Purpose
+
+The draw shader makes each sample observable by encoding pixel coordinates, sample index, and draw index into RGBA values. The verification shader reads every sample after the copy-interleaved draw sequence and writes actual/expected SSBO records, allowing the host to prove that dynamic multisample state and attachment contents survived the meta-operation.
+
+#### Structural Design
+
+| Stage / phase | Shader-visible operation | Verification signal |
+|---------------|--------------------------|----------------------|
+| `frag`: sample ownership | `drawCount == 0` writes even samples; the second draw writes odd samples. | `VK_ATTACHMENT_LOAD_OP_LOAD` keeps the complementary sample set from the first draw. |
+| `frag`: pattern generation | `R`/`G` encode integer fragment coordinates plus `gl_SampleID`; `B` encodes the normalized sample index; `A = 1`. | Any wrong sample, coordinate, or dynamic sample count changes the expected RGBA value. |
+| `fragVerify`: sample reload | Loop `s = 0..numSamples-1`, `subpassLoad(msImageAtt, s)`, then recompute the same RGBA formula. | `resultFlags[bufferPos]` and `expectedFlags[bufferPos]` are compared by the host with a `0.01` per-channel tolerance. |
+
+#### Shader Code
+
+##### Fragment Pattern Shader
+
+```glsl
+#version 450
+
+/// The draw shader writes the per-sample pattern into the multisampled color attachment.
+layout(location = 0) out vec4 outColor;
+
+/// Host-pushed draw index, framebuffer dimensions, and selected dynamic sample count.
+layout(push_constant) uniform PushConsts {
+    int drawCount;
+    int width;
+    int height;
+    int numSamples;
+} pc;
+
+void main()
+{
+    /// Draw 0 owns even samples; draw 1 owns odd samples, preserving the other set via LOAD.
+    int s = gl_SampleID;
+    if (((pc.drawCount == 0) && ((s % 2) == 0)) || ((pc.drawCount != 0) && ((s % 2) != 0))) {
+
+        /// Encode pixel coordinates and sample index so any sample corruption is observable.
+        float R = float(int(gl_FragCoord.x) + s) / float(pc.width + pc.numSamples);
+        float G = float(int(gl_FragCoord.y) + s) / float(pc.height + pc.numSamples);
+        float B = (pc.numSamples > 1) ? float(s) / float(pc.numSamples - 1) : 0.0f;
+        float A = 1.0f;
+
+        outColor = vec4(R, G, B, A);
+    }
+ else outColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+}
+```
+
+##### Fragment Verification Shader
+
+```glsl
+#version 450
+
+/// Push constants provide framebuffer dimensions and the selected multisample count.
+layout(push_constant) uniform PushConsts {
+    int width;
+    int height;
+    int numSamples;
+} pc;
+
+/// Storage buffer 0 receives the actual multisample input-attachment values.
+layout(set=0, binding=0) buffer Results {
+    vec4 resultFlags[];
+};
+
+/// Storage buffer 1 receives the independently reconstructed expected values.
+layout(set=0, binding=1) buffer Expects {
+    vec4 expectedFlags[];
+};
+
+/// The verification pass reads every sample from the multisampled color attachment.
+layout(input_attachment_index=0, set=1, binding=0) uniform subpassInputMS msImageAtt;
+
+void main() {
+    /// Compare is performed on the host after both SSBOs are copied back.
+    for (int s = 0; s < pc.numSamples; ++s) {
+        vec4 resValue = subpassLoad(msImageAtt, s);
+
+        float R = float(int(gl_FragCoord.x) + s) / float(pc.width + pc.numSamples);
+        float G = float(int(gl_FragCoord.y) + s) / float(pc.height + pc.numSamples);
+        float B = (pc.numSamples > 1) ? float(s) / float(pc.numSamples - 1) : 0.0f;
+        float A = 1.0f;
+        vec4 expectedValue = vec4(R, G, B, A);
+
+        ivec3 coords  = ivec3(int(gl_FragCoord.x), int(gl_FragCoord.y), s);
+        int bufferPos = (coords.y * pc.width + coords.x) * pc.numSamples + coords.z;
+        expectedFlags[bufferPos] = expectedValue;
+        resultFlags[bufferPos] = resValue;
+    }
+}
+```
+
+#### Additional Info
+
+- The vertex shader is fixed pass-through infrastructure from `initPrograms()` and is not shown because it does not participate in the corruption signal.
+- `fragVerify` is also fixed across the page's copy/blit and sample-count cases; it matters here because its multisampled input attachment and SSBO writes expose every sample to the host-side check.
+- The selected sample count is a runtime push-constant value (`4` here), while the shader source itself is shared by all registered sample-count leaves.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Meta operation (`copy` / `blit`) | No GLSL change; the same `frag` and `fragVerify` sources run while the host inserts either copy or blit between draws. | [registration and case construction](../../../modules/vulkan/api/vktApiCopiesAndBlittingDynamicStateMetaOpsTests.cpp#L1402-L1507) |
+| Multisampled image format | No GLSL change in the registered family; the format is fixed to `VK_FORMAT_R8G8B8A8_UNORM`. | [format and sample-count registration](../../../modules/vulkan/api/vktApiCopiesAndBlittingDynamicStateMetaOpsTests.cpp#L1476-L1481) |
+| Sample count (`2`, `4`, `8`, `16`, `32`, `64`) | Changes the runtime `pc.numSamples` divisor, loop bound, sample ownership range, and sample-index encoding; declarations and control structure remain shared. | [sample-count array and push-constant builders](../../../modules/vulkan/api/vktApiCopiesAndBlittingDynamicStateMetaOpsTests.cpp#L1332-L1347) and [L1478-L1481](../../../modules/vulkan/api/vktApiCopiesAndBlittingDynamicStateMetaOpsTests.cpp#L1478-L1481) |
+
+#### SPIR-V
+
+##### Fragment Pattern Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 110
+; Schema: 0
+               OpCapability Shader
+               OpCapability SampleRateShading
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %gl_SampleID %gl_FragCoord %outColor
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %s "s"
+               OpName %gl_SampleID "gl_SampleID"
+               OpName %PushConsts "PushConsts"
+               OpMemberName %PushConsts 0 "drawCount"
+               OpMemberName %PushConsts 1 "width"
+               OpMemberName %PushConsts 2 "height"
+               OpMemberName %PushConsts 3 "numSamples"
+               OpName %pc "pc"
+               OpName %R "R"
+               OpName %gl_FragCoord "gl_FragCoord"
+               OpName %G "G"
+               OpName %B "B"
+               OpName %A "A"
+               OpName %outColor "outColor"
+               OpDecorate %gl_SampleID BuiltIn SampleId
+               OpDecorate %gl_SampleID Flat
+               OpDecorate %PushConsts Block
+               OpMemberDecorate %PushConsts 0 Offset 0
+               OpMemberDecorate %PushConsts 1 Offset 4
+               OpMemberDecorate %PushConsts 2 Offset 8
+               OpMemberDecorate %PushConsts 3 Offset 12
+               OpDecorate %gl_FragCoord BuiltIn FragCoord
+               OpDecorate %outColor Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_SampleID = OpVariable %_ptr_Input_int Input
+       %bool = OpTypeBool
+ %PushConsts = OpTypeStruct %int %int %int %int
+%_ptr_PushConstant_PushConsts = OpTypePointer PushConstant %PushConsts
+         %pc = OpVariable %_ptr_PushConstant_PushConsts PushConstant
+      %int_0 = OpConstant %int 0
+%_ptr_PushConstant_int = OpTypePointer PushConstant %int
+      %int_2 = OpConstant %int 2
+      %float = OpTypeFloat 32
+%_ptr_Function_float = OpTypePointer Function %float
+    %v4float = OpTypeVector %float 4
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%gl_FragCoord = OpVariable %_ptr_Input_v4float Input
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_float = OpTypePointer Input %float
+      %int_1 = OpConstant %int 1
+      %int_3 = OpConstant %int 3
+     %uint_1 = OpConstant %uint 1
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %outColor = OpVariable %_ptr_Output_v4float Output
+        %109 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %s = OpVariable %_ptr_Function_int Function
+          %R = OpVariable %_ptr_Function_float Function
+          %G = OpVariable %_ptr_Function_float Function
+          %B = OpVariable %_ptr_Function_float Function
+         %86 = OpVariable %_ptr_Function_float Function
+          %A = OpVariable %_ptr_Function_float Function
+         %11 = OpLoad %int %gl_SampleID
+               OpStore %s %11
+         %18 = OpAccessChain %_ptr_PushConstant_int %pc %int_0
+         %19 = OpLoad %int %18
+         %20 = OpIEqual %bool %19 %int_0
+               OpSelectionMerge %22 None
+               OpBranchConditional %20 %21 %22
+         %21 = OpLabel
+         %23 = OpLoad %int %s
+         %25 = OpSMod %int %23 %int_2
+         %26 = OpIEqual %bool %25 %int_0
+               OpBranch %22
+         %22 = OpLabel
+         %27 = OpPhi %bool %20 %5 %26 %21
+         %28 = OpLogicalNot %bool %27
+               OpSelectionMerge %30 None
+               OpBranchConditional %28 %29 %30
+         %29 = OpLabel
+         %31 = OpAccessChain %_ptr_PushConstant_int %pc %int_0
+         %32 = OpLoad %int %31
+         %33 = OpINotEqual %bool %32 %int_0
+               OpSelectionMerge %35 None
+               OpBranchConditional %33 %34 %35
+         %34 = OpLabel
+         %36 = OpLoad %int %s
+         %37 = OpSMod %int %36 %int_2
+         %38 = OpINotEqual %bool %37 %int_0
+               OpBranch %35
+         %35 = OpLabel
+         %39 = OpPhi %bool %33 %29 %38 %34
+               OpBranch %30
+         %30 = OpLabel
+         %40 = OpPhi %bool %27 %22 %39 %35
+               OpSelectionMerge %42 None
+               OpBranchConditional %40 %41 %108
+         %41 = OpLabel
+         %52 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_0
+         %53 = OpLoad %float %52
+         %54 = OpConvertFToS %int %53
+         %55 = OpLoad %int %s
+         %56 = OpIAdd %int %54 %55
+         %57 = OpConvertSToF %float %56
+         %59 = OpAccessChain %_ptr_PushConstant_int %pc %int_1
+         %60 = OpLoad %int %59
+         %62 = OpAccessChain %_ptr_PushConstant_int %pc %int_3
+         %63 = OpLoad %int %62
+         %64 = OpIAdd %int %60 %63
+         %65 = OpConvertSToF %float %64
+         %66 = OpFDiv %float %57 %65
+               OpStore %R %66
+         %69 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_1
+         %70 = OpLoad %float %69
+         %71 = OpConvertFToS %int %70
+         %72 = OpLoad %int %s
+         %73 = OpIAdd %int %71 %72
+         %74 = OpConvertSToF %float %73
+         %75 = OpAccessChain %_ptr_PushConstant_int %pc %int_2
+         %76 = OpLoad %int %75
+         %77 = OpAccessChain %_ptr_PushConstant_int %pc %int_3
+         %78 = OpLoad %int %77
+         %79 = OpIAdd %int %76 %78
+         %80 = OpConvertSToF %float %79
+         %81 = OpFDiv %float %74 %80
+               OpStore %G %81
+         %83 = OpAccessChain %_ptr_PushConstant_int %pc %int_3
+         %84 = OpLoad %int %83
+         %85 = OpSGreaterThan %bool %84 %int_1
+               OpSelectionMerge %88 None
+               OpBranchConditional %85 %87 %96
+         %87 = OpLabel
+         %89 = OpLoad %int %s
+         %90 = OpConvertSToF %float %89
+         %91 = OpAccessChain %_ptr_PushConstant_int %pc %int_3
+         %92 = OpLoad %int %91
+         %93 = OpISub %int %92 %int_1
+         %94 = OpConvertSToF %float %93
+         %95 = OpFDiv %float %90 %94
+               OpStore %86 %95
+               OpBranch %88
+         %96 = OpLabel
+               OpStore %86 %float_0
+               OpBranch %88
+         %88 = OpLabel
+         %98 = OpLoad %float %86
+               OpStore %B %98
+               OpStore %A %float_1
+        %103 = OpLoad %float %R
+        %104 = OpLoad %float %G
+        %105 = OpLoad %float %B
+        %106 = OpLoad %float %A
+        %107 = OpCompositeConstruct %v4float %103 %104 %105 %106
+               OpStore %outColor %107
+               OpBranch %42
+        %108 = OpLabel
+               OpStore %outColor %109
+               OpBranch %42
+         %42 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Verification Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 142
+; Schema: 0
+               OpCapability Shader
+               OpCapability InputAttachment
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %gl_FragCoord
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %s "s"
+               OpName %PushConsts "PushConsts"
+               OpMemberName %PushConsts 0 "width"
+               OpMemberName %PushConsts 1 "height"
+               OpMemberName %PushConsts 2 "numSamples"
+               OpName %pc "pc"
+               OpName %resValue "resValue"
+               OpName %msImageAtt "msImageAtt"
+               OpName %R "R"
+               OpName %gl_FragCoord "gl_FragCoord"
+               OpName %G "G"
+               OpName %B "B"
+               OpName %A "A"
+               OpName %expectedValue "expectedValue"
+               OpName %coords "coords"
+               OpName %bufferPos "bufferPos"
+               OpName %Expects "Expects"
+               OpMemberName %Expects 0 "expectedFlags"
+               OpName %_ ""
+               OpName %Results "Results"
+               OpMemberName %Results 0 "resultFlags"
+               OpName %__0 ""
+               OpDecorate %PushConsts Block
+               OpMemberDecorate %PushConsts 0 Offset 0
+               OpMemberDecorate %PushConsts 1 Offset 4
+               OpMemberDecorate %PushConsts 2 Offset 8
+               OpDecorate %msImageAtt Binding 0
+               OpDecorate %msImageAtt DescriptorSet 1
+               OpDecorate %msImageAtt InputAttachmentIndex 0
+               OpDecorate %gl_FragCoord BuiltIn FragCoord
+               OpDecorate %_runtimearr_v4float ArrayStride 16
+               OpDecorate %Expects BufferBlock
+               OpMemberDecorate %Expects 0 Offset 0
+               OpDecorate %_ Binding 1
+               OpDecorate %_ DescriptorSet 0
+               OpDecorate %_runtimearr_v4float_0 ArrayStride 16
+               OpDecorate %Results BufferBlock
+               OpMemberDecorate %Results 0 Offset 0
+               OpDecorate %__0 Binding 0
+               OpDecorate %__0 DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+      %int_0 = OpConstant %int 0
+ %PushConsts = OpTypeStruct %int %int %int
+%_ptr_PushConstant_PushConsts = OpTypePointer PushConstant %PushConsts
+         %pc = OpVariable %_ptr_PushConstant_PushConsts PushConstant
+      %int_2 = OpConstant %int 2
+%_ptr_PushConstant_int = OpTypePointer PushConstant %int
+       %bool = OpTypeBool
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+         %29 = OpTypeImage %float SubpassData 0 0 1 2 Unknown
+%_ptr_UniformConstant_29 = OpTypePointer UniformConstant %29
+ %msImageAtt = OpVariable %_ptr_UniformConstant_29 UniformConstant
+      %v2int = OpTypeVector %int 2
+         %35 = OpConstantComposite %v2int %int_0 %int_0
+%_ptr_Function_float = OpTypePointer Function %float
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%gl_FragCoord = OpVariable %_ptr_Input_v4float Input
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_float = OpTypePointer Input %float
+     %uint_1 = OpConstant %uint 1
+      %int_1 = OpConstant %int 1
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+      %v3int = OpTypeVector %int 3
+%_ptr_Function_v3int = OpTypePointer Function %v3int
+     %uint_2 = OpConstant %uint 2
+%_runtimearr_v4float = OpTypeRuntimeArray %v4float
+    %Expects = OpTypeStruct %_runtimearr_v4float
+%_ptr_Uniform_Expects = OpTypePointer Uniform %Expects
+          %_ = OpVariable %_ptr_Uniform_Expects Uniform
+%_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
+%_runtimearr_v4float_0 = OpTypeRuntimeArray %v4float
+    %Results = OpTypeStruct %_runtimearr_v4float_0
+%_ptr_Uniform_Results = OpTypePointer Uniform %Results
+        %__0 = OpVariable %_ptr_Uniform_Results Uniform
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %s = OpVariable %_ptr_Function_int Function
+   %resValue = OpVariable %_ptr_Function_v4float Function
+          %R = OpVariable %_ptr_Function_float Function
+          %G = OpVariable %_ptr_Function_float Function
+          %B = OpVariable %_ptr_Function_float Function
+         %77 = OpVariable %_ptr_Function_float Function
+          %A = OpVariable %_ptr_Function_float Function
+%expectedValue = OpVariable %_ptr_Function_v4float Function
+     %coords = OpVariable %_ptr_Function_v3int Function
+  %bufferPos = OpVariable %_ptr_Function_int Function
+               OpStore %s %int_0
+               OpBranch %10
+         %10 = OpLabel
+               OpLoopMerge %12 %13 None
+               OpBranch %14
+         %14 = OpLabel
+         %15 = OpLoad %int %s
+         %21 = OpAccessChain %_ptr_PushConstant_int %pc %int_2
+         %22 = OpLoad %int %21
+         %24 = OpSLessThan %bool %15 %22
+               OpBranchConditional %24 %11 %12
+         %11 = OpLabel
+         %32 = OpLoad %29 %msImageAtt
+         %33 = OpLoad %int %s
+         %36 = OpImageRead %v4float %32 %35 Sample %33
+               OpStore %resValue %36
+         %44 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_0
+         %45 = OpLoad %float %44
+         %46 = OpConvertFToS %int %45
+         %47 = OpLoad %int %s
+         %48 = OpIAdd %int %46 %47
+         %49 = OpConvertSToF %float %48
+         %50 = OpAccessChain %_ptr_PushConstant_int %pc %int_0
+         %51 = OpLoad %int %50
+         %52 = OpAccessChain %_ptr_PushConstant_int %pc %int_2
+         %53 = OpLoad %int %52
+         %54 = OpIAdd %int %51 %53
+         %55 = OpConvertSToF %float %54
+         %56 = OpFDiv %float %49 %55
+               OpStore %R %56
+         %59 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_1
+         %60 = OpLoad %float %59
+         %61 = OpConvertFToS %int %60
+         %62 = OpLoad %int %s
+         %63 = OpIAdd %int %61 %62
+         %64 = OpConvertSToF %float %63
+         %66 = OpAccessChain %_ptr_PushConstant_int %pc %int_1
+         %67 = OpLoad %int %66
+         %68 = OpAccessChain %_ptr_PushConstant_int %pc %int_2
+         %69 = OpLoad %int %68
+         %70 = OpIAdd %int %67 %69
+         %71 = OpConvertSToF %float %70
+         %72 = OpFDiv %float %64 %71
+               OpStore %G %72
+         %74 = OpAccessChain %_ptr_PushConstant_int %pc %int_2
+         %75 = OpLoad %int %74
+         %76 = OpSGreaterThan %bool %75 %int_1
+               OpSelectionMerge %79 None
+               OpBranchConditional %76 %78 %87
+         %78 = OpLabel
+         %80 = OpLoad %int %s
+         %81 = OpConvertSToF %float %80
+         %82 = OpAccessChain %_ptr_PushConstant_int %pc %int_2
+         %83 = OpLoad %int %82
+         %84 = OpISub %int %83 %int_1
+         %85 = OpConvertSToF %float %84
+         %86 = OpFDiv %float %81 %85
+               OpStore %77 %86
+               OpBranch %79
+         %87 = OpLabel
+               OpStore %77 %float_0
+               OpBranch %79
+         %79 = OpLabel
+         %89 = OpLoad %float %77
+               OpStore %B %89
+               OpStore %A %float_1
+         %93 = OpLoad %float %R
+         %94 = OpLoad %float %G
+         %95 = OpLoad %float %B
+         %96 = OpLoad %float %A
+         %97 = OpCompositeConstruct %v4float %93 %94 %95 %96
+               OpStore %expectedValue %97
+        %101 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_0
+        %102 = OpLoad %float %101
+        %103 = OpConvertFToS %int %102
+        %104 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_1
+        %105 = OpLoad %float %104
+        %106 = OpConvertFToS %int %105
+        %107 = OpLoad %int %s
+        %108 = OpCompositeConstruct %v3int %103 %106 %107
+               OpStore %coords %108
+        %110 = OpAccessChain %_ptr_Function_int %coords %uint_1
+        %111 = OpLoad %int %110
+        %112 = OpAccessChain %_ptr_PushConstant_int %pc %int_0
+        %113 = OpLoad %int %112
+        %114 = OpIMul %int %111 %113
+        %115 = OpAccessChain %_ptr_Function_int %coords %uint_0
+        %116 = OpLoad %int %115
+        %117 = OpIAdd %int %114 %116
+        %118 = OpAccessChain %_ptr_PushConstant_int %pc %int_2
+        %119 = OpLoad %int %118
+        %120 = OpIMul %int %117 %119
+        %122 = OpAccessChain %_ptr_Function_int %coords %uint_2
+        %123 = OpLoad %int %122
+        %124 = OpIAdd %int %120 %123
+               OpStore %bufferPos %124
+        %129 = OpLoad %int %bufferPos
+        %130 = OpLoad %v4float %expectedValue
+        %132 = OpAccessChain %_ptr_Uniform_v4float %_ %int_0 %129
+               OpStore %132 %130
+        %137 = OpLoad %int %bufferPos
+        %138 = OpLoad %v4float %resValue
+        %139 = OpAccessChain %_ptr_Uniform_v4float %__0 %int_0 %137
+               OpStore %139 %138
+               OpBranch %13
+         %13 = OpLabel
+        %140 = OpLoad %int %s
+        %141 = OpIAdd %int %140 %int_1
+               OpStore %s %141
+               OpBranch %10
+         %12 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

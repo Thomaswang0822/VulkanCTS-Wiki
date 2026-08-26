@@ -55,7 +55,252 @@ The test combines a compute dispatch with one ray-tracing dispatch. The shaders 
 
 ## Shader Analysis
 
-The shaders are generated test fixtures, not the primary behavior axis. `BindPointTest::initPrograms()` declares one storage-buffer array at set 0, binding 0 and writes one fixed sentinel per pipeline type ([generated programs](../../../modules/vulkan/pipeline/vktPipelineBindPointTests.cpp#L212-L280)). Graphics also writes a fixed green color. The test does not compare shader algorithms or generated SPIR-V structure, so no representative shader walkthrough is needed. The ray-generation source uses SPIR-V 1.4 because the source supplies that build option.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.shader_object_linked_binary.bind_point.graphics_compute.push_push.setup_cp_cs_gp_gs.cmd_dispatch_draw
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `graphics_compute` | Pairs a graphics draw with a compute dispatch so their independently bound descriptor and executable state can be observed through distinct sentinel writes. |
+| `push_push` | Both bind points receive binding 0 through direct push descriptors, but each push targets its own pipeline bind point and layout. |
+| `setup_cp_cs_gp_gs` | Records compute pipeline, compute descriptor, graphics shader objects/state, and graphics descriptor setup in that order. |
+| `cmd_dispatch_draw` | Executes the compute dispatch before the graphics draw, testing that the later draw still consumes the graphics state rather than the compute state. |
+| `shader_object_linked_binary` | Uses linked binary shader objects for graphics while compute remains a compute pipeline; the generated GLSL is shared with the other construction variants. |
+
+#### Purpose
+
+The fragment and compute shaders turn bind-point-specific state into separate host-visible sentinels. The case passes only if the dispatch writes `2` through the compute descriptor path and the later draw writes `1` plus green through the graphics path.
+
+#### Structural Design
+
+| Bind-point path | Shader-visible resource or output | Shader action | Host observation |
+|-----------------|-----------------------------------|---------------|------------------|
+| Compute | Set 0, binding 0 storage buffer | One invocation writes `2u` to `flag[0]` | Compute buffer equals `2` |
+| Graphics | Set 0, binding 0 storage buffer | The sole fragment writes `1u` to `flag[0]` | Graphics buffer equals `1` |
+| Graphics | Location 0 color output | The sole fragment writes `(0, 1, 0, 1)` | The 1×1 attachment is green |
+
+#### Shader Code
+
+##### Fragment Shader
+
+```glsl
+#version 450
+/// Binding 0 is a four-byte, host-visible storage buffer selected through the graphics bind point;
+/// this fragment invocation writes the graphics sentinel to its only uint element.
+layout(set=0, binding=0, std430) buffer BufferBlock { uint flag[]; } outBuffer;
+/// The 1x1 R8G8B8A8_UNORM color attachment provides a second graphics-path observation.
+layout(location=0) out vec4 outColor;
+
+void main()
+{
+  /// The sole fragment has gl_FragCoord.xy equal to (0.5, 0.5), so both truncations are zero.
+  const uint xCoord = uint(trunc(gl_FragCoord.x));
+  const uint yCoord = uint(trunc(gl_FragCoord.y));
+  outBuffer.flag[xCoord + yCoord] = 1u;
+  outColor = vec4(0.0, 1.0, 0.0, 1.0);
+}
+```
+
+##### Compute Shader
+
+```glsl
+#version 450
+/// Binding 0 is the compute bind point's separate four-byte, host-visible storage buffer.
+layout(set=0, binding=0, std430) buffer BufferBlock { uint flag[]; } outBuffer;
+/// The host dispatches one 1x1x1 workgroup, so exactly one invocation executes.
+layout(local_size_x=1, local_size_y=1, local_size_z=1) in;
+
+void main()
+{
+  /// The sole global invocation has ID (0, 0, 0), selecting the buffer's only uint element.
+  const uint index = gl_GlobalInvocationID.x + gl_GlobalInvocationID.y + gl_GlobalInvocationID.z;
+  outBuffer.flag[index] = 2u;
+}
+```
+
+#### Additional Info
+
+- The compute shader stays fixed across the `graphics_compute` cases. It is shown because its `2u` write is the independent observation paired with the primary fragment shader's `1u` write.
+- The fixed vertex shader is omitted: it only synthesizes a full-screen four-vertex triangle strip and does not consume descriptor state. Its coverage causes the single fragment invocation in the 1×1 attachment.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|------------------------------------------|----------|
+| Bind-point pair | Replacing compute with ray tracing replaces the compute shader's `2u` write with a ray-generation shader's `3u` write; the compute/ray-tracing pair omits the graphics stages entirely. | [`BindPointTest::initPrograms`](../../../modules/vulkan/pipeline/vktPipelineBindPointTests.cpp#L212-L280) |
+| Descriptor update route | `write`, `push`, and `template_push` do not change shader text or binding numbers; they change how the host populates set 0, binding 0 for each bind point. | [descriptor setup](../../../modules/vulkan/pipeline/vktPipelineBindPointTests.cpp#L627-L669) |
+| Setup and execution order | The 24 setup permutations and two execution orders reuse the same shaders and sentinels; only command-state ordering changes. | [setup and execution loops](../../../modules/vulkan/pipeline/vktPipelineBindPointTests.cpp#L671-L799) |
+| Pipeline construction type | The GLSL remains unchanged. Construction type selects whether graphics uses a pipeline or graphics shader objects and controls whether the `compute_raytracing` pair is registered. | [registration and pruning](../../../modules/vulkan/pipeline/vktPipelineBindPointTests.cpp#L954-L1083) |
+| Ray-generation target | Ray-tracing variants explicitly compile the generated ray-generation shader for SPIR-V 1.4; this graphics fragment uses the default baseline SPIR-V 1.0 target. | [ray-generation build options](../../../modules/vulkan/pipeline/vktPipelineBindPointTests.cpp#L264-L279) |
+
+#### SPIR-V
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 41
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %gl_FragCoord %outColor
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %xCoord "xCoord"
+               OpName %gl_FragCoord "gl_FragCoord"
+               OpName %yCoord "yCoord"
+               OpName %BufferBlock "BufferBlock"
+               OpMemberName %BufferBlock 0 "flag"
+               OpName %outBuffer "outBuffer"
+               OpName %outColor "outColor"
+               OpDecorate %gl_FragCoord BuiltIn FragCoord
+               OpDecorate %_runtimearr_uint ArrayStride 4
+               OpDecorate %BufferBlock BufferBlock
+               OpMemberDecorate %BufferBlock 0 Offset 0
+               OpDecorate %outBuffer Binding 0
+               OpDecorate %outBuffer DescriptorSet 0
+               OpDecorate %outColor Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_ptr_Function_uint = OpTypePointer Function %uint
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%gl_FragCoord = OpVariable %_ptr_Input_v4float Input
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_float = OpTypePointer Input %float
+     %uint_1 = OpConstant %uint 1
+%_runtimearr_uint = OpTypeRuntimeArray %uint
+%BufferBlock = OpTypeStruct %_runtimearr_uint
+%_ptr_Uniform_BufferBlock = OpTypePointer Uniform %BufferBlock
+  %outBuffer = OpVariable %_ptr_Uniform_BufferBlock Uniform
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Uniform_uint = OpTypePointer Uniform %uint
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %outColor = OpVariable %_ptr_Output_v4float Output
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+         %40 = OpConstantComposite %v4float %float_0 %float_1 %float_0 %float_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+     %xCoord = OpVariable %_ptr_Function_uint Function
+     %yCoord = OpVariable %_ptr_Function_uint Function
+         %15 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_0
+         %16 = OpLoad %float %15
+         %17 = OpExtInst %float %1 Trunc %16
+         %18 = OpConvertFToU %uint %17
+               OpStore %xCoord %18
+         %21 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_1
+         %22 = OpLoad %float %21
+         %23 = OpExtInst %float %1 Trunc %22
+         %24 = OpConvertFToU %uint %23
+               OpStore %yCoord %24
+         %31 = OpLoad %uint %xCoord
+         %32 = OpLoad %uint %yCoord
+         %33 = OpIAdd %uint %31 %32
+         %35 = OpAccessChain %_ptr_Uniform_uint %outBuffer %int_0 %33
+               OpStore %35 %uint_1
+               OpStore %outColor %40
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Compute Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 34
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %index "index"
+               OpName %gl_GlobalInvocationID "gl_GlobalInvocationID"
+               OpName %BufferBlock "BufferBlock"
+               OpMemberName %BufferBlock 0 "flag"
+               OpName %outBuffer "outBuffer"
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %_runtimearr_uint ArrayStride 4
+               OpDecorate %BufferBlock BufferBlock
+               OpMemberDecorate %BufferBlock 0 Offset 0
+               OpDecorate %outBuffer Binding 0
+               OpDecorate %outBuffer DescriptorSet 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_ptr_Function_uint = OpTypePointer Function %uint
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_uint = OpTypePointer Input %uint
+     %uint_1 = OpConstant %uint 1
+     %uint_2 = OpConstant %uint 2
+%_runtimearr_uint = OpTypeRuntimeArray %uint
+%BufferBlock = OpTypeStruct %_runtimearr_uint
+%_ptr_Uniform_BufferBlock = OpTypePointer Uniform %BufferBlock
+  %outBuffer = OpVariable %_ptr_Uniform_BufferBlock Uniform
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Uniform_uint = OpTypePointer Uniform %uint
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+      %index = OpVariable %_ptr_Function_uint Function
+         %14 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %15 = OpLoad %uint %14
+         %17 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_1
+         %18 = OpLoad %uint %17
+         %19 = OpIAdd %uint %15 %18
+         %21 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_2
+         %22 = OpLoad %uint %21
+         %23 = OpIAdd %uint %19 %22
+               OpStore %index %23
+         %30 = OpLoad %uint %index
+         %32 = OpAccessChain %_ptr_Uniform_uint %outBuffer %int_0 %30
+               OpStore %32 %uint_2
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

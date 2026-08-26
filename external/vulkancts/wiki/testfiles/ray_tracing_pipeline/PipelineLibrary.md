@@ -71,7 +71,7 @@ This page uses one representative walkthrough. The rgen shader is identical acro
 Representative path:
 
 ```text
-ray_tracing_pipeline.pipeline_library.configurations.singlethreaded_compilation.s0_l1
+dEQP-VK.ray_tracing_pipeline.pipeline_library.configurations.singlethreaded_compilation.s0_l1
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -128,7 +128,7 @@ void main()
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level variation from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | Library configuration | No GLSL change. The host changes how many chit modules are added to each pipeline node and how the libraries are linked. | [pipelineShaders fill](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineLibraryTests.cpp#L711-L723) |
 | Geometry type (`_aabbs`) | No rgen change. The host adds an `isec` shader module alongside each chit module and swaps triangle BLAS geometries for AABB geometries. | [isec generation](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineLibraryTests.cpp#L363-L374) |
@@ -250,7 +250,9 @@ void main()
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
+
+## Runtime Execution and Result Checking
 
 - **Library tree construction.** The host builds one `RayTracingPipeline` per node. The root carries rgen, miss, and its own chit shaders. Every other node carries only chit shaders and gets `VK_PIPELINE_CREATE_LIBRARY_BIT_KHR`. Each library is linked to its parent through `addLibrary` in [vktRayTracingPipelineLibraryTests.cpp#L773-L781](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineLibraryTests.cpp#L773-L781). The root is then created through `createPipelineWithLibraries`.
 - **Creation flag routing.** Capture/replay cases set `VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR` on every node. Link-time cases set `VK_PIPELINE_CREATE_LINK_TIME_OPTIMIZATION_BIT_EXT` or `VK_PIPELINE_CREATE_RETAIN_LINK_TIME_OPTIMIZATION_INFO_BIT_EXT`. Maintenance5 cases also call `setCreateFlags2(translateCreateFlag(creationFlags))` so the same flags go through `VkPipelineCreateFlags2`.

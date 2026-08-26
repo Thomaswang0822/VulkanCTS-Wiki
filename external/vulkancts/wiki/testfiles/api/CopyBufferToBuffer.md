@@ -26,6 +26,19 @@ api.copy_and_blit.core.buffer_to_buffer
 ├── partial_large
 ├── partial_large_unaligned_size
 └── unaligned_regions_large
+
+api.copy_and_blit.core.buffer_to_buffer_transfer_queue
+├── whole
+├── partial
+├── regions
+├── unaligned_regions
+├── whole_large
+├── partial_large
+├── partial_large_unaligned_size
+└── unaligned_regions_large
+
+api.copy_and_blit.core.buffer_to_buffer_with_offset
+└── 0_0 (srcOffset and dstOffset vary from 0 through 7)
 ```
 
 The tree uses the `core` variant as the representative path. The same `buffer_to_buffer` family is registered under three additional variant intermediate nodes, each calling [addCopyBufferToBufferTests()](../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L421) with different `testGroupParams`:
@@ -34,9 +47,14 @@ The tree uses the `core` variant as the representative path. The same `buffer_to
 - `copy_commands2`: requires `VK_KHR_copy_commands2` and routes through `vkCmdCopyBuffer2` ([copy_commands2 lambda](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L275)).
 - `device_address`: requires `VK_KHR_device_address_commands` and routes through `vkCmdCopyMemoryKHR` ([addDeviceAddressTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L249)). This variant omits `regions`, `unaligned_regions`, and `unaligned_regions_large` due to VUID-VkCopyDeviceMemoryInfoKHR-srcRange-13015 ([pruning](../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L474)).
 
-A `buffer_to_buffer_transfer_queue` sibling is registered under `core`, `dedicated_allocation`, and `copy_commands2` with `TransferOnly` queue selection ([addCopiesAndBlittingTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L176)). It has the same internal test case structure.
+A `buffer_to_buffer_transfer_queue` sibling is registered under `core`, `dedicated_allocation`, and `copy_commands2` with `TransferOnly` queue selection ([addCopiesAndBlittingTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L176)). It has the same 8 direct children shown under the canonical `core` tree.
 
-A `buffer_to_buffer_with_offset` sibling is registered under `core` only by [addCopyBufferToBufferOffsetTests()](../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L621). It generates 64 test case leaves (`0_0` through `7_7`) covering all `srcOffset`/`dstOffset` combinations from 0 to `kMaxOffset - 1 = 7`.
+A `buffer_to_buffer_with_offset` sibling is registered under `core` only by [addCopyBufferToBufferOffsetTests()](../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L621). Its generated form is `<srcOffset>_<dstOffset>`.
+
+- `<srcOffset>` takes the integer values `0` through `7`.
+- `<dstOffset>` takes the integer values `0` through `7`.
+
+The two variables produce 64 direct leaves.
 
 ## Parameter Dimensions and Observed Values
 

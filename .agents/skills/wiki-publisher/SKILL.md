@@ -96,17 +96,6 @@ dependencies, and validation. Do not continue unless the worker confirms that sk
    prefer the GitLab-tested form `./<category>/<page>` rather than an unprefixed relative path.
 7. Confirm the category page and its child Level-3 pages appear under the same expandable category node in the GitLab Wiki sidebar.
 
-### Orchestrator Finalization
-
-After the link-conversion worker completes successfully, update the category row in
-`vkcts-wiki-pages/home.md` under the category index table:
-
-- Find the `文档` column link for the published category.
-- Remove only the `.md` suffix from that link target, for example `categories/<category>.md` becomes
-  `categories/<category>`.
-- Do not run the markdown link conversion script on `vkcts-wiki-pages/home.md`.
-- Do not change rows for unpublished categories.
-
 ## Required Completion Report
 
 The completion summary MUST include:
@@ -117,7 +106,6 @@ The completion summary MUST include:
 - A statement that `translate-doc` was invoked and its validation checklist passed.
 - A statement that the mandatory `shuorenhua` and `humanizer-zh` language-skill passes were applied by the translation workers for the translated files, in that order.
 - The link conversion commands or files processed.
-- Confirmation that the `vkcts-wiki-pages/home.md` category-index link was updated for the published category.
 - Any skipped files or unresolved validation warnings.
 
 If `translate-doc` was not invoked and validated, the task is incomplete and MUST be reported as failed.
@@ -135,4 +123,5 @@ A non-zero `--check` result means the file still needs conversion.
 ## Scope Notes
 
 - Keep the markdown link conversion script as the deterministic implementation for publish-target links.
+- `vkcts-wiki-pages/home.md` is preconfigured and remains untouched during publishing.
 - Do not add publish workflow state or temporary notes to user-facing wiki pages.

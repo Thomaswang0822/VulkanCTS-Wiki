@@ -76,254 +76,233 @@ Covers `negate` (`OpSNegate`), `add` (`OpIAdd`), `sub` (`OpISub`), `mul` (`OpIMu
 
 ## Shader Analysis
 
-Every type-test case shares a near-identical compute shell built from the [`computeShaderTemplate`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L1705-L1736) and the shared `SPIRV_ASSEMBLY_TYPES`/`SPIRV_ASSEMBLY_CONSTANTS`/`SPIRV_ASSEMBLY_ARRAYS` macros ([`vktSpvAsmUtils.hpp#L45-L126`](../../../modules/vulkan/spirv_assembly/vktSpvAsmUtils.hpp#L45-L126)): `OpCapability Shader`, `Logical GLSL450` memory model, `GLCompute` entry point `%BP_main`, `LocalSize 1 1 1` execution mode, the legacy `Uniform` storage class with `BufferBlock` decoration for the SSBOs (the SPIR-V 1.0 storage-buffer encoding, equivalent to `VK_DESCRIPTOR_TYPE_STORAGE_BUFFER`), and a `test_code` function that loops over the input buffers element-by-element via `OpLoopMerge`/`OpBranchConditional`, applies the SPIR-V op under test, and writes the result to the output SSBO. Per-case variation lives in the `${testfun}` operation line and the `${decoration}`/`${pre_main}` slots that declare the input SSBOs.
+The type tests author the shader module directly as SPIR-V assembly in CTS C++ string templates; there is no GLSL or HLSL frontend in this path. [`createStageTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L1687-L2004) specializes `computeShaderTemplate` with the common `SPIRV_ASSEMBLY_TYPES`/`SPIRV_ASSEMBLY_CONSTANTS`/`SPIRV_ASSEMBLY_ARRAYS` fragments and per-case `${decoration}`, `${pre_main}`, `${testfun}`, capability, and extension fragments. The compute case is assembled and validated by the CTS SPIR-V harness; graphics suffixes reuse the operation body through the graphics-stage runner and change the pipeline stage, not the operation being tested.
 
-The `scalar.i32.add_comp` case is the representative walkthrough because it is the simplest case that shows the full compute template shape: 32-bit signed integer (no extra feature/capability), scalar width (no vector type, no padding), binary `OpIAdd` (two input SSBOs, one output SSBO), and the default `verifyDefaultResult` comparison. A brief contrast with the comparison and bit-field families follows the walkthrough; those families add the `OpSelect`/`OpBitcast` boolean conversion or the `OpSConvert` offset/count width conversion via [`finalizeFullOperation()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L2753-L2796), but the shell is identical.
-
-### Representative Shader Walkthrough 1: `spirv_assembly.type.scalar.i32.add_comp`
+### Representative Shader Walkthrough 1
 
 #### Parameter Values Chosen
 
 Representative path:
 
 ```text
-spirv_assembly.type.scalar.i32.add_comp
+dEQP-VK.spirv_assembly.type.scalar.i32.add_comp
 ```
 
 | Parameter choice | Meaning in this representative case |
 |------------------|-------------------------------------|
-| Vector-width node `scalar` | No `OpTypeVector`; test type is `%i32` directly; no vec3 padding |
-| Type subgroup `i32` | `OpTypeInt 32 1`; no extra feature/capability (32-bit is the baseline) |
-| Operation `add` | Binary `OpIAdd`; two input SSBOs at bindings 0 and 1, output at binding 2 |
-| Stage `_comp` | Compute dispatch through `SpvAsmComputeShaderCase` with `LocalSize 1 1 1` |
-| Input range `RANGE_FULL` | Operands passed unchanged (no shift masking) |
-| Filter `FILTER_NONE` | All 10x10 = 100 operand pairs are legal for `OpIAdd` |
+| Vector-width node `scalar` | Uses `%i32` directly; no `OpTypeVector` and no vec3 padding. |
+| Type subgroup `i32` | Emits `OpTypeInt 32 1`; 32-bit is the baseline and needs no width-specific feature or capability. |
+| Operation `add` | Emits `OpIAdd` with two input SSBOs at bindings 0 and 1 and one output SSBO at binding 2. |
+| Stage `_comp` | Runs through `SpvAsmComputeShaderCase` with `GLCompute` and `LocalSize 1 1 1`. |
+| Input range `RANGE_FULL` | Passes both operands unchanged. |
+| Filter `FILTER_NONE` | Keeps all 10 × 10 = 100 operand pairs. |
 
 #### Purpose
 
-Verify that `OpIAdd` on 32-bit signed integers produces the exact two's-complement sum for every operand pair in the dataset, including `INT32_MIN+1`, `INT32_MAX`, and random values. The host computes the expected buffer with the C++ `+` operator on `int32_t`; the device writes its `OpIAdd` results to the output SSBO; the host compares element-by-element with exact equality.
-
-#### Resources and Bindings
-
-| Resource | Type | Storage class | Decoration | Role |
-|----------|------|---------------|------------|------|
-| `%input0` | `%bufptr` (`%buf` = struct of fixed-size `%a100testtype` `%i32` array) | `Uniform` | `DescriptorSet 0`, `Binding 0`, `BufferBlock` | First operand stream (100 `int32` values, one for each operand pair) |
-| `%input1` | `%bufptr` | `Uniform` | `DescriptorSet 0`, `Binding 1`, `BufferBlock` | Second operand stream (100 `int32` values, one for each operand pair) |
-| `%output` | `%bufptr` | `Uniform` | `DescriptorSet 0`, `Binding 2`, `BufferBlock` | Output stream; holds 100 `OpIAdd` results, read back by host |
-| `%counter` | `%fp_i32` | `Function` | none | Loop counter, ranges `0..99` |
-| `%op_constant` | `%fp_i32` | `Function` | none | Function-local slot reserved by the template for ops that need a constant operand; unused by `OpIAdd` |
-| `%param` / `%BP_in_color` / `%BP_out_color` | `%v4f32` / `%fp_v4f32` | Function | none | Plumbing for the `BP_main` → `test_code` call; the color value is irrelevant to verification |
-
-[`SpvAsmTypeInt32Tests::getDataset()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L3007-L3024) first produces a 10-element `int32` dataset (seeded with `0`, `INT32_MIN+1`, `INT32_MAX`, three switch cases, and four random values). [`combine()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L1339-L1422) then expands every pair into 100-element `%input0`, `%input1`, and expected-output streams by applying the host `add()` function. The `BufferBlock` decoration on `%buf` is the legacy SPIR-V 1.0 storage-buffer encoding; it maps to `VK_DESCRIPTOR_TYPE_STORAGE_BUFFER` at the Vulkan level.
+This case checks that a directly authored `OpIAdd` over 32-bit signed integers produces the expected two's-complement sum for every operand pair. The host expands the deterministic 10-value dataset into 100 input pairs and computes the expected output with the host `add()` operation; the device writes each SPIR-V result to the output storage buffer, which CTS compares element by element.
 
 #### Structural Design
 
-```mermaid
-flowchart TD
-    A["BP_main: OpStore BP_in_color = (0,0,0,1)"] --> B["OpFunctionCall %test_code %BP_tmp1"]
-    B --> C["test_code entry: OpStore counter = 0"]
-    C --> D{"OpLoopMerge: counter < 100?"}
-    D -- yes --> E["AccessChain output[counter] -> output_loc"]
-    E --> F["AccessChain input0[counter] -> input0_loc"]
-    F --> G["OpLoad i32 input0_loc -> input0_val"]
-    G --> H["AccessChain input1[counter] -> input1_loc"]
-    H --> I["OpLoad i32 input1_loc -> input1_val"]
-    I --> J["OpIAdd i32 input0_val input1_val -> op_result"]
-    J --> K["OpStore output_loc op_result"]
-    K --> L["counter = counter + 1"]
-    L --> D
-    D -- no --> M["OpReturnValue %param"]
-```
+| Resource | SPIR-V declaration | Storage class / decorations | Role |
+|----------|--------------------|-----------------------------|------|
+| `%input0` | `%bufptr` to `%buf` containing `%a100testtype` of `%i32` | `Uniform`, `DescriptorSet 0`, `Binding 0`, `BufferBlock` | First operand stream. |
+| `%input1` | `%bufptr` to `%buf` containing `%a100testtype` of `%i32` | `Uniform`, `DescriptorSet 0`, `Binding 1`, `BufferBlock` | Second operand stream. |
+| `%output` | `%bufptr` to `%buf` containing `%a100testtype` of `%i32` | `Uniform`, `DescriptorSet 0`, `Binding 2`, `BufferBlock` | Device-written result stream read back by CTS. |
+| `%counter` | `%fp_i32` | `Function` | Loop index from 0 through 99. |
+| `%BP_in_color` / `%BP_out_color` | `%fp_v4f32` | `Function` | Entry-point plumbing; the color is not the test oracle. |
 
-#### Walkthrough
+`Uniform` plus `BufferBlock` is the legacy SPIR-V 1.0 encoding used by this CTS assembly for a Vulkan storage buffer. The host binds these resources as `VK_DESCRIPTOR_TYPE_STORAGE_BUFFER`. `%op_constant` is also declared by the shared function template for operation variants that need a function-local constant; `OpIAdd` does not use it.
 
-The entry point `%BP_main` runs once for the single invocation in the `1x1x1` dispatch. It stores the constant color `(0, 0, 0, 1)` into `%BP_in_color`, calls `%test_code` with that color as the parameter, and stores the return value into `%BP_out_color`. The color value is plumbing; verification reads the output SSBO, not the color.
+**Execution flow**
 
-`%test_code` is where the tested operation lives:
+| Phase | Direct SPIR-V shape | Observable role |
+|-------|---------------------|-----------------|
+| Module setup | `OpCapability Shader`, `OpMemoryModel Logical GLSL450`, `OpEntryPoint GLCompute`, `OpExecutionMode LocalSize 1 1 1` | Defines a single-invocation compute module. |
+| Resource setup | Three `Uniform` variables with descriptor bindings 0, 1, and 2; `%a100testtype` has `ArrayStride 4` | Provides two input streams and one output stream. |
+| Entry point | `%BP_main` stores `%BP_color`, calls `%test_code`, and discards the returned color | Invokes the test body without making color output part of verification. |
+| Loop | `%counter`, `OpSLessThan`, `OpLoopMerge`, and `OpBranchConditional` | Visits all 100 generated operand pairs in one invocation. |
+| Operation and store | `OpAccessChain` → `OpLoad` → `OpIAdd` → `OpStore` | Exercises the selected integer instruction and exposes its result to the host. |
 
-- `%counter` is initialized to `0` and the loop begins at `%loop`.
-- `%counter_val = OpLoad %i32 %counter` reads the current loop index.
-- `%lt = OpSLessThan %bool %counter_val %c_i32_100` checks `counter < 100`.
-- `OpLoopMerge %exit %inc None` / `OpBranchConditional %lt %write %exit` either enters the `%write` block or exits the loop.
-- In `%write`: `%output_loc = OpAccessChain %up_testtype %output %c_i32_0 %counter_val` computes a pointer to `output[counter]`; the same pattern computes `%input0_loc` and `%input1_loc`.
-- `%input0_val = OpLoad %i32 %input0_loc` and `%input1_val = OpLoad %i32 %input1_loc` load the two operands.
-- `%op_result = OpIAdd %i32 %input0_val %input1_val` is the instruction under test.
-- `OpStore %output_loc %op_result` writes the sum to the output SSBO.
-- `%inc` increments `%counter` by 1 and branches back to `%loop`.
-- After 100 iterations, `%exit` returns `%param` (the unused color) to `BP_main`.
+**Instruction walkthrough**
 
-Because `compute 1 1 1` dispatches a single invocation, the loop runs 100 times in that one invocation, writing all 100 `OpIAdd` results sequentially to the output SSBO. The host reads back the output SSBO and compares it element-by-element against the host-computed expected buffer via [`verifyDefaultResult()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L2030-L2076).
+`%BP_main` runs once because the dispatch is `1 1 1`. It stores `%BP_color` in `%BP_in_color`, calls `%test_code`, and stores the returned color in `%BP_out_color`; these values are only wrapper plumbing. `%test_code` initializes `%counter` to zero, branches to the loop, and tests `counter < 100`. In the write block, three `OpAccessChain` instructions select the output, first-input, and second-input elements at the current counter. The two loads feed `%op_result = OpIAdd %i32 %input0_val %input1_val`, and the result is stored to the output buffer. The increment block adds one to the counter and branches back. After 100 iterations the function returns its color parameter.
 
-#### Source Code
+The host then reads the output storage buffer and invokes [`verifyDefaultResult()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L2030-L2076). A mismatch is an exact value mismatch; it is not a rendered-color comparison. The same shell is specialized for other operation families: comparison operations produce a boolean and append `OpSelect` plus `OpBitcast`/`OpSConvert`, while bit-field operations can load offset/count operands at another width and convert them with `OpSConvert` before the tested instruction.
 
-The SPIR-V assembly below is extracted from the C++ string-template concatenation in [`createStageTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L1687-L2004). The shared preamble types/constants/arrays come from the `SPIRV_ASSEMBLY_TYPES`/`SPIRV_ASSEMBLY_CONSTANTS`/`SPIRV_ASSEMBLY_ARRAYS` macros; wiki-authored section markers use `;` comment syntax. The assembly targets SPIR-V 1.0 (the `BufferBlock` decoration is deprecated in SPIR-V 1.4+, confirming the runtime target is 1.0).
+#### Shader Code
+
+This direct-SPIR-V case does not use GLSL or HLSL. CTS supplies SPIR-V assembly assembled from C++ string-template fragments; the complete validated assembly is retained only in the final `SPIR-V` subsection.
+
+#### Additional Info
+
+- The host binds the three legacy `Uniform` plus `BufferBlock` resources as storage buffers and verifies all 100 result elements.
+- The final `SPIR-V` block is the normalized `spirv-dis` output used for validation.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| Signedness and width | Changes `OpTypeInt`, the operation opcode where signedness matters, buffer element size, and the requested Vulkan/SPIR-V capabilities. | [`SpvAsmTypeInt8Tests` … `SpvAsmTypeUint64Tests`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L2896-L3220), [`getSpirvCapabilityStr()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L775-L813) |
+| Vector width | Uses scalar, standard `OpTypeVector`, or the long-vector path; vec3 uses aligned storage with padding and a specialized verifier. | [`VecSize` and vector assembly](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L85-L109), [`createStageTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L1886-L1922) |
+| Operation family | Replaces the operation fragment with arithmetic, shift, bitwise, comparison, bit-field, GLSL.std.450, or constant/initializer instructions and any required result post-processing. | [Operation macros](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L4042-L4276), [`finalizeFullOperation()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L2753-L2796) |
+| Shift width | Adds a shift-count input at width 8, 16, 32, or 64 and converts it to the test type; the host masks the count to the test width. | [`getOtherSizeTypes()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L944-L975), [`combine()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L1339-L1422) |
+| Bit-field offset/count width | Adds scalar offset/count resources and converts each operand before `OpBitField*`; non-32-bit cases request `VK_KHR_maintenance9` outside VulkanSC. | [`isBitManipulationTest()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L1870-L1875) |
+| Stage suffix | Keeps the `test_code` operation body while selecting compute or a graphics stage through `createTestsForAllStages()`. | [`createTestsForAllStages()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmGraphicsShaderTestUtil.cpp#L4902-L4928) |
+
+#### SPIR-V
+
+- Status: assembled and validated
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
 
 <details>
-<summary>SPIR-V assembly for <code>spirv_assembly.type.scalar.i32.add_comp</code></summary>
+<summary>Click to expand SPIRV asm code</summary>
 
 ```llvm
 ; SPIR-V
 ; Version: 1.0
-; Generator: Vulkan CTS SpvAsmTypeTests; 0
-; Bound: 100
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 109
 ; Schema: 0
-; --- capability / memory model / entry point (computeShaderTemplate header) ---
-OpCapability Shader
-OpMemoryModel Logical GLSL450
-OpEntryPoint GLCompute %BP_main "main"
-OpExecutionMode %BP_main LocalSize 1 1 1
-; --- decorations (createInputDecoration x2, then output decoration) ---
-OpDecorate %input0 DescriptorSet 0
-OpDecorate %input0 Binding 0
-OpDecorate %input1 DescriptorSet 0
-OpDecorate %input1 Binding 1
-OpDecorate %output DescriptorSet 0
-OpDecorate %output Binding 2
-OpDecorate %a100testtype ArrayStride 4
-OpDecorate %buf BufferBlock
-OpMemberDecorate %buf 0 Offset 0
-; --- common types (SPIRV_ASSEMBLY_TYPES) ---
-%void = OpTypeVoid
-%bool = OpTypeBool
-%i32 = OpTypeInt 32 1
-%u32 = OpTypeInt 32 0
-%f32 = OpTypeFloat 32
-%v2i32 = OpTypeVector %i32 2
-%v2u32 = OpTypeVector %u32 2
-%v2f32 = OpTypeVector %f32 2
-%v3i32 = OpTypeVector %i32 3
-%v3u32 = OpTypeVector %u32 3
-%v3f32 = OpTypeVector %f32 3
-%v4i32 = OpTypeVector %i32 4
-%v4u32 = OpTypeVector %u32 4
-%v4f32 = OpTypeVector %f32 4
-%v4bool = OpTypeVector %bool 4
-%v4f32_v4f32_function = OpTypeFunction %v4f32 %v4f32
-%bool_function = OpTypeFunction %bool
-%voidf = OpTypeFunction %void
-%ip_f32 = OpTypePointer Input %f32
-%ip_i32 = OpTypePointer Input %i32
-%ip_u32 = OpTypePointer Input %u32
-%ip_v2f32 = OpTypePointer Input %v2f32
-%ip_v2i32 = OpTypePointer Input %v2i32
-%ip_v2u32 = OpTypePointer Input %v2u32
-%ip_v3f32 = OpTypePointer Input %v3f32
-%ip_v4f32 = OpTypePointer Input %v4f32
-%ip_v4i32 = OpTypePointer Input %v4i32
-%ip_v4u32 = OpTypePointer Input %v4u32
-%op_f32 = OpTypePointer Output %f32
-%op_i32 = OpTypePointer Output %i32
-%op_u32 = OpTypePointer Output %u32
-%op_v2f32 = OpTypePointer Output %v2f32
-%op_v2i32 = OpTypePointer Output %v2i32
-%op_v2u32 = OpTypePointer Output %v2u32
-%op_v4f32 = OpTypePointer Output %v4f32
-%op_v4i32 = OpTypePointer Output %v4i32
-%op_v4u32 = OpTypePointer Output %v4u32
-%fp_f32   = OpTypePointer Function %f32
-%fp_i32   = OpTypePointer Function %i32
-%fp_v4f32 = OpTypePointer Function %v4f32
-; --- common constants (SPIRV_ASSEMBLY_CONSTANTS) ---
-%c_f32_1 = OpConstant %f32 1.0
-%c_f32_0 = OpConstant %f32 0.0
-%c_f32_0_5 = OpConstant %f32 0.5
-%c_f32_n1  = OpConstant %f32 -1.
-%c_f32_7 = OpConstant %f32 7.0
-%c_f32_8 = OpConstant %f32 8.0
-%c_i32_0 = OpConstant %i32 0
-%c_i32_1 = OpConstant %i32 1
-%c_i32_2 = OpConstant %i32 2
-%c_i32_3 = OpConstant %i32 3
-%c_i32_4 = OpConstant %i32 4
-%c_u32_0 = OpConstant %u32 0
-%c_u32_1 = OpConstant %u32 1
-%c_u32_2 = OpConstant %u32 2
-%c_u32_3 = OpConstant %u32 3
-%c_u32_32 = OpConstant %u32 32
-%c_u32_4 = OpConstant %u32 4
-%c_u32_31_bits = OpConstant %u32 0x7FFFFFFF
-%c_v4f32_1_1_1_1 = OpConstantComposite %v4f32 %c_f32_1 %c_f32_1 %c_f32_1 %c_f32_1
-%c_v4f32_1_0_0_1 = OpConstantComposite %v4f32 %c_f32_1 %c_f32_0 %c_f32_0 %c_f32_1
-%c_v4f32_0_5_0_5_0_5_0_5 = OpConstantComposite %v4f32 %c_f32_0_5 %c_f32_0_5 %c_f32_0_5 %c_f32_0_5
-; --- common arrays (SPIRV_ASSEMBLY_ARRAYS) ---
-%a1f32 = OpTypeArray %f32 %c_u32_1
-%a2f32 = OpTypeArray %f32 %c_u32_2
-%a3v4f32 = OpTypeArray %v4f32 %c_u32_3
-%a4f32 = OpTypeArray %f32 %c_u32_4
-%a32v4f32 = OpTypeArray %v4f32 %c_u32_32
-%ip_a3v4f32 = OpTypePointer Input %a3v4f32
-%ip_a32v4f32 = OpTypePointer Input %a32v4f32
-%op_a2f32 = OpTypePointer Output %a2f32
-%op_a3v4f32 = OpTypePointer Output %a3v4f32
-%op_a4f32 = OpTypePointer Output %a4f32
-; --- BP_color constant ---
-%BP_color = OpConstantComposite %v4f32 %c_f32_0 %c_f32_0 %c_f32_0 %c_f32_1
-; --- pre_main: pre_pre_main (num_elements constants) ---
-%c_u32_100 = OpConstant %u32 100
-%c_i32_100 = OpConstant %i32 100
-; --- pre_main: pre_main_consts (scalar path) ---
-%c_shift  = OpConstant %u32 16
-%c_zero = OpConstant %u32 0
-%c_one = OpConstant %u32 1
-; --- pre_main: post_pre_main (test type array, buf, output variable) ---
-%a100testtype = OpTypeArray %i32 %c_u32_100
-%up_testtype = OpTypePointer Uniform %i32
-%buf = OpTypeStruct %a100testtype
-%bufptr = OpTypePointer Uniform %buf
-%output = OpVariable %bufptr Uniform
-; --- pre_main: createInputPreMain(0), createInputPreMain(1) ---
-%input0 = OpVariable %bufptr Uniform
-%input1 = OpVariable %bufptr Uniform
-; --- BP_main function (compute shader entry point) ---
-%BP_main = OpFunction %void None %voidf
-%BP_label_main = OpLabel
-%BP_in_color = OpVariable %fp_v4f32 Function
-%BP_out_color = OpVariable %fp_v4f32 Function
-OpStore %BP_in_color %BP_color
-%BP_tmp1 = OpLoad %v4f32 %BP_in_color
-%BP_tmp2 = OpFunctionCall %v4f32 %test_code %BP_tmp1
-OpStore %BP_out_color %BP_tmp2
-OpReturn
-OpFunctionEnd
-; --- testfun: pre_testfun (function header + loop prologue) ---
-%test_code = OpFunction %v4f32 None %v4f32_v4f32_function
-%param = OpFunctionParameter %v4f32
-%entry = OpLabel
-%op_constant = OpVariable %fp_i32 Function
-%counter = OpVariable %fp_i32 Function
-OpStore %counter %c_i32_0
-OpBranch %loop
-%loop = OpLabel
-%counter_val = OpLoad %i32 %counter
-%lt = OpSLessThan %bool %counter_val %c_i32_100
-OpLoopMerge %exit %inc None
-OpBranchConditional %lt %write %exit
-%write = OpLabel
-%output_loc = OpAccessChain %up_testtype %output %c_i32_0 %counter_val
-; --- testfun: createInputTestfun(0), createInputTestfun(1) ---
-%input0_loc = OpAccessChain %up_testtype %input0 %c_i32_0 %counter_val
-%input0_val = OpLoad %i32 %input0_loc
-%input1_loc = OpAccessChain %up_testtype %input1 %c_i32_0 %counter_val
-%input1_val = OpLoad %i32 %input1_loc
-; --- testfun: operation (OpIAdd, binary, WIDTH_DEFAULT, no extension) ---
-%op_result = OpIAdd %i32 %input0_val %input1_val
-; --- testfun: post_testfun (store result, loop increment, exit) ---
-OpStore %output_loc %op_result
-OpBranch %inc
-%inc = OpLabel
-%counter_val_next = OpIAdd %i32 %counter_val %c_i32_1
-OpStore %counter %counter_val_next
-OpBranch %loop
-%exit = OpLabel
-OpReturnValue %param
-OpFunctionEnd
+               OpCapability Shader
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %1 "main"
+               OpExecutionMode %1 LocalSize 1 1 1
+               OpDecorate %2 DescriptorSet 0
+               OpDecorate %2 Binding 0
+               OpDecorate %3 DescriptorSet 0
+               OpDecorate %3 Binding 1
+               OpDecorate %4 DescriptorSet 0
+               OpDecorate %4 Binding 2
+               OpDecorate %_arr_int_uint_100 ArrayStride 4
+               OpDecorate %_struct_6 BufferBlock
+               OpMemberDecorate %_struct_6 0 Offset 0
+       %void = OpTypeVoid
+       %bool = OpTypeBool
+        %int = OpTypeInt 32 1
+       %uint = OpTypeInt 32 0
+      %float = OpTypeFloat 32
+      %v2int = OpTypeVector %int 2
+     %v2uint = OpTypeVector %uint 2
+    %v2float = OpTypeVector %float 2
+      %v3int = OpTypeVector %int 3
+     %v3uint = OpTypeVector %uint 3
+    %v3float = OpTypeVector %float 3
+      %v4int = OpTypeVector %int 4
+     %v4uint = OpTypeVector %uint 4
+    %v4float = OpTypeVector %float 4
+     %v4bool = OpTypeVector %bool 4
+         %22 = OpTypeFunction %v4float %v4float
+         %23 = OpTypeFunction %bool
+         %24 = OpTypeFunction %void
+%_ptr_Input_float = OpTypePointer Input %float
+%_ptr_Input_int = OpTypePointer Input %int
+%_ptr_Input_uint = OpTypePointer Input %uint
+%_ptr_Input_v2float = OpTypePointer Input %v2float
+%_ptr_Input_v2int = OpTypePointer Input %v2int
+%_ptr_Input_v2uint = OpTypePointer Input %v2uint
+%_ptr_Input_v3float = OpTypePointer Input %v3float
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%_ptr_Input_v4int = OpTypePointer Input %v4int
+%_ptr_Input_v4uint = OpTypePointer Input %v4uint
+%_ptr_Output_float = OpTypePointer Output %float
+%_ptr_Output_int = OpTypePointer Output %int
+%_ptr_Output_uint = OpTypePointer Output %uint
+%_ptr_Output_v2float = OpTypePointer Output %v2float
+%_ptr_Output_v2int = OpTypePointer Output %v2int
+%_ptr_Output_v2uint = OpTypePointer Output %v2uint
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%_ptr_Output_v4int = OpTypePointer Output %v4int
+%_ptr_Output_v4uint = OpTypePointer Output %v4uint
+%_ptr_Function_float = OpTypePointer Function %float
+%_ptr_Function_int = OpTypePointer Function %int
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+    %float_1 = OpConstant %float 1
+    %float_0 = OpConstant %float 0
+  %float_0_5 = OpConstant %float 0.5
+   %float_n1 = OpConstant %float -1
+    %float_7 = OpConstant %float 7
+    %float_8 = OpConstant %float 8
+      %int_0 = OpConstant %int 0
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+      %int_3 = OpConstant %int 3
+      %int_4 = OpConstant %int 4
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+     %uint_2 = OpConstant %uint 2
+     %uint_3 = OpConstant %uint 3
+    %uint_32 = OpConstant %uint 32
+     %uint_4 = OpConstant %uint 4
+%uint_2147483647 = OpConstant %uint 2147483647
+         %65 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
+         %66 = OpConstantComposite %v4float %float_1 %float_0 %float_0 %float_1
+         %67 = OpConstantComposite %v4float %float_0_5 %float_0_5 %float_0_5 %float_0_5
+%_arr_float_uint_1 = OpTypeArray %float %uint_1
+%_arr_float_uint_2 = OpTypeArray %float %uint_2
+%_arr_v4float_uint_3 = OpTypeArray %v4float %uint_3
+%_arr_float_uint_4 = OpTypeArray %float %uint_4
+%_arr_v4float_uint_32 = OpTypeArray %v4float %uint_32
+%_ptr_Input__arr_v4float_uint_3 = OpTypePointer Input %_arr_v4float_uint_3
+%_ptr_Input__arr_v4float_uint_32 = OpTypePointer Input %_arr_v4float_uint_32
+%_ptr_Output__arr_float_uint_2 = OpTypePointer Output %_arr_float_uint_2
+%_ptr_Output__arr_v4float_uint_3 = OpTypePointer Output %_arr_v4float_uint_3
+%_ptr_Output__arr_float_uint_4 = OpTypePointer Output %_arr_float_uint_4
+         %78 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_1
+   %uint_100 = OpConstant %uint 100
+    %int_100 = OpConstant %int 100
+    %uint_16 = OpConstant %uint 16
+   %uint_0_0 = OpConstant %uint 0
+   %uint_1_0 = OpConstant %uint 1
+%_arr_int_uint_100 = OpTypeArray %int %uint_100
+%_ptr_Uniform_int = OpTypePointer Uniform %int
+  %_struct_6 = OpTypeStruct %_arr_int_uint_100
+%_ptr_Uniform__struct_6 = OpTypePointer Uniform %_struct_6
+          %4 = OpVariable %_ptr_Uniform__struct_6 Uniform
+          %2 = OpVariable %_ptr_Uniform__struct_6 Uniform
+          %3 = OpVariable %_ptr_Uniform__struct_6 Uniform
+          %1 = OpFunction %void None %24
+         %86 = OpLabel
+         %87 = OpVariable %_ptr_Function_v4float Function
+         %88 = OpVariable %_ptr_Function_v4float Function
+               OpStore %87 %78
+         %89 = OpLoad %v4float %87
+         %90 = OpFunctionCall %v4float %91 %89
+               OpStore %88 %90
+               OpReturn
+               OpFunctionEnd
+         %91 = OpFunction %v4float None %22
+         %92 = OpFunctionParameter %v4float
+         %93 = OpLabel
+         %94 = OpVariable %_ptr_Function_int Function
+         %95 = OpVariable %_ptr_Function_int Function
+               OpStore %95 %int_0
+               OpBranch %96
+         %96 = OpLabel
+         %97 = OpLoad %int %95
+         %98 = OpSLessThan %bool %97 %int_100
+               OpLoopMerge %99 %100 None
+               OpBranchConditional %98 %101 %99
+        %101 = OpLabel
+        %102 = OpAccessChain %_ptr_Uniform_int %4 %int_0 %97
+        %103 = OpAccessChain %_ptr_Uniform_int %2 %int_0 %97
+        %104 = OpLoad %int %103
+        %105 = OpAccessChain %_ptr_Uniform_int %3 %int_0 %97
+        %106 = OpLoad %int %105
+        %107 = OpIAdd %int %104 %106
+               OpStore %102 %107
+               OpBranch %100
+        %100 = OpLabel
+        %108 = OpIAdd %int %97 %int_1
+               OpStore %95 %108
+               OpBranch %96
+         %99 = OpLabel
+               OpReturnValue %92
+               OpFunctionEnd
 ```
 
 </details>
-
-#### Contrast with comparison and bit-field families
-
-The shell above is shared by every operation family; only the `${testfun}` operation line and the [`finalizeFullOperation()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L2753-L2796) trailer differ. For a comparison case such as `iequal_comp`, the operation line becomes `%op_result_pre = OpIEqual %bool %input0_val %input1_val`, and `finalizeFullOperation()` appends `%op_result_u32 = OpSelect %u32 %op_result_pre %c_one %c_zero` followed by `%op_result = OpBitcast %i32 %op_result_u32` (for `i32`) or `%op_result = OpSConvert %i32 %op_result_u32` (for non-32-bit types). For a 16-bit multiply `_test_high_part_zero` variant, `finalizeFullOperation()` appends `%op_result_a = OpUConvert %vu32 %op_result_pre`, `%op_result_b = OpShiftRightLogical %vu32 %op_result_a %c_shift`, and `%op_result = OpSConvert %i16 %op_result_b`. For a bit-field case with non-default input width, the offset/count operands are loaded through a separate scalar SSBO and converted via `OpSConvert` to the test type width before the `OpBitField*` op. None of these change the BP_main shell, the loop structure, or the output SSBO layout.
 
 ## Runtime Execution and Result Checking
 

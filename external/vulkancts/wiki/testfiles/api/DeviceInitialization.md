@@ -1,6 +1,6 @@
 ## Overview
 
-**Core question: does the implementation accept every valid instance/device/queue-creation configuration the Vulkan spec permits, and reject every clearly invalid one?**
+**Core question:** does the implementation accept every valid instance/device/queue-creation configuration the Vulkan spec permits, and reject every clearly invalid one?
 
 - The `api.device_init` test family lives under the `api` test category and is implemented end-to-end in [`vktApiDeviceInitializationTests.cpp`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L1).
 - It registers 26 intermediate nodes under `api.device_init`, each exercising one instance-creation, device-creation, or queue-creation scenario through [`createDeviceInitializationTests()`](../../../modules/vulkan/api/vktApiDeviceInitializationTests.cpp#L2868-L2942).

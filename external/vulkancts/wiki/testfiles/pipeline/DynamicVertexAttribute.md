@@ -58,13 +58,44 @@ The behavior parameter is the single executable **test case leaf**, `nonsequenti
 
 `initPrograms()` generates two vertex shaders. They differ only in the `inColor` location. The shared fragment shader writes the interpolated color to attachment location 0 ([source generator](../../../modules/vulkan/pipeline/vktPipelineDynamicVertexAttributeTests.cpp#L476-L516)).
 
-### Representative shader walkthrough: `nonsequential`, first draw
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.monolithic.dynamic_vertex_attribute.nonsequential
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `monolithic` | Selects the normal graphics-pipeline construction path; the shader source is shared with the other construction variants. |
+| `nonsequential` | Registers the only leaf in this family and runs the two-draw sparse-location sequence. |
+| `m_attributeLocations = {1u, 7u}` | Generates `vert_0` with `inColor` at location 1 and `vert_1` with `inColor` at location 7; this walkthrough uses `vert_0`, matching the retained SPIR-V artifact. |
+| `GLSL_VERSION_450` | Emits the `#version 450` declaration used by `initPrograms()`. |
+
+#### Purpose
+
+This vertex shader passes the position and dynamically selected color attribute through to the fragment stage. In the selected artifact, the color input is declared at location 1, so it represents the first draw's dynamic vertex-input description.
+
+#### Structural Design
+
+| Stage operation | Shader-visible carrier | Result |
+|-----------------|------------------------|--------|
+| Vertex fetch | `inPosition` at location 0; `inColor` at location 1 | Reads the position and color fields supplied by the active dynamic attribute descriptions. |
+| Position transport | `gl_Position = inPosition` | Determines the rendered geometry. |
+| Color transport | `outColor = inColor` at location 0 | Passes the fetched color to the fragment shader. |
+
+#### Shader Code
 
 ```glsl
 #version 450
+
 layout(location = 0) in vec4 inPosition;
 layout(location = 1) in vec4 inColor;
 layout(location = 0) out vec4 outColor;
+
 void main (void)
 {
     gl_Position = inPosition;
@@ -72,21 +103,29 @@ void main (void)
 }
 ```
 
-| Shader item | Role |
-|---|---|
-| `inPosition`, location 0 | Receives the first `vec4` in each `VertexInfo` record. |
-| `inColor`, location 1 | Receives the second `vec4`; the second draw changes this declaration to location 7. |
-| `gl_Position` | Positions the triangles. |
-| `outColor` | Transfers fetched color to the fragment shader. |
+#### Additional Info
 
-The shader contains no diagnostic arithmetic. A color mismatch therefore observes the whole path from the second dynamic description through vertex fetch and interfaces to the image comparison; it does not identify one internal stage by itself. A defect confined to the first, location-1 draw can remain hidden when the location-7 draw succeeds and overwrites it.
+- `initPrograms()` emits the same vertex source twice and substitutes only `m_attributeLocations[i]` into the `inColor` declaration; the second generated vertex shader therefore uses location 7 ([source generator](../../../modules/vulkan/pipeline/vktPipelineDynamicVertexAttributeTests.cpp#L476-L498)).
+- The fragment shader is fixed across the case and simply writes its location-0 input to its location-0 output ([fragment generator](../../../modules/vulkan/pipeline/vktPipelineDynamicVertexAttributeTests.cpp#L500-L516)).
+- The retained SPIR-V corresponds to the location-1 `vert_0` variant, not the location-7 `vert_1` variant.
 
-### SPIR-V
+#### Parameter Variation Summary
 
-The following assembly was regenerated from the representative GLSL with `glslangValidator -V --target-env vulkan1.0 -S vert`, validated with `spirv-val --target-env vulkan1.0`, and disassembled with `spirv-dis`. The location-7 shader has the same operations with `OpDecorate %inColor Location 7`.
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|----------------------------------------|----------|
+| `m_attributeLocations[i]` | Changes only the `layout(location = ...)` qualifier of `inColor`: the registered values produce location 1 for `vert_0` and location 7 for `vert_1`; declarations and assignments otherwise remain identical. | [vertex generator](../../../modules/vulkan/pipeline/vktPipelineDynamicVertexAttributeTests.cpp#L476-L498) |
+| `pipelineConstructionType` | Does not change generated GLSL; it selects the pipeline construction and capability path around the shared shader collection. | [case construction and capabilities](../../../modules/vulkan/pipeline/vktPipelineDynamicVertexAttributeTests.cpp#L423-L561) |
+| `nonsequential` case parameters | Keeps the shader stages fixed while changing the active dynamic vertex-input descriptions between the two draws. | [dynamic descriptions and draws](../../../modules/vulkan/pipeline/vktPipelineDynamicVertexAttributeTests.cpp#L168-L176), [draw commands](../../../modules/vulkan/pipeline/vktPipelineDynamicVertexAttributeTests.cpp#L364-L380) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
 
 <details>
-<summary>Click to expand SPIR-V assembly</summary>
+<summary>Click to expand SPIRV asm code</summary>
 
 ```llvm
 ; SPIR-V
@@ -179,7 +218,13 @@ The following assembly was regenerated from the representative GLSL with `glslan
 
 ## Case Pruning
 
-The factory itself has no parameter loop or optional child: it always registers `nonsequential`. The pipeline dispatcher supplies the family under monolithic, pipeline-library, fast-linked-library, and four shader-object groups. Per-case support rejects devices without the three required dynamic-state extensions or without requirements for the selected construction type.
+### Requirement-based pruning
+
+Per-case support rejects devices without the three required dynamic-state extensions or without requirements for the selected construction type.
+
+### Design-based pruning
+
+The factory itself has no parameter loop or optional child: it always registers `nonsequential`. The pipeline dispatcher supplies the family under monolithic, pipeline-library, fast-linked-library, and four shader-object groups.
 
 ## Key Takeaways
 

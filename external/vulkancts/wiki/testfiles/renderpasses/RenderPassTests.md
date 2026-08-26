@@ -16,52 +16,45 @@
 
 ## Registration Hierarchy
 
-The category root `renderpasses` is registered by `createRenderPassesTests()` in [vktTestPackage.cpp#L1354](../../../modules/vulkan/vktTestPackage.cpp#L1354). The tree below shows the direct children of the category root.
+The category root `renderpasses` is registered by `createRenderPassesTests()` in [vktTestPackage.cpp#L1354](../../../modules/vulkan/vktTestPackage.cpp#L1354). Its three rendering roots are documented as separate trees below. The direct children shown are the branches represented in the default mustpass file; the shared `suballocation`, `dedicated_allocation`, and `no_draws` branches are implemented by this page.
 
 ```text
-renderpasses
-├── renderpass1
-├── renderpass2
-└── dynamic_rendering (non-SC only)
+renderpasses.renderpass1
+├── custom_resolve
+├── dedicated_allocation
+├── depth_stencil_write_conditions
+├── dithering
+├── fragment_density_map
+├── multiple_subpasses_multiple_command_buffers
+├── nested_command_buffers
+├── no_draws
+├── performance_counters_by_region
+├── remaining_array_layers
+└── suballocation
+
+renderpasses.renderpass2
+├── custom_resolve
+├── dedicated_allocation
+├── depth_stencil_resolve
+├── dithering
+├── fragment_density_map
+├── multiview_per_view
+├── nested_command_buffers
+├── no_draws
+├── performance_counters_by_region
+├── remaining_array_layers
+└── suballocation
+
+renderpasses.dynamic_rendering
+├── complete_secondary_cmd_buff
+├── graphics_pipeline_library
+├── partial_secondary_cmd_buff
+└── primary_cmd_buff
 ```
 
 The `dynamic_rendering` group has four direct children, `primary_cmd_buff`, `partial_secondary_cmd_buff`, `complete_secondary_cmd_buff`, and `graphics_pipeline_library`, that differ only in their `GroupParams` (command-buffer level and pipeline construction type), not in the core test groups they contain [createDynamicRenderingTests](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8638-L8679).
 
-Each of the three rendering roots expands into the same set of intermediate nodes. The three nodes this file implements directly are `suballocation`, `dedicated_allocation`, and `no_draws`; the remaining siblings are delegated to their own Level-3 pages.
-
-```text
-renderpasses.<rendering_root>
-├── suballocation
-├── dedicated_allocation
-├── no_draws
-├── multisample (registration only)
-├── multisample_resolve (registration only)
-├── sampleread (registration only)
-├── unused_attachment (registration only)
-├── unused_clear_attachments (registration only)
-├── attachment_sparse_filling (registration only)
-├── clear_some_attachments (registration only)
-├── depth_stencil_resolve (registration only)
-├── depth_stencil_write_conditions (registration only)
-├── custom_resolve (registration only)
-├── fragment_density_map (registration only)
-├── sparserendertarget (registration only)
-├── load_store_op_none (registration only)
-├── dithering (registration only)
-├── remaining_array_layers (registration only)
-├── performance_counters_by_region (registration only)
-├── multiple_subpasses_multiple_command_buffers (registration only)
-├── multiview_per_view (registration only)
-├── subpass_merge_feedback (registration only)
-├── nested_command_buffers (registration only)
-├── subpass_dependencies (registration only)
-├── basic (registration only, dynamic_rendering only)
-├── random (registration only, dynamic_rendering only)
-├── unused_attachments (registration only, dynamic_rendering only)
-├── local_read (registration only, dynamic_rendering only)
-├── local_read_maint10 (registration only, dynamic_rendering only)
-└── multiview_clear (registration only, dynamic_rendering only)
-```
+Each rendering root expands into shared and rendering-type-specific branches. The source also creates registration branches such as `multisample`, `multisample_resolve`, `sampleread`, `unused_attachment`, `unused_clear_attachments`, `attachment_sparse_filling`, `clear_some_attachments`, `sparserendertarget`, `load_store_op_none`, `subpass_merge_feedback`, and `subpass_dependencies`; render pass 2 additionally has `depth_stencil_resolve` and `multiview_per_view`, while dynamic rendering additionally creates `basic`, `random`, `unused_attachments`, `local_read`, `local_read_maint10`, and `multiview_clear`. These are registration-only context for this page and are documented in their owning pages.
 
 ## Parameter Dimensions and Observed Values
 
@@ -109,14 +102,294 @@ A single leaf case (`no_draw_clear_load_store`) that clears a 1×1 color attachm
 
 ## Shader Analysis
 
-The shaders in this test family are not part of the tested behavior. They are generated per subpass by [RenderPassTestCase::initPrograms](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L5679) to produce deterministic, position-dependent output values that the host-side software reference renderer can reproduce exactly.
+### Representative Shader Walkthrough 1
 
-The vertex shader is a fixed pass-through that sets `gl_Position` from a 2-component position attribute. The fragment shader has two shapes:
+#### Parameter Values Chosen
 
-- When the subpass has no input attachments, each color output is filled with a pattern derived from `gl_FragCoord.x` and `gl_FragCoord.y` parity combined with a boolean operation indexed by subpass and attachment number. When a depth/stencil attachment is present and writable, `gl_FragDepth` is set from the same parity pattern using `depthValues`.
-- When the subpass has input attachments, the fragment shader reads each input via `subpassLoad`, compares it against the expected constant, packs the boolean results into an `inputs[]` array, and maps them into the `outputs[]` array that drives the color (and optional depth) writes. Depth input attachments use an epsilon comparison (`depthsEqual`); stencil inputs compare against `0xFF`.
+Representative path:
 
-Because the shader output is a deterministic function of pixel coordinates and attachment configuration, and because the reference renderer reproduces the same function on the host, shader walkthroughs do not add evidence about what the test validates. No representative shader walkthrough is included.
+```text
+dEQP-VK.renderpasses.renderpass1.suballocation.formats.r8g8b8a8_unorm.input.clear.dont_care.self_dep_clear_draw
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `renderpass1.suballocation` | Uses a legacy `VkRenderPass` and the default suballocator. |
+| `formats.r8g8b8a8_unorm.input` | Uses one 64×64, single-sampled `VK_FORMAT_R8G8B8A8_UNORM` attachment as both input attachment 0 and color attachment 0 in the second subpass. |
+| `clear.dont_care` | Selects `VK_ATTACHMENT_LOAD_OP_CLEAR` and `VK_ATTACHMENT_STORE_OP_DONT_CARE` for the color aspect. |
+| `self_dep_clear_draw` | Selects the two-subpass input/output-aliasing configuration and records both `vkCmdClearAttachments` and a draw in each subpass; no multisample or input-aspect suffix is selected. |
+
+#### Purpose
+
+This fragment shader is the input-attachment stage generated for subpass 1. It reads the same color attachment that it writes after a by-region color-write-to-input-read self-dependency, then converts the loaded values and coordinate parity into the deterministic booleans mirrored by the software reference renderer.
+
+#### Structural Design
+
+| Phase | Shader-visible operation | Runtime relationship |
+|-------|--------------------------|----------------------|
+| Input/output alias | `i_color0` is input attachment index 0 at set 0, binding 0; `o_color0` is location 0. | Both references select attachment 0 in subpass 1. |
+| Visibility | No shader instruction performs synchronization. | Before the draw, the command recorder clears attachment 0 and issues a `VK_DEPENDENCY_BY_REGION_BIT` image barrier from color-attachment writes to input-attachment reads. |
+| Input classification | Four `subpassLoad` calls test whether R, G, B, and A equal `1.0`. | The host reference renderer consumes the same four attachment-component values. |
+| Output mapping | Every component begins with `(x is odd) && (y is even)`, then compares that result with its corresponding input predicate. | `boolOpFromIndex(1)` selects `AND`; one input component is assigned to each output component. |
+| Result | The four booleans become normalized `0.0` or `1.0` color components. | The selected store op is `DONT_CARE`, so this exact case executes the dataflow but does not read back attachment 0 after the render pass. |
+
+#### Shader Code
+
+```glsl
+#version 450
+/// Input attachment 0 aliases color attachment 0 in this self-dependency subpass; binding 0 supplies the descriptor read by subpassLoad.
+layout(input_attachment_index = 0, set=0, binding=0) uniform highp subpassInput i_color0;
+/// Location 0 writes the same R8G8B8A8_UNORM attachment after the input read has been made visible by the by-region self-dependency.
+layout(location = 0) out highp vec4 o_color0;
+void main (void) {
+	/// Convert the four loaded channels into exact-one boolean predicates, matching the host reference renderer input tests.
+	bool inputs[4];
+	bool outputs[4];
+	inputs[0] = 1.0 == float(subpassLoad(i_color0).x);
+	inputs[1] = 1.0 == float(subpassLoad(i_color0).y);
+	inputs[2] = 1.0 == float(subpassLoad(i_color0).z);
+	inputs[3] = 1.0 == float(subpassLoad(i_color0).w);
+	/// Subpass index 1 and attachment index 0 select AND for every component; each parity result is then compared with its loaded channel predicate.
+	outputs[0] = (int(gl_FragCoord.x) % 2 == 1) && (int(gl_FragCoord.y) % 2 == 0);
+	outputs[0] = outputs[0] == inputs[0];
+	outputs[1] = (int(gl_FragCoord.x) % 2 == 1) && (int(gl_FragCoord.y) % 2 == 0);
+	outputs[1] = outputs[1] == inputs[1];
+	outputs[2] = (int(gl_FragCoord.x) % 2 == 1) && (int(gl_FragCoord.y) % 2 == 0);
+	outputs[2] = outputs[2] == inputs[2];
+	outputs[3] = (int(gl_FragCoord.x) % 2 == 1) && (int(gl_FragCoord.y) % 2 == 0);
+	outputs[3] = outputs[3] == inputs[3];
+	/// Store comparison results as normalized 0/1 color components for host-side image verification.
+	o_color0 = vec4(outputs[0], outputs[1], outputs[2], outputs[3]);
+}
+```
+
+#### Additional Info
+
+- [The case builder](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L7772-L7835) gives subpass 1 the same attachment at input and color index 0 and adds both a `0 -> 1` dependency and a `1 -> 1` self-dependency with `VK_DEPENDENCY_BY_REGION_BIT`.
+- [The command recorder](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L2798-L2885) emits the matching in-subpass image barrier after clear commands and before the draw. [The host renderer](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L4196-L4304) reproduces the input-to-output boolean mapping.
+- `initPrograms()` supplies no explicit `vk::ShaderBuildOptions`, so the source-collection baseline target is SPIR-V 1.0. Because this representative selects `STORE_OP_DONT_CARE`, [image verification](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L4665-L4794) does not compare attachment 0 after execution.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Format | Integer formats select `isubpassInput`/`ivec4` or `usubpassInput`/`uvec4`; floating and normalized formats, including this case, select `subpassInput`/`vec4`. The format channel count controls how many input predicates and mapped output components are generated. | [input/output type helpers](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L4865-L4920), [input branch](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L5813-L5968) |
+| Sample count | The `_ms` variants use `subpassInputMS` and call `subpassLoad(i_color0, gl_SampleID)` instead of the single-sample form shown here. | [sample-count registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L7625-L7629), [load generation](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L5901-L5914) |
+| Render type | `draw` and `clear_draw` generate the same fragment program, while `clear` records no draw and therefore needs no shader program; adding `clear` changes the values visible to the input load through runtime commands rather than declarations. | [render-type registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L7611-L7617), [program gate](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L5679-L5685) |
+| Load/store ops and input-aspect flag | These choices do not alter this GLSL. They change attachment operations or legacy render-pass input-aspect metadata around it. | [input-case construction](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L7672-L7835) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 150
+; Schema: 0
+               OpCapability Shader
+               OpCapability InputAttachment
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %gl_FragCoord %o_color0
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %inputs "inputs"
+               OpName %i_color0 "i_color0"
+               OpName %outputs "outputs"
+               OpName %gl_FragCoord "gl_FragCoord"
+               OpName %o_color0 "o_color0"
+               OpDecorate %i_color0 Binding 0
+               OpDecorate %i_color0 DescriptorSet 0
+               OpDecorate %i_color0 InputAttachmentIndex 0
+               OpDecorate %gl_FragCoord BuiltIn FragCoord
+               OpDecorate %o_color0 Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %bool = OpTypeBool
+       %uint = OpTypeInt 32 0
+     %uint_4 = OpConstant %uint 4
+%_arr_bool_uint_4 = OpTypeArray %bool %uint_4
+%_ptr_Function__arr_bool_uint_4 = OpTypePointer Function %_arr_bool_uint_4
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+      %float = OpTypeFloat 32
+    %float_1 = OpConstant %float 1
+         %16 = OpTypeImage %float SubpassData 0 0 0 2 Unknown
+%_ptr_UniformConstant_16 = OpTypePointer UniformConstant %16
+   %i_color0 = OpVariable %_ptr_UniformConstant_16 UniformConstant
+      %v2int = OpTypeVector %int 2
+         %21 = OpConstantComposite %v2int %int_0 %int_0
+    %v4float = OpTypeVector %float 4
+     %uint_0 = OpConstant %uint 0
+%_ptr_Function_bool = OpTypePointer Function %bool
+      %int_1 = OpConstant %int 1
+     %uint_1 = OpConstant %uint 1
+      %int_2 = OpConstant %int 2
+     %uint_2 = OpConstant %uint 2
+      %int_3 = OpConstant %int 3
+     %uint_3 = OpConstant %uint 3
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%gl_FragCoord = OpVariable %_ptr_Input_v4float Input
+%_ptr_Input_float = OpTypePointer Input %float
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %o_color0 = OpVariable %_ptr_Output_v4float Output
+    %float_0 = OpConstant %float 0
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+     %inputs = OpVariable %_ptr_Function__arr_bool_uint_4 Function
+    %outputs = OpVariable %_ptr_Function__arr_bool_uint_4 Function
+         %19 = OpLoad %16 %i_color0
+         %23 = OpImageRead %v4float %19 %21
+         %25 = OpCompositeExtract %float %23 0
+         %26 = OpFOrdEqual %bool %float_1 %25
+         %28 = OpAccessChain %_ptr_Function_bool %inputs %int_0
+               OpStore %28 %26
+         %30 = OpLoad %16 %i_color0
+         %31 = OpImageRead %v4float %30 %21
+         %33 = OpCompositeExtract %float %31 1
+         %34 = OpFOrdEqual %bool %float_1 %33
+         %35 = OpAccessChain %_ptr_Function_bool %inputs %int_1
+               OpStore %35 %34
+         %37 = OpLoad %16 %i_color0
+         %38 = OpImageRead %v4float %37 %21
+         %40 = OpCompositeExtract %float %38 2
+         %41 = OpFOrdEqual %bool %float_1 %40
+         %42 = OpAccessChain %_ptr_Function_bool %inputs %int_2
+               OpStore %42 %41
+         %44 = OpLoad %16 %i_color0
+         %45 = OpImageRead %v4float %44 %21
+         %47 = OpCompositeExtract %float %45 3
+         %48 = OpFOrdEqual %bool %float_1 %47
+         %49 = OpAccessChain %_ptr_Function_bool %inputs %int_3
+               OpStore %49 %48
+         %54 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_0
+         %55 = OpLoad %float %54
+         %56 = OpConvertFToS %int %55
+         %57 = OpSMod %int %56 %int_2
+         %58 = OpIEqual %bool %57 %int_1
+               OpSelectionMerge %60 None
+               OpBranchConditional %58 %59 %60
+         %59 = OpLabel
+         %61 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_1
+         %62 = OpLoad %float %61
+         %63 = OpConvertFToS %int %62
+         %64 = OpSMod %int %63 %int_2
+         %65 = OpIEqual %bool %64 %int_0
+               OpBranch %60
+         %60 = OpLabel
+         %66 = OpPhi %bool %58 %5 %65 %59
+         %67 = OpAccessChain %_ptr_Function_bool %outputs %int_0
+               OpStore %67 %66
+         %68 = OpAccessChain %_ptr_Function_bool %outputs %int_0
+         %69 = OpLoad %bool %68
+         %70 = OpAccessChain %_ptr_Function_bool %inputs %int_0
+         %71 = OpLoad %bool %70
+         %72 = OpLogicalEqual %bool %69 %71
+         %73 = OpAccessChain %_ptr_Function_bool %outputs %int_0
+               OpStore %73 %72
+         %74 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_0
+         %75 = OpLoad %float %74
+         %76 = OpConvertFToS %int %75
+         %77 = OpSMod %int %76 %int_2
+         %78 = OpIEqual %bool %77 %int_1
+               OpSelectionMerge %80 None
+               OpBranchConditional %78 %79 %80
+         %79 = OpLabel
+         %81 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_1
+         %82 = OpLoad %float %81
+         %83 = OpConvertFToS %int %82
+         %84 = OpSMod %int %83 %int_2
+         %85 = OpIEqual %bool %84 %int_0
+               OpBranch %80
+         %80 = OpLabel
+         %86 = OpPhi %bool %78 %60 %85 %79
+         %87 = OpAccessChain %_ptr_Function_bool %outputs %int_1
+               OpStore %87 %86
+         %88 = OpAccessChain %_ptr_Function_bool %outputs %int_1
+         %89 = OpLoad %bool %88
+         %90 = OpAccessChain %_ptr_Function_bool %inputs %int_1
+         %91 = OpLoad %bool %90
+         %92 = OpLogicalEqual %bool %89 %91
+         %93 = OpAccessChain %_ptr_Function_bool %outputs %int_1
+               OpStore %93 %92
+         %94 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_0
+         %95 = OpLoad %float %94
+         %96 = OpConvertFToS %int %95
+         %97 = OpSMod %int %96 %int_2
+         %98 = OpIEqual %bool %97 %int_1
+               OpSelectionMerge %100 None
+               OpBranchConditional %98 %99 %100
+         %99 = OpLabel
+        %101 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_1
+        %102 = OpLoad %float %101
+        %103 = OpConvertFToS %int %102
+        %104 = OpSMod %int %103 %int_2
+        %105 = OpIEqual %bool %104 %int_0
+               OpBranch %100
+        %100 = OpLabel
+        %106 = OpPhi %bool %98 %80 %105 %99
+        %107 = OpAccessChain %_ptr_Function_bool %outputs %int_2
+               OpStore %107 %106
+        %108 = OpAccessChain %_ptr_Function_bool %outputs %int_2
+        %109 = OpLoad %bool %108
+        %110 = OpAccessChain %_ptr_Function_bool %inputs %int_2
+        %111 = OpLoad %bool %110
+        %112 = OpLogicalEqual %bool %109 %111
+        %113 = OpAccessChain %_ptr_Function_bool %outputs %int_2
+               OpStore %113 %112
+        %114 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_0
+        %115 = OpLoad %float %114
+        %116 = OpConvertFToS %int %115
+        %117 = OpSMod %int %116 %int_2
+        %118 = OpIEqual %bool %117 %int_1
+               OpSelectionMerge %120 None
+               OpBranchConditional %118 %119 %120
+        %119 = OpLabel
+        %121 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_1
+        %122 = OpLoad %float %121
+        %123 = OpConvertFToS %int %122
+        %124 = OpSMod %int %123 %int_2
+        %125 = OpIEqual %bool %124 %int_0
+               OpBranch %120
+        %120 = OpLabel
+        %126 = OpPhi %bool %118 %100 %125 %119
+        %127 = OpAccessChain %_ptr_Function_bool %outputs %int_3
+               OpStore %127 %126
+        %128 = OpAccessChain %_ptr_Function_bool %outputs %int_3
+        %129 = OpLoad %bool %128
+        %130 = OpAccessChain %_ptr_Function_bool %inputs %int_3
+        %131 = OpLoad %bool %130
+        %132 = OpLogicalEqual %bool %129 %131
+        %133 = OpAccessChain %_ptr_Function_bool %outputs %int_3
+               OpStore %133 %132
+        %136 = OpAccessChain %_ptr_Function_bool %outputs %int_0
+        %137 = OpLoad %bool %136
+        %139 = OpSelect %float %137 %float_1 %float_0
+        %140 = OpAccessChain %_ptr_Function_bool %outputs %int_1
+        %141 = OpLoad %bool %140
+        %142 = OpSelect %float %141 %float_1 %float_0
+        %143 = OpAccessChain %_ptr_Function_bool %outputs %int_2
+        %144 = OpLoad %bool %143
+        %145 = OpSelect %float %144 %float_1 %float_0
+        %146 = OpAccessChain %_ptr_Function_bool %outputs %int_3
+        %147 = OpLoad %bool %146
+        %148 = OpSelect %float %147 %float_1 %float_0
+        %149 = OpCompositeConstruct %v4float %139 %142 %145 %148
+               OpStore %o_color0 %149
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

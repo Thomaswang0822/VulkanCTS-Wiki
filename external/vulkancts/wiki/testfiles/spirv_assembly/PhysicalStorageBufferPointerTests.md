@@ -61,7 +61,7 @@ This page uses two walkthroughs. The first covers the shared push-constants shad
 Representative path:
 
 ```text
-spirv_assembly.instruction.compute.physical_storage_buffer.push_constants
+dEQP-VK.spirv_assembly.instruction.compute.physical_storage_buffer.push_constants
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -85,139 +85,9 @@ This shader checks that a `PhysicalStorageBuffer` pointer loaded from a push-con
 | 3a | `%loop` (inline) | `OpAccessChain %int_ptr %src %vi` and `%dst %vi`, then `OpLoad Aligned 4` / `OpStore Aligned 4` for `vi` in `0..cnt-1`. | Copies all elements in the calling invocation. |
 | 3b | `%cpbuffs` (function call) | `%src_buf` and `%dst_buf` are `OpFunctionParameter %buf_ptr`; the same access-chain + aligned load/store runs in the callee. | Copies all elements through pointer parameters. |
 
-#### Source Code
+#### Shader Code
 
-Extracted SPIR-V assembly from [vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L400-L527](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L400-L527). Target SPIR-V environment: `spirv1.4`. `;` comments are wiki-authored annotations; the instruction text is verbatim from the CTS source.
-
-```llvm
-; Capabilities and memory model: PhysicalStorageBufferAddresses + PhysicalStorageBuffer64 addressing model.
-    OpCapability Shader
-    OpCapability PhysicalStorageBufferAddresses
-
-    OpExtension "SPV_KHR_physical_storage_buffer"
-    OpMemoryModel PhysicalStorageBuffer64 GLSL450
-
-    OpEntryPoint GLCompute %main "main" %id %str
-
-    OpExecutionMode %main LocalSize 1 1 1
-    OpSource GLSL 450
-    OpName %main    "main"
-    OpName %id        "gl_GlobalInvocationID"
-    OpName %src        "source"
-    OpName %dst        "destination"
-    OpName %src_buf    "source"
-    OpName %dst_buf    "destination"
-    OpDecorate %id BuiltIn GlobalInvocationId
-; Push-constant block holding two PhysicalStorageBuffer pointers plus cnt and use_fun.
-    OpDecorate %str_t Block
-    OpMemberDecorate %str_t 0 Offset 0
-    OpMemberDecorate %str_t 1 Offset 8
-    OpMemberDecorate %str_t 2 Offset 16
-    OpMemberDecorate %str_t 3 Offset 20
-
-    OpDecorate %src_buf Restrict
-    OpDecorate %dst_buf Restrict
-
-    OpDecorate %int_arr ArrayStride 4
-
-            %int = OpTypeInt 32 1
-        %int_ptr = OpTypePointer PhysicalStorageBuffer %int
-       %int_fptr = OpTypePointer Function %int
-           %zero = OpConstant %int 0
-            %one = OpConstant %int 1
-            %two = OpConstant %int 2
-          %three = OpConstant %int 3
-
-           %uint = OpTypeInt 32 0
-       %uint_ptr = OpTypePointer Input %uint
-      %uint_fptr = OpTypePointer Function %uint
-          %uvec3 = OpTypeVector %uint 3
-      %uvec3ptr  = OpTypePointer Input %uvec3
-          %uzero = OpConstant %uint 0
-             %id = OpVariable %uvec3ptr Input
-
-        %int_arr = OpTypeRuntimeArray %int
-
-        %buf_ptr = OpTypePointer PhysicalStorageBuffer %int_arr
-          %str_t = OpTypeStruct %buf_ptr %buf_ptr %int %int
-        %str_ptr = OpTypePointer PushConstant %str_t
-            %str = OpVariable %str_ptr PushConstant
-    %buf_ptr_fld = OpTypePointer PushConstant %buf_ptr
-        %int_fld = OpTypePointer PushConstant %int
-
-           %bool = OpTypeBool
-           %void = OpTypeVoid
-          %voidf = OpTypeFunction %void
-       %cpbuffsf = OpTypeFunction %void %buf_ptr %buf_ptr %int
-; cpbuffs(src_buf, dst_buf, elements): copy loop inside a function whose parameters are PhysicalStorageBuffer pointers.
-        %cpbuffs = OpFunction %void None %cpbuffsf
-        %src_buf = OpFunctionParameter %buf_ptr
-        %dst_buf = OpFunctionParameter %buf_ptr
-       %elements = OpFunctionParameter %int
-       %cp_begin = OpLabel
-              %j = OpVariable %int_fptr Function
-                   OpStore %j %zero
-                   OpBranch %for
-            %for = OpLabel
-             %vj = OpLoad %int %j
-             %cj = OpULessThan %bool %vj %elements
-                   OpLoopMerge %for_end %incj None
-                   OpBranchConditional %cj %for_body %for_end
-       %for_body = OpLabel
-     %src_el_lnk = OpAccessChain %int_ptr %src_buf %vj
-     %dst_el_lnk = OpAccessChain %int_ptr %dst_buf %vj
-         %src_el = OpLoad %int %src_el_lnk Aligned 4
-                   OpStore %dst_el_lnk %src_el Aligned 4
-                   OpBranch %incj
-           %incj = OpLabel
-             %nj = OpIAdd %int %vj %one
-                   OpStore %j %nj
-                   OpBranch %for
-        %for_end = OpLabel
-                   OpReturn
-                   OpFunctionEnd
-; main: load src/dst/cnt/use_fun from push constants, branch on use_fun to pick inline loop or function call.
-           %main = OpFunction %void None %voidf
-          %begin = OpLabel
-              %i = OpVariable %int_fptr Function
-                   OpStore %i %zero
-        %src_lnk = OpAccessChain %buf_ptr_fld %str %zero
-        %dst_lnk = OpAccessChain %buf_ptr_fld %str %one
-        %cnt_lnk = OpAccessChain %int_fld %str %two
-    %use_fun_lnk = OpAccessChain %int_fld %str %three
-            %src = OpLoad %buf_ptr %src_lnk
-            %dst = OpLoad %buf_ptr %dst_lnk
-            %cnt = OpLoad %int %cnt_lnk
-        %use_fun = OpLoad %int %use_fun_lnk
-
-            %cuf = OpINotEqual %bool %use_fun %zero
-                   OpSelectionMerge %use_fun_end None
-                   OpBranchConditional %cuf %copy %loop
-           %copy = OpLabel
-         %unused = OpFunctionCall %void %cpbuffs %src %dst %cnt
-                   OpBranch %use_fun_end
-           %loop = OpLabel
-             %vi = OpLoad %int %i
-             %ci = OpSLessThan %bool %vi %cnt
-                   OpLoopMerge %loop_end %inci None
-                   OpBranchConditional %ci %loop_body %loop_end
-      %loop_body = OpLabel
-     %src_px_lnk = OpAccessChain %int_ptr %src %vi
-     %dst_px_lnk = OpAccessChain %int_ptr %dst %vi
-         %src_px = OpLoad %int %src_px_lnk Aligned 4
-                   OpStore %dst_px_lnk %src_px Aligned 4
-                   OpBranch %inci
-           %inci = OpLabel
-             %ni = OpIAdd %int %vi %one
-                   OpStore %i %ni
-                   OpBranch %loop
-       %loop_end = OpLabel
-                   OpBranch %use_fun_end
-    %use_fun_end = OpLabel
-
-                   OpReturn
-                   OpFunctionEnd
-```
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -232,6 +102,138 @@ Extracted SPIR-V assembly from [vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L
 | `push_constants_function` | Same shader; the host sets `use_fun` to true, so the `OpFunctionCall %cpbuffs` branch runs and the pointers cross a function-call boundary as `OpFunctionParameter` values. | [use_fun assignment](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L567-L568) |
 | `addrs_in_ssbo` | Different shader: addresses come from an SSBO, with `OpConvertUToPtr` for the uint fields and `OpSelect` between pointer and uint-converted representations. | [SSBO shader](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L588-L670) |
 
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 67
+; Schema: 0
+               OpCapability Shader
+               OpCapability PhysicalStorageBufferAddresses
+               OpExtension "SPV_KHR_physical_storage_buffer"
+               OpMemoryModel PhysicalStorageBuffer64 GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID %3
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %gl_GlobalInvocationID "gl_GlobalInvocationID"
+               OpName %source "source"
+               OpName %destination "destination"
+               OpName %source_0 "source"
+               OpName %destination_0 "destination"
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %_struct_8 Block
+               OpMemberDecorate %_struct_8 0 Offset 0
+               OpMemberDecorate %_struct_8 1 Offset 8
+               OpMemberDecorate %_struct_8 2 Offset 16
+               OpMemberDecorate %_struct_8 3 Offset 20
+               OpDecorate %source_0 Restrict
+               OpDecorate %destination_0 Restrict
+               OpDecorate %_runtimearr_int ArrayStride 4
+        %int = OpTypeInt 32 1
+%_ptr_PhysicalStorageBuffer_int = OpTypePointer PhysicalStorageBuffer %int
+%_ptr_Function_int = OpTypePointer Function %int
+      %int_0 = OpConstant %int 0
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+      %int_3 = OpConstant %int 3
+       %uint = OpTypeInt 32 0
+%_ptr_Input_uint = OpTypePointer Input %uint
+%_ptr_Function_uint = OpTypePointer Function %uint
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+     %uint_0 = OpConstant %uint 0
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+%_runtimearr_int = OpTypeRuntimeArray %int
+%_ptr_PhysicalStorageBuffer__runtimearr_int = OpTypePointer PhysicalStorageBuffer %_runtimearr_int
+  %_struct_8 = OpTypeStruct %_ptr_PhysicalStorageBuffer__runtimearr_int %_ptr_PhysicalStorageBuffer__runtimearr_int %int %int
+%_ptr_PushConstant__struct_8 = OpTypePointer PushConstant %_struct_8
+          %3 = OpVariable %_ptr_PushConstant__struct_8 PushConstant
+%_ptr_PushConstant__ptr_PhysicalStorageBuffer__runtimearr_int = OpTypePointer PushConstant %_ptr_PhysicalStorageBuffer__runtimearr_int
+%_ptr_PushConstant_int = OpTypePointer PushConstant %int
+       %bool = OpTypeBool
+       %void = OpTypeVoid
+         %29 = OpTypeFunction %void
+         %30 = OpTypeFunction %void %_ptr_PhysicalStorageBuffer__runtimearr_int %_ptr_PhysicalStorageBuffer__runtimearr_int %int
+         %31 = OpFunction %void None %30
+   %source_0 = OpFunctionParameter %_ptr_PhysicalStorageBuffer__runtimearr_int
+%destination_0 = OpFunctionParameter %_ptr_PhysicalStorageBuffer__runtimearr_int
+         %32 = OpFunctionParameter %int
+         %33 = OpLabel
+         %34 = OpVariable %_ptr_Function_int Function
+               OpStore %34 %int_0
+               OpBranch %35
+         %35 = OpLabel
+         %36 = OpLoad %int %34
+         %37 = OpULessThan %bool %36 %32
+               OpLoopMerge %38 %39 None
+               OpBranchConditional %37 %40 %38
+         %40 = OpLabel
+         %41 = OpAccessChain %_ptr_PhysicalStorageBuffer_int %source_0 %36
+         %42 = OpAccessChain %_ptr_PhysicalStorageBuffer_int %destination_0 %36
+         %43 = OpLoad %int %41 Aligned 4
+               OpStore %42 %43 Aligned 4
+               OpBranch %39
+         %39 = OpLabel
+         %44 = OpIAdd %int %36 %int_1
+               OpStore %34 %44
+               OpBranch %35
+         %38 = OpLabel
+               OpReturn
+               OpFunctionEnd
+       %main = OpFunction %void None %29
+         %45 = OpLabel
+         %46 = OpVariable %_ptr_Function_int Function
+               OpStore %46 %int_0
+         %47 = OpAccessChain %_ptr_PushConstant__ptr_PhysicalStorageBuffer__runtimearr_int %3 %int_0
+         %48 = OpAccessChain %_ptr_PushConstant__ptr_PhysicalStorageBuffer__runtimearr_int %3 %int_1
+         %49 = OpAccessChain %_ptr_PushConstant_int %3 %int_2
+         %50 = OpAccessChain %_ptr_PushConstant_int %3 %int_3
+     %source = OpLoad %_ptr_PhysicalStorageBuffer__runtimearr_int %47
+%destination = OpLoad %_ptr_PhysicalStorageBuffer__runtimearr_int %48
+         %51 = OpLoad %int %49
+         %52 = OpLoad %int %50
+         %53 = OpINotEqual %bool %52 %int_0
+               OpSelectionMerge %54 None
+               OpBranchConditional %53 %55 %56
+         %55 = OpLabel
+         %57 = OpFunctionCall %void %31 %source %destination %51
+               OpBranch %54
+         %56 = OpLabel
+         %58 = OpLoad %int %46
+         %59 = OpSLessThan %bool %58 %51
+               OpLoopMerge %60 %61 None
+               OpBranchConditional %59 %62 %60
+         %62 = OpLabel
+         %63 = OpAccessChain %_ptr_PhysicalStorageBuffer_int %source %58
+         %64 = OpAccessChain %_ptr_PhysicalStorageBuffer_int %destination %58
+         %65 = OpLoad %int %63 Aligned 4
+               OpStore %64 %65 Aligned 4
+               OpBranch %61
+         %61 = OpLabel
+         %66 = OpIAdd %int %58 %int_1
+               OpStore %46 %66
+               OpBranch %56
+         %60 = OpLabel
+               OpBranch %54
+         %54 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
 ### Representative Shader Walkthrough 2
 
 #### Parameter Values Chosen
@@ -239,7 +241,7 @@ Extracted SPIR-V assembly from [vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L
 Representative path:
 
 ```text
-spirv_assembly.instruction.compute.physical_storage_buffer.addrs_in_ssbo
+dEQP-VK.spirv_assembly.instruction.compute.physical_storage_buffer.addrs_in_ssbo
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -263,94 +265,9 @@ This shader checks that a `PhysicalStorageBuffer` pointer can be obtained both b
 
 Both representations resolve to the same buffer address because the host fills the SSBO with the same address twice ([SSBO fill](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L714-L716)).
 
-#### Source Code
+#### Shader Code
 
-Extracted SPIR-V assembly from [vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L588-L670](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L588-L670). Target SPIR-V environment: `spirv1.4`. `;` comments are wiki-authored annotations; the instruction text is verbatim from the CTS source.
-
-```llvm
-; Capabilities: Int64 for the uint64 address fields; PhysicalStorageBufferAddresses for pointer dereferences.
-    OpCapability Shader
-    OpCapability Int64
-    OpCapability PhysicalStorageBufferAddresses
-
-    OpExtension "SPV_KHR_physical_storage_buffer"
-    OpMemoryModel PhysicalStorageBuffer64 GLSL450
-
-    OpEntryPoint GLCompute %comp "main" %id %ssbo
-
-    OpExecutionMode %comp LocalSize 1 1 1
-    OpDecorate %id BuiltIn GlobalInvocationId
-; SSBO block: two pointer-typed fields (0, 2) interleaved with two uint64 fields (1, 3) holding the same addresses.
-    OpDecorate %sssbo Block
-    OpMemberDecorate %sssbo 0 Offset 0
-    OpMemberDecorate %sssbo 1 Offset 8
-    OpMemberDecorate %sssbo 2 Offset 16
-    OpMemberDecorate %sssbo 3 Offset 24
-
-    OpDecorate %ssbo DescriptorSet 0
-    OpDecorate %ssbo Binding 0
-
-    OpDecorate %rta ArrayStride 4
-
-    %bool = OpTypeBool
-    %int = OpTypeInt 32 1
-    %uint = OpTypeInt 32 0
-    %ulong = OpTypeInt 64 0
-
-    %zero = OpConstant %int 0
-    %one = OpConstant %int 1
-    %two = OpConstant %int 2
-    %three = OpConstant %int 3
-
-    %uvec3 = OpTypeVector %uint 3
-    %rta = OpTypeRuntimeArray %int
-
-    %rta_psb = OpTypePointer PhysicalStorageBuffer %rta
-    %sssbo = OpTypeStruct %rta_psb %ulong %rta_psb %ulong
-    %sssbo_buf = OpTypePointer StorageBuffer %sssbo
-    %ssbo = OpVariable %sssbo_buf StorageBuffer
-    %rta_psb_sb = OpTypePointer StorageBuffer %rta_psb
-    %int_psb = OpTypePointer PhysicalStorageBuffer %int
-    %ulong_sb = OpTypePointer StorageBuffer %ulong
-
-    %uvec3_in = OpTypePointer Input %uvec3
-    %id = OpVariable %uvec3_in Input
-    %uint_in = OpTypePointer Input %uint
-
-    %void = OpTypeVoid
-    %voidf = OpTypeFunction %void
-; comp: load gid_x, compute even/odd, load pointer-typed and uint-converted addresses, OpSelect per representation.
-    %comp = OpFunction %void None %voidf
-    %comp_begin = OpLabel
-
-        %pgid_x = OpAccessChain %uint_in %id %zero
-        %gid_x = OpLoad %uint %pgid_x
-        %mod2 = OpSMod %int %gid_x %two
-        %even = OpIEqual %bool %mod2 %zero
-; Pointer-typed fields: load directly as PhysicalStorageBuffer pointers to the runtime array.
-        %psrc_buff_p = OpAccessChain %rta_psb_sb %ssbo %zero
-        %pdst_buff_p = OpAccessChain %rta_psb_sb %ssbo %two
-        %src_buff_p = OpLoad %rta_psb %psrc_buff_p
-        %dst_buff_p = OpLoad %rta_psb %pdst_buff_p
-; uint64 fields: load as ulong and convert to PhysicalStorageBuffer pointer with OpConvertUToPtr.
-        %psrc_buff_u = OpAccessChain %ulong_sb %ssbo %one
-        %psrc_buff_v = OpLoad %ulong %psrc_buff_u
-        %src_buff_v = OpConvertUToPtr %rta_psb %psrc_buff_v
-        %pdst_buff_u = OpAccessChain %ulong_sb %ssbo %three
-        %pdst_buff_v = OpLoad %ulong %pdst_buff_u
-        %dst_buff_v = OpConvertUToPtr %rta_psb %pdst_buff_v
-; OpSelect between pointer-typed and uint-converted pointers; even/odd alternates the representation for src and dst.
-        %src = OpSelect %rta_psb %even %src_buff_p %src_buff_v
-        %dst = OpSelect %rta_psb %even %dst_buff_v %dst_buff_p
-; Copy one element per invocation via Aligned 4 load/store.
-        %psrc_color = OpAccessChain %int_psb %src %gid_x
-        %src_color = OpLoad %int %psrc_color Aligned 4
-        %pdst_color = OpAccessChain %int_psb %dst %gid_x
-        OpStore %pdst_color %src_color Aligned 4
-
-    OpReturn
-    OpFunctionEnd
-```
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -365,6 +282,89 @@ Extracted SPIR-V assembly from [vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L
 | Address transport | The push-constants shader takes addresses from a push constant and has no `OpConvertUToPtr`/`OpSelect`; this shader takes them from an SSBO and selects between two representations. | [push-constants shader](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L400-L527) |
 | Capability set | This shader adds `Int64`; the push-constants shader needs only `PhysicalStorageBufferAddresses`. | [capability declarations](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L589-L591) |
 | Dispatch shape | This shader is dispatched `64×1×1` (one element per invocation); the push-constants shader is dispatched `1×1×1` (one invocation copies all elements). | [dispatch](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L730) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 44
+; Schema: 0
+               OpCapability Shader
+               OpCapability Int64
+               OpCapability PhysicalStorageBufferAddresses
+               OpExtension "SPV_KHR_physical_storage_buffer"
+               OpMemoryModel PhysicalStorageBuffer64 GLSL450
+               OpEntryPoint GLCompute %1 "main" %gl_GlobalInvocationID %3
+               OpExecutionMode %1 LocalSize 1 1 1
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %_struct_4 Block
+               OpMemberDecorate %_struct_4 0 Offset 0
+               OpMemberDecorate %_struct_4 1 Offset 8
+               OpMemberDecorate %_struct_4 2 Offset 16
+               OpMemberDecorate %_struct_4 3 Offset 24
+               OpDecorate %3 DescriptorSet 0
+               OpDecorate %3 Binding 0
+               OpDecorate %_runtimearr_int ArrayStride 4
+       %bool = OpTypeBool
+        %int = OpTypeInt 32 1
+       %uint = OpTypeInt 32 0
+      %ulong = OpTypeInt 64 0
+      %int_0 = OpConstant %int 0
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+      %int_3 = OpConstant %int 3
+     %v3uint = OpTypeVector %uint 3
+%_runtimearr_int = OpTypeRuntimeArray %int
+%_ptr_PhysicalStorageBuffer__runtimearr_int = OpTypePointer PhysicalStorageBuffer %_runtimearr_int
+  %_struct_4 = OpTypeStruct %_ptr_PhysicalStorageBuffer__runtimearr_int %ulong %_ptr_PhysicalStorageBuffer__runtimearr_int %ulong
+%_ptr_StorageBuffer__struct_4 = OpTypePointer StorageBuffer %_struct_4
+          %3 = OpVariable %_ptr_StorageBuffer__struct_4 StorageBuffer
+%_ptr_StorageBuffer__ptr_PhysicalStorageBuffer__runtimearr_int = OpTypePointer StorageBuffer %_ptr_PhysicalStorageBuffer__runtimearr_int
+%_ptr_PhysicalStorageBuffer_int = OpTypePointer PhysicalStorageBuffer %int
+%_ptr_StorageBuffer_ulong = OpTypePointer StorageBuffer %ulong
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+%_ptr_Input_uint = OpTypePointer Input %uint
+       %void = OpTypeVoid
+         %23 = OpTypeFunction %void
+          %1 = OpFunction %void None %23
+         %24 = OpLabel
+         %25 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %int_0
+         %26 = OpLoad %uint %25
+         %27 = OpSMod %int %26 %int_2
+         %28 = OpIEqual %bool %27 %int_0
+         %29 = OpAccessChain %_ptr_StorageBuffer__ptr_PhysicalStorageBuffer__runtimearr_int %3 %int_0
+         %30 = OpAccessChain %_ptr_StorageBuffer__ptr_PhysicalStorageBuffer__runtimearr_int %3 %int_2
+         %31 = OpLoad %_ptr_PhysicalStorageBuffer__runtimearr_int %29
+         %32 = OpLoad %_ptr_PhysicalStorageBuffer__runtimearr_int %30
+         %33 = OpAccessChain %_ptr_StorageBuffer_ulong %3 %int_1
+         %34 = OpLoad %ulong %33
+         %35 = OpConvertUToPtr %_ptr_PhysicalStorageBuffer__runtimearr_int %34
+         %36 = OpAccessChain %_ptr_StorageBuffer_ulong %3 %int_3
+         %37 = OpLoad %ulong %36
+         %38 = OpConvertUToPtr %_ptr_PhysicalStorageBuffer__runtimearr_int %37
+         %39 = OpSelect %_ptr_PhysicalStorageBuffer__runtimearr_int %28 %31 %35
+         %40 = OpSelect %_ptr_PhysicalStorageBuffer__runtimearr_int %28 %38 %32
+         %41 = OpAccessChain %_ptr_PhysicalStorageBuffer_int %39 %26
+         %42 = OpLoad %int %41 Aligned 4
+         %43 = OpAccessChain %_ptr_PhysicalStorageBuffer_int %40 %26
+               OpStore %43 %42 Aligned 4
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

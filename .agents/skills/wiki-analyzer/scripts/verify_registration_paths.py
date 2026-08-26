@@ -7,9 +7,10 @@ against the actual registration paths in the mustpass definition files.
 
 For regular categories, the extraction source is the canonical
 `## Registration Hierarchy` section in Level-3 wiki pages. The hierarchy contract
-is intentionally strict: the tree root is a category-qualified Level-3 root path
-and the tree expands exactly one level below that root. The validator reconstructs
-full prefixes internally from that tree.
+is intentionally strict: one `text` fence may contain one or more independent
+trees, each beginning with a category-qualified root and expanding exactly one
+level below that root. The validator reconstructs full prefixes internally from
+the tree set.
 
 This script is intended for post-normalization wiki content. Existing legacy wiki
 files are expected to work with the validator after they have been normalized to
@@ -44,7 +45,7 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 
 CANONICAL_HIERARCHY_HEADING = '## Registration Hierarchy'
@@ -53,7 +54,54 @@ TREE_CHILD_PATTERN = re.compile(rf'^(?P<marker>├──|└──)\s+(?P<name>{
 TRAILING_PAREN_NOTE_PATTERN = re.compile(r'\s*\([^)]*\)\s*$')
 SIMPLE_GROUP_PATTERN = re.compile(rf'^{PATH_COMPONENT_PATTERN}(?:\.{PATH_COMPONENT_PATTERN})*$')
 TREE_MARKER_PATTERN = re.compile(r'[├└│]')
+PLACEHOLDER_PATTERN = re.compile(r'<[^>]+>|\.\.\.')
 HIERARCHY_ERRORS: List[Tuple[Path, int, str]] = []
+
+
+class PrefixTreeNode:
+    """One node in the dot-separated mustpass registration prefix tree."""
+
+    __slots__ = ('children', 'first_location')
+
+    def __init__(self) -> None:
+        self.children: Dict[str, 'PrefixTreeNode'] = {}
+        self.first_location: Optional[Tuple[Path, int]] = None
+
+
+class MustpassPrefixTree:
+    """Index all prefixes from one mustpass TXT file in a single pass."""
+
+    def __init__(self) -> None:
+        self.root = PrefixTreeNode()
+
+    def add(self, entry: str, location: Tuple[Path, int]) -> None:
+        node = self.root
+        for component in entry.split('.'):
+            node = node.children.setdefault(component, PrefixTreeNode())
+            if node.first_location is None:
+                node.first_location = location
+
+    def find(self, path: str) -> Tuple[bool, Optional[Tuple[Path, int]]]:
+        node = self.root
+        for component in path.split('.'):
+            node = node.children.get(component)
+            if node is None:
+                return False, None
+        return True, node.first_location
+
+
+def build_mustpass_prefix_tree(txt_file: Path) -> MustpassPrefixTree:
+    """Build a prefix tree by reading one mustpass file exactly once."""
+    tree = MustpassPrefixTree()
+    try:
+        with open(txt_file, 'r', encoding='utf-8') as handle:
+            for line_num, line in enumerate(handle, start=1):
+                entry = line.strip()
+                if entry.startswith('dEQP-VK.'):
+                    tree.add(entry, (txt_file, line_num))
+    except Exception as e:
+        print(f"Error reading {txt_file}: {e}", file=sys.stderr)
+    return tree
 
 
 def find_mustpass_files(category: str, mustpass_dir: Path) -> List[Path]:
@@ -133,27 +181,28 @@ def verify_path_in_txt(group_path: str, txt_file: Path) -> Tuple[bool, Optional[
 
 
 def verify_registration_path(category: str, group_path: str,
-                             mustpass_dir: Path, verbose: bool = False) -> Tuple[bool, str]:
+                             mustpass_dir: Path,
+                             prefix_trees: Optional[Dict[Path, MustpassPrefixTree]] = None,
+                             txt_files: Optional[Sequence[Path]] = None) -> Tuple[bool, str]:
     """
     Verify a registration path against mustpass files.
 
     Returns (success, message) tuple.
     """
-    txt_files = find_mustpass_files(category, mustpass_dir)
+    if txt_files is None:
+        txt_files = find_mustpass_files(category, mustpass_dir)
 
     if not txt_files:
         return (False, f"No mustpass TXT file found for category '{category}'")
 
-    if verbose:
-        print(
-            f"Checking mustpass files: "
-            f"{[str(f.relative_to(mustpass_dir.parent)) if mustpass_dir.parent in f.parents else str(f.name) for f in txt_files]}"
-        )
-
     full_path = f"dEQP-VK.{category}.{group_path}" if group_path else f"dEQP-VK.{category}"
 
     for txt_file in txt_files:
-        found, line_num = verify_path_in_txt(full_path, txt_file)
+        if prefix_trees is None:
+            found, line_num = verify_path_in_txt(full_path, txt_file)
+        else:
+            found, location = prefix_trees[txt_file].find(full_path)
+            line_num = location[1] if location is not None else None
         if found:
             rel = txt_file.relative_to(mustpass_dir.parent) if mustpass_dir.parent in txt_file.parents else txt_file.name
             return (True, f"Found in {rel}:{line_num}")
@@ -182,8 +231,9 @@ def strip_trailing_note(node_text: str) -> str:
 
 
 def extract_canonical_hierarchy_paths(md_file: Path, category: str) -> Dict[str, List[Tuple[Path, int]]]:
-    """Extract full registration prefixes from a canonical Registration Hierarchy section."""
+    """Extract prefixes from one canonical, single-level hierarchy tree set."""
     paths: Dict[str, List[Tuple[Path, int]]] = {}
+    initial_error_count = len(HIERARCHY_ERRORS)
 
     def add_error(line_num: int, message: str) -> None:
         HIERARCHY_ERRORS.append((md_file, line_num, message))
@@ -209,65 +259,142 @@ def extract_canonical_hierarchy_paths(md_file: Path, category: str) -> Dict[str,
     if heading_index is None:
         return paths
 
-    fence_start: Optional[int] = None
+    section_end = len(lines)
     for idx in range(heading_index + 1, len(lines)):
+        if lines[idx].strip().startswith('## '):
+            section_end = idx
+            break
+
+    fences: List[Tuple[int, int, str]] = []
+    idx = heading_index + 1
+    while idx < section_end:
         stripped = lines[idx].strip()
-        if stripped.startswith('## '):
-            return paths
-        if stripped == '```text':
-            fence_start = idx
-            break
+        if not stripped.startswith('```'):
+            idx += 1
+            continue
+        fence_start = idx
+        fence_language = stripped[3:].strip()
+        idx += 1
+        while idx < section_end and lines[idx].strip() != '```':
+            idx += 1
+        if idx >= section_end:
+            add_error(fence_start + 1, "Unclosed fenced block in Registration Hierarchy")
+            return {}
+        fences.append((fence_start, idx, fence_language))
+        idx += 1
 
-    if fence_start is None:
-        return paths
+    if len(fences) != 1 or fences[0][2] != 'text':
+        add_error(
+            heading_index + 1,
+            "Registration Hierarchy must contain exactly one text fenced block with one or more trees",
+        )
+        return {}
 
-    fence_end: Optional[int] = None
-    for idx in range(fence_start + 1, len(lines)):
-        if lines[idx].strip() == '```':
-            fence_end = idx
-            break
+    fence_start, fence_end, _language = fences[0]
+    content = [(idx, lines[idx]) for idx in range(fence_start + 1, fence_end)]
+    if not any(text.strip() for _idx, text in content):
+        add_error(fence_start + 1, "Registration Hierarchy tree must not be empty")
+        return {}
 
-    if fence_end is None or fence_end <= fence_start + 1:
-        return paths
+    roots: List[Tuple[int, str, List[Tuple[int, str]]]] = []
+    current_root: Optional[Tuple[int, str, List[Tuple[int, str]]]] = None
+    separated = True
 
-    root_line_num = fence_start + 2
-    root_text = lines[fence_start + 1].strip()
-    if (root_text == category or root_text.startswith(f'{category}.')) and SIMPLE_GROUP_PATTERN.match(root_text):
-        add_path(root_line_num, root_text)
-    else:
-        return paths
+    def finish_tree() -> None:
+        nonlocal current_root
+        if current_root is not None:
+            roots.append(current_root)
+            current_root = None
 
-    for idx in range(fence_start + 2, fence_end):
-        stripped = lines[idx].rstrip()
-        if not stripped.strip():
+    for line_idx, line in content:
+        bare_line = line.strip()
+        if not bare_line:
+            if current_root is not None:
+                separated = True
             continue
 
-        # Support multiple roots in a single fence block: a bare line that
-        # matches the category-qualified group pattern becomes the new root.
-        bare_line = stripped.strip()
-        if (bare_line == category or bare_line.startswith(f'{category}.')) and SIMPLE_GROUP_PATTERN.match(bare_line):
-            root_text = bare_line
-            add_path(idx + 1, root_text)
+        child_match = TREE_CHILD_PATTERN.fullmatch(bare_line)
+        if current_root is None:
+            current_root = (line_idx, bare_line, [])
+            separated = False
             continue
 
-        match = TREE_CHILD_PATTERN.match(bare_line)
-        if not match:
-            if TREE_MARKER_PATTERN.search(bare_line):
+        child_like = bool(
+            child_match
+            or TREE_MARKER_PATTERN.search(bare_line)
+            or PLACEHOLDER_PATTERN.search(bare_line)
+            or '#' in bare_line
+        )
+        if child_like and not separated:
+            current_root[2].append((line_idx, bare_line))
+            continue
+
+        if child_like:
+            add_error(line_idx + 1, "Registration Hierarchy child must follow a tree root")
+            continue
+
+        if not separated:
+            add_error(line_idx + 1, "Registration Hierarchy trees must be separated by a blank line")
+            continue
+
+        finish_tree()
+        current_root = (line_idx, bare_line, [])
+        separated = False
+
+    finish_tree()
+
+    for root_idx, root_text, children in roots:
+        if root_text.startswith('dEQP-VK.'):
+            add_error(root_idx + 1, "Registration Hierarchy root must not include the dEQP-VK. package prefix")
+            continue
+        if not SIMPLE_GROUP_PATTERN.fullmatch(root_text):
+            add_error(root_idx + 1, "Registration Hierarchy root must be a concrete category-qualified path")
+            continue
+        if root_text != category and not root_text.startswith(f'{category}.'):
+            add_error(root_idx + 1, f"Registration Hierarchy root must belong to category '{category}'")
+            continue
+
+        add_path(root_idx + 1, root_text)
+        seen_children: set[str] = set()
+        for line_idx, node in children:
+            if PLACEHOLDER_PATTERN.search(node):
+                add_error(line_idx + 1, "Registration Hierarchy tree must not contain placeholders or ...")
+                continue
+            if '#' in node:
+                add_error(line_idx + 1, "Registration Hierarchy comments must use a trailing parenthesized note, not #")
+                continue
+            match = TREE_CHILD_PATTERN.fullmatch(node)
+            if not match:
+                if TREE_MARKER_PATTERN.search(node):
+                    add_error(
+                        line_idx + 1,
+                        "Malformed or nested Registration Hierarchy line; "
+                        "only direct children using '├── name' or '└── name' are allowed",
+                    )
+                else:
+                    add_error(line_idx + 1, "Unexpected non-empty line in Registration Hierarchy tree block")
+                continue
+            child_name = strip_trailing_note(match.group('name'))
+            if child_name in seen_children:
+                add_error(line_idx + 1, f"duplicate direct child in Registration Hierarchy tree: {child_name}")
+                continue
+            seen_children.add(child_name)
+            add_path(line_idx + 1, f'{root_text}.{child_name}')
+
+    root_names = [root for _line, root, _children in roots]
+    for index, root in enumerate(root_names):
+        if root_names.count(root) > 1:
+            add_error(roots[index][0] + 1, f"duplicate Registration Hierarchy root: {root}")
+        for other_index in range(index + 1, len(root_names)):
+            other = root_names[other_index]
+            if root.startswith(f'{other}.') or other.startswith(f'{root}.'):
                 add_error(
-                    idx + 1,
-                    "Malformed or nested Registration Hierarchy line; "
-                    "only direct children using '├── name' or '└── name' are allowed")
-            else:
-                add_error(idx + 1, "Unexpected non-empty line in Registration Hierarchy tree block")
-            continue
+                    roots[index][0] + 1,
+                    f"Registration Hierarchy roots must not overlap as ancestor and descendant: {root}, {other}",
+                )
 
-        child_name = strip_trailing_note(match.group('name'))
-        if not child_name or not re.fullmatch(PATH_COMPONENT_PATTERN, child_name):
-            add_error(idx + 1, "Invalid Registration Hierarchy child name")
-            continue
-
-        add_path(idx + 1, f'{root_text}.{child_name}')
-
+    if len(HIERARCHY_ERRORS) != initial_error_count:
+        return {}
     return paths
 
 
@@ -337,52 +464,74 @@ def extract_group_paths_from_wiki(wiki_dir: Path, category: str) -> Dict[str, Li
 
 
 def validate_paths(paths: Dict[str, List[Tuple[Path, int]]],
-                    category: str, mustpass_dir: Path, verbose: bool = False) -> int:
-    """Validate extracted paths against mustpass files. Returns number of failures."""
-    failed = 0
+                    category: str, mustpass_dir: Path) -> int:
+    """Validate paths and print compact results grouped by documenting page."""
+    txt_files = find_mustpass_files(category, mustpass_dir)
+    prefix_trees = {
+        txt_file: build_mustpass_prefix_tree(txt_file)
+        for txt_file in txt_files
+    }
 
-    malformed_files = set()
-    for md_file, line_num, _message in HIERARCHY_ERRORS:
-        if md_file in malformed_files:
+    loaded_files = [
+        str(txt_file.relative_to(mustpass_dir.parent))
+        if mustpass_dir.parent in txt_file.parents
+        else txt_file.name
+        for txt_file in txt_files
+    ]
+    if len(loaded_files) == 1:
+        print(f"Loaded mustpass file: {loaded_files[0]}")
+    else:
+        print("Loaded mustpass files: [")
+        for loaded_file in loaded_files:
+            print(f"     {loaded_file}")
+        print("]")
+
+    pages = {
+        md_file
+        for sources in paths.values()
+        for md_file, _line_num in sources
+    }
+    findings_by_page: Dict[Path, List[str]] = {}
+
+    seen_hierarchy_errors = set()
+    for md_file, line_num, message in HIERARCHY_ERRORS:
+        error_key = (md_file, line_num, message)
+        if error_key in seen_hierarchy_errors:
             continue
-        malformed_files.add(md_file)
-        try:
-            rel_md = md_file.relative_to(Path.cwd())
-        except ValueError:
-            rel_md = md_file
-        print("  FAIL: malformed or nested Registration Hierarchy line; "
-              "only direct children using '├── name' or '└── name' are allowed")
-        print(f"        Source: {rel_md}:{line_num}")
-        failed += 1
+        seen_hierarchy_errors.add(error_key)
+        pages.add(md_file)
+        findings_by_page.setdefault(md_file, []).append(
+            f"line {line_num}: {message}"
+        )
 
     for full_path, sources in paths.items():
         parts = full_path.split('.', 1)
         group_path = parts[1] if len(parts) > 1 else ''
 
         success, message = verify_registration_path(
-            category, group_path, mustpass_dir, verbose)
+            category,
+            group_path,
+            mustpass_dir,
+            prefix_trees,
+            txt_files,
+        )
 
-        if success:
-            print(f"  OK: {full_path}")
-            if verbose:
-                print(f"      ({message})")
-        else:
-            primary_md, primary_line = sources[0]
-            try:
-                rel_md = primary_md.relative_to(Path.cwd())
-            except ValueError:
-                rel_md = primary_md
-            print(f"  FAIL: {full_path}")
-            print(f"        Source: {rel_md}:{primary_line}")
-            if len(sources) > 1:
-                extra = ', '.join(
-                    f"{s[0].relative_to(Path.cwd())}:{s[1]}" for s in sources[1:]
+        if not success:
+            for md_file, line_num in sources:
+                findings_by_page.setdefault(md_file, []).append(
+                    f"{full_path}:{line_num}: {message}"
                 )
-                print(f"        Also at: {extra}")
-            print(f"        {message}")
-            failed += 1
 
-    return failed
+    for md_file in sorted(pages, key=lambda path: (path.name, str(path))):
+        findings = findings_by_page.get(md_file, [])
+        if not findings:
+            print(f"PASS {md_file.name}")
+            continue
+        print(f"FAIL {md_file.name}")
+        for finding in findings:
+            print(f"     - {finding}")
+
+    return sum(len(findings) for findings in findings_by_page.values())
 
 
 def main():
@@ -396,8 +545,6 @@ def main():
     parser.add_argument('--wiki-dir', type=str,
                         default='external/vulkancts/wiki',
                         help='Path to wiki directory')
-    parser.add_argument('--verbose', '-v', action='store_true',
-                        help='Print verbose output')
     parser.add_argument('--check-all', action='store_true',
                         help='Deprecated no-op; category mode already validates all extracted paths')
 
@@ -426,9 +573,14 @@ def main():
             print(f"No canonical hierarchy data found in {wiki_file}", file=sys.stderr)
             sys.exit(2)
 
-        print(f"Checking {len(paths)} registration paths from {wiki_file.name}...\n")
+        category_dir = wiki_dir / 'testfiles' / category
+        try:
+            display_dir = category_dir.relative_to(Path.cwd())
+        except ValueError:
+            display_dir = category_dir
+        print(f"Collected {len(paths)} paths from {display_dir}")
 
-        failed = validate_paths(paths, category, mustpass_dir, args.verbose)
+        failed = validate_paths(paths, category, mustpass_dir)
 
         print()
         if failed > 0:
@@ -445,9 +597,14 @@ def main():
             print(f"No registration paths found in wiki for category '{args.category}'")
             sys.exit(0)
 
-        print(f"Checking {len(paths)} registration paths...\n")
+        category_dir = wiki_dir / 'testfiles' / args.category
+        try:
+            display_dir = category_dir.relative_to(Path.cwd())
+        except ValueError:
+            display_dir = category_dir
+        print(f"Collected {len(paths)} paths from {display_dir}")
 
-        failed = validate_paths(paths, args.category, mustpass_dir, args.verbose)
+        failed = validate_paths(paths, args.category, mustpass_dir)
 
         print()
         if failed > 0:

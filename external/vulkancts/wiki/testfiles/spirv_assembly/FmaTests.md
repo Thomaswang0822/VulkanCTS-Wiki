@@ -84,88 +84,9 @@ Each invocation calculates one `OpFmaKHR` result from buffers `a`, `b`, and `c`.
 | FMA | `OpFmaKHR %dat %val1 %val2 %val3` | Performs the tested fused expression. |
 | Output | `OpAccessChain` plus `OpStore` | Writes the scalar result to descriptor-set 0 binding `3`. |
 
-#### Source Code
+#### Shader Code
 
-The following CTS-authored specialization is reconstructed directly from the string pieces in `getFmaCode()` for the selected path. It was assembled, validated, and disassembled with `spirv-as`, `spirv-val`, and `spirv-dis` using the SPIR-V 1.0 target environment. The `spirv_assembly` page publishes the source assembly once, so it does not duplicate the disassembly.
-
-<details>
-<summary>Click to expand CTS-authored SPIR-V assembly for <code>fp32.scalar.rte.denorm_preserve.float_controls</code></summary>
-
-```llvm
-OpCapability Shader
-OpCapability FMAKHR
-OpCapability RoundingModeRTE
-OpCapability DenormPreserve
-OpCapability SignedZeroInfNanPreserve
-OpExtension "SPV_KHR_fma"
-OpExtension "SPV_KHR_float_controls"
-OpMemoryModel Logical GLSL450
-OpEntryPoint GLCompute %main "main" %id
-OpExecutionMode %main LocalSize 1 1 1
-OpExecutionMode %main RoundingModeRTE 32
-OpExecutionMode %main DenormPreserve 32
-OpExecutionMode %main SignedZeroInfNanPreserve 32
-OpName %main "main"
-OpName %id   "gl_GlobalInvocationID"
-OpDecorate %id BuiltIn GlobalInvocationId
-OpDecorate %buf BufferBlock
-OpDecorate %indata1 DescriptorSet 0
-OpDecorate %indata1 Binding 0
-OpDecorate %indata2 DescriptorSet 0
-OpDecorate %indata2 Binding 1
-OpDecorate %indata3 DescriptorSet 0
-OpDecorate %indata3 Binding 2
-OpDecorate %outdata DescriptorSet 0
-OpDecorate %outdata Binding 3
-OpDecorate %datarr ArrayStride 4
-OpMemberDecorate %buf 0 Offset 0
-%void      = OpTypeVoid
-%voidf     = OpTypeFunction %void
-%u32       = OpTypeInt 32 0
-%i32       = OpTypeInt 32 1
-%uvec3     = OpTypeVector %u32 3
-%uvec3ptr  = OpTypePointer Input %uvec3
-%dat       = OpTypeFloat 32
-%datptr    = OpTypePointer Uniform %dat
-%datarr    = OpTypeRuntimeArray %dat
-%vec2      = OpTypeVector %dat 2
-%vec3      = OpTypeVector %dat 3
-%vec4      = OpTypeVector %dat 4
-%buf       = OpTypeStruct %datarr
-%bufptr    = OpTypePointer Uniform %buf
-%indata1   = OpVariable %bufptr Uniform
-%indata2   = OpVariable %bufptr Uniform
-%indata3   = OpVariable %bufptr Uniform
-%outdata   = OpVariable %bufptr Uniform
-%id        = OpVariable %uvec3ptr Input
-%zero      = OpConstant %i32 0
-%one       = OpConstant %i32 1
-%two       = OpConstant %i32 2
-%three     = OpConstant %i32 3
-%stride    = OpConstant %u32 65536
-%vec_sz    = OpConstant %i32 1
-%main      = OpFunction %void None %voidf
-%label     = OpLabel
-%idval     = OpLoad %uvec3 %id
-%x         = OpCompositeExtract %u32 %idval 0
-%y         = OpCompositeExtract %u32 %idval 1
-%scale_y   = OpIMul %u32 %y %stride
-%vec_idx   = OpIAdd %u32 %scale_y %x
-%idx       = OpIMul %u32 %vec_idx %vec_sz
-%loc1      = OpAccessChain %datptr %indata1 %zero %idx
-%loc2      = OpAccessChain %datptr %indata2 %zero %idx
-%loc3      = OpAccessChain %datptr %indata3 %zero %idx
-%val1      = OpLoad %dat %loc1
-%val2      = OpLoad %dat %loc2
-%val3      = OpLoad %dat %loc3
-%res       = OpFmaKHR %dat %val1 %val2 %val3
-%outloc    = OpAccessChain %datptr %outdata %zero %idx
-             OpStore %outloc %res
-             OpReturn
-             OpFunctionEnd
-```
-
-</details>
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -175,13 +96,105 @@ OpMemberDecorate %buf 0 Offset 0
 
 #### Parameter Variation Summary
 
-| Parameter dimension | Assembly-level variation from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|-------------------------------------------|----------|
 | Width | Replaces `%dat` with a 16-, 32-, or 64-bit floating-point type; 16-bit and 64-bit variants add `Float16` or `Float64` capability. | [type/capability generation](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L154-L201) |
 | Shape | Replaces the scalar load/FMA/store sequence with vector construction, one vector `OpFmaKHR`, component extraction, and one store per component. | [shape specialization](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L228-L295) |
 | Rounding | Adds `RoundingModeRTZ` or `RoundingModeRTE` capability and execution mode. `undef` emits neither. | [rounding selection](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L138-L146) |
 | Denorm | Adds `DenormPreserve` or `DenormFlushToZero` capability and execution mode. `denorm_none` emits neither. | [denorm selection](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L148-L152) |
 | Input mode | Only `float_controls` adds `SignedZeroInfNanPreserve`; it reuses directed input generation. | [flag generation](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L154-L158), [case creation](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L1218-L1223) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 42
+; Schema: 0
+               OpCapability Shader
+               OpCapability FMAKHR
+               OpCapability RoundingModeRTE
+               OpCapability DenormPreserve
+               OpCapability SignedZeroInfNanPreserve
+               OpExtension "SPV_KHR_fma"
+               OpExtension "SPV_KHR_float_controls"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
+               OpExecutionMode %main LocalSize 1 1 1
+               OpExecutionMode %main RoundingModeRTE 32
+               OpExecutionMode %main DenormPreserve 32
+               OpExecutionMode %main SignedZeroInfNanPreserve 32
+               OpName %main "main"
+               OpName %gl_GlobalInvocationID "gl_GlobalInvocationID"
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %_struct_3 BufferBlock
+               OpDecorate %4 DescriptorSet 0
+               OpDecorate %4 Binding 0
+               OpDecorate %5 DescriptorSet 0
+               OpDecorate %5 Binding 1
+               OpDecorate %6 DescriptorSet 0
+               OpDecorate %6 Binding 2
+               OpDecorate %7 DescriptorSet 0
+               OpDecorate %7 Binding 3
+               OpDecorate %_runtimearr_float ArrayStride 4
+               OpMemberDecorate %_struct_3 0 Offset 0
+       %void = OpTypeVoid
+         %10 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+        %int = OpTypeInt 32 1
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+      %float = OpTypeFloat 32
+%_ptr_Uniform_float = OpTypePointer Uniform %float
+%_runtimearr_float = OpTypeRuntimeArray %float
+    %v2float = OpTypeVector %float 2
+    %v3float = OpTypeVector %float 3
+    %v4float = OpTypeVector %float 4
+  %_struct_3 = OpTypeStruct %_runtimearr_float
+%_ptr_Uniform__struct_3 = OpTypePointer Uniform %_struct_3
+          %4 = OpVariable %_ptr_Uniform__struct_3 Uniform
+          %5 = OpVariable %_ptr_Uniform__struct_3 Uniform
+          %6 = OpVariable %_ptr_Uniform__struct_3 Uniform
+          %7 = OpVariable %_ptr_Uniform__struct_3 Uniform
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+      %int_0 = OpConstant %int 0
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+      %int_3 = OpConstant %int 3
+ %uint_65536 = OpConstant %uint 65536
+    %int_1_0 = OpConstant %int 1
+       %main = OpFunction %void None %10
+         %27 = OpLabel
+         %28 = OpLoad %v3uint %gl_GlobalInvocationID
+         %29 = OpCompositeExtract %uint %28 0
+         %30 = OpCompositeExtract %uint %28 1
+         %31 = OpIMul %uint %30 %uint_65536
+         %32 = OpIAdd %uint %31 %29
+         %33 = OpIMul %uint %32 %int_1_0
+         %34 = OpAccessChain %_ptr_Uniform_float %4 %int_0 %33
+         %35 = OpAccessChain %_ptr_Uniform_float %5 %int_0 %33
+         %36 = OpAccessChain %_ptr_Uniform_float %6 %int_0 %33
+         %37 = OpLoad %float %34
+         %38 = OpLoad %float %35
+         %39 = OpLoad %float %36
+         %40 = OpFmaKHR %float %37 %38 %39
+         %41 = OpAccessChain %_ptr_Uniform_float %7 %int_0 %33
+               OpStore %41 %40
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

@@ -58,7 +58,190 @@ The regular-only mutable group creates compatible triples of image, first-view, 
 
 ## Shader Analysis
 
-The regular residency path generates one compute shader per image plane. Each invocation stores values derived from its global coordinates. The shader uses a plane-compatible storage format when the external image format needs one. Mutable-format cases use the corresponding generated shaders for their two storage-image views. This page does not include a representative shader walkthrough because the source builds the shader text from format and plane parameters rather than exposing one stable handwritten case.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.sparse_resources.device_group_image_sparse_residency.2d.r32ui.512_256_1
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `device_group_image_sparse_residency` | Selects the device-group sparse-bind path. The shader itself is shared with regular image residency; the host bind additionally carries `VkDeviceGroupBindSparseInfo`. |
+| `2d.r32ui.512_256_1` | Selects a single-plane 2D unsigned-integer storage image with a 512×256×1 shader grid. `r32ui` makes the image variable a `uimage2D` and the stored payload a `uvec4`. |
+| `local_size = 128, 1, 1` | `computeWorkGroupSize()` caps the generated workgroup at 128 invocations. The dispatch dimensions are rounded up from the 512×256×1 shader extent. |
+
+#### Purpose
+
+The compute shader writes a coordinate-derived unsigned value to every in-range texel of the sparse image. Host-side readback then checks the alternating resident sparse blocks against the same coordinate pattern and, when strict nonresident residency is advertised, checks unbound blocks for zero.
+
+#### Structural Design
+
+| Phase | Shader operation | Test signal |
+|------|------------------|-------------|
+| Invocation grid | `gl_GlobalInvocationID` supplies x/y/z coordinates | One invocation maps to one candidate texel. |
+| Bounds guards | Three nested comparisons retain only x < 512, y < 256, z < 1 | Rounded-up dispatches cannot write outside the selected image extent. |
+| Coordinate mapping | `ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y)` | The 2D image ignores the z coordinate for addressing. |
+| Payload construction | x, y, and z are converted to signed integers, reduced modulo 127, then converted to `uint`; alpha is 1 | Host validation can identify which resident texel or channel failed. |
+| Image store | `imageStore(u_image, coord, payload)` | The resulting image is copied to a host-visible buffer after the shader-to-transfer barrier. |
+
+#### Shader Code
+
+```glsl
+#version 440
+
+/// The generated workgroup is 128×1×1 for the 512×256×1 r32ui case. The host dispatches enough groups to cover the image.
+layout (local_size_x = 128, local_size_y = 1, local_size_z = 1) in;
+
+/// Binding 0, set 0 is the host-created sparse image view. The r32ui qualifier selects unsigned 32-bit storage-image
+/// format compatibility, and writeonly matches the shader's sole image operation.
+layout (binding = 0, r32ui) writeonly uniform highp uimage2D u_image;
+
+void main (void)
+{
+    /// The host rounds dispatch dimensions up to whole workgroups. These guards preserve the exact 512×256×1 image extent.
+    if( gl_GlobalInvocationID.x < 512 )
+    if( gl_GlobalInvocationID.y < 256 )
+    if( gl_GlobalInvocationID.z < 1 )
+    {
+        /// The 2D coordinate uses x and y. Each channel records a deterministic coordinate component modulo 127;
+        /// alpha is the constant one used by the generated unsigned-integer payload.
+        imageStore(u_image, ivec2(gl_GlobalInvocationID.x,gl_GlobalInvocationID.y), uvec4(
+            int(gl_GlobalInvocationID.x) % 127,
+            int(gl_GlobalInvocationID.y) % 127,
+            int(gl_GlobalInvocationID.z) % 127,
+            1));
+    }
+}
+```
+
+#### Additional Info
+
+- The selected device-group case uses one generated `comp0` module because `r32ui` has one image plane; the device-group distinction is in sparse binding and submission metadata, not shader text.
+- The source selects SPIR-V 1.3 explicitly through `ShaderBuildOptions(..., SPIRV_VERSION_1_3, FLAG_ALLOW_SCALAR_OFFSETS)`.
+- The host binds alternating image blocks, transitions the image to `GENERAL`, waits on the sparse-bind semaphore at the compute stage, and transitions the written image to `TRANSFER_SRC_OPTIMAL` before readback.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Image type | Changes the generated image type and coordinate constructor: `image2D`/`ivec2` for 2D, `image2DArray`/`ivec3` for 2D-array, `imageCube`/`ivec3` for cube, `imageCubeArray`/`ivec3` for cube-array, or `image3D`/`ivec3` for 3D. | [`getShaderImageType` and `getCoordStr`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTestsUtil.cpp#L466-L565), [`vktSparseResourcesImageSparseResidency.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseResidency.cpp#L103-L120) |
+| Format and plane count | Selects signedness, image data type, format qualifier, channel ordering, and one generated `comp<plane>` shader per plane. R64 cases add explicit 64-bit arithmetic/image extensions; A8 cases add formatted-image-load support and omit the format qualifier. | [`ImageSparseResidencyCase::initPrograms`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseResidency.cpp#L175-L272) |
+| Image size | Changes the literal bounds and shader grid; `getShaderGridSize()` maps array layers, cube faces, or 3D depth into the z dispatch dimension. | [`getShaderGridSize`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTestsUtil.cpp#L120-L155), [`createImageSparseResidencyTestsCommon`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseResidency.cpp#L2029-L2076) |
+| Regular versus device-group root | Does not change the generated shader. It changes sparse bind submission by attaching `VkDeviceGroupBindSparseInfo` in the device-group instance. | [`ImageSparseResidencyInstance::iterate`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseResidency.cpp#L632-L652) |
+| Mutable branch | Uses a separate `comp` shader with two storage-image bindings, constant format-dependent colors, and a y-half branch selecting `image0` or `image1`; it is registered only for the regular root. | [`ImageMutableSparseTest::initPrograms`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseResidency.cpp#L1342-L1420), [`createImageSparseResidencyTestsCommon`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseResidency.cpp#L2084-L2135) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.3`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.3
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 65
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
+               OpExecutionMode %main LocalSize 128 1 1
+               OpSource GLSL 440
+               OpName %main "main"
+               OpName %gl_GlobalInvocationID "gl_GlobalInvocationID"
+               OpName %u_image "u_image"
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %u_image NonReadable
+               OpDecorate %u_image Binding 0
+               OpDecorate %u_image DescriptorSet 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_uint = OpTypePointer Input %uint
+   %uint_512 = OpConstant %uint 512
+       %bool = OpTypeBool
+     %uint_1 = OpConstant %uint 1
+   %uint_256 = OpConstant %uint 256
+     %uint_2 = OpConstant %uint 2
+         %32 = OpTypeImage %uint 2D 0 0 0 2 R32ui
+%_ptr_UniformConstant_32 = OpTypePointer UniformConstant %32
+    %u_image = OpVariable %_ptr_UniformConstant_32 UniformConstant
+        %int = OpTypeInt 32 1
+      %v2int = OpTypeVector %int 2
+    %int_127 = OpConstant %int 127
+     %v4uint = OpTypeVector %uint 4
+   %uint_128 = OpConstant %uint 128
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_128 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %12 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %13 = OpLoad %uint %12
+         %16 = OpULessThan %bool %13 %uint_512
+               OpSelectionMerge %18 None
+               OpBranchConditional %16 %17 %18
+         %17 = OpLabel
+         %20 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_1
+         %21 = OpLoad %uint %20
+         %23 = OpULessThan %bool %21 %uint_256
+               OpSelectionMerge %25 None
+               OpBranchConditional %23 %24 %25
+         %24 = OpLabel
+         %27 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_2
+         %28 = OpLoad %uint %27
+         %29 = OpULessThan %bool %28 %uint_1
+               OpSelectionMerge %31 None
+               OpBranchConditional %29 %30 %31
+         %30 = OpLabel
+         %35 = OpLoad %32 %u_image
+         %36 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %37 = OpLoad %uint %36
+         %39 = OpBitcast %int %37
+         %40 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_1
+         %41 = OpLoad %uint %40
+         %42 = OpBitcast %int %41
+         %44 = OpCompositeConstruct %v2int %39 %42
+         %45 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %46 = OpLoad %uint %45
+         %47 = OpBitcast %int %46
+         %49 = OpSMod %int %47 %int_127
+         %50 = OpBitcast %uint %49
+         %51 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_1
+         %52 = OpLoad %uint %51
+         %53 = OpBitcast %int %52
+         %54 = OpSMod %int %53 %int_127
+         %55 = OpBitcast %uint %54
+         %56 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_2
+         %57 = OpLoad %uint %56
+         %58 = OpBitcast %int %57
+         %59 = OpSMod %int %58 %int_127
+         %60 = OpBitcast %uint %59
+         %62 = OpCompositeConstruct %v4uint %50 %55 %60 %uint_1
+               OpImageWrite %35 %44 %62
+               OpBranch %31
+         %31 = OpLabel
+               OpBranch %25
+         %25 = OpLabel
+               OpBranch %18
+         %18 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

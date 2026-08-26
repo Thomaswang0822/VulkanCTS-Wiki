@@ -69,7 +69,224 @@ The buffer is created with both `VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT` and `
 
 ## Shader Analysis
 
-Shader code is part of the execution path but is not the behavior under test. The shaders exist to read from the buffer view and write a result the host can compare. The memory tests use small fixed shaders inlined at [initPrograms()](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L831-L862); the all-formats tests use a compute shader generated at [L1329-L1379](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1329-L1379) whose only variation is whether the resource declaration is `uniform textureBuffer` (read with `texelFetch`) or `readonly imageBuffer` with a format layout qualifier (read with `imageLoad`). No representative shader walkthrough is provided.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.api.buffer_view.access.uniform_texel_buffer.r8g8b8a8_unorm
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `uniform_texel_buffer` | Selects the all-formats compute path with a uniform texel-buffer descriptor and `texelFetch`; the buffer is created with `VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT`. |
+| `r8g8b8a8_unorm` | Selects an RGBA normalized format, so the generated shader uses the default floating-point `textureBuffer`/`vec4` types without an image format qualifier. |
+| `local_size = (1, 1, 1)`, dispatch `(4, 1, 1)` | Gives each x workgroup one invocation and one output slot, allowing the four fixed sample positions to be checked independently. |
+
+#### Purpose
+
+This compute shader reads four texels through the selected `VkBufferView` and writes the values into a host-visible output buffer. For this UNORM case, `texelFetch` performs the format interpretation and the host compares the four resulting `vec4` values with the source pixels.
+
+#### Structural Design
+
+| Shader phase | Mechanism | Result |
+|--------------|-----------|--------|
+| Resource setup | Set 0, binding 1 `textureBuffer`; set 0, binding 0 `std140` write-only SSBO | Exposes the buffer view and four output slots |
+| Sample selection | `gl_WorkGroupID.x` selects one of `6`, `51`, `42`, or `25` | One fixed source texel per dispatched workgroup |
+| Format access | `texelFetch(texelBuffer, sampleIndex)` | Converts the `r8g8b8a8_unorm` texel to `vec4` |
+| Host oracle transport | Store at `read_colors[gl_WorkGroupID.x]` | Makes all four values available for exact/tolerance checking |
+
+#### Shader Code
+
+```glsl
+#version 440
+#extension GL_EXT_texture_buffer : require
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+/// The selected uniform texel-buffer view is read at descriptor set 0, binding 1.
+layout(set = 0, binding = 1) uniform highp textureBuffer texelBuffer;
+/// Four host-visible vec4 slots at set 0, binding 0 receive one selected sample each.
+layout(set = 0, binding = 0, std140) writeonly buffer OutBuf
+{
+    highp vec4 read_colors[4];
+} b_out;
+void main (void)
+{
+    /// One workgroup handles one fixed sample slot; dispatch uses four x workgroups.
+    highp int quadrant_id = int(gl_WorkGroupID.x);
+    highp vec4 result_color;
+    result_color = vec4(0);
+    if (quadrant_id == 0)
+        result_color += vec4(texelFetch(texelBuffer, 6));
+    else if (quadrant_id == 1)
+        result_color += vec4(texelFetch(texelBuffer, 51));
+    else if (quadrant_id == 2)
+        result_color += vec4(texelFetch(texelBuffer, 42));
+    else
+        result_color += vec4(texelFetch(texelBuffer, 25));
+    b_out.read_colors[gl_WorkGroupID.x] = result_color;
+}
+```
+
+#### Additional Info
+
+- The host-side source buffer uses a deterministic red ramp, green M-pattern, blue triangle wave, and `red ^ green` alpha pattern before creating the view, making both large and small addressing errors visible ([`populateSourceBuffer()`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L938-L960)).
+- The selected case uses four sample positions `6`, `51`, `42`, and `25`; integer paths are checked exactly while floating-point paths use a `1.0 / 255.0` threshold ([`checkResult()`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1193-L1225), [`checkResultFloat()`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1227-L1259)).
+- For this uniform case the view is created with offset `0` and `VK_WHOLE_SIZE`; the descriptor at binding 1 is paired with a storage-buffer output at binding 0, and the compute submission dispatches four x workgroups ([`BufferViewAllFormatsTestInstance` setup](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1019-L1047), [dispatch](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1144-L1177)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Uniform versus storage access | Uniform selects `textureBuffer` plus `texelFetch`; storage selects `readonly imageBuffer` plus a format layout qualifier and `imageLoad`. | [`initPrograms()`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1336-L1357) |
+| Integer/unsigned/scaled format class | Integer formats add `i`/`u` to input and output types; scaled formats keep the input type unqualified; normalized floating formats such as this case use `vec4`. | [`initPrograms()`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1333-L1351) |
+| Format value | Storage-image declarations receive `strLayoutFormat(format)`; uniform declarations do not. The registered format matrix is `formats::bufferViewAccessFormats`, while storage cases are filtered by `isSupportedImageLoadStore()`. | [`strLayoutFormat()` and `initPrograms()`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1320-L1379), [format filtering](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1383-L1433) |
+| Bind usage | In the dual-usage node, `bindUsage` overrides `createUsage` for deciding the generated declaration and operation; the selected uniform branch is otherwise the same shader shape. | [`initPrograms()`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1336-L1349), [`VkBufferUsageFlags2CreateInfoKHR`](../../../modules/vulkan/api/vktApiBufferViewAccessTests.cpp#L1035-L1045) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 78
+; Schema: 0
+               OpCapability Shader
+               OpCapability SampledBuffer
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_WorkGroupID
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 440
+               OpSourceExtension "GL_EXT_texture_buffer"
+               OpName %main "main"
+               OpName %quadrant_id "quadrant_id"
+               OpName %gl_WorkGroupID "gl_WorkGroupID"
+               OpName %result_color "result_color"
+               OpName %texelBuffer "texelBuffer"
+               OpName %OutBuf "OutBuf"
+               OpMemberName %OutBuf 0 "read_colors"
+               OpName %b_out "b_out"
+               OpDecorate %gl_WorkGroupID BuiltIn WorkgroupId
+               OpDecorate %texelBuffer Binding 1
+               OpDecorate %texelBuffer DescriptorSet 0
+               OpDecorate %_arr_v4float_uint_4 ArrayStride 16
+               OpDecorate %OutBuf BufferBlock
+               OpMemberDecorate %OutBuf 0 NonReadable
+               OpMemberDecorate %OutBuf 0 Offset 0
+               OpDecorate %b_out NonReadable
+               OpDecorate %b_out Binding 0
+               OpDecorate %b_out DescriptorSet 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_WorkGroupID = OpVariable %_ptr_Input_v3uint Input
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_uint = OpTypePointer Input %uint
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+    %float_0 = OpConstant %float 0
+         %23 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
+      %int_0 = OpConstant %int 0
+       %bool = OpTypeBool
+         %30 = OpTypeImage %float Buffer 0 0 0 1 Unknown
+%_ptr_UniformConstant_30 = OpTypePointer UniformConstant %30
+%texelBuffer = OpVariable %_ptr_UniformConstant_30 UniformConstant
+      %int_6 = OpConstant %int 6
+      %int_1 = OpConstant %int 1
+     %int_51 = OpConstant %int 51
+      %int_2 = OpConstant %int 2
+     %int_42 = OpConstant %int 42
+     %int_25 = OpConstant %int 25
+     %uint_4 = OpConstant %uint 4
+%_arr_v4float_uint_4 = OpTypeArray %v4float %uint_4
+     %OutBuf = OpTypeStruct %_arr_v4float_uint_4
+%_ptr_Uniform_OutBuf = OpTypePointer Uniform %OutBuf
+      %b_out = OpVariable %_ptr_Uniform_OutBuf Uniform
+%_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
+     %uint_1 = OpConstant %uint 1
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+%quadrant_id = OpVariable %_ptr_Function_int Function
+%result_color = OpVariable %_ptr_Function_v4float Function
+         %15 = OpAccessChain %_ptr_Input_uint %gl_WorkGroupID %uint_0
+         %16 = OpLoad %uint %15
+         %17 = OpBitcast %int %16
+               OpStore %quadrant_id %17
+               OpStore %result_color %23
+         %24 = OpLoad %int %quadrant_id
+         %27 = OpIEqual %bool %24 %int_0
+               OpSelectionMerge %29 None
+               OpBranchConditional %27 %28 %38
+         %28 = OpLabel
+         %33 = OpLoad %30 %texelBuffer
+         %35 = OpImageFetch %v4float %33 %int_6
+         %36 = OpLoad %v4float %result_color
+         %37 = OpFAdd %v4float %36 %35
+               OpStore %result_color %37
+               OpBranch %29
+         %38 = OpLabel
+         %39 = OpLoad %int %quadrant_id
+         %41 = OpIEqual %bool %39 %int_1
+               OpSelectionMerge %43 None
+               OpBranchConditional %41 %42 %49
+         %42 = OpLabel
+         %44 = OpLoad %30 %texelBuffer
+         %46 = OpImageFetch %v4float %44 %int_51
+         %47 = OpLoad %v4float %result_color
+         %48 = OpFAdd %v4float %47 %46
+               OpStore %result_color %48
+               OpBranch %43
+         %49 = OpLabel
+         %50 = OpLoad %int %quadrant_id
+         %52 = OpIEqual %bool %50 %int_2
+               OpSelectionMerge %54 None
+               OpBranchConditional %52 %53 %60
+         %53 = OpLabel
+         %55 = OpLoad %30 %texelBuffer
+         %57 = OpImageFetch %v4float %55 %int_42
+         %58 = OpLoad %v4float %result_color
+         %59 = OpFAdd %v4float %58 %57
+               OpStore %result_color %59
+               OpBranch %54
+         %60 = OpLabel
+         %61 = OpLoad %30 %texelBuffer
+         %63 = OpImageFetch %v4float %61 %int_25
+         %64 = OpLoad %v4float %result_color
+         %65 = OpFAdd %v4float %64 %63
+               OpStore %result_color %65
+               OpBranch %54
+         %54 = OpLabel
+               OpBranch %43
+         %43 = OpLabel
+               OpBranch %29
+         %29 = OpLabel
+         %71 = OpAccessChain %_ptr_Input_uint %gl_WorkGroupID %uint_0
+         %72 = OpLoad %uint %71
+         %73 = OpLoad %v4float %result_color
+         %75 = OpAccessChain %_ptr_Uniform_v4float %b_out %int_0 %72
+               OpStore %75 %73
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

@@ -1,0 +1,7 @@
+# category-specific db
+db
+
+# Local intermediate final DB; site/mappings.json is the tracked runtime artifact.
+vkcts_lookup.sqlite3
+
+!build_helper

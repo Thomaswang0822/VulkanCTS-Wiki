@@ -136,6 +136,12 @@ This test has no shader or device-side program artifact. Its behavior comes from
 
 ## Case Pruning
 
+### Requirement-based pruning
+
+- Support checks prune cases when the required sparse-binding queue, semaphore, or fence capabilities are unavailable.
+
+### Design-based pruning
+
 - Do not merge fence and no-fence cases: fence signaling is the property under test.
 - Keep one- and many-semaphore cases because they exercise different array counts.
 - Keep single-queue and multi-queue cases because they place the dependency on different queue relationships.

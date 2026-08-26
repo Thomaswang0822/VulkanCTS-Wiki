@@ -94,7 +94,7 @@ The shaders in this file are generated as GLSL strings by `CooperativeMatrixTest
 Representative path:
 
 ```text
-compute.pipeline.cooperative_matrix.khr_a.subgroupscope.length.float32_float32.buffer.rowmajor.linear
+dEQP-VK.compute.pipeline.cooperative_matrix.khr_a.subgroupscope.length.float32_float32.buffer.rowmajor.linear
 ```
 
 | Parameter choice | Meaning in this representative case |

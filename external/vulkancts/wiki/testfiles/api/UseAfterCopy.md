@@ -18,6 +18,7 @@
 
 ```text
 api.copy_and_blit.core.use_after_copy
+
 api.copy_and_blit.copy_memory_indirect.use_after_copy
 ```
 
@@ -64,9 +65,133 @@ Depth/stencil formats (`d16_unorm`, `d16_unorm_s8_uint`, `d24_unorm_s8_uint`, `x
 
 ## Shader Analysis
 
-The shaders are test infrastructure used to consume the copied image; they are not the behavior under test. The fragment shader's `texelFetch` for color cases and the depth-test-driven `outColor = vec4(geomColor)` for DS cases exist only to translate the copied image contents into a framebuffer that the host can compare. No representative shader walkthroughs are provided for this page.
+### Representative Shader Walkthrough 1
 
-The generated shaders are: a vertex shader that places one point per pixel and uses `gl_InstanceIndex` for layer selection (with an SPV_1_5 variant enabling `GL_ARB_shader_viewport_layer_array` for multi-slice cases), a fill vertex shader that emits a full-screen triangle strip for the multisample fill pass, a fragment shader that either samples the copied texture or writes a constant blue color, and a fill fragment shader that reads per-pixel-per-sample values from a storage buffer. The sampler type is chosen dynamically from `viewIs3D`, `multiSlice`, and `isMS` in [`AfterUsageCase::initPrograms()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L399-L496).
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.api.copy_and_blit.core.use_after_copy.r8g8b8a8_unorm.transfer_dst_optimal.1024x1024x1_color_att_flag
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `r8g8b8a8_unorm` | Selects the color route, so the copied image is exposed to the fragment shader as a sampled texture rather than used as a depth/stencil attachment. |
+| `transfer_dst_optimal` | The destination is copied in `VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL` and then transitioned to `VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL` for sampling. |
+| `1024x1024x1` | Uses one full-copy, single-slice 2D image; therefore `initPrograms()` emits `sampler2D` and two-component fetch coordinates. |
+| `color_att_flag` | Adds color-attachment usage to the copied image and expands it to 1024×1024, a combination intended to expose post-copy problems with implementations that enable color compression. |
+| No optional queue, region, image, tiling, or sample suffix | Uses the universal queue, full-image direct buffer-to-image copy, 2D optimal tiling, and one sample. |
+
+#### Purpose
+
+Post-copy consumption is the core tested operation: this fragment shader proves that the copied color image remains usable by fetching each texel, writing it to a host-readable framebuffer, and letting the host compare the result with the source texture.
+
+#### Structural Design
+
+| Dataflow step | Concrete operation in this case |
+|---------------|---------------------------------|
+| Copied image | `R8G8B8A8_UNORM`, 1024×1024, single-slice 2D image bound as `sampler2D` at set 0, binding 0 |
+| Address | Integer conversion of `gl_FragCoord.xy`; mip level 0 |
+| Shader consumption | `texelFetch` performs an unfiltered read of the exact copied texel |
+| Observable result | The fetched value is written to an `R32G32B32A32_SFLOAT` attachment and compared by the host with the source texel |
+
+#### Shader Code
+
+```glsl
+#version 460
+/// Combined image sampler for the copied R8G8B8A8_UNORM image; set 0, binding 0.
+layout (set=0, binding=0) uniform sampler2D tex;
+/// Flat layer index from the vertex shader; fixed at 0 for this single-slice case.
+layout (location=0) in flat int layerIndex;
+/// R32G32B32A32_SFLOAT framebuffer value read back for host comparison.
+layout (location=0) out vec4 outColor;
+void main(void) {
+    /// Fetch the copied texel at the integer framebuffer coordinate without filtering.
+    outColor = texelFetch(tex, ivec2(gl_FragCoord.xy), 0);
+}
+```
+
+#### Additional Info
+
+- The generated vertex shader supplies `layerIndex = gl_InstanceIndex`; this case draws only layer 0, so the fragment input remains in the interface but is not needed by the selected `ivec2` fetch expression ([source](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L399-L466)).
+- The host binds the copied image through a combined image sampler with nearest filtering and `VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL`, then reads back the floating-point color attachment after the draw ([source](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1381-L1425), [source](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1533-L1549)).
+- The fragment shader has no explicit build options, so the CTS baseline target is SPIR-V 1.0; unlike the multi-slice vertex variant, it does not request SPIR-V 1.5 ([source](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L417-L472)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Color versus depth/stencil format | Color cases declare a sampler and execute `texelFetch`; depth/stencil cases omit the sampler and emit a constant blue fragment color, with copied data consumed by the fixed-function depth test instead. | [`AfterUsageCase::initPrograms()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L440-L472) |
+| Slice count and view type | Multiple slices or a 3D view change the sampler to `sampler2DArray` or `sampler3D` and change the coordinate to `ivec3(gl_FragCoord.xy, layerIndex)`. | [`AfterUsageCase::initPrograms()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L405-L466) |
+| Multisampling | MSAA color cases select a `sampler2DMS`/`sampler2DMSArray` and use `gl_SampleID` as the final `texelFetch` operand instead of mip level 0. | [`AfterUsageCase::initPrograms()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L443-L466) |
+| Transfer layout, queue, full/partial copy, color-attachment usage, copy source, and tiling | These dimensions change image creation, copy, barriers, and reference coverage but do not alter this single-slice, single-sample fragment shader text. | [`AfterUsageInstance::iterate()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L636-L1379), [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1763-L1940) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 28
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %outColor %gl_FragCoord %layerIndex
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 460
+               OpName %main "main"
+               OpName %outColor "outColor"
+               OpName %tex "tex"
+               OpName %gl_FragCoord "gl_FragCoord"
+               OpName %layerIndex "layerIndex"
+               OpDecorate %outColor Location 0
+               OpDecorate %tex Binding 0
+               OpDecorate %tex DescriptorSet 0
+               OpDecorate %gl_FragCoord BuiltIn FragCoord
+               OpDecorate %layerIndex Flat
+               OpDecorate %layerIndex Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %outColor = OpVariable %_ptr_Output_v4float Output
+         %10 = OpTypeImage %float 2D 0 0 0 1 Unknown
+         %11 = OpTypeSampledImage %10
+%_ptr_UniformConstant_11 = OpTypePointer UniformConstant %11
+        %tex = OpVariable %_ptr_UniformConstant_11 UniformConstant
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%gl_FragCoord = OpVariable %_ptr_Input_v4float Input
+    %v2float = OpTypeVector %float 2
+        %int = OpTypeInt 32 1
+      %v2int = OpTypeVector %int 2
+      %int_0 = OpConstant %int 0
+%_ptr_Input_int = OpTypePointer Input %int
+ %layerIndex = OpVariable %_ptr_Input_int Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %14 = OpLoad %11 %tex
+         %18 = OpLoad %v4float %gl_FragCoord
+         %19 = OpVectorShuffle %v2float %18 %18 0 1
+         %22 = OpConvertFToS %v2int %19
+         %24 = OpImage %10 %14
+         %25 = OpImageFetch %v4float %24 %22 Lod %int_0
+               OpStore %outColor %25
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

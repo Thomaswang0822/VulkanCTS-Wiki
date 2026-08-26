@@ -24,14 +24,17 @@ api.copy_and_blit.core
 ├── buffer_to_image_transfer_queue
 ├── buffer_to_image_compute_queue
 └── buffer_to_image_general_layout
+
 api.copy_and_blit.dedicated_allocation
 ├── buffer_to_image
 ├── buffer_to_image_transfer_queue
 └── buffer_to_image_compute_queue
+
 api.copy_and_blit.copy_commands2
 ├── buffer_to_image
 ├── buffer_to_image_transfer_queue
 └── buffer_to_image_compute_queue
+
 api.copy_and_blit.device_address
 └── buffer_to_image
 ```

@@ -25,6 +25,9 @@ api.copy_and_blit.core.image_to_image
 ├── dimensions
 ├── cube
 └── array
+
+api.copy_and_blit.copy_commands2.image_to_image_transfer_queue
+└── misc
 ```
 
 `misc` is gated on `queueSelection == TransferOnly` and only registered under `copy_commands2.image_to_image_transfer_queue.misc`; it does not appear under `core.image_to_image`. The sparse variant prunes `all_formats` and `dimensions`. Sibling families `image_to_image_general_layout`, `image_to_image_transfer_queue_secondary`, and `image_to_image_transfer_sparse` are registered by the dispatcher in `vktApiCopiesAndBlittingTests.cpp` and exercise only `simple_tests` (via `addCopyImageToImageTestsSimpleOnly`); `image_to_image_transfer_queue` runs the full set plus `misc`.

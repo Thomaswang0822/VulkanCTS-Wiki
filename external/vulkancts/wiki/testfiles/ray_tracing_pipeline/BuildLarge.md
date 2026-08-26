@@ -68,7 +68,11 @@ This page uses one walkthrough because the rgen dispatch and the callable write 
 
 #### Parameter Values Chosen
 
-Representative path: `dEQP-VK.ray_tracing_pipeline.large_shader_set.cpu_ht_1.64`.
+Representative path:
+
+```text
+dEQP-VK.ray_tracing_pipeline.large_shader_set.cpu_ht_1.64
+```
 
 | Parameter choice | Meaning in this representative case |
 |------------------|-------------------------------------|
@@ -96,7 +100,7 @@ This shader checks that rgen dispatches each launch ID to the callable shader at
 
 #### Shader Code
 
-##### Ray Generation Shader
+##### Ray Generation Shader Module
 
 Reconstructed rgen GLSL, faithful to the source string in [RayTracingTestCase::initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L237-L251) for `width == 8`. The `updateRayTracingGLSL` wrapper is an identity function, so the emitted source matches the string exactly.
 
@@ -117,7 +121,7 @@ void main()
 }
 ```
 
-##### Callable Shader
+##### Callable Shader Module
 
 Reconstructed callable GLSL for cell `(x=1, y=0)`, faithful to the per-cell generation loop in [RayTracingTestCase::initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L254-L276) for `width == 8`. `shaderNdx == 1`, and `1 % 43 != 0`, so no dummy work is injected. Cells where `shaderNdx % 43 == 0` get the extra arithmetic block from [generateDummyWork](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L216-L231); the rest share this structure with only the embedded `x`, `y`, and `r` constants differing.
 
@@ -157,6 +161,8 @@ void main()
 - Source: reconstructed `GLSL` from this walkthrough
 - Stage: `rgen`
 - Target SPIRV version: `spirv1.4`
+
+##### Ray Generation Shader Module
 
 <details>
 <summary>Click to expand SPIRV asm code</summary>
@@ -219,7 +225,7 @@ void main()
 
 </details>
 
-#### SPIR-V
+##### Callable Shader Module
 
 - Status: generated and validated
 - Source: reconstructed `GLSL` from this walkthrough
@@ -289,7 +295,9 @@ void main()
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
+
+## Runtime Execution and Result Checking
 
 ### Scene construction
 

@@ -177,7 +177,7 @@ void main() {
 
 #### Parameter Variation Summary
 
-| Parameter dimension | Shader-level variation | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|------------------------|----------|
 | `aabbs` geometry | Same shader binary. The AABB branch fires; `rayQueryGenerateIntersectionEXT` commits at `t = epsilon`. | [vktRayQueryStressTests.cpp:380](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L380) |
 | Graphics pipeline stages | Different shader template per stage (vert, tesc, tese, geom, frag). Same ray-query body. Result written via `imageStore`. | [vkRayTracingUtil.cpp:5229-L5451](../../../framework/vulkan/vkRayTracingUtil.cpp#L5229-L5451) |

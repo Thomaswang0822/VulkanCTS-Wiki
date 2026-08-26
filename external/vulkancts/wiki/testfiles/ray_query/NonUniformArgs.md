@@ -177,7 +177,7 @@ void main()
 
 #### Parameter Variation Summary
 
-| Parameter dimension | Shader-level variation | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|------------------------|----------|
 | `MissCause = FLAGS` | Same shader binary; the host writes `rayFlags = 256` into `args`. The traversal skips triangles, `proceed` returns false immediately, and `candidateFoundVal` stays `0`. | [vktRayQueryNonUniformArgsTests.cpp:333](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L333) |
 | `MissCause = CULL_MASK` | Same shader binary; the host writes `cullMask = 0xF0`. The instance is skipped, `proceed` returns false immediately, and `candidateFoundVal` stays `0`. | [vktRayQueryNonUniformArgsTests.cpp:334](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L334) |

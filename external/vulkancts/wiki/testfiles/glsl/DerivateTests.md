@@ -73,11 +73,152 @@ These functions use `abs(dx) + abs(dy)` as the expected result. The source selec
 
 ## Shader Analysis
 
-The implementation builds GLSL strings from templates. One representative linear shader is the direct `linear` case: it receives an interpolated `v_coord`, evaluates `${FUNC}(v_coord)`, applies a uniform scale and bias, and writes the result to the color output. The control-flow variants keep that derivative expression but move it into a function, static or uniform control flow, non-uniform control flow, or a value stored through an output or private variable. The source template is visible at [`s_linearDerivateCases[]`](../../../modules/vulkan/shaderrender/vktShaderRenderDerivateTests.cpp#L1690-L1961).
+The direct linear `dFdx` case is representative of the ordinary derivative path: it exposes the interpolated ramp and the scale/bias encoding used by the host verifier without adding control-flow or texture-sampling machinery. The subgroup shaders are structurally different, but their explicit quad broadcasts are summarized in the variation table rather than repeated as a second walkthrough.
 
-The subgroup cases are a separate source shape. `dFdxSubgroup` chooses horizontal members with `subgroupQuadBroadcast()`, while `dFdySubgroup` chooses vertical members. Both then feed the result through the same scale, bias, and color-output path. These are explicit quad-difference shaders, not reconstructions of the implementation's built-in derivative operation.
+### Representative Shader Walkthrough 1
 
-No generated SPIR-V artifact is published in this page. The source strings are specialized during case construction with the selected function, data type, precision, output type, and surface configuration.
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.glsl.derivate.dfdx.linear.vec4_highp
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `dfdx` | Selects the standard horizontal fragment derivative, emitted as `dFdx` in GLSL. |
+| `linear` | Uses the direct linear template: the derivative is evaluated on the interpolated `v_coord` without extra control flow or storage. |
+| `vec4_highp` | Applies the derivative independently to all four high-precision components and writes all four encoded results. |
+| Default framebuffer path | Uses a single-sample RGBA8 render target, so the shader writes a floating-point `vec4` after host-provided scale and bias are applied. |
+
+#### Purpose
+
+This fragment shader checks the horizontal derivative of a four-component linearly interpolated ramp. It scales the derivative into the color attachment, allowing the host to decode each component and compare it with the analytical slope across the 99-pixel viewport width.
+
+#### Structural Design
+
+| Shader-visible object | Source and transport | Role in the check |
+|-----------------------|----------------------|-------------------|
+| `v_coord` | Location 0 fragment input, interpolated from the vertex shader | Four-component ramp passed to `dFdx` |
+| `u_scale` | Set 0, binding 0, 16-byte std140 uniform buffer | Normalizes each derivative component for RGBA8 storage |
+| `u_bias` | Set 0, binding 1, 16-byte std140 uniform buffer | Adds the host-selected output bias; it is zero for this case |
+| `o_color` | Location 0 `vec4` output | Carries the encoded derivative to the color attachment |
+
+#### Shader Code
+
+```glsl
+#version 450
+/// Location 0 carries the high-precision vec4 ramp interpolated by the rasterizer from the four vertex values.
+layout(location = 0) in highp vec4 v_coord;
+/// Location 0 writes the encoded derivative to the RGBA8 color attachment used by this basic linear case.
+layout(location = 0) out highp vec4 o_color;
+/// Set 0, binding 0 is a std140 uniform buffer containing the host-computed per-component derivative scale.
+layout(binding = 0, std140) uniform Scale { highp vec4 u_scale; };
+/// Set 0, binding 1 is a std140 uniform buffer containing the per-component output bias.
+layout(binding = 1, std140) uniform Bias { highp vec4 u_bias; };
+void main (void)
+{
+    /// Evaluate the horizontal derivative, then encode it for color-attachment storage and host-side decoding.
+    highp vec4 res = dFdx(v_coord) * u_scale + u_bias;
+    o_color = res;
+}
+```
+
+#### Additional Info
+
+- The vertex shader is fixed infrastructure for this case: it forwards the location 1 `vec4` coordinate attribute to fragment location 0 and writes the location 0 position attribute to `gl_Position`. It is omitted because the fragment derivative is the tested operation.
+- `LinearDerivateCase::initPrograms()` explicitly selects SPIR-V 1.0 for this non-subgroup, uniform-control-flow case.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|------------------------------------------|----------|
+| Derivative function | `dFdxFine`, `dFdxCoarse`, `dFdy`, `dFdyFine`, `dFdyCoarse`, `fwidth`, `fwidthFine`, or `fwidthCoarse` replaces `dFdx`; subgroup cases instead call a generated helper that computes a quad difference with `subgroupQuadBroadcast()`, require ballot/quad extensions, and target SPIR-V 1.3. | [`getDerivateFuncName()` and function classification](../../../modules/vulkan/shaderrender/vktShaderRenderDerivateTests.cpp#L106-L190), [subgroup templates](../../../modules/vulkan/shaderrender/vktShaderRenderDerivateTests.cpp#L1963-L2018) |
+| Data type and precision | `float`, `vec2`, or `vec3` changes the derivative type and pads the color output; `lowp`, `mediump`, or `highp` changes qualifiers on the input, uniforms, local result, and ordinary output. | [`LinearDerivateCase::initPrograms()`](../../../modules/vulkan/shaderrender/vktShaderRenderDerivateTests.cpp#L1284-L1323) |
+| Linear source context | Function and static/uniform/dynamic control-flow templates move the derivative expression; output and private variants read it through an intermediate store, the private variant adds helper-invocation demotion, and `linear_vec8` enables `GL_EXT_long_vector`. | [`s_linearDerivateCases`](../../../modules/vulkan/shaderrender/vktShaderRenderDerivateTests.cpp#L1690-L1961) |
+| Surface and sampling | `fbo_msaa2` and `fbo_msaa4` retain this GLSL shape but change sample count. `fbo_float` changes the output to `highp uvec4` and bit-packs the result with `floatBitsToUint()` instead of encoding it as an ordinary color. | [framebuffer configuration and construction](../../../modules/vulkan/shaderrender/vktShaderRenderDerivateTests.cpp#L2020-L2138) |
+| Texture source | Texture cases replace the direct interpolant derivative with `texture(u_sampler, v_coord)`, select the requested component swizzle, and add a sampler at binding 2. | [`TextureDerivateCase::initPrograms()`](../../../modules/vulkan/shaderrender/vktShaderRenderDerivateTests.cpp#L1584-L1638) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 32
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %v_coord %o_color
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %res "res"
+               OpName %v_coord "v_coord"
+               OpName %Scale "Scale"
+               OpMemberName %Scale 0 "u_scale"
+               OpName %_ ""
+               OpName %Bias "Bias"
+               OpMemberName %Bias 0 "u_bias"
+               OpName %__0 ""
+               OpName %o_color "o_color"
+               OpDecorate %v_coord Location 0
+               OpDecorate %Scale Block
+               OpMemberDecorate %Scale 0 Offset 0
+               OpDecorate %_ Binding 0
+               OpDecorate %_ DescriptorSet 0
+               OpDecorate %Bias Block
+               OpMemberDecorate %Bias 0 Offset 0
+               OpDecorate %__0 Binding 1
+               OpDecorate %__0 DescriptorSet 0
+               OpDecorate %o_color Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+    %v_coord = OpVariable %_ptr_Input_v4float Input
+      %Scale = OpTypeStruct %v4float
+%_ptr_Uniform_Scale = OpTypePointer Uniform %Scale
+          %_ = OpVariable %_ptr_Uniform_Scale Uniform
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
+       %Bias = OpTypeStruct %v4float
+%_ptr_Uniform_Bias = OpTypePointer Uniform %Bias
+        %__0 = OpVariable %_ptr_Uniform_Bias Uniform
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+    %o_color = OpVariable %_ptr_Output_v4float Output
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+        %res = OpVariable %_ptr_Function_v4float Function
+         %12 = OpLoad %v4float %v_coord
+         %13 = OpDPdx %v4float %12
+         %20 = OpAccessChain %_ptr_Uniform_v4float %_ %int_0
+         %21 = OpLoad %v4float %20
+         %22 = OpFMul %v4float %13 %21
+         %26 = OpAccessChain %_ptr_Uniform_v4float %__0 %int_0
+         %27 = OpLoad %v4float %26
+         %28 = OpFAdd %v4float %22 %27
+               OpStore %res %28
+         %31 = OpLoad %v4float %res
+               OpStore %o_color %31
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

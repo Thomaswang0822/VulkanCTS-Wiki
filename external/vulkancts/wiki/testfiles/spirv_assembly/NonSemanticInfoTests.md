@@ -109,67 +109,9 @@ This module checks that a basic non-semantic extended instruction can coexist wi
 | Non-semantic use | `%tmp = OpExtInst %void %extInstSet 1 %main %fileStr` records the debug-information instruction without producing an observed data value. |
 | Semantic oracle path | `OpLoad` reads `%inval`, and the final `OpStore` writes it unchanged to `%outloc`. |
 
-#### Source Code
+#### Shader Code
 
-<details>
-<summary>Click to expand CTS-authored SPIR-V assembly</summary>
-
-```llvm
-OpCapability Shader
-OpExtension "SPV_KHR_non_semantic_info"
-%extInstSet = OpExtInstImport "NonSemantic.KHR.DebugInfo"
-OpMemoryModel Logical GLSL450
-OpEntryPoint GLCompute %main "main" %id
-OpExecutionMode %main LocalSize 1 1 1
-%fileStr = OpString "path\\to\\source.file"
-OpSource GLSL 430 %fileStr
-OpDecorate %id BuiltIn GlobalInvocationId
-OpDecorate %buf BufferBlock
-OpDecorate %indata DescriptorSet 0
-OpDecorate %indata Binding 0
-OpDecorate %image DescriptorSet 0
-OpDecorate %image Binding 1
-OpDecorate %image NonWritable
-OpDecorate %outdata DescriptorSet 0
-OpDecorate %outdata Binding 2
-OpDecorate %f32arr ArrayStride 4
-OpMemberDecorate %buf 0 Offset 0
-%bool      = OpTypeBool
-%void      = OpTypeVoid
-%voidf     = OpTypeFunction %void
-%u32       = OpTypeInt 32 0
-%i32       = OpTypeInt 32 1
-%f32       = OpTypeFloat 32
-%uvec3     = OpTypeVector %u32 3
-%fvec3     = OpTypeVector %f32 3
-%uvec3ptr  = OpTypePointer Input %uvec3
-%i32ptr    = OpTypePointer Uniform %i32
-%f32ptr    = OpTypePointer Uniform %f32
-%i32arr    = OpTypeRuntimeArray %i32
-%f32arr    = OpTypeRuntimeArray %f32
-%buf     = OpTypeStruct %f32arr
-%bufptr  = OpTypePointer Uniform %buf
-%indata    = OpVariable %bufptr Uniform
-%outdata   = OpVariable %bufptr Uniform
-%id         = OpVariable %uvec3ptr Input
-%image_type = OpTypeImage %f32 2D 0 0 0 2 Rgba8
-%image_ptr  = OpTypePointer UniformConstant %image_type
-%image      = OpVariable %image_ptr UniformConstant
-%zero       = OpConstant %i32 0
-%main       = OpFunction %void None %voidf
-%label      = OpLabel
-%idval      = OpLoad %uvec3 %id
-%x          = OpCompositeExtract %u32 %idval 0
-%inloc      = OpAccessChain %f32ptr %indata %zero %x
-%outloc     = OpAccessChain %f32ptr %outdata %zero %x
-%inval      = OpLoad %f32 %inloc
-%tmp = OpExtInst %void %extInstSet 1 %main %fileStr
-             OpStore %outloc %inval
-             OpReturn
-             OpFunctionEnd
-```
-
-</details>
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -178,11 +120,84 @@ OpMemberDecorate %buf 0 Offset 0
 
 #### Parameter Variation Summary
 
-| Parameter dimension | Assembly-level variation from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|-------------------------------------------|----------|
 | Instruction set | `dummy_instruction_set` replaces the import string with `NonSemantic.P.B.NonexistingSet`. | [`initPrograms()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmNonSemanticInfoTests.cpp#L139-L150) |
 | Instruction number and operands | Other leaves replace `%tmp` with large-number calls, a 100-string call, constant operands, or semantic result IDs. | [`initPrograms()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmNonSemanticInfoTests.cpp#L152-L257) |
 | Placement | `placement` moves calls to module scope and between function definitions in addition to the function body. | [`initPrograms()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmNonSemanticInfoTests.cpp#L259-L275) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 33
+; Schema: 0
+               OpCapability Shader
+               OpExtension "SPV_KHR_non_semantic_info"
+          %1 = OpExtInstImport "NonSemantic.KHR.DebugInfo"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %2 "main" %gl_GlobalInvocationID
+               OpExecutionMode %2 LocalSize 1 1 1
+          %4 = OpString "path\\to\\source.file"
+               OpSource GLSL 430 %4
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %_struct_5 BufferBlock
+               OpDecorate %6 DescriptorSet 0
+               OpDecorate %6 Binding 0
+               OpDecorate %7 DescriptorSet 0
+               OpDecorate %7 Binding 1
+               OpDecorate %7 NonWritable
+               OpDecorate %8 DescriptorSet 0
+               OpDecorate %8 Binding 2
+               OpDecorate %_runtimearr_float ArrayStride 4
+               OpMemberDecorate %_struct_5 0 Offset 0
+       %bool = OpTypeBool
+       %void = OpTypeVoid
+         %12 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+        %int = OpTypeInt 32 1
+      %float = OpTypeFloat 32
+     %v3uint = OpTypeVector %uint 3
+    %v3float = OpTypeVector %float 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%_ptr_Uniform_int = OpTypePointer Uniform %int
+%_ptr_Uniform_float = OpTypePointer Uniform %float
+%_runtimearr_int = OpTypeRuntimeArray %int
+%_runtimearr_float = OpTypeRuntimeArray %float
+  %_struct_5 = OpTypeStruct %_runtimearr_float
+%_ptr_Uniform__struct_5 = OpTypePointer Uniform %_struct_5
+          %6 = OpVariable %_ptr_Uniform__struct_5 Uniform
+          %8 = OpVariable %_ptr_Uniform__struct_5 Uniform
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+         %23 = OpTypeImage %float 2D 0 0 0 2 Rgba8
+%_ptr_UniformConstant_23 = OpTypePointer UniformConstant %23
+          %7 = OpVariable %_ptr_UniformConstant_23 UniformConstant
+      %int_0 = OpConstant %int 0
+          %2 = OpFunction %void None %12
+         %26 = OpLabel
+         %27 = OpLoad %v3uint %gl_GlobalInvocationID
+         %28 = OpCompositeExtract %uint %27 0
+         %29 = OpAccessChain %_ptr_Uniform_float %6 %int_0 %28
+         %30 = OpAccessChain %_ptr_Uniform_float %8 %int_0 %28
+         %31 = OpLoad %float %29
+         %32 = OpExtInst %void %1 1 %2 %4
+               OpStore %30 %31
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

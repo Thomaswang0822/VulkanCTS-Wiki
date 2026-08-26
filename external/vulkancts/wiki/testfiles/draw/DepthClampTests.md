@@ -62,7 +62,210 @@ The render-pass root is created by `createDepthClampTests` from `vktDrawTests.cp
 
 ## Shader Analysis
 
-The vertex shader is generated as `vert` and assigns `gl_Position = in_position`; its four fixed vertices form a `VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP` covering the render target. The fragment shader is generated as `frag` and has an empty `main`, leaving depth testing and depth writing to fixed-function state. When more than one viewport is configured, the implementation generates `geom`: it uses geometry-shader invocations, assigns `gl_ViewportIndex`, copies each input position, replaces `gl_Position.z` with the corresponding fixed depth value, and emits the triangle strip. No shader file or disassembly is claimed beyond these generated GLSL strings.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.draw.renderpass.depth_clamp.d32_sfloat_clamp_four_viewports
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `d32_sfloat` | Uses a floating-point depth attachment, so all four expected transformed depths are representable and the out-of-domain-format filter does not remove the case. |
+| `clamp_four_viewports` | Selects four viewport records and therefore activates the conditional geometry shader with four invocations. |
+| Render-pass recording | Uses the render-pass branch; rendering mode changes command recording but not the generated shaders. |
+
+#### Purpose
+
+The geometry shader replays one input triangle into each of four viewports, routing by `gl_ViewportIndex` and replacing clip-space `z` with that viewport's fixed source value. The resulting attachment depths check four distinct viewport depth transforms in one draw.
+
+#### Structural Design
+
+| Geometry invocation | `gl_ViewportIndex` | Written clip-space `z` | Viewport depth range | Expected attachment depth |
+|---------------------|--------------------|-------------------------|----------------------|---------------------------|
+| 0 | 0 | `0.7` | `[0.0, 0.5]` | `0.35` |
+| 1 | 1 | `1.0` | `[0.9, 1.0]` | `1.0` |
+| 2 | 2 | `0.9` | `[0.5, 1.0]` | `0.95` |
+| 3 | 3 | `0.4` | `[0.5, 0.9]` | `0.66` |
+
+#### Shader Code
+
+```glsl
+#version 450
+#extension GL_EXT_geometry_shader : require
+/// Four invocations replay the input triangle to four viewports.
+layout(invocations = 4) in;
+layout(triangles) in;
+layout(triangle_strip, max_vertices = 4) out;
+void main()
+{
+  /// Per-invocation clip-space z values come from viewportData.depthValue.
+  const float depthValues[] = { 0.700000, 1.000000, 0.900000, 0.400000,  0.0 };
+  for (int i = 0; i < gl_in.length(); i++)
+  {
+    /// Route this primitive to the viewport matching this invocation.
+    gl_ViewportIndex = gl_InvocationID;
+    gl_Position      = gl_in[i].gl_Position;
+    gl_Position.z    = depthValues[gl_InvocationID];
+    EmitVertex();
+  }
+  EndPrimitive();
+}
+```
+
+#### Additional Info
+
+- The source generates this geometry stage only when `viewportData.size() > 1`. The vertex stage still copies location-0 `in_position` to `gl_Position`, while the empty fragment stage leaves depth production to rasterization and fixed-function depth state. [Shader builder](../../../modules/vulkan/draw/vktDrawDepthClampTests.cpp#L1022-L1069)
+- The generator appends a final `0.0` array initializer after the four formatted depth values so that its accumulated comma remains valid GLSL. Invocations are fixed at four, so indices 0 through 3 select the source values and the sentinel is never selected. [Geometry-source construction](../../../modules/vulkan/draw/vktDrawDepthClampTests.cpp#L1032-L1062)
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| Viewport count and values | A single viewport omits the geometry stage. Multiple viewports set the geometry invocation count and bake each `viewportData.depthValue` into `depthValues[]`. | [Conditional geometry builder](../../../modules/vulkan/draw/vktDrawDepthClampTests.cpp#L1032-L1062) |
+| Attachment format | The generated GLSL is unchanged; the format controls support filtering and comparison precision on the host. | [Format matrix and epsilon table](../../../modules/vulkan/draw/vktDrawDepthClampTests.cpp#L87-L95), [case registration](../../../modules/vulkan/draw/vktDrawDepthClampTests.cpp#L1117-L1141) |
+| Clamp control, depth bias, and rendering mode | These choices do not change shader text for a fixed viewport vector; they alter pipeline or command state around the same generated programs. | [Shader builder](../../../modules/vulkan/draw/vktDrawDepthClampTests.cpp#L1022-L1069), [test-case construction](../../../modules/vulkan/draw/vktDrawDepthClampTests.cpp#L1117-L1141) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `geom`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 63
+; Schema: 0
+               OpCapability Geometry
+               OpCapability MultiViewport
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Geometry %main "main" %gl_ViewportIndex %gl_InvocationID %_ %gl_in
+               OpExecutionMode %main Triangles
+               OpExecutionMode %main Invocations 4
+               OpExecutionMode %main OutputTriangleStrip
+               OpExecutionMode %main OutputVertices 4
+               OpSource GLSL 450
+               OpSourceExtension "GL_EXT_geometry_shader"
+               OpSourceExtension "GL_EXT_shader_io_blocks"
+               OpName %main "main"
+               OpName %i "i"
+               OpName %gl_ViewportIndex "gl_ViewportIndex"
+               OpName %gl_InvocationID "gl_InvocationID"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex 2 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex 3 "gl_CullDistance"
+               OpName %_ ""
+               OpName %gl_PerVertex_0 "gl_PerVertex"
+               OpMemberName %gl_PerVertex_0 0 "gl_Position"
+               OpMemberName %gl_PerVertex_0 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex_0 2 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex_0 3 "gl_CullDistance"
+               OpName %gl_in "gl_in"
+               OpName %indexable "indexable"
+               OpDecorate %gl_ViewportIndex BuiltIn ViewportIndex
+               OpDecorate %gl_InvocationID BuiltIn InvocationId
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex 3 BuiltIn CullDistance
+               OpDecorate %gl_PerVertex_0 Block
+               OpMemberDecorate %gl_PerVertex_0 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex_0 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex_0 2 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex_0 3 BuiltIn CullDistance
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+      %int_0 = OpConstant %int 0
+      %int_3 = OpConstant %int 3
+       %bool = OpTypeBool
+%_ptr_Output_int = OpTypePointer Output %int
+%gl_ViewportIndex = OpVariable %_ptr_Output_int Output
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_InvocationID = OpVariable %_ptr_Input_int Input
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_arr_float_uint_1 = OpTypeArray %float %uint_1
+%gl_PerVertex = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+%gl_PerVertex_0 = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+     %uint_3 = OpConstant %uint 3
+%_arr_gl_PerVertex_0_uint_3 = OpTypeArray %gl_PerVertex_0 %uint_3
+%_ptr_Input__arr_gl_PerVertex_0_uint_3 = OpTypePointer Input %_arr_gl_PerVertex_0_uint_3
+      %gl_in = OpVariable %_ptr_Input__arr_gl_PerVertex_0_uint_3 Input
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+     %uint_5 = OpConstant %uint 5
+%_arr_float_uint_5 = OpTypeArray %float %uint_5
+%float_0_699999988 = OpConstant %float 0.699999988
+    %float_1 = OpConstant %float 1
+%float_0_899999976 = OpConstant %float 0.899999976
+%float_0_400000006 = OpConstant %float 0.400000006
+    %float_0 = OpConstant %float 0
+         %50 = OpConstantComposite %_arr_float_uint_5 %float_0_699999988 %float_1 %float_0_899999976 %float_0_400000006 %float_0
+%_ptr_Function__arr_float_uint_5 = OpTypePointer Function %_arr_float_uint_5
+%_ptr_Function_float = OpTypePointer Function %float
+     %uint_2 = OpConstant %uint 2
+%_ptr_Output_float = OpTypePointer Output %float
+      %int_1 = OpConstant %int 1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %i = OpVariable %_ptr_Function_int Function
+  %indexable = OpVariable %_ptr_Function__arr_float_uint_5 Function
+               OpStore %i %int_0
+               OpBranch %10
+         %10 = OpLabel
+               OpLoopMerge %12 %13 None
+               OpBranch %14
+         %14 = OpLabel
+         %15 = OpLoad %int %i
+         %18 = OpSLessThan %bool %15 %int_3
+               OpBranchConditional %18 %11 %12
+         %11 = OpLabel
+         %23 = OpLoad %int %gl_InvocationID
+               OpStore %gl_ViewportIndex %23
+         %37 = OpLoad %int %i
+         %39 = OpAccessChain %_ptr_Input_v4float %gl_in %37 %int_0
+         %40 = OpLoad %v4float %39
+         %42 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %42 %40
+         %51 = OpLoad %int %gl_InvocationID
+               OpStore %indexable %50
+         %55 = OpAccessChain %_ptr_Function_float %indexable %51
+         %56 = OpLoad %float %55
+         %59 = OpAccessChain %_ptr_Output_float %_ %int_0 %uint_2
+               OpStore %59 %56
+               OpEmitVertex
+               OpBranch %13
+         %13 = OpLabel
+         %60 = OpLoad %int %i
+         %62 = OpIAdd %int %60 %int_1
+               OpStore %i %62
+               OpBranch %10
+         %12 = OpLabel
+               OpEndPrimitive
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

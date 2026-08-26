@@ -51,47 +51,123 @@ The three leaves vary where the source empty-struct variable resides. Each of tw
 
 ## Shader Analysis
 
-The source contains CTS-authored SPIR-V assembly templates rather than GLSL. All three intermediate nodes run a compute entry point and publish their results through storage-buffer resources. The page therefore follows the source templates and their specialization tables; it does not reconstruct a separate GLSL shader.
+The test modules are CTS-authored SPIR-V assembly strings. They are specialized directly in C++ and passed to the SPIR-V assembly source collection; there is no GLSL or HLSL shader to reconstruct. The walkthrough below uses the `copying.copy_memory_ssbo` leaf because it shows the empty type, the container layout, and the memory-copy instruction in the smallest complete module. The pointer-comparison and function leaves use separate assembly templates and are summarized as parameter variations.
 
-### Representative Shader Walkthrough: `copying.copy_memory_ssbo`
+### Representative Shader Walkthrough 1
 
 #### Parameter Values Chosen
 
-| Parameter choice | Value | Meaning |
-|------------------|-------|---------|
-| Representative path | `spirv_assembly.instruction.compute.empty_struct.copying.copy_memory_ssbo` | Uses the pointer-based copy operation with the compact SSBO layout. |
-| Empty type | `%type_empty_struct = OpTypeStruct` | A structure with no member types. |
-| Container type | `%type_container_struct = OpTypeStruct %i32 %type_empty_struct %type_empty_struct %i32` | Two empty members lie between integer payload fields. |
-| Member offsets | `0, 4, 8, 12` | The SSBO specialization's explicit block offsets. |
-| Copy sequence | `OpCopyMemory %var_outdata %var_input` | Copies from the input container pointer to the output container pointer. |
-| Expected comparison | first and final payload words, `2` and `7` | The custom verifier ignores expected zero words. |
+Representative path:
+
+```text
+dEQP-VK.spirv_assembly.instruction.compute.empty_struct.copying.copy_memory_ssbo
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|--------------------------------------|
+| `copying` | Exercises an empty structure embedded in a larger copied container. |
+| `copy_memory` | Uses `OpCopyMemory` between the input and output container pointers. |
+| `ssbo` | Uses `StorageBuffer` for both resources, with member offsets `0`, `4`, `8`, and `12`. |
+| Empty type | `%type_empty_struct = OpTypeStruct`, with no member-type operands. |
+| Container type | `%type_container_struct = OpTypeStruct %i32 %type_empty_struct %type_empty_struct %i32`. |
+| Host data and check | Input `{2, 3, 5, 7}`; expected `{2, 0, 0, 7}`. The custom verifier compares only the nonzero expected words. |
 
 #### Purpose
 
-The specialized `copy_memory_ssbo` module declares one empty structure type and one four-member container type. It binds the input at set `0`, binding `0`, and the output at set `0`, binding `1`. Its one-invocation `%main` performs `OpCopyMemory` between the two container pointers. The host input is `{2, 3, 5, 7}`, while the expected output vector is `{2, 0, 0, 7}`. The zeros are test markers, not payload values that the oracle requires the implementation to preserve.
+This module checks that a container containing two empty structure members can be copied through storage-buffer pointers without changing the observable integer members before and after them. The empty members are represented by zero marker positions in the expected vector; the host-side verifier deliberately ignores those positions.
+
+#### Structural Design
 
 ```mermaid
 flowchart TD
-    A[Input container pointer] --> B[OpCopyMemory %var_outdata %var_input]
-    B --> C[Output container pointer]
-    C --> D[verifyResult compares nonzero expected words]
+    A[Input SSBO: container {2, 3, 5, 7}] --> B[StorageBuffer pointer %var_input]
+    B --> C[OpCopyMemory %var_outdata %var_input]
+    C --> D[Output SSBO: container]
+    D --> E[verifyResult checks expected nonzero words]
+    E --> F[Word 0 must be 2; word 3 must be 7]
 ```
 
-#### Source Code
+The module declares the empty structure and the four-member container, decorates each container member with an explicit offset, binds the input at set `0`, binding `0`, and the output at set `0`, binding `1`, and runs one invocation of `main`. `OpCopyObject` creates the pointer value used by the template even for this `copy_memory` specialization; the tested transfer is the following `OpCopyMemory` instruction.
 
-The empty and container types are generated in the [copying template](../../../modules/vulkan/spirv_assembly/vktSpvAsmEmptyStructTests.cpp#L81-L116). The selected specialization comes from the [SSBO entry](../../../modules/vulkan/spirv_assembly/vktSpvAsmEmptyStructTests.cpp#L155-L165) and the [`copy_memory` entry](../../../modules/vulkan/spirv_assembly/vktSpvAsmEmptyStructTests.cpp#L178-L184):
+#### Shader Code
+
+This is direct CTS-authored SPIR-V assembly, not GLSL or HLSL generated from a source shader. The complete source-authored module is retained only in the final `#### SPIR-V` subsection; this section records the direct-SPIR-V fact without duplicating assembly.
+
+#### Additional Info
+
+- The explicit SSBO offsets are `0`, `4`, `8`, and `12`; the two empty members therefore occupy no observable payload words in the host input/output representation.
+- The source provides input `{2, 3, 5, 7}` and expected output `{2, 0, 0, 7}`. `verifyResult()` skips expected words equal to zero, so this leaf constrains the first and final integer payloads only.
+- The module assembles and validates as SPIR-V 1.0 with `spirv-as --target-env spv1.0` and `spirv-val --target-env spv1.0`.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|----------------------------------------|----------|
+| Copy instruction | `copy_object` replaces `OpCopyMemory` with `OpLoad %type_container_struct %input_copy` followed by `OpStore %var_outdata %result`; `copy_memory` retains the pointer-based memory copy. | [copying method table](../../../modules/vulkan/spirv_assembly/vktSpvAsmEmptyStructTests.cpp#L167-L184) |
+| Buffer layout | `ubo` changes the input descriptor to `Uniform`, uses offsets `0`, `16`, `32`, `48`, and supplies padded host data; `ssbo` uses compact offsets `0`, `4`, `8`, `12`. | [buffer type table](../../../modules/vulkan/spirv_assembly/vktSpvAsmEmptyStructTests.cpp#L141-L165) |
+| Pointer comparison | `pointer_comparison.ssbo` uses a separate module with `OpAccessChain` to empty members `1` and `2`, `OpPtrNotEqual`, and `OpSelect`; it requires SPIR-V 1.4, `VK_KHR_spirv_1_4`, and `variablePointersStorageBuffer`. | [pointer-comparison builder](../../../modules/vulkan/spirv_assembly/vktSpvAsmEmptyStructTests.cpp#L213-L316) |
+| Function variable placement | The three `function` leaves use a separate module and place the source empty value in `Private`, `Workgroup`, or `Function` storage; the call/return path uses `OpCopyLogical` and `%15`. | [function builder](../../../modules/vulkan/spirv_assembly/vktSpvAsmEmptyStructTests.cpp#L319-L526) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: complete CTS-authored SPIR-V assembly for `copying.copy_memory_ssbo`
+- Stage: `comp`
+- Entry point: `GLCompute` (`main`)
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
 
 ```llvm
-%type_empty_struct = OpTypeStruct
-%type_container_struct = OpTypeStruct %i32 %type_empty_struct %type_empty_struct %i32
-%var_input = OpVariable %type_container_struct_ssbo_ptr StorageBuffer
-%var_outdata = OpVariable %type_container_struct_ssbo_ptr StorageBuffer
-OpCopyMemory %var_outdata %var_input
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 23
+; Schema: 0
+               OpCapability Shader
+               OpExtension "SPV_KHR_storage_buffer_storage_class"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %1 "main" %gl_GlobalInvocationID
+               OpExecutionMode %1 LocalSize 1 1 1
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %3 Binding 0
+               OpDecorate %3 DescriptorSet 0
+               OpDecorate %4 Binding 1
+               OpDecorate %4 DescriptorSet 0
+               OpMemberDecorate %_struct_5 0 Offset 0
+               OpMemberDecorate %_struct_5 1 Offset 4
+               OpMemberDecorate %_struct_5 2 Offset 8
+               OpMemberDecorate %_struct_5 3 Offset 12
+               OpDecorate %_struct_5 Block
+       %bool = OpTypeBool
+       %void = OpTypeVoid
+          %8 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+        %int = OpTypeInt 32 1
+      %float = OpTypeFloat 32
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%_ptr_StorageBuffer_int = OpTypePointer StorageBuffer %int
+%_ptr_StorageBuffer_float = OpTypePointer StorageBuffer %float
+%_runtimearr_int = OpTypeRuntimeArray %int
+%_runtimearr_float = OpTypeRuntimeArray %float
+ %_struct_18 = OpTypeStruct
+  %_struct_5 = OpTypeStruct %int %_struct_18 %_struct_18 %int
+%_ptr_Uniform__struct_5 = OpTypePointer Uniform %_struct_5
+%_ptr_StorageBuffer__struct_5 = OpTypePointer StorageBuffer %_struct_5
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+          %3 = OpVariable %_ptr_StorageBuffer__struct_5 StorageBuffer
+          %4 = OpVariable %_ptr_StorageBuffer__struct_5 StorageBuffer
+          %1 = OpFunction %void None %8
+         %21 = OpLabel
+         %22 = OpCopyObject %_ptr_StorageBuffer__struct_5 %3
+               OpCopyMemory %4 %3
+               OpReturn
+               OpFunctionEnd
 ```
 
-This is an excerpt of CTS-authored SPIR-V assembly from C++ templates rather than GLSL or HLSL. The compute-case builder submits the specialized complete assembly to `programCollection.spirvAsmSources`; this page does not publish a separate disassembly, so it intentionally has no `#### SPIR-V` subsection.
-
-The other copying leaves retain the type layout but select the UBO offsets or replace the final instruction with a load and store. The pointer-comparison and function nodes use separate complete assembly templates, so this narrow walkthrough does not imply that their modules use `OpCopyMemory`.
+</details>
 
 ## Runtime Execution and Result Checking
 
@@ -133,7 +209,12 @@ The observed buffers classify failures by operation shape. They do not isolate a
 
 ## Case Pruning
 
+### Requirement-based pruning
+
 - `pointer_comparison` has only an SSBO leaf because the source notes that this pointer comparison is possible only for the `StorageBuffer` storage class. See [the builder comment and capability declaration](../../../modules/vulkan/spirv_assembly/vktSpvAsmEmptyStructTests.cpp#L213-L219).
+
+### Design-based pruning
+
 - The `copying` node tests two layouts rather than every possible buffer arrangement. The source supplies the UBO and SSBO forms needed to exercise their distinct member-offset tables.
 - The function node uses three storage placements. It does not multiply those cases by the copying layouts because the function template has its own storage-buffer interface and varies only the empty variable definition.
 

@@ -74,12 +74,181 @@ This compute-only leaf gives three distinct SPIR-V specialization constants of t
 
 ## Shader Analysis
 
-Most of the family generates many stage-specific shaders, so one walkthrough would not represent the matrix. `generateSpecConstantCode` substitutes each `${ID}` placeholder in declarations, and `initPrograms` inserts those declarations, output-buffer layout, case global code, and main-body code only into the selected stage ([code generation](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L330-L352), [stage insertion](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L355-L513)). The two dedicated compute cases use hand-authored SPIR-V assembly instead ([unaligned program](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L2449-L2562), [same-ID program](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L2700-L2820)).
+The inventory identifies `dEQP-VK.pipeline.shader_object_linked_binary.spec_constant.graphics.fragment.basic.bool` as the representative case: it exercises the generated GLSL path while keeping the selected stage and value representation easy to audit. The fragment shader below is reconstructed from the `basic.bool` `CaseDefinition`; its SPIR-V was generated with `glslangValidator --target-env spirv1.3 -V`, validated with `spirv-val --target-env vulkan1.1`, and disassembled with `spirv-dis`.
 
-Shader code is the tested vehicle, but this page does not include a representative shader walkthrough or SPIR-V listing. The mechanisms vary by case. All cases make specialization observable through storage-buffer writes; the normal generated cases use `verifyValues`, while each hand-authored SPIR-V case has its own comparison loop.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.shader_object_linked_binary.spec_constant.graphics.fragment.basic.bool
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `shader_object_linked_binary` | Selects one of the non-monolithic graphics construction roots. The generated shader logic and specialization map are shared with the other construction variants; the construction path changes how the shader object/pipeline is built. |
+| `graphics.fragment` | Makes the fragment stage the selected stage. Supporting vertex and fragment pipeline setup is still generated as required, but only the selected fragment program receives the specialization declarations, SSBO, and case code. |
+| `basic.bool` | Declares four boolean specialization constants with IDs 1–4 and supplies four-byte API values `true`, `false`, `false`, and `true`. |
+| `std430` output SSBO | Makes each host-checked boolean occupy a four-byte output slot at offsets 0, 4, 8, and 12, allowing `verifyValues` to compare the specialized results as raw bytes. |
+
+#### Purpose
+
+This shader checks that API-supplied specialization values replace the four declared boolean defaults in the selected fragment stage. It writes each specialized value to a storage buffer while producing a constant yellow fragment output so the SSBO, rather than rendered color, is the behavioral oracle.
+
+#### Structural Design
+
+| Phase | Shader operation | Validation signal |
+|-------|------------------|-------------------|
+| Declaration | Declare `sc0`–`sc3` with `SpecId` 1–4 and expose `Output.r0`–`r3` at set 0, binding 0. | Pipeline specialization has four IDs and one byte-comparable result buffer. |
+| Observation | Store `sc0`–`sc3` into the four SSBO members. | The selected values become host-visible at offsets 0, 4, 8, and 12. |
+| Graphics completion | Store yellow into `fragColor`. | The triangle executes the selected fragment stage; color is incidental to the specialization result check. |
+
+#### Shader Code
+
+```glsl
+#version 450
+layout(location = 0) out highp vec4 fragColor;
+/// The selected fragment stage receives four distinct specialization IDs. Their declarations retain the defaults until pipeline creation supplies replacement data.
+layout(constant_id = 1) const bool sc0 = true;
+layout(constant_id = 2) const bool sc1 = false;
+layout(constant_id = 3) const bool sc2 = true;
+layout(constant_id = 4) const bool sc3 = false;
+/// Binding 0 is the host-visible result SSBO. In std430, these scalar boolean members are represented in four-byte slots for the comparison below.
+layout (set = 0, binding = 0, std430) writeonly buffer Output {
+    bool r0;
+    bool r1;
+    bool r2;
+    bool r3;
+} sb_out;
+void main (void)
+{
+    /// Copy the pipeline-specialized values into independently checked output slots.
+    sb_out.r0 = sc0;
+    sb_out.r1 = sc1;
+    sb_out.r2 = sc2;
+    sb_out.r3 = sc3;
+    /// The graphics path needs a valid color result, but specialization correctness is checked through sb_out.
+    fragColor = vec4(1.0, 1.0, 0.0, 1.0);
+}
+```
+
+#### Additional Info
+
+- `initPrograms` always creates the graphics support stages, but the `useSpecConst` guard is true only when `m_stage == VK_SHADER_STAGE_FRAGMENT_BIT`; therefore the vertex shader does not declare or write these constants ([`initPrograms`](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L355-L419)).
+- The host supplies four-byte values for all four IDs, attaches the resulting `VkSpecializationInfo` to the fragment state, draws one triangle, makes shader writes visible to the host, and checks the expected boolean bytes with `verifyValues` ([`basic` definitions](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L1074-L1095), [graphics execution](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L730-L779), [verification](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L810-L829)).
+- The same `basic.bool` shader shape is reused across the five non-monolithic graphics construction lists; the representative path differs in construction mode, not in generated specialization logic.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|----------------------------------------|----------|
+| Selected shader stage | Vertex, fragment, tessellation-control, tessellation-evaluation, and geometry cases insert the declarations, SSBO, and case code only into the selected stage; supporting stages retain their fixed pipeline plumbing. | [`initPrograms`](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L355-L519) |
+| Test mechanism | `default_value` omits replacement entries and observes declared defaults; `basic` supplies map entries; `builtin`, `expression`, and `composite` replace the case declarations and main-body logic with their respective use sites. | [`createSpecConstantTests`](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L2963-L2969) |
+| Representation | `basic` changes the declaration and output member type across bool, integer, and floating-point definitions; feature-gated 8/16/64-bit types add the corresponding GLSL extensions. | [`basic` definitions and feature flags](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L1074-L1109), [extension selection](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L370-L380) |
+| Data packing | `_packed` variants keep the generated shader values and output logic but advance map-entry offsets by each value's size instead of `sizeof(GenericValue)`. | [`Specialization`](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L272-L300) |
+| Construction type | Monolithic and the five non-monolithic graphics roots reuse the generated source while attaching specialization information through their respective pipeline/shader-object construction paths. | [`createSpecConstantTests`](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L2955-L2991) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.3`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.3
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 38
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %fragColor
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %Output "Output"
+               OpMemberName %Output 0 "r0"
+               OpMemberName %Output 1 "r1"
+               OpMemberName %Output 2 "r2"
+               OpMemberName %Output 3 "r3"
+               OpName %sb_out "sb_out"
+               OpName %sc0 "sc0"
+               OpName %sc1 "sc1"
+               OpName %sc2 "sc2"
+               OpName %sc3 "sc3"
+               OpName %fragColor "fragColor"
+               OpDecorate %Output Block
+               OpMemberDecorate %Output 0 NonReadable
+               OpMemberDecorate %Output 0 Offset 0
+               OpMemberDecorate %Output 1 NonReadable
+               OpMemberDecorate %Output 1 Offset 4
+               OpMemberDecorate %Output 2 NonReadable
+               OpMemberDecorate %Output 2 Offset 8
+               OpMemberDecorate %Output 3 NonReadable
+               OpMemberDecorate %Output 3 Offset 12
+               OpDecorate %sb_out NonReadable
+               OpDecorate %sb_out Binding 0
+               OpDecorate %sb_out DescriptorSet 0
+               OpDecorate %sc0 SpecId 1
+               OpDecorate %sc1 SpecId 2
+               OpDecorate %sc2 SpecId 3
+               OpDecorate %sc3 SpecId 4
+               OpDecorate %fragColor Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+     %Output = OpTypeStruct %uint %uint %uint %uint
+%_ptr_StorageBuffer_Output = OpTypePointer StorageBuffer %Output
+     %sb_out = OpVariable %_ptr_StorageBuffer_Output StorageBuffer
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+       %bool = OpTypeBool
+        %sc0 = OpSpecConstantTrue %bool
+     %uint_1 = OpConstant %uint 1
+     %uint_0 = OpConstant %uint 0
+%_ptr_StorageBuffer_uint = OpTypePointer StorageBuffer %uint
+      %int_1 = OpConstant %int 1
+        %sc1 = OpSpecConstantFalse %bool
+      %int_2 = OpConstant %int 2
+        %sc2 = OpSpecConstantTrue %bool
+      %int_3 = OpConstant %int 3
+        %sc3 = OpSpecConstantFalse %bool
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %fragColor = OpVariable %_ptr_Output_v4float Output
+    %float_1 = OpConstant %float 1
+    %float_0 = OpConstant %float 0
+         %37 = OpConstantComposite %v4float %float_1 %float_1 %float_0 %float_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %16 = OpSelect %uint %sc0 %uint_1 %uint_0
+         %18 = OpAccessChain %_ptr_StorageBuffer_uint %sb_out %int_0
+               OpStore %18 %16
+         %21 = OpSelect %uint %sc1 %uint_1 %uint_0
+         %22 = OpAccessChain %_ptr_StorageBuffer_uint %sb_out %int_1
+               OpStore %22 %21
+         %25 = OpSelect %uint %sc2 %uint_1 %uint_0
+         %26 = OpAccessChain %_ptr_StorageBuffer_uint %sb_out %int_2
+               OpStore %26 %25
+         %29 = OpSelect %uint %sc3 %uint_1 %uint_0
+         %30 = OpAccessChain %_ptr_StorageBuffer_uint %sb_out %int_3
+               OpStore %30 %29
+               OpStore %fragColor %37
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
-
 - The source builds a `Specialization` object from each case's declarations. It reserves generic storage, copies supplied bytes, adds an entry for each nonzero-size or forced-use constant, and advances offsets by either the value size or `sizeof(GenericValue)` for non-packed data ([builder](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L272-L301)).
 - The compute path creates a host-visible SSBO and descriptor set, attaches specialization information to `ComputePipelineWrapper` when entries exist, dispatches `(1, 1, 1)`, barriers shader writes to host reads, waits, invalidates the allocation, and calls `verifyValues` ([compute path](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L552-L630)).
 - The graphics path creates a color attachment, a triangle vertex buffer, and a host-visible SSBO. It attaches specialization information to the pre-rasterization or fragment state, draws one triangle, barriers graphics shader writes to host reads, waits, invalidates, and calls the same verifier ([graphics path](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L665-L830)).

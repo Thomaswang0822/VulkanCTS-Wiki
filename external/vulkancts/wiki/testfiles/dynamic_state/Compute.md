@@ -62,9 +62,138 @@ This intermediate node takes the first nine basic states (those with no extensio
 
 ## Shader Analysis
 
-The compute path uses a trivial compute shader that writes `1u` to a storage buffer slot selected by a push constant. The vertex-input-stride state also generates a pass-through vertex shader for a stand-in graphics pipeline, but that pipeline is never drawn; it exists only so the `VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE_EXT` recorder has a valid pipeline context ([shaders](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L874-L911)).
+### Representative Shader Walkthrough 1
 
-No representative shader walkthrough is included. The compute shader is a one-line store, and the tested property is whether the surrounding dynamic-state commands interfered with it, which is a host-side buffer check.
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.dynamic_state.monolithic.compute_transfer.single.compute.viewport.before
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `monolithic` | Uses the ordinary monolithic pipeline construction path; the compute shader is compiled into the compute pipeline created by `iterateCompute()`. |
+| `compute` | Selects the dispatch path, so `initPrograms()` emits `comp` and the runtime validates shader-written storage-buffer values rather than copied transfer values. |
+| `single.viewport` | Tests one graphics dynamic state in isolation: the viewport command is recorded next to the dispatch, while the shader itself has no viewport-dependent behavior. |
+| `before` | Records the viewport state command before the bind/push-constant/dispatch sequence, testing that command ordering does not affect the compute result. |
+
+#### Purpose
+
+This shader is the validation producer for the compute-transfer isolation test: every one-invocation dispatch writes `1u` to the output-buffer slot selected by the host. The test passes only when the graphics dynamic-state command recorded before the dispatch leaves that shader write intact.
+
+#### Structural Design
+
+| Phase | Shader operation | Validation consequence |
+|-------|------------------|------------------------|
+| Invocation setup | One workgroup of size `1 × 1 × 1` is dispatched. | Each dispatch performs exactly one store, avoiding an invocation-count ambiguity. |
+| Index transport | Load `pc.valueIndex` from the compute-stage push-constant block. | The host routes each dynamic-state case to a distinct output slot. |
+| Result write | Store the constant `1u` through the runtime-array access `ob.value[pc.valueIndex]`. | After the queue completes, the host expects every slot to contain `1u`; an unchanged zero identifies a missing or corrupted dispatch write. |
+
+#### Shader Code
+
+```glsl
+#version 450
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+/// The host pushes one output-buffer slot per dispatch through this 32-bit field.
+layout (push_constant, std430) uniform PushConstants {
+    uint valueIndex;
+} pc;
+
+/// Binding 0 is the host-visible storage buffer whose slots are checked after submission.
+layout (set=0, binding=0, std430) buffer OutputBlock {
+    uint value[];
+} ob;
+
+/// Each one-invocation dispatch marks only the slot selected by the current push constant.
+void main ()
+{
+    ob.value[pc.valueIndex] = 1u;
+}
+```
+
+#### Additional Info
+
+- `DynamicStateComputeCase::initPrograms()` emits this `comp` module only when `operationType` is `COMPUTE`; the transfer variants do not create or execute a shader.
+- The host allocates one `uint32_t` output slot per state, pushes the loop index before each dispatch, and inserts a compute-write-to-host-read barrier before checking the slots. The shader therefore supplies the device-side signal, while command ordering and dynamic-state isolation remain the tested behavior.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|----------------------------------------|----------|
+| Operation type | `compute` emits the fixed `comp` shader; `transfer` emits no compute shader and instead validates `vkCmdCopyBuffer`. | [`DynamicStateComputeCase::initPrograms()`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L874-L897) |
+| Dynamic-state set | `single` changes only which host recorder runs around the same dispatch; `multi` supplies the first nine basic states but leaves this shader unchanged. | [`createDynamicStateComputeTests()`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L1213-L1281) |
+| When to set | `before` versus `after` changes command-buffer ordering around the same bind, push-constant update, and dispatch; shader declarations and instructions are unchanged. | [`iterateCompute()`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L1114-L1149) |
+| Output routing | Each dispatch receives a different `valueIndex`, changing the addressed runtime-array element but not the store value or control flow. | [`iterateCompute()`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L1141-L1146) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 24
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %OutputBlock "OutputBlock"
+               OpMemberName %OutputBlock 0 "value"
+               OpName %ob "ob"
+               OpName %PushConstants "PushConstants"
+               OpMemberName %PushConstants 0 "valueIndex"
+               OpName %pc "pc"
+               OpDecorate %_runtimearr_uint ArrayStride 4
+               OpDecorate %OutputBlock BufferBlock
+               OpMemberDecorate %OutputBlock 0 Offset 0
+               OpDecorate %ob Binding 0
+               OpDecorate %ob DescriptorSet 0
+               OpDecorate %PushConstants Block
+               OpMemberDecorate %PushConstants 0 Offset 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_runtimearr_uint = OpTypeRuntimeArray %uint
+%OutputBlock = OpTypeStruct %_runtimearr_uint
+%_ptr_Uniform_OutputBlock = OpTypePointer Uniform %OutputBlock
+         %ob = OpVariable %_ptr_Uniform_OutputBlock Uniform
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%PushConstants = OpTypeStruct %uint
+%_ptr_PushConstant_PushConstants = OpTypePointer PushConstant %PushConstants
+         %pc = OpVariable %_ptr_PushConstant_PushConstants PushConstant
+%_ptr_PushConstant_uint = OpTypePointer PushConstant %uint
+     %uint_1 = OpConstant %uint 1
+%_ptr_Uniform_uint = OpTypePointer Uniform %uint
+     %v3uint = OpTypeVector %uint 3
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %17 = OpAccessChain %_ptr_PushConstant_uint %pc %int_0
+         %18 = OpLoad %uint %17
+         %21 = OpAccessChain %_ptr_Uniform_uint %ob %int_0 %18
+               OpStore %21 %uint_1
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

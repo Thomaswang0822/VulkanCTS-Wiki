@@ -69,35 +69,271 @@ The test creates a surface, finds both selected formats in that surface's format
 
 ## Shader Analysis
 
-Example leaf:
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
 
 ```text
 dEQP-VK.image.mutable.2d.b8g8r8a8_snorm_r8g8b8a8_unorm_store_load
 ```
 
-This case creates the image in `B8G8R8A8_SNORM`, makes an `R8G8B8A8_UNORM` storage-image view, writes through a generated compute shader, then reads that view through a second generated compute shader.
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `2d` | Creates a 32×32, one-layer image and generates `image2D` declarations with `ivec2` coordinates. |
+| `b8g8r8a8_snorm_r8g8b8a8_unorm` | Creates the image as `B8G8R8A8_SNORM` but exposes shader storage views as `R8G8B8A8_UNORM`, whose GLSL format qualifier is `rgba8`. |
+| `store_load` | Selects the compute `imageStore` upload followed by a compute `imageLoad` into a separate output image. |
 
-The source generator emits the following shape for the upload program (the qualifier, image type, scalar/vector type, and constants vary with `viewFormat` and image type):
+#### Purpose
+
+This case verifies that normalized colors written and read through an `R8G8B8A8_UNORM` storage view of a mutable `B8G8R8A8_SNORM` image survive the complete shader and host-readback path.
+
+#### Structural Design
+
+```mermaid
+flowchart TD
+    A[32×32×1 compute dispatch] --> B[uploadStoreComp writes colorTable z through rgba8 mutable view]
+    B --> C[compute barrier makes shader writes visible]
+    C --> D[downloadLoadComp loads the same rgba8 mutable view]
+    D --> E[store into separate rgba8 output image]
+    E --> F[copy output image to host buffer and compare]
+```
+
+#### Shader Code
+
+##### Upload Compute Shader
 
 ```glsl
 #version 450
-layout(local_size_x = 1) in;
-layout(binding = 0, rgba8) writeonly uniform image2D u_image;
 
+layout (local_size_x = 1) in;
+
+/// Mutable image view in R8G8B8A8_UNORM; the host binds it at set 0, binding 0 in GENERAL layout.
+layout(binding=0, rgba8) writeonly uniform image2D u_image;
+
+/// One reference color per possible array layer; this 2D case dispatches only z = 0.
 const vec4 colorTable[] = vec4[](
-    vec4(0.0, 0.4, 0.8, 0.1),
-    vec4(0.5, 0.1, 0.9, 0.2),
-    vec4(0.2, 0.6, 1.0, 0.3),
-    vec4(0.3, 0.7, 0.0, 0.4));
+     vec4(0, 0.4, 0.8, 0.1),
+     vec4(0.5, 0.1, 0.9, 0.2),
+     vec4(0.2, 0.6, 1, 0.3),
+     vec4(0.3, 0.7, 0, 0.4)
+);
 
-void main()
+void main(void)
 {
+    /// One invocation addresses one texel of the 32 x 32 view.
     ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
-    imageStore(u_image, pos, colorTable[gl_GlobalInvocationID.z]);
+    vec4 color = colorTable[gl_GlobalInvocationID.z];
+    /// Store normalized RGBA values through the alternate-format view.
+    imageStore(u_image, pos, color);
 }
 ```
 
-For this 2D leaf the dispatch is 32×32×1, so every texel receives `colorTable[0]`. For `2d_array`, the generator uses `image2DArray` and an `ivec3` coordinate; the z invocation selects the layer's reference color. Integer view formats generate `ivec4` or `uvec4` tables. The `load` reader emits `imageStore(out_image, pos, imageLoad(in_image, pos))`; the `texture` reader instead binds a sampler and uses `texelFetch` ([`initPrograms()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L363-L536)).
+##### Download Compute Shader
+
+```glsl
+#version 450
+
+layout (local_size_x = 1) in;
+
+/// Mutable R8G8B8A8_UNORM view of the B8G8R8A8_SNORM image, bound as the input storage image.
+layout(binding=0, rgba8) readonly uniform image2D in_image;
+/// Separate non-mutable R8G8B8A8_UNORM output image used for transfer readback.
+layout(binding=1, rgba8) writeonly uniform image2D out_image;
+
+void main(void)
+{
+    /// One invocation forwards one texel without changing its view-format value.
+    ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
+    imageStore(out_image, pos, imageLoad(in_image, pos));
+}
+```
+
+#### Additional Info
+
+- The download compute shader varies with image type and view-format class: this case uses two `rgba8 image2D` resources, while array cases use `image2DArray`/`ivec3` and integer formats use signed or unsigned image types. It matters because it transports the value observed through the mutable view into a non-mutable image that can be copied to the host ([source](../../../modules/vulkan/image/vktImageMutableTests.cpp#L469-L500)).
+- The host dispatches both shaders as 32×32×1. Before the download dispatch, it makes the upload shader write visible to shader reads and transitions both storage images to `VK_IMAGE_LAYOUT_GENERAL`; afterward it copies the output image to the host buffer ([source](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1627-L1666)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|------------------------------------------|----------|
+| Image type | `2d_array` changes both storage-image types to `image2DArray`, coordinates to `ivec3`, and dispatch depth to four layers; `gl_GlobalInvocationID.z` selects the layer color. | [`initPrograms()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L414-L500) |
+| View format | The view format selects the storage-image format qualifier and `image*`, `iimage*`, or `uimage*` type; integer uploads also use `ivec4` or `uvec4` color tables. | [`initPrograms()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L414-L484) |
+| Upload route | Only `store` generates this upload compute shader; `draw` generates vertex/fragment stages, while transfer `clear` and `copy` need no upload shader. | [`initPrograms()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L363-L467) |
+| Download route | `load` uses `imageLoad` and two storage images; `texture` uses `texelFetch` with a sampler and output storage image, while `copy` needs no download shader. | [`initPrograms()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L469-L536) |
+
+#### SPIR-V
+
+##### Upload Compute Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 56
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %pos "pos"
+               OpName %gl_GlobalInvocationID "gl_GlobalInvocationID"
+               OpName %color "color"
+               OpName %indexable "indexable"
+               OpName %u_image "u_image"
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %u_image NonReadable
+               OpDecorate %u_image Binding 0
+               OpDecorate %u_image DescriptorSet 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+      %v2int = OpTypeVector %int 2
+%_ptr_Function_v2int = OpTypePointer Function %v2int
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+     %v2uint = OpTypeVector %uint 2
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+     %uint_4 = OpConstant %uint 4
+%_arr_v4float_uint_4 = OpTypeArray %v4float %uint_4
+    %float_0 = OpConstant %float 0
+%float_0_400000006 = OpConstant %float 0.400000006
+%float_0_800000012 = OpConstant %float 0.800000012
+%float_0_100000001 = OpConstant %float 0.100000001
+         %28 = OpConstantComposite %v4float %float_0 %float_0_400000006 %float_0_800000012 %float_0_100000001
+  %float_0_5 = OpConstant %float 0.5
+%float_0_899999976 = OpConstant %float 0.899999976
+%float_0_200000003 = OpConstant %float 0.200000003
+         %32 = OpConstantComposite %v4float %float_0_5 %float_0_100000001 %float_0_899999976 %float_0_200000003
+%float_0_600000024 = OpConstant %float 0.600000024
+    %float_1 = OpConstant %float 1
+%float_0_300000012 = OpConstant %float 0.300000012
+         %36 = OpConstantComposite %v4float %float_0_200000003 %float_0_600000024 %float_1 %float_0_300000012
+%float_0_699999988 = OpConstant %float 0.699999988
+         %38 = OpConstantComposite %v4float %float_0_300000012 %float_0_699999988 %float_0 %float_0_400000006
+         %39 = OpConstantComposite %_arr_v4float_uint_4 %28 %32 %36 %38
+     %uint_2 = OpConstant %uint 2
+%_ptr_Input_uint = OpTypePointer Input %uint
+%_ptr_Function__arr_v4float_uint_4 = OpTypePointer Function %_arr_v4float_uint_4
+         %48 = OpTypeImage %float 2D 0 0 0 2 Rgba8
+%_ptr_UniformConstant_48 = OpTypePointer UniformConstant %48
+    %u_image = OpVariable %_ptr_UniformConstant_48 UniformConstant
+     %uint_1 = OpConstant %uint 1
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+        %pos = OpVariable %_ptr_Function_v2int Function
+      %color = OpVariable %_ptr_Function_v4float Function
+  %indexable = OpVariable %_ptr_Function__arr_v4float_uint_4 Function
+         %15 = OpLoad %v3uint %gl_GlobalInvocationID
+         %16 = OpVectorShuffle %v2uint %15 %15 0 1
+         %17 = OpBitcast %v2int %16
+               OpStore %pos %17
+         %42 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_2
+         %43 = OpLoad %uint %42
+               OpStore %indexable %39
+         %46 = OpAccessChain %_ptr_Function_v4float %indexable %43
+         %47 = OpLoad %v4float %46
+               OpStore %color %47
+         %51 = OpLoad %48 %u_image
+         %52 = OpLoad %v2int %pos
+         %53 = OpLoad %v4float %color
+               OpImageWrite %51 %52 %53
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Download Compute Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 31
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %pos "pos"
+               OpName %gl_GlobalInvocationID "gl_GlobalInvocationID"
+               OpName %out_image "out_image"
+               OpName %in_image "in_image"
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %out_image NonReadable
+               OpDecorate %out_image Binding 1
+               OpDecorate %out_image DescriptorSet 0
+               OpDecorate %in_image NonWritable
+               OpDecorate %in_image Binding 0
+               OpDecorate %in_image DescriptorSet 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+      %v2int = OpTypeVector %int 2
+%_ptr_Function_v2int = OpTypePointer Function %v2int
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+     %v2uint = OpTypeVector %uint 2
+      %float = OpTypeFloat 32
+         %19 = OpTypeImage %float 2D 0 0 0 2 Rgba8
+%_ptr_UniformConstant_19 = OpTypePointer UniformConstant %19
+  %out_image = OpVariable %_ptr_UniformConstant_19 UniformConstant
+   %in_image = OpVariable %_ptr_UniformConstant_19 UniformConstant
+    %v4float = OpTypeVector %float 4
+     %uint_1 = OpConstant %uint 1
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+        %pos = OpVariable %_ptr_Function_v2int Function
+         %15 = OpLoad %v3uint %gl_GlobalInvocationID
+         %16 = OpVectorShuffle %v2uint %15 %15 0 1
+         %17 = OpBitcast %v2int %16
+               OpStore %pos %17
+         %22 = OpLoad %19 %out_image
+         %23 = OpLoad %v2int %pos
+         %25 = OpLoad %19 %in_image
+         %26 = OpLoad %v2int %pos
+         %28 = OpImageRead %v4float %25 %26
+               OpImageWrite %22 %23 %28
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 
@@ -123,6 +359,8 @@ copy result to host-visible buffer → invalidate mapping → compare every pixe
 
 ## Failure Meaning
 
+### Failure Cause Mapping
+
 | Failing dimension | Investigate first |
 |---|---|
 | One ordered format pair across routes | Mutable image/view legality, format-list contents, view-format interpretation, or format-specific feature support. Verify the pair against the Vulkan compatibility table; equal pixel size is only this generator's filter. |
@@ -136,9 +374,17 @@ copy result to host-visible buffer → invalidate mapping → compare every pixe
 | `_load_op_clear` only | Render pass clear/load behavior or the intentionally smaller draw quad that exposes the clear outside the quad. |
 | Swapchain family only | WSI extension/device setup, surface format or usage selection, mutable swapchain list, acquire synchronization, or platform surface setup. |
 
-A pixel mismatch is reported as `Fail`; a missing format feature, extension, sample count, surface capability, or platform facility is normally reported as `NotSupported`. These have different diagnostic meanings.
+### Cause Analysis
+
+#### Route-specific data path or support gate
+
+**Possible failure symptoms:** A pixel mismatch is reported as `Fail`; a missing format feature, extension, sample count, surface capability, or platform facility is normally reported as `NotSupported`.
+
+**Possible implementation causes:** For `Fail`, investigate the format pair and selected upload/download or resolve route identified in the mapping above. For `NotSupported`, investigate the applicable format-feature, extension, sample-count, surface-capability, or platform-facility gate. These outcomes have different diagnostic meanings.
 
 ## Case Pruning
+
+### Requirement-based pruning
 
 | Condition | Outcome in this test |
 |---|---|
@@ -148,6 +394,8 @@ A pixel mismatch is reported as `Fail`; a missing format feature, extension, sam
 | Ordinary sample count | The shared ordinary support check rejects a case if the maximum available sample count is only `VK_SAMPLE_COUNT_1_BIT`, even when that leaf is not a resolve leaf. |
 | Swapchain | Requires `VK_KHR_surface`, the selected WSI surface extension, `VK_KHR_swapchain`, `VK_KHR_swapchain_mutable_format`, both formats supported by the surface, requested surface usage, and sufficient image array layers. |
 | WSI environment | Unsupported extensions, native display/window facilities, or surface properties produce `NotSupported`/environment-dependent outcomes rather than a pixel-comparison failure. |
+
+### Design-based pruning
 
 Identical formats are deliberately excluded. Resolve and load-op-clear leaves are ordinary-image-only design variants; the resolve matrix is fixed to `draw_copy`, and `_load_op_clear` is fixed to the one-layer texture. The Vulkan test-plan's broader image-view objective is to create valid views from compatible images and verify differing formats ([`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L483-L504)).
 

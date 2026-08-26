@@ -97,7 +97,7 @@ flowchart TD
 
 #### Shader Code
 
-##### Raygen Shader (rgen)
+##### Ray Generation Shader
 
 ```glsl
 #version 460 core
@@ -199,6 +199,8 @@ void main()
 
 #### SPIR-V
 
+##### Ray Generation Shader
+
 - Status: generated and validated
 - Source: reconstructed `GLSL` from this walkthrough
 - Stage: `rgen`
@@ -277,7 +279,193 @@ void main()
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
+
+##### Closest-Hit / Any-Hit Shader (hits)
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `rahit`
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 22
+; Schema: 0
+               OpCapability RayTracingKHR
+               OpExtension "SPV_KHR_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint AnyHitKHR %main "main" %outBuffer %gl_RayTmaxEXT %hitValue %attribs
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_ray_tracing"
+               OpName %main "main"
+               OpName %OutBuffer "OutBuffer"
+               OpMemberName %OutBuffer 0 "val"
+               OpName %outBuffer "outBuffer"
+               OpName %gl_RayTmaxEXT "gl_RayTmaxEXT"
+               OpName %hitValue "hitValue"
+               OpName %attribs "attribs"
+               OpDecorate %OutBuffer Block
+               OpMemberDecorate %OutBuffer 0 Offset 0
+               OpDecorate %outBuffer Binding 1
+               OpDecorate %outBuffer DescriptorSet 0
+               OpDecorate %gl_RayTmaxEXT BuiltIn RayTmaxKHR
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+  %OutBuffer = OpTypeStruct %float
+%_ptr_StorageBuffer_OutBuffer = OpTypePointer StorageBuffer %OutBuffer
+  %outBuffer = OpVariable %_ptr_StorageBuffer_OutBuffer StorageBuffer
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Input_float = OpTypePointer Input %float
+%gl_RayTmaxEXT = OpVariable %_ptr_Input_float Input
+%_ptr_StorageBuffer_float = OpTypePointer StorageBuffer %float
+    %v3float = OpTypeVector %float 3
+%_ptr_IncomingRayPayloadKHR_v3float = OpTypePointer IncomingRayPayloadKHR %v3float
+   %hitValue = OpVariable %_ptr_IncomingRayPayloadKHR_v3float IncomingRayPayloadKHR
+%_ptr_HitAttributeKHR_v3float = OpTypePointer HitAttributeKHR %v3float
+    %attribs = OpVariable %_ptr_HitAttributeKHR_v3float HitAttributeKHR
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %14 = OpLoad %float %gl_RayTmaxEXT
+         %16 = OpAccessChain %_ptr_StorageBuffer_float %outBuffer %int_0
+               OpStore %16 %14
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Intersection Shader (isec, test stage)
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `rint`
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 27
+; Schema: 0
+               OpCapability RayTracingKHR
+               OpExtension "SPV_KHR_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint IntersectionKHR %main "main" %hitAttribute %outBuffer %gl_RayTminEXT
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_ray_tracing"
+               OpName %main "main"
+               OpName %hitAttribute "hitAttribute"
+               OpName %OutBuffer "OutBuffer"
+               OpMemberName %OutBuffer 0 "val"
+               OpName %outBuffer "outBuffer"
+               OpName %gl_RayTminEXT "gl_RayTminEXT"
+               OpDecorate %OutBuffer Block
+               OpMemberDecorate %OutBuffer 0 Offset 0
+               OpDecorate %outBuffer Binding 1
+               OpDecorate %outBuffer DescriptorSet 0
+               OpDecorate %gl_RayTminEXT BuiltIn RayTminKHR
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v3float = OpTypeVector %float 3
+%_ptr_HitAttributeKHR_v3float = OpTypePointer HitAttributeKHR %v3float
+%hitAttribute = OpVariable %_ptr_HitAttributeKHR_v3float HitAttributeKHR
+    %float_0 = OpConstant %float 0
+         %11 = OpConstantComposite %v3float %float_0 %float_0 %float_0
+  %OutBuffer = OpTypeStruct %float
+%_ptr_StorageBuffer_OutBuffer = OpTypePointer StorageBuffer %OutBuffer
+  %outBuffer = OpVariable %_ptr_StorageBuffer_OutBuffer StorageBuffer
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Input_float = OpTypePointer Input %float
+%gl_RayTminEXT = OpVariable %_ptr_Input_float Input
+%_ptr_StorageBuffer_float = OpTypePointer StorageBuffer %float
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+       %bool = OpTypeBool
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+               OpStore %hitAttribute %11
+         %19 = OpLoad %float %gl_RayTminEXT
+         %21 = OpAccessChain %_ptr_StorageBuffer_float %outBuffer %int_0
+               OpStore %21 %19
+         %22 = OpLoad %float %gl_RayTminEXT
+         %26 = OpReportIntersectionKHR %bool %22 %uint_0
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Miss Shader (miss)
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `rmiss`
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 18
+; Schema: 0
+               OpCapability RayTracingKHR
+               OpExtension "SPV_KHR_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint MissKHR %main "main" %outBuffer %hitValue
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_ray_tracing"
+               OpName %main "main"
+               OpName %OutBuffer "OutBuffer"
+               OpMemberName %OutBuffer 0 "val"
+               OpName %outBuffer "outBuffer"
+               OpName %hitValue "hitValue"
+               OpDecorate %OutBuffer Block
+               OpMemberDecorate %OutBuffer 0 Offset 0
+               OpDecorate %outBuffer Binding 1
+               OpDecorate %outBuffer DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+  %OutBuffer = OpTypeStruct %float
+%_ptr_StorageBuffer_OutBuffer = OpTypePointer StorageBuffer %OutBuffer
+  %outBuffer = OpVariable %_ptr_StorageBuffer_OutBuffer StorageBuffer
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%float_n10000 = OpConstant %float -10000
+%_ptr_StorageBuffer_float = OpTypePointer StorageBuffer %float
+    %v3float = OpTypeVector %float 3
+%_ptr_IncomingRayPayloadKHR_v3float = OpTypePointer IncomingRayPayloadKHR %v3float
+   %hitValue = OpVariable %_ptr_IncomingRayPayloadKHR_v3float IncomingRayPayloadKHR
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %14 = OpAccessChain %_ptr_StorageBuffer_float %outBuffer %int_0
+               OpStore %14 %float_n10000
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+## Runtime Execution and Result Checking
 
 - **Geometry setup.** The host creates one BLAS with a single geometry: either a triangle with vertices at `(0, 0.5, 5)`, `(-0.5, -0.5, 5)`, `(0.5, -0.5, 5)`, or an AABB with corners `(-0.5, -0.5, z0)` and `(0.5, 0.5, 5.0)` where `z0` is `5.0` for `direction_length` and `0.0` for `inside_aabbs` ([SpaceObjects constructor](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L87-L110)). Triangle geometry carries `VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR` so both faces register.
 - **Instance transform.** The TLAS has one instance. The instance matrix is the rotation matrix from [getRotationMatrix](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L175-L194). When `updateMatrixAfterBuild` is set, the instance is added with an identity matrix and then updated to the rotation matrix after the TLAS build via `updateInstanceMatrix` ([updateMatrixAfterBuild](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L449-L454)).

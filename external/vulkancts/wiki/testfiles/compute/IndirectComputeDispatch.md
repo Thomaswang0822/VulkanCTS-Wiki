@@ -65,7 +65,7 @@ The two flavors share the same verifier shader and only differ in how the indire
 Representative path:
 
 ```text
-compute.pipeline.indirect_dispatch.upload_buffer.single_invocation
+dEQP-VK.compute.pipeline.indirect_dispatch.upload_buffer.single_invocation
 ```
 
 The same verifier-shader generator also backs `single_invocation_compute_only_queue` and, under non-VulkanSC, `single_invocation_device_address` in the pipeline and shader-object-binary roots. (The shader-object-SPIR-V root places that index's device-address leaf in `gen_in_compute` instead.) The `_compute_only_queue` and `_device_address` modifiers do not change the verifier shader.

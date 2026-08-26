@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CTS Registration Path 查询</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 52rem; margin: 4rem auto; padding: 0 1rem; color: #1f2937; }
+    h1 { font-size: 1.8rem; }
+    form { display: flex; gap: .6rem; margin: 1.5rem 0; }
+    input { flex: 1; padding: .75rem; font-family: ui-monospace, monospace; }
+    button { padding: .75rem 1.1rem; cursor: pointer; }
+    button:disabled, input:disabled { cursor: wait; opacity: .7; }
+    #result { padding: 1rem; border-radius: .4rem; background: #f3f4f6; min-height: 3rem; }
+    .error { color: #b91c1c; }
+    code { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <h1>CTS Registration Path 查询</h1>
+  <p>输入以 <code>dEQP-VK.</code> 开头的完整测试路径，查询对应的中文 Level-3 Wiki 页面。</p>
+  <form id="lookup-form">
+    <input id="path" name="path" autocomplete="off" autofocus disabled
+      placeholder="dEQP-VK.api.buffer.basic.max_size">
+    <button id="submit" type="submit" disabled>查询</button>
+  </form>
+  <div id="result" aria-live="polite">正在加载索引…</div>
+  <script>
+    const form = document.getElementById('lookup-form');
+    const input = document.getElementById('path');
+    const submit = document.getElementById('submit');
+    const result = document.getElementById('result');
+    let mappings = null;
+
+    function validatePath(path) {
+      const normalized = path.trim();
+      const pattern = /^dEQP-VK(?:\.[A-Za-z0-9_-]+){2,}$/;
+      if (!pattern.test(normalized)) {
+        throw new Error('请输入以 dEQP-VK. 开头的完整 registration path。');
+      }
+      return normalized;
+    }
+
+    function findLongestPrefix(path) {
+      const components = path.split('.');
+      for (let end = components.length; end > 2; end -= 1) {
+        const prefix = components.slice(0, end).join('.');
+        const mapping = mappings[prefix];
+        if (mapping) return {prefix, mapping};
+      }
+      return null;
+    }
+
+    async function loadMappings() {
+      try {
+        const response = await fetch('./mappings.json');
+        if (!response.ok) throw new Error(`索引加载失败 (${response.status})`);
+        const data = await response.json();
+        if (data.schema_version !== 1 || !data.mappings) {
+          throw new Error('索引格式不兼容。');
+        }
+        mappings = data.mappings;
+        input.disabled = false;
+        submit.disabled = false;
+        result.className = '';
+        result.textContent = `索引已加载：${data.category_count} 个 category，${data.mapping_count} 条 mapping。`;
+        input.focus();
+      } catch (error) {
+        result.className = 'error';
+        result.textContent = error.message;
+      }
+    }
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      try {
+        const path = validatePath(input.value);
+        const match = findLongestPrefix(path);
+        if (!match) throw new Error('当前索引中没有对应的 Level-3 页面。');
+        const [page, category, wikiUrl] = match.mapping;
+        result.replaceChildren();
+        const label = document.createElement('span');
+        label.textContent = '匹配页面：';
+        const link = document.createElement('a');
+        link.href = wikiUrl;
+        link.textContent = `${category}/${page}.md`;
+        link.target = '_blank';
+        link.rel = 'noopener';
+        result.append(label, link);
+        result.className = '';
+      } catch (error) {
+        result.className = 'error';
+        result.textContent = error.message;
+      }
+    });
+
+    loadMappings();
+  </script>
+</body>
+</html>

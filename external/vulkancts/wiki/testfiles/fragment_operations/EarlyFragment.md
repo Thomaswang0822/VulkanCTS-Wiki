@@ -117,7 +117,225 @@ The expected reference is `(32 * 32 / 4) * sampleCount` with a 5% tolerance. Bot
 
 ## Shader Analysis
 
-The source generates GLSL for the base, discard, sample-mask, and ordinary sample-count paths. It also embeds SPIR-V for `EarlyAndLateFragmentTestsAMD`. The important shader operations are shown in the Behavior Parameters section: the atomic increment, `discard`, `gl_SampleMask[0]` writes, and alpha-to-coverage input. No reconstructed shader or hand-written SPIR-V listing is included here; the source links are the authoritative artifacts.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.fragment_operations.early_fragment.discard_early_fragment_tests_depth
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `discard` | Selects `EarlyFragmentDiscardTest`, whose fragment shader performs an atomic side effect, writes depth and color, and then discards the fragment. |
+| `early_fragment_tests` | Keeps `FLAG_DONT_USE_EARLY_FRAGMENT_TESTS` clear, so the generator emits `layout(early_fragment_tests) in;`. |
+| `depth` | Enables depth testing and depth writes with `VK_COMPARE_OP_LESS`; the depth attachment is cleared to `0.5`. |
+
+#### Purpose
+
+This shader checks that `discard` does not undo depth writes already performed by early fragment tests. A coherent atomic counter independently records the fragment-shader invocations that survive the early depth test.
+
+#### Structural Design
+
+```mermaid
+flowchart TD
+    A[Two triangles with varying clip-space z] --> B[Early depth test: LESS than clear depth 0.5]
+    B -->|fails| C[No fragment-shader invocation]
+    B -->|passes| D[Depth is updated before fragment shading]
+    D --> E[Atomic increment]
+    E --> F[Write gl_FragDepth and yellow color]
+    F --> G[discard]
+    G --> H[Color remains black; early depth update remains]
+```
+
+#### Shader Code
+
+##### Fragment Shader
+
+```glsl
+#version 440
+
+/// Requests depth/stencil testing before this fragment shader runs.
+layout(early_fragment_tests) in;
+/// Location 0 is the single color attachment; discarded fragments do not commit this value.
+layout(location = 0) out highp vec4 fragColor;
+
+/// Set 0, binding 0 is a coherent 4-byte storage buffer initialized to zero by the host.
+layout(binding = 0) coherent buffer Output {
+    uint result;
+} sb_out;
+
+void main (void)
+{
+    /// Counts only shader invocations that survive the early depth test.
+    atomicAdd(sb_out.result, 1u);
+    /// Early testing makes the depth comparison and update use the pre-shader fragment depth.
+    gl_FragDepth = 0.75f;
+    fragColor = vec4(1.0, 1.0, 0.0, 1.0);
+    /// Kills color output, but cannot undo a depth update already performed by early tests.
+    discard;
+}
+```
+
+##### Vertex Shader
+
+```glsl
+#version 440
+
+/// The host supplies six clip-space positions forming two triangles with varying z.
+layout(location = 0) in highp vec4 position;
+
+out gl_PerVertex {
+   vec4 gl_Position;
+};
+
+void main (void)
+{
+    /// Forwarding the supplied position makes interpolated fragment depth straddle the 0.5 clear value.
+    gl_Position = position;
+}
+```
+
+#### Additional Info
+
+- The vertex shader is fixed across the discard cases. It matters here because the host's six positions form two full-screen triangles with z values from `0.0` to `1.0`, producing both passing and failing fragments for the early `LESS` test ([shader builder](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L1024-L1067), [vertex data](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L744-L765)).
+- The runtime creates a 32x32 `VK_FORMAT_D16_UNORM` depth attachment, clears it to `0.5`, enables depth test/write with `VK_COMPARE_OP_LESS`, draws six vertices, and expects the discarded shader's color result to remain black ([pipeline helper](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L94-L147), [runtime setup and draw](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L687-L905)).
+- Validation requires early-passing pixels in the region `x + y < 31` to contain depth below `0.5001`; the coherent counter must be in `[416, 608]`, the source's `512 ± 96` rasterization-tolerance range for half of the 32x32 render area ([depth and counter checks](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L907-L997)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| Early-test mode | `discard_no_early_fragment_tests_*` removes `layout(early_fragment_tests) in;`; the remaining GLSL body is unchanged. | [`EarlyFragmentDiscardTest::initPrograms()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L1045-L1067) |
+| Depth vs. stencil | Changes host pipeline state, attachment format, and readback checks, but does not change either generated GLSL stage. | [registration](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L2800-L2821), [runtime checks](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L907-L970) |
+| AMD early-and-late mode | Replaces this generated fragment GLSL with inline SPIR-V carrying `EarlyAndLateFragmentTestsAMD`, `DepthReplacing`, and `DepthGreater`; the vertex shader stays fixed. | [`EarlyFragmentDiscardTest::initPrograms()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L1069-L1123) |
+
+#### SPIR-V
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 28
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %gl_FragDepth %fragColor
+               OpExecutionMode %main OriginUpperLeft
+               OpExecutionMode %main EarlyFragmentTests
+               OpExecutionMode %main DepthReplacing
+               OpSource GLSL 440
+               OpName %main "main"
+               OpName %Output "Output"
+               OpMemberName %Output 0 "result"
+               OpName %sb_out "sb_out"
+               OpName %gl_FragDepth "gl_FragDepth"
+               OpName %fragColor "fragColor"
+               OpDecorate %Output BufferBlock
+               OpMemberDecorate %Output 0 Coherent
+               OpMemberDecorate %Output 0 Offset 0
+               OpDecorate %sb_out Coherent
+               OpDecorate %sb_out Binding 0
+               OpDecorate %sb_out DescriptorSet 0
+               OpDecorate %gl_FragDepth BuiltIn FragDepth
+               OpDecorate %fragColor Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+     %Output = OpTypeStruct %uint
+%_ptr_Uniform_Output = OpTypePointer Uniform %Output
+     %sb_out = OpVariable %_ptr_Uniform_Output Uniform
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Uniform_uint = OpTypePointer Uniform %uint
+     %uint_1 = OpConstant %uint 1
+     %uint_0 = OpConstant %uint 0
+      %float = OpTypeFloat 32
+%_ptr_Output_float = OpTypePointer Output %float
+%gl_FragDepth = OpVariable %_ptr_Output_float Output
+ %float_0_75 = OpConstant %float 0.75
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %fragColor = OpVariable %_ptr_Output_v4float Output
+    %float_1 = OpConstant %float 1
+    %float_0 = OpConstant %float 0
+         %26 = OpConstantComposite %v4float %float_1 %float_1 %float_0 %float_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %13 = OpAccessChain %_ptr_Uniform_uint %sb_out %int_0
+         %16 = OpAtomicIAdd %uint %13 %uint_1 %uint_0 %uint_1
+               OpStore %gl_FragDepth %float_0_75
+               OpStore %fragColor %26
+               OpKill
+               OpFunctionEnd
+```
+
+</details>
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 18
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %position
+               OpSource GLSL 440
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpName %_ ""
+               OpName %position "position"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpDecorate %position Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%gl_PerVertex = OpTypeStruct %v4float
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+   %position = OpVariable %_ptr_Input_v4float Input
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %15 = OpLoad %v4float %position
+         %17 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %17 %15
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

@@ -238,8 +238,6 @@ array layers, and uses different colors to make layer swaps or missing layers vi
 
 The vertex shader is empty and the fragment shader only writes `o_color = vert_color`; the geometry shader contains the relevant logic for this representative case.
 
-##### Geometry Shader
-
 ```glsl
 #version 450
 /// One point is enough because the geometry shader synthesizes all output rectangles.
@@ -306,7 +304,7 @@ void main(void)
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level variation from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | Default and single-layer leaves | Emit one rectangle and either omit `gl_Layer` or write the middle target layer. | [default and single-layer branches](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L920-L960) |
 | All-layer leaves | Loop over all layers and emit a colored rectangle per layer. | [all-layer branch](../../../modules/vulkan/geometry/vktGeometryLayeredRenderingTests.cpp#L962-L992) |

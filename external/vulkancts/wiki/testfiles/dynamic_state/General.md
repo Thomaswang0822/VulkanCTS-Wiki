@@ -64,11 +64,123 @@ The pipeline is created with a deliberately bad static viewport (1x1) and a good
 
 ## Shader Analysis
 
-The shaders support the test rather than implement the tested property. The vertex, fragment, and mesh shaders used by `state_switch`, `bind_order`, and `state_persistence` are pass-through: the vertex shader copies position and color to the output, the fragment shader writes the interpolated color, and the mesh shader fetches the same position/color data from a storage buffer and emits one triangle per workgroup ([VertexFetch.vert](../../../data/vulkan/dynamic_state/VertexFetch.vert), [VertexFetch.frag](../../../data/vulkan/dynamic_state/VertexFetch.frag), [VertexFetch.mesh](../../../data/vulkan/dynamic_state/VertexFetch.mesh)).
+### Representative Shader Walkthrough 1
 
-The `static_stencil_mask_zero` case uses an inline fragment shader that discards when the input color equals blue, which is the geometry color, so every fragment is discarded ([initStaticStencilMaskZeroPrograms](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L478-L489)). The `double_static_bind` case uses an inline fragment shader that writes a solid blue ([initDoubleBindPrograms](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L808-L814)).
+#### Parameter Values Chosen
 
-No representative shader walkthrough is included. Reconstructing these shaders would explain pass-through or unconditional discard, but the tested properties are host-side questions about dynamic-state application, persistence, and the static-mask-zero interaction, none of which depend on shader logic.
+Representative path:
+
+```text
+dEQP-VK.dynamic_state.monolithic.general_state.static_stencil_mask_zero
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `static_stencil_mask_zero` | Selects the edge case in which a static stencil write mask of zero is overridden dynamically while the fragment shader discards every covered fragment. |
+| `monolithic` | Uses a monolithic graphics pipeline; the same generated shader pair is also used by the other registered pipeline construction types. |
+| Fragment input color `(0, 0, 1, 1)` | Matches the discard comparison exactly, making every fragment from the full-screen triangle execute `discard`. |
+
+#### Purpose
+
+The fragment shader makes discard part of the test oracle: every covered fragment must be killed before it can change color, depth, or stencil, even though the dynamic stencil write mask enables all bits.
+
+#### Structural Design
+
+| Phase | Shader action | Observable consequence |
+|-------|---------------|------------------------|
+| Input | Receive the interpolated vertex color at location 0. | Every generated vertex supplies blue, so the fragment input is exactly `(0, 0, 1, 1)`. |
+| Discard decision | Compare `inColor` with the blue sentinel and execute `discard` on equality. | No covered fragment proceeds to attachment writes. |
+| Fallback output | Copy any nonmatching color to location 0. | This path is present in the generated shader but is unreachable for this representative case. |
+
+#### Shader Code
+
+```glsl
+#version 460
+/// Location 0 receives the interpolated color emitted by the pass-through vertex shader; all three host-provided
+/// vertices are blue in this case, so every covered fragment receives the discard sentinel.
+layout (location=0) in vec4 inColor;
+/// Location 0 targets the 1x1 R8G8B8A8_UNORM color attachment, but the selected input prevents this write.
+layout (location=0) out vec4 outColor;
+void main (void) {
+    /// Kill the fragment before color output and before the configured stencil REPLACE operation can update stencil.
+    if (inColor == vec4(0.0, 0.0, 1.0, 1.0)) {
+        discard;
+    }
+    /// This fallback makes a non-blue input visible; it is unreachable with the selected host vertex data.
+    outColor = inColor;
+}
+```
+
+#### Additional Info
+
+- The host creates a full-screen triangle with blue assigned to every vertex, explicitly noting that the value must match the fragment shader's discard color ([vertex data](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L533-L589)).
+- The pipeline enables stencil testing with `VK_STENCIL_OP_REPLACE`, uses static write mask `0`, then records dynamic write mask `0xFF`; unchanged clear values in all three attachments therefore prove that discard suppressed every write ([pipeline and draw setup](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L627-L710), [result checks](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L755-L791)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Test case leaf | `state_switch`, `bind_order`, and `state_persistence` use pass-through fragment shading instead of the blue-equality discard; `double_static_bind` uses a fixed solid-blue fragment output. | [shared shader registration](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L927-L968), [`initDoubleBindPrograms()`](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L794-L815) |
+| Vertex vs. mesh input path | The `_mesh` switching and bind-order leaves replace vertex fetching with a mesh shader, but still use the shared pass-through fragment shader; this discard shader belongs only to the vertex-only `static_stencil_mask_zero` leaf. | [registration loop](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L927-L968) |
+| Pipeline construction type | `initStaticStencilMaskZeroPrograms()` ignores its construction-type argument, so changing pipeline construction does not change this GLSL. | [`initStaticStencilMaskZeroPrograms()`](../../../modules/vulkan/dynamic_state/vktDynamicStateGeneralTests.cpp#L465-L490) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 24
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %inColor %outColor
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 460
+               OpName %main "main"
+               OpName %inColor "inColor"
+               OpName %outColor "outColor"
+               OpDecorate %inColor Location 0
+               OpDecorate %outColor Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+    %inColor = OpVariable %_ptr_Input_v4float Input
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+         %13 = OpConstantComposite %v4float %float_0 %float_0 %float_1 %float_1
+       %bool = OpTypeBool
+     %v4bool = OpTypeVector %bool 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %outColor = OpVariable %_ptr_Output_v4float Output
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %10 = OpLoad %v4float %inColor
+         %16 = OpFOrdEqual %v4bool %10 %13
+         %17 = OpAll %bool %16
+               OpSelectionMerge %19 None
+               OpBranchConditional %17 %18 %19
+         %18 = OpLabel
+               OpKill
+         %19 = OpLabel
+         %23 = OpLoad %v4float %inColor
+               OpStore %outColor %23
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

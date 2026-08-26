@@ -251,7 +251,9 @@ void main()
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
+
+## Runtime Execution and Result Checking
 
 - **Resource and descriptor setup.** Two descriptor sets (reference and result) each bind one acceleration structure (binding 0) and one storage buffer (binding 1). Both bindings use `ALL_RAY_TRACING_STAGES` so every stage can read the TLAS and write the result. The result and reference buffers are each `64 * 64 * sizeof(int)` bytes and host-visible [descriptor and buffer setup](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L114-L138).
 - **Buffer clearing.** Both buffers are cleared to `0x01` bytes on the host before the trace, so a missed pixel is distinguishable from a never-written pixel [clearBuffer](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L250-L259).

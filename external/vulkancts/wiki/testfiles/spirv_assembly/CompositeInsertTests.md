@@ -45,9 +45,7 @@ spirv_assembly.instruction.compute.composite_insert
 ├── vec2
 ├── vec3
 └── vec4
-```
 
-```text
 spirv_assembly.instruction.graphics.composite_insert
 ├── mat2x2_frag
 ├── mat2x2_geom
@@ -241,52 +239,9 @@ The shader proves that a chain of four value-producing inserts preserves the pre
 | Insert chain | `%tmp1` through `%tmp4` insert constants at literal component indices `0` through `3`, each consuming the previous result. |
 | Output | `OpAccessChain` addresses `%Output` member `0`; `OpStore` writes `%tmp4`. |
 
-#### Source Code
+#### Shader Code
 
-<details>
-<summary>Click to expand CTS-authored SPIR-V assembly</summary>
-
-```llvm
-OpCapability Shader
-%1 = OpExtInstImport "GLSL.std.450"
-OpMemoryModel Logical GLSL450
-OpEntryPoint GLCompute %main "main"
-OpExecutionMode %main LocalSize 1 1 1
-OpSource GLSL 430
-OpMemberDecorate %Output 0 Offset 0
-OpDecorate %Output BufferBlock
-OpDecorate %dataOutput DescriptorSet 0
-OpDecorate %dataOutput Binding 0
-%f32 = OpTypeFloat 32
-%v4f32 = OpTypeVector %f32 4
-%Output = OpTypeStruct %v4f32
-%_ptr_Uniform_Output = OpTypePointer Uniform %Output
-%dataOutput = OpVariable %_ptr_Uniform_Output Uniform
-%_ptr_Function_vec = OpTypePointer Function %v4f32
-%_ptr_Uniform_vec = OpTypePointer Uniform %v4f32
-%c_f32_0 = OpConstant %f32 0
-%c_f32_1 = OpConstant %f32 1
-%c_f32_2 = OpConstant %f32 2
-%c_f32_3 = OpConstant %f32 3
-%i32 = OpTypeInt 32 1
-%c_i32_0 = OpConstant %i32 0
-%void = OpTypeVoid
-%3 = OpTypeFunction %void
-%main = OpFunction %void None %3
-%entry = OpLabel
-%vec = OpVariable %_ptr_Function_vec Function
-%tmp0 = OpUndef %v4f32
-%tmp1 = OpCompositeInsert %v4f32 %c_f32_0 %tmp0 0
-%tmp2 = OpCompositeInsert %v4f32 %c_f32_1 %tmp1 1
-%tmp3 = OpCompositeInsert %v4f32 %c_f32_2 %tmp2 2
-%tmp4 = OpCompositeInsert %v4f32 %c_f32_3 %tmp3 3
-%vecOutPtr = OpAccessChain %_ptr_Uniform_vec %dataOutput %c_i32_0
-OpStore %vecOutPtr %tmp4
-OpReturn
-OpFunctionEnd
-```
-
-</details>
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -303,6 +258,64 @@ OpFunctionEnd
 | Matrix path | Each insert object is a complete identity column, and the literal index selects a column rather than a scalar component. | [`getMatrixCompositeInserts()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L104-L119) |
 | Nested path | The insert object is a `v4f32` identity column and the instruction supplies four literal indices. | [`getNestedStructCompositeInserts()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L149-L166) |
 | Graphics stage | The same test function is placed in stage-specific graphics fragments and stored to a storage buffer. | [`addGraphicsVectorCompositeInsertTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCompositeInsertTests.cpp#L272-L325) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 26
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %2 "main"
+               OpExecutionMode %2 LocalSize 1 1 1
+               OpSource GLSL 430
+               OpMemberDecorate %_struct_3 0 Offset 0
+               OpDecorate %_struct_3 BufferBlock
+               OpDecorate %4 DescriptorSet 0
+               OpDecorate %4 Binding 0
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+  %_struct_3 = OpTypeStruct %v4float
+%_ptr_Uniform__struct_3 = OpTypePointer Uniform %_struct_3
+          %4 = OpVariable %_ptr_Uniform__struct_3 Uniform
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+%_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+    %float_2 = OpConstant %float 2
+    %float_3 = OpConstant %float 3
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+       %void = OpTypeVoid
+         %17 = OpTypeFunction %void
+          %2 = OpFunction %void None %17
+         %18 = OpLabel
+         %19 = OpVariable %_ptr_Function_v4float Function
+         %20 = OpUndef %v4float
+         %21 = OpCompositeInsert %v4float %float_0 %20 0
+         %22 = OpCompositeInsert %v4float %float_1 %21 1
+         %23 = OpCompositeInsert %v4float %float_2 %22 2
+         %24 = OpCompositeInsert %v4float %float_3 %23 3
+         %25 = OpAccessChain %_ptr_Uniform_v4float %4 %int_0
+               OpStore %25 %24
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

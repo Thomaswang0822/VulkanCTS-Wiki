@@ -102,16 +102,21 @@ Three representative walkthroughs cover the distinct shader-generator shapes. Wa
 
 #### Parameter Values Chosen
 
-| Parameter | Value | Source |
-|-----------|-------|--------|
-| CTS path | `dEQP-VK.rasterization.shader_tile_image.coherent.color.samples_1.single_draw.single_patch.r8g8b8a8_unorm` | mustpass line 9729 |
-| Coherency | `coherent` | no `non_coherent_*_attachment_readEXT` qualifier emitted |
-| Test type | `Color` | dispatched to [`getColorTestTypeFS()`](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L343-L472) |
-| Sample count | `samples_1` (`VK_SAMPLE_COUNT_1_BIT`) | sample shading not enabled |
-| Draw count | `single_draw` | `drawIndex` advances once |
-| Patch count | `single_patch` | `PATCH_COUNT_PER_DRAW = 1`, `TOTAL_PATCH_COUNT = 1` |
-| Color format | `VK_FORMAT_R8G8B8A8_UNORM` | normalized → `attachmentEXT`, `amplifier = 255.0` |
-| Attachment count | 1 | `colorIn0` only |
+Representative path:
+
+```text
+dEQP-VK.rasterization.shader_tile_image.coherent.color.samples_1.single_draw.single_patch.r8g8b8a8_unorm
+```
+
+| Parameter choice | Meaning in this representative case |
+|---|---|
+| Coherency: `coherent` | no `non_coherent_*_attachment_readEXT` qualifier emitted |
+| Test type: `Color` | dispatched to [`getColorTestTypeFS()`](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L343-L472) |
+| Sample count: `samples_1` (`VK_SAMPLE_COUNT_1_BIT`) | sample shading not enabled |
+| Draw count: `single_draw` | `drawIndex` advances once |
+| Patch count: `single_patch` | `PATCH_COUNT_PER_DRAW = 1`, `TOTAL_PATCH_COUNT = 1` |
+| Color format: `VK_FORMAT_R8G8B8A8_UNORM` | normalized → `attachmentEXT`, `amplifier = 255.0` |
+| Attachment count: 1 | `colorIn0` only |
 
 #### Purpose
 
@@ -214,17 +219,129 @@ void main()
 
 #### Parameter Variation Summary
 
-| Variation | Effect on this shader |
-|-----------|------------------------|
-| `non_coherent` | Adds `layout(non_coherent_color_attachment_readEXT) tileImageEXT` qualifier; host inserts `VkMemoryBarrier2KHR` between draws. |
-| `samples_2`/`4`/`8`/`16`/`32` | Host enables sample shading (`minSampleShading = 1.0`); `gl_SampleID` becomes nonzero and contributes to the chained rule. |
-| `multi_draws` | Three draws issued; `drawIndex` advances per draw; expected value rises by `PATCH_COUNT_PER_DRAW` per draw. |
-| `multi_patches` | `PATCH_COUNT_PER_DRAW = 3`; three patches overlap per draw; coherent visibility is tested within a single draw. |
-| `mrt` | Generator emits a second `colorIn1` tile-image variable and a second chained-value write to `out1`. |
-| `mrt_dynamic_index` | Generator emits `colorIn[ATTACHMENT_COUNT]` array and uses `colorAttachmentReadEXT(colorIn[i])` with a dynamic index. |
-| Integer color formats | `TILE_IMAGE_TYPE` becomes `uattachmentEXT` or `iattachmentEXT`; `OUTPUT_BASIC_TYPE` becomes `uvec4` / `ivec4`; `amplifier` becomes 1. |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---|---|---|
+| `non_coherent` | Adds `layout(non_coherent_color_attachment_readEXT) tileImageEXT` qualifier; host inserts `VkMemoryBarrier2KHR` between draws. | [shader generators](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L343-L742) |
+| `samples_2`/`4`/`8`/`16`/`32` | Host enables sample shading (`minSampleShading = 1.0`); `gl_SampleID` becomes nonzero and contributes to the chained rule. | [shader generators](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L343-L742) |
+| `multi_draws` | Three draws issued; `drawIndex` advances per draw; expected value rises by `PATCH_COUNT_PER_DRAW` per draw. | [shader generators](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L343-L742) |
+| `multi_patches` | `PATCH_COUNT_PER_DRAW = 3`; three patches overlap per draw; coherent visibility is tested within a single draw. | [shader generators](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L343-L742) |
+| `mrt` | Generator emits a second `colorIn1` tile-image variable and a second chained-value write to `out1`. | [shader generators](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L343-L742) |
+| `mrt_dynamic_index` | Generator emits `colorIn[ATTACHMENT_COUNT]` array and uses `colorAttachmentReadEXT(colorIn[i])` with a dynamic index. | [shader generators](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L343-L742) |
+| Integer color formats | `TILE_IMAGE_TYPE` becomes `uattachmentEXT` or `iattachmentEXT`; `OUTPUT_BASIC_TYPE` becomes `uvec4` / `ivec4`; `amplifier` becomes 1. | [shader generators](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L343-L742) |
 
 #### SPIR-V
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 53
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %gl_VertexIndex %patchIndex %__0 %v_position
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %localPatchIndex "localPatchIndex"
+               OpName %gl_VertexIndex "gl_VertexIndex"
+               OpName %patchCountPerDraw "patchCountPerDraw"
+               OpName %globalPatchIndex "globalPatchIndex"
+               OpName %ConstBlock "ConstBlock"
+               OpMemberName %ConstBlock 0 "drawIndex"
+               OpName %_ ""
+               OpName %patchIndex "patchIndex"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex 2 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex 3 "gl_CullDistance"
+               OpName %__0 ""
+               OpName %v_position "v_position"
+               OpDecorate %gl_VertexIndex BuiltIn VertexIndex
+               OpDecorate %ConstBlock Block
+               OpMemberDecorate %ConstBlock 0 Offset 0
+               OpDecorate %patchIndex Flat
+               OpDecorate %patchIndex Location 0
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex 3 BuiltIn CullDistance
+               OpDecorate %v_position Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_ptr_Function_uint = OpTypePointer Function %uint
+        %int = OpTypeInt 32 1
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_VertexIndex = OpVariable %_ptr_Input_int Input
+     %uint_6 = OpConstant %uint 6
+     %uint_1 = OpConstant %uint 1
+ %ConstBlock = OpTypeStruct %uint
+%_ptr_PushConstant_ConstBlock = OpTypePointer PushConstant %ConstBlock
+          %_ = OpVariable %_ptr_PushConstant_ConstBlock PushConstant
+      %int_0 = OpConstant %int 0
+%_ptr_PushConstant_uint = OpTypePointer PushConstant %uint
+%_ptr_Output_uint = OpTypePointer Output %uint
+ %patchIndex = OpVariable %_ptr_Output_uint Output
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_arr_float_uint_1 = OpTypeArray %float %uint_1
+%gl_PerVertex = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+        %__0 = OpVariable %_ptr_Output_gl_PerVertex Output
+    %v2float = OpTypeVector %float 2
+%_ptr_Input_v2float = OpTypePointer Input %v2float
+ %v_position = OpVariable %_ptr_Input_v2float Input
+    %float_1 = OpConstant %float 1
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+%localPatchIndex = OpVariable %_ptr_Function_uint Function
+%patchCountPerDraw = OpVariable %_ptr_Function_uint Function
+%globalPatchIndex = OpVariable %_ptr_Function_uint Function
+         %12 = OpLoad %int %gl_VertexIndex
+         %13 = OpBitcast %uint %12
+         %15 = OpUDiv %uint %13 %uint_6
+         %17 = OpIAdd %uint %15 %uint_1
+               OpStore %localPatchIndex %17
+               OpStore %patchCountPerDraw %uint_1
+         %25 = OpAccessChain %_ptr_PushConstant_uint %_ %int_0
+         %26 = OpLoad %uint %25
+         %27 = OpLoad %uint %patchCountPerDraw
+         %28 = OpIMul %uint %26 %27
+         %29 = OpLoad %uint %localPatchIndex
+         %30 = OpIAdd %uint %28 %29
+               OpStore %globalPatchIndex %30
+         %33 = OpLoad %uint %globalPatchIndex
+               OpStore %patchIndex %33
+         %43 = OpLoad %v2float %v_position
+         %45 = OpLoad %uint %globalPatchIndex
+         %46 = OpConvertUToF %float %45
+         %47 = OpFMul %float %float_1 %46
+         %48 = OpCompositeExtract %float %43 0
+         %49 = OpCompositeExtract %float %43 1
+         %50 = OpCompositeConstruct %v4float %48 %49 %47 %float_1
+         %52 = OpAccessChain %_ptr_Output_v4float %__0 %int_0
+               OpStore %52 %50
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
 
 - Status: generated and validated
 - Source: reconstructed GLSL from this walkthrough
@@ -443,16 +560,21 @@ void main()
 
 #### Parameter Values Chosen
 
-| Parameter | Value | Source |
-|-----------|-------|--------|
-| CTS path | `dEQP-VK.rasterization.shader_tile_image.coherent.depth.samples_1.single_draw.single_patch.d32_sfloat` | mustpass line 10487 |
-| Coherency | `coherent` | no `non_coherent_*_attachment_readEXT` qualifier emitted |
-| Test type | `Depth` | dispatched to [`getDepthTestTypeFS()`](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L674-L742) |
-| Sample count | `samples_1` | `gl_SampleID` is 0 |
-| Draw count | `single_draw` | one draw |
-| Patch count | `single_patch` | `TOTAL_PATCH_COUNT = 1`, `scalingFactor = 1` |
-| Color format | `VK_FORMAT_R32G32B32A32_UINT` (default color attachment for depth tests) | `uattachmentEXT`, `amplifier = 1` |
-| Depth/stencil format | `VK_FORMAT_D32_SFLOAT` | depth-only format |
+Representative path:
+
+```text
+dEQP-VK.rasterization.shader_tile_image.coherent.depth.samples_1.single_draw.single_patch.d32_sfloat
+```
+
+| Parameter choice | Meaning in this representative case |
+|---|---|
+| Coherency: `coherent` | no `non_coherent_*_attachment_readEXT` qualifier emitted |
+| Test type: `Depth` | dispatched to [`getDepthTestTypeFS()`](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L674-L742) |
+| Sample count: `samples_1` | `gl_SampleID` is 0 |
+| Draw count: `single_draw` | one draw |
+| Patch count: `single_patch` | `TOTAL_PATCH_COUNT = 1`, `scalingFactor = 1` |
+| Color format: `VK_FORMAT_R32G32B32A32_UINT` (default color attachment for depth tests) | `uattachmentEXT`, `amplifier = 1` |
+| Depth/stencil format: `VK_FORMAT_D32_SFLOAT` | depth-only format |
 
 #### Purpose
 
@@ -533,13 +655,13 @@ void main()
 
 #### Parameter Variation Summary
 
-| Variation | Effect on this shader |
-|-----------|------------------------|
-| `non_coherent` | Adds `layout(non_coherent_color_attachment_readEXT)` and `layout(non_coherent_depth_attachment_readEXT)` qualifiers; host inserts `VkMemoryBarrier2KHR` between draws. |
-| `samples_2`/`4`/`8`/`16`/`32` | Host enables sample shading; shader reads `depthAttachmentReadEXT(gl_SampleID)` and writes `gl_FragDepth`. |
-| `multi_draws` | Three draws; `drawIndex` advances; expected value rises per draw. |
-| `multi_patches` | `TOTAL_PATCH_COUNT = 3`, so `scalingFactor = 3`; `patchIndex` ranges 1..3 within a single draw. |
-| Other depth formats | `D16_UNORM`, `X8_D24_UNORM_PACK32`, `D16_UNORM_S8_UINT`, `D24_UNORM_S8_UINT`, `D32_SFLOAT_S8_UINT` are also registered; `D32_SFLOAT` is shown here as the canonical case. |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---|---|---|
+| `non_coherent` | Adds `layout(non_coherent_color_attachment_readEXT)` and `layout(non_coherent_depth_attachment_readEXT)` qualifiers; host inserts `VkMemoryBarrier2KHR` between draws. | [shader generators](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L343-L742) |
+| `samples_2`/`4`/`8`/`16`/`32` | Host enables sample shading; shader reads `depthAttachmentReadEXT(gl_SampleID)` and writes `gl_FragDepth`. | [shader generators](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L343-L742) |
+| `multi_draws` | Three draws; `drawIndex` advances; expected value rises per draw. | [shader generators](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L343-L742) |
+| `multi_patches` | `TOTAL_PATCH_COUNT = 3`, so `scalingFactor = 3`; `patchIndex` ranges 1..3 within a single draw. | [shader generators](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L343-L742) |
+| Other depth formats | `D16_UNORM`, `X8_D24_UNORM_PACK32`, `D16_UNORM_S8_UINT`, `D24_UNORM_S8_UINT`, `D32_SFLOAT_S8_UINT` are also registered; `D32_SFLOAT` is shown here as the canonical case. | [shader generators](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L343-L742) |
 
 #### SPIR-V
 
@@ -763,17 +885,22 @@ void main()
 
 #### Parameter Values Chosen
 
-| Parameter | Value | Source |
-|-----------|-------|--------|
-| CTS path | `dEQP-VK.rasterization.shader_tile_image.coherent.msaa_sample_mask.samples_2.single_draw.single_patch.r8g8b8a8_unorm` | mustpass line 12700 |
-| Coherency | `coherent` | no `non_coherent_*_attachment_readEXT` qualifier emitted |
-| Test type | `MsaaSampleMask` | dispatched to [`getSampleMaskTypeFS()`](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L586-L672) |
-| Sample count | `samples_2` (`VK_SAMPLE_COUNT_2_BIT`) | loop iterates samples 0..1 |
-| Draw count | `single_draw` | one draw |
-| Patch count | `single_patch` | `TOTAL_PATCH_COUNT = 1` |
-| Color format | `VK_FORMAT_R8G8B8A8_UNORM` | normalized → `attachmentEXT`, `amplifier = 255.0` |
-| `pSampleMask` | `0xaaaaaaaa` | set by host at [`vktShaderTileImageTests.cpp#L1289-L1294`](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L1289-L1294); alternates covered samples |
-| Sample shading | disabled | unique to `msaa_sample_mask`; all other multi-sample cases enable it |
+Representative path:
+
+```text
+dEQP-VK.rasterization.shader_tile_image.coherent.msaa_sample_mask.samples_2.single_draw.single_patch.r8g8b8a8_unorm
+```
+
+| Parameter choice | Meaning in this representative case |
+|---|---|
+| Coherency: `coherent` | no `non_coherent_*_attachment_readEXT` qualifier emitted |
+| Test type: `MsaaSampleMask` | dispatched to [`getSampleMaskTypeFS()`](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L586-L672) |
+| Sample count: `samples_2` (`VK_SAMPLE_COUNT_2_BIT`) | loop iterates samples 0..1 |
+| Draw count: `single_draw` | one draw |
+| Patch count: `single_patch` | `TOTAL_PATCH_COUNT = 1` |
+| Color format: `VK_FORMAT_R8G8B8A8_UNORM` | normalized → `attachmentEXT`, `amplifier = 255.0` |
+| `pSampleMask`: `0xaaaaaaaa` | set by host at [`vktShaderTileImageTests.cpp#L1289-L1294`](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L1289-L1294); alternates covered samples |
+| Sample shading: disabled | unique to `msaa_sample_mask`; all other multi-sample cases enable it |
 
 #### Purpose
 
@@ -879,13 +1006,13 @@ void main()
 
 #### Parameter Variation Summary
 
-| Variation | Effect on this shader |
-|-----------|------------------------|
-| `non_coherent` | Adds `layout(non_coherent_color_attachment_readEXT)` qualifier; host inserts `VkMemoryBarrier2KHR` between draws. |
-| `samples_4`/`8`/`16`/`32` | Per-sample loop bound becomes the matching literal (`i < 4` etc.); `pSampleMask` is unchanged. |
-| `multi_draws` | Three draws; `drawIndex` advances; expected `previous + 1 == patchIndex` rises per draw. |
-| `multi_patches` | `patchIndex` ranges 1..3 within a single draw; multiple overlapping fragments per draw. |
-| Integer color formats | `colorIn0` becomes `uattachmentEXT` / `iattachmentEXT`; `amplifier` becomes 1; the `* 255` multiply is removed. |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---|---|---|
+| `non_coherent` | Adds `layout(non_coherent_color_attachment_readEXT)` qualifier; host inserts `VkMemoryBarrier2KHR` between draws. | [shader generators](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L343-L742) |
+| `samples_4`/`8`/`16`/`32` | Per-sample loop bound becomes the matching literal (`i < 4` etc.); `pSampleMask` is unchanged. | [shader generators](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L343-L742) |
+| `multi_draws` | Three draws; `drawIndex` advances; expected `previous + 1 == patchIndex` rises per draw. | [shader generators](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L343-L742) |
+| `multi_patches` | `patchIndex` ranges 1..3 within a single draw; multiple overlapping fragments per draw. | [shader generators](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L343-L742) |
+| Integer color formats | `colorIn0` becomes `uattachmentEXT` / `iattachmentEXT`; `amplifier` becomes 1; the `* 255` multiply is removed. | [shader generators](../../../modules/vulkan/rasterization/vktShaderTileImageTests.cpp#L343-L742) |
 
 #### SPIR-V
 

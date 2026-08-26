@@ -21,8 +21,10 @@
 ```text
 api.copy_and_blit.core
 └── blit_image
+
 api.copy_and_blit.dedicated_allocation
 └── blit_image
+
 api.copy_and_blit.copy_commands2
 └── blit_image
 ```

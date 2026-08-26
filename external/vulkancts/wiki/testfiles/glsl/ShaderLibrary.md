@@ -70,19 +70,235 @@ Each value alternative selects one input/reference/uniform arrangement. The runn
 
 ## Shader Analysis
 
-Shader-library behavior is defined by generated or embedded GLSL rather than by one fixed shader. A representative `arrays` case uses the `both` form and an array constructor:
+The representative walkthrough uses the exact mustpass case `dEQP-VK.glsl.arrays.constructor.float3_fragment`. It is the smallest shader-library case that exposes the complete declarative-to-executable path: a `both` body becomes a fragment-only case, the Vulkan specialization inserts its input and reference declarations, the shader exercises a GLSL array constructor, and the generated comparison encodes pass or fail in the render target.
 
-```glsl
-float[3] x;
-x = float[3] (in0.z, in0.x, in0.y);
-out0 = vec3(x[0], x[1], x[2]);
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.glsl.arrays.constructor.float3_fragment
 ```
 
-The `${DECLARATIONS}`, `${SETUP}`, and `${OUTPUT}` substitutions connect this body to generated input/reference declarations and the selected output mode. The parser emits `<case>_vertex` and `<case>_fragment`; the Vulkan layer then supplies the missing stage with `genVertexShader()` or `genFragmentShader()` ([`parseShaderCase()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1570-L1610), [`ShaderCase::initPrograms()`](../../../modules/vulkan/vktShaderLibrary.cpp#L1716-L1731)).
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `arrays.constructor.float3` | Selects the ES 3.10 case whose body constructs `float[3](in0.z, in0.x, in0.y)` and expects the same reordered values as `vec3 out0`. |
+| `_fragment` | Selects the fragment case generated from the data file's `both` block; `ShaderCase::initPrograms()` supplies a generated vertex counterpart. |
+| Value set 0: `in0 = vec3(0.5, 1.0, 2.0)` | Produces `out0 = vec3(2.0, 0.5, 1.0)`; the other two value sets execute the same shader with different host data. |
+| Default `OUTPUT_RESULT` | Makes the shader compare `out0` with `ref.out0` using epsilon `0.05` and emit white only on success. |
 
-For explicit-stage `linkage` cases, the important shader contract is the interface between declarations such as `layout(location = 0) out ... var` in the vertex shader and the matching `layout(location = 0) in ... var` in the fragment shader. The ES310 data file includes both unused declarations and legal width mismatches, while the 440 data file adds `component` qualifiers to vertex inputs ([`es310/linkage.test`](../../../data/vulkan/glsl/es310/linkage.test#L3-L80), [`440/linkage.test`](../../../data/vulkan/glsl/440/linkage.test#L3-L45)).
+#### Purpose
 
-The generated fragment comparison uses `isOk(value, reference, 0.05)` for floating-point outputs and exact `isOk(value, reference)` for non-floating outputs ([`genCompareOp()`](../../../modules/vulkan/vktShaderLibrary.cpp#L206-L237)). In `OUTPUT_RESULT` mode it writes a white fragment only when all selected outputs compare successfully.
+Verify that an ES 3.10 fragment shader constructs and indexes a three-element floating-point array correctly, yielding the host-provided reordered reference vector for every value set.
+
+#### Structural Design
+
+| Phase | Shader-visible input | Operation | Result |
+|-------|----------------------|-----------|--------|
+| Transport | Flat `vec3 in0` at location 0 | Read the value emitted by the generated vertex shader. | One input vector for this fragment. |
+| Array construction | `in0.z`, `in0.x`, `in0.y` | Build `float[3] x` in z/x/y order. | `x = { in0.z, in0.x, in0.y }`. |
+| Reconstruction | `x[0]`, `x[1]`, `x[2]` | Construct `vec3 out0`. | Reordered output value. |
+| Validation | `out0` and `ref.out0` from binding 0 | Apply component-wise relative/absolute epsilon comparison. | Boolean `RES`. |
+| Encoding | `RES` | Write `vec4(RES, RES, RES, 1.0)`. | White pass pixel or black failure pixel. |
+
+#### Shader Code
+
+```glsl
+#version 310 es
+precision highp float;
+
+/// Compare the computed array-constructor result against the host-provided reference value.
+bool isOk (vec3 a, vec3 b, float eps) { return all(lessThanEqual(abs(a-b), (eps*abs(b) + eps))); }
+/// White means the comparison passed; black RGB means it failed.
+layout(location = 0) out mediump vec4 dEQP_FragColor;
+/// The generated vertex shader transports the selected input value here without interpolation.
+layout(location = 0) flat in vec3 in0;
+/// The host updates this std140 block with the selected sub-case's expected output.
+layout(binding = 0, std140) uniform Reference
+{
+    vec3 out0;
+} ref;
+vec3 out0;
+
+void main()
+{
+    /// Construct a three-element array in z/x/y order, then reconstruct the tested output vector.
+    float[3] x;
+    x = float[3] (in0.z, in0.x, in0.y);
+    out0 = vec3(x[0], x[1], x[2]);
+    /// Encode the shader-side comparison as an all-white pass pixel or a black failure pixel.
+    bool RES = isOk(out0, ref.out0, 0.05);
+    dEQP_FragColor = vec4(RES, RES, RES, 1.0);
+}
+```
+
+#### Additional Info
+
+- The parser turns the `both` source into separate `_vertex` and `_fragment` cases; this path selects the latter ([`parseShaderCase()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1570-L1610)).
+- The generated vertex counterpart is fixed infrastructure for this case: it reads `dEQP_Position` and `a_in0`, writes `gl_Position`, and flat-transports `in0` to location 0 ([`genVertexShader()`](../../../modules/vulkan/vktShaderLibrary.cpp#L152-L203)).
+- The exact path is present in the default GLSL mustpass list ([`glsl.txt`](../../../mustpass/main/vk-default/glsl.txt#L77)); the three input/reference alternatives are declared in the source data ([`arrays.test`](../../../data/vulkan/glsl/es310/arrays.test#L20-L42)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Stage suffix `_fragment` → `_vertex` | Runs the same array-constructor body in the vertex stage, adds `dEQP_Position`, vertex attributes, and flat output declarations, and moves the `isOk` comparison into a generated fragment shader. | [`parseShaderCase()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1570-L1610), [`ShaderCase::initPrograms()`](../../../modules/vulkan/vktShaderLibrary.cpp#L1716-L1731) |
+| Value alternative | Does not change shader source; the host supplies one of three `in0` vectors and the matching `ref.out0`, and each must produce white pixels. | [`arrays.test`](../../../data/vulkan/glsl/es310/arrays.test#L22-L26), [`iterate()`](../../../modules/vulkan/vktShaderLibrary.cpp#L1607-L1686) |
+| Constructor shape/type | Sibling cases change the array length, constructor element type, input swizzle, output vector type, and generated comparison overload. | [`arrays.test`](../../../data/vulkan/glsl/es310/arrays.test#L44-L140), [`genCompareFunctions()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1888-L1967) |
+| Explicit `output_color` instead of default output mode | Bypasses this shader-side reference comparison and makes the selected output value the attachment color checked by the host. | [`parseShaderCase()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1461-L1499), [`iterate()`](../../../modules/vulkan/vktShaderLibrary.cpp#L1624-L1678) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 90
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %in0 %dEQP_FragColor
+               OpExecutionMode %main OriginUpperLeft
+               OpSource ESSL 310
+               OpName %main "main"
+               OpName %isOk_vf3_vf3_f1_ "isOk(vf3;vf3;f1;"
+               OpName %a "a"
+               OpName %b "b"
+               OpName %eps "eps"
+               OpName %x "x"
+               OpName %in0 "in0"
+               OpName %out0 "out0"
+               OpName %RES "RES"
+               OpName %Reference "Reference"
+               OpMemberName %Reference 0 "out0"
+               OpName %ref "ref"
+               OpName %param "param"
+               OpName %param_0 "param"
+               OpName %param_1 "param"
+               OpName %dEQP_FragColor "dEQP_FragColor"
+               OpDecorate %in0 Flat
+               OpDecorate %in0 Location 0
+               OpDecorate %Reference Block
+               OpMemberDecorate %Reference 0 Offset 0
+               OpDecorate %ref Binding 0
+               OpDecorate %ref DescriptorSet 0
+               OpDecorate %dEQP_FragColor RelaxedPrecision
+               OpDecorate %dEQP_FragColor Location 0
+               OpDecorate %84 RelaxedPrecision
+               OpDecorate %86 RelaxedPrecision
+               OpDecorate %88 RelaxedPrecision
+               OpDecorate %89 RelaxedPrecision
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v3float = OpTypeVector %float 3
+%_ptr_Function_v3float = OpTypePointer Function %v3float
+%_ptr_Function_float = OpTypePointer Function %float
+       %bool = OpTypeBool
+         %11 = OpTypeFunction %bool %_ptr_Function_v3float %_ptr_Function_v3float %_ptr_Function_float
+     %v3bool = OpTypeVector %bool 3
+       %uint = OpTypeInt 32 0
+     %uint_3 = OpConstant %uint 3
+%_arr_float_uint_3 = OpTypeArray %float %uint_3
+%_ptr_Function__arr_float_uint_3 = OpTypePointer Function %_arr_float_uint_3
+%_ptr_Input_v3float = OpTypePointer Input %v3float
+        %in0 = OpVariable %_ptr_Input_v3float Input
+     %uint_2 = OpConstant %uint 2
+%_ptr_Input_float = OpTypePointer Input %float
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+%_ptr_Private_v3float = OpTypePointer Private %v3float
+       %out0 = OpVariable %_ptr_Private_v3float Private
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+%_ptr_Function_bool = OpTypePointer Function %bool
+  %Reference = OpTypeStruct %v3float
+%_ptr_Uniform_Reference = OpTypePointer Uniform %Reference
+        %ref = OpVariable %_ptr_Uniform_Reference Uniform
+%float_0_0500000007 = OpConstant %float 0.0500000007
+%_ptr_Uniform_v3float = OpTypePointer Uniform %v3float
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%dEQP_FragColor = OpVariable %_ptr_Output_v4float Output
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %x = OpVariable %_ptr_Function__arr_float_uint_3 Function
+        %RES = OpVariable %_ptr_Function_bool Function
+      %param = OpVariable %_ptr_Function_v3float Function
+    %param_0 = OpVariable %_ptr_Function_v3float Function
+    %param_1 = OpVariable %_ptr_Function_float Function
+         %42 = OpAccessChain %_ptr_Input_float %in0 %uint_2
+         %43 = OpLoad %float %42
+         %45 = OpAccessChain %_ptr_Input_float %in0 %uint_0
+         %46 = OpLoad %float %45
+         %48 = OpAccessChain %_ptr_Input_float %in0 %uint_1
+         %49 = OpLoad %float %48
+         %50 = OpCompositeConstruct %_arr_float_uint_3 %43 %46 %49
+               OpStore %x %50
+         %55 = OpAccessChain %_ptr_Function_float %x %int_0
+         %56 = OpLoad %float %55
+         %58 = OpAccessChain %_ptr_Function_float %x %int_1
+         %59 = OpLoad %float %58
+         %61 = OpAccessChain %_ptr_Function_float %x %int_2
+         %62 = OpLoad %float %61
+         %63 = OpCompositeConstruct %v3float %56 %59 %62
+               OpStore %out0 %63
+         %71 = OpLoad %v3float %out0
+               OpStore %param %71
+         %74 = OpAccessChain %_ptr_Uniform_v3float %ref %int_0
+         %75 = OpLoad %v3float %74
+               OpStore %param_0 %75
+               OpStore %param_1 %float_0_0500000007
+         %77 = OpFunctionCall %bool %isOk_vf3_vf3_f1_ %param %param_0 %param_1
+               OpStore %RES %77
+         %81 = OpLoad %bool %RES
+         %84 = OpSelect %float %81 %float_1 %float_0
+         %85 = OpLoad %bool %RES
+         %86 = OpSelect %float %85 %float_1 %float_0
+         %87 = OpLoad %bool %RES
+         %88 = OpSelect %float %87 %float_1 %float_0
+         %89 = OpCompositeConstruct %v4float %84 %86 %88 %float_1
+               OpStore %dEQP_FragColor %89
+               OpReturn
+               OpFunctionEnd
+%isOk_vf3_vf3_f1_ = OpFunction %bool None %11
+          %a = OpFunctionParameter %_ptr_Function_v3float
+          %b = OpFunctionParameter %_ptr_Function_v3float
+        %eps = OpFunctionParameter %_ptr_Function_float
+         %16 = OpLabel
+         %17 = OpLoad %v3float %a
+         %18 = OpLoad %v3float %b
+         %19 = OpFSub %v3float %17 %18
+         %20 = OpExtInst %v3float %1 FAbs %19
+         %21 = OpLoad %float %eps
+         %22 = OpLoad %v3float %b
+         %23 = OpExtInst %v3float %1 FAbs %22
+         %24 = OpVectorTimesScalar %v3float %23 %21
+         %25 = OpLoad %float %eps
+         %26 = OpCompositeConstruct %v3float %25 %25 %25
+         %27 = OpFAdd %v3float %24 %26
+         %29 = OpFOrdLessThanEqual %v3bool %20 %27
+         %30 = OpAll %bool %29
+               OpReturnValue %30
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

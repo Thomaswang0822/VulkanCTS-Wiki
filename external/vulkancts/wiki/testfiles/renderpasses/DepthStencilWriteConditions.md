@@ -57,13 +57,216 @@ The shader emits `OpDemoteToHelperInvocationEXT` for even-column fragments, then
 
 ## Shader Analysis
 
-The shaders are the instrument that produces the discard condition, not the behavior under test. The behavior is the framebuffer-side suppression of depth/stencil writes from helper invocations, which is fixed-function coverage reduction. No representative shader walkthrough is included for that reason.
+### Representative Shader Walkthrough 1
 
-The shader roles are:
+#### Parameter Values Chosen
 
-- The vertex shader is a passthrough that emits a full-screen quad from six vertices ([vertex shader](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilWriteConditionsTests.cpp#L427-L432)).
-- The fragment shader is generated as SPIR-V assembly so the discard instruction can be swapped. It reads `gl_FragCoord.x`, computes `x % 2`, and branches to the discard instruction when the result is zero. On the non-discarded path it stores the color output and, depending on the mutation mode, stores the depth or stencil output ([fragment shader assembly](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilWriteConditionsTests.cpp#L456-L548)).
-- The output variable declaration depends on the mutation mode: for `INITIALIZE` and `INITIALIZE_WRITE` the depth or stencil output is declared with an initial value (`0.2` for depth, `1` for stencil), and for `WRITE` it is declared without an initializer and only receives a value from the store instruction ([output variable setup](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilWriteConditionsTests.cpp#L492-L523)).
+Representative path:
+
+```text
+dEQP-VK.renderpasses.renderpass1.depth_stencil_write_conditions.depth_kill_write_d32sf_s8ui
+```
+
+mustpass: [renderpasses.txt#L35866](../../../mustpass/main/vk-default/renderpasses.txt#L35866).
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `depth` | The fragment output is decorated as `FragDepth`; the pipeline enables depth testing and depth writes. |
+| `kill` | Even-column fragment invocations execute `OpKill`, testing suppression of depth writes after termination. |
+| `write` | The depth output has no initializer; the surviving path explicitly stores `0.2`. |
+| `d32sf_s8ui` | The depth/stencil attachment uses `VK_FORMAT_D32_SFLOAT_S8_UINT`; this depth case does not write its stencil aspect. |
+
+#### Purpose
+
+Show that an invocation terminated by `OpKill` cannot commit a depth write, while a surviving invocation writes the explicit
+`0.2` depth value. The color store is only a visibility aid; the pass/fail signal is the depth attachment readback.
+
+#### Structural Design
+
+```mermaid
+flowchart TD
+    A[Host clears D32_SFLOAT_S8_UINT depth to 0.1] --> B[Vertex shader emits six vertices for a fullscreen quad]
+    B --> C[Fragment shader reads gl_FragCoord.x and computes x mod 2]
+    C -->|even column| D[OpKill terminates invocation; no framebuffer write]
+    C -->|odd column| E[Store white color and gl_FragDepth = 0.2]
+    D --> F[Host copies depth attachment and checks 0.1]
+    E --> G[Host copies depth attachment and checks 0.2]
+```
+
+#### Shader Code
+
+##### Vertex Shader
+
+```glsl
+#version 450
+layout(location = 0) in highp vec4 a_position;
+
+/// The host supplies six positions for two triangles covering the 64x64 render area.
+/// No stage-to-stage varying is needed: the fragment stage uses only built-in FragCoord.
+void main (void) {
+    gl_Position = a_position;
+}
+```
+
+##### Fragment Shader
+
+This CTS fragment stage is generated directly as SPIR-V assembly and does not use GLSL or HLSL source. The complete
+source-generated fragment module is kept only in the final `#### SPIR-V` subsection so the selected discard opcode remains exact.
+
+The fragment dataflow is deliberately small: `FragCoord.x` is converted to signed integer and reduced modulo two; zero
+branches to `OpKill`, while the merge block stores white to color and `0.2` to `FragDepth`. `DepthReplacing` makes the depth
+output the fragment depth value. The source assembly also declares `FragCoord`, color location 0, and `FragDepth` in the entry
+point interface, with no descriptors or push constants.
+
+#### Additional Info
+
+- The host creates a 64x64 color attachment and a selected-format depth/stencil attachment, clears depth to `0.1`, enables
+  depth test/write with `VK_COMPARE_OP_GREATER`, and copies the depth/stencil image to a host-visible buffer for verification
+  ([iteration and clear setup](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilWriteConditionsTests.cpp#L169-L319),
+  [depth/stencil state](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilWriteConditionsTests.cpp#L285-L300)).
+- The vertex shader is fixed across the family; the fragment stage is the material shader because its selected termination
+  instruction and output mutation mode define which invocation reaches the depth/stencil output
+  ([program generation](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilWriteConditionsTests.cpp#L404-L549)).
+- The chosen case uses the `WRITE` mutation mode, so the `FragDepth` variable is declared without an initializer. The
+  `INITIALIZE` and `INITIALIZE_WRITE` variants instead initialize it to `0.2` and optionally perform the same explicit store.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|----------------------------------------|----------|
+| Discard mechanism | `KILL` emits `OpKill`; `TERMINATE` emits `OpTerminateInvocation` and requires `SPV_KHR_terminate_invocation`; `DEMOTE` emits `OpDemoteToHelperInvocationEXT`, then branches to the merge block so later stores are reached but framebuffer effects remain suppressed. | [discard command selection](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilWriteConditionsTests.cpp#L434-L448) |
+| Buffer target | `DEPTH` declares `FragDepth` and `DepthReplacing`; `STENCIL` declares `FragStencilRefEXT`, adds `StencilExportEXT`, and uses an integer output. | [output decorations and execution mode](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilWriteConditionsTests.cpp#L450-L474) |
+| Mutation mode | `WRITE` declares an uninitialized output and stores the target value; `INITIALIZE` declares the initial value without an explicit store; `INITIALIZE_WRITE` combines the initializer and store. | [output variable generation](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilWriteConditionsTests.cpp#L492-L523), [store selection](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilWriteConditionsTests.cpp#L541-L542) |
+| Attachment format | Depth cases use `D32_SFLOAT_S8_UINT`, `D24_UNORM_S8_UINT`, `X8_D24_UNORM_PACK32`, or `D32_SFLOAT`; stencil cases use the two formats with a stencil aspect. | [registration matrix](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilWriteConditionsTests.cpp#L591-L668) |
+
+#### SPIR-V
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 21
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %a_position
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex 2 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex 3 "gl_CullDistance"
+               OpName %_ ""
+               OpName %a_position "a_position"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex 3 BuiltIn CullDistance
+               OpDecorate %a_position Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_arr_float_uint_1 = OpTypeArray %float %uint_1
+%gl_PerVertex = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+ %a_position = OpVariable %_ptr_Input_v4float Input
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %18 = OpLoad %v4float %a_position
+         %20 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %20 %18
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: source-generated `SPIR-V assembly` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 31
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %2 "main" %gl_FragCoord %4 %gl_FragDepth
+               OpExecutionMode %2 OriginUpperLeft
+               OpExecutionMode %2 DepthReplacing
+               OpDecorate %gl_FragCoord BuiltIn FragCoord
+               OpDecorate %4 Location 0
+               OpDecorate %gl_FragDepth BuiltIn FragDepth
+       %void = OpTypeVoid
+          %7 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%gl_FragCoord = OpVariable %_ptr_Input_v4float Input
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_float = OpTypePointer Input %float
+        %int = OpTypeInt 32 1
+      %int_2 = OpConstant %int 2
+      %int_0 = OpConstant %int 0
+       %bool = OpTypeBool
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+          %4 = OpVariable %_ptr_Output_v4float Output
+    %float_1 = OpConstant %float 1
+         %20 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
+%_ptr_Output_float = OpTypePointer Output %float
+%gl_FragDepth = OpVariable %_ptr_Output_float Output
+%float_0_200000003 = OpConstant %float 0.200000003
+          %2 = OpFunction %void None %7
+         %23 = OpLabel
+         %24 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_0
+         %25 = OpLoad %float %24
+         %26 = OpConvertFToS %int %25
+         %27 = OpSMod %int %26 %int_2
+         %28 = OpIEqual %bool %27 %int_0
+               OpSelectionMerge %29 None
+               OpBranchConditional %28 %30 %29
+         %30 = OpLabel
+               OpKill
+         %29 = OpLabel
+               OpStore %4 %20
+               OpStore %gl_FragDepth %float_0_200000003
+               OpReturn
+               OpFunctionEnd
+
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

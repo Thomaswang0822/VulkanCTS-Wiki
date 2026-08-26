@@ -65,36 +65,49 @@ The page uses one representative walkthrough. The `reorder.reorder_hint_160x91` 
 
 ### Representative Shader Walkthrough 1
 
-**CTS case:** `dEQP-VK.ray_tracing_pipeline.ser.reorder.reorder_hint_160x91`
+#### Parameter Values Chosen
 
-**Source location:** [vktRayTracingShaderExecutionReorderTests.cpp#L1161-L1169](../../../modules/vulkan/ray_tracing/vktRayTracingShaderExecutionReorderTests.cpp#L1161-L1169) (per-case body inlined into the shared header at [L549-L573](../../../modules/vulkan/ray_tracing/vktRayTracingShaderExecutionReorderTests.cpp#L549-L573)).
+Representative path:
 
-**What this shader tests:** The raygen shader traces a primary ray into SBT offset 1 / miss index 1, then calls `reorderThreadEXT(gl_SubgroupInvocationID % 2, 1)` to ask the implementation to reorder by odd/even subgroup invocation, then calls `hitObjectExecuteShaderEXT(hObj, 0)` to invoke the recorded hit or miss shader. The matching `chit2` writes `payload = vec4(7,0,0,1)`; `miss2` writes `payload = vec4(11,0,0,1)`. Geometry spans the left half of the launch grid. If reorder preserves the invariants, left-half rays must observe `7.0` (hit) and right-half rays must observe `11.0` (miss). If the implementation corrupts payload, SBT selection, or hit object state across the reorder point, the result image diverges from the expected pattern.
+```text
+dEQP-VK.ray_tracing_pipeline.ser.reorder.reorder_hint_160x91
+```
 
-**Shader-visible resources:**
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `reorder` | Selects the SER reorder-entry-point group rather than the hit-object built-in, motion, or large-dimension groups. |
+| `reorder_hint` | Selects the hint-only `reorderThreadEXT(uint hint, uint bits)` path; the hint is `gl_SubgroupInvocationID % 2` and `bits` is `1`. |
+| `160x91x1` | Uses the standard registered launch dimensions. The raygen shader writes one result-image texel per invocation. |
+| `sbtRecordOffset1` / `missIndex1` | Selects `chit2` for hits and `miss2` for misses, producing the distinguishable payload values `7.0` and `11.0`. |
 
-- `%result` (`image2D`, set 0, binding 0, `r32f`): 2D storage image, one texel per launch invocation. Written by `OpImageWrite` from `%payload`.
-- `%topLevelAS` (`accelerationStructureEXT`, set 0, binding 1): traversal input for `OpHitObjectTraceRayEXT`.
-- `%storageBuffer` (`StorageBuffer`, set 0, binding 2, runtime array of `uint`): declared by the shared header; unused by this case but bound by the host.
-- `%payload` (`vec4`, `RayPayloadKHR`, location 0): written by the closest-hit or miss shader invoked through `%hObj`, then stored into the image.
-- `%hObj` (`hitObjectEXT`, `Private`): records the trace result and drives `OpHitObjectExecuteShaderEXT`.
-- `%gl_LaunchIDEXT` / `%gl_LaunchSizeEXT` (BuiltIn `LaunchIdKHR` / `LaunchSizeKHR`): used to compute `origin` and the image write coordinate.
-- `%gl_SubgroupInvocationID` (BuiltIn `SubgroupLocalInvocationId`): provides the hint value `%79 = UMod %gl_SubgroupInvocationID %uint_2`.
+#### Purpose
 
-**Reconstructed GLSL:**
+The raygen shader records a hit object, requests an odd/even subgroup reorder, executes the recorded hit or miss shader, and stores the payload. The host verifies that reordering preserves hit-object state, SBT selection, and the expected hit/miss result pattern.
+
+#### Structural Design
+
+| Phase | Shader behavior | Observable contract |
+|-------|-----------------|---------------------|
+| Build ray | Derive `origin` from `gl_LaunchIDEXT` and `gl_LaunchSizeEXT`; use `direct = (0,0,-1)`, `tmin = 0.5`, and `tmax = 9.0`. | Rays cover the normalized launch grid. |
+| Record | Trace `hObj` through `topLevelAS` with SBT offset 1 and miss index 1. | The recorded object retains the hit/miss result and selected SBT state. |
+| Reorder | Call `reorderThreadEXT(gl_SubgroupInvocationID % 2, 1)`. | The implementation may honor or ignore the hint, but must not change observable execution state. |
+| Execute and store | Execute `hObj`, then `imageStore` the ray payload at `gl_LaunchIDEXT.xy`. | Left-half hits produce `7.0`; right-half misses produce `11.0`. |
+
+#### Shader Code
 
 ```glsl
 #version 460 core
 #extension GL_EXT_ray_tracing : require
 #extension GL_EXT_shader_invocation_reorder : require
 #extension GL_KHR_shader_subgroup_basic : require
-/// 2D r32f storage image at binding 0; one texel per launch invocation.
+
+/// Binding 0 is the host-created r32f storage image; the raygen stage writes one payload-derived texel per launch invocation.
 layout(r32f, set = 0, binding = 0) uniform image2D result;
-/// Top-level acceleration structure at binding 1.
+/// Binding 1 is the top-level acceleration structure traversed by the recorded hit object.
 layout(set = 0, binding = 1) uniform accelerationStructureEXT topLevelAS;
-/// Storage buffer at binding 2 (unused in this case but always declared by the shared header).
+/// Binding 2 is a host-bound uint runtime-array storage buffer declared by the shared header; this representative case does not use it.
 layout(set = 0, binding = 2) buffer StorageBuffer { uint data[]; } storageBuffer;
-/// Ray payload at location 0; closest-hit / miss shaders write into it.
+/// Location 0 carries the payload written by the selected closest-hit or miss shader.
 layout(location = 0) rayPayloadEXT vec4 payload;
 
 void main()
@@ -108,29 +121,38 @@ void main()
   uint  cullMask         = 0xFF;
   float tmin             = 0.5f;
   float tmax             = 9.0f;
-  /// origin spans the launch grid; rays on the left half hit, rays on the right half miss.
+  /// The normalized launch coordinate makes the test geometry cover the left half of the image.
   vec3  origin           = vec3((float(gl_LaunchIDEXT.x) + 0.5f) / float(gl_LaunchSizeEXT.x),
                                 (float(gl_LaunchIDEXT.y) + 0.5f) / float(gl_LaunchSizeEXT.y), 0.0);
   vec3  direct           = vec3(0.0, 0.0, -1.0);
 
   hitObjectEXT hObj;
   payload = vec4(1,0,0,1);
-  /// Trace into SBT offset 1 / miss index 1: chit2 writes 7.0, miss2 writes 11.0.
+  /// Offset 1 and miss index 1 select the second closest-hit/miss pair: 7.0 for a hit and 11.0 for a miss.
   hitObjectTraceRayEXT(hObj, topLevelAS, rayFlags, cullMask, sbtRecordOffset1, sbtRecordStride,
                        missIndex1, origin, tmin, direct, tmax, 0);
-  /// SER hint: reorder by odd/even subgroup invocation; implementation may honor or ignore.
+  /// This is an optimization hint only; the recorded hit object and payload must remain valid either way.
   reorderThreadEXT(gl_SubgroupInvocationID % 2, 1);
-  /// Execute the recorded hit object; must invoke the same SBT entry as the trace above.
   hitObjectExecuteShaderEXT(hObj, 0);
+  /// The host copies this r32f image and checks every texel against the case-specific hit/miss oracle.
   imageStore(result, ivec2(gl_LaunchIDEXT.xy), payload);
 }
 ```
 
-**SPIR-V Bound:** 94. **SPIR-V Version:** 1.5. **Target environment:** `vulkan1.2` (CTS build options target `vk::SPIRV_VERSION_1_4`).
+#### Additional Info
 
-The disassembly was produced with glslang 16.2.0 and spirv-dis from the same release. The system `spirv-val` (VulkanSDK 1.4.321.1 and packman 1.3.231.1) does not recognize the `ShaderInvocationReorderEXT` capability (5388) from `SPV_EXT_shader_invocation_reorder`, so validation fails with `Invalid capability operand: 5388`. This is a tooling version gap, not a shader defect; the sister page `InvocationReorderActivity.md` records the same gap.
+- The source builder emits the shared header and this case body as one raygen GLSL program; the `GL_KHR_shader_subgroup_basic` extension is enabled for this case because it reads `gl_SubgroupInvocationID`.
+- The `storageBuffer` declaration is shared across cases and is only part of the selected validation path for `reorder_subgroup`; it is not read by this representative shader.
+- The raygen module is compiled with the source-controlled `vk::ShaderBuildOptions(..., vk::SPIRV_VERSION_1_4, ...)` target.
 
-The SPIR-V instructions of interest are `OpHitObjectTraceRayEXT` (records the trace into `%hObj`), `OpReorderThreadWithHintEXT` (the hint-only reorder form, taking `%79 = UMod %gl_SubgroupInvocationID %uint_2` and `uint_1` as the bits argument), and `OpHitObjectExecuteShaderEXT` (invokes the SBT entry recorded in `%hObj`). The `reorder_hit_object` and `reorder_hit_object_hint` cases use `OpReorderThreadWithHitObjectEXT` instead; the `reorder_execute` and `reorder_trace_execute` cases use `OpHitObjectReorderExecuteEXT` and `OpHitObjectTraceReorderExecuteEXT` respectively.
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| Reorder entry point | `reorder_hit_object` changes the hint to `reorderThreadEXT(hObj)`; `reorder_hit_object_hint` adds the hit object to the explicit hint form. | [REORDER rgen bodies](../../../modules/vulkan/ray_tracing/vktRayTracingShaderExecutionReorderTests.cpp#L1161-L1251) |
+| Combined operation | `reorder_execute*` and `reorder_trace_execute*` fold reorder with execute, or trace plus reorder plus execute, instead of using the separate calls shown here. | [REORDER rgen bodies](../../../modules/vulkan/ray_tracing/vktRayTracingShaderExecutionReorderTests.cpp#L1224-L1251) |
+| Validation path | `reorder_subgroup` writes subgroup reductions to `storageBuffer`; the other reorder cases, including this one, write the payload to `result`. | [subgroup rgen and validation](../../../modules/vulkan/ray_tracing/vktRayTracingShaderExecutionReorderTests.cpp#L1290-L1310) |
+| Launch dimensions | Ordinary reorder leaves use `160x91x1`; only `reorder_subgroup` uses `256x64x1`, while `large_dim_*` selects an extreme axis and reuses a reorder-hint body. | [registration loop](../../../modules/vulkan/ray_tracing/vktRayTracingShaderExecutionReorderTests.cpp#L2292-L2351) |
 
 #### SPIR-V
 
@@ -311,7 +333,9 @@ The SPIR-V instructions of interest are `OpHitObjectTraceRayEXT` (records the tr
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
+
+## Runtime Execution and Result Checking
 
 - For non-AABB cases, the BLAS contains two opaque triangles spanning `x ∈ [0, 0.5]` at `z = -1.0`. For AABB cases, the BLAS contains one AABB `[(0,0,-2), (0.5,1,-1)]` and an intersection shader reports hits with `hitAttr = vec2(111.0, 222.0)`. For motion cases, the BLAS adds a second vertex set shifted by +2 in X at t=1.0 and the TLAS, BLAS, and pipeline carry motion create flags. The TLAS contains one instance with `kInstanceCustomIndex = 49`; the `object_ray_origin`, `object_to_world`, and `world_to_object` cases shift the instance transform by +0.5 in X.
 - The host builds a `RayTracingPipeline` with one raygen, two closest-hit, two miss, and (for AABB cases) one intersection shader. The raygen SBT region carries shader-record data `{10, 20, 30, 40}` for the `get_sbt_record_handle` case. Motion cases add `VK_PIPELINE_CREATE_RAY_TRACING_ALLOW_MOTION_BIT_NV`.

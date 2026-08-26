@@ -78,34 +78,149 @@ This AMD-extension family emits `imageLoadLodAMD` and `imageStoreLodAMD` for eve
 
 ## Shader Analysis
 
-A representative ordinary leaf is:
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
 
 ```text
-image.load_store.with_format.2d.r8g8b8a8_unorm
+dEQP-VK.image.load_store.with_format.2d.r8g8b8a8_unorm
 ```
 
-It uses a 64 x 64 2D texture from `s_textures`; the precise shader text is generated at runtime. The following is a faithful structural rendering of the generator's normal 2D branch, not a checked-in shader artifact:
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `load_store` | The compute shader reads a source image and writes the transformed value to a destination image. |
+| `with_format.2d.r8g8b8a8_unorm` | Both storage-image declarations carry the `rgba8` qualifier; the 2D texture is 64 x 64 and the normalized four-channel format makes the mirrored transfer directly comparable. |
+| Optimal-tiled 2D image, one layer | Each invocation handles one `(x, y)` texel with a one-to-one destination coordinate. |
+
+#### Purpose
+
+This shader copies the source image into the destination while mirroring the source coordinate horizontally. The host-side verifier applies the same horizontal flip to its reference image, so a wrong image binding, coordinate, or storage-image operation becomes observable.
+
+#### Structural Design
+
+| Phase | Shader operation | Observable contract |
+|-------|------------------|----------------------|
+| Invocation mapping | `gl_GlobalInvocationID.xy` → `pos` | One local-size-1 invocation addresses one destination texel. |
+| Source lookup | `imageLoad(u_image0, ivec2(63 - pos.x, pos.y))` | The x coordinate is reflected across the 64-wide image; y is unchanged. |
+| Destination write | `imageStore(u_image1, pos, ...)` | The loaded normalized RGBA value is written at the unmirrored destination coordinate. |
+
+#### Shader Code
 
 ```glsl
 #version 450
-layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
-layout(binding = 0, rgba8) readonly uniform image2D u_image0;
-layout(binding = 1, rgba8) writeonly uniform image2D u_image1;
 
-void main(void)
+/// One invocation covers one destination texel because the generated workgroup is 1 x 1 x 1.
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+/// Source storage image at descriptor binding 0; `rgba8` is the selected with-format qualifier.
+layout (binding = 0, rgba8) readonly uniform image2D u_image0;
+/// Destination storage image at descriptor binding 1 with the same shader-visible format.
+layout (binding = 1, rgba8) writeonly uniform image2D u_image1;
+
+void main (void)
 {
+    /// The invocation ID supplies the destination coordinate in the 64 x 64 2D image.
     ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
-    imageStore(u_image1, pos, imageLoad(u_image0, ivec2(63 - pos.x, pos.y)));
+    /// Read the horizontally mirrored source texel and store it at the destination coordinate.
+    imageStore(u_image1, pos, imageLoad(u_image0, ivec2(63-pos.x, pos.y)));
 }
 ```
 
-The generator derives image type and coordinates from the selected shape and format. In this leaf, the nonuniform XOR-based reference pattern makes a wrong source coordinate observable: the host flips the reference horizontally, then compares it with the destination. [Declarations](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L1447-L1507), [2D branch](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L1558-L1577), [reference pattern](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L352-L406), [verification](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L1763-L1781)
+#### Additional Info
 
-Relevant generator variations are:
+- `makePrograms()` selects `SPIRV_VERSION_1_3` explicitly for this generated compute shader ([shader build options and declarations](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L1444-L1507)).
+- The host initializes the source image with the generated reference, transitions it to `GENERAL`, dispatches the compute shader, and copies the destination back before comparison; `LoadStoreTestInstance::verifyResult()` flips the reference horizontally for this load/store family ([image execution](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L1939-L1987), [verification](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L1726-L1781)).
 
-- Array, cube, and 3D forms use the appropriate `int`, `ivec2`, or `ivec3` coordinate form; `_single_layer` binds a per-layer non-array view. [Generator](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L1447-L1455), [views](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L1870-L1897)
-- Formatless groups omit the relevant layout qualifier and require `GL_EXT_shader_image_load_formatted` in the generated GLSL. [Generator](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L1481-L1484)
-- Uniform texel-buffer sources use `textureBuffer` and `texelFetch`; three-component source formats expand the fetched channels into three stores. [Generator](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L1493-L1538)
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Image shape | 1D, array, cube, and 3D cases change the image type and coordinate dimensionality; the selected 2D case uses `ivec2` and preserves y. | [`s_textures` and dimension branches](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L1447-L1455) |
+| Format declaration | `without_format` omits the image format qualifier and requires the formatted-load extension path; `with_format` emits the selected qualifier for reads and writes. | [`LoadStoreTest::makePrograms()`](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L1452-L1507) |
+| Access mode | Buffer and uniform-texel-buffer sources replace `imageLoad` with `texelFetch`; the selected image path retains `imageLoad`/`imageStore`. | [`makePrograms()` buffer and image branches](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L1493-L1556) |
+| Synchronization family | Device-scope producer/consumer variants add memory-model headers and acquire/release visibility barriers around the same image dataflow. | [`makePrograms()` device-scope branches](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L1462-L1479) and [barriers](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L1513-L1517) |
+| Explicit LOD | `load_store_lod` emits `imageLoadLodAMD`/`imageStoreLodAMD` once for each mip level; the selected ordinary leaf uses implicit-level storage-image operations. | [LOD branches](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L1540-L1568) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.3`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.3
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 39
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %pos "pos"
+               OpName %gl_GlobalInvocationID "gl_GlobalInvocationID"
+               OpName %u_image1 "u_image1"
+               OpName %u_image0 "u_image0"
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %u_image1 NonReadable
+               OpDecorate %u_image1 Binding 1
+               OpDecorate %u_image1 DescriptorSet 0
+               OpDecorate %u_image0 NonWritable
+               OpDecorate %u_image0 Binding 0
+               OpDecorate %u_image0 DescriptorSet 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+      %v2int = OpTypeVector %int 2
+%_ptr_Function_v2int = OpTypePointer Function %v2int
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+     %v2uint = OpTypeVector %uint 2
+      %float = OpTypeFloat 32
+         %19 = OpTypeImage %float 2D 0 0 0 2 Rgba8
+%_ptr_UniformConstant_19 = OpTypePointer UniformConstant %19
+   %u_image1 = OpVariable %_ptr_UniformConstant_19 UniformConstant
+   %u_image0 = OpVariable %_ptr_UniformConstant_19 UniformConstant
+     %int_63 = OpConstant %int 63
+     %uint_0 = OpConstant %uint 0
+%_ptr_Function_int = OpTypePointer Function %int
+     %uint_1 = OpConstant %uint 1
+    %v4float = OpTypeVector %float 4
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+        %pos = OpVariable %_ptr_Function_v2int Function
+         %15 = OpLoad %v3uint %gl_GlobalInvocationID
+         %16 = OpVectorShuffle %v2uint %15 %15 0 1
+         %17 = OpBitcast %v2int %16
+               OpStore %pos %17
+         %22 = OpLoad %19 %u_image1
+         %23 = OpLoad %v2int %pos
+         %25 = OpLoad %19 %u_image0
+         %29 = OpAccessChain %_ptr_Function_int %pos %uint_0
+         %30 = OpLoad %int %29
+         %31 = OpISub %int %int_63 %30
+         %33 = OpAccessChain %_ptr_Function_int %pos %uint_1
+         %34 = OpLoad %int %33
+         %35 = OpCompositeConstruct %v2int %31 %34
+         %37 = OpImageRead %v4float %25 %35
+               OpImageWrite %22 %23 %37
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 
@@ -115,6 +230,8 @@ Relevant generator variations are:
 4. `comparePixelBuffers()` applies format-aware acceptance: exact integer comparison, a representable-value threshold for fixed-point formats, and a mantissa-scaled one-ULP threshold for floating-point formats. [Comparison helper](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L184-L280)
 
 ## Failure Meaning
+
+### Failure Cause Mapping
 
 | Failing family | Investigation focus |
 |---|---|
@@ -126,7 +243,17 @@ Relevant generator variations are:
 | `device_scope_access` | Device-scope availability/visibility, producer-to-consumer execution dependency, and, for `comp_draw`, fragment output/attachment readback. |
 | `load_store_lod` | AMD explicit-LOD operation, level-specific coordinates/subresources, per-level transfers, and result-buffer offsets. |
 
+### Cause Analysis
+
+#### Family-specific execution or validation path
+
+**Possible failure symptoms:** The selected family fails during shader or resource setup, execution, transfer readback, or its family-specific result comparison.
+
+**Possible implementation causes:** The applicable stages are the ones identified for that family in the mapping above; the source references in the behavior and runtime sections define the generated operation, synchronization path, and result check used to distinguish them.
+
 ## Case Pruning
+
+### Requirement-based pruning
 
 | Area | CTS condition |
 |---|---|
@@ -135,6 +262,8 @@ Relevant generator variations are:
 | Extend and nontemporal operands | Requires `VK_KHR_spirv_1_4`, storage-image and transfer support, and `shaderInt64` when applicable. Non-SC nontemporal cases additionally require Vulkan 1.3. [Checks](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L2723-L2777) |
 | Device scope | Requires Vulkan 1.1, `vulkanMemoryModel`, `vulkanMemoryModelDeviceScope`, and equivalent API version at least 1.2. `comp_draw` also skips compute-only execution and checks color-attachment/transfer-source image support. [Checks](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L3189-L3227) |
 | AMD LOD | Requires `VK_AMD_shader_image_load_store_lod`; buffer views are excluded and formatted write images must have a SPIR-V format. [Checks](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L1303-L1304), [factory](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L3665-L3728) |
+
+### Design-based pruning
 
 Additional design pruning: formatted ordinary leaves are created only for formats with a SPIR-V image-format spelling; unsigned extension-operand formats omit `mismatched_sign`; relaxed precision is registered only when the selected read format is eligible; and `comp_draw` excludes 3D. [Factories](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L3540-L3559), [operand pruning](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L3851-L3881), [device-scope pruning](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L3942-L3949)
 

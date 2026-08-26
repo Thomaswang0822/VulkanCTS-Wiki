@@ -16,12 +16,16 @@
 
 ```text
 synchronization2.none_stage
-├── color_attachment_to_general
-├── old_access_color_attachment_to_general
-└── legacy_color_attachment_to_general
+└── color_attachment_to_general (optional old_access or legacy prefix, write layout/aspect, and read layout/aspect vary)
 ```
 
-The three shown children are representative registered test cases. Their complete layout matrix is described below. The family is created by [`createNoneStageTests()`](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L1375-L1445) and added to the `synchronization2` test category by [`vktSynchronizationTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L129). It is not added to the legacy `synchronization` category.
+The generated form is `[<mode>_]<writeLayout>_to_<readLayout>`.
+
+- `<mode>` is absent, `old_access`, or `legacy`.
+- `<writeLayout>` takes `transfer_dst`, `general`, `color_attachment`, `depth_stencil_attachment`, `depth_attachment`, `stencil_attachment`, `generic_color_attachment`, `generic_depth_attachment`, `generic_stencil_attachment`, or `generic_depth_stencil_attachment`.
+- `<readLayout>` takes `transfer_src`, `general`, `shader_read`, `depth_stencil_read`, `depth_read_stencil_attachment`, `depth_attachment_stencil_read`, `depth_read`, `stencil_read`, `generic_color_read`, `generic_depth_read`, `generic_stencil_read`, or `generic_depth_stencil_read`.
+
+The family is created by [`createNoneStageTests()`](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L1375-L1445) and added only to the `synchronization2` category by [`vktSynchronizationTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L129).
 
 ## Parameter Dimensions and Observed Values
 
@@ -53,7 +57,217 @@ These cases use legacy synchronization structures with `VK_PIPELINE_STAGE_NONE_K
 
 ## Shader Analysis
 
-Shader code is used only for cases whose selected layouts require graphics work. Transfer-only and `GENERAL`-only paths can avoid graphics pipelines. The shader variants convert between the reference color representation and depth/stencil or sampled/input-attachment representations; the synchronization property is established by the host-side barriers, so no shader walkthrough is required here.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.synchronization2.none_stage.color_attachment_to_shader_read
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `color_attachment` → `shader_read` | The image is written through a color-attachment pipeline, then transitioned for a fragment-shader sampler read. |
+| no prefix | The case uses synchronization2 barriers with generic access masks; the source still selects color-attachment output and fragment-shader read stages. |
+| 32 × 32 color image | The host creates an `VK_FORMAT_R8G8B8A8_UNORM` color path and compares the rendered result with the gradient reference. |
+
+#### Purpose
+
+This shader samples the image after the `NONE`-destination barrier and writes the sample to a color attachment. The case therefore checks that the image layout transition and synchronization2 visibility rules preserve color data for a fragment-shader read.
+
+#### Structural Design
+
+```mermaid
+flowchart TD
+    V[Fullscreen vertex positions] --> UV[Interpolated outUV]
+    UV --> S[texture u_sampler at inUV]
+    S --> O[fragColor color attachment]
+```
+
+The write and read graphics pipelines share the same fullscreen vertex support and `frag-color` fragment logic. In the selected case, the write pipeline samples the reference image into the color attachment; after the `NONE` barrier and subsequent transition, the read pipeline samples that transitioned image into the result image.
+
+#### Shader Code
+
+##### Fragment Shader
+
+```glsl
+#version 450
+layout(binding = 0) uniform sampler2D u_sampler;
+/// Interpolated UV coordinates come from the fullscreen vertex stage.
+layout(location = 0) in vec2 inUV;
+/// The sampled image is emitted as the color attachment result.
+layout(location = 0) out vec4 fragColor;
+void main(void)
+{
+  /// The read operation whose visibility depends on the preceding image barriers.
+  fragColor = texture(u_sampler, inUV);
+}
+```
+
+##### Vertex Shader (support)
+
+```glsl
+#version 450
+layout(location = 0) in  vec4 inPosition;
+layout(location = 0) out vec2 outUV;
+void main(void)
+{
+  outUV = vec2(inPosition.x * 0.5 + 0.5, inPosition.y * 0.5 + 0.5);
+  gl_Position = inPosition;
+}
+```
+
+#### Additional Info
+
+- `NoneStageTestInstance` selects `VK_FORMAT_R8G8B8A8_UNORM`, `VK_IMAGE_ASPECT_COLOR_BIT`, and color-attachment output for this color-only pair; the source sets `m_writeFragShaderName` to `frag-color` and uses a sampled reference image ([source](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L289-L352)).
+- The descriptor is a combined image sampler at binding 0, with nearest filtering and clamp-to-edge addressing; the read path likewise binds the transitioned image using the selected readable layout ([source](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L632-L657), [descriptor setup](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L880-L893)).
+- The vertex buffer contains four fullscreen positions, so both pipeline draws use four vertices and cover the 32 × 32 render area ([source](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L437-L448), [draw sequence](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L957-L974)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Writable layout/aspect | Color attachment cases use `frag-color`; depth and stencil writable aspects select `frag-color-to-depth` or `frag-color-to-stencil` instead. | [shader selection](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L322-L352) |
+| Readable layout/aspect | Color and depth-stencil sampler reads use `frag-color`; depth/stencil input-attachment reads use the specialized `frag-depth-or-stencil-to-color`, and stencil sampler reads use `frag-stencil-to-color`. | [read shader selection](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L355-L397), [program generation](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L1183-L1247) |
+| Synchronization/access strategy | The shader text stays fixed across generic, specific, and legacy barrier strategies; the host-side barrier structures and access masks vary. | [barrier sequence](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L977-L1007), [access mapping](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L400-L423) |
+
+#### SPIR-V
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 20
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %fragColor %inUV
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %fragColor "fragColor"
+               OpName %u_sampler "u_sampler"
+               OpName %inUV "inUV"
+               OpDecorate %fragColor Location 0
+               OpDecorate %u_sampler Binding 0
+               OpDecorate %u_sampler DescriptorSet 0
+               OpDecorate %inUV Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %fragColor = OpVariable %_ptr_Output_v4float Output
+         %10 = OpTypeImage %float 2D 0 0 0 1 Unknown
+         %11 = OpTypeSampledImage %10
+%_ptr_UniformConstant_11 = OpTypePointer UniformConstant %11
+  %u_sampler = OpVariable %_ptr_UniformConstant_11 UniformConstant
+    %v2float = OpTypeVector %float 2
+%_ptr_Input_v2float = OpTypePointer Input %v2float
+       %inUV = OpVariable %_ptr_Input_v2float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %14 = OpLoad %11 %u_sampler
+         %18 = OpLoad %v2float %inUV
+         %19 = OpImageSampleImplicitLod %v4float %14 %18
+               OpStore %fragColor %19
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Vertex Shader (support)
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 36
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %outUV %inPosition %_
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %outUV "outUV"
+               OpName %inPosition "inPosition"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex 2 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex 3 "gl_CullDistance"
+               OpName %_ ""
+               OpDecorate %outUV Location 0
+               OpDecorate %inPosition Location 0
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex 3 BuiltIn CullDistance
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v2float = OpTypeVector %float 2
+%_ptr_Output_v2float = OpTypePointer Output %v2float
+      %outUV = OpVariable %_ptr_Output_v2float Output
+    %v4float = OpTypeVector %float 4
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+ %inPosition = OpVariable %_ptr_Input_v4float Input
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_float = OpTypePointer Input %float
+  %float_0_5 = OpConstant %float 0.5
+     %uint_1 = OpConstant %uint 1
+%_arr_float_uint_1 = OpTypeArray %float %uint_1
+%gl_PerVertex = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %16 = OpAccessChain %_ptr_Input_float %inPosition %uint_0
+         %17 = OpLoad %float %16
+         %19 = OpFMul %float %17 %float_0_5
+         %20 = OpFAdd %float %19 %float_0_5
+         %22 = OpAccessChain %_ptr_Input_float %inPosition %uint_1
+         %23 = OpLoad %float %22
+         %24 = OpFMul %float %23 %float_0_5
+         %25 = OpFAdd %float %24 %float_0_5
+         %26 = OpCompositeConstruct %v2float %20 %25
+               OpStore %outUV %26
+         %33 = OpLoad %v4float %inPosition
+         %35 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %35 %33
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

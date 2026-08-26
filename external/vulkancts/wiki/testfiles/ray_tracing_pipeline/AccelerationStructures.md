@@ -146,7 +146,7 @@ This page uses one representative walkthrough. Most subgroups (`flags`, `format`
 Representative path:
 
 ```text
-ray_tracing_pipeline.acceleration_structures.flags.traditional_structures.gpu_built.triangles.identical_instances.nopadding.fasttrace_0_0_0
+dEQP-VK.ray_tracing_pipeline.acceleration_structures.flags.traditional_structures.gpu_built.triangles.identical_instances.nopadding.fasttrace_0_0_0
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -211,7 +211,7 @@ The chit shader writes `hitValue = ivec4(2,0,0,1)` and the miss shader writes `h
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level variation from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | Build flags | No GLSL change. The host sets `VkBuildAccelerationStructureFlagsKHR` on the BLAS/TLAS builder. | [addBasicBuildingTests](../../../modules/vulkan/ray_tracing/vktRayTracingAccelerationStructuresTests.cpp#L6058-L6279) |
 | Build type | No GLSL change. The host selects host or device build. | [TestParams](../../../modules/vulkan/ray_tracing/vktRayTracingAccelerationStructuresTests.cpp#L183-L214) |
@@ -328,7 +328,18 @@ The chit shader writes `hitValue = ivec4(2,0,0,1)` and the miss shader writes `h
                OpFunctionEnd
 ```
 
-</details>## Failure Meaning
+</details>
+
+## Runtime Execution and Result Checking
+
+- **Shared build-and-trace path.** `RayTracingASBasicTestInstance::runTest()` creates the selected BLAS/TLAS topology, applies the requested build type, residency, flags, empty-structure mode, update mode, or post-build copy/compaction/serialization operation, and makes the resulting TLAS the acceleration-structure descriptor used for tracing. Before dispatch it orders transfer writes before ray-tracing shader reads/writes, binds the pipeline and descriptor set, and launches `width × height × 1` rays [shared operation and trace path](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingAccelerationStructuresTests.cpp#L2465-L2926).
+- **Image copyback.** After tracing, the command buffer inserts a shader-write-to-transfer-read barrier, copies the storage image to a host-visible result buffer, and inserts a transfer-write-to-host-read barrier. The host waits for the queue and invalidates exactly the mapped result range before validation [shared copyback path](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingAccelerationStructuresTests.cpp#L2928-L2949).
+- **Configuration-specific references.** The result buffer is not checked against one generic constant. `CheckerboardConfiguration` checks the expected hit/miss pattern, `SingleTriangleConfiguration` compares traced depth against a host-rasterized triangle with a `0.01` threshold, `UpdateableASConfiguration` checks the post-update pattern, and `ComplexGeometryConfiguration` checks both model hit rate and primitive-index bounds [checkerboard verification](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingAccelerationStructuresTests.cpp#L733-L765), [single-triangle verification](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingAccelerationStructuresTests.cpp#L970-L1018), [update verification](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingAccelerationStructuresTests.cpp#L1183-L1217), [complex-geometry verification](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingAccelerationStructuresTests.cpp#L1511-L1572).
+- **Deferred host-operation comparison.** A normal leaf runs once with `workerThreadsCount == 0`. A `host_threading` leaf runs the same case once without worker joins and once with the requested number of `vkDeferredOperationJoinKHR` workers; both independently pass the same configuration-specific image verifier, and the leaf passes only if both validations succeed [iteration split and pass condition](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingAccelerationStructuresTests.cpp#L2952-L2987).
+- **Specialized output paths.** `dynamic_indexing` writes four result planes using prime contributions `2`, `3`, `5`, and `7`; after invalidation every active TLAS entry must contain all four expected values [dynamic-indexing check](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingAccelerationStructuresTests.cpp#L3485-L3514). `copy_within_pipeline` and `update` use their own reference/result dispatches but retain the same shader-write → transfer-read → host-read copyback discipline [copy-within-pipeline implementations](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingAccelerationStructuresTests.cpp#L5270-L5701), [BLAS-update result check](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingAccelerationStructuresTests.cpp#L6025-L6053).
+- **Host-only leaves.** `device_compability_khr`, `header_bottom_address`, and `query_pool_results` do not dispatch the representative shader. They directly compare the device compatibility result or serialized-header addresses, or compare query values/availability bits against copied structures and expected BLAS pointer counts [compatibility iteration](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingAccelerationStructuresTests.cpp#L3692-L3976), [header-address iteration](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingAccelerationStructuresTests.cpp#L3978-L4218), [query result checks](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingAccelerationStructuresTests.cpp#L4637-L4812).
+
+## Failure Meaning
 
 ### Failure Cause Mapping
 

@@ -75,7 +75,7 @@ This page uses two walkthroughs. The first is the simplest plain `StorageBuffer`
 Representative path:
 
 ```text
-spirv_assembly.instruction.compute.raw_access_chain.load_int32_stride_no_bounds
+dEQP-VK.spirv_assembly.instruction.compute.raw_access_chain.load_int32_stride_no_bounds
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -102,85 +102,9 @@ flowchart TD
     D --> E["Store: ptr = outputBuffer + 16*localInvocation + 0\n*ptr = v4uint(storeValue..storeValue3) (Aligned 4)"]
 ```
 
-#### Source Code
+#### Shader Code
 
-Representative SPIR-V assembly reconstructed from [vktSpvAsmRawAccessChainTests.cpp#L678-L976](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L678-L976) for the `load_int32_stride_no_bounds` case. Target SPIR-V environment: `spirv1.6` ([SpirVAsmBuildOptions](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L494-L500)). `;` comments are wiki-authored annotations. Declarations are presented in SPIR-V logical layout order (types → constants → global variables), whereas `CodeGen` accumulates its declaration text in generation order; this fence documents the representative semantics, not a claimed byte-identical generated artifact.
-
-```llvm
-; Capabilities and extensions: Shader + RawAccessChainsNV, logical memory model.
-                          OpCapability Shader
-                          OpCapability RawAccessChainsNV
-                          OpExtension "SPV_NV_raw_access_chains"
-                     %glslExt = OpExtInstImport "GLSL.std.450"
-                          OpMemoryModel Logical GLSL450
-; Entry point: compute shader, LocalSize 32 1 1, two storage buffers + push constant for descriptor index.
-                          OpEntryPoint GLCompute %main "main" %gl_LocalInvocationID %pushConstants %inputBuffer %outputBuffer
-                          OpExecutionMode %main LocalSize 32 1 1
-; Decorations: built-in, block layouts, descriptor set / binding assignments.
-                          OpDecorate %gl_LocalInvocationID BuiltIn LocalInvocationId
-                          OpDecorate %TypeStructUint Block
-                          OpMemberDecorate %TypeStructUint 0 Offset 0
-                          OpDecorate %TypeStructPushConstant Block
-                          OpMemberDecorate %TypeStructPushConstant 0 Offset 0
-                          OpDecorate %outputBuffer DescriptorSet 1
-                          OpDecorate %outputBuffer Binding 0
-                          OpDecorate %inputBuffer DescriptorSet 0
-                          OpDecorate %inputBuffer Binding 0
-; Types: scalar int32 (input type), void, vector variants, uint, and pointer types.
-                       %type = OpTypeInt 32 1
-                       %void = OpTypeVoid
-                     %v2type = OpTypeVector %type 2
-                     %v3type = OpTypeVector %type 3
-                     %v4type = OpTypeVector %type 4
-                       %uint = OpTypeInt 32 0
-                     %v2uint = OpTypeVector %uint 2
-                     %v3uint = OpTypeVector %uint 3
-                     %v4uint = OpTypeVector %uint 4
-             %TypeFunctionMain = OpTypeFunction %void
-          %_ptr_Input_v3uint = OpTypePointer Input %v3uint
-            %_ptr_Input_uint = OpTypePointer Input %uint
-             %TypeStructUint = OpTypeStruct %uint
-      %TypeStructPushConstant = OpTypeStruct %uint
-          %TypePointerBuffer = OpTypePointer StorageBuffer %TypeStructUint
-         %_ptr_Storage_type = OpTypePointer StorageBuffer %type
-       %_ptr_Storage_v2type = OpTypePointer StorageBuffer %v2type
-       %_ptr_Storage_v3type = OpTypePointer StorageBuffer %v3type
-       %_ptr_Storage_v4type = OpTypePointer StorageBuffer %v4type
-      %_ptr_Storage_v4uint = OpTypePointer StorageBuffer %v4uint
-    %_ptr_PushConstant_uint = OpTypePointer PushConstant %uint
-        %_ptr_PushConstant = OpTypePointer PushConstant %TypeStructPushConstant
-; Constants: stride values, zero, pre-padding offset, and per-component deltas.
-                     %uint_8 = OpConstant %uint 8
-                    %uint_16 = OpConstant %uint 16
-                     %uint_0 = OpConstant %uint 0
-                     %uint_4 = OpConstant %uint 4
-                     %delta1 = OpConstant %uint 1
-                     %delta2 = OpConstant %uint 2
-                     %delta3 = OpConstant %uint 3
-; Global variables: input/output storage buffers, push constant, and built-in.
-         %gl_LocalInvocationID = OpVariable %_ptr_Input_v3uint Input
-                %pushConstants = OpVariable %_ptr_PushConstant PushConstant
-                 %outputBuffer = OpVariable %TypePointerBuffer StorageBuffer
-                  %inputBuffer = OpVariable %TypePointerBuffer StorageBuffer
-; Entry function: load via OpRawAccessChainNV, bitcast to uint, then store v4uint via OpRawAccessChainNV.
-                       %main = OpFunction %void None %TypeFunctionMain
-                  %mainLabel = OpLabel
-         %localInvocationPtr = OpAccessChain %_ptr_Input_uint %gl_LocalInvocationID %uint_0
-             %localInvocation = OpLoad %uint %localInvocationPtr
-; Load side: pointer = inputBuffer + 8 * localInvocation + 4 (byte offset), Aligned 4.
-                    %pointer = OpRawAccessChainNV %_ptr_Storage_type %inputBuffer %uint_8 %localInvocation %uint_4
-                      %result = OpLoad %type %pointer Aligned 4
-                  %storeValue = OpBitcast %uint %result
-; Store side: pointer = outputBuffer + 16 * localInvocation + 0 (byte offset), Aligned 4.
-              %storePointer = OpRawAccessChainNV %_ptr_Storage_v4uint %outputBuffer %uint_16 %localInvocation %uint_0
-                 %storeValue1 = OpIAdd %uint %storeValue %delta1
-                 %storeValue2 = OpIAdd %uint %storeValue %delta2
-                 %storeValue3 = OpIAdd %uint %storeValue %delta3
-                 %storeVector = OpCompositeConstruct %v4uint %storeValue %storeValue1 %storeValue2 %storeValue3
-                          OpStore %storePointer %storeVector Aligned 4
-                          OpReturn
-                          OpFunctionEnd
-```
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -200,6 +124,91 @@ Representative SPIR-V assembly reconstructed from [vktSpvAsmRawAccessChainTests.
 | Qualifiers | Adds `OpDecorate %pointer NonWritable`/`Volatile`/`Coherent` (load side) or `OpDecorate %storePointer NonReadable`/`Volatile`/`Coherent` (store side). | [SetLoadDecorations](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L589-L597), [SetStoreDecorations](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L599-L607) |
 | `store_` orientation | Swaps which side carries the generated dimensions. The load side becomes fixed 4-byte/4-component and the store side carries the generated `size`/`components`/`alignment`. | [orientation swap](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L1128-L1147) |
 
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 47
+; Schema: 0
+               OpCapability Shader
+               OpCapability RawAccessChainsNV
+               OpExtension "SPV_NV_raw_access_chains"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %2 "main" %gl_LocalInvocationID %4 %5 %6
+               OpExecutionMode %2 LocalSize 32 1 1
+               OpDecorate %gl_LocalInvocationID BuiltIn LocalInvocationId
+               OpDecorate %_struct_7 Block
+               OpMemberDecorate %_struct_7 0 Offset 0
+               OpDecorate %_struct_8 Block
+               OpMemberDecorate %_struct_8 0 Offset 0
+               OpDecorate %6 DescriptorSet 1
+               OpDecorate %6 Binding 0
+               OpDecorate %5 DescriptorSet 0
+               OpDecorate %5 Binding 0
+        %int = OpTypeInt 32 1
+       %void = OpTypeVoid
+      %v2int = OpTypeVector %int 2
+      %v3int = OpTypeVector %int 3
+      %v4int = OpTypeVector %int 4
+       %uint = OpTypeInt 32 0
+     %v2uint = OpTypeVector %uint 2
+     %v3uint = OpTypeVector %uint 3
+     %v4uint = OpTypeVector %uint 4
+         %18 = OpTypeFunction %void
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%_ptr_Input_uint = OpTypePointer Input %uint
+  %_struct_7 = OpTypeStruct %uint
+  %_struct_8 = OpTypeStruct %uint
+%_ptr_StorageBuffer__struct_7 = OpTypePointer StorageBuffer %_struct_7
+%_ptr_StorageBuffer_int = OpTypePointer StorageBuffer %int
+%_ptr_StorageBuffer_v2int = OpTypePointer StorageBuffer %v2int
+%_ptr_StorageBuffer_v3int = OpTypePointer StorageBuffer %v3int
+%_ptr_StorageBuffer_v4int = OpTypePointer StorageBuffer %v4int
+%_ptr_StorageBuffer_v4uint = OpTypePointer StorageBuffer %v4uint
+%_ptr_PushConstant_uint = OpTypePointer PushConstant %uint
+%_ptr_PushConstant__struct_8 = OpTypePointer PushConstant %_struct_8
+     %uint_8 = OpConstant %uint 8
+    %uint_16 = OpConstant %uint 16
+     %uint_0 = OpConstant %uint 0
+     %uint_4 = OpConstant %uint 4
+     %uint_1 = OpConstant %uint 1
+     %uint_2 = OpConstant %uint 2
+     %uint_3 = OpConstant %uint 3
+%gl_LocalInvocationID = OpVariable %_ptr_Input_v3uint Input
+          %4 = OpVariable %_ptr_PushConstant__struct_8 PushConstant
+          %6 = OpVariable %_ptr_StorageBuffer__struct_7 StorageBuffer
+          %5 = OpVariable %_ptr_StorageBuffer__struct_7 StorageBuffer
+          %2 = OpFunction %void None %18
+         %36 = OpLabel
+         %37 = OpAccessChain %_ptr_Input_uint %gl_LocalInvocationID %uint_0
+         %38 = OpLoad %uint %37
+         %39 = OpRawAccessChainNV %_ptr_StorageBuffer_int %5 %uint_8 %38 %uint_4
+         %40 = OpLoad %int %39 Aligned 4
+         %41 = OpBitcast %uint %40
+         %42 = OpRawAccessChainNV %_ptr_StorageBuffer_v4uint %6 %uint_16 %38 %uint_0
+         %43 = OpIAdd %uint %41 %uint_1
+         %44 = OpIAdd %uint %41 %uint_2
+         %45 = OpIAdd %uint %41 %uint_3
+         %46 = OpCompositeConstruct %v4uint %41 %43 %44 %45
+               OpStore %42 %46 Aligned 4
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
 ### Representative Shader Walkthrough 2
 
 #### Parameter Values Chosen
@@ -207,7 +216,7 @@ Representative SPIR-V assembly reconstructed from [vktSpvAsmRawAccessChainTests.
 Representative path:
 
 ```text
-spirv_assembly.instruction.compute.raw_access_chain.load_physical_buffers_int32_stride_no_bounds
+dEQP-VK.spirv_assembly.instruction.compute.raw_access_chain.load_physical_buffers_int32_stride_no_bounds
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -234,88 +243,9 @@ flowchart TD
     D --> E
 ```
 
-#### Source Code
+#### Shader Code
 
-Representative SPIR-V assembly reconstructed from [vktSpvAsmRawAccessChainTests.cpp#L678-L976](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L678-L976) for the `load_physical_buffers_int32_stride_no_bounds` case. Target SPIR-V environment: `spirv1.6`. `;` comments are wiki-authored annotations; declarations are presented in SPIR-V logical layout order. This fence documents the representative semantics, not a claimed byte-identical generated artifact.
-
-```llvm
-; Capabilities and extensions: Shader + RawAccessChainsNV + PhysicalStorageBufferAddresses.
-                          OpCapability Shader
-                          OpCapability RawAccessChainsNV
-                          OpCapability PhysicalStorageBufferAddresses
-                          OpExtension "SPV_NV_raw_access_chains"
-                          OpExtension "SPV_KHR_physical_storage_buffer"
-                     %glslExt = OpExtInstImport "GLSL.std.450"
-; Memory model: PhysicalStorageBuffer64: pointers are 64-bit device addresses, not descriptor-based.
-                          OpMemoryModel PhysicalStorageBuffer64 GLSL450
-; Entry point: only gl_LocalInvocationID and pushConstants (no descriptor-bound buffers).
-                          OpEntryPoint GLCompute %main "main" %gl_LocalInvocationID %pushConstants
-                          OpExecutionMode %main LocalSize 32 1 1
-; Decorations: built-in, push-constant block with two v2uint members (input + output buffer addresses).
-                          OpDecorate %gl_LocalInvocationID BuiltIn LocalInvocationId
-                          OpDecorate %TypeStructBDAs Block
-                          OpMemberDecorate %TypeStructBDAs 0 Offset 0
-                          OpMemberDecorate %TypeStructBDAs 1 Offset 8
-; Types: scalar int32, void, vector variants, uint, pointer types into PhysicalStorageBuffer.
-                       %type = OpTypeInt 32 1
-                       %void = OpTypeVoid
-                     %v2type = OpTypeVector %type 2
-                     %v3type = OpTypeVector %type 3
-                     %v4type = OpTypeVector %type 4
-                       %uint = OpTypeInt 32 0
-                     %v2uint = OpTypeVector %uint 2
-                     %v3uint = OpTypeVector %uint 3
-                     %v4uint = OpTypeVector %uint 4
-             %TypeFunctionMain = OpTypeFunction %void
-          %_ptr_Input_v3uint = OpTypePointer Input %v3uint
-            %_ptr_Input_uint = OpTypePointer Input %uint
-              %TypeStructBDAs = OpTypeStruct %v2uint %v2uint
-         %_ptr_Storage_type = OpTypePointer PhysicalStorageBuffer %type
-       %_ptr_Storage_v2type = OpTypePointer PhysicalStorageBuffer %v2type
-       %_ptr_Storage_v3type = OpTypePointer PhysicalStorageBuffer %v3type
-       %_ptr_Storage_v4type = OpTypePointer PhysicalStorageBuffer %v4type
-      %_ptr_Storage_v4uint = OpTypePointer PhysicalStorageBuffer %v4uint
-  %_ptr_PushConstant_v2uint = OpTypePointer PushConstant %v2uint
-     %_ptr_PushConstant_BDAs = OpTypePointer PushConstant %TypeStructBDAs
-; Constants: stride values, zero, pre-padding offset, member indices, and per-component deltas.
-                     %uint_8 = OpConstant %uint 8
-                    %uint_16 = OpConstant %uint 16
-                     %uint_0 = OpConstant %uint 0
-                     %uint_4 = OpConstant %uint 4
-                     %uint_1 = OpConstant %uint 1
-                     %delta1 = OpConstant %uint 1
-                     %delta2 = OpConstant %uint 2
-                     %delta3 = OpConstant %uint 3
-; Global variables: only gl_LocalInvocationID and the push-constant struct. No descriptor-bound buffers.
-         %gl_LocalInvocationID = OpVariable %_ptr_Input_v3uint Input
-                %pushConstants = OpVariable %_ptr_PushConstant_BDAs PushConstant
-; Entry function: obtain buffer pointers from push constants via OpBitcast, then load/store via OpRawAccessChainNV.
-                       %main = OpFunction %void None %TypeFunctionMain
-                  %mainLabel = OpLabel
-         %localInvocationPtr = OpAccessChain %_ptr_Input_uint %gl_LocalInvocationID %uint_0
-             %localInvocation = OpLoad %uint %localInvocationPtr
-; Obtain input buffer pointer: load v2uint address from push constant member 0, bitcast to PhysicalStorageBuffer pointer.
-         %inputBufferPointer = OpAccessChain %_ptr_PushConstant_v2uint %pushConstants %uint_0
-         %inputBufferAddress = OpLoad %v2uint %inputBufferPointer
-                  %inputBuffer = OpBitcast %_ptr_Storage_type %inputBufferAddress
-; Obtain output buffer pointer: load v2uint address from push constant member 1, bitcast to PhysicalStorageBuffer pointer.
-        %outputBufferPointer = OpAccessChain %_ptr_PushConstant_v2uint %pushConstants %uint_1
-        %outputBufferAddress = OpLoad %v2uint %outputBufferPointer
-                 %outputBuffer = OpBitcast %_ptr_Storage_type %outputBufferAddress
-; Load side: pointer = inputBuffer + 8 * localInvocation + 4, Aligned 4.
-                    %pointer = OpRawAccessChainNV %_ptr_Storage_type %inputBuffer %uint_8 %localInvocation %uint_4
-                      %result = OpLoad %type %pointer Aligned 4
-                  %storeValue = OpBitcast %uint %result
-; Store side: pointer = outputBuffer + 16 * localInvocation + 0, Aligned 4.
-              %storePointer = OpRawAccessChainNV %_ptr_Storage_v4uint %outputBuffer %uint_16 %localInvocation %uint_0
-                 %storeValue1 = OpIAdd %uint %storeValue %delta1
-                 %storeValue2 = OpIAdd %uint %storeValue %delta2
-                 %storeValue3 = OpIAdd %uint %storeValue %delta3
-                 %storeVector = OpCompositeConstruct %v4uint %storeValue %storeValue1 %storeValue2 %storeValue3
-                          OpStore %storePointer %storeVector Aligned 4
-                          OpReturn
-                          OpFunctionEnd
-```
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -331,6 +261,91 @@ Representative SPIR-V assembly reconstructed from [vktSpvAsmRawAccessChainTests.
 | `variable_pointers` | Adds `OpCapability VariablePointers`; otherwise identical to the default `StorageBuffer` path. | [variable pointers capability](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L735-L736) |
 | `descriptor_indexing` | Replaces single `StorageBuffer` variables with `OpTypeRuntimeArray` arrays; adds `OpAccessChain` into the runtime array using a push-constant descriptor index. | [descriptor indexing declarations](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L781-L801), [runtime array access](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L893-L900) |
 | 64-bit indexing | No shader-level change; only the pipeline creation flag `VK_PIPELINE_CREATE_2_64_BIT_INDEXING_BIT_EXT` differs. | [pipeline creation](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L254-L262) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 50
+; Schema: 0
+               OpCapability Shader
+               OpCapability RawAccessChainsNV
+               OpCapability PhysicalStorageBufferAddresses
+               OpExtension "SPV_NV_raw_access_chains"
+               OpExtension "SPV_KHR_physical_storage_buffer"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel PhysicalStorageBuffer64 GLSL450
+               OpEntryPoint GLCompute %2 "main" %gl_LocalInvocationID %4
+               OpExecutionMode %2 LocalSize 32 1 1
+               OpDecorate %gl_LocalInvocationID BuiltIn LocalInvocationId
+               OpDecorate %_struct_5 Block
+               OpMemberDecorate %_struct_5 0 Offset 0
+               OpMemberDecorate %_struct_5 1 Offset 8
+        %int = OpTypeInt 32 1
+       %void = OpTypeVoid
+      %v2int = OpTypeVector %int 2
+      %v3int = OpTypeVector %int 3
+      %v4int = OpTypeVector %int 4
+       %uint = OpTypeInt 32 0
+     %v2uint = OpTypeVector %uint 2
+     %v3uint = OpTypeVector %uint 3
+     %v4uint = OpTypeVector %uint 4
+         %15 = OpTypeFunction %void
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%_ptr_Input_uint = OpTypePointer Input %uint
+  %_struct_5 = OpTypeStruct %v2uint %v2uint
+%_ptr_PhysicalStorageBuffer_int = OpTypePointer PhysicalStorageBuffer %int
+%_ptr_PhysicalStorageBuffer_v2int = OpTypePointer PhysicalStorageBuffer %v2int
+%_ptr_PhysicalStorageBuffer_v3int = OpTypePointer PhysicalStorageBuffer %v3int
+%_ptr_PhysicalStorageBuffer_v4int = OpTypePointer PhysicalStorageBuffer %v4int
+%_ptr_PhysicalStorageBuffer_v4uint = OpTypePointer PhysicalStorageBuffer %v4uint
+%_ptr_PushConstant_v2uint = OpTypePointer PushConstant %v2uint
+%_ptr_PushConstant__struct_5 = OpTypePointer PushConstant %_struct_5
+     %uint_8 = OpConstant %uint 8
+    %uint_16 = OpConstant %uint 16
+     %uint_0 = OpConstant %uint 0
+     %uint_4 = OpConstant %uint 4
+     %uint_1 = OpConstant %uint 1
+   %uint_1_0 = OpConstant %uint 1
+     %uint_2 = OpConstant %uint 2
+     %uint_3 = OpConstant %uint 3
+%gl_LocalInvocationID = OpVariable %_ptr_Input_v3uint Input
+          %4 = OpVariable %_ptr_PushConstant__struct_5 PushConstant
+          %2 = OpFunction %void None %15
+         %33 = OpLabel
+         %34 = OpAccessChain %_ptr_Input_uint %gl_LocalInvocationID %uint_0
+         %35 = OpLoad %uint %34
+         %36 = OpAccessChain %_ptr_PushConstant_v2uint %4 %uint_0
+         %37 = OpLoad %v2uint %36
+         %38 = OpBitcast %_ptr_PhysicalStorageBuffer_int %37
+         %39 = OpAccessChain %_ptr_PushConstant_v2uint %4 %uint_1
+         %40 = OpLoad %v2uint %39
+         %41 = OpBitcast %_ptr_PhysicalStorageBuffer_int %40
+         %42 = OpRawAccessChainNV %_ptr_PhysicalStorageBuffer_int %38 %uint_8 %35 %uint_4
+         %43 = OpLoad %int %42 Aligned 4
+         %44 = OpBitcast %uint %43
+         %45 = OpRawAccessChainNV %_ptr_PhysicalStorageBuffer_v4uint %41 %uint_16 %35 %uint_0
+         %46 = OpIAdd %uint %44 %uint_1_0
+         %47 = OpIAdd %uint %44 %uint_2
+         %48 = OpIAdd %uint %44 %uint_3
+         %49 = OpCompositeConstruct %v4uint %44 %46 %47 %48
+               OpStore %45 %49 Aligned 4
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

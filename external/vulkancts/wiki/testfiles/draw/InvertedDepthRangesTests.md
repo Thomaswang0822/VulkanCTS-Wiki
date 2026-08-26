@@ -114,21 +114,193 @@ The pipeline sets `depthClampEnable = VK_FALSE`, so z clipping remains enabled a
 
 ## Shader Analysis
 
-The test uses two small inline GLSL 4.50 shaders. No shader-side buffer or generated SPIR-V artifact is checked into the repository; the CTS compiles the source strings during test setup.
+### Representative Shader Walkthrough 1
 
-### Vertex shader
+#### Parameter Values Chosen
 
-The vertex shader declares `layout(location = 0) in highp vec4 in_position` and assigns it directly to `gl_Position`. The three vertices therefore provide controlled clip-space positions and depth values. It does not perform a depth-range calculation; viewport mapping remains fixed-function state.
+Representative path:
 
-### Fragment shader
-
-The fragment shader writes:
-
-```glsl
-out_color = vec4(gl_FragCoord.z, 0.5, 0.5, 1.0);
+```text
+dEQP-VK.draw.renderpass.inverted_depth_ranges.depthclamp_deltaone
 ```
 
-The red component records the mapped, interpolated fragment depth visible to fragment shading before the later depth-bias and depth-attachment operations. The host compares this color image with a reference made from barycentric interpolation and the selected viewport range. A separate depth reference applies the depth-only bias and storage rules, so the two checks cover different points in the graphics path.
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `depthclamp` | Sets `depthClampEnable = VK_TRUE`; z clipping is disabled and mapped fragment depth is clamped to the sorted viewport endpoints. |
+| `deltaone` | Sets `minDepth = 1.0` and `maxDepth = 0.0`, the full inverted range. Depth bias is disabled for this representative. |
+| Render-pass path | Uses the render-pass registration root. The same generated shaders are reused by the three registered dynamic-rendering command-buffer paths. |
+
+#### Purpose
+
+The vertex shader passes the three source depths directly to `gl_Position`, while the fragment shader exposes the fixed-function viewport result through `gl_FragCoord.z`. This makes the inverted viewport mapping observable in the color attachment while the same draw also exercises depth testing and writing to the `VK_FORMAT_D16_UNORM` attachment.
+
+#### Structural Design
+
+| Stage | Shader-visible input | Core operation | Observable output |
+|-------|----------------------|----------------|-------------------|
+| Vertex | Location 0, `in_position` (`vec4`) | Copy the fetched clip-space position without changing its `z` component. | Built-in `gl_Position`; the fixed-function stages apply interpolation and the selected viewport depth range. |
+| Fragment | Built-in `gl_FragCoord.z` | Read the interpolated, viewport-mapped depth. | Location 0 `out_color`, with red equal to `gl_FragCoord.z` and the other channels fixed at `(0.5, 0.5, 1.0)`. |
+
+The shader code contains no descriptor resources, push constants, shared memory, or explicit synchronization. Depth-range inversion, depth clamping, depth bias, and attachment writes are pipeline state and fixed-function behavior around these two stages.
+
+#### Shader Code
+
+##### Vertex Shader
+
+```glsl
+#version 450
+
+/// Location 0 carries the host vertex buffer's four-component clip-space positions.
+layout(location = 0) in highp vec4 in_position;
+
+/// The vertex stage writes only the position consumed by rasterization; viewport depth mapping is fixed-function.
+out gl_PerVertex {
+    highp vec4 gl_Position;
+};
+
+void main(void)
+{
+    /// Preserve each source vertex's clip-space x, y, z, and w, including the test depths -0.2, 0.0, and 1.2.
+    gl_Position = in_position;
+}
+```
+
+##### Fragment Shader
+
+```glsl
+#version 450
+
+/// The host compares location 0 against a reference generated from interpolated depth and viewport state.
+layout(location = 0) out highp vec4 out_color;
+
+void main(void)
+{
+    /// gl_FragCoord.z is the depth visible to fragment shading after rasterization and viewport mapping.
+    /// The fixed green, blue, and alpha components make the red depth signal easy to compare independently.
+    out_color = vec4(gl_FragCoord.z, 0.5, 0.5, 1.0);
+}
+```
+
+#### Additional Info
+
+- The host binds one `VK_FORMAT_R32G32B32A32_SFLOAT` vertex attribute at location 0 and draws exactly three vertices as a triangle. The source vertex depths are `-0.2`, `0.0`, and `1.2`; the depth-clamp variant allows all corresponding primitive regions to reach rasterization. [Vertex data and draw](../../../modules/vulkan/draw/vktDrawInvertedDepthRangesTests.cpp#L71-L91) [draw command](../../../modules/vulkan/draw/vktDrawInvertedDepthRangesTests.cpp#L351-L361)
+- The vertex and fragment programs are fixed across all leaves. The selected leaf changes viewport endpoints, depth-clamp/depth-bias pipeline state, feature requirements, and command recording, not the generated GLSL. [Shader generation](../../../modules/vulkan/draw/vktDrawInvertedDepthRangesTests.cpp#L665-L710) [pipeline state](../../../modules/vulkan/draw/vktDrawInvertedDepthRangesTests.cpp#L255-L310)
+- The color reference intentionally applies viewport mapping without depth bias, whereas the depth reference applies the selected bias before mapping and endpoint clamping. Therefore a color/depth difference is not evidence of a fragment-shader-only defect. [Reference generation](../../../modules/vulkan/draw/vktDrawInvertedDepthRangesTests.cpp#L363-L457)
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| `depthclamp` versus `nodepthclamp` | No GLSL change. The pipeline's `depthClampEnable` controls z clipping and whether the mapped fragment depth is clamped to the viewport endpoint range; the no-clamp reference also masks depth pixels near the clip boundaries. | [`createPipeline` and support checks](../../../modules/vulkan/draw/vktDrawInvertedDepthRangesTests.cpp#L255-L310) [`generateReferenceImage`](../../../modules/vulkan/draw/vktDrawInvertedDepthRangesTests.cpp#L433-L450) |
+| `deltazero`, `deltasmall`, `deltaone`, and unrestricted range leaves | No GLSL change. The leaf determines the dynamic viewport's `(minDepth, maxDepth)` pair, from `(0.5, 0.5)` through `(1.0, 0.0)` to `(1.85, -0.85)`. | [`depthParams` and viewport construction](../../../modules/vulkan/draw/vktDrawInvertedDepthRangesTests.cpp#L748-L780) [`iterate`](../../../modules/vulkan/draw/vktDrawInvertedDepthRangesTests.cpp#L502-L513) |
+| Bias leaves | No GLSL change. The two bias leaves alter rasterizer depth-bias enable, clamp, and slope state; only the depth reference models this bias before viewport mapping. | [`RasterizerState`](../../../modules/vulkan/draw/vktDrawInvertedDepthRangesTests.cpp#L280-L293) [`depth bias reference`](../../../modules/vulkan/draw/vktDrawInvertedDepthRangesTests.cpp#L391-L409) |
+| Render pass versus dynamic rendering | No GLSL change. The four registered rendering roots vary attachment/command-buffer setup around the same vertex and fragment modules. | [Draw dispatcher](../../../modules/vulkan/draw/vktDrawTests.cpp#L126-L198) |
+
+#### SPIR-V
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 18
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %in_position
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpName %_ ""
+               OpName %in_position "in_position"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpDecorate %in_position Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%gl_PerVertex = OpTypeStruct %v4float
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%in_position = OpVariable %_ptr_Input_v4float Input
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %15 = OpLoad %v4float %in_position
+         %17 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %17 %15
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 20
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %out_color %gl_FragCoord
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %out_color "out_color"
+               OpName %gl_FragCoord "gl_FragCoord"
+               OpDecorate %out_color Location 0
+               OpDecorate %gl_FragCoord BuiltIn FragCoord
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %out_color = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%gl_FragCoord = OpVariable %_ptr_Input_v4float Input
+       %uint = OpTypeInt 32 0
+     %uint_2 = OpConstant %uint 2
+%_ptr_Input_float = OpTypePointer Input %float
+  %float_0_5 = OpConstant %float 0.5
+    %float_1 = OpConstant %float 1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %15 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_2
+         %16 = OpLoad %float %15
+         %19 = OpCompositeConstruct %v4float %16 %float_0_5 %float_0_5 %float_1
+               OpStore %out_color %19
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

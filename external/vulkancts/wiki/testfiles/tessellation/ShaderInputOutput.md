@@ -187,7 +187,7 @@ void main (void)
 - Status: generated and validated
 - Source: reconstructed `GLSL` from this walkthrough
 - Stage: `tesc`
-- Target SPIR-V version: `spirv1.0`
+- Target SPIRV version: `spirv1.0`
 
 <details>
 <summary>Click to expand SPIRV asm code</summary>
@@ -334,7 +334,8 @@ void main (void)
          %85 = OpAccessChain %_ptr_Output_float %gl_TessLevelOuter %int_3
                OpStore %85 %float_32
                OpReturn
-               OpFunctionEnd```
+               OpFunctionEnd
+```
 
 </details>
 

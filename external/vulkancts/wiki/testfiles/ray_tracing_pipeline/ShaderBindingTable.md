@@ -72,7 +72,7 @@ This page uses one representative walkthrough. The rgen shader is shared across 
 Representative path:
 
 ```text
-ray_tracing_pipeline.shader_binding_table.indexing_hit.sbt_offset_0.no_shaderrecord.0_0
+dEQP-VK.ray_tracing_pipeline.shader_binding_table.indexing_hit.sbt_offset_0.no_shaderrecord.0_0
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -133,7 +133,7 @@ void main()
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level variation from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | `sbt_offset_*` | No GLSL change. The host adds `sbtOffset * shaderGroupBaseAlignment` bytes to the active SBT buffer address when constructing the SBT region. | [shaderBindingTableOffset](../../../modules/vulkan/ray_tracing/vktRayTracingShaderBindingTableTests.cpp#L472-L473) |
 | `shaderrecord` presence | Replaces `chit_<idx>` (and `miss_<idx>`, `call_<idx>`) with the `*_shaderRecord` variant that reads `info` from `layout(shaderRecordEXT)`. The host writes `uvec4(idx, 0, 0, 0)` per record into the SBT buffer. | [shaderRecord variant generation](../../../modules/vulkan/ray_tracing/vktRayTracingShaderBindingTableTests.cpp#L833-L848), [shader-record fill](../../../modules/vulkan/ray_tracing/vktRayTracingShaderBindingTableTests.cpp#L513-L528) |
@@ -267,7 +267,9 @@ void main()
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
+
+## Runtime Execution and Result Checking
 
 - **Acceleration structure setup.** The host builds a checkerboard of triangles on every odd `(x + y)` cell of the 8x8 grid. Triangles are grouped `HIT_GEOMETRY_COUNT = 3` per BLAS, and the BLAS instances are shuffled with a fixed seed so the instance ordering does not follow a simple pattern [vktRayTracingShaderBindingTableTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingShaderBindingTableTests.cpp#L202-L266). For `indexing_miss`, all instances use `instanceCustomIndex = 0` so any hit routes to `chit_0`; for `indexing_hit` and `indexing_call`, `instanceCustomIndex = i` so each instance contributes a distinct offset to the hit SBT index.
 - **UBO fill per family.** `initUniformBuffer` packs `trParams` from the test parameters. HIT and CALL fill `(sbtRecordOffsetPassedToTraceRay, sbtRecordStride, 0)`; MISS fills `(0, 0, sbtRecordOffsetPassedToTraceRay)` [vktRayTracingShaderBindingTableTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingShaderBindingTableTests.cpp#L268-L304).

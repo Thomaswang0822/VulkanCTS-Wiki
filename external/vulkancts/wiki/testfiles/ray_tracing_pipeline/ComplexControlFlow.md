@@ -109,7 +109,7 @@ One walkthrough covers the `if.execute_callable.rgen` case because the `if/else`
 Representative path:
 
 ```text
-ray_tracing_pipeline.complexcontrolflow.if.execute_callable.rgen
+dEQP-VK.ray_tracing_pipeline.complexcontrolflow.if.execute_callable.rgen
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -137,6 +137,8 @@ This case checks that the `if/else` branch direction controls which payload the 
 #### Shader Code
 
 Reconstructed rgen (the tested control-flow block is the `if/else`):
+
+##### Ray Generation Shader
 
 ```glsl
 #version 460 core
@@ -194,6 +196,8 @@ void main()
 
 Reconstructed callable shader (`cal0`, shared by every `execute_callable` case):
 
+##### Callable Shader
+
 ```glsl
 #version 460 core
 #extension GL_EXT_nonuniform_qualifier : enable
@@ -225,13 +229,15 @@ void main()
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level variation from this walkthrough | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|--------------------------------------------|----------|
 | `testType` | Swaps the `opInMain` block: `if/else` becomes `for`, `switch`, nested `for`, or a function body. The rgen shell, push constants, and image layout stay the same. | [opInMain switch](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1283-L1502) |
 | `testOp` | Swaps `executeCallableEXT(0, $)` for `traceRayEXT(..., $)` or `reportIntersectionEXT(1.0f, 0u)`. The payload declaration changes from `callableDataEXT` to `rayPayloadEXT` or `hitAttributeEXT`. | [shaderCallInstruction](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1243-L1251) |
 | `stage` | Moves the `opInMain` block from rgen into chit, miss, sect, or an outer callable. Non-rgen stages use `getCommonRayGenerationShader()` for the rgen and add a second SBT hit/miss group for nested `trace_ray`. | [stage switch](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1525-L1738) |
 
 #### SPIR-V
+
+##### Ray Generation Shader
 
 - Status: generated and validated
 - Source: reconstructed `GLSL` from this walkthrough
@@ -484,7 +490,125 @@ void main()
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
+
+##### Callable Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `rcall`
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 70
+; Schema: 0
+               OpCapability RayTracingKHR
+               OpExtension "SPV_KHR_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint CallableKHR %main "main" %inValue %gl_LaunchIDEXT %gl_LaunchSizeEXT %resultImage
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_nonuniform_qualifier"
+               OpSourceExtension "GL_EXT_ray_tracing"
+               OpName %main "main"
+               OpName %z "z"
+               OpName %inValue "inValue"
+               OpName %v "v"
+               OpName %n "n"
+               OpName %gl_LaunchIDEXT "gl_LaunchIDEXT"
+               OpName %gl_LaunchSizeEXT "gl_LaunchSizeEXT"
+               OpName %resultImage "resultImage"
+               OpDecorate %gl_LaunchIDEXT BuiltIn LaunchIdKHR
+               OpDecorate %gl_LaunchSizeEXT BuiltIn LaunchSizeKHR
+               OpDecorate %resultImage Binding 0
+               OpDecorate %resultImage DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_ptr_Function_uint = OpTypePointer Function %uint
+     %v2uint = OpTypeVector %uint 2
+%_ptr_IncomingCallableDataKHR_v2uint = OpTypePointer IncomingCallableDataKHR %v2uint
+    %inValue = OpVariable %_ptr_IncomingCallableDataKHR_v2uint IncomingCallableDataKHR
+     %uint_0 = OpConstant %uint 0
+%_ptr_IncomingCallableDataKHR_uint = OpTypePointer IncomingCallableDataKHR %uint
+     %uint_8 = OpConstant %uint 8
+     %uint_1 = OpConstant %uint 1
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_LaunchIDEXT = OpVariable %_ptr_Input_v3uint Input
+%_ptr_Input_uint = OpTypePointer Input %uint
+%gl_LaunchSizeEXT = OpVariable %_ptr_Input_v3uint Input
+         %37 = OpTypeImage %uint 3D 0 0 0 2 R32ui
+%_ptr_UniformConstant_37 = OpTypePointer UniformConstant %37
+%resultImage = OpVariable %_ptr_UniformConstant_37 UniformConstant
+        %int = OpTypeInt 32 1
+      %v3int = OpTypeVector %int 3
+     %v4uint = OpTypeVector %uint 4
+      %int_7 = OpConstant %int 7
+      %int_1 = OpConstant %int 1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %z = OpVariable %_ptr_Function_uint Function
+          %v = OpVariable %_ptr_Function_uint Function
+          %n = OpVariable %_ptr_Function_uint Function
+         %14 = OpAccessChain %_ptr_IncomingCallableDataKHR_uint %inValue %uint_0
+         %15 = OpLoad %uint %14
+         %17 = OpUMod %uint %15 %uint_8
+         %18 = OpIAdd %uint %17 %uint_8
+               OpStore %z %18
+         %21 = OpAccessChain %_ptr_IncomingCallableDataKHR_uint %inValue %uint_1
+         %22 = OpLoad %uint %21
+               OpStore %v %22
+         %28 = OpAccessChain %_ptr_Input_uint %gl_LaunchIDEXT %uint_0
+         %29 = OpLoad %uint %28
+         %31 = OpAccessChain %_ptr_Input_uint %gl_LaunchSizeEXT %uint_0
+         %32 = OpLoad %uint %31
+         %33 = OpAccessChain %_ptr_Input_uint %gl_LaunchIDEXT %uint_1
+         %34 = OpLoad %uint %33
+         %35 = OpIMul %uint %32 %34
+         %36 = OpIAdd %uint %29 %35
+               OpStore %n %36
+         %40 = OpLoad %37 %resultImage
+         %41 = OpAccessChain %_ptr_Input_uint %gl_LaunchIDEXT %uint_0
+         %42 = OpLoad %uint %41
+         %44 = OpBitcast %int %42
+         %45 = OpAccessChain %_ptr_Input_uint %gl_LaunchIDEXT %uint_1
+         %46 = OpLoad %uint %45
+         %47 = OpBitcast %int %46
+         %48 = OpLoad %uint %z
+         %49 = OpBitcast %int %48
+         %51 = OpCompositeConstruct %v3int %44 %47 %49
+         %52 = OpLoad %uint %v
+         %54 = OpCompositeConstruct %v4uint %52 %uint_0 %uint_0 %uint_1
+               OpImageWrite %40 %51 %54 ZeroExtend
+         %55 = OpLoad %37 %resultImage
+         %56 = OpAccessChain %_ptr_Input_uint %gl_LaunchIDEXT %uint_0
+         %57 = OpLoad %uint %56
+         %58 = OpBitcast %int %57
+         %59 = OpAccessChain %_ptr_Input_uint %gl_LaunchIDEXT %uint_1
+         %60 = OpLoad %uint %59
+         %61 = OpBitcast %int %60
+         %63 = OpCompositeConstruct %v3int %58 %61 %int_7
+         %64 = OpLoad %uint %n
+         %65 = OpCompositeConstruct %v4uint %64 %uint_0 %uint_0 %uint_1
+               OpImageWrite %55 %63 %65 ZeroExtend
+         %66 = OpAccessChain %_ptr_IncomingCallableDataKHR_uint %inValue %uint_1
+         %67 = OpLoad %uint %66
+         %69 = OpIAdd %uint %67 %int_1
+               OpStore %66 %69
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+## Runtime Execution and Result Checking
 
 - **Resource setup.** The host builds one bottom-level AS containing a single AABB geometry. The AABB sits at `z = -1.0f` for hit stages and `z = +1.0f` for the miss stage, so a ray traced straight down `-Z` hits for `chit`, `ahit`, `sect`, and `call` cases, and misses for `miss` cases. A one-instance TLAS wraps the BLAS
   [initBottomAccelerationStructure](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L439-L461),

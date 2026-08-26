@@ -254,10 +254,16 @@ void main()
 
 ## Case Pruning
 
+### Requirement-based pruning
+
 - `memory_barrier` is registered only outside VulkanSC because the source encloses its registration in `#ifndef CTS_USES_VULKANSC`.
 - ASTC host-copy leaves are also outside VulkanSC and require `VK_EXT_host_image_copy`. All ASTC leaves require `VK_EXT_astc_decode_mode`, `textureCompressionASTC_LDR`, and sampled-image support for `VK_FORMAT_ASTC_8x8_UNORM_BLOCK` ([support check](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L617-L635)).
 - Input-attachment leaves require `VK_KHR_synchronization2`. `dynamic_rendering` leaves additionally require `VK_KHR_dynamic_rendering` and `VK_KHR_dynamic_rendering_local_read` ([support check](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L1737-L1745)).
 - Each MSAA leaf requires `maxColorAttachments` to meet its selected count. The source registers `4`, `8`, and `16`, then rejects unsupported counts in `checkSupport()` ([support check](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2255-L2259)).
+
+### Design-based pruning
+
+The factory fixes the ASTC operations, barrier combinations, input-attachment combinations, and MSAA arrangements and counts to the matrices described above; it registers no values outside those matrices ([registration](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2304-L2435)).
 
 ## Key Takeaways
 

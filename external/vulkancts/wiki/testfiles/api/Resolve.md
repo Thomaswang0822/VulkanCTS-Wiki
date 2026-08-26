@@ -120,7 +120,251 @@ Records a single `VkImageResolve` with `layerCount = 5`. Adds maintenance5-gated
 
 ## Shader Analysis
 
-Shader code is not part of the tested behavior. The test records `vkCmdResolveImage` and `vkCmdCopyImage`, both of which are fixed-function transfer commands. A short vertex/fragment shader pair (`vert` and `frag`) is used only to fill the source image with the multisample pattern through a render pass, and a generated verification fragment shader (`verify`) is used only by `checkIntermediateCopy` to compare per-sample input-attachment reads into a storage buffer. Neither shader is the subject of the test, so no representative shader walkthrough is included.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.api.copy_and_blit.core.resolve_image.whole_copy_before_resolving.4_bit
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `core` | Uses suballocated memory and the core `vkCmdCopyImage` / `vkCmdResolveImage` commands (`extensionFlags = 0`). |
+| `whole_copy_before_resolving` | Selects `COPY_MS_IMAGE_TO_MS_IMAGE`: copy the complete 64×64, one-layer multisampled source to a matching intermediate image, verify that copy, then resolve it. |
+| `4_bit` | Selects `VK_SAMPLE_COUNT_4_BIT`; the host passes `samples = 4` to the verification shader. |
+| No `_bind_offset` suffix | Binds the source image without the optional non-zero memory offset; this does not change the verification shader. |
+
+#### Purpose
+
+This fragment shader is the intermediate-copy oracle: for every framebuffer pixel, it compares all four samples of the original multisampled source with the corresponding samples of the copied image and records one host-readable pass/fail flag per pixel/sample tuple, validating the per-sample data that feeds the later fixed-function resolve.
+
+#### Structural Design
+
+```mermaid
+flowchart TD
+    A[One fragment invocation for pixel x,y] --> B[Loop sampleID from 0 to 3]
+    B --> C[subpassLoad original sample]
+    C --> D[subpassLoad copied sample]
+    D --> E[Flatten x,y,sampleID to bufferPos]
+    E --> F[Write 1 when vec4 values match, otherwise 0]
+    F --> B
+    B --> G[Host scans every flag]
+```
+
+#### Shader Code
+
+```glsl
+#version 450
+
+/// Runtime push constants describe the 64x64 verification grid and four samples per pixel.
+layout (push_constant, std430) uniform PushConstants {
+    int width;
+    int height;
+    int samples;
+};
+/// Set 0 stores one pass/fail integer for each pixel/sample tuple; the host scans every entry.
+layout (set=0, binding=0) buffer VerificationResults {
+    int verificationFlags[];
+};
+/// Set 1 binds the original multisampled source and its one-layer multisampled copy as input attachments.
+layout (input_attachment_index=0, set=1, binding=0) uniform subpassInputMS attachment0;
+layout (input_attachment_index=1, set=1, binding=1) uniform subpassInputMS attachment1;
+
+void main() {
+    /// Iterate explicitly because the verification pipeline rasterizes once per pixel rather than enabling sample shading.
+    for (int sampleID = 0; sampleID < samples; ++sampleID) {
+        vec4 orig = subpassLoad(attachment0, sampleID);
+        vec4 copy1 = subpassLoad(attachment1, sampleID);
+
+        /// Flatten (x, y, sample) into the same contiguous index later inspected by checkIntermediateCopy().
+        ivec3 coords  = ivec3(int(gl_FragCoord.x), int(gl_FragCoord.y), sampleID);
+        int bufferPos = (coords.y * width + coords.x) * samples + coords.z;
+
+        verificationFlags[bufferPos] = ((orig == copy1) ? 1 : 0); 
+    }
+}
+```
+
+#### Additional Info
+
+- `checkIntermediateCopy()` pushes `(width, height, samples) = (64, 64, 4)`, binds the source and copied layer as two multisampled input attachments, and dispatches this fragment shader with a single-sample verification pipeline; the explicit software loop therefore avoids requiring `sampleRateShading` ([`vktApiResolveTests.cpp#L838-L857`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L838-L857), [`vktApiResolveTests.cpp#L1066-L1099`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L1066-L1099), [`vktApiResolveTests.cpp#L1716-L1721`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L1716-L1721)).
+- After a fragment-to-host memory barrier, the host scans every `(x, y, sample)` flag and reports the first zero with its exact coordinates and sample index ([`vktApiResolveTests.cpp#L1113-L1158`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L1113-L1158)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Sample count | The GLSL is unchanged; `samples` changes at runtime and controls both loop iterations and storage-buffer indexing for 2, 4, 8, 16, 32, or 64 samples. | [`vktApiResolveTests.cpp#L852-L857`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L852-L857), [`vktApiResolveTests.cpp#L1756-L1757`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L1756-L1757) |
+| Destination array layers | One input attachment and one `copyN` load/comparison are generated per copied destination layer; this representative has one copied layer and therefore only `attachment1` / `copy1`. | [`vktApiResolveTests.cpp#L1699-L1714`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L1699-L1714), [`vktApiResolveTests.cpp#L1729-L1741`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L1729-L1741) |
+| Intermediate-copy option | Eligible copy options generate `verify`; the layer-copy option emits a dedicated two-attachment comparison, while direct-resolve and no-CAB/multiregion paths do not use this intermediate verification shader. | [`vktApiResolveTests.cpp#L53-L58`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L53-L58), [`vktApiResolveTests.cpp#L1675-L1705`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L1675-L1705) |
+| Allocation, bind offset, command API, queue, and image layout | These choices alter host resource or command setup, not this representative shader's declarations or control flow. | [`vktApiResolveTests.cpp#L1911-L1961`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L1911-L1961), [`vktApiResolveTests.cpp#L1965-L2022`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L1965-L2022) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 91
+; Schema: 0
+               OpCapability Shader
+               OpCapability InputAttachment
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %gl_FragCoord
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %sampleID "sampleID"
+               OpName %PushConstants "PushConstants"
+               OpMemberName %PushConstants 0 "width"
+               OpMemberName %PushConstants 1 "height"
+               OpMemberName %PushConstants 2 "samples"
+               OpName %_ ""
+               OpName %orig "orig"
+               OpName %attachment0 "attachment0"
+               OpName %copy1 "copy1"
+               OpName %attachment1 "attachment1"
+               OpName %coords "coords"
+               OpName %gl_FragCoord "gl_FragCoord"
+               OpName %bufferPos "bufferPos"
+               OpName %VerificationResults "VerificationResults"
+               OpMemberName %VerificationResults 0 "verificationFlags"
+               OpName %__0 ""
+               OpDecorate %PushConstants Block
+               OpMemberDecorate %PushConstants 0 Offset 0
+               OpMemberDecorate %PushConstants 1 Offset 4
+               OpMemberDecorate %PushConstants 2 Offset 8
+               OpDecorate %attachment0 Binding 0
+               OpDecorate %attachment0 DescriptorSet 1
+               OpDecorate %attachment0 InputAttachmentIndex 0
+               OpDecorate %attachment1 Binding 1
+               OpDecorate %attachment1 DescriptorSet 1
+               OpDecorate %attachment1 InputAttachmentIndex 1
+               OpDecorate %gl_FragCoord BuiltIn FragCoord
+               OpDecorate %_runtimearr_int ArrayStride 4
+               OpDecorate %VerificationResults BufferBlock
+               OpMemberDecorate %VerificationResults 0 Offset 0
+               OpDecorate %__0 Binding 0
+               OpDecorate %__0 DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+      %int_0 = OpConstant %int 0
+%PushConstants = OpTypeStruct %int %int %int
+%_ptr_PushConstant_PushConstants = OpTypePointer PushConstant %PushConstants
+          %_ = OpVariable %_ptr_PushConstant_PushConstants PushConstant
+      %int_2 = OpConstant %int 2
+%_ptr_PushConstant_int = OpTypePointer PushConstant %int
+       %bool = OpTypeBool
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+         %29 = OpTypeImage %float SubpassData 0 0 1 2 Unknown
+%_ptr_UniformConstant_29 = OpTypePointer UniformConstant %29
+%attachment0 = OpVariable %_ptr_UniformConstant_29 UniformConstant
+      %v2int = OpTypeVector %int 2
+         %35 = OpConstantComposite %v2int %int_0 %int_0
+%attachment1 = OpVariable %_ptr_UniformConstant_29 UniformConstant
+      %v3int = OpTypeVector %int 3
+%_ptr_Function_v3int = OpTypePointer Function %v3int
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%gl_FragCoord = OpVariable %_ptr_Input_v4float Input
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_float = OpTypePointer Input %float
+     %uint_1 = OpConstant %uint 1
+     %uint_2 = OpConstant %uint 2
+%_runtimearr_int = OpTypeRuntimeArray %int
+%VerificationResults = OpTypeStruct %_runtimearr_int
+%_ptr_Uniform_VerificationResults = OpTypePointer Uniform %VerificationResults
+        %__0 = OpVariable %_ptr_Uniform_VerificationResults Uniform
+     %v4bool = OpTypeVector %bool 4
+      %int_1 = OpConstant %int 1
+%_ptr_Uniform_int = OpTypePointer Uniform %int
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+   %sampleID = OpVariable %_ptr_Function_int Function
+       %orig = OpVariable %_ptr_Function_v4float Function
+      %copy1 = OpVariable %_ptr_Function_v4float Function
+     %coords = OpVariable %_ptr_Function_v3int Function
+  %bufferPos = OpVariable %_ptr_Function_int Function
+               OpStore %sampleID %int_0
+               OpBranch %10
+         %10 = OpLabel
+               OpLoopMerge %12 %13 None
+               OpBranch %14
+         %14 = OpLabel
+         %15 = OpLoad %int %sampleID
+         %21 = OpAccessChain %_ptr_PushConstant_int %_ %int_2
+         %22 = OpLoad %int %21
+         %24 = OpSLessThan %bool %15 %22
+               OpBranchConditional %24 %11 %12
+         %11 = OpLabel
+         %32 = OpLoad %29 %attachment0
+         %33 = OpLoad %int %sampleID
+         %36 = OpImageRead %v4float %32 %35 Sample %33
+               OpStore %orig %36
+         %39 = OpLoad %29 %attachment1
+         %40 = OpLoad %int %sampleID
+         %41 = OpImageRead %v4float %39 %35 Sample %40
+               OpStore %copy1 %41
+         %50 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_0
+         %51 = OpLoad %float %50
+         %52 = OpConvertFToS %int %51
+         %54 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_1
+         %55 = OpLoad %float %54
+         %56 = OpConvertFToS %int %55
+         %57 = OpLoad %int %sampleID
+         %58 = OpCompositeConstruct %v3int %52 %56 %57
+               OpStore %coords %58
+         %60 = OpAccessChain %_ptr_Function_int %coords %uint_1
+         %61 = OpLoad %int %60
+         %62 = OpAccessChain %_ptr_PushConstant_int %_ %int_0
+         %63 = OpLoad %int %62
+         %64 = OpIMul %int %61 %63
+         %65 = OpAccessChain %_ptr_Function_int %coords %uint_0
+         %66 = OpLoad %int %65
+         %67 = OpIAdd %int %64 %66
+         %68 = OpAccessChain %_ptr_PushConstant_int %_ %int_2
+         %69 = OpLoad %int %68
+         %70 = OpIMul %int %67 %69
+         %72 = OpAccessChain %_ptr_Function_int %coords %uint_2
+         %73 = OpLoad %int %72
+         %74 = OpIAdd %int %70 %73
+               OpStore %bufferPos %74
+         %79 = OpLoad %int %bufferPos
+         %80 = OpLoad %v4float %orig
+         %81 = OpLoad %v4float %copy1
+         %83 = OpFOrdEqual %v4bool %80 %81
+         %84 = OpAll %bool %83
+         %86 = OpSelect %int %84 %int_1 %int_0
+         %88 = OpAccessChain %_ptr_Uniform_int %__0 %int_0 %79
+               OpStore %88 %86
+               OpBranch %13
+         %13 = OpLabel
+         %89 = OpLoad %int %sampleID
+         %90 = OpIAdd %int %89 %int_1
+               OpStore %sampleID %90
+               OpBranch %10
+         %12 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

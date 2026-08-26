@@ -75,25 +75,145 @@ The case matrix grows from simple to complex:
 
 ## Shader Analysis
 
-The shaders are generated per case from the test parameters. They are not stored as checked-in files. Because the shader logic is straightforward and driven entirely by the resolve-type enum, this page does not include a representative walkthrough. The shader structure is the same for every case within a mechanism; only the bound attachments, resolve strategy, and aspect flags change.
+### Representative Shader Walkthrough 1
 
-### Upload shader structure
+#### Parameter Values Chosen
 
-Each upload pass gets one fragment shader [initPrograms upload loop](../../../modules/vulkan/renderpass/vktRenderPassCustomResolveTests.cpp#L803-L857). The shader declares one storage buffer per attachment (`pixels0`, `pixels1`, ...) containing the extent and a flat array of per-sample `vec4` values. For each pixel `(x, y)` and sample `s = gl_SampleID`, it computes the linear index and writes the corresponding value to the color output, `gl_FragDepth`, or `gl_FragStencilRefARB` depending on which aspects the upload pass targets. Stencil export uses `GL_ARB_shader_stencil_export` unless `disableStencilExport` is set, in which case the pipeline stencil reference value is used instead.
+Representative path:
 
-### Resolve shader structure
+```text
+dEQP-VK.renderpasses.renderpass1.custom_resolve.monolithic.color_multi_upload_multi_resolve_complex
+```
 
-Each resolve pass gets one fragment shader [initPrograms resolve loop](../../../modules/vulkan/renderpass/vktRenderPassCustomResolveTests.cpp#L859-L1000). The shader declares input attachments (`subpassInputMS`) for each multisample attachment being resolved, plus an `AttInfo` storage buffer that carries the sample count. For each resolved attachment, the strategy is:
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `renderpass1.custom_resolve.monolithic` | The legacy render-pass path uses a monolithic graphics pipeline. The shader generator is shared with the dynamic-rendering and shader-object variants; those variants change host-side construction, not this generated GLSL resolve algorithm. |
+| `color_multi_upload_multi_resolve_complex` | The case has two 4-sample color attachments, two upload passes, and two resolve passes. Attachment 0 is resolved first with `SELECTED_SAMPLE` sample 3 and its resolve location is 1, exposing both sample selection and output-location remapping. |
+| `frag_resolve_0` | This is the first resolve fragment stage. It reads attachment 0 through a multisample input attachment and writes the selected sample to color output location 1. |
 
-- `AVERAGE`: loop over all samples, accumulate, divide by sample count (integer division for stencil).
-- `FIXED_VALUE`: write a constant `vec4` (for color), depth value (`.x`), or stencil reference (`.y`).
-- `SELECTED_SAMPLE`: `subpassLoad` one specific sample index.
+#### Purpose
 
-The output location for each resolved color attachment is the attachment's `resolveLocation`, which may differ from its upload index when testing attachment-index changes or location remapping.
+This resolve shader demonstrates that `VK_EXT_custom_resolve` lets the fragment stage choose a particular multisample value instead of relying on fixed-function averaging. For the selected case, sample 3 from attachment 0 is copied to the resolve output, and the host later compares that result with the same sample from its generated per-sample reference data.
 
-### single_sample_clear shader
+#### Structural Design
 
-This case uses a fixed fragment shader that averages all samples of the input attachment and writes the result [SingleSampleClearInitPrograms](../../../modules/vulkan/renderpass/vktRenderPassCustomResolveTests.cpp#L5782-L5810). The sample count comes from a push constant.
+| Phase | Shader operation | Why it matters |
+|-------|------------------|----------------|
+| Interface | Declare an input attachment for multisample color data and a color output at location 1. | The input attachment index follows the legacy render-pass attachment index; the output location follows `AttachmentInfo::resolveLocation`, which is 1 for attachment 0 in this case. |
+| Resolve | `subpassLoad(inColor0, 3)` reads one sample from the multisample input attachment. | The selected-sample strategy is shader-controlled and does not average the four samples. |
+| Store | Assign the returned `vec4` to `outColor1`. | The resolved value is written to the single-sample attachment at the remapped color location. |
+
+#### Shader Code
+
+```glsl
+#version 460
+
+/// Binding 0 is a host-created std430 storage buffer for attachment 0. Its
+/// extent.w member carries the runtime sample count; this representative
+/// selected-sample branch does not need to load it because the sample index
+/// is emitted as the compile-time literal 3.
+layout (set=0, binding=0, std430) readonly buffer AttInfoBlk0 {
+    ivec4 extent; // .xyz is the size and should be the same for all, .w is the sample count
+} attInfo0;
+
+/// Set 1 binding 0 is the multisample input attachment for legacy render-pass
+/// attachment 0. The generator uses input_attachment_index 0 for this path.
+layout (set=1, binding=0, input_attachment_index=0) uniform subpassInputMS inColor0;
+
+/// Attachment 0's resolveLocation is 1 in the representative case, so the
+/// selected sample is written to color location 1 of the resolve pipeline.
+layout (location=1) out vec4 outColor1;
+
+void main (void) {
+    /// ResolveType::SELECTED_SAMPLE with sampleIndex 3 becomes a direct
+    /// multisample input-attachment read; no loop or arithmetic is generated.
+    outColor1 = subpassLoad(inColor0, 3);
+}
+```
+
+#### Additional Info
+
+- `frag_upload_0` and `frag_upload_1` are the producer stages for the two upload passes. They read per-sample `vec4` values from set 0 storage buffers, compute `p = y * extent.x + x` and `i = p * extent.w + gl_SampleID`, and write those values into the multisample attachments before the resolve stages run [upload shader generation](../../../modules/vulkan/renderpass/vktRenderPassCustomResolveTests.cpp#L802-L857). They are not reproduced here because the selected-sample resolve stage is the shader logic central to this representative walkthrough.
+- The host records the custom-resolve operation as the second subpass for the legacy render-pass path; dynamic rendering uses `vkCmdBeginCustomResolveEXT` before the same resolve draw [resolve recording](../../../modules/vulkan/renderpass/vktRenderPassCustomResolveTests.cpp#L3032-L3068).
+- The generated source includes the `AttInfoBlk0` declaration even though this selected-sample branch does not read `extent.w`; average branches use that member as the loop bound and fixed-value branches likewise retain the common per-attachment declaration.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| `ResolveType` | `AVERAGE` emits a loop over `attInfo*.extent.w` samples and division by the sample count; `FIXED_VALUE` emits a constant; `SELECTED_SAMPLE` emits one `subpassLoad` with the selected literal index. | [resolve strategy generation](../../../modules/vulkan/renderpass/vktRenderPassCustomResolveTests.cpp#L933-L956) |
+| `resolveLocation` / attachment remapping | The output declaration uses the attachment's resolve location, while the legacy input attachment index remains the attachment index. Dynamic rendering can instead use the resolve-pass index when location remapping is enabled. | [input and output location generation](../../../modules/vulkan/renderpass/vktRenderPassCustomResolveTests.cpp#L894-L917), [output declaration](../../../modules/vulkan/renderpass/vktRenderPassCustomResolveTests.cpp#L933-L935) |
+| Resolve aspect | Color uses `subpassInputMS` and a color output; depth uses `gl_FragDepth`; stencil uses `usubpassInputMS` and, unless disabled, `gl_FragStencilRefARB` with `GL_ARB_shader_stencil_export`. | [aspect-specific declarations and stores](../../../modules/vulkan/renderpass/vktRenderPassCustomResolveTests.cpp#L919-L1006) |
+| Upload/resolve coverage | Push-constant `CoveredArea` changes the rectangle rasterized by the common vertex shader; it does not change the resolve fragment code shown here. | [common vertex shader](../../../modules/vulkan/renderpass/vktRenderPassCustomResolveTests.cpp#L782-L800), [push-constant recording](../../../modules/vulkan/renderpass/vktRenderPassCustomResolveTests.cpp#L2668-L2676) |
+| Attachment formats and sample count | Host-generated attachment formats and sample counts change descriptor data and render-pass/pipeline state. The selected-sample shader still uses the literal selected index; support checks ensure the index is valid for the attachment's sample count. | [attachment and resolve parameters](../../../modules/vulkan/renderpass/vktRenderPassCustomResolveTests.cpp#L275-L338), [support checks](../../../modules/vulkan/renderpass/vktRenderPassCustomResolveTests.cpp#L615-L780) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 24
+; Schema: 0
+               OpCapability Shader
+               OpCapability InputAttachment
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %outColor1
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 460
+               OpName %main "main"
+               OpName %outColor1 "outColor1"
+               OpName %inColor0 "inColor0"
+               OpName %AttInfoBlk0 "AttInfoBlk0"
+               OpMemberName %AttInfoBlk0 0 "extent"
+               OpName %attInfo0 "attInfo0"
+               OpDecorate %outColor1 Location 1
+               OpDecorate %inColor0 Binding 0
+               OpDecorate %inColor0 DescriptorSet 1
+               OpDecorate %inColor0 InputAttachmentIndex 0
+               OpDecorate %AttInfoBlk0 BufferBlock
+               OpMemberDecorate %AttInfoBlk0 0 NonWritable
+               OpMemberDecorate %AttInfoBlk0 0 Offset 0
+               OpDecorate %attInfo0 NonWritable
+               OpDecorate %attInfo0 Binding 0
+               OpDecorate %attInfo0 DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %outColor1 = OpVariable %_ptr_Output_v4float Output
+         %10 = OpTypeImage %float SubpassData 0 0 1 2 Unknown
+%_ptr_UniformConstant_10 = OpTypePointer UniformConstant %10
+   %inColor0 = OpVariable %_ptr_UniformConstant_10 UniformConstant
+        %int = OpTypeInt 32 1
+      %int_3 = OpConstant %int 3
+      %int_0 = OpConstant %int 0
+      %v2int = OpTypeVector %int 2
+         %18 = OpConstantComposite %v2int %int_0 %int_0
+      %v4int = OpTypeVector %int 4
+%AttInfoBlk0 = OpTypeStruct %v4int
+%_ptr_Uniform_AttInfoBlk0 = OpTypePointer Uniform %AttInfoBlk0
+   %attInfo0 = OpVariable %_ptr_Uniform_AttInfoBlk0 Uniform
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %13 = OpLoad %10 %inColor0
+         %19 = OpImageRead %v4float %13 %18 Sample %int_3
+               OpStore %outColor1 %19
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

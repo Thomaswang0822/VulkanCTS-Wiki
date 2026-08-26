@@ -1,6 +1,6 @@
 ## Overview
 
-**Core question: does the implementation accept duplicate entries in the `ppEnabledExtensionNames` list passed to `vkCreateInstance` and `vkCreateDevice`?**
+**Core question:** does the implementation accept duplicate entries in the `ppEnabledExtensionNames` list passed to `vkCreateInstance` and `vkCreateDevice`?
 
 - This page covers the `api.extension_duplicates` test family, implemented in [`vktApiExtensionDuplicatesTests.cpp`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L1) and attached to the `api` test category by [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L138-L138).
 - The family registers two intermediate nodes (`instance`, `device`), each with two test case leaves (`by_pointers`, `by_names`), for a total of four executable cases matching [`api.txt`](../../../mustpass/main/vk-default/api.txt#L270789-L270792).

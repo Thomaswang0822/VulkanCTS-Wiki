@@ -124,16 +124,18 @@ The shaders are CTS-authored SPIR-V assembly, not generated GLSL/HLSL. Compute s
 
 #### Parameter Values Chosen
 
+Representative path:
+
 ```text
 dEQP-VK.spirv_assembly.instruction.compute.spirv_version.1_4_compute
 ```
 
-| Parameter | Selected value | Consequence |
-|-----------|----------------|-------------|
-| Requested version | `1_4` | `SpirVAsmBuildOptions` requests SPIR-V 1.4, and the binary collection must report `1.4`. |
-| Operation | `compute` | Uses the authored `OpFNegate` program and common compute verifier. |
-| Storage declaration | `StorageBuffer` / `Block` | Uses the post-`1.3` buffer form at bindings 0 and 1. |
-| Workgroups | `100 × 1 × 1` | One invocation processes each float. |
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| Requested version: `1_4` | `SpirVAsmBuildOptions` requests SPIR-V 1.4, and the binary collection must report `1.4`. |
+| Operation: `compute` | Uses the authored `OpFNegate` program and common compute verifier. |
+| Storage declaration: `StorageBuffer` / `Block` | Uses the post-`1.3` buffer form at bindings 0 and 1. |
+| Workgroups: `100 × 1 × 1` | One invocation processes each float. |
 
 #### Purpose
 
@@ -149,73 +151,89 @@ This case demonstrates the first newer-declaration path. It checks that requesti
 | Arithmetic | Loads one float and emits `OpFNegate`. | Produces the expected negative value. |
 | Store | Writes the result through `%outdata`. | Makes the common host verifier observe execution. |
 
-#### Source Code
+#### Shader Code
 
-This is the exact `1_4` specialization of the compute assembly assembled by the source helpers. Audit-time semantic validation of this final fence uses `spirv-as --target-env spv1.4` → `spirv-val --target-env vulkan1.2` → `spirv-dis`; the source shown here does not establish a separate generation-time `spirv-as`/`spirv-val`/`spirv-dis` gate. Its disassembly is intentionally not duplicated for this `spirv_assembly` page.
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
-<details>
-<summary>Click to expand CTS-authored SPIR-V assembly</summary>
+#### Additional Info
 
-```llvm
-OpCapability Shader
-OpMemoryModel Logical GLSL450
-OpEntryPoint GLCompute %main "main" %id %indata %outdata
-OpExecutionMode %main LocalSize 1 1 1
-OpSource GLSL 430
-OpName %main           "main"
-OpName %id             "gl_GlobalInvocationID"
-OpDecorate %id BuiltIn GlobalInvocationId
-OpDecorate %buf Block
-OpDecorate %indata DescriptorSet 0
-OpDecorate %indata Binding 0
-OpDecorate %outdata DescriptorSet 0
-OpDecorate %outdata Binding 1
-OpDecorate %f32arr ArrayStride 4
-OpMemberDecorate %buf 0 Offset 0
-%bool      = OpTypeBool
-%void      = OpTypeVoid
-%voidf     = OpTypeFunction %void
-%u32       = OpTypeInt 32 0
-%i32       = OpTypeInt 32 1
-%f32       = OpTypeFloat 32
-%uvec3     = OpTypeVector %u32 3
-%fvec3     = OpTypeVector %f32 3
-%uvec3ptr  = OpTypePointer Input %uvec3
-%i32ptr    = OpTypePointer StorageBuffer %i32
-%f32ptr    = OpTypePointer StorageBuffer %f32
-%i32arr    = OpTypeRuntimeArray %i32
-%f32arr    = OpTypeRuntimeArray %f32
-%buf     = OpTypeStruct %f32arr
-%bufptr  = OpTypePointer StorageBuffer %buf
-%indata    = OpVariable %bufptr StorageBuffer
-%outdata   = OpVariable %bufptr StorageBuffer
-%id        = OpVariable %uvec3ptr Input
-%zero      = OpConstant %i32 0
-%main      = OpFunction %void None %voidf
-%label     = OpLabel
-%idval     = OpLoad %uvec3 %id
-%x         = OpCompositeExtract %u32 %idval 0
-             OpNop
-%inloc     = OpAccessChain %f32ptr %indata %zero %x
-%inval     = OpLoad %f32 %inloc
-%neg       = OpFNegate %f32 %inval
-%outloc    = OpAccessChain %f32ptr %outdata %zero %x
-             OpStore %outloc %neg
-             OpReturn
-             OpFunctionEnd
-```
-
-</details>
+- The selected module is supplied directly as SPIR-V assembly by CTS.
 
 #### Parameter Variation Summary
 
-| Variation from the representative | Assembly or pipeline change | Version/execution check |
-|-----------------------------------|-----------------------------|-------------------------|
-| `1_0` through `1_3` compute | Uses `Uniform`/`BufferBlock`; omits the two buffers from the entry-point interface. | Each binary must report the selected lower version, then the same negation oracle runs. |
-| `1_5` or `1_6` compute | Retains the `StorageBuffer`/`Block` form. | Each binary must report the selected newer version, then the same negation oracle runs. |
-| `vertex` or `fragment` | Uses vertex-plus-fragment common graphics context. | Every module in that context must report the requested version before the default graphics verifier runs. |
-| `tesselation_control` or `tesselation_evaluation` | Uses a complete tessellation pipeline. | Requires `tessellationShader`; binary-version check still covers every compiled module. |
-| `geometry` | Uses vertex, geometry, and fragment context. | Requires `geometryShader`; binary-version check still covers every compiled module. |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| Requested SPIR-V version | `1_0` through `1_3` use `Uniform`/`BufferBlock`; `1_4` through `1_6` use `StorageBuffer`/`Block` and include the two buffers in the compute entry-point interface. | [`getComputeSourceCode()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersionTests.cpp#L118-L154) |
+| Operation | `compute` uses the authored negation program; graphics operations use the selected stage builder and a complete pipeline context. | [`initGraphicsInstanceContext()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersionTests.cpp#L69-L116), [`createSpivVersionCheckTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersionTests.cpp#L376-L403) |
+| Graphics stage | `vertex` or `fragment` uses vertex-plus-fragment context; tessellation stages use a complete tessellation pipeline; `geometry` uses vertex, geometry, and fragment context. | [`initGraphicsInstanceContext()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersionTests.cpp#L69-L116) |
+| Version/execution check | Every compiled module must report the requested version before the common compute or graphics execution verifier runs. | [`isSpirVersionsAsRequested()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersionTests.cpp#L182-L198), [`SpvAsmGraphicsSpirvVersionsInstance::iterate()` and `SpvAsmComputeSpirvVersionsInstance::iterate()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersionTests.cpp#L217-L253) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 28
+; Schema: 0
+               OpCapability Shader
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID %3 %4
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 430
+               OpName %main "main"
+               OpName %gl_GlobalInvocationID "gl_GlobalInvocationID"
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %_struct_5 Block
+               OpDecorate %3 DescriptorSet 0
+               OpDecorate %3 Binding 0
+               OpDecorate %4 DescriptorSet 0
+               OpDecorate %4 Binding 1
+               OpDecorate %_runtimearr_float ArrayStride 4
+               OpMemberDecorate %_struct_5 0 Offset 0
+       %bool = OpTypeBool
+       %void = OpTypeVoid
+          %9 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+        %int = OpTypeInt 32 1
+      %float = OpTypeFloat 32
+     %v3uint = OpTypeVector %uint 3
+    %v3float = OpTypeVector %float 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%_ptr_StorageBuffer_int = OpTypePointer StorageBuffer %int
+%_ptr_StorageBuffer_float = OpTypePointer StorageBuffer %float
+%_runtimearr_int = OpTypeRuntimeArray %int
+%_runtimearr_float = OpTypeRuntimeArray %float
+  %_struct_5 = OpTypeStruct %_runtimearr_float
+%_ptr_StorageBuffer__struct_5 = OpTypePointer StorageBuffer %_struct_5
+          %3 = OpVariable %_ptr_StorageBuffer__struct_5 StorageBuffer
+          %4 = OpVariable %_ptr_StorageBuffer__struct_5 StorageBuffer
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+      %int_0 = OpConstant %int 0
+       %main = OpFunction %void None %9
+         %21 = OpLabel
+         %22 = OpLoad %v3uint %gl_GlobalInvocationID
+         %23 = OpCompositeExtract %uint %22 0
+               OpNop
+         %24 = OpAccessChain %_ptr_StorageBuffer_float %3 %int_0 %23
+         %25 = OpLoad %float %24
+         %26 = OpFNegate %float %25
+         %27 = OpAccessChain %_ptr_StorageBuffer_float %4 %int_0 %23
+               OpStore %27 %26
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

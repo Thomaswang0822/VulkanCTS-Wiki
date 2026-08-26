@@ -31,8 +31,8 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [x] 21. tessellation — 16 (UB: 15)
 - [x] 22. rasterization — 6 (UB: 5)
 - [x] 23. clipping — 1 (UB: 1)
-- [ ] 24. fragment_operations — 5
-- [ ] 25. texture — 13
+- [x] 24. fragment_operations — 5 (UB: 5)
+- [x] 25. texture — 12 (UB: 12)
 - [x] 26. geometry — 7 (UB: 7)
 - [ ] 27. robustness — 9
 - [ ] 28. multiview — 2
@@ -62,4 +62,4 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [ ] 52. tensor — 7
 - [ ] 53. data_graph — 4
 
-**Summary**: 27 done, 26 todo.
+**Summary**: 29 done, 24 todo.

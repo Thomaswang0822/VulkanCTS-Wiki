@@ -22,13 +22,31 @@ For the shared concept depth bias, see [Background Knowledge](../../categories/r
 ```text
 rasterization
 ├── primitives
+├── primitives_multisample_2_bit
+├── primitives_multisample_4_bit
+├── primitives_multisample_8_bit
+├── primitives_multisample_16_bit
+├── primitives_multisample_32_bit
+├── primitives_multisample_64_bit
 ├── primitive_size
 ├── polygon_as_large_points
 ├── fill_rules
+├── fill_rules_multisample_2_bit
+├── fill_rules_multisample_4_bit
+├── fill_rules_multisample_8_bit
+├── fill_rules_multisample_16_bit
+├── fill_rules_multisample_32_bit
+├── fill_rules_multisample_64_bit
 ├── culling
 ├── discard
 ├── conservative
 ├── interpolation
+├── interpolation_multisample_2_bit
+├── interpolation_multisample_4_bit
+├── interpolation_multisample_8_bit
+├── interpolation_multisample_16_bit
+├── interpolation_multisample_32_bit
+├── interpolation_multisample_64_bit
 ├── flatshading
 ├── line_continuity
 ├── depth_bias
@@ -40,7 +58,7 @@ rasterization
 └── shader_tile_image (registration only)
 ```
 
-`primitives`, `fill_rules`, and `interpolation` are also registered as `*_multisample_<N>_bit` direct children for `N` = 2, 4, 8, 16, 32, 64; those variants repeat the same family logic at the configured `VkSampleCountFlagBits` and are covered as a parameter dimension below, not as distinct families.
+The `primitives`, `fill_rules`, and `interpolation` multisample children repeat the same family logic for `VkSampleCountFlagBits` values 2, 4, 8, 16, 32, and 64. They are listed explicitly because each is a real direct child of the `rasterization` root.
 
 ## Parameter Dimensions and Observed Values
 
@@ -202,15 +220,17 @@ void main ()
 
 #### Parameter Variation Summary
 
-| Variation | Effect on shader | Coverage in this page |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |-----------|------------------|----------------------|
-| `flatshading.*` | `${INTERPOLATION}` becomes `"flat "`, adding the `flat` qualifier to `v_color` in both shaders. | Same template; no separate walkthrough. |
-| `primitives.*` | Same template; the host verifier switches between triangle/line/point coverage helpers. | Same template; no separate walkthrough. |
-| `interpolation.projected.*` | Same template; the host uses projected line interpolation in the verifier. | Same template; no separate walkthrough. |
-| Multisample variants | Same template; the host creates a multisample render area and resolve attachment. | Same template; no separate walkthrough. |
-| `polygon_as_large_points` | Different `initPrograms` override emits vert/mesh/tesc/tese/geom/frag stages. | Not covered by this walkthrough; see `PolygonModeLargePointsCase::initPrograms`. |
+| `flatshading.*` | `${INTERPOLATION}` becomes `"flat "`, adding the `flat` qualifier to `v_color` in both shaders. | Same template; no separate walkthrough.  [shader templates](../../../modules/vulkan/rasterization/vktRasterizationTests.cpp) |
+| `primitives.*` | Same template; the host verifier switches between triangle/line/point coverage helpers. | Same template; no separate walkthrough.  [shader templates](../../../modules/vulkan/rasterization/vktRasterizationTests.cpp) |
+| `interpolation.projected.*` | Same template; the host uses projected line interpolation in the verifier. | Same template; no separate walkthrough.  [shader templates](../../../modules/vulkan/rasterization/vktRasterizationTests.cpp) |
+| Multisample variants | Same template; the host creates a multisample render area and resolve attachment. | Same template; no separate walkthrough. [shader templates](../../../modules/vulkan/rasterization/vktRasterizationTests.cpp) |
+| `polygon_as_large_points` | Different `initPrograms` override emits vert/mesh/tesc/tese/geom/frag stages. | Not covered by this walkthrough; see `PolygonModeLargePointsCase::initPrograms`.  [shader templates](../../../modules/vulkan/rasterization/vktRasterizationTests.cpp) |
 
 #### SPIR-V
+
+##### Vertex Shader
 
 - Status: generated and validated
 - Source: reconstructed GLSL from this walkthrough
@@ -283,6 +303,51 @@ void main ()
                OpStore %26 %24
          %29 = OpLoad %v4float %a_color
                OpStore %v_color %29
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 13
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %fragColor %v_color
+               OpExecutionMode %main OriginUpperLeft
+               OpSource ESSL 310
+               OpName %main "main"
+               OpName %fragColor "fragColor"
+               OpName %v_color "v_color"
+               OpDecorate %fragColor Location 0
+               OpDecorate %v_color Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %fragColor = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+    %v_color = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %12 = OpLoad %v4float %v_color
+               OpStore %fragColor %12
                OpReturn
                OpFunctionEnd
 ```

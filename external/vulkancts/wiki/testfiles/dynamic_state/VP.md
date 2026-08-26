@@ -61,17 +61,197 @@ The reference frame is green across the centered square NDC `-0.5..0.5` on both 
 
 ## Shader Analysis
 
-The shaders support the test rather than implement the tested property for the single-viewport cases. The vertex shader ([VertexFetch.vert](../../../data/vulkan/dynamic_state/VertexFetch.vert)) copies position and color; the fragment shader ([VertexFetch.frag](../../../data/vulkan/dynamic_state/VertexFetch.frag)) copies the interpolated color to the attachment. The dynamic viewport and scissor behavior under test is applied by fixed-function rasterization, not by the shader.
+### Representative Shader Walkthrough 1
 
-For the `viewport_array` cases the shader is part of the tested property, because `gl_ViewportIndex` selection is what routes each quad to its viewport. The geometry shader derives the index from `gl_Position.z` and emits one triangle-strip per input triangle:
+#### Parameter Values Chosen
 
-```glsl
-gl_ViewportIndex = int(round(gl_in[i].gl_Position.z * 3.0));
+Representative path:
+
+```text
+dEQP-VK.dynamic_state.monolithic.vp_state.viewport_array
 ```
 
-The mesh variant does the equivalent through `gl_MeshPrimitivesEXT[0].gl_ViewportIndex`. The Z packing (`i/3.0` for viewport `i`, rounded and multiplied back by 3) is the contract between the host vertex data and the shader that makes each quad land in its intended viewport.
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `monolithic` | Uses the ordinary monolithic graphics-pipeline construction path; pipeline construction does not alter this shader. |
+| `viewport_array` | Selects the vertex/geometry/fragment path with four dynamic viewports and scissors; the geometry stage writes `gl_ViewportIndex`. |
+| Four host Z encodings: `0`, `1/3`, `2/3`, `1` | Each separately drawn quad carries one encoding, which the shader maps back to viewport indices `0` through `3`. |
 
-No representative shader walkthrough is included. The shaders are short passthrough programs, and the behavior under test is fixed-function dynamic state plus, for the array case, a one-line index derivation that is already shown above.
+#### Purpose
+
+The geometry shader preserves each input triangle while deriving `gl_ViewportIndex` from its host-provided Z value. This makes shader routing and the four dynamically recorded viewport/scissor pairs jointly determine where each quad is rasterized.
+
+#### Structural Design
+
+```mermaid
+flowchart TD
+    A[Input triangle: position + color] --> B[Process each of 3 vertices]
+    B --> C[Forward position and color]
+    C --> D[Compute round(position.z * 3)]
+    D --> E[Write viewport index 0..3]
+    E --> F[Emit triangle-strip vertex]
+    F --> G[End primitive after 3 vertices]
+```
+
+#### Shader Code
+
+```glsl
+#version 450
+/// Geometry stage: one triangle enters and one three-vertex strip leaves.
+layout(triangles) in;
+layout(triangle_strip, max_vertices = 3) out;
+
+/// Clip-space positions come from the fixed vertex-fetch shader.
+in gl_PerVertex { vec4 gl_Position; } gl_in[];
+/// Each emitted vertex forwards its input clip-space position.
+out gl_PerVertex { vec4 gl_Position; };
+/// Location 0 carries the per-vertex green color through this stage.
+layout(location = 0) in vec4 in_color[];
+layout(location = 0) out vec4 out_color;
+
+void main() {
+	/// All vertices in a draw carry the same Z encoding: 0, 1/3, 2/3, or 1.
+	for (int i=0; i<gl_in.length(); ++i) {
+		gl_Position = gl_in[i].gl_Position;
+		/// Recover viewport 0..3 and route the emitted primitive to that dynamic viewport.
+		gl_ViewportIndex = int(round(gl_in[i].gl_Position.z * 3.0));
+		out_color = in_color[i];
+		EmitVertex();
+	}
+	EndPrimitive();
+}
+```
+
+#### Additional Info
+
+- [`ViewportArrayTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateVPTests.cpp#L258-L268) gives all four vertices of quad `i` the same Z value, `i/3.0`, and submits each quad as a separate draw, so every primitive selects exactly one viewport.
+- The mesh parity case replaces this geometry stage with [`VertexFetchViewportArray.mesh`](../../../data/vulkan/dynamic_state/VertexFetchViewportArray.mesh); it performs the same Z-to-index mapping but writes `gl_MeshPrimitivesEXT[0].gl_ViewportIndex`.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Test logical group | `viewport` and `scissor` use no geometry shader because they have only one viewport; `viewport_array` adds this stage to select among four viewports. | [`DynamicStateVPTests::init()`](../../../modules/vulkan/dynamic_state/vktDynamicStateVPTests.cpp#L502-L519) |
+| Shader path | The vertex path uses this geometry shader; the `_mesh` path replaces both vertex and geometry processing with a mesh shader that writes the per-primitive viewport index. | [`DynamicStateVPTests::init()`](../../../modules/vulkan/dynamic_state/vktDynamicStateVPTests.cpp#L486-L515) |
+| Pipeline construction type | Construction type changes pipeline assembly but not the registered shader artifact or its source. | [`DynamicStateVPTests::init()`](../../../modules/vulkan/dynamic_state/vktDynamicStateVPTests.cpp#L471-L519) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `geom`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 57
+; Schema: 0
+               OpCapability Geometry
+               OpCapability MultiViewport
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Geometry %main "main" %_ %gl_in %gl_ViewportIndex %out_color %in_color
+               OpExecutionMode %main Triangles
+               OpExecutionMode %main Invocations 1
+               OpExecutionMode %main OutputTriangleStrip
+               OpExecutionMode %main OutputVertices 3
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %i "i"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpName %_ ""
+               OpName %gl_PerVertex_0 "gl_PerVertex"
+               OpMemberName %gl_PerVertex_0 0 "gl_Position"
+               OpName %gl_in "gl_in"
+               OpName %gl_ViewportIndex "gl_ViewportIndex"
+               OpName %out_color "out_color"
+               OpName %in_color "in_color"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpDecorate %gl_PerVertex_0 Block
+               OpMemberDecorate %gl_PerVertex_0 0 BuiltIn Position
+               OpDecorate %gl_ViewportIndex BuiltIn ViewportIndex
+               OpDecorate %out_color Location 0
+               OpDecorate %in_color Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+      %int_0 = OpConstant %int 0
+      %int_3 = OpConstant %int 3
+       %bool = OpTypeBool
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%gl_PerVertex = OpTypeStruct %v4float
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+%gl_PerVertex_0 = OpTypeStruct %v4float
+       %uint = OpTypeInt 32 0
+     %uint_3 = OpConstant %uint 3
+%_arr_gl_PerVertex_0_uint_3 = OpTypeArray %gl_PerVertex_0 %uint_3
+%_ptr_Input__arr_gl_PerVertex_0_uint_3 = OpTypePointer Input %_arr_gl_PerVertex_0_uint_3
+      %gl_in = OpVariable %_ptr_Input__arr_gl_PerVertex_0_uint_3 Input
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%_ptr_Output_int = OpTypePointer Output %int
+%gl_ViewportIndex = OpVariable %_ptr_Output_int Output
+     %uint_2 = OpConstant %uint 2
+%_ptr_Input_float = OpTypePointer Input %float
+    %float_3 = OpConstant %float 3
+  %out_color = OpVariable %_ptr_Output_v4float Output
+%_arr_v4float_uint_3 = OpTypeArray %v4float %uint_3
+%_ptr_Input__arr_v4float_uint_3 = OpTypePointer Input %_arr_v4float_uint_3
+   %in_color = OpVariable %_ptr_Input__arr_v4float_uint_3 Input
+      %int_1 = OpConstant %int 1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %i = OpVariable %_ptr_Function_int Function
+               OpStore %i %int_0
+               OpBranch %10
+         %10 = OpLabel
+               OpLoopMerge %12 %13 None
+               OpBranch %14
+         %14 = OpLabel
+         %15 = OpLoad %int %i
+         %18 = OpSLessThan %bool %15 %int_3
+               OpBranchConditional %18 %11 %12
+         %11 = OpLabel
+         %30 = OpLoad %int %i
+         %32 = OpAccessChain %_ptr_Input_v4float %gl_in %30 %int_0
+         %33 = OpLoad %v4float %32
+         %35 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %35 %33
+         %38 = OpLoad %int %i
+         %41 = OpAccessChain %_ptr_Input_float %gl_in %38 %int_0 %uint_2
+         %42 = OpLoad %float %41
+         %44 = OpFMul %float %42 %float_3
+         %45 = OpExtInst %float %1 Round %44
+         %46 = OpConvertFToS %int %45
+               OpStore %gl_ViewportIndex %46
+         %51 = OpLoad %int %i
+         %52 = OpAccessChain %_ptr_Input_v4float %in_color %51
+         %53 = OpLoad %v4float %52
+               OpStore %out_color %53
+               OpEmitVertex
+               OpBranch %13
+         %13 = OpLabel
+         %54 = OpLoad %int %i
+         %56 = OpIAdd %int %54 %int_1
+               OpStore %i %56
+               OpBranch %10
+         %12 = OpLabel
+               OpEndPrimitive
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

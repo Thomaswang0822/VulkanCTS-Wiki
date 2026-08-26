@@ -231,89 +231,94 @@ The page uses one representative walkthrough because the `recursiveTraces` rayge
 
 ### Representative Shader Walkthrough 1
 
-**CTS case:** `ray_tracing_pipeline.misc.recursiveTraces_AABB_2`
+#### Parameter Values Chosen
 
-**Source location:** [vktRayTracingMiscTests.cpp#L6482-L6535](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L6482-L6535)
+The representative case is the depth-zero AABB recursion leaf.
 
-**What this shader tests:** The raygen shader computes a linear invocation index from `gl_LaunchIDEXT`, records one result item into the storage buffer via `atomicAdd(nItemsStored, 1)`, then traces a hit ray and a miss ray at level 0. Each `traceRayEXT` carries a payload at location 0 holding the parent depth, origin ray, and result item index. The closest-hit and miss shaders at level 0 read that payload, record their own item, and recurse to level 1 if `parentDepth < MAX_RECURSIVE_DEPTH - 1`. With `MAX_RECURSIVE_DEPTH = 2`, the recursion stops after level 1 and produces a binary tree of 7 items per ray (`2^(depth+1) - 1`). If the implementation mishandles the specialization constant, the recursion either stops early or exceeds the depth, and host verification catches the wrong item count and wrong parent/child links.
+Representative path:
 
-**Shader-visible resources:**
+```text
+dEQP-VK.ray_tracing_pipeline.misc.recursiveTraces_AABB_0
+```
 
-- `%result` (`result`, set 0, binding 0, `std430` storage buffer): holds `nItemsStored`, `nCHitInvocations`, `nMissInvocations`, and a runtime array of `ResultData` items. Written by `OpAtomicIAdd` and `OpStore` through `OpAccessChain`.
-- `%accelerationStructure` (set 0, binding 1, `UniformConstant` `OpTypeAccelerationStructureKHR`): the TLAS traversed by `OpTraceRayKHR`.
-- `%gl_LaunchIDEXT` (`v3uint`, `BuiltIn LaunchIdKHR`): input giving the current invocation coordinates.
-- `%gl_LaunchSizeEXT` (`v3uint`, `BuiltIn LaunchSizeKHR`): input giving the dispatch dimensions (512x1x1).
-- `%__0` (`block`, `RayPayloadKHR`): the location-0 payload struct holding `currentDepth`, `currentNOriginRay`, `currentResultItem`.
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `recursiveTraces` | Selects the recursive ray tracing shader family and its result-buffer recording logic. |
+| `AABB` | Uses procedural AABB geometry, so the traversal path includes the AABB intersection shader family. |
+| `0` | Sets `MAX_RECURSIVE_DEPTH` to zero; the raygen stage records one item per ray and performs no recursive trace. |
 
-**Reconstructed GLSL:**
+#### Purpose
+
+This walkthrough shows how the recursive-trace raygen stage records each launch invocation and seeds the ray payload used by the recursive shader family. At depth zero, the host observes only the raygen record because recursion is disabled.
+
+#### Structural Design
+
+| Phase | Shader behavior | Observable result |
+|---|---|---|
+| Launch indexing | Flatten `gl_LaunchIDEXT` with `gl_LaunchSizeEXT` into `nInvocation`. | Each ray receives a stable invocation number. |
+| Result reservation | Atomically increment `result.nItemsStored`, then write a bounded result record. | The host can count and inspect raygen records. |
+| Payload seed | Initialize depth, origin-ray, and result-item fields in the ray payload. | Later stages have the recursion bookkeeping inputs. |
+| Two traces | Trace toward the hit target and miss target with the same AABB and payload bindings. | Depth-zero specialization prevents descendants from being generated. |
+
+#### Shader Code
 
 ```glsl
-#version 460 core
+#version 460
 #extension GL_EXT_ray_tracing : require
 
+layout(set = 0, binding = 0, std430) buffer ResultBuffer {
+    uint nItemsStored;
+    uint nCHitInvocations;
+    uint nMissInvocations;
+    uint resultItems[];
+} result;
 layout(set = 0, binding = 1) uniform accelerationStructureEXT accelerationStructure;
-
-struct ResultData
-{
-    uint nOriginRay;
-    uint shaderStage;
-    uint depth;
-    uint callerResultItem;
-};
-
-layout(set = 0, binding = 0, std430) buffer result
-{
-    uint       nItemsStored;
-    uint       nCHitInvocations;
-    uint       nMissInvocations;
-    ResultData resultItems[];
-};
-
-layout(location = 0) rayPayloadEXT block
-{
-    uint currentDepth;
-    uint currentNOriginRay;
-    uint currentResultItem;
-};
+layout(location = 0) rayPayloadEXT uvec3 payload;
 
 void main()
 {
+    /// Flatten the 3-D launch coordinate so every ray gets a unique index.
     uint nInvocation = gl_LaunchIDEXT.z * gl_LaunchSizeEXT.x * gl_LaunchSizeEXT.y
-                     + gl_LaunchIDEXT.y * gl_LaunchSizeEXT.x + gl_LaunchIDEXT.x;
-    uint  rayFlags      = 0;
-    float tmin          = 0.001;
-    float tmax          = 9.0;
-    uint  cullMask      = 0xFF;
-    vec3  cellStartXYZ  = vec3(0.0, 0.0, 0.0);
-    vec3  cellEndXYZ    = cellStartXYZ + vec3(1.0);
-    vec3  targetHit     = mix(cellStartXYZ, cellEndXYZ, vec3(0.5));
-    vec3  targetMiss    = targetHit + vec3(0, 10, 0);
-    vec3  origin        = targetHit - vec3(1, 0, 0);
-    vec3  directionHit  = normalize(targetHit  - origin);
-    vec3  directionMiss = normalize(targetMiss - origin);
-
-    uint nItem = atomicAdd(nItemsStored, 1);
-
-    if (nItem < 32792575)
+                     + gl_LaunchIDEXT.y * gl_LaunchSizeEXT.x
+                     + gl_LaunchIDEXT.x;
+    uint nItem = atomicAdd(result.nItemsStored, 1u);
+    if (nItem < 32792575u)
     {
-        resultItems[nItem].callerResultItem = 0xFFFFFFFF;
-        resultItems[nItem].depth            = 0;
-        resultItems[nItem].nOriginRay       = nInvocation;
-        resultItems[nItem].shaderStage      = 3;
+        result.resultItems[nItem * 4u + 3u] = 0xffffffffu;
+        result.resultItems[nItem * 4u + 2u] = 0u;
+        result.resultItems[nItem * 4u + 0u] = nInvocation;
+        result.resultItems[nItem * 4u + 1u] = 3u;
     }
 
-    currentDepth      = 0;
-    currentNOriginRay = nInvocation;
-    currentResultItem = nItem;
+    /// Seed the recursive bookkeeping payload before both traversal paths.
+    payload = uvec3(0u, nInvocation, nItem);
+    vec3 cellStartXYZ = vec3(0.0);
+    vec3 cellEndXYZ = cellStartXYZ + vec3(1.0);
+    vec3 targetHit = mix(cellStartXYZ, cellEndXYZ, vec3(0.5));
+    vec3 targetMiss = targetHit + vec3(0.0, 10.0, 0.0);
+    vec3 origin = targetHit - vec3(1.0, 0.0, 0.0);
+    vec3 directionHit = normalize(targetHit - origin);
+    vec3 directionMiss = normalize(targetMiss - origin);
 
-    traceRayEXT(accelerationStructure, rayFlags, cullMask, 0, 0, 0, origin, tmin, directionHit,  tmax, 0);
-    traceRayEXT(accelerationStructure, rayFlags, cullMask, 0, 0, 0, origin, tmin, directionMiss, tmax, 0);
+    traceRayEXT(accelerationStructure, 0u, 0xffu, 0u, 0u, 0u,
+                origin, 0.001, directionHit, 9.0, payload);
+    traceRayEXT(accelerationStructure, 0u, 0xffu, 0u, 0u, 0u,
+                origin, 0.001, directionMiss, 9.0, payload);
 }
 ```
 
-Built with `glslangValidator -V --target-env spirv1.4 -S rgen`. Validated with `spirv-val --target-env spv1.4`. SPIR-V version 1.4, Bound 135. **Target SPIR-V environment:** `spirv1.4` (CTS build options target `vk::SPIRV_VERSION_1_4`).
+#### Additional Info
 
-**Parameter variation note:** The rgen shader is identical for every `recursiveTraces_*` depth from 1 through 15. The depth only changes the closest-hit and miss shader generators, which emit `depth` versions of each stage and gate recursion on `parentDepth < MAX_RECURSIVE_DEPTH - 1`. For depth 0, the source generator omits the payload definition and the two `traceRayEXT` calls, so only the rgen item recording remains. The `MAX_RECURSIVE_DEPTH` specialization constant (constant ID 1) is attached to closest-hit and miss stages only; the rgen does not consume it. AABB geometry adds an `intersection0` shader that calls `reportIntersectionEXT(0.95f, 0)`; triangle geometry uses the fixed-function triangle intersection instead. The `32792575` literal is the runtime bounds check `m_nMaxResultItemsPermitted`, derived from `(512 * 1024768 - 12) / 16`, which prevents the result buffer from overflowing on deep recursion.
+- The depth-zero representative is the degenerate branch documented by the registration evidence: it records the raygen item but does not recurse.
+- The result buffer is descriptor binding 0 and the acceleration structure is descriptor binding 1, matching the declarations in this stage's generated artifact.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Recursion depth | Values `1` through `15` enable closest-hit and miss stages to record descendants and issue recursive traces; `0` keeps this raygen-only behavior. | [vktRayTracingMiscTests.cpp#L11153-L11181](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L11153-L11181) |
+| Geometry type | `AABB` selects procedural geometry and its intersection path; the sibling `tri` cases use triangle geometry. | [vktRayTracingMiscTests.cpp#L309-L357](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L309-L357) |
+| Recursive shader stages | Closest-hit and miss stages consume `MAX_RECURSIVE_DEPTH` and recursively call `traceRayEXT`; this walkthrough's rgen stage remains the launch-side seed. | [vktRayTracingMiscTests.cpp#L6228-L6536](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L6228-L6536) |
 
 #### SPIR-V
 
@@ -550,7 +555,9 @@ Built with `glslangValidator -V --target-env spirv1.4 -S rgen`. Validated with `
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
+
+## Runtime Execution and Result Checking
 
 The generic runner `RayTracingMiscTestInstance` drives every leaf that goes through the `TestBase` hierarchy. The standalone leaves (`null_miss`, `empty_pipeline_layout`, `reuse_*`, `update_empty_*`, `shaders_from_lib`) use their own instance functions but follow the same shape.
 

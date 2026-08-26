@@ -251,7 +251,7 @@ void main (void)
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level variation from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | Count source | Attribute variants read `v_geom_emitCount`; uniform variants read `emit.u_emitCount`; texture variants sample `u_sampler`. | [VaryingOutputCountCase::initPrograms()](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L577-L764) |
 | Instancing | Instanced cases use `layout(points, invocations=4) in` and `gl_InvocationID`; non-instanced cases use ordinary `layout(points) in`. | [instanced layout generation](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L613-L623) |
@@ -260,6 +260,70 @@ void main (void)
 | Side-effect leaves | Replace the visible arc shader with a GLSL 460 geometry shader that writes `ssbo.value = 777u`. | [sideEffectInitPrograms()](../../../modules/vulkan/geometry/vktGeometryBasicGeometryShaderTests.cpp#L803-L866) |
 
 #### SPIR-V
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed GLSL from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 21
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %a_position %v_geom_emitCount %a_emitCount
+               OpSource ESSL 310
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpName %_ ""
+               OpName %a_position "a_position"
+               OpName %v_geom_emitCount "v_geom_emitCount"
+               OpName %a_emitCount "a_emitCount"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpDecorate %a_position Location 0
+               OpDecorate %v_geom_emitCount Location 0
+               OpDecorate %a_emitCount Location 1
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%gl_PerVertex = OpTypeStruct %v4float %float
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+ %a_position = OpVariable %_ptr_Input_v4float Input
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%v_geom_emitCount = OpVariable %_ptr_Output_v4float Output
+%a_emitCount = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %15 = OpLoad %v4float %a_position
+         %17 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %17 %15
+         %20 = OpLoad %v4float %a_emitCount
+               OpStore %v_geom_emitCount %20
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Geometry Shader
 
 - Status: generated and validated
 - Source: reconstructed GLSL from this walkthrough
@@ -272,7 +336,7 @@ void main (void)
 ```llvm
 ; SPIR-V
 ; Version: 1.0
-; Generator: Khronos Glslang Reference Front End; 10
+; Generator: Khronos Glslang Reference Front End; 11
 ; Bound: 168
 ; Schema: 0
                OpCapability Geometry
@@ -308,8 +372,8 @@ void main (void)
                OpName %v_frag_FragColor "v_frag_FragColor"
                OpName %v_geom_vertexNdx "v_geom_vertexNdx"
                OpDecorate %gl_InvocationID BuiltIn InvocationId
-               OpDecorate %u_sampler DescriptorSet 0
                OpDecorate %u_sampler Binding 0
+               OpDecorate %u_sampler DescriptorSet 0
                OpDecorate %emitCount RelaxedPrecision
                OpDecorate %47 RelaxedPrecision
                OpDecorate %48 RelaxedPrecision
@@ -319,9 +383,9 @@ void main (void)
                OpDecorate %65 RelaxedPrecision
                OpDecorate %73 RelaxedPrecision
                OpDecorate %74 RelaxedPrecision
+               OpDecorate %gl_PerVertex Block
                OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
                OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
-               OpDecorate %gl_PerVertex Block
                OpDecorate %i RelaxedPrecision
                OpDecorate %120 RelaxedPrecision
                OpDecorate %121 RelaxedPrecision
@@ -334,8 +398,8 @@ void main (void)
                OpDecorate %131 RelaxedPrecision
                OpDecorate %132 RelaxedPrecision
                OpDecorate %134 RelaxedPrecision
-               OpMemberDecorate %gl_PerVertex_0 0 BuiltIn Position
                OpDecorate %gl_PerVertex_0 Block
+               OpMemberDecorate %gl_PerVertex_0 0 BuiltIn Position
                OpDecorate %v_frag_FragColor Location 0
                OpDecorate %162 RelaxedPrecision
                OpDecorate %164 RelaxedPrecision
@@ -557,6 +621,52 @@ void main (void)
                OpStore %i %164
                OpBranch %115
         %117 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed GLSL from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 13
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %fragColor %v_frag_FragColor
+               OpExecutionMode %main OriginUpperLeft
+               OpSource ESSL 310
+               OpName %main "main"
+               OpName %fragColor "fragColor"
+               OpName %v_frag_FragColor "v_frag_FragColor"
+               OpDecorate %fragColor RelaxedPrecision
+               OpDecorate %fragColor Location 0
+               OpDecorate %v_frag_FragColor Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %fragColor = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%v_frag_FragColor = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %12 = OpLoad %v4float %v_frag_FragColor
+               OpStore %fragColor %12
                OpReturn
                OpFunctionEnd
 ```

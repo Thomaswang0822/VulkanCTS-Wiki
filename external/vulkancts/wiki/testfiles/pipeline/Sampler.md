@@ -66,20 +66,24 @@ This intermediate node uses nearest filtering and a one-pixel output. It puts `m
 
 ### Representative Shader Walkthrough 1
 
-**Representative case:** `dEQP-VK.pipeline.monolithic.sampler.max_sampler_lod_bias.shader_lod_compute`
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.monolithic.sampler.max_sampler_lod_bias.shader_lod_compute
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `max_sampler_lod_bias` | Uses the dedicated LOD-limit mechanism. |
+| `shader_lod` | Emits `textureLod(..., pc.lodLevel)` for the explicit shader LOD branch. |
+| `compute` | Uses one 1-by-1 invocation and an output storage image. |
+| `monolithic` | Selects a construction root that registers the compute variant. |
 
 #### Purpose
 
 The shader requests the LOD supplied in push constants and writes the sampled color to a storage image. This isolates the `SHADER_LOD` branch while the host makes each mip level a distinct color.
-
-#### Parameter Values Chosen
-
-| Parameter | Value | Effect |
-|---|---|---|
-| Intermediate node | `max_sampler_lod_bias` | Uses the dedicated LOD-limit mechanism. |
-| LOD-limit mechanism | `shader_lod` | Emits `textureLod(..., pc.lodLevel)`. |
-| Execution path | compute | Uses one 1-by-1 invocation and an output storage image. |
-| Construction type | `monolithic` | One of the roots that registers the compute variant. |
 
 #### Structural Design
 
@@ -110,14 +114,28 @@ void main (void) {
 }
 ```
 
+#### Additional Info
+
+- The surrounding runtime setup and feature requirements are described in the page sections outside this walkthrough.
+
 #### Parameter Variation Summary
 
-`SAMPLER_BIAS` sets `mipLodBias`, `SAMPLER_MINLOD` sets `minLod`, `SHADER_BIAS` uses the shader bias form in graphics and an equivalent explicit LOD in compute, and `VIEW_MINLOD` chains `VkImageViewMinLodCreateInfoEXT` into the image-view create info. The source requires `VK_EXT_image_view_min_lod` for the last form ([`MaxSamplerLodBiasCase::checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineSamplerTests.cpp#L2364-L2383)).
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| `sampler_bias` | Uses `textureLod(..., 0.0)` while setting the sampler's `mipLodBias` to the device limit. | [LOD-limit registration](../../../modules/vulkan/pipeline/vktPipelineSamplerTests.cpp#L3141-L3171) |
+| `sampler_minlod` | Uses `textureLod(..., 0.0)` while setting the sampler's `minLod` to the device limit. | [LOD-limit registration](../../../modules/vulkan/pipeline/vktPipelineSamplerTests.cpp#L3141-L3171) |
+| `shader_bias` | Uses the shader bias form in graphics and an equivalent explicit LOD in compute; the shown compute shader therefore has the same `textureLod` shape as this case. | [`MaxSamplerLodBiasCase::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineSamplerTests.cpp#L2385-L2444) |
+| `view_minlod` | Uses `textureLod(..., 0.0)` while chaining `VkImageViewMinLodCreateInfoEXT` into image-view creation; it requires `VK_EXT_image_view_min_lod`. | [`MaxSamplerLodBiasCase::checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineSamplerTests.cpp#L2364-L2383) |
 
 #### SPIR-V
 
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
 <details>
-<summary>SPIR-V assembly</summary>
+<summary>Click to expand SPIRV asm code</summary>
 
 ```llvm
 ; SPIR-V
