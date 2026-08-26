@@ -45,6 +45,62 @@
 | key takeaway | 要点 |
 | source reference appendix | 源码参考附录 |
 
+### Level-3 固定标题
+
+以下标题属于翻译 contract，不按上下文改写。`verify_translation_structure.py`
+会将英文 source 与中文 target 对照，并检查中文标题的精确形式和顺序。
+
+| English heading | 中文固定标题 |
+|-----------------|--------------|
+| `## Overview` | `## 概览` |
+| `## Background Knowledge` | `## 背景知识` |
+| `## Registration Hierarchy` | `## 注册层级` |
+| `## Parameter Dimensions and Observed Values` | `## 参数维度与可确认取值` |
+| `## Behavior Parameters` | `## 行为参数` |
+| `## Shader Analysis` | `## Shader 分析` |
+| `## Runtime Execution and Result Checking` | `## runtime 执行逻辑与结果检查` |
+| `## Failure Meaning` | `## 失败含义` |
+| `## Case Pruning` | `## 用例裁剪` |
+| `## Key Takeaways` | `## 要点总结` |
+| `## Source Reference Appendix` | `## 源码参考附录` |
+| `### Failure Cause Mapping` | `### 失败原因映射` |
+| `### Cause Analysis` | `### 原因分析` |
+| `### Requirement-based pruning` | `### 基于要求的裁剪` |
+| `### Design-based pruning` | `### 基于设计的裁剪` |
+
+### Shader walkthrough 固定标题与表头
+
+| English | 中文固定形式 |
+|---------|--------------|
+| `### Representative Shader Walkthrough <1-3>` | `### 代表性 shader 讲解 <1-3>` |
+| `#### Parameter Values Chosen` | `#### 所选参数值` |
+| `#### Purpose` | `#### 目的` |
+| `#### Structural Design` | `#### 结构设计` |
+| `#### Shader Code` | `#### Shader 代码` |
+| `#### Additional Info` | `#### 补充信息` |
+| `#### Parameter Variation Summary` | `#### 参数变化总结` |
+| `#### SPIR-V` | `#### SPIR-V` |
+| `Representative path:` | `代表性路径：` |
+| `Parameter choice` | `参数选择` |
+| `Meaning in this representative case` | `在此代表性用例中的含义` |
+| `Parameter dimension` | `参数维度` |
+| `Shader-level variation from this shader` | `相对此 shader 的 shader 层面变化` |
+| `Evidence` | `证据` |
+
+多 shader walkthrough 的 `#####` 标题不是可自由增删的普通小节。中文页必须与英文页在
+`#### Shader Code` 和 `#### SPIR-V` 下保留相同数量、顺序和 stage identity；stage token
+（如 `Vertex`、`Fragment`、`Compute`、`Ray Generation`、`Closest Hit`）按保护规则保留，
+其余说明性文字可自然翻译。`#####` 不得出现在这两个 `####` 小节之外。
+
+### 固定 lead-in 与无前置概念句
+
+| English | 中文固定形式 |
+|---------|--------------|
+| `**Core question:**` | `**核心问题：**` |
+| `**Possible failure symptoms:**` | `**可能的失败表现：**` |
+| `**Possible implementation causes:**` | `**可能的实现原因：**` |
+| `No additional prerequisite concepts are needed for this page.` | `本页不需要额外的前置概念。` |
+
 ## 常见 Vulkan / CTS 技术词
 
 通常保留英文：

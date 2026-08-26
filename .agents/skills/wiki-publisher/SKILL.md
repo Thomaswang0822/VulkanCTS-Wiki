@@ -62,9 +62,11 @@ dependencies, and validation. Do not continue unless the worker confirms that sk
         --source external/vulkancts/wiki/testfiles/<category>/<page>.md \
         --target vkcts-wiki-pages/categories/<category>/<page>.md
       ```
-      This sanity check compares per-section structural element counts (list items, table rows, code
-      blocks, registration tree children) between source and target. A failure means a structural
-      omission occurred during translation.
+      This guard first runs the current canonical English Level-3 structure validator, then checks
+      the corresponding fixed Chinese headings/phrases, walkthrough numbering and subsection order,
+      parameter paths and canonical tables, SPIR-V metadata/details wrappers, multi-stage H5
+      organization, cause-analysis labels, and per-section structural parity. A failure means the
+      source is not canonical or the translation has a structural/fixed-language mismatch.
     - If any guard fails, fix the translation before reporting completion.
 
 3. Translation workers must not run link conversion.
