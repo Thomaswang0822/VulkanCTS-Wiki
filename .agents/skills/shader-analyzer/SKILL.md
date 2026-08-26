@@ -97,9 +97,12 @@ Workflow-level selection rules for multi-shader walkthroughs:
 - Keep the primary shader first unless producer-before-consumer order is clearer for the tested dataflow.
 - Generate SPIR-V for the primary shader by default. Select secondary stages for SPIR-V only when their assembly materially aids
   audit of the tested property.
+- For direct-SPIR-V cases, keep a stage-qualified H5 under `#### Shader Code`, explicitly state that the stage uses direct SPIR-V
+  rather than GLSL or HLSL, and place the authoritative assembly under the matching H5 in `#### SPIR-V`.
 
-The final `#### SPIR-V` subsection is mandatory, must remain last, and must be produced by `shader-disassembler` from the
-reconstructed GLSL or HLSL. Its ownership and safety rules are defined under "Generate SPIR-V assembly" below.
+The final `#### SPIR-V` subsection is mandatory and must remain last. For reconstructed GLSL/HLSL stages, its artifacts are produced
+by `shader-disassembler`; a direct-SPIR-V stage instead preserves its authoritative CTS-authored artifact through the applicable
+complete shader workflow. Ownership and safety rules are defined under "Generate SPIR-V assembly" below.
 
 ## Manual Mode Confirmation Checkpoint
 
@@ -267,7 +270,7 @@ or HLSL is complete. Provide:
 - the target SPIR-V environment derived from CTS shader build options, such as `spirv1.0` or `spirv1.3`;
 - the target `#### SPIR-V` subsection destination.
 
-For multi-shader walkthroughs, generate SPIR-V for the primary shader by default. Generate additional collapsed SPIR-V blocks for secondary shaders only when their generated assembly materially helps audit the tested property; otherwise describe the secondary stages in `#### Shader Code`, `#### Structural Design`, and required `#### Additional Info` bullets.
+For multi-shader walkthroughs, generate SPIR-V for the primary shader by default. Generate additional collapsed SPIR-V blocks for secondary shaders only when their generated assembly materially helps audit the tested property; otherwise describe the secondary stages in `#### Shader Code`, `#### Structural Design`, and required `#### Additional Info` bullets. Compose all selected artifacts under one final `#### SPIR-V` subsection using the exact H5 stage/alignment rules in `references/output-template.md`; invoke `shader-disassembler` once per selected artifact and preserve each returned metadata/details/assembly body unchanged.
 
 Choose the target from the shader insertion path:
 
@@ -277,6 +280,11 @@ Choose the target from the shader insertion path:
 Do not use the Vulkan runtime version or `vk::getMaxSpirvVersionForVulkan()`. Pass `spirv1.X`, never `vulkan1.X`.
 
 Insert the complete `shader-disassembler` result unchanged. Do not reformat its fields, add generation prose, or edit its assembly.
+
+Before inserting the final walkthrough, verify that the representative path begins with `dEQP-VK.`, non-empty `Additional Info`
+uses list items, and every Parameter Variation Summary evidence cell contains a Markdown source link. After insertion, run the
+current English structure validator on the target page; validator failure means the generated walkthrough is incomplete even when
+the reconstruction is semantically correct.
 
 If `shader-disassembler` fails, do not treat the failure as only a final-output status. Return to shader reconstruction and perform
 the detailed reconstruction-failure audit in the already-loaded

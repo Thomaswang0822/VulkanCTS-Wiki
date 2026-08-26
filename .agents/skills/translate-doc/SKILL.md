@@ -51,9 +51,12 @@ Before translating any page, read all reference files under `.agents/skills/tran
 
 - `references/terminology.zh.md` — canonical Chinese terminology and protection rules.
 - `references/level2-template.zh.md` — canonical Level-2 Chinese output shape.
-- `references/level3-template.zh.md` — canonical Level-3 Chinese output shape, including shader-walkthrough heading mappings.
+- `references/level3-template.zh.md` — Level-3 Chinese production shape, including shader-walkthrough heading mappings and fixed labels.
 
-The reference files are the sole canonical owners of Chinese structural shapes, fixed labels, terminology choices, and protection rules. This `SKILL.md` owns workflow, phase ordering, path mapping, dependency gating, and reporting; it does not restate the detailed reference contracts.
+The reference files guide Chinese production and own terminology/protection choices. The sole mechanical authority for Level-3
+Chinese structure and fixed-language compliance is
+`.agents/skills/wiki-publisher/scripts/verify_translation_structure.py`. This `SKILL.md` owns workflow, phase ordering, path
+mapping, dependency gating, and reporting; it does not duplicate a manual structure checklist.
 
 ## Mandatory Language-Skill Dependencies
 
@@ -121,7 +124,7 @@ one landing-page exception and one publish-layout transformation.
 | `external/vulkancts/wiki/CTS_Framework.md` | `vkcts-wiki-pages/CTS_Framework.md` |
 | `external/vulkancts/wiki/Objectives.md` | `vkcts-wiki-pages/Objectives.md` |
 | `external/vulkancts/wiki/categories/memory_model.md` | `vkcts-wiki-pages/categories/memory_model.md` |
-| `external/vulkancts/wiki/testfiles/memory_model/vktMemoryModelMessagePassing.md` | `vkcts-wiki-pages/categories/memory_model/vktMemoryModelMessagePassing.md` |
+| `external/vulkancts/wiki/testfiles/memory_model/MessagePassing.md` | `vkcts-wiki-pages/categories/memory_model/MessagePassing.md` |
 
 Rules:
 
@@ -156,7 +159,9 @@ Rules:
 
 `references/terminology.zh.md` is the sole canonical owner of the protection rules (what must remain unchanged), the hierarchy terminology mappings, the singular/plural preservation rules, and the allowed tree-comment translations. Apply it directly; this workflow does not restate those contracts.
 
-`references/level2-template.zh.md` and `references/level3-template.zh.md` are the sole canonical owners of fixed Chinese headings, heading translation rules, and heading-detail examples. Apply the relevant template directly.
+`references/level2-template.zh.md` and `references/level3-template.zh.md` guide fixed Chinese headings, translation rules, and
+heading-detail examples. Apply the relevant template while drafting; for Level-3 output, the Chinese structure validator remains the
+final authority when the template, source page, or translated output disagree.
 
 Workflow-specific protection notes not restated in the references:
 - In `#### SPIR-V` sections, keep the `spirv-dis` assembly inside `llvm` code fences exactly unchanged. Translate only fixed header fields and HTML summary text using the reference mapping.
@@ -188,7 +193,7 @@ Workflow-specific protection notes not restated in the references:
 9. Load and apply the required Chinese language skills to the written target file in this exact order, within the current translation worker:
    1. `shuorenhua`
    2. `humanizer-zh`
-10. Run the validation checklist below.
+10. Run the canonical completion gate below.
 11. Report source file, target file, reference files used, language-skill passes completed, and any translated heading-fragment
     links.
 
@@ -209,7 +214,7 @@ Workflow-specific protection notes not restated in the references:
 8. For every translated output file, load and apply the required Chinese language skills within the current translation worker in this exact order:
    1. `shuorenhua`
    2. `humanizer-zh`
-9. Run the validation checklist below for every translated output file.
+9. Run the canonical completion gate below for every translated Level-3 output file.
 10. Report translated file count, skipped files, reference files used, language-skill passes completed, and any unresolved warnings.
 
 ### Directory Mode
@@ -222,19 +227,26 @@ Workflow-specific protection notes not restated in the references:
 6. For every translated output file, load and apply the required Chinese language skills within the current translation worker in this exact order:
    1. `shuorenhua`
    2. `humanizer-zh`
-7. Run the validation checklist below for every translated output file.
+7. Run the canonical completion gate below for every translated Level-3 output file.
 8. Report translated file count, skipped files, reference files used, language-skill passes completed, and any unresolved warnings.
 
-## Validation Checklist
+## Completion Gate
 
-After translation, verify:
+Do not maintain a second manual page-structure checklist here. For every translated Level-3 page, run the sole canonical Chinese
+structure/fixed-language validator from the repository root:
 
-- Output follows the canonical-to-publish path mapping, including the `README.md` → `home.md` exception.
-- Required terminology and page-type references were applied.
-- Every rule in `Content That Must Remain Unchanged` passes, including the special handling for wiki-authored `///` comments and
-  registration-tree annotations.
-- Markdown paths before `#` remain unchanged and translated heading fragments resolve to translated headings.
-- `## Shader Analysis` preserves generated code and SPIR-V while translating only the permitted explanatory content.
-- No obsolete version-1 structure was introduced.
-- Explanatory prose is readable Mandarin Chinese with limited, intentional English technical terms.
-- `shuorenhua` and `humanizer-zh` were loaded and applied by the current translation worker, in that order after translation; no separate agent, session, chat, or process is required.
+```bash
+python3 .agents/skills/wiki-publisher/scripts/verify_translation_structure.py \
+  --source external/vulkancts/wiki/testfiles/<category>/<page>.md \
+  --target vkcts-wiki-pages/categories/<category>/<page>.md
+```
+
+Fix the translated page until this command passes. The validator first rejects a non-canonical English source, then checks the
+Chinese source/target section mapping, fixed headings and phrases, walkthrough contract, registration-path block, canonical tables,
+SPIR-V artifacts, multi-stage H5 alignment, Cause Analysis labels, and structural parity. Do not replace its result with manual
+inspection or a subset of those checks.
+
+The separate language-quality gate remains mandatory after translation and before completion: the current worker must load and apply
+`shuorenhua` followed by `humanizer-zh`. These passes may improve Chinese prose only; they must not alter protected technical content
+or make the page fail the canonical validator. If a language pass edits structure or fixed wording, rerun the validator and repair the
+page before reporting completion.

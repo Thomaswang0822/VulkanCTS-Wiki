@@ -31,7 +31,7 @@ python3 .agents/skills/wiki-rewriter/scripts/verify_english_structure.py \
   <category> [<category> ...]
 ```
 
-This is a mechanical structure guard, not a semantic audit. It verifies canonical section names and order, fixed Failure Meaning and Case Pruning subsections, Cause Analysis labels, shader walkthrough/SPIR-V pairing, code-fence closure, and the parseable Registration Hierarchy contract. It excludes `vkt*.md` and `*_brief.md` from category mode.
+This is a mechanical structure guard, not a semantic audit. It verifies canonical section names and order, heading spacing, fixed Failure Meaning and Case Pruning subsections, Cause Analysis labels, exact shader-walkthrough tables and subsection order, SPIR-V artifact shape, multi-stage H5 organization, and code-fence closure. It excludes `vkt*.md` and `*_brief.md` from category mode. Registration Hierarchy tree semantics are checked separately by `verify_registration_paths.py`.
 
 ## Semantic Audit
 

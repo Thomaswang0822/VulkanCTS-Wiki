@@ -11,7 +11,7 @@ Use this checkpoint before full reconstruction.
 ### Resolved Input Case
 
 ```text
-<full CTS path>
+dEQP-VK.<full CTS registration path>
 ```
 
 ### Candidate Builder Selection
@@ -40,8 +40,11 @@ Confirmation prompt:
 Representative path:
 
 ```text
-<full CTS path>
+dEQP-VK.<full CTS registration path>
 ```
+
+Use one complete executable registration path beginning with `dEQP-VK.`. Do not use a category-relative path, a group prefix, or
+placeholder shorthand in final output.
 
 | Parameter choice | Meaning in this representative case |
 |------------------|-------------------------------------|
@@ -82,9 +85,14 @@ dataflow, validation signal, or reader mental model:
 <secondary shader code with preserved source-generated // comments and added /// wiki comments>
 ```
 
+For a direct-SPIR-V stage, keep the stage-specific H5 in source order and state explicitly under that H5 that this case uses
+direct SPIR-V and does not use GLSL or HLSL. Do not fabricate a source-language fence. Its authoritative assembly belongs under the
+matching H5 in `#### SPIR-V`.
+
 #### Additional Info
 
-Use 0-3 high-value bullets for ordinary single-stage walkthroughs. Keep the heading, but do not force filler content.
+Keep the heading. Leave it empty when there is no high-value exact-case information. When non-empty, use Markdown list items; do not
+use a plain paragraph or impose an artificial bullet-count cap.
 
 For multi-shader walkthroughs, this subsection must include at least one bullet for each non-primary shader shown under
 `#### Shader Code`. Each such bullet should state whether that stage varies across the page's cases or stays fixed, and why
@@ -109,5 +117,33 @@ Do not include:
 
 #### SPIR-V
 
-Insert the complete `#### SPIR-V` subsection returned by `shader-disassembler` unchanged. It must be the final walkthrough
-subsection. See [`../../shader-disassembler/SKILL.md`](../../shader-disassembler/SKILL.md) and strictly preserve its output format.
+This must be the final walkthrough subsection.
+
+For a single SPIR-V artifact, insert the complete `#### SPIR-V` subsection returned by `shader-disassembler` unchanged. See
+[`../../shader-disassembler/SKILL.md`](../../shader-disassembler/SKILL.md) and strictly preserve its output format.
+
+For multiple source stages or any stage-qualified Shader Code layout, compose one `#### SPIR-V` subsection and organize generated
+artifacts with H5 stage headings:
+
+```markdown
+#### SPIR-V
+
+##### <Primary Stage> SPIR-V
+
+<one complete metadata + details + llvm artifact body returned by shader-disassembler>
+
+##### <Secondary Stage> SPIR-V
+
+<one complete metadata + details + llvm artifact body returned by shader-disassembler>
+```
+
+Composition rules:
+
+- Keep H5 stages in the same relative order as their matching H5s under `#### Shader Code`.
+- Every SPIR-V H5 owns exactly one complete artifact: one metadata set, one collapsed `<details>` wrapper, and one non-empty `llvm` fence.
+- Use a stage-qualified H5 even when only one selected stage from a multi-stage walkthrough receives SPIR-V.
+- It is valid to omit SPIR-V for secondary source stages when their assembly does not materially help audit the tested property; do
+  not add an unmatched artifact.
+- A mixed direct-SPIR-V stage uses a matching H5 and its authoritative artifact without a fabricated GLSL/HLSL fence.
+- Strip only the repeated outer `#### SPIR-V` heading when combining individual disassembler results. Do not edit their metadata,
+  details summaries, or assembly.

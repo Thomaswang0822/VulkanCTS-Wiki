@@ -39,6 +39,11 @@ This skill owns the complete `#### SPIR-V` subsection. The caller must insert th
 The shapes in step 5 are exact. Do not rename, reorder, add, or replace fields with prose. Do not add build commands, validation
 commands, header summaries, `Bound`, or CTS enum notes. Successful output always contains the full unmodified disassembly.
 
+One invocation owns one generated shader artifact. In an ordinary single-artifact walkthrough, return the complete `#### SPIR-V`
+subsection below. In a multi-artifact walkthrough, return that same artifact body to `shader-analyzer`; the analyzer strips only the
+repeated outer `#### SPIR-V` heading and places the unchanged metadata, details wrapper, and assembly under the matching
+stage-qualified H5. This skill does not choose H5 order, combine stages, or generate artifacts for CTS-authored direct-SPIR-V input.
+
 ## CCVDO Workflow
 
 ### 1. Check
@@ -149,6 +154,10 @@ present the assembly as successful output.
 ### 5. Output
 
 Return exactly one of these complete `#### SPIR-V` shapes.
+
+When the caller is composing a stage-qualified multi-artifact subsection, the content following the returned `#### SPIR-V` heading
+is the indivisible artifact body. It still contains exactly one metadata set, one `<details>` wrapper and summary, and one complete
+`llvm` disassembly. The caller must not rename fields or edit the artifact body.
 
 Generated output shape:
 
