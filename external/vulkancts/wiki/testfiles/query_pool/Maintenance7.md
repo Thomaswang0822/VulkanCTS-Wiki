@@ -103,10 +103,15 @@ The Vulkan query-results specification states that `VK_QUERY_RESULT_64_BIT` sele
 
 ## Case Pruning
 
+### Requirement-based pruning
+
 - Both leaves require the `VK_KHR_maintenance7` device functionality. A device that does not expose the extension skips both cases through [`checkSupport()`](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L185-L202).
 - `query_32b_wrap_required` additionally requires the `maintenance7` feature bit. If the feature is unsupported, CTS prunes that leaf with `NotSupportedError`; this means the device cannot run the feature-enabled variant, not that it failed the wrapping rule.
 - Both leaves require a universal queue with `timestampValidBits > 0`. A queue without timestamp support is pruned.
 - The implementation then requires `timestampValidBits` in `36..64`. A value outside that range triggers an instance setup failure rather than a normal pass/fail comparison.
+
+### Design-based pruning
+
 - The complete `maintenance7` family is compiled and registered only for Vulkan, not Vulkan SC, because the parent registration and implementation are guarded by `#ifndef CTS_USES_VULKANSC`.
 
 The current mustpass list contains both executable leaves in [`query-pool.txt`](../../../mustpass/main/vk-default/query-pool.txt#L47-L48):

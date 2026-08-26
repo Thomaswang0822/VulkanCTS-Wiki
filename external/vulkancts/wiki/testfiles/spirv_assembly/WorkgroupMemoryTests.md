@@ -107,99 +107,9 @@ The shader makes each invocation consume a value produced by its reverse-index p
 
 `%uint_1` is `Device` scope, `%uint_2` is `Workgroup` scope, and `%uint_264` is `0x108`: `WorkgroupMemory` plus `AcquireRelease` semantics.
 
-#### Source Code
+#### Shader Code
 
-<details>
-<summary>Click to expand CTS-authored SPIR-V assembly for the <code>float64</code> specialization</summary>
-
-```llvm
-                                     OpCapability Shader
-OpCapability Float64
-                                %1 = OpExtInstImport "GLSL.std.450"
-                                     OpMemoryModel Logical GLSL450
-                                     OpEntryPoint GLCompute %main "main" %gl_LocalInvocationID
-                                     OpExecutionMode %main LocalSize 16 4 2
-                                     OpSource GLSL 430
-                                     OpDecorate %gl_LocalInvocationID BuiltIn LocalInvocationId
-                                     OpDecorate %_arr_uint_128_0 ArrayStride 8
-                                     OpMemberDecorate %Input 0 Offset 0
-                                     OpDecorate %Input BufferBlock
-                                     OpDecorate %dataInput DescriptorSet 0
-                                     OpDecorate %dataInput Binding 0
-                                     OpDecorate %_arr_uint_128_1 ArrayStride 8
-                                     OpMemberDecorate %Output 0 Offset 0
-                                     OpDecorate %Output BufferBlock
-                                     OpDecorate %dataOutput DescriptorSet 0
-                                     OpDecorate %dataOutput Binding 1
-                                     OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
-                             %void = OpTypeVoid
-                                %3 = OpTypeFunction %void
-                              %u32 = OpTypeInt 32 0
-               %_ptr_Function_uint = OpTypePointer Function %u32
-                           %v3uint = OpTypeVector %u32 3
-                %_ptr_Input_v3uint = OpTypePointer Input %v3uint
-             %gl_LocalInvocationID = OpVariable %_ptr_Input_v3uint Input
-                           %uint_2 = OpConstant %u32 2
-                  %_ptr_Input_uint = OpTypePointer Input %u32
-                          %uint_64 = OpConstant %u32 64
-                           %uint_1 = OpConstant %u32 1
-                          %uint_16 = OpConstant %u32 16
-                           %uint_0 = OpConstant %u32 0
-                         %uint_127 = OpConstant %u32 127
-                           %uint_4 = OpConstant %u32 4
-                              %i32 = OpTypeInt 32 1
-%f64 = OpTypeFloat 64
-                         %uint_128 = OpConstant %u32 128
-                    %_arr_uint_128 = OpTypeArray %f64 %uint_128
-     %_ptr_Workgroup__arr_uint_128 = OpTypePointer Workgroup %_arr_uint_128
-                       %sharedData = OpVariable %_ptr_Workgroup__arr_uint_128 Workgroup
-                  %_arr_uint_128_0 = OpTypeArray %f64 %uint_128
-                            %Input = OpTypeStruct %_arr_uint_128_0
-               %_ptr_Uniform_Input = OpTypePointer Uniform %Input
-                        %dataInput = OpVariable %_ptr_Uniform_Input Uniform
-                            %int_0 = OpConstant %i32 0
-                     %_ptr_Uniform = OpTypePointer Uniform %f64
-                   %_ptr_Workgroup = OpTypePointer Workgroup %f64
-                         %uint_264 = OpConstant %u32 264
-                  %_arr_uint_128_1 = OpTypeArray %f64 %uint_128
-                           %Output = OpTypeStruct %_arr_uint_128_1
-              %_ptr_Uniform_Output = OpTypePointer Uniform %Output
-                       %dataOutput = OpVariable %_ptr_Uniform_Output Uniform
-                 %gl_WorkGroupSize = OpConstantComposite %v3uint %uint_16 %uint_4 %uint_2
-                             %main = OpFunction %void None %3
-                                %5 = OpLabel
-                              %idx = OpVariable %_ptr_Function_uint Function
-                               %14 = OpAccessChain %_ptr_Input_uint %gl_LocalInvocationID %uint_2
-                               %15 = OpLoad %u32 %14
-                               %17 = OpIMul %u32 %15 %uint_64
-                               %19 = OpAccessChain %_ptr_Input_uint %gl_LocalInvocationID %uint_1
-                               %20 = OpLoad %u32 %19
-                               %22 = OpIMul %u32 %20 %uint_16
-                               %23 = OpIAdd %u32 %17 %22
-                               %25 = OpAccessChain %_ptr_Input_uint %gl_LocalInvocationID %uint_0
-                               %26 = OpLoad %u32 %25
-                               %27 = OpIAdd %u32 %23 %26
-                                     OpStore %idx %27
-                               %33 = OpLoad %u32 %idx
-                               %39 = OpLoad %u32 %idx
-                               %41 = OpAccessChain %_ptr_Uniform %dataInput %int_0 %39
-                               %42 = OpLoad %f64 %41
-                               %44 = OpAccessChain %_ptr_Workgroup %sharedData %33
-                                     OpStore %44 %42
-                                     OpMemoryBarrier %uint_1 %uint_264
-                                     OpControlBarrier %uint_2 %uint_2 %uint_264
-                               %50 = OpLoad %u32 %idx
-                               %52 = OpLoad %u32 %idx
-                               %53 = OpISub %u32 %uint_127 %52
-                               %54 = OpAccessChain %_ptr_Workgroup %sharedData %53
-                               %55 = OpLoad %f64 %54
-                               %56 = OpAccessChain %_ptr_Uniform %dataOutput %int_0 %50
-                                     OpStore %56 %55
-                                     OpReturn
-                                     OpFunctionEnd
-```
-
-</details>
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -209,10 +119,115 @@ OpCapability Float64
 
 #### Parameter Variation Summary
 
-| Parameter dimension | Assembly-level variation from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|-------------------------------------------|----------|
 | Data type | Replaces `%f64`, `ArrayStride 8`, and `OpCapability Float64` with the selected scalar declaration, stride, capabilities, and extensions. The publish, barrier, and reverse-read instructions remain the same. | [template and specializations](../../../modules/vulkan/spirv_assembly/vktSpvAsmWorkgroupMemoryTests.cpp#L176-L261) |
 | Floating-point verification | `float64`, `float32`, and `float16` assign a NaN-aware `verifyIO` callback; integer leaves use the default output check. | [verification callbacks and cases](../../../modules/vulkan/spirv_assembly/vktSpvAsmWorkgroupMemoryTests.cpp#L55-L139) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 60
+; Schema: 0
+               OpCapability Shader
+               OpCapability Float64
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %2 "main" %gl_LocalInvocationID
+               OpExecutionMode %2 LocalSize 16 4 2
+               OpSource GLSL 430
+               OpDecorate %gl_LocalInvocationID BuiltIn LocalInvocationId
+               OpDecorate %_arr_double_uint_128_0 ArrayStride 8
+               OpMemberDecorate %_struct_5 0 Offset 0
+               OpDecorate %_struct_5 BufferBlock
+               OpDecorate %6 DescriptorSet 0
+               OpDecorate %6 Binding 0
+               OpDecorate %_arr_double_uint_128_1 ArrayStride 8
+               OpMemberDecorate %_struct_8 0 Offset 0
+               OpDecorate %_struct_8 BufferBlock
+               OpDecorate %9 DescriptorSet 0
+               OpDecorate %9 Binding 1
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+         %12 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_ptr_Function_uint = OpTypePointer Function %uint
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_LocalInvocationID = OpVariable %_ptr_Input_v3uint Input
+     %uint_2 = OpConstant %uint 2
+%_ptr_Input_uint = OpTypePointer Input %uint
+    %uint_64 = OpConstant %uint 64
+     %uint_1 = OpConstant %uint 1
+    %uint_16 = OpConstant %uint 16
+     %uint_0 = OpConstant %uint 0
+   %uint_127 = OpConstant %uint 127
+     %uint_4 = OpConstant %uint 4
+        %int = OpTypeInt 32 1
+     %double = OpTypeFloat 64
+   %uint_128 = OpConstant %uint 128
+%_arr_double_uint_128 = OpTypeArray %double %uint_128
+%_ptr_Workgroup__arr_double_uint_128 = OpTypePointer Workgroup %_arr_double_uint_128
+         %30 = OpVariable %_ptr_Workgroup__arr_double_uint_128 Workgroup
+%_arr_double_uint_128_0 = OpTypeArray %double %uint_128
+  %_struct_5 = OpTypeStruct %_arr_double_uint_128_0
+%_ptr_Uniform__struct_5 = OpTypePointer Uniform %_struct_5
+          %6 = OpVariable %_ptr_Uniform__struct_5 Uniform
+      %int_0 = OpConstant %int 0
+%_ptr_Uniform_double = OpTypePointer Uniform %double
+%_ptr_Workgroup_double = OpTypePointer Workgroup %double
+   %uint_264 = OpConstant %uint 264
+%_arr_double_uint_128_1 = OpTypeArray %double %uint_128
+  %_struct_8 = OpTypeStruct %_arr_double_uint_128_1
+%_ptr_Uniform__struct_8 = OpTypePointer Uniform %_struct_8
+          %9 = OpVariable %_ptr_Uniform__struct_8 Uniform
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_16 %uint_4 %uint_2
+          %2 = OpFunction %void None %12
+         %37 = OpLabel
+         %38 = OpVariable %_ptr_Function_uint Function
+         %39 = OpAccessChain %_ptr_Input_uint %gl_LocalInvocationID %uint_2
+         %40 = OpLoad %uint %39
+         %41 = OpIMul %uint %40 %uint_64
+         %42 = OpAccessChain %_ptr_Input_uint %gl_LocalInvocationID %uint_1
+         %43 = OpLoad %uint %42
+         %44 = OpIMul %uint %43 %uint_16
+         %45 = OpIAdd %uint %41 %44
+         %46 = OpAccessChain %_ptr_Input_uint %gl_LocalInvocationID %uint_0
+         %47 = OpLoad %uint %46
+         %48 = OpIAdd %uint %45 %47
+               OpStore %38 %48
+         %49 = OpLoad %uint %38
+         %50 = OpLoad %uint %38
+         %51 = OpAccessChain %_ptr_Uniform_double %6 %int_0 %50
+         %52 = OpLoad %double %51
+         %53 = OpAccessChain %_ptr_Workgroup_double %30 %49
+               OpStore %53 %52
+               OpMemoryBarrier %uint_1 %uint_264
+               OpControlBarrier %uint_2 %uint_2 %uint_264
+         %54 = OpLoad %uint %38
+         %55 = OpLoad %uint %38
+         %56 = OpISub %uint %uint_127 %55
+         %57 = OpAccessChain %_ptr_Workgroup_double %30 %56
+         %58 = OpLoad %double %57
+         %59 = OpAccessChain %_ptr_Uniform_double %9 %int_0 %54
+               OpStore %59 %58
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

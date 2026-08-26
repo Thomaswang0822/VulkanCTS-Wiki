@@ -22,11 +22,7 @@ draw.renderpass.indirect_instanced
 ├── 2
 ├── 4
 └── 16
-```
 
-Outside VulkanSC, the same group is present under these dynamic-rendering branches:
-
-```text
 draw.dynamic_rendering.primary_cmd_buff.indirect_instanced
 ├── 1
 ├── 2
@@ -45,6 +41,8 @@ draw.dynamic_rendering.complete_secondary_cmd_buff.indirect_instanced
 ├── 4
 └── 16
 ```
+
+Outside VulkanSC, the same group is present under the three dynamic-rendering branches shown above.
 
 The dynamic-rendering registration is not emitted for `nested_partial_secondary_cmd_buff` or `nested_complete_secondary_cmd_buff`: the dispatcher passes `nestedSecondaryCmdBuffer` to the group and guards this family with `!groupParams->nestedSecondaryCmdBuffer`. In VulkanSC, the source excludes the secondary/dynamic-rendering recording code with `#ifndef CTS_USES_VULKANSC`; the VulkanSC mustpass contains the render-pass family only.
 

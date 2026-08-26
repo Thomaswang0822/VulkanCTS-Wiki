@@ -119,7 +119,7 @@ Beyond the resolve-matrix leaves, three `misc` cases probe separate contracts:
 Representative path:
 
 ```text
-renderpasses.renderpass2.depth_stencil_resolve.image_2d_32_32.samples_4.d32_sfloat_s8_uint.depth_average_stencil_zero_testing_depth
+dEQP-VK.renderpasses.renderpass2.depth_stencil_resolve.image_2d_32_32.samples_4.d32_sfloat_s8_uint.depth_average_stencil_zero_testing_depth
 ```
 
 mustpass: [renderpasses.txt#L58951](../../../mustpass/main/vk-default/renderpasses.txt#L58951).
@@ -154,6 +154,8 @@ flowchart TD
 Reconstructed GLSL for the depth-testing path. The vertex shader is shared across all cases; the fragment shader is the
 depth-testing variant.
 
+##### Vertex Shader
+
 ```glsl
 #version 450
 
@@ -170,6 +172,8 @@ void main(void)
                        0.0, 1.0);
 }
 ```
+
+##### Fragment Shader
 
 ```glsl
 #version 450
@@ -205,21 +209,178 @@ void main(void)
 
 #### Parameter Variation Summary
 
-- For stencil-testing leaves, the fragment shader discards all samples except the one identified by a push constant,
-  sets `gl_FragDepth = 0.5`, and the host iterates one render pass per sample with a per-pass stencil reference
-  ([stencil fragment shader](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1173-L1184),
-  [stencil submission loop](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L798-L863)).
-- The `_samplemask` stencil variant replaces `discard` with `VkSampleMask` so each render pass writes exactly one
-  sample ([samplemask state](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L603-L611)).
-- Layered cases add a geometry shader that broadcasts each triangle to three layers via `gl_Layer`
-  ([quad-geom](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1098-L1129)).
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Testing aspect | For stencil-testing leaves, the fragment shader discards all samples except the one identified by a push constant, sets `gl_FragDepth = 0.5`, and the host iterates one render pass per sample with a per-pass stencil reference. | [stencil fragment shader](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1173-L1184), [stencil submission loop](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L798-L863) |
+| Sample mask | The `_samplemask` stencil variant replaces `discard` with `VkSampleMask` so each render pass writes exactly one sample. | [samplemask state](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L603-L611) |
+| Layered framebuffer | Layered cases add a geometry shader that broadcasts each triangle to three layers via `gl_Layer`. | [quad-geom](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1098-L1129) |
 
 #### SPIR-V
 
-This page does not include a `shader-disassembler` SPIR-V block. The tested behavior is fixed-function depth/stencil
-resolve, not per-instruction shader logic; the shaders only generate the per-sample depth/stencil values that the
-resolve operation then combines. The fragment and vertex shaders above are short and fully determined by the source, so
-a disassembly would not add information beyond the GLSL shown here.
+The representative vertex and fragment shaders were compiled with `glslangValidator` targeting SPIR-V 1.0, validated with `spirv-val`, and disassembled with `spirv-dis`.
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed GLSL from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 37
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %gl_VertexIndex
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpName %_ ""
+               OpName %gl_VertexIndex "gl_VertexIndex"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpDecorate %gl_VertexIndex BuiltIn VertexIndex
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%gl_PerVertex = OpTypeStruct %v4float
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_VertexIndex = OpVariable %_ptr_Input_int Input
+      %int_2 = OpConstant %int 2
+      %int_3 = OpConstant %int 3
+       %bool = OpTypeBool
+   %float_n1 = OpConstant %float -1
+    %float_1 = OpConstant %float 1
+      %int_1 = OpConstant %int 1
+    %float_0 = OpConstant %float 0
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %15 = OpLoad %int %gl_VertexIndex
+         %17 = OpIAdd %int %15 %int_2
+         %19 = OpSDiv %int %17 %int_3
+         %20 = OpSMod %int %19 %int_2
+         %22 = OpIEqual %bool %20 %int_0
+         %25 = OpSelect %float %22 %float_n1 %float_1
+         %26 = OpLoad %int %gl_VertexIndex
+         %28 = OpIAdd %int %26 %int_1
+         %29 = OpSDiv %int %28 %int_3
+         %30 = OpSMod %int %29 %int_2
+         %31 = OpIEqual %bool %30 %int_0
+         %32 = OpSelect %float %31 %float_n1 %float_1
+         %34 = OpCompositeConstruct %v4float %25 %32 %float_0 %float_1
+         %36 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %36 %34
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed GLSL from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 47
+; Schema: 0
+               OpCapability Shader
+               OpCapability SampleRateShading
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %gl_SampleID %gl_FragDepth
+               OpExecutionMode %main OriginUpperLeft
+               OpExecutionMode %main DepthReplacing
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %sampleIndex "sampleIndex"
+               OpName %gl_SampleID "gl_SampleID"
+               OpName %valueIndex "valueIndex"
+               OpName %value "value"
+               OpName %condition "condition"
+               OpName %gl_FragDepth "gl_FragDepth"
+               OpDecorate %gl_SampleID BuiltIn SampleId
+               OpDecorate %gl_SampleID Flat
+               OpDecorate %gl_FragDepth BuiltIn FragDepth
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+%_ptr_Function_float = OpTypePointer Function %float
+        %int = OpTypeInt 32 1
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_SampleID = OpVariable %_ptr_Input_int Input
+    %float_4 = OpConstant %float 4
+    %float_2 = OpConstant %float 2
+       %bool = OpTypeBool
+%_ptr_Function_bool = OpTypePointer Function %bool
+      %int_8 = OpConstant %int 8
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+    %float_6 = OpConstant %float 6
+%_ptr_Output_float = OpTypePointer Output %float
+%gl_FragDepth = OpVariable %_ptr_Output_float Output
+  %float_100 = OpConstant %float 100
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+%sampleIndex = OpVariable %_ptr_Function_float Function
+ %valueIndex = OpVariable %_ptr_Function_float Function
+      %value = OpVariable %_ptr_Function_float Function
+  %condition = OpVariable %_ptr_Function_bool Function
+         %12 = OpLoad %int %gl_SampleID
+         %13 = OpConvertSToF %float %12
+               OpStore %sampleIndex %13
+         %15 = OpLoad %float %sampleIndex
+         %17 = OpFMod %float %15 %float_4
+         %18 = OpExtInst %float %1 Round %17
+               OpStore %valueIndex %18
+         %20 = OpLoad %float %valueIndex
+         %22 = OpFAdd %float %20 %float_2
+               OpStore %value %22
+         %23 = OpLoad %float %value
+         %24 = OpExtInst %float %1 Exp2 %23
+         %25 = OpExtInst %float %1 Round %24
+               OpStore %value %25
+         %29 = OpLoad %float %value
+         %30 = OpConvertFToS %int %29
+         %32 = OpIEqual %bool %30 %int_8
+               OpStore %condition %32
+         %33 = OpLoad %float %value
+         %34 = OpLoad %bool %condition
+         %37 = OpSelect %float %34 %float_1 %float_0
+         %39 = OpFMul %float %37 %float_6
+         %40 = OpFSub %float %33 %39
+         %41 = OpExtInst %float %1 Round %40
+               OpStore %value %41
+         %44 = OpLoad %float %value
+         %46 = OpFDiv %float %44 %float_100
+               OpStore %gl_FragDepth %46
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

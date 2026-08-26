@@ -54,7 +54,237 @@ After the full-image clear, one render-pass execution draws in subpass 0 and adv
 
 ## Shader Analysis
 
-The implementation generates a pass-through vertex shader and format-dependent fragment shaders in `initPrograms`. The base fragment variants write float, signed-integer, or unsigned-integer output matching the implementation-selected resolve color-attachment format. Input-attachment variants read either the external image or the separate color attachment selected by `nullColorAttachmentWithExternalFormatResolve`, then apply an RGB/BGR component order selected for the format. Shader source is generated at runtime; this page does not claim a single fixed SPIR-V module or reproduce generated assembly.
+The implementation generates a pass-through vertex shader and format-dependent fragment shaders in `initPrograms`. The representative case selects the floating-point base fragment variant for `AHARDWAREBUFFER_FORMAT_B8G8R8A8_UNORM`; because this format has alpha, the black entry uses alpha 0.0 and the other entries use alpha 1.0. The shader indexes four fixed colors with the integer pixel coordinates from `gl_FragCoord`: black, red, green, and half-intensity blue. Input-attachment variants are separate generated shaders and are not part of this direct-draw representative case.
+
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.draw.renderpass.ahb_external_format_resolve.draw.AHARDWAREBUFFER_FORMAT_B8G8R8A8_UNORM.full_render_area
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `draw` | Selects the direct checkerboard draw path rather than clear-only or input-attachment consumption. |
+| `AHARDWAREBUFFER_FORMAT_B8G8R8A8_UNORM` | Selects a color format with alpha and the floating-point resolve attachment type for this walkthrough. |
+| `full_render_area` | The full-screen quad is rasterized over the complete 64x64 target, so no outside-area clear-preservation branch is exercised. |
+
+#### Purpose
+
+The shaders produce a deterministic full-screen checkerboard whose four colors are selected from integer fragment coordinates. The vertex stage supplies clip-space positions, while the fragment stage provides the pixel values that the external-format resolve and final readback compare against the generated reference.
+
+#### Structural Design
+
+| Stage | Inputs and operations | Output role |
+|-------|-----------------------|-------------|
+| Vertex | Read `in_position` at location 0 and construct `vec4(in_position, 0.0f, 1.0f)`. | Write `gl_Position` for the full-screen quad. |
+| Fragment | Convert `gl_FragCoord` to `uvec4`; compute `(x & 1) + ((y & 1) << 1)`; index four constant `vec4` colors. | Write the selected color to location 0. |
+
+#### Shader Code
+
+##### Vertex Shader
+
+```glsl
+#version 430
+layout(location = 0) in vec2 in_position;
+
+/// Pass the quad's 2D clip-space position through to the vertex position.
+void main() {
+    gl_Position  = vec4(in_position, 0.0f, 1.0f);
+}
+```
+
+##### Fragment Shader
+
+```glsl
+#version 430
+layout(location = 0) out vec4 out_color;
+
+/// The selected AHB format has alpha; black is opaque only where the generated
+/// reference specifies it, while the other checkerboard entries use alpha 1.
+const vec4 reference_colors[] =
+{
+    vec4(0.0f, 0.0f, 0.0f, 0.0f),
+    vec4(1.0f, 0.0f, 0.0f, 1.0f),
+    vec4(0.0f, 1.0f, 0.0f, 1.0f),
+    vec4(0.0f, 0.0f, 1.0f * 0.5, 1.0f),
+};
+void main()
+{
+    /// Integer fragment coordinates select one of the four checkerboard cells.
+    uvec4 fragmentPosition = uvec4(gl_FragCoord);
+    uint color_index = (fragmentPosition.x & 1u) + ((fragmentPosition.y & 1u) << 1u);
+    out_color = reference_colors[color_index];
+}
+```
+
+#### Additional Info
+
+- The vertex stage is fixed across the operation, format, and render-area variants; it only establishes the full-screen primitive position.
+- The direct `draw` path uses the base fragment shader. The separate `frag_input_*` family is generated only when `m_isInputAttachment` is true and is therefore not needed for this selected case.
+- The source collection uses its default SPIR-V target because this `initPrograms` path supplies no explicit shader build options; the canonical disassembly below is generated for SPIR-V 1.0.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| AHB format | The base fragment shader selects `float`, `int`, or `uint` output according to the implementation-selected resolve color-attachment format; alpha presence changes the first color's alpha initializer. | [`AhbExternalFormatResolveTestCase::initPrograms`](../../../modules/vulkan/draw/vktDrawAhbExternalFormatResolveTests.cpp#L1552-L1587) |
+| Operation family | `clear` does not require the draw fragment shader; `draw` uses `frag_vec4`; `input_attachment` adds typed `subpassInput` shaders and RGB/BGR swizzle variants for YUV formats. | [`AhbExternalFormatResolveTestCase::initPrograms`](../../../modules/vulkan/draw/vktDrawAhbExternalFormatResolveTests.cpp#L1590-L1633) |
+| Render area | Full and partial cases use the same shader; the render area changes rasterization coverage and therefore which pixels retain the prior clear value. | [`createAhbExternalFormatResolveDrawTests`](../../../modules/vulkan/draw/vktDrawAhbExternalFormatResolveTests.cpp#L1672-L1682) |
+
+#### SPIR-V
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 27
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %in_position
+               OpSource GLSL 430
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex 2 "gl_ClipDistance"
+               OpName %_ ""
+               OpName %in_position "in_position"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn ClipDistance
+               OpDecorate %in_position Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_arr_float_uint_1 = OpTypeArray %float %uint_1
+%gl_PerVertex = OpTypeStruct %v4float %float %_arr_float_uint_1
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+    %v2float = OpTypeVector %float 2
+%_ptr_Input_v2float = OpTypePointer Input %v2float
+%in_position = OpVariable %_ptr_Input_v2float Input
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %19 = OpLoad %v2float %in_position
+         %22 = OpCompositeExtract %float %19 0
+         %23 = OpCompositeExtract %float %19 1
+         %24 = OpCompositeConstruct %v4float %22 %23 %float_0 %float_1
+         %26 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %26 %24
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 46
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %gl_FragCoord %out_color
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 430
+               OpName %main "main"
+               OpName %fragmentPosition "fragmentPosition"
+               OpName %gl_FragCoord "gl_FragCoord"
+               OpName %color_index "color_index"
+               OpName %out_color "out_color"
+               OpName %indexable "indexable"
+               OpDecorate %gl_FragCoord BuiltIn FragCoord
+               OpDecorate %out_color Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+     %v4uint = OpTypeVector %uint 4
+%_ptr_Function_v4uint = OpTypePointer Function %v4uint
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%gl_FragCoord = OpVariable %_ptr_Input_v4float Input
+%_ptr_Function_uint = OpTypePointer Function %uint
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %out_color = OpVariable %_ptr_Output_v4float Output
+     %uint_4 = OpConstant %uint 4
+%_arr_v4float_uint_4 = OpTypeArray %v4float %uint_4
+    %float_0 = OpConstant %float 0
+         %33 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
+    %float_1 = OpConstant %float 1
+         %35 = OpConstantComposite %v4float %float_1 %float_0 %float_0 %float_1
+         %36 = OpConstantComposite %v4float %float_0 %float_1 %float_0 %float_1
+  %float_0_5 = OpConstant %float 0.5
+         %38 = OpConstantComposite %v4float %float_0 %float_0 %float_0_5 %float_1
+         %39 = OpConstantComposite %_arr_v4float_uint_4 %33 %35 %36 %38
+%_ptr_Function__arr_v4float_uint_4 = OpTypePointer Function %_arr_v4float_uint_4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+%fragmentPosition = OpVariable %_ptr_Function_v4uint Function
+%color_index = OpVariable %_ptr_Function_uint Function
+  %indexable = OpVariable %_ptr_Function__arr_v4float_uint_4 Function
+         %14 = OpLoad %v4float %gl_FragCoord
+         %15 = OpConvertFToU %v4uint %14
+               OpStore %fragmentPosition %15
+         %19 = OpAccessChain %_ptr_Function_uint %fragmentPosition %uint_0
+         %20 = OpLoad %uint %19
+         %22 = OpBitwiseAnd %uint %20 %uint_1
+         %23 = OpAccessChain %_ptr_Function_uint %fragmentPosition %uint_1
+         %24 = OpLoad %uint %23
+         %25 = OpBitwiseAnd %uint %24 %uint_1
+         %26 = OpShiftLeftLogical %uint %25 %uint_1
+         %27 = OpIAdd %uint %22 %26
+               OpStore %color_index %27
+         %40 = OpLoad %uint %color_index
+               OpStore %indexable %39
+         %44 = OpAccessChain %_ptr_Function_v4float %indexable %40
+         %45 = OpLoad %v4float %44
+               OpStore %out_color %45
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

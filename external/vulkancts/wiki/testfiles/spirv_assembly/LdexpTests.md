@@ -99,7 +99,7 @@ All 36 Amber scripts use the same generated compute-shader control-flow template
 Representative path:
 
 ```text
-spirv_assembly.instruction.compute.ldexp.ldexp_float32_int32
+dEQP-VK.spirv_assembly.instruction.compute.ldexp.ldexp_float32_int32
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -130,14 +130,44 @@ flowchart TD
     E --> I
 ```
 
-#### Source Code
+#### Shader Code
 
-The SPIR-V assembly below is the literal contents of `ldexp_float32_int32.amber` between `SHADER compute compute_shader SPIRV-ASM` and `END`. It is test data, not reconstructed source, so it is shown verbatim.
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
+
+#### Additional Info
+
+- **Capabilities and entry point.** The shader declares only `OpCapability Shader`; no `Float16`/`Float64`/`Int8`/`Int16`/`Int64` capability is needed because the significand is `float32` and the exponent is `int32`. The entry point is `%main` with `LocalSize 64 1 1`; `gl_WorkGroupSize` is a constant composite `(64, 1, 1)`.
+- **Memory model and ext-instr import.** `OpMemoryModel Logical GLSL450` is paired with `%1 = OpExtInstImport "GLSL.std.450"`. The `Ldexp` opcode is therefore the GLSL.std.450 extended instruction, invoked as `%49 = OpExtInst %float %1 Ldexp %47 %48` with `%1` as the instruction set and `Ldexp` as the opcode.
+- **Descriptor bindings.** `SignificandBlock` is bound to descriptor set `0`, binding `0`, marked `NonWritable` so it is the read-only significand input. `ExponentsBlock` is bound to set `0`, binding `1`, also `NonWritable`, and holds the integer exponents. `ResultsBlock` is bound to set `0`, binding `2`, with no `NonWritable` decoration, so it is the writable output. All three use the legacy `BufferBlock` decoration plus `Uniform` storage class.
+- **Push constant.** `PushConstantBlock` wraps a single `uint count` at offset `0`. It is read once per invocation through `OpAccessChain %_ptr_PushConstant_uint %_ %int_0` and compared against `idx` to decide whether the invocation should run the Ldexp operation.
+- **Built-in input.** `gl_LocalInvocationIndex` is decorated `BuiltIn LocalInvocationIndex` and stored in the function-local `idx` so the per-invocation index is reused for input and output array access.
+- **Pass/fail logic.** Each active invocation reads `significands[idx]` and `exponents[idx]`, computes `Ldexp`, and stores to `results[idx]`. Inactive invocations write nothing. The Amber `EXPECT results IDX <offset> ...` checks then read back the `results` buffer at byte offsets `0, 4, 8, ..., 124` (one `float` element every 4 bytes) and compare each against a precomputed reference with absolute tolerance `0.0001`. The expected values cover ordinary results (for example, `-1.0 * 2^1 = -2.0` and `-1.0 * 2^-14 ≈ -6.103515625e-05`) and numerically zero results for the very negative exponents. Although the generated expected text uses `-0.0` for negative inputs, the tolerance oracle does not observe the zero sign.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---|---|---|
+| Variation 1 | `OpTypeFloat` width (`16`, `32`, `64`) and the matching `OpCapability` (`Float16` or `Float64`; `32` needs none). | [source evidence](../../../modules/vulkan/spirv_assembly/) |
+| Variation 2 | `OpTypeInt` width for the exponent (`8`, `16`, `32`, `64`) and the matching `OpCapability` (`Int8`, `Int16`, `Int64`; `32` needs none). | [source evidence](../../../modules/vulkan/spirv_assembly/) |
+| Variation 3 | Whether scalar types are replaced with `OpTypeVector ... 2` or `OpTypeVector ... 4` for both significand and exponent; vector cases also change `ArrayStride` accordingly (e.g., `8` for `v2float`, `16` for `v4float`). | [source evidence](../../../modules/vulkan/spirv_assembly/) |
+| Variation 4 | The `OpCapability`, extension declarations, and storage-feature requirements reported to CTS by the dispatcher so unsupported cases are skipped rather than run on devices lacking the feature. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
+| Variation 5 | The active vector count (`pc.count` = `32`, `16`, or `8`), exponent sequence, expected values, and scalar byte offsets derived from the selected type and shape. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
 
 ```llvm
 ; SPIR-V
 ; Version: 1.0
-; Generator: Khronos Glslang Reference Front End; 11
+; Generator: Khronos SPIR-V Tools Assembler; 0
 ; Bound: 61
 ; Schema: 0
                OpCapability Shader
@@ -189,7 +219,7 @@ The SPIR-V assembly below is the literal contents of `ldexp_float32_int32.amber`
                OpDecorate %__2 DescriptorSet 0
                OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
        %void = OpTypeVoid
-          %3 = OpTypeFunction %void
+         %21 = OpTypeFunction %void
        %uint = OpTypeInt 32 0
 %_ptr_Function_uint = OpTypePointer Function %uint
 %_ptr_Input_uint = OpTypePointer Input %uint
@@ -222,62 +252,44 @@ The SPIR-V assembly below is the literal contents of `ldexp_float32_int32.amber`
     %uint_64 = OpConstant %uint 64
      %uint_1 = OpConstant %uint 1
 %gl_WorkGroupSize = OpConstantComposite %v3uint %uint_64 %uint_1 %uint_1
-       %main = OpFunction %void None %3
-          %5 = OpLabel
+       %main = OpFunction %void None %21
+         %41 = OpLabel
         %idx = OpVariable %_ptr_Function_uint Function
           %s = OpVariable %_ptr_Function_float Function
           %e = OpVariable %_ptr_Function_int Function
           %r = OpVariable %_ptr_Function_float Function
-         %11 = OpLoad %uint %gl_LocalInvocationIndex
-               OpStore %idx %11
-         %12 = OpLoad %uint %idx
-         %19 = OpAccessChain %_ptr_PushConstant_uint %_ %int_0
-         %20 = OpLoad %uint %19
-         %22 = OpULessThan %bool %12 %20
-               OpSelectionMerge %24 None
-               OpBranchConditional %22 %23 %24
-         %23 = OpLabel
-         %32 = OpLoad %uint %idx
-         %34 = OpAccessChain %_ptr_Uniform_float %__0 %int_0 %32
-         %35 = OpLoad %float %34
-               OpStore %s %35
-         %42 = OpLoad %uint %idx
-         %44 = OpAccessChain %_ptr_Uniform_int %__1 %int_0 %42
-         %45 = OpLoad %int %44
-               OpStore %e %45
-         %47 = OpLoad %float %s
-         %48 = OpLoad %int %e
-         %49 = OpExtInst %float %1 Ldexp %47 %48
-               OpStore %r %49
-         %54 = OpLoad %uint %idx
-         %55 = OpLoad %float %r
-         %56 = OpAccessChain %_ptr_Uniform_float %__2 %int_0 %54
-               OpStore %56 %55
-               OpBranch %24
-         %24 = OpLabel
+         %42 = OpLoad %uint %gl_LocalInvocationIndex
+               OpStore %idx %42
+         %43 = OpLoad %uint %idx
+         %44 = OpAccessChain %_ptr_PushConstant_uint %_ %int_0
+         %45 = OpLoad %uint %44
+         %46 = OpULessThan %bool %43 %45
+               OpSelectionMerge %47 None
+               OpBranchConditional %46 %48 %47
+         %48 = OpLabel
+         %49 = OpLoad %uint %idx
+         %50 = OpAccessChain %_ptr_Uniform_float %__0 %int_0 %49
+         %51 = OpLoad %float %50
+               OpStore %s %51
+         %52 = OpLoad %uint %idx
+         %53 = OpAccessChain %_ptr_Uniform_int %__1 %int_0 %52
+         %54 = OpLoad %int %53
+               OpStore %e %54
+         %55 = OpLoad %float %s
+         %56 = OpLoad %int %e
+         %57 = OpExtInst %float %1 Ldexp %55 %56
+               OpStore %r %57
+         %58 = OpLoad %uint %idx
+         %59 = OpLoad %float %r
+         %60 = OpAccessChain %_ptr_Uniform_float %__2 %int_0 %58
+               OpStore %60 %59
+               OpBranch %47
+         %47 = OpLabel
                OpReturn
                OpFunctionEnd
-
 ```
 
-#### Additional Info
-
-- **Capabilities and entry point.** The shader declares only `OpCapability Shader`; no `Float16`/`Float64`/`Int8`/`Int16`/`Int64` capability is needed because the significand is `float32` and the exponent is `int32`. The entry point is `%main` with `LocalSize 64 1 1`; `gl_WorkGroupSize` is a constant composite `(64, 1, 1)`.
-- **Memory model and ext-instr import.** `OpMemoryModel Logical GLSL450` is paired with `%1 = OpExtInstImport "GLSL.std.450"`. The `Ldexp` opcode is therefore the GLSL.std.450 extended instruction, invoked as `%49 = OpExtInst %float %1 Ldexp %47 %48` with `%1` as the instruction set and `Ldexp` as the opcode.
-- **Descriptor bindings.** `SignificandBlock` is bound to descriptor set `0`, binding `0`, marked `NonWritable` so it is the read-only significand input. `ExponentsBlock` is bound to set `0`, binding `1`, also `NonWritable`, and holds the integer exponents. `ResultsBlock` is bound to set `0`, binding `2`, with no `NonWritable` decoration, so it is the writable output. All three use the legacy `BufferBlock` decoration plus `Uniform` storage class.
-- **Push constant.** `PushConstantBlock` wraps a single `uint count` at offset `0`. It is read once per invocation through `OpAccessChain %_ptr_PushConstant_uint %_ %int_0` and compared against `idx` to decide whether the invocation should run the Ldexp operation.
-- **Built-in input.** `gl_LocalInvocationIndex` is decorated `BuiltIn LocalInvocationIndex` and stored in the function-local `idx` so the per-invocation index is reused for input and output array access.
-- **Pass/fail logic.** Each active invocation reads `significands[idx]` and `exponents[idx]`, computes `Ldexp`, and stores to `results[idx]`. Inactive invocations write nothing. The Amber `EXPECT results IDX <offset> ...` checks then read back the `results` buffer at byte offsets `0, 4, 8, ..., 124` (one `float` element every 4 bytes) and compare each against a precomputed reference with absolute tolerance `0.0001`. The expected values cover ordinary results (for example, `-1.0 * 2^1 = -2.0` and `-1.0 * 2^-14 ≈ -6.103515625e-05`) and numerically zero results for the very negative exponents. Although the generated expected text uses `-0.0` for negative inputs, the tolerance oracle does not observe the zero sign.
-
-#### Parameter Variation Summary
-
-The other 35 cases use the same `main` control flow and four logical buffers (significands, exponents, results, push constant), with the same per-element `EXPECT` form. They also vary in:
-
-- `OpTypeFloat` width (`16`, `32`, `64`) and the matching `OpCapability` (`Float16` or `Float64`; `32` needs none).
-- `OpTypeInt` width for the exponent (`8`, `16`, `32`, `64`) and the matching `OpCapability` (`Int8`, `Int16`, `Int64`; `32` needs none).
-- Whether scalar types are replaced with `OpTypeVector ... 2` or `OpTypeVector ... 4` for both significand and exponent; vector cases also change `ArrayStride` accordingly (e.g., `8` for `v2float`, `16` for `v4float`).
-- The `OpCapability`, extension declarations, and storage-feature requirements reported to CTS by the dispatcher so unsupported cases are skipped rather than run on devices lacking the feature.
-- The active vector count (`pc.count` = `32`, `16`, or `8`), exponent sequence, expected values, and scalar byte offsets derived from the selected type and shape.
+</details>
 
 ## Runtime Execution and Result Checking
 

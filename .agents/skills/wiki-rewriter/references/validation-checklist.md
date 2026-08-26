@@ -12,9 +12,26 @@ Run this checklist before reporting a rewritten page as complete.
 
 ## Structural Audit
 
+- [ ] The mechanical English structure validator passes for the rewritten page or active category.
 - [ ] Section order matches the Level-3 template: Overview → Background Knowledge → Registration Hierarchy → Parameter Dimensions and Observed Values → Behavior Parameters → Shader Analysis → Runtime Execution and Result Checking → Failure Meaning → Case Pruning → Key Takeaways → Source Reference Appendix.
 - [ ] `## Parameter Dimensions and Observed Values` appears before `## Behavior Parameters`.
 - [ ] `## Failure Meaning` appears between `## Runtime Execution and Result Checking` and `## Case Pruning`.
+
+### English structure validation script
+
+Run from the repository root after drafting and again before reporting a page or category complete:
+
+```bash
+# Check one or more Level-3 pages.
+python3 .agents/skills/wiki-rewriter/scripts/verify_english_structure.py \
+  --files external/vulkancts/wiki/testfiles/<category>/<page>.md
+
+# Check one or more categories.
+python3 .agents/skills/wiki-rewriter/scripts/verify_english_structure.py \
+  <category> [<category> ...]
+```
+
+This is a mechanical structure guard, not a semantic audit. It verifies canonical section names and order, fixed Failure Meaning and Case Pruning subsections, Cause Analysis labels, shader walkthrough/SPIR-V pairing, code-fence closure, and the parseable Registration Hierarchy contract. It excludes `vkt*.md` and `*_brief.md` from category mode.
 
 ## Semantic Audit
 

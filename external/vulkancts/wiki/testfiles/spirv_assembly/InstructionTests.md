@@ -178,112 +178,123 @@ The baseline `opsrem`/`opsmod`/`opsrem64`/`opsmod64` groups ([compute registrati
 
 ## Shader Analysis
 
-The inline compute groups share a near-identical shell built from the preamble helpers: `OpCapability Shader`, `Logical GLSL450` memory model, `GLCompute` entry point with `%id` (`gl_GlobalInvocationID`), `LocalSize 1 1 1` execution mode, two SSBO bindings, and a per-test body that reads `input[id.x]`, runs the instruction(s) under test, and writes `output[id.x]`. The `compute.opnop.all` case is the representative walkthrough because it is the smallest group: `OpNop` is the only thing that changes versus the baseline pattern, so the walkthrough exposes the shared infrastructure without distraction. Other inline groups vary the body (different instruction, more bindings, custom verification) but keep the same shell.
+The inline compute groups share a near-identical shell built from the preamble helpers: `OpCapability Shader`, the `Logical GLSL450` memory model, a `GLCompute` entry point with `%id` (`gl_GlobalInvocationID`), `LocalSize 1 1 1`, input and output SSBOs, and a per-test body. The `compute.opnop.all` case is the representative walkthrough because it is the smallest inline group: one `OpNop` appears in an otherwise straightforward input-load, negation, and output-store sequence. Other inline groups retain the general harness pattern but vary the authored SPIR-V body, descriptor count, storage class, feature requirements, and verification rules.
 
-### Representative Shader Walkthrough 1: `spirv_assembly.instruction.compute.opnop.all`
+### Representative Shader Walkthrough 1
 
 #### Parameter Values Chosen
 
 Representative path:
 
 ```text
-spirv_assembly.instruction.compute.opnop.all
+dEQP-VK.spirv_assembly.instruction.compute.opnop.all
 ```
 
 | Parameter choice | Meaning in this representative case |
 |------------------|-------------------------------------|
-| Pipeline variant `compute` | Selects `SpvAsmComputeShaderCase` dispatch and SSBO-based verification |
-| Inline group `opnop` | The instruction under test is `OpNop`; everything else is the shared compute shell |
-| Test case leaf `all` | Single case in the group; `OpNop` is placed once inside the function body |
+| Pipeline variant `compute` | Selects `SpvAsmComputeShaderCase` dispatch and SSBO-based verification. |
+| Inline group `opnop` | Selects `OpNop` as the instruction under test inside a compute function body. |
+| Test case leaf `all` | Selects the group's only case; the module contains one `OpNop`. |
 
 #### Purpose
 
-Verify that an `OpNop` placed inside a compute function body does not perturb the surrounding load/compute/store logic: the output SSBO must equal the exact negation of the input SSBO, byte-for-byte.
+Verify that executing `OpNop` inside the compute entry point does not alter the surrounding dataflow: every invocation must write the exact floating-point negation of its input element to the corresponding output element.
 
 #### Structural Design
 
 ```mermaid
 flowchart TD
-    A["AccessChain %indata[0][id.x] -> %inloc"] --> B["OpLoad %f32 %inloc -> %inval = input[id.x]"]
-    C["OpNop (instruction under test)"] --> D["OpFNegate %f32 %inval -> %neg = -input[id.x]"]
-    B --> D
-    E["AccessChain %outdata[0][id.x] -> %outloc"] --> F["OpStore %outloc %neg -> output[id.x] = -input[id.x]"]
-    D --> F
+    A["Load gl_GlobalInvocationID.x"] --> B["Execute OpNop"]
+    B --> C["Load input[id.x] from binding 0"]
+    C --> D["OpFNegate the loaded float"]
+    D --> E["Store output[id.x] to binding 1"]
 ```
 
-#### Source Code
+#### Shader Code
 
-The C++ string-template concatenation in [`createOpNopGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L1089-L1141) produces the SPIR-V assembly below. The shared preamble/types/SSBO-layout helpers are inlined; wiki-authored section markers use `;` comment syntax.
-
-```llvm
-; --- preamble (getComputeAsmShaderPreamble, default args) ---
-OpCapability Shader
-OpMemoryModel Logical GLSL450
-OpEntryPoint GLCompute %main "main" %id
-OpExecutionMode %main LocalSize 1 1 1
-; --- per-test header ---
-OpSource GLSL 430
-OpName %main           "main"
-OpName %id             "gl_GlobalInvocationID"
-OpDecorate %id BuiltIn GlobalInvocationId
-; --- SSBO layout (getComputeAsmInputOutputBufferTraits, default BufferBlock) ---
-OpDecorate %buf BufferBlock
-OpDecorate %indata DescriptorSet 0
-OpDecorate %indata Binding 0
-OpDecorate %outdata DescriptorSet 0
-OpDecorate %outdata Binding 1
-OpDecorate %f32arr ArrayStride 4
-OpMemberDecorate %buf 0 Offset 0
-; --- common types (getComputeAsmCommonTypes, default Uniform) ---
-%bool      = OpTypeBool
-%void      = OpTypeVoid
-%voidf     = OpTypeFunction %void
-%u32       = OpTypeInt 32 0
-%i32       = OpTypeInt 32 1
-%f32       = OpTypeFloat 32
-%uvec3     = OpTypeVector %u32 3
-%fvec3     = OpTypeVector %f32 3
-%uvec3ptr  = OpTypePointer Input %uvec3
-%i32ptr    = OpTypePointer Uniform %i32
-%f32ptr    = OpTypePointer Uniform %f32
-%i32arr    = OpTypeRuntimeArray %i32
-%f32arr    = OpTypeRuntimeArray %f32
-; --- SSBO variables (getComputeAsmInputOutputBuffer, default Uniform) ---
-%buf     = OpTypeStruct %f32arr
-%bufptr  = OpTypePointer Uniform %buf
-%indata    = OpVariable %bufptr Uniform
-%outdata   = OpVariable %bufptr Uniform
-; --- per-test body ---
-%id        = OpVariable %uvec3ptr Input
-%zero      = OpConstant %i32 0
-%main      = OpFunction %void None %voidf
-%label     = OpLabel
-%idval     = OpLoad %uvec3 %id
-%x         = OpCompositeExtract %u32 %idval 0
-             OpNop
-%inloc     = OpAccessChain %f32ptr %indata %zero %x
-%inval     = OpLoad %f32 %inloc
-%neg       = OpFNegate %f32 %inval
-%outloc    = OpAccessChain %f32ptr %outdata %zero %x
-             OpStore %outloc %neg
-             OpReturn
-             OpFunctionEnd
-```
+This case has no GLSL or HLSL shader source. [`createOpNopGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L1089-L1141) directly constructs the authoritative CTS SPIR-V assembly by concatenating the shared compute preamble, type, and SSBO-layout helpers with the case-specific function body. The complete specialized module was assembled with `spirv-as --target-env spv1.0`, validated with `spirv-val --target-env spv1.0`, and disassembled with `spirv-dis`; the full validated assembly is published once in the final `#### SPIR-V` subsection.
 
 #### Additional Info
 
-- The `%bool`, `%fvec3`, `%i32ptr`, and `%i32arr` types are declared by the shared `getComputeAsmCommonTypes` helper but unused in this particular body. Unused type declarations are legal in SPIR-V and are retained because the helper is shared across many groups.
-- The input SSBO is filled with 100 random positive floats in `[1, 100]`; the expected output is the exact element-wise negation. The host dispatches `100×1×1` invocations, so invocation `id.x` reads `input[id.x]` and writes `output[id.x]`.
-- The `Uniform` storage class with `BufferBlock` decoration (rather than `StorageBuffer` with `Block`) is the legacy SPIR-V 1.0 storage-buffer encoding; both map to `VK_DESCRIPTOR_TYPE_STORAGE_BUFFER` at the Vulkan level.
+- The shared [`getComputeAsmCommonTypes`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderTestUtil.cpp#L82-L100) helper declares `%bool`, `%fvec3`, `%i32ptr`, and `%i32arr` even though this body does not use them. Unused type declarations are legal in SPIR-V.
+- The input SSBO contains 100 random positive floats in `[1, 100]`; the host computes the expected output by negating each input and dispatches `100×1×1` workgroups. With `LocalSize 1 1 1`, invocation `id.x` processes exactly one element.
+- `Uniform` plus `BufferBlock` is the legacy SPIR-V 1.0 storage-buffer representation used by the default helpers. Both this representation and the newer `StorageBuffer` plus `Block` representation map to Vulkan storage-buffer descriptors.
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Instruction under test | Replaces `OpNop` with the per-group instruction(s): `OpFNegate` is the computed op here; sibling groups substitute `OpFRem`/`OpSRem`/`OpSMod`/`OpQuantizeToF16`/`OpUndef`/`OpPhi`/`OpCopyMemory`/atomics/conversions/etc. | [`createOpNopGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L1089-L1141), [`createOpFRemGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21356), [`createOpSRemComputeGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L2526-L2626) |
-| Number of input SSBOs | `opnop` uses one input (`%indata`); `opsrem`/`opsmod` add a second input (`%indata2` at binding 1) and shift the output to binding 2 | [`createOpSRemComputeGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L2570-L2586) |
-| Storage class | Most groups use `Uniform`+`BufferBlock` (default helpers); `opatomic_storage_buffer` and `opatomic_storage_buffer_volatile` opt into `StorageBuffer`+`Block` | [`getComputeAsmInputOutputBufferTraits`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderTestUtil.cpp#L123-L133) |
-| `failResult` override | `opnop` uses the default `QP_TEST_RESULT_FAIL`; `opsrem`/`opsmod` override to `PASS` (baseline), `QUALITY_WARNING` (`android`), or `FAIL` (`maintenance8`) | [`createOpSRemComputeGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L2541-L2542) |
+| Instruction group | Sibling groups author different function bodies containing operations such as `OpFRem`, `OpSRem`, `OpSMod`, `OpQuantizeToF16`, `OpPhi`, `OpCopyMemory`, atomics, and conversions; they do not literally derive their modules by replacing this case's `OpNop`. | [`createOpNopGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L1089-L1141), [`createOpSRemComputeGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L2526-L2626) |
+| Number of input SSBOs | `opnop` uses one input at binding 0 and one output at binding 1; `opsrem` and `opsmod` add a second input at binding 1 and move the output to binding 2. | [`createOpSRemComputeGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L2570-L2586) |
+| Storage representation | Most inline compute groups use the default `Uniform` plus `BufferBlock` helpers; `opatomic_storage_buffer` and `opatomic_storage_buffer_volatile` opt into `StorageBuffer` plus `Block`. | [`getComputeAsmInputOutputBufferTraits`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderTestUtil.cpp#L123-L133) |
+| Mismatch result | `opnop` uses the default `QP_TEST_RESULT_FAIL`; the `OpSRem`/`OpSMod` registrations select `PASS` for the baseline negative-operand cases, `QUALITY_WARNING` under `android`, or `FAIL` under `maintenance8`. This changes host-side grading rather than this shader's descriptor shell. | [`createOpSRemComputeGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L2526-L2626) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from `createOpNopGroup`
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 28
+; Schema: 0
+               OpCapability Shader
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 430
+               OpName %main "main"
+               OpName %gl_GlobalInvocationID "gl_GlobalInvocationID"
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %_struct_3 BufferBlock
+               OpDecorate %4 DescriptorSet 0
+               OpDecorate %4 Binding 0
+               OpDecorate %5 DescriptorSet 0
+               OpDecorate %5 Binding 1
+               OpDecorate %_runtimearr_float ArrayStride 4
+               OpMemberDecorate %_struct_3 0 Offset 0
+       %bool = OpTypeBool
+       %void = OpTypeVoid
+          %9 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+        %int = OpTypeInt 32 1
+      %float = OpTypeFloat 32
+     %v3uint = OpTypeVector %uint 3
+    %v3float = OpTypeVector %float 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%_ptr_Uniform_int = OpTypePointer Uniform %int
+%_ptr_Uniform_float = OpTypePointer Uniform %float
+%_runtimearr_int = OpTypeRuntimeArray %int
+%_runtimearr_float = OpTypeRuntimeArray %float
+  %_struct_3 = OpTypeStruct %_runtimearr_float
+%_ptr_Uniform__struct_3 = OpTypePointer Uniform %_struct_3
+          %4 = OpVariable %_ptr_Uniform__struct_3 Uniform
+          %5 = OpVariable %_ptr_Uniform__struct_3 Uniform
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+      %int_0 = OpConstant %int 0
+       %main = OpFunction %void None %9
+         %21 = OpLabel
+         %22 = OpLoad %v3uint %gl_GlobalInvocationID
+         %23 = OpCompositeExtract %uint %22 0
+               OpNop
+         %24 = OpAccessChain %_ptr_Uniform_float %4 %int_0 %23
+         %25 = OpLoad %float %24
+         %26 = OpFNegate %float %25
+         %27 = OpAccessChain %_ptr_Uniform_float %5 %int_0 %23
+               OpStore %27 %26
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

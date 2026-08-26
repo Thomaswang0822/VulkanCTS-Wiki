@@ -125,7 +125,7 @@ A failure means the final image differs exactly from the software clipping model
 
 **Possible implementation causes:** The implementation may apply the wrong `VkClearRect`/render-area clipping, mishandle zero or edge-touching intersections, or overflow signed offset/extent arithmetic. Layout transition, readback, and command ordering remain shared alternatives.
 
-### Source evidence
+Source evidence for the failure mapping is listed below.
 
 - [Test command classes and dynamic updates](../../../modules/vulkan/draw/vktDrawScissorTests.cpp#L92-L272)
 - [Support checks and generated shaders](../../../modules/vulkan/draw/vktDrawScissorTests.cpp#L361-L415)
@@ -133,7 +133,7 @@ A failure means the final image differs exactly from the software clipping model
 - [Reference generation and comparison](../../../modules/vulkan/draw/vktDrawScissorTests.cpp#L665-L704)
 - [All case registrations](../../../modules/vulkan/draw/vktDrawScissorTests.cpp#L761-L1074)
 - [Public factory declaration](../../../modules/vulkan/draw/vktDrawScissorTests.hpp#L27-L36)
-- [Shared draw-suite placement and rendering variants](../../../modules/vulkan/draw/vktDrawTests.cpp#L70-L99), [../../../modules/vulkan/draw/vktDrawTests.cpp#L126-L198)
+- [Scissor-family placement in `createChildren()`](../../../modules/vulkan/draw/vktDrawTests.cpp#L70-L101) and [render-pass/dynamic-rendering root construction in `createTests()`](../../../modules/vulkan/draw/vktDrawTests.cpp#L126-L201)
 
 ## Case Pruning
 

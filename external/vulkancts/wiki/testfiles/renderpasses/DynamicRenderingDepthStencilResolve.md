@@ -148,40 +148,170 @@ subsequent push-constant-driven color render share the same command buffer
 
 ## Shader Analysis
 
-Shader code is part of the tested behavior only insofar as it produces the per-sample depth and stencil inputs that
-the resolve step reduces. The shaders themselves are simple and do not require a representative walkthrough.
+The fragment shader provides the per-sample values that make each resolve mode distinguishable. One depth case is enough to show the core mechanism: the depth shader is shared by every `testing_depth` leaf, while sample count and resolve mode change how fixed-function resolve reduces its output. The stencil and push-constant variants use different shader paths, summarized below.
 
-The vertex shader ([`quad-vert`](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1116-L1125))
-generates a fullscreen triangle-list quad from `gl_VertexIndex` with no vertex inputs. When `imageLayers > 1`, a
-geometry shader ([`quad-geom`](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1087-L1113))
-broadcasts the quad to each layer using `gl_Layer`.
+### Representative Shader Walkthrough 1
 
-The depth-testing fragment shader ([`quad-frag` depth variant](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1129-L1142))
-maps `gl_SampleID` to one of four depth values through integer arithmetic:
+#### Parameter Values Chosen
 
-```glsl
-float sampleIndex = float(gl_SampleID);
-float valueIndex  = round(mod(sampleIndex, 4.0));   // 0,1,2,3
-float value       = valueIndex + 2.0;                // 2,3,4,5
-value             = round(exp2(value));              // 4,8,16,32
-bool condition    = (int(value) == 8);
-value             = round(value - float(condition) * 6.0); // 4,2,16,32
-gl_FragDepth      = value / 100.0;                   // 0.04, 0.02, 0.16, 0.32
+Representative path:
+
+```text
+dEQP-VK.renderpasses.dynamic_rendering.primary_cmd_buff.depth_stencil_resolve.samples_4.d16_unorm.depth_average_stencil_none_testing_depth
 ```
 
-This deterministic per-sample mapping is what makes the expected-value tables exact: every sample with the same
-`gl_SampleID % 4` writes the same depth, so the resolved value depends only on the resolve mode and (for `average`)
-the sample count.
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `primary_cmd_buff` | The dynamic rendering instance and draw are recorded in the primary command buffer. Command-buffer selection does not alter the generated shader. |
+| `samples_4` | Four fragment samples exercise one complete cycle of the shader's depth sequence: `0.04`, `0.02`, `0.16`, and `0.32`. |
+| `d16_unorm` | The multisample and resolve attachments have a depth aspect only. The fragment shader still computes 32-bit floating-point depth; fixed-function depth conversion stores it in `D16_UNORM`. |
+| `depth_average_stencil_none_testing_depth` | Dynamic rendering averages the four depth samples, does not resolve stencil, and the host verifies the resolved depth value `0.135`. |
+| `quad-frag` depth variant | `Programs::init` selects the fragment source that derives `gl_FragDepth` from `gl_SampleID` because `verifyBuffer == VB_DEPTH`. |
 
-The stencil-testing fragment shader ([`quad-frag` stencil variant](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1146-L1157))
-discards every fragment whose `gl_SampleID` does not equal the push-constant `sampleID` for the current pass, then
-writes `gl_FragDepth = 0.5`. Depth is irrelevant here; the discard plus per-pass `vkCmdSetStencilReference` is what
-places a known stencil reference into exactly one sample per pass.
+#### Purpose
 
-The push-constants variant adds a second vertex/fragment pair
-([`vert-pc`](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1162-L1178),
-[`frag-pc`](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1180-L1192)) that
-outputs a push-constant `vec4` color to a color attachment, used only for the post-resolve color render.
+This fragment shader writes a deterministic, non-monotonic depth value to each sample. The four-sample representative case makes the requested `AVERAGE` resolve observable: the single-sample resolve image must contain `(0.04 + 0.02 + 0.16 + 0.32) / 4 = 0.135`.
+
+#### Structural Design
+
+| Step | Shader operation | Four-sample result |
+|------|------------------|--------------------|
+| Select cycle position | Convert `gl_SampleID` to float and take modulo 4. | Sample IDs `0, 1, 2, 3` map to indices `0, 1, 2, 3`. |
+| Build powers of two | Add 2, then calculate and round `exp2`. | Produces `4, 8, 16, 32`. |
+| Make the second value smallest | Detect `8` and subtract `6` only from that value. | Produces `4, 2, 16, 32`, so sample zero, minimum, and maximum are distinct. |
+| Write per-sample depth | Divide by 100 and store to `gl_FragDepth`. | Produces `0.04, 0.02, 0.16, 0.32`; their average is `0.135`. |
+
+#### Shader Code
+
+```glsl
+#version 450
+precision highp float;
+precision highp int;
+
+/// Per-sample shading makes gl_SampleID identify the multisample slot being written.
+/// No descriptor-backed resources are visible to this shader; the only tested output is
+/// the built-in gl_FragDepth value consumed by fixed-function depth resolve.
+void main (void)
+{
+  float sampleIndex = float(gl_SampleID);
+  float valueIndex = round(mod(sampleIndex, 4.0));
+  float value = valueIndex + 2.0;
+  value = round(exp2(value));
+  bool condition = (int(value) == 8);
+  value = round(value - float(condition) * 6.0);
+  /// The resulting cycle is 0.04, 0.02, 0.16, 0.32. With four samples,
+  /// AVERAGE must therefore resolve to (0.04 + 0.02 + 0.16 + 0.32) / 4 = 0.135.
+  gl_FragDepth = value / 100.0;
+}
+```
+
+#### Additional Info
+
+- The shared `quad-vert` stage has no vertex inputs; it derives a fullscreen six-vertex quad from `gl_VertexIndex` and is fixed across ordinary depth and stencil cases ([vertex source](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1116-L1125)).
+- Sample-rate shading is required by the support check, so reading `gl_SampleID` produces the intended per-sample inputs instead of one depth value shared by all samples ([support check](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1197-L1205)).
+- The expected value `0.135` is independently stored in the host-side table for every sample count divisible by four, including this four-sample case ([expected depth table](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1744-L1751)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| Tested aspect | `testing_depth` selects the shown shader. `testing_stencil` instead declares a 4-byte fragment push-constant `sampleID`, discards all other sample invocations, and writes an otherwise irrelevant depth of `0.5`; the host's dynamic stencil reference supplies the value under test. | [fragment variants](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1127-L1158), [pipeline layout](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L322-L348) |
+| Sample count | No shader text changes. `gl_SampleID % 4` repeats the same four-value cycle; the two-sample case sees only `0.04, 0.02`, while larger supported counts repeat the full cycle. | [depth shader](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1129-L1142), [sample-count loop](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1743-L1769) |
+| Depth/stencil resolve mode | Resolve modes do not change shader text. They tell fixed-function dynamic rendering whether to select sample zero, average, take the minimum or maximum, or leave the pre-cleared resolve aspect untouched. | [resolve-mode registration](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1716-L1725), [case configuration](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1825-L1852) |
+| Format, separate layouts, and command-buffer path | These dimensions change attachment representation, layout transitions, pipeline rendering state, or command recording, not the fragment source. | [shader selection](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1078-L1158), [case matrix](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1774-L1880) |
+| `testing_pushconsts` | This depth-only corner case keeps the shown depth fragment shader but adds a geometry shader that broadcasts the quad to two layers, followed by a separate vertex/fragment pair whose fragment output comes from a `vec4` push constant. | [geometry shader branch](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1082-L1114), [push-constant shaders](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1160-L1193) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 47
+; Schema: 0
+               OpCapability Shader
+               OpCapability SampleRateShading
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %gl_SampleID %gl_FragDepth
+               OpExecutionMode %main OriginUpperLeft
+               OpExecutionMode %main DepthReplacing
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %sampleIndex "sampleIndex"
+               OpName %gl_SampleID "gl_SampleID"
+               OpName %valueIndex "valueIndex"
+               OpName %value "value"
+               OpName %condition "condition"
+               OpName %gl_FragDepth "gl_FragDepth"
+               OpDecorate %gl_SampleID BuiltIn SampleId
+               OpDecorate %gl_SampleID Flat
+               OpDecorate %gl_FragDepth BuiltIn FragDepth
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+%_ptr_Function_float = OpTypePointer Function %float
+        %int = OpTypeInt 32 1
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_SampleID = OpVariable %_ptr_Input_int Input
+    %float_4 = OpConstant %float 4
+    %float_2 = OpConstant %float 2
+       %bool = OpTypeBool
+%_ptr_Function_bool = OpTypePointer Function %bool
+      %int_8 = OpConstant %int 8
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+    %float_6 = OpConstant %float 6
+%_ptr_Output_float = OpTypePointer Output %float
+%gl_FragDepth = OpVariable %_ptr_Output_float Output
+  %float_100 = OpConstant %float 100
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+%sampleIndex = OpVariable %_ptr_Function_float Function
+ %valueIndex = OpVariable %_ptr_Function_float Function
+      %value = OpVariable %_ptr_Function_float Function
+  %condition = OpVariable %_ptr_Function_bool Function
+         %12 = OpLoad %int %gl_SampleID
+         %13 = OpConvertSToF %float %12
+               OpStore %sampleIndex %13
+         %15 = OpLoad %float %sampleIndex
+         %17 = OpFMod %float %15 %float_4
+         %18 = OpExtInst %float %1 Round %17
+               OpStore %valueIndex %18
+         %20 = OpLoad %float %valueIndex
+         %22 = OpFAdd %float %20 %float_2
+               OpStore %value %22
+         %23 = OpLoad %float %value
+         %24 = OpExtInst %float %1 Exp2 %23
+         %25 = OpExtInst %float %1 Round %24
+               OpStore %value %25
+         %29 = OpLoad %float %value
+         %30 = OpConvertFToS %int %29
+         %32 = OpIEqual %bool %30 %int_8
+               OpStore %condition %32
+         %33 = OpLoad %float %value
+         %34 = OpLoad %bool %condition
+         %37 = OpSelect %float %34 %float_1 %float_0
+         %39 = OpFMul %float %37 %float_6
+         %40 = OpFSub %float %33 %39
+         %41 = OpExtInst %float %1 Round %40
+               OpStore %value %41
+         %44 = OpLoad %float %value
+         %46 = OpFDiv %float %44 %float_100
+               OpStore %gl_FragDepth %46
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

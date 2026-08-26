@@ -67,7 +67,7 @@ One walkthrough covers the `between.rgen` case. It exercises the `shadercallcohe
 Representative path:
 
 ```text
-ray_tracing_pipeline.memguarantee.between.rgen
+dEQP-VK.ray_tracing_pipeline.memguarantee.between.rgen
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -93,7 +93,11 @@ This case checks that the callable shader `cal0`, invoked from rgen via `execute
 
 #### Shader Code
 
+This representative case uses the CTS-authored SPIR-V module directly rather than GLSL or HLSL. The stage, entry point, capabilities, and execution modes are encoded in the module; the complete assembly remains in the final SPIR-V subsection.
+
 Reconstructed rgen (caller):
+
+##### Ray Generation Shader
 
 ```glsl
 #version 460 core
@@ -115,6 +119,8 @@ void main()
 ```
 
 Reconstructed `cal0` (callee callable shader):
+
+##### Callable Shader
 
 ```glsl
 #version 460 core
@@ -140,13 +146,15 @@ void main()
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level variation from this walkthrough | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|--------------------------------------------|----------|
 | `TestType` | `inside` removes `glslExtensions`, `imageQualifiers`, and both barrier strings; the caller performs both writes in the same invocation; the callee body is empty. | [imageQualifiers, glslExtensions, barrier strings](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L305-L318) |
 | Stage under test | `chit`, `miss`, and `call` use the same `executeCallableEXT(0, 0)` repack in a different caller stage. `chit` runs after a `traceRayEXT` hit; `miss` runs after a `traceRayEXT` miss (geometry placed at z = +1.0); `call` runs after rgen calls `executeCallableEXT(1, 0)` to invoke the `call` shader, which then performs the write-repack sequence. | [initPrograms stage switch](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L342-L505) |
 | `sect` repack | The intersection shader is the caller. Its repack instruction is `reportIntersectionEXT(0.95f, 0u)` instead of `executeCallableEXT(0, 0)`. The callee is the any-hit shader (`ahit`), not a callable shader. | [calleeIsAnyHit, repackInstruction](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L308-L310) |
 
 #### SPIR-V
+
+##### Ray Generation Shader
 
 - Status: generated and validated
 - Source: reconstructed `GLSL` from this walkthrough
@@ -241,7 +249,7 @@ void main()
 
 </details>
 
-#### SPIR-V
+##### Callable Shader
 
 - Status: generated and validated
 - Source: reconstructed `GLSL` from this walkthrough
@@ -324,15 +332,11 @@ void main()
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
 
-- **Resource setup.** The host creates a 16x16 `r32ui` storage image with `VK_IMAGE_USAGE_STORAGE_BIT | TRANSFER_SRC_BIT | TRANSFER_DST_BIT`, plus a host-visible copyback buffer of `256 * sizeof(uint32_t)` bytes ([runTest resource setup](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L714-L729)).
-- **Acceleration structures.** Eight BLAS instances, each with four geometries, each geometry with eight squares, cover the 16x16 launch grid. For `miss` cases the geometry is placed at `z = +1.0` so rays traveling down `-Z` miss; for hit cases it is placed at `z = -1.0`. A TLAS wraps all eight instances ([initBottomAccelerationStructure](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L590-L632), [initTopAccelerationStructure](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L568-L588)).
-- **Pipeline and SBT.** Shader groups are raygen (group 0), miss (group 1), hit (group 2), and callable (group 3 onward when needed). The host builds SBT regions for each group with `shaderGroupHandleSize` stride ([makePipeline](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L513-L547), [createShaderBindingTable](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L549-L566)).
-- **Image clear and barriers.** The image is cleared to `1000000u` in `TRANSFER_DST_OPTIMAL` layout, then barriered to `GENERAL` with acceleration-structure read/write access before the trace ([runTest barriers](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L734-L757)).
-- **Trace.** `cmdTraceRays` runs a `16 x 16 x 1` launch with the four SBT regions ([cmdTraceRays](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L782-L783)).
-- **Copyback.** A shader-write to transfer-read memory barrier follows the trace, then `cmdCopyImageToBuffer` copies the image to the host-visible buffer, and a transfer-write to host-read barrier precedes `submitCommandsAndWait`. The host invalidates the mapped range before reading ([copyback](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L785-L798)).
-- **Pass/fail scan.** `iterate` walks all 256 pixels. Each pixel at position `pos = y * 16 + x` must equal `pos + 1`. Any mismatch increments the failure counter. A single failing pixel fails the case. The clear value `1000000u` is far outside the expected `[1, 256]` range, so an unwritten pixel is detected as a mismatch rather than a coincidental hit ([iterate](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L826-L852)).
+## Runtime Execution and Result Checking
+
+The test builds the selected shader-stage configuration, dispatches the ray workload, and reads the result image after completion. The host checks the values produced by the caller and callee against the case-specific memory-visibility oracle; a mismatch means that the tested shader-call memory guarantees were not observed.
 
 ## Failure Meaning
 

@@ -123,7 +123,7 @@ void main()
 }
 ```
 
-##### Raygen Shader (rgen)
+##### Ray Generation Shader
 
 ```glsl
 #version 460 core
@@ -192,6 +192,8 @@ void main()
 | Flag mask | No shader variation. The instance transform is applied at the TLAS level by the host. | [initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L140-L223) |
 
 #### SPIR-V
+
+##### Any-Hit Shader (ah)
 
 - Status: generated and validated
 - Source: reconstructed `GLSL` from this walkthrough
@@ -320,7 +322,247 @@ void main()
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
+
+##### Ray Generation Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `rgen`
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 48
+; Schema: 0
+               OpCapability RayTracingKHR
+               OpExtension "SPV_KHR_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint RayGenerationKHR %main "main" %origins %gl_LaunchIDEXT %value %topLevelAS %modes
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_ray_tracing"
+               OpSourceExtension "GL_EXT_ray_tracing_position_fetch"
+               OpName %main "main"
+               OpName %origin "origin"
+               OpName %RayOrigins "RayOrigins"
+               OpMemberName %RayOrigins 0 "values"
+               OpName %origins "origins"
+               OpName %gl_LaunchIDEXT "gl_LaunchIDEXT"
+               OpName %value "value"
+               OpName %topLevelAS "topLevelAS"
+               OpName %OutputPositions "OutputPositions"
+               OpMemberName %OutputPositions 0 "values"
+               OpName %modes "modes"
+               OpDecorate %_arr_v4float_uint_1 ArrayStride 16
+               OpDecorate %RayOrigins Block
+               OpMemberDecorate %RayOrigins 0 Offset 0
+               OpDecorate %origins Binding 1
+               OpDecorate %origins DescriptorSet 0
+               OpDecorate %gl_LaunchIDEXT BuiltIn LaunchIdKHR
+               OpDecorate %topLevelAS Binding 0
+               OpDecorate %topLevelAS DescriptorSet 0
+               OpDecorate %_arr_v4float_uint_6 ArrayStride 16
+               OpDecorate %OutputPositions Block
+               OpMemberDecorate %OutputPositions 0 Offset 0
+               OpDecorate %modes Binding 2
+               OpDecorate %modes DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v3float = OpTypeVector %float 3
+%_ptr_Function_v3float = OpTypePointer Function %v3float
+    %v4float = OpTypeVector %float 4
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_arr_v4float_uint_1 = OpTypeArray %v4float %uint_1
+ %RayOrigins = OpTypeStruct %_arr_v4float_uint_1
+%_ptr_StorageBuffer_RayOrigins = OpTypePointer StorageBuffer %RayOrigins
+    %origins = OpVariable %_ptr_StorageBuffer_RayOrigins StorageBuffer
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_LaunchIDEXT = OpVariable %_ptr_Input_v3uint Input
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_uint = OpTypePointer Input %uint
+%_ptr_StorageBuffer_v4float = OpTypePointer StorageBuffer %v4float
+%_ptr_RayPayloadKHR_int = OpTypePointer RayPayloadKHR %int
+      %value = OpVariable %_ptr_RayPayloadKHR_int RayPayloadKHR
+     %int_n1 = OpConstant %int -1
+         %33 = OpTypeAccelerationStructureKHR
+%_ptr_UniformConstant_33 = OpTypePointer UniformConstant %33
+ %topLevelAS = OpVariable %_ptr_UniformConstant_33 UniformConstant
+   %uint_255 = OpConstant %uint 255
+    %float_0 = OpConstant %float 0
+   %float_n1 = OpConstant %float -1
+         %41 = OpConstantComposite %v3float %float_0 %float_0 %float_n1
+    %float_2 = OpConstant %float 2
+     %uint_6 = OpConstant %uint 6
+%_arr_v4float_uint_6 = OpTypeArray %v4float %uint_6
+%OutputPositions = OpTypeStruct %_arr_v4float_uint_6
+%_ptr_StorageBuffer_OutputPositions = OpTypePointer StorageBuffer %OutputPositions
+      %modes = OpVariable %_ptr_StorageBuffer_OutputPositions StorageBuffer
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+     %origin = OpVariable %_ptr_Function_v3float Function
+         %24 = OpAccessChain %_ptr_Input_uint %gl_LaunchIDEXT %uint_0
+         %25 = OpLoad %uint %24
+         %27 = OpAccessChain %_ptr_StorageBuffer_v4float %origins %int_0 %25
+         %28 = OpLoad %v4float %27
+         %29 = OpVectorShuffle %v3float %28 %28 0 1 2
+               OpStore %origin %29
+               OpStore %value %int_n1
+         %36 = OpLoad %33 %topLevelAS
+         %38 = OpLoad %v3float %origin
+               OpTraceRayKHR %36 %uint_0 %uint_255 %uint_0 %uint_0 %uint_0 %38 %float_0 %41 %float_2 %value
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Closest-Hit Shader (ch)
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `rchit`
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 70
+; Schema: 0
+               OpCapability RayTracingKHR
+               OpCapability RayTracingPositionFetchKHR
+               OpExtension "SPV_KHR_ray_tracing"
+               OpExtension "SPV_KHR_ray_tracing_position_fetch"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint ClosestHitKHR %main "main" %modes %gl_LaunchIDEXT %gl_HitTriangleVertexPositionsEXT %topLevelAS %origins %value
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_ray_tracing"
+               OpSourceExtension "GL_EXT_ray_tracing_position_fetch"
+               OpName %main "main"
+               OpName %i "i"
+               OpName %OutputPositions "OutputPositions"
+               OpMemberName %OutputPositions 0 "values"
+               OpName %modes "modes"
+               OpName %gl_LaunchIDEXT "gl_LaunchIDEXT"
+               OpName %gl_HitTriangleVertexPositionsEXT "gl_HitTriangleVertexPositionsEXT"
+               OpName %topLevelAS "topLevelAS"
+               OpName %RayOrigins "RayOrigins"
+               OpMemberName %RayOrigins 0 "values"
+               OpName %origins "origins"
+               OpName %value "value"
+               OpDecorate %_arr_v4float_uint_6 ArrayStride 16
+               OpDecorate %OutputPositions Block
+               OpMemberDecorate %OutputPositions 0 Offset 0
+               OpDecorate %modes Binding 2
+               OpDecorate %modes DescriptorSet 0
+               OpDecorate %gl_LaunchIDEXT BuiltIn LaunchIdKHR
+               OpDecorate %gl_HitTriangleVertexPositionsEXT BuiltIn HitTriangleVertexPositionsKHR
+               OpDecorate %topLevelAS Binding 0
+               OpDecorate %topLevelAS DescriptorSet 0
+               OpDecorate %_arr_v4float_uint_1 ArrayStride 16
+               OpDecorate %RayOrigins Block
+               OpMemberDecorate %RayOrigins 0 Offset 0
+               OpDecorate %origins Binding 1
+               OpDecorate %origins DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+      %int_0 = OpConstant %int 0
+      %int_3 = OpConstant %int 3
+       %bool = OpTypeBool
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+       %uint = OpTypeInt 32 0
+     %uint_6 = OpConstant %uint 6
+%_arr_v4float_uint_6 = OpTypeArray %v4float %uint_6
+%OutputPositions = OpTypeStruct %_arr_v4float_uint_6
+%_ptr_StorageBuffer_OutputPositions = OpTypePointer StorageBuffer %OutputPositions
+      %modes = OpVariable %_ptr_StorageBuffer_OutputPositions StorageBuffer
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_LaunchIDEXT = OpVariable %_ptr_Input_v3uint Input
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_uint = OpTypePointer Input %uint
+      %int_2 = OpConstant %int 2
+     %uint_1 = OpConstant %uint 1
+    %v3float = OpTypeVector %float 3
+     %uint_3 = OpConstant %uint 3
+%_arr_v3float_uint_3 = OpTypeArray %v3float %uint_3
+%_ptr_Input__arr_v3float_uint_3 = OpTypePointer Input %_arr_v3float_uint_3
+%gl_HitTriangleVertexPositionsEXT = OpVariable %_ptr_Input__arr_v3float_uint_3 Input
+%_ptr_Input_v3float = OpTypePointer Input %v3float
+    %float_0 = OpConstant %float 0
+%_ptr_StorageBuffer_v4float = OpTypePointer StorageBuffer %v4float
+      %int_1 = OpConstant %int 1
+         %61 = OpTypeAccelerationStructureKHR
+%_ptr_UniformConstant_61 = OpTypePointer UniformConstant %61
+ %topLevelAS = OpVariable %_ptr_UniformConstant_61 UniformConstant
+%_arr_v4float_uint_1 = OpTypeArray %v4float %uint_1
+ %RayOrigins = OpTypeStruct %_arr_v4float_uint_1
+%_ptr_StorageBuffer_RayOrigins = OpTypePointer StorageBuffer %RayOrigins
+    %origins = OpVariable %_ptr_StorageBuffer_RayOrigins StorageBuffer
+%_ptr_RayPayloadKHR_int = OpTypePointer RayPayloadKHR %int
+      %value = OpVariable %_ptr_RayPayloadKHR_int RayPayloadKHR
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %i = OpVariable %_ptr_Function_int Function
+               OpStore %i %int_0
+               OpBranch %10
+         %10 = OpLabel
+               OpLoopMerge %12 %13 None
+               OpBranch %14
+         %14 = OpLabel
+         %15 = OpLoad %int %i
+         %18 = OpSLessThan %bool %15 %int_3
+               OpBranchConditional %18 %11 %12
+         %11 = OpLabel
+         %32 = OpAccessChain %_ptr_Input_uint %gl_LaunchIDEXT %uint_0
+         %33 = OpLoad %uint %32
+         %34 = OpIMul %uint %uint_6 %33
+         %36 = OpLoad %int %i
+         %37 = OpIMul %int %int_2 %36
+         %38 = OpBitcast %uint %37
+         %39 = OpIAdd %uint %34 %38
+         %41 = OpIAdd %uint %39 %uint_1
+         %47 = OpLoad %int %i
+         %49 = OpAccessChain %_ptr_Input_v3float %gl_HitTriangleVertexPositionsEXT %47
+         %50 = OpLoad %v3float %49
+         %52 = OpCompositeExtract %float %50 0
+         %53 = OpCompositeExtract %float %50 1
+         %54 = OpCompositeExtract %float %50 2
+         %55 = OpCompositeConstruct %v4float %52 %53 %54 %float_0
+         %57 = OpAccessChain %_ptr_StorageBuffer_v4float %modes %int_0 %41
+               OpStore %57 %55
+               OpBranch %13
+         %13 = OpLabel
+         %58 = OpLoad %int %i
+         %60 = OpIAdd %int %58 %int_1
+               OpStore %i %60
+               OpBranch %10
+         %12 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+## Runtime Execution and Result Checking
 
 - **Acceleration structure setup.** The instance builds one bottom-level AS containing one or four geometries. Each geometry contains one or four triangles. The base triangle is `(0,0,0)`, `(1,0,0)`, `(0,1,0)` placed at `z=0` for the chosen triangle, and at `z=10+N` for the others, where `N = triangleCount * geomIndex + triangleIndex`. The chosen geometry and triangle indices come from `de::Random(seed)` with `seed` derived from `(buildType, vertexFormat, testFlagMask)`. The BLAS build uses `VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DATA_ACCESS_KHR` and the build type from the case parameter ([AS build](../../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L296-L316)). The top-level AS has one instance. The instance transform is the non-identity matrix with diagonal `(0.98, 0.97, 0.99)` when `TEST_FLAG_BIT_INSTANCE_TRANSFORM` is set, and identity otherwise ([TLAS setup](../../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L319-L324)).
 - **Multi-geometry path.** The `multipleTriangles` flag is true when the vertex format has at least three used channels and is `sfloat`. Six of the 15 formats trigger this path. When active, the test builds four geometries with four triangles each, so the ray must select the correct triangle among 16 candidates. Only the chosen triangle sits at `z=0`; the other 15 sit at `z=10+N`, outside the ray `tMax=2`.

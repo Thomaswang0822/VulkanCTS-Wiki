@@ -137,17 +137,112 @@ These cases use the `BasicLocalReadTestInstance` write-then-read flow with diffe
 
 ## Shader Analysis
 
-The test generates shaders as GLSL strings at case creation time, with SPIR-V assembly used where glslang cannot emit the needed `InputAttachmentIndex`-less variables. Shader content is not the tested behavior; the tested behavior is whether the implementation honors the remapping state when binding input attachment descriptors. For that reason this page does not include a representative shader walkthrough. The shader generators are documented in the source appendix for readers who need the exact output value formula.
+### Representative Shader Walkthrough 1
 
-The two generators worth noting:
+#### Parameter Values Chosen
 
-- `generateWriteFragSource` emits one `layout(location=N) out uint outColorN` per color attachment and writes `(2*drawId + N + 1)^2` to each, so the written value encodes both the draw index and the location
-  [generator](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L2521-L2539).
-- `generateReadFragSource` emits one `usubpassInput` per color input plus optional depth and stencil subpass inputs, sums `(i+1) * subpassLoad(inColorI).x`, adds `uint(depth * 1000)` and `uint(stencil * 1000)`, and stores the result into a storage buffer indexed by `gl_FragCoord`
-  [generator](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L2542-L2575).
+Representative path:
 
-The host mirrors this arithmetic in `CalculateExpectedValues` so that the expected output is derived from the remapping tables rather than from a golden image
-[expected value computation](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L480-L556).
+```text
+dEQP-VK.renderpasses.dynamic_rendering.primary_cmd_buff.local_read.mapping_2_attachments_to_locs_from_2
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `primary_cmd_buff` | Selects the primary-command-buffer registration of the exact mustpass leaf. |
+| `mapping_2_attachments_to_locs_from_2` | `numAttachments` is 2 and `firstRemapLocation` is 2, so the fragment shader declares outputs at locations 2 and 3 while dynamic rendering exposes two color attachments at indices 0 and 1. |
+| Attachment-location map `{2, 3}` | Both pipeline creation and command recording map attachment index 0 to location 2 and attachment index 1 to location 3. |
+
+#### Purpose
+
+This fragment shader verifies that outputs declared at the otherwise unused high locations 2 and 3 reach color attachment indices 0 and 1 through `VkRenderingAttachmentLocationInfo`. It writes distinct colors so the host can detect either output being dropped or routed to the wrong attachment.
+
+#### Structural Design
+
+| Shader output | Declared location | Mapped attachment index | Written value | Host expectation |
+|---------------|-------------------|-------------------------|---------------|------------------|
+| `outColor0` | 2 | 0 | opaque green | attachment 0 is entirely green |
+| `outColor1` | 3 | 1 | opaque red | attachment 1 is entirely red |
+
+#### Shader Code
+
+```glsl
+#version 450
+
+/// The selected case creates two R8G8B8A8_UNORM color attachments. The
+/// attachment-location map {2, 3} routes fragment locations 2 and 3 to
+/// attachment indices 0 and 1, respectively.
+layout(location=2) out vec4 outColor0;
+layout(location=3) out vec4 outColor1;
+
+void main() {
+    /// Attachment 0 must receive opaque green through remapped location 2.
+    outColor0 = vec4(0.0f, 1.0f, 0.0f, 1.0f);
+    /// Attachment 1 must receive opaque red through remapped location 3.
+    outColor1 = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+}
+```
+
+#### Additional Info
+
+- `RemappingToHighLocationTestCase::initPrograms()` is the owning builder for this exact leaf. `glu::getGLSLVersionDeclaration(glu::GLSL_VERSION_450)` emits the reconstructed `#version 450`; no explicit `ShaderBuildOptions` are attached, so the CTS default target is baseline SPIR-V 1.0 [shader generation](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L3537-L3573), [baseline target](../../../framework/vulkan/vkPrograms.cpp#L1048-L1052).
+- Runtime creates two `VK_FORMAT_R8G8B8A8_UNORM` images, installs `{2, 3}` in both the dynamic-rendering pipeline info and `vkCmdSetRenderingAttachmentLocations`, then compares copied attachment 0 against green and attachment 1 against red with a `0.005` threshold [runtime mapping](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L3581-L3693), [verification](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L3716-L3737).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| `numAttachments` | The one-attachment variants emit only `outColor0` and one green store; this two-attachment variant additionally emits `outColor1` and the red store. | [output generation loops](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L3551-L3571) |
+| `firstRemapLocation` | Each output declaration uses `location = attIdx + firstRemapLocation`; the one-attachment leaves therefore place their sole output at location 1, 2, or 3, while this leaf uses locations 2 and 3. | [location calculation](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L3557-L3561), [registered combinations](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L3801-L3817) |
+| Command buffer registration | The same `RemappingToHighLocationTestCase` builder is registered from both dynamic-rendering command-buffer groups, so registration mode does not change this generated fragment source. | [case registration](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L3801-L3817) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 15
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %outColor0 %outColor1
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %outColor0 "outColor0"
+               OpName %outColor1 "outColor1"
+               OpDecorate %outColor0 Location 2
+               OpDecorate %outColor1 Location 3
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %outColor0 = OpVariable %_ptr_Output_v4float Output
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+         %12 = OpConstantComposite %v4float %float_0 %float_1 %float_0 %float_1
+  %outColor1 = OpVariable %_ptr_Output_v4float Output
+         %14 = OpConstantComposite %v4float %float_1 %float_0 %float_0 %float_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+               OpStore %outColor0 %12
+               OpStore %outColor1 %14
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

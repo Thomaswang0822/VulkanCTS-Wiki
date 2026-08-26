@@ -111,7 +111,11 @@ The shaders are generated as inline GLSL strings in `initPrograms`. This page us
 
 #### Parameter Values Chosen
 
-Representative leaf: `rgen_call`. Representative CTS path: `dEQP-VK.ray_tracing_pipeline.callable_shader.rgen_call`.
+Representative path:
+
+```text
+dEQP-VK.ray_tracing_pipeline.callable_shader.rgen_call
+```
 
 | Parameter choice | Meaning in this representative case |
 |------------------|-------------------------------------|
@@ -137,6 +141,8 @@ This shader checks that `executeCallableEXT` from rgen runs the callable shader 
 
 Reconstructed rgen GLSL for this leaf, faithful to the source string in [CallableShaderTestCase::initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L571-L586):
 
+##### Ray Generation Shader
+
 ```glsl
 #version 460 core
 #extension GL_EXT_ray_tracing : require
@@ -152,6 +158,8 @@ void main()
 ```
 
 Reconstructed callable GLSL (`call_0`), faithful to [CallableShaderTestCase::initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L678-L705):
+
+##### Callable Shader
 
 ```glsl
 #version 460 core
@@ -173,7 +181,7 @@ The `topLevelAS` binding is declared in rgen because the shader build pipeline e
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level variation from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | Nested callable | `rgen_call_call` uses the same rgen shader but a different callable shader `call_call` that itself calls `executeCallableEXT(1, 1)` to invoke `call_0`. | [call_call shader](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L707-L721) |
 | Callable from chit / miss | `hit_call` uses the `rgen` shader that traces rays, plus `chit_call` and `miss_call` shaders that each invoke the callable. | [chit_call, miss_call](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L632-L676) |
@@ -182,6 +190,8 @@ The `topLevelAS` binding is declared in rgen because the shader build pipeline e
 | Invoking stage | The shader-record group has separate rgen, chit, miss, and callable shader generators, each calling `executeCallableEXT` from its own stage. | [getRayGenSource, getClosestHitSource, getMissSource, getCallableSource](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1130-L1331) |
 
 #### SPIR-V
+
+##### Ray Generation Shader
 
 - Status: generated and validated
 - Source: reconstructed `GLSL` from this walkthrough
@@ -247,7 +257,52 @@ The `topLevelAS` binding is declared in rgen because the shader build pipeline e
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
+
+##### Callable Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `rcall`
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 13
+; Schema: 0
+               OpCapability RayTracingKHR
+               OpExtension "SPV_KHR_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint CallableKHR %main "main" %result
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_ray_tracing"
+               OpName %main "main"
+               OpName %result "result"
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+     %v4uint = OpTypeVector %uint 4
+%_ptr_IncomingCallableDataKHR_v4uint = OpTypePointer IncomingCallableDataKHR %v4uint
+     %result = OpVariable %_ptr_IncomingCallableDataKHR_v4uint IncomingCallableDataKHR
+     %uint_1 = OpConstant %uint 1
+     %uint_0 = OpConstant %uint 0
+         %12 = OpConstantComposite %v4uint %uint_1 %uint_0 %uint_0 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+               OpStore %result %12
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+## Runtime Execution and Result Checking
 
 Both test classes share the same support check: `VK_KHR_acceleration_structure` and `VK_KHR_ray_tracing_pipeline` must be present, with `rayTracingPipeline` and `accelerationStructure` feature bits set [checkSupport](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L530-L545).
 

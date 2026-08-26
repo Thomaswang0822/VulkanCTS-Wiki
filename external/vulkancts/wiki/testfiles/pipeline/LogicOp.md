@@ -14,6 +14,7 @@ The render-pass clear supplies the destination color. The fragment shader suppli
 
 ```text
 pipeline.monolithic.logic_op
+
 pipeline.monolithic.logic_op_na_formats
 ```
 

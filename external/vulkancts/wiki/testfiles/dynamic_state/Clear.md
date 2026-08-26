@@ -1,6 +1,6 @@
 ## Overview
 
-**Core question: do image manipulation commands (clear, blit, copy, resolve) corrupt dynamic blend constants that were set earlier in the same command buffer?**
+**Core question:** Do image manipulation commands (clear, blit, copy, resolve) corrupt dynamic blend constants that were set earlier in the same command buffer?
 
 This page covers the `image` test family in the `dynamic_state` test category, implemented in [`vktDynamicStateClearTests.cpp`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L1). The test family registers four test case leaves: `clear`, `blit`, `copy`, and `resolve`. Each leaf sets dynamic blend constants, executes one image manipulation command, then draws a line and checks that the blend constants are still in effect.
 

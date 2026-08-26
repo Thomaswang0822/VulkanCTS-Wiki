@@ -32,11 +32,26 @@ pipeline.monolithic.misc
 ├── no_rendering
 ├── no_rendering_unused_attachment
 └── color_write_mask_none
+
+pipeline.pipeline_library.misc
+├── compatible_render_pass
+├── frag_lib_varying_samples_2
+├── frag_lib_varying_samples_4
+├── frag_lib_varying_samples_8
+└── frag_lib_varying_samples_16
+
+pipeline.fast_linked_library.misc
+├── compatible_render_pass
+├── frag_lib_varying_samples_2
+├── frag_lib_varying_samples_4
+├── frag_lib_varying_samples_8
+├── frag_lib_varying_samples_16
+└── interpolate_at_sample_no_sample_shading
 ```
 
 This tree is the canonical monolithic registration in [`createMiscTests()`](../../../modules/vulkan/pipeline/vktPipelineMiscTests.cpp#L2543-L2622). The monolithic mustpass file contains these 13 leaves in [`pipeline/monolithic/monolithic.txt`](../../../mustpass/main/vk-default/pipeline/monolithic/monolithic.txt#L190995-L191007).
 
-Other construction paths register only supported parts of the family. Fast linked library adds `compatible_render_pass`, `interpolate_at_sample_no_sample_shading`, and `frag_lib_varying_samples_2`, `_4`, `_8`, and `_16`; its mustpass scope has 15 `misc` leaves. The four shader-object mustpass files each retain seven common leaves: `array_of_structs_interface`, `color_write_mask_none`, the three `descriptor_bind_test_*` leaves, and the two `implicit_primitive_id*` leaves.
+The additional trees record the library-only direct children that cannot be projected from the canonical monolithic tree. Fast linked library adds `interpolate_at_sample_no_sample_shading` beyond the pipeline-library set. The four shader-object mustpass files each retain seven common leaves: `array_of_structs_interface`, `color_write_mask_none`, the three `descriptor_bind_test_*` leaves, and the two `implicit_primitive_id*` leaves.
 
 ## Parameter Dimensions and Observed Values
 
@@ -87,13 +102,117 @@ The leaf sets `colorWriteMask` to `0x0`, binds only descriptor sets 0 and 2, and
 
 ## Shader Analysis
 
-The family has several generated GLSL programs and three Amber artifacts, but no single shader represents its behavior. The direct C++ leaves use shaders as compact instruments for a distinct host or pipeline-state contract.
+The selected walkthrough uses the exact shader-object-linked-binary leaf identified in the audit diagnosis: `interface_matching.misc.skip_output_variable`. This case is a compact shader-interface probe; its fragment shader deliberately omits the producer's location-1 output and consumes locations 0 and 2.
 
-- The [`implicit_primitive_id` fragment program](../../../modules/vulkan/pipeline/vktPipelineMiscTests.cpp#L265-L275) maps `gl_PrimitiveID % 2` to red or green. Its image oracle makes a primitive-ID propagation error visible, but it cannot alone identify whether rasterization, stage linkage, or image readback caused the mismatch.
-- The [`descriptor_bind_test_*` programs](../../../modules/vulkan/pipeline/vktPipelineMiscTests.cpp#L853-L901) consume the uniform-buffer set interface while the host changes set-binding order and occupancy. The relevant behavior is descriptor-state selection, not shader algorithm complexity.
-- The [`color_write_mask_none` fragment program](../../../modules/vulkan/pipeline/vktPipelineMiscTests.cpp#L2512-L2531) writes the exact payload while also assigning `color`. Because pipeline state masks every color component, the buffer is the only intended oracle.
+### Representative Shader Walkthrough 1
 
-A SPIR-V disassembly walkthrough is not included: this source generates several unrelated shaders at runtime, and the family tests pipeline contracts rather than a fixed embedded SPIR-V artifact.
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.shader_object_linked_binary.interface_matching.misc.skip_output_variable
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `shader_object_linked_binary` | Exercises the shader-object linked-binary construction path while retaining the interface-matching program. |
+| `interface_matching.misc` | Selects the miscellaneous interface case rather than the vector-length or decoration-mismatch matrices. |
+| `skip_output_variable` | The vertex stage declares outputs at locations 0, 1, and 2; the fragment stage declares inputs only at locations 0 and 2, intentionally skipping location 1. |
+| `8 x 8` render and `triangle_strip` draw | The host renders four vertices into an 8 x 8 `R8G8B8A8_UNORM` attachment and expects every pixel to be approximately `(0, 1, 1, 1)`. |
+
+#### Purpose
+
+This fragment shader checks that a stage interface remains correctly matched when a consumer skips a producer output variable at an intermediate location. It adds the received location-0 and location-2 values, while the host's image oracle checks that the omitted location-1 value does not shift or corrupt location-2 transport.
+
+#### Structural Design
+
+| Shader phase | Exact operation | Interface significance |
+|--------------|-----------------|------------------------|
+| Producer setup | Vertex shader writes `v0`, `v1`, and `v2` at locations 0, 1, and 2 | Establishes a deliberately non-contiguous producer interface. |
+| Consumer declaration | Fragment shader reads only `v0` at location 0 and `v2` at location 2 | Tests location-based matching, not declaration-order matching. |
+| Observation | `fragColor = v0 + v2` at location 0 | Produces `(0, 1, 1, 1)` for the generated constants, which the host compares across the image. |
+
+#### Shader Code
+
+```glsl
+#version 450
+/// Location 0 is the first producer value and contributes green to the expected output.
+layout(location = 0) in vec4 v0;
+// skip v1 input - expect v2 to have (0, 0, 1, 1) not (1, 0, 0, 1)
+/// Location 2 intentionally skips the producer's location-1 value; it must receive the producer's blue value directly.
+layout(location = 2) in vec4 v2;
+/// The only color output is checked after the 8 x 8 attachment is copied back to the host.
+layout(location = 0) out vec4 fragColor;
+void main (void)
+{
+  /// Adding the location-0 and location-2 values yields the expected cyan output.
+  fragColor = v0 + v2;
+}
+```
+
+#### Additional Info
+
+- The exact generated vertex program writes `v0 = vec4(0.0, 1.0, 0.0, 0.0)`, `v1 = vec4(1.0, 0.0, 0.0, 1.0)`, and `v2 = vec4(0.0, 0.0, 1.0, 1.0)` before deriving a fullscreen-ish four-vertex strip from `gl_VertexIndex`; location 1 is intentionally not declared by the shown consumer ([`MiscInterfaceMatchingTestCase::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineInterfaceMatchingTests.cpp#L1208-L1237)).
+- The host renders four vertices into an 8 x 8 `VK_FORMAT_R8G8B8A8_UNORM` attachment and accepts only pixels whose channels are approximately `(0, 1, 1, 1)` ([`MiscInterfaceMatchingTestInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineInterfaceMatchingTests.cpp#L1065-L1176)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|----------------------------------------|----------|
+| Interface-matching test type | `skip_output_variable` is a single fixed miscellaneous program; the surrounding interface-matching family separately varies vector lengths, decorations, pipeline stage paths, and definition forms. | [`MiscInterfaceMatchingTestCase::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineInterfaceMatchingTests.cpp#L1208-L1237); [`createInterfaceMatchingTests()`](../../../modules/vulkan/pipeline/vktPipelineInterfaceMatchingTests.cpp#L1284-L1355) |
+| Pipeline construction type | Does not change the GLSL declarations or arithmetic; it changes how the same `vert` and `frag` shader modules are assembled and linked. | [`MiscInterfaceMatchingTestCase::checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineInterfaceMatchingTests.cpp#L1202-L1206); [`MiscInterfaceMatchingTestInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineInterfaceMatchingTests.cpp#L1086-L1129) |
+| Skipped location | The exact case always omits location 1 from the fragment input; changing this to a contiguous declaration would test a different interface contract. | [`MiscInterfaceMatchingTestCase::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineInterfaceMatchingTests.cpp#L1227-L1236) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 16
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %fragColor %v0 %v2
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %fragColor "fragColor"
+               OpName %v0 "v0"
+               OpName %v2 "v2"
+               OpDecorate %fragColor Location 0
+               OpDecorate %v0 Location 0
+               OpDecorate %v2 Location 2
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %fragColor = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+         %v0 = OpVariable %_ptr_Input_v4float Input
+         %v2 = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %12 = OpLoad %v4float %v0
+         %14 = OpLoad %v4float %v2
+         %15 = OpFAdd %v4float %12 %14
+               OpStore %fragColor %15
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

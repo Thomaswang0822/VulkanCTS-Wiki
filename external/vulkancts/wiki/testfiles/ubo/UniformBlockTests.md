@@ -119,7 +119,356 @@ The test generates GLSL from each selected interface rather than storing a fixed
 
 The declaration generator emits `layout(set = 0, binding = ...) uniform` blocks from the selected block layout, members, instance names, and arrays. The comparison generator recursively visits basic values, arrays, and struct members, skips members marked unused for the active graphics stage, and compares each applicable load against host-generated reference values. Compute shaders write their final comparison value to a storage image; graphics shaders propagate vertex and fragment comparison results through color channels.
 
-No representative shader or SPIR-V listing appears here. A faithful listing requires one exact registered case and its generator branches; this page documents the generator behavior and does not hand-author generated shader or SPIR-V material.
+The representative walkthrough uses the exact mustpass case `dEQP-VK.ubo.single_basic_type.std140.highp.float.both`. It is the smallest case that exposes the shared UBO load in both graphics stages and the stage-to-stage result encoding, while keeping the generated shader and SPIR-V compact. The path appears in [`vk-default/ubo.txt`](../../../mustpass/main/vk-default/ubo.txt#L9861), is constructed by the `single_basic_type` registration loop in [`UniformBlockTests::init()`](../../../modules/vulkan/ubo/vktUniformBlockTests.cpp#L610-L659), and selects the `BlockBasicTypeCase`/`createBlockBasicTypeCases()` path in [`vktUniformBlockTests.cpp`](../../../modules/vulkan/ubo/vktUniformBlockTests.cpp#L42-L109).
+
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.ubo.single_basic_type.std140.highp.float.both
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `single_basic_type` / `float` | The interface contains one block with one `float var` member, isolating a single uniform load and comparison. |
+| `std140` / `highp` | The block uses `std140`; the member is emitted as `highp float` at offset 0 in the host-computed reference layout. |
+| `both` | Both vertex and fragment generators declare binding 0, load the same value, and contribute one channel to the final fragment color. |
+
+#### Purpose
+
+This case verifies that a single high-precision `float` at offset 0 of a `std140` uniform block is read correctly in both graphics stages. The fragment output is white only when both stage-local comparisons succeed.
+
+#### Structural Design
+
+| Dataflow step | Vertex-stage action | Fragment-stage action |
+|---------------|---------------------|-----------------------|
+| Uniform input | Load `Block.var` from set 0, binding 0. | Load the same `Block.var` from set 0, binding 0. |
+| Reference check | Compare the load with the seed-1 value `2.0`; write `1.0` or `0.0` to `v_vtxResult`. | Compare the load with `2.0`; retain `1.0` or `0.0` in `result`. |
+| Observable encoding | Forward the vertex verdict at location 0. | Emit `(1.0, v_vtxResult, result, 1.0)`, so green reports the vertex check and blue reports the fragment check. |
+
+#### Shader Code
+
+##### Fragment Shader
+
+```glsl
+#version 450
+#extension GL_EXT_shader_16bit_storage : enable
+#extension GL_EXT_shader_8bit_storage : enable
+#extension GL_EXT_scalar_block_layout : enable
+#extension GL_EXT_nonuniform_qualifier : enable
+
+/// The vertex stage supplies its comparison result through this location-0 scalar.
+layout(location = 0) in mediump float v_vtxResult;
+/// The fragment shader encodes the two stage results into green and blue.
+layout(location = 0) out mediump vec4 dEQP_FragColor;
+
+/// Binding 0 exposes the single std140 block to this fragment shader.
+layout(set = 0, binding = 0, std140) uniform Block
+{
+    /// The host-generated reference layout places this sole highp float at offset 0.
+    highp float var;
+};
+
+mediump float compare_float    (highp float a, highp float b)  { return abs(a - b) < 0.05 ? 1.0 : 0.0; }
+
+void main (void)
+{
+    mediump float result = 1.0;
+    /// Seed 1 produces 2.0 for the only block value; a mismatch changes result to 0.0.
+    result *= compare_float((var), 2.0);
+    dEQP_FragColor = vec4(1.0, v_vtxResult, result, 1.0);
+}
+```
+
+##### Vertex Shader
+
+```glsl
+#version 450
+#extension GL_EXT_shader_16bit_storage : enable
+#extension GL_EXT_shader_8bit_storage : enable
+#extension GL_EXT_scalar_block_layout : enable
+#extension GL_EXT_nonuniform_qualifier : enable
+
+/// The full-screen quad supplies clip-space positions at location 0.
+layout(location = 0) in highp vec4 a_position;
+/// This scalar carries the vertex-stage comparison result to the fragment stage.
+layout(location = 0) out mediump float v_vtxResult;
+
+/// The same descriptor binding is visible to the vertex stage for the `both` case.
+layout(set = 0, binding = 0, std140) uniform Block
+{
+    /// The host-generated reference layout places this sole highp float at offset 0.
+    highp float var;
+};
+
+mediump float compare_float    (highp float a, highp float b)  { return abs(a - b) < 0.05 ? 1.0 : 0.0; }
+
+void main (void)
+{
+    gl_Position = a_position;
+    mediump float result = 1.0;
+    /// Seed 1 produces 2.0 for the only block value; a mismatch changes result to 0.0.
+    result *= compare_float((var), 2.0);
+    v_vtxResult = result;
+}
+```
+
+#### Additional Info
+
+- The fragment shader is primary because it combines the vertex and fragment verdicts into the final observable color; the vertex shader varies with stage selection and supplies the green-channel verdict for this `both` case.
+- [`generateValues(..., 1)`](../../../modules/vulkan/ubo/vktUniformBlockCase.cpp#L769-L854) deterministically produces `2.0` for this case's only value. [`generateCompareSrc()`](../../../modules/vulkan/ubo/vktUniformBlockCase.cpp#L1585-L1733) emits the comparison against that literal in both selected stages.
+- The listed extensions are emitted unconditionally by both graphics generators even though this plain `std140` float case does not require their feature-specific types or layouts.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Block shape and member type | Other families and types change declarations from one scalar into vectors, matrices, arrays, nested structs, multiple blocks, or unsized arrays; recursive comparison code follows the selected shape. | [`UniformBlockTests::init()`](../../../modules/vulkan/ubo/vktUniformBlockTests.cpp#L492-L1100), [`generateCompareSrc()`](../../../modules/vulkan/ubo/vktUniformBlockCase.cpp#L1612-L1733) |
+| Layout and matrix flags | `std430`, `scalar`, row-major, column-major, and explicit generated offsets change layout qualifiers and can change member, array, or matrix placement. | [`LayoutFlagsFmt`](../../../modules/vulkan/ubo/vktUniformBlockCase.cpp#L272-L310), [`generateDeclaration()`](../../../modules/vulkan/ubo/vktUniformBlockCase.cpp#L1073-L1350) |
+| Shader path | `vertex` or `fragment` leaves compare only in that stage; `compute` declares a storage image and writes the comparison result with `imageStore`; `both` uses the two graphics-stage verdict channels shown here. | [`createBlockBasicTypeCases()`](../../../modules/vulkan/ubo/vktUniformBlockTests.cpp#L85-L109), [shader generators](../../../modules/vulkan/ubo/vktUniformBlockCase.cpp#L1755-L1911) |
+| Instances and buffer placement | Instance-array cases add an instance name and fixed or runtime descriptor-array indexing; buffer placement changes host descriptor offsets without changing this basic comparison pattern. | [`generateDeclaration()`](../../../modules/vulkan/ubo/vktUniformBlockCase.cpp#L1313-L1350), [`generateCompareSrc()`](../../../modules/vulkan/ubo/vktUniformBlockCase.cpp#L1685-L1733) |
+
+#### SPIR-V
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 48
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %dEQP_FragColor %v_vtxResult
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpSourceExtension "GL_EXT_nonuniform_qualifier"
+               OpSourceExtension "GL_EXT_scalar_block_layout"
+               OpSourceExtension "GL_EXT_shader_16bit_storage"
+               OpSourceExtension "GL_EXT_shader_8bit_storage"
+               OpName %main "main"
+               OpName %compare_float_f1_f1_ "compare_float(f1;f1;"
+               OpName %a "a"
+               OpName %b "b"
+               OpName %result "result"
+               OpName %Block "Block"
+               OpMemberName %Block 0 "var"
+               OpName %_ ""
+               OpName %param "param"
+               OpName %param_0 "param"
+               OpName %dEQP_FragColor "dEQP_FragColor"
+               OpName %v_vtxResult "v_vtxResult"
+               OpDecorate %compare_float_f1_f1_ RelaxedPrecision
+               OpDecorate %result RelaxedPrecision
+               OpDecorate %Block Block
+               OpMemberDecorate %Block 0 Offset 0
+               OpDecorate %_ Binding 0
+               OpDecorate %_ DescriptorSet 0
+               OpDecorate %37 RelaxedPrecision
+               OpDecorate %38 RelaxedPrecision
+               OpDecorate %39 RelaxedPrecision
+               OpDecorate %dEQP_FragColor RelaxedPrecision
+               OpDecorate %dEQP_FragColor Location 0
+               OpDecorate %v_vtxResult RelaxedPrecision
+               OpDecorate %v_vtxResult Location 0
+               OpDecorate %45 RelaxedPrecision
+               OpDecorate %46 RelaxedPrecision
+               OpDecorate %47 RelaxedPrecision
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+%_ptr_Function_float = OpTypePointer Function %float
+          %8 = OpTypeFunction %float %_ptr_Function_float %_ptr_Function_float
+%float_0_0500000007 = OpConstant %float 0.0500000007
+       %bool = OpTypeBool
+    %float_1 = OpConstant %float 1
+    %float_0 = OpConstant %float 0
+      %Block = OpTypeStruct %float
+%_ptr_Uniform_Block = OpTypePointer Uniform %Block
+          %_ = OpVariable %_ptr_Uniform_Block Uniform
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+    %float_2 = OpConstant %float 2
+%_ptr_Uniform_float = OpTypePointer Uniform %float
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%dEQP_FragColor = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_float = OpTypePointer Input %float
+%v_vtxResult = OpVariable %_ptr_Input_float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+     %result = OpVariable %_ptr_Function_float Function
+      %param = OpVariable %_ptr_Function_float Function
+    %param_0 = OpVariable %_ptr_Function_float Function
+               OpStore %result %float_1
+         %34 = OpAccessChain %_ptr_Uniform_float %_ %int_0
+         %35 = OpLoad %float %34
+               OpStore %param %35
+               OpStore %param_0 %float_2
+         %37 = OpFunctionCall %float %compare_float_f1_f1_ %param %param_0
+         %38 = OpLoad %float %result
+         %39 = OpFMul %float %38 %37
+               OpStore %result %39
+         %45 = OpLoad %float %v_vtxResult
+         %46 = OpLoad %float %result
+         %47 = OpCompositeConstruct %v4float %float_1 %45 %46 %float_1
+               OpStore %dEQP_FragColor %47
+               OpReturn
+               OpFunctionEnd
+%compare_float_f1_f1_ = OpFunction %float None %8
+          %a = OpFunctionParameter %_ptr_Function_float
+          %b = OpFunctionParameter %_ptr_Function_float
+         %12 = OpLabel
+         %13 = OpLoad %float %a
+         %14 = OpLoad %float %b
+         %15 = OpFSub %float %13 %14
+         %16 = OpExtInst %float %1 FAbs %15
+         %19 = OpFOrdLessThan %bool %16 %float_0_0500000007
+         %22 = OpSelect %float %19 %float_1 %float_0
+               OpReturnValue %22
+               OpFunctionEnd
+```
+
+</details>
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 55
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %a_position %v_vtxResult
+               OpSource GLSL 450
+               OpSourceExtension "GL_EXT_nonuniform_qualifier"
+               OpSourceExtension "GL_EXT_scalar_block_layout"
+               OpSourceExtension "GL_EXT_shader_16bit_storage"
+               OpSourceExtension "GL_EXT_shader_8bit_storage"
+               OpName %main "main"
+               OpName %compare_float_f1_f1_ "compare_float(f1;f1;"
+               OpName %a "a"
+               OpName %b "b"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex 2 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex 3 "gl_CullDistance"
+               OpName %_ ""
+               OpName %a_position "a_position"
+               OpName %result "result"
+               OpName %Block "Block"
+               OpMemberName %Block 0 "var"
+               OpName %__0 ""
+               OpName %param "param"
+               OpName %param_0 "param"
+               OpName %v_vtxResult "v_vtxResult"
+               OpDecorate %compare_float_f1_f1_ RelaxedPrecision
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex 3 BuiltIn CullDistance
+               OpDecorate %a_position Location 0
+               OpDecorate %result RelaxedPrecision
+               OpDecorate %Block Block
+               OpMemberDecorate %Block 0 Offset 0
+               OpDecorate %__0 Binding 0
+               OpDecorate %__0 DescriptorSet 0
+               OpDecorate %49 RelaxedPrecision
+               OpDecorate %50 RelaxedPrecision
+               OpDecorate %51 RelaxedPrecision
+               OpDecorate %v_vtxResult RelaxedPrecision
+               OpDecorate %v_vtxResult Location 0
+               OpDecorate %54 RelaxedPrecision
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+%_ptr_Function_float = OpTypePointer Function %float
+          %8 = OpTypeFunction %float %_ptr_Function_float %_ptr_Function_float
+%float_0_0500000007 = OpConstant %float 0.0500000007
+       %bool = OpTypeBool
+    %float_1 = OpConstant %float 1
+    %float_0 = OpConstant %float 0
+    %v4float = OpTypeVector %float 4
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_arr_float_uint_1 = OpTypeArray %float %uint_1
+%gl_PerVertex = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+ %a_position = OpVariable %_ptr_Input_v4float Input
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+      %Block = OpTypeStruct %float
+%_ptr_Uniform_Block = OpTypePointer Uniform %Block
+        %__0 = OpVariable %_ptr_Uniform_Block Uniform
+    %float_2 = OpConstant %float 2
+%_ptr_Uniform_float = OpTypePointer Uniform %float
+%_ptr_Output_float = OpTypePointer Output %float
+%v_vtxResult = OpVariable %_ptr_Output_float Output
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+     %result = OpVariable %_ptr_Function_float Function
+      %param = OpVariable %_ptr_Function_float Function
+    %param_0 = OpVariable %_ptr_Function_float Function
+         %36 = OpLoad %v4float %a_position
+         %38 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %38 %36
+               OpStore %result %float_1
+         %46 = OpAccessChain %_ptr_Uniform_float %__0 %int_0
+         %47 = OpLoad %float %46
+               OpStore %param %47
+               OpStore %param_0 %float_2
+         %49 = OpFunctionCall %float %compare_float_f1_f1_ %param %param_0
+         %50 = OpLoad %float %result
+         %51 = OpFMul %float %50 %49
+               OpStore %result %51
+         %54 = OpLoad %float %result
+               OpStore %v_vtxResult %54
+               OpReturn
+               OpFunctionEnd
+%compare_float_f1_f1_ = OpFunction %float None %8
+          %a = OpFunctionParameter %_ptr_Function_float
+          %b = OpFunctionParameter %_ptr_Function_float
+         %12 = OpLabel
+         %13 = OpLoad %float %a
+         %14 = OpLoad %float %b
+         %15 = OpFSub %float %13 %14
+         %16 = OpExtInst %float %1 FAbs %15
+         %19 = OpFOrdLessThan %bool %16 %float_0_0500000007
+         %22 = OpSelect %float %19 %float_1 %float_0
+               OpReturnValue %22
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

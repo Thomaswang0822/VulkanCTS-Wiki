@@ -74,7 +74,11 @@ This page uses one walkthrough because the rgen shader is the stage whose ray tr
 
 #### Parameter Values Chosen
 
-Representative path: `dEQP-VK.ray_tracing_pipeline.trace_rays_cmds.direct.8_8_8`.
+Representative path:
+
+```text
+dEQP-VK.ray_tracing_pipeline.trace_rays_cmds.direct.8_8_8
+```
 
 | Parameter choice | Meaning in this representative case |
 |------------------|-------------------------------------|
@@ -251,7 +255,9 @@ void main()
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
+
+## Runtime Execution and Result Checking
 
 Both test classes share the same chessboard scene construction and the same per-voxel result check. The differences are in how the indirect buffer is filled and which dispatch command is recorded.
 

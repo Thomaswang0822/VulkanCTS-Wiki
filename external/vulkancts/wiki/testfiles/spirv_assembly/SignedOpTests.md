@@ -94,87 +94,128 @@ The storage buffer element type is `uint`, but the opcode (`OpSDiv`, `OpSMulExte
 
 ## Shader Analysis
 
-This page embeds SPIR-V assembly directly inside Amber scripts; the assembly is literal CTS test data, so the walkthrough is produced by manual extraction rather than by `shader-analyzer` / `shader-disassembler`. Per the category-scoped deviation for Amber-backed SPIR-V pages, the `#### SPIR-V` collapsed subsection is omitted and the assembly is shown once under `#### Source Code`.
+The shaders in this family are authored directly as SPIR-V assembly inside Amber files; they are not generated from GLSL or HLSL. The representative module below is extracted from `glsl_int_findumsb.amber`. Its Amber assembly was assembled and validated, then disassembled, reassembled, and validated again with SPIR-V Tools for the Vulkan 1.0 target environment. The reassembled binary is byte-identical to the first binary. The final `SPIR-V` subsection publishes that complete fresh disassembly rather than duplicating the authored assembly.
 
-The 21 registered leaves share a near-identical compute shader skeleton: one `GLCompute` entry point, `LocalSize 1 1 1`, an `Input` `GlobalInvocationId` builtin, and `BufferBlock` storage structures containing runtime arrays of the relevant scalar type. The operation line, operand count and bindings, output shape, and hand-picked data vary by leaf. The representative walkthrough documents the common skeleton; the behavioral-group section identifies the signedness distinction across leaves.
+The 21 registered leaves share a near-identical compute shader skeleton: one `GLCompute` entry point, `LocalSize 1 1 1`, an `Input` `GlobalInvocationId` builtin, and `BufferBlock` storage structures containing runtime arrays of the relevant scalar type. The operation line, operand count and bindings, output shape, and hand-picked data vary by leaf.
 
-### Representative Shader Walkthrough 1: `glsl_int_findumsb`
+### Representative Shader Walkthrough 1
 
-This leaf tests `GLSL.std.450 FindUMsb` on a value whose declared type is signed `int`. `FindUMsb` returns the bit index of the most significant set bit when the operand is interpreted as unsigned, or `-1` when the operand is zero. The shader loads one `int` from the input storage buffer, calls `FindUMsb`, and stores the `int` result into the output storage buffer at the same index.
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.spirv_assembly.instruction.compute.signed_op.glsl_int_findumsb
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `glsl_int_findumsb` | Selects the Amber leaf that invokes `GLSL.std.450 FindUMsb`. |
+| Declared operand type: signed `int` | `%int = OpTypeInt 32 1`; the input and output runtime arrays contain signed 32-bit integers. |
+| Operation semantics: unsigned | `FindUMsb` interprets the operand bits as an unsigned integer when locating the most significant set bit. |
+| `LocalSize 1 1 1`, dispatch `2 1 1` | Two invocations process the two input elements independently. |
+| Input / expected output | `0, -1` / `-1, 31`. |
+
+#### Purpose
+
+This leaf checks that `FindUMsb` follows the instruction's unsigned interpretation even though its operand and result use the signed `%int` type. Zero must produce `-1`, while the signed value `-1` has the bit pattern `0xffffffff` and must produce bit index `31`.
 
 #### Structural Design
 
-**Capabilities, imports, and entry point.** The shader declares `OpCapability Shader` and imports the GLSL extended instruction set with `%glsl = OpExtInstImport "GLSL.std.450"`. The memory model is `Logical GLSL450` and the entry point is `%main` for `GLCompute`, with `LocalSize 1 1 1` so each workgroup runs one invocation. `RUN compute_pipeline 2 1 1` dispatches two workgroups, so two invocations process the two input elements.
+| Phase | Direct SPIR-V behavior | Role in the check |
+|-------|------------------------|-------------------|
+| Invocation selection | Load `gl_GlobalInvocationId.x`. | Select the same element in the input and output arrays. |
+| Input read | Load `%int` from descriptor set `0`, binding `0`. | Supplies a signed-typed 32-bit value. |
+| Tested operation | `%outvalue = OpExtInst %int %glsl FindUMsb %invalue`. | Requires unsigned bit-search semantics despite the signed declared type. |
+| Result write | Store `%outvalue` to descriptor set `0`, binding `1`. | Exposes the integer result to Amber. |
+| Verification | `EXPECT data1 EQ_BUFFER expected0`. | Requires exact element-wise equality with `-1, 31`. |
 
-**Decorations.** `%gl_GlobalInvocationId` is decorated `BuiltIn GlobalInvocationId`. The runtime array `%ra_int` has `ArrayStride 4`. The wrapper struct `%struct_int2` is decorated `BufferBlock` with `MemberDecorate ... 0 Offset 0`, making it a uniform storage buffer layout. `%input` is bound to `DescriptorSet 0 Binding 0`; `%output` is bound to `DescriptorSet 0 Binding 1`. The Amber `PIPELINE` block mirrors these bindings: `data0` is bound at descriptor set 0 binding 0, `data1` at descriptor set 0 binding 1.
+`%gl_GlobalInvocationId` is an `Input` `vec3<uint>`. Its X component indexes `%input` and `%output`, which are legacy `Uniform` storage-buffer variables whose shared wrapper type is decorated `BufferBlock`. The runtime array has `ArrayStride 4`, and the wrapper's only member has offset `0`. The Amber pipeline binds `data0` to binding `0` and `data1` to binding `1`; the initial output sentinels are `8, 8`.
 
-**I/O variables and types.** `%gl_GlobalInvocationId` is an `Input` `vec3<uint>` used to select the element index via `OpAccessChain %ptr_input_uint %gl_GlobalInvocationId %uint_0` (the x component). The element type is `%int = OpTypeInt 32 1` (signed), wrapped in `%ra_int = OpTypeRuntimeArray %int` and `%struct_int2 = OpTypeStruct %ra_int`. The `%struct_int2` name is a CTS naming artifact: the struct wraps a runtime array of scalar `int`, not a `vec2`; the trailing digit is a generator counter. `%int2 = OpTypeVector %int 2` is declared but unused in this shader.
+#### Shader Code
 
-**Operation line.** The tested instruction is `%outvalue = OpExtInst %int %glsl FindUMsb %invalue`. The result type is `%int` (matching the declared storage type), and the GLSL.std.450 instruction is `FindUMsb`, which interprets `%invalue` as unsigned for the bit search. This is the intentional signedness mismatch the leaf exercises: a signed-typed value is read, interpreted as unsigned by the extended instruction, and the result is written back as signed `int`.
+This representative case does not use GLSL or HLSL. CTS supplies the tested shader module directly as SPIR-V assembly between `SHADER compute test SPIRV-ASM` and `END` in [`glsl_int_findumsb.amber`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/signed_op/glsl_int_findumsb.amber). That Amber artifact is the authoritative shader source, and the complete validated assembly is presented only in the final `SPIR-V` subsection.
 
-**Test pass/fail logic.** The Amber script declares three buffers:
-- `data0` (binding 0, input): `0 -1`
-- `data1` (binding 1, output, initialized): `8 8`
-- `expected0`: `-1 31`
+#### Additional Info
 
-After the dispatch, `data1` must hold `FindUMsb(0) = -1` (no bit set) and `FindUMsb(-1) = 31` (all 32 bits set, most significant at index 31). The leaf passes when `EXPECT data1 EQ_BUFFER expected0` compares equal element-wise. A mismatch on either element fails the leaf.
+- `FindUMsb(0)` returns `-1` because no bit is set. For input `-1`, the stored 32-bit pattern is `0xffffffff`, so unsigned interpretation selects bit `31`.
+- `%struct_int2` in the authored source is a generated name for a structure containing a runtime array; it is not a two-component vector. The separately declared `%int2` vector is unused.
+- The module uses the SPIR-V 1.0 `Uniform` plus `BufferBlock` storage-buffer encoding used by the Amber artifact.
+- Validation gate: `spirv-as --target-env vulkan1.0`, `spirv-val --target-env vulkan1.0`, `spirv-dis`, reassembly, and a second validation all succeed; the original and round-tripped binaries are byte-identical.
 
-#### Source Code
+#### Parameter Variation Summary
 
-Extracted from [`glsl_int_findumsb.amber`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/signed_op/glsl_int_findumsb.amber), between `SHADER compute test SPIRV-ASM` and `END`:
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|------------------------------------------|----------|
+| GLSL.std.450 unsigned ops on signed `int` | Replaces `FindUMsb` with `UClamp`, `UMax`, or `UMin` and adds operands/bindings as needed; `%int` remains signed. | [`cases` table](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedOpTests.cpp#L49-L71) |
+| GLSL.std.450 signed ops on `uint` | Uses `FindSMsb`, `SAbs`, `SClamp`, `SMax`, `SMin`, or `SSign`; storage elements become `%uint`. | [`cases` table](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedOpTests.cpp#L49-L71) |
+| Atomic unsigned ops on signed `int` | Replaces the extended instruction with `OpAtomicUMax` or `OpAtomicUMin` on a signed-typed output pointer. | [`cases` table](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedOpTests.cpp#L49-L71) |
+| Unsigned comparisons on signed `int` | Uses an `OpU*` comparison, then `OpSelect` converts the boolean result to `0` or `1`. | [`cases` table](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedOpTests.cpp#L49-L71) |
+| Atomic signed ops on `uint` | Uses `OpAtomicSMax` or `OpAtomicSMin` on an unsigned-typed output pointer. | [`cases` table](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedOpTests.cpp#L49-L71) |
+| Other signed ops on `uint` | Uses `OpSDiv`, `OpSMulExtended`, or `OpSNegate` with unsigned declared storage types. | [`cases` table](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedOpTests.cpp#L49-L71) |
 
-```text
-                         OpCapability Shader
-                 %glsl = OpExtInstImport "GLSL.std.450"
+#### SPIR-V
 
-                         OpMemoryModel Logical GLSL450
-                         OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationId
-                         OpExecutionMode %main LocalSize 1 1 1
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.0`
 
-                         OpDecorate %gl_GlobalInvocationId BuiltIn GlobalInvocationId
-                         OpDecorate %ra_int ArrayStride 4
-                         OpDecorate %struct_int2 BufferBlock
-                         OpMemberDecorate %struct_int2 0 Offset 0
-                         OpDecorate %input DescriptorSet 0
-                         OpDecorate %input Binding 0
-                         OpDecorate %output DescriptorSet 0
-                         OpDecorate %output Binding 1
+<details>
+<summary>Click to expand SPIRV asm code</summary>
 
-                 %uint = OpTypeInt 32 0
-             %ptr_uint = OpTypePointer Uniform %uint
-       %ptr_input_uint = OpTypePointer Input %uint
-                %uint3 = OpTypeVector %uint 3
-      %ptr_input_uint3 = OpTypePointer Input %uint3
-                 %void = OpTypeVoid
-               %voidFn = OpTypeFunction %void
-
-               %uint_0 = OpConstant %uint 0
-               %uint_1 = OpConstant %uint 1
-                  %int = OpTypeInt 32 1
-               %ra_int = OpTypeRuntimeArray %int
-                 %int2 = OpTypeVector %int 2
-              %ptr_int = OpTypePointer Uniform %int
-          %struct_int2 = OpTypeStruct %ra_int
-      %ptr_struct_int2 = OpTypePointer Uniform %struct_int2
-
-%gl_GlobalInvocationId = OpVariable %ptr_input_uint3 Input
-                %input = OpVariable %ptr_struct_int2 Uniform
-
-               %output = OpVariable %ptr_struct_int2 Uniform
-                 %main = OpFunction %void None %voidFn
-            %mainStart = OpLabel
-            %index_ptr = OpAccessChain %ptr_input_uint %gl_GlobalInvocationId %uint_0
-                %index = OpLoad %uint %index_ptr
-               %in_ptr = OpAccessChain %ptr_int %input %uint_0 %index
-              %invalue = OpLoad %int %in_ptr
-
-             %outvalue = OpExtInst %int %glsl FindUMsb %invalue
-              %out_ptr = OpAccessChain %ptr_int %output %uint_0 %index
-                         OpStore %out_ptr %outvalue
-
-                         OpReturn
-                         OpFunctionEnd
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 28
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %2 "main" %gl_GlobalInvocationID
+               OpExecutionMode %2 LocalSize 1 1 1
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %_runtimearr_int ArrayStride 4
+               OpDecorate %_struct_5 BufferBlock
+               OpMemberDecorate %_struct_5 0 Offset 0
+               OpDecorate %6 DescriptorSet 0
+               OpDecorate %6 Binding 0
+               OpDecorate %7 DescriptorSet 0
+               OpDecorate %7 Binding 1
+       %uint = OpTypeInt 32 0
+%_ptr_Uniform_uint = OpTypePointer Uniform %uint
+%_ptr_Input_uint = OpTypePointer Input %uint
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+       %void = OpTypeVoid
+         %14 = OpTypeFunction %void
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+        %int = OpTypeInt 32 1
+%_runtimearr_int = OpTypeRuntimeArray %int
+      %v2int = OpTypeVector %int 2
+%_ptr_Uniform_int = OpTypePointer Uniform %int
+  %_struct_5 = OpTypeStruct %_runtimearr_int
+%_ptr_Uniform__struct_5 = OpTypePointer Uniform %_struct_5
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+          %6 = OpVariable %_ptr_Uniform__struct_5 Uniform
+          %7 = OpVariable %_ptr_Uniform__struct_5 Uniform
+          %2 = OpFunction %void None %14
+         %21 = OpLabel
+         %22 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %23 = OpLoad %uint %22
+         %24 = OpAccessChain %_ptr_Uniform_int %6 %uint_0 %23
+         %25 = OpLoad %int %24
+         %26 = OpExtInst %int %1 FindUMsb %25
+         %27 = OpAccessChain %_ptr_Uniform_int %7 %uint_0 %23
+               OpStore %27 %26
+               OpReturn
+               OpFunctionEnd
 ```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

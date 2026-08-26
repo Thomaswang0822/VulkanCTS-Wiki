@@ -106,7 +106,13 @@ This test has no shaders. It uses image clear and copy transfer commands, follow
 
 ## Case Pruning
 
+### Requirement-based pruning
+
 The test skips YCbCr formats during registration. At runtime it reports unsupported cases when the device lacks sparse residency aliasing, the image type or format lacks sparse support, the image exceeds device limits, no suitable memory type exists, or peer-memory capabilities are insufficient for an internal device-group iteration. It also skips configurations that cannot provide at least two sparse blocks outside the mip tail.
+
+### Design-based pruning
+
+The registration excludes YCbCr formats and does not create a device-group variant. The runtime geometry check retains only images with at least two sparse blocks outside the mip tail, because a smaller or tail-only image cannot exercise partial rebinding.
 
 ## Key Takeaways
 

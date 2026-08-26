@@ -107,7 +107,7 @@ The walkthrough below uses one representative case. The remaining selection-stra
 Representative path:
 
 ```text
-spirv_assembly.instruction.compute.variable_pointers.compute.reads_opselect_two_buffers
+dEQP-VK.spirv_assembly.instruction.compute.variable_pointers.compute.reads_opselect_two_buffers
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -136,119 +136,9 @@ flowchart TD
     F --> G[OpStore outloc_i with loaded value]
 ```
 
-#### Source Code
+#### Shader Code
 
-The extracted SPIR-V assembly below is the specialised output of the C++ string template for `physPtrs=false`, `uses64BitIndexing=false`, `isSingleInputBuffer=false`, `ResultStrategy=reads_opselect`. CTS-authored comments and alignment are preserved; wiki-authored annotations use `;` SPIR-V comment syntax.
-
-```llvm
-; Walkthrough: spirv_assembly.instruction.compute.variable_pointers.compute.reads_opselect_two_buffers
-; Extracted from the shared string template in addPhysicalOrVariablePointersComputeGroup()
-; Specialised with: physPtrs=false, isSingleInputBuffer=false, ResultStrategy=OpSelect
-
-OpCapability Shader
-OpCapability VariablePointers                                    ; required because two StorageBuffer bindings are muxed
-OpExtension "SPV_KHR_variable_pointers"
-OpExtension "SPV_KHR_storage_buffer_storage_class"
-OpMemoryModel Logical GLSL450
-OpEntryPoint GLCompute %main "main" %id
-OpExecutionMode %main LocalSize 1 1 1
-
-OpSource GLSL 430
-OpName %main           "main"
-OpName %id             "gl_GlobalInvocationID"
-
-; --- Decorations ---
-OpDecorate %id BuiltIn GlobalInvocationId
-OpDecorate %f32arr ArrayStride 4
-OpDecorate %sb_f32ptr ArrayStride 4
-OpDecorate %buf Block
-OpMemberDecorate %buf 0 Offset 0
-; (ExtraDecorations slot is empty for reads_opselect)
-OpDecorate %indata_a DescriptorSet 0
-OpDecorate %indata_a Binding 0
-OpDecorate %indata_b DescriptorSet 0
-OpDecorate %indata_b Binding 1
-OpDecorate %indata_s DescriptorSet 0
-OpDecorate %indata_s Binding 2
-OpDecorate %outdata DescriptorSet 0
-OpDecorate %outdata Binding 3
-
-; --- Common types from getComputeAsmCommonTypes() ---
-%bool      = OpTypeBool
-%void      = OpTypeVoid
-%voidf     = OpTypeFunction %void
-%u32       = OpTypeInt 32 0
-%i32       = OpTypeInt 32 1
-%f32       = OpTypeFloat 32
-%uvec3     = OpTypeVector %u32 3
-%fvec3     = OpTypeVector %f32 3
-%uvec3ptr  = OpTypePointer Input %uvec3
-%i32ptr    = OpTypePointer StorageBuffer %i32
-%f32ptr    = OpTypePointer StorageBuffer %f32
-%i32arr    = OpTypeRuntimeArray %i32
-%f32arr    = OpTypeRuntimeArray %f32
-
-; --- Test-specific types (logical variable pointers path) ---
-%sb_f32ptr = OpTypePointer StorageBuffer %f32                  ; the pointer type that gets selected at runtime
-%buf       = OpTypeStruct %f32arr                              ; StorageBuffer block: runtime array of f32
-%bufptr    = OpTypePointer StorageBuffer %buf
-
-; --- Input/output variables (four StorageBuffer bindings) ---
-%indata_a  = OpVariable %bufptr StorageBuffer                  ; first mux input
-%indata_b  = OpVariable %bufptr StorageBuffer                  ; second mux input (only for two_buffers)
-%indata_s  = OpVariable %bufptr StorageBuffer                  ; selector values
-%outdata   = OpVariable %bufptr StorageBuffer                  ; result buffer
-
-%id        = OpVariable %uvec3ptr Input
-%zero      = OpConstant %i32 0
-%one       = OpConstant %i32 1
-%two       = OpConstant %i32 2
-%three     = OpConstant %i32 3
-%fzero     = OpConstant %f32 0
-%fone      = OpConstant %f32 1
-
-; --- Helper selector function (always emitted; used only by reads_opfunctioncall) ---
-%selector_func_type   = OpTypeFunction %sb_f32ptr %bool %sb_f32ptr %sb_f32ptr
-%choose_input_func    = OpFunction %sb_f32ptr None %selector_func_type
-%is_neg_param         = OpFunctionParameter %bool
-%first_ptr_param      = OpFunctionParameter %sb_f32ptr
-%second_ptr_param     = OpFunctionParameter %sb_f32ptr
-%selector_func_begin  = OpLabel
-%result_ptr           = OpSelect %sb_f32ptr %is_neg_param %first_ptr_param %second_ptr_param
-OpReturnValue %result_ptr
-OpFunctionEnd
-
-; --- main entry point ---
-%main      = OpFunction %void None %voidf
-%label     = OpLabel
-
-; Resolve invocation index i and precompute 2*i and 2*i+1 (used by single_buffer; still emitted here)
-%idval               = OpLoad %uvec3 %id
-%i                   = OpCompositeExtract %u32 %idval 0
-%two_i               = OpIAdd %u32 %i %i
-%two_i_plus_1        = OpIAdd %u32 %two_i %one
-
-; Compute the four candidate pointers and the output slot
-%inloc_a_i           = OpAccessChain %sb_f32ptr %indata_a %zero %i
-%inloc_b_i           = OpAccessChain %sb_f32ptr %indata_b %zero %i
-%inloc_s_i           = OpAccessChain %sb_f32ptr %indata_s %zero %i
-%outloc_i            = OpAccessChain %sb_f32ptr %outdata  %zero %i
-%inloc_a_2i          = OpAccessChain %sb_f32ptr %indata_a %zero %two_i
-%inloc_a_2i_plus_1   = OpAccessChain %sb_f32ptr %indata_a %zero %two_i_plus_1
-
-; Load the selector and compute is_neg = s[i] < 0
-%inval_s_i           = OpLoad %f32 %inloc_s_i Aligned 4
-%is_neg              = OpFOrdLessThan %bool %inval_s_i %fzero
-
-; ResultStrategy slot (reads_opselect, two_buffers): select between two binding pointers
-%mux_output_var_ptr  = OpSelect %sb_f32ptr %is_neg %inloc_a_i %inloc_b_i
-
-; Dereference the selected pointer and store to outdata[i]
-%mux_output          = OpLoad %f32 %mux_output_var_ptr Aligned 4
-OpStore %outloc_i %mux_output Aligned 4
-OpReturn
-OpFunctionEnd
-```
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -266,6 +156,105 @@ OpFunctionEnd
 | Store storage class | `stores_*` adds `%sb_f32ptrptr = OpTypePointer <Private\|Function> %sb_f32ptr` and a `OpVariable` of that type, decorated `AliasedPointerEXT` for the physical-pointer path. | [stores block](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariablePointersTests.cpp#L486-L520) |
 | 64-bit indexing | `uses64BitIndexing=true` is passed unchanged to the compute runner, which requires `shader64BitIndexing` and chains `VK_PIPELINE_CREATE_2_64_BIT_INDEXING_BIT_EXT` into pipeline creation; the embedded assembly is otherwise unchanged. | [uses64BitIndexing field](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariablePointersTests.cpp#L370-L372), [runner support and flag](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderCase.cpp#L493-L500) |
 | Pipeline (graphics) | Graphics groups wrap the mux in a `for` loop inside `testfun`, return a `v4f32` color, and are expanded by `createTestsForAllStages()` into vertex/tessellation/geometry/fragment variants. | [graphics testFunction](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariablePointersTests.cpp#L1498-L1554) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 51
+; Schema: 0
+               OpCapability Shader
+               OpCapability VariablePointers
+               OpExtension "SPV_KHR_variable_pointers"
+               OpExtension "SPV_KHR_storage_buffer_storage_class"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 430
+               OpName %main "main"
+               OpName %gl_GlobalInvocationID "gl_GlobalInvocationID"
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %_runtimearr_float ArrayStride 4
+               OpDecorate %_ptr_StorageBuffer_float_0 ArrayStride 4
+               OpDecorate %_struct_5 Block
+               OpMemberDecorate %_struct_5 0 Offset 0
+               OpDecorate %6 DescriptorSet 0
+               OpDecorate %6 Binding 0
+               OpDecorate %7 DescriptorSet 0
+               OpDecorate %7 Binding 1
+               OpDecorate %8 DescriptorSet 0
+               OpDecorate %8 Binding 2
+               OpDecorate %9 DescriptorSet 0
+               OpDecorate %9 Binding 3
+       %bool = OpTypeBool
+       %void = OpTypeVoid
+         %12 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+        %int = OpTypeInt 32 1
+      %float = OpTypeFloat 32
+     %v3uint = OpTypeVector %uint 3
+    %v3float = OpTypeVector %float 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%_ptr_StorageBuffer_int = OpTypePointer StorageBuffer %int
+%_ptr_StorageBuffer_float = OpTypePointer StorageBuffer %float
+%_runtimearr_int = OpTypeRuntimeArray %int
+%_runtimearr_float = OpTypeRuntimeArray %float
+%_ptr_StorageBuffer_float_0 = OpTypePointer StorageBuffer %float
+  %_struct_5 = OpTypeStruct %_runtimearr_float
+%_ptr_StorageBuffer__struct_5 = OpTypePointer StorageBuffer %_struct_5
+          %6 = OpVariable %_ptr_StorageBuffer__struct_5 StorageBuffer
+          %7 = OpVariable %_ptr_StorageBuffer__struct_5 StorageBuffer
+          %8 = OpVariable %_ptr_StorageBuffer__struct_5 StorageBuffer
+          %9 = OpVariable %_ptr_StorageBuffer__struct_5 StorageBuffer
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+      %int_0 = OpConstant %int 0
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+      %int_3 = OpConstant %int 3
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+         %29 = OpTypeFunction %_ptr_StorageBuffer_float_0 %bool %_ptr_StorageBuffer_float_0 %_ptr_StorageBuffer_float_0
+         %30 = OpFunction %_ptr_StorageBuffer_float_0 None %29
+         %31 = OpFunctionParameter %bool
+         %32 = OpFunctionParameter %_ptr_StorageBuffer_float_0
+         %33 = OpFunctionParameter %_ptr_StorageBuffer_float_0
+         %34 = OpLabel
+         %35 = OpSelect %_ptr_StorageBuffer_float_0 %31 %32 %33
+               OpReturnValue %35
+               OpFunctionEnd
+       %main = OpFunction %void None %12
+         %36 = OpLabel
+         %37 = OpLoad %v3uint %gl_GlobalInvocationID
+         %38 = OpCompositeExtract %uint %37 0
+         %39 = OpIAdd %uint %38 %38
+         %40 = OpIAdd %uint %39 %int_1
+         %41 = OpAccessChain %_ptr_StorageBuffer_float_0 %6 %int_0 %38
+         %42 = OpAccessChain %_ptr_StorageBuffer_float_0 %7 %int_0 %38
+         %43 = OpAccessChain %_ptr_StorageBuffer_float_0 %8 %int_0 %38
+         %44 = OpAccessChain %_ptr_StorageBuffer_float_0 %9 %int_0 %38
+         %45 = OpAccessChain %_ptr_StorageBuffer_float_0 %6 %int_0 %39
+         %46 = OpAccessChain %_ptr_StorageBuffer_float_0 %6 %int_0 %40
+         %47 = OpLoad %float %43 Aligned 4
+         %48 = OpFOrdLessThan %bool %47 %float_0
+         %49 = OpSelect %_ptr_StorageBuffer_float_0 %48 %41 %42
+         %50 = OpLoad %float %49 Aligned 4
+               OpStore %44 %50 Aligned 4
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

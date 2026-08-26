@@ -93,7 +93,308 @@ The four non-strict variants use `VK_KHR_copy_memory_indirect` and `VK_KHR_buffe
 
 ## Shader Analysis
 
-Several families use generated GLSL or SPIR-V, but no single shader represents the whole page. The common graphics shader reads `ivec4` entries from a descriptor-bound UBO or SSBO. It checks `3 * ndx ^ 127`, skips non-strict holes, or expects zero for strict nonresident reads. Storage-buffer cases write a value and read it back. Texel and buffer-device-address helpers use separate generated paths. The page therefore keeps shader details at the behavioral level and uses the source links in the appendix for the exact generators.
+The buffer page has two materially different shader-backed validation paths, so this section uses two representative walkthroughs: the graphics fragment shader for the strict sparse SSBO read/write case, and the compute shader for the indirect-dispatch case. The first validates sparse buffer values and discarded writes through a descriptor; the second does not inspect sparse data in shader code, but its dispatch dimensions come from a sparse indirect buffer and its storage writes provide the final compute oracle.
+
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.sparse_resources.buffer.ssbo.read_write.sparse_residency_non_resident_strict
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `ssbo.read_write` | Selects the common graphics buffer-object path with a storage-buffer descriptor; the fragment shader both reads and writes `buff.data`. |
+| `sparse_residency_non_resident_strict` | Leaves a resource chunk unbound and requires strict nonresident semantics: reads from the hole and writes to it must both behave as zero/discarded. |
+| `layout(constant_id = 1/2)` | `dataSize` and `chunkSize` are specialization constants filled from the sparse allocation at draw time; the source-level defaults are used when compiling the reconstructed shader. |
+
+#### Purpose
+
+Each fragment checks the `ivec4` value initialized in the sparse SSBO, writes an index-derived value, and reads it back. Bound ranges must preserve the initialization and the write/read result, while the strict nonresident range must read as zero and discard the write.
+
+#### Structural Design
+
+| Phase | Shader action | Validation contribution |
+|-------|---------------|-------------------------|
+| Indexing | Convert `gl_FragCoord` to a linear index and advance by one framebuffer page | The 128×128 fragment grid covers the buffer in strided passes. |
+| Access | Load `buff.data[ndx]`, write `newData`, then load it again | Tests both sparse storage-buffer reads and writes. |
+| Residency branch | Treat `[chunkSize, 2*chunkSize)` as the nonresident chunk | Strict residency expects zero before and after the write; other entries use the initialized pattern. |
+| Oracle | Emit green when `ok` remains true, red otherwise | `imageHasErrorPixels()` turns a red/blank rendered result into failure. |
+
+#### Shader Code
+
+```glsl
+#version 450
+
+layout(location = 0) out vec4 o_color;
+
+layout(constant_id = 1) const int dataSize  = 1;
+layout(constant_id = 2) const int chunkSize = 1;
+
+/// Binding 0 is the host-created sparse storage buffer. Its std430 ivec4 array is sized by the
+/// dataSize specialization constant; volatile access is emitted for the storage-buffer read/write case.
+layout(set = 0, binding = 0, std430) buffer SparseBuffer {
+    volatile ivec4 data[dataSize];
+} buff;
+
+void main(void)
+{
+    /// The 128x128 render target assigns each fragment a linear starting element. The loop stride
+    /// is one complete framebuffer page so every invocation can cover later buffer pages too.
+    const int fragNdx        = int(gl_FragCoord.x) + 128 * int(gl_FragCoord.y);
+    const int pageSize       = 128 * 128;
+    const int numChunks      = dataSize / chunkSize;
+    bool      ok             = true;
+
+    for (int ndx = fragNdx; ndx < dataSize; ndx += pageSize)
+    {
+        ivec4 readData = buff.data[ndx];
+
+        // Write a new value based on index
+        ivec4 newData = ivec4(ndx * 2 + 1, ndx ^ 0x55, ndx, 1);
+        buff.data[ndx] = newData;
+        ivec4 verifyData = buff.data[ndx];
+
+        /// The strict nonresident interval is the resource hole. A compliant implementation
+        /// returns zero there and discards the write; all other entries must retain the initialized pattern.
+        if (ndx >= chunkSize && ndx < 2 * chunkSize)
+            ok = ok && (readData == ivec4(0)) && (verifyData == ivec4(0));
+        else
+            ok = ok && (readData == ivec4(3*ndx ^ 127, 0, 0, 0)) && (verifyData == newData);
+    }
+
+    /// Green is the success token consumed by the host image check; any mismatch makes the pixel red.
+    if (ok)
+        o_color = vec4(0.0, 1.0, 0.0, 1.0);
+    else
+        o_color = vec4(1.0, 0.0, 0.0, 1.0);
+}
+```
+
+#### Additional Info
+
+- The host initializes each `ivec4` entry as `ivec4(3 * i ^ 127, 0, 0, 0)` before drawing, and binds the descriptor with the allowed range capped by the uniform/storage-buffer limit ([`BufferObjectTestInstance::iterate()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferTests.cpp#L951-L1021)).
+- This representative path has no alias flag, so the generator checks the initialized value directly as `ivec4(3*ndx ^ 127, 0, 0, 0)`; aliased variants add a modulo by the non-aliased range ([`initProgramsDrawWithBufferObject()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferTests.cpp#L754-L834)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|----------------------------------------|----------|
+| UBO versus SSBO | Changes the block to `uniform`/`std140` or `buffer`/`std430`; the SSBO path also emits `volatile` and performs the write/read-back sequence. | [`initProgramsDrawWithBufferObject()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferTests.cpp#L756-L803) |
+| Aliasing | Adds `nonAliasedSize` to the expected-value expression so the aliased final chunk is checked against the shared physical data. | [`initProgramsDrawWithBufferObject()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferTests.cpp#L756-L786) |
+| Residency and strictness | Non-strict residency skips the hole; strict residency checks zero before and after the write. Fully bound cases check the initialized pattern everywhere. | [`initProgramsDrawWithBufferObject()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferTests.cpp#L805-L824) |
+| `dataSize`/`chunkSize` | Specialization constants control array length, chunk count, hole interval, and loop bounds. | [`BufferObjectTestInstance::iterate()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferTests.cpp#L1043-L1078) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 124
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %gl_FragCoord %o_color
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %fragNdx "fragNdx"
+               OpName %gl_FragCoord "gl_FragCoord"
+               OpName %ok "ok"
+               OpName %ndx "ndx"
+               OpName %dataSize "dataSize"
+               OpName %readData "readData"
+               OpName %SparseBuffer "SparseBuffer"
+               OpMemberName %SparseBuffer 0 "data"
+               OpName %buff "buff"
+               OpName %newData "newData"
+               OpName %verifyData "verifyData"
+               OpName %chunkSize "chunkSize"
+               OpName %o_color "o_color"
+               OpDecorate %gl_FragCoord BuiltIn FragCoord
+               OpDecorate %dataSize SpecId 1
+               OpDecorate %_arr_v4int_dataSize ArrayStride 16
+               OpDecorate %SparseBuffer BufferBlock
+               OpMemberDecorate %SparseBuffer 0 Volatile
+               OpMemberDecorate %SparseBuffer 0 Coherent
+               OpMemberDecorate %SparseBuffer 0 Offset 0
+               OpDecorate %buff Binding 0
+               OpDecorate %buff DescriptorSet 0
+               OpDecorate %chunkSize SpecId 2
+               OpDecorate %o_color Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%gl_FragCoord = OpVariable %_ptr_Input_v4float Input
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_float = OpTypePointer Input %float
+    %int_128 = OpConstant %int 128
+     %uint_1 = OpConstant %uint 1
+       %bool = OpTypeBool
+%_ptr_Function_bool = OpTypePointer Function %bool
+       %true = OpConstantTrue %bool
+   %dataSize = OpSpecConstant %int 1
+      %v4int = OpTypeVector %int 4
+%_ptr_Function_v4int = OpTypePointer Function %v4int
+%_arr_v4int_dataSize = OpTypeArray %v4int %dataSize
+%SparseBuffer = OpTypeStruct %_arr_v4int_dataSize
+%_ptr_Uniform_SparseBuffer = OpTypePointer Uniform %SparseBuffer
+       %buff = OpVariable %_ptr_Uniform_SparseBuffer Uniform
+      %int_0 = OpConstant %int 0
+%_ptr_Uniform_v4int = OpTypePointer Uniform %v4int
+      %int_2 = OpConstant %int 2
+      %int_1 = OpConstant %int 1
+     %int_85 = OpConstant %int 85
+  %chunkSize = OpSpecConstant %int 1
+         %76 = OpSpecConstantOp %int IMul %int_2 %chunkSize
+         %83 = OpConstantComposite %v4int %int_0 %int_0 %int_0 %int_0
+     %v4bool = OpTypeVector %bool 4
+      %int_3 = OpConstant %int 3
+    %int_127 = OpConstant %int 127
+  %int_16384 = OpConstant %int 16384
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+    %o_color = OpVariable %_ptr_Output_v4float Output
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+        %121 = OpConstantComposite %v4float %float_0 %float_1 %float_0 %float_1
+        %123 = OpConstantComposite %v4float %float_1 %float_0 %float_0 %float_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+    %fragNdx = OpVariable %_ptr_Function_int Function
+         %ok = OpVariable %_ptr_Function_bool Function
+        %ndx = OpVariable %_ptr_Function_int Function
+   %readData = OpVariable %_ptr_Function_v4int Function
+    %newData = OpVariable %_ptr_Function_v4int Function
+ %verifyData = OpVariable %_ptr_Function_v4int Function
+         %16 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_0
+         %17 = OpLoad %float %16
+         %18 = OpConvertFToS %int %17
+         %21 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_1
+         %22 = OpLoad %float %21
+         %23 = OpConvertFToS %int %22
+         %24 = OpIMul %int %int_128 %23
+         %25 = OpIAdd %int %18 %24
+               OpStore %fragNdx %25
+               OpStore %ok %true
+         %31 = OpLoad %int %fragNdx
+               OpStore %ndx %31
+               OpBranch %32
+         %32 = OpLabel
+               OpLoopMerge %34 %35 None
+               OpBranch %36
+         %36 = OpLabel
+         %37 = OpLoad %int %ndx
+         %39 = OpSLessThan %bool %37 %dataSize
+               OpBranchConditional %39 %33 %34
+         %33 = OpLabel
+         %48 = OpLoad %int %ndx
+         %50 = OpAccessChain %_ptr_Uniform_v4int %buff %int_0 %48
+         %51 = OpLoad %v4int %50
+               OpStore %readData %51
+         %53 = OpLoad %int %ndx
+         %55 = OpIMul %int %53 %int_2
+         %57 = OpIAdd %int %55 %int_1
+         %58 = OpLoad %int %ndx
+         %60 = OpBitwiseXor %int %58 %int_85
+         %61 = OpLoad %int %ndx
+         %62 = OpCompositeConstruct %v4int %57 %60 %61 %int_1
+               OpStore %newData %62
+         %63 = OpLoad %int %ndx
+         %64 = OpLoad %v4int %newData
+         %65 = OpAccessChain %_ptr_Uniform_v4int %buff %int_0 %63
+               OpStore %65 %64
+         %67 = OpLoad %int %ndx
+         %68 = OpAccessChain %_ptr_Uniform_v4int %buff %int_0 %67
+         %69 = OpLoad %v4int %68
+               OpStore %verifyData %69
+         %70 = OpLoad %int %ndx
+         %72 = OpSGreaterThanEqual %bool %70 %chunkSize
+               OpSelectionMerge %74 None
+               OpBranchConditional %72 %73 %74
+         %73 = OpLabel
+         %75 = OpLoad %int %ndx
+         %77 = OpSLessThan %bool %75 %76
+               OpBranch %74
+         %74 = OpLabel
+         %78 = OpPhi %bool %72 %33 %77 %73
+               OpSelectionMerge %80 None
+               OpBranchConditional %78 %79 %92
+         %79 = OpLabel
+         %81 = OpLoad %bool %ok
+         %82 = OpLoad %v4int %readData
+         %85 = OpIEqual %v4bool %82 %83
+         %86 = OpAll %bool %85
+         %87 = OpLogicalAnd %bool %81 %86
+         %88 = OpLoad %v4int %verifyData
+         %89 = OpIEqual %v4bool %88 %83
+         %90 = OpAll %bool %89
+         %91 = OpLogicalAnd %bool %87 %90
+               OpStore %ok %91
+               OpBranch %80
+         %92 = OpLabel
+         %93 = OpLoad %bool %ok
+               OpSelectionMerge %95 None
+               OpBranchConditional %93 %94 %95
+         %94 = OpLabel
+         %96 = OpLoad %v4int %readData
+         %98 = OpLoad %int %ndx
+         %99 = OpIMul %int %int_3 %98
+        %101 = OpBitwiseXor %int %99 %int_127
+        %102 = OpCompositeConstruct %v4int %101 %int_0 %int_0 %int_0
+        %103 = OpIEqual %v4bool %96 %102
+        %104 = OpAll %bool %103
+               OpBranch %95
+         %95 = OpLabel
+        %105 = OpPhi %bool %93 %92 %104 %94
+        %106 = OpLoad %v4int %verifyData
+        %107 = OpLoad %v4int %newData
+        %108 = OpIEqual %v4bool %106 %107
+        %109 = OpAll %bool %108
+        %110 = OpLogicalAnd %bool %105 %109
+               OpStore %ok %110
+               OpBranch %80
+         %80 = OpLabel
+               OpBranch %35
+         %35 = OpLabel
+        %112 = OpLoad %int %ndx
+        %113 = OpIAdd %int %112 %int_16384
+               OpStore %ndx %113
+               OpBranch %32
+         %34 = OpLabel
+        %114 = OpLoad %bool %ok
+               OpSelectionMerge %116 None
+               OpBranchConditional %114 %115 %122
+        %115 = OpLabel
+               OpStore %o_color %121
+               OpBranch %116
+        %122 = OpLabel
+               OpStore %o_color %123
+               OpBranch %116
+        %116 = OpLabel
+               OpReturn
+               OpFunctionEnd
+
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

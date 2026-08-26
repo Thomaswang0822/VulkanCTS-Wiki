@@ -98,13 +98,20 @@ input[i][column 1][row 1] -> output[i].w
 
 The test authors the SPIR-V assembly directly in C++ rather than generating GLSL or HLSL. The representative case below is the compute `mat2x2` leaf. It includes the complete layout declaration and its four layout-sensitive loads; the source contains no distinct shader behavior for another matrix shape.
 
-### Representative Shader Walkthrough: compute `mat2x2`
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
 
 Representative path:
 
 ```text
-dEQP-VK.spirv_assembly.instruction.compute.ubo_padding.mat2x2
+dEQP-VK.spirv_assembly.instruction.compute.ubo_matrix_padding.compute.mat2x2
 ```
+
+| Parameter choice | Meaning in this representative case |
+|---|---|
+| `compute` | Selects the compute shader module used for the matrix-padding check. |
+| `mat2x2` | Selects the 2×2 matrix layout exercised by the representative assembly. |
 
 #### Purpose
 
@@ -120,88 +127,9 @@ The module verifies that the UBO address calculation implicit in `OpAccessChain`
 | Layout | Decorates the matrix array with `ArrayStride 32` and its enclosing member with `ColMajor` and `MatrixStride 16`. |
 | Copy | Loads column 0 components 0/1 and column 1 components 0/1, then stores them at output vector components 0–3. |
 
-#### Source Code
+#### Shader Code
 
-<details>
-<summary>Click to expand CTS-authored SPIR-V assembly for the representative compute case</summary>
-
-```llvm
-OpCapability Shader
-%1 = OpExtInstImport "GLSL.std.450"
-OpMemoryModel Logical GLSL450
-OpEntryPoint GLCompute %main "main" %id
-OpExecutionMode %main LocalSize 1 1 1
-OpSource GLSL 430
-OpDecorate %id BuiltIn GlobalInvocationId
-OpDecorate %_arr_v4 ArrayStride 16
-OpMemberDecorate %Output 0 Offset 0
-OpDecorate %Output BufferBlock
-OpDecorate %dataOutput DescriptorSet 0
-OpDecorate %dataOutput Binding 1
-OpDecorate %_arr_mat2v2 ArrayStride 32
-OpMemberDecorate %Input 0 ColMajor
-OpMemberDecorate %Input 0 Offset 0
-OpMemberDecorate %Input 0 MatrixStride 16
-OpDecorate %Input Block
-OpDecorate %dataInput DescriptorSet 0
-OpDecorate %dataInput Binding 0
-%void = OpTypeVoid
-%3 = OpTypeFunction %void
-%u32 = OpTypeInt 32 0
-%_ptr_Function_uint = OpTypePointer Function %u32
-%v3uint = OpTypeVector %u32 3
-%_ptr_Input_v3uint = OpTypePointer Input %v3uint
-%id = OpVariable %_ptr_Input_v3uint Input
-%i32 = OpTypeInt 32 1
-%int_0 = OpConstant %i32 0
-%int_1 = OpConstant %i32 1
-%uint_0 = OpConstant %u32 0
-%uint_1 = OpConstant %u32 1
-%uint_2 = OpConstant %u32 2
-%uint_3 = OpConstant %u32 3
-%_ptr_Input_uint = OpTypePointer Input %u32
-%f32 = OpTypeFloat 32
-%v4float = OpTypeVector %f32 4
-%uint_128 = OpConstant %u32 128
-%_arr_v4 = OpTypeArray %v4float %uint_128
-%Output = OpTypeStruct %_arr_v4
-%_ptr_Uniform_Output = OpTypePointer Uniform %Output
-%dataOutput = OpVariable %_ptr_Uniform_Output Uniform
-%v2float = OpTypeVector %f32 2
-%mat2v2float = OpTypeMatrix %v2float 2
-%_arr_mat2v2 = OpTypeArray %mat2v2float %uint_128
-%Input = OpTypeStruct %_arr_mat2v2
-%_ptr_Uniform_Input = OpTypePointer Uniform %Input
-%dataInput = OpVariable %_ptr_Uniform_Input Uniform
-%_ptr_Uniform_float = OpTypePointer Uniform %f32
-%main = OpFunction %void None %3
-%5 = OpLabel
-%i = OpVariable %_ptr_Function_uint Function
-%14 = OpAccessChain %_ptr_Input_uint %id %uint_0
-%15 = OpLoad %u32 %14
-OpStore %i %15
-%idx = OpLoad %u32 %i
-%34 = OpAccessChain %_ptr_Uniform_float %dataInput %int_0 %idx %int_0 %uint_0
-%35 = OpLoad %f32 %34
-%36 = OpAccessChain %_ptr_Uniform_float %dataOutput %int_0 %idx %uint_0
-OpStore %36 %35
-%40 = OpAccessChain %_ptr_Uniform_float %dataInput %int_0 %idx %int_0 %uint_1
-%41 = OpLoad %f32 %40
-%42 = OpAccessChain %_ptr_Uniform_float %dataOutput %int_0 %idx %uint_1
-OpStore %42 %41
-%46 = OpAccessChain %_ptr_Uniform_float %dataInput %int_0 %idx %int_1 %uint_0
-%47 = OpLoad %f32 %46
-%49 = OpAccessChain %_ptr_Uniform_float %dataOutput %int_0 %idx %uint_2
-OpStore %49 %47
-%52 = OpAccessChain %_ptr_Uniform_float %dataInput %int_0 %idx %int_1 %uint_1
-%53 = OpLoad %f32 %52
-%55 = OpAccessChain %_ptr_Uniform_float %dataOutput %int_0 %idx %uint_3
-OpStore %55 %53
-OpReturn
-OpFunctionEnd
-```
-
-</details>
+This representative case does not use GLSL or HLSL. CTS supplies the tested shader module directly as SPIR-V assembly. The complete assembled, validated, and freshly disassembled module is shown in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -211,13 +139,102 @@ OpFunctionEnd
 
 #### Parameter Variation Summary
 
-| Parameter dimension | Variation from the representative assembly | Evidence |
-|---------------------|--------------------------------------------|----------|
-| Execution pipeline | Graphics replaces the standalone compute entry-point body with generated graphics fragments and a 128-iteration function loop. | [Graphics test function](../../../modules/vulkan/spirv_assembly/vktSpvAsmUboMatrixPaddingTests.cpp#L204-L250) |
-| Shader stage | The graphics utility inserts the shared function into vertex, tessellation-control, tessellation-evaluation, geometry, or fragment stage. | [Stage registrations](../../../modules/vulkan/spirv_assembly/vktSpvAsmUboMatrixPaddingTests.cpp#L254-L273) |
-| Matrix layout and count | No registered variation: all six leaves retain `mat2x2`, 128 elements, `ColMajor`, `MatrixStride 16`, and `ArrayStride 32`. | [Compute setup](../../../modules/vulkan/spirv_assembly/vktSpvAsmUboMatrixPaddingTests.cpp#L49-L146), [graphics setup](../../../modules/vulkan/spirv_assembly/vktSpvAsmUboMatrixPaddingTests.cpp#L151-L252) |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---|---|---|
+| Matrix shape and layout | The selected `mat2x2` case exercises matrix padding and the corresponding SPIR-V decorations; sibling matrix shapes change the generated type and stride. | [matrix test generator](../../../modules/vulkan/spirv_assembly/vktSpvAsmUboMatrixPaddingTests.cpp) |
 
-The displayed module is CTS-authored SPIR-V assembly extracted from the source template, not reconstructed GLSL or HLSL. Audit-time semantic validation used `spirv-as`, `spirv-val`, and `spirv-dis`; the disassembly is intentionally not published as a duplicate `#### SPIR-V` subsection.
+#### SPIR-V
+
+- Stage: `comp`
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Target SPIRV version: `spv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 49
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %2 "main" %gl_GlobalInvocationID
+               OpExecutionMode %2 LocalSize 1 1 1
+               OpSource GLSL 430
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %_arr_v4float_uint_128 ArrayStride 16
+               OpMemberDecorate %_struct_5 0 Offset 0
+               OpDecorate %_struct_5 BufferBlock
+               OpDecorate %6 DescriptorSet 0
+               OpDecorate %6 Binding 1
+               OpDecorate %_arr_mat2v2float_uint_128 ArrayStride 32
+               OpMemberDecorate %_struct_8 0 ColMajor
+               OpMemberDecorate %_struct_8 0 Offset 0
+               OpMemberDecorate %_struct_8 0 MatrixStride 16
+               OpDecorate %_struct_8 Block
+               OpDecorate %9 DescriptorSet 0
+               OpDecorate %9 Binding 0
+       %void = OpTypeVoid
+         %11 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_ptr_Function_uint = OpTypePointer Function %uint
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+      %int_1 = OpConstant %int 1
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+     %uint_2 = OpConstant %uint 2
+     %uint_3 = OpConstant %uint 3
+%_ptr_Input_uint = OpTypePointer Input %uint
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+   %uint_128 = OpConstant %uint 128
+%_arr_v4float_uint_128 = OpTypeArray %v4float %uint_128
+  %_struct_5 = OpTypeStruct %_arr_v4float_uint_128
+%_ptr_Uniform__struct_5 = OpTypePointer Uniform %_struct_5
+          %6 = OpVariable %_ptr_Uniform__struct_5 Uniform
+    %v2float = OpTypeVector %float 2
+%mat2v2float = OpTypeMatrix %v2float 2
+%_arr_mat2v2float_uint_128 = OpTypeArray %mat2v2float %uint_128
+  %_struct_8 = OpTypeStruct %_arr_mat2v2float_uint_128
+%_ptr_Uniform__struct_8 = OpTypePointer Uniform %_struct_8
+          %9 = OpVariable %_ptr_Uniform__struct_8 Uniform
+%_ptr_Uniform_float = OpTypePointer Uniform %float
+          %2 = OpFunction %void None %11
+         %32 = OpLabel
+         %33 = OpVariable %_ptr_Function_uint Function
+         %34 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %35 = OpLoad %uint %34
+               OpStore %33 %35
+         %36 = OpLoad %uint %33
+         %37 = OpAccessChain %_ptr_Uniform_float %9 %int_0 %36 %int_0 %uint_0
+         %38 = OpLoad %float %37
+         %39 = OpAccessChain %_ptr_Uniform_float %6 %int_0 %36 %uint_0
+               OpStore %39 %38
+         %40 = OpAccessChain %_ptr_Uniform_float %9 %int_0 %36 %int_0 %uint_1
+         %41 = OpLoad %float %40
+         %42 = OpAccessChain %_ptr_Uniform_float %6 %int_0 %36 %uint_1
+               OpStore %42 %41
+         %43 = OpAccessChain %_ptr_Uniform_float %9 %int_0 %36 %int_1 %uint_0
+         %44 = OpLoad %float %43
+         %45 = OpAccessChain %_ptr_Uniform_float %6 %int_0 %36 %uint_2
+               OpStore %45 %44
+         %46 = OpAccessChain %_ptr_Uniform_float %9 %int_0 %36 %int_1 %uint_1
+         %47 = OpLoad %float %46
+         %48 = OpAccessChain %_ptr_Uniform_float %6 %int_0 %36 %uint_3
+               OpStore %48 %47
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 
@@ -241,7 +258,11 @@ The test has no shader-side boolean verdict and does not compare the input paddi
 
 ### Cause Analysis
 
-A component shift such as receiving a padding zero where `z` or `w` is expected is consistent with incorrect application of `MatrixStride 16`. Values taken from a neighboring matrix are consistent with incorrect `ArrayStride 32`. Swapped or reordered components can be consistent with column-major indexing or access-chain handling. The CTS source cannot, by itself, localize a particular failure to a compiler, driver, descriptor, synchronization, or memory-layout implementation component; graphics failures can also arise from generic pipeline setup or image probes.
+#### UBO matrix address calculation
+
+**Possible failure symptoms:** A component shift, such as receiving a padding zero where `z` or `w` is expected, changes the compute output-buffer byte comparison or a qualifying graphics resource comparison. Values taken from a neighboring matrix, or swapped and reordered components, produce the same kind of mismatch.
+
+**Possible implementation causes:** The source decorations and access chains make these symptoms consistent with incorrect application of `MatrixStride 16`, `ArrayStride 32`, or column-major indexing while resolving the UBO matrix addresses. The CTS source cannot, by itself, localize a particular failure to a compiler, driver, descriptor, synchronization, or memory-layout implementation component; graphics failures can also arise from generic pipeline setup or image probes.
 
 ## Case Pruning
 

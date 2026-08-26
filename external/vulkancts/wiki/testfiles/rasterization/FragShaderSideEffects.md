@@ -213,7 +213,7 @@ void main() {
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level variation from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | Color-output placement | `color_at_end` swaps the order: the `outColor` assignment is emitted after the SSBO write and before `discard`. | [fragment shader generation](../../../modules/vulkan/rasterization/vktRasterizationFragShaderSideEffectsTests.cpp#L265-L266) |
 | Case type | `demote` replaces `discard;` with `demote;` and adds `#extension GL_EXT_demote_to_helper_invocation`; `terminate_invocation` replaces it with `terminateInvocation;` and adds `#extension GL_EXT_terminate_invocation`. `sample_mask_before`/`_after` replace it with `gl_SampleMask[0] = 0;` and emit it before or after the SSBO write. `stencil_never`, `depth_never`, and `depth_bounds` emit no statement at all; suppression comes from the pipeline state. | [case-type switch](../../../modules/vulkan/rasterization/vktRasterizationFragShaderSideEffectsTests.cpp#L222-L254) |
@@ -388,7 +388,7 @@ void main() {
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level variation from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | Color-output placement | `color_at_end` swaps the order: the `outColor` assignment is emitted after the SSBO write and before `demote`. | [fragment shader generation](../../../modules/vulkan/rasterization/vktRasterizationFragShaderSideEffectsTests.cpp#L265-L266) |
 | Case type | `kill` replaces `demote;` with `discard;` and removes the `#extension` directive; `terminate_invocation` uses `terminateInvocation;` and `#extension GL_EXT_terminate_invocation`. The case-type switch also drives the pipeline state (multisample, depth/stencil) for the non-shader-statement cases. | [case-type switch](../../../modules/vulkan/rasterization/vktRasterizationFragShaderSideEffectsTests.cpp#L222-L254) |
@@ -569,7 +569,7 @@ void main() {
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level variation from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | Color-output placement | `color_at_end` swaps the order: the `outColor.rgb` assignment is emitted after the SSBO write, and the `outColor.a` assignment is also moved to after the SSBO write. | [fragment shader generation](../../../modules/vulkan/rasterization/vktRasterizationFragShaderSideEffectsTests.cpp#L265-L266) |
 | Alpha-coverage case | `alpha_coverage_after` keeps the same `colorStatement` form but emits `outColor.a = float(0.0);` after the SSBO write. | [case-type switch](../../../modules/vulkan/rasterization/vktRasterizationFragShaderSideEffectsTests.cpp#L241-L245) |

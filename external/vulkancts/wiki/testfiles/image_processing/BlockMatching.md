@@ -69,12 +69,242 @@ Compute `basic` uses a compute shader with the same operation and baseline matri
 
 ## Shader Analysis
 
-The family uses generated GLSL in both graphics and compute paths. A full representative walkthrough is not included in this rewrite because the required shader-analyzer and shader-disassembler round trip was not completed for an exact case; the source-grounded shader shape is summarized here.
+### Representative Shader Walkthrough 1
 
-- The shared generated preamble requires `GL_QCOM_image_processing`, binds target/reference block-match images at bindings 0 and 1, samplers at bindings 2 and 3, a `vec4` metric storage buffer at binding 4, and push constants for the two coordinates and block size ([preamble](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L275-L293)).
-- The generated operation call passes the two combined `sampler2D` objects, the target and reference coordinates, and the block size. It writes the returned metric and chooses green for an all-zero metric or red otherwise ([operation body](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L295-L315)).
-- Graphics cases normally execute this body in the fragment shader and draw a full-screen rectangle. `shader_stages.vertex` moves it to the vertex shader ([graphics generator](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L318-L368); [draw path](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L923-L958)).
-- Compute cases use one invocation per output pixel, call the same generated operation body, and store the diagnostic color in a storage image at binding 5 ([compute generator](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1195-L1218); [dispatch path](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1291-L1304)).
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.image_processing.graphics.monolithic.block_matching.sad.basic.r8_unorm_same
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `graphics.monolithic` | Uses the monolithic graphics pipeline path; the block-match operation is generated in the fragment stage for the baseline graphics case. |
+| `sad` | Selects `textureBlockMatchSADQCOM`, returning the per-channel sum of absolute differences in a `vec4`. |
+| `basic.r8_unorm_same` | Uses 64x64 target/reference `r8_unorm` images, compares `(0,0)` blocks of size `32x32`, and copies the reference block into the target block, so the expected metric is zero. |
+| `randomReference = false`, no `_constdiff` suffix | Selects the uniform baseline input and leaves the matching blocks equal without an intentional constant difference. |
+
+#### Purpose
+
+This fragment shader computes the QCOM SAD block-match metric for the selected target and reference image regions. It writes the metric to a storage buffer and produces a green diagnostic pixel for an exact zero result, otherwise red.
+
+#### Structural Design
+
+| Phase | Shader-visible action | Observable role |
+|-------|-----------------------|-----------------|
+| Inputs | Combine separate `texture2D` images with separate samplers; load coordinates and block extent from push constants. | Supplies the two sampled block regions and their addressing/reduction state. |
+| Operation | Call `textureBlockMatchSADQCOM` with target sampler, target coordinate, reference sampler, reference coordinate, and `blockSize`. | Produces the SAD result as a four-component value. |
+| Validation signal | Compare the result with `vec4(0.0)`; select green for equality and red otherwise. | Encodes match/mismatch in the graphics output. |
+| Metric export | Store the result in `sbOut.outError`. | Makes the device result available for host-side tolerance checking. |
+
+#### Shader Code
+
+```glsl
+#version 450
+
+/// The QCOM image-processing extension exposes the block-match operation.
+#extension GL_QCOM_image_processing : require
+
+/// Target block-match image descriptor; binding 0 is a sampled-image resource.
+layout(set = 0, binding = 0) uniform highp texture2D targetTexture;
+/// Reference block-match image descriptor; binding 1 is a sampled-image resource.
+layout(set = 0, binding = 1) uniform highp texture2D referenceTexture;
+/// Target sampler descriptor; binding 2 supplies target addressing and reduction state.
+layout(set = 0, binding = 2) uniform highp sampler targetSampler;
+/// Reference sampler descriptor; binding 3 supplies reference addressing and reduction state.
+layout(set = 0, binding = 3) uniform highp sampler referenceSampler;
+/// The returned metric is written to this storage-buffer member for host readback.
+layout(set = 0, binding = 4) writeonly buffer outputError {
+  vec4 outError;
+} sbOut;
+/// Push constants transport both block origins and the common block extent.
+layout(push_constant, std430) uniform PushConstants
+{
+    uvec2 targetCoord;
+    uvec2 referenceCoord;
+    uvec2 blockSize;
+} pc;
+
+/// Monolithic graphics fragment output; the render target receives the diagnostic color.
+layout(location = 0) out vec4 outColor;
+
+void main() {
+    // Compute
+    /// Combine each image with its sampler before invoking the SAD block-match operation.
+    vec4 blkMatchVal = textureBlockMatchSADQCOM(
+        sampler2D(targetTexture, targetSampler),
+        pc.targetCoord,  
+        sampler2D(referenceTexture, referenceSampler),
+        pc.referenceCoord,
+        pc.blockSize
+    );
+
+    /// Preserve the returned four-component metric for both validation signals.
+    vec4 err = blkMatchVal;
+    if (err == vec4(0.0f, 0.0f, 0.0f, 0.0f))
+        outColor = vec4(0.0f, 1.0f, 0.0f, 1.0f);
+    else
+        outColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+    sbOut.outError = err;
+}
+```
+
+#### Additional Info
+
+- For this exact `same` case, `getCommonTestParams()` supplies 64x64 images, `(0,0)` coordinates, and a `32x32` block; the host setup copies the reference region into the target region before the draw ([`getCommonTestParams()`](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1657-L1696), [`ImageProcessingBlockMatchGraphicsTestInstance::iterate()`](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1024-L1036)).
+- The graphics test creates the fragment module from the same generated source and draws the full-screen vertex buffer through the render pass ([`initPrograms()`](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L318-L369), [`executeProgram()`](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L923-L958)).
+- The explicit `ShaderBuildOptions` requests SPIR-V 1.4, which is the target used for the disassembly below ([`initPrograms()`](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L318-L321)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Operation family | `sad` emits `textureBlockMatchSADQCOM`; the sibling `ssd` case emits `textureBlockMatchSSDQCOM`, while the interface and result-color logic remain shared. | [`getImageProcGLSLStr()`](../../../modules/vulkan/image_processing/vktImageProcessingTestsUtil.cpp#L250-L255) |
+| Basic format | `r8_unorm` selects the image format and host tolerance/quantization behavior; other registered formats change the underlying block-match image component representation, not this generator structure. | [`getCommonTestParams()`](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1657-L1696), [`getOpSupportedFormats()`](../../../modules/vulkan/image_processing/vktImageProcessingTestsUtil.cpp#L408-L435) |
+| Match/data suffix | `same` causes equal target/reference blocks; `diff`, `_random`, and `_constdiff` change host-generated inputs and expected metric, but do not alter this graphics shader text. | [`createImageProcessingBlockMatchingCommonTests()`](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1958-L1998), [`populateColorBuffer()`](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L523-L605) |
+| Graphics variant | `basic` uses fragment-stage generation; `shader_stages.vertex` puts the shared operation body in the vertex shader, while extended graphics groups vary image/sampler state and keep the monolithic generator path. | [`initPrograms()`](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L318-L369), [`createImageProcessingBlockMatchingCommonTests()`](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L2004-L2189) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 65
+; Schema: 0
+               OpCapability Shader
+               OpCapability TextureBlockMatchQCOM
+               OpExtension "SPV_QCOM_image_processing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %targetTexture %targetSampler %pc %referenceTexture %referenceSampler %outColor %sbOut
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpSourceExtension "GL_QCOM_image_processing"
+               OpName %main "main"
+               OpName %blkMatchVal "blkMatchVal"
+               OpName %targetTexture "targetTexture"
+               OpName %targetSampler "targetSampler"
+               OpName %PushConstants "PushConstants"
+               OpMemberName %PushConstants 0 "targetCoord"
+               OpMemberName %PushConstants 1 "referenceCoord"
+               OpMemberName %PushConstants 2 "blockSize"
+               OpName %pc "pc"
+               OpName %referenceTexture "referenceTexture"
+               OpName %referenceSampler "referenceSampler"
+               OpName %err "err"
+               OpName %outColor "outColor"
+               OpName %outputError "outputError"
+               OpMemberName %outputError 0 "outError"
+               OpName %sbOut "sbOut"
+               OpDecorate %targetTexture Binding 0
+               OpDecorate %targetTexture DescriptorSet 0
+               OpDecorate %targetTexture BlockMatchTextureQCOM
+               OpDecorate %targetSampler Binding 2
+               OpDecorate %targetSampler DescriptorSet 0
+               OpDecorate %PushConstants Block
+               OpMemberDecorate %PushConstants 0 Offset 0
+               OpMemberDecorate %PushConstants 1 Offset 8
+               OpMemberDecorate %PushConstants 2 Offset 16
+               OpDecorate %referenceTexture Binding 1
+               OpDecorate %referenceTexture DescriptorSet 0
+               OpDecorate %referenceTexture BlockMatchTextureQCOM
+               OpDecorate %referenceSampler Binding 3
+               OpDecorate %referenceSampler DescriptorSet 0
+               OpDecorate %outColor Location 0
+               OpDecorate %outputError Block
+               OpMemberDecorate %outputError 0 NonReadable
+               OpMemberDecorate %outputError 0 Offset 0
+               OpDecorate %sbOut NonReadable
+               OpDecorate %sbOut Binding 4
+               OpDecorate %sbOut DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+         %10 = OpTypeImage %float 2D 0 0 0 1 Unknown
+%_ptr_UniformConstant_10 = OpTypePointer UniformConstant %10
+%targetTexture = OpVariable %_ptr_UniformConstant_10 UniformConstant
+         %14 = OpTypeSampler
+%_ptr_UniformConstant_14 = OpTypePointer UniformConstant %14
+%targetSampler = OpVariable %_ptr_UniformConstant_14 UniformConstant
+         %18 = OpTypeSampledImage %10
+       %uint = OpTypeInt 32 0
+     %v2uint = OpTypeVector %uint 2
+%PushConstants = OpTypeStruct %v2uint %v2uint %v2uint
+%_ptr_PushConstant_PushConstants = OpTypePointer PushConstant %PushConstants
+         %pc = OpVariable %_ptr_PushConstant_PushConstants PushConstant
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_PushConstant_v2uint = OpTypePointer PushConstant %v2uint
+%referenceTexture = OpVariable %_ptr_UniformConstant_10 UniformConstant
+%referenceSampler = OpVariable %_ptr_UniformConstant_14 UniformConstant
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+    %float_0 = OpConstant %float 0
+         %46 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
+       %bool = OpTypeBool
+     %v4bool = OpTypeVector %bool 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %outColor = OpVariable %_ptr_Output_v4float Output
+    %float_1 = OpConstant %float 1
+         %56 = OpConstantComposite %v4float %float_0 %float_1 %float_0 %float_1
+         %58 = OpConstantComposite %v4float %float_1 %float_0 %float_0 %float_1
+%outputError = OpTypeStruct %v4float
+%_ptr_StorageBuffer_outputError = OpTypePointer StorageBuffer %outputError
+      %sbOut = OpVariable %_ptr_StorageBuffer_outputError StorageBuffer
+%_ptr_StorageBuffer_v4float = OpTypePointer StorageBuffer %v4float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+%blkMatchVal = OpVariable %_ptr_Function_v4float Function
+        %err = OpVariable %_ptr_Function_v4float Function
+         %13 = OpLoad %10 %targetTexture
+         %17 = OpLoad %14 %targetSampler
+         %19 = OpSampledImage %18 %13 %17
+         %28 = OpAccessChain %_ptr_PushConstant_v2uint %pc %int_0
+         %29 = OpLoad %v2uint %28
+         %31 = OpLoad %10 %referenceTexture
+         %33 = OpLoad %14 %referenceSampler
+         %34 = OpSampledImage %18 %31 %33
+         %36 = OpAccessChain %_ptr_PushConstant_v2uint %pc %int_1
+         %37 = OpLoad %v2uint %36
+         %39 = OpAccessChain %_ptr_PushConstant_v2uint %pc %int_2
+         %40 = OpLoad %v2uint %39
+         %41 = OpImageBlockMatchSADQCOM %v4float %19 %29 %34 %37 %40
+               OpStore %blkMatchVal %41
+         %43 = OpLoad %v4float %blkMatchVal
+               OpStore %err %43
+         %44 = OpLoad %v4float %err
+         %49 = OpFOrdEqual %v4bool %44 %46
+         %50 = OpAll %bool %49
+               OpSelectionMerge %52 None
+               OpBranchConditional %50 %51 %57
+         %51 = OpLabel
+               OpStore %outColor %56
+               OpBranch %52
+         %57 = OpLabel
+               OpStore %outColor %58
+               OpBranch %52
+         %52 = OpLabel
+         %62 = OpLoad %v4float %err
+         %64 = OpAccessChain %_ptr_StorageBuffer_v4float %sbOut %int_0
+               OpStore %64 %62
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

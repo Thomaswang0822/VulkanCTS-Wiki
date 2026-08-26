@@ -1,6 +1,6 @@
 ## Overview
 
-**Core question: does an implementation preserve the cleared contents of a transient attachment across a store/load handoff between two render passes, so a later fragment shader can read them back through an input attachment?**
+**Core question:** Does an implementation preserve the cleared contents of a transient attachment across a store/load handoff between two render passes, so a later fragment shader can read them back through an input attachment?
 
 - Source file: [`vktFragmentOperationsTransientAttachmentTests.cpp`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsTransientAttachmentTests.cpp#L1).
 - Registered test family: `fragment_operations.transient_attachment_bit`, a direct child of the [`fragment_operations`](../../categories/fragment_operations.md) test category.
@@ -158,6 +158,8 @@ void main (void)
 
 #### SPIR-V
 
+##### Fragment Shader
+
 - Status: generated and validated
 - Source: reconstructed `GLSL` from this walkthrough
 - Stage: `frag`
@@ -204,6 +206,58 @@ void main (void)
          %13 = OpLoad %10 %inputValue
          %18 = OpImageRead %v4float %13 %17
                OpStore %fragColor %18
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 18
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %position
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpName %_ ""
+               OpName %position "position"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpDecorate %position Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%gl_PerVertex = OpTypeStruct %v4float
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+   %position = OpVariable %_ptr_Input_v4float Input
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %15 = OpLoad %v4float %position
+         %17 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %17 %15
                OpReturn
                OpFunctionEnd
 ```

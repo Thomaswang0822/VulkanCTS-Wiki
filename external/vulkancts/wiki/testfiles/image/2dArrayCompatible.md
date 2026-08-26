@@ -112,7 +112,7 @@ void main() {
 
 #### Parameter Variation Summary
 
-| Parameter dimension | Shader-level variation from this representative shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|----------------------------------------------------------|----------|
 | Image-view leaf | `2d` changes `sampler3D` to `sampler2D` and removes the third coordinate. `3d` retains the 3D declaration and uses `secondLayer / totalLayers`. | [View-dependent generated GLSL](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L437-L456) |
 | Layer configuration | The `3d` leaf changes only the generated third coordinate: `1 / 8`, `7 / 16`, or `4 / 5`. | [Layer parameters](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L468-L478), [coordinate construction](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L446-L450) |

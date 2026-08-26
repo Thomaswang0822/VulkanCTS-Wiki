@@ -18,11 +18,7 @@
 ```text
 spirv_assembly.instruction.compute.variable_init
 └── private
-```
 
-The graphics implementation registers the same `variable_init` family below `spirv_assembly.instruction.graphics`, with the direct children `private` and `output`:
-
-```text
 spirv_assembly.instruction.graphics.variable_init
 ├── private
 └── output
@@ -98,74 +94,9 @@ This module checks direct constant initialization of a `Private` scalar. Each in
 | Invocation index | Load `GlobalInvocationId.x` | Selects one of 128 result elements. |
 | Result write | `OpLoad %f32 %f1`, then `OpAccessChain` and `OpStore` | Makes the initializer observable to the host. |
 
-#### Source Code
+#### Shader Code
 
-<details>
-<summary>Click to expand CTS-authored SPIR-V assembly for <code>compute.variable_init.private.float</code></summary>
-
-```llvm
-                         OpCapability Shader
-                         OpExtension "SPV_KHR_storage_buffer_storage_class"
-                    %1 = OpExtInstImport "GLSL.std.450"
-                         OpMemoryModel Logical GLSL450
-                         OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
-                         OpExecutionMode %main LocalSize 1 1 1
-                         OpSource GLSL 430
-                         OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
-OpDecorate %outputArray ArrayStride 4
-                               OpMemberDecorate %Output 0 Offset 0
-                               OpDecorate %Output Block
-                               OpDecorate %dataOutput DescriptorSet 0
-                               OpDecorate %dataOutput Binding 0
-                               OpDecorate %floatArray ArrayStride 4
-                               OpMemberDecorate %struct 0 Offset 0
-                               OpMemberDecorate %struct 1 Offset 32
-                               OpMemberDecorate %struct 2 Offset 48
-                               OpMemberDecorate %struct 3 Offset 52
-                               OpMemberDecorate %struct 4 Offset 56
-                               OpMemberDecorate %struct 5 Offset 60
-                 %void = OpTypeVoid
-             %voidFunc = OpTypeFunction %void
-                  %f32 = OpTypeFloat 32
-                  %u32 = OpTypeInt 32 0
-              %c_u32_0 = OpConstant %u32 0
-                %v4f32 = OpTypeVector %f32 4
-                      %f32_1 = OpConstant %f32 1
-                    %v4f32_1 = OpConstantComposite %v4f32 %f32_1 %f32_1 %f32_1 %f32_1
-                     %matrix = OpTypeMatrix %v4f32 2
-                   %matrix_1 = OpConstantComposite %matrix %v4f32_1 %v4f32_1
-                    %c_u32_8 = OpConstant %u32 8
-                 %floatArray = OpTypeArray %f32 %c_u32_8
-               %floatArray_1 = OpConstantComposite %floatArray %f32_1 %f32_1 %f32_1 %f32_1 %f32_1 %f32_1 %f32_1 %f32_1
-                     %struct = OpTypeStruct %floatArray %v4f32 %f32 %f32 %f32 %f32
-                   %struct_1 = OpConstantComposite %struct %floatArray_1 %v4f32_1 %f32_1 %f32_1 %f32_1 %f32_1
-                %numElements = OpConstant %u32 128
-                %outputArray = OpTypeArray %f32 %numElements
-                     %Output = OpTypeStruct %outputArray
-                %_ptr_Output = OpTypePointer StorageBuffer %Output
-                      %sbPtr = OpTypePointer StorageBuffer %f32
-                 %dataOutput = OpVariable %_ptr_Output StorageBuffer
-              %dataPtr = OpTypePointer Private %f32
-   %_ptr_Function_uint = OpTypePointer Function %u32
-               %v3uint = OpTypeVector %u32 3
-    %_ptr_Input_v3uint = OpTypePointer Input %v3uint
-%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
-      %_ptr_Input_uint = OpTypePointer Input %u32
-                  %int = OpTypeInt 32 1
-                %int_0 = OpConstant %int 0
-             %f1 = OpVariable %dataPtr Private %f32_1
-                 %main = OpFunction %void None %voidFunc
-                %entry = OpLabel
-        %invocationPtr = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %c_u32_0
-           %invocation = OpLoad %u32 %invocationPtr
-     %outputData = OpLoad %f32 %f1
-            %outputPtr = OpAccessChain %sbPtr %dataOutput %int_0 %invocation
-                         OpStore %outputPtr %outputData
-                         OpReturn
-                         OpFunctionEnd
-```
-
-</details>
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -179,6 +110,86 @@ OpDecorate %outputArray ArrayStride 4
 | Initialized type | Changes the `Private` pointer type, constant composite, result element type, array stride, and workgroup count. | [`testParams` and compute specialization](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L122-L176) |
 | Initialization source | Replaces the direct typed initializer/load with a pointer load, Workgroup store, and indirect typed load. | [`INITIALIZATION_SOURCE_GLOBAL` branch](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L178-L203) |
 | Workgroup layout variant | Adds `WorkgroupMemoryExplicitLayoutKHR`, entry-point interfaces, and SPIR-V 1.4 for the array and structure global-source cases. | [`WorkgroupMemoryExplicitLayoutKHR` branch](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L212-L221) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 38
+; Schema: 0
+               OpCapability Shader
+               OpExtension "SPV_KHR_storage_buffer_storage_class"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %2 "main" %gl_GlobalInvocationID
+               OpExecutionMode %2 LocalSize 1 1 1
+               OpSource GLSL 430
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %_arr_float_uint_128 ArrayStride 4
+               OpMemberDecorate %_struct_5 0 Offset 0
+               OpDecorate %_struct_5 Block
+               OpDecorate %6 DescriptorSet 0
+               OpDecorate %6 Binding 0
+               OpDecorate %_arr_float_uint_8 ArrayStride 4
+               OpMemberDecorate %_struct_8 0 Offset 0
+               OpMemberDecorate %_struct_8 1 Offset 32
+               OpMemberDecorate %_struct_8 2 Offset 48
+               OpMemberDecorate %_struct_8 3 Offset 52
+               OpMemberDecorate %_struct_8 4 Offset 56
+               OpMemberDecorate %_struct_8 5 Offset 60
+       %void = OpTypeVoid
+         %10 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+    %v4float = OpTypeVector %float 4
+    %float_1 = OpConstant %float 1
+         %16 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
+%mat2v4float = OpTypeMatrix %v4float 2
+         %18 = OpConstantComposite %mat2v4float %16 %16
+     %uint_8 = OpConstant %uint 8
+%_arr_float_uint_8 = OpTypeArray %float %uint_8
+         %20 = OpConstantComposite %_arr_float_uint_8 %float_1 %float_1 %float_1 %float_1 %float_1 %float_1 %float_1 %float_1
+  %_struct_8 = OpTypeStruct %_arr_float_uint_8 %v4float %float %float %float %float
+         %21 = OpConstantComposite %_struct_8 %20 %16 %float_1 %float_1 %float_1 %float_1
+   %uint_128 = OpConstant %uint 128
+%_arr_float_uint_128 = OpTypeArray %float %uint_128
+  %_struct_5 = OpTypeStruct %_arr_float_uint_128
+%_ptr_StorageBuffer__struct_5 = OpTypePointer StorageBuffer %_struct_5
+%_ptr_StorageBuffer_float = OpTypePointer StorageBuffer %float
+          %6 = OpVariable %_ptr_StorageBuffer__struct_5 StorageBuffer
+%_ptr_Private_float = OpTypePointer Private %float
+%_ptr_Function_uint = OpTypePointer Function %uint
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+%_ptr_Input_uint = OpTypePointer Input %uint
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+         %32 = OpVariable %_ptr_Private_float Private %float_1
+          %2 = OpFunction %void None %10
+         %33 = OpLabel
+         %34 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %35 = OpLoad %uint %34
+         %36 = OpLoad %float %32
+         %37 = OpAccessChain %_ptr_StorageBuffer_float %6 %int_0 %35
+               OpStore %37 %36
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

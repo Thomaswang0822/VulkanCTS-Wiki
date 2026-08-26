@@ -165,7 +165,7 @@ remaining families are summarized under `Parameter Variation Summary` because th
 Representative path:
 
 ```text
-compute.pipeline.workgroup_memory_explicit_layout.alias.vec4_array_to_vec2_array_default
+dEQP-VK.compute.pipeline.workgroup_memory_explicit_layout.alias.vec4_array_to_vec2_array_default
 ```
 
 | Parameter choice | Meaning in this representative case |

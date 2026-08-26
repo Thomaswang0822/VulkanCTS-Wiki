@@ -74,9 +74,351 @@ These scripts exercise distinct ray tracing properties outside the pipeline-infr
 
 ## Shader Analysis
 
-Shader code is part of the tested behavior, but it lives entirely in the Amber scripts, not in CTS C++ source. The [`shader-analyzer`](../../../../../.agents/skills/shader-analyzer/SKILL.md) skill operates on CTS builder functions that generate GLSL or SPIR-V from C++, and these tests have no such C++ builder. Each Amber script embeds its own GLSL `SHADER` blocks inline. No representative shader walkthrough subsections are created, because there is no CTS-managed shader compilation path to analyze.
+The C++ registration is thin, but the registered Amber scripts contain the shaders that define the tested behavior. The representative below therefore follows the inline GLSL and pipeline/SBT declarations in `rt-sample.amber`; `AmberTestCase::initPrograms()` is the compilation entrypoint that converts those parsed ray-tracing shader blocks into CTS GLSL source collections.
 
-The key shader behaviors exercised across the 12 scripts are: raygen launch-ID computation and `traceRayEXT` dispatch; intersection-shader `reportIntersectionEXT` with candidate hit ordering; any-hit shader invocation and suppression by opacity flags; closest-hit shader `gl_HitTEXT` and `hitAttributeEXT` barycentric reads; miss shader payload writes; and callable shader declaration without invocation. These behaviors are described per script in `## Behavior Parameters` above.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.ray_tracing_pipeline.amber.rt-sample
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| Amber leaf `rt-sample` | Selects the four-stage `raygen1`/`anyhit1`/`closesthit1`/`miss1` program and its literal `EXPECT` oracle. |
+| `RUN ... 4 1 1` with launch x in `[0, 3]` | Launches four rays and writes one `R32_UINT` result per invocation. |
+| `sbtRecordOffset = 0`, `sbtRecordStride = 0`, `missIndex = 0` | Routes every ray through the sole hit group or sole miss group in the three declared SBT regions. |
+| Origins `(gl_LaunchIDEXT.x + 0.4, 0.4, 0.0)`, direction `+Z`, `Tmax = 3.5` | Rays 0, 1, and 2 reach triangle primitive IDs 0, 1, and 2 at z = 1, 2, and 3; ray 3 cannot reach the fourth triangle at z = 4 and misses. |
+
+#### Purpose
+
+This program checks ray-tracing dispatch and SBT routing by accumulating a distinguishable payload contribution in the any-hit, closest-hit, or miss path, then exposing the final value through a storage image checked by Amber.
+
+#### Structural Design
+
+| Phase or route | Payload transformation | Observable result |
+|----------------|------------------------|-------------------|
+| Ray-generation setup | `payload = 1` | Establishes a common starting value. |
+| Triangle hit for primitive `p` | any-hit adds `10 * p`; closest-hit adds `100` | Launches 0, 1, 2 produce `101`, `111`, `121`. |
+| Miss | miss adds `1000` | Launch 3 produces `1001`. |
+| Ray-generation completion | stores payload at `ivec2(gl_LaunchIDEXT.xy)` | `EXPECT img1 IDX 0 EQ 101 111 121 1001` is the pass/fail oracle. |
+
+#### Shader Code
+
+##### Ray Generation Shader
+
+```glsl
+#version 460 core
+#extension GL_EXT_ray_tracing : require
+/// Location 0 carries one uint payload through raygen, any-hit, closest-hit, and miss stages.
+layout(location = 0) rayPayloadEXT uint payload;
+/// Set 0, binding 0 is the TLAS traversed by all four launch invocations.
+layout(set = 0, binding = 0) uniform accelerationStructureEXT topLevelAS;
+/// Set 0, binding 1 is the 4x1 R32_UINT storage image checked by Amber's EXPECT command.
+layout(r32ui, set = 0, binding = 1) uniform uimage2D result;
+void main()
+{
+  /// Seed the payload before traversal; hit and miss stages add their path-specific value.
+  payload = 1u;
+  traceRayEXT(
+      topLevelAS,
+      gl_RayFlagsNoneEXT,                     /* rayFlags        */
+      0xFFu,                                  /* cullMask        */
+      0,                                      /* sbtRecordOffset */
+      0,                                      /* sbtRecordStride */
+      0,                                      /* missIndex       */
+      vec3(gl_LaunchIDEXT.x + 0.4, 0.4, 0.0), /* origin          */
+      0.0,                                    /* Tmin            */
+      vec3(0.0, 0.0, 1.0),                    /* direction       */
+      3.5,                                    /* Tmax            */
+      0                                       /* payload         */);
+  /// Publish the final payload at the launch coordinate for the literal EXPECT oracle.
+  imageStore(result, ivec2(gl_LaunchIDEXT.xy), uvec4(payload, 0u, 0u, 0u));
+}
+```
+
+##### Any-Hit Shader
+
+```glsl
+#version 460 core
+#extension GL_EXT_ray_tracing : require
+/// Receives the location-0 payload selected by the ray-generation trace call.
+layout(location = 0) rayPayloadInEXT uint payload;
+void main()
+{
+  /// Encode which triangle candidate was visited: primitive IDs 0, 1, and 2 add 0, 10, and 20.
+  payload += 10 * gl_PrimitiveID;
+}
+```
+
+##### Closest-Hit Shader
+
+```glsl
+#version 460 core
+#extension GL_EXT_ray_tracing : require
+/// Receives the same location-0 payload after any-hit processing.
+layout(location = 0) rayPayloadInEXT uint payload;
+void main()
+{
+  /// Mark the accepted-hit route independently of the primitive-ID contribution.
+  payload += 100;
+}
+```
+
+##### Miss Shader
+
+```glsl
+#version 460 core
+#extension GL_EXT_ray_tracing : require
+/// Receives the location-0 payload when traversal finds no accepted hit.
+layout(location = 0) rayPayloadInEXT uint payload;
+void main()
+{
+  /// Mark the miss route; the ray-generation shader later stores 1 + 1000.
+  payload += 1000;
+}
+```
+
+#### Additional Info
+
+- The any-hit stage varies across the Amber leaves: `rt-sample` uses `gl_PrimitiveID` to encode the visited triangle, while opacity-flag cases use any-hit invocation or suppression itself as the signal. Here it supplies the `0`, `10`, or `20` term for the three hits.
+- The closest-hit stage also varies or is absent across leaves. In `rt-sample` it contributes the fixed `+100` hit marker after any-hit processing, which distinguishes every accepted hit from the `+1000` miss route.
+- The miss stage varies or is absent across leaves. Here its fixed `+1000` contribution produces `1001` for launch 3, whose z = 4 triangle lies beyond `Tmax = 3.5`.
+- The script does not spell out `TARGET_ENV`; Amber assigns `spv1.4` to embedded ray-tracing shaders, and `AmberTestCase::initPrograms()` preserves that parsed target in `ShaderBuildOptions` for all six ray-tracing stage types ([Amber parser](../../../../amber/src/src/amberscript/parser.cc#L660-L662), [CTS compilation path](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L435-L529)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Amber script / stage set | The 12 leaves embed different subsets of ray-generation, any-hit, closest-hit, miss, intersection, and callable stages; `rt-sample` uses the four stages shown above. | [Amber ray-tracing scripts](../../../data/vulkan/amber/ray_tracing/) |
+| Ray flags and traversal arguments | The `flags-*` leaves replace `gl_RayFlagsNoneEXT` with force-opacity, skip-closest-hit, terminate-on-first-hit, or culling flags, changing which shader routes execute. | [`flags-force-opaque.amber`](../../../data/vulkan/amber/ray_tracing/flags-force-opaque.amber), [`flags-skip-chit.amber`](../../../data/vulkan/amber/ray_tracing/flags-skip-chit.amber), [`flags-accept-first.amber`](../../../data/vulkan/amber/ray_tracing/flags-accept-first.amber), [`flags-culling.amber`](../../../data/vulkan/amber/ray_tracing/flags-culling.amber) |
+| Payload interface | Other leaves change payload locations and types or overwrite rather than accumulate values; `different-payload-sizes` combines a location-0 `uint` with a location-1 `uvec4`. | [`different-payload-sizes.amber`](../../../data/vulkan/amber/ray_tracing/different-payload-sizes.amber) |
+| Acceleration-structure and SBT selection | `divergent-as` selects between two TLAS descriptors per invocation, while `basic_lib` obtains miss groups through linked pipeline libraries; `rt-sample` uses one TLAS and one group per SBT region. | [`divergent-as.amber`](../../../data/vulkan/amber/ray_tracing/divergent-as.amber), [`basic_lib.amber`](../../../data/vulkan/amber/ray_tracing/basic_lib.amber) |
+
+#### SPIR-V
+
+##### Ray Generation Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `rgen`
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 46
+; Schema: 0
+               OpCapability RayTracingKHR
+               OpExtension "SPV_KHR_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint RayGenerationKHR %main "main" %payload %topLevelAS %gl_LaunchIDEXT %result
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_ray_tracing"
+               OpName %main "main"
+               OpName %payload "payload"
+               OpName %topLevelAS "topLevelAS"
+               OpName %gl_LaunchIDEXT "gl_LaunchIDEXT"
+               OpName %result "result"
+               OpDecorate %topLevelAS Binding 0
+               OpDecorate %topLevelAS DescriptorSet 0
+               OpDecorate %gl_LaunchIDEXT BuiltIn LaunchIdKHR
+               OpDecorate %result Binding 1
+               OpDecorate %result DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_ptr_RayPayloadKHR_uint = OpTypePointer RayPayloadKHR %uint
+    %payload = OpVariable %_ptr_RayPayloadKHR_uint RayPayloadKHR
+     %uint_1 = OpConstant %uint 1
+         %10 = OpTypeAccelerationStructureKHR
+%_ptr_UniformConstant_10 = OpTypePointer UniformConstant %10
+ %topLevelAS = OpVariable %_ptr_UniformConstant_10 UniformConstant
+     %uint_0 = OpConstant %uint 0
+   %uint_255 = OpConstant %uint 255
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_LaunchIDEXT = OpVariable %_ptr_Input_v3uint Input
+%_ptr_Input_uint = OpTypePointer Input %uint
+      %float = OpTypeFloat 32
+%float_0_400000006 = OpConstant %float 0.400000006
+    %float_0 = OpConstant %float 0
+    %v3float = OpTypeVector %float 3
+    %float_1 = OpConstant %float 1
+         %30 = OpConstantComposite %v3float %float_0 %float_0 %float_1
+  %float_3_5 = OpConstant %float 3.5
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+         %34 = OpTypeImage %uint 2D 0 0 0 2 R32ui
+%_ptr_UniformConstant_34 = OpTypePointer UniformConstant %34
+     %result = OpVariable %_ptr_UniformConstant_34 UniformConstant
+     %v2uint = OpTypeVector %uint 2
+      %v2int = OpTypeVector %int 2
+     %v4uint = OpTypeVector %uint 4
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+               OpStore %payload %uint_1
+         %13 = OpLoad %10 %topLevelAS
+         %20 = OpAccessChain %_ptr_Input_uint %gl_LaunchIDEXT %uint_0
+         %21 = OpLoad %uint %20
+         %23 = OpConvertUToF %float %21
+         %25 = OpFAdd %float %23 %float_0_400000006
+         %28 = OpCompositeConstruct %v3float %25 %float_0_400000006 %float_0
+               OpTraceRayKHR %13 %uint_0 %uint_255 %uint_0 %uint_0 %uint_0 %28 %float_0 %30 %float_3_5 %payload
+         %37 = OpLoad %34 %result
+         %39 = OpLoad %v3uint %gl_LaunchIDEXT
+         %40 = OpVectorShuffle %v2uint %39 %39 0 1
+         %42 = OpBitcast %v2int %40
+         %43 = OpLoad %uint %payload
+         %45 = OpCompositeConstruct %v4uint %43 %uint_0 %uint_0 %uint_0
+               OpImageWrite %37 %42 %45 ZeroExtend
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Any-Hit Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `rahit`
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 18
+; Schema: 0
+               OpCapability RayTracingKHR
+               OpExtension "SPV_KHR_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint AnyHitKHR %main "main" %payload %gl_PrimitiveID
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_ray_tracing"
+               OpName %main "main"
+               OpName %payload "payload"
+               OpName %gl_PrimitiveID "gl_PrimitiveID"
+               OpDecorate %gl_PrimitiveID BuiltIn PrimitiveId
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_ptr_IncomingRayPayloadKHR_uint = OpTypePointer IncomingRayPayloadKHR %uint
+    %payload = OpVariable %_ptr_IncomingRayPayloadKHR_uint IncomingRayPayloadKHR
+        %int = OpTypeInt 32 1
+     %int_10 = OpConstant %int 10
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_PrimitiveID = OpVariable %_ptr_Input_int Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %13 = OpLoad %int %gl_PrimitiveID
+         %14 = OpIMul %int %int_10 %13
+         %15 = OpBitcast %uint %14
+         %16 = OpLoad %uint %payload
+         %17 = OpIAdd %uint %16 %15
+               OpStore %payload %17
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Closest-Hit Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `rchit`
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 12
+; Schema: 0
+               OpCapability RayTracingKHR
+               OpExtension "SPV_KHR_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint ClosestHitKHR %main "main" %payload
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_ray_tracing"
+               OpName %main "main"
+               OpName %payload "payload"
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_ptr_IncomingRayPayloadKHR_uint = OpTypePointer IncomingRayPayloadKHR %uint
+    %payload = OpVariable %_ptr_IncomingRayPayloadKHR_uint IncomingRayPayloadKHR
+   %uint_100 = OpConstant %uint 100
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %10 = OpLoad %uint %payload
+         %11 = OpIAdd %uint %10 %uint_100
+               OpStore %payload %11
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Miss Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `rmiss`
+- Target SPIRV version: `spirv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 12
+; Schema: 0
+               OpCapability RayTracingKHR
+               OpExtension "SPV_KHR_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint MissKHR %main "main" %payload
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_ray_tracing"
+               OpName %main "main"
+               OpName %payload "payload"
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_ptr_IncomingRayPayloadKHR_uint = OpTypePointer IncomingRayPayloadKHR %uint
+    %payload = OpVariable %_ptr_IncomingRayPayloadKHR_uint IncomingRayPayloadKHR
+  %uint_1000 = OpConstant %uint 1000
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %10 = OpLoad %uint %payload
+         %11 = OpIAdd %uint %10 %uint_1000
+               OpStore %payload %11
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

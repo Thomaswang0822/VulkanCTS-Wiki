@@ -63,15 +63,253 @@ The four leaves are `draw`, `draw_instanced`, `draw_indexed`, and `draw_indexed_
 
 ## Shader Analysis
 
-All four vertex shaders require `GL_ARB_shader_draw_parameters` and share position, color, and reference-index inputs. The fragment stage is the pass-through `vulkan/draw/VertexFetch.frag`. The shader is not checking a host-visible scalar; it encodes built-in correctness into rectangle position and color, making a wrong built-in visible in the attachment image.
+The vertex shader is central to this family: it turns `gl_BaseVertexARB`, `gl_BaseInstanceARB`, and `gl_DrawIDARB` into visible position and color changes. The representative combined case below exercises base vertex and base instance together; the draw-index-specific shader is covered in the variation summary because it keeps the same inputs and verdict but adds per-draw array indexing.
 
 ### Representative Shader Walkthrough 1
 
-`VertexFetchShaderDrawParameters.vert` is the representative combined path. It computes the zero-based instance slot from `gl_InstanceIndex - gl_BaseInstanceARB`, uses `gl_VertexIndex - gl_BaseVertexARB` to recognize the intended four-vertex rectangle, and requires `gl_DrawIDARB == 0` for the first indirect draw. Matching vertices receive the instance color; all other vertices receive red. [`VertexFetchShaderDrawParameters.vert`](../../../data/vulkan/draw/VertexFetchShaderDrawParameters.vert)
+#### Parameter Values Chosen
 
-The isolated shaders retain the same built-in expressions but remove the unrelated dimension: `VertexFetchShaderDrawParametersBaseVert.vert` focuses on base vertex, and `VertexFetchShaderDrawParametersBaseInst.vert` focuses on base instance. `VertexFetchShaderDrawParametersDrawIndex.vert` adds `perDraw[gl_DrawIDARB]` and selects `colors[gl_DrawIDARB]` for the three indirect records. [`VertexFetchShaderDrawParametersDrawIndex.vert`](../../../data/vulkan/draw/VertexFetchShaderDrawParametersDrawIndex.vert)
+Representative path:
 
-The host reference mirrors the shader's visible effects with three instance offsets, three draw offsets, and four colors in [`DrawTest::drawReferenceImage`](../../../modules/vulkan/draw/vktDrawShaderDrawParametersTests.cpp#L225-L255). The generated GLSL is compiled by the CTS shader program setup; no shader-side storage-buffer result is used.
+```text
+dEQP-VK.draw.renderpass.shader_draw_parameters.base_instance.draw_indexed_indirect_first_instance
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `renderpass` | Uses the legacy render-pass recording path; rendering delivery does not change the shader. |
+| `base_instance` | Selects the combined `VertexFetchShaderDrawParameters.vert` shader and three instances. |
+| `draw_indexed_indirect` | Supplies `firstIndex` and `vertexOffset` through a `VkDrawIndexedIndirectCommand`, exercising `gl_BaseVertexARB` together with indexed fetch. |
+| `first_instance` | Sets the indirect record's `firstInstance` to 2, while the shader subtracts `gl_BaseInstanceARB` from `gl_InstanceIndex` to recover a zero-based instance slot. |
+| One indirect record | `gl_DrawIDARB` must be zero, so the combined shader's guard also checks the draw-index baseline. |
+
+#### Purpose
+
+The vertex shader verifies that an indexed indirect draw exposes mutually consistent base-vertex and base-instance values, and that its single indirect record reports draw index zero. It converts any mismatch into red output or an incorrect rectangle position, which the host image comparison detects.
+
+#### Structural Design
+
+| Shader phase | Operation | Observable effect |
+|--------------|-----------|-------------------|
+| Instance normalization | `gl_InstanceIndex - gl_BaseInstanceARB` selects `perInstance[]` and `colors[]`. | A wrong base instance moves or recolors an instance. |
+| Vertex normalization | `gl_VertexIndex - gl_BaseVertexARB` is compared with `in_refVertexIndex`. | A wrong base vertex sends the affected vertex to the red failure path. |
+| Draw-index baseline | The validity guard also requires `gl_DrawIDARB == 0`. | A wrong draw ID makes otherwise valid vertices red. |
+| Fragment handoff | `out_color` is passed through unchanged by `VertexFetch.frag`. | The attachment directly exposes the vertex-stage verdict. |
+
+#### Shader Code
+
+```glsl
+#version 450 core
+#extension GL_ARB_shader_draw_parameters : require
+
+layout(location = 0) in vec4 in_position;
+layout(location = 1) in vec4 in_color;
+layout(location = 2) in int  in_refVertexIndex;
+
+layout(location = 0) out vec4 out_color;
+
+out gl_PerVertex {
+    vec4 gl_Position;
+};
+
+void main() {
+    vec2 perVertex         = vec2(in_position.x, in_position.y);
+    vec2 perInstance[5]    = vec2[5](vec2(0.0, 0.0), vec2(-0.3, 0.0), vec2(0.0, 0.3), vec2(0.5, 0.5), vec2(0.75, -0.8));
+    vec4 colors[4]         = vec4[4](vec4(1.0), vec4(0.0, 0.0, 1.0, 1.0), vec4(0.0, 1.0, 0.0, 1.0), vec4(0.0, 1.0, 1.0, 1.0));
+    int  baseInstanceIndex = gl_InstanceIndex - gl_BaseInstanceARB;
+
+    /// The normalized instance index controls both rectangle position and color.
+    gl_Position = vec4(perVertex + perInstance[baseInstanceIndex], 0.0, 1.0);
+
+    /// The expected vertex index and the single-record draw ID form the shader verdict.
+    if ((gl_VertexIndex - gl_BaseVertexARB) == in_refVertexIndex && gl_DrawIDARB == 0)
+        out_color = in_color * colors[baseInstanceIndex];
+    else
+        out_color = vec4(1.0, 0.0, 0.0, 1.0);
+}
+```
+
+#### Additional Info
+
+- The fixed fragment shader only copies `in_color` to the attachment. It does not vary across this family, so its SPIR-V is not needed to audit the built-ins under test.
+- The host reference uses the same three instance offsets and colors in [`DrawTest::drawReferenceImage()`](../../../modules/vulkan/draw/vktDrawShaderDrawParametersTests.cpp#L225-L255).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| `base_vertex_only` | Uses `VertexFetchShaderDrawParametersBaseVert.vert`, removes instance positioning and color selection, and isolates `gl_BaseVertexARB`. | [`ShaderDrawParametersTests::init()`](../../../modules/vulkan/draw/vktDrawShaderDrawParametersTests.cpp#L484-L512) |
+| `base_instance_only` | Uses `VertexFetchShaderDrawParametersBaseInst.vert`, fixes the expected vertex-index expression, and isolates `gl_BaseInstanceARB`. | [`ShaderDrawParametersTests::init()`](../../../modules/vulkan/draw/vktDrawShaderDrawParametersTests.cpp#L513-L541) |
+| `draw_index` | Uses `VertexFetchShaderDrawParametersDrawIndex.vert`; `gl_DrawIDARB` indexes per-draw offsets and colors for three indirect records. | [`ShaderDrawParametersTests::init()`](../../../modules/vulkan/draw/vktDrawShaderDrawParametersTests.cpp#L542-L555) |
+| Direct versus indirect and indexed versus non-indexed | The combined GLSL is unchanged; command parameters determine the built-in values observed by the shader. | [`DrawTest::draw()`](../../../modules/vulkan/draw/vktDrawShaderDrawParametersTests.cpp#L374-L431) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 98
+; Schema: 0
+               OpCapability Shader
+               OpCapability DrawParameters
+               OpExtension "SPV_KHR_shader_draw_parameters"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %in_position %gl_InstanceIndex %gl_BaseInstanceARB %_ %gl_VertexIndex %gl_BaseVertexARB %in_refVertexIndex %gl_DrawIDARB %out_color %in_color
+               OpSource GLSL 450
+               OpSourceExtension "GL_ARB_shader_draw_parameters"
+               OpName %main "main"
+               OpName %perVertex "perVertex"
+               OpName %in_position "in_position"
+               OpName %perInstance "perInstance"
+               OpName %colors "colors"
+               OpName %baseInstanceIndex "baseInstanceIndex"
+               OpName %gl_InstanceIndex "gl_InstanceIndex"
+               OpName %gl_BaseInstanceARB "gl_BaseInstanceARB"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpName %_ ""
+               OpName %gl_VertexIndex "gl_VertexIndex"
+               OpName %gl_BaseVertexARB "gl_BaseVertexARB"
+               OpName %in_refVertexIndex "in_refVertexIndex"
+               OpName %gl_DrawIDARB "gl_DrawIDARB"
+               OpName %out_color "out_color"
+               OpName %in_color "in_color"
+               OpDecorate %in_position Location 0
+               OpDecorate %gl_InstanceIndex BuiltIn InstanceIndex
+               OpDecorate %gl_BaseInstanceARB BuiltIn BaseInstance
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpDecorate %gl_VertexIndex BuiltIn VertexIndex
+               OpDecorate %gl_BaseVertexARB BuiltIn BaseVertex
+               OpDecorate %in_refVertexIndex Location 2
+               OpDecorate %gl_DrawIDARB BuiltIn DrawIndex
+               OpDecorate %out_color Location 0
+               OpDecorate %in_color Location 1
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v2float = OpTypeVector %float 2
+%_ptr_Function_v2float = OpTypePointer Function %v2float
+    %v4float = OpTypeVector %float 4
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%in_position = OpVariable %_ptr_Input_v4float Input
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_float = OpTypePointer Input %float
+     %uint_1 = OpConstant %uint 1
+     %uint_5 = OpConstant %uint 5
+%_arr_v2float_uint_5 = OpTypeArray %v2float %uint_5
+%_ptr_Function__arr_v2float_uint_5 = OpTypePointer Function %_arr_v2float_uint_5
+    %float_0 = OpConstant %float 0
+         %27 = OpConstantComposite %v2float %float_0 %float_0
+%float_n0_300000012 = OpConstant %float -0.300000012
+         %29 = OpConstantComposite %v2float %float_n0_300000012 %float_0
+%float_0_300000012 = OpConstant %float 0.300000012
+         %31 = OpConstantComposite %v2float %float_0 %float_0_300000012
+  %float_0_5 = OpConstant %float 0.5
+         %33 = OpConstantComposite %v2float %float_0_5 %float_0_5
+ %float_0_75 = OpConstant %float 0.75
+%float_n0_800000012 = OpConstant %float -0.800000012
+         %36 = OpConstantComposite %v2float %float_0_75 %float_n0_800000012
+         %37 = OpConstantComposite %_arr_v2float_uint_5 %27 %29 %31 %33 %36
+     %uint_4 = OpConstant %uint 4
+%_arr_v4float_uint_4 = OpTypeArray %v4float %uint_4
+%_ptr_Function__arr_v4float_uint_4 = OpTypePointer Function %_arr_v4float_uint_4
+    %float_1 = OpConstant %float 1
+         %43 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
+         %44 = OpConstantComposite %v4float %float_0 %float_0 %float_1 %float_1
+         %45 = OpConstantComposite %v4float %float_0 %float_1 %float_0 %float_1
+         %46 = OpConstantComposite %v4float %float_0 %float_1 %float_1 %float_1
+         %47 = OpConstantComposite %_arr_v4float_uint_4 %43 %44 %45 %46
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_InstanceIndex = OpVariable %_ptr_Input_int Input
+%gl_BaseInstanceARB = OpVariable %_ptr_Input_int Input
+%gl_PerVertex = OpTypeStruct %v4float
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+      %int_0 = OpConstant %int 0
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+       %bool = OpTypeBool
+%gl_VertexIndex = OpVariable %_ptr_Input_int Input
+%gl_BaseVertexARB = OpVariable %_ptr_Input_int Input
+%in_refVertexIndex = OpVariable %_ptr_Input_int Input
+%gl_DrawIDARB = OpVariable %_ptr_Input_int Input
+  %out_color = OpVariable %_ptr_Output_v4float Output
+   %in_color = OpVariable %_ptr_Input_v4float Input
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+         %97 = OpConstantComposite %v4float %float_1 %float_0 %float_0 %float_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+  %perVertex = OpVariable %_ptr_Function_v2float Function
+%perInstance = OpVariable %_ptr_Function__arr_v2float_uint_5 Function
+     %colors = OpVariable %_ptr_Function__arr_v4float_uint_4 Function
+%baseInstanceIndex = OpVariable %_ptr_Function_int Function
+         %16 = OpAccessChain %_ptr_Input_float %in_position %uint_0
+         %17 = OpLoad %float %16
+         %19 = OpAccessChain %_ptr_Input_float %in_position %uint_1
+         %20 = OpLoad %float %19
+         %21 = OpCompositeConstruct %v2float %17 %20
+               OpStore %perVertex %21
+               OpStore %perInstance %37
+               OpStore %colors %47
+         %53 = OpLoad %int %gl_InstanceIndex
+         %55 = OpLoad %int %gl_BaseInstanceARB
+         %56 = OpISub %int %53 %55
+               OpStore %baseInstanceIndex %56
+         %61 = OpLoad %v2float %perVertex
+         %62 = OpLoad %int %baseInstanceIndex
+         %63 = OpAccessChain %_ptr_Function_v2float %perInstance %62
+         %64 = OpLoad %v2float %63
+         %65 = OpFAdd %v2float %61 %64
+         %66 = OpCompositeExtract %float %65 0
+         %67 = OpCompositeExtract %float %65 1
+         %68 = OpCompositeConstruct %v4float %66 %67 %float_0 %float_1
+         %70 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %70 %68
+         %73 = OpLoad %int %gl_VertexIndex
+         %75 = OpLoad %int %gl_BaseVertexARB
+         %76 = OpISub %int %73 %75
+         %78 = OpLoad %int %in_refVertexIndex
+         %79 = OpIEqual %bool %76 %78
+               OpSelectionMerge %81 None
+               OpBranchConditional %79 %80 %81
+         %80 = OpLabel
+         %83 = OpLoad %int %gl_DrawIDARB
+         %84 = OpIEqual %bool %83 %int_0
+               OpBranch %81
+         %81 = OpLabel
+         %85 = OpPhi %bool %79 %5 %84 %80
+               OpSelectionMerge %87 None
+               OpBranchConditional %85 %86 %96
+         %86 = OpLabel
+         %90 = OpLoad %v4float %in_color
+         %91 = OpLoad %int %baseInstanceIndex
+         %93 = OpAccessChain %_ptr_Function_v4float %colors %91
+         %94 = OpLoad %v4float %93
+         %95 = OpFMul %v4float %90 %94
+               OpStore %out_color %95
+               OpBranch %87
+         %96 = OpLabel
+               OpStore %out_color %97
+               OpBranch %87
+         %87 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

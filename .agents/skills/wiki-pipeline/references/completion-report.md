@@ -30,7 +30,6 @@ Use this compact structure. Replace every count with independently verified file
 - Target-language check: <result>
 - Link conversion: <N>/<N>
 - Idempotency: <result>
-- home.md: <result>
 - Checklist: <result and updated totals>
 
 ### Safety

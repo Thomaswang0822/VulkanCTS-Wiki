@@ -62,9 +62,341 @@ The primary behavioral axis is the pair of rendering dimensions that changes how
 
 ## Shader Analysis
 
-The Amber scripts contain the shaders that produce the geometry and color used by the depth-bias check. The triangle-list scripts use a vertex shader that writes `gl_Position = vec4(inPosition, 1.0)` and forwards `inColor` to the fragment shader. The fragment shader writes that color unchanged. The patch-list scripts add tessellation-control and tessellation-evaluation stages: the control shader sets tessellation levels and forwards control-point positions, while the evaluation shader interpolates the three positions with `gl_TessCoord` using triangular, clockwise, equal-spacing tessellation. Its color path is also a pass-through.
+The representative case is the triangle-list/fill Amber script. Its graphics shader path is deliberately simple: the vertex stage supplies clip-space position and a color varying, and the fragment stage writes that varying without modifying depth. The compute stage is part of the validation signal rather than the depth-bias implementation: it classifies each rendered pixel and stores the pass/fail image. The patch-list cases add tessellation stages around the same position/color transport; they do not introduce a different depth-bias calculation.
 
-The verification compute shader loads each pixel from `framebuffer` and writes green to `verifyImage` when the rendered pixel has zero red and full alpha. Otherwise it writes red. The script then requires every pixel in `verifyImage` to equal opaque green. No shader computes the depth bias. The fixed-function depth test and rasterization state determine which rectangle remains visible.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.draw.renderpass.depth_bias.depth_bias_triangle_list_fill
+```
+
+| Parameter choice | Meaning in this representative case |
+|---|---|
+| `triangle_list` | The vertex stage receives the six vertices of the rectangle directly; no tessellation stages are present. |
+| `fill` | Rasterization produces filled triangles, while the shader interface remains the same as the line and point variants. |
+| `D16_UNORM`, constant bias `-700.0` | These are fixed-function depth-test inputs. No shader stage writes or adjusts depth, so the shader evidence isolates position/color transport from the bias operation. |
+| `R8G8B8A8_UNORM` color and verifier dispatch | The fragment output is read by the compute verifier, which converts the rendered color into the image used by `EXPECT`. |
+
+#### Purpose
+
+This shader path supplies two rectangles at different vertex depths and preserves their per-draw colors so fixed-function depth bias and the `less` test determine which fragments remain visible. The verifier then turns the color result into a full-image pass/fail signal; depth bias itself is not implemented in GLSL.
+
+#### Structural Design
+
+| Stage | Inputs | Core operation | Output used by |
+|---|---|---|---|
+| Vertex (`vert_shader`) | `inPosition` at location 0; `inColor` at location 1 | Construct `gl_Position` with `w = 1.0`; copy the color | Fragment stage |
+| Fragment (`frag_shader`) | Color at location 0 | Store the interpolated color unchanged | `framebuffer` |
+| Compute (`comp_shader`) | `resultImage` binding 0; `verifyImage` binding 1; `gl_GlobalInvocationID` | Load one framebuffer pixel; classify `red == 0` and `alpha == 1` as expected | `verifyImage`, checked by `EXPECT` |
+
+#### Shader Code
+
+##### Vertex Shader
+
+```glsl
+#version 450
+
+/// The position buffer supplies rectangle coordinates with z = 0.17 or 0.18.
+layout (location = 0) in vec3 inPosition;
+/// The per-draw color buffer carries red for the first draw and green for the second.
+layout (location = 1) in vec4 inColor;
+
+/// This varying is the only graphics-stage payload besides the built-in position.
+layout (location = 0) out vec4 outColor;
+
+void main()
+{
+  /// Fixed-function depth bias acts after this position reaches rasterization.
+  gl_Position = vec4(inPosition, 1.0);
+  /// Preserve the draw color for fragment output.
+  outColor = inColor;
+}
+```
+
+##### Fragment Shader
+
+```glsl
+#version 450
+
+/// Receives the vertex color through location 0; interpolation is the default.
+layout (location = 0) in vec4 inColor;
+/// Writes the color attachment observed by the compute verifier.
+layout (location = 0) out vec4 outColor;
+
+void main()
+{
+  /// No fragment-depth assignment occurs; Vulkan depth testing remains fixed-function.
+  outColor = inColor;
+}
+```
+
+##### Compute Verification Shader
+
+```glsl
+#version 450
+
+/// Ten-by-ten workgroups cover the 100-by-100 image with 100 invocations per group.
+layout(local_size_x=10,local_size_y=10) in;
+/// Binding 0 is the rendered color image; binding 1 receives the classification image.
+uniform layout(set=0, binding=0, rgba8) image2D resultImage;
+uniform layout(set=0, binding=1, rgba8) image2D verifyImage;
+
+void main()
+{
+  /// Each invocation maps one global ID directly to one image coordinate.
+  ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
+  vec4 color = imageLoad(resultImage, uv);
+
+  /// This predicate accepts both opaque green and opaque black clear pixels because it checks only red and alpha.
+  if(color.r == 0.0 && color.a == 1.0) imageStore(verifyImage, uv, vec4(0.0, 1.0, 0.0, 1.0));
+  else imageStore(verifyImage, uv, vec4(1.0, 0.0, 0.0, 1.0));
+}
+```
+
+#### Additional Info
+
+- The six Amber files reuse the same vertex/fragment interface. The `line` and `point` files change only `POLYGON_MODE`; they do not change the shader source.
+- The patch-list files keep the vertex and fragment color path but insert a three-control-point tessellation-control stage and a triangular, clockwise, equal-spacing tessellation-evaluation stage. Those stages forward positions and patch color before the same fragment write.
+- The verification predicate is intentionally weaker than an exact green-color comparison: an untouched opaque-black clear pixel also satisfies `color.r == 0.0 && color.a == 1.0`. This is a limitation of the Amber oracle, not shader-side depth-bias behavior.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---|---|---|
+| `triangle_list` vs `patch_list` | `patch_list` adds `tessellation_control` and `tessellation_evaluation` stages; the triangle-list representative has only vertex and fragment graphics stages. | [`depth_bias_patch_list_tri_fill.amber`](../../../data/vulkan/amber/draw/depth_bias/depth_bias_patch_list_tri_fill.amber#L28-L91) |
+| `fill` vs `line` vs `point` | Polygon mode changes rasterization after the vertex stage; the vertex, fragment, and compute shader text remains shared across the corresponding scripts. | [`depth_bias_triangle_list_fill.amber`](../../../data/vulkan/amber/draw/depth_bias/depth_bias_triangle_list_fill.amber#L25-L50) |
+| First vs second draw | The shader code is unchanged; the host binds different position/color buffers (`z = 0.17`, red versus `z = 0.18`, green) and changes only the fixed-function bias state. | [`depth_bias_triangle_list_fill.amber`](../../../data/vulkan/amber/draw/depth_bias/depth_bias_triangle_list_fill.amber#L56-L90), [`vktDrawDepthBiasTests.cpp`](../../../modules/vulkan/draw/vktDrawDepthBiasTests.cpp#L51-L64) |
+
+#### SPIR-V
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 31
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %inPosition %outColor %inColor
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex 2 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex 3 "gl_CullDistance"
+               OpName %_ ""
+               OpName %inPosition "inPosition"
+               OpName %outColor "outColor"
+               OpName %inColor "inColor"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex 3 BuiltIn CullDistance
+               OpDecorate %inPosition Location 0
+               OpDecorate %outColor Location 0
+               OpDecorate %inColor Location 1
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_arr_float_uint_1 = OpTypeArray %float %uint_1
+%gl_PerVertex = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+    %v3float = OpTypeVector %float 3
+%_ptr_Input_v3float = OpTypePointer Input %v3float
+ %inPosition = OpVariable %_ptr_Input_v3float Input
+    %float_1 = OpConstant %float 1
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %outColor = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+    %inColor = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %19 = OpLoad %v3float %inPosition
+         %21 = OpCompositeExtract %float %19 0
+         %22 = OpCompositeExtract %float %19 1
+         %23 = OpCompositeExtract %float %19 2
+         %24 = OpCompositeConstruct %v4float %21 %22 %23 %float_1
+         %26 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %26 %24
+         %30 = OpLoad %v4float %inColor
+               OpStore %outColor %30
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 13
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %outColor %inColor
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %outColor "outColor"
+               OpName %inColor "inColor"
+               OpDecorate %outColor Location 0
+               OpDecorate %inColor Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %outColor = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+    %inColor = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %12 = OpLoad %v4float %inColor
+               OpStore %outColor %12
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Compute Verification Shader
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 56
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
+               OpExecutionMode %main LocalSize 10 10 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %uv "uv"
+               OpName %gl_GlobalInvocationID "gl_GlobalInvocationID"
+               OpName %color "color"
+               OpName %resultImage "resultImage"
+               OpName %verifyImage "verifyImage"
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %resultImage Binding 0
+               OpDecorate %resultImage DescriptorSet 0
+               OpDecorate %verifyImage Binding 1
+               OpDecorate %verifyImage DescriptorSet 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+      %v2int = OpTypeVector %int 2
+%_ptr_Function_v2int = OpTypePointer Function %v2int
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+     %v2uint = OpTypeVector %uint 2
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+         %22 = OpTypeImage %float 2D 0 0 0 2 Rgba8
+%_ptr_UniformConstant_22 = OpTypePointer UniformConstant %22
+%resultImage = OpVariable %_ptr_UniformConstant_22 UniformConstant
+       %bool = OpTypeBool
+     %uint_0 = OpConstant %uint 0
+%_ptr_Function_float = OpTypePointer Function %float
+    %float_0 = OpConstant %float 0
+     %uint_3 = OpConstant %uint 3
+    %float_1 = OpConstant %float 1
+%verifyImage = OpVariable %_ptr_UniformConstant_22 UniformConstant
+         %48 = OpConstantComposite %v4float %float_0 %float_1 %float_0 %float_1
+         %52 = OpConstantComposite %v4float %float_1 %float_0 %float_0 %float_1
+    %uint_10 = OpConstant %uint 10
+     %uint_1 = OpConstant %uint 1
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_10 %uint_10 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %uv = OpVariable %_ptr_Function_v2int Function
+      %color = OpVariable %_ptr_Function_v4float Function
+         %15 = OpLoad %v3uint %gl_GlobalInvocationID
+         %16 = OpVectorShuffle %v2uint %15 %15 0 1
+         %17 = OpBitcast %v2int %16
+               OpStore %uv %17
+         %25 = OpLoad %22 %resultImage
+         %26 = OpLoad %v2int %uv
+         %27 = OpImageRead %v4float %25 %26
+               OpStore %color %27
+         %31 = OpAccessChain %_ptr_Function_float %color %uint_0
+         %32 = OpLoad %float %31
+         %34 = OpFOrdEqual %bool %32 %float_0
+               OpSelectionMerge %36 None
+               OpBranchConditional %34 %35 %36
+         %35 = OpLabel
+         %38 = OpAccessChain %_ptr_Function_float %color %uint_3
+         %39 = OpLoad %float %38
+         %41 = OpFOrdEqual %bool %39 %float_1
+               OpBranch %36
+         %36 = OpLabel
+         %42 = OpPhi %bool %34 %5 %41 %35
+               OpSelectionMerge %44 None
+               OpBranchConditional %42 %43 %49
+         %43 = OpLabel
+         %46 = OpLoad %22 %verifyImage
+         %47 = OpLoad %v2int %uv
+               OpImageWrite %46 %47 %48
+               OpBranch %44
+         %49 = OpLabel
+         %50 = OpLoad %22 %verifyImage
+         %51 = OpLoad %v2int %uv
+               OpImageWrite %50 %51 %52
+               OpBranch %44
+         %44 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

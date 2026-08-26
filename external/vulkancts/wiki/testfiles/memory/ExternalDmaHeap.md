@@ -139,6 +139,8 @@ void main()
 
 #### SPIR-V
 
+##### Write Compute Shader
+
 - Status: generated and validated
 - Source: reconstructed `GLSL` from this walkthrough
 - Stage: `comp`
@@ -182,6 +184,93 @@ void main()
                OpMemberDecorate %_input 0 Offset 0
                OpDecorate %__0 NonWritable
                OpDecorate %__0 Binding 0
+               OpDecorate %__0 DescriptorSet 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_ptr_Function_uint = OpTypePointer Function %uint
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_uint = OpTypePointer Input %uint
+%_runtimearr_uint = OpTypeRuntimeArray %uint
+    %_output = OpTypeStruct %_runtimearr_uint
+%_ptr_Uniform__output = OpTypePointer Uniform %_output
+          %_ = OpVariable %_ptr_Uniform__output Uniform
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_runtimearr_uint_0 = OpTypeRuntimeArray %uint
+     %_input = OpTypeStruct %_runtimearr_uint_0
+%_ptr_Uniform__input = OpTypePointer Uniform %_input
+        %__0 = OpVariable %_ptr_Uniform__input Uniform
+%_ptr_Uniform_uint = OpTypePointer Uniform %uint
+     %uint_1 = OpConstant %uint 1
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+      %index = OpVariable %_ptr_Function_uint Function
+         %14 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %15 = OpLoad %uint %14
+               OpStore %index %15
+         %22 = OpLoad %uint %index
+         %27 = OpLoad %uint %index
+         %29 = OpAccessChain %_ptr_Uniform_uint %__0 %int_0 %27
+         %30 = OpLoad %uint %29
+         %31 = OpAccessChain %_ptr_Uniform_uint %_ %int_0 %22
+               OpStore %31 %30
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Read Compute Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 34
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %index "index"
+               OpName %gl_GlobalInvocationID "gl_GlobalInvocationID"
+               OpName %_output "_output"
+               OpMemberName %_output 0 "hostVisibleData"
+               OpName %_ ""
+               OpName %_input "_input"
+               OpMemberName %_input 0 "dmaHeapMemoryData"
+               OpName %__0 ""
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %_runtimearr_uint ArrayStride 4
+               OpDecorate %_output BufferBlock
+               OpMemberDecorate %_output 0 NonReadable
+               OpMemberDecorate %_output 0 Offset 0
+               OpDecorate %_ NonReadable
+               OpDecorate %_ Binding 0
+               OpDecorate %_ DescriptorSet 0
+               OpDecorate %_runtimearr_uint_0 ArrayStride 4
+               OpDecorate %_input BufferBlock
+               OpMemberDecorate %_input 0 NonWritable
+               OpMemberDecorate %_input 0 Offset 0
+               OpDecorate %__0 NonWritable
+               OpDecorate %__0 Binding 1
                OpDecorate %__0 DescriptorSet 0
                OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
        %void = OpTypeVoid

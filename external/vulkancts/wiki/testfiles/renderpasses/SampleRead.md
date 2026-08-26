@@ -66,7 +66,7 @@ This test is shader-internal validation. The subpass-2 fragment shader is the on
 Representative path:
 
 ```text
-renderpasses.renderpass1.suballocation.sampleread.numsamples_4_selected_sample_1
+dEQP-VK.renderpasses.renderpass1.suballocation.sampleread.numsamples_4_selected_sample_1
 ```
 
 | Parameter choice | Meaning in this representative case |

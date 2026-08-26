@@ -69,7 +69,7 @@ All 15 Amber scripts share the same vertex shader and the same fragment-shader s
 Representative path:
 
 ```text
-spirv_assembly.instruction.terminate_invocation.terminate.no_output_write
+dEQP-VK.spirv_assembly.instruction.terminate_invocation.terminate.no_output_write
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -97,81 +97,90 @@ flowchart TD
     F --> G[Frame buffer compare<br/>EXPECT out_data EQ_BUFFER expect_frame]
 ```
 
-#### Shader Resources
+#### Shader Code
 
-| Resource | Binding | Role in this case |
-|----------|---------|-------------------|
-| `%frag_coord` | BuiltIn `FragCoord` | Input; provides `x`, `y`, `z` used for the trigger condition. |
-| `%in_data` | `Location 0`, `Flat` | Per-vertex integer input; constant `0` from `in_data_buf`. |
-| `%out_data` | `Location 0` | Output color attachment (`out_data` image, 8×8, int32). The post-terminate `OpStore` targets this variable. |
-| `expect_frame` | reference pipeline color attachment | 8×8 int32 image filled by the GLSL `expect_fs` shader; compared against `out_data` after both pipelines draw. |
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `fragment` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
-#### Source Code
+#### Additional Info
 
-The SPIR-V assembly below is the literal contents of `no_output_write.amber` between `SHADER fragment fs SPIRV-ASM` and `END`. It is test data, not reconstructed source, so it is shown verbatim. The leading `;`-prefixed lines are SPIR-V assembly comments showing the original GLSL intent.
+- ``%frag_coord`` (BuiltIn `FragCoord`): Input; provides `x`, `y`, `z` used for the trigger condition.
+- ``%in_data`` (`Location 0`, `Flat`): Per-vertex integer input; constant `0` from `in_data_buf`.
+- ``%out_data`` (`Location 0`): Output color attachment (`out_data` image, 8×8, int32). The post-terminate `OpStore` targets this variable.
+- ``expect_frame`` (reference pipeline color attachment): 8×8 int32 image filled by the GLSL `expect_fs` shader; compared against `out_data` after both pipelines draw.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Operation after termination | The sibling cases replace the post-termination fragment output store with SSBO stores or atomics, storage-image operations, invalid pointer accesses, loop exit, or subgroup vote/ballot operations. | [Registered case list](../../../modules/vulkan/spirv_assembly/vktSpvAsmTerminateInvocationTests.cpp#L132-L162) |
+| Operation before termination | `no_output_write_before_terminate` and `ssbo_store_before_terminate` move the observable write before `OpTerminateInvocation` to distinguish fragment-output suppression from storage-write persistence. | [Registered case list](../../../modules/vulkan/spirv_assembly/vktSpvAsmTerminateInvocationTests.cpp#L132-L162) |
+| Required SPIR-V environment | `subgroup_ballot` and `subgroup_vote` add subgroup capabilities and use SPIR-V 1.3; the other cases use the SPIR-V 1.0 baseline. | [Amber dispatcher](../../../modules/vulkan/spirv_assembly/vktSpvAsmTerminateInvocationTests.cpp#L77-L104) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `Fragment` (`main`)
+- Stage: `Fragment`
+- Target SPIRV version: `spv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
 
 ```llvm
-;#version 450
-;
-;layout(location = 0) in flat int in_data;
-;layout(location = 0) out int out_data;
-;void main() {
-;  int x_coord = int(gl_FragCoord.x);
-;  int y_coord = int(gl_FragCoord.y);
-;  int combined = (x_coord & 0x1) + (y_coord & 0x1) + in_data;
-;  if (combined == int(gl_FragCoord.z))
-;    terminateInvocation;
-;
-;  out_data = 1;
-;}
-OpCapability Shader
-OpExtension "SPV_KHR_terminate_invocation"
-OpMemoryModel Logical GLSL450
-OpEntryPoint Fragment %main "main" %frag_coord %in_data %out_data
-OpExecutionMode %main OriginUpperLeft
-OpDecorate %frag_coord BuiltIn FragCoord
-OpDecorate %in_data Location 0
-OpDecorate %in_data Flat
-OpDecorate %out_data Location 0
-%void = OpTypeVoid
-%bool = OpTypeBool
-%int = OpTypeInt 32 1
-%int_1 = OpConstant %int 1
-%float = OpTypeFloat 32
-%float4 = OpTypeVector %float 4
-%ptr_int_input = OpTypePointer Input %int
-%ptr_int_output = OpTypePointer Output %int
-%ptr_float4_input = OpTypePointer Input %float4
-%frag_coord = OpVariable %ptr_float4_input Input
-%in_data = OpVariable %ptr_int_input Input
-%out_data = OpVariable %ptr_int_output Output
-%void_fn = OpTypeFunction %void
-%main = OpFunction %void None %void_fn
-%entry = OpLabel
-%coord = OpLoad %float4 %frag_coord
-%x_coord = OpCompositeExtract %float %coord 0
-%y_coord = OpCompositeExtract %float %coord 1
-%z_coord = OpCompositeExtract %float %coord 2
-%x = OpConvertFToS %int %x_coord
-%y = OpConvertFToS %int %y_coord
-%z = OpConvertFToS %int %z_coord
-%x_and_1 = OpBitwiseAnd %int %x %int_1
-%y_and_1 = OpBitwiseAnd %int %y %int_1
-%add = OpIAdd %int %x_and_1 %y_and_1
-%ld_in_data = OpLoad %int %in_data
-%combined = OpIAdd %int %add %ld_in_data
-%cmp = OpIEqual %bool %combined %z
-OpSelectionMerge %exit None
-OpBranchConditional %cmp %then %exit
-%then = OpLabel
-OpTerminateInvocation
-%exit = OpLabel
-OpStore %out_data %int_1
-OpReturn
-OpFunctionEnd
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 31
+; Schema: 0
+               OpCapability Shader
+               OpExtension "SPV_KHR_terminate_invocation"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %1 "main" %gl_FragCoord %3 %4
+               OpExecutionMode %1 OriginUpperLeft
+               OpDecorate %gl_FragCoord BuiltIn FragCoord
+               OpDecorate %3 Location 0
+               OpDecorate %3 Flat
+               OpDecorate %4 Location 0
+       %void = OpTypeVoid
+       %bool = OpTypeBool
+        %int = OpTypeInt 32 1
+      %int_1 = OpConstant %int 1
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Input_int = OpTypePointer Input %int
+%_ptr_Output_int = OpTypePointer Output %int
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%gl_FragCoord = OpVariable %_ptr_Input_v4float Input
+          %3 = OpVariable %_ptr_Input_int Input
+          %4 = OpVariable %_ptr_Output_int Output
+         %14 = OpTypeFunction %void
+          %1 = OpFunction %void None %14
+         %15 = OpLabel
+         %16 = OpLoad %v4float %gl_FragCoord
+         %17 = OpCompositeExtract %float %16 0
+         %18 = OpCompositeExtract %float %16 1
+         %19 = OpCompositeExtract %float %16 2
+         %20 = OpConvertFToS %int %17
+         %21 = OpConvertFToS %int %18
+         %22 = OpConvertFToS %int %19
+         %23 = OpBitwiseAnd %int %20 %int_1
+         %24 = OpBitwiseAnd %int %21 %int_1
+         %25 = OpIAdd %int %23 %24
+         %26 = OpLoad %int %3
+         %27 = OpIAdd %int %25 %26
+         %28 = OpIEqual %bool %27 %22
+               OpSelectionMerge %29 None
+               OpBranchConditional %28 %30 %29
+         %30 = OpLabel
+               OpTerminateInvocation
+         %29 = OpLabel
+               OpStore %4 %int_1
+               OpReturn
+               OpFunctionEnd
 ```
 
-The fragment shader declares the `Shader` capability and the `SPV_KHR_terminate_invocation` extension, with `OriginUpperLeft` placement. `%frag_coord` is decorated `BuiltIn FragCoord`; `%in_data` is `Location 0` and `Flat`; `%out_data` is `Location 0` and is the only color attachment. The entry point loads `FragCoord`, extracts `x`, `y`, `z`, converts them to signed integers, computes `combined = (x & 1) + (y & 1) + in_data`, and compares against `int(gl_FragCoord.z)`. The `OpSelectionMerge %exit None` / `OpBranchConditional %cmp %then %exit` pair forms the terminate branch: when the condition is true, control reaches `%then`, which contains only `OpTerminateInvocation`. Surviving invocations fall through to `%exit`, where `OpStore %out_data %int_1` writes the value compared against the reference framebuffer.
+</details>
 
 ## Runtime Execution and Result Checking
 

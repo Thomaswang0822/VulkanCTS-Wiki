@@ -55,17 +55,220 @@ Each format has `samples_2`, `samples_4`, `samples_8`, and `samples_16`. The sha
 
 ## Shader Analysis
 
-The test generates one compute shader for each format/sample-count combination. It declares the selected format as a multisampled storage image and declares an `r32ui` result image:
+### Representative Shader Walkthrough 1
 
-```glsl
-#extension GL_ARB_sparse_texture2 : require
-layout (set = 0, binding = 0, <format>) uniform <type>image2DMS u_msImage;
-layout (set = 0, binding = 1, r32ui) writeonly uniform uimage2D u_resultImage;
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.sparse_resources.multisampled_image_sparse_residency.rgba32ui.samples_4
 ```
 
-`<type>` is empty, `u`, or `i` according to the selected format. Each invocation uses `gl_GlobalInvocationID.xy` as an image coordinate and operates on sample 0. It first stores the selected sample count in `u_msImage`. It then calls `sparseImageLoadARB` and checks the returned residency code with `sparseTexelsResidentARB`. For a nonresident texel it replaces the loaded value with a zero vector. Finally, it stores the value in `u_resultImage`.
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `rgba32ui` | Selects an unsigned four-component multisampled storage image, so the generated declaration is `uimage2DMS`, the payload variable is `uvec4`, and binding 0 uses the `rgba32ui` format qualifier. |
+| `samples_4` | Selects four samples per pixel and emits `uvec4(4)` as the value written to sample 0 and expected from resident pixels. |
+| `256x512x1` | Selects the fixed image extent and a matching 256×512×1 dispatch. With a 1×1×1 local size, each invocation addresses one pixel. |
 
-The shader performs the residency decision explicitly. The host-side check can therefore distinguish a resident value that was not preserved from a nonresident value that was not returned as zero.
+#### Purpose
+
+The compute shader writes the selected sample-count value to sample 0 of a partially resident multisampled image, loads that sample with sparse residency reporting, and writes either the loaded value or explicit zero to a fully backed result image. This makes resident and strict nonresident behavior visible to the host in one output.
+
+#### Structural Design
+
+| Phase | Shader operation | Result observed by the host |
+|-------|------------------|-----------------------------|
+| Coordinate mapping | Convert `gl_GlobalInvocationID.xy` to an `ivec2` | One invocation addresses one of the 256×512 pixels. |
+| Multisample store | Write `uvec4(4)` to sample 0 of `u_msImage` | Resident pixels retain the selected sample-count payload. |
+| Sparse reads | Issue the two generated `sparseImageLoadARB` calls; the second call supplies the final `color` and `code` | The returned status distinguishes backed pixels from the unbound lowest sparse-block row. |
+| Residency decision | Replace `color` with `uvec4(0)` when `sparseTexelsResidentARB(code)` is false | Nonresident accesses become explicit zero rather than exposing the sparse-load value. |
+| Result store | Convert/store `color` to the `r32ui` result image | Host readback expects `4` in the bound prefix and `0` in the unbound row. |
+
+#### Shader Code
+
+```glsl
+#version 450
+
+#extension GL_ARB_sparse_texture2 : require
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+/// Binding 0, set 0 is the host-created partially bound multisampled storage image. The rgba32ui format
+/// makes each sample a uvec4; this representative case addresses sample 0 of every 256x512 pixel.
+layout (set = 0, binding = 0, rgba32ui) uniform uimage2DMS u_msImage;
+/// Binding 1, set 0 is a fully backed r32ui storage image. One uint per pixel carries the shader's
+/// resident payload or explicit nonresident zero into host readback.
+layout (set = 0, binding = 1, r32ui)  writeonly uniform uimage2D  u_resultImage;
+
+void main (void)
+{
+    /// The 1x1x1 local size and 256x512x1 dispatch map one invocation directly to one pixel.
+    int gx = int(gl_GlobalInvocationID.x);
+    int gy = int(gl_GlobalInvocationID.y);
+    int gz = int(gl_GlobalInvocationID.z);
+
+    /// Write the selected sample-count payload to sample 0. The unbound lowest sparse-block row has
+    /// no backing allocation, while all rows above it are resident.
+    imageStore(u_msImage, ivec2(gx, gy), 0,uvec4(4));
+    uvec4 color;
+    /// Preserve both generated sparse loads: the first result is discarded, and the second supplies
+    /// the residency code and color used by the explicit resident/nonresident decision.
+    sparseImageLoadARB(u_msImage, ivec2(gx, gy), 0, color);
+    int code = sparseImageLoadARB(u_msImage, ivec2(gx, gy), 0, color);
+    if (!sparseTexelsResidentARB(code)) {
+        color = uvec4(0);
+    }
+    /// The host expects 4 in resident pixels and 0 in the unbound lowest sparse-block row.
+    imageStore(u_resultImage, ivec2(gx, gy), uvec4(color));
+}
+```
+
+#### Additional Info
+
+- The duplicate sparse load is present in the CTS generator: the first status is discarded, while the second load overwrites `color` and returns the `code` used by the residency branch.
+- `initPrograms` supplies no explicit `ShaderBuildOptions`, so the source collection baseline selects SPIR-V 1.0 for this shader.
+- The result image is cleared before dispatch and fully memory-backed; zeros in its copied output therefore represent the shader's explicit nonresident branch for dispatched pixels.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Format | Changes the image format qualifier and the generated type prefix: floating-point formats use `image2DMS`/`vec4`, unsigned formats use `uimage2DMS`/`uvec4`, and signed formats use `iimage2DMS`/`ivec4`. The final store always converts the selected vector to `uvec4` for the `r32ui` result image. | [`getFormatPrefix`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMultisampledImageSparseResidency.cpp#L159-L182), [`MultisampledImageSparseResidencyCase::initPrograms`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMultisampledImageSparseResidency.cpp#L272-L307) |
+| Sample count | Changes the scalar literal replicated into the stored vector from `4` to `2`, `8`, or `16`; all variants continue to address sample 0 and use the same sparse-load decision. | [`MultisampledImageSparseResidencyCase::initPrograms`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMultisampledImageSparseResidency.cpp#L292-L303), [`createSparseResourcesMultisampledImageResidencyCommonTests`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMultisampledImageSparseResidency.cpp#L769-L801) |
+| Image extent and residency layout | Do not vary across registered cases, so the local size, coordinate construction, bindings, and control flow remain unchanged. | [`MultisampledImageSparseResidencyInstance::iterate`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMultisampledImageSparseResidency.cpp#L343-L444) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 74
+; Schema: 0
+               OpCapability Shader
+               OpCapability StorageImageMultisample
+               OpCapability SparseResidency
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpSourceExtension "GL_ARB_sparse_texture2"
+               OpName %main "main"
+               OpName %gx "gx"
+               OpName %gl_GlobalInvocationID "gl_GlobalInvocationID"
+               OpName %gy "gy"
+               OpName %gz "gz"
+               OpName %u_msImage "u_msImage"
+               OpName %color "color"
+               OpName %ResType "ResType"
+               OpName %code "code"
+               OpName %u_resultImage "u_resultImage"
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %u_msImage Binding 0
+               OpDecorate %u_msImage DescriptorSet 0
+               OpDecorate %u_resultImage NonReadable
+               OpDecorate %u_resultImage Binding 1
+               OpDecorate %u_resultImage DescriptorSet 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_uint = OpTypePointer Input %uint
+     %uint_1 = OpConstant %uint 1
+     %uint_2 = OpConstant %uint 2
+         %28 = OpTypeImage %uint 2D 0 0 1 2 Rgba32ui
+%_ptr_UniformConstant_28 = OpTypePointer UniformConstant %28
+  %u_msImage = OpVariable %_ptr_UniformConstant_28 UniformConstant
+      %v2int = OpTypeVector %int 2
+      %int_0 = OpConstant %int 0
+     %v4uint = OpTypeVector %uint 4
+     %uint_4 = OpConstant %uint 4
+         %39 = OpConstantComposite %v4uint %uint_4 %uint_4 %uint_4 %uint_4
+%_ptr_Function_v4uint = OpTypePointer Function %v4uint
+    %ResType = OpTypeStruct %int %v4uint
+       %bool = OpTypeBool
+         %64 = OpConstantComposite %v4uint %uint_0 %uint_0 %uint_0 %uint_0
+         %65 = OpTypeImage %uint 2D 0 0 0 2 R32ui
+%_ptr_UniformConstant_65 = OpTypePointer UniformConstant %65
+%u_resultImage = OpVariable %_ptr_UniformConstant_65 UniformConstant
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %gx = OpVariable %_ptr_Function_int Function
+         %gy = OpVariable %_ptr_Function_int Function
+         %gz = OpVariable %_ptr_Function_int Function
+      %color = OpVariable %_ptr_Function_v4uint Function
+       %code = OpVariable %_ptr_Function_int Function
+         %15 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %16 = OpLoad %uint %15
+         %17 = OpBitcast %int %16
+               OpStore %gx %17
+         %20 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_1
+         %21 = OpLoad %uint %20
+         %22 = OpBitcast %int %21
+               OpStore %gy %22
+         %25 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_2
+         %26 = OpLoad %uint %25
+         %27 = OpBitcast %int %26
+               OpStore %gz %27
+         %31 = OpLoad %28 %u_msImage
+         %32 = OpLoad %int %gx
+         %33 = OpLoad %int %gy
+         %35 = OpCompositeConstruct %v2int %32 %33
+               OpImageWrite %31 %35 %39 Sample %int_0
+         %40 = OpLoad %28 %u_msImage
+         %41 = OpLoad %int %gx
+         %42 = OpLoad %int %gy
+         %43 = OpCompositeConstruct %v2int %41 %42
+         %47 = OpImageSparseRead %ResType %40 %43 Sample %int_0
+         %48 = OpCompositeExtract %v4uint %47 1
+               OpStore %color %48
+         %49 = OpCompositeExtract %int %47 0
+         %51 = OpLoad %28 %u_msImage
+         %52 = OpLoad %int %gx
+         %53 = OpLoad %int %gy
+         %54 = OpCompositeConstruct %v2int %52 %53
+         %55 = OpImageSparseRead %ResType %51 %54 Sample %int_0
+         %56 = OpCompositeExtract %v4uint %55 1
+               OpStore %color %56
+         %57 = OpCompositeExtract %int %55 0
+               OpStore %code %57
+         %58 = OpLoad %int %code
+         %60 = OpImageSparseTexelsResident %bool %58
+         %61 = OpLogicalNot %bool %60
+               OpSelectionMerge %63 None
+               OpBranchConditional %61 %62 %63
+         %62 = OpLabel
+               OpStore %color %64
+               OpBranch %63
+         %63 = OpLabel
+         %68 = OpLoad %65 %u_resultImage
+         %69 = OpLoad %int %gx
+         %70 = OpLoad %int %gy
+         %71 = OpCompositeConstruct %v2int %69 %70
+         %72 = OpLoad %v4uint %color
+               OpImageWrite %68 %71 %72
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

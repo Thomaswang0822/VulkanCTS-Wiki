@@ -67,9 +67,24 @@ The source generates a draw vertex/fragment pair and then either a compute compa
 
 ### Representative Shader Walkthrough 1
 
-#### Representative path
+#### Parameter Values Chosen
 
-`dEQP-VK.pipeline.monolithic.multisample.shader_fragment_mask.samples_4.image_2d.r32_uint`
+Representative path:
+
+```text
+dEQP-VK.pipeline.monolithic.multisample.shader_fragment_mask.samples_4.image_2d.r32_uint
+```
+
+| Parameter choice | Meaning in this representative case |
+|---|---|
+| Sample count | `samples_4` |
+| Source form | `image_2d` |
+| Format | `r32_uint`, so the shader uses `usampler2DMS` and `uint` storage |
+| Extent | `32 x 32` |
+
+#### Purpose
+
+This compute shader creates the extension-based result used by the `image_2d` and `image_2d_array` paths. The host later runs the same image through ordinary `texelFetch` and compares the packed values.
 
 #### Structural Design
 
@@ -79,19 +94,6 @@ The source generates a draw vertex/fragment pair and then either a compute compa
 | Mask lookup | `fragmentMaskFetchAMD` returns the packed fragment-index table for the pixel. |
 | Sample lookup | A right shift and `& 0xf` select the four-bit fragment index for the invocation's sample. |
 | Result write | `fragmentFetchAMD` reads the selected `uvec4`; the first component is written to the packed storage buffer. |
-
-#### Purpose
-
-This compute shader creates the extension-based result used by the `image_2d` and `image_2d_array` paths. The host later runs the same image through ordinary `texelFetch` and compares the packed values.
-
-#### Parameter Values Chosen
-
-| Parameter | Value |
-|---|---|
-| Sample count | `samples_4` |
-| Source form | `image_2d` |
-| Format | `r32_uint`, so the shader uses `usampler2DMS` and `uint` storage |
-| Extent | `32 x 32` |
 
 #### Shader Code
 
@@ -119,17 +121,19 @@ void main(void)
 }
 ```
 
-#### Parameter Variation Summary
-
-- `samples_2`, `samples_8`, and `samples_16` change `NUM_SAMPLES`, the local workgroup size, and the number of mask fields visited.
-- `r8g8b8a8_unorm` changes the sampled value to `vec4` and packs it with `packUnorm4x8`; `r32_sint` uses signed image and buffer types.
-- `image_2d_array` changes the coordinate to `ivec3` and includes the layer in the workgroup and output-buffer index.
-- `subpass_input` moves the mask and fragment fetches into a fragment shader and writes the buffer during a second render-pass subpass.
-
 #### Additional Info
 
 - The source emits `comp_fmask_fetch` only for image source cases. `subpass_input` uses `frag_fmask_fetch` because input attachments are read inside a render pass.
 - The ordinary reference shader uses the same resource layout but calls `texelFetch(u_image, samplingPos, sampleNdx)` instead of the AMD operations.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Sample count | `samples_2`, `samples_8`, and `samples_16` change `NUM_SAMPLES`, the local workgroup size, and the number of mask fields visited. | [`createShaderFragmentMaskTestsInGroup`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1336-L1341) |
+| Color format | `r8g8b8a8_unorm` changes the sampled value to `vec4` and packs it with `packUnorm4x8`; `r32_sint` uses signed image and buffer types. | [`initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L365-L400) |
+| Source form: `image_2d_array` | `image_2d_array` changes the coordinate to `ivec3` and includes the layer in the workgroup and output-buffer index. | [`SourceCase`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1343-L1352) |
+| Source form: `subpass_input` | `subpass_input` moves the mask and fragment fetches into a fragment shader and writes the buffer during a second render-pass subpass. | [`SourceCase`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1343-L1352) |
 
 #### SPIR-V
 

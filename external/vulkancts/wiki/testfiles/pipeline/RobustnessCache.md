@@ -65,7 +65,178 @@ The shader reads `imageLoad(tex, ivec2(index, 0))` from a one-pixel storage imag
 
 ## Shader Analysis
 
-The generated shaders are small access fixtures, not the subject of the test. Compute cases use a local size of 8×8 and write the selected buffer or image value to a storage output image. Graphics cases use a vertex shader that forms a triangle strip and a fragment shader that reads the selected resource and writes the value to a color attachment. The test does not require a shader/SPIR-V walkthrough because it checks the effect of pipeline robustness and cache-backed creation through image output, not shader compilation details.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.monolithic.pipeline_cache.robustness2.storage_compute
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `monolithic` + `_compute` | Selects the compute-pipeline path, where an 8×8 workgroup writes the observed value into a storage image. |
+| `robustness2` + `storage` | Selects `ROBUST_BUFFER_ACCESS_2_EXT` for the storage-buffer member of `VkPipelineRobustnessCreateInfoEXT`; the shader access is `values[index]`. |
+| Normal index `0` then robustness index `999` | The host initializes four float values to `0.5`, first establishes the in-bounds result, then exercises the out-of-bounds storage-buffer access. |
+
+#### Purpose
+
+This compute shader is an output-producing access fixture for the cache-backed pipeline test. It reads a host-selected element from a storage buffer and writes that scalar replicated across a `vec4` to every output pixel, allowing the host to check the normal `0.5` result and the `robustness2` out-of-bounds result.
+
+#### Structural Design
+
+| Phase | Shader operation | Test-visible effect |
+|---|---|---|
+| Invocation-to-pixel mapping | Convert `gl_GlobalInvocationID.xy` to `ivec2` | Covers the 32×32 output image with 8×8 local workgroups. |
+| Index transport | Load `IndexBuffer.index` at descriptor set 0, binding 1 | Host-controlled `0` or `999` selects the in-bounds or out-of-bounds case. |
+| Resource access | Load `StorageBuffer.values[index]` at set 0, binding 0 | This is the storage-buffer access whose pipeline robustness behavior is under test. |
+| Observation | Replicate the float into `vec4` and `imageStore` to set 0, binding 2 | Makes the selected value observable through the host-visible output buffer. |
+
+#### Shader Code
+
+```glsl
+#version 450
+layout(local_size_x = 8, local_size_y = 8) in;
+/// The selected representative accesses the storage-buffer payload.
+layout (set=0, binding=0) restrict readonly buffer StorageBuffer { float values[]; };
+/// The host writes zero for the normal run and 999 for the robustness run.
+layout (set=0, binding=1) restrict readonly buffer IndexBuffer { uint index; };
+/// Every invocation writes its selected value into the output image.
+layout (set=0, binding=2, rgba32f) uniform writeonly image2D outImage;
+void main()
+{
+    /// Each invocation maps to one pixel in the 32x32 output image.
+    ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
+    /// The access is in-bounds for index 0 and out-of-bounds for index 999.
+    vec4 color = vec4(values[index]);
+    imageStore(outImage, pos, color);
+}
+```
+
+#### Additional Info
+
+- The generator emits this compute shader for `storage`, `uniform`, and `image`; only the descriptor declaration and `readVal` expression change. `uniform` uses a `std140` array of 1000 floats, while `image` uses `imageLoad(tex, ivec2(index, 0))`.
+- The host creates the output image as `VK_FORMAT_R32G32B32A32_SFLOAT` with extent 32×32, dispatches `m_extent.width / 8` by `m_extent.height / 8`, and copies the image to a host-visible buffer before validation.
+- The GLSL source is reconstructed from [`PipelineCacheTestCase::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineRobustnessCacheTests.cpp#L710-L745); the `///` lines are wiki annotations and are not source-generated comments.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|----------------------------------------|----------|
+| Resource type | `storage` keeps the runtime array and `vec4(values[index])`; `uniform` changes the declaration to a `std140` 1000-element array; `image` changes the read to `imageLoad(tex, ivec2(index, 0))`. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineRobustnessCacheTests.cpp#L710-L745) |
+| Execution path | Compute uses `gl_GlobalInvocationID`, local size 8×8, and `imageStore`; graphics instead uses a vertex shader plus a fragment shader that writes the selected resource to a color attachment. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineRobustnessCacheTests.cpp#L746-L808) |
+| Index value | Shader text is unchanged; host-side `IndexBuffer.index` is initialized to zero and later changed to `999` for non-vertex-input cases. | [`iterate()`](../../../modules/vulkan/pipeline/vktPipelineRobustnessCacheTests.cpp#L279-L625) |
+| Robustness family | Shader text is unchanged; the normal pipeline has no robustness pNext chain, while the second pipeline receives the selected `VkPipelineRobustnessCreateInfoEXT`. | [`iterate()`](../../../modules/vulkan/pipeline/vktPipelineRobustnessCacheTests.cpp#L454-L479) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 46
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
+               OpExecutionMode %main LocalSize 8 8 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %pos "pos"
+               OpName %gl_GlobalInvocationID "gl_GlobalInvocationID"
+               OpName %color "color"
+               OpName %StorageBuffer "StorageBuffer"
+               OpMemberName %StorageBuffer 0 "values"
+               OpName %_ ""
+               OpName %IndexBuffer "IndexBuffer"
+               OpMemberName %IndexBuffer 0 "index"
+               OpName %__0 ""
+               OpName %outImage "outImage"
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %_runtimearr_float ArrayStride 4
+               OpDecorate %StorageBuffer BufferBlock
+               OpMemberDecorate %StorageBuffer 0 Restrict
+               OpMemberDecorate %StorageBuffer 0 NonWritable
+               OpMemberDecorate %StorageBuffer 0 Offset 0
+               OpDecorate %_ Restrict
+               OpDecorate %_ NonWritable
+               OpDecorate %_ Binding 0
+               OpDecorate %_ DescriptorSet 0
+               OpDecorate %IndexBuffer BufferBlock
+               OpMemberDecorate %IndexBuffer 0 Restrict
+               OpMemberDecorate %IndexBuffer 0 NonWritable
+               OpMemberDecorate %IndexBuffer 0 Offset 0
+               OpDecorate %__0 Restrict
+               OpDecorate %__0 NonWritable
+               OpDecorate %__0 Binding 1
+               OpDecorate %__0 DescriptorSet 0
+               OpDecorate %outImage NonReadable
+               OpDecorate %outImage Binding 2
+               OpDecorate %outImage DescriptorSet 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+      %v2int = OpTypeVector %int 2
+%_ptr_Function_v2int = OpTypePointer Function %v2int
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+     %v2uint = OpTypeVector %uint 2
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+%_runtimearr_float = OpTypeRuntimeArray %float
+%StorageBuffer = OpTypeStruct %_runtimearr_float
+%_ptr_Uniform_StorageBuffer = OpTypePointer Uniform %StorageBuffer
+          %_ = OpVariable %_ptr_Uniform_StorageBuffer Uniform
+      %int_0 = OpConstant %int 0
+%IndexBuffer = OpTypeStruct %uint
+%_ptr_Uniform_IndexBuffer = OpTypePointer Uniform %IndexBuffer
+        %__0 = OpVariable %_ptr_Uniform_IndexBuffer Uniform
+%_ptr_Uniform_uint = OpTypePointer Uniform %uint
+%_ptr_Uniform_float = OpTypePointer Uniform %float
+         %37 = OpTypeImage %float 2D 0 0 0 2 Rgba32f
+%_ptr_UniformConstant_37 = OpTypePointer UniformConstant %37
+   %outImage = OpVariable %_ptr_UniformConstant_37 UniformConstant
+     %uint_8 = OpConstant %uint 8
+     %uint_1 = OpConstant %uint 1
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_8 %uint_8 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+        %pos = OpVariable %_ptr_Function_v2int Function
+      %color = OpVariable %_ptr_Function_v4float Function
+         %15 = OpLoad %v3uint %gl_GlobalInvocationID
+         %16 = OpVectorShuffle %v2uint %15 %15 0 1
+         %17 = OpBitcast %v2int %16
+               OpStore %pos %17
+         %31 = OpAccessChain %_ptr_Uniform_uint %__0 %int_0
+         %32 = OpLoad %uint %31
+         %34 = OpAccessChain %_ptr_Uniform_float %_ %int_0 %32
+         %35 = OpLoad %float %34
+         %36 = OpCompositeConstruct %v4float %35 %35 %35 %35
+               OpStore %color %36
+         %40 = OpLoad %37 %outImage
+         %41 = OpLoad %v2int %pos
+         %42 = OpLoad %v4float %color
+               OpImageWrite %40 %41 %42
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

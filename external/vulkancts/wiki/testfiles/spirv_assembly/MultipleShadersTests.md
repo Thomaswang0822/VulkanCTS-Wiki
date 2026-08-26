@@ -46,9 +46,9 @@ This leaf uses literal `LocalSize 3 2 1` execution modes. `mainA` declares `gl_L
 
 ## Shader Analysis
 
-The test has no GLSL or HLSL source. `Programs::init` constructs CTS-authored SPIR-V assembly strings. The two leaves need separate walkthroughs because their execution-mode and interface declarations differ. The source records explicit SPIR-V 1.5 build options only for the first leaf and does not document a separate generation-time `spirv-as`/`spirv-val`/`spirv-dis` gate. This `spirv_assembly` page deliberately does not publish a separate disassembly block.
+The test has no GLSL or HLSL source. [`Programs::init`](../../../modules/vulkan/spirv_assembly/vktSpvAsmMultipleShadersTests.cpp#L235-L436) constructs each shader module directly as CTS-authored SPIR-V assembly, so the assembly is the authoritative shader source rather than a reconstruction from a higher-level language. Each representative module below was assembled with `spirv-as`, validated with `spirv-val`, disassembled with `spirv-dis`, then round-trip checked by reassembling and revalidating the complete disassembly in the same SPIR-V environment.
 
-### Representative Shader Walkthrough 1: `two_entry_points_execution_mode_id`
+### Representative Shader Walkthrough 1
 
 #### Parameter Values Chosen
 
@@ -75,80 +75,9 @@ Check that pipeline creation by `pName` preserves the two entry points and their
 | `mainA` | `%inOutVar[id]`, `%inOutVar[6 + id]` | `OpISub` | `%inOutVar[12 + id]` |
 | `mainB` | `%inOutVar[id]`, `%inOutVar[6 + id]` | `OpIMul` | `%inOutVar[18 + id]` |
 
-#### Source Code
+#### Shader Code
 
-<details>
-<summary>Click to expand CTS-authored SPIR-V assembly for <code>two_entry_points_execution_mode_id</code></summary>
-
-```llvm
-OpCapability Shader
-%1 = OpExtInstImport "GLSL.std.450"
-OpMemoryModel Logical GLSL450
-OpEntryPoint GLCompute %mainA "mainA" %inOutVar %gl_LocalInvocationIndex
-OpEntryPoint GLCompute %mainB "mainB" %inOutVar %gl_LocalInvocationIndex
-OpExecutionModeId %mainA LocalSizeId %uint_2 %uint_3 %uint_1
-OpExecutionModeId %mainB LocalSizeId %uint_2 %uint_3 %uint_1
-OpDecorate %runtimearr_int ArrayStride 4
-OpMemberDecorate %InOut 0 Offset 0
-OpDecorate %InOut Block
-OpDecorate %inOutVar DescriptorSet 0
-OpDecorate %inOutVar Binding 0
-OpDecorate %gl_LocalInvocationIndex BuiltIn LocalInvocationIndex
-OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
-%void = OpTypeVoid
-%int = OpTypeInt 32 1
-%uint = OpTypeInt 32 0
-%v3uint = OpTypeVector %uint 3
-%void_fun = OpTypeFunction %void
-%uint_fun = OpTypeFunction %uint
-%runtimearr_int = OpTypeRuntimeArray %int
-%InOut = OpTypeStruct %runtimearr_int
-%ptr_Uniform_InOut = OpTypePointer StorageBuffer %InOut
-%ptr_Uniform_int = OpTypePointer StorageBuffer %int
-%ptr_uint_fun = OpTypePointer Function %uint
-%ptr_v3uint_input = OpTypePointer Input %v3uint
-%ptr_uint_input = OpTypePointer Input %uint
-%int_0 = OpConstant %int 0
-%uint_1 = OpConstant %uint 1
-%uint_2 = OpConstant %uint 2
-%uint_3 = OpConstant %uint 3
-%uint_6 = OpConstant %uint 6
-%uint_12 = OpConstant %uint 12
-%uint_18 = OpConstant %uint 18
-%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_2 %uint_3 %uint_1
-%gl_LocalInvocationIndex = OpVariable %ptr_uint_input Input
-%inOutVar = OpVariable %ptr_Uniform_InOut StorageBuffer
-%mainA = OpFunction %void None %void_fun
-%labelA = OpLabel
-%idxA = OpLoad %uint %gl_LocalInvocationIndex
-%30 = OpIAdd %uint %uint_12 %idxA
-%33 = OpAccessChain %ptr_Uniform_int %inOutVar %int_0 %idxA
-%34 = OpLoad %int %33
-%37 = OpIAdd %uint %uint_6 %idxA
-%38 = OpAccessChain %ptr_Uniform_int %inOutVar %int_0 %37
-%39 = OpLoad %int %38
-%40 = OpISub %int %34 %39
-%41 = OpAccessChain %ptr_Uniform_int %inOutVar %int_0 %30
-OpStore %41 %40
-OpReturn
-OpFunctionEnd
-%mainB = OpFunction %void None %void_fun
-%labelB = OpLabel
-%idxB = OpLoad %uint %gl_LocalInvocationIndex
-%60 = OpIAdd %uint %uint_18 %idxB
-%63 = OpAccessChain %ptr_Uniform_int %inOutVar %int_0 %idxB
-%64 = OpLoad %int %63
-%67 = OpIAdd %uint %uint_6 %idxB
-%68 = OpAccessChain %ptr_Uniform_int %inOutVar %int_0 %67
-%69 = OpLoad %int %68
-%70 = OpIMul %int %64 %69
-%71 = OpAccessChain %ptr_Uniform_int %inOutVar %int_0 %60
-OpStore %71 %70
-OpReturn
-OpFunctionEnd
-```
-
-</details>
+This representative case does not use GLSL or HLSL. CTS supplies one shader module directly as SPIR-V assembly with the `GLCompute` entry points `mainA` and `mainB`. The C++ assembly builder is the authoritative shader source, and the complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -158,12 +87,98 @@ OpFunctionEnd
 
 #### Parameter Variation Summary
 
-| Parameter dimension | Assembly-level variation from this assembly | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------------|----------|
 | Test case leaf | Replaces `LocalSizeId`, the shared `%inOutVar` interface, and result-range arithmetic with literal `LocalSize`, distinct interface lists, and two storage-buffer declarations. | [second builder branch](../../../modules/vulkan/spirv_assembly/vktSpvAsmMultipleShadersTests.cpp#L331-L436) |
 | Pipeline selection | The module remains shared, but `pName` changes from `mainB` to `mainA` when the host creates the second pipeline. | [pipeline creation](../../../modules/vulkan/spirv_assembly/vktSpvAsmMultipleShadersTests.cpp#L148-L178) |
 
-### Representative Shader Walkthrough 2: `two_entry_points_different_interfaces`
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`mainA`, `mainB`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.5`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.5
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 47
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %2 "mainA" %3 %gl_LocalInvocationIndex
+               OpEntryPoint GLCompute %5 "mainB" %3 %gl_LocalInvocationIndex
+               OpExecutionModeId %2 LocalSizeId %uint_2 %uint_3 %uint_1
+               OpExecutionModeId %5 LocalSizeId %uint_2 %uint_3 %uint_1
+               OpDecorate %_runtimearr_int ArrayStride 4
+               OpMemberDecorate %_struct_10 0 Offset 0
+               OpDecorate %_struct_10 Block
+               OpDecorate %3 DescriptorSet 0
+               OpDecorate %3 Binding 0
+               OpDecorate %gl_LocalInvocationIndex BuiltIn LocalInvocationIndex
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+        %int = OpTypeInt 32 1
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+         %16 = OpTypeFunction %void
+         %17 = OpTypeFunction %uint
+%_runtimearr_int = OpTypeRuntimeArray %int
+ %_struct_10 = OpTypeStruct %_runtimearr_int
+%_ptr_StorageBuffer__struct_10 = OpTypePointer StorageBuffer %_struct_10
+%_ptr_StorageBuffer_int = OpTypePointer StorageBuffer %int
+%_ptr_Function_uint = OpTypePointer Function %uint
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%_ptr_Input_uint = OpTypePointer Input %uint
+      %int_0 = OpConstant %int 0
+     %uint_1 = OpConstant %uint 1
+     %uint_2 = OpConstant %uint 2
+     %uint_3 = OpConstant %uint 3
+     %uint_6 = OpConstant %uint 6
+    %uint_12 = OpConstant %uint 12
+    %uint_18 = OpConstant %uint 18
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_2 %uint_3 %uint_1
+%gl_LocalInvocationIndex = OpVariable %_ptr_Input_uint Input
+          %3 = OpVariable %_ptr_StorageBuffer__struct_10 StorageBuffer
+          %2 = OpFunction %void None %16
+         %27 = OpLabel
+         %28 = OpLoad %uint %gl_LocalInvocationIndex
+         %29 = OpIAdd %uint %uint_12 %28
+         %30 = OpAccessChain %_ptr_StorageBuffer_int %3 %int_0 %28
+         %31 = OpLoad %int %30
+         %32 = OpIAdd %uint %uint_6 %28
+         %33 = OpAccessChain %_ptr_StorageBuffer_int %3 %int_0 %32
+         %34 = OpLoad %int %33
+         %35 = OpISub %int %31 %34
+         %36 = OpAccessChain %_ptr_StorageBuffer_int %3 %int_0 %29
+               OpStore %36 %35
+               OpReturn
+               OpFunctionEnd
+          %5 = OpFunction %void None %16
+         %37 = OpLabel
+         %38 = OpLoad %uint %gl_LocalInvocationIndex
+         %39 = OpIAdd %uint %uint_18 %38
+         %40 = OpAccessChain %_ptr_StorageBuffer_int %3 %int_0 %38
+         %41 = OpLoad %int %40
+         %42 = OpIAdd %uint %uint_6 %38
+         %43 = OpAccessChain %_ptr_StorageBuffer_int %3 %int_0 %42
+         %44 = OpLoad %int %43
+         %45 = OpIMul %int %41 %44
+         %46 = OpAccessChain %_ptr_StorageBuffer_int %3 %int_0 %39
+               OpStore %46 %45
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+### Representative Shader Walkthrough 2
 
 #### Parameter Values Chosen
 
@@ -192,108 +207,123 @@ Check that two entry points in one module can retain different interfaces. `main
 
 For the recorded `1 x 1 x 1` dispatch, `group_count.x` is `1`, so `idxIn` is `5 - idxOut`.
 
-#### Source Code
+#### Shader Code
 
-<details>
-<summary>Click to expand CTS-authored SPIR-V assembly for <code>two_entry_points_different_interfaces</code></summary>
-
-```llvm
-OpCapability Shader
-%1 = OpExtInstImport "GLSL.std.450"
-OpMemoryModel Logical GLSL450
-OpEntryPoint GLCompute %mainA "mainA" %gl_LocalInvocationIndex
-OpEntryPoint GLCompute %mainB "mainB" %gl_NumWorkGroups %gl_LocalInvocationId
-OpExecutionMode %mainA LocalSize 3 2 1
-OpExecutionMode %mainB LocalSize 3 2 1
-OpDecorate %gl_NumWorkGroups BuiltIn NumWorkgroups
-OpDecorate %gl_LocalInvocationIndex BuiltIn LocalInvocationIndex
-OpDecorate %gl_LocalInvocationId BuiltIn LocalInvocationId
-OpDecorate %int_runtime_array ArrayStride 4
-OpMemberDecorate %struct_type 0 Offset 0
-OpDecorate %struct_type BufferBlock
-OpDecorate %var_BufferA DescriptorSet 0
-OpDecorate %var_BufferA Binding 0
-OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
-OpDecorate %var_BufferB DescriptorSet 0
-OpDecorate %var_BufferB Binding 1
-%void = OpTypeVoid
-%void_fun = OpTypeFunction %void
-%uint = OpTypeInt 32 0
-%int = OpTypeInt 32 1
-%ptr_uint_fun = OpTypePointer Function %uint
-%v3uint = OpTypeVector %uint 3
-%ptr_uint_input = OpTypePointer Input %uint
-%ptr_v3uint_input = OpTypePointer Input %v3uint
-%int_runtime_array = OpTypeRuntimeArray %int
-%struct_type = OpTypeStruct %int_runtime_array
-%25 = OpTypePointer Uniform %struct_type
-%ptr_uniform_int = OpTypePointer Uniform %int
-%int_0 = OpConstant %int 0
-%uint_0 = OpConstant %uint 0
-%uint_1 = OpConstant %uint 1
-%uint_2 = OpConstant %uint 2
-%uint_3 = OpConstant %uint 3
-%uint_6 = OpConstant %uint 6
-%uint_12 = OpConstant %uint 12
-%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_3 %uint_2 %uint_1
-%gl_LocalInvocationIndex = OpVariable %ptr_uint_input Input
-%gl_NumWorkGroups = OpVariable %ptr_v3uint_input Input
-%gl_LocalInvocationId = OpVariable %ptr_v3uint_input Input
-%var_BufferA = OpVariable %25 Uniform
-%var_BufferB = OpVariable %25 Uniform
-%mainA = OpFunction %void None %void_fun
-%labelA = OpLabel
-%idxA = OpLoad %uint %gl_LocalInvocationIndex
-%inA1_location = OpAccessChain %ptr_uniform_int %var_BufferA %int_0 %idxA
-%inA1 = OpLoad %int %inA1_location
-%inA2_index = OpIAdd %uint %uint_6 %idxA
-%inA2_location = OpAccessChain %ptr_uniform_int %var_BufferA %int_0 %inA2_index
-%inA2 = OpLoad %int %inA2_location
-%outA_index = OpIAdd %uint %uint_12 %idxA
-%add_result = OpIAdd %int %inA1 %inA2
-%outA_location = OpAccessChain %ptr_uniform_int %var_BufferA %int_0 %outA_index
-OpStore %outA_location %add_result
-OpReturn
-OpFunctionEnd
-%mainB = OpFunction %void None %void_fun
-%labelB = OpLabel
-%local_x_location = OpAccessChain %ptr_uint_input %gl_LocalInvocationId %uint_0
-%local_x = OpLoad %uint %local_x_location
-%local_x_times_2 = OpIMul %uint %local_x %uint_2
-%local_y_location = OpAccessChain %ptr_uint_input %gl_LocalInvocationId %uint_1
-%local_y = OpLoad %uint %local_y_location
-%idxOut = OpIAdd %int %local_x_times_2 %local_y
-%group_count_location = OpAccessChain %ptr_uint_input %gl_NumWorkGroups %uint_0
-%group_count = OpLoad %uint %group_count_location
-%sub_result = OpISub %int %uint_6 %group_count
-%idxIn = OpISub %int %sub_result %idxOut
-%inB1_location = OpAccessChain %ptr_uniform_int %var_BufferB %int_0 %idxIn
-%inB1 = OpLoad %int %inB1_location
-%inB2_index = OpIAdd %uint %uint_6 %idxIn
-%inB2_location = OpAccessChain %ptr_uniform_int %var_BufferB %int_0 %inB2_index
-%inB2 = OpLoad %int %inB2_location
-%outB_index = OpIAdd %uint %uint_12 %idxOut
-%mul_result = OpIMul %int %inB1 %inB2
-%outB_location = OpAccessChain %ptr_uniform_int %var_BufferB %int_0 %outB_index
-OpStore %outB_location %mul_result
-OpReturn
-OpFunctionEnd
-```
-
-</details>
+This representative case does not use GLSL or HLSL. CTS supplies one shader module directly as SPIR-V assembly with the `GLCompute` entry points `mainA` and `mainB`. The C++ assembly builder is the authoritative shader source, and the complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
-- This builder does not append the explicit `SpirVAsmBuildOptions` object used by the first leaf; the page does not infer a target version beyond the source evidence.
-- The assembly uses the legacy `BufferBlock` plus `Uniform` storage-buffer form. `%var_BufferA` and `%var_BufferB` differ only in their binding decorations and their entry-point use.
+- This builder uses the `vk::SourceCollections` default SPIR-V target because it does not append the explicit `SpirVAsmBuildOptions` object used by the first leaf; the baseline target is SPIR-V 1.0.
+- The assembly uses the legacy `BufferBlock` plus `Uniform` storage-buffer form. `%var_BufferA` and `%var_BufferB` differ in their binding decorations and in which entry point uses them.
 - The host still binds one descriptor set containing both bindings before each dispatch ([descriptor and dispatch setup](../../../modules/vulkan/spirv_assembly/vktSpvAsmMultipleShadersTests.cpp#L118-L199)).
 
 #### Parameter Variation Summary
 
-| Parameter dimension | Assembly-level variation from this assembly | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------------|----------|
 | Test case leaf | Replaces literal `LocalSize` and separate buffer interfaces with `LocalSizeId` and one shared binding. | [first builder branch](../../../modules/vulkan/spirv_assembly/vktSpvAsmMultipleShadersTests.cpp#L244-L329) |
 | Entry point | `mainA` loads the flat local index; `mainB` reads the local-ID vector and number of workgroups to calculate reversed input positions. | [function bodies](../../../modules/vulkan/spirv_assembly/vktSpvAsmMultipleShadersTests.cpp#L393-L434) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`mainA`, `mainB`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 58
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %2 "mainA" %gl_LocalInvocationIndex
+               OpEntryPoint GLCompute %4 "mainB" %gl_NumWorkGroups %gl_LocalInvocationID
+               OpExecutionMode %2 LocalSize 3 2 1
+               OpExecutionMode %4 LocalSize 3 2 1
+               OpDecorate %gl_NumWorkGroups BuiltIn NumWorkgroups
+               OpDecorate %gl_LocalInvocationIndex BuiltIn LocalInvocationIndex
+               OpDecorate %gl_LocalInvocationID BuiltIn LocalInvocationId
+               OpDecorate %_runtimearr_int ArrayStride 4
+               OpMemberDecorate %_struct_8 0 Offset 0
+               OpDecorate %_struct_8 BufferBlock
+               OpDecorate %9 DescriptorSet 0
+               OpDecorate %9 Binding 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+               OpDecorate %11 DescriptorSet 0
+               OpDecorate %11 Binding 1
+       %void = OpTypeVoid
+         %13 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+        %int = OpTypeInt 32 1
+%_ptr_Function_uint = OpTypePointer Function %uint
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_uint = OpTypePointer Input %uint
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%_runtimearr_int = OpTypeRuntimeArray %int
+  %_struct_8 = OpTypeStruct %_runtimearr_int
+%_ptr_Uniform__struct_8 = OpTypePointer Uniform %_struct_8
+%_ptr_Uniform_int = OpTypePointer Uniform %int
+      %int_0 = OpConstant %int 0
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+     %uint_2 = OpConstant %uint 2
+     %uint_3 = OpConstant %uint 3
+     %uint_6 = OpConstant %uint 6
+    %uint_12 = OpConstant %uint 12
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_3 %uint_2 %uint_1
+%gl_LocalInvocationIndex = OpVariable %_ptr_Input_uint Input
+%gl_NumWorkGroups = OpVariable %_ptr_Input_v3uint Input
+%gl_LocalInvocationID = OpVariable %_ptr_Input_v3uint Input
+          %9 = OpVariable %_ptr_Uniform__struct_8 Uniform
+         %11 = OpVariable %_ptr_Uniform__struct_8 Uniform
+          %2 = OpFunction %void None %13
+         %29 = OpLabel
+         %30 = OpLoad %uint %gl_LocalInvocationIndex
+         %31 = OpAccessChain %_ptr_Uniform_int %9 %int_0 %30
+         %32 = OpLoad %int %31
+         %33 = OpIAdd %uint %uint_6 %30
+         %34 = OpAccessChain %_ptr_Uniform_int %9 %int_0 %33
+         %35 = OpLoad %int %34
+         %36 = OpIAdd %uint %uint_12 %30
+         %37 = OpIAdd %int %32 %35
+         %38 = OpAccessChain %_ptr_Uniform_int %9 %int_0 %36
+               OpStore %38 %37
+               OpReturn
+               OpFunctionEnd
+          %4 = OpFunction %void None %13
+         %39 = OpLabel
+         %40 = OpAccessChain %_ptr_Input_uint %gl_LocalInvocationID %uint_0
+         %41 = OpLoad %uint %40
+         %42 = OpIMul %uint %41 %uint_2
+         %43 = OpAccessChain %_ptr_Input_uint %gl_LocalInvocationID %uint_1
+         %44 = OpLoad %uint %43
+         %45 = OpIAdd %int %42 %44
+         %46 = OpAccessChain %_ptr_Input_uint %gl_NumWorkGroups %uint_0
+         %47 = OpLoad %uint %46
+         %48 = OpISub %int %uint_6 %47
+         %49 = OpISub %int %48 %45
+         %50 = OpAccessChain %_ptr_Uniform_int %11 %int_0 %49
+         %51 = OpLoad %int %50
+         %52 = OpIAdd %uint %uint_6 %49
+         %53 = OpAccessChain %_ptr_Uniform_int %11 %int_0 %52
+         %54 = OpLoad %int %53
+         %55 = OpIAdd %uint %uint_12 %45
+         %56 = OpIMul %int %51 %54
+         %57 = OpAccessChain %_ptr_Uniform_int %11 %int_0 %55
+               OpStore %57 %56
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

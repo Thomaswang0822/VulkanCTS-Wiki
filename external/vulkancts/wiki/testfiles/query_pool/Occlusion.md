@@ -243,12 +243,17 @@ void main()
 
 ## Case Pruning
 
+### Requirement-based pruning
+
+- `get_create_reset` and host-reset cases require the corresponding functionality. Precise cases require `occlusionQueryPrecise`; resolve requires 4x support for the transfer source format. The no-attachment cases require the relevant `framebufferNoAttachmentsSampleCounts` bit.
+
+### Design-based pruning
+
 - The registration loop omits `WAIT_QUERY` with `RESULTS_MODE_GET_RESET` because the second read after reset may not return in finite time.
 - `RESULTS_MODE_COPY_RESET` requires availability so the test can check that reset cleared it.
 - Point-list `_discard` combinations are omitted.
 - Nonzero strides smaller than the result element are omitted. Zero stride is limited to `copy` and does not use `_dstoffset`.
 - `_device_address` cases are sampled only for copy and copy-reset modes, and are compiled out under `CTS_USES_VULKANSC`.
-- `get_create_reset` and host-reset cases require the corresponding functionality. Precise cases require `occlusionQueryPrecise`; resolve requires 4x support for the transfer source format. The no-attachment cases require the relevant `framebufferNoAttachmentsSampleCounts` bit.
 
 ## Key Takeaways
 

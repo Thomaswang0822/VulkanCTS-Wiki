@@ -63,9 +63,136 @@ The monolithic-only `misc.no_color_draw` leaf transitions one previously rendere
 
 ## Shader Analysis
 
-Shader code provides the sampling and write operations, but the family tests the attachment-feedback-loop contract and final result rather than a shader algorithm. [`AttachmentFeedbackLoopLayoutSamplerTest::initPrograms`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2111-L2548) generates the compact vertex and color/depth/stencil fragment programs for sampler leaves. [`noColorAttachmentPrograms`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2556-L2588) provides the atomic-counter path, and [`feedbackLoopDiffMipsInitPrograms`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2852-L2875) provides the separate-mip programs.
+### Representative Shader Walkthrough 1
 
-No shader walkthrough is included because the generated shader variants only establish the selected read/write observation. The runtime state, image setup, host-generated reference, and result comparison supply the behavior under test.
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.shader_object_linked_binary.attachment_feedback_loop_layout.sampler.attachment_feedback_loop_optimal.combined_image_sampler.image_type.1d.format.d16_unorm_depth_read
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `shader_object_linked_binary` | Builds the graphics stages through the linked-binary shader-object path. |
+| `attachment_feedback_loop_optimal` | Places the sampled image in `VK_IMAGE_LAYOUT_ATTACHMENT_FEEDBACK_LOOP_OPTIMAL_EXT` rather than the `general` alternative. |
+| `combined_image_sampler` | Exposes the image and sampler together at descriptor set 0, binding 0. |
+| `1d` | Selects a normalized one-dimensional view, so the fragment shader samples with `vtxTexCoords.x`. |
+| `d16_unorm_depth_read` | Selects `VK_FORMAT_D16_UNORM`, its depth aspect, and the read-only mode; sampling produces floating-point data and the shader writes it to a separate color attachment. |
+
+#### Purpose
+
+This fragment shader samples initialized D16 depth data while the image is in the attachment-feedback-loop layout and exports the sampled value to a color attachment. The host then compares that image against its software sampling reference, making the shader the read/observation path for the selected layout case.
+
+#### Structural Design
+
+```mermaid
+flowchart TD
+    A[Vertex stage forwards normalized coordinate] --> B[Fragment input vtxTexCoords.x]
+    B --> C[texture on sampler1D at set 0 binding 0]
+    C --> D[read_data]
+    D --> E[fragColor in separate RGBA color attachment]
+    E --> F[Host readback and software sampling comparison]
+```
+
+#### Shader Code
+
+```glsl
+#version 440
+/// Binding 0 is the combined sampler for the one-dimensional D16_UNORM image view.
+layout(set = 0, binding = 0) uniform highp sampler1D texSampler;
+/// Read-only depth sampling is observed through a separate RGBA color attachment.
+layout(location = 0) out highp vec4 fragColor;
+/// The vertex stage forwards the normalized 1D lookup coordinate in x.
+layout(location = 0) in highp vec4 vtxTexCoords;
+void main (void)
+{
+    /// Sample the initialized depth aspect at the rasterized coordinate.
+    vec4 read_data = texture(texSampler, vtxTexCoords.x);
+    /// Export the sampled value for host-side image verification.
+    fragColor = read_data;
+}
+```
+
+#### Additional Info
+
+- The fixed vertex shader only copies `position` to `gl_Position` and `texCoords` to `vtxTexCoords`; it does not participate in the sampled-value transformation. [`initPrograms`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2147-L2158)
+- This read-only case uses the initialized sampled image and a separate `VK_FORMAT_R8G8B8A8_UNORM` color attachment; the descriptor records the selected feedback-loop layout, and verification follows the shared image-sampling reference path. [`setup`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L439-L577) [`verifyImage`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L1778-L1782)
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Descriptor type | `sampled_image` splits the declaration into a sampler at binding 0 and a typed texture at binding 1, then constructs the combined sampler at the lookup. | [`initPrograms`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2168-L2179) |
+| Image view type | The sampler type and coordinate swizzle change across 1D, array, 2D, 3D, cube, and cube-array views; unnormalized views use `textureLod(..., 0)`. | [`coordinate selection and sampling`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2125-L2145) [`sampling branches`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2240-L2254) |
+| Format and aspect | Integer formats add `u` or `i` sampler prefixes. Stencil read-only converts the sampled integer to normalized red, while depth/stencil write cases can emit `gl_FragDepth` or `gl_FragStencilRefARB`. | [`sampler type`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2458-L2504) [`fragment generation`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2162-L2297) |
+| Test mode and interleaving | Same-pixel and different-area write modes add `0.1` to sampled data; eligible interleaved cases route selected sampled components to the attachment output. Host-generated vertices change the sampled region for different-area cases. | [`fragment generation`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2193-L2297) [`vertex generation`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2403-L2422) |
+| Feedback-loop state | Dynamic variants do not change this GLSL; they change whether and how the selected image aspect is enabled with `vkCmdSetAttachmentFeedbackLoopEnableEXT`. | [`state registration`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L3224-L3232) [`command recording`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L1015-L1018) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 26
+; Schema: 0
+               OpCapability Shader
+               OpCapability Sampled1D
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %vtxTexCoords %fragColor
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 440
+               OpName %main "main"
+               OpName %read_data "read_data"
+               OpName %texSampler "texSampler"
+               OpName %vtxTexCoords "vtxTexCoords"
+               OpName %fragColor "fragColor"
+               OpDecorate %texSampler Binding 0
+               OpDecorate %texSampler DescriptorSet 0
+               OpDecorate %vtxTexCoords Location 0
+               OpDecorate %fragColor Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+         %10 = OpTypeImage %float 1D 0 0 0 1 Unknown
+         %11 = OpTypeSampledImage %10
+%_ptr_UniformConstant_11 = OpTypePointer UniformConstant %11
+ %texSampler = OpVariable %_ptr_UniformConstant_11 UniformConstant
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%vtxTexCoords = OpVariable %_ptr_Input_v4float Input
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_float = OpTypePointer Input %float
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %fragColor = OpVariable %_ptr_Output_v4float Output
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+  %read_data = OpVariable %_ptr_Function_v4float Function
+         %14 = OpLoad %11 %texSampler
+         %20 = OpAccessChain %_ptr_Input_float %vtxTexCoords %uint_0
+         %21 = OpLoad %float %20
+         %22 = OpImageSampleImplicitLod %v4float %14 %21
+               OpStore %read_data %22
+         %25 = OpLoad %v4float %read_data
+               OpStore %fragColor %25
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

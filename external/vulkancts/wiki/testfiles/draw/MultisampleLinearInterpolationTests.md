@@ -68,12 +68,217 @@ The interpolation-position family is the primary behavioral axis. Sample count c
 
 ## Shader Analysis
 
-`initPrograms` generates two GLSL shader pairs rather than storing fixed shader files.
+[`MultisampleLinearInterpolationTestCase::initPrograms`](../../../modules/vulkan/draw/vktDrawMultisampleLinearInterpolationTests.cpp#L550-L641) generates two GLSL shader pairs rather than loading fixed shader files. The walkthrough focuses on `fragNoPer`, where the explicit interpolation operations implement the tested property; its paired vertex shader supplies the `noperspective` color field.
 
-- `vertRef` writes an ordinary color varying. `fragRef` computes its output from `gl_FragCoord`, the selected offset, and the 16 x 16 render size.
-- `vertNoPer` declares `noperspective out vec4 out_color`; `fragNoPer` receives the matching `noperspective` input and averages `interpolateAtOffset(in_color, offset)` with `interpolateAtSample(in_color, gl_SampleID)`.
-- The result shader attempts an additional consistency check by subtracting `interpolateAtOffset(in_color, gl_SamplePosition - vec2(0.5))` from the sample result. It writes `1.0` to blue only if **all four signed component differences** are greater than `0.000001`; it does not take absolute values or test components independently.
-- In the generated color field, blue is zero and alpha is constant, so the blue and alpha differences are expected to be zero. Consequently, the conjunction cannot normally fire. The host image comparison, not this attempted blue-channel signal, is the effective pass/fail check.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.draw.renderpass.linear_interpolation.no_offset_1_sample
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `no_offset` | Passes `(0.0, 0.0)` to `interpolateAtOffset`, establishing the pixel-center baseline. |
+| `1_sample` | Uses the same fragment program as the multisample cases while selecting a single-sample pipeline and attachment path. |
+| `renderpass` | Records both comparison draws through the render-pass path; recording mode does not alter the generated shader. |
+
+#### Purpose
+
+The fragment shader compares linear interpolation at an explicit zero offset with interpolation at the current sample, averages the two values, and emits the image that the host compares with the `gl_FragCoord`-based reference draw.
+
+#### Structural Design
+
+| Shader element | Role in the representative case |
+|----------------|---------------------------------|
+| `noperspective in_color` | Carries the vertex color with screen-space linear interpolation. |
+| `interpolateAtOffset(..., vec2(0, 0))` | Evaluates the input at the selected explicit position. |
+| `interpolateAtSample(..., gl_SampleID)` | Evaluates the same input at the current sample. |
+| Average written to `out_color` | Produces the result compared with the reference image. |
+| `diff` conjunction | Attempts to flag disagreement between sample selection and the equivalent sample-position offset by writing blue. |
+
+#### Shader Code
+
+```glsl
+#version 450
+/// The input is linearly interpolated in screen space and is the operand for both explicit interpolation calls.
+layout(location = 0) noperspective in vec4 in_color;
+/// The result is compared with the reference draw after optional multisample resolve.
+layout(location = 0) out vec4 out_color;
+void main()
+{
+    /// Evaluate the varying at the representative case's zero offset and at the current sample.
+    vec4 out_color_offset = interpolateAtOffset(in_color, vec2(0, 0));
+    vec4 out_color_sample = interpolateAtSample(in_color, gl_SampleID);
+    out_color = (0.5 * (out_color_offset + out_color_sample));
+    out_color /= 1;
+    /// Re-express the current sample position as an offset from the pixel center for the extra consistency check.
+    vec4 diff = out_color_sample - interpolateAtOffset(in_color, gl_SamplePosition - vec2(0.5));    float min_precision = 0.000001;
+    if (diff.x > min_precision && diff.y > min_precision && diff.z > min_precision && diff.w > min_precision)
+    {
+        out_color.z = 1.0;
+    }
+}
+```
+
+#### Additional Info
+
+- The paired `vertNoPer` shader is fixed across this page's cases. It forwards the location-1 vertex color through a location-0 `noperspective` output, establishing the fragment input tested here.
+- The blue-channel check uses four signed `>` comparisons joined by `&&`. Because the generated color field has zero blue difference and constant-alpha difference, the branch cannot normally fire; host image comparison is the effective validation signal.
+- The source generator emits the `diff` declaration and `min_precision` declaration on one physical line because the first appended string has no trailing newline; the reconstruction preserves that formatting.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Interpolation position | `offset_min` changes the `vec2` literal to `(-0.5, -0.5)`; `offset_max` changes it to `(0.4375, 0.4375)`. | [fragment generator](../../../modules/vulkan/draw/vktDrawMultisampleLinearInterpolationTests.cpp#L613-L637) |
+| Sample count | The fragment source is unchanged; sample count changes pipeline multisampling and whether rendering resolves from a multisample attachment. | [case construction](../../../modules/vulkan/draw/vktDrawMultisampleLinearInterpolationTests.cpp#L682-L701) |
+| Recording path | Render-pass and dynamic-rendering cases use the same generated shader source. | [program generation](../../../modules/vulkan/draw/vktDrawMultisampleLinearInterpolationTests.cpp#L550-L641) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 80
+; Schema: 0
+               OpCapability Shader
+               OpCapability SampleRateShading
+               OpCapability InterpolationFunction
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %in_color %gl_SampleID %out_color %gl_SamplePosition
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %out_color_offset "out_color_offset"
+               OpName %in_color "in_color"
+               OpName %out_color_sample "out_color_sample"
+               OpName %gl_SampleID "gl_SampleID"
+               OpName %out_color "out_color"
+               OpName %diff "diff"
+               OpName %gl_SamplePosition "gl_SamplePosition"
+               OpName %min_precision "min_precision"
+               OpDecorate %in_color NoPerspective
+               OpDecorate %in_color Location 0
+               OpDecorate %gl_SampleID BuiltIn SampleId
+               OpDecorate %gl_SampleID Flat
+               OpDecorate %out_color Location 0
+               OpDecorate %gl_SamplePosition BuiltIn SamplePosition
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+   %in_color = OpVariable %_ptr_Input_v4float Input
+    %v2float = OpTypeVector %float 2
+    %float_0 = OpConstant %float 0
+         %14 = OpConstantComposite %v2float %float_0 %float_0
+        %int = OpTypeInt 32 1
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_SampleID = OpVariable %_ptr_Input_int Input
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %out_color = OpVariable %_ptr_Output_v4float Output
+  %float_0_5 = OpConstant %float 0.5
+    %float_1 = OpConstant %float 1
+%_ptr_Input_v2float = OpTypePointer Input %v2float
+%gl_SamplePosition = OpVariable %_ptr_Input_v2float Input
+         %38 = OpConstantComposite %v2float %float_0_5 %float_0_5
+%_ptr_Function_float = OpTypePointer Function %float
+%float_9_99999997en07 = OpConstant %float 9.99999997e-07
+       %bool = OpTypeBool
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+     %uint_2 = OpConstant %uint 2
+     %uint_3 = OpConstant %uint 3
+%_ptr_Output_float = OpTypePointer Output %float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+%out_color_offset = OpVariable %_ptr_Function_v4float Function
+%out_color_sample = OpVariable %_ptr_Function_v4float Function
+       %diff = OpVariable %_ptr_Function_v4float Function
+%min_precision = OpVariable %_ptr_Function_float Function
+         %15 = OpExtInst %v4float %1 InterpolateAtOffset %in_color %14
+               OpStore %out_color_offset %15
+         %20 = OpLoad %int %gl_SampleID
+         %21 = OpExtInst %v4float %1 InterpolateAtSample %in_color %20
+               OpStore %out_color_sample %21
+         %25 = OpLoad %v4float %out_color_offset
+         %26 = OpLoad %v4float %out_color_sample
+         %27 = OpFAdd %v4float %25 %26
+         %28 = OpVectorTimesScalar %v4float %27 %float_0_5
+               OpStore %out_color %28
+         %30 = OpLoad %v4float %out_color
+         %31 = OpCompositeConstruct %v4float %float_1 %float_1 %float_1 %float_1
+         %32 = OpFDiv %v4float %30 %31
+               OpStore %out_color %32
+         %34 = OpLoad %v4float %out_color_sample
+         %37 = OpLoad %v2float %gl_SamplePosition
+         %39 = OpFSub %v2float %37 %38
+         %40 = OpExtInst %v4float %1 InterpolateAtOffset %in_color %39
+         %41 = OpFSub %v4float %34 %40
+               OpStore %diff %41
+               OpStore %min_precision %float_9_99999997en07
+         %48 = OpAccessChain %_ptr_Function_float %diff %uint_0
+         %49 = OpLoad %float %48
+         %50 = OpLoad %float %min_precision
+         %51 = OpFOrdGreaterThan %bool %49 %50
+               OpSelectionMerge %53 None
+               OpBranchConditional %51 %52 %53
+         %52 = OpLabel
+         %55 = OpAccessChain %_ptr_Function_float %diff %uint_1
+         %56 = OpLoad %float %55
+         %57 = OpLoad %float %min_precision
+         %58 = OpFOrdGreaterThan %bool %56 %57
+               OpBranch %53
+         %53 = OpLabel
+         %59 = OpPhi %bool %51 %5 %58 %52
+               OpSelectionMerge %61 None
+               OpBranchConditional %59 %60 %61
+         %60 = OpLabel
+         %63 = OpAccessChain %_ptr_Function_float %diff %uint_2
+         %64 = OpLoad %float %63
+         %65 = OpLoad %float %min_precision
+         %66 = OpFOrdGreaterThan %bool %64 %65
+               OpBranch %61
+         %61 = OpLabel
+         %67 = OpPhi %bool %59 %53 %66 %60
+               OpSelectionMerge %69 None
+               OpBranchConditional %67 %68 %69
+         %68 = OpLabel
+         %71 = OpAccessChain %_ptr_Function_float %diff %uint_3
+         %72 = OpLoad %float %71
+         %73 = OpLoad %float %min_precision
+         %74 = OpFOrdGreaterThan %bool %72 %73
+               OpBranch %69
+         %69 = OpLabel
+         %75 = OpPhi %bool %67 %61 %74 %68
+               OpSelectionMerge %77 None
+               OpBranchConditional %75 %76 %77
+         %76 = OpLabel
+         %79 = OpAccessChain %_ptr_Output_float %out_color %uint_2
+               OpStore %79 %float_1
+               OpBranch %77
+         %77 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

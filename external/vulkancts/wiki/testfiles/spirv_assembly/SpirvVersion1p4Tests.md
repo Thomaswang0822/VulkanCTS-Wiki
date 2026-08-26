@@ -164,12 +164,39 @@ Verify that the scalar form of `OpSelect` (`%result = OpSelect %int %condition %
 | Body | Load `gl_GlobalInvocationID.z` (the dispatch index); load `input[z]`; compute `OpIEqual %bool %input %int_0`; `OpSelect %int %eq %int_1 %int_2`; store to `output[z]`. | The `OpSelect` is the tested instruction. The `OpIEqual` produces the scalar boolean selector; `OpSelect` returns `1` when the input is `0` and `2` otherwise. |
 | Dispatch | `LocalSize 1 1 1`, dispatched as `compute 1 1 2`. | Two invocations along Z. The host writes `input = {0, 1}` and expects `output = {1, 2}`. |
 
-#### Source Code
+#### Shader Code
 
-SPIR-V assembly extracted from [`opselect/scalar_select.amber`](../../../data/vulkan/amber/spirv_assembly/instruction/spirv1p4/opselect/scalar_select.amber). The text between `[compute shader spirv]` and `[test]` is the embedded SPIR-V assembly the Amber runner compiles for this case.
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
+
+#### Additional Info
+
+- The SPIR-V carries `OpSource GLSL 430` and `GL_GOOGLE_*` source extensions as metadata only. The Amber runner does not recompile GLSL; it consumes the SPIR-V assembly directly.
+- `%1 = OpExtInstImport "GLSL.std.450"` is present but unused in the body. It is harmless metadata left over from the original GLSL the assembly was generated from.
+- The `OpCapability Shader` line is the only capability required for this case. Other families require additional capabilities (`VariablePointersStorageBuffer`, `Int16`, `Int64`) declared in their own Amber scripts.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---|---|---|
+| `opselect` case shape | The family varies the selected type across scalar, vector, array, struct, nested composite, and pointer forms. Pointer cases add the corresponding variable-pointer or explicit-layout requirements; the scalar case shown here remains the baseline. | [opselect registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L353-L379) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.4`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
 
 ```llvm
-; OpSelect among scalars. This is in SPIR-V 1.0
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 35
+; Schema: 0
                OpCapability Shader
           %1 = OpExtInstImport "GLSL.std.450"
                OpMemoryModel Logical GLSL450
@@ -198,7 +225,7 @@ SPIR-V assembly extracted from [`opselect/scalar_select.amber`](../../../data/vu
                OpDecorate %__0 DescriptorSet 0
                OpDecorate %__0 Binding 0
        %void = OpTypeVoid
-          %3 = OpTypeFunction %void
+         %11 = OpTypeFunction %void
         %int = OpTypeInt 32 1
 %_runtimearr_int = OpTypeRuntimeArray %int
 %output_buffer = OpTypeStruct %_runtimearr_int
@@ -219,55 +246,23 @@ SPIR-V assembly extracted from [`opselect/scalar_select.amber`](../../../data/vu
        %bool = OpTypeBool
       %int_1 = OpConstant %int 1
       %int_2 = OpConstant %int 2
-       %main = OpFunction %void None %3
-          %5 = OpLabel
-         %18 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_2
-         %19 = OpLoad %uint %18
-         %24 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_2
-         %25 = OpLoad %uint %24
-         %27 = OpAccessChain %_ptr_StorageBuffer_int %__0 %int_0 %25
-         %28 = OpLoad %int %27
-         %30 = OpIEqual %bool %28 %int_0
-         %33 = OpSelect %int %30 %int_1 %int_2
-         %34 = OpAccessChain %_ptr_StorageBuffer_int %_ %int_0 %19
+       %main = OpFunction %void None %11
+         %25 = OpLabel
+         %26 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_2
+         %27 = OpLoad %uint %26
+         %28 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_2
+         %29 = OpLoad %uint %28
+         %30 = OpAccessChain %_ptr_StorageBuffer_int %__0 %int_0 %29
+         %31 = OpLoad %int %30
+         %32 = OpIEqual %bool %31 %int_0
+         %33 = OpSelect %int %32 %int_1 %int_2
+         %34 = OpAccessChain %_ptr_StorageBuffer_int %_ %int_0 %27
                OpStore %34 %33
                OpReturn
                OpFunctionEnd
 ```
 
-Notes on the assembly:
-
-- The `OpEntryPoint` line lists `%gl_GlobalInvocationID`, `%_` (output SSBO), and `%__0` (input SSBO). All three are module-scope variables. SPIR-V 1.4 requires this complete listing.
-- `%_ptr_StorageBuffer_int` is the pointer type used for both `OpAccessChain` results into the SSBOs. `StorageBuffer` storage class is available in SPIR-V 1.4 without `VK_KHR_storage_buffer_storage_class` because that extension was promoted into Vulkan 1.1.
-- The body computes `%30 = OpIEqual %bool %28 %int_0` (input element equals zero), then `%33 = OpSelect %int %30 %int_1 %int_2`. When `%30` is true, `%33` is `1`; otherwise `%33` is `2`.
-- The `[test]` block (not shown above; see the Amber script) writes `input = {0, 1}` to `ssbo 0:0`, dispatches `compute 1 1 2`, and asserts `probe ssbo int 0:1 0 == 1 2`. The pass condition reduces to: invocation 0 sees `input[0] = 0` and writes `1`; invocation 1 sees `input[1] = 1` and writes `2`.
-
-#### Additional Info
-
-- The SPIR-V carries `OpSource GLSL 430` and `GL_GOOGLE_*` source extensions as metadata only. The Amber runner does not recompile GLSL; it consumes the SPIR-V assembly directly.
-- `%1 = OpExtInstImport "GLSL.std.450"` is present but unused in the body. It is harmless metadata left over from the original GLSL the assembly was generated from.
-- The `OpCapability Shader` line is the only capability required for this case. Other families require additional capabilities (`VariablePointersStorageBuffer`, `Int16`, `Int64`) declared in their own Amber scripts.
-
-#### Parameter Variation Summary
-
-The 12 `opselect` cases vary the selected type and pointer requirements:
-
-| Case leaf | Composite kind | Extra requirements |
-|-----------|----------------|--------------------|
-| `scalar_select` | scalar (`OpSelect %int`) | none |
-| `vector_element_select` | vector with vector selector (SPIR-V 1.0) | none |
-| `vector_select` | vector with scalar selector (SPIR-V 1.4) | none |
-| `array_select` | array | none |
-| `array_stride_select` | array with non-standard stride | none |
-| `struct_select` | struct | none |
-| `nested_array_select` | struct with nested arrays | none |
-| `nested_struct_select` | struct with nested structs | none |
-| `ssbo_pointers_select` | SSBO pointer to same buffer | `Varptr_ssbo` |
-| `ssbo_pointers_2_select` | SSBO pointer to different buffers | `Varptr_full` |
-| `wg_pointers_select` | Workgroup pointer to same buffer | `Varptr_full_explicitLayout` |
-| `wg_pointers_2_select` | Workgroup pointer to different buffers | `Varptr_full_explicitLayout` |
-
-The other 12 families use the same registration pattern but provide their own Amber assembly, `[test]` commands, and feature gates.
+</details>
 
 ## Runtime Execution and Result Checking
 

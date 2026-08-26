@@ -58,7 +58,158 @@ The `compute` and `fragment` test families execute these behavior values through
 
 ## Shader Analysis
 
-The tested behavior includes shader access, but the source builds small parameterized shaders rather than keeping one fixed shader artifact. The relevant shader distinction is the access form selected above: storage paths use image operations, while sampled paths read through the selected 2D view and write to a result image. The registration matrix and host-side comparison are more useful here than a single representative generated shader walkthrough.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.shader_object_linked_binary.image_2d_view_3d_image.fragment.combined_image_sampler.mip0_layer0
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `fragment` | Runs the view access from a fragment shader; the monolithic variant uses the same generated fragment source in its graphics path. |
+| `combined_image_sampler` | Uses one combined descriptor at set 0, binding 0 for the selected 2D view, while binding 1 is a separate storage image receiving the sampled result. |
+| `mip0_layer0` | Selects mip level 0 and the first depth slice of the 64×64×64 source image. The view range contains exactly one mip and one layer, so shader coordinates are 2D. |
+| `VK_FORMAT_R8G8B8A8_UNORM`, normal binding | Keeps the fixed format and ordinary image-memory path; sparse suffixes vary backing and submission ordering without changing this shader. |
+
+#### Purpose
+
+The fragment shader samples the selected `VK_IMAGE_VIEW_TYPE_2D` view of the 3D image through a combined image sampler and stores the result into a separate 2D storage image. The host copies that result to a buffer and compares it with the generated chess pattern, making an incorrect mip/layer selection or sampled-view access visible as a pixel mismatch.
+
+#### Structural Design
+
+```mermaid
+flowchart TD
+    A[Fragment coordinate gl_FragCoord] --> B[uv = integer xy]
+    A --> C[texCoord = xy / 64.0]
+    D[Combined sampler set 0 binding 0] --> E[texture sample]
+    C --> E
+    E --> F[Sampled vec4 color]
+    F --> G[imageStore to storage image set 0 binding 1 at uv]
+    G --> H[Host copy and chess-pattern comparison]
+```
+
+#### Shader Code
+
+```glsl
+#version 450 core
+/// Binding 0 is the combined image-sampler descriptor for the 2D view selecting
+/// mip 0, layer 0 of the 64×64×64 R8G8B8A8_UNORM 3D image.
+layout (set = 0, binding = 0) uniform sampler2D combinedSampler;
+/// Binding 1 is a separate 64×64 R8G8B8A8_UNORM 2D storage image used to retain
+/// the sampled texels for transfer to the host-side comparison buffer.
+layout (rgba8, set = 0, binding = 1) uniform image2D verifyImage;
+void main (void) {
+    /// Fragment coordinates are integerized for the output-image texel address.
+    ivec2 uv = ivec2(gl_FragCoord.xy);
+    /// The 64-pixel framebuffer maps the fragment center coordinate to normalized
+    /// texture space; the selected 2D view supplies the fixed mip and layer.
+    vec2 texCoord = gl_FragCoord.xy / 64.0;
+    vec4 color = texture(combinedSampler, texCoord);
+    /// Store the sampled value so the host can compare every output texel.
+    imageStore(verifyImage, uv, color);
+}
+```
+
+#### Additional Info
+
+- `Image2DView3DImageInstance::iterate()` uploads a chess pattern only into the selected source layer and clears the other layers white; the reference image is depth one because the result is a 2D image.
+- The same generated fragment source is used for `sampler` after splitting the input descriptor into bindings 0 and 1, and for `storage` after replacing the sample with the direct `imageStore` pattern generator; mip, layer, and sparse registration values do not alter this combined-sampler shader body.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|----------------------------------------|----------|
+| descriptor access type | `combined_image_sampler` emits `sampler2D` plus `texture`; `sampler` emits separate `texture2D` and `sampler` objects combined at the call site; `storage` emits a write-only `image2D` and writes the chess value directly. | [`ComputeImage2DView3DImageTest::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineImage2DViewOf3DTests.cpp#L848-L893), [`FragmentImage2DView3DImageTest::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineImage2DViewOf3DTests.cpp#L921-L976) |
+| execution stage | Fragment code uses `gl_FragCoord`; the compute counterpart uses `gl_GlobalInvocationID` with the same normalized-coordinate and output-image dataflow. | [`FragmentImage2DView3DImageTest::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineImage2DViewOf3DTests.cpp#L921-L976), [`ComputeImage2DView3DImageTest::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineImage2DViewOf3DTests.cpp#L848-L893) |
+| mip level and selected layer | These values change the host-created view range and the generated divisor (`64.0` at mip 0 or `16.0` at mip 2); the shader remains 2D because the view has one mip and one layer. | [`createImage2DViewOf3DTests()`](../../../modules/vulkan/pipeline/vktPipelineImage2DViewOf3DTests.cpp#L1028-L1064), [`Image2DView3DImageInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineImage2DViewOf3DTests.cpp#L411-L542) |
+| normal versus sparse binding | No shader text changes; sparse setup binds the 3D image through `queueBindSparse` and passes a semaphore that the execution submission waits on before the shader work. | [`Image2DView3DImageInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineImage2DViewOf3DTests.cpp#L441-L535), [`commonSubmission()`](../../../modules/vulkan/pipeline/vktPipelineImage2DViewOf3DTests.cpp#L254-L262) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 40
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %gl_FragCoord
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %uv "uv"
+               OpName %gl_FragCoord "gl_FragCoord"
+               OpName %texCoord "texCoord"
+               OpName %color "color"
+               OpName %combinedSampler "combinedSampler"
+               OpName %verifyImage "verifyImage"
+               OpDecorate %gl_FragCoord BuiltIn FragCoord
+               OpDecorate %combinedSampler Binding 0
+               OpDecorate %combinedSampler DescriptorSet 0
+               OpDecorate %verifyImage Binding 1
+               OpDecorate %verifyImage DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+      %v2int = OpTypeVector %int 2
+%_ptr_Function_v2int = OpTypePointer Function %v2int
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%gl_FragCoord = OpVariable %_ptr_Input_v4float Input
+    %v2float = OpTypeVector %float 2
+%_ptr_Function_v2float = OpTypePointer Function %v2float
+   %float_64 = OpConstant %float 64
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+         %27 = OpTypeImage %float 2D 0 0 0 1 Unknown
+         %28 = OpTypeSampledImage %27
+%_ptr_UniformConstant_28 = OpTypePointer UniformConstant %28
+%combinedSampler = OpVariable %_ptr_UniformConstant_28 UniformConstant
+         %34 = OpTypeImage %float 2D 0 0 0 2 Rgba8
+%_ptr_UniformConstant_34 = OpTypePointer UniformConstant %34
+%verifyImage = OpVariable %_ptr_UniformConstant_34 UniformConstant
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %uv = OpVariable %_ptr_Function_v2int Function
+   %texCoord = OpVariable %_ptr_Function_v2float Function
+      %color = OpVariable %_ptr_Function_v4float Function
+         %15 = OpLoad %v4float %gl_FragCoord
+         %16 = OpVectorShuffle %v2float %15 %15 0 1
+         %17 = OpConvertFToS %v2int %16
+               OpStore %uv %17
+         %20 = OpLoad %v4float %gl_FragCoord
+         %21 = OpVectorShuffle %v2float %20 %20 0 1
+         %23 = OpCompositeConstruct %v2float %float_64 %float_64
+         %24 = OpFDiv %v2float %21 %23
+               OpStore %texCoord %24
+         %31 = OpLoad %28 %combinedSampler
+         %32 = OpLoad %v2float %texCoord
+         %33 = OpImageSampleImplicitLod %v4float %31 %32
+               OpStore %color %33
+         %37 = OpLoad %34 %verifyImage
+         %38 = OpLoad %v2int %uv
+         %39 = OpLoad %v4float %color
+               OpImageWrite %37 %38 %39
+               OpReturn
+               OpFunctionEnd
+
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

@@ -1108,7 +1108,191 @@ Tests with `VK_EXT_vertex_input_dynamic_state` enabled, using `vkCmdSetVertexInp
 
 ## Shader Analysis
 
-The generated vertex shader uses `gl_InstanceIndex` and push constants to derive instance-dependent position and color. The source page does not include a representative shader walkthrough; the detailed shader reconstruction and disassembly can be added during audit if required by the evidence review.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.draw.renderpass.instanced.draw_vk_primitive_topology_triangle_list
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `FUNCTION_DRAW` | Uses the direct `vkCmdDraw` path while keeping the shader interface shared with indexed and indirect variants. |
+| `VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST` | Exercises ordinary triangle rasterization; the shader's instance placement and color expressions are independent of primitive assembly. |
+| `ATTRIBUTE_DIVISOR_NONE`, divisor 1, `testMultiview = false` | Uses the baseline per-instance binding rate and one color-attachment layer, isolating the generated vertex-stage dataflow. |
+| `instanceCount = 2`, `firstInstance = 3` | Makes both terms observable: placement uses the relative index `gl_InstanceIndex - firstInstance`, while the red color uses the absolute `gl_InstanceIndex`. |
+
+#### Purpose
+
+The vertex shader makes instance addressing visible in two ways: it tiles geometry using an index relative to `firstInstance`, and adds the absolute instance index to the red color component. It also forwards the two vertex-input colors so the fragment stage can write the complete value.
+
+#### Structural Design
+
+| Phase | Inputs | Result |
+|-------|--------|--------|
+| Vertex fetch | `in_position`, `in_color`, `in_color_2` | Position and two color contributions arrive from vertex bindings 0 and 1. |
+| Instance placement | `gl_InstanceIndex - params.firstInstance`, `params.instanceCount` | Adds a horizontal offset of `2 * relativeInstance / instanceCount` to `in_position`. |
+| Color construction | `gl_InstanceIndex / params.instanceCount` | Adds the absolute-index red term and `(0, 0, 1, 1)` to `in_color`, then adds `in_color_2`. |
+| Stage interface | `gl_Position`, `out_color` | Emits position to rasterization and the computed color to fragment location 0. |
+
+#### Shader Code
+
+```glsl
+#version 430
+
+/// Location 0 is the per-vertex position, supplied from binding 0 as an R32G32B32A32_SFLOAT vec4.
+layout(location = 0) in vec4 in_position;
+/// Location 1 is the per-vertex color, also supplied from binding 0.
+layout(location = 1) in vec4 in_color;
+/// Location 2 is the instance-rate color from binding 1; its advancement is controlled by the selected divisor.
+layout(location = 2) in vec4 in_color_2;
+/// The host pushes firstInstance and instanceCount as two 32-bit floats at offset 0; they control placement and color.
+layout(push_constant) uniform TestParams {
+    float firstInstance;
+    float instanceCount;
+} params;
+/// Location 0 carries the computed color to the fragment shader.
+layout(location = 0) out vec4 out_color;
+/// The vertex stage writes position and point size; point size is initialized for point-list variants.
+out gl_PerVertex {
+    vec4  gl_Position;
+    float gl_PointSize;
+};
+
+void main() {
+    /// Keep point-list rasterization deterministic even though other topologies ignore this built-in.
+    gl_PointSize = 1.0;
+    /// Relative instance index controls horizontal placement; firstInstance is removed only from this term.
+    gl_Position  = in_position + vec4(float(gl_InstanceIndex - params.firstInstance) * 2.0 / params.instanceCount, 0.0, 0.0, 0.0);
+    /// Absolute gl_InstanceIndex remains visible in red, while both vertex colors contribute to the output.
+    out_color    = in_color + vec4(float(gl_InstanceIndex) / params.instanceCount, 0.0, 0.0, 1.0) + in_color_2;
+}
+```
+
+#### Additional Info
+
+- The push-constant range is vertex-stage-only, starts at offset 0, and is exactly two `float` values; `draw()` uploads `{ firstInstance, instanceCount }` before issuing the draw ([vktDrawInstancedTests.cpp#L459-L466](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L459-L466), [vktDrawInstancedTests.cpp#L1099-L1102](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L1099-L1102)).
+- In this baseline case, binding 0 has vertex rate and a `VertexPositionAndColor` stride, while binding 1 has instance rate and a `vec4` stride; attribute 2 reads the instance color at offset 0 ([vktDrawInstancedTests.cpp#L535-L561](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L535-L561)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| `instanceCount` / `firstInstance` | The shader source is unchanged; runtime push-constant values alter horizontal spacing and the absolute-index color term. | [vktDrawInstancedTests.cpp#L638-L671](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L638-L671) |
+| `FUNCTION_DRAW`, indexed, indirect, indexed-indirect | The generated vertex shader is unchanged; only command recording and optional index/indirect buffers differ. | [vktDrawInstancedTests.cpp#L1135-L1166](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L1135-L1166) |
+| Attribute divisor | The shader declaration is unchanged; the instance-rate fetch for `in_color_2` advances according to the selected binding divisor. | [vktDrawInstancedTests.cpp#L567-L573](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L567-L573) |
+| `dynamicState` | The shader declaration and code are unchanged; vertex binding and attribute descriptions are supplied at draw time instead of pipeline creation. | [vktDrawInstancedTests.cpp#L600-L611](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L600-L611), [vktDrawInstancedTests.cpp#L1104-L1133](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L1104-L1133) |
+| `testMultiview` | The shader is unchanged; the same vertex invocation and output are broadcast through view mask `0x3` to two layers. | [vktDrawInstancedTests.cpp#L468-L483](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L468-L483), [vktDrawInstancedTests.cpp#L622-L628](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L622-L628) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 54
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %in_position %gl_InstanceIndex %out_color %in_color %in_color_2
+               OpSource GLSL 430
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpName %_ ""
+               OpName %in_position "in_position"
+               OpName %gl_InstanceIndex "gl_InstanceIndex"
+               OpName %TestParams "TestParams"
+               OpMemberName %TestParams 0 "firstInstance"
+               OpMemberName %TestParams 1 "instanceCount"
+               OpName %params "params"
+               OpName %out_color "out_color"
+               OpName %in_color "in_color"
+               OpName %in_color_2 "in_color_2"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpDecorate %in_position Location 0
+               OpDecorate %gl_InstanceIndex BuiltIn InstanceIndex
+               OpDecorate %TestParams Block
+               OpMemberDecorate %TestParams 0 Offset 0
+               OpMemberDecorate %TestParams 1 Offset 4
+               OpDecorate %out_color Location 0
+               OpDecorate %in_color Location 1
+               OpDecorate %in_color_2 Location 2
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%gl_PerVertex = OpTypeStruct %v4float %float
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_1 = OpConstant %int 1
+    %float_1 = OpConstant %float 1
+%_ptr_Output_float = OpTypePointer Output %float
+      %int_0 = OpConstant %int 0
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%in_position = OpVariable %_ptr_Input_v4float Input
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_InstanceIndex = OpVariable %_ptr_Input_int Input
+ %TestParams = OpTypeStruct %float %float
+%_ptr_PushConstant_TestParams = OpTypePointer PushConstant %TestParams
+     %params = OpVariable %_ptr_PushConstant_TestParams PushConstant
+%_ptr_PushConstant_float = OpTypePointer PushConstant %float
+    %float_2 = OpConstant %float 2
+    %float_0 = OpConstant %float 0
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %out_color = OpVariable %_ptr_Output_v4float Output
+   %in_color = OpVariable %_ptr_Input_v4float Input
+ %in_color_2 = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %15 = OpAccessChain %_ptr_Output_float %_ %int_1
+               OpStore %15 %float_1
+         %19 = OpLoad %v4float %in_position
+         %22 = OpLoad %int %gl_InstanceIndex
+         %23 = OpConvertSToF %float %22
+         %28 = OpAccessChain %_ptr_PushConstant_float %params %int_0
+         %29 = OpLoad %float %28
+         %30 = OpFSub %float %23 %29
+         %32 = OpFMul %float %30 %float_2
+         %33 = OpAccessChain %_ptr_PushConstant_float %params %int_1
+         %34 = OpLoad %float %33
+         %35 = OpFDiv %float %32 %34
+         %37 = OpCompositeConstruct %v4float %35 %float_0 %float_0 %float_0
+         %38 = OpFAdd %v4float %19 %37
+         %40 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %40 %38
+         %43 = OpLoad %v4float %in_color
+         %44 = OpLoad %int %gl_InstanceIndex
+         %45 = OpConvertSToF %float %44
+         %46 = OpAccessChain %_ptr_PushConstant_float %params %int_1
+         %47 = OpLoad %float %46
+         %48 = OpFDiv %float %45 %47
+         %49 = OpCompositeConstruct %v4float %48 %float_0 %float_0 %float_1
+         %50 = OpFAdd %v4float %43 %49
+         %52 = OpLoad %v4float %in_color_2
+         %53 = OpFAdd %v4float %50 %52
+               OpStore %out_color %53
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

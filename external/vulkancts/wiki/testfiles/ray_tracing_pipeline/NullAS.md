@@ -48,25 +48,34 @@ Binds a ray tracing pipeline and a compute pipeline, each with its own descripto
 
 The `test` leaf's rgen shader is the representative walkthrough because it is the one that traces a ray against the null AS descriptor. The `mixed_dispatches` rgen shader never calls `traceRayEXT` and is covered by the parameter summary above; its shader text is a straight storage-buffer write keyed on `gl_LaunchSizeEXT.x`.
 
-### Representative Shader Walkthrough 1: `null_as.test` rgen
+### Representative Shader Walkthrough 1
 
-**CTS case:** `dEQP-VK.ray_tracing_pipeline.null_as.test`
+#### Parameter Values Chosen
 
-**Source:** reconstructed from [RayTracingTestCase::initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L317-L318), which adds `glu::RaygenSource(updateRayTracingGLSL(getCommonRayGenerationShader()))`. The shared helper is [getCommonRayGenerationShader](../../../framework/vulkan/vkRayTracingUtil.cpp#L118-L138), specialized for `set = 0, binding = 1`.
+Representative path:
 
-**Stage:** Ray generation (`VK_SHADER_STAGE_RAYGEN_BIT_KHR`).
+```text
+dEQP-VK.ray_tracing_pipeline.null_as.test
+```
 
-**Resources:**
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `test` | Selects the leaf that traces rays against a null acceleration structure descriptor. |
+| `width=8`, `height=8` | Selects the fixed 8x8 ray launch used by this leaf. |
 
-- `topLevelAS` (binding 1): `accelerationStructureEXT`. At runtime the descriptor write binds `VK_NULL_HANDLE` here via `VkWriteDescriptorSetAccelerationStructureKHR` with `pAccelerationStructures = &topLevelAccelerationStructure` where `topLevelAccelerationStructure = VK_NULL_HANDLE`. The spec requires this to behave as an empty AS, so `traceRayEXT` always misses.
-- `hitValue` (location 0): `rayPayloadEXT vec3`. Declared but unused by the rgen; the miss shader declares the matching `rayPayloadInEXT` and also ignores it.
-- `result` image (binding 0): written by the miss, intersection, any-hit, and closest-hit shaders, not by rgen.
+#### Purpose
 
-**Shader logic:**
+This walkthrough isolates the shader behavior exercised by the selected representative case.
 
-The rgen shader computes one ray origin per launch ID at `((x+0.5)/width, (y+0.5)/height, 0.0)` and traces straight down `-z` with `tmin=0.0`, `tmax=9.0`, `rayFlags=0`, `cullMask=0xFF`. Because the TLAS descriptor is null, traversal finds no geometry and the miss shader runs. The miss shader writes `uvec4(4,0,0,1)` to the result image at `gl_LaunchIDEXT.xy`.
+#### Structural Design
 
-#### Reconstructed GLSL
+| Phase | Shader action |
+|-------|---------------|
+| Ray setup | Derive a normalized pixel-center origin from `gl_LaunchIDEXT` and `gl_LaunchSizeEXT`, with direction `(0, 0, -1)`. |
+| Trace | Call `traceRayEXT` through `topLevelAS` at set 0, binding 1. |
+| Expected outcome | The bound null acceleration structure behaves as empty, so the miss shader writes the expected value `4`. |
+
+#### Shader Code
 
 ```glsl
 #version 460 core
@@ -85,6 +94,16 @@ void main()
   traceRayEXT(topLevelAS, rayFlags, cullMask, 0, 0, 0, origin, tmin, direct, tmax, 0);
 }
 ```
+
+#### Additional Info
+
+- The reconstructed rgen source comes from [`getCommonRayGenerationShader`](../../../framework/vulkan/vkRayTracingUtil.cpp#L118-L138), selected by [`RayTracingTestCase::initPrograms`](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L313-L318).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| Test case leaf | `test` traces through `topLevelAS`; `mixed_dispatches` uses a different rgen shader that writes directly to a storage buffer and does not call `traceRayEXT`. | [`test` rgen](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L313-L318); [`mixed_dispatches` rgen](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L713-L729) |
 
 #### SPIR-V
 
@@ -195,7 +214,9 @@ void main()
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
+
+## Runtime Execution and Result Checking
 
 ### `test` leaf
 

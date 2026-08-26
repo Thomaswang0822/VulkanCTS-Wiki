@@ -95,7 +95,13 @@ The shaders provide valid graphics or compute pipelines so the implementation ca
 
 ## Case Pruning
 
-The implementation omits `compute` outside monolithic construction because the source comment says not to repeat compute tests for graphics pipeline library paths. The registered graphics coverage remains present in monolithic, fast-linked-library, and pipeline-library mustpass lists. Shader-object construction is excluded by the surrounding pipeline registration architecture, and the source also guards out Vulkan SC.
+### Requirement-based pruning
+
+The source guards out Vulkan SC.
+
+### Design-based pruning
+
+The implementation omits `compute` outside monolithic construction because the source comment says not to repeat compute tests for graphics pipeline library paths. The registered graphics coverage remains present in monolithic, fast-linked-library, and pipeline-library mustpass lists. Shader-object construction is excluded by the surrounding pipeline registration architecture.
 
 ## Key Takeaways
 

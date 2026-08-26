@@ -83,21 +83,1217 @@ Tests a triangle strip where each of three vertices has one negative `gl_CullDis
 
 ## Shader Analysis
 
-The clipping category uses two distinct shader generation strategies.
+### Representative Shader Walkthrough 1
 
-**Clip-volume family.** The `clip_volume` intermediate nodes (inside, outside, depth_clamp, depth_clip, wide_lines) share a trivial vertex shader that copies `v_position` to `gl_Position` and a fragment shader that outputs `vec4(1.0, gl_FragCoord.z, 0.0, 1.0)`. The large_points variant adds `gl_PointSize` to the `gl_PerVertex` block. These shaders contain no clip-distance logic; the tested behavior is driven entirely by pipeline state and vertex positions ([`addSimplePrograms()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L360-L397)).
+#### Parameter Values Chosen
 
-**User-defined, complementarity, and misc families.** These use generated GLSL 4.50 shaders with varying complexity. The `user_defined` family has the richest generation, producing up to five shader stages per case.
+Representative path:
 
-The vertex shader for `user_defined` cases declares `gl_ClipDistance[]` and optionally `gl_CullDistance[]` in `gl_PerVertex`. It assigns each clip distance component using a bar index derived from `gl_VertexIndex / 6`, where bar `i` writes `v_position.y` to `gl_ClipDistance[i]` and all other components get 0.0. This creates a horizontal clip at `y=0` for the upper half of each bar. Cull distances use position thresholds: when fragment readback is disabled, `gl_CullDistance[i]` is `-0.5` for `x >= 0.75` and `0.5` otherwise. When readback is enabled and no tessellation or geometry is present, the cull distance is `-0.5` for `y < 0` and `0.5` otherwise. With tessellation or geometry present, the vertex shader writes a sentinel `0.1f` to each cull component, allowing downstream stages to detect whether the value was correctly forwarded ([source](../../../modules/vulkan/clipping/vktClippingTests.cpp#L1130-L1190)).
+```text
+dEQP-VK.clipping.user_defined.clip_cull_distance_dynamic_index.vert_tess_geom.4_4_fragmentshader_read
+```
 
-The tessellation control shader passes through positions and clip distances, and either recomputes cull distances from position thresholds or transforms the sentinel value (0.1f becomes 0.3f if geometry follows, or the correct threshold value otherwise; any other input becomes 0.2f, indicating the vertex value was wrong). The tessellation evaluation shader interpolates clip and cull distances using barycentric tessellation coordinates ([source](../../../modules/vulkan/clipping/vktClippingTests.cpp#L1192-L1327)). The geometry shader passes through positions and clip distances, and applies the final sentinel transformation for cull distances (0.3f or 0.1f becomes the correct threshold value; anything else becomes 0.4f) ([source](../../../modules/vulkan/clipping/vktClippingTests.cpp#L1329-L1408)).
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `clip_cull_distance_dynamic_index` | Generates both built-in arrays and accesses their four components through runtime loop indices. |
+| `vert_tess_geom` | Runs the distance data through vertex, tessellation-control, tessellation-evaluation, and geometry stages before rasterization. |
+| `4_4` | Uses four clip plus four cull distances, reaching the required combined-distance minimum of eight. |
+| `_fragmentshader_read` | Declares both arrays as fragment inputs and exposes component 2 in the green and blue color channels. |
 
-The complementarity vertex shader writes only the last enabled `gl_ClipDistance` component from `v_position.w`, leaving earlier components at zero. The fragment shader outputs `vec4(1.0, 1.0, 1.0, 0.5)` for additive blending ([source](../../../modules/vulkan/clipping/vktClippingTests.cpp#L1561-L1602)).
+#### Purpose
 
-The misc cull-distance vertex shader uses `gl_VertexIndex` to assign one negative cull component per vertex: `gl_CullDistance[0]` is -1.0 for vertex 2, `gl_CullDistance[1]` is -1.0 for vertex 1, `gl_CullDistance[2]` is -1.0 for vertex 0. The fragment shader outputs solid red ([source](../../../modules/vulkan/clipping/vktClippingTests.cpp#L1694-L1724)).
+This case verifies dynamically indexed `gl_ClipDistance[4]` and `gl_CullDistance[4]` generation, propagation through tessellation and geometry, fixed-function clipping/culling, and fragment-stage interpolation/readback. Its sentinel chain makes a broken producer stage visible as an incorrect blue channel rather than only as missing coverage.
 
-Representative shader walkthroughs are not included here because the `shader-analyzer` tool is not available in this environment. The shader generation logic described above is derived from direct source inspection of [`initPrograms()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L1113-L1448).
+#### Structural Design
+
+| Stage | Distance-array responsibility | Observable effect |
+|-------|-------------------------------|-------------------|
+| Vertex | Writes bar-selective clip values and `0.1` cull sentinels. | Establishes dynamic indexing and the producer value checked downstream. |
+| Tessellation control | Copies clip values and changes valid cull sentinels from `0.1` to `0.3` (`0.2` on mismatch). | Confirms per-control-point transport into tessellation. |
+| Tessellation evaluation | Barycentrically evaluates position, clip, and cull arrays. | Supplies interpolated per-vertex values to geometry without adding subdivision. |
+| Geometry | Copies clip values and converts valid `0.3` cull sentinels to `-0.5` below `y=0` or `+0.5` above it (`0.4` on mismatch). | Produces the final clipping/culling half-spaces and the primary stage audited in SPIR-V. |
+| Fragment | Reads `gl_ClipDistance[2]` and `gl_CullDistance[2]`. | Encodes them into green/blue for `checkFragColors()`. |
+
+#### Shader Code
+
+##### Vertex Shader
+
+```glsl
+#version 450
+
+/// Each draw vertex belongs to one of eight six-vertex bars; color transports the bar gradient.
+layout(location = 0) in  vec4 v_position;
+layout(location = 0) out vec4 out_color;
+
+/// Four clip and four cull components exactly fill the required combined-distance minimum of eight.
+out gl_PerVertex {
+    vec4  gl_Position;
+    float gl_ClipDistance[4];
+    float gl_CullDistance[4];
+};
+
+void main (void)
+{
+    gl_Position = v_position;
+    out_color   = vec4(1.0, 0.5 * (v_position.x + 1.0), 0.0, 1.0);
+
+    /// Dynamic loop indices exercise runtime indexing of both built-in distance arrays.
+    const int barNdx = gl_VertexIndex / 6;
+    for (int i = 0; i < 4; ++i)
+        gl_ClipDistance[i] = (barNdx == i ? v_position.y : 0.0);
+    /// The 0.1 sentinel must become 0.3 in TCS and a signed half-space in geometry.
+    for (int i = 0; i < 4; ++i)
+        gl_CullDistance[i] = 0.1f;
+}
+```
+
+##### Tessellation Control Shader
+
+```glsl
+#version 450
+
+/// Three invocations forward one triangle patch and keep tessellation at a single triangle.
+layout(vertices = 3) out;
+
+layout(location = 0) in  vec4 in_color[];
+layout(location = 0) out vec4 out_color[];
+
+in gl_PerVertex {
+    vec4  gl_Position;
+    float gl_ClipDistance[4];
+    float gl_CullDistance[4];
+} gl_in[gl_MaxPatchVertices];
+
+out gl_PerVertex {
+    vec4  gl_Position;
+    float gl_ClipDistance[4];
+    float gl_CullDistance[4];
+} gl_out[];
+
+void main (void)
+{
+    /// Unit tessellation levels avoid subdivision while still exercising TCS/TES transport.
+    gl_TessLevelInner[0] = 1.0;
+    gl_TessLevelInner[1] = 1.0;
+
+    gl_TessLevelOuter[0] = 1.0;
+    gl_TessLevelOuter[1] = 1.0;
+    gl_TessLevelOuter[2] = 1.0;
+    gl_TessLevelOuter[3] = 1.0;
+
+    gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
+    out_color[gl_InvocationID]          = in_color[gl_InvocationID];
+
+    /// Clip distances pass through; dynamic indexing remains visible in this stage.
+    for (int i = 0; i < 4; ++i)
+        gl_out[gl_InvocationID].gl_ClipDistance[i] = gl_in[gl_InvocationID].gl_ClipDistance[i];
+    /// Correct vertex input (0.1) becomes 0.3 for the following geometry-stage check; 0.2 flags failure.
+    for (int i = 0; i < 4; ++i)
+    {
+        gl_out[gl_InvocationID].gl_CullDistance[i] = (gl_in[gl_InvocationID].gl_CullDistance[i] == 0.1f) ? 0.3f : 0.2f;
+    }
+}
+```
+
+##### Tessellation Evaluation Shader
+
+```glsl
+#version 450
+
+/// Barycentric triangle evaluation reconstructs every per-vertex output for the geometry stage.
+layout(triangles, equal_spacing, ccw) in;
+
+layout(location = 0) in  vec4 in_color[];
+layout(location = 0) out vec4 out_color;
+
+in gl_PerVertex {
+    vec4  gl_Position;
+    float gl_ClipDistance[4];
+    float gl_CullDistance[4];
+} gl_in[gl_MaxPatchVertices];
+
+out gl_PerVertex {
+    vec4  gl_Position;
+    float gl_ClipDistance[4];
+    float gl_CullDistance[4];
+};
+
+void main (void)
+{
+    /// Position and color are evaluated from the three control points.
+    vec3 px     = gl_TessCoord.x * gl_in[0].gl_Position.xyz;
+    vec3 py     = gl_TessCoord.y * gl_in[1].gl_Position.xyz;
+    vec3 pz     = gl_TessCoord.z * gl_in[2].gl_Position.xyz;
+    gl_Position = vec4(px + py + pz, 1.0);
+    out_color   = (in_color[0] + in_color[1] + in_color[2]) / 3.0;
+
+    /// Both built-in arrays are barycentrically interpolated with dynamic indices.
+    for (int i = 0; i < 4; ++i)
+        gl_ClipDistance[i] = gl_TessCoord.x * gl_in[0].gl_ClipDistance[i]
+                           + gl_TessCoord.y * gl_in[1].gl_ClipDistance[i]
+                           + gl_TessCoord.z * gl_in[2].gl_ClipDistance[i];
+    for (int i = 0; i < 4; ++i)
+        gl_CullDistance[i] = gl_TessCoord.x * gl_in[0].gl_CullDistance[i]
+                           + gl_TessCoord.y * gl_in[1].gl_CullDistance[i]
+                           + gl_TessCoord.z * gl_in[2].gl_CullDistance[i];
+}
+```
+
+##### Geometry Shader
+
+```glsl
+#version 450
+
+/// One input triangle is re-emitted as a three-vertex strip, preserving primitive shape.
+layout(triangles) in;
+layout(triangle_strip, max_vertices = 3) out;
+
+layout(location = 0) in  vec4 in_color[];
+layout(location = 0) out vec4 out_color;
+
+in gl_PerVertex {
+    vec4  gl_Position;
+    float gl_ClipDistance[4];
+    float gl_CullDistance[4];
+} gl_in[];
+
+out gl_PerVertex {
+    vec4  gl_Position;
+    float gl_ClipDistance[4];
+    float gl_CullDistance[4];
+};
+
+void main (void)
+{
+    /// For each source vertex, copy position/clip values and finalize the cull half-space.
+    gl_Position = gl_in[0].gl_Position;
+    out_color   = in_color[0];
+    for (int i = 0; i < 4; ++i)
+        gl_ClipDistance[i] = gl_in[0].gl_ClipDistance[i];
+    for (int i = 0; i < 4; ++i)
+    {
+        /// The expected 0.3 sentinel becomes -0.5 below y=0 or +0.5 above; 0.4 exposes bad transport.
+        gl_CullDistance[i] = (gl_in[0].gl_CullDistance[i] == 0.3f) ? ((gl_in[0].gl_Position.y < 0) ? -0.5f : 0.5f) : 0.4f;
+    }
+    EmitVertex();
+
+    gl_Position = gl_in[1].gl_Position;
+    out_color   = in_color[1];
+    for (int i = 0; i < 4; ++i)
+        gl_ClipDistance[i] = gl_in[1].gl_ClipDistance[i];
+    for (int i = 0; i < 4; ++i)
+    {
+        gl_CullDistance[i] = (gl_in[1].gl_CullDistance[i] == 0.3f) ? ((gl_in[1].gl_Position.y < 0) ? -0.5f : 0.5f) : 0.4f;
+    }
+    EmitVertex();
+
+    gl_Position = gl_in[2].gl_Position;
+    out_color   = in_color[2];
+    for (int i = 0; i < 4; ++i)
+        gl_ClipDistance[i] = gl_in[2].gl_ClipDistance[i];
+    for (int i = 0; i < 4; ++i)
+    {
+        gl_CullDistance[i] = (gl_in[2].gl_CullDistance[i] == 0.3f) ? ((gl_in[2].gl_Position.y < 0) ? -0.5f : 0.5f) : 0.4f;
+    }
+    EmitVertex();
+}
+```
+
+##### Fragment Shader
+
+```glsl
+#version 450
+
+/// Flat color supplies red; interpolated built-ins supply the green/blue validation channels.
+layout(location = 0) in flat vec4 in_color;
+layout(location = 0) out vec4 o_color;
+in float gl_ClipDistance[4];
+in float gl_CullDistance[4];
+
+void main (void)
+{
+    /// Read the midpoint components: clip[2] into green and cull[2] into blue.
+    o_color = vec4(in_color.r, gl_ClipDistance[2], gl_CullDistance[2],  1.0);
+}
+```
+
+#### Additional Info
+
+- The vertex shader is the initial producer of four clip values and four `0.1` cull sentinels; the tessellation-control and tessellation-evaluation shaders preserve those dynamically indexed values through a unit-tessellation triangle patch ([vertex source](../../../modules/vulkan/clipping/vktClippingTests.cpp#L1130-L1190), [tessellation source](../../../modules/vulkan/clipping/vktClippingTests.cpp#L1192-L1327)).
+- The fragment shader varies only with `_fragmentshader_read` and distance counts; here it reads midpoint component 2 from each four-element array, while `checkFragColors()` compares the rendered channels with interpolated expectations using a `0.01` tolerance ([source](../../../modules/vulkan/clipping/vktClippingTests.cpp#L1410-L1447), [runtime check](../../../modules/vulkan/clipping/vktClippingTests.cpp#L274-L319)).
+- The geometry shader is the primary shader because it performs the final sentinel check and emits the final clip/cull arrays. The registered case is present verbatim in [`clipping.txt`](../../../mustpass/main/vk-default/clipping.txt#L172), and runtime uses a three-control-point patch, then requires exact black coverage, zero guard pixels, and successful fragment-color validation ([source](../../../modules/vulkan/clipping/vktClippingTests.cpp#L1487-L1553)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Clip/cull counts | Array extents and loop bounds follow the selected counts; registration caps the combined total at eight and reduces cull count as clip count rises. | [`initPrograms()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L1113-L1128), [registration](../../../modules/vulkan/clipping/vktClippingTests.cpp#L1897-L1919) |
+| Indexing mode | Dynamic cases emit loops over variable `i`; static cases unroll assignments with literal array indices. | [`initPrograms()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L1145-L1186) |
+| Stage path | `_tess` adds TCS/TES, `_geom` adds geometry, and their combination changes the cull sentinel expected by each downstream stage. | [`initPrograms()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L1192-L1408) |
+| Fragment readback | Readback cases declare built-in fragment inputs and write midpoint clip/cull components to green/blue; other cases omit those inputs and add a constant blue component to the transported color. | [`initPrograms()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L1410-L1447) |
+
+#### SPIR-V
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 81
+; Schema: 0
+               OpCapability Shader
+               OpCapability ClipDistance
+               OpCapability CullDistance
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %v_position %out_color %gl_VertexIndex
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex 2 "gl_CullDistance"
+               OpName %_ ""
+               OpName %v_position "v_position"
+               OpName %out_color "out_color"
+               OpName %barNdx "barNdx"
+               OpName %gl_VertexIndex "gl_VertexIndex"
+               OpName %i "i"
+               OpName %i_0 "i"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn CullDistance
+               OpDecorate %v_position Location 0
+               OpDecorate %out_color Location 0
+               OpDecorate %gl_VertexIndex BuiltIn VertexIndex
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+       %uint = OpTypeInt 32 0
+     %uint_4 = OpConstant %uint 4
+%_arr_float_uint_4 = OpTypeArray %float %uint_4
+%gl_PerVertex = OpTypeStruct %v4float %_arr_float_uint_4 %_arr_float_uint_4
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+ %v_position = OpVariable %_ptr_Input_v4float Input
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %out_color = OpVariable %_ptr_Output_v4float Output
+    %float_1 = OpConstant %float 1
+  %float_0_5 = OpConstant %float 0.5
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_float = OpTypePointer Input %float
+    %float_0 = OpConstant %float 0
+%_ptr_Function_int = OpTypePointer Function %int
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_VertexIndex = OpVariable %_ptr_Input_int Input
+      %int_6 = OpConstant %int 6
+      %int_4 = OpConstant %int 4
+       %bool = OpTypeBool
+      %int_1 = OpConstant %int 1
+%_ptr_Function_float = OpTypePointer Function %float
+     %uint_1 = OpConstant %uint 1
+%_ptr_Output_float = OpTypePointer Output %float
+      %int_2 = OpConstant %int 2
+%float_0_100000001 = OpConstant %float 0.100000001
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+     %barNdx = OpVariable %_ptr_Function_int Function
+          %i = OpVariable %_ptr_Function_int Function
+         %55 = OpVariable %_ptr_Function_float Function
+        %i_0 = OpVariable %_ptr_Function_int Function
+         %18 = OpLoad %v4float %v_position
+         %20 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %20 %18
+         %26 = OpAccessChain %_ptr_Input_float %v_position %uint_0
+         %27 = OpLoad %float %26
+         %28 = OpFAdd %float %27 %float_1
+         %29 = OpFMul %float %float_0_5 %28
+         %31 = OpCompositeConstruct %v4float %float_1 %29 %float_0 %float_1
+               OpStore %out_color %31
+         %36 = OpLoad %int %gl_VertexIndex
+         %38 = OpSDiv %int %36 %int_6
+               OpStore %barNdx %38
+               OpStore %i %int_0
+               OpBranch %40
+         %40 = OpLabel
+               OpLoopMerge %42 %43 None
+               OpBranch %44
+         %44 = OpLabel
+         %45 = OpLoad %int %i
+         %48 = OpSLessThan %bool %45 %int_4
+               OpBranchConditional %48 %41 %42
+         %41 = OpLabel
+         %50 = OpLoad %int %i
+         %51 = OpLoad %int %barNdx
+         %52 = OpLoad %int %i
+         %53 = OpIEqual %bool %51 %52
+               OpSelectionMerge %57 None
+               OpBranchConditional %53 %56 %61
+         %56 = OpLabel
+         %59 = OpAccessChain %_ptr_Input_float %v_position %uint_1
+         %60 = OpLoad %float %59
+               OpStore %55 %60
+               OpBranch %57
+         %61 = OpLabel
+               OpStore %55 %float_0
+               OpBranch %57
+         %57 = OpLabel
+         %62 = OpLoad %float %55
+         %64 = OpAccessChain %_ptr_Output_float %_ %int_1 %50
+               OpStore %64 %62
+               OpBranch %43
+         %43 = OpLabel
+         %65 = OpLoad %int %i
+         %66 = OpIAdd %int %65 %int_1
+               OpStore %i %66
+               OpBranch %40
+         %42 = OpLabel
+               OpStore %i_0 %int_0
+               OpBranch %68
+         %68 = OpLabel
+               OpLoopMerge %70 %71 None
+               OpBranch %72
+         %72 = OpLabel
+         %73 = OpLoad %int %i_0
+         %74 = OpSLessThan %bool %73 %int_4
+               OpBranchConditional %74 %69 %70
+         %69 = OpLabel
+         %76 = OpLoad %int %i_0
+         %78 = OpAccessChain %_ptr_Output_float %_ %int_2 %76
+               OpStore %78 %float_0_100000001
+               OpBranch %71
+         %71 = OpLabel
+         %79 = OpLoad %int %i_0
+         %80 = OpIAdd %int %79 %int_1
+               OpStore %i_0 %80
+               OpBranch %68
+         %70 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Tessellation Control Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `tesc`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 103
+; Schema: 0
+               OpCapability Tessellation
+               OpCapability ClipDistance
+               OpCapability CullDistance
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint TessellationControl %main "main" %gl_TessLevelInner %gl_TessLevelOuter %gl_out %gl_InvocationID %gl_in %out_color %in_color
+               OpExecutionMode %main OutputVertices 3
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %gl_TessLevelInner "gl_TessLevelInner"
+               OpName %gl_TessLevelOuter "gl_TessLevelOuter"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex 2 "gl_CullDistance"
+               OpName %gl_out "gl_out"
+               OpName %gl_InvocationID "gl_InvocationID"
+               OpName %gl_PerVertex_0 "gl_PerVertex"
+               OpMemberName %gl_PerVertex_0 0 "gl_Position"
+               OpMemberName %gl_PerVertex_0 1 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex_0 2 "gl_CullDistance"
+               OpName %gl_in "gl_in"
+               OpName %out_color "out_color"
+               OpName %in_color "in_color"
+               OpName %i "i"
+               OpName %i_0 "i"
+               OpDecorate %gl_TessLevelInner BuiltIn TessLevelInner
+               OpDecorate %gl_TessLevelInner Patch
+               OpDecorate %gl_TessLevelOuter BuiltIn TessLevelOuter
+               OpDecorate %gl_TessLevelOuter Patch
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn CullDistance
+               OpDecorate %gl_InvocationID BuiltIn InvocationId
+               OpDecorate %gl_PerVertex_0 Block
+               OpMemberDecorate %gl_PerVertex_0 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex_0 1 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex_0 2 BuiltIn CullDistance
+               OpDecorate %out_color Location 0
+               OpDecorate %in_color Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+       %uint = OpTypeInt 32 0
+     %uint_2 = OpConstant %uint 2
+%_arr_float_uint_2 = OpTypeArray %float %uint_2
+%_ptr_Output__arr_float_uint_2 = OpTypePointer Output %_arr_float_uint_2
+%gl_TessLevelInner = OpVariable %_ptr_Output__arr_float_uint_2 Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+    %float_1 = OpConstant %float 1
+%_ptr_Output_float = OpTypePointer Output %float
+      %int_1 = OpConstant %int 1
+     %uint_4 = OpConstant %uint 4
+%_arr_float_uint_4 = OpTypeArray %float %uint_4
+%_ptr_Output__arr_float_uint_4 = OpTypePointer Output %_arr_float_uint_4
+%gl_TessLevelOuter = OpVariable %_ptr_Output__arr_float_uint_4 Output
+      %int_2 = OpConstant %int 2
+      %int_3 = OpConstant %int 3
+    %v4float = OpTypeVector %float 4
+%gl_PerVertex = OpTypeStruct %v4float %_arr_float_uint_4 %_arr_float_uint_4
+     %uint_3 = OpConstant %uint 3
+%_arr_gl_PerVertex_uint_3 = OpTypeArray %gl_PerVertex %uint_3
+%_ptr_Output__arr_gl_PerVertex_uint_3 = OpTypePointer Output %_arr_gl_PerVertex_uint_3
+     %gl_out = OpVariable %_ptr_Output__arr_gl_PerVertex_uint_3 Output
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_InvocationID = OpVariable %_ptr_Input_int Input
+%gl_PerVertex_0 = OpTypeStruct %v4float %_arr_float_uint_4 %_arr_float_uint_4
+    %uint_32 = OpConstant %uint 32
+%_arr_gl_PerVertex_0_uint_32 = OpTypeArray %gl_PerVertex_0 %uint_32
+%_ptr_Input__arr_gl_PerVertex_0_uint_32 = OpTypePointer Input %_arr_gl_PerVertex_0_uint_32
+      %gl_in = OpVariable %_ptr_Input__arr_gl_PerVertex_0_uint_32 Input
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%_arr_v4float_uint_3 = OpTypeArray %v4float %uint_3
+%_ptr_Output__arr_v4float_uint_3 = OpTypePointer Output %_arr_v4float_uint_3
+  %out_color = OpVariable %_ptr_Output__arr_v4float_uint_3 Output
+%_arr_v4float_uint_32 = OpTypeArray %v4float %uint_32
+%_ptr_Input__arr_v4float_uint_32 = OpTypePointer Input %_arr_v4float_uint_32
+   %in_color = OpVariable %_ptr_Input__arr_v4float_uint_32 Input
+%_ptr_Function_int = OpTypePointer Function %int
+      %int_4 = OpConstant %int 4
+       %bool = OpTypeBool
+%_ptr_Input_float = OpTypePointer Input %float
+%float_0_100000001 = OpConstant %float 0.100000001
+%float_0_300000012 = OpConstant %float 0.300000012
+%float_0_200000003 = OpConstant %float 0.200000003
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %i = OpVariable %_ptr_Function_int Function
+        %i_0 = OpVariable %_ptr_Function_int Function
+         %16 = OpAccessChain %_ptr_Output_float %gl_TessLevelInner %int_0
+               OpStore %16 %float_1
+         %18 = OpAccessChain %_ptr_Output_float %gl_TessLevelInner %int_1
+               OpStore %18 %float_1
+         %23 = OpAccessChain %_ptr_Output_float %gl_TessLevelOuter %int_0
+               OpStore %23 %float_1
+         %24 = OpAccessChain %_ptr_Output_float %gl_TessLevelOuter %int_1
+               OpStore %24 %float_1
+         %26 = OpAccessChain %_ptr_Output_float %gl_TessLevelOuter %int_2
+               OpStore %26 %float_1
+         %28 = OpAccessChain %_ptr_Output_float %gl_TessLevelOuter %int_3
+               OpStore %28 %float_1
+         %37 = OpLoad %int %gl_InvocationID
+         %43 = OpLoad %int %gl_InvocationID
+         %45 = OpAccessChain %_ptr_Input_v4float %gl_in %43 %int_0
+         %46 = OpLoad %v4float %45
+         %48 = OpAccessChain %_ptr_Output_v4float %gl_out %37 %int_0
+               OpStore %48 %46
+         %52 = OpLoad %int %gl_InvocationID
+         %56 = OpLoad %int %gl_InvocationID
+         %57 = OpAccessChain %_ptr_Input_v4float %in_color %56
+         %58 = OpLoad %v4float %57
+         %59 = OpAccessChain %_ptr_Output_v4float %out_color %52
+               OpStore %59 %58
+               OpStore %i %int_0
+               OpBranch %62
+         %62 = OpLabel
+               OpLoopMerge %64 %65 None
+               OpBranch %66
+         %66 = OpLabel
+         %67 = OpLoad %int %i
+         %70 = OpSLessThan %bool %67 %int_4
+               OpBranchConditional %70 %63 %64
+         %63 = OpLabel
+         %71 = OpLoad %int %gl_InvocationID
+         %72 = OpLoad %int %i
+         %73 = OpLoad %int %gl_InvocationID
+         %74 = OpLoad %int %i
+         %76 = OpAccessChain %_ptr_Input_float %gl_in %73 %int_1 %74
+         %77 = OpLoad %float %76
+         %78 = OpAccessChain %_ptr_Output_float %gl_out %71 %int_1 %72
+               OpStore %78 %77
+               OpBranch %65
+         %65 = OpLabel
+         %79 = OpLoad %int %i
+         %80 = OpIAdd %int %79 %int_1
+               OpStore %i %80
+               OpBranch %62
+         %64 = OpLabel
+               OpStore %i_0 %int_0
+               OpBranch %82
+         %82 = OpLabel
+               OpLoopMerge %84 %85 None
+               OpBranch %86
+         %86 = OpLabel
+         %87 = OpLoad %int %i_0
+         %88 = OpSLessThan %bool %87 %int_4
+               OpBranchConditional %88 %83 %84
+         %83 = OpLabel
+         %89 = OpLoad %int %gl_InvocationID
+         %90 = OpLoad %int %i_0
+         %91 = OpLoad %int %gl_InvocationID
+         %92 = OpLoad %int %i_0
+         %93 = OpAccessChain %_ptr_Input_float %gl_in %91 %int_2 %92
+         %94 = OpLoad %float %93
+         %96 = OpFOrdEqual %bool %94 %float_0_100000001
+         %99 = OpSelect %float %96 %float_0_300000012 %float_0_200000003
+        %100 = OpAccessChain %_ptr_Output_float %gl_out %89 %int_2 %90
+               OpStore %100 %99
+               OpBranch %85
+         %85 = OpLabel
+        %101 = OpLoad %int %i_0
+        %102 = OpIAdd %int %101 %int_1
+               OpStore %i_0 %102
+               OpBranch %82
+         %84 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Tessellation Evaluation Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `tese`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 148
+; Schema: 0
+               OpCapability Tessellation
+               OpCapability ClipDistance
+               OpCapability CullDistance
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint TessellationEvaluation %main "main" %gl_TessCoord %gl_in %_ %out_color %in_color
+               OpExecutionMode %main Triangles
+               OpExecutionMode %main SpacingEqual
+               OpExecutionMode %main VertexOrderCcw
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %px "px"
+               OpName %gl_TessCoord "gl_TessCoord"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex 2 "gl_CullDistance"
+               OpName %gl_in "gl_in"
+               OpName %py "py"
+               OpName %pz "pz"
+               OpName %gl_PerVertex_0 "gl_PerVertex"
+               OpMemberName %gl_PerVertex_0 0 "gl_Position"
+               OpMemberName %gl_PerVertex_0 1 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex_0 2 "gl_CullDistance"
+               OpName %_ ""
+               OpName %out_color "out_color"
+               OpName %in_color "in_color"
+               OpName %i "i"
+               OpName %i_0 "i"
+               OpDecorate %gl_TessCoord BuiltIn TessCoord
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn CullDistance
+               OpDecorate %gl_PerVertex_0 Block
+               OpMemberDecorate %gl_PerVertex_0 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex_0 1 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex_0 2 BuiltIn CullDistance
+               OpDecorate %out_color Location 0
+               OpDecorate %in_color Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v3float = OpTypeVector %float 3
+%_ptr_Function_v3float = OpTypePointer Function %v3float
+%_ptr_Input_v3float = OpTypePointer Input %v3float
+%gl_TessCoord = OpVariable %_ptr_Input_v3float Input
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_float = OpTypePointer Input %float
+    %v4float = OpTypeVector %float 4
+     %uint_4 = OpConstant %uint 4
+%_arr_float_uint_4 = OpTypeArray %float %uint_4
+%gl_PerVertex = OpTypeStruct %v4float %_arr_float_uint_4 %_arr_float_uint_4
+    %uint_32 = OpConstant %uint 32
+%_arr_gl_PerVertex_uint_32 = OpTypeArray %gl_PerVertex %uint_32
+%_ptr_Input__arr_gl_PerVertex_uint_32 = OpTypePointer Input %_arr_gl_PerVertex_uint_32
+      %gl_in = OpVariable %_ptr_Input__arr_gl_PerVertex_uint_32 Input
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+     %uint_1 = OpConstant %uint 1
+      %int_1 = OpConstant %int 1
+     %uint_2 = OpConstant %uint 2
+      %int_2 = OpConstant %int 2
+%gl_PerVertex_0 = OpTypeStruct %v4float %_arr_float_uint_4 %_arr_float_uint_4
+%_ptr_Output_gl_PerVertex_0 = OpTypePointer Output %gl_PerVertex_0
+          %_ = OpVariable %_ptr_Output_gl_PerVertex_0 Output
+    %float_1 = OpConstant %float 1
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %out_color = OpVariable %_ptr_Output_v4float Output
+%_arr_v4float_uint_32 = OpTypeArray %v4float %uint_32
+%_ptr_Input__arr_v4float_uint_32 = OpTypePointer Input %_arr_v4float_uint_32
+   %in_color = OpVariable %_ptr_Input__arr_v4float_uint_32 Input
+    %float_3 = OpConstant %float 3
+%_ptr_Function_int = OpTypePointer Function %int
+      %int_4 = OpConstant %int 4
+       %bool = OpTypeBool
+%_ptr_Output_float = OpTypePointer Output %float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %px = OpVariable %_ptr_Function_v3float Function
+         %py = OpVariable %_ptr_Function_v3float Function
+         %pz = OpVariable %_ptr_Function_v3float Function
+          %i = OpVariable %_ptr_Function_int Function
+        %i_0 = OpVariable %_ptr_Function_int Function
+         %15 = OpAccessChain %_ptr_Input_float %gl_TessCoord %uint_0
+         %16 = OpLoad %float %15
+         %28 = OpAccessChain %_ptr_Input_v4float %gl_in %int_0 %int_0
+         %29 = OpLoad %v4float %28
+         %30 = OpVectorShuffle %v3float %29 %29 0 1 2
+         %31 = OpVectorTimesScalar %v3float %30 %16
+               OpStore %px %31
+         %34 = OpAccessChain %_ptr_Input_float %gl_TessCoord %uint_1
+         %35 = OpLoad %float %34
+         %37 = OpAccessChain %_ptr_Input_v4float %gl_in %int_1 %int_0
+         %38 = OpLoad %v4float %37
+         %39 = OpVectorShuffle %v3float %38 %38 0 1 2
+         %40 = OpVectorTimesScalar %v3float %39 %35
+               OpStore %py %40
+         %43 = OpAccessChain %_ptr_Input_float %gl_TessCoord %uint_2
+         %44 = OpLoad %float %43
+         %46 = OpAccessChain %_ptr_Input_v4float %gl_in %int_2 %int_0
+         %47 = OpLoad %v4float %46
+         %48 = OpVectorShuffle %v3float %47 %47 0 1 2
+         %49 = OpVectorTimesScalar %v3float %48 %44
+               OpStore %pz %49
+         %53 = OpLoad %v3float %px
+         %54 = OpLoad %v3float %py
+         %55 = OpFAdd %v3float %53 %54
+         %56 = OpLoad %v3float %pz
+         %57 = OpFAdd %v3float %55 %56
+         %59 = OpCompositeExtract %float %57 0
+         %60 = OpCompositeExtract %float %57 1
+         %61 = OpCompositeExtract %float %57 2
+         %62 = OpCompositeConstruct %v4float %59 %60 %61 %float_1
+         %64 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %64 %62
+         %69 = OpAccessChain %_ptr_Input_v4float %in_color %int_0
+         %70 = OpLoad %v4float %69
+         %71 = OpAccessChain %_ptr_Input_v4float %in_color %int_1
+         %72 = OpLoad %v4float %71
+         %73 = OpFAdd %v4float %70 %72
+         %74 = OpAccessChain %_ptr_Input_v4float %in_color %int_2
+         %75 = OpLoad %v4float %74
+         %76 = OpFAdd %v4float %73 %75
+         %78 = OpCompositeConstruct %v4float %float_3 %float_3 %float_3 %float_3
+         %79 = OpFDiv %v4float %76 %78
+               OpStore %out_color %79
+               OpStore %i %int_0
+               OpBranch %82
+         %82 = OpLabel
+               OpLoopMerge %84 %85 None
+               OpBranch %86
+         %86 = OpLabel
+         %87 = OpLoad %int %i
+         %90 = OpSLessThan %bool %87 %int_4
+               OpBranchConditional %90 %83 %84
+         %83 = OpLabel
+         %91 = OpLoad %int %i
+         %92 = OpAccessChain %_ptr_Input_float %gl_TessCoord %uint_0
+         %93 = OpLoad %float %92
+         %94 = OpLoad %int %i
+         %95 = OpAccessChain %_ptr_Input_float %gl_in %int_0 %int_1 %94
+         %96 = OpLoad %float %95
+         %97 = OpFMul %float %93 %96
+         %98 = OpAccessChain %_ptr_Input_float %gl_TessCoord %uint_1
+         %99 = OpLoad %float %98
+        %100 = OpLoad %int %i
+        %101 = OpAccessChain %_ptr_Input_float %gl_in %int_1 %int_1 %100
+        %102 = OpLoad %float %101
+        %103 = OpFMul %float %99 %102
+        %104 = OpFAdd %float %97 %103
+        %105 = OpAccessChain %_ptr_Input_float %gl_TessCoord %uint_2
+        %106 = OpLoad %float %105
+        %107 = OpLoad %int %i
+        %108 = OpAccessChain %_ptr_Input_float %gl_in %int_2 %int_1 %107
+        %109 = OpLoad %float %108
+        %110 = OpFMul %float %106 %109
+        %111 = OpFAdd %float %104 %110
+        %113 = OpAccessChain %_ptr_Output_float %_ %int_1 %91
+               OpStore %113 %111
+               OpBranch %85
+         %85 = OpLabel
+        %114 = OpLoad %int %i
+        %115 = OpIAdd %int %114 %int_1
+               OpStore %i %115
+               OpBranch %82
+         %84 = OpLabel
+               OpStore %i_0 %int_0
+               OpBranch %117
+        %117 = OpLabel
+               OpLoopMerge %119 %120 None
+               OpBranch %121
+        %121 = OpLabel
+        %122 = OpLoad %int %i_0
+        %123 = OpSLessThan %bool %122 %int_4
+               OpBranchConditional %123 %118 %119
+        %118 = OpLabel
+        %124 = OpLoad %int %i_0
+        %125 = OpAccessChain %_ptr_Input_float %gl_TessCoord %uint_0
+        %126 = OpLoad %float %125
+        %127 = OpLoad %int %i_0
+        %128 = OpAccessChain %_ptr_Input_float %gl_in %int_0 %int_2 %127
+        %129 = OpLoad %float %128
+        %130 = OpFMul %float %126 %129
+        %131 = OpAccessChain %_ptr_Input_float %gl_TessCoord %uint_1
+        %132 = OpLoad %float %131
+        %133 = OpLoad %int %i_0
+        %134 = OpAccessChain %_ptr_Input_float %gl_in %int_1 %int_2 %133
+        %135 = OpLoad %float %134
+        %136 = OpFMul %float %132 %135
+        %137 = OpFAdd %float %130 %136
+        %138 = OpAccessChain %_ptr_Input_float %gl_TessCoord %uint_2
+        %139 = OpLoad %float %138
+        %140 = OpLoad %int %i_0
+        %141 = OpAccessChain %_ptr_Input_float %gl_in %int_2 %int_2 %140
+        %142 = OpLoad %float %141
+        %143 = OpFMul %float %139 %142
+        %144 = OpFAdd %float %137 %143
+        %145 = OpAccessChain %_ptr_Output_float %_ %int_2 %124
+               OpStore %145 %144
+               OpBranch %120
+        %120 = OpLabel
+        %146 = OpLoad %int %i_0
+        %147 = OpIAdd %int %146 %int_1
+               OpStore %i_0 %147
+               OpBranch %117
+        %119 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Geometry Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `geom`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 176
+; Schema: 0
+               OpCapability Geometry
+               OpCapability ClipDistance
+               OpCapability CullDistance
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Geometry %main "main" %_ %gl_in %out_color %in_color
+               OpExecutionMode %main Triangles
+               OpExecutionMode %main Invocations 1
+               OpExecutionMode %main OutputTriangleStrip
+               OpExecutionMode %main OutputVertices 3
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex 2 "gl_CullDistance"
+               OpName %_ ""
+               OpName %gl_PerVertex_0 "gl_PerVertex"
+               OpMemberName %gl_PerVertex_0 0 "gl_Position"
+               OpMemberName %gl_PerVertex_0 1 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex_0 2 "gl_CullDistance"
+               OpName %gl_in "gl_in"
+               OpName %out_color "out_color"
+               OpName %in_color "in_color"
+               OpName %i "i"
+               OpName %i_0 "i"
+               OpName %i_1 "i"
+               OpName %i_2 "i"
+               OpName %i_3 "i"
+               OpName %i_4 "i"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn CullDistance
+               OpDecorate %gl_PerVertex_0 Block
+               OpMemberDecorate %gl_PerVertex_0 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex_0 1 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex_0 2 BuiltIn CullDistance
+               OpDecorate %out_color Location 0
+               OpDecorate %in_color Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+       %uint = OpTypeInt 32 0
+     %uint_4 = OpConstant %uint 4
+%_arr_float_uint_4 = OpTypeArray %float %uint_4
+%gl_PerVertex = OpTypeStruct %v4float %_arr_float_uint_4 %_arr_float_uint_4
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%gl_PerVertex_0 = OpTypeStruct %v4float %_arr_float_uint_4 %_arr_float_uint_4
+     %uint_3 = OpConstant %uint 3
+%_arr_gl_PerVertex_0_uint_3 = OpTypeArray %gl_PerVertex_0 %uint_3
+%_ptr_Input__arr_gl_PerVertex_0_uint_3 = OpTypePointer Input %_arr_gl_PerVertex_0_uint_3
+      %gl_in = OpVariable %_ptr_Input__arr_gl_PerVertex_0_uint_3 Input
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %out_color = OpVariable %_ptr_Output_v4float Output
+%_arr_v4float_uint_3 = OpTypeArray %v4float %uint_3
+%_ptr_Input__arr_v4float_uint_3 = OpTypePointer Input %_arr_v4float_uint_3
+   %in_color = OpVariable %_ptr_Input__arr_v4float_uint_3 Input
+%_ptr_Function_int = OpTypePointer Function %int
+      %int_4 = OpConstant %int 4
+       %bool = OpTypeBool
+      %int_1 = OpConstant %int 1
+%_ptr_Input_float = OpTypePointer Input %float
+%_ptr_Output_float = OpTypePointer Output %float
+      %int_2 = OpConstant %int 2
+%float_0_300000012 = OpConstant %float 0.300000012
+%_ptr_Function_float = OpTypePointer Function %float
+     %uint_1 = OpConstant %uint 1
+    %float_0 = OpConstant %float 0
+ %float_n0_5 = OpConstant %float -0.5
+  %float_0_5 = OpConstant %float 0.5
+%float_0_400000006 = OpConstant %float 0.400000006
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %i = OpVariable %_ptr_Function_int Function
+        %i_0 = OpVariable %_ptr_Function_int Function
+         %69 = OpVariable %_ptr_Function_float Function
+        %i_1 = OpVariable %_ptr_Function_int Function
+        %i_2 = OpVariable %_ptr_Function_int Function
+        %119 = OpVariable %_ptr_Function_float Function
+        %i_3 = OpVariable %_ptr_Function_int Function
+        %i_4 = OpVariable %_ptr_Function_int Function
+        %164 = OpVariable %_ptr_Function_float Function
+         %22 = OpAccessChain %_ptr_Input_v4float %gl_in %int_0 %int_0
+         %23 = OpLoad %v4float %22
+         %25 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %25 %23
+         %30 = OpAccessChain %_ptr_Input_v4float %in_color %int_0
+         %31 = OpLoad %v4float %30
+               OpStore %out_color %31
+               OpStore %i %int_0
+               OpBranch %34
+         %34 = OpLabel
+               OpLoopMerge %36 %37 None
+               OpBranch %38
+         %38 = OpLabel
+         %39 = OpLoad %int %i
+         %42 = OpSLessThan %bool %39 %int_4
+               OpBranchConditional %42 %35 %36
+         %35 = OpLabel
+         %44 = OpLoad %int %i
+         %45 = OpLoad %int %i
+         %47 = OpAccessChain %_ptr_Input_float %gl_in %int_0 %int_1 %45
+         %48 = OpLoad %float %47
+         %50 = OpAccessChain %_ptr_Output_float %_ %int_1 %44
+               OpStore %50 %48
+               OpBranch %37
+         %37 = OpLabel
+         %51 = OpLoad %int %i
+         %52 = OpIAdd %int %51 %int_1
+               OpStore %i %52
+               OpBranch %34
+         %36 = OpLabel
+               OpStore %i_0 %int_0
+               OpBranch %54
+         %54 = OpLabel
+               OpLoopMerge %56 %57 None
+               OpBranch %58
+         %58 = OpLabel
+         %59 = OpLoad %int %i_0
+         %60 = OpSLessThan %bool %59 %int_4
+               OpBranchConditional %60 %55 %56
+         %55 = OpLabel
+         %62 = OpLoad %int %i_0
+         %63 = OpLoad %int %i_0
+         %64 = OpAccessChain %_ptr_Input_float %gl_in %int_0 %int_2 %63
+         %65 = OpLoad %float %64
+         %67 = OpFOrdEqual %bool %65 %float_0_300000012
+               OpSelectionMerge %71 None
+               OpBranchConditional %67 %70 %80
+         %70 = OpLabel
+         %73 = OpAccessChain %_ptr_Input_float %gl_in %int_0 %int_0 %uint_1
+         %74 = OpLoad %float %73
+         %76 = OpFOrdLessThan %bool %74 %float_0
+         %79 = OpSelect %float %76 %float_n0_5 %float_0_5
+               OpStore %69 %79
+               OpBranch %71
+         %80 = OpLabel
+               OpStore %69 %float_0_400000006
+               OpBranch %71
+         %71 = OpLabel
+         %82 = OpLoad %float %69
+         %83 = OpAccessChain %_ptr_Output_float %_ %int_2 %62
+               OpStore %83 %82
+               OpBranch %57
+         %57 = OpLabel
+         %84 = OpLoad %int %i_0
+         %85 = OpIAdd %int %84 %int_1
+               OpStore %i_0 %85
+               OpBranch %54
+         %56 = OpLabel
+               OpEmitVertex
+         %86 = OpAccessChain %_ptr_Input_v4float %gl_in %int_1 %int_0
+         %87 = OpLoad %v4float %86
+         %88 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %88 %87
+         %89 = OpAccessChain %_ptr_Input_v4float %in_color %int_1
+         %90 = OpLoad %v4float %89
+               OpStore %out_color %90
+               OpStore %i_1 %int_0
+               OpBranch %92
+         %92 = OpLabel
+               OpLoopMerge %94 %95 None
+               OpBranch %96
+         %96 = OpLabel
+         %97 = OpLoad %int %i_1
+         %98 = OpSLessThan %bool %97 %int_4
+               OpBranchConditional %98 %93 %94
+         %93 = OpLabel
+         %99 = OpLoad %int %i_1
+        %100 = OpLoad %int %i_1
+        %101 = OpAccessChain %_ptr_Input_float %gl_in %int_1 %int_1 %100
+        %102 = OpLoad %float %101
+        %103 = OpAccessChain %_ptr_Output_float %_ %int_1 %99
+               OpStore %103 %102
+               OpBranch %95
+         %95 = OpLabel
+        %104 = OpLoad %int %i_1
+        %105 = OpIAdd %int %104 %int_1
+               OpStore %i_1 %105
+               OpBranch %92
+         %94 = OpLabel
+               OpStore %i_2 %int_0
+               OpBranch %107
+        %107 = OpLabel
+               OpLoopMerge %109 %110 None
+               OpBranch %111
+        %111 = OpLabel
+        %112 = OpLoad %int %i_2
+        %113 = OpSLessThan %bool %112 %int_4
+               OpBranchConditional %113 %108 %109
+        %108 = OpLabel
+        %114 = OpLoad %int %i_2
+        %115 = OpLoad %int %i_2
+        %116 = OpAccessChain %_ptr_Input_float %gl_in %int_1 %int_2 %115
+        %117 = OpLoad %float %116
+        %118 = OpFOrdEqual %bool %117 %float_0_300000012
+               OpSelectionMerge %121 None
+               OpBranchConditional %118 %120 %126
+        %120 = OpLabel
+        %122 = OpAccessChain %_ptr_Input_float %gl_in %int_1 %int_0 %uint_1
+        %123 = OpLoad %float %122
+        %124 = OpFOrdLessThan %bool %123 %float_0
+        %125 = OpSelect %float %124 %float_n0_5 %float_0_5
+               OpStore %119 %125
+               OpBranch %121
+        %126 = OpLabel
+               OpStore %119 %float_0_400000006
+               OpBranch %121
+        %121 = OpLabel
+        %127 = OpLoad %float %119
+        %128 = OpAccessChain %_ptr_Output_float %_ %int_2 %114
+               OpStore %128 %127
+               OpBranch %110
+        %110 = OpLabel
+        %129 = OpLoad %int %i_2
+        %130 = OpIAdd %int %129 %int_1
+               OpStore %i_2 %130
+               OpBranch %107
+        %109 = OpLabel
+               OpEmitVertex
+        %131 = OpAccessChain %_ptr_Input_v4float %gl_in %int_2 %int_0
+        %132 = OpLoad %v4float %131
+        %133 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %133 %132
+        %134 = OpAccessChain %_ptr_Input_v4float %in_color %int_2
+        %135 = OpLoad %v4float %134
+               OpStore %out_color %135
+               OpStore %i_3 %int_0
+               OpBranch %137
+        %137 = OpLabel
+               OpLoopMerge %139 %140 None
+               OpBranch %141
+        %141 = OpLabel
+        %142 = OpLoad %int %i_3
+        %143 = OpSLessThan %bool %142 %int_4
+               OpBranchConditional %143 %138 %139
+        %138 = OpLabel
+        %144 = OpLoad %int %i_3
+        %145 = OpLoad %int %i_3
+        %146 = OpAccessChain %_ptr_Input_float %gl_in %int_2 %int_1 %145
+        %147 = OpLoad %float %146
+        %148 = OpAccessChain %_ptr_Output_float %_ %int_1 %144
+               OpStore %148 %147
+               OpBranch %140
+        %140 = OpLabel
+        %149 = OpLoad %int %i_3
+        %150 = OpIAdd %int %149 %int_1
+               OpStore %i_3 %150
+               OpBranch %137
+        %139 = OpLabel
+               OpStore %i_4 %int_0
+               OpBranch %152
+        %152 = OpLabel
+               OpLoopMerge %154 %155 None
+               OpBranch %156
+        %156 = OpLabel
+        %157 = OpLoad %int %i_4
+        %158 = OpSLessThan %bool %157 %int_4
+               OpBranchConditional %158 %153 %154
+        %153 = OpLabel
+        %159 = OpLoad %int %i_4
+        %160 = OpLoad %int %i_4
+        %161 = OpAccessChain %_ptr_Input_float %gl_in %int_2 %int_2 %160
+        %162 = OpLoad %float %161
+        %163 = OpFOrdEqual %bool %162 %float_0_300000012
+               OpSelectionMerge %166 None
+               OpBranchConditional %163 %165 %171
+        %165 = OpLabel
+        %167 = OpAccessChain %_ptr_Input_float %gl_in %int_2 %int_0 %uint_1
+        %168 = OpLoad %float %167
+        %169 = OpFOrdLessThan %bool %168 %float_0
+        %170 = OpSelect %float %169 %float_n0_5 %float_0_5
+               OpStore %164 %170
+               OpBranch %166
+        %171 = OpLabel
+               OpStore %164 %float_0_400000006
+               OpBranch %166
+        %166 = OpLabel
+        %172 = OpLoad %float %164
+        %173 = OpAccessChain %_ptr_Output_float %_ %int_2 %159
+               OpStore %173 %172
+               OpBranch %155
+        %155 = OpLabel
+        %174 = OpLoad %int %i_4
+        %175 = OpIAdd %int %174 %int_1
+               OpStore %i_4 %175
+               OpBranch %152
+        %154 = OpLabel
+               OpEmitVertex
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 30
+; Schema: 0
+               OpCapability Shader
+               OpCapability ClipDistance
+               OpCapability CullDistance
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %o_color %in_color %gl_ClipDistance %gl_CullDistance
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %o_color "o_color"
+               OpName %in_color "in_color"
+               OpName %gl_ClipDistance "gl_ClipDistance"
+               OpName %gl_CullDistance "gl_CullDistance"
+               OpDecorate %o_color Location 0
+               OpDecorate %in_color Flat
+               OpDecorate %in_color Location 0
+               OpDecorate %gl_ClipDistance BuiltIn ClipDistance
+               OpDecorate %gl_CullDistance BuiltIn CullDistance
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+    %o_color = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+   %in_color = OpVariable %_ptr_Input_v4float Input
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_float = OpTypePointer Input %float
+     %uint_4 = OpConstant %uint 4
+%_arr_float_uint_4 = OpTypeArray %float %uint_4
+%_ptr_Input__arr_float_uint_4 = OpTypePointer Input %_arr_float_uint_4
+%gl_ClipDistance = OpVariable %_ptr_Input__arr_float_uint_4 Input
+        %int = OpTypeInt 32 1
+      %int_2 = OpConstant %int 2
+%gl_CullDistance = OpVariable %_ptr_Input__arr_float_uint_4 Input
+    %float_1 = OpConstant %float 1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %15 = OpAccessChain %_ptr_Input_float %in_color %uint_0
+         %16 = OpLoad %float %15
+         %23 = OpAccessChain %_ptr_Input_float %gl_ClipDistance %int_2
+         %24 = OpLoad %float %23
+         %26 = OpAccessChain %_ptr_Input_float %gl_CullDistance %int_2
+         %27 = OpLoad %float %26
+         %29 = OpCompositeConstruct %v4float %16 %24 %27 %float_1
+               OpStore %o_color %29
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

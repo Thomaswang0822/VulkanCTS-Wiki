@@ -145,7 +145,7 @@ bytes and asks every invocation to confirm every slot is zero. The remaining fam
 Representative path:
 
 ```text
-compute.pipeline.zero_initialize_workgroup_memory.max_workgroup_memory.1
+dEQP-VK.compute.pipeline.zero_initialize_workgroup_memory.max_workgroup_memory.1
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -218,8 +218,7 @@ void main() {
 - The host reads `properties.limits.maxComputeSharedMemorySize` and `properties.limits.maxComputeWorkGroupInvocations` to pick
   the workgroup dimensions and the `num_elems` specialization value
   ([vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L243-L266](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L243-L266)).
-  The shader shown here uses the source's default `num_elems = 16384 / 16`; the real run uses the device's value.
-- The host initializes the result buffer to zero and dispatches the case's requested number of workgroups; the per-slot check
+  The shader shown here uses the source's default `num_elems = 16384 / 16`; the real run uses the device's value. The host initializes the result buffer to zero and dispatches the case's requested number of workgroups; the per-slot check
   (`0` for a non-zero value, `1` for zero) combined with `atomicAdd` guarantees that any non-zero workgroup-memory slot leaves the result
   buffer entry strictly below the expected workgroup count
   ([vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L82-L158](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L82-L158)).

@@ -1,5 +1,7 @@
 ## Overview
 
+**Core question:** Do 64-bit floating-point, signed-integer, and unsigned-integer SPIR-V comparison instructions produce correct Boolean results across compute, vertex, and fragment stages?
+
 `64bit_compare` is a SPIR-V-assembly test family for 64-bit comparison instructions. It runs the same type-specific comparison matrix in one compute stage and in vertex and fragment graphics stages. The device reads two storage buffers, writes an integer `0` or `1` for each relation, and the host checks that result against the corresponding C++ comparison operation.
 
 The authoritative implementation is [`vktSpvAsm64bitCompareTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp). The older [`vktSpvAsm64bitCompareTests.md`](vktSpvAsm64bitCompareTests.md) remains intact as the obsolete source document; this page is the rewrite.
@@ -79,73 +81,171 @@ The type family is the primary behavior axis because it changes the operand repr
 
 ## Shader Analysis
 
-The source has six assembly templates: scalar and vector forms for each of compute, vertex, and fragment ([template selector](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L996-L1022)). All are parameterized by the base capability/type, iteration count, comparison opcode, and optional float-controls fragments. The fragment stage has a separately supplied GLSL passthrough vertex shader; it is pipeline plumbing, not the comparison shader ([`VertShaderPassThrough`](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L753-L765)).
+The source has six CTS-authored SPIR-V assembly templates: scalar and vector forms for compute, vertex, and fragment stages ([template selector](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L996-L1022)). The representative case below specializes the scalar compute template directly; there is no GLSL or HLSL compilation step. The fragment stage's separately supplied GLSL passthrough vertex shader is pipeline plumbing rather than the comparison shader ([`VertShaderPassThrough`](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L753-L765)).
 
 ### Representative Shader Walkthrough 1
 
 #### Parameter Values Chosen
 
+Representative path:
+
 ```text
 dEQP-VK.spirv_assembly.instruction.compute.64bit_compare.double.comp_opfordequal_withnan_single
 ```
 
-| Parameter | Selected value | Consequence |
-|-----------|----------------|-------------|
-| Stage | `comp` | The scalar compute assembly executes one workgroup with `LocalSize 1 1 1`. |
-| Type family | `double` | Emits `OpCapability Float64` and `OpTypeFloat 64`. |
-| Relation | `OpFOrdEqual` | Returns false for a NaN operand; otherwise tests equality. |
-| Mode | `withnan` | Emits the FP64 signed-zero/inf/NaN preservation capability, extension, and execution mode. |
-| Shape | `single` | Processes 20 individual pairs, including three NaN-containing pairs. |
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `comp` | Selects `CompShaderSingle`, with `GLCompute` entry point `main` and `LocalSize 1 1 1`. |
+| `double` | Specializes `${OPCAPABILITY}` to `OpCapability Float64` and `${OPTYPE}` to `OpTypeFloat 64`. |
+| `OpFOrdEqual` | Ordered equality returns false whenever either FP64 operand is NaN. |
+| `withnan` | Adds `SignedZeroInfNanPreserve`, `SPV_KHR_float_controls`, and the 64-bit preservation execution mode. |
+| `single` | Sets `${ITERS}` to `20`, processing every fixed operand pair as an individual scalar. |
 
 #### Purpose
 
-This case makes ordered NaN behavior observable while requiring the declared FP64 preservation mode. It is a focused check that `OpFOrdEqual` produces `0` for the three NaN positions and a correct equality result for the remaining values, rather than treating NaN as ordinary comparable data or losing it during SSBO transport.
+This case makes ordered FP64 NaN behavior observable while requiring signed-zero, infinity, and NaN preservation. It checks that `OpFOrdEqual` yields `0` for the three NaN-containing pairs and correctly encodes equality for the other 17 pairs.
 
 #### Structural Design
 
 | Phase | Authored assembly behavior | Role in the check |
 |-------|----------------------------|-------------------|
-| Declarations | Declares `Shader`, `Float64`, and the `withnan` float-controls declarations. | Permits and requires the FP64 behavior under test. |
-| Resources | Declares three runtime arrays: two FP64 inputs and one 32-bit signed output. | Separates left/right operands and makes results host-readable. |
-| Loop | Iterates from 0 to the 20-pair count. | Covers every fixed operand pair. |
-| Comparison | Loads both FP64 values and emits `OpFOrdEqual %bool`. | Applies ordered equality at the selected width. |
-| Result encoding | Uses `OpSelect %int` to select `1` for true and `0` for false, then stores it. | Converts SPIR-V Boolean output into a stable readback format. |
+| Declarations | Enables `Shader`, `Float64`, and `SignedZeroInfNanPreserve`, imports the float-controls extension, and applies its 64-bit execution mode. | Establishes the FP64 behavior required by this leaf. |
+| Resources | Binds FP64 runtime-array inputs at set `0`, bindings `0` and `1`, and a 32-bit signed result array at binding `2`. | Carries the two operand streams and host-readable results. |
+| Loop | A function-local integer index runs from `0` while it is less than `20`. | Visits all fixed operand pairs in one invocation. |
+| Compare and encode | Loads both doubles, executes `OpFOrdEqual`, and uses `OpSelect` to map the Boolean to integer `1` or `0`. | Makes the relation result storable and directly checkable. |
+| Store | Writes the selected integer to the result array at the same index. | Preserves one-to-one correspondence with the host operand table. |
 
-#### Source Code
+#### Shader Code
 
-The following is the exact specialized core from the scalar compute template; surrounding type declarations and loop control are provided by [`CompShaderSingle`](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L258-L350). It is an excerpt rather than a separate generated source artifact.
+This representative case does not use GLSL or HLSL. CTS supplies the module directly as SPIR-V assembly by specializing [`CompShaderSingle`](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L258-L350) in [`T64bitCompareTest::initPrograms()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L1728-L1757). The selected module has compute stage entry point `main`; its complete fresh disassembly is presented in the final `SPIR-V` subsection.
 
-```llvm
-OpCapability Shader
-OpCapability Float64
-OpCapability SignedZeroInfNanPreserve
-OpExtension "SPV_KHR_float_controls"
-OpMemoryModel Logical GLSL450
-OpEntryPoint GLCompute %main "main"
-OpExecutionMode %main SignedZeroInfNanPreserve 64
-...
-%tinput = OpTypeFloat 64
-...
-%32 = OpLoad %tinput %31
-%39 = OpLoad %tinput %38
-%40 = OpFOrdEqual %bool %32 %39
-%42 = OpSelect %int %40 %int_1 %int_0
-OpStore %44 %42
-```
+#### Additional Info
+
+- The selected substitutions are `ITERS=20`, `OPNAME=OpFOrdEqual`, `OPCAPABILITY=OpCapability Float64`, `OPTYPE=OpTypeFloat 64`, plus all three enabled NaN-preservation fragments ([specialization map](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L1734-L1742)).
+- The two FP64 runtime arrays use an 8-byte `ArrayStride`; the 32-bit integer result array uses a 4-byte stride. The templates use the pre-SPIR-V-1.4 `Uniform`/`BufferBlock` SSBO representation.
+- The fixed 20-pair table ends with `(0, NaN)`, `(NaN, 0)`, and `(NaN, NaN)`, so this ordered operation must encode false at all three positions ([`DOUBLE_OPERANDS`](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L1133-L1138)).
 
 #### Parameter Variation Summary
 
-| Variation from the representative | Assembly change | Host/check change |
-|-----------------------------------|-----------------|-------------------|
-| `nonan` | Omits `SignedZeroInfNanPreserve`, `SPV_KHR_float_controls`, and the FP64 execution mode. | Mismatches are ignored only if either source operand is NaN. |
-| Other ordered FP64 relation | Replaces `OpFOrdEqual` with the selected `OpFOrd*` opcode. | Calls the matching C++ relational operation. |
-| Unordered FP64 relation | Replaces it with the selected `OpFUnord*` opcode. | Oracle returns true when either source operand is NaN. |
-| `vector` | Uses `OpTypeVector` for four FP64 inputs/results and selects an `ivec4`; loop count is five. | The same 20 flat results are read and checked. |
-| `int64` | Uses `OpCapability Int64` and `OpTypeInt 64 1`; removes FP64 NaN fragments. | Uses 16 signed operand pairs and an integer operation. |
-| `uint64` | Uses `OpCapability Int64` and `OpTypeInt 64 0`; removes FP64 NaN fragments. | Uses 12 unsigned pairs including `UINT64_MAX`. |
-| `vert` / `frag` | Uses the matching graphics-stage template; fragment changes `OpEntryPoint` to `Fragment` and adds `OriginUpperLeft`. | Runs a point draw; fragment adds the fixed passthrough vertex module. |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| FP64 mode | `nonan` removes the preservation capability, extension, and execution mode; the rest of the module is unchanged. | [`getNanCapability()`, `getNanExtension()`, and `getNanExeMode()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L1070-L1083) |
+| Relation | Another floating relation replaces only `${OPNAME}` with its selected `OpFOrd*` or `OpFUnord*` instruction. | [`DoubleCompareOperation::spirvName()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L79-L88) |
+| Shape | `vector` selects `CompShaderVector`, changes operands and results to four-wide vectors, and sets the loop count to `5`. | [`CompShaderVector`](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L352-L466) |
+| Type family | `int64` and `uint64` select signed or unsigned `OpTypeInt 64`, use `Int64`, omit FP64 preservation fragments, and use integer comparison opcodes. | [`SpirvTemplateManager` type specializations](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L1038-L1068) |
+| Stage | `vert` or `frag` selects the corresponding graphics-stage scalar template; fragment also declares `OriginUpperLeft`. | [`SpirvTemplateManager::getTemplate()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L996-L1022) |
 
-The displayed module is CTS-authored SPIR-V assembly extracted from the source template, not reconstructed GLSL or HLSL. It was checked with `spirv-as`, `spirv-val`, and `spirv-dis` as an audit-time semantic validation sequence; the disassembly is intentionally not published as a duplicate `#### SPIR-V` subsection.
+#### SPIR-V
+
+- Status: assembled, validated, disassembled, and round-trip verified
+- Source: CTS-authored SPIR-V assembly specialized from `CompShaderSingle`
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 47
+; Schema: 0
+               OpCapability Shader
+               OpCapability Float64
+               OpCapability SignedZeroInfNanPreserve
+               OpExtension "SPV_KHR_float_controls"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main SignedZeroInfNanPreserve 64
+               OpExecutionMode %main LocalSize 1 1 1
+               OpName %main "main"
+               OpName %i "i"
+               OpName %Output1 "Output1"
+               OpMemberName %Output1 0 "values"
+               OpName %output1 "output1"
+               OpName %Input1 "Input1"
+               OpMemberName %Input1 0 "values"
+               OpName %input1 "input1"
+               OpName %Input2 "Input2"
+               OpMemberName %Input2 0 "values"
+               OpName %input2 "input2"
+               OpDecorate %_runtimearr_int ArrayStride 4
+               OpMemberDecorate %Output1 0 Offset 0
+               OpDecorate %Output1 BufferBlock
+               OpDecorate %output1 DescriptorSet 0
+               OpDecorate %output1 Binding 2
+               OpDecorate %_runtimearr_double ArrayStride 8
+               OpMemberDecorate %Input1 0 Offset 0
+               OpDecorate %Input1 BufferBlock
+               OpDecorate %input1 DescriptorSet 0
+               OpDecorate %input1 Binding 0
+               OpDecorate %_runtimearr_double_0 ArrayStride 8
+               OpMemberDecorate %Input2 0 Offset 0
+               OpDecorate %Input2 BufferBlock
+               OpDecorate %input2 DescriptorSet 0
+               OpDecorate %input2 Binding 1
+       %void = OpTypeVoid
+         %14 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+      %int_0 = OpConstant %int 0
+     %int_20 = OpConstant %int 20
+       %bool = OpTypeBool
+%_runtimearr_int = OpTypeRuntimeArray %int
+    %Output1 = OpTypeStruct %_runtimearr_int
+%_ptr_Uniform_Output1 = OpTypePointer Uniform %Output1
+    %output1 = OpVariable %_ptr_Uniform_Output1 Uniform
+     %double = OpTypeFloat 64
+%_runtimearr_double = OpTypeRuntimeArray %double
+     %Input1 = OpTypeStruct %_runtimearr_double
+%_ptr_Uniform_Input1 = OpTypePointer Uniform %Input1
+     %input1 = OpVariable %_ptr_Uniform_Input1 Uniform
+%_ptr_Uniform_double = OpTypePointer Uniform %double
+%_runtimearr_double_0 = OpTypeRuntimeArray %double
+     %Input2 = OpTypeStruct %_runtimearr_double_0
+%_ptr_Uniform_Input2 = OpTypePointer Uniform %Input2
+     %input2 = OpVariable %_ptr_Uniform_Input2 Uniform
+      %int_1 = OpConstant %int 1
+%_ptr_Uniform_int = OpTypePointer Uniform %int
+       %main = OpFunction %void None %14
+         %27 = OpLabel
+          %i = OpVariable %_ptr_Function_int Function
+               OpStore %i %int_0
+               OpBranch %28
+         %28 = OpLabel
+               OpLoopMerge %29 %30 None
+               OpBranch %31
+         %31 = OpLabel
+         %32 = OpLoad %int %i
+         %33 = OpSLessThan %bool %32 %int_20
+               OpBranchConditional %33 %34 %29
+         %34 = OpLabel
+         %35 = OpLoad %int %i
+         %36 = OpLoad %int %i
+         %37 = OpAccessChain %_ptr_Uniform_double %input1 %int_0 %36
+         %38 = OpLoad %double %37
+         %39 = OpLoad %int %i
+         %40 = OpAccessChain %_ptr_Uniform_double %input2 %int_0 %39
+         %41 = OpLoad %double %40
+         %42 = OpFOrdEqual %bool %38 %41
+         %43 = OpSelect %int %42 %int_1 %int_0
+         %44 = OpAccessChain %_ptr_Uniform_int %output1 %int_0 %35
+               OpStore %44 %43
+               OpBranch %30
+         %30 = OpLabel
+         %45 = OpLoad %int %i
+         %46 = OpIAdd %int %45 %int_1
+               OpStore %i %46
+               OpBranch %28
+         %29 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 
@@ -162,18 +262,6 @@ The three fixed input tables are intentional coverage, not randomized data:
 - `DOUBLE_OPERANDS`: 20 pairs, including ordinary ordering/equality combinations plus `(0, NaN)`, `(NaN, 0)`, and `(NaN, NaN)`.
 - `INT64_OPERANDS`: 16 signed pairs spanning negative, zero, and positive comparisons.
 - `UINT64_OPERANDS`: 12 unsigned pairs including zero, one, and `UINT64_MAX` / `UINT64_MAX - 1` boundaries.
-
-## Case Pruning
-
-| Scope | Requirement | Result if unavailable |
-|-------|-------------|-----------------------|
-| `double` | `VkPhysicalDeviceFeatures::shaderFloat64` | All FP64 leaves are not supported. |
-| `int64`, `uint64` | `VkPhysicalDeviceFeatures::shaderInt64` | The respective integer leaves are not supported. |
-| `vert` | `vertexPipelineStoresAndAtomics` | Vertex leaves are not supported. |
-| `frag` | `fragmentStoresAndAtomics` | Fragment leaves are not supported. |
-| FP64 `withnan` | Float-controls support query must satisfy `shaderSignedZeroInfNanPreserveFloat64` | `withnan` leaves are not supported; this does not downgrade them to `nonan`. |
-
-The support implementation is at [`checkTypeSupport()` and `T64bitCompareTest::checkSupport()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L1664-L1726). No `#ifndef CTS_USES_VULKANSC` surrounds the two registration calls, and the Vulkan SC mustpass list includes the same compute and graphics matrix; this family is therefore not compile-time pruned for Vulkan SC.
 
 ## Failure Meaning
 
@@ -220,6 +308,24 @@ The support implementation is at [`checkTypeSupport()` and `T64bitCompareTest::c
 **Possible failure symptoms:** many types, operations, and stages fail with similar stale (`-9`) or shifted values.
 
 **Possible implementation causes:** descriptor binding order, host/device visibility barriers, readback copying, or the C++ expected-result calculation could be wrong. These paths are shared across the family. A localized semantic failure is less likely to originate here, but the test itself does not prove the source of a broad pattern.
+
+## Case Pruning
+
+### Requirement-based pruning
+
+| Scope | Requirement | Result if unavailable |
+|-------|-------------|-----------------------|
+| `double` | `VkPhysicalDeviceFeatures::shaderFloat64` | All FP64 leaves are not supported. |
+| `int64`, `uint64` | `VkPhysicalDeviceFeatures::shaderInt64` | The respective integer leaves are not supported. |
+| `vert` | `vertexPipelineStoresAndAtomics` | Vertex leaves are not supported. |
+| `frag` | `fragmentStoresAndAtomics` | Fragment leaves are not supported. |
+| FP64 `withnan` | Float-controls support query must satisfy `shaderSignedZeroInfNanPreserveFloat64` | `withnan` leaves are not supported; this does not downgrade them to `nonan`. |
+
+The support implementation is at [`checkTypeSupport()` and `T64bitCompareTest::checkSupport()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L1664-L1726).
+
+### Design-based pruning
+
+No cases are removed by test design. In particular, no `#ifndef CTS_USES_VULKANSC` surrounds the two registration calls, and the Vulkan SC mustpass list includes the same compute and graphics matrix; this family is therefore not compile-time pruned for Vulkan SC.
 
 ## Key Takeaways
 

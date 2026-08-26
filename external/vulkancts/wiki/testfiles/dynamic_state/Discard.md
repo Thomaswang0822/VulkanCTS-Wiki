@@ -65,9 +65,141 @@ Records `vkCmdSetLineWidth`. The fragment shader discards every fragment. The te
 
 ## Shader Analysis
 
-The shaders support the test rather than implement the tested property. The vertex shader is a pass-through for position and color. The fragment shader reads a uniform `discard_all` integer and calls `discard` when it equals 0. The uniform buffer is zeroed by the host, so `discard_all` is always 0 and every fragment is discarded ([shaders](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L700-L738)).
+### Representative Shader Walkthrough 1
 
-No representative shader walkthrough is included. The tested property is whether the discard prevented state-dependent output, which is a host-side readback question, not a shader-control-flow question.
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.dynamic_state.monolithic.discard.stencil
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `monolithic` | Uses the monolithic graphics-pipeline construction path; shader-object viewport/scissor command substitutions are not involved. |
+| `stencil` | Records dynamic stencil masks and references before the draw, then checks that discarded fragments leave the stencil clear value unchanged. |
+| `discard_all = 0` | The host zero-fills the uniform buffer, making the fragment shader take the discard branch for every invocation. |
+
+#### Purpose
+
+This fragment shader terminates every fragment before it can contribute color, depth, or stencil updates. The `stencil` leaf therefore isolates whether dynamic stencil state can incorrectly cause attachment writes for discarded fragments.
+
+#### Structural Design
+
+| Phase | Shader behavior | Shader-visible data |
+|-------|-----------------|---------------------|
+| Read control | Load `discard_all` from the uniform block. | Set 0, binding 0; one host-written 32-bit integer with value 0. |
+| Discard | Compare the value with zero and execute `discard` when equal. | The host value makes this branch uniform and true for every fragment. |
+| Surviving path | Copy the interpolated vertex color to the fragment output. | Location 0 input and output; unreachable in this representative execution. |
+| Result observation | No shader write records success directly. | The host verifies that the stencil attachment remains at its clear value 0. |
+
+#### Shader Code
+
+```glsl
+#version 450
+
+/// Set 0, binding 0 is a four-byte std140 uniform buffer. The host writes zero, so every
+/// fragment takes the discard branch.
+layout (set=0, binding=0, std140) uniform InputBlock {
+    int discard_all;
+} unif;
+
+/// Location 0 carries the interpolated green vertex color; it is read only if the fragment survives.
+layout (location = 0) in vec4 in_color;
+
+/// Location 0 targets the color attachment, but the representative host value prevents this write.
+layout (location = 0) out vec4 color;
+
+void main ()
+{
+    /// Terminate every fragment before color, depth, or stencil can be updated.
+    if (unif.discard_all == 0) {
+        discard;
+    }
+    color = in_color;
+}
+```
+
+#### Additional Info
+
+- `DiscardTestInstance::iterate()` allocates exactly `sizeof(int)` bytes, clears them to zero, and binds that range as the binding-0 uniform buffer ([uniform setup](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L292-L337)).
+- The fixed vertex shader passes position and color through unchanged; it does not vary among the six leaves and is omitted because fragment termination is the tested shader behavior ([shader generation](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L700-L738)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|----------------------------------------|----------|
+| Dynamic state type | `stencil`, `viewport`, `scissor`, `depth`, `blend`, and `line` all reuse this exact fragment shader; only host-recorded dynamic commands and attachment verification change. | [`createInstance()`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L677-L698) |
+| Pipeline construction type | The same `discard.vert`/`discard.frag` pair is used for monolithic, pipeline-library, fast-linked-library, and shader-object construction; construction changes pipeline setup, not GLSL. | [`DiscardTestCase::initPrograms()`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L700-L738) |
+| Uniform value | This file registers no varying value: every case zero-fills `discard_all`, so the surviving color-write path is present in GLSL but not taken at runtime. | [`DiscardTestInstance::iterate()`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L292-L351) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 26
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %color %in_color
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %InputBlock "InputBlock"
+               OpMemberName %InputBlock 0 "discard_all"
+               OpName %unif "unif"
+               OpName %color "color"
+               OpName %in_color "in_color"
+               OpDecorate %InputBlock Block
+               OpMemberDecorate %InputBlock 0 Offset 0
+               OpDecorate %unif Binding 0
+               OpDecorate %unif DescriptorSet 0
+               OpDecorate %color Location 0
+               OpDecorate %in_color Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+ %InputBlock = OpTypeStruct %int
+%_ptr_Uniform_InputBlock = OpTypePointer Uniform %InputBlock
+       %unif = OpVariable %_ptr_Uniform_InputBlock Uniform
+      %int_0 = OpConstant %int 0
+%_ptr_Uniform_int = OpTypePointer Uniform %int
+       %bool = OpTypeBool
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+      %color = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+   %in_color = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %12 = OpAccessChain %_ptr_Uniform_int %unif %int_0
+         %13 = OpLoad %int %12
+         %15 = OpIEqual %bool %13 %int_0
+               OpSelectionMerge %17 None
+               OpBranchConditional %15 %16 %17
+         %16 = OpLabel
+               OpKill
+         %17 = OpLabel
+         %25 = OpLoad %v4float %in_color
+               OpStore %color %25
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

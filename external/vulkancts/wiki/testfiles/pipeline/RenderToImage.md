@@ -17,12 +17,12 @@ For the shared concept pipeline construction type, see [Background Knowledge](..
 ## Registration Hierarchy
 
 ```text
-pipeline.fast_linked_library.render_to_image
+pipeline.monolithic.render_to_image
 ├── core
 └── dedicated_allocation
 ```
 
-The source registers the same two direct intermediate nodes for each supported pipeline construction path. The fenced tree uses `pipeline.fast_linked_library.render_to_image` as one concrete mustpass root. The five split construction files named below contain 1,325 leaves each, or 6,625 leaves: `fast-linked-library.txt`, `pipeline-library.txt`, `shader-object-linked-binary.txt`, `shader-object-linked-spirv.txt`, and `shader-object-unlinked-binary.txt`. `monolithic/monolithic.txt` and `shader-object-unlinked-spirv/shader-object-unlinked-spirv.txt` contribute another 1,325 leaves each, for 9,275 `vk-default` leaves across all seven construction roots.
+The `core` and `dedicated_allocation` children select suballocated and dedicated image memory, respectively. The same pair is registered under the monolithic, pipeline-library, fast-linked-library, and four shader-object construction roots. Each construction contributes 1,325 leaves, for 9,275 `vk-default` leaves across all seven roots.
 
 ## Parameter Dimensions and Observed Values
 

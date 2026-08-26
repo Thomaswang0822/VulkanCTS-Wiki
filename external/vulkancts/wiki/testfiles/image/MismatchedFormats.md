@@ -70,42 +70,70 @@ Outside Vulkan SC, the image has `VK_IMAGE_CREATE_SPARSE_BINDING_BIT | VK_IMAGE_
 
 ## Shader Analysis
 
-[`MismatchedFormatTest::initPrograms()`](../../../modules/vulkan/image/vktImageMismatchedFormatsTests.cpp#L294-L352) emits one compute shader per leaf. The following generated-source-equivalent walkthrough is the `image_write.r8g8b8a8_unorm_with_rgba8` leaf. It is representative of the non-integer write template; unlike many leaves in the family, this particular label pair is not a textual format mismatch.
+[`MismatchedFormatTest::initPrograms()`](../../../modules/vulkan/image/vktImageMismatchedFormatsTests.cpp#L294-L352) emits one compute shader per leaf. This walkthrough uses the exact registered write case below.
 
-### Representative Shader Walkthrough
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
 
 ```text
-image.mismatched_formats.image_write.r8g8b8a8_unorm_with_rgba8
+dEQP-VK.image.mismatched_formats.image_write.r8g8b8a8_unorm_with_rgba8
 ```
 
-| Choice | Effect |
+| Parameter choice | Meaning in this representative case |
 |---|---|
-| `image_write` | Selects the `imageStore` template. |
-| `r8g8b8a8_unorm` | Creates the image and its 2D view with `VK_FORMAT_R8G8B8A8_UNORM`. |
-| `Rgba8` / `rgba8` | Selects the `rgba8` layout spelling. |
-| Non-integer class | Selects `image2D`, `vec4`, and the non-integer write value. |
+| Operation: `image_write` | The compute shader writes a constant value to a storage image. |
+| Image format: `r8g8b8a8_unorm` | The Vulkan image stores four normalized 8-bit channels. |
+| Shader format qualifier: `rgba8` | The generated GLSL declares the storage image with `rgba8`. |
+| Dispatch | One invocation addresses one texel through `gl_GlobalInvocationID.xy`. |
+
+#### Purpose
+
+The compute shader verifies that the selected Vulkan image format accepts the generated `rgba8` storage-image declaration and write operation.
+
+#### Structural Design
+
+| Phase | Shader action |
+|---|---|
+| Coordinate | Convert `gl_GlobalInvocationID.xy` to the signed image coordinate. |
+| Value | Construct the constant color `(0.25, 0.5, 0.0, 1.0)`. |
+| Write | Store that value to binding 0 with `imageStore`. |
+
+#### Shader Code
 
 ```glsl
-#version 460 core
-
-layout (rgba8, binding=0) uniform image2D inputImage;
-
-void main()
+#version 460
+layout (rgba8, set = 0, binding = 0) uniform writeonly image2D inputImage;
+void main (void)
 {
     imageStore(inputImage, ivec2(gl_GlobalInvocationID.xy), vec4(0.25, 0.5, 0.0, 1.0));
 }
 ```
 
-The source adds this GLSL without explicit build options, so the CTS baseline is SPIR-V 1.0 ([`getBaselineSpirvVersion()`](../../../framework/vulkan/vkPrograms.cpp#L1048-L1052)). The reconstruction above was compiled with `glslangValidator -V --target-env vulkan1.0`, validated with `spirv-val --target-env vulkan1.0`, and disassembled with `spirv-dis` during this audit.
+#### Additional Info
 
-| Variation | Generated shader change | Evidence |
+- The selected leaf exercises the write template; read and sparse-read siblings use the matching image-format pair through different generated operations.
+- The generated source is registered by [`MismatchedFormatTest::initPrograms()`](../../../modules/vulkan/image/vktImageMismatchedFormatsTests.cpp#L294-L352).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---|---|---|
-| Operation group | `image_read` substitutes an `imageLoad` assignment; `sparse_image_read` adds the sparse extension and `sparseImageLoadARB` call. | [Templates](../../../modules/vulkan/image/vktImageMismatchedFormatsTests.cpp#L298-L338) |
-| Shader-format label | Changes the layout qualifier, using an explicit GLSL spelling for the special entries and lower-casing all other labels. | [Format selection](../../../modules/vulkan/image/vktImageMismatchedFormatsTests.cpp#L340-L349) |
-| Channel class | Changes image/vector types and, for writes, the default vector value. | [Type/value helpers](../../../modules/vulkan/image/vktImageMismatchedFormatsTests.cpp#L90-L127) |
+| Operation family | `image_read` loads from the storage image; `sparse_image_read` adds sparse residency handling; `image_write` performs `imageStore`. | [shader generation](../../../modules/vulkan/image/vktImageMismatchedFormatsTests.cpp#L294-L352) |
+| Vulkan image format | Changes the tested resource format and the compatible generated image declaration. | [format mapping](../../../modules/vulkan/image/vktImageMismatchedFormatsTests.cpp#L77-L143) |
+| GLSL image qualifier | Changes the layout qualifier and sampled scalar/vector type selected for the shader declaration. | [format mapping](../../../modules/vulkan/image/vktImageMismatchedFormatsTests.cpp#L77-L143) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
 
 <details>
-<summary>Validated SPIR-V 1.0 disassembly for the representative write shader</summary>
+<summary>Click to expand SPIRV asm code</summary>
 
 ```llvm
 ; SPIR-V
@@ -168,23 +196,31 @@ There is no image upload, transfer copyback, shader-side reporting, or host comp
 
 ## Failure Meaning
 
+### Failure Cause Mapping
+
 | Failing group | What the test can establish | What it cannot establish |
 |---|---|---|
 | `image_read` | A supported configuration did not complete one of shader compilation/module creation, pipeline or descriptor setup, image transition, submission/wait, or read execution steps. | A returned texel was wrong; the loaded vector is unused and the source image is not initialized. |
 | `image_write` | A supported configuration did not complete one of the same setup/execution steps, including the typed write dispatch. | A stored texel was wrong; the image is never copied back or compared. |
 | `sparse_image_read` | Required sparse support was unavailable, or a supported sparse configuration did not complete sparse binding/synchronization, shader setup, or dispatch. | The residency code or loaded texel was wrong; neither is consumed. |
 
-A particular runtime failure needs its CTS log and implementation investigation to identify the exact failing stage. The source-level verdict contract alone deliberately provides only completion evidence.
+### Cause Analysis
+
+#### Setup, submission, or execution completion
+
+**Possible failure symptoms:** A supported leaf does not reach the unconditional `Passed` verdict after submission and wait; a sparse leaf may instead fail its required support or sparse-resource path.
+
+**Possible implementation causes:** The failure can occur in shader compilation or module creation, pipeline or descriptor setup, image transition, submission/wait, or the selected read/write execution; sparse leaves also include sparse binding and semaphore synchronization. The CTS log and implementation investigation are needed to identify the exact stage because the source-level verdict contract provides only completion evidence.
 
 ## Case Pruning
 
-### Runtime support gates
+### Requirement-based pruning
 
 - Every leaf requires `VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT` in the selected Vulkan format's optimal-tiling features.
 - `sparse_image_read` additionally requires the core sparse-binding feature, `sparseResidencyBuffer`, `shaderResourceResidency`, and `checkSparseImageFormatSupport()` for the exact create information.
 - Vulkan SC does not compile/register the sparse group.
 
-### Factory pruning
+### Design-based pruning
 
 - Compressed `VkFormat` values are skipped before pairing.
 - A pair is added only if the source's `matching()` predicate succeeds. It catches the `tcu::InternalError` that `mapVkFormat()` can throw, so unmappable formats add no leaves.

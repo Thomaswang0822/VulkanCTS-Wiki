@@ -107,17 +107,19 @@ void main()
 
 #### Parameter Variation Summary
 
-There are no registered shader variants in this file. Both internal passes use the same sampling shader; only the first pipeline's push constant changes its face-0 output color.
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---|---|---|
+| Registered cases | There are no registered shader variants in this file. Both internal passes use the same sampling shader; only the first pipeline's push constant changes its face-0 output color. | [`SampleDrawnCubeFaceTest::initPrograms()`](../../../modules/vulkan/image/vktImageSampleDrawnCubeFaceTests.cpp#L552-L568) |
 
 #### SPIR-V
 
-- Status: generated and validated with `glslangValidator -V --target-env vulkan1.0`
-- Source: the `frag2` GLSL emitted by `initPrograms()`
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
 - Stage: `frag`
-- Target SPIR-V version: `spirv1.0`
+- Target SPIRV version: `spirv1.0`
 
 <details>
-<summary>Click to expand SPIR-V assembly</summary>
+<summary>Click to expand SPIRV asm code</summary>
 
 ```llvm
 ; SPIR-V

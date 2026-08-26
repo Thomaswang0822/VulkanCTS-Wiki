@@ -109,7 +109,7 @@ parameter differences are summarized in the variation tables instead of receivin
 Representative path:
 
 ```text
-memory_model.message_passing.ext.u32.noncoherent.atomic_atomic.atomicwrite.subgroup.payload_nonlocal.buffer.guard_nonlocal.buffer.comp
+dEQP-VK.memory_model.message_passing.ext.u32.noncoherent.atomic_atomic.atomicwrite.subgroup.payload_nonlocal.buffer.guard_nonlocal.buffer.comp
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -206,7 +206,7 @@ void main()
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level variation from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | API / memory-model mode | `core11` removes `#pragma use_vulkan_memory_model`; extension-mode noncoherent cases add make-available / make-visible semantics. | [header and semantic flags](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L468-L500) |
 | Data type | `uint` becomes `uint64_t`, `float`, or `double` in `struct S`, resource declarations, casts, guard atomics, and payload checks. Float-like payload expressions use `floatBitsToInt(float(...)) >> 31`. | [type selection](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L403-L407), [payload expressions](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L749-L793) |
@@ -517,7 +517,7 @@ void main()
 Representative path:
 
 ```text
-memory_model.transitive.noncoherent.fence_atomic.payload_nonlocal.image.guard_nonlocal.buffer.transvis
+dEQP-VK.memory_model.transitive.noncoherent.fence_atomic.payload_nonlocal.image.guard_nonlocal.buffer.transvis
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -638,7 +638,7 @@ void main()
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level variation from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | Coherence | `coherent` changes the image declaration qualifier from `nonprivate` to `workgroupcoherent` and removes the explicit make-available / make-visible semantic suffixes used by this `noncoherent` shader. | [coherence branch](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1096-L1108) |
 | Synchronization form | `fence_fence` keeps release and acquire in `memoryBarrier` calls; `atomic_fence` and `atomic_atomic` move release semantics onto the guard store; `fence_atomic` is the shown release fence plus acquire atomic-load form. | [release side](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1234-L1271), [acquire side](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1273-L1311) |

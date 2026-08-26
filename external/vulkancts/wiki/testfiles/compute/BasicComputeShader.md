@@ -78,7 +78,7 @@ The shaders in this file are generated as GLSL strings inline in each test class
 Representative path:
 
 ```text
-compute.basic.copy_ssbo_single_invocation
+dEQP-VK.compute.basic.copy_ssbo_single_invocation
 ```
 
 The same generated shader source also backs `copy_ssbo_multiple_invocations` and `copy_ssbo_multiple_groups`; the variants differ only in the registered `m_localSize` and `m_workSize` arguments.
@@ -131,6 +131,12 @@ void main (void) {
 }
 ```
 
+#### Additional Info
+
+- The shader is one of several flavors built by `BufferToBufferInvertTest::initPrograms`. The other flavors (UBO input, `use64bExecutionMode`) substitute the input binding type or prepend the `#pragma shader_64bit_indexing` block; the rest of the shader text is identical.
+- `numValuesPerInv` is `sb_out.values.length()` divided by the total invocation count. For the 256-element single-invocation case the invocation count is `1`, so the invocation walks all 256 elements. Multi-invocation cases assign each invocation one non-overlapping slice.
+- The `bufferSizeBytes` passed to the host setup is `sizeof(tcu::UVec4) * m_numValues` (16 bytes per element), so the descriptor range and barrier sizes match a 4096-byte buffer for `m_numValues == 256`.
+
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
@@ -140,12 +146,6 @@ void main (void) {
 | `doBoundsCheck` | The shader itself does not change. The host builds a robust-buffer-access device, shrinks the input descriptor range to `3/4` and the output descriptor range to `7/8` of `bufferSizeBytes`, and expects the out-of-range elements to retain the `0xBEBEBEBE` sentinel. | [vktComputeBasicComputeShaderTests.cpp#L1420-L1427](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1420-L1427), [vktComputeBasicComputeShaderTests.cpp#L1528-L1529](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1528-L1529) |
 | Dispatch shape | `m_localSize` and `m_workSize` flow into the `layout (local_size_*)` qualifiers and into `gl_NumWorkGroups * gl_WorkGroupSize` size math at runtime. Variants such as `copy_ssbo_multiple_invocations` (`local_size = (1,1,1)`, `workgroups = (2,4,1)`) reuse the same compiled shader. | [vktComputeBasicComputeShaderTests.cpp#L6042-L6049](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L6042-L6049) |
 | Pipeline construction type | The shader does not change. `ComputePipelineWrapper` chooses between `vkCreateComputePipelines` (pipeline root) and shader-object creation (shader-object roots) at pipeline build time. | [vktComputeBasicComputeShaderTests.cpp#L1544-L1554](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1544-L1554) |
-
-#### Additional Info
-
-- The shader is one of several flavors built by `BufferToBufferInvertTest::initPrograms`. The other flavors (UBO input, `use64bExecutionMode`) substitute the input binding type or prepend the `#pragma shader_64bit_indexing` block; the rest of the shader text is identical.
-- `numValuesPerInv` is `sb_out.values.length()` divided by the total invocation count. For the 256-element single-invocation case the invocation count is `1`, so the invocation walks all 256 elements. Multi-invocation cases assign each invocation one non-overlapping slice.
-- The `bufferSizeBytes` passed to the host setup is `sizeof(tcu::UVec4) * m_numValues` (16 bytes per element), so the descriptor range and barrier sizes match a 4096-byte buffer for `m_numValues == 256`.
 
 #### SPIR-V
 

@@ -22,10 +22,10 @@ For the shared concepts of images and views, layouts and synchronization, and su
 image.qualifiers
 ├── coherent
 ├── volatile
-└── restrict (registration only)
+└── restrict
 ```
 
-The factory creates all three test families. `coherent` and `volatile` then expand by image type and format; `restrict` contributes one delegated load/store case per image type.
+The factory owns all three test families. `coherent` and `volatile` expand by image type and format; `restrict` contributes one case per image type while delegating its implementation to the load/store generator.
 
 ## Parameter Dimensions and Observed Values
 
@@ -68,18 +68,24 @@ The representative path is `dEQP-VK.image.qualifiers.coherent.2d.r32ui`. It exer
 
 ### Representative Shader Walkthrough 1
 
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.image.qualifiers.coherent.2d.r32ui
+```
+
+| Parameter choice | Meaning in this representative case |
+|---|---|
+| Registered path: `image.qualifiers.coherent.2d.r32ui` | Selects the local coherent shader and unsigned 2D storage image. |
+| Image extent: `64×64×1` | Leaves the base local size at `8×8×1` after clamping to the grid. |
+| Image declaration: `layout(r32ui, binding=0) coherent uniform uimage2D` | Binds one coherent unsigned storage image. |
+| Read offsets: `(1,2)`, `(4,5)`, `(7,8)`, `(10,11)` modulo the local size | Produces four same-workgroup peer reads. |
+
 #### Purpose
 
 This compute shader checks a `coherent` `uimage2D` declaration while moving data between invocations in the same 8×8 workgroup. Each invocation writes `gx ^ gy`, reads four wrapped peer coordinates after a memory and control barrier, then stores their sum.
-
-#### Parameter Values Chosen
-
-| Parameter | Value | Effect |
-|-----------|-------|--------|
-| Registered path | `image.qualifiers.coherent.2d.r32ui` | Selects the local coherent shader and unsigned 2D storage image. |
-| Image extent | `64×64×1` | Leaves the base local size at `8×8×1` after clamping to the grid. |
-| Image declaration | `layout(r32ui, binding=0) coherent uniform uimage2D` | Binds one coherent unsigned storage image. |
-| Read offsets | `(1,2)`, `(4,5)`, `(7,8)`, `(10,11)` modulo the local size | Produces four same-workgroup peer reads. |
 
 #### Structural Design
 
@@ -127,18 +133,20 @@ void main(void)
 }
 ```
 
-#### Parameter Variation Summary
-
-- `volatile` changes only the qualifier word in this generated declaration; the workgroup computation and reference algorithm remain the same.
-- `r32f` and `r32i` change the image and scalar types generated around the same coordinate and synchronization logic.
-- Other image types use `int`, `ivec2`, or `ivec3` coordinates as selected by `getCoordStr`; arrays, 3D images, cubes, and cube arrays also change the grid or layer shape.
-- `restrict` does not reuse this shader generator. It delegates to the load/store builder.
-
 #### Additional Info
 
 - The source obtains the GLSL version declaration from `GLSL_VERSION_440` and adds the shader without explicit build options, so the walkthrough uses the CTS source-collection baseline target, SPIR-V 1.0.
 - The reconstructed local size is `8×8×1`: the source clamps the `8×8×2` base to the selected 2D image grid.
 - The compiled output contains `OpDecorate %u_image Coherent`, which audits that the representative qualifier survived compilation.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---|---|---|
+| Qualifier | `volatile` changes only the qualifier word in this generated declaration; the workgroup computation and reference algorithm remain the same. | [shader generators](../../../modules/vulkan/image/vktImageQualifiersTests.cpp) |
+| Image format | `r32f` and `r32i` change the image and scalar types generated around the same coordinate and synchronization logic. | [shader generators](../../../modules/vulkan/image/vktImageQualifiersTests.cpp) |
+| Image type | Other image types use `int`, `ivec2`, or `ivec3` coordinates as selected by `getCoordStr`; arrays, 3D images, cubes, and cube arrays also change the grid or layer shape. | [shader generators](../../../modules/vulkan/image/vktImageQualifiersTests.cpp) |
+| Restrict family | `restrict` does not reuse this shader generator. It delegates to the load/store builder. | [shader generators](../../../modules/vulkan/image/vktImageQualifiersTests.cpp) |
 
 #### SPIR-V
 

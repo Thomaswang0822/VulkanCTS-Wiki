@@ -55,7 +55,7 @@ This variant is limited to `TYPE_FLOAT_VEC2`. `attributeFormat()` selects `VK_FO
 
 [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L329-L358) generates both GLSL programs. The vertex shader reads location 0 and writes `gl_Position`. The fragment shader does not consume vertex input; it writes default blue. Fixed-function vertex-input state performs the behavior under test.
 
-### Representative Shader Walkthrough 1: overlapping dynamic leaf
+### Representative Shader Walkthrough 1
 
 #### Parameter Values Chosen
 
@@ -65,7 +65,7 @@ Representative path:
 dEQP-VK.pipeline.monolithic.input_attribute_offset.vec2.offset_0.overlapping.no_memory_offset.dynamic
 ```
 
-| Parameter choice | Meaning in this case |
+| Parameter choice | Meaning in this representative case |
 |---|---|
 | `TYPE_FLOAT_VEC2` | Each source record has 8 bytes. |
 | `bindingOffset = 0` | The buffer binding begins at the allocation start. |
@@ -79,7 +79,10 @@ This case checks that dynamic vertex-input state supplies the correct format, st
 
 #### Structural Design
 
-The host generates one triangle per pixel in the 4×4 framebuffer. For overlap storage it appends `vec2(0.0f, 0.0f)` after the original vertices, keeping the final `vec4` fetch in bounds. The vertex shader forms position from `.xy` and evaluates `.zw`. The fragment shader writes opaque blue to covered pixels.
+- The host generates one triangle per pixel in the 4×4 framebuffer.
+- For overlap storage it appends `vec2(0.0f, 0.0f)` after the original vertices, keeping the final `vec4` fetch in bounds.
+- The vertex shader forms position from `.xy` and evaluates `.zw`.
+- The fragment shader writes opaque blue to covered pixels.
 
 #### Shader Code
 
@@ -91,11 +94,11 @@ void main (void) { gl_Position = vec4(inPos.xy, floor(abs(inPos.z) / 1000.0), (f
 
 #### Additional Info
 
-`dynamic` changes where the host submits descriptions, not the shader or vertex bytes. The corresponding static leaf supplies the same descriptions during pipeline construction.
+- `dynamic` changes where the host submits descriptions, not the shader or vertex bytes. The corresponding static leaf supplies the same descriptions during pipeline construction.
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level change from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---|---|---|
 | `dynamic` | None; only the description-submission path changes. | [`dynamic` branch](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L407-L435) |
 | `bindingOffset` | None; host buffer address and compensated attribute offset change. | [`attributeOffset()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L152-L158) |

@@ -82,128 +82,134 @@ This page uses one representative walkthrough. The selected case is the smallest
 
 ### Representative Shader Walkthrough 1
 
-- **Representative path:** `spirv_assembly.instruction.compute.untyped_pointers.vulkan_memory_model.basic_usecase.load.storage.uint32`
-- **Source file:** [`vktSpvAsmUntypedPointersTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp)
-- **Builder function:** [`addLoadTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L6967-L7083), which specializes the four `tcu::StringTemplate`s from `createShaderHeader()`, `createShaderAnnotations(BaseTestCases::LOAD)`, `createShaderVariables(BaseTestCases::LOAD)`, and `createShaderMain(BaseTestCases::LOAD)`.
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.spirv_assembly.instruction.compute.untyped_pointers.basic_usecase.load.storage_buffer.uint32
+```
+
+| Parameter choice | Meaning in this representative case |
+|---|---|
+| Memory model | `VULKAN` selects `OpMemoryModel Logical Vulkan` and SPIR-V 1.3 ([adjuster](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L1412-L1422)). |
+| Subgroup | `basic_usecase.load` selects the ordinary load path ([registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L12604-L12612)). |
+| Container type | `STORAGE_BUFFER` selects the `StorageBuffer` storage class ([mapping](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L936-L946)). |
+| Data type | `UINT32` selects `OpTypeInt 32 0` ([declaration generator](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L876-L893)). |
+| Operation | `NORMAL` selects `OpLoad` with no atomic operands ([load cases](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L342-L345)). |
+| Workgroup count | 64 (`Constants::numThreads`) so one invocation processes each input element ([case generator](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L6989-L6991)). |
+| Array stride | 4 bytes, derived from `getSizeInBytes(UINT32)` ([resource decorations](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L1176-L1202)). |
 
 #### Purpose
 
-Verify that an `OpLoad %uint32` through an `OpUntypedAccessChainKHR` result into an `OpUntypedVariableKHR`-declared storage buffer variable produces the same bytes the host wrote, and that the result round-trips into a typed `OpTypePointer StorageBuffer %uint32` output. The expected output buffer equals the random input buffer, so any mismatch isolates the untyped-pointer load path.
-
-#### Parameter Values Chosen
-
-| Parameter | Value | Source |
-|-----------|-------|--------|
-| Memory model | `VULKAN` → `OpMemoryModel Logical Vulkan`, SPIR-V 1.3 | [adjustSpecForMemoryModel](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L1412-L1422) |
-| Subgroup | `basic_usecase` → `load` | [addBasicUsecaseTestGroup](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L12604-L12612) |
-| Container type | `STORAGE_BUFFER` → `StorageBuffer` storage class | [getStorageClass](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L936-L946) |
-| Data type | `UINT32` → `OpTypeInt 32 0` | [getDeclaration](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L876-L893) |
-| Operation | `NORMAL` → `OpLoad` with no extra args | [LOAD_OPERATION_CASES](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L342-L345) |
-| Workgroup count | 64 (`Constants::numThreads`) | [addLoadTests](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L6989-L6991) |
-| Array stride | 4 (`getSizeInBytes(UINT32)`) | [getResourceDecorations](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L1176-L1202) |
+Verify that an `OpLoad %uint32` through an `OpUntypedAccessChainKHR` result into an `OpUntypedVariableKHR`-declared storage-buffer variable produces the same bytes the host wrote, and that the result round-trips into a typed `OpTypePointer StorageBuffer %uint32` output. The expected output buffer equals the random input buffer, so any mismatch isolates the untyped-pointer load path.
 
 #### Structural Design
 
-The shader is a single `GLCompute` entry point with a `1 1 1` local size, dispatched across 64 work groups so each invocation handles one array element. The flow has three phases: resolve the invocation index, form the untyped input pointer and typed output pointer at that index, then load-and-store between them.
+The shader is a single `GLCompute` entry point with a `1 1 1` local size, dispatched across 64 workgroups so each invocation handles one array element. The flow has three phases: resolve the invocation index, form the untyped input pointer and typed output pointer at that index, then load and store between them.
 
 ```mermaid
 flowchart TD
     A["Entry: %main, LocalSize 1 1 1"] --> B["OpAccessChain %id → %id_loc"]
     B --> C["OpLoad %uint32 %id_loc → %x (invocation index)"]
-    C --> D["OpUntypedAccessChainKHR → %input_data_var_loc<br/>(untyped ptr into input buffer at index x)"]
-    C --> E["OpAccessChain → %output_data_var_loc<br/>(typed ptr into output buffer at index x)"]
+    C --> D["OpUntypedAccessChainKHR → %input_data_var_loc<br/>(untyped pointer into input buffer at index x)"]
+    C --> E["OpAccessChain → %output_data_var_loc<br/>(typed pointer into output buffer at index x)"]
     D --> F["OpLoad %uint32 %input_data_var_loc → %temp_data_var_loc<br/>(result type drives the load, not the pointer)"]
     F --> G["OpStore %output_data_var_loc %temp_data_var_loc"]
     G --> H["OpReturn"]
 ```
 
-#### Resource and Interface Facts
+#### Shader Code
 
-| Resource | Declaration | Role |
-|----------|-------------|------|
-| `%input_data_untyped_var` | `OpUntypedVariableKHR %storage_buffer_untyped_ptr StorageBuffer %input_buffer` | Input SSBO at descriptor set 0 binding 0. Backed by a host-filled random buffer; the untyped pointer is the tested access path. |
-| `%output_data_var` | `OpVariable %output_buffer_storage_buffer_ptr StorageBuffer` | Output SSBO at descriptor set 0 binding 1. Read back by the host and compared against the expected (== input) buffer. |
-| `%id` | `OpVariable %vec3_uint32_input_ptr Input` | `GlobalInvocationId`; provides the per-invocation index `x`. |
-| `%storage_buffer_untyped_ptr` | `OpTypeUntypedPointerKHR StorageBuffer` | The untyped pointer type itself; no pointee type encoded. |
-| `%storage_buffer_uint32_ptr` | `OpTypePointer StorageBuffer %uint32` | Typed pointer used for the output side, so the round trip exercises both untyped and typed access in one shader. |
-
-#### Source Code
-
-The SPIR-V assembly below is extracted from the C++ `tcu::StringTemplate` concatenation in [`addLoadTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L6967-L7083) (header from `createShaderHeader`, annotations from `createShaderAnnotations(BaseTestCases::LOAD)`, variables from `createShaderVariables(BaseTestCases::LOAD)`, main from `createShaderMain(BaseTestCases::LOAD)`). Wiki-authored section markers use `;` comment syntax. The assembly targets SPIR-V 1.3 (set by `adjustSpecForMemoryModel` for the `VULKAN` path). It was round-trip-validated with `spirv-as` → `spirv-val` → `spirv-dis` against `spv1.3`; the disassembler output is not published (category-scoped `TEMP-SPIRV-ASSEMBLY` deviation).
-
-```llvm
-; SPIR-V
-; Version: 1.3
-; Generator: Vulkan CTS vktSpvAsmUntypedPointersTests; 0
-; Bound: 25
-; Schema: 0
-; --- header: createShaderHeader + adjustSpecForUntypedPointers + adjustSpecForMemoryModel(VULKAN) ---
-OpCapability Shader
-OpCapability UntypedPointersKHR
-OpCapability VulkanMemoryModel
-OpCapability VulkanMemoryModelDeviceScopeKHR
-OpExtension "SPV_KHR_storage_buffer_storage_class"
-OpExtension "SPV_KHR_untyped_pointers"
-OpExtension "SPV_KHR_vulkan_memory_model"
-OpMemoryModel Logical Vulkan
-OpEntryPoint GLCompute %main "main" %id
-OpExecutionMode %main LocalSize 1 1 1
-; --- annotations: createShaderAnnotations(LOAD) + getResourceDecorations(STORAGE_BUFFER, UINT32, 64) ---
-OpDecorate %id BuiltIn GlobalInvocationId
-OpMemberDecorate %input_buffer 0 Offset 0
-OpDecorate %input_buffer Block
-OpMemberDecorate %output_buffer 0 Offset 0
-OpDecorate %output_buffer Block
-OpDecorate %array_uint32_64 ArrayStride 4
-OpDecorate %input_data_untyped_var DescriptorSet 0
-OpDecorate %input_data_untyped_var Binding 0
-OpDecorate %output_data_var DescriptorSet 0
-OpDecorate %output_data_var Binding 1
-; --- types, constants, variables: createShaderVariables(LOAD) ---
-%void = OpTypeVoid
-%uint32 = OpTypeInt 32 0
-%vec3_uint32 = OpTypeVector %uint32 3
-%void_func = OpTypeFunction %void
-%c_uint32_0 = OpConstant %uint32 0
-%c_uint32_64 = OpConstant %uint32 64
-%array_uint32_64 = OpTypeArray %uint32 %c_uint32_64
-%input_buffer = OpTypeStruct %array_uint32_64
-%output_buffer = OpTypeStruct %array_uint32_64
-%uint32_input_ptr = OpTypePointer Input %uint32
-%vec3_uint32_input_ptr = OpTypePointer Input %vec3_uint32
-%storage_buffer_uint32_ptr = OpTypePointer StorageBuffer %uint32
-%storage_buffer_untyped_ptr = OpTypeUntypedPointerKHR StorageBuffer
-%output_buffer_storage_buffer_ptr = OpTypePointer StorageBuffer %output_buffer
-%id = OpVariable %vec3_uint32_input_ptr Input
-%input_data_untyped_var = OpUntypedVariableKHR %storage_buffer_untyped_ptr StorageBuffer %input_buffer
-%output_data_var = OpVariable %output_buffer_storage_buffer_ptr StorageBuffer
-; --- entry point: createShaderMain(LOAD) ---
-%main = OpFunction %void None %void_func
-%label_main = OpLabel
-%id_loc = OpAccessChain %uint32_input_ptr %id %c_uint32_0
-%x = OpLoad %uint32 %id_loc
-%input_data_var_loc = OpUntypedAccessChainKHR %storage_buffer_untyped_ptr %input_buffer %input_data_untyped_var %c_uint32_0 %x
-%output_data_var_loc = OpAccessChain %storage_buffer_uint32_ptr %output_data_var %c_uint32_0 %x
-%temp_data_var_loc = OpLoad %uint32 %input_data_var_loc
-OpStore %output_data_var_loc %temp_data_var_loc
-OpReturn
-OpFunctionEnd
-```
-
-#### Parameter Variation Summary
-
-- **Container type** varies the `${storageClass}` placeholder and the resource decorations. `UNIFORM` widens `ArrayStride` to 16 and binds the input as `VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER`; `PUSH_CONSTANT` shrinks the workgroup count to 4 and moves the input into the push-constant range. The shader body is otherwise identical.
-- **Operation type** swaps `${loadOp}` between `OpLoad` and `OpAtomicLoad` (with `${args}` = `%c_uint32_1 %c_uint32_0`); the atomic path is registered under `basic_usecase.atomics` rather than `basic_usecase.load`.
-- **Data type** swaps `${baseType}`/`${baseDecl}` and adds the matching `OpCapability Int8/Int16/Int64/Float16/Float64` plus `OpExtension "SPV_KHR_8bit_storage"`/`"SPV_KHR_16bit_storage"` and the corresponding storage capability (`StorageBuffer8BitAccess` etc.) for 8/16-bit types in storage/uniform/push-constant containers.
-- **Memory model** swaps `OpMemoryModel` between `Logical Vulkan` (SPIR-V 1.3, with `VulkanMemoryModel` capability) and `Logical GLSL450` (SPIR-V 1.0); the rest of the shader is unchanged.
-- **`STORE`/`COPY_FROM`/`COPY_TO`** mirror `LOAD`: the untyped pointer moves to the output side for `STORE`/`COPY_TO`, and `${copyOp}` inserts `OpCopyObject`/`OpCopyMemory`/`OpCopyMemorySized` for the copy cases.
-- **`ARRAY_LENGTH`** replaces the load/store body with `OpUntypedArrayLengthKHR %uint32 %input_buffer %input_data_untyped_var 0` stored into a `uint32` output, querying the runtime array length through the untyped pointer.
-- **`DESCRIPTOR_ARRAY`** wraps the input in an array-of-blocks and indexes it dynamically, exercising an untyped variable over a block array.
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains the `GLCompute` execution-model entry point `main`; the generated assembly is the authoritative shader source and appears in full in the final `SPIR-V` subsection.
 
 #### Additional Info
 
 - The `physical_storage` subtree overrides `OpMemoryModel` to `PhysicalStorageBuffer64 <Vulkan|GLSL450>` and uses `OpTypeUntypedPointerKHR PhysicalStorageBuffer` plus `OpBitcast` between the untyped physical pointer and a 64-bit address. That override happens in `adjustSpecForPhysicalStorageBuffer`, not in the `LOAD` template shown here.
 - The `cooperative_matrix` subtree overrides the SPIR-V target to 1.6 in `CooperativeMatrixInteractionTestCase::initPrograms` and uses `OpCooperativeMatrixLoadKHR`/`OpCooperativeMatrixStoreKHR` with the untyped pointer as the memory operand. It is registered only under `vulkan_memory_model`.
+- `%input_data_untyped_var` is the input SSBO at descriptor set 0, binding 0, declared with `OpUntypedVariableKHR %storage_buffer_untyped_ptr StorageBuffer %input_buffer`; the host fills it with random data and the shader accesses it through the tested untyped pointer.
+- `%output_data_var` is the typed output SSBO at descriptor set 0, binding 1; the host reads it back and compares it exactly with the input buffer.
+- `%id` carries `GlobalInvocationId`, while `%storage_buffer_untyped_ptr` encodes only `StorageBuffer` and `%storage_buffer_uint32_ptr` supplies the typed output-side pointer. The round trip therefore exercises untyped and typed addressing in one shader.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---|---|---|
+| Container type | Changes `${storageClass}` and resource decorations. `UNIFORM` widens `ArrayStride` to 16; `PUSH_CONSTANT` reduces the workgroup count to 4 and moves the input into the push-constant range. The shader body otherwise remains the same. | [container cases](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L336-L340), [resource decorations](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L1176-L1202) |
+| Operation type | Replaces `${loadOp}` with `OpLoad` or `OpAtomicLoad`; the atomic form also supplies scope and memory-semantics operands and is registered under `basic_usecase.atomics`. | [operation enum](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L115-L121), [load cases](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L342-L345) |
+| Data type | Replaces `${baseType}` and `${baseDecl}`. 8/16/64-bit integer and floating-point forms add their matching type and storage capabilities plus `SPV_KHR_8bit_storage` or `SPV_KHR_16bit_storage` where required. | [data-type cases](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L304-L315), [small-container adjustment](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L1713-L1815) |
+| Memory model | Switches between `Logical Vulkan` at SPIR-V 1.3 with `VulkanMemoryModel` and `Logical GLSL450` at SPIR-V 1.0. Physical-storage branches replace the logical model with `PhysicalStorageBuffer64`. | [memory-model adjustment](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L1406-L1437), [physical-storage adjustment](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L1818-L1846) |
+| Store and copy cases | `STORE` and `COPY_TO` move the untyped pointer to the output side. `COPY_FROM`/`COPY_TO` insert `OpCopyObject`, `OpCopyMemory`, or `OpCopyMemorySized` according to the copy-operation parameter. | [base-case enum](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L150-L160), [copy-operation enum](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L141-L148) |
+| Array length | Replaces the load/store body with `OpUntypedArrayLengthKHR %uint32 %input_buffer %input_data_untyped_var 0`, then stores the queried runtime-array length to the output. | [base-case enum](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L150-L160) |
+| Descriptor array | Wraps the input in an array of blocks and indexes it dynamically, exercising an untyped variable over a block array rather than one block. | [basic-usecase registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L12604-L12612) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.3`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.3
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 25
+; Schema: 0
+               OpCapability Shader
+               OpCapability UntypedPointersKHR
+               OpCapability VulkanMemoryModel
+               OpCapability VulkanMemoryModelDeviceScope
+               OpExtension "SPV_KHR_storage_buffer_storage_class"
+               OpExtension "SPV_KHR_untyped_pointers"
+               OpExtension "SPV_KHR_vulkan_memory_model"
+               OpMemoryModel Logical Vulkan
+               OpEntryPoint GLCompute %1 "main" %gl_GlobalInvocationID
+               OpExecutionMode %1 LocalSize 1 1 1
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpMemberDecorate %_struct_3 0 Offset 0
+               OpDecorate %_struct_3 Block
+               OpMemberDecorate %_struct_4 0 Offset 0
+               OpDecorate %_struct_4 Block
+               OpDecorate %_arr_uint_uint_64 ArrayStride 4
+               OpDecorate %6 DescriptorSet 0
+               OpDecorate %6 Binding 0
+               OpDecorate %7 DescriptorSet 0
+               OpDecorate %7 Binding 1
+       %void = OpTypeVoid
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+         %11 = OpTypeFunction %void
+     %uint_0 = OpConstant %uint 0
+    %uint_64 = OpConstant %uint 64
+%_arr_uint_uint_64 = OpTypeArray %uint %uint_64
+  %_struct_3 = OpTypeStruct %_arr_uint_uint_64
+  %_struct_4 = OpTypeStruct %_arr_uint_uint_64
+%_ptr_Input_uint = OpTypePointer Input %uint
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%_ptr_StorageBuffer_uint = OpTypePointer StorageBuffer %uint
+%_ptr_StorageBuffer = OpTypeUntypedPointerKHR StorageBuffer
+%_ptr_StorageBuffer__struct_4 = OpTypePointer StorageBuffer %_struct_4
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+          %6 = OpUntypedVariableKHR %_ptr_StorageBuffer StorageBuffer %_struct_3
+          %7 = OpVariable %_ptr_StorageBuffer__struct_4 StorageBuffer
+          %1 = OpFunction %void None %11
+         %19 = OpLabel
+         %20 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %21 = OpLoad %uint %20
+         %22 = OpUntypedAccessChainKHR %_ptr_StorageBuffer %_struct_3 %6 %uint_0 %21
+         %23 = OpAccessChain %_ptr_StorageBuffer_uint %7 %uint_0 %21
+         %24 = OpLoad %uint %22
+               OpStore %23 %24
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

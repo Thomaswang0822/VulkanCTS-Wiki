@@ -20,14 +20,58 @@ For the shared concept pipeline construction type, see [Background Knowledge](..
 ```text
 pipeline.monolithic.framebuffer_attachment
 ├── 1d_19_32
-├── no_attachments
-├── unused_attachment
+├── 1d_32_39
+├── 1d_32_48
+├── 1d_32_64
+├── 1d_array_19_32_4
+├── 1d_array_32_39_4
+├── 1d_array_32_48_4
+├── 1d_array_32_64_4
+├── 2d_19x27_32x32
+├── 2d_19x27_32x32_ms
+├── 2d_32x32_39x41
+├── 2d_32x32_39x41_ms
+├── 2d_32x32_48x48
+├── 2d_32x32_48x48_ms
+├── 2d_32x32_64x64
+├── 2d_32x32_64x64_ms
+├── 2d_array_19x27_32x32_4
+├── 2d_array_19x27_32x32_4_ms
+├── 2d_array_32x32_39x41_4
+├── 2d_array_32x32_39x41_4_ms
+├── 2d_array_32x32_48x48_4
+├── 2d_array_32x32_48x48_4_ms
+├── 2d_array_32x32_64x64_4
+├── 2d_array_32x32_64x64_4_ms
+├── cube_19x27_32x32_6
+├── cube_32x32_39x41_6
+├── cube_32x32_48x48_6
+├── cube_32x32_64x64_6
+├── cube_array_19x27_32x32_12
+├── cube_array_32x32_39x41_12
+├── cube_array_32x32_48x48_12
+├── cube_array_32x32_64x64_12
 ├── diff_attachments_1d_19_32
+├── diff_attachments_1d_32_39
+├── diff_attachments_1d_32_48
+├── diff_attachments_1d_32_64
+├── diff_attachments_2d_19x27_32x32
+├── diff_attachments_2d_19x27_32x32_ms
+├── diff_attachments_2d_32x32_39x41
+├── diff_attachments_2d_32x32_39x41_ms
+├── diff_attachments_2d_32x32_48x48
+├── diff_attachments_2d_32x32_48x48_ms
+├── diff_attachments_2d_32x32_64x64
+├── diff_attachments_2d_32x32_64x64_ms
+├── multi_attachments_not_exported_2d_64x64_64x64
+├── multi_attachments_not_exported_2d_64x64_64x64_ms
+├── no_attachments
+├── no_attachments_ms
 ├── resolve_input_same_attachment
-└── multi_attachments_not_exported_2d_64x64_64x64
+└── unused_attachment
 ```
 
-The tree uses the monolithic root as one concrete parseable hierarchy. The same family appears under the supported fast-linked-library, pipeline-library, and shader-object construction roots. The complete leaf inventory is registered by [`addAttachmentTestCasesWithFunctions`](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L1938-L2096).
+The direct-child names encode image view type, source and attachment dimensions, array layer count, and optional multisampling. `diff_attachments_*` uses different source and framebuffer attachment extents; `multi_attachments_not_exported_*`, `no_attachments*`, `resolve_input_same_attachment`, and `unused_attachment` cover the named attachment-interface edge cases. The same family is registered under supported pipeline-library, fast-linked-library, and shader-object construction roots by [`addAttachmentTestCasesWithFunctions`](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L1938-L2096).
 
 ## Parameter Dimensions and Observed Values
 
@@ -70,12 +114,106 @@ The `multi_attachments_not_exported_*` leaves bind three color attachments but u
 
 ## Shader Analysis
 
-Shader code supplies the observable writes, but this family tests attachment configuration and output routing rather than shader algorithm correctness. The source generates compact shaders for each behavior:
+### Representative Shader Walkthrough 1
 
-- [`initColorPrograms`](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L296-L331) writes one location-0 color output.
-- [`initDifferentAttachmentSizesPrograms`](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L1785-L1826) writes locations 0, 1, and 2.
-- [`initMultiAttachmentsNotExportPrograms`](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L1828-L1868) declares locations 0, 1, and 2 but writes only 0 and 2.
-- [`initInputResolveSameAttachmentPrograms`](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L1366-L1405) reads `subpassInput` and writes a derived location-0 color.
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.shader_object_linked_binary.framebuffer_attachment.1d_19_32
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `1d` image view | The color attachment is a one-dimensional image view; the generated fragment shader is unchanged because attachment dimensionality is handled by the framebuffer and render-pass setup. |
+| `19_32` | The render-area/framebuffer extent and attachment extent are 19 and 32 texels respectively. The shader writes the covered fragments, while the host expects pixels outside the 19-texel render area to retain the clear value. |
+| `shader_object_linked_binary` | This construction root selects the same generated color programs through the shader-object linked-binary path; the selected leaf is registered in the corresponding mustpass file. |
+
+#### Purpose
+
+This fragment shader supplies the observable color write for the larger-than-framebuffer attachment case. Its location-0 output is routed to the subpass's color attachment, allowing the host comparison to detect writes outside the smaller render area or incorrect output values.
+
+#### Structural Design
+
+| Shader operation | Result and attachment meaning |
+|------------------|-------------------------------|
+| Declare `o_color` at location 0 | Bind the fragment result to the first color-output slot used by the subpass. |
+| Execute `main` for each covered fragment | Produce one constant value; viewport, scissor, and render area determine which attachment pixels are covered. |
+| Store `(1.0, 0.5, 0.25, 1.0)` | Mark rendered pixels with the expected color; pixels outside the render area remain the host-cleared black value. |
+
+#### Shader Code
+
+```glsl
+#version 450
+
+/// Location 0 routes this value to the subpass's sole color attachment.
+layout(location = 0) out vec4 o_color;
+
+void main(void)
+{
+    /// Every covered fragment writes the exact color used by the host reference image.
+    o_color = vec4(1.0, 0.5, 0.25, 1.0);
+}
+```
+
+#### Additional Info
+
+- The source generator emits the same `vert`/`frag` pair for the larger-attachment matrix; the selected 1D case is registered from the `CaseDef` entry with render size `19x1` and attachment size `32x1` ([case registration](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L1949-L1950), [program builder](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L296-L331)).
+- The runtime clears the full attachment before drawing and compares the copied image against a reference that uses the shader color only where `x < renderSize.x()` ([render and comparison](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L517-L655), [expected-image construction](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L333-L352)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|----------------------------------------|----------|
+| Image view type and render/attachment size | No change to the fragment declarations or control flow; these values change framebuffer/image-view dimensions and the coverage region observed by the host. | [case definitions](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L1941-L2015) |
+| Multisampling | No change to this fragment source; the same constant output is written to a four-sample attachment and then resolved in multisample cases. | [multisample cases and pipeline setup](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L1997-L2015) |
+| Pipeline construction type | No change to generated GLSL; the same `initColorPrograms` sources are used under supported construction roots. | [registration](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L2017-L2019) |
+| Attachment behavior family | Other leaves select different builders: three outputs for different-size attachments, outputs 0 and 2 for not-exported attachments, or `subpassLoad` for the input/resolve case. | [alternate builders](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L1366-L1405), [multi-output builders](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L1785-L1868) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 14
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %o_color
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %o_color "o_color"
+               OpDecorate %o_color Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+    %o_color = OpVariable %_ptr_Output_v4float Output
+    %float_1 = OpConstant %float 1
+  %float_0_5 = OpConstant %float 0.5
+ %float_0_25 = OpConstant %float 0.25
+         %13 = OpConstantComposite %v4float %float_1 %float_0_5 %float_0_25 %float_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+               OpStore %o_color %13
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

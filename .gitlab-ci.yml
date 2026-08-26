@@ -1,0 +1,16 @@
+create-pages:
+  # Publish the exact static files reviewed and committed from the local build.
+  tags:
+    - case-lookup-shell
+
+  pages:
+    publish: external/vulkancts/wiki/case_lookup/site
+
+  # Preview on the feature branch first
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "case_lookup_tool"'
+
+  # The supervised local build already produced the runtime JSON.
+  script:
+    - test -s external/vulkancts/wiki/case_lookup/site/index.html
+    - test -s external/vulkancts/wiki/case_lookup/site/mappings.json

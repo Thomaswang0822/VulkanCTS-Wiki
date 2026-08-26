@@ -47,7 +47,7 @@ After all Level-3 batches stabilize, perform lead-owned Level-2 synthesis and ca
 5. After each wave, verify edits and immediately append page findings/no-issue entries to the lead-owned summary.
 6. Retry failed pages individually.
 7. Reconcile recurring patterns, audit the rest of Level-2, run category validation, and finalize the summary.
-8. **Hard stop 2:** stop before any publish translation or link conversion and ask the user to review and approve the complete audit result. Do not update publish outputs or publish indexes before approval.
+8. **Hard stop 2:** stop before any publish translation or link conversion and ask the user to review and approve the complete audit result.
 
 ## Publish phase
 
@@ -57,7 +57,7 @@ After all Level-3 batches stabilize, perform lead-owned Level-2 synthesis and ca
 4. Retry only missing, failed, or suspect translations.
 5. After all translations pass, run link conversion per file.
 6. Run link-conversion check mode to prove idempotency.
-7. Verify or update `home.md`, then run final category checks.
+7. Run final category checks.
 
 ## Phase barriers
 
@@ -69,4 +69,4 @@ Do not cross a barrier until its condition is true:
 - **Audit barrier:** every Level-3 page and Level-2 page has an audit outcome; repairs and category validation pass; summary is final.
 - **Publish-approval barrier:** the user has explicitly approved the completed audit result.
 - **Publish barrier:** every translation exists, contains target-language text, and passes structural verification.
-- **Completion barrier:** conversion is idempotent, `home.md` and checklist are correct, counts are reconciled, and safety checks pass.
+- **Completion barrier:** conversion is idempotent, the checklist is correct, counts are reconciled, and safety checks pass.

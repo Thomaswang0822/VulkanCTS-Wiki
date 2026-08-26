@@ -78,7 +78,266 @@ The nine `lifetime` leaves use fixed command sequences to test whether push-cons
 
 ## Shader Analysis
 
-The family generates several GLSL programs for the selected range, stage, indexing, and test mechanism. The overwrite shader below is representative of the generated push-constant interface; the reference renderer used for graphics comparison is host-side code.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.shader_object_linked_binary.push_constant.graphics_pipeline.count_1_shader_vert_frag
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `graphics_pipeline` | The test consumes push-constant state through a graphics pipeline, with a vertex producer and fragment consumer. |
+| `count_1_shader_vert_frag` | One 4-byte range is visible to both vertex and fragment stages at offset 0; both generated shaders read the same `int kind`. |
+| `shader_object_linked_binary` | This construction-mode leaf uses the same generated shader interfaces while exercising the linked-binary pipeline construction path. |
+
+#### Purpose
+
+This case checks that a value pushed into one range shared by the vertex and fragment stages is consumed correctly after graphics pipeline construction. The selector changes the generated stage outputs, making an incorrect range, offset, or stage association visible in the rendered image.
+
+#### Structural Design
+
+| Phase | Push-constant dataflow | Observable result |
+|---|---|---|
+| Host update | `vkCmdPushConstants` writes the 4-byte `kind` field at offset 0 for vertex and fragment stages. | Both stages can observe the same range. |
+| Vertex stage | Reads `matInst.kind`, selects green, blue, red, or the incoming vertex color, and forwards the result as `vtxColor`. | The selected color is carried through the graphics interface. |
+| Fragment stage | Reads the same `matInst.kind`; cases 0/1/2 select green/blue/`vtxColor`, and the default selects white. | The framebuffer color is compared against the reference renderer. |
+
+#### Shader Code
+
+##### Vertex Shader
+
+```glsl
+#version 450
+#extension GL_EXT_long_vector : enable
+layout(location = 0) in highp vec4 position;
+layout(location = 1) in highp vec4 color;
+layout(location = 0) out highp vec4 vtxColor;
+out gl_PerVertex { vec4 gl_Position; };
+/// The single declared range is shared by vertex and fragment stages.
+layout(push_constant) uniform Material {
+    int kind;
+} matInst;
+void main()
+{
+    gl_Position = position;
+    /// The pushed selector controls the vertex-stage color payload.
+    switch (matInst.kind) {
+    case 0: vtxColor = vec4(0.0, 1.0, 0, 1.0); break;
+    case 1: vtxColor = vec4(0.0, 0.0, 1.0, 1.0); break;
+    case 2: vtxColor = vec4(1.0, 0.0, 0, 1.0); break;
+    default: vtxColor = color; break;}
+}
+```
+
+##### Fragment Shader
+
+```glsl
+#version 450
+layout(location = 0) in highp vec4 vtxColor;
+layout(location = 0) out highp vec4 fragColor;
+/// The fragment stage consumes the same offset-zero four-byte range.
+layout(push_constant) uniform Material {
+    layout(offset = 0) int kind;
+} matInst;
+void main (void)
+{
+    /// Each selector value chooses a distinct output, making byte consumption visible.
+    switch (matInst.kind) {
+    case 0: fragColor = vec4(0, 1.0, 0, 1.0); break;
+    case 1: fragColor = vec4(0, 0.0, 1.0, 1.0); break;
+    case 2: fragColor = vtxColor; break;
+    default: fragColor = vec4(1.0, 1.0, 1.0, 1.0); break;}
+}
+```
+
+#### Additional Info
+
+- The source emits the fragment push-constant member with `layout(offset = 0)` for this shared vertex/fragment range; the vertex declaration is equivalent because its first member is naturally at offset 0 ([graphics shader generator](../../../modules/vulkan/pipeline/vktPipelinePushConstantTests.cpp#L1264-L1491), [fragment generator](../../../modules/vulkan/pipeline/vktPipelinePushConstantTests.cpp#L1596-L1680)).
+- The vertex shader is shown because it is the producer of `vtxColor` and is part of the selected graphics dataflow; the fragment shader remains the primary SPIR-V stage because it directly performs the final push-constant-selected framebuffer write.
+- Graphics validation compares the submitted image with the `ReferenceRenderer` output, so a mismatch also includes possible rasterization, synchronization, readback, or reference-comparison causes ([graphics submission and comparison](../../../modules/vulkan/pipeline/vktPipelinePushConstantTests.cpp#L678-L755)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Range size | Changes the push-constant member layout and generated read/aggregation logic: 4 bytes uses `int kind`, while 16/32/48/128/256-byte cases use different vector or array forms. | [range-size mapping and generator](../../../modules/vulkan/pipeline/vktPipelinePushConstantTests.cpp#L1202-L1232), [declaration and use](../../../modules/vulkan/pipeline/vktPipelinePushConstantTests.cpp#L1290-L1450) |
+| Stage/range count | Adds push-constant declarations and consumers to vertex, fragment, geometry, or tessellation stages; a shared vertex/fragment range uses the same offset-zero selector represented here. | [graphics parameter table](../../../modules/vulkan/pipeline/vktPipelinePushConstantTests.cpp#L3384-L3419), [stage generators](../../../modules/vulkan/pipeline/vktPipelinePushConstantTests.cpp#L1272-L1680) |
+| Index/update mode | Dynamic indexing replaces the literal selector with dynamically uniform vector, matrix, and array accesses; multi-update cases alter the host update sequence while preserving generated stage interfaces. | [dynamic-index generator](../../../modules/vulkan/pipeline/vktPipelinePushConstantTests.cpp#L1452-L1478), [registration table](../../../modules/vulkan/pipeline/vktPipelinePushConstantTests.cpp#L3347-L3450) |
+| Command form | `_command2` uses `vkCmdPushConstants2KHR` with the same shader-side range semantics and requires `VK_KHR_maintenance6`; ordinary leaves use `vkCmdPushConstants`. | [registration and command selection](../../../modules/vulkan/pipeline/vktPipelinePushConstantTests.cpp#L3608-L3635), [support gate](../../../modules/vulkan/pipeline/vktPipelinePushConstantTests.cpp#L1154-L1161) |
+
+#### SPIR-V
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 42
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %position %vtxColor %color
+               OpSource GLSL 450
+               OpSourceExtension "GL_EXT_long_vector"
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpName %_ ""
+               OpName %position "position"
+               OpName %Material "Material"
+               OpMemberName %Material 0 "kind"
+               OpName %matInst "matInst"
+               OpName %vtxColor "vtxColor"
+               OpName %color "color"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpDecorate %position Location 0
+               OpDecorate %Material Block
+               OpMemberDecorate %Material 0 Offset 0
+               OpDecorate %vtxColor Location 0
+               OpDecorate %color Location 1
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%gl_PerVertex = OpTypeStruct %v4float
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+   %position = OpVariable %_ptr_Input_v4float Input
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %Material = OpTypeStruct %int
+%_ptr_PushConstant_Material = OpTypePointer PushConstant %Material
+    %matInst = OpVariable %_ptr_PushConstant_Material PushConstant
+%_ptr_PushConstant_int = OpTypePointer PushConstant %int
+   %vtxColor = OpVariable %_ptr_Output_v4float Output
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+         %32 = OpConstantComposite %v4float %float_0 %float_1 %float_0 %float_1
+         %34 = OpConstantComposite %v4float %float_0 %float_0 %float_1 %float_1
+         %36 = OpConstantComposite %v4float %float_1 %float_0 %float_0 %float_1
+      %color = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %15 = OpLoad %v4float %position
+         %17 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %17 %15
+         %22 = OpAccessChain %_ptr_PushConstant_int %matInst %int_0
+         %23 = OpLoad %int %22
+               OpSelectionMerge %28 None
+               OpSwitch %23 %27 0 %24 1 %25 2 %26
+         %27 = OpLabel
+         %39 = OpLoad %v4float %color
+               OpStore %vtxColor %39
+               OpBranch %28
+         %24 = OpLabel
+               OpStore %vtxColor %32
+               OpBranch %28
+         %25 = OpLabel
+               OpStore %vtxColor %34
+               OpBranch %28
+         %26 = OpLabel
+               OpStore %vtxColor %36
+               OpBranch %28
+         %28 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 36
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %fragColor %vtxColor
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %Material "Material"
+               OpMemberName %Material 0 "kind"
+               OpName %matInst "matInst"
+               OpName %fragColor "fragColor"
+               OpName %vtxColor "vtxColor"
+               OpDecorate %Material Block
+               OpMemberDecorate %Material 0 Offset 0
+               OpDecorate %fragColor Location 0
+               OpDecorate %vtxColor Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+   %Material = OpTypeStruct %int
+%_ptr_PushConstant_Material = OpTypePointer PushConstant %Material
+    %matInst = OpVariable %_ptr_PushConstant_Material PushConstant
+      %int_0 = OpConstant %int 0
+%_ptr_PushConstant_int = OpTypePointer PushConstant %int
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %fragColor = OpVariable %_ptr_Output_v4float Output
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+         %25 = OpConstantComposite %v4float %float_0 %float_1 %float_0 %float_1
+         %27 = OpConstantComposite %v4float %float_0 %float_0 %float_1 %float_1
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+   %vtxColor = OpVariable %_ptr_Input_v4float Input
+         %33 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %12 = OpAccessChain %_ptr_PushConstant_int %matInst %int_0
+         %13 = OpLoad %int %12
+               OpSelectionMerge %18 None
+               OpSwitch %13 %17 0 %14 1 %15 2 %16
+         %17 = OpLabel
+               OpStore %fragColor %33
+               OpBranch %18
+         %14 = OpLabel
+               OpStore %fragColor %25
+               OpBranch %18
+         %15 = OpLabel
+               OpStore %fragColor %27
+               OpBranch %18
+         %16 = OpLabel
+         %31 = OpLoad %v4float %vtxColor
+               OpStore %fragColor %31
+               OpBranch %18
+         %18 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

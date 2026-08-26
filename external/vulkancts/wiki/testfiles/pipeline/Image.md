@@ -63,9 +63,140 @@ For graphics leaves, the vertex shader passes position and texture coordinates t
 
 The compute variant reconstructs the graphics texture coordinates from the vertex buffer, samples the same descriptor form, and writes each result through `imageStore` ([`ImageTest::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L251-L331)). It provides a second execution path for the same sampling property.
 
-### SPIR-V boundary
+### Representative Shader Walkthrough 1
 
-The source generates GLSL from each leaf's selected format, view type, descriptor form, count, and execution mode. It does not embed a fixed representative SPIR-V module in this family. A static assembly walkthrough would therefore describe a reconstructed leaf rather than a protected source artifact. This page links the generator and keeps the analysis at that boundary.
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.monolithic.image.dedicated_allocation.sampling_type.combined.view_type.1d.format.r16_sfloat.count_1.size.127x1
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `monolithic` | Uses a conventional graphics pipeline, so sampling occurs in the fragment stage. |
+| `dedicated_allocation` | The sampled image and related resources request dedicated memory; this changes allocation, not the shader interface. |
+| `sampling_type.combined` | Binding 0 is one combined image sampler rather than separate sampler and sampled-image descriptors. |
+| `view_type.1d` | The generator declares `sampler1D` and samples only the `x` component of the interpolated texture coordinate. |
+| `format.r16_sfloat` | Sampling produces floating-point data; generated scale and bias normalize the exercised half-float range before attachment output. |
+| `count_1` | The shader has one descriptor and one scalar output declaration, with no descriptor-array loop. |
+| `size.127x1` | The sampled image and graphics result are 127 pixels wide and one pixel high. |
+
+#### Purpose
+
+This fragment shader observes sampling from a dedicated, one-dimensional `VK_FORMAT_R16_SFLOAT` image through a combined image sampler. The host accepts the case only when the rendered values match its independent software-texture reference within the format-aware tolerance.
+
+#### Structural Design
+
+| Shader phase | Exact-case operation | Observable role |
+|--------------|----------------------|-----------------|
+| Resource access | Read `sampler1D texSampler` at set 0, binding 0 | Exercises the selected combined descriptor and 1D image view. |
+| Coordinate selection | Use `vtxTexCoords.x` | Maps the graphics mosaic coordinate to the scalar coordinate required by a 1D sample. |
+| Sampling | Execute implicit-LOD `texture(...)` | Produces the device value under test. |
+| Normalization | Apply scale `(0.0005, 1, 1, 1)` and bias `(0.5, 0, 0, 0)` | Maps the generated R16_SFLOAT test range into the color-attachment range. |
+| Observation | Store to location 0 `fragColor` | Makes the sampled result available for image readback and host comparison. |
+
+#### Shader Code
+
+```glsl
+#version 440
+/// Binding 0 is the only sampled resource in this count-1 combined-descriptor case: a sampler and
+/// one-dimensional R16_SFLOAT image view presented together as sampler1D.
+layout(set = 0, binding = 0) uniform highp sampler1D texSampler;
+/// Location 0 carries the vertex shader's four-component mosaic coordinate; a 1D view consumes only x.
+layout(location = 0) in highp vec4 vtxTexCoords;
+/// Location 0 is the sole color attachment. The host later checks its pixels against the software texture.
+layout(location = 0) out highp vec4 fragColor;
+void main (void)
+{
+    /// Sample the selected 1D image, then normalize the half-float test range to color-attachment range.
+    fragColor = (texture(texSampler, vtxTexCoords.x) * vec4(5.000000e-04, 1.000000e+00, 1.000000e+00, 1.000000e+00)) + vec4(5.000000e-01, 0.000000e+00, 0.000000e+00, 0.000000e+00); 
+}
+```
+
+#### Additional Info
+
+- [`getLookupScaleBias()`](../../../modules/vulkan/pipeline/vktPipelineImageUtil.cpp#L200-L219) obtains this uncompressed format's scale and bias from `tcu::getTextureFormatInfo()`; `HALF_FLOAT` uses the exercised range `[-1000, 1000]`, yielding the reconstructed red-channel scale `1/2000` and bias `0.5` ([`getFloatChannelValueRange()`](../../../../../framework/common/tcuTextureUtil.cpp#L463-L466); [`getTextureFormatInfo()`](../../../../../framework/common/tcuTextureUtil.cpp#L556-L566)).
+- The fixed vertex stage only forwards locations 0 and 1 to `gl_Position` and `vtxTexCoords`; it does not vary the sampled value or the validation rule in this representative case ([`ImageTest::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L338-L349)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|------------------------------------------|----------|
+| Descriptor form | `separate` emits a sampler at binding 0 plus a typed texture at binding 1 and constructs `sampler1D(texImage, texSampler)` at the sample site. | [`ImageTest::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L351-L378); [`ImageTest::getGlslSampler()`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L510-L523) |
+| View type | Changes the sampler type and selects `x`, `xy`, `xyz`, or `xyzw` coordinate components. | [`ImageTest::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L229-L249) |
+| Format | Integer classes add `i` or `u` to the sampler type, while format metadata changes the generated lookup scale and bias. | [`getGlslSamplerType()`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L393-L437) |
+| Image count | Counts 4 and 8 emit arrays of descriptors and fragment outputs, then dynamically index both in a loop. | [`ImageTest::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L364-L378) |
+| Execution path | `_compute` reconstructs the texture coordinate from a vertex SSBO and writes sampled values to storage images with `imageStore`. | [`ImageTest::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L251-L331) |
+| Allocation and size | Allocation does not alter generated shader text; size changes image extent, rasterization, and host reference dimensions. | [`getImageSamplingInstanceParams()`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L152-L215) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 31
+; Schema: 0
+               OpCapability Shader
+               OpCapability Sampled1D
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %fragColor %vtxTexCoords
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 440
+               OpName %main "main"
+               OpName %fragColor "fragColor"
+               OpName %texSampler "texSampler"
+               OpName %vtxTexCoords "vtxTexCoords"
+               OpDecorate %fragColor Location 0
+               OpDecorate %texSampler Binding 0
+               OpDecorate %texSampler DescriptorSet 0
+               OpDecorate %vtxTexCoords Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %fragColor = OpVariable %_ptr_Output_v4float Output
+         %10 = OpTypeImage %float 1D 0 0 0 1 Unknown
+         %11 = OpTypeSampledImage %10
+%_ptr_UniformConstant_11 = OpTypePointer UniformConstant %11
+ %texSampler = OpVariable %_ptr_UniformConstant_11 UniformConstant
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%vtxTexCoords = OpVariable %_ptr_Input_v4float Input
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_float = OpTypePointer Input %float
+%float_0_000500000024 = OpConstant %float 0.000500000024
+    %float_1 = OpConstant %float 1
+         %25 = OpConstantComposite %v4float %float_0_000500000024 %float_1 %float_1 %float_1
+  %float_0_5 = OpConstant %float 0.5
+    %float_0 = OpConstant %float 0
+         %29 = OpConstantComposite %v4float %float_0_5 %float_0 %float_0 %float_0
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %14 = OpLoad %11 %texSampler
+         %20 = OpAccessChain %_ptr_Input_float %vtxTexCoords %uint_0
+         %21 = OpLoad %float %20
+         %22 = OpImageSampleImplicitLod %v4float %14 %21
+         %26 = OpFMul %v4float %22 %25
+         %30 = OpFAdd %v4float %26 %29
+               OpStore %fragColor %30
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 
@@ -119,11 +250,16 @@ The source generates GLSL from each leaf's selected format, view type, descripto
 
 The generator narrows combinations where the source has explicit constraints:
 
-- dedicated allocation uses two formats and count `1`;
+### Requirement-based pruning
+
 - 1D and 1D-array views exclude compressed formats;
 - ASTC 3D formats apply only to suballocated 3D views outside Vulkan SC;
-- `VK_PIPELINE_CREATE_NO_PROTECTED_ACCESS_BIT_EXT` leaves do not apply to shader-object construction;
 - image counts above one require dynamic sampled-image array indexing.
+
+### Design-based pruning
+
+- Dedicated allocation uses two formats and count `1`.
+- `VK_PIPELINE_CREATE_NO_PROTECTED_ACCESS_BIT_EXT` leaves do not apply to shader-object construction.
 
 These are source-defined matrix boundaries, not pass/fail expectations.
 

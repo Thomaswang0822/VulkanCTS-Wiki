@@ -165,6 +165,8 @@ void main (void) { o_color = vec4(1.0, 0.0, 1.0, 1.0); }
 
 #### SPIR-V
 
+##### Vertex Shader
+
 - Status: generated and validated
 - Source: reconstructed `GLSL` from this walkthrough
 - Stage: `vert`
@@ -259,6 +261,50 @@ void main (void) { o_color = vec4(1.0, 0.0, 1.0, 1.0); }
          %50 = OpMatrixTimesVector %v4float %46 %49
          %52 = OpAccessChain %_ptr_Output_v4float %_ %int_0
                OpStore %52 %50
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 13
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %o_color
+               OpExecutionMode %main OriginUpperLeft
+               OpSource ESSL 310
+               OpName %main "main"
+               OpName %o_color "o_color"
+               OpDecorate %o_color RelaxedPrecision
+               OpDecorate %o_color Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+    %o_color = OpVariable %_ptr_Output_v4float Output
+    %float_1 = OpConstant %float 1
+    %float_0 = OpConstant %float 0
+         %12 = OpConstantComposite %v4float %float_1 %float_0 %float_1 %float_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+               OpStore %o_color %12
                OpReturn
                OpFunctionEnd
 ```

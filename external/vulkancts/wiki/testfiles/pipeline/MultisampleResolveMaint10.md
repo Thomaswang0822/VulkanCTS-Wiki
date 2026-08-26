@@ -55,7 +55,303 @@ This intermediate node supplies the resolve through dynamic-rendering attachment
 
 ## Shader Analysis
 
-The source generates a simple vertex shader and a parameterized fragment shader. The vertex shader draws a full-screen triangle and assigns `gl_Layer` for multilayer cases. The fragment shader reads `PixelData` from a storage buffer using `gl_FragCoord`, `gl_Layer`, and `gl_SampleID`, then writes typed color output, `gl_FragDepth`, or `gl_FragStencilRefARB` according to the selected aspects. The test targets resolve and attachment behavior; it does not compare alternative shader algorithms or embed a fixed shader artifact.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.monolithic.multisample.m10_resolve.resolve_cmd.r8_unorm.color.average.full.no_flags
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `resolve_cmd` | The four-sample color image is resolved by `vkCmdResolveImage2`; the shader only populates the multisample source image. |
+| `r8_unorm`, `color`, `average` | The fragment output is a normalized `vec4`, and the host reference expects the average of the four per-sample values for each pixel. |
+| `full`, `no_flags` | A single 16x16 layer is resolved over the complete image, with no sRGB transfer-function override. The generated index therefore has no layer offset and uses a fixed sample multiplier of 4. |
+
+#### Purpose
+
+The shaders make every multisample value deterministic by loading a distinct `PixelData` record for each fragment sample. This lets the maintenance10 resolve operation—not shader-side filtering—be tested for full-image color averaging.
+
+#### Structural Design
+
+| Stage/phase | Dataflow for this representative case |
+|------------|----------------------------------------|
+| Vertex | Select one of three vertices forming a full-screen triangle; write `gl_Position`. |
+| Fragment coordinates | Convert `gl_FragCoord` to integer pixel coordinates and flatten `(x, y)` into `pixelIndex = y * width + x`. |
+| Sample selection | Compute `sampleIndex = pixelIndex * 4 + gl_SampleID`, selecting one record from the host-filled storage buffer for each of the four rasterized samples. |
+| Attachment write | Load `colorValue` and write it to `outColor`; the multisample attachment resolve is performed later by the selected API path. |
+
+#### Shader Code
+
+##### Vertex Shader
+
+```glsl
+#version 460
+
+/// Three vertices cover the viewport as a full-screen triangle.
+const vec4 vertices[] = vec4[](
+    vec4(-1.0, -1.0, 0.0, 1.0),
+    vec4(-1.0,  3.0, 0.0, 1.0),
+    vec4( 3.0, -1.0, 0.0, 1.0)
+);
+
+void main (void) {
+    /// The draw uses the vertex index directly; no inter-stage data is needed.
+    gl_Position = vertices[gl_VertexIndex % 3];
+}
+```
+
+##### Fragment Shader
+
+```glsl
+#version 460
+
+/// The selected r8_unorm color aspect is represented by a floating-point vector output.
+layout (location=0) out vec4 outColor;
+
+struct PixelData {
+    vec4 colorValue;
+    vec4 dsValue; // .x = depth, .y = stencil (as float)
+};
+
+/// Host-populated, read-only records contain one color value per pixel and sample.
+layout (set=0, binding=0) readonly buffer PixelValuesBlock {
+    PixelData values[];
+} pixels;
+
+/// The host supplies the two-dimensional image width and height.
+layout (push_constant, std430) uniform PushConstantBlock {
+    float width;
+    float height;
+} pc;
+
+void main (void) {
+    /// This non-layered representative has no preceding-layer offset.
+    const uint prevPixels = 0u;
+    /// Flatten the fragment coordinate into the 16x16 host-buffer pixel order.
+    const uint pixelIndex = uint(floor(gl_FragCoord.y) * pc.width + floor(gl_FragCoord.x)) + prevPixels;
+    /// Four records belong to each pixel; gl_SampleID selects this fragment's record.
+    const uint sampleIndex = pixelIndex * 4 + uint(gl_SampleID);
+    /// The resolve command, rather than this shader, combines the four samples.
+    outColor = pixels.values[sampleIndex].colorValue;
+}
+```
+
+#### Additional Info
+
+- The exact source generator emits the depth/stencil member and its source comment even though this color-only case does not read `dsValue`; the output type and writes are controlled by `TestParams::getGLSLFragOutType()` and the selected aspects ([`initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveMaint10Tests.cpp#L378-L420)).
+- `PixelValuesBlock` is a storage buffer at set 0/binding 0, while `width` and `height` are push constants. The host fills the records in the same four-sample order used by `sampleIndex` before the draw ([resource setup and draw](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveMaint10Tests.cpp#L535-L790)).
+- The vertex stage stays structurally fixed for non-layered cases; layered variants add `GL_ARB_shader_viewport_layer_array` and `gl_Layer = gl_InstanceIndex` ([vertex generation](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveMaint10Tests.cpp#L380-L395)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|----------------------------------------|----------|
+| Resolve aspect and format class | Color formats select `vec4`, `uvec4`, or `ivec4` output and matching `PixelData.colorValue` type; depth/stencil-only cases omit the color output and write built-ins instead. | [`getGLSLFragOutType` and `initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveMaint10Tests.cpp#L141-L155) (../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveMaint10Tests.cpp#L396-L419) |
+| Layered resolve area | Multi-slice areas add the viewport-layer extension, assign `gl_Layer`, and add `uint(pc.width * pc.height) * uint(gl_Layer)` to `prevPixels`. | [`isMultiSlice` and shader generation](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveMaint10Tests.cpp#L61-L76) (../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveMaint10Tests.cpp#L382-L415) |
+| Sample count | The generator embeds `m_params.getSampleCount()` in the `sampleIndex` multiplier; this family fixes it at four samples. | [`getSampleCount` and `initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveMaint10Tests.cpp#L136-L139) (../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveMaint10Tests.cpp#L414-L415) |
+| Resolve method, mode, and sRGB flags | These parameters change the host-side resolve operation, attachment/command setup, or `VkResolveImageModeInfoKHR`; they do not change this representative shader's indexing algorithm. | [`TestParams`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveMaint10Tests.cpp#L85-L155) and [`iterate`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveMaint10Tests.cpp#L535-L1581) |
+
+#### SPIR-V
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 38
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %gl_VertexIndex
+               OpSource GLSL 460
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex 2 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex 3 "gl_CullDistance"
+               OpName %_ ""
+               OpName %gl_VertexIndex "gl_VertexIndex"
+               OpName %indexable "indexable"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex 3 BuiltIn CullDistance
+               OpDecorate %gl_VertexIndex BuiltIn VertexIndex
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_arr_float_uint_1 = OpTypeArray %float %uint_1
+%gl_PerVertex = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+     %uint_3 = OpConstant %uint 3
+%_arr_v4float_uint_3 = OpTypeArray %v4float %uint_3
+   %float_n1 = OpConstant %float -1
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+         %21 = OpConstantComposite %v4float %float_n1 %float_n1 %float_0 %float_1
+    %float_3 = OpConstant %float 3
+         %23 = OpConstantComposite %v4float %float_n1 %float_3 %float_0 %float_1
+         %24 = OpConstantComposite %v4float %float_3 %float_n1 %float_0 %float_1
+         %25 = OpConstantComposite %_arr_v4float_uint_3 %21 %23 %24
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_VertexIndex = OpVariable %_ptr_Input_int Input
+      %int_3 = OpConstant %int 3
+%_ptr_Function__arr_v4float_uint_3 = OpTypePointer Function %_arr_v4float_uint_3
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+  %indexable = OpVariable %_ptr_Function__arr_v4float_uint_3 Function
+         %28 = OpLoad %int %gl_VertexIndex
+         %30 = OpSMod %int %28 %int_3
+               OpStore %indexable %25
+         %34 = OpAccessChain %_ptr_Function_v4float %indexable %30
+         %35 = OpLoad %v4float %34
+         %37 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %37 %35
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 54
+; Schema: 0
+               OpCapability Shader
+               OpCapability SampleRateShading
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %gl_FragCoord %gl_SampleID %outColor
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 460
+               OpName %main "main"
+               OpName %pixelIndex "pixelIndex"
+               OpName %gl_FragCoord "gl_FragCoord"
+               OpName %PushConstantBlock "PushConstantBlock"
+               OpMemberName %PushConstantBlock 0 "width"
+               OpMemberName %PushConstantBlock 1 "height"
+               OpName %pc "pc"
+               OpName %sampleIndex "sampleIndex"
+               OpName %gl_SampleID "gl_SampleID"
+               OpName %outColor "outColor"
+               OpName %PixelData "PixelData"
+               OpMemberName %PixelData 0 "colorValue"
+               OpMemberName %PixelData 1 "dsValue"
+               OpName %PixelValuesBlock "PixelValuesBlock"
+               OpMemberName %PixelValuesBlock 0 "values"
+               OpName %pixels "pixels"
+               OpDecorate %gl_FragCoord BuiltIn FragCoord
+               OpDecorate %PushConstantBlock Block
+               OpMemberDecorate %PushConstantBlock 0 Offset 0
+               OpMemberDecorate %PushConstantBlock 1 Offset 4
+               OpDecorate %gl_SampleID BuiltIn SampleId
+               OpDecorate %gl_SampleID Flat
+               OpDecorate %outColor Location 0
+               OpMemberDecorate %PixelData 0 Offset 0
+               OpMemberDecorate %PixelData 1 Offset 16
+               OpDecorate %_runtimearr_PixelData ArrayStride 32
+               OpDecorate %PixelValuesBlock BufferBlock
+               OpMemberDecorate %PixelValuesBlock 0 NonWritable
+               OpMemberDecorate %PixelValuesBlock 0 Offset 0
+               OpDecorate %pixels NonWritable
+               OpDecorate %pixels Binding 0
+               OpDecorate %pixels DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_ptr_Function_uint = OpTypePointer Function %uint
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%gl_FragCoord = OpVariable %_ptr_Input_v4float Input
+     %uint_1 = OpConstant %uint 1
+%_ptr_Input_float = OpTypePointer Input %float
+%PushConstantBlock = OpTypeStruct %float %float
+%_ptr_PushConstant_PushConstantBlock = OpTypePointer PushConstant %PushConstantBlock
+         %pc = OpVariable %_ptr_PushConstant_PushConstantBlock PushConstant
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_PushConstant_float = OpTypePointer PushConstant %float
+     %uint_0 = OpConstant %uint 0
+     %uint_4 = OpConstant %uint 4
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_SampleID = OpVariable %_ptr_Input_int Input
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %outColor = OpVariable %_ptr_Output_v4float Output
+  %PixelData = OpTypeStruct %v4float %v4float
+%_runtimearr_PixelData = OpTypeRuntimeArray %PixelData
+%PixelValuesBlock = OpTypeStruct %_runtimearr_PixelData
+%_ptr_Uniform_PixelValuesBlock = OpTypePointer Uniform %PixelValuesBlock
+     %pixels = OpVariable %_ptr_Uniform_PixelValuesBlock Uniform
+%_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+ %pixelIndex = OpVariable %_ptr_Function_uint Function
+%sampleIndex = OpVariable %_ptr_Function_uint Function
+         %15 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_1
+         %16 = OpLoad %float %15
+         %17 = OpExtInst %float %1 Floor %16
+         %24 = OpAccessChain %_ptr_PushConstant_float %pc %int_0
+         %25 = OpLoad %float %24
+         %26 = OpFMul %float %17 %25
+         %28 = OpAccessChain %_ptr_Input_float %gl_FragCoord %uint_0
+         %29 = OpLoad %float %28
+         %30 = OpExtInst %float %1 Floor %29
+         %31 = OpFAdd %float %26 %30
+         %32 = OpConvertFToU %uint %31
+         %33 = OpIAdd %uint %32 %uint_0
+               OpStore %pixelIndex %33
+         %35 = OpLoad %uint %pixelIndex
+         %37 = OpIMul %uint %35 %uint_4
+         %40 = OpLoad %int %gl_SampleID
+         %41 = OpBitcast %uint %40
+         %42 = OpIAdd %uint %37 %41
+               OpStore %sampleIndex %42
+         %50 = OpLoad %uint %sampleIndex
+         %52 = OpAccessChain %_ptr_Uniform_v4float %pixels %int_0 %50 %int_0
+         %53 = OpLoad %v4float %52
+               OpStore %outColor %53
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

@@ -21,7 +21,13 @@ synchronization.basic
 └── timeline_semaphore
 ```
 
-The factories also register these two direct children under `synchronization2.basic`. Their test case leaves differ by API path:
+```text
+synchronization2.basic
+├── binary_semaphore
+└── timeline_semaphore
+```
+
+The two roots share the same direct semaphore families. Their test case leaves differ by API path:
 
 | Test family | `synchronization.basic` leaves | `synchronization2.basic` leaves |
 |---|---|---|

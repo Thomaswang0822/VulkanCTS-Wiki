@@ -66,7 +66,7 @@ This page uses one representative walkthrough. The rgen shader is generated once
 Representative path:
 
 ```text
-ray_tracing_pipeline.capture_replay.shader_binding_tables.pipeline_single
+dEQP-VK.ray_tracing_pipeline.capture_replay.shader_binding_tables.pipeline_single
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -127,7 +127,7 @@ void main()
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level variation from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | SBT test type | No GLSL change. The host creates one or two pipelines and writes `targetLayer = 0` or `1` per pipeline into the uniform buffer. | [uniform fill](../../../modules/vulkan/ray_tracing/vktRayTracingCaptureReplayTests.cpp#L1525-L1531) |
 | AS operation type | No GLSL change. The host rebuilds, copies, compacts, or deserializes the AS at the saved addresses before tracing. | [AS operation switch](../../../modules/vulkan/ray_tracing/vktRayTracingCaptureReplayTests.cpp#L1261-L1369) |
@@ -259,7 +259,9 @@ void main()
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
+
+## Runtime Execution and Result Checking
 
 - **Two-phase execution.** `iterate` calls `runTest(false)` for the capture phase and `runTest(true)` for the replay phase, then hands both result vectors to `verifyImage` [vktRayTracingCaptureReplayTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingCaptureReplayTests.cpp#L1599-L1610).
 - **Pipeline count.** `pipelineCount` is 1 for the capture phase, for `pipeline_single`, and for the AS child. It is 2 for `pipeline_after_captured` and `pipeline_before_captured`, so the replay phase can run both pipelines into distinct image layers [vktRayTracingCaptureReplayTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingCaptureReplayTests.cpp#L1063-L1066).

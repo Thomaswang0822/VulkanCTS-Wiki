@@ -121,86 +121,9 @@ The shader widens one 16-bit float per invocation from a 16-bit-capable SSBO int
 | Dispatch | `LocalSize 1 1 1`, 128 work groups. | One invocation per element; invocation `x` touches only index `x`. |
 | Body | `OpLoad %f16` → `OpFConvert %f32` → `OpStore` into `%ssbo32` at the same index. | The load-convert-store triplet is the entire tested behavior. |
 
-#### Source Code
+#### Shader Code
 
-SPIR-V assembly extracted from the [`addCompute16bitStorageUniform16To32Group()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L1128-L1504) `StringTemplate`, specialized for `uniform_buffer_block` + `scalar` + `float`. The `${...}` placeholders have been filled from the [`CAPABILITIES[]`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L126-L129) table and the float `cTypes` row; `:opt` placeholders that the scalar case leaves empty are omitted. The round-trip (`spirv-as` → `spirv-val` → `spirv-dis` under `spv1.0`) was run as a generation-time validation gate and passed; the disassembler output is not published per the `spirv_assembly` category deviation.
-
-```llvm
-; SPIR-V
-; Version: 1.0
-; Generator: Khronos SPIR-V Assembly CTS; 0
-; Bound: 38
-; Schema: 0
-         OpCapability Shader
-         OpCapability StorageUniformBufferBlock16
-         OpExtension "SPV_KHR_16bit_storage"
-         OpMemoryModel Logical GLSL450
-         OpEntryPoint GLCompute %main "main" %id
-         OpExecutionMode %main LocalSize 1 1 1
-         OpDecorate %id BuiltIn GlobalInvocationId
-         OpDecorate %f32arr ArrayStride 4
-         OpDecorate %f16arr ArrayStride 2
-         OpMemberDecorate %SSBO32 0 Offset 0
-         OpMemberDecorate %SSBO16 0 Offset 0
-         OpDecorate %SSBO32 BufferBlock
-         OpDecorate %SSBO16 BufferBlock
-         OpDecorate %ssbo32 DescriptorSet 0
-         OpDecorate %ssbo16 DescriptorSet 0
-         OpDecorate %ssbo32 Binding 1
-         OpDecorate %ssbo16 Binding 0
-         %bool      = OpTypeBool
-         %void      = OpTypeVoid
-         %voidf     = OpTypeFunction %void
-         %u32       = OpTypeInt 32 0
-         %i32       = OpTypeInt 32 1
-         %f32       = OpTypeFloat 32
-         %v3u32     = OpTypeVector %u32 3
-         %uvec3ptr  = OpTypePointer Input %v3u32
-         %i32ptr    = OpTypePointer Uniform %i32
-         %f32ptr    = OpTypePointer Uniform %f32
-         %zero      = OpConstant %i32 0
-         %c_i32_1   = OpConstant %i32 1
-         %c_i32_2   = OpConstant %i32 2
-         %c_i32_3   = OpConstant %i32 3
-         %c_i32_16  = OpConstant %i32 16
-         %c_i32_32  = OpConstant %i32 32
-         %c_i32_64  = OpConstant %i32 64
-         %c_i32_128 = OpConstant %i32 128
-         %c_i32_ci  = OpConstant %i32 0
-         %i32arr    = OpTypeArray %i32 %c_i32_128
-         %f32arr    = OpTypeArray %f32 %c_i32_128
-         %f16       = OpTypeFloat 16
-         %f16ptr    = OpTypePointer Uniform %f16
-         %f16arr    = OpTypeArray %f16 %c_i32_128
-         %v2f16     = OpTypeVector %f16 2
-         %v2f32     = OpTypeVector %f32 2
-         %v2f16ptr  = OpTypePointer Uniform %v2f16
-         %v2f32ptr  = OpTypePointer Uniform %v2f32
-         %v2f16arr  = OpTypeArray %v2f16 %c_i32_64
-         %v2f32arr  = OpTypeArray %v2f32 %c_i32_64
-         %SSBO32    = OpTypeStruct %f32arr
-         %SSBO16    = OpTypeStruct %f16arr
-         %up_SSBO32 = OpTypePointer Uniform %SSBO32
-         %up_SSBO16 = OpTypePointer Uniform %SSBO16
-         %ssbo32    = OpVariable %up_SSBO32 Uniform
-         %ssbo16    = OpVariable %up_SSBO16 Uniform
-         %id        = OpVariable %uvec3ptr Input
-         %main      = OpFunction %void None %voidf
-         %label     = OpLabel
-         %idval     = OpLoad %v3u32 %id
-         %x         = OpCompositeExtract %u32 %idval 0
-         %inloc     = OpAccessChain %f16ptr %ssbo16 %zero %x
-         %val16     = OpLoad %f16 %inloc
-         %val32     = OpFConvert %f32 %val16
-         %outloc    = OpAccessChain %f32ptr %ssbo32 %zero %x
-                     OpStore %outloc %val32
-                     OpReturn
-                     OpFunctionEnd
-```
-
-- `%ssbo16` (binding 0) is the 16-bit input SSBO; `%ssbo32` (binding 1) is the 32-bit output SSBO. Both are decorated `BufferBlock` because this case selected `uniform_buffer_block`; the `uniform` capability would decorate `%ssbo16` as `Block` and bind it as a `UNIFORM_BUFFER` descriptor instead.
-- The `%v2f16`/`%v2f32`/`%v2f16arr`/`%v2f32arr` types come from the shared `floatTypes` fragment and are unused by the scalar case; they remain because the same fragment feeds the `vector` composite type. SPIR-V permits unused type declarations.
-- `%c_i32_ci` duplicates `%zero` (both are `OpConstant %i32 0`); `%c_i32_ci` is the constant-index slot used only by the `scalar_const_idx_*` variants.
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -211,14 +134,100 @@ SPIR-V assembly extracted from the [`addCompute16bitStorageUniform16To32Group()`
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Capability (`uniform` vs `uniform_buffer_block`) | Swaps `OpCapability StorageUniform16` for `StorageUniformBufferBlock16`, decorates `%ssbo16` as `Block` instead of `BufferBlock`, and binds the input as `VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER`. | [`CAPABILITIES[]`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L126-L129) |
+| Capability (`uniform` vs `uniform_buffer_block`) | Swaps `OpCapability StorageUniform16` for `StorageUniformBufferBlock16`, decorates `%ssbo16` as `Block` instead of `BufferBlock`, and binds the input as `VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER`. | [`CAPABILITIES table`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L126-L129) |
 | Composite type `vector` | Replaces `%f16`/`%f32` with `%v2f16`/`%v2f32`, doubles the `ArrayStride`, halves the workgroup count, and uses the `v2f16ptr`/`v2f32ptr` access chains. | [`cTypes` float table](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L1228-L1250) |
 | Composite type `matrix` | Adds `%m4v2f16`/`%m4v2f32` with `ColMajor`/`MatrixStride` decorations and a `matrix_store` block that writes three extra columns per invocation. | [`matrix_store` spec](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L1294-L1322) |
 | Access index `scalar_const_idx_5`/`_8` | Replaces `%x` with `%c_i32_ci` in the input `OpAccessChain`, and the host precomputes the expected buffer by indexing the input at the constant. | [`useConstantIndex` branch](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L1267-L1270) |
-| Direction `32_to_16` / `64_to_16` | Reverses source and sink: the wide buffer becomes input, the 16-bit buffer becomes output, and float-narrowing variants specialize `FPRoundingMode RTE|RTZ` (or omit it for `unspecified_rnd_mode`). | [`addCompute16bitStorageUniform32To16Group()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L2324-L2601) |
+| Direction `32_to_16` / `64_to_16` | Reverses source and sink: the wide buffer becomes input, the 16-bit buffer becomes output, and float-narrowing variants specialize `FPRoundingMode RTE or RTZ` (or omit it for `unspecified_rnd_mode`). | [`addCompute16bitStorageUniform32To16Group()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L2324-L2601) |
 | Push-constant storage class | Replaces `%ssbo16` with `%pc16 = OpVariable %pp_PC16 PushConstant` and binds the input as a push constant range; the output SSBO stays. | [`addCompute16bitStoragePushConstant16To32Group()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L1703-L2000) |
 | Graphics I/O interface | Removes the input buffer entirely; the 16-bit value enters as a stage input and leaves as a stage output through `passthruFragments()` + `createTestsForAllStages`. | [`addGraphics16BitStorageInputOutputFloat32To16Group()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L3637-L3804) |
 | Integer data type | Swaps `OpFConvert` for `OpSConvert`/`OpUConvert` and uses `i16`/`u16` types; the host sign-extends signed results during expected-buffer precomputation. | [`cTypes` integer table](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L1391-L1427) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 46
+; Schema: 0
+               OpCapability Shader
+               OpCapability StorageBuffer16BitAccess
+               OpExtension "SPV_KHR_16bit_storage"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %1 "main" %gl_GlobalInvocationID
+               OpExecutionMode %1 LocalSize 1 1 1
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %_arr_float_int_128 ArrayStride 4
+               OpDecorate %_arr_half_int_128 ArrayStride 2
+               OpMemberDecorate %_struct_5 0 Offset 0
+               OpMemberDecorate %_struct_6 0 Offset 0
+               OpDecorate %_struct_5 BufferBlock
+               OpDecorate %_struct_6 BufferBlock
+               OpDecorate %7 DescriptorSet 0
+               OpDecorate %8 DescriptorSet 0
+               OpDecorate %7 Binding 1
+               OpDecorate %8 Binding 0
+       %bool = OpTypeBool
+       %void = OpTypeVoid
+         %11 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+        %int = OpTypeInt 32 1
+      %float = OpTypeFloat 32
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%_ptr_Uniform_int = OpTypePointer Uniform %int
+%_ptr_Uniform_float = OpTypePointer Uniform %float
+      %int_0 = OpConstant %int 0
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+      %int_3 = OpConstant %int 3
+     %int_16 = OpConstant %int 16
+     %int_32 = OpConstant %int 32
+     %int_64 = OpConstant %int 64
+    %int_128 = OpConstant %int 128
+    %int_0_0 = OpConstant %int 0
+%_arr_int_int_128 = OpTypeArray %int %int_128
+%_arr_float_int_128 = OpTypeArray %float %int_128
+       %half = OpTypeFloat 16
+%_ptr_Uniform_half = OpTypePointer Uniform %half
+%_arr_half_int_128 = OpTypeArray %half %int_128
+     %v2half = OpTypeVector %half 2
+    %v2float = OpTypeVector %float 2
+%_ptr_Uniform_v2half = OpTypePointer Uniform %v2half
+%_ptr_Uniform_v2float = OpTypePointer Uniform %v2float
+%_arr_v2half_int_64 = OpTypeArray %v2half %int_64
+%_arr_v2float_int_64 = OpTypeArray %v2float %int_64
+  %_struct_5 = OpTypeStruct %_arr_float_int_128
+  %_struct_6 = OpTypeStruct %_arr_half_int_128
+%_ptr_Uniform__struct_5 = OpTypePointer Uniform %_struct_5
+%_ptr_Uniform__struct_6 = OpTypePointer Uniform %_struct_6
+          %7 = OpVariable %_ptr_Uniform__struct_5 Uniform
+          %8 = OpVariable %_ptr_Uniform__struct_6 Uniform
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+          %1 = OpFunction %void None %11
+         %39 = OpLabel
+         %40 = OpLoad %v3uint %gl_GlobalInvocationID
+         %41 = OpCompositeExtract %uint %40 0
+         %42 = OpAccessChain %_ptr_Uniform_half %8 %int_0 %41
+         %43 = OpLoad %half %42
+         %44 = OpFConvert %float %43
+         %45 = OpAccessChain %_ptr_Uniform_float %7 %int_0 %41
+               OpStore %45 %44
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

@@ -83,6 +83,8 @@ The host tolerates this design: every direction is guaranteed to hit the only tr
 
 #### Shader Code
 
+This representative case uses the CTS-authored SPIR-V module directly rather than GLSL or HLSL. The stage, entry point, capabilities, and execution modes are encoded in the module; the complete assembly remains in the final SPIR-V subsection.
+
 ```glsl
 #version 460 core
 #extension GL_EXT_ray_query : require
@@ -114,6 +116,19 @@ void main()
     coordinates.values[gl_LocalInvocationID.x] = vec4(outputVal);
 }
 ```
+
+#### Additional Info
+
+- `updateRayTracingGLSL()` is an identity passthrough in this CTS version ([vkRayTracingUtil.hpp:111](../../../framework/vulkan/vkRayTracingUtil.hpp#L111)), so the reconstructed GLSL above is the GLSL the host feeds to `glslangValidator`. `kNumRays`, `kTMin`, `kTMax` are baked in as constants at shader-build time by [`initPrograms`](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L108-L145).
+- The shader deliberately reads candidate-state barycentrics (`rayQueryGetIntersectionBarycentricsEXT(rq, false)`) during the iteration where `proceed` returns the triangle candidate. Opaque-triangle processing can establish the committed hit as traversal continues, but the tested value is the candidate query itself; the page does not substitute committed-state semantics for that call.
+- The host sets `tmin = 1.0 - 0.001` and `tmax = 1.0 + 0.001` to require the same precision in `t` as in the barycentric comparison: the triangle vertex is at distance `5.0` from the origin in `z`, the directions carry only the `.xyz` of the stored `vec4`, and the ray must hit the triangle inside a thin slab around `t = 1.0`.
+- `gl_RayFlagsNoneEXT` is used, so triangle geometry is treated as opaque and the candidate is auto-committed on `proceed` without a `rayQueryConfirmIntersectionEXT` call. With a single triangle in the scene and a `tmax` just past the triangle, the loop runs exactly once for every direction.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|------------------------------------------|----------|
+| Registered case | This family registers one fixed `compute` leaf, so the shader has no within-family stage or operation variants. | [case registration](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L381-L396) |
 
 #### SPIR-V
 
@@ -258,13 +273,6 @@ void main()
 ```
 
 </details>
-
-#### Additional Info
-
-- `updateRayTracingGLSL()` is an identity passthrough in this CTS version ([vkRayTracingUtil.hpp:111](../../../framework/vulkan/vkRayTracingUtil.hpp#L111)), so the reconstructed GLSL above is the GLSL the host feeds to `glslangValidator`. `kNumRays`, `kTMin`, `kTMax` are baked in as constants at shader-build time by [`initPrograms`](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L108-L145).
-- The shader deliberately reads candidate-state barycentrics (`rayQueryGetIntersectionBarycentricsEXT(rq, false)`) during the iteration where `proceed` returns the triangle candidate. Opaque-triangle processing can establish the committed hit as traversal continues, but the tested value is the candidate query itself; the page does not substitute committed-state semantics for that call.
-- The host sets `tmin = 1.0 - 0.001` and `tmax = 1.0 + 0.001` to require the same precision in `t` as in the barycentric comparison: the triangle vertex is at distance `5.0` from the origin in `z`, the directions carry only the `.xyz` of the stored `vec4`, and the ray must hit the triangle inside a thin slab around `t = 1.0`.
-- `gl_RayFlagsNoneEXT` is used, so triangle geometry is treated as opaque and the candidate is auto-committed on `proceed` without a `rayQueryConfirmIntersectionEXT` call. With a single triangle in the scene and a `tmax` just past the triangle, the loop runs exactly once for every direction.
 
 ## Runtime Execution and Result Checking
 

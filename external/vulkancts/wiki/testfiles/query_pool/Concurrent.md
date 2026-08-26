@@ -124,8 +124,13 @@ Both rows share the query-type and result-availability causes: a supported occlu
 
 ## Case Pruning
 
+### Requirement-based pruning
+
 - The support check counts occlusion, `pipelineStatisticsQuery`, and queue-family `timestampValidBits > 0`. It skips the test case with `NotSupportedError` when fewer than two query types are available.
 - Unsupported query pools are not created, reset, or read. The remaining supported query types still run together.
+
+### Design-based pruning
+
 - `inheritedQueries` changes only the ownership of the slot `1` occlusion query in the secondary case. It does not remove the secondary test case.
 
 ## Key Takeaways

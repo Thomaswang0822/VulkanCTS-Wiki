@@ -79,7 +79,273 @@ This uses the strip topology with `vkCmdDraw(..., 4, 4, 2, 2)`, combining strip 
 
 ## Shader Analysis
 
-The shaders are selected by name during test registration and compiled through the shared draw base class. This page does not reconstruct or disassemble shader source: the tested distinction is the host draw topology/instance parameters, while the shader choice is the vertex-fetch variant recorded in the test specification ([pipeline shader loading](../../../modules/vulkan/draw/vktDrawBaseClass.cpp#L155-L172), [shader selections](../../../modules/vulkan/draw/vktDrawSimpleTest.cpp#L414-L419)).
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.draw.renderpass.simple_draw.simple_draw_instanced_triangle_list
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `simple_draw_instanced_triangle_list` | Selects the instanced vertex shader and triangle-list assembly, using six fetched vertices for each instance. |
+| `firstVertex=2` | Makes the effective vertex indices start at 2, which the shader checks against the reference index stored in each vertex record. |
+| `instanceCount=4`, `firstInstance=2` | Makes `gl_InstanceIndex` select offsets 2 through 5 from the shader-local array, producing four translated copies of the rectangle. |
+| `renderpass` | Uses the legacy render-pass recording path; the dynamic-rendering command-buffer variants use the same shaders and draw arguments. |
+
+#### Purpose
+
+The vertex shader checks non-zero `firstVertex` handling by comparing `gl_VertexIndex` with vertex-buffer reference data, and checks non-zero `firstInstance` handling by indexing four instance offsets with `gl_InstanceIndex`. Correct indices produce four blue rectangles whose union matches the host reference; an incorrect vertex index changes the affected primitive to red.
+
+#### Structural Design
+
+| Shader element | Role in the selected case |
+|----------------|---------------------------|
+| Vertex locations 0-2 | Fetch position, blue color, and the expected effective vertex index from one interleaved vertex record. |
+| `perInstance[gl_InstanceIndex]` | Uses effective instance indices 2-5 to translate the base rectangle to four adjacent positions. |
+| Vertex-index comparison | Forwards blue only when `gl_VertexIndex` equals `in_refVertexIndex`; otherwise emits diagnostic red. |
+| Fragment location 0 | Passes the interpolated diagnostic color unchanged to the color attachment. |
+
+#### Shader Code
+
+##### Vertex Shader
+
+```glsl
+#version 430
+
+/// Locations 0-2 consume one interleaved, per-vertex record from binding 0: a vec4 position, a vec4
+/// color, and an R32_SINT reference index at byte offsets 0, 16, and 32 respectively.
+layout(location = 0) in vec4 in_position;
+layout(location = 1) in vec4 in_color;
+layout(location = 2) in int in_refVertexIndex;
+
+/// Location 0 carries the selected blue-or-red diagnostic color to the fixed fragment shader.
+layout(location = 0) out vec4 out_color;
+
+/// The built-in output block exports the instance-translated clip-space position to rasterization.
+out gl_PerVertex {
+    vec4 gl_Position;
+};
+
+void main() {
+	/// Keep the fetched x/y coordinates and select one of six shader-local offsets by the effective
+	/// instance index. With firstInstance=2 and instanceCount=4, only entries 2 through 5 are used.
+	vec2 perVertex = vec2(in_position.x, in_position.y);
+	vec2 perInstance[6]	= vec2[6] (vec2(0.7, -0.7), vec2(-0.75, 0.8), vec2(0.0, 0.0), vec2(0.3, 0.0), vec2(0.0, -0.3),vec2(0.3, -0.3) );
+
+	gl_Position = vec4(perVertex + perInstance[gl_InstanceIndex], 0.0, 1.0);
+
+	/// A correct non-zero firstVertex still makes gl_VertexIndex match the stored values 2 through 7;
+	/// any mismatch turns the primitive red instead of forwarding the expected blue.
+	if (gl_VertexIndex == in_refVertexIndex)
+		out_color = in_color;
+	else
+		out_color = vec4(1.0, 0.0, 0.0, 1.0);
+}
+```
+
+##### Fragment Shader
+
+```glsl
+#version 430
+/// Location 0 receives the interpolated blue-or-red diagnostic color from the vertex shader.
+layout(location = 0) in vec4 in_color;
+/// Location 0 writes that color directly to the R8G8B8A8_UNORM color attachment.
+layout(location = 0) out vec4 out_color;
+void main()
+{
+  out_color = in_color;
+}
+```
+
+#### Additional Info
+
+- The fragment shader stays fixed across every case on this page; it matters because it preserves the vertex shader's blue success color or red vertex-index diagnostic in the image checked by the host.
+- The selected `vkCmdDraw` call is `vkCmdDraw(..., 6, 4, 2, 2)`. The four offsets actually selected by indices 2-5 make the base `[-0.3, 0.3]` square cover the union `x=[-0.3, 0.6]`, `y=[-0.6, 0.3]`, matching `ReferenceImageInstancedCoordinates`. The added space between `vec2[6]` and its constructor parentheses only prevents the wiki link checker from parsing the GLSL as a Markdown link; it does not change the shader.
+- Both shader stages are loaded unchanged from CTS data files by `InstanceFactory::initPrograms`; no explicit `ShaderBuildOptions` are appended, so the source collection's baseline SPIR-V 1.0 target applies.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Draw mode | Non-instanced leaves replace this vertex shader with `VertexFetch.vert`, which omits the offset array and `gl_InstanceIndex` access; the vertex-index diagnostic remains. | [shader selection](../../../modules/vulkan/draw/vktDrawSimpleTest.cpp#L414-L434), [non-instanced shader](../../../data/vulkan/draw/VertexFetch.vert#L1-L19) |
+| Primitive topology | Triangle-strip leaves use four vertices instead of six, but do not change either shader. | [`SimpleDraw::draw`](../../../modules/vulkan/draw/vktDrawSimpleTest.cpp#L241-L250) |
+| Rendering command path | Render-pass and dynamic-rendering variants compile and execute the same selected shader files; only command-buffer/rendering setup changes. | [case registration](../../../modules/vulkan/draw/vktDrawSimpleTest.cpp#L412-L445), [pipeline loading](../../../modules/vulkan/draw/vktDrawBaseClass.cpp#L155-L170) |
+
+#### SPIR-V
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 71
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %in_position %_ %gl_InstanceIndex %gl_VertexIndex %in_refVertexIndex %out_color %in_color
+               OpSource GLSL 430
+               OpName %main "main"
+               OpName %perVertex "perVertex"
+               OpName %in_position "in_position"
+               OpName %perInstance "perInstance"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpName %_ ""
+               OpName %gl_InstanceIndex "gl_InstanceIndex"
+               OpName %gl_VertexIndex "gl_VertexIndex"
+               OpName %in_refVertexIndex "in_refVertexIndex"
+               OpName %out_color "out_color"
+               OpName %in_color "in_color"
+               OpDecorate %in_position Location 0
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpDecorate %gl_InstanceIndex BuiltIn InstanceIndex
+               OpDecorate %gl_VertexIndex BuiltIn VertexIndex
+               OpDecorate %in_refVertexIndex Location 2
+               OpDecorate %out_color Location 0
+               OpDecorate %in_color Location 1
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v2float = OpTypeVector %float 2
+%_ptr_Function_v2float = OpTypePointer Function %v2float
+    %v4float = OpTypeVector %float 4
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%in_position = OpVariable %_ptr_Input_v4float Input
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_float = OpTypePointer Input %float
+     %uint_1 = OpConstant %uint 1
+     %uint_6 = OpConstant %uint 6
+%_arr_v2float_uint_6 = OpTypeArray %v2float %uint_6
+%_ptr_Function__arr_v2float_uint_6 = OpTypePointer Function %_arr_v2float_uint_6
+%float_0_699999988 = OpConstant %float 0.699999988
+%float_n0_699999988 = OpConstant %float -0.699999988
+         %28 = OpConstantComposite %v2float %float_0_699999988 %float_n0_699999988
+%float_n0_75 = OpConstant %float -0.75
+%float_0_800000012 = OpConstant %float 0.800000012
+         %31 = OpConstantComposite %v2float %float_n0_75 %float_0_800000012
+    %float_0 = OpConstant %float 0
+         %33 = OpConstantComposite %v2float %float_0 %float_0
+%float_0_300000012 = OpConstant %float 0.300000012
+         %35 = OpConstantComposite %v2float %float_0_300000012 %float_0
+%float_n0_300000012 = OpConstant %float -0.300000012
+         %37 = OpConstantComposite %v2float %float_0 %float_n0_300000012
+         %38 = OpConstantComposite %v2float %float_0_300000012 %float_n0_300000012
+         %39 = OpConstantComposite %_arr_v2float_uint_6 %28 %31 %33 %35 %37 %38
+%gl_PerVertex = OpTypeStruct %v4float
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_InstanceIndex = OpVariable %_ptr_Input_int Input
+    %float_1 = OpConstant %float 1
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%gl_VertexIndex = OpVariable %_ptr_Input_int Input
+%in_refVertexIndex = OpVariable %_ptr_Input_int Input
+       %bool = OpTypeBool
+  %out_color = OpVariable %_ptr_Output_v4float Output
+   %in_color = OpVariable %_ptr_Input_v4float Input
+         %70 = OpConstantComposite %v4float %float_1 %float_0 %float_0 %float_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+  %perVertex = OpVariable %_ptr_Function_v2float Function
+%perInstance = OpVariable %_ptr_Function__arr_v2float_uint_6 Function
+         %16 = OpAccessChain %_ptr_Input_float %in_position %uint_0
+         %17 = OpLoad %float %16
+         %19 = OpAccessChain %_ptr_Input_float %in_position %uint_1
+         %20 = OpLoad %float %19
+         %21 = OpCompositeConstruct %v2float %17 %20
+               OpStore %perVertex %21
+               OpStore %perInstance %39
+         %45 = OpLoad %v2float %perVertex
+         %48 = OpLoad %int %gl_InstanceIndex
+         %49 = OpAccessChain %_ptr_Function_v2float %perInstance %48
+         %50 = OpLoad %v2float %49
+         %51 = OpFAdd %v2float %45 %50
+         %53 = OpCompositeExtract %float %51 0
+         %54 = OpCompositeExtract %float %51 1
+         %55 = OpCompositeConstruct %v4float %53 %54 %float_0 %float_1
+         %57 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %57 %55
+         %59 = OpLoad %int %gl_VertexIndex
+         %61 = OpLoad %int %in_refVertexIndex
+         %63 = OpIEqual %bool %59 %61
+               OpSelectionMerge %65 None
+               OpBranchConditional %63 %64 %69
+         %64 = OpLabel
+         %68 = OpLoad %v4float %in_color
+               OpStore %out_color %68
+               OpBranch %65
+         %69 = OpLabel
+               OpStore %out_color %70
+               OpBranch %65
+         %65 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 13
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %out_color %in_color
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 430
+               OpName %main "main"
+               OpName %out_color "out_color"
+               OpName %in_color "in_color"
+               OpDecorate %out_color Location 0
+               OpDecorate %in_color Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %out_color = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+   %in_color = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %12 = OpLoad %v4float %in_color
+               OpStore %out_color %12
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

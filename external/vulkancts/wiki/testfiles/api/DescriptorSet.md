@@ -60,7 +60,168 @@ The `layout_binding_order` leaf is an Amber-driven case loaded from the data dir
 
 ## Shader Analysis
 
-No `shader-analyzer` walkthrough is produced for this page. The shaders used by the lifetime cases are no-op vertex and compute shaders whose only role is to make `vkCreateGraphicsPipelines` / `vkCreateComputePipelines` and a subsequent submit legal. The shader used by `update_subsequent_binding` is a trivial copy shader that reads three uniform buffer elements and writes them into a storage buffer; its behavior is fully described by the test logic in [`descriptorSetLayoutBindingOrderingTest`](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L334-L556) and by the inline GLSL in [`createDescriptorSetLayoutBindingOrderingSource`](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L578-L601). The test core is host-side descriptor set behavior, not shader behavior.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.api.descriptor_set.descriptor_set_layout_binding.update_subsequent_binding
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `descriptor_set_layout_binding` | Selects the descriptor-write binding-order tests, including the rule that a write continues into a compatible subsequent binding. |
+| `update_subsequent_binding` | Selects the C++ functional case whose generated compute shader observes two descriptors at binding 0 and the spill target at binding 1. |
+| Compute stage, one `1 × 1 × 1` workgroup | Runs one invocation, so each of the three shader reads maps directly to one host-checked output without invocation-dependent indexing. |
+
+#### Purpose
+
+This compute shader makes the cross-binding descriptor update observable: it reads both uniform-buffer descriptors at binding 0 and the subsequent uniform-buffer descriptor at binding 1, then writes the three values to separately checked result slots.
+
+#### Structural Design
+
+| Shader-visible resource | Descriptor location | Shader operation | Validation role |
+|-------------------------|---------------------|------------------|-----------------|
+| `uniformbufferarray[0]` | Set 0, binding 0, element 0 | Read `data` into `results.result0` | Confirms the first descriptor written at binding 0. |
+| `uniformbufferarray[1]` | Set 0, binding 0, element 1 | Read `data` into `results.result1` | Confirms the second descriptor fills binding 0. |
+| `uniformbuffer2` | Set 0, binding 1 | Read `data` into `results.result2` | Confirms the third descriptor spills into the subsequent binding. |
+| `results` | Set 0, binding 2 | Store three 32-bit integers | Supplies the 12-byte host-visible result checked as `5, 5, 5`. |
+
+#### Shader Code
+
+```glsl
+#version 310 es
+/// One compute invocation reads the three uniform-buffer descriptors written by the host.
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+/// Set 0, binding 0 is a two-element uniform-buffer descriptor array; both elements reference the 4-byte source buffer containing 5.
+layout (set = 0, binding = 0) uniform UniformBuffer0 {
+    int data;
+} uniformbufferarray[2];
+/// Set 0, binding 1 is the one-descriptor spill target of the three-element write that starts at binding 0.
+layout (set = 0, binding = 1) uniform UniformBuffer2 {
+    int data;
+} uniformbuffer2;
+/// Set 0, binding 2 is a 12-byte storage buffer whose three integers are checked by the host.
+layout (set = 0, binding = 2) buffer StorageBuffer {
+    int result0;
+    int result1;
+    int result2;
+} results;
+
+void main (void)
+{
+    /// Copy each descriptor-visible value into a distinct host-checked result slot.
+    results.result0 = uniformbufferarray[0].data;
+    results.result1 = uniformbufferarray[1].data;
+    results.result2 = uniformbuffer2.data;
+}
+```
+
+#### Additional Info
+
+- The host supplies the same 4-byte uniform buffer containing `5` through all three `VkDescriptorBufferInfo` entries, so descriptor placement—not differing input data—is what determines whether all outputs become `5` ([source](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L350-L378)).
+- A single write starts at binding 0 with `descriptorCount = 3`; binding 0 has only two elements, while the compatible binding 1 has one, making the third shader read the direct signal for the subsequent-binding update ([source](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L386-L407), [write](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L454-L465)).
+- After dispatch, the host invalidates the result allocation and requires all three integers to equal `5` ([source](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L541-L555)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Binding-order case | `update_subsequent_binding` uses this generated compute shader and host readback. The sibling `layout_binding_order` case instead runs an Amber script, so it does not use this C++ shader builder. | [vktApiDescriptorSetTests.cpp#L637-L650](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L637-L650) |
+| Descriptor bindings within the selected case | Binding 0 is a two-element uniform-buffer array, binding 1 is a single uniform buffer, and binding 2 is the storage result. These fixed declarations mirror the layout that permits the three-descriptor write to cross from binding 0 to binding 1. | [vktApiDescriptorSetTests.cpp#L386-L407](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L386-L407), [shader builder](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L578-L601) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 35
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource ESSL 310
+               OpName %main "main"
+               OpName %StorageBuffer "StorageBuffer"
+               OpMemberName %StorageBuffer 0 "result0"
+               OpMemberName %StorageBuffer 1 "result1"
+               OpMemberName %StorageBuffer 2 "result2"
+               OpName %results "results"
+               OpName %UniformBuffer0 "UniformBuffer0"
+               OpMemberName %UniformBuffer0 0 "data"
+               OpName %uniformbufferarray "uniformbufferarray"
+               OpName %UniformBuffer2 "UniformBuffer2"
+               OpMemberName %UniformBuffer2 0 "data"
+               OpName %uniformbuffer2 "uniformbuffer2"
+               OpDecorate %StorageBuffer BufferBlock
+               OpMemberDecorate %StorageBuffer 0 Offset 0
+               OpMemberDecorate %StorageBuffer 1 Offset 4
+               OpMemberDecorate %StorageBuffer 2 Offset 8
+               OpDecorate %results Binding 2
+               OpDecorate %results DescriptorSet 0
+               OpDecorate %UniformBuffer0 Block
+               OpMemberDecorate %UniformBuffer0 0 Offset 0
+               OpDecorate %uniformbufferarray Binding 0
+               OpDecorate %uniformbufferarray DescriptorSet 0
+               OpDecorate %UniformBuffer2 Block
+               OpMemberDecorate %UniformBuffer2 0 Offset 0
+               OpDecorate %uniformbuffer2 Binding 1
+               OpDecorate %uniformbuffer2 DescriptorSet 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+%StorageBuffer = OpTypeStruct %int %int %int
+%_ptr_Uniform_StorageBuffer = OpTypePointer Uniform %StorageBuffer
+    %results = OpVariable %_ptr_Uniform_StorageBuffer Uniform
+      %int_0 = OpConstant %int 0
+%UniformBuffer0 = OpTypeStruct %int
+       %uint = OpTypeInt 32 0
+     %uint_2 = OpConstant %uint 2
+%_arr_UniformBuffer0_uint_2 = OpTypeArray %UniformBuffer0 %uint_2
+%_ptr_Uniform__arr_UniformBuffer0_uint_2 = OpTypePointer Uniform %_arr_UniformBuffer0_uint_2
+%uniformbufferarray = OpVariable %_ptr_Uniform__arr_UniformBuffer0_uint_2 Uniform
+%_ptr_Uniform_int = OpTypePointer Uniform %int
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+%UniformBuffer2 = OpTypeStruct %int
+%_ptr_Uniform_UniformBuffer2 = OpTypePointer Uniform %UniformBuffer2
+%uniformbuffer2 = OpVariable %_ptr_Uniform_UniformBuffer2 Uniform
+     %v3uint = OpTypeVector %uint 3
+     %uint_1 = OpConstant %uint 1
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %18 = OpAccessChain %_ptr_Uniform_int %uniformbufferarray %int_0 %int_0
+         %19 = OpLoad %int %18
+         %20 = OpAccessChain %_ptr_Uniform_int %results %int_0
+               OpStore %20 %19
+         %22 = OpAccessChain %_ptr_Uniform_int %uniformbufferarray %int_1 %int_0
+         %23 = OpLoad %int %22
+         %24 = OpAccessChain %_ptr_Uniform_int %results %int_1
+               OpStore %24 %23
+         %29 = OpAccessChain %_ptr_Uniform_int %uniformbuffer2 %int_0
+         %30 = OpLoad %int %29
+         %31 = OpAccessChain %_ptr_Uniform_int %results %int_2
+               OpStore %31 %30
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

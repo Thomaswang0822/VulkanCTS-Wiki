@@ -84,10 +84,16 @@ api.command_buffers
 ├── secondary_push_descriptor_set_2
 ├── secondary_push_descriptor_set_with_template
 ├── pipeline_shader_object_mix_with_secondaries
-└── secondary_on_transfer_queue
+├── secondary_on_transfer_queue
+└── indirect_compute_dispatch_offsets_0_0 (last two entries encode memOffset and dispatchOffset)
 ```
 
-The 64 generated `indirect_compute_dispatch_offsets_{memOffset}_{dispatchOffset}` leaves are direct children of `command_buffers` and are documented in `## Parameter Dimensions and Observed Values`. The family is created by [`createCommandBuffersTests()`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L6266) and attached to the `api` test category by [`vktApiTests.cpp#L107`](../../../modules/vulkan/api/vktApiTests.cpp#L107).
+The final child represents the generated form `indirect_compute_dispatch_offsets_<memOffset>_<dispatchOffset>`.
+
+- `<memOffset>` takes `0`, `4`, `8`, `12`, `16`, `20`, `24`, or `28`.
+- `<dispatchOffset>` takes `0`, `4`, `8`, `12`, `16`, `20`, `24`, or `28`.
+
+The two variables produce 64 direct leaves. The family is created by [`createCommandBuffersTests()`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L6266) and attached to the `api` test category by [`vktApiTests.cpp#L107`](../../../modules/vulkan/api/vktApiTests.cpp#L107).
 
 ## Parameter Dimensions and Observed Values
 
@@ -187,7 +193,124 @@ Exercises `vkCmdExecuteCommands` on a transfer-only queue family. A primary copi
 
 ## Shader Analysis
 
-No shader walkthrough is provided for this page. Several behavioral groups use compute or graphics shaders as observation tools (atomic counter increment, color output, specialized constant routing), but the shader logic is not what is being tested; the tested behavior is command buffer lifecycle, recording, submission, and execution. The shader source is small and visible at [`genComputeSource()`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L4471), [`genComputeIncrementSource()`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L4529), and the inline program strings in [`ManyDrawsCase::initPrograms()`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L4891), [`initManyIndirectDrawsPrograms()`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L5293), [`initManyIndirectDispatchesPrograms()`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L5438), [`IndirectDispatchAlignmentCase::initPrograms()`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L5619), [`secCmdExtraCaseInitPrograms()`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L5786), and [`PipelineShaderObjMixSecondariesPrograms()`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L6010).
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.api.command_buffers.record_simul_use_secondary_one_primary
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT` | The secondary command buffer is recorded with simultaneous-use permission, allowing the same executable secondary to be pending more than once. |
+| `one primary; secondary executed twice` | The primary records two `vkCmdExecuteCommands` calls for the same secondary; each call dispatches this one-workgroup compute shader, so the host expects the atomic counter to become `2`. |
+| `compute_increment` / `genComputeIncrementSource()` | The registered program is the compute stage whose single atomic increment makes each secondary execution observable. |
+
+#### Purpose
+
+This compute shader is an observation tool for simultaneous secondary-command-buffer execution. Each dispatch atomically increments a shared counter, allowing the host to distinguish two executions of the same secondary from one execution or a dropped execution.
+
+#### Structural Design
+
+| Phase | Shader operation | Test-visible effect |
+|-------|------------------|---------------------|
+| Invocation | One local workgroup of one invocation (`local_size = 1,1,1`) | Each `vkCmdDispatch(..., 1, 1, 1)` contributes at most one increment. |
+| Resource access | Resolve `b_in_out.count` from set `0`, binding `0` | Targets the result buffer shared by both executions. |
+| Atomic update | `atomicAdd(..., 1u)` | Accumulates execution count without a lost-write race. |
+| Host check | Two secondary executions, then read back `count` | Passes only when the value is exactly `2`. |
+
+#### Shader Code
+
+```glsl
+#version 310 es
+
+/// One invocation per workgroup keeps the observable effect to one increment per dispatch.
+layout(local_size_x = 1u, local_size_y = 1u, local_size_z = 1u) in;
+
+/// The host binds the result buffer at set 0, binding 0; its coherent counter is the
+/// validation signal for repeated execution of the same secondary command buffer.
+layout(set = 0, binding = 0, std140) buffer InOutBuf
+{
+    coherent uint count;
+} b_in_out;
+
+void main(void)
+{
+    /// Atomic read-modify-write makes the two secondary executions accumulate as 2.
+    atomicAdd(b_in_out.count, 1u);
+}
+```
+
+#### Additional Info
+
+- `simultaneousUseSecondaryBufferOnePrimaryBufferTest()` allocates one primary and one secondary, binds `compute_increment` to the secondary, dispatches once there, inserts a compute-to-host buffer barrier, and executes that secondary twice from the primary ([source](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1778-L1923)).
+- The counter buffer is initialized through `ComputeInstanceResultBuffer` and the host passes only when `readResultContentsTo()` returns `2`; the compute shader is intentionally fixed while command-buffer usage and execution topology vary across the simultaneous-use leaves.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Simultaneous-use case | `record_simul_use_secondary_one_primary`, `record_simul_use_secondary_two_primary`, `record_simul_use_nested`, and `record_simul_use_twice_nested` all register the same `genComputeIncrementSource()` shader; the shader declarations and atomic operation stay fixed while the host changes primary/secondary nesting and execution topology. | [`vktApiCommandBuffersTests.cpp#L6340-L6351`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L6340-L6351) |
+| Dispatch count per executed secondary | The generated shader always performs one `atomicAdd` per one-invocation dispatch; the expected counter changes with how many times the host executes the secondary, not with shader source. | [`vktApiCommandBuffersTests.cpp#L1893-L1923`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1893-L1923) |
+| Program registration | The selected leaf uses `addFunctionCaseWithPrograms(..., genComputeIncrementSource, ...)`, so the primary reconstructed stage is the `compute_increment` GLSL source rather than `genComputeSource()` or an inline graphics stage. | [`vktApiCommandBuffersTests.cpp#L4529-L4546`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L4529-L4546) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 19
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource ESSL 310
+               OpName %main "main"
+               OpName %InOutBuf "InOutBuf"
+               OpMemberName %InOutBuf 0 "count"
+               OpName %b_in_out "b_in_out"
+               OpDecorate %InOutBuf BufferBlock
+               OpMemberDecorate %InOutBuf 0 Coherent
+               OpMemberDecorate %InOutBuf 0 Offset 0
+               OpDecorate %b_in_out Binding 0
+               OpDecorate %b_in_out DescriptorSet 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+   %InOutBuf = OpTypeStruct %uint
+%_ptr_Uniform_InOutBuf = OpTypePointer Uniform %InOutBuf
+   %b_in_out = OpVariable %_ptr_Uniform_InOutBuf Uniform
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Uniform_uint = OpTypePointer Uniform %uint
+     %uint_1 = OpConstant %uint 1
+     %uint_0 = OpConstant %uint 0
+     %v3uint = OpTypeVector %uint 3
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %13 = OpAccessChain %_ptr_Uniform_uint %b_in_out %int_0
+         %16 = OpAtomicIAdd %uint %13 %uint_1 %uint_0 %uint_1
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

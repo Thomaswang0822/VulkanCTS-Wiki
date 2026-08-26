@@ -19,10 +19,19 @@
 ```text
 api.maintenance3_check
 ├── maintenance3_properties
-└── descriptor_set
+├── descriptor_set
+└── support_count_combined_image_sampler (descriptor type and option suffixes vary)
 ```
 
-The two named leaves are registered directly by [createMaintenance3Tests()](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L868-L918). The remaining 176 direct children are generated `support_count_*` test case leaves, enumerated from descriptor type and four option suffixes; their full matrix appears in `## Parameter Dimensions and Observed Values` because the generated range is too large to list in the tree. The complete leaf set is visible in [api.txt](../../../mustpass/main/vk-default/api.txt#L327103-L327280).
+The first two leaves are registered directly by [createMaintenance3Tests()](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L868-L918). The generated form for the remaining leaves is `support_count_<descriptorType>[_extra_bindings][_no_variable_size][_nonzero_binding_offset][_create_layout]`.
+
+- `<descriptorType>` takes `sampler`, `combined_image_sampler`, `sampled_image`, `storage_image`, `uniform_texel_buffer`, `storage_texel_buffer`, `uniform_buffer`, `storage_buffer`, `uniform_buffer_dynamic`, `storage_buffer_dynamic`, `input_attachment`, or `inline_uniform_block`.
+- `_extra_bindings` is present or absent.
+- `_no_variable_size` is present or absent.
+- `_nonzero_binding_offset` is present or absent.
+- `_create_layout` is present or absent.
+
+The complete leaf set is visible in [api.txt](../../../mustpass/main/vk-default/api.txt#L327103-L327280).
 
 ## Parameter Dimensions and Observed Values
 

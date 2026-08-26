@@ -73,7 +73,7 @@ dEQP-VK.tessellation.geometry_interaction.scatter.geometry_scatter_primitives
 
 | Parameter choice | Meaning in this representative case |
 |------------------|-------------------------------------|
-| `FLAG_GEOMETRY_SCATTER_PRIMITIVES \| FLAG_GEOMETRY_SEPARATE_PRIMITIVES` | Selects per-primitive remapping and terminates every four-vertex quad. |
+| `FLAG_GEOMETRY_SCATTER_PRIMITIVES` and `FLAG_GEOMETRY_SEPARATE_PRIMITIVES` | Selects per-primitive remapping and terminates every four-vertex quad. |
 | Tessellation level 5 | Supplies 25 source cells and 50 input triangles with integer grid coordinates. |
 | Four geometry invocations | Multiplies each input triangle into four independent executions. |
 | Four output primitives per invocation | Fills four distant cells and consumes the 16-vertex output declaration. |

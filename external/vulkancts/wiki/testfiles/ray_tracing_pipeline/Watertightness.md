@@ -78,74 +78,51 @@ The page uses one representative walkthrough. The `closedFan` raygen shader is t
 
 ### Representative Shader Walkthrough 1
 
-**CTS case:** `ray_tracing_pipeline.watertightness.closedFan.4`
+#### Parameter Values Chosen
 
-**Source location:** [vktRayTracingWatertightnessTests.cpp#L399-L442](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L399-L442)
+Representative path:
 
-**What this shader tests:** The raygen shader computes a linear ray index `nRay` from `gl_LaunchIDEXT`. Ray 0 targets the shared center vertex of the closed fan. Rays 1 through N target the midpoint of each shared edge, computed as `mix(centerVertex, perimeterVertex[i], 0.5)`. Each ray fires `traceRayEXT` from `(0, 0, -1)` toward the target point at `z = 0`. The any-hit shader does `imageAtomicAdd` on the 3D result image; the miss shader writes the magic `10000`. If the implementation has a crack at a shared edge or vertex, the ray misses and the miss shader writes `10000` (quality warning). If the implementation has a duplicate-hit bug, two adjacent triangles both invoke the any-hit shader and the cell value exceeds `1` (failure).
-
-For `closedFan.4`, `nSharedEdges = 4`, so `angleDiff = 2 * pi / 4 = pi / 2`. The active rays are `nRay = 0..5` (six rays total: one center-vertex ray plus four shared-edge rays plus one spare). Rays with `nRay > 5` return early.
-
-**Shader-visible resources:**
-
-- `%topLevelAS` (`accelerationStructureKHR`, set 0, binding 1): top-level acceleration structure holding the closed fan instances. Read by `OpTraceRayKHR`.
-- `%hitValue` (`RayPayloadKHR`, `vec3`, location 0): ray payload. Unused beyond dispatch; the any-hit shader communicates through the result image, not through the payload.
-- `%gl_LaunchIDEXT` (`vec3 uint`, `BuiltIn LaunchIdKHR`): input built-in giving the current invocation coordinates. Used to compute the linear ray index.
-- `%gl_LaunchSizeEXT` (`vec3 uint`, `BuiltIn LaunchSizeKHR`): input built-in giving the launch extent. Used to compute the linear ray index.
-
-**Reconstructed GLSL:**
-
-```glsl
-#version 460 core
-#extension GL_EXT_ray_tracing : require
-
-/// Ray payload (unused beyond traceRayEXT dispatch; the any-hit shader
-/// does the actual work via imageAtomicAdd on the result image).
-layout(location = 0)         rayPayloadEXT vec3                     hitValue;
-/// Top-level acceleration structure bound at set 0, binding 1.
-/// Holds the closed fan of triangles sharing a center vertex.
-layout(set = 0, binding = 1) uniform       accelerationStructureEXT topLevelAS;
-
-void main()
-{
-    uint  rayFlags = 0;
-    uint  cullMask = 0xFF;
-    float tmin     = 0.01;
-    float tmax     = 9.0;
-    /// Linear ray index within the launch. Only rays 0..nSharedEdges+1 do work.
-    uint  nRay     = gl_LaunchIDEXT.y * gl_LaunchSizeEXT.x + gl_LaunchIDEXT.x;
-    /// Ray origin sits above the fan plane (z = -1); the fan lives at z = 0.
-    vec3  origin   = vec3(0.0, 0.0, -1.0);
-
-    /// nSharedEdges = 4 for closedFan.4; active rays are 0..5.
-    if (nRay > 5)
-    {
-        return;
-    }
-
-    float kPi          = 3.141592653589;
-    /// Angular spacing between shared edges of the closed fan.
-    float angleDiff    = 2.0 * kPi / 4;
-    /// Ray 0 targets the center vertex (angle unused). Rays 1..4 target
-    /// the midpoint of shared edge i, at angle (angleDiff*(i-1) - pi).
-    float angle        = ((nRay == 0) ? 0.0
-                                      : (angleDiff * (nRay - 1) - kPi));
-    vec2  sharedEdgeP1 = vec2(0, 0);
-    vec2  sharedEdgeP2 = ((nRay == 0) ? vec2     (0, 0)
-                                      : vec2     (sin(angle), cos(angle)));
-    /// Target the midpoint of the shared edge (or center vertex for ray 0).
-    vec3  target       = vec3     (mix(sharedEdgeP1, sharedEdgeP2, vec2(0.5)), 0.0);
-    vec3  direct       = normalize(target - origin);
-
-    traceRayEXT(topLevelAS, rayFlags, cullMask, 0, 0, 0, origin, tmin, direct, tmax, 0);
-}
+```text
+dEQP-VK.ray_tracing_pipeline.watertightness.closedFan
 ```
 
-Built with `glslangValidator -V --target-env spirv1.4 -S rgen`. Validated with `spirv-val --target-env spv1.4`. SPIR-V version 1.4, Bound 114. **Target SPIR-V environment:** `spirv1.4` (CTS build options target `vk::SPIRV_VERSION_1_4`).
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `closedFan` | Uses one BLAS containing adjacent triangles sharing a center vertex and shared edges. |
+| `nSharedEdges + 2` | Launches the center, each shared-edge midpoint, and one repeated-edge ray used by the host check. |
+| `NO_DUPLICATE_ANY_HIT` | Enables the duplicate-any-hit constraint on each triangle geometry. |
 
-The `OpTraceRayKHR` instruction at the end of `main` dispatches the ray into the top-level acceleration structure. The `sbtRecordOffset` and `sbtRecordStride` arguments are both zero, so all rays use hit group 0.
+#### Purpose
 
-**Parameter variation note:** For other `closedFan.<size>` cases, the `nSharedEdges + 1` literal in the early-return comparison and the `2.0 * kPi / <nSharedEdges>` divisor change. For `closedFan2.<size>`, the raygen shader is identical; only the any-hit shader switches `gl_PrimitiveID` to `gl_GeometryIndexEXT`. For the numbered groups `0-9`, the raygen shader is replaced entirely by `getCommonRayGenerationShader`, which fires one downward ray per pixel from `((x + 0.5) / width, (y + 0.5) / height, 0.0)`.
+This walkthrough isolates the shared-edge and shared-vertex traversal behavior exercised by the representative `closedFan` case.
+
+#### Structural Design
+
+| Shader phase | Shader-visible operation | Result |
+|--------------|--------------------------|--------|
+| Ray generation | Computes the center or shared-edge target from `gl_LaunchIDEXT.x` and calls `traceRayEXT`. | One ray tests each watertightness boundary. |
+| Traversal | The fixed-function triangle geometry shares exact vertices and edges. | The implementation must not crack or report an invalid duplicate hit. |
+| Result write | The hit shaders update the result image for the active ray. | The host distinguishes one hit, a miss, and duplicate hits. |
+
+#### Shader Code
+
+This representative case uses the CTS-authored SPIR-V module directly rather than GLSL or HLSL. The stage, entry point, capabilities, and execution modes are encoded in the module; the complete assembly remains in the final SPIR-V subsection.
+
+The shader source and stage-specific declarations for the representative case are described here; the generated artifact is kept in the final SPIR-V subsection.
+
+#### Additional Info
+
+- The any-hit shader increments the per-ray atomic result for `closedFan`; the miss shader writes the `10000` miss marker.
+- The `closedFan2` variant changes the result index to `gl_GeometryIndexEXT` and splits the triangles across BLAS instances.
+- The legacy `0` through `9` variants use non-atomic image stores and therefore detect cracks but not duplicate hits.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|----------------------------------------|----------|
+| Test variant | Selects the legacy random fan, the single-BLAS closed fan, or the multi-BLAS closed fan. | [test registration](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L872-L938) |
+| Result write | Changes between `imageStore` for legacy cases and `imageAtomicAdd` for closed-fan cases. | [shader setup](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L717-L820) |
+| Geometry partition | `closedFan2` distributes one triangle per BLAS and uses `gl_GeometryIndexEXT`; `closedFan` keeps geometries in one BLAS. | [closed-fan construction](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L620-L711) |
 
 #### SPIR-V
 
@@ -336,7 +313,9 @@ The `OpTraceRayKHR` instruction at the end of `main` dispatches the ray into the
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
+
+## Runtime Execution and Result Checking
 
 The test instance `RayTracingWatertightnessTestInstance::runTest` builds all resources and records a single command buffer per case.
 

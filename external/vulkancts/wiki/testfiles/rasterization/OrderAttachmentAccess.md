@@ -185,7 +185,7 @@ void main()
 }
 ```
 
-##### Vertex Shader (`vert1`)
+##### Vertex Shader
 
 The subpass 0 vertex shader is the simple vertex shader from `AttachmentAccessOrderTestCase::addSimpleVertexShader` [vktRasterizationOrderAttachmentAccessTests.cpp](../../../modules/vulkan/rasterization/vktRasterizationOrderAttachmentAccessTests.cpp#L403-L423). It is shared across all color-case leaves and does not vary with overlap pattern or attachment count.
 
@@ -216,6 +216,8 @@ void main ()
 | Overlap pattern | `DRAW_NUM`, `INSTANCE_NUM`, `PRIMITIVE_NUM` are substituted from `m_overlapDraws`, `m_overlapInstances`, `m_overlapPrimitives` (each either 1 or `ELEM_NUM=6`). The shader text is otherwise identical across leaves. | [initPrograms](../../../modules/vulkan/rasterization/vktRasterizationOrderAttachmentAccessTests.cpp#L717-L721) |
 
 #### SPIR-V
+
+##### Fragment Shader
 
 - Status: `generated and validated`
 - Source: reconstructed `GLSL` from this walkthrough.
@@ -517,6 +519,85 @@ void main ()
 
 </details>
 
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 35
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %prim_id %gl_VertexIndex %_ %v_position %gl_InstanceIndex
+               OpSource ESSL 310
+               OpName %main "main"
+               OpName %prim_id "prim_id"
+               OpName %gl_VertexIndex "gl_VertexIndex"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpName %_ ""
+               OpName %v_position "v_position"
+               OpName %gl_InstanceIndex "gl_InstanceIndex"
+               OpDecorate %prim_id Flat
+               OpDecorate %prim_id Location 1
+               OpDecorate %gl_VertexIndex BuiltIn VertexIndex
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpDecorate %v_position Location 0
+               OpDecorate %gl_InstanceIndex BuiltIn InstanceIndex
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+%_ptr_Output_int = OpTypePointer Output %int
+    %prim_id = OpVariable %_ptr_Output_int Output
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_VertexIndex = OpVariable %_ptr_Input_int Input
+      %int_3 = OpConstant %int 3
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%gl_PerVertex = OpTypeStruct %v4float %float
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+      %int_0 = OpConstant %int 0
+    %v2float = OpTypeVector %float 2
+%_ptr_Input_v2float = OpTypePointer Input %v2float
+ %v_position = OpVariable %_ptr_Input_v2float Input
+%gl_InstanceIndex = OpVariable %_ptr_Input_int Input
+  %float_256 = OpConstant %float 256
+    %float_1 = OpConstant %float 1
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %11 = OpLoad %int %gl_VertexIndex
+         %13 = OpSDiv %int %11 %int_3
+               OpStore %prim_id %13
+         %23 = OpLoad %v2float %v_position
+         %25 = OpLoad %int %gl_InstanceIndex
+         %26 = OpConvertSToF %float %25
+         %28 = OpFDiv %float %26 %float_256
+         %30 = OpCompositeExtract %float %23 0
+         %31 = OpCompositeExtract %float %23 1
+         %32 = OpCompositeConstruct %v4float %30 %31 %28 %float_1
+         %34 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %34 %32
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
 ### Representative Shader Walkthrough 2
 
 #### Parameter Values Chosen
@@ -629,7 +710,7 @@ void main()
 }
 ```
 
-##### Vertex Shader (`vert1`)
+##### Vertex Shader
 
 The depth case uses a custom vertex shader instead of `addSimpleVertexShader`. It receives `drawCur` through push constants, computes `curIndex`, and writes `gl_Position.z = 0.125 * float(curIndex) / float(indexNum)` so the pipeline's depth write stores a per-invocation depth value that the next overlapping fragment can read back through `in_ds`.
 
@@ -673,6 +754,8 @@ void main ()
 | Synchronization form | `multi_draw_barriers` uses the same shader text as `multi_draw`; only the host-side synchronization differs (explicit subpass self-dependency plus `vkCmdPipelineBarrier` versus the rasterization-order subpass description flag). | [createRenderPass](../../../modules/vulkan/rasterization/vktRasterizationOrderAttachmentAccessTests.cpp#L1327-L1351) |
 
 #### SPIR-V
+
+##### Fragment Shader
 
 - Status: `generated and validated`
 - Source: reconstructed `GLSL` from this walkthrough.
@@ -1005,6 +1088,153 @@ void main ()
         %202 = OpLabel
                OpBranch %155
         %155 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 78
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %gl_VertexIndex %prim_id %gl_InstanceIndex %instance_index %__0 %v_position
+               OpSource GLSL 460
+               OpName %main "main"
+               OpName %primitiveCur "primitiveCur"
+               OpName %gl_VertexIndex "gl_VertexIndex"
+               OpName %prim_id "prim_id"
+               OpName %instanceNum "instanceNum"
+               OpName %primitiveNum "primitiveNum"
+               OpName %drawNum "drawNum"
+               OpName %curIndex "curIndex"
+               OpName %ConstBlock "ConstBlock"
+               OpMemberName %ConstBlock 0 "drawCur"
+               OpName %_ ""
+               OpName %gl_InstanceIndex "gl_InstanceIndex"
+               OpName %indexNum "indexNum"
+               OpName %instance_index "instance_index"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex 2 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex 3 "gl_CullDistance"
+               OpName %__0 ""
+               OpName %v_position "v_position"
+               OpDecorate %gl_VertexIndex BuiltIn VertexIndex
+               OpDecorate %prim_id Flat
+               OpDecorate %prim_id Location 2
+               OpDecorate %ConstBlock Block
+               OpMemberDecorate %ConstBlock 0 Offset 0
+               OpDecorate %gl_InstanceIndex BuiltIn InstanceIndex
+               OpDecorate %instance_index Flat
+               OpDecorate %instance_index Location 1
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex 3 BuiltIn CullDistance
+               OpDecorate %v_position Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_ptr_Function_uint = OpTypePointer Function %uint
+        %int = OpTypeInt 32 1
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_VertexIndex = OpVariable %_ptr_Input_int Input
+     %uint_6 = OpConstant %uint 6
+%_ptr_Output_int = OpTypePointer Output %int
+    %prim_id = OpVariable %_ptr_Output_int Output
+      %int_3 = OpConstant %int 3
+     %uint_1 = OpConstant %uint 1
+ %ConstBlock = OpTypeStruct %uint
+%_ptr_PushConstant_ConstBlock = OpTypePointer PushConstant %ConstBlock
+          %_ = OpVariable %_ptr_PushConstant_ConstBlock PushConstant
+      %int_0 = OpConstant %int 0
+%_ptr_PushConstant_uint = OpTypePointer PushConstant %uint
+%gl_InstanceIndex = OpVariable %_ptr_Input_int Input
+%_ptr_Output_uint = OpTypePointer Output %uint
+%instance_index = OpVariable %_ptr_Output_uint Output
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_arr_float_uint_1 = OpTypeArray %float %uint_1
+%gl_PerVertex = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+        %__0 = OpVariable %_ptr_Output_gl_PerVertex Output
+    %v2float = OpTypeVector %float 2
+%_ptr_Input_v2float = OpTypePointer Input %v2float
+ %v_position = OpVariable %_ptr_Input_v2float Input
+%float_0_125 = OpConstant %float 0.125
+    %float_1 = OpConstant %float 1
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+%primitiveCur = OpVariable %_ptr_Function_uint Function
+%instanceNum = OpVariable %_ptr_Function_uint Function
+%primitiveNum = OpVariable %_ptr_Function_uint Function
+    %drawNum = OpVariable %_ptr_Function_uint Function
+   %curIndex = OpVariable %_ptr_Function_uint Function
+   %indexNum = OpVariable %_ptr_Function_uint Function
+         %12 = OpLoad %int %gl_VertexIndex
+         %13 = OpBitcast %uint %12
+         %15 = OpUDiv %uint %13 %uint_6
+               OpStore %primitiveCur %15
+         %18 = OpLoad %int %gl_VertexIndex
+         %20 = OpSDiv %int %18 %int_3
+               OpStore %prim_id %20
+               OpStore %instanceNum %uint_1
+               OpStore %primitiveNum %uint_1
+               OpStore %drawNum %uint_6
+         %31 = OpAccessChain %_ptr_PushConstant_uint %_ %int_0
+         %32 = OpLoad %uint %31
+         %33 = OpLoad %uint %instanceNum
+         %34 = OpIMul %uint %32 %33
+         %35 = OpLoad %uint %primitiveNum
+         %36 = OpIMul %uint %34 %35
+         %38 = OpLoad %int %gl_InstanceIndex
+         %39 = OpBitcast %uint %38
+         %40 = OpLoad %uint %primitiveNum
+         %41 = OpIMul %uint %39 %40
+         %42 = OpIAdd %uint %36 %41
+         %43 = OpLoad %uint %primitiveCur
+         %44 = OpIAdd %uint %42 %43
+               OpStore %curIndex %44
+         %46 = OpLoad %uint %drawNum
+         %47 = OpLoad %uint %instanceNum
+         %48 = OpIMul %uint %46 %47
+         %49 = OpLoad %uint %primitiveNum
+         %50 = OpIMul %uint %48 %49
+               OpStore %indexNum %50
+         %53 = OpLoad %int %gl_InstanceIndex
+         %54 = OpBitcast %uint %53
+               OpStore %instance_index %54
+         %64 = OpLoad %v2float %v_position
+         %66 = OpLoad %uint %curIndex
+         %67 = OpConvertUToF %float %66
+         %68 = OpFMul %float %float_0_125 %67
+         %69 = OpLoad %uint %indexNum
+         %70 = OpConvertUToF %float %69
+         %71 = OpFDiv %float %68 %70
+         %73 = OpCompositeExtract %float %64 0
+         %74 = OpCompositeExtract %float %64 1
+         %75 = OpCompositeConstruct %v4float %73 %74 %71 %float_1
+         %77 = OpAccessChain %_ptr_Output_v4float %__0 %int_0
+               OpStore %77 %75
                OpReturn
                OpFunctionEnd
 ```

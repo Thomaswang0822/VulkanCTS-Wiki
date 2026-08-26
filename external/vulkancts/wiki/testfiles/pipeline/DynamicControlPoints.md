@@ -54,7 +54,203 @@ This leaf combines the four-output second pipeline with the winding reversal and
 
 ## Shader Analysis
 
-The source generates vertex, tessellation-control, tessellation-evaluation, and fragment GLSL programs, but the shader text is supporting instrumentation rather than an independently varied behavior. The host changes no shader input after program creation. It records one dynamic patch-control-point command and observes the effect through a color-image comparison, so a representative shader walkthrough and embedded SPIR-V disassembly would not clarify the tested contract.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.shader_object_linked_binary.dynamic_control_points.change_output
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `change_output` | Selects the branch where the second tessellation-control shader declares four output control points while the dynamic input patch size remains three. |
+| `shader_object_linked_binary` | Exercises the same generated shaders through linked shader objects created from binaries; shader construction does not alter the GLSL for this path. |
+| Dynamic patch control points = `3` | Groups the six vertex-shader outputs into two three-point input patches for both draws. |
+| Second TCS output vertices = `4` | Adds a fourth invocation that writes a sentinel without reading beyond the three-point input patch. |
+
+#### Purpose
+
+This tessellation-control shader makes the input/output patch-size distinction observable: it consumes a dynamically selected three-point input patch, emits four output control points, and places a magenta sentinel in the additional point for the second tessellation-evaluation shader to read.
+
+#### Structural Design
+
+| Invocation | Input access | Output action | Downstream role |
+|---|---|---|---|
+| `0`, `1`, `2` | Read `gl_in[gl_InvocationID].gl_Position` | Forward the corresponding input position to `gl_out` | Supplies the three positions used for tessellation interpolation. |
+| `3` | None | Write `(1, 0, 1, 1)` to `gl_out[3].gl_Position` | Supplies the magenta value read by the second evaluation shader. |
+| All four invocations | None | Write inner and outer tessellation levels of `2` | Requests the same triangle subdivision levels for the output patch. |
+
+#### Shader Code
+
+```glsl
+#version 450
+
+/// Four tessellation-control invocations emit four output control points even
+/// though the dynamically selected input patch size remains three.
+layout(vertices = 4) out;
+
+void main (void)
+{
+    /// Every invocation writes the same tessellation levels; the generated
+    /// triangles use two subdivisions on each outer edge and the inner level.
+    gl_TessLevelInner[0] = 2;
+    gl_TessLevelOuter[0] = 2.0;
+    gl_TessLevelOuter[1] = 2.0;
+    gl_TessLevelOuter[2] = 2.0;
+
+    /// Invocations 0..2 forward the three dynamically grouped input points.
+    /// Invocation 3 never indexes gl_in[3]; it emits the sentinel consumed by
+    /// the second tessellation-evaluation shader as its magenta color.
+    if (gl_InvocationID < 3) {
+        gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
+    } else {
+        gl_out[gl_InvocationID].gl_Position = vec4(1.0, 0.0, 1.0, 1.0);
+    }
+}
+```
+
+#### Additional Info
+
+- [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineDynamicControlPoints.cpp#L193-L233) emits this four-output `tesc2` shader only when `changeOutput` is true; its paired `tese2` shader reads `gl_in[3].gl_Position.xyz` as the fragment color.
+- [`iterate()`](../../../modules/vulkan/pipeline/vktPipelineDynamicControlPoints.cpp#L332-L404) uses the three-output `tesc` shader for the first pipeline, selects `tesc2` for the second pipeline in this case, sets the dynamic input patch size to three once, and draws both pipelines.
+- The reconstructed shader preserves the generated statements and branch behavior while normalizing generator-dependent whitespace for readability. No explicit `vk::ShaderBuildOptions` are supplied, so the CTS baseline target is SPIR-V 1.0.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Test case leaf | `change_output` and `change_output_winding` generate this four-output TCS and make `tese2` read the fourth point; `change_winding` retains the three-output TCS and changes only evaluation-stage winding. | [`createDynamicControlPointTests()` and `initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineDynamicControlPoints.cpp#L128-L235) |
+| Evaluation winding | The first and second evaluation shaders independently select `cw` or `ccw`; this does not change the TCS shown here. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineDynamicControlPoints.cpp#L128-L233) |
+| Pipeline construction path | All construction paths use the same generated shader text; the path changes pipeline or shader-object construction rather than this shader's declarations or control flow. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineDynamicControlPoints.cpp#L128-L235) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `tesc`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 59
+; Schema: 0
+               OpCapability Tessellation
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint TessellationControl %main "main" %gl_TessLevelInner %gl_TessLevelOuter %gl_InvocationID %gl_out %gl_in
+               OpExecutionMode %main OutputVertices 4
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %gl_TessLevelInner "gl_TessLevelInner"
+               OpName %gl_TessLevelOuter "gl_TessLevelOuter"
+               OpName %gl_InvocationID "gl_InvocationID"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex 2 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex 3 "gl_CullDistance"
+               OpName %gl_out "gl_out"
+               OpName %gl_PerVertex_0 "gl_PerVertex"
+               OpMemberName %gl_PerVertex_0 0 "gl_Position"
+               OpMemberName %gl_PerVertex_0 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex_0 2 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex_0 3 "gl_CullDistance"
+               OpName %gl_in "gl_in"
+               OpDecorate %gl_TessLevelInner BuiltIn TessLevelInner
+               OpDecorate %gl_TessLevelInner Patch
+               OpDecorate %gl_TessLevelOuter BuiltIn TessLevelOuter
+               OpDecorate %gl_TessLevelOuter Patch
+               OpDecorate %gl_InvocationID BuiltIn InvocationId
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex 3 BuiltIn CullDistance
+               OpDecorate %gl_PerVertex_0 Block
+               OpMemberDecorate %gl_PerVertex_0 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex_0 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex_0 2 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex_0 3 BuiltIn CullDistance
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+       %uint = OpTypeInt 32 0
+     %uint_2 = OpConstant %uint 2
+%_arr_float_uint_2 = OpTypeArray %float %uint_2
+%_ptr_Output__arr_float_uint_2 = OpTypePointer Output %_arr_float_uint_2
+%gl_TessLevelInner = OpVariable %_ptr_Output__arr_float_uint_2 Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+    %float_2 = OpConstant %float 2
+%_ptr_Output_float = OpTypePointer Output %float
+     %uint_4 = OpConstant %uint 4
+%_arr_float_uint_4 = OpTypeArray %float %uint_4
+%_ptr_Output__arr_float_uint_4 = OpTypePointer Output %_arr_float_uint_4
+%gl_TessLevelOuter = OpVariable %_ptr_Output__arr_float_uint_4 Output
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_InvocationID = OpVariable %_ptr_Input_int Input
+      %int_3 = OpConstant %int 3
+       %bool = OpTypeBool
+    %v4float = OpTypeVector %float 4
+     %uint_1 = OpConstant %uint 1
+%_arr_float_uint_1 = OpTypeArray %float %uint_1
+%gl_PerVertex = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+%_arr_gl_PerVertex_uint_4 = OpTypeArray %gl_PerVertex %uint_4
+%_ptr_Output__arr_gl_PerVertex_uint_4 = OpTypePointer Output %_arr_gl_PerVertex_uint_4
+     %gl_out = OpVariable %_ptr_Output__arr_gl_PerVertex_uint_4 Output
+%gl_PerVertex_0 = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+    %uint_32 = OpConstant %uint 32
+%_arr_gl_PerVertex_0_uint_32 = OpTypeArray %gl_PerVertex_0 %uint_32
+%_ptr_Input__arr_gl_PerVertex_0_uint_32 = OpTypePointer Input %_arr_gl_PerVertex_0_uint_32
+      %gl_in = OpVariable %_ptr_Input__arr_gl_PerVertex_0_uint_32 Input
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+    %float_1 = OpConstant %float 1
+    %float_0 = OpConstant %float 0
+         %57 = OpConstantComposite %v4float %float_1 %float_0 %float_1 %float_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %16 = OpAccessChain %_ptr_Output_float %gl_TessLevelInner %int_0
+               OpStore %16 %float_2
+         %21 = OpAccessChain %_ptr_Output_float %gl_TessLevelOuter %int_0
+               OpStore %21 %float_2
+         %23 = OpAccessChain %_ptr_Output_float %gl_TessLevelOuter %int_1
+               OpStore %23 %float_2
+         %25 = OpAccessChain %_ptr_Output_float %gl_TessLevelOuter %int_2
+               OpStore %25 %float_2
+         %28 = OpLoad %int %gl_InvocationID
+         %31 = OpSLessThan %bool %28 %int_3
+               OpSelectionMerge %33 None
+               OpBranchConditional %31 %32 %53
+         %32 = OpLabel
+         %41 = OpLoad %int %gl_InvocationID
+         %47 = OpLoad %int %gl_InvocationID
+         %49 = OpAccessChain %_ptr_Input_v4float %gl_in %47 %int_0
+         %50 = OpLoad %v4float %49
+         %52 = OpAccessChain %_ptr_Output_v4float %gl_out %41 %int_0
+               OpStore %52 %50
+               OpBranch %33
+         %53 = OpLabel
+         %54 = OpLoad %int %gl_InvocationID
+         %58 = OpAccessChain %_ptr_Output_v4float %gl_out %54 %int_0
+               OpStore %58 %57
+               OpBranch %33
+         %33 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

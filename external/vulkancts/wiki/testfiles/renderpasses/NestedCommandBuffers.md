@@ -52,9 +52,281 @@ Each of the two intermediate nodes carries both test case leaves, so the full ma
 
 ## Shader Analysis
 
-The test uses one trivial vertex shader and one trivial fragment shader, both generated inline by `initPrograms` ([L604-L631](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L604-L631)). The shader is not part of the behavior under test. It only converts `gl_InstanceIndex` into a per-instance screen position and a per-instance color, so each of the draws paints a distinct colored quad whose final position is fully determined by the instance index. Because the shader does not contribute to the property under test, no SPIR-V walkthrough is included.
+### Representative Shader Walkthrough 1
 
-The vertex shader derives a unit-square corner from `gl_VertexIndex`, offsets it down by half a cell per `gl_InstanceIndex % 3` and left by one cell per `gl_InstanceIndex / 3`, and writes `gl_InstanceIndex + 1` to a flat output ([L609-L617](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L609-L617)). The fragment shader unpacks that index into red, green, and blue bits, giving each instance index a unique stable color ([L619-L627](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L619-L627)). The six colors used by the host-side checker match this encoding.
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.renderpasses.renderpass1.nested_command_buffers.khr.inline_secondary.inline_secondary
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `renderpass1` | Uses the legacy render-pass path and begins its only subpass with `VK_SUBPASS_CONTENTS_INLINE_AND_SECONDARY_COMMAND_BUFFERS_KHR`. |
+| `khr` | Selects the `VK_KHR_maintenance7` feature path; shader generation is identical to the `ext` path. |
+| First `inline_secondary` | Sets `beginInline = true`, placing inline instance 1 before secondary instance 0. |
+| Last `inline_secondary` | Sets `endInline = true`, placing inline instance 5 after secondary instance 4. |
+
+#### Purpose
+
+The shaders convert each draw's instance index into a positioned, uniquely colored quad. This makes the order of mixed inline and secondary draws observable as exact attachment colors, even though the shader source itself is fixed across the family.
+
+#### Structural Design
+
+| Stage/data | Transformation | Observable role |
+|------------|----------------|-----------------|
+| Vertex built-ins | `gl_VertexIndex` selects a triangle-strip corner; `gl_InstanceIndex` selects horizontal and vertical offsets. | Places six overlapping quads in regions where command order determines the visible result. |
+| Flat stage interface | Vertex stage writes `index = gl_InstanceIndex + 1` at location 0. | Gives every instance a stable nonzero color code without interpolation. |
+| Fragment output | Bits 2, 1, and 0 of `index` become red, green, and blue at location 0. | Produces blue, green, cyan, red, magenta, and yellow for host comparison. |
+
+#### Shader Code
+
+##### Vertex Shader
+
+```glsl
+#version 450
+/// gl_InstanceIndex selects one of six quads; gl_VertexIndex supplies the four triangle-strip corners.
+/// This flat output carries gl_InstanceIndex + 1 so the fragment shader can encode a unique RGB color.
+layout (location=0) flat out uint index;
+void main() {
+    /// Construct a unit-square corner without a vertex buffer.
+    vec2 pos = vec2(float(gl_VertexIndex & 1), float((gl_VertexIndex >> 1) & 1));
+    /// Arrange instances 0-2 on the right and 3-5 on the left, with half-height vertical offsets.
+    pos.y -= 0.5f * (gl_InstanceIndex % 3);
+    pos.x -= 1.0f * (gl_InstanceIndex / 3);
+    gl_Position = vec4(pos, 0.0f, 1.0f);
+    index = gl_InstanceIndex + 1;
+}
+```
+
+##### Fragment Shader
+
+```glsl
+#version 450
+/// Flat location 0 receives the per-instance code emitted by the vertex shader.
+layout (location=0) flat in uint index;
+/// The sole color attachment is VK_FORMAT_R8G8B8A8_UNORM at fragment-output location 0.
+layout (location=0) out vec4 outColor;
+void main() {
+    /// Decode index bits into the six exact RGB colors used by the host-side checker.
+    float r = bool(index & 4) ? 1.0f : 0.0f;
+    float g = bool(index & 2) ? 1.0f : 0.0f;
+    float b = bool(index & 1) ? 1.0f : 0.0f;
+    outColor = vec4(r, g, b, 1.0f);
+}
+```
+
+#### Additional Info
+
+- The fragment shader stays fixed across all cases. It is shown because its bit decoding is the validation signal that turns the vertex stage's instance code into the six host-checked colors.
+- Neither stage declares descriptor-backed resources, push constants, or vertex attributes. The vertex stage uses only built-ins and a flat stage output; the fragment stage writes the single color attachment.
+- Each `vkCmdDraw` uses one instance and sets `firstInstance` to the intended index, so `gl_InstanceIndex` is exactly 0 through 5 for the six quads ([draw recording](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L434-L507)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Extension (`ext`, `khr`) | None. Both subtrees call the same `initPrograms()` and differ only in support requirements. | [shader generation](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L604-L631), [registration](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L672-L710) |
+| First command location | Shader text is fixed; the value changes whether inline instance 1 executes before or after secondary instance 0, changing the winning overlap color. | [primary recording](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L484-L493) |
+| Last command location | Shader text is fixed; the value changes whether inline instance 5 executes before or after secondary instance 4, changing the winning overlap color. | [primary recording](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L499-L508) |
+| Rendering type | Shader text is fixed across legacy render pass, render pass 2, and dynamic rendering; only render begin/end and inheritance setup vary. | [render begin](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L247-L325), [shader generation](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L604-L631) |
+
+#### SPIR-V
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 64
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %gl_VertexIndex %gl_InstanceIndex %_ %index
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %pos "pos"
+               OpName %gl_VertexIndex "gl_VertexIndex"
+               OpName %gl_InstanceIndex "gl_InstanceIndex"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex 2 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex 3 "gl_CullDistance"
+               OpName %_ ""
+               OpName %index "index"
+               OpDecorate %gl_VertexIndex BuiltIn VertexIndex
+               OpDecorate %gl_InstanceIndex BuiltIn InstanceIndex
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex 3 BuiltIn CullDistance
+               OpDecorate %index Flat
+               OpDecorate %index Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v2float = OpTypeVector %float 2
+%_ptr_Function_v2float = OpTypePointer Function %v2float
+        %int = OpTypeInt 32 1
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_VertexIndex = OpVariable %_ptr_Input_int Input
+      %int_1 = OpConstant %int 1
+  %float_0_5 = OpConstant %float 0.5
+%gl_InstanceIndex = OpVariable %_ptr_Input_int Input
+      %int_3 = OpConstant %int 3
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_ptr_Function_float = OpTypePointer Function %float
+    %float_1 = OpConstant %float 1
+     %uint_0 = OpConstant %uint 0
+    %v4float = OpTypeVector %float 4
+%_arr_float_uint_1 = OpTypeArray %float %uint_1
+%gl_PerVertex = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+      %int_0 = OpConstant %int 0
+    %float_0 = OpConstant %float 0
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%_ptr_Output_uint = OpTypePointer Output %uint
+      %index = OpVariable %_ptr_Output_uint Output
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+        %pos = OpVariable %_ptr_Function_v2float Function
+         %13 = OpLoad %int %gl_VertexIndex
+         %15 = OpBitwiseAnd %int %13 %int_1
+         %16 = OpConvertSToF %float %15
+         %17 = OpLoad %int %gl_VertexIndex
+         %18 = OpShiftRightArithmetic %int %17 %int_1
+         %19 = OpBitwiseAnd %int %18 %int_1
+         %20 = OpConvertSToF %float %19
+         %21 = OpCompositeConstruct %v2float %16 %20
+               OpStore %pos %21
+         %24 = OpLoad %int %gl_InstanceIndex
+         %26 = OpSMod %int %24 %int_3
+         %27 = OpConvertSToF %float %26
+         %28 = OpFMul %float %float_0_5 %27
+         %32 = OpAccessChain %_ptr_Function_float %pos %uint_1
+         %33 = OpLoad %float %32
+         %34 = OpFSub %float %33 %28
+         %35 = OpAccessChain %_ptr_Function_float %pos %uint_1
+               OpStore %35 %34
+         %37 = OpLoad %int %gl_InstanceIndex
+         %38 = OpSDiv %int %37 %int_3
+         %39 = OpConvertSToF %float %38
+         %40 = OpFMul %float %float_1 %39
+         %42 = OpAccessChain %_ptr_Function_float %pos %uint_0
+         %43 = OpLoad %float %42
+         %44 = OpFSub %float %43 %40
+         %45 = OpAccessChain %_ptr_Function_float %pos %uint_0
+               OpStore %45 %44
+         %52 = OpLoad %v2float %pos
+         %54 = OpCompositeExtract %float %52 0
+         %55 = OpCompositeExtract %float %52 1
+         %56 = OpCompositeConstruct %v4float %54 %55 %float_0 %float_1
+         %58 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %58 %56
+         %61 = OpLoad %int %gl_InstanceIndex
+         %62 = OpIAdd %int %61 %int_1
+         %63 = OpBitcast %uint %62
+               OpStore %index %63
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 40
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %index %outColor
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %r "r"
+               OpName %index "index"
+               OpName %g "g"
+               OpName %b "b"
+               OpName %outColor "outColor"
+               OpDecorate %index Flat
+               OpDecorate %index Location 0
+               OpDecorate %outColor Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+%_ptr_Function_float = OpTypePointer Function %float
+       %uint = OpTypeInt 32 0
+%_ptr_Input_uint = OpTypePointer Input %uint
+      %index = OpVariable %_ptr_Input_uint Input
+     %uint_4 = OpConstant %uint 4
+       %bool = OpTypeBool
+     %uint_0 = OpConstant %uint 0
+    %float_1 = OpConstant %float 1
+    %float_0 = OpConstant %float 0
+     %uint_2 = OpConstant %uint 2
+     %uint_1 = OpConstant %uint 1
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %outColor = OpVariable %_ptr_Output_v4float Output
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %r = OpVariable %_ptr_Function_float Function
+          %g = OpVariable %_ptr_Function_float Function
+          %b = OpVariable %_ptr_Function_float Function
+         %12 = OpLoad %uint %index
+         %14 = OpBitwiseAnd %uint %12 %uint_4
+         %17 = OpINotEqual %bool %14 %uint_0
+         %20 = OpSelect %float %17 %float_1 %float_0
+               OpStore %r %20
+         %22 = OpLoad %uint %index
+         %24 = OpBitwiseAnd %uint %22 %uint_2
+         %25 = OpINotEqual %bool %24 %uint_0
+         %26 = OpSelect %float %25 %float_1 %float_0
+               OpStore %g %26
+         %28 = OpLoad %uint %index
+         %30 = OpBitwiseAnd %uint %28 %uint_1
+         %31 = OpINotEqual %bool %30 %uint_0
+         %32 = OpSelect %float %31 %float_1 %float_0
+               OpStore %b %32
+         %36 = OpLoad %float %r
+         %37 = OpLoad %float %g
+         %38 = OpLoad %float %b
+         %39 = OpCompositeConstruct %v4float %36 %37 %38 %float_1
+               OpStore %outColor %39
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

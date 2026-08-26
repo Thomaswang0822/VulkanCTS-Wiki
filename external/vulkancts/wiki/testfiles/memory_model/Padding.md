@@ -72,7 +72,7 @@ The host-side mirror structures deliberately expose the corresponding trailing p
 Representative path:
 
 ```text
-memory_model.padding.test
+dEQP-VK.memory_model.padding.test
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -167,8 +167,9 @@ void main()
 
 #### Parameter Variation Summary
 
-There are no shader-level parameter variants for this test family. The only registered path is `memory_model.padding.test`; all
-values above are fixed by the single registered case.
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Registered case | There are no shader-level variants: `test` is the single fixed case registered under the `padding` group. | [exact `padding.test` registration](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L360-L365) |
 
 #### SPIR-V
 

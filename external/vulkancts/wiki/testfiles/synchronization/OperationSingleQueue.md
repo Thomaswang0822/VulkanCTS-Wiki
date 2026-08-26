@@ -24,7 +24,17 @@ synchronization.op.single_queue
 └── event
 ```
 
-The `multi_events` test family is registered under `synchronization2.op.single_queue` only. The trees show direct test families; operation-pair and resource descendants are generated below them.
+```text
+synchronization2.op.single_queue
+├── fence
+├── binary_semaphore
+├── timeline_semaphore
+├── barrier
+├── event
+└── multi_events
+```
+
+The trees show direct test families; operation-pair and resource descendants are generated below them.
 
 ## Parameter Dimensions and Observed Values
 
@@ -70,7 +80,306 @@ The test sets two events and waits on both before recording the reads. One gener
 
 ## Shader Analysis
 
-Shader code is one possible implementation of the selected write or read operation, but this page has no single shader family whose code explains the synchronization test. The operation framework supplies stage/access information and builds the appropriate shader or transfer operation for each matrix entry. The relevant operation implementations are summarized in [`vktSynchronizationOperation.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationOperation.cpp).
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.synchronization.op.single_queue.barrier.write_ssbo_compute_read_ssbo_compute.buffer_16384
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `barrier` | Records the writer, a buffer memory barrier, and the reader in one command buffer. |
+| `write_ssbo_compute_read_ssbo_compute` | Selects storage-buffer write and read operations implemented by generated compute shaders. |
+| `buffer_16384` | Uses a 16 KiB buffer, represented in each shader as 1,024 `uvec4` elements. |
+
+#### Purpose
+
+The writer copies a deterministic host pattern into the tested SSBO, and the reader copies that SSBO into a host-visible result buffer. The intervening barrier must make the compute shader writes visible to the subsequent compute shader reads.
+
+#### Structural Design
+
+| Phase | Shader-visible data flow | Synchronization role |
+|-------|--------------------------|----------------------|
+| Writer compute dispatch | Host-pattern SSBO at binding 0 → tested SSBO at binding 1 | Produces shader writes to the tested 16 KiB range. |
+| Buffer barrier | No shader executes. | Connects compute shader writes to compute shader reads for that range. |
+| Reader compute dispatch | Tested SSBO at binding 0 → host-visible result SSBO at binding 1 | Consumes the data made visible by the barrier. |
+| Host comparison | Expected writer pattern ↔ reader result | Requires all 16 KiB to match byte-for-byte. |
+
+#### Shader Code
+
+##### Writer Compute Shader
+
+```glsl
+#version 440
+
+/// One workgroup with one invocation executes the entire copy loop.
+layout(local_size_x = 1) in;
+
+/// Binding 0 is a 16 KiB source SSBO initialized with the deterministic host pattern.
+layout(set = 0, binding = 0, std140) readonly buffer Input {
+    uvec4 data[1024];
+} b_in;
+
+/// Binding 1 is the 16 KiB tested SSBO written by this operation.
+layout(set = 0, binding = 1, std140) writeonly buffer Output {
+    uvec4 data[1024];
+} b_out;
+
+void main (void)
+{
+    /// Copy all 1,024 vectors into the resource covered by the subsequent barrier.
+    for (int i = 0; i < 1024; ++i) {
+        b_out.data[i] = b_in.data[i];
+    }
+}
+```
+
+##### Reader Compute Shader
+
+```glsl
+#version 440
+
+/// One workgroup with one invocation executes the entire copy loop.
+layout(local_size_x = 1) in;
+
+/// Binding 0 is the 16 KiB tested SSBO made visible by the pipeline barrier.
+layout(set = 0, binding = 0, std140) readonly buffer Input {
+    uvec4 data[1024];
+} b_in;
+
+/// Binding 1 is a 16 KiB host-visible result SSBO used for the final byte comparison.
+layout(set = 0, binding = 1, std140) writeonly buffer Output {
+    uvec4 data[1024];
+} b_out;
+
+void main (void)
+{
+    /// Copy all 1,024 vectors out of the tested resource for host verification.
+    for (int i = 0; i < 1024; ++i) {
+        b_out.data[i] = b_in.data[i];
+    }
+}
+```
+
+#### Additional Info
+
+- The reader is the non-primary shader shown here. Its generated GLSL has the same copy-loop structure as the writer for this SSBO/compute pairing, but descriptor binding 0 references the tested resource and binding 1 references the reader's host-visible result buffer; other operation pairs on this page can select a different stage or resource access implementation.
+- Each compute operation dispatches exactly one `1 × 1 × 1` workgroup, so the single invocation performs all 1,024 copies rather than indexing by `gl_GlobalInvocationID`.
+- The writer's expected data and the reader's result are compared across the complete 16 KiB range after queue completion.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Operation pair | The selected read/write operation chooses the buffer type, access direction, shader stage, and therefore the generated shader set; non-shader operations use different implementations. | [`createOperationSupport`](../../../modules/vulkan/synchronization/vktSynchronizationOperation.cpp#L6145-L6306) |
+| Resource | Buffer byte size determines the fixed `uvec4` array length and loop bound (`size / 16`), so `buffer_262144` generates 16,384 elements instead of 1,024. | [`BufferSupport::initPrograms`](../../../modules/vulkan/synchronization/vktSynchronizationOperation.cpp#L2446-L2494) |
+| Synchronization primitive | It does not change these generated shaders; it changes how the write and read operations are ordered and made visible. For `barrier`, the test inserts a buffer memory barrier between their recorded commands. | [`BarrierTestInstance::iterate`](../../../modules/vulkan/synchronization/vktSynchronizationOperationSingleQueueTests.cpp#L382-L454) |
+
+#### SPIR-V
+
+##### Writer Compute Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 42
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 440
+               OpName %main "main"
+               OpName %i "i"
+               OpName %Output "Output"
+               OpMemberName %Output 0 "data"
+               OpName %b_out "b_out"
+               OpName %Input "Input"
+               OpMemberName %Input 0 "data"
+               OpName %b_in "b_in"
+               OpDecorate %_arr_v4uint_uint_1024 ArrayStride 16
+               OpDecorate %Output BufferBlock
+               OpMemberDecorate %Output 0 NonReadable
+               OpMemberDecorate %Output 0 Offset 0
+               OpDecorate %b_out NonReadable
+               OpDecorate %b_out Binding 1
+               OpDecorate %b_out DescriptorSet 0
+               OpDecorate %_arr_v4uint_uint_1024_0 ArrayStride 16
+               OpDecorate %Input BufferBlock
+               OpMemberDecorate %Input 0 NonWritable
+               OpMemberDecorate %Input 0 Offset 0
+               OpDecorate %b_in NonWritable
+               OpDecorate %b_in Binding 0
+               OpDecorate %b_in DescriptorSet 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+      %int_0 = OpConstant %int 0
+   %int_1024 = OpConstant %int 1024
+       %bool = OpTypeBool
+       %uint = OpTypeInt 32 0
+     %v4uint = OpTypeVector %uint 4
+  %uint_1024 = OpConstant %uint 1024
+%_arr_v4uint_uint_1024 = OpTypeArray %v4uint %uint_1024
+     %Output = OpTypeStruct %_arr_v4uint_uint_1024
+%_ptr_Uniform_Output = OpTypePointer Uniform %Output
+      %b_out = OpVariable %_ptr_Uniform_Output Uniform
+%_arr_v4uint_uint_1024_0 = OpTypeArray %v4uint %uint_1024
+      %Input = OpTypeStruct %_arr_v4uint_uint_1024_0
+%_ptr_Uniform_Input = OpTypePointer Uniform %Input
+       %b_in = OpVariable %_ptr_Uniform_Input Uniform
+%_ptr_Uniform_v4uint = OpTypePointer Uniform %v4uint
+      %int_1 = OpConstant %int 1
+     %v3uint = OpTypeVector %uint 3
+     %uint_1 = OpConstant %uint 1
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %i = OpVariable %_ptr_Function_int Function
+               OpStore %i %int_0
+               OpBranch %10
+         %10 = OpLabel
+               OpLoopMerge %12 %13 None
+               OpBranch %14
+         %14 = OpLabel
+         %15 = OpLoad %int %i
+         %18 = OpSLessThan %bool %15 %int_1024
+               OpBranchConditional %18 %11 %12
+         %11 = OpLabel
+         %26 = OpLoad %int %i
+         %31 = OpLoad %int %i
+         %33 = OpAccessChain %_ptr_Uniform_v4uint %b_in %int_0 %31
+         %34 = OpLoad %v4uint %33
+         %35 = OpAccessChain %_ptr_Uniform_v4uint %b_out %int_0 %26
+               OpStore %35 %34
+               OpBranch %13
+         %13 = OpLabel
+         %36 = OpLoad %int %i
+         %38 = OpIAdd %int %36 %int_1
+               OpStore %i %38
+               OpBranch %10
+         %12 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Reader Compute Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 42
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 440
+               OpName %main "main"
+               OpName %i "i"
+               OpName %Output "Output"
+               OpMemberName %Output 0 "data"
+               OpName %b_out "b_out"
+               OpName %Input "Input"
+               OpMemberName %Input 0 "data"
+               OpName %b_in "b_in"
+               OpDecorate %_arr_v4uint_uint_1024 ArrayStride 16
+               OpDecorate %Output BufferBlock
+               OpMemberDecorate %Output 0 NonReadable
+               OpMemberDecorate %Output 0 Offset 0
+               OpDecorate %b_out NonReadable
+               OpDecorate %b_out Binding 1
+               OpDecorate %b_out DescriptorSet 0
+               OpDecorate %_arr_v4uint_uint_1024_0 ArrayStride 16
+               OpDecorate %Input BufferBlock
+               OpMemberDecorate %Input 0 NonWritable
+               OpMemberDecorate %Input 0 Offset 0
+               OpDecorate %b_in NonWritable
+               OpDecorate %b_in Binding 0
+               OpDecorate %b_in DescriptorSet 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+      %int_0 = OpConstant %int 0
+   %int_1024 = OpConstant %int 1024
+       %bool = OpTypeBool
+       %uint = OpTypeInt 32 0
+     %v4uint = OpTypeVector %uint 4
+  %uint_1024 = OpConstant %uint 1024
+%_arr_v4uint_uint_1024 = OpTypeArray %v4uint %uint_1024
+     %Output = OpTypeStruct %_arr_v4uint_uint_1024
+%_ptr_Uniform_Output = OpTypePointer Uniform %Output
+      %b_out = OpVariable %_ptr_Uniform_Output Uniform
+%_arr_v4uint_uint_1024_0 = OpTypeArray %v4uint %uint_1024
+      %Input = OpTypeStruct %_arr_v4uint_uint_1024_0
+%_ptr_Uniform_Input = OpTypePointer Uniform %Input
+       %b_in = OpVariable %_ptr_Uniform_Input Uniform
+%_ptr_Uniform_v4uint = OpTypePointer Uniform %v4uint
+      %int_1 = OpConstant %int 1
+     %v3uint = OpTypeVector %uint 3
+     %uint_1 = OpConstant %uint 1
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %i = OpVariable %_ptr_Function_int Function
+               OpStore %i %int_0
+               OpBranch %10
+         %10 = OpLabel
+               OpLoopMerge %12 %13 None
+               OpBranch %14
+         %14 = OpLabel
+         %15 = OpLoad %int %i
+         %18 = OpSLessThan %bool %15 %int_1024
+               OpBranchConditional %18 %11 %12
+         %11 = OpLabel
+         %26 = OpLoad %int %i
+         %31 = OpLoad %int %i
+         %33 = OpAccessChain %_ptr_Uniform_v4uint %b_in %int_0 %31
+         %34 = OpLoad %v4uint %33
+         %35 = OpAccessChain %_ptr_Uniform_v4uint %b_out %int_0 %26
+               OpStore %35 %34
+               OpBranch %13
+         %13 = OpLabel
+         %36 = OpLoad %int %i
+         %38 = OpIAdd %int %36 %int_1
+               OpStore %i %38
+               OpBranch %10
+         %12 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

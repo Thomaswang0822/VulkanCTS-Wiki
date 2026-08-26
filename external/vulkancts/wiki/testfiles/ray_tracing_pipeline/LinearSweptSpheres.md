@@ -353,7 +353,9 @@ void main()
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
+
+## Runtime Execution and Result Checking
 
 The test instance `LinearSweptSpheresTestInstance::iterate` builds all resources and records a single command buffer per case.
 

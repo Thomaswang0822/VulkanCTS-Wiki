@@ -63,7 +63,149 @@ The graphics and compute leaves initialize three uniform buffers with distinct v
 
 ## Shader Analysis
 
-The generated shaders are small observation programs. `samplerless` reads one descriptor and copies its image value to an output. `random` reads two uniform-buffer values and accumulates them through a graphics blend or a compute image path. Neither shader contains the descriptor-update decision logic. The host-side descriptor writes, descriptor contents, resource layout, and result model control the tested behavior. A walkthrough would repeat fixed read-and-output expressions without clarifying those host-side decisions, so this page does not use `shader-analyzer` or `shader-disassembler`.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.binding_model.descriptor_update.samplerless.sampled_img_sampler_destroyed_compute
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `sampled_img` | Selects `VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE`, a samplerless `texture2D` declaration, and `texelFetch`. |
+| `sampler_destroyed` | Places the former handle of an already-destroyed sampler in `VkDescriptorImageInfo::sampler`; this descriptor type must use only the valid image view and layout. |
+| Default descriptor-set index and layout | Places both descriptors in set 0 and uses `VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL` for the sampled source image. |
+| `compute` | Uses one compute invocation per output pixel to copy the descriptor-observed source value into a storage image. |
+
+#### Purpose
+
+This shader observes whether a sampled-image descriptor still exposes the intended green image when its unused sampler field contains a destroyed handle. Every invocation fetches the single source texel and copies it to one output pixel for host-side comparison.
+
+#### Structural Design
+
+| Shader-visible object or phase | Exact representative behavior |
+|--------------------------------|-------------------------------|
+| Source `img` | `texture2D` at set 0, binding 0; backed by a 1 x 1 `VK_FORMAT_R8G8B8A8_UNORM` image cleared to `(0, 1, 0, 1)`. |
+| Result `color_out` | Write-only use of an `rgba8` storage image at set 0, binding 1; its extent is 64 x 64. |
+| Coordinate mapping | A `64 x 64 x 1` dispatch with local size `1 x 1 x 1` maps `gl_GlobalInvocationID.xy` directly to the result texel. |
+| Observation | Every invocation performs `texelFetch(img, ivec2(0, 0), 0)`, so all result texels should receive the same green value. |
+
+#### Shader Code
+
+```glsl
+#version 450
+layout(local_size_x = 1, local_size_y = 1) in;
+#extension GL_EXT_samplerless_texture_functions : require
+/// The sampled-image descriptor is at set 0, binding 0; its sampler field is deliberately a destroyed handle, but this texture2D declaration consumes only the image view and layout.
+layout(set=0, binding=0) uniform texture2D img;
+/// Each invocation writes one rgba8 texel in the 64 x 64 result image.
+layout(set=0, binding=1, rgba8) uniform image2D color_out;
+void main()
+{
+    /// Map the 64 x 64 x 1 dispatch directly to output-image coordinates.
+    ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);
+    /// All invocations fetch the sole texel of the 1 x 1 source image; the expected value is green (0, 1, 0, 1).
+    vec4 color = texelFetch(img, ivec2(0, 0), 0);
+    /// Copy the descriptor-observed value into every result pixel for host validation.
+    imageStore(color_out, pixelCoords, color);
+}
+```
+
+#### Additional Info
+
+- The destroyed sampler handle is produced by creating a sampler, retaining its raw handle, and letting its owning wrapper destroy it before the descriptor write; the sampled-image descriptor must not access that field ([`getSamplerHandle()`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L339-L379)).
+- The host dispatches 64 x 64 invocations, copies the storage image to a buffer, and requires every pixel to equal `kDescriptorColor` ([compute execution and validation](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L775-L880)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Descriptor type | `storage_img` replaces `texture2D`/`texelFetch` with an `rgba8 image2D`/`imageLoad`; `input_attachment` replaces them with `subpassInput`/`subpassLoad` and has no compute case. | [shader generation](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L230-L285) |
+| Descriptor-set index | Set index 1 changes both image declarations to `set=1`; the operations and bindings remain the same. | [descriptor declaration generation](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L234-L276) |
+| Pipeline | Graphics cases put the selected read operation in a fragment shader and write `color_out` at location 0 rather than a storage image. | [fragment and compute generation](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L256-L285) |
+| Sampler field and image layout | `sampler_zero`, `sampler_one`, and `sampler_destroyed`, plus the default or general image layout, alter host descriptor state but do not alter generated shader text. | [case construction](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L883-L930) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 37
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpSourceExtension "GL_EXT_samplerless_texture_functions"
+               OpName %main "main"
+               OpName %pixelCoords "pixelCoords"
+               OpName %gl_GlobalInvocationID "gl_GlobalInvocationID"
+               OpName %color "color"
+               OpName %img "img"
+               OpName %color_out "color_out"
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %img Binding 0
+               OpDecorate %img DescriptorSet 0
+               OpDecorate %color_out Binding 1
+               OpDecorate %color_out DescriptorSet 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+      %v2int = OpTypeVector %int 2
+%_ptr_Function_v2int = OpTypePointer Function %v2int
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+     %v2uint = OpTypeVector %uint 2
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+         %22 = OpTypeImage %float 2D 0 0 0 1 Unknown
+%_ptr_UniformConstant_22 = OpTypePointer UniformConstant %22
+        %img = OpVariable %_ptr_UniformConstant_22 UniformConstant
+      %int_0 = OpConstant %int 0
+         %27 = OpConstantComposite %v2int %int_0 %int_0
+         %29 = OpTypeImage %float 2D 0 0 0 2 Rgba8
+%_ptr_UniformConstant_29 = OpTypePointer UniformConstant %29
+  %color_out = OpVariable %_ptr_UniformConstant_29 UniformConstant
+     %uint_1 = OpConstant %uint 1
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+%pixelCoords = OpVariable %_ptr_Function_v2int Function
+      %color = OpVariable %_ptr_Function_v4float Function
+         %15 = OpLoad %v3uint %gl_GlobalInvocationID
+         %16 = OpVectorShuffle %v2uint %15 %15 0 1
+         %17 = OpBitcast %v2int %16
+               OpStore %pixelCoords %17
+         %25 = OpLoad %22 %img
+         %28 = OpImageFetch %v4float %25 %27 Lod %int_0
+               OpStore %color %28
+         %32 = OpLoad %29 %color_out
+         %33 = OpLoad %v2int %pixelCoords
+         %34 = OpLoad %v4float %color
+               OpImageWrite %32 %33 %34
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

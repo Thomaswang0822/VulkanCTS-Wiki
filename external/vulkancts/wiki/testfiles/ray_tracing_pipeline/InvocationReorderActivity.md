@@ -46,37 +46,36 @@ The test verifies that `reorderThreadEXT` produces observable reordering when th
 
 The rgen shader is the tested behavior. The miss shader writes `vec3(0.0)` to the payload and is never reached because all geometry is opaque. The eight closest-hit shaders (`ch0` through `ch7`) each run a heavy floating-point loop with a distinct `uScale` constant to simulate different materials and create incoherent workload across pixels. Their shader text is identical except for the `uScale` value. No closest-hit walkthrough is needed because the rgen shader is where the reorder logic lives.
 
-### Representative Shader Walkthrough 1: `rtir_activity.activity` rgen
+### Representative Shader Walkthrough 1
 
-**CTS case:** `dEQP-VK.ray_tracing_pipeline.rtir_activity.activity`
+#### Parameter Values Chosen
 
-**Source:** reconstructed from [RTIRActivityCase::initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L129-L339), which assembles the rgen string from three fragments. The `use_shader_invocation_reorder = true` path concatenates `rgen_begin` + `rgen_TraceRTIR` + `rgen_end`. The `updateRayTracingGLSL` wrapper is an identity function, so the emitted source matches the string exactly.
+Representative path:
 
-**Stage:** Ray generation (`VK_SHADER_STAGE_RAYGEN_BIT_KHR`).
+```text
+dEQP-VK.ray_tracing_pipeline.rtir_activity.activity
+```
 
-**Resources:**
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `activity` | Selects the only registered invocation-reorder activity case. |
+| `use_shader_invocation_reorder = true` | Enables the hit-object path and calls `reorderThreadEXT` for the right half of the dispatch. |
+| `resX = 512`, `resY = 512` | Uses the fixed 512x512 launch whose two halves are compared by the host. |
 
-- `topLevelAS` (binding 0, set 0): `accelerationStructureEXT`. Bound at runtime to a 16-instance TLAS. Each instance references the same BLAS (one opaque triangle quad) with a different transform and SBT record offset `2*j + i`, selecting one of eight closest-hit shaders.
-- `outBuf` (binding 1, set 0): `std430` storage buffer of `uint values[1048576]`. The array length is `sizeof(uint32_t) * resX * resY = 1048576`, which is four times the pixel count. Only the first `512*512 = 262144` entries are written. Each entry packs an RGB color as `R << 16 | G << 8 | B`.
-- `hitValue` (location 0): `rayPayloadEXT vec3`. Written by the closest-hit or miss shader, then ignored by rgen after `hitObjectExecuteShaderEXT` returns.
-- `hObj`: `hitObjectEXT` variable in `Private` storage. Records the ray trace result and drives the reorder decision.
+#### Purpose
 
-**Shader logic:**
+This walkthrough isolates the shader behavior exercised by the selected representative case.
 
-The rgen shader computes a defocused primary ray per launch ID. It maps `gl_LaunchIDEXT.xy` to a normalized `[-1, 1]` coordinate, perturbs the ray origin using a disk-sampled lens offset (`apertureSize = 1.0`, `focusDistance = 1.15`), and normalizes the direction toward the focus point. The defocus makes consecutive pixels trace incoherent rays that hit different TLAS instances and thus different closest-hit shaders.
+#### Structural Design
 
-The reorder path is the core of the test:
+| Phase | Shader behavior |
+|-------|-----------------|
+| Build ray | Derive a defocused ray from `gl_LaunchIDEXT` and the fixed launch size. |
+| Record hit | Trace into a `hitObjectEXT` using the scene acceleration structure. |
+| Reorder one half | Call `reorderThreadEXT` only when the launch X coordinate is in the right half. |
+| Execute and encode | Execute the recorded hit shader, map `gl_SubgroupInvocationID` to RGB, and store one packed value per pixel. |
 
-1. `hitObjectRecordEmptyEXT(hObj)` initializes the hit object.
-2. `hitObjectTraceRayEXT(hObj, ...)` traces the ray into the TLAS with `gl_RayFlagsOpaqueEXT`, `cullMask = 0xFF`, `sbtRecordOffset = 0`, and records the result in `hObj` without immediately invoking a hit or miss shader.
-3. If `gl_LaunchIDEXT.x > gl_LaunchSizeEXT.x / 2` (right half of the image), `reorderThreadEXT(hObj)` asks the implementation to reorder the thread based on the recorded hit.
-4. `hitObjectExecuteShaderEXT(hObj, 0)` invokes the shader (closest-hit or miss) associated with the recorded hit object, using payload location 0.
-
-After the hit shader returns, the rgen shader writes a color to the output buffer. The color comes from a 192-element lookup table `col[192]` that holds 64 RGB triples with component values from `{0, 85, 170, 255}`. The index is `gl_SubgroupInvocationID * 3`, so each subgroup invocation maps to a fixed color. Without reordering, the subgroup assignment follows the implementation's default launch-ID-to-subgroup mapping, producing a regular color pattern. With reordering on the right half, threads with similar hits cluster together, changing the subgroup composition and the resulting color pattern.
-
-The output write packs the color as `R << 16 | G << 8 | B` into `outBuf.values[gl_LaunchIDEXT.y * 512 + gl_LaunchIDEXT.x]`.
-
-#### Reconstructed GLSL
+#### Shader Code
 
 ```glsl
 #version 460
@@ -156,6 +155,20 @@ void main()
     outBuf.values[index] = uint(invocationRes.x) << 16 | uint(invocationRes.y) << 8 | uint(invocationRes.z);
 }
 ```
+
+#### Additional Info
+
+- The miss shader writes `vec3(0.0)` to the payload but is not expected to run because the traced geometry is opaque.
+- Eight closest-hit shaders use the same heavy floating-point loop with distinct `uScale` constants, creating the incoherent workload that invocation reordering is intended to regroup.
+- The reconstructed rgen source follows [`initPrograms`](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L129-L339).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| Test case leaf | No variation: `activity` is the only registered leaf. | [Registration](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L634-L649) |
+| Reorder mode | The representative shader uses the registered `true` path; the generator also contains an unregistered `false` path without hit-object reordering. | [`initPrograms`](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L129-L339) |
+| Resolution | No registered variation: the dispatch remains 512x512. | [`TestParams` registration](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L639-L644) |
 
 #### SPIR-V
 
@@ -511,7 +524,11 @@ void main()
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
+
+## Runtime Execution and Result Checking
+
+The test creates the fixed ray-tracing scene, dispatches the selected invocation-reordering activity case, and reads the image or buffer written by the shaders. The host checks the case-specific activity pattern and expected invariants; a mismatch indicates an observable result different from the source-defined oracle.
 
 ### Feature and hint gating
 

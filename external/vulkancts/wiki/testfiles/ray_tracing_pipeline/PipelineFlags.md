@@ -77,58 +77,59 @@ The rgen shader is the entry point that exercises the SBT stride and offset mech
 
 ### Representative Shader Walkthrough 1
 
-**CTS case:** `dEQP-VK.ray_tracing_pipeline.pipeline_no_null_shaders_flag.gpu.tri_and_box.stride_3.offset_7.use_libs.any_or_chit_or_isect_or_miss`
+#### Parameter Values Chosen
 
-This case exercises all five shaders (rgen, miss, chit, ahit, isect) with all four NO_NULL flags set. It uses tri_and_box geometry, requiring both triangle and intersection hit groups. The SBT uses stride 3 and offset 7, and the pipeline is built with pipeline libraries. This case covers the widest parameter combination in the matrix.
+Representative path:
 
-**Reconstructed GLSL (rgen):**
-
-```glsl
-#version 460 core
-#extension GL_EXT_ray_tracing : require
-layout(location = 0) rayPayloadEXT ivec4 payload;
-layout(rgba32i, set = 0, binding = 0) uniform iimage2D result;
-layout(set = 0, binding = 1) uniform accelerationStructureEXT topLevelAS;
-void main()
-{
-  float rx           = (float(gl_LaunchIDEXT.x * 2) / float(gl_LaunchSizeEXT.x)) - 1.0;
-  float ry           = (float(gl_LaunchIDEXT.y) + 0.5) / float(gl_LaunchSizeEXT.y);
-  /// rgenPayload is tcu::IVec4(0, ':', 0, 0); ':' has ASCII value 58
-  payload            = ivec4(0, 58, 0, 0);
-  uint  rayFlags     = gl_RayFlagsNoneEXT;
-  uint  cullMask     = 0xFFu;
-  /// SBT record offset and stride from TestParams (stbRecOffset=7, stbRecStride=3)
-  uint  stbRecOffset = 7u;
-  uint  stbRecStride = 3u;
-  uint  missIdx      = 0u;
-  vec3  orig         = vec3(rx, ry, 1.0);
-  float tmin         = 0.0;
-  vec3  dir          = vec3(0.0, 0.0, -1.0);
-  float tmax         = 1000.0;
-  traceRayEXT(topLevelAS, rayFlags, cullMask, stbRecOffset, stbRecStride, missIdx, orig, tmin, dir, tmax, 0);
-  imageStore(result, ivec2(gl_LaunchIDEXT.xy), payload);
-}
+```text
+dEQP-VK.ray_tracing_pipeline.pipeline_no_null_shaders_flag.gpu.boxes.stride_3.offset_7.use_libs.any_or_chit_or_isect_or_miss
 ```
 
-**Shader resources:**
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `gpu` | Builds the BLAS and TLAS on the device; this does not alter the ray-generation shader text. |
+| `boxes` | Uses procedural AABB geometry, so the hit group includes intersection, any-hit, and closest-hit shaders. |
+| `stride_3`, `offset_7` | Compiles `stbRecStride = 3u` and `stbRecOffset = 7u` into the `traceRayEXT` call, selecting non-contiguous hit-group records after a nonzero offset. |
+| `use_libs` | Places miss and hit-group shaders in pipeline libraries while the ray-generation shader remains in the main pipeline. |
+| `any_or_chit_or_isect_or_miss` | Declares every corresponding shader kind non-null and causes both conditional any-hit and intersection modules to be created. |
 
-| Resource | Binding | Type | Role |
-|----------|---------|------|------|
-| `payload` | location 0 | `rayPayloadEXT ivec4` | Ray payload, written by miss/chit/isect, read back by rgen |
-| `result` | set 0, binding 0 | `rgba32i uniform iimage2D` | Storage image storing per-pixel result |
-| `topLevelAS` | set 0, binding 1 | `accelerationStructureEXT` | TLAS to trace against |
+#### Purpose
 
-**Walkthrough:**
+This walkthrough isolates the shader behavior exercised by the selected representative case.
 
-1. The rgen shader maps `gl_LaunchIDEXT.xy` to ray origin coordinates. The x coordinate maps to `[-1, 1)` and the y coordinate maps to `[0, 1)`, covering the 2D extent of the geometry.
-2. The payload is initialized to `ivec4(0, 58, 0, 0)`. The value 58 is the ASCII code for `':'`, used as the default rgen payload green component. If no shader modifies the payload, this value is stored.
-3. The ray is traced with `sbtRecOffset = 7` and `sbtRecStride = 3`. These select which hit group in the SBT processes the ray for a given geometry. The effective hit group index for geometry `g` of instance `i` is `i * groupsAndGapsPerInstance + 7 + g * 3`, where `groupsAndGapsPerInstance = geomCount * stbRecStride + stbRecOffset + 1 = 2 * 3 + 7 + 1 = 14`.
-4. The ray origin is at `(rx, ry, 1.0)` and direction is `(0, 0, -1)`, traveling straight down the -z axis with `tmin = 0.0` and `tmax = 1000.0`. All geometry is placed at `z = 0.0`.
-5. After `traceRayEXT` returns, the payload holds the result from whichever shader last wrote it (miss, chit, or the rgen default if no shader ran). The result is stored to the image at `gl_LaunchIDEXT.xy`.
+#### Structural Design
 
-The key SPIR-V operations are the `OpTraceRayKHR` instruction (line 131 in the disassembly) which encodes all SBT parameters, and the `OpImageWrite` with `SignExtend` (line 137) which stores the signed integer payload.
+| Phase | Inputs and constants | Result |
+|-------|----------------------|--------|
+| Map invocation to ray | `gl_LaunchIDEXT`, `gl_LaunchSizeEXT` | Origin `(rx, ry, 1.0)` and direction `(0, 0, -1)` |
+| Initialize trace state | payload `(0, 58, 0, 0)`, flags `0`, mask `0xFF`, miss index `0` | Deterministic pre-trace payload and unrestricted instance mask |
+| Select hit records | SBT record offset `7`, stride `3` | `traceRayEXT` indexes the intended per-geometry records despite gaps |
+| Export result | payload returned by miss or hit processing | `imageStore` writes one `ivec4` at the launch coordinate |
+
+#### Shader Code
+
+##### Ray Generation Shader
+
+This representative case uses the CTS-authored SPIR-V module directly rather than GLSL or HLSL. The stage, entry point, capabilities, and execution modes are encoded in the module; the complete assembly remains in the final SPIR-V subsection.
+
+The shader source and stage-specific declarations for the representative case are described here; the generated artifact is kept in the final SPIR-V subsection.
+
+#### Additional Info
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Processor | `gpu` and `cpu` generate the same rgen text; the choice changes device-side versus host-side acceleration-structure construction. | [processor registration](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1533-L1608) |
+| Geometry type | The rgen text stays fixed, while geometry type changes hit-group composition and whether the intersection shader is required. | [conditional shader generation](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L684-L732) |
+| SBT stride | Changes the `stbRecStride` literal passed to `traceRayEXT` from `3u` to `5u`. | [rgen generation](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L655-L663) |
+| SBT offset | Is fixed at `7u` in registered cases and becomes the `stbRecOffset` literal passed to `traceRayEXT`. | [offset registration](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1530-L1531) |
+| Library mode | Does not change shader text; it changes whether miss and hit-group modules are assembled into libraries or the main pipeline. | [pipeline creation](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L434-L472) |
+| NO_NULL flag combination | Does not change rgen text, but controls creation of the conditional any-hit shader and flag-dependent intersection shader; miss and closest-hit source are always generated. | [shader generation](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L670-L732) |
 
 #### SPIR-V
+
+##### Ray Generation Shader
 
 - Status: generated and validated
 - Source: reconstructed `GLSL` from this walkthrough
@@ -280,7 +281,9 @@ The key SPIR-V operations are the `OpTraceRayKHR` instruction (line 131 in the d
                OpFunctionEnd
 ```
 
-</details>## Runtime Execution and Result Checking
+</details>
+
+## Runtime Execution and Result Checking
 
 ### Pipeline construction
 

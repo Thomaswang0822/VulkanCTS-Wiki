@@ -155,10 +155,213 @@ everywhere (because `STORE_NONE` with writes to the other aspect does not access
 
 ## Shader Analysis
 
-Shader code is not part of the tested behavior. The fragment shaders are trivial vehicles for producing color and depth output: they pass through the vertex
-color, optionally set `gl_FragDepth = 1.0`, and in one variant read an input attachment and add the vertex color
-([initPrograms](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L505-L560)). No shader walkthrough is needed because the test
-validates render pass load/store op semantics, not shader logic.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.renderpasses.renderpass1.suballocation.load_store_op_none.color_load_op_none_store_op_none
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `renderpass1` | The legacy render-pass path supplies the fragment shader with a conventional color-attachment output. The generated shader text is shared with the renderpass2 and dynamic-rendering groups; those groups change attachment setup and command recording, not this shader interface. |
+| `color_load_op_none_store_op_none` | The color attachment is not loaded, is written by the draw, and uses `STORE_OP_NONE`. The draw therefore supplies only the test's write event; the expected undefined inner region and preserved outer region are determined by render-pass operations and the render area, not by shader branching. |
+| `color_frag` | This is the ordinary floating-point color fragment variant: it forwards the interpolated vertex color to location 0 and writes a fixed depth of 1.0. |
+
+#### Purpose
+
+This shader is the rendering vehicle for a `LOAD_OP_NONE`/`STORE_OP_NONE` color test. It emits the draw's red color and a deterministic depth value; the host-side test, rather than shader logic, validates how the attachment contents are treated inside and outside the 27×19 render area.
+
+#### Structural Design
+
+| Phase | Shader operation | Test relevance |
+|-------|------------------|----------------|
+| Interface | Receive `vtxColor` at location 0 and expose `fragColor` at location 0. | The vertex color is the draw payload written to the color attachment. |
+| Color write | Copy `vtxColor` to `fragColor`. | The selected case performs a real color write, exercising the written-content branch of `STORE_OP_NONE`. |
+| Depth write | Assign `1.0` to `gl_FragDepth`. | The fragment variant also makes depth output deterministic; the case's color verification remains controlled by its color attachment parameters. |
+
+The paired vertex stage transports the position and color from the host vertex buffer. No shader-side conditional path implements `NONE`; load/store semantics are selected in the attachment descriptions and rendering commands.
+
+#### Shader Code
+
+##### Vertex Shader
+
+```glsl
+#version 450
+
+/// Host vertex binding 0 supplies clip-space position; binding 0 attribute locations are 0 and 1.
+layout(location = 0) in highp vec4 position;
+layout(location = 1) in highp vec4 color;
+/// Location 0 is the interpolated color consumed by the fragment stage.
+layout(location = 0) out highp vec4 vtxColor;
+
+void main (void)
+{
+    /// The test quad is already expressed in clip-space coordinates.
+    gl_Position = position;
+    /// Preserve the per-vertex red/blue draw color for rasterized fragments.
+    vtxColor = color;
+}
+```
+
+##### Fragment Shader
+
+```glsl
+#version 450
+
+/// Location 0 matches the vertex-stage color transport and the color attachment output.
+layout(location = 0) in highp vec4 vtxColor;
+layout(location = 0) out highp vec4 fragColor;
+
+void main (void)
+{
+    /// This assignment is the attachment write that makes STORE_OP_NONE's written case relevant.
+    fragColor = vtxColor;
+    /// The shared fragment variant writes a deterministic depth value for graphics-pipeline cases.
+    gl_FragDepth = 1.0;
+}
+```
+
+#### Additional Info
+
+- The selected case's host setup binds a `Vertex4RGBA` buffer with position and color attributes, using six vertices for the full-screen quad; the shader has no descriptor or push-constant resources ([vertex data](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L148-L170), [vertex input](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L1214-L1244)).
+- The vertex stage stays fixed across the color, depth, stencil, and combined depth/stencil variants; it matters here because it provides the color payload and coverage, while attachment aspect state is configured by the host.
+- The fragment stage varies on the page only for integer color output, alpha blending, or input-attachment reads. The selected `color_frag` branch is chosen when none of those flags is active ([shader selection](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L1347-L1355)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|----------------------------------------|----------|
+| Color format kind | Integer color cases select `color_frag_uint`, whose output is `uvec4(vtxColor * 255)` instead of floating-point `vec4`. | [integer shader generation](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L530-L538) |
+| Alpha blending | `color_load_op_none_store_op_store_alphablend` selects `color_frag_blend`, outputs alpha 0.5, and enables blending in the host pipeline. | [blend shader](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L540-L548), [blend state](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L1290-L1294) |
+| Input attachment use | The two-subpass color cases select `color_frag_input`, declare an input attachment, and add `subpassLoad(inputColor)` to `vtxColor`. | [input shader](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L550-L559), [shader selection](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L1347-L1351) |
+| Attachment operation | `LOAD_OP_NONE` and `STORE_OP_NONE` alter attachment lifetime and definedness, but do not change generated shader code. | [selected case construction](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L1610-L1632) |
+
+#### SPIR-V
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 24
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %position %vtxColor %color
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex 2 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex 3 "gl_CullDistance"
+               OpName %_ ""
+               OpName %position "position"
+               OpName %vtxColor "vtxColor"
+               OpName %color "color"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex 3 BuiltIn CullDistance
+               OpDecorate %position Location 0
+               OpDecorate %vtxColor Location 0
+               OpDecorate %color Location 1
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_arr_float_uint_1 = OpTypeArray %float %uint_1
+%gl_PerVertex = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+   %position = OpVariable %_ptr_Input_v4float Input
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %vtxColor = OpVariable %_ptr_Output_v4float Output
+      %color = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %18 = OpLoad %v4float %position
+         %20 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %20 %18
+         %23 = OpLoad %v4float %color
+               OpStore %vtxColor %23
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 16
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %fragColor %vtxColor %gl_FragDepth
+               OpExecutionMode %main OriginUpperLeft
+               OpExecutionMode %main DepthReplacing
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %fragColor "fragColor"
+               OpName %vtxColor "vtxColor"
+               OpName %gl_FragDepth "gl_FragDepth"
+               OpDecorate %fragColor Location 0
+               OpDecorate %vtxColor Location 0
+               OpDecorate %gl_FragDepth BuiltIn FragDepth
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %fragColor = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+   %vtxColor = OpVariable %_ptr_Input_v4float Input
+%_ptr_Output_float = OpTypePointer Output %float
+%gl_FragDepth = OpVariable %_ptr_Output_float Output
+    %float_1 = OpConstant %float 1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %12 = OpLoad %v4float %vtxColor
+               OpStore %fragColor %12
+               OpStore %gl_FragDepth %float_1
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

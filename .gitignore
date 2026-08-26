@@ -15,6 +15,7 @@
 *.yuv
 
 build*
+!external/vulkancts/wiki/case_lookup/build.py
 
 # 2. Un-ignore .agents → Git will now look inside
 !.agents

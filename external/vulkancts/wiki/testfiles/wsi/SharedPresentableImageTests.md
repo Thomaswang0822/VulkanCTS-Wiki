@@ -24,22 +24,30 @@ wsi.android.shared_presentable_image
 ├── scale_none
 ├── scale_up
 └── scale_down
+
 wsi.direct.shared_presentable_image
 └── scale_none
+
 wsi.direct_drm.shared_presentable_image
 └── scale_none
+
 wsi.headless.shared_presentable_image
 └── scale_none
+
 wsi.metal.shared_presentable_image
 ├── scale_none
 ├── scale_up
 └── scale_down
+
 wsi.wayland.shared_presentable_image
 └── scale_none
+
 wsi.win32.shared_presentable_image
 └── scale_none
+
 wsi.xcb.shared_presentable_image
 └── scale_none
+
 wsi.xlib.shared_presentable_image
 └── scale_none
 ```

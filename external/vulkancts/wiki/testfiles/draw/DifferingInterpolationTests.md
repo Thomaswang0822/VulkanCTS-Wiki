@@ -54,18 +54,136 @@ The test image uses `vertNoPerspective` with `frag`; its reference uses `vert` w
 
 ## Shader Analysis
 
-The test generates one vertex template and one fragment template, then specializes each template with an empty qualifier, `flat`, or `noperspective` ([templates](../../../modules/vulkan/draw/vktDrawDifferingInterpolationTests.cpp#L124-L152)). The six registered shader modules are:
+### Representative Shader Walkthrough 1
 
-| Module | Stage | Interface declaration |
-|---|---|---|
-| `vert` | vertex | `layout(location = 0) out vec4 out_color` |
-| `vertFlatColor` | vertex | `layout(location = 0) flat out vec4 out_color` |
-| `vertNoPerspective` | vertex | `layout(location = 0) noperspective out vec4 out_color` |
-| `frag` | fragment | `layout(location = 0) in vec4 in_color` |
-| `fragFlatColor` | fragment | `layout(location = 0) flat in vec4 in_color` |
-| `fragNoPerspective` | fragment | `layout(location = 0) noperspective in vec4 in_color` |
+#### Parameter Values Chosen
 
-All variants use GLSL `#version 430`, pass position and color through the shaders, and write the received color to location 0 ([shader construction](../../../modules/vulkan/draw/vktDrawDifferingInterpolationTests.cpp#L124-L160)).
+Representative path:
+
+```text
+dEQP-VK.draw.renderpass.differing_interpolation.flat_1
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `flat` | Adds `flat` to the test vertex shader's location-0 color output. |
+| `_1` | Places the differing decoration only on the test vertex output; both fragment inputs are undecorated. |
+| `renderpass` | Uses the canonical render-pass registration of this leaf; rendering-path variants reuse the same generated modules. |
+
+#### Purpose
+
+This case checks that `flat` on a vertex output does not change interpolation when the matching fragment input is undecorated. The test and reference images must both use perspective-correct color interpolation and match exactly.
+
+#### Structural Design
+
+| Draw | Vertex location-0 output | Fragment location-0 input | Fragment interpolation selected |
+|---|---|---|---|
+| Test | `flat out vec4 out_color` | `in vec4 in_color` | Perspective-correct |
+| Reference | `out vec4 out_color` | `in vec4 in_color` | Perspective-correct |
+
+#### Shader Code
+
+```glsl
+#version 430
+/// Location 0 supplies clip-space position; the three host vertices use unequal w values so perspective correction is observable.
+layout(location = 0) in vec4 in_position;
+/// Location 1 supplies a different RGBA color at each vertex.
+layout(location = 1) in vec4 in_color;
+/// This test-side output alone is flat; the matching fragment input remains undecorated.
+layout(location = 0) flat out vec4 out_color;
+/// The explicit built-in block carries the clip-space position and fixes point size even though the pipeline draws a triangle.
+out gl_PerVertex {
+    vec4  gl_Position;
+    float gl_PointSize;
+};
+void main() {
+    /// Forward the host attributes unchanged; only the output interpolation decoration differs from the reference vertex shader.
+    gl_PointSize = 1.0;
+    gl_Position  = in_position;
+    out_color    = in_color;
+}
+```
+
+#### Additional Info
+
+- The fixed fragment shader declares undecorated `layout(location = 0) in vec4 in_color` and directly copies it to the location-0 color output; it is identical in both draws of this leaf ([shader template](../../../modules/vulkan/draw/vktDrawDifferingInterpolationTests.cpp#L140-L146)).
+- The reference vertex shader is generated from the same template with an empty qualifier substitution; `flat` is the only shader-text difference relevant to the compared pair ([specializations](../../../modules/vulkan/draw/vktDrawDifferingInterpolationTests.cpp#L148-L159), [pair selection](../../../modules/vulkan/draw/vktDrawDifferingInterpolationTests.cpp#L464-L465)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Interpolation decoration | `noperspective` replaces `flat` on the selected interface declaration in the neighboring family, selecting linear interpolation only when it appears on the fragment input. | [`initPrograms`](../../../modules/vulkan/draw/vktDrawDifferingInterpolationTests.cpp#L148-L159) |
+| Mismatch direction | `_0` leaves the test vertex output undecorated and decorates the fixed fragment input; `_1` decorates only the test vertex output and leaves the fragment input undecorated. | [`createTests`](../../../modules/vulkan/draw/vktDrawDifferingInterpolationTests.cpp#L461-L479) |
+| Rendering path | Render-pass and dynamic-rendering registrations do not change generated GLSL; they vary pipeline and command-buffer setup around the same module names. | [`initPrograms`](../../../modules/vulkan/draw/vktDrawDifferingInterpolationTests.cpp#L124-L160) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 25
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %in_position %out_color %in_color
+               OpSource GLSL 430
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpName %_ ""
+               OpName %in_position "in_position"
+               OpName %out_color "out_color"
+               OpName %in_color "in_color"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpDecorate %in_position Location 0
+               OpDecorate %out_color Flat
+               OpDecorate %out_color Location 0
+               OpDecorate %in_color Location 1
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%gl_PerVertex = OpTypeStruct %v4float %float
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_1 = OpConstant %int 1
+    %float_1 = OpConstant %float 1
+%_ptr_Output_float = OpTypePointer Output %float
+      %int_0 = OpConstant %int 0
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%in_position = OpVariable %_ptr_Input_v4float Input
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %out_color = OpVariable %_ptr_Output_v4float Output
+   %in_color = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %15 = OpAccessChain %_ptr_Output_float %_ %int_1
+               OpStore %15 %float_1
+         %19 = OpLoad %v4float %in_position
+         %21 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %21 %19
+         %24 = OpLoad %v4float %in_color
+               OpStore %out_color %24
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

@@ -79,9 +79,503 @@ Same as `nested`, but using the with-count commands. `checkSupport()` gates it o
 
 ## Shader Analysis
 
-The shaders support the test rather than implement the tested property. The vertex shader passes rectangle parameters through; the geometry shader expands each point into a triangle-strip rectangle and selects the viewport index through `gl_ViewportIndex`; the fragment shader writes the passed-through color ([shaders](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L196-L267)).
+The geometry shader is the primary stage because it turns each point record into a rectangle and writes `gl_ViewportIndex`, which selects the inherited viewport/scissor pair used by fixed-function rasterization. The vertex and fragment stages are also shown because their location-based interfaces carry every rectangle parameter into the geometry stage and its decoded color to the attachment ([shader sources](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L196-L267)).
 
-No representative shader walkthrough is included. Reconstructing the shader would explain rectangle expansion, but it would not explain why inherited viewport/scissor state should differ from locally recorded state. The useful shader fact is that `gl_ViewportIndex` selects which inherited viewport and scissor applies to each rectangle.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.dynamic_state.monolithic.inheritance.primary
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `primary` inheritance mode | The primary command buffer sets the viewport/scissor arrays, while the drawing secondary command buffer must inherit them. |
+| Monolithic pipeline | Uses the ordinary vertex, geometry, and fragment pipeline whose shader dataflow is reconstructed below. |
+| All 8 internal geometry configurations | This leaf runs every configuration without regenerating its shaders; viewport count, rectangle records, viewport dimensions/depth ranges, and scissors are host data. |
+| Geometry stage as primary shader | This is the stage that expands a rectangle and assigns its `viewportIndex` to every emitted vertex. |
+
+#### Purpose
+
+Show how each host-provided rectangle is routed through `gl_ViewportIndex` to one inherited viewport/scissor pair, making incorrect inherited state visible in rectangle coverage and depth ordering.
+
+#### Structural Design
+
+| Stage or fixed-function phase | Input | Output or action | Why it matters |
+|-------------------------------|-------|------------------|----------------|
+| Vertex shader | One `Rectangle` vertex record | Clip-space origin plus flat packed color, size, and viewport index | Preserves the host-selected rectangle parameters by location. |
+| Geometry shader | One point and its flat parameters | Four-vertex triangle-strip rectangle | Decodes RGB, expands the point by `widthHeight`, and writes the same `gl_ViewportIndex` for all four vertices. |
+| Viewport transform and scissor | `gl_Position`, `gl_ViewportIndex`, inherited arrays | Window position, remapped depth, and clipped coverage | This is where the inherited state under test is consumed. |
+| Fragment shader | Flat interpolated color | Color-attachment value | Makes the surviving rectangle and depth winner observable. |
+
+#### Shader Code
+
+##### Geometry Shader
+
+```glsl
+#version 460
+
+/// One input point is expanded into one rectangle.
+layout(points) in;
+/// Four emitted vertices form a single triangle strip.
+layout(triangle_strip, max_vertices=4) out;
+
+/// Flat location-matched values come from the vertex shader's rectangle record.
+layout(location=0) flat in int r8g8b8[];
+layout(location=1) flat in vec2 widthHeight[];
+layout(location=2) flat in int viewportIndex[];
+
+/// The decoded rectangle color remains constant over the emitted primitive.
+layout(location=0) flat out vec4 o_color;
+
+void main()
+{
+    /// Decode the host's packed 0xRRGGBB integer into normalized color channels.
+    int redBits   = (r8g8b8[0] >> 16) & 255;
+    int greenBits = (r8g8b8[0] >> 8)  & 255;
+    int blueBits  =  r8g8b8[0]        & 255;
+    float n       = 1.0 / 255.0;
+    vec4 color    = vec4(redBits * n, greenBits * n, blueBits * n, 1.0);
+
+    /// Emit the origin corner and route it to the selected inherited viewport/scissor pair.
+    gl_ViewportIndex = viewportIndex[0];
+    gl_Position = gl_in[0].gl_Position;
+    o_color     = color;
+    EmitVertex();
+
+    /// Emit the origin plus height with the same viewport index.
+    gl_ViewportIndex = viewportIndex[0];
+    gl_Position = gl_in[0].gl_Position + vec4(0.0, widthHeight[0].y, 0.0, 0.0);
+    o_color     = color;
+    EmitVertex();
+
+    /// Emit the origin plus width with the same viewport index.
+    gl_ViewportIndex = viewportIndex[0];
+    gl_Position = gl_in[0].gl_Position + vec4(widthHeight[0].x, 0.0, 0.0, 0.0);
+    o_color     = color;
+    EmitVertex();
+
+    /// Complete the rectangle at origin plus width and height.
+    gl_ViewportIndex = viewportIndex[0];
+    gl_Position = gl_in[0].gl_Position + vec4(widthHeight[0].xy, 0.0, 0.0);
+    o_color     = color;
+    EmitVertex();
+
+    EndPrimitive();
+}
+```
+
+##### Vertex Shader
+
+```glsl
+#version 460
+
+/// One host-side Rectangle occupies one vertex; these locations match the pipeline's four vertex attributes.
+layout(location=0) in vec3 xyz;
+layout(location=1) in int r8g8b8;
+layout(location=2) in vec2 widthHeight;
+layout(location=3) in int viewportIndex;
+
+/// Flat outputs preserve each rectangle's packed color, size, and viewport selection for the geometry stage.
+layout(location=0) flat out int o_r8g8b8;
+layout(location=1) flat out vec2 o_widthHeight;
+layout(location=2) flat out int o_viewportIndex;
+
+void main()
+{
+    /// Supply the rectangle origin in clip space and forward its remaining fields by location.
+    gl_Position     = vec4(xyz, 1.0);
+    o_r8g8b8        = r8g8b8;
+    o_widthHeight   = widthHeight;
+    o_viewportIndex = viewportIndex;
+}
+```
+
+##### Fragment Shader
+
+```glsl
+#version 460
+/// The geometry stage's location-0 flat output arrives here despite the different variable name.
+layout(location=0) flat in vec4 color;
+/// The surviving rectangle color is written directly to color attachment 0.
+layout(location=0) out     vec4 o_color;
+
+void main()
+{
+    o_color = color;
+}
+```
+
+#### Additional Info
+
+- The vertex shader is fixed across every inheritance mode and internal geometry configuration. It matters because it carries the host-selected `viewportIndex`, clip-space origin, dimensions, and packed color into the geometry stage by matching locations 0-2.
+- The fragment shader is likewise fixed. It contributes no inheritance logic, but its flat location-0 input preserves the geometry shader's decoded color so the framebuffer reveals which rectangle survives viewport/scissor clipping and depth testing.
+- [`initPrograms()`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1185-L1190) adds all three constant source strings without explicit `ShaderBuildOptions`, so the CTS baseline target is SPIR-V 1.0.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Inheritance mode | None. All eight leaves use the same three shader strings; command-buffer recording changes the source of viewport/scissor state and whether count is dynamic. | [`initPrograms()`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1185-L1190), [`startRenderCmds()`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L549-L937) |
+| Internal test geometry | None. Rectangle records and viewport/scissor arrays vary as host data, while the geometry shader always expands one point using `widthHeight[0]` and routes it with `viewportIndex[0]`. | [`makeGeometry()`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1023-L1084), [`geom_glsl`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L216-L257) |
+| Pipeline construction type | The GLSL source is unchanged; only host-side pipeline assembly differs. | [`initPrograms()`](../../../modules/vulkan/dynamic_state/vktDynamicStateInheritanceTests.cpp#L1185-L1190) |
+
+#### SPIR-V
+
+##### Geometry Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `geom`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 113
+; Schema: 0
+               OpCapability Geometry
+               OpCapability MultiViewport
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Geometry %main "main" %r8g8b8 %gl_ViewportIndex %viewportIndex %_ %gl_in %o_color %widthHeight
+               OpExecutionMode %main InputPoints
+               OpExecutionMode %main Invocations 1
+               OpExecutionMode %main OutputTriangleStrip
+               OpExecutionMode %main OutputVertices 4
+               OpSource GLSL 460
+               OpName %main "main"
+               OpName %redBits "redBits"
+               OpName %r8g8b8 "r8g8b8"
+               OpName %greenBits "greenBits"
+               OpName %blueBits "blueBits"
+               OpName %n "n"
+               OpName %color "color"
+               OpName %gl_ViewportIndex "gl_ViewportIndex"
+               OpName %viewportIndex "viewportIndex"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex 2 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex 3 "gl_CullDistance"
+               OpName %_ ""
+               OpName %gl_PerVertex_0 "gl_PerVertex"
+               OpMemberName %gl_PerVertex_0 0 "gl_Position"
+               OpMemberName %gl_PerVertex_0 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex_0 2 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex_0 3 "gl_CullDistance"
+               OpName %gl_in "gl_in"
+               OpName %o_color "o_color"
+               OpName %widthHeight "widthHeight"
+               OpDecorate %r8g8b8 Flat
+               OpDecorate %r8g8b8 Location 0
+               OpDecorate %gl_ViewportIndex BuiltIn ViewportIndex
+               OpDecorate %viewportIndex Flat
+               OpDecorate %viewportIndex Location 2
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex 3 BuiltIn CullDistance
+               OpDecorate %gl_PerVertex_0 Block
+               OpMemberDecorate %gl_PerVertex_0 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex_0 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex_0 2 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex_0 3 BuiltIn CullDistance
+               OpDecorate %o_color Flat
+               OpDecorate %o_color Location 0
+               OpDecorate %widthHeight Flat
+               OpDecorate %widthHeight Location 1
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_arr_int_uint_1 = OpTypeArray %int %uint_1
+%_ptr_Input__arr_int_uint_1 = OpTypePointer Input %_arr_int_uint_1
+     %r8g8b8 = OpVariable %_ptr_Input__arr_int_uint_1 Input
+      %int_0 = OpConstant %int 0
+%_ptr_Input_int = OpTypePointer Input %int
+     %int_16 = OpConstant %int 16
+    %int_255 = OpConstant %int 255
+      %int_8 = OpConstant %int 8
+      %float = OpTypeFloat 32
+%_ptr_Function_float = OpTypePointer Function %float
+%float_0_00392156886 = OpConstant %float 0.00392156886
+    %v4float = OpTypeVector %float 4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+    %float_1 = OpConstant %float 1
+%_ptr_Output_int = OpTypePointer Output %int
+%gl_ViewportIndex = OpVariable %_ptr_Output_int Output
+%viewportIndex = OpVariable %_ptr_Input__arr_int_uint_1 Input
+%_arr_float_uint_1 = OpTypeArray %float %uint_1
+%gl_PerVertex = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+%gl_PerVertex_0 = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+%_arr_gl_PerVertex_0_uint_1 = OpTypeArray %gl_PerVertex_0 %uint_1
+%_ptr_Input__arr_gl_PerVertex_0_uint_1 = OpTypePointer Input %_arr_gl_PerVertex_0_uint_1
+      %gl_in = OpVariable %_ptr_Input__arr_gl_PerVertex_0_uint_1 Input
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+    %o_color = OpVariable %_ptr_Output_v4float Output
+    %float_0 = OpConstant %float 0
+    %v2float = OpTypeVector %float 2
+%_arr_v2float_uint_1 = OpTypeArray %v2float %uint_1
+%_ptr_Input__arr_v2float_uint_1 = OpTypePointer Input %_arr_v2float_uint_1
+%widthHeight = OpVariable %_ptr_Input__arr_v2float_uint_1 Input
+%_ptr_Input_float = OpTypePointer Input %float
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_v2float = OpTypePointer Input %v2float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+    %redBits = OpVariable %_ptr_Function_int Function
+  %greenBits = OpVariable %_ptr_Function_int Function
+   %blueBits = OpVariable %_ptr_Function_int Function
+          %n = OpVariable %_ptr_Function_float Function
+      %color = OpVariable %_ptr_Function_v4float Function
+         %16 = OpAccessChain %_ptr_Input_int %r8g8b8 %int_0
+         %17 = OpLoad %int %16
+         %19 = OpShiftRightArithmetic %int %17 %int_16
+         %21 = OpBitwiseAnd %int %19 %int_255
+               OpStore %redBits %21
+         %23 = OpAccessChain %_ptr_Input_int %r8g8b8 %int_0
+         %24 = OpLoad %int %23
+         %26 = OpShiftRightArithmetic %int %24 %int_8
+         %27 = OpBitwiseAnd %int %26 %int_255
+               OpStore %greenBits %27
+         %29 = OpAccessChain %_ptr_Input_int %r8g8b8 %int_0
+         %30 = OpLoad %int %29
+         %31 = OpBitwiseAnd %int %30 %int_255
+               OpStore %blueBits %31
+               OpStore %n %float_0_00392156886
+         %39 = OpLoad %int %redBits
+         %40 = OpConvertSToF %float %39
+         %41 = OpLoad %float %n
+         %42 = OpFMul %float %40 %41
+         %43 = OpLoad %int %greenBits
+         %44 = OpConvertSToF %float %43
+         %45 = OpLoad %float %n
+         %46 = OpFMul %float %44 %45
+         %47 = OpLoad %int %blueBits
+         %48 = OpConvertSToF %float %47
+         %49 = OpLoad %float %n
+         %50 = OpFMul %float %48 %49
+         %52 = OpCompositeConstruct %v4float %42 %46 %50 %float_1
+               OpStore %color %52
+         %56 = OpAccessChain %_ptr_Input_int %viewportIndex %int_0
+         %57 = OpLoad %int %56
+               OpStore %gl_ViewportIndex %57
+         %67 = OpAccessChain %_ptr_Input_v4float %gl_in %int_0 %int_0
+         %68 = OpLoad %v4float %67
+         %70 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %70 %68
+         %72 = OpLoad %v4float %color
+               OpStore %o_color %72
+               OpEmitVertex
+         %73 = OpAccessChain %_ptr_Input_int %viewportIndex %int_0
+         %74 = OpLoad %int %73
+               OpStore %gl_ViewportIndex %74
+         %75 = OpAccessChain %_ptr_Input_v4float %gl_in %int_0 %int_0
+         %76 = OpLoad %v4float %75
+         %83 = OpAccessChain %_ptr_Input_float %widthHeight %int_0 %uint_1
+         %84 = OpLoad %float %83
+         %85 = OpCompositeConstruct %v4float %float_0 %84 %float_0 %float_0
+         %86 = OpFAdd %v4float %76 %85
+         %87 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %87 %86
+         %88 = OpLoad %v4float %color
+               OpStore %o_color %88
+               OpEmitVertex
+         %89 = OpAccessChain %_ptr_Input_int %viewportIndex %int_0
+         %90 = OpLoad %int %89
+               OpStore %gl_ViewportIndex %90
+         %91 = OpAccessChain %_ptr_Input_v4float %gl_in %int_0 %int_0
+         %92 = OpLoad %v4float %91
+         %94 = OpAccessChain %_ptr_Input_float %widthHeight %int_0 %uint_0
+         %95 = OpLoad %float %94
+         %96 = OpCompositeConstruct %v4float %95 %float_0 %float_0 %float_0
+         %97 = OpFAdd %v4float %92 %96
+         %98 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %98 %97
+         %99 = OpLoad %v4float %color
+               OpStore %o_color %99
+               OpEmitVertex
+        %100 = OpAccessChain %_ptr_Input_int %viewportIndex %int_0
+        %101 = OpLoad %int %100
+               OpStore %gl_ViewportIndex %101
+        %102 = OpAccessChain %_ptr_Input_v4float %gl_in %int_0 %int_0
+        %103 = OpLoad %v4float %102
+        %105 = OpAccessChain %_ptr_Input_v2float %widthHeight %int_0
+        %106 = OpLoad %v2float %105
+        %107 = OpCompositeExtract %float %106 0
+        %108 = OpCompositeExtract %float %106 1
+        %109 = OpCompositeConstruct %v4float %107 %108 %float_0 %float_0
+        %110 = OpFAdd %v4float %103 %109
+        %111 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %111 %110
+        %112 = OpLoad %v4float %color
+               OpStore %o_color %112
+               OpEmitVertex
+               OpEndPrimitive
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 41
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %xyz %o_r8g8b8 %r8g8b8 %o_widthHeight %widthHeight %o_viewportIndex %viewportIndex
+               OpSource GLSL 460
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex 2 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex 3 "gl_CullDistance"
+               OpName %_ ""
+               OpName %xyz "xyz"
+               OpName %o_r8g8b8 "o_r8g8b8"
+               OpName %r8g8b8 "r8g8b8"
+               OpName %o_widthHeight "o_widthHeight"
+               OpName %widthHeight "widthHeight"
+               OpName %o_viewportIndex "o_viewportIndex"
+               OpName %viewportIndex "viewportIndex"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex 3 BuiltIn CullDistance
+               OpDecorate %xyz Location 0
+               OpDecorate %o_r8g8b8 Flat
+               OpDecorate %o_r8g8b8 Location 0
+               OpDecorate %r8g8b8 Location 1
+               OpDecorate %o_widthHeight Flat
+               OpDecorate %o_widthHeight Location 1
+               OpDecorate %widthHeight Location 2
+               OpDecorate %o_viewportIndex Flat
+               OpDecorate %o_viewportIndex Location 2
+               OpDecorate %viewportIndex Location 3
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_arr_float_uint_1 = OpTypeArray %float %uint_1
+%gl_PerVertex = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+    %v3float = OpTypeVector %float 3
+%_ptr_Input_v3float = OpTypePointer Input %v3float
+        %xyz = OpVariable %_ptr_Input_v3float Input
+    %float_1 = OpConstant %float 1
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%_ptr_Output_int = OpTypePointer Output %int
+   %o_r8g8b8 = OpVariable %_ptr_Output_int Output
+%_ptr_Input_int = OpTypePointer Input %int
+     %r8g8b8 = OpVariable %_ptr_Input_int Input
+    %v2float = OpTypeVector %float 2
+%_ptr_Output_v2float = OpTypePointer Output %v2float
+%o_widthHeight = OpVariable %_ptr_Output_v2float Output
+%_ptr_Input_v2float = OpTypePointer Input %v2float
+%widthHeight = OpVariable %_ptr_Input_v2float Input
+%o_viewportIndex = OpVariable %_ptr_Output_int Output
+%viewportIndex = OpVariable %_ptr_Input_int Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %19 = OpLoad %v3float %xyz
+         %21 = OpCompositeExtract %float %19 0
+         %22 = OpCompositeExtract %float %19 1
+         %23 = OpCompositeExtract %float %19 2
+         %24 = OpCompositeConstruct %v4float %21 %22 %23 %float_1
+         %26 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %26 %24
+         %31 = OpLoad %int %r8g8b8
+               OpStore %o_r8g8b8 %31
+         %37 = OpLoad %v2float %widthHeight
+               OpStore %o_widthHeight %37
+         %40 = OpLoad %int %viewportIndex
+               OpStore %o_viewportIndex %40
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 13
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %o_color %color
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 460
+               OpName %main "main"
+               OpName %o_color "o_color"
+               OpName %color "color"
+               OpDecorate %o_color Location 0
+               OpDecorate %color Flat
+               OpDecorate %color Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+    %o_color = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+      %color = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %12 = OpLoad %v4float %color
+               OpStore %o_color %12
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

@@ -56,9 +56,205 @@ Each behavior pattern is instantiated as `for`, `while`, and `do_while`, and wit
 
 ## Shader Analysis
 
-The tested behavior is shader-based, but the source is generated at runtime rather than stored as a standalone shader file. Both builders emit `#version 310 es`, position/coordinate inputs, a fragment color output, and either vertex-stage varyings or fragment-stage coordinate inputs. The selected stage receives the loop body through the `op` stream; the other stage forwards the result or original coordinates. [`createGenericLoopCase()`](../../../modules/vulkan/shaderrender/vktShaderRenderLoopTests.cpp#L342-L375) [`createSpecialLoopCase()`](../../../modules/vulkan/shaderrender/vktShaderRenderLoopTests.cpp#L565-L600)
+### Representative Shader Walkthrough 1
 
-For generic cases, the common operation is a four-component rotation plus one, followed by subtraction of the expected three iterations. Special cases use the same result normalization but vary the loop skeleton and substitute constants or uniform names. No fixed representative shader fence is published here because the exact GLSL source depends on the selected syntax, count source, precision, counter type, stage, and special case.
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.glsl.loops.generic.for_constant_iterations.basic_mediump_int_vertex
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `generic` | Selects the common loop body: rotate `res` with `res.yzwx + vec4(1.0)` on every iteration. |
+| `for_constant_iterations` | Emits a `for` loop whose bound is the literal `3`; no descriptor uniform or dynamic vertex input is needed. |
+| `basic_mediump_int_vertex` | Uses a mediump integer counter and executes the loop in the vertex stage; the result is passed to the fragment shader through `v_color`. |
+
+#### Purpose
+
+This representative case checks that a vertex-stage GLSL ES `for` loop with a constant bound performs three integer-counted iterations and produces the expected coordinate transformation.
+
+#### Structural Design
+
+| Phase | Generated vertex-stage behavior | Observable hand-off |
+|---|---|---|
+| Input and position | Copy `a_position` to `gl_Position` and `a_coords` to `coords`. | Position controls rasterization; coordinates seed `res`. |
+| Loop | Initialize `ndx` to `0`; while `ndx < 3`, rotate `res` and increment `ndx`. | Exactly three body executions are expected. |
+| Normalize and export | Subtract `vec4(3)` and write `res.rgb`. | `v_color` carries the loop result to the fixed fragment forwarding path. |
+
+#### Shader Code
+
+```glsl
+#version 310 es
+
+/// Position is written directly to the vertex built-in; the loop does not alter it.
+layout(location=0) in highp vec4 a_position;
+/// Coordinate input used as the initial value for the loop's working vector.
+layout(location=1) in highp vec4 a_coords;
+/// Vertex-stage result consumed by the fragment shader.
+layout(location=0) out mediump vec3 v_color;
+
+void main()
+{
+    gl_Position = a_position;
+    mediump vec4 coords = a_coords;
+
+    // Read array.
+    mediump vec4 res = coords;
+    // Loop iteration count.
+    // Loop operations.
+    // Loop body.
+    /// The literal bound and integer increment select three loop iterations.
+    for (mediump int ndx = 0; ndx < 3; ndx++)
+    {
+        /// Each iteration rotates the four components and adds one.
+        res = res.yzwx + vec4(1.0);
+    }
+    /// Remove the fixed three-iteration offset before exporting the RGB result.
+    res -= vec4(3);
+    v_color = res.rgb;
+}
+```
+
+#### Additional Info
+
+- The paired fragment source is fixed for this vertex representative: it declares `v_color` as a mediump `vec3` input and writes `o_color = vec4(v_color.rgb, 1.0)`.
+- The generic builder uses the same expected count (`3`) for the evaluator; `numIters % 4 == 3` selects the `(3,0,1)` coordinate swizzle.
+- This constant-count representative has no uniform blocks and no dynamic `a_one`/`v_one` transport; those declarations appear only in the corresponding uniform or dynamic variants.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|----------------------------------------|----------|
+| Loop syntax | `while` moves initialization and increment into the loop body; `do_while` executes the body before testing the condition. | [`createGenericLoopCase()`](../../../modules/vulkan/shaderrender/vktShaderRenderLoopTests.cpp#L500-L526) |
+| Count source | `uniform` adds a `std140` counter block; `dynamic` also reads `a_one` and forwards `v_one` for fragment execution. | [`createGenericLoopCase()`](../../../modules/vulkan/shaderrender/vktShaderRenderLoopTests.cpp#L358-L413) [`createGenericLoopCase()`](../../../modules/vulkan/shaderrender/vktShaderRenderLoopTests.cpp#L429-L471) |
+| Counter type and precision | `float` changes the counter declaration, initial value, bound, and increment; generic leaves cover `mediump` and `highp`. | [`createGenericLoopCase()`](../../../modules/vulkan/shaderrender/vktShaderRenderLoopTests.cpp#L378-L493) [`ShaderLoopTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderLoopTests.cpp#L1564-L1584) |
+| Shader stage | Fragment cases loop over forwarded `v_coords` and write `o_color` directly; vertex cases export `v_color`. | [`createGenericLoopCase()`](../../../modules/vulkan/shaderrender/vktShaderRenderLoopTests.cpp#L424-L445) [`createGenericLoopCase()`](../../../modules/vulkan/shaderrender/vktShaderRenderLoopTests.cpp#L530-L542) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 52
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %a_position %a_coords %v_color
+               OpSource ESSL 310
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpName %_ ""
+               OpName %a_position "a_position"
+               OpName %coords "coords"
+               OpName %a_coords "a_coords"
+               OpName %res "res"
+               OpName %ndx "ndx"
+               OpName %v_color "v_color"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpDecorate %a_position Location 0
+               OpDecorate %coords RelaxedPrecision
+               OpDecorate %a_coords Location 1
+               OpDecorate %res RelaxedPrecision
+               OpDecorate %23 RelaxedPrecision
+               OpDecorate %ndx RelaxedPrecision
+               OpDecorate %31 RelaxedPrecision
+               OpDecorate %35 RelaxedPrecision
+               OpDecorate %36 RelaxedPrecision
+               OpDecorate %39 RelaxedPrecision
+               OpDecorate %40 RelaxedPrecision
+               OpDecorate %42 RelaxedPrecision
+               OpDecorate %45 RelaxedPrecision
+               OpDecorate %46 RelaxedPrecision
+               OpDecorate %v_color RelaxedPrecision
+               OpDecorate %v_color Location 0
+               OpDecorate %50 RelaxedPrecision
+               OpDecorate %51 RelaxedPrecision
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%gl_PerVertex = OpTypeStruct %v4float %float
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+ %a_position = OpVariable %_ptr_Input_v4float Input
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+   %a_coords = OpVariable %_ptr_Input_v4float Input
+%_ptr_Function_int = OpTypePointer Function %int
+      %int_3 = OpConstant %int 3
+       %bool = OpTypeBool
+    %float_1 = OpConstant %float 1
+         %38 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
+      %int_1 = OpConstant %int 1
+    %float_3 = OpConstant %float 3
+         %44 = OpConstantComposite %v4float %float_3 %float_3 %float_3 %float_3
+    %v3float = OpTypeVector %float 3
+%_ptr_Output_v3float = OpTypePointer Output %v3float
+    %v_color = OpVariable %_ptr_Output_v3float Output
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+     %coords = OpVariable %_ptr_Function_v4float Function
+        %res = OpVariable %_ptr_Function_v4float Function
+        %ndx = OpVariable %_ptr_Function_int Function
+         %15 = OpLoad %v4float %a_position
+         %17 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %17 %15
+         %21 = OpLoad %v4float %a_coords
+               OpStore %coords %21
+         %23 = OpLoad %v4float %coords
+               OpStore %res %23
+               OpStore %ndx %int_0
+               OpBranch %26
+         %26 = OpLabel
+               OpLoopMerge %28 %29 None
+               OpBranch %30
+         %30 = OpLabel
+         %31 = OpLoad %int %ndx
+         %34 = OpSLessThan %bool %31 %int_3
+               OpBranchConditional %34 %27 %28
+         %27 = OpLabel
+         %35 = OpLoad %v4float %res
+         %36 = OpVectorShuffle %v4float %35 %35 1 2 3 0
+         %39 = OpFAdd %v4float %36 %38
+               OpStore %res %39
+               OpBranch %29
+         %29 = OpLabel
+         %40 = OpLoad %int %ndx
+         %42 = OpIAdd %int %40 %int_1
+               OpStore %ndx %42
+               OpBranch %26
+         %28 = OpLabel
+         %45 = OpLoad %v4float %res
+         %46 = OpFSub %v4float %45 %44
+               OpStore %res %46
+         %50 = OpLoad %v4float %res
+         %51 = OpVectorShuffle %v3float %50 %50 0 1 2
+               OpStore %v_color %51
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

@@ -98,20 +98,25 @@ The vertex-stage true variant checks the same-label rule in the generated vertex
 
 ## Shader Analysis
 
-The representative path is `spirv_assembly.instruction.compute.conditional_branch.same_labels_true`. It is the smallest exact case: one `GLCompute` entry point, 128 one-invocation workgroups, one storage buffer, and the literal `%true`. The `same_labels_false` variant substitutes `%false`; the graphics variants reuse the same selection fragment inside a utility-generated stage function.
+The selected compute case is the smallest exact case: one `GLCompute` entry point, 128 one-invocation workgroups, one storage buffer, and the literal `%true`. The `same_labels_false` variant substitutes `%false`; the graphics variants reuse the same selection fragment inside a utility-generated stage function.
 
 ### Representative Shader Walkthrough 1
 
 #### Parameter Values Chosen
 
-| Parameter choice | Value | Meaning |
-|------------------|-------|---------|
-| Representative path | `spirv_assembly.instruction.compute.conditional_branch.same_labels_true` | Compute leaf with the `%true` literal. |
-| Entry point | `GLCompute`, `LocalSize 1 1 1` | Each workgroup has one invocation; the host launches 128 workgroups. |
-| Output interface | set `0`, binding `0`, `Uniform` `BufferBlock` | A 128-element `uint` buffer stores the result for each global invocation ID. |
-| Branch condition | `%true` | The first operand of `OpBranchConditional`. |
-| True and false targets | `%live`, `%live` | Both label operands name the live store block. |
-| Sentinel | `%uint_unused = 2863311530` | The unreferenced `%dead` block would store this value if execution incorrectly reached it. |
+Representative path:
+
+```text
+dEQP-VK.spirv_assembly.instruction.compute.conditional_branch.same_labels_true
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `GLCompute`, `LocalSize 1 1 1` | Each workgroup has one invocation; the host launches 128 workgroups. |
+| Set `0`, binding `0`, `Uniform` `BufferBlock` | A 128-element `uint` buffer stores the result for each global invocation ID. |
+| `%true` | The first operand of `OpBranchConditional`. |
+| `%live`, `%live` | Both label operands name the live store block. |
+| `%uint_unused = 2863311530` | The unreferenced `%dead` block would store this value if execution incorrectly reached it. |
 
 #### Purpose
 
@@ -129,81 +134,96 @@ flowchart TD
     G[%dead: dataOutput[i] = 0xAAAAAAAA] -. has no branch target .-> F
 ```
 
-#### Shader Resources
+#### Shader Code
 
-| SPIR-V object | Declaration and binding | Role |
-|---------------|-------------------------|------|
-| `%gl_GlobalInvocationID` | `Input` variable with `BuiltIn GlobalInvocationId` | Supplies `i` through its x component. |
-| `%dataOutput` | `Uniform` `%Output`, descriptor set `0`, binding `0` | Holds the 128-element result array. |
-| `%i` | `Function` `uint` variable | Keeps the loaded invocation index across the selection. |
-| `%live` | Label named by both branch target operands | Performs the expected indexed write. |
-| `%dead` | Label not named by this branch | Contains the sentinel write that makes an incorrect transfer visible. |
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
-#### Source Code
+#### Additional Info
 
-The assembly below is extracted verbatim from the compute `StringTemplate` in [`addComputeSameLabelsTest`](../../../modules/vulkan/spirv_assembly/vktSpvAsmConditionalBranchTests.cpp#L65-L116), specialized with `condition = true` at [lines 118 through 120](../../../modules/vulkan/spirv_assembly/vktSpvAsmConditionalBranchTests.cpp#L118-L120). For this `spirv_assembly` page, the CTS-authored assembly is the source code. It passed the category-specific validation gate: `spirv-as --target-env spirv1.0`, `spirv-val --target-env spv1.0`, then `spirv-dis`.
-
-```llvm
-                         OpCapability Shader
-                    %1 = OpExtInstImport "GLSL.std.450"
-                         OpMemoryModel Logical GLSL450
-                         OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
-                         OpExecutionMode %main LocalSize 1 1 1
-                         OpSource GLSL 430
-                         OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
-                         OpDecorate %_arr_uint_uint_128 ArrayStride 4
-                         OpMemberDecorate %Output 0 Offset 0
-                         OpDecorate %Output BufferBlock
-                         OpDecorate %dataOutput DescriptorSet 0
-                         OpDecorate %dataOutput Binding 0
-                 %void = OpTypeVoid
-                    %3 = OpTypeFunction %void
-                 %uint = OpTypeInt 32 0
-   %_ptr_Function_uint = OpTypePointer Function %uint
-               %v3uint = OpTypeVector %uint 3
-    %_ptr_Input_v3uint = OpTypePointer Input %v3uint
-%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
-               %uint_0 = OpConstant %uint 0
-      %_ptr_Input_uint = OpTypePointer Input %uint
-                 %bool = OpTypeBool
-                 %true = OpConstantTrue %bool
-                %false = OpConstantFalse %bool
-             %uint_128 = OpConstant %uint 128
-   %_arr_uint_uint_128 = OpTypeArray %uint %uint_128
-               %Output = OpTypeStruct %_arr_uint_uint_128
-  %_ptr_Uniform_Output = OpTypePointer Uniform %Output
-           %dataOutput = OpVariable %_ptr_Uniform_Output Uniform
-    %_ptr_Uniform_uint = OpTypePointer Uniform %uint
-          %uint_unused = OpConstant %uint 2863311530
-                 %main = OpFunction %void None %3
-                    %5 = OpLabel
-                    %i = OpVariable %_ptr_Function_uint Function
-                   %14 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
-                   %15 = OpLoad %uint %14
-                         OpStore %i %15
-               %uint_i = OpLoad %uint %i
-                         OpSelectionMerge %merge None
-                         OpBranchConditional %true %live %live
-                 %live = OpLabel
-                   %31 = OpAccessChain %_ptr_Uniform_uint %dataOutput %uint_0 %uint_i
-                         OpStore %31 %uint_i
-                         OpBranch %merge
-                 %dead = OpLabel
-                   %35 = OpAccessChain %_ptr_Uniform_uint %dataOutput %uint_0 %uint_i
-                         OpStore %35 %uint_unused
-                         OpBranch %merge
-                %merge = OpLabel
-                         OpReturn
-                         OpFunctionEnd
-```
-
-`OpSelectionMerge %merge None` identifies `%merge` as the structured-selection merge. `OpBranchConditional` then names `%true`, `%live`, and `%live` in operand order. The instruction has no fallthrough target: the bytecode names `%live` for either result of the literal condition. `%dead` remains in the module as a distinct labelled block containing the sentinel store, so the expected buffer detects an implementation that executes it.
+- `%gl_GlobalInvocationID` is an `Input` variable with the `BuiltIn GlobalInvocationId`; its x component supplies `i`.
+- `%dataOutput` is the `Uniform` `%Output` object at descriptor set `0`, binding `0`, holding the 128-element result array.
+- `%i` is a `Function` `uint` variable that keeps the loaded invocation index across the selection.
+- `%live` is the label named by both branch-target operands and performs the expected indexed write; `%dead` is not named by this branch and contains the sentinel write that makes an incorrect transfer visible.
 
 #### Parameter Variation Summary
 
-- `same_labels_false` changes only `OpBranchConditional %true %live %live` to `OpBranchConditional %false %live %live`. Its expected buffer remains `0` through `127`.
-- The graphics builder uses the same `%true`/`%false` specialization in the generated `%test_code` function. That function loops from `0` to `127`, executes the same-label selection per index, and is installed into one graphics stage by [`createTestsForAllStages`](../../../modules/vulkan/spirv_assembly/vktSpvAsmConditionalBranchTests.cpp#L171-L217).
-- The graphics fragment text also has an outer loop condition, `OpBranchConditional %lt %write %merge`, with distinct targets. That loop branch is control scaffolding; the test focus is the nested `OpBranchConditional %${condition} %live %live` at [line 189](../../../modules/vulkan/spirv_assembly/vktSpvAsmConditionalBranchTests.cpp#L180-L205).
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| Literal condition | `same_labels_false` changes only `OpBranchConditional %true %live %live` to `OpBranchConditional %false %live %live`; its expected buffer remains `0` through `127`. | [`conditions` and compute specialization](../../../modules/vulkan/spirv_assembly/vktSpvAsmConditionalBranchTests.cpp#L47-L125) |
+| Graphics stage and condition | The graphics builder uses the same `%true`/`%false` specialization in the generated `%test_code` function. That function loops from `0` to `127`, executes the same-label selection per index, and is installed into one graphics stage by [`createTestsForAllStages`](../../../modules/vulkan/spirv_assembly/vktSpvAsmConditionalBranchTests.cpp#L171-L217). | [graphics builder](../../../modules/vulkan/spirv_assembly/vktSpvAsmConditionalBranchTests.cpp#L128-L217) |
+| Graphics loop scaffolding | The graphics fragment text also has an outer loop condition, `OpBranchConditional %lt %write %merge`, with distinct targets. That loop branch is control scaffolding; the test focus is the nested `OpBranchConditional %${condition} %live %live`. | [nested branch](../../../modules/vulkan/spirv_assembly/vktSpvAsmConditionalBranchTests.cpp#L180-L205) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 32
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %2 "main" %gl_GlobalInvocationID
+               OpExecutionMode %2 LocalSize 1 1 1
+               OpSource GLSL 430
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %_arr_uint_uint_128 ArrayStride 4
+               OpMemberDecorate %_struct_5 0 Offset 0
+               OpDecorate %_struct_5 BufferBlock
+               OpDecorate %6 DescriptorSet 0
+               OpDecorate %6 Binding 0
+       %void = OpTypeVoid
+          %8 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_ptr_Function_uint = OpTypePointer Function %uint
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_uint = OpTypePointer Input %uint
+       %bool = OpTypeBool
+       %true = OpConstantTrue %bool
+      %false = OpConstantFalse %bool
+   %uint_128 = OpConstant %uint 128
+%_arr_uint_uint_128 = OpTypeArray %uint %uint_128
+  %_struct_5 = OpTypeStruct %_arr_uint_uint_128
+%_ptr_Uniform__struct_5 = OpTypePointer Uniform %_struct_5
+          %6 = OpVariable %_ptr_Uniform__struct_5 Uniform
+%_ptr_Uniform_uint = OpTypePointer Uniform %uint
+%uint_2863311530 = OpConstant %uint 2863311530
+          %2 = OpFunction %void None %8
+         %22 = OpLabel
+         %23 = OpVariable %_ptr_Function_uint Function
+         %24 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %25 = OpLoad %uint %24
+               OpStore %23 %25
+         %26 = OpLoad %uint %23
+               OpSelectionMerge %27 None
+               OpBranchConditional %true %28 %28
+         %28 = OpLabel
+         %29 = OpAccessChain %_ptr_Uniform_uint %6 %uint_0 %26
+               OpStore %29 %26
+               OpBranch %27
+         %30 = OpLabel
+         %31 = OpAccessChain %_ptr_Uniform_uint %6 %uint_0 %26
+               OpStore %31 %uint_2863311530
+               OpBranch %27
+         %27 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 
@@ -254,6 +274,12 @@ A matching failure pattern cannot by itself distinguish the branch operation fro
 **Possible implementation causes:** The source injects the selection fragment into utility-generated graphics test code, so a stage-specific failure can involve that stage's generated assembly or execution path. The graphics builder also requests `vertexPipelineStoresAndAtomics` and `fragmentStoresAndAtomics`; support, pipeline construction, and stage-specific storage writes remain part of the result path. The current source does not provide a finer per-stage oracle, so further source and runtime evidence is needed to localize the defect.
 
 ## Case Pruning
+
+### Requirement-based pruning
+
+No requirement-based pruning is applied.
+
+### Design-based pruning
 
 The source has no generated value matrix to prune. It iterates the two exact literals in `conditions[]`, producing two compute leaves and then asks the graphics utility to create five stage suffixes for each literal. The current default Vulkan mustpass inventory retains all 12 leaves. VulkanSC mustpass also lists the same 12 paths in [`spirv-assembly.txt`](../../../mustpass/main/vksc-default/spirv-assembly.txt#L874-L875) and [`spirv-assembly.txt`](../../../mustpass/main/vksc-default/spirv-assembly.txt#L8976-L8985).
 

@@ -53,53 +53,242 @@ The graphics path creates a render pass, draws a six-vertex full-screen quad, th
 
 The generated shaders are small probes rather than the behavior under test. `initPrograms()` makes the final set-0 binding's number `descCount - 1` and chooses a declaration and read operation from the descriptor type. The red resources occupy earlier bindings; the green resource occupies the declared binding. The fragment program assigns that read value to `fragColor`; the compute program assigns it to `outputData.color` ([generator](../../../modules/vulkan/pipeline/vktPipelineDescriptorLimitsTests.cpp#L778-L892)).
 
-### Representative Shader Walkthrough
+### Representative Shader Walkthrough 1
 
 #### Parameter Values Chosen
 
-Representative paths:
+Representative path:
 
 ```text
 dEQP-VK.pipeline.monolithic.descriptor_limits.compute_shader.storage_buffers_64
-dEQP-VK.pipeline.monolithic.descriptor_limits.fragment_shader.sampled_images_64
 ```
 
-| Choice | Compute storage-buffer case | Fragment sampled-image case |
-|--------|-----------------------------|-----------------------------|
-| Effective set-0 bindings | `63`, numbered `0` through `62` | `64`, numbered `0` through `63` |
-| Final shader binding | set 0, binding `62` | set 0, binding `63` |
-| Green observation | shader writes set 1 output SSBO | shader writes the color attachment |
-| Host oracle | exact green `tcu::Vec4` | zero-threshold solid-green image comparison |
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `storage_buffers` | Selects a compute storage-buffer declaration and read operation. |
+| Registered count `64` | Requests 64 storage-buffer descriptors in total; set 0 uses `descCount - 1 = 63` bindings so set 1 can hold the output SSBO. |
+| Final binding `62` | Makes the green resource observable through the final set-0 binding. |
 
 #### Purpose
 
-These two paths use the same final-binding observation pattern while changing descriptor type, effective set-0 binding count, command interface, and host observation route. The source emits `readonly buffer ssboInput` for the compute storage-buffer leaf and `texture2D imageInput` plus `texelFetch` for the sampled-image fragment leaf ([selected fragments](../../../modules/vulkan/pipeline/vktPipelineDescriptorLimitsTests.cpp#L808-L828)).
+This compute shader reads the final set-0 storage-buffer binding and copies its green value to the set-1 output SSBO. The exact host-side result checks that descriptor-layout creation, update, access, and compute-to-host visibility all preserve that value.
 
 #### Structural Design
 
 ```mermaid
-flowchart LR
-    A[Contiguous set-0 bindings] --> B[Final binding contains green]
-    B --> C[Generated shader reads final binding]
-    C --> D{Stage path}
-    D -->|compute| E[Set-1 output SSBO]
-    D -->|fragment| F[Color attachment]
-    E --> G[Host Vec4 comparison]
-    F --> H[Copy to host buffer and image comparison]
+flowchart TD
+    A[63 contiguous set-0 storage-buffer bindings] --> B[Binding 62 contains green]
+    B --> C[Compute shader reads binding 62]
+    C --> D[Set-1 output SSBO]
+    D --> E[Host checks exact green Vec4]
 ```
+
+#### Shader Code
+
+The representative path uses generated GLSL. The source generator is [`DescriptorLimitTest::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineDescriptorLimitsTests.cpp#L778-L892).
+
+```glsl
+#version 450
+layout(set = 0, binding = 62) readonly buffer ssboInput { vec4 color; } inputData;
+layout(set = 1, binding = 0) buffer ssboOutput { vec4 color; } outputData;
+void main (void) { outputData.color = inputData.color; }
+```
+
+#### Additional Info
+
+- The compute path is registered under the monolithic construction root and dispatches one workgroup.
+- The source emits `readonly buffer ssboInput` for this descriptor-type leaf ([selected fragment](../../../modules/vulkan/pipeline/vktPipelineDescriptorLimitsTests.cpp#L808-L828)).
 
 #### Parameter Variation Summary
 
-| Variation | Generated-shader effect | Runtime effect |
-|-----------|-------------------------|----------------|
-| Registered count | Changes the final binding literal in the declaration; compute storage-buffer leaves first subtract one. | Changes layout, pool, and descriptor-update size. |
-| Descriptor type | Changes declaration and read expression. | Changes descriptor, backing resource, and checked property. |
-| Compute versus fragment | Chooses output SSBO assignment or `fragColor` assignment. | Chooses dispatch/barrier/readback or draw/copy/image comparison. |
-| Input attachment | Uses `subpassInput` and `subpassLoad`. | Uses the dedicated input-attachment render pass. |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Registered count | Changes the final binding literal; compute storage-buffer leaves use `descCount - 1` for set 0. | [count handling](../../../modules/vulkan/pipeline/vktPipelineDescriptorLimitsTests.cpp#L179-L187) |
+| Descriptor type | Changes the storage-buffer declaration and read operation. | [program generator](../../../modules/vulkan/pipeline/vktPipelineDescriptorLimitsTests.cpp#L785-L847) |
+| Shader-stage intermediate node | Selects the compute shader and its output-SSBO assignment. | [program generator](../../../modules/vulkan/pipeline/vktPipelineDescriptorLimitsTests.cpp#L778-L892) |
 
 #### SPIR-V
 
-The implementation generates GLSL through `DescriptorLimitTest::initPrograms()` at run time. This page does not reproduce a supposedly exact SPIR-V artifact because the selected leaf changes the generated binding literal and shader type. The source-level declarations and operations above identify the relevant generated branches; the test harness compiles the generated `test` program before execution ([program registration](../../../modules/vulkan/pipeline/vktPipelineDescriptorLimitsTests.cpp#L859-L890)).
+The following representative stage output was compiled with `glslangValidator` targeting SPIR-V 1.0, validated with `spirv-val`, and disassembled with `spirv-dis`.
+
+- Status: generated and validated
+- Source: reconstructed GLSL from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 20
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %ssboOutput "ssboOutput"
+               OpMemberName %ssboOutput 0 "color"
+               OpName %outputData "outputData"
+               OpName %ssboInput "ssboInput"
+               OpMemberName %ssboInput 0 "color"
+               OpName %inputData "inputData"
+               OpDecorate %ssboOutput BufferBlock
+               OpMemberDecorate %ssboOutput 0 Offset 0
+               OpDecorate %outputData Binding 0
+               OpDecorate %outputData DescriptorSet 1
+               OpDecorate %ssboInput BufferBlock
+               OpMemberDecorate %ssboInput 0 NonWritable
+               OpMemberDecorate %ssboInput 0 Offset 0
+               OpDecorate %inputData NonWritable
+               OpDecorate %inputData Binding 62
+               OpDecorate %inputData DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+ %ssboOutput = OpTypeStruct %v4float
+%_ptr_Uniform_ssboOutput = OpTypePointer Uniform %ssboOutput
+ %outputData = OpVariable %_ptr_Uniform_ssboOutput Uniform
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+  %ssboInput = OpTypeStruct %v4float
+%_ptr_Uniform_ssboInput = OpTypePointer Uniform %ssboInput
+  %inputData = OpVariable %_ptr_Uniform_ssboInput Uniform
+%_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %17 = OpAccessChain %_ptr_Uniform_v4float %inputData %int_0
+         %18 = OpLoad %v4float %17
+         %19 = OpAccessChain %_ptr_Uniform_v4float %outputData %int_0
+               OpStore %19 %18
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+### Representative Shader Walkthrough 2
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.monolithic.descriptor_limits.fragment_shader.sampled_images_64
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `sampled_images` | Selects a fragment sampled-image declaration and `texelFetch` read operation. |
+| Registered count `64` | Requests 64 contiguous set-0 sampled-image bindings numbered `0` through `63`. |
+| Final binding `63` | Makes the green resource observable through the final set-0 binding. |
+
+#### Purpose
+
+This fragment shader reads the final set-0 sampled-image binding and writes the fetched green value to `fragColor`. The graphics path then checks a solid-green image, making the high binding observable.
+
+#### Structural Design
+
+```mermaid
+flowchart TD
+    A[64 contiguous set-0 sampled-image bindings] --> B[Binding 63 contains green]
+    B --> C[Fragment shader texelFetch reads binding 63]
+    C --> D[Color attachment]
+    D --> E[Host performs zero-threshold green comparison]
+```
+
+#### Shader Code
+
+The representative path uses generated GLSL. The source generator is [`DescriptorLimitTest::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineDescriptorLimitsTests.cpp#L778-L892).
+
+```glsl
+#version 450
+#extension GL_EXT_samplerless_texture_functions : enable
+layout(location = 0) out vec4 fragColor;
+layout(set = 0, binding = 63) uniform texture2D imageInput;
+void main (void) { fragColor = texelFetch(imageInput, ivec2(gl_FragCoord.xy), 0); }
+```
+
+#### Additional Info
+
+- The fragment path draws a six-vertex full-screen quad, copies the color image, and compares it with solid green.
+- The source emits `texture2D imageInput` plus `texelFetch` for this descriptor-type leaf ([selected fragment](../../../modules/vulkan/pipeline/vktPipelineDescriptorLimitsTests.cpp#L808-L828)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| Registered count | Changes the final binding literal in the sampled-image declaration. | [count handling](../../../modules/vulkan/pipeline/vktPipelineDescriptorLimitsTests.cpp#L179-L187) |
+| Descriptor type | Changes the declaration and read expression, such as sampled image plus `texelFetch`. | [program generator](../../../modules/vulkan/pipeline/vktPipelineDescriptorLimitsTests.cpp#L785-L847) |
+| Shader-stage intermediate node | Selects the fragment shader and its `fragColor` assignment. | [program generator](../../../modules/vulkan/pipeline/vktPipelineDescriptorLimitsTests.cpp#L778-L892) |
+
+#### SPIR-V
+
+The following representative stage output was compiled with `glslangValidator` targeting SPIR-V 1.0, validated with `spirv-val`, and disassembled with `spirv-dis`.
+
+- Status: generated and validated
+- Source: reconstructed GLSL from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 24
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %fragColor %gl_FragCoord
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpSourceExtension "GL_EXT_samplerless_texture_functions"
+               OpName %main "main"
+               OpName %fragColor "fragColor"
+               OpName %imageInput "imageInput"
+               OpName %gl_FragCoord "gl_FragCoord"
+               OpDecorate %fragColor Location 0
+               OpDecorate %imageInput Binding 63
+               OpDecorate %imageInput DescriptorSet 0
+               OpDecorate %gl_FragCoord BuiltIn FragCoord
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %fragColor = OpVariable %_ptr_Output_v4float Output
+         %10 = OpTypeImage %float 2D 0 0 0 1 Unknown
+%_ptr_UniformConstant_10 = OpTypePointer UniformConstant %10
+ %imageInput = OpVariable %_ptr_UniformConstant_10 UniformConstant
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%gl_FragCoord = OpVariable %_ptr_Input_v4float Input
+    %v2float = OpTypeVector %float 2
+        %int = OpTypeInt 32 1
+      %v2int = OpTypeVector %int 2
+      %int_0 = OpConstant %int 0
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %13 = OpLoad %10 %imageInput
+         %17 = OpLoad %v4float %gl_FragCoord
+         %18 = OpVectorShuffle %v2float %17 %17 0 1
+         %21 = OpConvertFToS %v2int %18
+         %23 = OpImageFetch %v4float %13 %21 Lod %int_0
+               OpStore %fragColor %23
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 
@@ -140,7 +329,7 @@ For compute, the command buffer binds the compute pipeline and both sets, dispat
 
 ## Case Pruning
 
-### Support-based pruning
+### Requirement-based pruning
 
 - The source rejects registered counts greater than `maxPerStageResources - 1`. This leaves room for the compute output SSBO or fragment color attachment in most leaves. For compute storage-buffer leaves, the output SSBO is already included by reducing set 0 to `m_descCount - 1`, so this gate is one resource more conservative than the actual pipeline layout.
 - It checks the selected per-stage descriptor field: samplers, uniform buffers, storage buffers, sampled images, storage images, or input attachments.

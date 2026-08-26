@@ -65,25 +65,27 @@ This page uses one representative walkthrough. The selected case is the smallest
 
 ### Representative Shader Walkthrough 1
 
-- **Representative path:** `spirv_assembly.instruction.compute.compute_shader_derivatives.compute.derivative_value.normal.float32.linear.16_1_1`
-- **Source file:** [`vktSpvAsmComputeShaderDerivativesTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp)
-- **Builder function:** [`ComputeShaderDerivativeCase::initPrograms`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L2909-L3477) (`ShaderType::COMPUTE` branch), specialized by the [`TestType::DERIVATIVE_VALUE` specMap](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3482-L3521).
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.spirv_assembly.instruction.compute.compute_shader_derivatives.compute.derivative_value.normal.float32.linear.16_1_1
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `ShaderType = compute` | Selects the `GLCompute` entry point and compute shader template; the compute target uses SPIR-V 1.3. ([`initPrograms` COMPUTE branch](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3068-L3187), [`SPIRV_VERSION_1_3`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3682-L3683)) |
+| `TestType = derivative_value` | Emits the `${testLogicCode}` branch containing `OpDPdx`, `OpDPdy`, and `OpFwidth`. ([`DERIVATIVE_VALUE` specMap](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3482-L3521)) |
+| `DerivativeFeature = linear` | Selects the `ComputeDerivativeGroupLinearKHR` capability and `DerivativeGroupLinearKHR` execution mode. ([`getDerivativeCapability`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L282-L287), [`getDerivativeExecutionMode`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L294-L299)) |
+| `DerivativeVariant = normal` | Selects the unsuffixed `OpDPdx`, `OpDPdy`, and `OpFwidth` instructions rather than the `*Fine` or `*Coarse` variants. ([`getDxFunc`/`getDyFunc`/`getWidthFunc`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3514-L3516)) |
+| `DataType = float32` | Uses a 32-bit scalar float and an `ArrayStride` of 4 for the output arrays. ([`getDataType`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L249-L261), [`getArrayDeclaration`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L263-L280)) |
+| `numWorkgroup = (16,1,1)` | Produces `LocalSize 16 1 1`, giving four linear quads of four consecutive invocations. ([`16_1_1` registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3756-L3768)) |
+| `Linear ndx mul = 4` | Uses `%multi_ndy_uint32 = OpIMul %ndy %c_uint32_4` in the linear index calculation for this test type. ([`getLinearNdxMul(DERIVATIVE_VALUE)`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L426-L462)) |
 
 #### Purpose
 
 Verify that `OpDPdx`, `OpDPdy`, and `OpFwidth` executed inside a `GLCompute` entry point under `DerivativeGroupLinearKHR` produce the host-computed derivative of `10 * (ndx & 3)` over each 4-invocation linear quad. The host expects `(10, 20, 30)` for `(dx, dy, fwidth)` at every invocation index, so any mismatch isolates the derivative execution mode or the per-quad invocation grouping.
-
-#### Parameter Values Chosen
-
-| Parameter | Value | Source |
-|-----------|-------|--------|
-| ShaderType | `COMPUTE` → `GLCompute` entry point, SPIR-V 1.3 | [initPrograms COMPUTE branch](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3068-L3187), [SPIRV_VERSION_1_3](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3682-L3683) |
-| TestType | `DERIVATIVE_VALUE` → `${testLogicCode}` emits `OpDPdx`/`OpDPdy`/`OpFwidth` | [DERIVATIVE_VALUE specMap](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3482-L3521) |
-| DerivativeFeature | `LINEAR` → `ComputeDerivativeGroupLinearKHR` capability + `DerivativeGroupLinearKHR` execution mode | [getDerivativeCapability](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L282-L287), [getDerivativeExecutionMode](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L294-L299) |
-| DerivativeVariant | `NORMAL` → `OpDPdx`/`OpDPdy`/`OpFwidth` (no `*Fine`/`*Coarse` suffix) | [getDxFunc/getDyFunc/getWidthFunc](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3514-L3516) |
-| DataType | `FLOAT32` → `OpTypeFloat 32`, `ArrayStride 4` | [getDataType](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L249-L261), [getArrayDeclaration](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L263-L280) |
-| numWorkgroup | `(16,1,1)` → `LocalSize 16 1 1` | [16_1_1 registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3756-L3767) |
-| Linear ndx mul | multiplier 4 (`%multi_ndy_uint32 = OpIMul %ndy %c_uint32_4`) | [getLinearNdxMul(DERIVATIVE_VALUE)](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L426-L462) |
 
 #### Structural Design
 
@@ -104,7 +106,16 @@ flowchart TD
 
 The two-pass `tcu::StringTemplate` specialization is a non-obvious reconstruction detail. The first pass fills `${capability}`, `${executionMode}`, `${testValueCode}`, `${testLogicCode}`, `${storeCode}`, `${linearNdxMul}`, `${arrayDeclaration}`, `${dataType}`, `${arrayStride}`, `${x}`/`${y}`/`${z}`. The second pass fills the second-level placeholders `${dxFunc}`/`${dyFunc}`/`${dwidthFunc}`/`${storeNdx}` that live inside `testLogicCode` and `storeCode`. A reader who greps the C++ source must apply both passes to recover the final text.
 
-#### Resource and Interface Facts
+#### Shader Code
+
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
+
+#### Additional Info
+
+- The fixed mesh shader ([`meshShaderStr`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L2912-L3001)) used by the `task` path draws a single triangle (3 vertices, 1 primitive) and does not participate in the tested derivative behavior. The fixed fragment shader ([`fragmentShaderStr`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3003-L3034)) used by `mesh` and `task` paths writes a constant red output; the rendered image is not the test signal. The host reads results back from the storage buffers.
+- The SPIR-V target version is **1.3 for compute and fragment shaders** and **1.4 for mesh and task shaders** ([source](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3680-L3717)).
+
+**Resource and Interface Facts.**
 
 | Resource | Declaration | Role |
 |----------|-------------|------|
@@ -116,145 +127,129 @@ The two-pass `tcu::StringTemplate` specialization is a non-obvious reconstructio
 | `%gl_SubgroupInvocationID` | `OpVariable %uint32_input_ptr Input` | `SubgroupLocalInvocationId`; same as above. Used by `verify_ndx` and `quad_op`. |
 | 4th SSBO (binding 3) | allocated and cleared by host, never written by shader | Placeholder slot. The descriptor layout always allocates 4 SSBOs and a combined image sampler even when only 1-3 are used. |
 
-#### Source Code
+#### Parameter Variation Summary
 
-The SPIR-V assembly below is extracted from the C++ `tcu::StringTemplate` concatenation in [`ComputeShaderDerivativeCase::initPrograms`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3068-L3187) (header + decorations + types + variables from the `ShaderType::COMPUTE` template, body from the `TestType::DERIVATIVE_VALUE` specMap). Wiki-authored section markers use `;` comment syntax. The assembly targets SPIR-V 1.3 (set by [`SPIRV_VERSION_1_3`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3682-L3683)). It was round-trip-validated with `spirv-as` → `spirv-val` → `spirv-dis` against `vulkan1.1` (SPIR-V 1.3 + the `SPV_KHR_compute_shader_derivatives` / `SPV_KHR_storage_buffer_storage_class` extensions); the disassembler output is not published (category-scoped `TEMP-SPIRV-ASSEMBLY` deviation).
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| `ShaderType` | `compute` uses `GLCompute`; `mesh` and `task` reuse the per-test body in `MeshEXT`/`TaskEXT` and add their fixed mesh/task infrastructure. Mesh/task also use SPIR-V 1.4 instead of 1.3. ([`initPrograms` templates](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3068-L3477), [target version selection](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3680-L3717)) | [`shader-type loop`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3734-L3738) |
+| `TestType` | `derivative_value` emits derivative instructions and three output stores; `verify_ndx` stores subgroup invocation and subgroup IDs; `quad_op` emits quad broadcast/swap operations; `lod_op` emits implicit-LOD sampling or LOD query code and consumes the sampled image. | [`testType` switch](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3480-L3672) |
+| `DerivativeFeature` | `linear` uses `ComputeDerivativeGroupLinearKHR`/`DerivativeGroupLinearKHR` and masks the linear index; `quads` uses `ComputeDerivativeGroupQuadsKHR`/`DerivativeGroupQuadsKHR` and derives a 2×2 quad index from x/y. | [`getDerivativeCapability`/`getDerivativeExecutionMode`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L282-L303), [`getTestValueCode`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L345-L424) |
+| `DerivativeVariant` | For `derivative_value`, `normal`, `fine`, and `coarse` substitute unsuffixed, `*Fine`, or `*Coarse` derivative opcodes. Fine cases use variant-dependent expected values; normal and coarse cases use the common expected derivative pattern. | [`getDxFunc`/`getDyFunc`/`getWidthFunc`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3482-L3521), [`checkResult`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L1842-L1910) |
+| `DataType` | `float32`, `vec2_float32`, `vec3_float32`, and `vec4_float32` change the derivative value type, output array declaration, and std430 stride (4, 8, 16, and 16 respectively; `vec3` is padded). | [`getDataType`/`getArrayDeclaration`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L249-L280) |
+| `QuadOp` / `quadNdx` | In `quad_op`, `broadcast` selects `OpGroupNonUniformQuadBroadcast` with indices 0–3; `swap` selects `OpGroupNonUniformQuadSwap` with Horizontal, Vertical, and Diagonal directions (indices 0–2). | [`quad_op` registration and opcode mapping](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3557-L3588), [`quad_op` registration loops](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3861-L4029) |
+| `numWorkgroup` | Workgroup shapes select `LocalSize` and output length: derivative-value linear uses `(16,1,1)` and `(4,4,1)`, quads uses `(4,4,1)`, and `verify_ndx` uses `(128,1,1)` and `(32,4,1)`. | [`derivative_value` and `verify_ndx` registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3756-L3853) |
+| `mipLvl` | In `lod_op`, selects mip level 0 or 1 for the sampled-image test and changes the host-expected sampled color / queried integer mip level. | [`LOD_SAMPLE`/`LOD_QUERY` registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L4044-L4117) |
+| `useLocalInvocationIndex` | The extra `quads` leaf switches index reconstruction from `LocalInvocationID.x/.y` to `LocalInvocationIndex` modulo/division by workgroup dimensions; the expected derivative values remain the same. | [`quads` local-invocation-index registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3787-L3802), [`getTestValueCode`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L345-L424) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.3`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
 
 ```llvm
 ; SPIR-V
 ; Version: 1.3
-; Generator: Vulkan CTS vktSpvAsmComputeShaderDerivativesTests; 0
-; Bound: 50
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 59
 ; Schema: 0
-; --- Capabilities, extensions, memory model, entry point (from ShaderType::COMPUTE template, DERIVATIVE_VALUE specialization, LINEAR feature, NORMAL variant, FLOAT32 dataType, numWorkgroup 16_1_1) ---
-OpCapability Shader
-OpCapability ComputeDerivativeGroupLinearKHR
-OpCapability DerivativeControl
-OpCapability GroupNonUniformQuad
-OpExtension "SPV_KHR_storage_buffer_storage_class"
-OpExtension "SPV_KHR_compute_shader_derivatives"
-OpMemoryModel Logical GLSL450
-OpEntryPoint GLCompute %main "main" %gl_LocalInvocationID %gl_SubgroupID %gl_SubgroupInvocationID
-OpExecutionMode %main LocalSize 16 1 1
-OpExecutionMode %main DerivativeGroupLinearKHR
-
-; --- Decorations ---
-OpDecorate      %gl_LocalInvocationID    BuiltIn     LocalInvocationId
-OpDecorate      %gl_SubgroupID           BuiltIn     SubgroupId
-OpDecorate      %gl_SubgroupInvocationID BuiltIn     SubgroupLocalInvocationId
-OpDecorate      %out_array               ArrayStride 4
-OpMemberDecorate %out_x 0 Offset 0
-OpDecorate       %out_x Block
-OpDecorate       %out_x_var DescriptorSet 0
-OpDecorate       %out_x_var Binding       0
-OpMemberDecorate %out_y 0 Offset 0
-OpDecorate       %out_y Block
-OpDecorate       %out_y_var DescriptorSet 0
-OpDecorate       %out_y_var Binding       1
-OpMemberDecorate %out_f 0 Offset 0
-OpDecorate       %out_f Block
-OpDecorate       %out_f_var DescriptorSet 0
-OpDecorate       %out_f_var Binding       2
-
-; --- Types ---
-%void         = OpTypeVoid
-%void_func    = OpTypeFunction %void
-%uint32       = OpTypeInt      32       0
-%vec3_uint32  = OpTypeVector   %uint32  3
-%float32      = OpTypeFloat    32
-%vec2_float32 = OpTypeVector   %float32 2
-%vec3_float32 = OpTypeVector   %float32 3
-%vec4_float32 = OpTypeVector   %float32 4
-
-; --- Constants ---
-%c_uint32_0     = OpConstant %uint32  0
-%c_uint32_1     = OpConstant %uint32  1
-%c_uint32_2     = OpConstant %uint32  2
-%c_uint32_3     = OpConstant %uint32  3
-%c_uint32_4     = OpConstant %uint32  4
-%c_uint32_16    = OpConstant %uint32  16
-%c_uint32_32    = OpConstant %uint32  32
-%c_uint32_128   = OpConstant %uint32  128
-%c_float32_2    = OpConstant %float32 2
-%c_float32_3    = OpConstant %float32 3
-%c_float32_4    = OpConstant %float32 4
-%c_float32_10   = OpConstant %float32 10
-%c_float32_20   = OpConstant %float32 20
-%c_float32_0_08 = OpConstant %float32 0.08
-%c_float32_0_10 = OpConstant %float32 0.10
-%c_float32_0_12 = OpConstant %float32 0.12
-
-; --- Arrays (arrayDeclaration for FLOAT32) ---
-%out_array = OpTypeArray %float32 %c_uint32_16
-
-; --- Structs ---
-%out_x = OpTypeStruct %out_array
-%out_y = OpTypeStruct %out_array
-%out_f = OpTypeStruct %out_array
-
-; --- Pointers ---
-%uint32_input_ptr              = OpTypePointer Input         %uint32
-%vec3_uint32_input_ptr         = OpTypePointer Input         %vec3_uint32
-%out_x_storage_buffer_ptr      = OpTypePointer StorageBuffer %out_x
-%out_y_storage_buffer_ptr      = OpTypePointer StorageBuffer %out_y
-%out_f_storage_buffer_ptr      = OpTypePointer StorageBuffer %out_f
-%float32_storage_buffer_ptr    = OpTypePointer StorageBuffer %float32
-
-; --- Variables ---
-%gl_LocalInvocationID    = OpVariable %vec3_uint32_input_ptr Input
-%gl_SubgroupID           = OpVariable %uint32_input_ptr         Input
-%gl_SubgroupInvocationID = OpVariable %uint32_input_ptr         Input
-%out_x_var               = OpVariable %out_x_storage_buffer_ptr StorageBuffer
-%out_y_var               = OpVariable %out_y_storage_buffer_ptr StorageBuffer
-%out_f_var               = OpVariable %out_f_storage_buffer_ptr StorageBuffer
-
-; --- Main ---
-%main               = OpFunction %void None %void_func
-%label_main         = OpLabel
-; Quering GroupThreadID (useLocalInvocationIndex=false path)
-%gl_LocalInvocationID_x = OpAccessChain %uint32_input_ptr %gl_LocalInvocationID   %c_uint32_0
-%ndx_uint32             = OpLoad        %uint32           %gl_LocalInvocationID_x
-%gl_LocalInvocationID_y = OpAccessChain %uint32_input_ptr %gl_LocalInvocationID   %c_uint32_1
-%ndy_uint32             = OpLoad        %uint32           %gl_LocalInvocationID_y
-; linearNdxMul for DERIVATIVE_VALUE (multiplier 4, not 32)
-%multi_ndy_uint32 = OpIMul %uint32 %ndy_uint32 %c_uint32_4
-%linear_ndx             = OpIAdd        %uint32           %ndx_uint32 %multi_ndy_uint32
-; Generating test values (getTestValueCode LINEAR, NORMAL, FLOAT32)
-%masked_ndx_uint32  = OpBitwiseAnd         %uint32       %ndx_uint32 %c_uint32_3
-%masked_ndx_float32 = OpConvertUToF        %float32      %masked_ndx_uint32
-%scalar_value       = OpFMul               %float32      %c_float32_10 %masked_ndx_float32
-%test_value         = OpFMul               %float32      %c_float32_10 %masked_ndx_float32
-; Calculating derivatives (testLogicCode with dxFunc=OpDPdx, dyFunc=OpDPdy, dwidthFunc=OpFwidth)
-%dx                 = OpDPdx     %float32       %test_value
-%dy                 = OpDPdy     %float32       %test_value
-%fwidth             = OpFwidth   %float32       %test_value
-; Storing values in output buffer (storeCode with storeNdx=ndx_uint32 since numWorkgroup.y()==1)
-%out_x_loc          = OpAccessChain %float32_storage_buffer_ptr %out_x_var %c_uint32_0 %ndx_uint32
-                      OpStore       %out_x_loc                     %dx
-%out_y_loc          = OpAccessChain %float32_storage_buffer_ptr %out_y_var %c_uint32_0 %ndx_uint32
-                      OpStore       %out_y_loc                     %dy
-%out_f_loc          = OpAccessChain %float32_storage_buffer_ptr %out_f_var %c_uint32_0 %ndx_uint32
-                      OpStore       %out_f_loc                     %fwidth
-
-                      OpReturn
-                      OpFunctionEnd
+               OpCapability Shader
+               OpCapability ComputeDerivativeGroupLinearKHR
+               OpCapability DerivativeControl
+               OpCapability GroupNonUniformQuad
+               OpExtension "SPV_KHR_storage_buffer_storage_class"
+               OpExtension "SPV_KHR_compute_shader_derivatives"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %1 "main" %gl_LocalInvocationID %SubgroupId %SubgroupLocalInvocationId
+               OpExecutionMode %1 LocalSize 16 1 1
+               OpExecutionMode %1 DerivativeGroupLinearKHR
+               OpDecorate %gl_LocalInvocationID BuiltIn LocalInvocationId
+               OpDecorate %SubgroupId BuiltIn SubgroupId
+               OpDecorate %SubgroupLocalInvocationId BuiltIn SubgroupLocalInvocationId
+               OpDecorate %_arr_float_uint_16 ArrayStride 4
+               OpMemberDecorate %_struct_6 0 Offset 0
+               OpDecorate %_struct_6 Block
+               OpDecorate %7 DescriptorSet 0
+               OpDecorate %7 Binding 0
+               OpMemberDecorate %_struct_8 0 Offset 0
+               OpDecorate %_struct_8 Block
+               OpDecorate %9 DescriptorSet 0
+               OpDecorate %9 Binding 1
+               OpMemberDecorate %_struct_10 0 Offset 0
+               OpDecorate %_struct_10 Block
+               OpDecorate %11 DescriptorSet 0
+               OpDecorate %11 Binding 2
+       %void = OpTypeVoid
+         %13 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+      %float = OpTypeFloat 32
+    %v2float = OpTypeVector %float 2
+    %v3float = OpTypeVector %float 3
+    %v4float = OpTypeVector %float 4
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+     %uint_2 = OpConstant %uint 2
+     %uint_3 = OpConstant %uint 3
+     %uint_4 = OpConstant %uint 4
+    %uint_16 = OpConstant %uint 16
+    %uint_32 = OpConstant %uint 32
+   %uint_128 = OpConstant %uint 128
+    %float_2 = OpConstant %float 2
+    %float_3 = OpConstant %float 3
+    %float_4 = OpConstant %float 4
+   %float_10 = OpConstant %float 10
+   %float_20 = OpConstant %float 20
+%float_0_0799999982 = OpConstant %float 0.0799999982
+%float_0_100000001 = OpConstant %float 0.100000001
+%float_0_119999997 = OpConstant %float 0.119999997
+%_arr_float_uint_16 = OpTypeArray %float %uint_16
+  %_struct_6 = OpTypeStruct %_arr_float_uint_16
+  %_struct_8 = OpTypeStruct %_arr_float_uint_16
+ %_struct_10 = OpTypeStruct %_arr_float_uint_16
+%_ptr_Input_uint = OpTypePointer Input %uint
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%_ptr_StorageBuffer__struct_6 = OpTypePointer StorageBuffer %_struct_6
+%_ptr_StorageBuffer__struct_8 = OpTypePointer StorageBuffer %_struct_8
+%_ptr_StorageBuffer__struct_10 = OpTypePointer StorageBuffer %_struct_10
+%_ptr_StorageBuffer_float = OpTypePointer StorageBuffer %float
+%gl_LocalInvocationID = OpVariable %_ptr_Input_v3uint Input
+ %SubgroupId = OpVariable %_ptr_Input_uint Input
+%SubgroupLocalInvocationId = OpVariable %_ptr_Input_uint Input
+          %7 = OpVariable %_ptr_StorageBuffer__struct_6 StorageBuffer
+          %9 = OpVariable %_ptr_StorageBuffer__struct_8 StorageBuffer
+         %11 = OpVariable %_ptr_StorageBuffer__struct_10 StorageBuffer
+          %1 = OpFunction %void None %13
+         %42 = OpLabel
+         %43 = OpAccessChain %_ptr_Input_uint %gl_LocalInvocationID %uint_0
+         %44 = OpLoad %uint %43
+         %45 = OpAccessChain %_ptr_Input_uint %gl_LocalInvocationID %uint_1
+         %46 = OpLoad %uint %45
+         %47 = OpIMul %uint %46 %uint_4
+         %48 = OpIAdd %uint %44 %47
+         %49 = OpBitwiseAnd %uint %44 %uint_3
+         %50 = OpConvertUToF %float %49
+         %51 = OpFMul %float %float_10 %50
+         %52 = OpFMul %float %float_10 %50
+         %53 = OpDPdx %float %52
+         %54 = OpDPdy %float %52
+         %55 = OpFwidth %float %52
+         %56 = OpAccessChain %_ptr_StorageBuffer_float %7 %uint_0 %44
+               OpStore %56 %53
+         %57 = OpAccessChain %_ptr_StorageBuffer_float %9 %uint_0 %44
+               OpStore %57 %54
+         %58 = OpAccessChain %_ptr_StorageBuffer_float %11 %uint_0 %44
+               OpStore %58 %55
+               OpReturn
+               OpFunctionEnd
 ```
 
-#### Parameter Variation Summary
-
-- **DerivativeFeature** swaps `${capability}` (between `ComputeDerivativeGroupLinearKHR` and `ComputeDerivativeGroupQuadsKHR`) and `${executionMode}` (between `DerivativeGroupLinearKHR` and `DerivativeGroupQuadsKHR`). The `getTestValueCode` body also changes: LINEAR masks `ndx & 3`, QUADS masks `ndx & 1` and `ndy & 1` separately. The host-side expected values change accordingly.
-- **DerivativeVariant** swaps `${dxFunc}`/`${dyFunc}`/`${dwidthFunc}` between `OpDPdx`/`OpDPdy`/`OpFwidth` (normal), `OpDPdxFine`/`OpDPdyFine`/`OpFwidthFine` (fine), and `OpDPdxCoarse`/`OpDPdyCoarse`/`OpFwidthCoarse` (coarse). For non-fine variants the expected values are `(10, 20, 30)`; for fine variants the expected values differ per `ndx % 4` (LINEAR) or `ndx % 8` (QUADS).
-- **DataType** swaps `${dataType}`/`${arrayDeclaration}`/`${arrayStride}` between `float32` (stride 4), `vec2_float32` (stride 8), `vec3_float32` (stride 16, vec3 padded to vec4 in std430), and `vec4_float32` (stride 16). `vec3_float32` writes 0 into the 4th component and the host expected vector also writes 0 at `(ndx+1) % 4 == 0`.
-- **useLocalInvocationIndex** (quads variant of `derivative_value` only) switches the shader from reading `LocalInvocationID.x/.y` to reading `LocalInvocationIndex` and deriving `ndx = inv_index % wg_size_x`, `ndy = (inv_index / wg_size_x) % wg_size_y`. The two paths exercise different addressing modes for the same quad layout; expected values are identical.
-- **ShaderType** swaps the entry point (`GLCompute` → `MeshEXT`/`TaskEXT`), the SPIR-V target version (1.3 → 1.4), and adds the mesh/task infrastructure. The mesh template adds `OutputVertices 3`, `OutputPrimitivesEXT 1`, `OutputTrianglesEXT` execution modes and a trailing `OpSetMeshOutputsEXT` + vertex/index store block. The task template replaces it with `OpEmitMeshTasksEXT`. The `${testValueCode}`/`${testLogicCode}`/`${storeCode}` bodies are otherwise identical.
-- **verify_ndx** replaces `testValueCode` with `SubgroupLocalInvocationId` reads and `testLogicCode` with stores of `SubgroupLocalInvocationId % 4` and `gl_SubgroupID`; `storeCode` writes into two output SSBOs.
-- **quad_op** replaces `testValueCode` with `10 * (ndx & 3)` (LINEAR) or `10 * ((ndx & 1) + 2 * (ndy & 1))` (QUADS), and `testLogicCode` with `OpGroupNonUniformQuadBroadcast`/`OpGroupNonUniformQuadSwap`.
-- **lod_op** replaces `testValueCode` with `genTexCoords` (texture coordinate generation), `testLogicCode` with `OpImageSampleImplicitLod` (sample) or `OpImageQueryLod` (query), and adds `${images:opt}` (sampled image variable), `${sampleCap}` (`Sampled1D` for LINEAR), `${queryCap}` (`ImageQuery`), and `${interface}` (`%sampled_image_var` in the entry point interface).
-
-#### Additional Info
-
-- The fixed mesh shader ([`meshShaderStr`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L2912-L3001)) used by the `task` path draws a single triangle (3 vertices, 1 primitive) and does not participate in the tested derivative behavior. The fixed fragment shader ([`fragmentShaderStr`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3003-L3034)) used by `mesh` and `task` paths writes a constant red output; the rendered image is not the test signal. The host reads results back from the storage buffers.
-- The SPIR-V target version is **1.3 for compute and fragment shaders** and **1.4 for mesh and task shaders** ([source](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3680-L3717)).
+</details>
 
 ## Runtime Execution and Result Checking
 

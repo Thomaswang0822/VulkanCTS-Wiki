@@ -80,29 +80,71 @@ This source registers the intermediate node through `createVertexInputSRGBTests(
 
 The general matrix generates source from the selected attributes: the vertex shader declares inputs at generated locations, validates fetched components, emits red for the first instance and blue for the second when all comparisons succeed, and the fragment shader copies that color ([generator](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L695-L849)). The focused `misc` shaders keep the diagnostic path smaller.
 
-### Representative Shader Walkthrough 1: `pipeline.monolithic.vertex_input.misc.unused_binding_dynamic`
+### Representative Shader Walkthrough 1
 
-`UnusedBinding::initPrograms()` generates the following vertex shader for both static and dynamic variants. The dynamic leaf differs in host state setup, not shader source.
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.monolithic.vertex_input.single_attribute.vec4.as_r32g32b32a32_sfloat_rate_vertex
+```
+
+This is the `single_attribute` `vec4` leaf for `VK_FORMAT_R32G32B32A32_SFLOAT` with `VK_VERTEX_INPUT_RATE_VERTEX`; it is the exact representative used for this walkthrough ([mustpass leaf](../../../mustpass/main/vk-default/pipeline/monolithic/monolithic.txt#L461764)).
+
+| Parameter choice | Meaning in this representative case |
+|---|---|
+| Pipeline construction: `monolithic` | The leaf is under `dEQP-VK.pipeline.monolithic`; the factory registers `single_attribute` for every construction type ([registration](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3096-L3105)). |
+| Test family: `single_attribute` | The factory adds the one-attribute group ([registration](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3096-L3100)). |
+| Shader input type: `vec4` | The leaf name selects the `vec4` GLSL type; single-attribute construction records the selected GLSL type in `AttributeInfo` ([case creation](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1883-L1891)). |
+| Vertex format: `VK_FORMAT_R32G32B32A32_SFLOAT` | The exact format appears in the registered compatible format list ([format list](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1852-L1855)). |
+| Input rate: `VK_VERTEX_INPUT_RATE_VERTEX` | The leaf suffix is `_rate_vertex`; case creation assigns the vertex rate ([case creation](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1882-L1887)). |
+| Binding/layout: one-to-one, interleaved | The single-attribute case is constructed with `BINDING_MAPPING_ONE_TO_ONE` and `ATTRIBUTE_LAYOUT_INTERLEAVED` ([case creation](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1888-L1891)). |
+
+#### Purpose
+
+This representative verifies the direct, unconverted `vec4` path for a four-component 32-bit floating-point vertex attribute. The fetched position and color values are passed through in the vertex stage, making the shader-interface mapping directly observable in the generated artifact: location 0 supplies `inPos` to `gl_Position`, and location 1 supplies `inColor` to `outColor`.
+
+#### Structural Design
+
+| Interface element | Location | Operation | Result |
+|---|---:|---|---|
+| `inPos` | 0 | Load the fetched `vec4` position | Store it in `gl_Position` (`gl_PerVertex.Position`) |
+| `inColor` | 1 | Load the fetched `vec4` color | Store it in `outColor` at location 0 |
+
+The fragment stage is not part of this walkthrough. The selected vertex stage contains only the two input declarations, the built-in position write, and the color pass-through represented by the preserved SPIR-V artifact below.
+
+#### Shader Code
 
 ```glsl
 #version 460
-layout (location=0) in vec4 inPos;
-layout (location=1) in vec4 inColor;
-layout (location=0) out vec4 outColor;
-void main (void) {
+layout(location = 0) in vec4 inPos;
+layout(location = 1) in vec4 inColor;
+layout(location = 0) out vec4 outColor;
+
+void main()
+{
     gl_Position = inPos;
     outColor = inColor;
 }
 ```
 
-| Shader item | Role in this case |
-|---|---|
-| `inPos`, location 0 | Receives the position from binding 0. |
-| `inColor`, location 1 | Receives the color from binding 0, even though the test also declares an unused binding 1. |
-| `gl_Position` | Places one triangle strip in a quadrant. |
-| `outColor` | Carries the fetched color to the fragment shader, which writes it to the attachment. |
+This reconstruction matches the artifact's `OpEntryPoint`, `Location 0`/`Location 1` decorations, `OpLoad` operations, and stores to `Position` and `outColor` ([shader generator](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L695-L719)).
 
-The source creates a `PositionColor` vertex buffer, describes two attributes from binding 0, declares another binding without an attribute, and calls `vkCmdSetVertexInputEXT` only in the dynamic leaf ([setup and draw](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L2659-L2788)). Four draws should yield four known attachment pixels. A changed pixel indicates that the fetched location used the wrong state or bytes.
+#### Additional Info
+
+- `VK_FORMAT_R32G32B32A32_SFLOAT` is a required, unpacked four-component format in the single-attribute format list ([format list](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1842-L1855)).
+- The `_rate_vertex` case addresses the attribute with the vertex index; the paired `_rate_instance` case is generated from the same format/type combination ([case creation](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1882-L1899)).
+- The surrounding matrix's generated diagnostic shader is broader than this exact pass-through artifact: it declares generated `attrN` inputs and checks fetched components before writing diagnostic color ([input declarations and check](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L732-L849)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---|---|---|
+| `...as_r32g32b32a32_sfloat_rate_instance` | Input rate changes to `VK_VERTEX_INPUT_RATE_INSTANCE` | [single-attribute case creation](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1893-L1899) |
+| Other `vec4` formats | The declared vertex format changes while the `vec4` input remains compatible | [registered vertex formats](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1842-L1875) |
+| `..._missing_components` cases | The generated declaration expands to four components to check format-to-RGBA conversion | [missing-component case creation](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1902-L1927) |
+| `multiple_attributes` | More attributes vary binding mapping, layout, skipped locations, and location order | [family registration](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3100-L3105) and [parameter dimensions](#parameter-dimensions-and-observed-values) |
 
 #### SPIR-V
 
@@ -222,11 +264,17 @@ The source creates a `PositionColor` vertex buffer, describes two attributes fro
 
 ## Case Pruning
 
-- The factory omits `multiple_attributes` and `max_attributes` for shader-object construction types.
-- `legacy_vertex_attributes` is present only for monolithic and fast-linked-library construction types.
-- The `unused_binding` and `unbound_input` leaves exist only for monolithic, fast-linked-library, and shader-object-unlinked-SPIR-V construction. Their dynamic form requires `VK_EXT_vertex_input_dynamic_state` unless shader-object construction supplies the state path.
+### Requirement-based pruning
+
+- The dynamic form of `unused_binding` and `unbound_input` requires `VK_EXT_vertex_input_dynamic_state` unless shader-object construction supplies the state path.
 - `unbound_input` is excluded from Vulkan SC and requires `VK_KHR_maintenance9`; tessellation and geometry stride cases require their respective core features.
 - Per-case support checks also prune unsupported float16, float64, format-feature, attribute-count, binding-count, and portability-subset stride configurations.
+
+### Design-based pruning
+
+- The factory omits `multiple_attributes` and `max_attributes` for shader-object construction types.
+- `legacy_vertex_attributes` is present only for monolithic and fast-linked-library construction types.
+- The `unused_binding` and `unbound_input` leaves exist only for monolithic, fast-linked-library, and shader-object-unlinked-SPIR-V construction.
 
 ## Key Takeaways
 

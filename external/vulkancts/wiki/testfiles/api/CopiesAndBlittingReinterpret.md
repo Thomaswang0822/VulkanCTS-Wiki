@@ -57,7 +57,390 @@ Image format `VK_FORMAT_BC3_UNORM_BLOCK` (4×4 block, 128 bits per block) is cop
 
 ## Shader Analysis
 
-This test family does not exercise shader behavior as the primary tested property, so no representative shader walkthrough is included. The shaders used (`vert`, `frag`, `compFill`, `compVerify`) are verification infrastructure: `vert` and `frag` render a full-screen quad that samples the source through the view-format `imageView` via `texelFetch`; `compFill` seeds compressed images with known bit patterns via storage-image writes; `compVerify` reads a test image through the view format and emits a green/red verdict image. The tested behavior is the byte-exactness of `vkCmdCopyImage` and the correctness of the format-mutable, block-texel-view-compatible image view, not the shader logic itself.
+This family’s shaders are verification infrastructure, but the selected compressed case makes their dataflow material: compute writes establish exact BC3 block bytes, the fragment shader samples them through the alternate view, and compute verification turns every block comparison into a green/red verdict.
+
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.api.copy_and_blit.reinterpret.2d.copy_bc3_unorm_block_sample_r32g32b32a32_uint
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `2d` / `VK_IMAGE_TYPE_2D` | The 64×64 BC3 image is addressed as a 16×16 grid of 4×4 compressed blocks; both x and y copy-region dimensions are scaled by the BC3 block dimensions. |
+| `BC3_UNORM_BLOCK` → `R32G32B32A32_UINT` | A 128-bit BC3 block is exposed as one `uvec4` texel through a block-texel-view-compatible, mutable image view. |
+| `compFill` + `compVerify` with `frag` sampling | The source and destination receive distinct known patterns, `vkCmdCopyImage` must preserve the source bytes, and both storage-image verification and sampled rendering must observe the copied pattern. |
+
+#### Purpose
+
+The shaders establish and inspect exact 128-bit block data while the host tests that `vkCmdCopyImage` copies BC3 bytes unchanged and that the destination can be viewed as `R32G32B32A32_UINT`. A mismatch becomes a red texel; a correct block becomes green.
+
+#### Structural Design
+
+| Stage | Shader-visible dataflow | Verdict relevance |
+|-------|-------------------------|-------------------|
+| `compFill` | One invocation per block writes the expected “blue” `uvec4` to `srcImg` and a different “red” `uvec4` to `dstImg`. | Creates distinguishable pre-copy bytes without compressed-texture upload. |
+| `frag` | Full-screen rasterization converts `texCoord` to a 16×16 block coordinate, then `texelFetch` reads the source through the `R32G32B32A32_UINT` view. | Checks the sampling path for the alternate view format. |
+| `compVerify` | One invocation per block loads `dstImg`, compares all four uint components with the expected blue pattern, and stores green or red in `outputImg`. | Provides the exact copy and sampling verdict consumed by the host. |
+
+#### Shader Code
+
+##### Compute Fill Shader
+
+```glsl
+#version 450
+/// The source BC3 image is viewed as four unsigned 32-bit words per block.
+layout(set = 0, binding = 0, rgba32ui) uniform highp uimage2D srcImg;
+/// The destination receives a different pattern so the copy is observable.
+layout(set = 0, binding = 1, rgba32ui) uniform highp uimage2D dstImg;
+/// One invocation handles one block-view texel.
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+void main() {
+    /// The source pattern is retained by vkCmdCopyImage when the copy is byte-exact.
+    uvec4 srcColor = uvec4(4294967295u, 4294967295u, 2031647, 0u); // blue
+    /// The destination pattern makes an incorrect or missing copy observable.
+    uvec4 dstColor = uvec4(4294967295u, 4294967295u, 4160813056u, 0u); // red
+    imageStore(srcImg, ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y), srcColor);
+    imageStore(dstImg, ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y), dstColor);
+}
+```
+
+##### Sampling Fragment Shader
+
+```glsl
+#version 450
+/// The source image is sampled through the alternate unsigned-integer view.
+layout(set=0, binding=0) uniform usampler2D tex;
+/// Vertex shader coordinates cover the 16×16 block-view extent.
+layout(location=0) in vec2 texCoord;
+/// The attachment uses the same four-component unsigned view representation.
+layout(location=0) out uvec4 outColor;
+
+void main() {
+    /// One fragment fetches one BC3 block represented by one R32G32B32A32_UINT texel.
+    uvec4 texColor = texelFetch(tex, ivec2(texCoord.x * 16, texCoord.y * 16), 0);
+    outColor = uvec4(texColor.rgba);
+}
+```
+
+##### Compute Verify Shader
+
+```glsl
+#version 450
+/// The copied BC3 block is exposed as four uint32 components through the compatible view.
+layout(set = 0, binding = 0, rgba32ui) uniform highp uimage2D dstImg;
+/// The verdict image stores green for an exact block match and red otherwise.
+layout(set = 0, binding = 1, rgba8) uniform highp image2D outputImg;
+/// One invocation checks one 4x4 BC3 block represented by one view texel.
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+void main() {
+    /// This is the expected source pattern after the byte-exact image copy.
+    uvec4 color = uvec4(4294967295u, 4294967295u, 2031647, 0u); // blue
+    vec4 green = vec4(0.0f, 1.0f, 0.0f, 1.0f);
+    vec4 red = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+    /// Read the destination block through the R32G32B32A32_UINT view.
+    uvec4 dstColor = imageLoad(dstImg, ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y)).rgba;
+    /// Emit a per-block verdict consumed by the host-side all-green comparison.
+    imageStore(outputImg, ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y), color == dstColor ? green : red );
+}
+```
+
+#### Additional Info
+
+- `compFill` is present only for compressed format pairs; it varies with block size and image type, and here uses the BC3 128-bit constants and 2D `ivec2` coordinates. It matters because compressed images cannot be seeded with the ordinary `uploadImage` path.
+- `frag` is generated for both compressed and uncompressed pairs and varies by image type, view component type, and block-render extent. Here its `usampler2D`, `uvec4`, and 16×16 fetch coordinates are the sampling-side proof of the compatible view.
+- The host dispatches the compute stages with `getSizeInBlocks(...)`, barriers shader writes before the transfer and verification stages, and compares the resulting verdict image against all green.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|-----------------------------------------|----------|
+| Image type (`1d` vs `2d`) | Changes `sampler1D`/`sampler2D`, `image1D`/`image2D`, scalar vs `ivec2` coordinates, and whether y participates in block addressing. | [`initPrograms()`](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L981) |
+| Format pair | Uncompressed `B10G11R11_UFLOAT_PACK32` uses float sampling and no compute stages; BC1 uses `uvec2`/64-bit block constants; BC3 uses `uvec4`/128-bit constants and `rgba32ui`. | [`fmtPairs`](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L1124-L1132) and [`initPrograms()`](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L1012-L1108) |
+| Compressed block extent | The 64×64 BC3 extent becomes 16×16 shader invocations and fragment fetch coordinates, while copy-region x/y scaling uses the 4×4 block dimensions for 2D. | [`getSizeInBlocks()`](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.cpp#L889-L910) and [`iterate()`](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L539-L575) |
+| Copy/check command path | Registration leaves `COPY_COMMANDS_2` unset, so this representative case uses `vkCmdCopyImage`; compressed results are checked by `compVerify` rather than a host texture decode. | [`createReinterpretationTests()`](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L1155-L1190) and [`iterate()`](../../../modules/vulkan/api/vktApiCopiesAndBlittingReinterpretTests.cpp#L761-L827) |
+
+#### SPIR-V
+
+##### Compute Fill Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 47
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %srcColor "srcColor"
+               OpName %dstColor "dstColor"
+               OpName %srcImg "srcImg"
+               OpName %gl_GlobalInvocationID "gl_GlobalInvocationID"
+               OpName %dstImg "dstImg"
+               OpDecorate %srcImg Binding 0
+               OpDecorate %srcImg DescriptorSet 0
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %dstImg Binding 1
+               OpDecorate %dstImg DescriptorSet 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+     %v4uint = OpTypeVector %uint 4
+%_ptr_Function_v4uint = OpTypePointer Function %v4uint
+%uint_4294967295 = OpConstant %uint 4294967295
+%uint_2031647 = OpConstant %uint 2031647
+     %uint_0 = OpConstant %uint 0
+         %13 = OpConstantComposite %v4uint %uint_4294967295 %uint_4294967295 %uint_2031647 %uint_0
+%uint_4160813056 = OpConstant %uint 4160813056
+         %16 = OpConstantComposite %v4uint %uint_4294967295 %uint_4294967295 %uint_4160813056 %uint_0
+         %17 = OpTypeImage %uint 2D 0 0 0 2 Rgba32ui
+%_ptr_UniformConstant_17 = OpTypePointer UniformConstant %17
+     %srcImg = OpVariable %_ptr_UniformConstant_17 UniformConstant
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+%_ptr_Input_uint = OpTypePointer Input %uint
+        %int = OpTypeInt 32 1
+     %uint_1 = OpConstant %uint 1
+      %v2int = OpTypeVector %int 2
+     %dstImg = OpVariable %_ptr_UniformConstant_17 UniformConstant
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+   %srcColor = OpVariable %_ptr_Function_v4uint Function
+   %dstColor = OpVariable %_ptr_Function_v4uint Function
+               OpStore %srcColor %13
+               OpStore %dstColor %16
+         %20 = OpLoad %17 %srcImg
+         %25 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %26 = OpLoad %uint %25
+         %28 = OpBitcast %int %26
+         %30 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_1
+         %31 = OpLoad %uint %30
+         %32 = OpBitcast %int %31
+         %34 = OpCompositeConstruct %v2int %28 %32
+         %35 = OpLoad %v4uint %srcColor
+               OpImageWrite %20 %34 %35
+         %37 = OpLoad %17 %dstImg
+         %38 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %39 = OpLoad %uint %38
+         %40 = OpBitcast %int %39
+         %41 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_1
+         %42 = OpLoad %uint %41
+         %43 = OpBitcast %int %42
+         %44 = OpCompositeConstruct %v2int %40 %43
+         %45 = OpLoad %v4uint %dstColor
+               OpImageWrite %37 %44 %45
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Sampling Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 40
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %texCoord %outColor
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %texColor "texColor"
+               OpName %tex "tex"
+               OpName %texCoord "texCoord"
+               OpName %outColor "outColor"
+               OpDecorate %tex Binding 0
+               OpDecorate %tex DescriptorSet 0
+               OpDecorate %texCoord Location 0
+               OpDecorate %outColor Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+     %v4uint = OpTypeVector %uint 4
+%_ptr_Function_v4uint = OpTypePointer Function %v4uint
+         %10 = OpTypeImage %uint 2D 0 0 0 1 Unknown
+         %11 = OpTypeSampledImage %10
+%_ptr_UniformConstant_11 = OpTypePointer UniformConstant %11
+        %tex = OpVariable %_ptr_UniformConstant_11 UniformConstant
+      %float = OpTypeFloat 32
+    %v2float = OpTypeVector %float 2
+%_ptr_Input_v2float = OpTypePointer Input %v2float
+   %texCoord = OpVariable %_ptr_Input_v2float Input
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_float = OpTypePointer Input %float
+   %float_16 = OpConstant %float 16
+        %int = OpTypeInt 32 1
+     %uint_1 = OpConstant %uint 1
+      %v2int = OpTypeVector %int 2
+      %int_0 = OpConstant %int 0
+%_ptr_Output_v4uint = OpTypePointer Output %v4uint
+   %outColor = OpVariable %_ptr_Output_v4uint Output
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+   %texColor = OpVariable %_ptr_Function_v4uint Function
+         %14 = OpLoad %11 %tex
+         %21 = OpAccessChain %_ptr_Input_float %texCoord %uint_0
+         %22 = OpLoad %float %21
+         %24 = OpFMul %float %22 %float_16
+         %26 = OpConvertFToS %int %24
+         %28 = OpAccessChain %_ptr_Input_float %texCoord %uint_1
+         %29 = OpLoad %float %28
+         %30 = OpFMul %float %29 %float_16
+         %31 = OpConvertFToS %int %30
+         %33 = OpCompositeConstruct %v2int %26 %31
+         %35 = OpImage %10 %14
+         %36 = OpImageFetch %v4uint %35 %33 Lod %int_0
+               OpStore %texColor %36
+         %39 = OpLoad %v4uint %texColor
+               OpStore %outColor %39
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Compute Verify Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 65
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %color "color"
+               OpName %green "green"
+               OpName %red "red"
+               OpName %dstColor "dstColor"
+               OpName %dstImg "dstImg"
+               OpName %gl_GlobalInvocationID "gl_GlobalInvocationID"
+               OpName %outputImg "outputImg"
+               OpDecorate %dstImg Binding 0
+               OpDecorate %dstImg DescriptorSet 0
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %outputImg Binding 1
+               OpDecorate %outputImg DescriptorSet 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+     %v4uint = OpTypeVector %uint 4
+%_ptr_Function_v4uint = OpTypePointer Function %v4uint
+%uint_4294967295 = OpConstant %uint 4294967295
+%uint_2031647 = OpConstant %uint 2031647
+     %uint_0 = OpConstant %uint 0
+         %13 = OpConstantComposite %v4uint %uint_4294967295 %uint_4294967295 %uint_2031647 %uint_0
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+         %20 = OpConstantComposite %v4float %float_0 %float_1 %float_0 %float_1
+         %22 = OpConstantComposite %v4float %float_1 %float_0 %float_0 %float_1
+         %24 = OpTypeImage %uint 2D 0 0 0 2 Rgba32ui
+%_ptr_UniformConstant_24 = OpTypePointer UniformConstant %24
+     %dstImg = OpVariable %_ptr_UniformConstant_24 UniformConstant
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+%_ptr_Input_uint = OpTypePointer Input %uint
+        %int = OpTypeInt 32 1
+     %uint_1 = OpConstant %uint 1
+      %v2int = OpTypeVector %int 2
+         %43 = OpTypeImage %float 2D 0 0 0 2 Rgba8
+%_ptr_UniformConstant_43 = OpTypePointer UniformConstant %43
+  %outputImg = OpVariable %_ptr_UniformConstant_43 UniformConstant
+       %bool = OpTypeBool
+     %v4bool = OpTypeVector %bool 4
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+      %color = OpVariable %_ptr_Function_v4uint Function
+      %green = OpVariable %_ptr_Function_v4float Function
+        %red = OpVariable %_ptr_Function_v4float Function
+   %dstColor = OpVariable %_ptr_Function_v4uint Function
+               OpStore %color %13
+               OpStore %green %20
+               OpStore %red %22
+         %27 = OpLoad %24 %dstImg
+         %32 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %33 = OpLoad %uint %32
+         %35 = OpBitcast %int %33
+         %37 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_1
+         %38 = OpLoad %uint %37
+         %39 = OpBitcast %int %38
+         %41 = OpCompositeConstruct %v2int %35 %39
+         %42 = OpImageRead %v4uint %27 %41
+               OpStore %dstColor %42
+         %46 = OpLoad %43 %outputImg
+         %47 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %48 = OpLoad %uint %47
+         %49 = OpBitcast %int %48
+         %50 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_1
+         %51 = OpLoad %uint %50
+         %52 = OpBitcast %int %51
+         %53 = OpCompositeConstruct %v2int %49 %52
+         %54 = OpLoad %v4uint %color
+         %55 = OpLoad %v4uint %dstColor
+         %58 = OpIEqual %v4bool %54 %55
+         %59 = OpAll %bool %58
+         %60 = OpLoad %v4float %green
+         %61 = OpLoad %v4float %red
+         %62 = OpCompositeConstruct %v4bool %59 %59 %59 %59
+         %63 = OpSelect %v4float %62 %60 %61
+               OpImageWrite %46 %53 %63
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

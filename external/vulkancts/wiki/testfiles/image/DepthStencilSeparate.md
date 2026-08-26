@@ -64,28 +64,40 @@ The selected aspect is written in a four-sample attachment and resolved into the
 
 ## Shader Analysis
 
-### Representative shader walkthrough 1
+### Representative Shader Walkthrough 1
 
-#### Chosen leaf
+#### Parameter Values Chosen
+
+Representative path:
 
 ```text
 dEQP-VK.image.depth_stencil_separate_access.d24_unorm_s8_uint.write_depth_test_and_store_separate_layouts
 ```
 
-This leaf makes depth the writable attachment aspect. Stencil stays read-only, is sampled through a stencil-only view, and is copied to an `R32_UINT` storage image.
+| Parameter choice | Meaning in this representative case |
+|---|---|
+| Format: `VK_FORMAT_D24_UNORM_S8_UINT` | The attachment has 24-bit normalized depth and 8-bit unsigned stencil. |
+| Write aspect: depth | Depth test/write is enabled; stencil test/write is disabled. |
+| Mechanism: `test_and_store` | Depth uses `LOAD` and `STORE`; generated point depth passes `VK_COMPARE_OP_ALWAYS`. |
+| Layout mode: `separate_layouts` | Depth uses `DEPTH_ATTACHMENT_OPTIMAL`; stencil uses `STENCIL_READ_ONLY_OPTIMAL`. |
+| Sampled aspect: stencil | Binding 0 is a `usampler2D` view with `VK_IMAGE_ASPECT_STENCIL_BIT`. |
+| Storage result: `R32_UINT` | Binding 1 records the sampled unsigned stencil value. |
 
-| Parameter | Selected value | Consequence |
-|-----------|----------------|-------------|
-| Format | `VK_FORMAT_D24_UNORM_S8_UINT` | The attachment has 24-bit normalized depth and 8-bit unsigned stencil. |
-| Write aspect | depth | Depth test/write is enabled; stencil test/write is disabled. |
-| Mechanism | `test_and_store` | Depth uses `LOAD` and `STORE`; generated point depth passes `VK_COMPARE_OP_ALWAYS`. |
-| Layout mode | `separate_layouts` | Depth uses `DEPTH_ATTACHMENT_OPTIMAL`; stencil uses `STENCIL_READ_ONLY_OPTIMAL`. |
-| Sampled aspect | stencil | Binding 0 is a `usampler2D` view with `VK_IMAGE_ASPECT_STENCIL_BIT`. |
-| Storage result | `R32_UINT` | Binding 1 records the sampled unsigned stencil value. |
+#### Purpose
 
-#### Generated shaders
+This walkthrough isolates the shader behavior exercised by the selected representative case.
+
+#### Structural Design
+
+- Vertex stage transports point position, color, and the auxiliary stencil-reference value.
+- Fragment stage writes color, samples the read-only stencil aspect, and stores it to the R32_UINT image.
+- Fixed-function depth testing writes the selected depth aspect while the shader observes the opposite aspect.
+
+#### Shader Code
 
 [`DepthStencilSeparateCase::initPrograms()`](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L401-L460) emits these common vertex operations and the selected stencil-read fragment path.
+
+##### Vertex Shader
 
 ```glsl
 // Vertex shader: one input point represents one framebuffer pixel.
@@ -105,6 +117,8 @@ void main (void)
     outExtra = inExtra;
 }
 ```
+
+##### Fragment Shader
 
 ```glsl
 // Fragment shader generated when the sampled aspect is stencil.
@@ -126,16 +140,200 @@ void main (void)
 
 The depth/stencil pipeline state enables depth test and depth write for this leaf, with `VK_COMPARE_OP_ALWAYS`. The host prefills depth with zero for a writable depth test, so every generated point depth in `[0.5, 1.0)` passes. It prefills stencil from each vertex and uses `LOAD`/`STORE` for that read-only aspect. The shader's unsigned fetch must therefore reproduce each prefilled stencil value.
 
-#### Shader variations
+#### Additional Info
 
-| Selected path | Shader or pipeline difference |
-|---------------|-------------------------------|
-| `write_depth` | Fragment shader uses `usampler2D` and `r32ui uimage2D` to fetch/store stencil. The pipeline enables depth test/write. |
-| `write_stencil` | Fragment shader uses `sampler2D` and `r32f image2D` to fetch/store depth. The pipeline enables stencil test/write with `REPLACE` on pass. |
-| `_dynamic_stencil_ref` | Fragment shader enables `GL_ARB_shader_stencil_export` and assigns `gl_FragStencilRefARB = inExtra.x`. |
-| Ordinary stencil test leaves | The host uses `cmdSetStencilReference` before a one-point draw for every generated vertex. |
-| Clear or `DONT_CARE` leaves | Neither depth nor stencil fragment test writes through pipeline state. The fragment shader still samples and stores the opposite aspect. |
-| Resolve leaves | The graphics pipeline uses four samples. A render-pass-2 depth/stencil resolve attachment receives sample-zero resolve results. |
+- ``write_depth``: Fragment shader uses `usampler2D` and `r32ui uimage2D` to fetch/store stencil. The pipeline enables depth test/write.
+- ``write_stencil``: Fragment shader uses `sampler2D` and `r32f image2D` to fetch/store depth. The pipeline enables stencil test/write with `REPLACE` on pass.
+- ``_dynamic_stencil_ref``: Fragment shader enables `GL_ARB_shader_stencil_export` and assigns `gl_FragStencilRefARB = inExtra.x`.
+- `Ordinary stencil test leaves`: The host uses `cmdSetStencilReference` before a one-point draw for every generated vertex.
+- `Clear or `DONT_CARE` leaves`: Neither depth nor stencil fragment test writes through pipeline state. The fragment shader still samples and stores the opposite aspect.
+- `Resolve leaves`: The graphics pipeline uses four samples. A render-pass-2 depth/stencil resolve attachment receives sample-zero resolve results.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---|---|---|
+| ``write_depth`` | Fragment shader uses `usampler2D` and `r32ui uimage2D` to fetch/store stencil. The pipeline enables depth test/write. | [`DepthStencilSeparateCase::initPrograms()`](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L401-L460) |
+| ``write_stencil`` | Fragment shader uses `sampler2D` and `r32f image2D` to fetch/store depth. The pipeline enables stencil test/write with `REPLACE` on pass. | [`DepthStencilSeparateCase::initPrograms()`](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L401-L460) |
+| ``_dynamic_stencil_ref`` | Fragment shader enables `GL_ARB_shader_stencil_export` and assigns `gl_FragStencilRefARB = inExtra.x`. | [`DepthStencilSeparateCase::initPrograms()`](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L401-L460) |
+| `Ordinary stencil test leaves` | The host uses `cmdSetStencilReference` before a one-point draw for every generated vertex. | [`DepthStencilSeparateCase::initPrograms()`](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L401-L460) |
+| `Clear or `DONT_CARE` leaves` | Neither depth nor stencil fragment test writes through pipeline state. The fragment shader still samples and stores the opposite aspect. | [`DepthStencilSeparateCase::initPrograms()`](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L401-L460) |
+| `Resolve leaves` | The graphics pipeline uses four samples. A render-pass-2 depth/stencil resolve attachment receives sample-zero resolve results. | [`DepthStencilSeparateCase::initPrograms()`](../../../modules/vulkan/image/vktImageDepthStencilSeparateTests.cpp#L401-L460) |
+
+#### SPIR-V
+
+##### Vertex Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 34
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %inPos %outColor %inColor %outExtra %inExtra
+               OpSource GLSL 460
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpMemberName %gl_PerVertex 1 "gl_PointSize"
+               OpMemberName %gl_PerVertex 2 "gl_ClipDistance"
+               OpMemberName %gl_PerVertex 3 "gl_CullDistance"
+               OpName %_ ""
+               OpName %inPos "inPos"
+               OpName %outColor "outColor"
+               OpName %inColor "inColor"
+               OpName %outExtra "outExtra"
+               OpName %inExtra "inExtra"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpMemberDecorate %gl_PerVertex 1 BuiltIn PointSize
+               OpMemberDecorate %gl_PerVertex 2 BuiltIn ClipDistance
+               OpMemberDecorate %gl_PerVertex 3 BuiltIn CullDistance
+               OpDecorate %inPos Location 0
+               OpDecorate %outColor Location 0
+               OpDecorate %inColor Location 1
+               OpDecorate %outExtra Flat
+               OpDecorate %outExtra Location 1
+               OpDecorate %inExtra Location 2
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_arr_float_uint_1 = OpTypeArray %float %uint_1
+%gl_PerVertex = OpTypeStruct %v4float %float %_arr_float_uint_1 %_arr_float_uint_1
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+      %inPos = OpVariable %_ptr_Input_v4float Input
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+      %int_1 = OpConstant %int 1
+    %float_1 = OpConstant %float 1
+%_ptr_Output_float = OpTypePointer Output %float
+   %outColor = OpVariable %_ptr_Output_v4float Output
+    %inColor = OpVariable %_ptr_Input_v4float Input
+      %v4int = OpTypeVector %int 4
+%_ptr_Output_v4int = OpTypePointer Output %v4int
+   %outExtra = OpVariable %_ptr_Output_v4int Output
+%_ptr_Input_v4int = OpTypePointer Input %v4int
+    %inExtra = OpVariable %_ptr_Input_v4int Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %18 = OpLoad %v4float %inPos
+         %20 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %20 %18
+         %24 = OpAccessChain %_ptr_Output_float %_ %int_1
+               OpStore %24 %float_1
+         %27 = OpLoad %v4float %inColor
+               OpStore %outColor %27
+         %33 = OpLoad %v4int %inExtra
+               OpStore %outExtra %33
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 41
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %outColor %inColor %gl_FragCoord %inExtra
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 460
+               OpName %main "main"
+               OpName %outColor "outColor"
+               OpName %inColor "inColor"
+               OpName %texCoords "texCoords"
+               OpName %gl_FragCoord "gl_FragCoord"
+               OpName %stencilCopy "stencilCopy"
+               OpName %stencilSampler "stencilSampler"
+               OpName %inExtra "inExtra"
+               OpDecorate %outColor Location 0
+               OpDecorate %inColor Location 0
+               OpDecorate %gl_FragCoord BuiltIn FragCoord
+               OpDecorate %stencilCopy Binding 1
+               OpDecorate %stencilCopy DescriptorSet 0
+               OpDecorate %stencilSampler Binding 0
+               OpDecorate %stencilSampler DescriptorSet 0
+               OpDecorate %inExtra Flat
+               OpDecorate %inExtra Location 1
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %outColor = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+    %inColor = OpVariable %_ptr_Input_v4float Input
+        %int = OpTypeInt 32 1
+      %v2int = OpTypeVector %int 2
+%_ptr_Function_v2int = OpTypePointer Function %v2int
+%gl_FragCoord = OpVariable %_ptr_Input_v4float Input
+    %v2float = OpTypeVector %float 2
+       %uint = OpTypeInt 32 0
+         %23 = OpTypeImage %uint 2D 0 0 0 2 R32ui
+%_ptr_UniformConstant_23 = OpTypePointer UniformConstant %23
+%stencilCopy = OpVariable %_ptr_UniformConstant_23 UniformConstant
+         %28 = OpTypeImage %uint 2D 0 0 0 1 Unknown
+         %29 = OpTypeSampledImage %28
+%_ptr_UniformConstant_29 = OpTypePointer UniformConstant %29
+%stencilSampler = OpVariable %_ptr_UniformConstant_29 UniformConstant
+      %int_0 = OpConstant %int 0
+     %v4uint = OpTypeVector %uint 4
+      %v4int = OpTypeVector %int 4
+%_ptr_Input_v4int = OpTypePointer Input %v4int
+    %inExtra = OpVariable %_ptr_Input_v4int Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+  %texCoords = OpVariable %_ptr_Function_v2int Function
+         %12 = OpLoad %v4float %inColor
+               OpStore %outColor %12
+         %19 = OpLoad %v4float %gl_FragCoord
+         %20 = OpVectorShuffle %v2float %19 %19 0 1
+         %21 = OpConvertFToS %v2int %20
+               OpStore %texCoords %21
+         %26 = OpLoad %23 %stencilCopy
+         %27 = OpLoad %v2int %texCoords
+         %32 = OpLoad %29 %stencilSampler
+         %33 = OpLoad %v2int %texCoords
+         %35 = OpImage %28 %32
+         %37 = OpImageFetch %v4uint %35 %33 Lod %int_0
+               OpImageWrite %26 %27 %37
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

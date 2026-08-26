@@ -15,21 +15,18 @@
 ## Registration Hierarchy
 
 ```text
-sparse_resources
-├── image_sparse_binding
-└── device_group_image_sparse_binding
-```
+sparse_resources.image_sparse_binding
+├── multiple_sparse_memory_bind
+├── multiple_sparse_image_opaque_memory_bind_info
+└── multiple_bind_sparse_info
 
-Both roots contain the same direct test families:
-
-```text
-image_sparse_binding
+sparse_resources.device_group_image_sparse_binding
 ├── multiple_sparse_memory_bind
 ├── multiple_sparse_image_opaque_memory_bind_info
 └── multiple_bind_sparse_info
 ```
 
-`device_group_image_sparse_binding` repeats these three direct children with device-group binding metadata enabled.
+The two roots use the same direct test families; the second root enables device-group binding metadata.
 
 ## Parameter Dimensions and Observed Values
 

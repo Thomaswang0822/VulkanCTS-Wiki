@@ -21,7 +21,11 @@ synchronization.implicit
 └── timeline_semaphore
 ```
 
-The synchronization2 path has the same direct children: `synchronization2.implicit.binary_semaphore` and `synchronization2.implicit.timeline_semaphore`.
+```text
+synchronization2.implicit
+├── binary_semaphore
+└── timeline_semaphore
+```
 
 Under either semaphore test family, the source creates four operation-pair groups. Each pair selects one compatible resource and then 256 four-digit test cases. A leaf has the form `<write>_<read>.<resource>.<combo>`. Each digit in `<combo>` selects one of the four submit-info types described below.
 
@@ -59,7 +63,199 @@ The generated counterpart supplies a command buffer with a signal and a separate
 
 ## Shader Analysis
 
-No shader walkthrough is included. This page tests queue submission and operation synchronization. Any shaders used by `SSBO_VERTEX` or delegated operation implementations support the resource operation but do not define the implicit-ordering behavior documented here.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.synchronization.implicit.binary_semaphore.write_copy_buffer_read_ssbo_vertex.buffer_16384.1000
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `synchronization.implicit` | Uses the legacy queue-submit wrapper for the implicit-ordering family. |
+| `binary_semaphore` | Connects generated signal and wait submit elements with binary semaphores. |
+| `write_copy_buffer_read_ssbo_vertex` | A transfer copy produces the resource contents; the vertex-stage SSBO operation consumes and copies them to its output buffer. |
+| `buffer_16384` | Selects a 16,384-byte buffer, emitted as 1,024 `uvec4` elements because each element occupies 16 bytes. |
+| `1000` | Selects wait-plus-command-buffer for the first submit position and wait-only for the remaining three positions; counterpart submit structures provide the matching writes and signals. |
+
+#### Purpose
+
+This vertex shader makes queue-submit ordering observable by reading the synchronized 16 KiB resource as an SSBO and copying every element to a host-readable output SSBO. After queue completion, the test compares that output with the transfer producer's data, so stale or incorrectly ordered reads become content mismatches.
+
+#### Structural Design
+
+```mermaid
+flowchart TD
+    A[Transfer copy writes synchronized buffer] --> B[Barrier and ordered submit dependency]
+    B --> C[Vertex shader reads binding 0]
+    C --> D[Loop copies 1024 uvec4 elements]
+    D --> E[Shader writes host-visible binding 1]
+    E --> F[Host compares producer and consumer data]
+```
+
+#### Shader Code
+
+```glsl
+#version 440
+
+/// Vertex position drives the generic raster draw; it is incidental to the synchronized data copy.
+layout(location = 0) in vec4 v_in_position;
+
+/// Built-in vertex output required by the generic graphics passthrough pipeline.
+out gl_PerVertex {
+    vec4 gl_Position;
+};
+
+/// The synchronized 16 KiB resource is exposed as 1024 std140-aligned uvec4 values at set 0, binding 0.
+layout(set = 0, binding = 0, std140) readonly buffer Input {
+    uvec4 data[1024];
+} b_in;
+
+/// The read operation copies into a separate 16 KiB host-readable output buffer at set 0, binding 1.
+layout(set = 0, binding = 1, std140) writeonly buffer Output {
+    uvec4 data[1024];
+} b_out;
+
+void main (void)
+{
+    gl_Position = v_in_position;
+    /// Copy every synchronized input element so the host can compare the complete resource contents.
+    for (int i = 0; i < 1024; ++i) {
+        b_out.data[i] = b_in.data[i];
+    }
+}
+```
+
+#### Additional Info
+
+- `BufferSupport::initPrograms()` derives `1024` from `16384 / sizeof(tcu::UVec4)`, emits both `std140` SSBO declarations and the full-copy loop, and passes them to `initPassthroughPrograms()` for insertion into the vertex stage ([source](../../../modules/vulkan/synchronization/vktSynchronizationOperation.cpp#L2446-L2494)).
+- The read implementation binds the synchronized resource at binding 0 and a host-visible storage buffer at binding 1, then inserts a vertex-shader-write-to-host-read barrier before `getData()` exposes the copied bytes ([source](../../../modules/vulkan/synchronization/vktSynchronizationOperation.cpp#L1765-L1963)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| API path and semaphore family | No shader text changes; these dimensions alter submit packaging and semaphore representation around the same resource operation. | [`QueueSubmitImplicitTestInstance::iterate`](../../../modules/vulkan/synchronization/vktSynchronizationImplicitTests.cpp#L174-L500) |
+| Write operation | Changing the producer to `SSBO_VERTEX` adds producer-side shader programs, but the shown `read_ssbo_buffer_16384_vert` consumer remains the same. | [`QueueSubmitImplicitTests::init`](../../../modules/vulkan/synchronization/vktSynchronizationImplicitTests.cpp#L677-L705) |
+| Read operation and shader stage | `READ_COPY_BUFFER` removes this shader path; another shader-access operation or stage would change the generated prefix, required passthrough stages, and the stage receiving the SSBO declarations and loop. | [`initPassthroughPrograms`](../../../modules/vulkan/synchronization/vktSynchronizationOperation.cpp#L2276-L2410) |
+| Buffer size | Changes both SSBO array lengths and the loop bound to `size / 16`; `buffer_16384` produces `1024`. | [`BufferSupport::initPrograms`](../../../modules/vulkan/synchronization/vktSynchronizationOperation.cpp#L2446-L2494) |
+| Submit combination | No shader text changes; the four digits only select wait, command-buffer, and signal placement in the queue submit structures. | [`QueueSubmitImplicitTests::init`](../../../modules/vulkan/synchronization/vktSynchronizationImplicitTests.cpp#L689-L733) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `vert`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 49
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Vertex %main "main" %_ %v_in_position
+               OpSource GLSL 440
+               OpName %main "main"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpName %_ ""
+               OpName %v_in_position "v_in_position"
+               OpName %i "i"
+               OpName %Output "Output"
+               OpMemberName %Output 0 "data"
+               OpName %b_out "b_out"
+               OpName %Input "Input"
+               OpMemberName %Input 0 "data"
+               OpName %b_in "b_in"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpDecorate %v_in_position Location 0
+               OpDecorate %_arr_v4uint_uint_1024 ArrayStride 16
+               OpDecorate %Output BufferBlock
+               OpMemberDecorate %Output 0 NonReadable
+               OpMemberDecorate %Output 0 Offset 0
+               OpDecorate %b_out NonReadable
+               OpDecorate %b_out Binding 1
+               OpDecorate %b_out DescriptorSet 0
+               OpDecorate %_arr_v4uint_uint_1024_0 ArrayStride 16
+               OpDecorate %Input BufferBlock
+               OpMemberDecorate %Input 0 NonWritable
+               OpMemberDecorate %Input 0 Offset 0
+               OpDecorate %b_in NonWritable
+               OpDecorate %b_in Binding 0
+               OpDecorate %b_in DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%gl_PerVertex = OpTypeStruct %v4float
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%v_in_position = OpVariable %_ptr_Input_v4float Input
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%_ptr_Function_int = OpTypePointer Function %int
+   %int_1024 = OpConstant %int 1024
+       %bool = OpTypeBool
+       %uint = OpTypeInt 32 0
+     %v4uint = OpTypeVector %uint 4
+  %uint_1024 = OpConstant %uint 1024
+%_arr_v4uint_uint_1024 = OpTypeArray %v4uint %uint_1024
+     %Output = OpTypeStruct %_arr_v4uint_uint_1024
+%_ptr_Uniform_Output = OpTypePointer Uniform %Output
+      %b_out = OpVariable %_ptr_Uniform_Output Uniform
+%_arr_v4uint_uint_1024_0 = OpTypeArray %v4uint %uint_1024
+      %Input = OpTypeStruct %_arr_v4uint_uint_1024_0
+%_ptr_Uniform_Input = OpTypePointer Uniform %Input
+       %b_in = OpVariable %_ptr_Uniform_Input Uniform
+%_ptr_Uniform_v4uint = OpTypePointer Uniform %v4uint
+      %int_1 = OpConstant %int 1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %i = OpVariable %_ptr_Function_int Function
+         %15 = OpLoad %v4float %v_in_position
+         %17 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %17 %15
+               OpStore %i %int_0
+               OpBranch %20
+         %20 = OpLabel
+               OpLoopMerge %22 %23 None
+               OpBranch %24
+         %24 = OpLabel
+         %25 = OpLoad %int %i
+         %28 = OpSLessThan %bool %25 %int_1024
+               OpBranchConditional %28 %21 %22
+         %21 = OpLabel
+         %36 = OpLoad %int %i
+         %41 = OpLoad %int %i
+         %43 = OpAccessChain %_ptr_Uniform_v4uint %b_in %int_0 %41
+         %44 = OpLoad %v4uint %43
+         %45 = OpAccessChain %_ptr_Uniform_v4uint %b_out %int_0 %36
+               OpStore %45 %44
+               OpBranch %23
+         %23 = OpLabel
+         %46 = OpLoad %int %i
+         %48 = OpIAdd %int %46 %int_1
+               OpStore %i %48
+               OpBranch %20
+         %22 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

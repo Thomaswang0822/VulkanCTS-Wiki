@@ -67,7 +67,7 @@ One walkthrough covers the reader closest-hit shader for the `from_rgen_to_chit`
 Representative path:
 
 ```text
-ray_tracing_pipeline.barrier.ssbo.specific_barrier.from_rgen_to_chit
+dEQP-VK.ray_tracing_pipeline.barrier.ssbo.specific_barrier.from_rgen_to_chit
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -141,8 +141,8 @@ void main()
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level variation from this walkthrough | Evidence |
-|---------------------|--------------------------------------------|----------|
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
 | Resource type | Swaps the barrier resource declaration: `buffer ssbodef` (SSBO), `uniform ubodef` (UBO), or `uniform uimage2D simage` (storage image). The read/write statements change accordingly. | [writerResourceDecl / readerResourceDecl](../../../modules/vulkan/ray_tracing/vktRayTracingBarrierTests.cpp#L440-L472) |
 | Writer stage | Swaps the writer shader stage and body. RAYGEN writes directly; other ray tracing stages use an aux rgen plus the writer shader in the hit/miss/callable stage; COMPUTE and FRAGMENT use their own pipelines; HOST and TRANSFER use host fills and copies. | [writer shader generation](../../../modules/vulkan/ray_tracing/vktRayTracingBarrierTests.cpp#L484-L620) |
 | Reader stage | Swaps the reader shader stage and body. Same structure as the writer but with a read-plus-save statement and an extra verification buffer declaration. | [reader shader generation](../../../modules/vulkan/ray_tracing/vktRayTracingBarrierTests.cpp#L626-L764) |
@@ -255,7 +255,17 @@ void main()
                OpFunctionEnd
 ```
 
-</details>## Failure Meaning
+</details>
+
+## Runtime Execution and Result Checking
+
+- **Resource and verification setup.** Each leaf allocates a 1,024-element verification buffer plus the selected UBO, SSBO, or `R32_UINT` storage image. Buffer resources use the test's std140 source layout while the verification buffer uses std430; transfer reads therefore copy one 32-bit lane from each 16-byte source element rather than copying the buffer as a packed array [resource creation](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingBarrierTests.cpp#L1264-L1368), [strided transfer copy](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingBarrierTests.cpp#L1594-L1623).
+- **Writer execution.** The selected writer fills the resource with `kValuesOffset + i` (`2048 + i`). HOST writes are flushed; TRANSFER uses staging copies; COMPUTE and FRAGMENT use their corresponding pipelines; raygen, intersection, any-hit, closest-hit, miss, and callable writers are reached through a purpose-built ray tracing pipeline and acceleration structure. Storage-image writers first place the image in the layout required by the chosen path [writer dispatch selection](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingBarrierTests.cpp#L1390-L1544).
+- **Barrier under test.** Exactly one main dependency connects the writer and reader. `GENERAL` emits a global `VkMemoryBarrier`; `SPECIFIC` emits a buffer barrier for UBO/SSBO or an image barrier that also changes to the reader's optimal layout. Source/destination stage masks come from the chosen writer/reader stages, while access masks distinguish shader, uniform, transfer, and host access [main barrier construction](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingBarrierTests.cpp#L1547-L1592).
+- **Reader execution.** A TRANSFER reader copies the resource into the verification buffer; COMPUTE, FRAGMENT, and ray tracing readers load the resource in a shader and store the observed value there. A HOST reader waits until submission completes, invalidates the source allocation, converts std140 `uvec4` entries to packed scalar values, and writes those values into the verification buffer [reader paths](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingBarrierTests.cpp#L1594-L1680), [host-reader conversion](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingBarrierTests.cpp#L1698-L1721).
+- **Pass/fail scan.** A final buffer barrier makes the reader's verification writes visible to HOST, the queue is submitted and waited, and the mapped allocation is invalidated. The host scans all 1,024 entries and fails at the first index whose value is not `2048 + i`, reporting the index, actual value, and expected value [verification barrier and comparison](https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingBarrierTests.cpp#L1683-L1745).
+
+## Failure Meaning
 
 ### Failure Cause Mapping
 

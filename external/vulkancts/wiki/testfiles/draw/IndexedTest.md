@@ -269,9 +269,24 @@ The ordinary path uses the repository shaders `VertexFetch.vert` and `VertexFetc
 
 ### Representative Shader Walkthrough 1
 
-#### Representative path
+#### Parameter Values Chosen
 
-`draw.renderpass.indexed_draw.draw_indexed_triangle_list` with `VertexFetch.vert` and `VertexFetch.frag`.
+Representative path:
+
+```text
+dEQP-VK.draw.renderpass.indexed_draw.draw_indexed_triangle_list
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| Topology | `VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST` |
+| `vertexOffset` | `13` |
+| Index bind offset | `0` |
+| Allocation offset | `0` |
+
+#### Purpose
+
+The shader makes an indexing mistake visible: the expected vertex writes its input color, while another fetched vertex writes red.
 
 #### Structural Design
 
@@ -282,19 +297,6 @@ The ordinary path uses the repository shaders `VertexFetch.vert` and `VertexFetc
 | `in_refVertexIndex` | vertex attribute location 2 | Reference index compared with `gl_VertexIndex`. |
 | `gl_VertexIndex` | Vulkan vertex built-in | Effective indexed vertex number after the draw's index and base-vertex processing. |
 | `out_color` | vertex output / fragment input | Pixel color used by the image comparison. |
-
-#### Purpose
-
-The shader makes an indexing mistake visible: the expected vertex writes its input color, while another fetched vertex writes red.
-
-#### Parameter Values Chosen
-
-| Parameter | Value |
-|---|---|
-| Topology | `VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST` |
-| `vertexOffset` | `13` |
-| Index bind offset | `0` |
-| Allocation offset | `0` |
 
 #### Shader Code
 
@@ -320,14 +322,19 @@ void main() {
 }
 ```
 
-#### Parameter Variation Summary
-
-Changing `vertexOffset` changes the effective `gl_VertexIndex` without changing the shader source. The bind and allocation offsets move the same index bytes through different buffer-address calculations. The instanced family swaps in `VertexFetchInstancedFirstInstance.vert`; count cases swap in the fixed point positions and atomic fragment counter shaders.
-
 #### Additional Info
 
 - The fragment stage is a pass-through stage: `VertexFetch.frag` writes its input `in_color` to the color attachment.
 - The shader source is [`VertexFetch.vert`](../../../data/vulkan/draw/VertexFetch.vert); the companion fragment source is [`VertexFetch.frag`](../../../data/vulkan/draw/VertexFetch.frag).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| `vertexOffset` | Changes the effective `gl_VertexIndex` without changing the shader source. | [`VertexFetch.vert`](../../../data/vulkan/draw/VertexFetch.vert), [`DrawIndexedTests::init`](../../../modules/vulkan/draw/vktDrawIndexedTest.cpp#L1771-L1784) |
+| Index bind and allocation offsets | Move the same index bytes through different buffer-address calculations without changing the shader source. | [`DrawIndexedTests::init`](../../../modules/vulkan/draw/vktDrawIndexedTest.cpp#L1739-L1784) |
+| Instanced indexed family | Replaces the vertex shader with `VertexFetchInstancedFirstInstance.vert`, which adds a per-instance position selected by `gl_InstanceIndex`; the fragment shader remains `VertexFetch.frag`. | [`VertexFetchInstancedFirstInstance.vert`](../../../data/vulkan/draw/VertexFetchInstancedFirstInstance.vert), [`DrawIndexedTests::init`](../../../modules/vulkan/draw/vktDrawIndexedTest.cpp#L1787-L1795) |
+| Maintenance6 fragment-count mode | Replaces the ordinary pair with `VertexFetchCount.vert` and `VertexFetchCount.frag`; the vertex shader uses fixed point positions and colors, and the fragment shader atomically increments the counter SSBO. | [`VertexFetchCount.vert`](../../../data/vulkan/draw/VertexFetchCount.vert), [`VertexFetchCount.frag`](../../../data/vulkan/draw/VertexFetchCount.frag), [`DrawIndexedTests::init`](../../../modules/vulkan/draw/vktDrawIndexedTest.cpp#L1832-L1844) |
 
 #### SPIR-V
 

@@ -77,7 +77,7 @@ The shaders in this file are generated as GLSL strings. They are short, and thei
 Representative path:
 
 ```text
-renderpasses.renderpass2.multiview_per_view.viewports.viewport_static_scissor_static_vary_offset
+dEQP-VK.renderpasses.renderpass2.multiview_per_view.viewports.viewport_static_scissor_static_vary_offset
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -104,7 +104,7 @@ flowchart TD
 
 #### Shader Code
 
-Reconstructed GLSL for the QCOM extension path:
+##### Vertex Shader
 
 ```glsl
 #version 460
@@ -119,6 +119,8 @@ void main()
     gl_Position = vec4(x, y, 0.0, 1.0);
 }
 ```
+
+##### Fragment Shader
 
 ```glsl
 #version 460
@@ -146,12 +148,16 @@ void main()
 
 #### Parameter Variation Summary
 
-The vertex and fragment shader bodies are identical across all 72 `viewports` cases. What changes between cases is pipeline and command-buffer state: whether viewports and scissors are static, dynamic, or dynamic-with-count; which fields differ between the two views; and whether one or two subpasses are used. Those differences are exercised through `cmdSetViewport`, `cmdSetScissor`, `cmdSetViewportWithCount`, and `cmdSetScissorWithCount` before each draw, and through the static viewport and scissor arrays passed at pipeline creation [dynamic state recording](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L640-L660).
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|------------------------------------------|----------|
+| Runtime/pipeline dimension | The vertex and fragment shader bodies are identical across all 72 `viewports` cases. What changes between cases is pipeline and command-buffer state: whether viewports and scissors are static, dynamic, or dynamic-with-count; which fields differ between the two views; and whether one or two subpasses are used. Those differences are exercised through `cmdSetViewport`, `cmdSetScissor`, `cmdSetViewportWithCount`, and `cmdSetScissorWithCount` before each draw, and through the static viewport and scissor arrays passed at pipeline creation [dynamic state recording](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L640-L660). | [source evidence](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L640-L660) |
 
 #### SPIR-V
 
+##### Vertex Shader
+
 - Status: generated and validated
-- Source: reconstructed GLSL from this walkthrough
+- Source: reconstructed `GLSL` from this walkthrough
 - Stage: `vert`
 - Target SPIRV version: `spirv1.0`
 
@@ -235,6 +241,83 @@ The vertex and fragment shader bodies are identical across all 72 `viewports` ca
 
 </details>
 
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 31
+; Schema: 0
+               OpCapability Shader
+               OpCapability MultiView
+               OpExtension "SPV_KHR_multiview"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %gl_ViewIndex %outColor
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_multiview"
+               OpName %main "main"
+               OpName %gl_ViewIndex "gl_ViewIndex"
+               OpName %outColor "outColor"
+               OpDecorate %gl_ViewIndex BuiltIn ViewIndex
+               OpDecorate %gl_ViewIndex Flat
+               OpDecorate %outColor Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_ViewIndex = OpVariable %_ptr_Input_int Input
+      %int_0 = OpConstant %int 0
+       %bool = OpTypeBool
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %outColor = OpVariable %_ptr_Output_v4float Output
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+         %21 = OpConstantComposite %v4float %float_0 %float_0 %float_1 %float_1
+      %int_1 = OpConstant %int 1
+         %28 = OpConstantComposite %v4float %float_0 %float_1 %float_1 %float_1
+         %30 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %9 = OpLoad %int %gl_ViewIndex
+         %12 = OpIEqual %bool %9 %int_0
+               OpSelectionMerge %14 None
+               OpBranchConditional %12 %13 %22
+         %13 = OpLabel
+               OpStore %outColor %21
+               OpBranch %14
+         %22 = OpLabel
+         %23 = OpLoad %int %gl_ViewIndex
+         %25 = OpIEqual %bool %23 %int_1
+               OpSelectionMerge %27 None
+               OpBranchConditional %25 %26 %29
+         %26 = OpLabel
+               OpStore %outColor %28
+               OpBranch %27
+         %29 = OpLabel
+               OpStore %outColor %30
+               OpBranch %27
+         %27 = OpLabel
+               OpBranch %14
+         %14 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
 ### Representative Shader Walkthrough 2
 
 #### Parameter Values Chosen
@@ -242,7 +325,7 @@ The vertex and fragment shader bodies are identical across all 72 `viewports` ca
 Representative path:
 
 ```text
-renderpasses.renderpass2.multiview_per_view.render_areas.multi_viewport_geom_ss_clear_ms_clear
+dEQP-VK.renderpasses.renderpass2.multiview_per_view.render_areas.multi_viewport_geom_ss_clear_ms_clear
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -268,7 +351,7 @@ flowchart TD
 
 #### Shader Code
 
-Reconstructed GLSL for the `multi_viewport_geom` path:
+##### Vertex Shader
 
 ```glsl
 #version 460
@@ -282,6 +365,8 @@ void main()
     gl_Position = vec4(x, y, 0.0, 1.0);
 }
 ```
+
+##### Geometry Shader
 
 ```glsl
 #version 460
@@ -307,6 +392,8 @@ void main()
 }
 ```
 
+##### Fragment Shader
+
 ```glsl
 #version 460
 
@@ -329,12 +416,16 @@ void main()
 
 #### Parameter Variation Summary
 
-The fragment shader is constant across all `render_areas` cases. The vertex shader changes only in whether it writes `gl_ViewportIndex`. The geometry shader is present only for `multi_viewport_geom`. The load-op and multi-pass dimensions do not change shader text; they change attachment setup and the host reference image.
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|------------------------------------------|----------|
+| Runtime/pipeline dimension | The fragment shader is constant across all `render_areas` cases. The vertex shader changes only in whether it writes `gl_ViewportIndex`. The geometry shader is present only for `multi_viewport_geom`. The load-op and multi-pass dimensions do not change shader text; they change attachment setup and the host reference image. | [source evidence](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L640-L660) |
 
 #### SPIR-V
 
+##### Vertex Shader
+
 - Status: generated and validated
-- Source: reconstructed GLSL from this walkthrough
+- Source: reconstructed `GLSL` from this walkthrough
 - Stage: `vert`
 - Target SPIRV version: `spirv1.0`
 
@@ -409,6 +500,153 @@ The fragment shader is constant across all `render_areas` cases. The vertex shad
          %37 = OpCompositeConstruct %v4float %33 %34 %float_0 %float_1
          %39 = OpAccessChain %_ptr_Output_v4float %_ %int_0
                OpStore %39 %37
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Geometry Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `geom`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 44
+; Schema: 0
+               OpCapability Geometry
+               OpCapability MultiViewport
+               OpCapability MultiView
+               OpExtension "SPV_KHR_multiview"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Geometry %main "main" %_ %gl_in %gl_ViewportIndex %gl_ViewIndex
+               OpExecutionMode %main Triangles
+               OpExecutionMode %main Invocations 1
+               OpExecutionMode %main OutputTriangleStrip
+               OpExecutionMode %main OutputVertices 3
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_multiview"
+               OpName %main "main"
+               OpName %i "i"
+               OpName %gl_PerVertex "gl_PerVertex"
+               OpMemberName %gl_PerVertex 0 "gl_Position"
+               OpName %_ ""
+               OpName %gl_PerVertex_0 "gl_PerVertex"
+               OpMemberName %gl_PerVertex_0 0 "gl_Position"
+               OpName %gl_in "gl_in"
+               OpName %gl_ViewportIndex "gl_ViewportIndex"
+               OpName %gl_ViewIndex "gl_ViewIndex"
+               OpDecorate %gl_PerVertex Block
+               OpMemberDecorate %gl_PerVertex 0 BuiltIn Position
+               OpDecorate %gl_PerVertex_0 Block
+               OpMemberDecorate %gl_PerVertex_0 0 BuiltIn Position
+               OpDecorate %gl_ViewportIndex BuiltIn ViewportIndex
+               OpDecorate %gl_ViewIndex BuiltIn ViewIndex
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_ptr_Function_uint = OpTypePointer Function %uint
+     %uint_0 = OpConstant %uint 0
+     %uint_3 = OpConstant %uint 3
+       %bool = OpTypeBool
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%gl_PerVertex = OpTypeStruct %v4float
+%_ptr_Output_gl_PerVertex = OpTypePointer Output %gl_PerVertex
+          %_ = OpVariable %_ptr_Output_gl_PerVertex Output
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%gl_PerVertex_0 = OpTypeStruct %v4float
+%_arr_gl_PerVertex_0_uint_3 = OpTypeArray %gl_PerVertex_0 %uint_3
+%_ptr_Input__arr_gl_PerVertex_0_uint_3 = OpTypePointer Input %_arr_gl_PerVertex_0_uint_3
+      %gl_in = OpVariable %_ptr_Input__arr_gl_PerVertex_0_uint_3 Input
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%_ptr_Output_int = OpTypePointer Output %int
+%gl_ViewportIndex = OpVariable %_ptr_Output_int Output
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_ViewIndex = OpVariable %_ptr_Input_int Input
+      %int_1 = OpConstant %int 1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %i = OpVariable %_ptr_Function_uint Function
+               OpStore %i %uint_0
+               OpBranch %10
+         %10 = OpLabel
+               OpLoopMerge %12 %13 None
+               OpBranch %14
+         %14 = OpLabel
+         %15 = OpLoad %uint %i
+         %18 = OpULessThan %bool %15 %uint_3
+               OpBranchConditional %18 %11 %12
+         %11 = OpLabel
+         %30 = OpLoad %uint %i
+         %32 = OpAccessChain %_ptr_Input_v4float %gl_in %30 %int_0
+         %33 = OpLoad %v4float %32
+         %35 = OpAccessChain %_ptr_Output_v4float %_ %int_0
+               OpStore %35 %33
+         %40 = OpLoad %int %gl_ViewIndex
+               OpStore %gl_ViewportIndex %40
+               OpEmitVertex
+               OpBranch %13
+         %13 = OpLabel
+         %41 = OpLoad %uint %i
+         %43 = OpIAdd %uint %41 %int_1
+               OpStore %i %43
+               OpBranch %10
+         %12 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 13
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %outColor
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 460
+               OpName %main "main"
+               OpName %outColor "outColor"
+               OpDecorate %outColor Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %outColor = OpVariable %_ptr_Output_v4float Output
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+         %12 = OpConstantComposite %v4float %float_0 %float_0 %float_1 %float_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+               OpStore %outColor %12
                OpReturn
                OpFunctionEnd
 ```

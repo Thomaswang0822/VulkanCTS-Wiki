@@ -72,7 +72,7 @@ This category uses CTS-authored SPIR-V assembly string templates rather than GLS
 Representative path:
 
 ```text
-dEQP-VKSC.spirv_assembly.instruction.compute.indexing.input.non16basealignment.opaccesschain
+dEQP-VK.spirv_assembly.instruction.compute.indexing.input.non16basealignment.opaccesschain
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -94,144 +94,9 @@ Each invocation selects one runtime-array structure by `gl_GlobalInvocationID.x`
 | Accumulation | `%dataPtr0` through `%dataPtr17` address the 18 floats; `%acc17` is the final scalar sum. |
 | Result | `%outPtr` addresses output element `%invid`, then `OpStore` writes `%acc17`. |
 
-#### Source Code
+#### Shader Code
 
-<details>
-<summary>Click to expand CTS-authored SPIR-V assembly</summary>
-
-```llvm
-OpCapability Shader
-OpCapability VariablePointersStorageBuffer
-OpExtension "SPV_KHR_variable_pointers"
-OpExtension "SPV_KHR_storage_buffer_storage_class"
-%1 = OpExtInstImport "GLSL.std.450"
-OpMemoryModel Logical GLSL450
-OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
-OpExecutionMode %main LocalSize 1 1 1
-OpSource GLSL 430
-OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
-OpDecorate %input_array ArrayStride 4
-OpDecorate %output_array ArrayStride 4
-OpDecorate %runtimearr_struct1 ArrayStride 72
-OpDecorate %_ptr_struct1_sb ArrayStride 72
-OpMemberDecorate %Output 0 Offset 0
-OpDecorate %Output Block
-OpDecorate %dataOutput DescriptorSet 0
-OpDecorate %dataOutput Binding 1
-OpMemberDecorate %struct0 0 Offset 0
-OpMemberDecorate %struct1 0 Offset 0
-OpDecorate %struct0 Block
-OpDecorate %dataInput DescriptorSet 0
-OpDecorate %dataInput Binding 0
-%void = OpTypeVoid
-%3 = OpTypeFunction %void
-%u32 = OpTypeInt 32 0
-%i32 = OpTypeInt 32 1
-%_ptr_Function_uint32 = OpTypePointer Function %u32
-%v3uint32 = OpTypeVector %u32 3
-%_ptr_Input_v3uint32 = OpTypePointer Input %v3uint32
-%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint32 Input
-%_ptr_Input_uint32 = OpTypePointer Input %u32
-%float = OpTypeFloat 32
-%uint_0 = OpConstant %u32 0
-%uint_1 = OpConstant %u32 1
-%uint_2 = OpConstant %u32 2
-%uint_3 = OpConstant %u32 3
-%uint_4 = OpConstant %u32 4
-%uint_5 = OpConstant %u32 5
-%uint_6 = OpConstant %u32 6
-%uint_7 = OpConstant %u32 7
-%uint_8 = OpConstant %u32 8
-%uint_9 = OpConstant %u32 9
-%uint_10 = OpConstant %u32 10
-%uint_11 = OpConstant %u32 11
-%uint_12 = OpConstant %u32 12
-%uint_13 = OpConstant %u32 13
-%uint_14 = OpConstant %u32 14
-%uint_15 = OpConstant %u32 15
-%uint_16 = OpConstant %u32 16
-%uint_17 = OpConstant %u32 17
-%uint_18 = OpConstant %u32 18
-%uint_32 = OpConstant %u32 32
-%input_array = OpTypeArray %float %uint_18
-%output_array = OpTypeArray %float %uint_32
-%Output = OpTypeStruct %output_array
-%_ptr_sb_Output = OpTypePointer StorageBuffer %Output
-%dataOutput = OpVariable %_ptr_sb_Output StorageBuffer
-%struct1 = OpTypeStruct %input_array
-%runtimearr_struct1 = OpTypeRuntimeArray %struct1
-%struct0 = OpTypeStruct %runtimearr_struct1
-%_ptr_struct0_sb = OpTypePointer StorageBuffer %struct0
-%_ptr_struct1_sb = OpTypePointer StorageBuffer %struct1
-%_ptr_float_sb = OpTypePointer StorageBuffer %float
-%dataInput = OpVariable %_ptr_struct0_sb StorageBuffer
-%main = OpFunction %void None %3
-%entry = OpLabel
-%base = OpAccessChain %_ptr_struct1_sb %dataInput %uint_0 %uint_0
-%invid_ptr = OpAccessChain %_ptr_Input_uint32 %gl_GlobalInvocationID %uint_0
-%invid = OpLoad %u32 %invid_ptr
-%dataPtr0 = OpAccessChain %_ptr_float_sb %dataInput %uint_0 %invid %uint_0 %uint_0
-%acc0 = OpLoad %float %dataPtr0
-%dataPtr1 = OpAccessChain %_ptr_float_sb %dataInput %uint_0 %invid %uint_0 %uint_1
-%tmp1 = OpLoad %float %dataPtr1
-%acc1 = OpFAdd %float %tmp1 %acc0
-%dataPtr2 = OpAccessChain %_ptr_float_sb %dataInput %uint_0 %invid %uint_0 %uint_2
-%tmp2 = OpLoad %float %dataPtr2
-%acc2 = OpFAdd %float %tmp2 %acc1
-%dataPtr3 = OpAccessChain %_ptr_float_sb %dataInput %uint_0 %invid %uint_0 %uint_3
-%tmp3 = OpLoad %float %dataPtr3
-%acc3 = OpFAdd %float %tmp3 %acc2
-%dataPtr4 = OpAccessChain %_ptr_float_sb %dataInput %uint_0 %invid %uint_0 %uint_4
-%tmp4 = OpLoad %float %dataPtr4
-%acc4 = OpFAdd %float %tmp4 %acc3
-%dataPtr5 = OpAccessChain %_ptr_float_sb %dataInput %uint_0 %invid %uint_0 %uint_5
-%tmp5 = OpLoad %float %dataPtr5
-%acc5 = OpFAdd %float %tmp5 %acc4
-%dataPtr6 = OpAccessChain %_ptr_float_sb %dataInput %uint_0 %invid %uint_0 %uint_6
-%tmp6 = OpLoad %float %dataPtr6
-%acc6 = OpFAdd %float %tmp6 %acc5
-%dataPtr7 = OpAccessChain %_ptr_float_sb %dataInput %uint_0 %invid %uint_0 %uint_7
-%tmp7 = OpLoad %float %dataPtr7
-%acc7 = OpFAdd %float %tmp7 %acc6
-%dataPtr8 = OpAccessChain %_ptr_float_sb %dataInput %uint_0 %invid %uint_0 %uint_8
-%tmp8 = OpLoad %float %dataPtr8
-%acc8 = OpFAdd %float %tmp8 %acc7
-%dataPtr9 = OpAccessChain %_ptr_float_sb %dataInput %uint_0 %invid %uint_0 %uint_9
-%tmp9 = OpLoad %float %dataPtr9
-%acc9 = OpFAdd %float %tmp9 %acc8
-%dataPtr10 = OpAccessChain %_ptr_float_sb %dataInput %uint_0 %invid %uint_0 %uint_10
-%tmp10 = OpLoad %float %dataPtr10
-%acc10 = OpFAdd %float %tmp10 %acc9
-%dataPtr11 = OpAccessChain %_ptr_float_sb %dataInput %uint_0 %invid %uint_0 %uint_11
-%tmp11 = OpLoad %float %dataPtr11
-%acc11 = OpFAdd %float %tmp11 %acc10
-%dataPtr12 = OpAccessChain %_ptr_float_sb %dataInput %uint_0 %invid %uint_0 %uint_12
-%tmp12 = OpLoad %float %dataPtr12
-%acc12 = OpFAdd %float %tmp12 %acc11
-%dataPtr13 = OpAccessChain %_ptr_float_sb %dataInput %uint_0 %invid %uint_0 %uint_13
-%tmp13 = OpLoad %float %dataPtr13
-%acc13 = OpFAdd %float %tmp13 %acc12
-%dataPtr14 = OpAccessChain %_ptr_float_sb %dataInput %uint_0 %invid %uint_0 %uint_14
-%tmp14 = OpLoad %float %dataPtr14
-%acc14 = OpFAdd %float %tmp14 %acc13
-%dataPtr15 = OpAccessChain %_ptr_float_sb %dataInput %uint_0 %invid %uint_0 %uint_15
-%tmp15 = OpLoad %float %dataPtr15
-%acc15 = OpFAdd %float %tmp15 %acc14
-%dataPtr16 = OpAccessChain %_ptr_float_sb %dataInput %uint_0 %invid %uint_0 %uint_16
-%tmp16 = OpLoad %float %dataPtr16
-%acc16 = OpFAdd %float %tmp16 %acc15
-%dataPtr17 = OpAccessChain %_ptr_float_sb %dataInput %uint_0 %invid %uint_0 %uint_17
-%tmp17 = OpLoad %float %dataPtr17
-%acc17 = OpFAdd %float %tmp17 %acc16
-%outPtr = OpAccessChain %_ptr_float_sb %dataOutput %uint_0 %invid
-OpStore %outPtr %acc17
-OpReturn
-OpFunctionEnd
-```
-
-</details>
-
-The checked-in C++ template emits the variable-pointer capability and both SPIR-V extensions for the non-16-base-alignment variants; the representative `opaccesschain` assembly therefore retains those declarations even though its selected operation is `OpAccessChain`.
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -246,6 +111,154 @@ The checked-in C++ template emits the variable-pointer capability and both SPIR-
 | Access-chain operation | `non16basealignment` specializes either `OpAccessChain` or `OpPtrAccessChain`; it does not register `OpInBoundsAccessChain`. | [`addComputeIndexingNon16BaseAlignmentTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L729-L753) |
 | Array stride | The input member remains `float[18]`, with `ArrayStride 72` for each runtime-array structure. | [`addComputeIndexingNon16BaseAlignmentTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L620-L626) |
 | Invocation count | Each invocation selects one of 32 structures using its X coordinate. | [`addComputeIndexingNon16BaseAlignmentTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L747-L750) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 103
+; Schema: 0
+               OpCapability Shader
+               OpCapability VariablePointersStorageBuffer
+               OpExtension "SPV_KHR_variable_pointers"
+               OpExtension "SPV_KHR_storage_buffer_storage_class"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %2 "main" %gl_GlobalInvocationID
+               OpExecutionMode %2 LocalSize 1 1 1
+               OpSource GLSL 430
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %_arr_float_uint_18 ArrayStride 4
+               OpDecorate %_arr_float_uint_32 ArrayStride 4
+               OpDecorate %_runtimearr__struct_11 ArrayStride 72
+               OpDecorate %_ptr_StorageBuffer__struct_11 ArrayStride 72
+               OpMemberDecorate %_struct_8 0 Offset 0
+               OpDecorate %_struct_8 Block
+               OpDecorate %9 DescriptorSet 0
+               OpDecorate %9 Binding 1
+               OpMemberDecorate %_struct_10 0 Offset 0
+               OpMemberDecorate %_struct_11 0 Offset 0
+               OpDecorate %_struct_10 Block
+               OpDecorate %12 DescriptorSet 0
+               OpDecorate %12 Binding 0
+       %void = OpTypeVoid
+         %14 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+        %int = OpTypeInt 32 1
+%_ptr_Function_uint = OpTypePointer Function %uint
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+%_ptr_Input_uint = OpTypePointer Input %uint
+      %float = OpTypeFloat 32
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+     %uint_2 = OpConstant %uint 2
+     %uint_3 = OpConstant %uint 3
+     %uint_4 = OpConstant %uint 4
+     %uint_5 = OpConstant %uint 5
+     %uint_6 = OpConstant %uint 6
+     %uint_7 = OpConstant %uint 7
+     %uint_8 = OpConstant %uint 8
+     %uint_9 = OpConstant %uint 9
+    %uint_10 = OpConstant %uint 10
+    %uint_11 = OpConstant %uint 11
+    %uint_12 = OpConstant %uint 12
+    %uint_13 = OpConstant %uint 13
+    %uint_14 = OpConstant %uint 14
+    %uint_15 = OpConstant %uint 15
+    %uint_16 = OpConstant %uint 16
+    %uint_17 = OpConstant %uint 17
+    %uint_18 = OpConstant %uint 18
+    %uint_32 = OpConstant %uint 32
+%_arr_float_uint_18 = OpTypeArray %float %uint_18
+%_arr_float_uint_32 = OpTypeArray %float %uint_32
+  %_struct_8 = OpTypeStruct %_arr_float_uint_32
+%_ptr_StorageBuffer__struct_8 = OpTypePointer StorageBuffer %_struct_8
+          %9 = OpVariable %_ptr_StorageBuffer__struct_8 StorageBuffer
+ %_struct_11 = OpTypeStruct %_arr_float_uint_18
+%_runtimearr__struct_11 = OpTypeRuntimeArray %_struct_11
+ %_struct_10 = OpTypeStruct %_runtimearr__struct_11
+%_ptr_StorageBuffer__struct_10 = OpTypePointer StorageBuffer %_struct_10
+%_ptr_StorageBuffer__struct_11 = OpTypePointer StorageBuffer %_struct_11
+%_ptr_StorageBuffer_float = OpTypePointer StorageBuffer %float
+         %12 = OpVariable %_ptr_StorageBuffer__struct_10 StorageBuffer
+          %2 = OpFunction %void None %14
+         %45 = OpLabel
+         %46 = OpAccessChain %_ptr_StorageBuffer__struct_11 %12 %uint_0 %uint_0
+         %47 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %48 = OpLoad %uint %47
+         %49 = OpAccessChain %_ptr_StorageBuffer_float %12 %uint_0 %48 %uint_0 %uint_0
+         %50 = OpLoad %float %49
+         %51 = OpAccessChain %_ptr_StorageBuffer_float %12 %uint_0 %48 %uint_0 %uint_1
+         %52 = OpLoad %float %51
+         %53 = OpFAdd %float %52 %50
+         %54 = OpAccessChain %_ptr_StorageBuffer_float %12 %uint_0 %48 %uint_0 %uint_2
+         %55 = OpLoad %float %54
+         %56 = OpFAdd %float %55 %53
+         %57 = OpAccessChain %_ptr_StorageBuffer_float %12 %uint_0 %48 %uint_0 %uint_3
+         %58 = OpLoad %float %57
+         %59 = OpFAdd %float %58 %56
+         %60 = OpAccessChain %_ptr_StorageBuffer_float %12 %uint_0 %48 %uint_0 %uint_4
+         %61 = OpLoad %float %60
+         %62 = OpFAdd %float %61 %59
+         %63 = OpAccessChain %_ptr_StorageBuffer_float %12 %uint_0 %48 %uint_0 %uint_5
+         %64 = OpLoad %float %63
+         %65 = OpFAdd %float %64 %62
+         %66 = OpAccessChain %_ptr_StorageBuffer_float %12 %uint_0 %48 %uint_0 %uint_6
+         %67 = OpLoad %float %66
+         %68 = OpFAdd %float %67 %65
+         %69 = OpAccessChain %_ptr_StorageBuffer_float %12 %uint_0 %48 %uint_0 %uint_7
+         %70 = OpLoad %float %69
+         %71 = OpFAdd %float %70 %68
+         %72 = OpAccessChain %_ptr_StorageBuffer_float %12 %uint_0 %48 %uint_0 %uint_8
+         %73 = OpLoad %float %72
+         %74 = OpFAdd %float %73 %71
+         %75 = OpAccessChain %_ptr_StorageBuffer_float %12 %uint_0 %48 %uint_0 %uint_9
+         %76 = OpLoad %float %75
+         %77 = OpFAdd %float %76 %74
+         %78 = OpAccessChain %_ptr_StorageBuffer_float %12 %uint_0 %48 %uint_0 %uint_10
+         %79 = OpLoad %float %78
+         %80 = OpFAdd %float %79 %77
+         %81 = OpAccessChain %_ptr_StorageBuffer_float %12 %uint_0 %48 %uint_0 %uint_11
+         %82 = OpLoad %float %81
+         %83 = OpFAdd %float %82 %80
+         %84 = OpAccessChain %_ptr_StorageBuffer_float %12 %uint_0 %48 %uint_0 %uint_12
+         %85 = OpLoad %float %84
+         %86 = OpFAdd %float %85 %83
+         %87 = OpAccessChain %_ptr_StorageBuffer_float %12 %uint_0 %48 %uint_0 %uint_13
+         %88 = OpLoad %float %87
+         %89 = OpFAdd %float %88 %86
+         %90 = OpAccessChain %_ptr_StorageBuffer_float %12 %uint_0 %48 %uint_0 %uint_14
+         %91 = OpLoad %float %90
+         %92 = OpFAdd %float %91 %89
+         %93 = OpAccessChain %_ptr_StorageBuffer_float %12 %uint_0 %48 %uint_0 %uint_15
+         %94 = OpLoad %float %93
+         %95 = OpFAdd %float %94 %92
+         %96 = OpAccessChain %_ptr_StorageBuffer_float %12 %uint_0 %48 %uint_0 %uint_16
+         %97 = OpLoad %float %96
+         %98 = OpFAdd %float %97 %95
+         %99 = OpAccessChain %_ptr_StorageBuffer_float %12 %uint_0 %48 %uint_0 %uint_17
+        %100 = OpLoad %float %99
+        %101 = OpFAdd %float %100 %98
+        %102 = OpAccessChain %_ptr_StorageBuffer_float %9 %uint_0 %48
+               OpStore %102 %101
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

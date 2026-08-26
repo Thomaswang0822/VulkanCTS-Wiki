@@ -75,9 +75,123 @@ The monolithic-only `misc` leaves use one graphics pipeline with a valid ID and 
 
 ## Shader Analysis
 
-The family uses shaders as the code selected by an identifier. In `pipeline_from_id`, each shader writes a generated stage constant to a storage buffer; graphics with a fragment stage also writes blue to a 1 by 1 color attachment. The host uses these outputs to distinguish an identifier that selected the intended shader from a failed or incorrect lookup.
+### Representative Shader Walkthrough 1
 
-The HLSL tessellation path supplies GLSL vertex and fragment shaders plus HLSL tessellation-control and tessellation-evaluation shaders. Four tessellation-control variants assign red, green, blue, or yellow. Their distinct IDs later select the pipeline that draws the corresponding framebuffer pixel. The test documents generated shader inputs in source, not an embedded representative SPIR-V artifact, so this page does not reproduce GLSL or SPIR-V.
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.pipeline_library.shader_module_identifier.hlsl_tessellation.test
+```
+
+The HLSL tessellation case is the most shader-specific leaf in this family. It creates four `tesc` modules, one for each `(winding, partitioning)` pair, queries an identifier for every module, and uses those identifiers when creating four pipeline-library graphics pipelines. The common `vert`, `tese`, and `frag` modules are also identifier-backed. The SPIR-V shown below is the canonical compiled form of the common `frag` source; the four `tesc` modules are compiled from HLSL by the CTS shader collection and differ in execution-mode decorations and output color.
+
+| Parameter choice | Meaning in this representative case |
+|---|---|
+| `hlsl_tessellation.test` | Exercises identifiers for HLSL tessellation-control and tessellation-evaluation stages, with pipeline-library construction. |
+| winding | `CW` and `CCW` are selected through HLSL `[outputtopology]`; changing it changes the generated module and its identifier. |
+| partitioning | `INTEGER` and `FRACTIONAL_ODD` are selected through HLSL `[partitioning]`; changing it also changes the generated module and its identifier. |
+| four variants | The four combinations write red, green, blue, and yellow respectively. All four IDs must be distinct. |
+| `frag` | A common GLSL fragment stage forwards the tessellation evaluation color to location 0. |
+
+#### Purpose
+
+The shaders make identifier substitution observable. The four hull/tessellation-control modules are intentionally different even though their geometric input is the same: each writes a different color and carries a different tessellation execution mode. CTS first verifies that the driver returns unique IDs, then builds pipelines with the IDs instead of the shader modules. It draws one quadrant per pipeline and compares the resulting 2 by 2 image with red, green, blue, and yellow reference pixels. A wrong ID therefore appears as a wrong quadrant color rather than merely as a pipeline-creation discrepancy.
+
+#### Structural Design
+
+The common vertex shader emits a full-screen triangle from `gl_VertexIndex`. The four HLSL tessellation-control shaders pass through the three control points, write a color constant, and provide tessellation factors of one. Their attributes select a triangular domain, three output control points, either clockwise or counter-clockwise topology, and either integer or fractional-odd partitioning. The common HLSL tessellation-evaluation shader barycentrically interpolates `SV_Position` and the color into its output. The fragment shader writes that color to location 0.
+
+```mermaid
+flowchart TD
+    V["vert<br/>full-screen triangle from gl_VertexIndex"] --> T0["tesc0<br/>pass 3 control points; factors = 1<br/>CW + integer; red"]
+    V --> T1["tesc1<br/>pass 3 control points; factors = 1<br/>CW + fractional-odd; green"]
+    V --> T2["tesc2<br/>pass 3 control points; factors = 1<br/>CCW + integer; blue"]
+    V --> T3["tesc3<br/>pass 3 control points; factors = 1<br/>CCW + fractional-odd; yellow"]
+    T0 --> E["tese<br/>triangular domain; barycentric interpolation<br/>of SV_Position and color"]
+    T1 --> E
+    T2 --> E
+    T3 --> E
+    E --> F["frag<br/>write interpolated color to location 0"]
+```
+
+#### Shader Code
+
+```glsl
+#version 450
+layout (location=0) in vec4 inColor;
+layout (location=0) out vec4 outColor;
+void main (void)
+{
+    outColor = inColor;
+}
+```
+
+The source is registered as `programCollection.glslSources.add("frag")` in [`HLSLTessellationCase::initPrograms`](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L3305-L3318). The four HLSL sources are registered as `tesc0` through `tesc3` immediately afterward ([source](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L3349-L3408)). The identifier query and uniqueness check cover `vert`, `frag`, `tese`, and all `tesc` modules ([source](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L3520-L3548)).
+
+#### Additional Info
+
+- `pipeline_from_id` generates one shader per active stage and per pipeline variant. Each shader embeds a stage constant `0xEB000000 | (pipelineType << 16) | (pipelineIndex << 8) | stageIndex`, optionally replaces it with specialization constant ID 0, adds the pipeline's UBO values, and stores the result to `ssbo.values[stageIndex]` ([source](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L908-L987)).
+- In graphics, vertex/tessellation/geometry/mesh/task stages store their stage value in the SSBO; the fragment stage stores its value and writes blue to `outColor` ([source](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L1090-L1280)). Compute, ray-generation, hit, miss, intersection, and callable stages use analogous generated stores ([source](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L1000-L1020), [source](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L1340-L1460)).
+- The HLSL path requires tessellation support and the shader-module-identifier extension, checks all module IDs for uniqueness, and compares the copied 2 by 2 image against the four expected colors ([source](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L3290-L3303), [source](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L3520-L3548)).
+- The extension's algorithm UUID is checked separately for stability across property queries; an all-zero UUID is a quality warning, while a changed UUID fails ([source](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L865-L903)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| `winding` | HLSL `[outputtopology("triangle_cw")]` or `[outputtopology("triangle_ccw")]`; the generated modules must have different IDs and remain executable through identifier-backed pipelines. | [source](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L3349-L3408) |
+| `partitioning` | HLSL `[partitioning("integer")]` or `[partitioning("fractional_odd")]`; the generated module and its ID must reflect the selected tessellation mode. | [source](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L3349-L3408) |
+| output color | `tesc0`..`tesc3` assign red, green, blue, yellow; each pipeline must render the corresponding quadrant color. | [source](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L3349-L3408) |
+| construction type | Monolithic, fast-linked-library, or pipeline-library registration; the same stage-identifier contract is exercised through each supported construction path. | [source](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L3737) |
+| `pipeline_from_id` payload | `use_id`, zero-length, all-zero, all-one, and pseudorandom ID forms; valid IDs must select the intended shader, while invalid/empty forms exercise the specified compile/validation behavior. | [source](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L908-L987) |
+| ordinary pipeline families | Compute, graphics, ray tracing, and ray-tracing libraries; generated stage constants are written to an SSBO, while graphics additionally writes blue from `frag`, allowing stage substitution to be detected. | [source](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L908-L987), [source](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L1000-L1020), [source](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L1090-L1280), [source](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L1340-L1460) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 13
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %outColor %inColor
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %outColor "outColor"
+               OpName %inColor "inColor"
+               OpDecorate %outColor Location 0
+               OpDecorate %inColor Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %outColor = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+    %inColor = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %12 = OpLoad %v4float %inColor
+               OpStore %outColor %12
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 
@@ -137,9 +251,15 @@ The HLSL tessellation path supplies GLSL vertex and fragment shaders plus HLSL t
 
 ## Case Pruning
 
+### Requirement-based pruning
+
+The whole family is excluded from Vulkan SC by source guards.
+
+### Design-based pruning
+
 The registration function adds `properties`, `constant_identifiers`, and `misc` only for `PIPELINE_CONSTRUCTION_TYPE_MONOLITHIC`. `constant_identifiers` also skips the `ray_tracing_libs` pipeline-type value. For `pipeline_from_id`, the registration loop keeps only graphics when the construction type is not monolithic. Capture leaves occur only when `pipelineCount` is one and `moduleUseCase` is `ID`. The source comments identify those as the subset where CTS attempts executable-property capture.
 
-`hlsl_tessellation` remains registered for all construction types. The whole family is excluded from shader-object construction by the parent pipeline architecture and from Vulkan SC by source guards.
+`hlsl_tessellation` remains registered for all construction types. The whole family is excluded from shader-object construction by the parent pipeline architecture.
 
 ## Key Takeaways
 
@@ -161,3 +281,4 @@ The registration function adds `properties`, `constant_identifiers`, and `misc` 
 - [Family registration](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L3737)
 - [Extension feature requirement](../../../scripts/src/extensions/VK_EXT_shader_module_identifier.json#L1)
 - Mustpass files: `external/vulkancts/mustpass/main/vk-default/pipeline/monolithic/monolithic.txt`, `external/vulkancts/mustpass/main/vk-default/pipeline/fast-linked-library.txt`, and `external/vulkancts/mustpass/main/vk-default/pipeline/pipeline-library.txt`
+

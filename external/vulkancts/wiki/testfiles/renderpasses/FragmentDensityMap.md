@@ -62,9 +62,163 @@ The `density_formula` subgroup verifies the texel-size formula `2^ceil(log2(floo
 
 ## Shader Analysis
 
-The shaders are the instrument that produces the color pattern whose histogram the test checks. They are not the behavior under test. The behavior is the rasterizer-side fragment invocation distribution driven by the density map, which is fixed-function. No representative shader walkthrough is included for that reason.
+The representative case uses the generated `frag_produce_subsampled` fragment stage from `FragmentDensityMapTest::initPrograms()`. The shader is a diagnostic observer: the fragment-density-map machinery controls invocation frequency and broadcast, while this stage exposes the selected fragment size in the output color. The generated vertex stage supplies the matching `inUV`/`inColor` interface; it is unchanged for this fragment-stage analysis.
 
-The fragment shader writes a color whose `.z` and `.w` components encode the inverted fragment size (`1.0/gl_FragSizeEXT.x`, `1.0/gl_FragSizeEXT.y`), so the framebuffer histogram directly reflects how many times the shader ran in each region and at which density. The host reads back the framebuffer, builds a histogram, and compares it against the expected counts derived from the fragment area and density-map values.
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.renderpasses.renderpass1.fragment_density_map.1_view.render.divisible_density_size.1_sample.static_nonsubsampled_2_2
+```
+
+Mustpass: [`renderpasses.txt#L36009`](../../../mustpass/main/vk-default/renderpasses.txt#L36009).
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `1_view` | One view uses the ordinary fragment input/output interface; multiview routing is not needed for this leaf. |
+| `render` | The density-map-produced color image is rendered directly rather than copied through the `render_copy` path. |
+| `divisible_density_size` | The framebuffer-to-density-map ratio is the divisible `4.0` case, so density-map texel coverage is not exercising non-divisible rounding. |
+| `1_sample` | The color attachment is single-sampled, isolating fragment-density behavior from multisample interactions. |
+| `static_nonsubsampled_2_2` | The host-populated map is consumed without the subsampled-image path; the map's fragment area is `{2,2}`, which should make each fragment result cover four pixels. |
+
+#### Purpose
+
+The fragment shader writes the interpolated red/green pattern together with the inverse `gl_FragSizeEXT` components. The host can therefore check both that the implementation reports the requested fragment area and that each shader result is broadcast to the expected number of framebuffer pixels.
+
+#### Structural Design
+
+```mermaid
+flowchart TD
+    A[Vertex stage provides inColor and inUV] --> B[Fragment invocation reads inColor.x and inColor.y]
+    B --> C[Read gl_FragSizeEXT.x and gl_FragSizeEXT.y]
+    C --> D[Convert each integer size to float and compute 1.0 divided by it]
+    D --> E[Store vec4 red green inverse-size-x inverse-size-y at location 0]
+    E --> F[Host histogram checks color multiplicity and inverse-size product]
+```
+
+#### Shader Code
+
+Reconstructed from the exact `frag_produce_subsampled` source emitted by [`FragmentDensityMapTest::initPrograms()`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1371-L1413).
+
+```glsl
+#version 450
+#extension GL_EXT_fragment_invocation_density : enable
+#extension GL_EXT_multiview : enable
+
+/// Location 0 is the interpolated UV interface shared with the generated vertex stage.
+/// This diagnostic fragment stage declares it for pipeline interface compatibility but does not read it.
+layout(location = 0) in vec4 inUV;
+
+/// Location 1 carries the vertex-generated color pattern. The host later groups complete output colors
+/// in a histogram, so the red/green values identify the source pattern while z/w identify fragment size.
+layout(location = 1) in vec4 inColor;
+
+/// Location 0 is the color attachment written by each fragment invocation.
+layout(location = 0) out vec4 fragColor;
+
+void main(void)
+{
+    /// gl_FragSizeEXT is the fragment area selected by the active fragment density map.
+    /// Its inverse is written per axis so verifyImage() can detect an invalid reported area.
+    fragColor = vec4(inColor.x, inColor.y,
+                     1.0 / float(gl_FragSizeEXT.x),
+                     1.0 / float(gl_FragSizeEXT.y));
+}
+```
+
+#### Additional Info
+
+- The `GL_EXT_multiview` extension is emitted in this common fragment source even for the one-view representative; view-count-specific routing is supplied by the vertex-side path when multiview cases are selected ([source](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1371-L1388)).
+- `gl_FragSizeEXT` is a flat two-component integer input in the compiled interface. For the selected `{2,2}` fragment area, the expected diagnostic components are `0.5` and `0.5`, whose product is `0.25` ([fragment-area setup](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4981-L4983); [verification](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L3130-L3172)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|---------------------------------------|----------|
+| `fragmentArea` | Changes the two `gl_FragSizeEXT` values consumed by the same shader; the source expression is unchanged, while the output z/w values and expected broadcast multiplicity change. | [`TestParams::fragmentArea`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4981-L4983) |
+| View count | The common fragment source remains the same; multiview cases change the vertex-side viewport/layer routing and multiply the expected histogram count by the view count. | [`multiViewport` branch](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1387-L1395); [`verifyImage`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L3149-L3155) |
+| Density-map mode and subsampling | `static`, `deferred`, and `dynamic`, plus subsampled/non-subsampled variants, reuse this producer shader; they vary map lifecycle and later image handling rather than its GLSL body. | [`initPrograms`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1371-L1503); [shader-module selection](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L2107-L2121) |
+| `render_copy` and sample count | The producer shader remains unchanged; copy variants select a separate input-attachment fragment module, while multisample cases use the corresponding MS copy path. | [copy module selection](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L2111-L2118) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 36
+; Schema: 0
+               OpCapability Shader
+               OpCapability FragmentDensityEXT
+               OpExtension "SPV_EXT_fragment_invocation_density"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %fragColor %inColor %gl_FragSizeEXT %inUV
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpSourceExtension "GL_EXT_fragment_invocation_density"
+               OpSourceExtension "GL_EXT_multiview"
+               OpName %main "main"
+               OpName %fragColor "fragColor"
+               OpName %inColor "inColor"
+               OpName %gl_FragSizeEXT "gl_FragSizeEXT"
+               OpName %inUV "inUV"
+               OpDecorate %fragColor Location 0
+               OpDecorate %inColor Location 1
+               OpDecorate %gl_FragSizeEXT BuiltIn FragSizeEXT
+               OpDecorate %gl_FragSizeEXT Flat
+               OpDecorate %inUV Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %fragColor = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+    %inColor = OpVariable %_ptr_Input_v4float Input
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_float = OpTypePointer Input %float
+     %uint_1 = OpConstant %uint 1
+    %float_1 = OpConstant %float 1
+        %int = OpTypeInt 32 1
+      %v2int = OpTypeVector %int 2
+%_ptr_Input_v2int = OpTypePointer Input %v2int
+%gl_FragSizeEXT = OpVariable %_ptr_Input_v2int Input
+%_ptr_Input_int = OpTypePointer Input %int
+       %inUV = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %15 = OpAccessChain %_ptr_Input_float %inColor %uint_0
+         %16 = OpLoad %float %15
+         %18 = OpAccessChain %_ptr_Input_float %inColor %uint_1
+         %19 = OpLoad %float %18
+         %26 = OpAccessChain %_ptr_Input_int %gl_FragSizeEXT %uint_0
+         %27 = OpLoad %int %26
+         %28 = OpConvertSToF %float %27
+         %29 = OpFDiv %float %float_1 %28
+         %30 = OpAccessChain %_ptr_Input_int %gl_FragSizeEXT %uint_1
+         %31 = OpLoad %int %30
+         %32 = OpConvertSToF %float %31
+         %33 = OpFDiv %float %float_1 %32
+         %34 = OpCompositeConstruct %v4float %16 %19 %29 %33
+               OpStore %fragColor %34
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

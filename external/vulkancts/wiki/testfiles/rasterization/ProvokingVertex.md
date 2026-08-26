@@ -128,13 +128,15 @@ void main()
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level variation from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | Provoking-vertex mode | No GLSL change. `first`/`last`/`per_pipeline` enable `VK_EXT_provoking_vertex` and add the provoking-vertex pNext to the pipeline; the shader source is unchanged. | [pipeline setup](../../../modules/vulkan/rasterization/vktRasterizationProvokingVertexTests.cpp#L374-L452) |
 | Primitive topology | No GLSL change. Topology only changes the vertex buffer contents, the XFB buffer sizing for `transform_feedback`, and the provoking-vertex index computation. | [topology switch](../../../modules/vulkan/rasterization/vktRasterizationProvokingVertexTests.cpp#L465-L792) |
 | Test type | `transform_feedback` adds the `out_xfb` declaration and the `out_xfb = in_position;` assignment shown in Walkthrough 2. | [vertex shader generation](../../../modules/vulkan/rasterization/vktRasterizationProvokingVertexTests.cpp#L177-L188) |
 
 #### SPIR-V
+
+##### Vertex Shader
 
 - Status: generated and validated
 - Source: reconstructed GLSL from this walkthrough
@@ -198,6 +200,52 @@ void main()
          %22 = OpLoad %v4float %in_position
          %23 = OpAccessChain %_ptr_Output_v4float %_ %int_0
                OpStore %23 %22
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 13
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %out_color %in_color
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %out_color "out_color"
+               OpName %in_color "in_color"
+               OpDecorate %out_color Location 0
+               OpDecorate %in_color Flat
+               OpDecorate %in_color Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %out_color = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+   %in_color = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %12 = OpLoad %v4float %in_color
+               OpStore %out_color %12
                OpReturn
                OpFunctionEnd
 ```
@@ -292,13 +340,15 @@ void main()
 
 #### Parameter Variation Summary
 
-| Parameter dimension | GLSL-level variation from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | Test type | `draw` removes the `out_xfb` declaration and the `out_xfb = in_position;` assignment, producing the Walkthrough 1 shader. | [vertex shader generation](../../../modules/vulkan/rasterization/vktRasterizationProvokingVertexTests.cpp#L177-L188) |
 | Provoking-vertex mode | No GLSL change. `first` uses `VK_PROVOKING_VERTEX_MODE_FIRST_VERTEX_EXT`; `per_pipeline` adds a second pipeline with the opposite mode. `default` is skipped for `transform_feedback`. | [pipeline setup](../../../modules/vulkan/rasterization/vktRasterizationProvokingVertexTests.cpp#L374-L452) |
 | Primitive topology | No GLSL change. Topology changes the vertex buffer, the XFB buffer size, and the provoking-vertex index arithmetic inside `verifyXfbBuffer()`. | [getXfbBufferSize()](../../../modules/vulkan/rasterization/vktRasterizationProvokingVertexTests.cpp#L69-L92), [verifyXfbBuffer()](../../../modules/vulkan/rasterization/vktRasterizationProvokingVertexTests.cpp#L94-L130) |
 
 #### SPIR-V
+
+##### Vertex Shader
 
 - Status: generated and validated
 - Source: reconstructed GLSL from this walkthrough
@@ -376,6 +426,52 @@ void main()
          %24 = OpLoad %v4float %in_position
          %25 = OpAccessChain %_ptr_Output_v4float %_ %int_0
                OpStore %25 %24
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+##### Fragment Shader
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 13
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %out_color %in_color
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %out_color "out_color"
+               OpName %in_color "in_color"
+               OpDecorate %out_color Location 0
+               OpDecorate %in_color Flat
+               OpDecorate %in_color Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+  %out_color = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+   %in_color = OpVariable %_ptr_Input_v4float Input
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %12 = OpLoad %v4float %in_color
+               OpStore %out_color %12
                OpReturn
                OpFunctionEnd
 ```

@@ -83,82 +83,9 @@ Each invocation loads one three-value record, applies the AMD floating-point min
 | Operation | `OpExtInst ... FMin3AMD %op1 %op2 %op3` produces `%result`. | Exercises the extension instruction under test. |
 | Output | `OpAccessChain` selects the output record, then `OpStore` writes `%result`. | Makes the result available for host comparison. |
 
-#### Source Code
+#### Shader Code
 
-<details>
-<summary>Click to expand CTS-authored SPIR-V assembly for the <code>min3.f32.scalar</code> specialization</summary>
-
-```llvm
-; SPIR-V
-; Version: 1.5
-                            OpCapability Shader
-                            OpExtension "SPV_KHR_storage_buffer_storage_class"
-                            OpExtension "SPV_AMD_shader_trinary_minmax"
-                  %std450 = OpExtInstImport "GLSL.std.450"
-                 %trinary = OpExtInstImport "SPV_AMD_shader_trinary_minmax"
-                            OpMemoryModel Logical GLSL450
-                            OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID %output_buffer %input_buffer
-                            OpExecutionMode %main LocalSize 1 1 1
-                            OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
-                            OpDecorate %results_array_t ArrayStride 4
-                            OpMemberDecorate %OutputBlock 0 Offset 0
-                            OpDecorate %OutputBlock Block
-                            OpDecorate %output_buffer DescriptorSet 0
-                            OpDecorate %output_buffer Binding 1
-                            OpMemberDecorate %Operands 0 Offset 0
-                            OpMemberDecorate %Operands 1 Offset 4
-                            OpMemberDecorate %Operands 2 Offset 8
-                            OpDecorate %_arr_Operands_arraysize ArrayStride 12
-                            OpMemberDecorate %InputBlock 0 Offset 0
-                            OpDecorate %InputBlock Block
-                            OpDecorate %input_buffer DescriptorSet 0
-                            OpDecorate %input_buffer Binding 0
-                            OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
-                    %void = OpTypeVoid
-                %voidfunc = OpTypeFunction %void
-                     %int = OpTypeInt 32 1
-                    %uint = OpTypeInt 32 0
-                  %v3uint = OpTypeVector %uint 3
-%float32_t = OpTypeFloat 32
-                   %int_0 = OpConstant %int 0
-                   %int_1 = OpConstant %int 1
-                   %int_2 = OpConstant %int 2
-                  %uint_1 = OpConstant %uint 1
-                  %uint_0 = OpConstant %uint 0
-               %arraysize = OpConstant %uint 100
-      %_ptr_Function_uint = OpTypePointer Function %uint
-       %_ptr_Input_v3uint = OpTypePointer Input %v3uint
-   %gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
-         %_ptr_Input_uint = OpTypePointer Input %uint
-         %results_array_t = OpTypeArray %float32_t %arraysize
-                %Operands = OpTypeStruct %float32_t %float32_t %float32_t
- %_arr_Operands_arraysize = OpTypeArray %Operands %arraysize
-             %OutputBlock = OpTypeStruct %results_array_t
-              %InputBlock = OpTypeStruct %_arr_Operands_arraysize
-%_ptr_Uniform_OutputBlock = OpTypePointer StorageBuffer %OutputBlock
- %_ptr_Uniform_InputBlock = OpTypePointer StorageBuffer %InputBlock
-           %output_buffer = OpVariable %_ptr_Uniform_OutputBlock StorageBuffer
-            %input_buffer = OpVariable %_ptr_Uniform_InputBlock StorageBuffer
-              %optype_ptr = OpTypePointer StorageBuffer %float32_t
-        %gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
-                    %main = OpFunction %void None %voidfunc
-               %mainlabel = OpLabel
-                 %gidxptr = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
-                     %idx = OpLoad %uint %gidxptr
-                  %op1ptr = OpAccessChain %optype_ptr %input_buffer %int_0 %idx %int_0
-                     %op1 = OpLoad %float32_t %op1ptr
-                  %op2ptr = OpAccessChain %optype_ptr %input_buffer %int_0 %idx %int_1
-                     %op2 = OpLoad %float32_t %op2ptr
-                  %op3ptr = OpAccessChain %optype_ptr %input_buffer %int_0 %idx %int_2
-                     %op3 = OpLoad %float32_t %op3ptr
-                  %result = OpExtInst %float32_t %trinary FMin3AMD %op1 %op2 %op3
-               %resultptr = OpAccessChain %optype_ptr %output_buffer %int_0 %idx
-                            OpStore %resultptr %result
-                            OpReturn
-                            OpFunctionEnd
-```
-
-</details>
+This representative case does not use GLSL or HLSL. CTS supplies the shader module directly as SPIR-V assembly. The selected module contains `compute` stage entry point `main`; the source template or Amber artifact cited by this walkthrough is the authoritative shader source. The complete validated assembly is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -169,11 +96,97 @@ Each invocation loads one three-value record, applies the AMD floating-point min
 
 #### Parameter Variation Summary
 
-| Parameter dimension | Assembly-level variation from this shader | Evidence |
+| Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|-------------------------------------------|----------|
 | Operation | Replaces `FMin3AMD` with the selected signed, unsigned, or floating-point `Min3AMD`, `Max3AMD`, or `Mid3AMD` instruction. | [operation-name construction](../../../modules/vulkan/spirv_assembly/vktSpvAsmTrinaryMinMaxTests.cpp#L728-L734) |
 | Base type and width | Changes `%float32_t`, and may add `Int8`, `Int16`, `Int64`, `Float16`, or `Float64` capabilities plus 8-bit or 16-bit storage extensions. | [capability and type substitutions](../../../modules/vulkan/spirv_assembly/vktSpvAsmTrinaryMinMaxTests.cpp#L636-L724) |
 | Aggregation | Replaces the scalar operand type with a vector type and changes record/result strides. The indexing and one-invocation-per-record structure remain fixed. | [operand type substitution](../../../modules/vulkan/spirv_assembly/vktSpvAsmTrinaryMinMaxTests.cpp#L695-L724) |
+
+#### SPIR-V
+
+- Status: assembled, validated, and disassembled
+- Source: CTS-authored SPIR-V assembly from this walkthrough
+- Entry point(s): `GLCompute` (`main`)
+- Stage: `GLCompute`
+- Target SPIRV version: `spv1.5`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.5
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 42
+; Schema: 0
+               OpCapability Shader
+               OpExtension "SPV_KHR_storage_buffer_storage_class"
+               OpExtension "SPV_AMD_shader_trinary_minmax"
+          %1 = OpExtInstImport "GLSL.std.450"
+          %2 = OpExtInstImport "SPV_AMD_shader_trinary_minmax"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %3 "main" %gl_GlobalInvocationID %5 %6
+               OpExecutionMode %3 LocalSize 1 1 1
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %_arr_float_uint_100 ArrayStride 4
+               OpMemberDecorate %_struct_8 0 Offset 0
+               OpDecorate %_struct_8 Block
+               OpDecorate %5 DescriptorSet 0
+               OpDecorate %5 Binding 1
+               OpMemberDecorate %_struct_9 0 Offset 0
+               OpMemberDecorate %_struct_9 1 Offset 4
+               OpMemberDecorate %_struct_9 2 Offset 8
+               OpDecorate %_arr__struct_9_uint_100 ArrayStride 12
+               OpMemberDecorate %_struct_11 0 Offset 0
+               OpDecorate %_struct_11 Block
+               OpDecorate %6 DescriptorSet 0
+               OpDecorate %6 Binding 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+         %14 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+      %float = OpTypeFloat 32
+      %int_0 = OpConstant %int 0
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+     %uint_1 = OpConstant %uint 1
+     %uint_0 = OpConstant %uint 0
+   %uint_100 = OpConstant %uint 100
+%_ptr_Function_uint = OpTypePointer Function %uint
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+%_ptr_Input_uint = OpTypePointer Input %uint
+%_arr_float_uint_100 = OpTypeArray %float %uint_100
+  %_struct_9 = OpTypeStruct %float %float %float
+%_arr__struct_9_uint_100 = OpTypeArray %_struct_9 %uint_100
+  %_struct_8 = OpTypeStruct %_arr_float_uint_100
+ %_struct_11 = OpTypeStruct %_arr__struct_9_uint_100
+%_ptr_StorageBuffer__struct_8 = OpTypePointer StorageBuffer %_struct_8
+%_ptr_StorageBuffer__struct_11 = OpTypePointer StorageBuffer %_struct_11
+          %5 = OpVariable %_ptr_StorageBuffer__struct_8 StorageBuffer
+          %6 = OpVariable %_ptr_StorageBuffer__struct_11 StorageBuffer
+%_ptr_StorageBuffer_float = OpTypePointer StorageBuffer %float
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+          %3 = OpFunction %void None %14
+         %31 = OpLabel
+         %32 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %33 = OpLoad %uint %32
+         %34 = OpAccessChain %_ptr_StorageBuffer_float %6 %int_0 %33 %int_0
+         %35 = OpLoad %float %34
+         %36 = OpAccessChain %_ptr_StorageBuffer_float %6 %int_0 %33 %int_1
+         %37 = OpLoad %float %36
+         %38 = OpAccessChain %_ptr_StorageBuffer_float %6 %int_0 %33 %int_2
+         %39 = OpLoad %float %38
+         %40 = OpExtInst %float %2 FMin3AMD %35 %37 %39
+         %41 = OpAccessChain %_ptr_StorageBuffer_float %5 %int_0 %33
+               OpStore %41 %40
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 

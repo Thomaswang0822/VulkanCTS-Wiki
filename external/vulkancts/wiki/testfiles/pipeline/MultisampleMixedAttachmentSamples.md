@@ -60,9 +60,148 @@ This node uses the single-subpass sample-count pairs. With one color sample, its
 
 ## Shader Analysis
 
-The implementation generates GLSL in C++ for both paths. The per-sample verifier's fragment program writes sample-dependent values and the compute checker reads color and depth/stencil images through descriptors; the host does not compare the rendered image directly. The built-in path generates a vertex/fragment pair that checks `gl_SampleMaskIn` and, for multisampled color attachments, `gl_SampleID`; its output is observed after rendering and resolve. It does not read `gl_SamplePosition`. These shaders establish the observation mechanism, while the tested behavior is mixed attachment sample coverage and the sample-count-dependent built-in result.
+### Representative Shader Walkthrough 1
 
-The source does not load a fixed shader artifact or embed a stable SPIR-V listing. Each leaf changes sample counts, formats, location mode, and sometimes the subpass sequence, so a single disassembly would not represent the generated matrix.
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.pipeline.shader_object_linked_binary.multisample.mixed_attachment_samples.shader_builtins.coverage_16_color_1_depth_stencil_16.r8g8b8a8_unorm_d16_unorm
+```
+
+| Parameter choice | Meaning in this representative case |
+|------------------|-------------------------------------|
+| `shader_builtins` | Selects the render-and-readback path whose fragment shader validates `gl_SampleMaskIn`. |
+| `coverage_16`, `color_1`, `depth_stencil_16` | Rasterization and depth use 16 samples while the color attachment has one sample, selecting the fragment-shader branch that expects all 16 coverage bits in one invocation. |
+| `r8g8b8a8_unorm`, `d16_unorm` | The shader writes its pass/fail color to the single-sample UNORM color attachment; the depth-only format does not change the generated shader. |
+| `shader_object_linked_binary` | Uses linked binary shader-object construction without changing the generated GLSL. |
+
+#### Purpose
+
+This fragment shader checks that a one-sample color attachment in a 16-coverage-sample pipeline receives a `gl_SampleMaskIn[0]` value with all 16 coverage bits set. It encodes a correct mask as green and an incorrect mask as red for host readback.
+
+#### Structural Design
+
+| Shader observation | Expected value | Output encoding |
+|---|---|---|
+| `gl_SampleMaskIn[0]` | `(1 << 16) - 1` = `65535` | Green when equal; red otherwise |
+| Alpha | Constant `1.0` | Keeps every result opaque |
+
+#### Shader Code
+
+```glsl
+#version 450
+
+/// Location 0 is the only fragment output. The single-sample R8G8B8A8_UNORM color attachment stores
+/// the pass/fail color directly; no multisample resolve attachment is needed for this representative case.
+layout(location = 0) out vec4 o_color;
+
+void main(void)
+{
+    /// Start opaque black, then encode a correct coverage mask as green and an incorrect mask as red.
+    vec4 col = vec4(0.0, 0.0, 0.0, 1.0);
+
+    /// One color sample with sixteen coverage samples must expose all sixteen covered bits at once.
+    if (gl_SampleMaskIn[0] == 65535)
+        col.g = 1.0;
+    else
+        col.r = 1.0;
+
+    o_color = col;
+}
+```
+
+#### Additional Info
+
+- [`ShaderBuiltins::initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleMixedAttachmentSamplesTests.cpp#L1551-L1623) also generates a fixed vertex shader that emits an oversized full-viewport triangle from `gl_VertexIndex`; it is omitted because it does not observe the mixed sample counts.
+- The expected decimal mask is generated as `(1u << numCoverageSamples) - 1u`; with 16 coverage samples, this deterministically produces `65535`.
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---------------------|------------------------------------------|----------|
+| Color sample count | A one-sample color attachment compares the mask against all coverage bits. A multisample color attachment instead compares it with `1 << gl_SampleID` and marks an out-of-range sample ID by adding blue. | [`ShaderBuiltins::initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleMixedAttachmentSamplesTests.cpp#L1594-L1614) |
+| Coverage sample count | In the one-color-sample branch, it changes the generated integer constant `(1u << numCoverageSamples) - 1u`. | [`ShaderBuiltins::initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleMixedAttachmentSamplesTests.cpp#L1594-L1602) |
+| Color and depth/stencil formats | These formats affect attachment creation and readback, but do not change either generated shader. | [`ShaderBuiltins::initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleMixedAttachmentSamplesTests.cpp#L1551-L1623) |
+| Pipeline construction type | It changes pipeline or shader-object construction, not the GLSL text emitted by this builder. | [`ShaderBuiltins::initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleMixedAttachmentSamplesTests.cpp#L1551-L1623) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 36
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %gl_SampleMaskIn %o_color
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %col "col"
+               OpName %gl_SampleMaskIn "gl_SampleMaskIn"
+               OpName %o_color "o_color"
+               OpDecorate %gl_SampleMaskIn BuiltIn SampleMask
+               OpDecorate %gl_SampleMaskIn Flat
+               OpDecorate %o_color Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v4float = OpTypeVector %float 4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+         %12 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_1
+        %int = OpTypeInt 32 1
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_arr_int_uint_1 = OpTypeArray %int %uint_1
+%_ptr_Input__arr_int_uint_1 = OpTypePointer Input %_arr_int_uint_1
+%gl_SampleMaskIn = OpVariable %_ptr_Input__arr_int_uint_1 Input
+      %int_0 = OpConstant %int 0
+%_ptr_Input_int = OpTypePointer Input %int
+  %int_65535 = OpConstant %int 65535
+       %bool = OpTypeBool
+%_ptr_Function_float = OpTypePointer Function %float
+     %uint_0 = OpConstant %uint 0
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+    %o_color = OpVariable %_ptr_Output_v4float Output
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+        %col = OpVariable %_ptr_Function_v4float Function
+               OpStore %col %12
+         %21 = OpAccessChain %_ptr_Input_int %gl_SampleMaskIn %int_0
+         %22 = OpLoad %int %21
+         %25 = OpIEqual %bool %22 %int_65535
+               OpSelectionMerge %27 None
+               OpBranchConditional %25 %26 %30
+         %26 = OpLabel
+         %29 = OpAccessChain %_ptr_Function_float %col %uint_1
+               OpStore %29 %float_1
+               OpBranch %27
+         %30 = OpLabel
+         %32 = OpAccessChain %_ptr_Function_float %col %uint_0
+               OpStore %32 %float_1
+               OpBranch %27
+         %27 = OpLabel
+         %35 = OpLoad %v4float %col
+               OpStore %o_color %35
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
 
 ## Runtime Execution and Result Checking
 
@@ -105,7 +244,12 @@ The source does not load a fixed shader artifact or embed a stable SPIR-V listin
 
 ## Case Pruning
 
+### Requirement-based pruning
+
 - The source skips the complete family when neither extension path is supported. It also skips individual sample pairs that fail image, sample-count, programmable-location, NV-combination, fragment-shading-rate, or pipeline-construction requirements.
+
+### Design-based pruning
+
 - `shader_builtins` is design-pruned for `useFragmentShadingRate == true`; the factory adds it only when that flag is false.
 - Multi-subpass cases use the reduced depth/stencil format set to cover depth-only and combined depth/stencil behavior without repeating the full format matrix.
 - The default mustpass represents the construction-root expansion. The source's conditional node registration and support checks determine which leaves are executable on a particular device.
