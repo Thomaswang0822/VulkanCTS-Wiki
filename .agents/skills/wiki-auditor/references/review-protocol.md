@@ -63,6 +63,11 @@ Do not report or edit:
 - speculative concerns without evidence;
 - minor style issues already handled by language workers.
 
+Mechanical validator failures are not optional style findings and do not pass through this threshold. Resolve the canonical English
+structure, Registration Hierarchy/mustpass, and wiki-link gates before professor review when the repair is mechanically clear. If the
+correct repair changes page ownership, requires source interpretation, or would alter a generated artifact without its owning skill,
+record a blocker or unresolved finding instead of guessing.
+
 ## Internal Review Worksheet
 
 Use this worksheet transiently. Do not copy it into the audit summary.
@@ -229,7 +234,15 @@ Treat a shader walkthrough and its generated artifacts as an owned unit rather t
 
 Never hand-edit or partially reformat generated or CTS-authored SPIR-V. Replace the complete owned artifact or leave it unresolved.
 
+A validator-visible walkthrough failure must follow the same ownership boundary. Heading order, representative path/table shape,
+Additional Info list form, SPIR-V metadata/details, and multi-stage H5 alignment are parts of the generated walkthrough contract, not
+free-form prose. If faithful correction requires changing reconstructed GLSL/HLSL or the stage/artifact set, reinvoke
+`shader-analyzer`; if only a correct generated SPIR-V artifact is missing or malformed, reinvoke `shader-disassembler`. Do not add a
+walkthrough exception unless source review proves the shader is absent or irrelevant to tested behavior.
+
 After editing or complete artifact regeneration, reread the affected section and its dependent sections to prevent local corrections from creating inconsistency.
+Then rerun the page-scoped English structure, registration hierarchy, and wiki-link validators. A semantic correction is not complete
+while it leaves a mechanical gate failing.
 
 ## Compact Finding Format
 
@@ -275,7 +288,7 @@ Findings:
   Mistake: <concrete incorrect model and compact evidence>
   Correction: <concrete corrected model or reason no edit was made>
   Evidence: <source link / mustpass line / registration entry / artifact regeneration result>
-Validation: registration pass/fail/not-applicable; links pass/fail
+Validation: English structure pass/fail; registration pass/fail/not-applicable; links pass/fail
 Escalation: none | <shared pattern requiring category attention>
 ```
 

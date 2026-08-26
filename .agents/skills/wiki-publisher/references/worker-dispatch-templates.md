@@ -20,20 +20,22 @@ Strictly follow the skill's translation-worker requirements. For this page, load
 ## Level-3 translation worker
 
 ```text
-Translate this `<category>` Level-3 page batch using `.agents/skills/wiki-publisher/SKILL.md`.
+Translate this one `<category>` Level-3 page using `.agents/skills/wiki-publisher/SKILL.md`.
 
-Inputs:
-- `external/vulkancts/wiki/testfiles/<category>/<file1>.md`
-- `external/vulkancts/wiki/testfiles/<category>/<file2>.md`
-- `external/vulkancts/wiki/testfiles/<category>/<file3>.md`
+Input:
+- `external/vulkancts/wiki/testfiles/<category>/<file>.md`
 
-Outputs:
-- `vkcts-wiki-pages/categories/<category>/<file1>.md`
-- `vkcts-wiki-pages/categories/<category>/<file2>.md`
-- `vkcts-wiki-pages/categories/<category>/<file3>.md`
+Output:
+- `vkcts-wiki-pages/categories/<category>/<file>.md`
 
-Do not assign `*_brief.md` files. Strictly follow the skill's translation-worker requirements. For each page, load and apply `shuorenhua` then `humanizer-zh` yourself; do not dispatch another language-review agent or launch a separate chat, session, or process. Do not run link conversion. When
-complete, use `attempt_completion`.
+Do not assign an `*_brief.md` file. Read and translate only the assigned page; do not edit any other English or Chinese page, shared
+summary, or Git index. Strictly follow the skill's translation-worker requirements. Load and apply `shuorenhua` then `humanizer-zh`
+yourself; do not dispatch another language-review agent or launch a separate chat, session, or process. After both passes, run:
+
+`python3 .agents/skills/wiki-publisher/scripts/verify_translation_structure.py --source external/vulkancts/wiki/testfiles/<category>/<file>.md --target vkcts-wiki-pages/categories/<category>/<file>.md`
+
+Do not run link conversion. Return the exact source/target paths, validator result, and language-pass status. When complete, use
+`attempt_completion`.
 ```
 
 ## Link-conversion worker

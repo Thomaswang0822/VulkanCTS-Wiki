@@ -11,24 +11,23 @@ Publish one VK-GL-CTS wiki category to the GitLab Wiki publish target.
 
 Apply this skill one category at a time unless the user explicitly requests a narrower scope.
 
-For normal category publishing, use Orchestrator mode to coordinate multiple Code-mode workers with fixed
-roles:
+For normal category publishing, use Orchestrator mode to coordinate page-scoped workers with fixed roles:
 
 - One Level-2 translation worker translates `external/vulkancts/wiki/categories/<category>.md`.
-- One or more Level-3 translation workers translate publishable rewritten pages under
-  `external/vulkancts/wiki/testfiles/<category>/*.md` in batches of at most 5 files per worker.
+- One Level-3 translation worker translates exactly one publishable rewritten page under
+  `external/vulkancts/wiki/testfiles/<category>/`.
 - Exclude Understanding Brief files from publisher inputs. Files matching
   `external/vulkancts/wiki/testfiles/<category>/*_brief.md` are internal English-only audit notes for rewrite work; do not
-  translate, publish, link-convert, or count them in Level-3 batches.
+  translate, publish, link-convert, or count them as Level-3 publish pages.
 - Published Level-3 outputs live under the published category directory,
   `vkcts-wiki-pages/categories/<category>/`, so GitLab Wiki can show a category page and its
   expandable child pages together in the sidebar.
-- Use smaller Level-3 batches for unusually long or complex pages.
-- Do not exceed the 5-file Level-3 batch cap.
+- A category page list is a dispatch wave, not a multi-page worker assignment. Respect the runtime concurrency limit by using
+  successive waves; never combine multiple Level-3 pages into one worker.
 - One link-conversion worker runs the deterministic conversion script after all translation workers finish.
 
-For rare narrower requests, such as publishing or repairing a single markdown file, the current agent may
-act as the worker directly while still following this skill and its mandatory dependencies.
+For rare narrower requests, such as publishing or repairing a single markdown file, the current agent may act as the worker directly
+while still following this skill and its mandatory dependencies.
 
 ### Orchestrator worker dispatch
 
@@ -46,7 +45,7 @@ dependencies, and validation. Do not continue unless the worker confirms that sk
 
 1. Invoke [`translate-doc`](../translate-doc/SKILL.md) for the assigned files.
    - The Level-2 worker owns only `external/vulkancts/wiki/categories/<category>.md`.
-   - Each Level-3 worker owns only its assigned publishable batch under `external/vulkancts/wiki/testfiles/<category>/`.
+   - Each Level-3 worker owns only its one assigned English source and one exact Chinese target.
    - Exclude `*_brief.md` internal notes and do not edit the canonical English wiki.
    - For each assigned page, load and apply `shuorenhua` followed by `humanizer-zh` inside the translation worker, as required by `translate-doc`. Do not dispatch a separate language-review agent or launch a separate chat, session, or process.
    - Complete all `translate-doc` dependency, output, and validation requirements before reporting completion.
@@ -68,6 +67,8 @@ dependencies, and validation. Do not continue unless the worker confirms that sk
       organization, cause-analysis labels, and per-section structural parity. A failure means the
       source is not canonical or the translation has a structural/fixed-language mismatch.
     - If any guard fails, fix the translation before reporting completion.
+    - Rerun the guard after `shuorenhua` and `humanizer-zh`; language cleanup is not allowed to leave fixed headings, protected
+      content, walkthrough structure, or SPIR-V artifacts invalid.
 
 3. Translation workers must not run link conversion.
    - Leave markdown link targets in the pre-conversion form required by `translate-doc`.
@@ -109,6 +110,7 @@ The completion summary MUST include:
 - A statement that the mandatory `shuorenhua` and `humanizer-zh` language-skill passes were applied by the translation workers for the translated files, in that order.
 - The link conversion commands or files processed.
 - Any skipped files or unresolved validation warnings.
+- Per-page canonical Chinese validator results for every Level-3 source/target pair.
 
 If `translate-doc` was not invoked and validated, the task is incomplete and MUST be reported as failed.
 

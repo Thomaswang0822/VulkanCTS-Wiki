@@ -90,7 +90,20 @@ Do not let convenience sampling replace the declared category audit. Audit every
 
 Before semantic edits, check the page against the applicable rewrite template and terminology policy.
 
-At minimum verify:
+Run the canonical mechanical validators before professor review. For each Level-3 page, use the exact page-scoped commands in
+`../wiki-rewriter/references/validation-checklist.md`:
+
+```text
+verify_english_structure.py
+verify_registration_paths.py
+validate_wiki_links.py
+```
+
+The English structure validator is the authority for section/heading spacing, fixed subsections and labels, walkthrough tables,
+SPIR-V artifact shape, and multi-stage H5 organization. The registration validator separately owns strict Registration Hierarchy
+tree shape and mustpass-backed prefixes. The link validator owns local path and source-fragment resolution.
+
+At minimum the combined gate verifies:
 
 - naming and title rules;
 - required section order and applicable sections;
@@ -100,12 +113,15 @@ At minimum verify:
 - exact registered identifiers;
 - behavior parameter and failure mapping alignment;
 - exact `shader-disassembler` output shape and target/header agreement when generated SPIR-V is present;
+- source-reviewed no-walkthrough status: a page without a walkthrough must be listed in
+  `../wiki-rewriter/scripts/walkthrough_exceptions.py`; do not add an exception merely to silence validation;
 - local relative source links and GitHub `#L` fragments;
 - absence of stale workflow text;
 - preservation of obsolete originals.
 
-Run the canonical page-scoped registration and link validators from `../wiki-rewriter/references/validation-checklist.md` for each
-Level-3 page. Treat validator success as necessary but insufficient. Continue to professor review.
+Do not continue to professor review with an unexplained mechanical failure. Repair a clear page-local structural defect through its
+owning template/generated-artifact workflow, or record a blocker when the correct repair is uncertain. Treat all three validator
+results as necessary but insufficient; after they pass, continue to professor review.
 
 ### 3. Audit category-shared Background Knowledge ownership
 
@@ -159,7 +175,10 @@ by the change.
 
 ### 7. Revalidate the page
 
-Rerun the page-scoped registration and link validators after edits. Fix validator failures only when the correction remains semantically accurate.
+Rerun the page-scoped English structure, registration hierarchy, and wiki-link validators after every edit or complete generated-unit
+replacement. Fix validator failures only when the correction remains semantically accurate. If a regenerated walkthrough changes
+its source language, stage set, or SPIR-V artifact count, use the owning shader skills and replace the complete owned unit rather than
+patching validator-visible fragments by hand.
 
 Return compact findings using the worker contract when operating under an orchestrator. Report `no-confirmed-issues` when no meaningful defect was found.
 
@@ -200,9 +219,9 @@ Edit confirmed defects in place and validate its links.
 
 ### 10. Run category validation
 
-After all page edits, run the canonical category-scoped registration and link validators from
-`../wiki-rewriter/references/validation-checklist.md`. Exclude Understanding Briefs from semantic target accounting even when a
-glob includes them in link validation.
+After all page edits, run the canonical category-scoped English structure and registration validators plus the category wiki-link
+command from `../wiki-rewriter/references/validation-checklist.md`. Exclude Understanding Briefs from semantic target accounting even
+when a glob includes them in link validation.
 
 Rerun until validation passes or record the remaining limitation compactly.
 
@@ -233,6 +252,7 @@ For a single-page audit, do not create a category summary unless requested. Retu
 Complete a page audit only when:
 
 - mechanical checks have been applied;
+- English structure, registration hierarchy, and wiki-link validators pass or have an explicit unresolved blocker;
 - load-bearing claims have undergone truth and exposition review;
 - confirmed meaningful defects have been edited in place;
 - uncertain points remain unchanged and are reported as unresolved;
@@ -243,7 +263,7 @@ Complete a category audit only when:
 - every rewritten Level-3 page in declared scope has one completed owner result;
 - repeated defect patterns have been handled;
 - the Level-2 page has been audited when present;
-- category validators pass or remaining limitations are recorded;
+- category English structure, registration hierarchy, and wiki-link validators pass or remaining limitations are recorded;
 - the page-centered audit summary has been written by one owner.
 
 ## Final Report
