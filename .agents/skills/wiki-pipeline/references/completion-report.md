@@ -36,6 +36,14 @@ Use this compact structure. Replace every count with independently verified file
 - Idempotency: <result>
 - Checklist: <result and updated totals>
 
+### Lookup DB
+- Category build: <result; leaves/mappings/owner pages>
+- Full runtime index: <category count and mapping count>
+- Mustpass runtime coverage: <passed>/<total>
+- Lookup tests: <result>
+- Tracked mappings JSON: <reviewed delta/result>
+- Post-publish ownership repair loop: <affected pages or none; republish result>
+
 ### Safety
 - Audited English pages during publish: unchanged
 - Git index: unchanged

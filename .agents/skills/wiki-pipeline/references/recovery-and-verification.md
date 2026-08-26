@@ -97,6 +97,21 @@ After conversion:
 - check mode reports no remaining changes;
 - source-code and mustpass links resolve to the expected publication URLs without translated path segments.
 
+## Lookup DB checks
+
+After publish verification, run `db-lookup-updater` and confirm:
+
+- the category is enabled with exact mustpass inputs;
+- isolated category ownership build passes without aliases or generic fallback;
+- the complete supervised build passes for every enabled category;
+- `site/mappings.json` includes the category with reviewed owner/page/URL mappings;
+- unit tests, Python compile, runtime mustpass coverage, and `git diff --check` pass;
+- ignored SQLite intermediates are not staged or committed.
+
+If lookup diagnosis repairs an English page, the previous publish verification for that page is invalidated. Re-run its three English
+validators, translate/publish the delta or clean page through the one-page publisher, reconvert links, rerun the Chinese validator,
+and only then accept the rebuilt runtime JSON. This bounded repair loop adds no user hard stop.
+
 ## Checklist reconciliation
 
 Derive values from disk:

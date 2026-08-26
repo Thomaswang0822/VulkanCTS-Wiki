@@ -16,13 +16,14 @@ metadata:
 
 Orchestrate one complete project-local wiki category lifecycle:
 
-`outline → rewrite → Level-2 synthesis → audit → Chinese publish → final verification → checklist`
+`outline → rewrite → Level-2 synthesis → audit → Chinese publish → lookup DB update → final verification → checklist`
 
 This is a **lead-agent orchestration skill**. Load and follow the project-local primary skills instead of duplicating their page-writing, auditing, translation, shader, or link-conversion rules:
 
 - `.agents/skills/wiki-rewriter/SKILL.md`
 - `.agents/skills/wiki-auditor/SKILL.md`
 - `.agents/skills/wiki-publisher/SKILL.md`
+- `.agents/skills/db-lookup-updater/SKILL.md`
 
 Read their required references and helper skills as those primary skills direct.
 
@@ -41,7 +42,11 @@ Read their required references and helper skills as those primary skills direct.
    Level-3 page must pass the canonical Chinese structure/fixed-language validator before link conversion.
 9. Convert links only after every translation worker has completed.
 10. Verify the fully published category.
-11. **Final mandatory update:** only after all publication and verification gates pass, update `external/vulkancts/wiki/internal_doc/wiki_rewrite_checklist.md`, then report.
+11. Continue directly into `.agents/skills/db-lookup-updater/SKILL.md`; there is no third hard stop. Add the audit-stable English
+    category to the lookup builder, resolve ownership or source-backed projection findings under that skill's boundaries, run the
+    complete supervised lookup build, and review the tracked `case_lookup/site/mappings.json` delta.
+12. Verify the lookup category build, full runtime index, tests, and mustpass coverage.
+13. **Final mandatory update:** only after publication and lookup DB verification both pass, update `external/vulkancts/wiki/internal_doc/wiki_rewrite_checklist.md`, then report.
     - Mark the category done.
     - Count rewritten Level-3 pages only: exclude `_brief.md`, legacy `vkt*.md`, and dispatcher pages folded into Level-2.
     - Set `UB` from the category's `*_brief.md` count.
@@ -69,10 +74,32 @@ The lead agent owns:
 - confirmation that audited English sources remain frozen throughout publish;
 - Chinese structure/fixed-language verification for every translated Level-3 source/target pair;
 - link conversion and idempotency checks;
+- invocation and verification of `db-lookup-updater` after publish completes;
+- review of lookup ownership findings, category coverage, and the tracked `case_lookup/site/mappings.json` delta;
 - the final checklist update;
 - final counts and completion report.
 
 Workers own only their assigned page in their assigned phase. They must not edit shared summaries, enter a later phase, translate during rewrite/audit, or run link conversion during translation.
+
+## Final lookup DB phase
+
+Hard stop 2 is the final approval boundary: it separates audited English output from publish. Once the user approves publish, complete
+Chinese publication and then run `db-lookup-updater` without another approval stop. Do not parallelize publishing
+and DB integration; the order is:
+
+```text
+publish all pages
+→ convert and verify published links
+→ update and fully verify lookup DB/runtime JSON
+→ update final checklist
+→ report category completion
+```
+
+The lookup phase remains locally supervised because build failures may expose English page ownership defects or require an explicit,
+source-backed category projection. Follow `db-lookup-updater` rather than weakening the builder or accepting fallback ownership.
+If lookup diagnosis requires an English ownership repair after initial publication, rerun that page's English validators, republish
+and reconvert the affected Chinese page, rerun its Chinese validator, then rebuild lookup. This repair loop has no approval stop, but
+the category cannot complete while published Chinese content and the final lookup JSON lag behind repaired English evidence.
 
 ## Phase contracts and recovery
 
@@ -83,8 +110,10 @@ Use the filesystem and validators as evidence, not worker claims alone. Classify
 ## Completion gate
 
 Do not report completion until every outline page is accounted for; English structure, registration hierarchy, wiki-link, semantic
-audit, Chinese structure/fixed-language, target-language, and category gates pass in their owning phases; all links are converted and
-idempotent; the final checklist update matches filesystem evidence; audited English pages remain unchanged during publish; and
-unauthorized paths and the Git index remain untouched except for the explicit rewrite staging checkpoint.
+audit, Chinese structure/fixed-language, target-language, publication, and lookup DB gates pass in their owning phases; all published
+links are converted and idempotent; the category is covered by the verified runtime lookup index; the tracked mappings JSON and final
+checklist match filesystem evidence; audited English pages remain unchanged during publish except for any later evidence-backed
+ownership repair required by `db-lookup-updater`; and unauthorized paths and the Git index remain untouched except for the explicit
+rewrite staging checkpoint.
 
 Use `references/completion-report.md` for the final report shape.

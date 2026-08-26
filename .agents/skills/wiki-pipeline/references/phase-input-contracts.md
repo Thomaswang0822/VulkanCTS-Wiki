@@ -95,3 +95,18 @@ Supply the audited Level-2 source and its exact target `vkcts-wiki-pages/categor
 ## Link conversion
 
 Run only after all translation outputs exist and pass structural and target-language checks. Follow wiki-publisher's link-conversion contract exactly. Convert each publishable file individually; `home.md` remains outside publish scope.
+
+## Lookup DB update
+
+After publication and link verification, supply `db-lookup-updater` with:
+
+- the completed category and current rewrite-checklist state;
+- the audit-stable English Level-3 page set;
+- exact category mustpass inputs and current case-lookup registry state;
+- the pre-update `site/mappings.json` counts/hash;
+- permission to edit only evidence-backed English ownership defects, lookup registry/handlers/tests, tracked runtime JSON, and related
+  lookup documentation;
+- explicit prohibition on CTS source/mustpass edits, fallback ownership, Git-index changes, commit, or push.
+
+No third hard stop applies. If an English page changes during lookup repair, feed that page back through English validation and the
+single-page publisher, then reconvert/revalidate its Chinese target before accepting the final lookup build.

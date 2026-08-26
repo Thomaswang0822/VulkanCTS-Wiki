@@ -78,4 +78,8 @@ Do not cross a barrier until its condition is true:
 - **Publish-approval barrier:** the user has explicitly approved the completed audit result.
 - **Publish barrier:** every translation exists and contains target-language text; every Level-3 source/target pair passes the
   canonical Chinese structure/fixed-language validator; audited English sources remain unchanged.
-- **Completion barrier:** conversion is idempotent, the checklist is correct, counts are reconciled, and safety checks pass.
+- **Lookup barrier:** after publish, `db-lookup-updater` completes the isolated category build and full supervised build; mustpass
+  runtime coverage and tests pass; tracked `site/mappings.json` is reviewed. Any English ownership repair is revalidated and its
+  Chinese page is republished/reconverted before rebuilding lookup.
+- **Completion barrier:** publication and lookup barriers pass, conversion is idempotent after any repair loop, the checklist is
+  correct, counts are reconciled, and safety checks pass.
