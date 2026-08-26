@@ -21,7 +21,7 @@ with `wiki-publisher`. Class C pages require no Chinese edit.
 - Class B — full clean republish: **35**
 - Class C — no Chinese edit: **9**
 - Classified: **299 / 299**
-- Class A completed: **3 / 255**; remaining: **252**
+- Class A completed: **10 / 255**; remaining: **245**
 - Class B completed: **0 / 35**; remaining: **35**
 
 ## Class A — Localized Delta Sync
@@ -54,13 +54,13 @@ with `wiki-publisher`. Class C pages require no Chinese edit.
 
 ### `compute` — 7 pages
 
-- [ ] `external/vulkancts/wiki/testfiles/compute/BasicComputeShader.md`
-- [ ] `external/vulkancts/wiki/testfiles/compute/CooperativeMatrix.md`
-- [ ] `external/vulkancts/wiki/testfiles/compute/CooperativeMatrixOpConstantNull.md`
-- [ ] `external/vulkancts/wiki/testfiles/compute/IndirectComputeDispatch.md`
-- [ ] `external/vulkancts/wiki/testfiles/compute/ShaderBuiltinVar.md`
-- [ ] `external/vulkancts/wiki/testfiles/compute/WorkgroupMemoryExplicitLayout.md`
-- [ ] `external/vulkancts/wiki/testfiles/compute/ZeroInitializeWorkgroupMemory.md`
+- [x] `external/vulkancts/wiki/testfiles/compute/BasicComputeShader.md`
+- [x] `external/vulkancts/wiki/testfiles/compute/CooperativeMatrix.md`
+- [x] `external/vulkancts/wiki/testfiles/compute/CooperativeMatrixOpConstantNull.md`
+- [x] `external/vulkancts/wiki/testfiles/compute/IndirectComputeDispatch.md`
+- [x] `external/vulkancts/wiki/testfiles/compute/ShaderBuiltinVar.md`
+- [x] `external/vulkancts/wiki/testfiles/compute/WorkgroupMemoryExplicitLayout.md`
+- [x] `external/vulkancts/wiki/testfiles/compute/ZeroInitializeWorkgroupMemory.md`
 
 ### `draw` — 22 pages
 
