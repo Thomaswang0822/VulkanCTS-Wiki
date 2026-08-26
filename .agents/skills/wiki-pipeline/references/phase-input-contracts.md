@@ -12,12 +12,18 @@ Supply:
 - exactly one rewritten output path;
 - owning implementation source and relevant support files;
 - relevant registration and mustpass evidence;
+- exact page-scoped completion commands from `wiki-rewriter/references/validation-checklist.md` for English structure,
+  Registration Hierarchy/mustpass validation, and wiki links;
+- source-backed no-walkthrough status: either a required `shader-analyzer` walkthrough or an existing/lead-approved entry in
+  `wiki-rewriter/scripts/walkthrough_exceptions.py`; workers must not create an exception merely to make validation pass;
 - the outline's `brief required` or `direct rewrite` decision;
 - dispatcher-folding or page-specific scope notes from the outline;
 - explicit permission to write only the assigned brief, when required, and assigned rewritten page;
 - explicit prohibition on modifying/deleting the obsolete page, editing summaries, translating, publishing, or changing the Git index.
 
-Tell the worker to load `.agents/skills/wiki-rewriter/SKILL.md` and every dependency it requires. Do not restate its internal rewrite, shader, language-pass, template, or validation procedures.
+Tell the worker to load `.agents/skills/wiki-rewriter/SKILL.md` and every dependency it requires. Do not restate its internal rewrite,
+shader, language-pass, template, or validator rule implementations. Require the worker result to report English structure,
+registration, and link validator status for its assigned page.
 
 A required Understanding Brief and its final rewrite stay with the same page worker. They do not make the worker a multi-page worker.
 
@@ -34,6 +40,10 @@ This is lead-owned. Perform it only after every Level-3 page is stable. Supply t
 
 After drafting the ordinary gateway sections, run the category Background Knowledge consolidation required by wiki-rewriter. Revalidate affected Level-3 upward links and the Level-2 page.
 
+Before declaring Level-3 input stable for synthesis, the lead runs the category-scoped English structure and registration validators.
+After synthesis and Background Knowledge consolidation, run the category wiki-link command from the canonical validation checklist
+against the new Level-2 page and all Level-3 pages. Level-2 synthesis does not waive failed Level-3 gates.
+
 ## Audit: one Level-3 page
 
 Supply:
@@ -42,12 +52,14 @@ Supply:
 - exactly one rewritten Level-3 page;
 - its owning implementation source and support files;
 - relevant registration, mustpass, and Vulkan specification evidence;
+- current page-scoped English structure, registration hierarchy, and wiki-link validator commands and starting results;
 - `.agents/skills/wiki-auditor/SKILL.md` and its required references;
 - write scope limited to the assigned page;
 - explicit prohibition on editing the combined audit summary, other pages, publish outputs, or the Git index;
 - the auditor worker result contract.
 
-Require the worker to correct confirmed meaningful defects in place, revalidate its page, and return either compact findings or `no-confirmed-issues`.
+Require the worker to correct confirmed meaningful defects in place, rerun all three page-scoped English validators after any edit,
+and return either compact findings or `no-confirmed-issues` together with those validator results.
 
 ## Audit: Level-2 and category aggregation
 
@@ -69,9 +81,12 @@ Supply:
 - exactly one audited English source page;
 - exactly one Chinese publish target under `vkcts-wiki-pages/categories/<category>/`;
 - `.agents/skills/wiki-publisher/SKILL.md` and the Level-3 dispatch template it owns;
+- the exact canonical Chinese validator command for that English source/Chinese target pair;
 - explicit prohibition on link conversion, English-source edits, shared-file edits, and Git-index changes.
 
-The worker itself loads `translate-doc` and all dependencies required by wiki-publisher, including in-agent `shuorenhua` followed by `humanizer-zh`. Do not dispatch separate language-review agents.
+The worker itself loads `translate-doc` and all dependencies required by wiki-publisher, including in-agent `shuorenhua` followed by
+`humanizer-zh`. Do not dispatch separate language-review agents. Require the worker to rerun the Chinese validator after the language
+passes and return its result.
 
 ## Publish: Level-2 page
 

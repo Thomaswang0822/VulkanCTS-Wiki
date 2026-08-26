@@ -32,11 +32,15 @@ For each approved outline batch:
 1. Resolve one input contract per page.
 2. Dispatch one rewrite worker per page.
 3. Wait for the complete wave result.
-4. Check each expected brief/output on disk and run page validators.
+4. Check each expected brief/output on disk. For each Level-3 output, run the page-scoped English structure, registration hierarchy,
+   and wiki-link validators from `wiki-rewriter/references/validation-checklist.md`.
 5. Retry missing, failed, or provenance-suspect pages individually.
 6. Mark the outline batch stable only when every page passes.
 
-After all Level-3 batches stabilize, perform lead-owned Level-2 synthesis and category Background Knowledge consolidation. Then validate the rewrite phase, stage the changes produced by this rewrite (without staging unrelated pre-existing work), and continue into audit without stopping.
+After all Level-3 batches stabilize, rerun the English structure and registration validators in category mode. Then perform
+lead-owned Level-2 synthesis and category Background Knowledge consolidation. Only after Level-2 exists, run the category wiki-link
+command and revalidate affected Level-3 upward links. Stage the changes produced by this rewrite (without staging unrelated
+pre-existing work), and continue into audit without stopping.
 
 ## Audit phase
 
@@ -46,14 +50,16 @@ After all Level-3 batches stabilize, perform lead-owned Level-2 synthesis and ca
 4. Dispatch one audit worker per Level-3 page. Concurrency waves may differ from rewrite batches, but page granularity never changes.
 5. After each wave, verify edits and immediately append page findings/no-issue entries to the lead-owned summary.
 6. Retry failed pages individually.
-7. Reconcile recurring patterns, audit the rest of Level-2, run category validation, and finalize the summary.
+7. Reconcile recurring patterns, audit the rest of Level-2, rerun category-scoped English structure, registration hierarchy, and
+   wiki-link validation, and finalize the summary.
 8. **Hard stop 2:** stop before any publish translation or link conversion and ask the user to review and approve the complete audit result.
 
 ## Publish phase
 
 1. Confirm every English page is audit-stable.
 2. Dispatch one translation worker per Level-3 page and one worker for the Level-2 page.
-3. Check every target file for existence, target-language text, and structural verification.
+3. Check every target file for existence and target-language text. For each Level-3 source/target pair, run the canonical Chinese
+   structure/fixed-language validator after the language passes.
 4. Retry only missing, failed, or suspect translations.
 5. After all translations pass, run link conversion per file.
 6. Run link-conversion check mode to prove idempotency.
@@ -64,9 +70,12 @@ After all Level-3 batches stabilize, perform lead-owned Level-2 synthesis and ca
 Do not cross a barrier until its condition is true:
 
 - **Outline barrier:** when a new outline was created, it has explicit user approval.
-- **Rewrite barrier:** all outline-assigned Level-3 outputs/briefs and Level-2 synthesis exist and validate.
+- **Rewrite barrier:** all outline-assigned Level-3 outputs/briefs and Level-2 synthesis exist; every Level-3 page and the category
+  pass English structure, registration hierarchy, and applicable wiki-link gates.
 - **Rewrite staging checkpoint:** the rewrite-produced paths are staged, unrelated pre-existing work is preserved, and the lead continues into audit without stopping.
-- **Audit barrier:** every Level-3 page and Level-2 page has an audit outcome; repairs and category validation pass; summary is final.
+- **Audit barrier:** every Level-3 page and Level-2 page has an audit outcome; repaired Level-3 pages and the category pass English
+  structure, registration hierarchy, and wiki-link gates; summary is final.
 - **Publish-approval barrier:** the user has explicitly approved the completed audit result.
-- **Publish barrier:** every translation exists, contains target-language text, and passes structural verification.
+- **Publish barrier:** every translation exists and contains target-language text; every Level-3 source/target pair passes the
+  canonical Chinese structure/fixed-language validator; audited English sources remain unchanged.
 - **Completion barrier:** conversion is idempotent, the checklist is correct, counts are reconciled, and safety checks pass.

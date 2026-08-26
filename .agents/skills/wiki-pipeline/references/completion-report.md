@@ -15,7 +15,9 @@ Use this compact structure. Replace every count with independently verified file
 - Outline: <path and approval status>
 - Outline batches: <batch count and page counts>
 - Worker granularity: one page per worker
-- Rewrite validation: <result>
+- English structure validation: <N>/<N> pages; category <result>
+- Registration hierarchy validation: <N>/<N> pages; category <result>
+- English wiki-link validation: <N>/<N> pages; category/Level-2 <result>
 
 ### Audit
 - Pages audited: <N>
@@ -23,17 +25,19 @@ Use this compact structure. Replace every count with independently verified file
 - Confirmed findings: <N>
 - Pages with no confirmed issues: <N>
 - Audit summary: <path>
-- Category validation: <result>
+- Post-audit English structure: <result>
+- Post-audit registration hierarchy: <result>
+- Post-audit wiki links: <result>
 
 ### Publish
-- Translation validation: <N>/<N>
+- Chinese structure/fixed-language validation: <N>/<N> Level-3 source/target pairs
 - Target-language check: <result>
 - Link conversion: <N>/<N>
 - Idempotency: <result>
 - Checklist: <result and updated totals>
 
 ### Safety
-- Canonical English pages: unchanged
+- Audited English pages during publish: unchanged
 - Git index: unchanged
 - Unauthorized paths: none, or describe and escalate
 

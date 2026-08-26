@@ -52,7 +52,12 @@ For every Level-3 rewrite:
 - expected new page and required brief exist;
 - obsolete `vkt*.md` source remains untouched;
 - output follows the page classification and filename in the approved outline;
-- registration and wiki-link validators pass;
+- the canonical English structure validator passes, including headings/spacing, fixed subsections, walkthrough tables, SPIR-V
+  artifacts, and multi-stage H5 organization;
+- the strict Registration Hierarchy/mustpass validator passes; a visually plausible tree is not enough;
+- the wiki-link validator passes;
+- a no-walkthrough page has source-reviewed justification and an approved entry in `walkthrough_exceptions.py`; a worker has not
+  added an exception merely to silence validation;
 - required English language-quality passes were applied by the page worker;
 - no forbidden publication output was written.
 
@@ -68,6 +73,7 @@ For Level-2:
 - every rewritten Level-3 page has one worker result;
 - every failed worker is retried;
 - every edited page revalidates;
+- English structure, registration hierarchy, and wiki-link validators are rerun after every audit edit and at category completion;
 - Level-2 has an explicit audit result;
 - combined summary is lead-owned and finalized;
 - counts come from the actual summary and files, not memory or worker count;
@@ -79,9 +85,11 @@ Before conversion:
 
 - all Level-2/Level-3 target files exist;
 - every target contains CJK text;
-- translation structure verifier passes for every source/target pair;
+- the canonical Chinese structure/fixed-language validator passes for every Level-3 source/target pair after language-quality passes;
+- validator output confirms the English source itself is canonical before accepting the Chinese result;
 - no worker ran link conversion early;
 - English sources and internal briefs are unchanged.
+- audited English source hashes/diffs remain unchanged throughout publish.
 
 After conversion:
 

@@ -31,11 +31,14 @@ Read their required references and helper skills as those primary skills direct.
 1. Run wiki-rewriter Step 0 yourself as lead agent: inspect category state and create or resume `external/vulkancts/wiki/internal_doc/<category>_rewrite_outline.md`.
 2. **Hard stop 1 for user approval:** when Step 0 creates a new outline for a new category, stop and ask the user to approve it before inspecting, briefing, or rewriting pages. Resume only after approval or an explicit request to continue. A resumed category with an existing approved outline skips only this checkpoint.
 3. Follow the approved outline's batches exactly for rewrite dispatch.
-4. Rewrite all assigned Level-3 pages, then synthesize the Level-2 page after Level-3 pages stabilize.
+4. Rewrite all assigned Level-3 pages. A page stabilizes only after the canonical English structure, registration hierarchy, and
+   wiki-link validators pass. Then synthesize the Level-2 page after every Level-3 page is stable.
 5. Stage the changes produced by the rewrite phase, preserving unrelated pre-existing work, and continue directly into audit without stopping.
-6. Audit the Level-2 page and every rewritten Level-3 page.
+6. Audit the Level-2 page and every rewritten Level-3 page. Re-run the same three English Level-3 validators after any audit edit;
+   validator success is necessary but does not replace the semantic audit.
 7. **Hard stop 2 for user approval:** after audit repairs, Level-2 audit, category validation, and audit-summary finalization pass, stop before publish and ask the user to review and approve the audited result. Do not translate, publish, or convert links before approval.
-8. After approval, translate and publish every Level-2 and Level-3 page.
+8. After approval, freeze the audited English source set, then translate and publish every Level-2 and Level-3 page. Each translated
+   Level-3 page must pass the canonical Chinese structure/fixed-language validator before link conversion.
 9. Convert links only after every translation worker has completed.
 10. Verify the fully published category.
 11. **Final mandatory update:** only after all publication and verification gates pass, update `external/vulkancts/wiki/internal_doc/wiki_rewrite_checklist.md`, then report.
@@ -62,6 +65,9 @@ The lead agent owns:
 - Level-2 synthesis and category Background Knowledge consolidation;
 - audit-summary creation, incremental aggregation, and finalization;
 - category-wide validation;
+- page- and category-scoped English structure, registration hierarchy, and wiki-link gate verification;
+- confirmation that audited English sources remain frozen throughout publish;
+- Chinese structure/fixed-language verification for every translated Level-3 source/target pair;
 - link conversion and idempotency checks;
 - the final checklist update;
 - final counts and completion report.
@@ -76,6 +82,9 @@ Use the filesystem and validators as evidence, not worker claims alone. Classify
 
 ## Completion gate
 
-Do not report completion until every outline page is accounted for; rewrite, audit, translation, structural, registration/link, and category validations pass; all links are converted and idempotent; the final checklist update matches filesystem evidence; and canonical English pages, unauthorized paths, and the Git index remain untouched.
+Do not report completion until every outline page is accounted for; English structure, registration hierarchy, wiki-link, semantic
+audit, Chinese structure/fixed-language, target-language, and category gates pass in their owning phases; all links are converted and
+idempotent; the final checklist update matches filesystem evidence; audited English pages remain unchanged during publish; and
+unauthorized paths and the Git index remain untouched except for the explicit rewrite staging checkpoint.
 
 Use `references/completion-report.md` for the final report shape.
