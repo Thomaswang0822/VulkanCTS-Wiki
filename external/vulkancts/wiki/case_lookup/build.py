@@ -491,8 +491,12 @@ def _write_database(
     database_path.parent.mkdir(parents=True, exist_ok=True)
     temporary_path = database_path.with_suffix(database_path.suffix + ".tmp")
     temporary_path.unlink(missing_ok=True)
+    # The sqlite3 context manager only commits; it does not close the
+    # connection.  Close it explicitly before replace/unlink: Windows
+    # forbids renaming or deleting files with an open handle.
+    connection = sqlite3.connect(temporary_path)
     try:
-        with sqlite3.connect(temporary_path) as connection:
+        with connection:
             connection.executescript(
                 """
                 PRAGMA journal_mode = OFF;
@@ -519,8 +523,10 @@ def _write_database(
             connection.executemany(
                 "INSERT INTO metadata VALUES (?, ?)", sorted(metadata.items())
             )
+        connection.close()
         temporary_path.replace(database_path)
     finally:
+        connection.close()
         temporary_path.unlink(missing_ok=True)
 
 
@@ -601,28 +607,34 @@ def merge_category_databases(
     by_category: dict[str, tuple[Path, dict[str, str]]] = {}
     wiki_base_url: str | None = None
     for path in category_databases:
-        with sqlite3.connect(f"file:{path.resolve().as_posix()}?mode=ro", uri=True) as connection:
-            metadata = _read_metadata(connection)
-            if metadata.get("schema_version") != SCHEMA_VERSION:
-                raise MappingBuildError(f"{path}: schema version 不兼容")
-            if metadata.get("kind") != "category" or not metadata.get("category"):
-                raise MappingBuildError(f"{path}: 不是有效 category DB")
-            category = metadata["category"]
-            if category in by_category:
-                raise MappingBuildError(f"重复 category DB：{category}")
-            if wiki_base_url is None:
-                wiki_base_url = metadata.get("wiki_base_url")
-            elif metadata.get("wiki_base_url") != wiki_base_url:
-                raise MappingBuildError("category DB 的 Wiki base URL 不一致")
-            actual_count = connection.execute("SELECT count(*) FROM mappings").fetchone()[0]
-            if actual_count != int(metadata.get("mapping_count", "-1")):
-                raise MappingBuildError(f"{path}: mapping count metadata 不一致")
-            invalid = connection.execute(
-                "SELECT prefix FROM mappings WHERE category != ? LIMIT 1", (category,)
-            ).fetchone()
-            if invalid:
-                raise MappingBuildError(f"{path}: 包含其它 category mapping")
-            by_category[category] = (path, metadata)
+        # Close explicitly: the sqlite3 context manager only commits, and an
+        # open read-only handle blocks later replace/unlink on Windows.
+        connection = sqlite3.connect(f"file:{path.resolve().as_posix()}?mode=ro", uri=True)
+        try:
+            with connection:
+                metadata = _read_metadata(connection)
+                if metadata.get("schema_version") != SCHEMA_VERSION:
+                    raise MappingBuildError(f"{path}: schema version 不兼容")
+                if metadata.get("kind") != "category" or not metadata.get("category"):
+                    raise MappingBuildError(f"{path}: 不是有效 category DB")
+                category = metadata["category"]
+                if category in by_category:
+                    raise MappingBuildError(f"重复 category DB：{category}")
+                if wiki_base_url is None:
+                    wiki_base_url = metadata.get("wiki_base_url")
+                elif metadata.get("wiki_base_url") != wiki_base_url:
+                    raise MappingBuildError("category DB 的 Wiki base URL 不一致")
+                actual_count = connection.execute("SELECT count(*) FROM mappings").fetchone()[0]
+                if actual_count != int(metadata.get("mapping_count", "-1")):
+                    raise MappingBuildError(f"{path}: mapping count metadata 不一致")
+                invalid = connection.execute(
+                    "SELECT prefix FROM mappings WHERE category != ? LIMIT 1", (category,)
+                ).fetchone()
+                if invalid:
+                    raise MappingBuildError(f"{path}: 包含其它 category mapping")
+                by_category[category] = (path, metadata)
+        finally:
+            connection.close()
 
     if not by_category:
         raise MappingBuildError("没有 category DB 可合并")
@@ -632,11 +644,16 @@ def merge_category_databases(
     for category in sorted(by_category):
         path, metadata = by_category[category]
         source_manifests[category] = json.loads(metadata["source_manifest"])
-        with sqlite3.connect(f"file:{path.resolve().as_posix()}?mode=ro", uri=True) as connection:
-            for prefix, page, row_category, wiki_url in connection.execute(
-                "SELECT prefix, page, category, wiki_url FROM mappings ORDER BY prefix"
-            ):
-                rows.append(MappingRow(prefix, page, row_category, wiki_url))
+        # Close explicitly so the handle cannot block a later rebuild.
+        connection = sqlite3.connect(f"file:{path.resolve().as_posix()}?mode=ro", uri=True)
+        try:
+            with connection:
+                for prefix, page, row_category, wiki_url in connection.execute(
+                    "SELECT prefix, page, category, wiki_url FROM mappings ORDER BY prefix"
+                ):
+                    rows.append(MappingRow(prefix, page, row_category, wiki_url))
+        finally:
+            connection.close()
 
     prefixes = [row.prefix for row in rows]
     if len(prefixes) != len(set(prefixes)):

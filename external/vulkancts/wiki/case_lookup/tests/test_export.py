@@ -27,32 +27,36 @@ class LookupExportTests(unittest.TestCase):
             root = Path(tmp)
             database = root / "lookup.sqlite3"
             output = root / "mappings.json"
-            with sqlite3.connect(database) as connection:
-                connection.executescript(
-                    """
-                    CREATE TABLE mappings (
-                        prefix TEXT PRIMARY KEY,
-                        page TEXT NOT NULL,
-                        category TEXT NOT NULL,
-                        wiki_url TEXT NOT NULL
-                    );
-                    CREATE TABLE metadata (
-                        key TEXT PRIMARY KEY,
-                        value TEXT NOT NULL
-                    );
-                    INSERT INTO mappings VALUES (
-                        'dEQP-VK.image.qualifiers', 'Qualifiers', 'image',
-                        'https://example.test/-/wikis/categories/image/Qualifiers'
-                    );
-                    INSERT INTO mappings VALUES (
-                        'dEQP-VK.api.buffer', 'Buffer', 'api',
-                        'https://example.test/-/wikis/categories/api/Buffer'
-                    );
-                    INSERT INTO metadata VALUES ('kind', 'final');
-                    INSERT INTO metadata VALUES ('categories', 'api,image');
-                    INSERT INTO metadata VALUES ('mapping_count', '2');
-                    """
-                )
+            connection = sqlite3.connect(database)
+            try:
+                with connection:
+                    connection.executescript(
+                        """
+                        CREATE TABLE mappings (
+                            prefix TEXT PRIMARY KEY,
+                            page TEXT NOT NULL,
+                            category TEXT NOT NULL,
+                            wiki_url TEXT NOT NULL
+                        );
+                        CREATE TABLE metadata (
+                            key TEXT PRIMARY KEY,
+                            value TEXT NOT NULL
+                        );
+                        INSERT INTO mappings VALUES (
+                            'dEQP-VK.image.qualifiers', 'Qualifiers', 'image',
+                            'https://example.test/-/wikis/categories/image/Qualifiers'
+                        );
+                        INSERT INTO mappings VALUES (
+                            'dEQP-VK.api.buffer', 'Buffer', 'api',
+                            'https://example.test/-/wikis/categories/api/Buffer'
+                        );
+                        INSERT INTO metadata VALUES ('kind', 'final');
+                        INSERT INTO metadata VALUES ('categories', 'api,image');
+                        INSERT INTO metadata VALUES ('mapping_count', '2');
+                        """
+                    )
+            finally:
+                connection.close()
 
             first = export_lookup_json(database, output)
             first_bytes = output.read_bytes()

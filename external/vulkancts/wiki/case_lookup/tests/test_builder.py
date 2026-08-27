@@ -130,6 +130,7 @@ class MustpassInputTests(unittest.TestCase):
                 "ray_tracing_pipeline",
                 "ray_query",
                 "reconvergence",
+                "shader_object",
             ],
         )
 
@@ -321,14 +322,20 @@ class BuildDatabaseTests(unittest.TestCase):
                 "https://example.test/-/wikis",
                 root / "db",
             )
-            with sqlite3.connect(root / "db/rasterization.sqlite3") as connection:
-                metadata = dict(connection.execute("SELECT key, value FROM metadata"))
-                table_names = {
-                    row[0]
-                    for row in connection.execute(
-                        "SELECT name FROM sqlite_master WHERE type='table'"
+            connection = sqlite3.connect(root / "db/rasterization.sqlite3")
+            try:
+                with connection:
+                    metadata = dict(
+                        connection.execute("SELECT key, value FROM metadata")
                     )
-                }
+                    table_names = {
+                        row[0]
+                        for row in connection.execute(
+                            "SELECT name FROM sqlite_master WHERE type='table'"
+                        )
+                    }
+            finally:
+                connection.close()
 
         self.assertEqual(metadata["category"], "rasterization")
         self.assertEqual(metadata["kind"], "category")

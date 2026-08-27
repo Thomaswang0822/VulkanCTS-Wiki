@@ -135,6 +135,14 @@ PAGES_WITHOUT_WALKTHROUGH: dict[str, set[str]] = {
         'UnusedAttachment.md',
         'UnusedClearAttachment.md',
     },
+    'shader_object': {
+        'ApiTests.md',
+        'BinaryTests.md',
+        'BindingTests.md',
+        'CreateTests.md',
+        'LinkTests.md',
+        'PipelineInteractionTests.md',
+    },
     'sparse_resources': {
         'ImageAlignedMipSize.md',
         'ImageBlockShapes.md',

@@ -56,10 +56,10 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [ ] 46. mesh_shader — 17
 - [ ] 47. depth — 1
 - [ ] 48. video — 6
-- [ ] 49. shader_object — 11
+- [x] 49. shader_object — 10 (UB: 8)
 - [ ] 50. dgc — 27
 - [ ] 51. cooperative_vector — 3
 - [ ] 52. tensor — 7
 - [ ] 53. data_graph — 4
 
-**Summary**: 30 done, 23 todo.
+**Summary**: 31 done, 22 todo.

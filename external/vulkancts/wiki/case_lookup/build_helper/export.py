@@ -12,26 +12,32 @@ STATIC_SCHEMA_VERSION = 1
 def load_lookup_payload(database_path: Path) -> dict[str, object]:
     """Read and validate a final build DB into the browser runtime schema."""
     database_path = database_path.resolve()
-    with sqlite3.connect(
+    # Close explicitly: the sqlite3 context manager only commits, and an open
+    # read-only handle blocks later replace/unlink of the database on Windows.
+    connection = sqlite3.connect(
         f"file:{database_path.as_posix()}?mode=ro", uri=True
-    ) as connection:
-        tables = {
-            row[0]
-            for row in connection.execute(
-                "SELECT name FROM sqlite_master WHERE type = 'table'"
+    )
+    try:
+        with connection:
+            tables = {
+                row[0]
+                for row in connection.execute(
+                    "SELECT name FROM sqlite_master WHERE type = 'table'"
+                )
+            }
+            if {"mappings", "metadata"} - tables:
+                raise sqlite3.DatabaseError("database 缺少 mappings 或 metadata 表")
+            metadata = dict(connection.execute("SELECT key, value FROM metadata"))
+            if metadata.get("kind") != "final":
+                raise sqlite3.DatabaseError("JSON export 需要 final database")
+            rows = list(
+                connection.execute(
+                    "SELECT prefix, page, category, wiki_url "
+                    "FROM mappings ORDER BY prefix"
+                )
             )
-        }
-        if {"mappings", "metadata"} - tables:
-            raise sqlite3.DatabaseError("database 缺少 mappings 或 metadata 表")
-        metadata = dict(connection.execute("SELECT key, value FROM metadata"))
-        if metadata.get("kind") != "final":
-            raise sqlite3.DatabaseError("JSON export 需要 final database")
-        rows = list(
-            connection.execute(
-                "SELECT prefix, page, category, wiki_url "
-                "FROM mappings ORDER BY prefix"
-            )
-        )
+    finally:
+        connection.close()
 
     expected_count = int(metadata.get("mapping_count", "-1"))
     if expected_count != len(rows):
