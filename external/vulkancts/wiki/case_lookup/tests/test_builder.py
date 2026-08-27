@@ -129,6 +129,7 @@ class MustpassInputTests(unittest.TestCase):
                 "memory_model",
                 "ray_tracing_pipeline",
                 "ray_query",
+                "reconvergence",
             ],
         )
 
@@ -163,6 +164,44 @@ class MustpassInputTests(unittest.TestCase):
 
 
 class BuildDatabaseTests(unittest.TestCase):
+    def test_reconvergence_ownership_uses_page_trees(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            mappings_json = root / "mappings.json"
+            stats = build_database(
+                repo_root=REPO_ROOT,
+                database_path=root / "lookup.sqlite3",
+                categories=("reconvergence",),
+                wiki_base_url="https://example.test/-/wikis",
+                category_db_dir=root / "db",
+                json_path=mappings_json,
+            )
+            index = LookupIndex(mappings_json)
+            try:
+                maximal = index.lookup(
+                    "dEQP-VK.reconvergence.maximal.compute.nesting2.0.0"
+                )
+                terminate = index.lookup(
+                    "dEQP-VK.reconvergence.terminate_invocation.bit_count"
+                )
+            finally:
+                index.close()
+
+        self.assertIsNotNone(maximal)
+        self.assertIsNotNone(terminate)
+        assert maximal is not None
+        assert terminate is not None
+        self.assertEqual(stats["categories"]["reconvergence"]["leaves"], 6253)
+        self.assertEqual(maximal.page, "Reconvergence")
+        self.assertEqual(
+            maximal.matched_prefix, "dEQP-VK.reconvergence.maximal"
+        )
+        self.assertEqual(terminate.page, "TerminateInvocation")
+        self.assertEqual(
+            terminate.matched_prefix,
+            "dEQP-VK.reconvergence.terminate_invocation.bit_count",
+        )
+
     def test_category_build_and_final_merge_can_run_separately(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

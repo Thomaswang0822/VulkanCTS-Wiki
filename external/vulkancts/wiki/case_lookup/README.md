@@ -1,6 +1,6 @@
 # CTS Registration Path 查询工具
 
-这个工具接收一个以 `dEQP-VK.` 开头的完整 Vulkan CTS registration path，并返回对应的中文 Level-3 Wiki 页面链接。当前索引覆盖 `wiki_rewrite_checklist.md` 中 29 个已完成 rewrite 的 category。
+这个工具接收一个以 `dEQP-VK.` 开头的完整 Vulkan CTS registration path，并返回对应的中文 Level-3 Wiki 页面链接。当前索引覆盖 `wiki_rewrite_checklist.md` 中 30 个已完成 rewrite 的 category。
 
 ## 设计边界
 

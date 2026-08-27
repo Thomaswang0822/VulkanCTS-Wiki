@@ -1,6 +1,6 @@
 {
-  "category_count": 29,
-  "mapping_count": 10028,
+  "category_count": 30,
+  "mapping_count": 10037,
   "mappings": {
     "dEQP-VK.api.buffer.basic": [
       "Buffer",
@@ -41421,6 +41421,51 @@
       "Watertightness",
       "ray_tracing_pipeline",
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/ray_tracing_pipeline/Watertightness"
+    ],
+    "dEQP-VK.reconvergence.maximal": [
+      "Reconvergence",
+      "reconvergence",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/reconvergence/Reconvergence"
+    ],
+    "dEQP-VK.reconvergence.subgroup_uniform_control_flow_ballot": [
+      "Reconvergence",
+      "reconvergence",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/reconvergence/Reconvergence"
+    ],
+    "dEQP-VK.reconvergence.subgroup_uniform_control_flow_elect": [
+      "Reconvergence",
+      "reconvergence",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/reconvergence/Reconvergence"
+    ],
+    "dEQP-VK.reconvergence.terminate_invocation.bit_count": [
+      "TerminateInvocation",
+      "reconvergence",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/reconvergence/TerminateInvocation"
+    ],
+    "dEQP-VK.reconvergence.terminate_invocation.oob_read": [
+      "TerminateInvocation",
+      "reconvergence",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/reconvergence/TerminateInvocation"
+    ],
+    "dEQP-VK.reconvergence.terminate_invocation.quad_any": [
+      "TerminateInvocation",
+      "reconvergence",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/reconvergence/TerminateInvocation"
+    ],
+    "dEQP-VK.reconvergence.terminate_invocation.terminate_helpers": [
+      "TerminateInvocation",
+      "reconvergence",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/reconvergence/TerminateInvocation"
+    ],
+    "dEQP-VK.reconvergence.workgroup_uniform_control_flow_ballot": [
+      "Reconvergence",
+      "reconvergence",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/reconvergence/Reconvergence"
+    ],
+    "dEQP-VK.reconvergence.workgroup_uniform_control_flow_elect": [
+      "Reconvergence",
+      "reconvergence",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/reconvergence/Reconvergence"
     ],
     "dEQP-VK.renderpasses.dynamic_rendering.complete_secondary_cmd_buff": [
       "RenderPassTests",

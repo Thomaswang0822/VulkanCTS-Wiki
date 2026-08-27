@@ -52,7 +52,7 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [ ] 42. drm_format_modifiers — 1
 - [x] 43. ray_tracing_pipeline — 30 (UB: 18)
 - [x] 44. ray_query — 14 (UB: 8)
-- [ ] 45. reconvergence — 2
+- [x] 45. reconvergence — 2 (UB: 2)
 - [ ] 46. mesh_shader — 17
 - [ ] 47. depth — 1
 - [ ] 48. video — 6
@@ -62,4 +62,4 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [ ] 52. tensor — 7
 - [ ] 53. data_graph — 4
 
-**Summary**: 29 done, 24 todo.
+**Summary**: 30 done, 23 todo.
