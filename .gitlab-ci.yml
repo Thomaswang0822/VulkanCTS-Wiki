@@ -6,9 +6,9 @@ create-pages:
   pages:
     publish: external/vulkancts/wiki/case_lookup/site
 
-  # Preview on the feature branch first
+  # Deploy Pages only from the project's default branch.
   rules:
-    - if: '$CI_COMMIT_BRANCH == "case_lookup_tool"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
 
   # The supervised local build already produced the runtime JSON.
   script:
