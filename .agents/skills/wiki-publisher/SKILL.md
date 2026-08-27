@@ -1,11 +1,15 @@
 ---
 name: wiki-publisher
-description: This skill should be used when publishing translated VK-GL-CTS wiki pages for a category from the canonical English wiki into the GitLab Wiki publish target.
+description: Prepare translated VK-GL-CTS pages in the local GitLab Wiki publish-target checkout.
 ---
 
-# Wiki Publisher
+# Wiki Publish-Target Preparer
 
-Publish one VK-GL-CTS wiki category to the GitLab Wiki publish target.
+Prepare one VK-GL-CTS wiki category in the local GitLab Wiki publish-target checkout.
+
+In this skill, **publish** means writing and validating the local files under `vkcts-wiki-pages/`. It does not mean remote
+publication. This skill never stages, commits, or pushes either repository. A pipeline approval or waived hard stop authorizes the
+local preparation workflow only; it does not authorize Git commit or push.
 
 ## Scope and Execution Model
 
@@ -19,7 +23,7 @@ For normal category publishing, use Orchestrator mode to coordinate page-scoped 
 - Exclude Understanding Brief files from publisher inputs. Files matching
   `external/vulkancts/wiki/testfiles/<category>/*_brief.md` are internal English-only audit notes for rewrite work; do not
   translate, publish, link-convert, or count them as Level-3 publish pages.
-- Published Level-3 outputs live under the published category directory,
+- Prepared Level-3 outputs live under the category directory,
   `vkcts-wiki-pages/categories/<category>/`, so GitLab Wiki can show a category page and its
   expandable child pages together in the sidebar.
 - A category page list is a dispatch wave, not a multi-page worker assignment. Respect the runtime concurrency limit by using
@@ -50,7 +54,7 @@ dependencies, and validation. Do not continue unless the worker confirms that sk
    - For each assigned page, load and apply `shuorenhua` followed by `humanizer-zh` inside the translation worker, as required by `translate-doc`. Do not dispatch a separate language-review agent or launch a separate chat, session, or process.
    - Complete all `translate-doc` dependency, output, and validation requirements before reporting completion.
 
-2. Run a pre-publish translation guard for every assigned translated markdown file.
+2. Run a pre-publish-target translation guard for every assigned translated markdown file.
     - Fail the translation task if protected content appears translated or corrupted.
     - Check for Chinese characters inside inline-code identifiers, source filenames, URL path segments,
       and registered test names.
@@ -97,7 +101,8 @@ dependencies, and validation. Do not continue unless the worker confirms that sk
 5. Confirm wiki-page links have the expected GitLab Wiki form.
 6. For links from `vkcts-wiki-pages/categories/<category>.md` to child Level-3 pages under the same category,
    prefer the GitLab-tested form `./<category>/<page>` rather than an unprefixed relative path.
-7. Confirm the category page and its child Level-3 pages appear under the same expandable category node in the GitLab Wiki sidebar.
+7. Confirm the local category path and child-page links use the layout expected to form one expandable category node after a user
+   later commits and pushes the publish-target repository. Do not inspect or mutate the remote Wiki as part of this skill.
 
 ## Required Completion Report
 
@@ -127,5 +132,7 @@ A non-zero `--check` result means the file still needs conversion.
 ## Scope Notes
 
 - Keep the markdown link conversion script as the deterministic implementation for publish-target links.
-- `vkcts-wiki-pages/home.md` is preconfigured and remains untouched during publishing.
+- `vkcts-wiki-pages/home.md` is preconfigured and remains untouched during local publish-target preparation.
 - Do not add publish workflow state or temporary notes to user-facing wiki pages.
+- Leave all prepared Chinese pages as local working-tree changes. Do not run `git add`, `git commit`, or `git push` in either the
+  outer repository or the nested `vkcts-wiki-pages/` repository.

@@ -82,7 +82,8 @@ Supply:
 - exactly one Chinese publish target under `vkcts-wiki-pages/categories/<category>/`;
 - `.agents/skills/wiki-publisher/SKILL.md` and the Level-3 dispatch template it owns;
 - the exact canonical Chinese validator command for that English source/Chinese target pair;
-- explicit prohibition on link conversion, English-source edits, shared-file edits, and Git-index changes.
+- explicit prohibition on link conversion, English-source edits, shared-file edits, Git-index changes, commit, and push in either
+  repository.
 
 The worker itself loads `translate-doc` and all dependencies required by wiki-publisher, including in-agent `shuorenhua` followed by
 `humanizer-zh`. Do not dispatch separate language-review agents. Require the worker to rerun the Chinese validator after the language
@@ -94,11 +95,11 @@ Supply the audited Level-2 source and its exact target `vkcts-wiki-pages/categor
 
 ## Link conversion
 
-Run only after all translation outputs exist and pass structural and target-language checks. Follow wiki-publisher's link-conversion contract exactly. Convert each publishable file individually; `home.md` remains outside publish scope.
+Run only after all translation outputs exist and pass structural and target-language checks. Follow wiki-publisher's link-conversion contract exactly. Convert each publishable file individually; `home.md` remains outside publish scope. Leave converted files as working-tree changes; do not stage, commit, or push either repository.
 
 ## Lookup DB update
 
-After publication and link verification, supply `db-lookup-updater` with:
+After local publish-target preparation and link verification, supply `db-lookup-updater` with:
 
 - the completed category and current rewrite-checklist state;
 - the audit-stable English Level-3 page set;

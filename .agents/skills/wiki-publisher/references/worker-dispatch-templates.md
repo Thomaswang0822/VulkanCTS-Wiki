@@ -14,7 +14,7 @@ Input:
 Output:
 - `vkcts-wiki-pages/categories/<category>.md`
 
-Strictly follow the skill's translation-worker requirements. For this page, load and apply `shuorenhua` then `humanizer-zh` yourself; do not dispatch another language-review agent or launch a separate chat, session, or process. Do not run link conversion. When complete, use `attempt_completion`.
+Strictly follow the skill's translation-worker requirements. For this page, load and apply `shuorenhua` then `humanizer-zh` yourself; do not dispatch another language-review agent or launch a separate chat, session, or process. Do not run link conversion. Do not stage, commit, or push either repository. When complete, use `attempt_completion`.
 ```
 
 ## Level-3 translation worker
@@ -34,7 +34,7 @@ yourself; do not dispatch another language-review agent or launch a separate cha
 
 `python3 .agents/skills/wiki-publisher/scripts/verify_translation_structure.py --source external/vulkancts/wiki/testfiles/<category>/<file>.md --target vkcts-wiki-pages/categories/<category>/<file>.md`
 
-Do not run link conversion. Return the exact source/target paths, validator result, and language-pass status. When complete, use
+Do not run link conversion. Do not stage, commit, or push either repository. Return the exact source/target paths, validator result, and language-pass status. When complete, use
 `attempt_completion`.
 ```
 
@@ -48,5 +48,6 @@ Inputs:
 - `vkcts-wiki-pages/categories/<category>.md`
 - all `vkcts-wiki-pages/categories/<category>/*.md`
 
-Strictly follow the skill's link-conversion requirements. Do not translate content. When complete, use `attempt_completion`.
+Strictly follow the skill's link-conversion requirements. Do not translate content. Do not stage, commit, or push either repository.
+When complete, use `attempt_completion`.
 ```

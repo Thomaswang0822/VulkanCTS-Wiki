@@ -8,7 +8,12 @@ This validator has two layers:
    failure-analysis contracts while also comparing source/target structures.
 
 It is a structural and fixed-language guard, not a translation-quality or
-source-backed semantic audit.
+semantic audit.
+
+Exit codes:
+    0 - all selected pages passed
+    1 - one or more structural issues were found
+    2 - invocation or input error
 """
 
 from __future__ import annotations
@@ -20,7 +25,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 from types import ModuleType
-from typing import Sequence
+from typing import Any, Sequence
 
 SCRIPT_PATH = Path(__file__).resolve()
 REPO_ROOT = SCRIPT_PATH.parents[4]
@@ -524,7 +529,7 @@ def _validate_walkthrough_alignment(
     return issues
 
 
-def validate_translation(source_path: Path, target_path: Path) -> tuple[list[object], list[Mismatch]]:
+def validate_translation(source_path: Path, target_path: Path) -> tuple[list[Any], list[Mismatch]]:
     source_lines=source_path.read_text(encoding='utf-8').splitlines()
     target_lines=target_path.read_text(encoding='utf-8').splitlines()
     source_headings,source_fences,source_parse=ENGLISH._parse_headings_and_fences(source_path,source_lines)
@@ -548,26 +553,182 @@ def validate_translation(source_path: Path, target_path: Path) -> tuple[list[obj
     return english_issues,sorted(issues,key=lambda x:(x.line,x.rule,x.message))
 
 
-def main() -> int:
-    parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--source',type=Path,required=True)
-    parser.add_argument('--target',type=Path,required=True)
-    parser.add_argument('--verbose','-v',action='store_true')
-    args=parser.parse_args()
-    if not args.source.is_file() or not args.target.is_file():
-        print('Error: source and target must both exist',file=sys.stderr);return 2
-    english_issues,issues=validate_translation(args.source,args.target)
+def discover_category_pairs(
+    wiki_dir: Path, target_dir: Path, category: str
+) -> list[tuple[Path, Path]]:
+    sources = ENGLISH.discover_category_pages(wiki_dir, category)
+    pairs = [(source, target_dir / category / source.name) for source in sources]
+    missing = [target for _source, target in pairs if not target.is_file()]
+    if missing:
+        raise FileNotFoundError(f"translated page not found: {missing[0]}")
+    return pairs
+
+
+def _category_for_explicit_page(wiki_dir: Path, path: Path) -> str:
+    try:
+        relative = path.resolve().relative_to((wiki_dir / "testfiles").resolve())
+    except ValueError as error:
+        raise ValueError(f"file is not below {wiki_dir / 'testfiles'}: {path}") from error
+    if len(relative.parts) < 2:
+        raise ValueError(f"cannot infer category from path: {path}")
+    return relative.parts[0]
+
+
+def _print_results(
+    selected: Sequence[tuple[str, Path, Path]],
+    results: Sequence[tuple[list[Any], list[Mismatch]]],
+    wiki_dir: Path,
+    category_order: Sequence[str],
+) -> int:
+    """Print the same compact category-oriented shape as the English validator."""
+    category_pages: dict[
+        str, list[tuple[Path, list[Any], list[Mismatch]]]
+    ] = {}
+    for (category, _source, target), (english_issues, target_issues) in zip(
+        selected, results
+    ):
+        category_pages.setdefault(category, []).append(
+            (target, english_issues, target_issues)
+        )
+
+    for category in category_order:
+        category_pages.setdefault(category, [])
+
+    total_issues = 0
+    failing_pages = 0
+    failing_categories = 0
+    for category, pages in category_pages.items():
+        category_path = wiki_dir / "testfiles" / category
+        failed = [
+            (path, english_issues, target_issues)
+            for path, english_issues, target_issues in pages
+            if english_issues or target_issues
+        ]
+        if not failed:
+            print(f"PASS {category_path}")
+            continue
+
+        failing_categories += 1
+        print(f"FAIL {category_path}")
+        for path, english_issues, target_issues in failed:
+            all_issues = [*english_issues, *target_issues]
+            print(f"     {path.name}:{all_issues[0].line}:")
+            for issue in english_issues:
+                print(
+                    f"     - [english:{issue.rule}] "
+                    f"English source: {issue.message}"
+                )
+            for issue in target_issues:
+                print(f"     - [{issue.rule}] {issue.message}")
+            failing_pages += 1
+            total_issues += len(all_issues)
+
+    print()
+    print(
+        f"Total checked category count {len(category_pages)}, "
+        f"page count {len(results)}."
+    )
+    print(
+        f"Failure category count {failing_categories}, "
+        f"page count {failing_pages}, finding count {total_issues}."
+    )
+    return 1 if total_issues else 0
+
+
+def _run_legacy_pair(source: Path, target: Path, verbose: bool) -> int:
+    """Preserve the original one-pair CLI for existing worker commands."""
+    if not source.is_file() or not target.is_file():
+        print("Error: source and target must both exist", file=sys.stderr)
+        return 2
+    english_issues, issues = validate_translation(source, target)
     if english_issues:
-        print(f'FAIL: English source has {len(english_issues)} canonical structure issue(s); repair source first:')
-        for issue in english_issues: print(f'  {args.source}:{issue.line}: [{issue.rule}] {issue.message}')
+        print(
+            f"FAIL: English source has {len(english_issues)} canonical structure "
+            "issue(s); repair source first:"
+        )
+        for issue in english_issues:
+            print(f"  {source}:{issue.line}: [{issue.rule}] {issue.message}")
         return 1
     if issues:
-        print(f'FAIL: {len(issues)} Chinese structure/fixed-language mismatch(es) found:')
-        for issue in issues: print(f'  {args.target}:{issue.line}: [{issue.rule}] {issue.message}')
+        print(f"FAIL: {len(issues)} Chinese structure/fixed-language mismatch(es) found:")
+        for issue in issues:
+            print(f"  {target}:{issue.line}: [{issue.rule}] {issue.message}")
         return 1
-    if args.verbose: print(f'English source validated with current canonical validator: {args.source}')
-    print('PASS: canonical Chinese structure and fixed-language checks passed')
+    if verbose:
+        print(f"English source validated with current canonical validator: {source}")
+    print("PASS: canonical Chinese structure and fixed-language checks passed")
     return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("categories", nargs="*", help="Level-3 categories to validate")
+    parser.add_argument(
+        "--files", nargs="+", type=Path, help="specific English Level-3 files to validate"
+    )
+    parser.add_argument(
+        "--wiki-dir",
+        type=Path,
+        default=Path("external/vulkancts/wiki"),
+        help="canonical English Wiki root",
+    )
+    parser.add_argument(
+        "--target-dir",
+        type=Path,
+        default=Path("vkcts-wiki-pages/categories"),
+        help="published Chinese Level-3 category root",
+    )
+    # Backward-compatible one-pair mode used by existing publisher workers.
+    parser.add_argument("--source", type=Path)
+    parser.add_argument("--target", type=Path)
+    parser.add_argument("--verbose", "-v", action="store_true")
+    args = parser.parse_args()
+
+    if args.source is not None or args.target is not None:
+        if args.source is None or args.target is None:
+            parser.error("--source and --target must be used together")
+        if args.categories or args.files:
+            parser.error("legacy --source/--target mode cannot be combined with categories or --files")
+        return _run_legacy_pair(args.source, args.target, args.verbose)
+
+    if not args.categories and not args.files:
+        parser.error("provide at least one category or --files")
+    if args.categories and args.files:
+        parser.error("use categories or --files, not both")
+
+    selected: list[tuple[str, Path, Path]] = []
+    try:
+        if args.files:
+            for source in args.files:
+                if not source.is_file():
+                    raise FileNotFoundError(f"file not found: {source}")
+                category = _category_for_explicit_page(args.wiki_dir, source)
+                target = args.target_dir / category / source.name
+                if not target.is_file():
+                    raise FileNotFoundError(f"translated page not found: {target}")
+                selected.append((category, source, target))
+        else:
+            for category in args.categories:
+                selected.extend(
+                    (category, source, target)
+                    for source, target in discover_category_pairs(
+                        args.wiki_dir, args.target_dir, category
+                    )
+                )
+    except (FileNotFoundError, ValueError) as error:
+        print(f"Error: {error}", file=sys.stderr)
+        return 2
+
+    results = [
+        validate_translation(source, target)
+        for _category, source, target in selected
+    ]
+    category_order = (
+        list(args.categories)
+        if args.categories
+        else [category for category, _source, _target in selected]
+    )
+    return _print_results(selected, results, args.wiki_dir, category_order)
 
 
 if __name__=='__main__':

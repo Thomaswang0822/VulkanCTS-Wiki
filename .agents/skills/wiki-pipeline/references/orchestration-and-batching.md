@@ -52,9 +52,9 @@ pre-existing work), and continue into audit without stopping.
 6. Retry failed pages individually.
 7. Reconcile recurring patterns, audit the rest of Level-2, rerun category-scoped English structure, registration hierarchy, and
    wiki-link validation, and finalize the summary.
-8. **Hard stop 2:** stop before any publish translation or link conversion and ask the user to review and approve the complete audit result.
+8. **Hard stop 2:** stop before any Chinese publish-target translation or link conversion and ask the user to review and approve the complete audit result.
 
-## Publish phase
+## Local publish-target phase
 
 1. Confirm every English page is audit-stable.
 2. Dispatch one translation worker per Level-3 page and one worker for the Level-2 page.
@@ -64,6 +64,7 @@ pre-existing work), and continue into audit without stopping.
 5. After all translations pass, run link conversion per file.
 6. Run link-conversion check mode to prove idempotency.
 7. Run final category checks.
+8. Leave the Chinese target files as local working-tree changes. Do not stage, commit, or push either repository.
 
 ## Phase barriers
 
@@ -76,10 +77,11 @@ Do not cross a barrier until its condition is true:
 - **Audit barrier:** every Level-3 page and Level-2 page has an audit outcome; repaired Level-3 pages and the category pass English
   structure, registration hierarchy, and wiki-link gates; summary is final.
 - **Publish-approval barrier:** the user has explicitly approved the completed audit result.
-- **Publish barrier:** every translation exists and contains target-language text; every Level-3 source/target pair passes the
-  canonical Chinese structure/fixed-language validator; audited English sources remain unchanged.
-- **Lookup barrier:** after publish, `db-lookup-updater` completes the isolated category build and full supervised build; mustpass
+- **Publish-target barrier:** every local translation exists and contains target-language text; every Level-3 source/target pair passes
+  the canonical Chinese structure/fixed-language validator; audited English sources remain unchanged; neither repository was staged,
+  committed, or pushed during this phase.
+- **Lookup barrier:** after local publish-target preparation, `db-lookup-updater` completes the isolated category build and full supervised build; mustpass
   runtime coverage and tests pass; tracked `site/mappings.json` is reviewed. Any English ownership repair is revalidated and its
-  Chinese page is republished/reconverted before rebuilding lookup.
-- **Completion barrier:** publication and lookup barriers pass, conversion is idempotent after any repair loop, the checklist is
+  local Chinese page is regenerated/reconverted before rebuilding lookup.
+- **Completion barrier:** publish-target and lookup barriers pass, conversion is idempotent after any repair loop, the checklist is
   correct, counts are reconciled, and safety checks pass.

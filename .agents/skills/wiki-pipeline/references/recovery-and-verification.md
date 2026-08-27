@@ -8,7 +8,7 @@ Treat worker summaries as claims to verify. For each assigned page, independentl
 - it is the assigned page and phase output;
 - the worker stayed within its write scope;
 - required page and category validators pass;
-- translation output contains CJK text during publish;
+- translation output contains CJK text during local publish-target preparation;
 - protected paths/identifiers and canonical English sources remain intact;
 - the Git index has not changed.
 
@@ -59,7 +59,7 @@ For every Level-3 rewrite:
 - a no-walkthrough page has source-reviewed justification and an approved entry in `walkthrough_exceptions.py`; a worker has not
   added an exception merely to silence validation;
 - required English language-quality passes were applied by the page worker;
-- no forbidden publication output was written.
+- no forbidden publish-target output was written.
 
 For Level-2:
 
@@ -89,17 +89,18 @@ Before conversion:
 - validator output confirms the English source itself is canonical before accepting the Chinese result;
 - no worker ran link conversion early;
 - English sources and internal briefs are unchanged.
-- audited English source hashes/diffs remain unchanged throughout publish.
+- audited English source hashes/diffs remain unchanged throughout local publish-target preparation.
 
 After conversion:
 
-- converter succeeds separately for every published page;
+- converter succeeds separately for every prepared Chinese target page;
 - check mode reports no remaining changes;
-- source-code and mustpass links resolve to the expected publication URLs without translated path segments.
+- source-code and mustpass links have the expected publication URL forms without translated path segments;
+- the Chinese target files remain local working-tree changes, and neither repository was staged, committed, or pushed.
 
 ## Lookup DB checks
 
-After publish verification, run `db-lookup-updater` and confirm:
+After local publish-target verification, run `db-lookup-updater` and confirm:
 
 - the category is enabled with exact mustpass inputs;
 - isolated category ownership build passes without aliases or generic fallback;
@@ -108,8 +109,8 @@ After publish verification, run `db-lookup-updater` and confirm:
 - unit tests, Python compile, runtime mustpass coverage, and `git diff --check` pass;
 - ignored SQLite intermediates are not staged or committed.
 
-If lookup diagnosis repairs an English page, the previous publish verification for that page is invalidated. Re-run its three English
-validators, translate/publish the delta or clean page through the one-page publisher, reconvert links, rerun the Chinese validator,
+If lookup diagnosis repairs an English page, the previous publish-target verification for that page is invalidated. Re-run its three English
+validators, regenerate the local Chinese page through the one-page publisher, reconvert links, rerun the Chinese validator,
 and only then accept the rebuilt runtime JSON. This bounded repair loop adds no user hard stop.
 
 ## Checklist reconciliation
@@ -128,4 +129,4 @@ After rewrite and Level-2 synthesis validate, the lead agent stages the paths pr
 
 ## Repository safety
 
-Before final reporting, compare Git status and index state with the initial state. The pipeline's explicit rewrite staging checkpoint authorizes staging rewrite-produced paths only; do not stage unrelated work. Never unstage, restore, commit, push, or rewrite history unless separately authorized. Report any unauthorized-path write instead of silently deleting or repairing it.
+Before final reporting, compare Git status and index state with the initial state. The pipeline's explicit rewrite staging checkpoint authorizes `git add` for rewrite-produced paths only; do not stage unrelated work or any Chinese publish-target path. Never commit or push. Do not unstage, restore, or rewrite history unless separately authorized. Report any unauthorized-path write instead of silently deleting or repairing it.

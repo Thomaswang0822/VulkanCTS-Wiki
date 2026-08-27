@@ -9,7 +9,7 @@ Use this compact structure. Replace every count with independently verified file
 - Level-3 rewritten: <N>
 - Level-2 rewritten: <N>
 - Understanding Briefs: <N>
-- Chinese pages published: <N>
+- Chinese publish-target pages prepared: <N>
 
 ### Rewrite
 - Outline: <path and approval status>
@@ -29,11 +29,12 @@ Use this compact structure. Replace every count with independently verified file
 - Post-audit registration hierarchy: <result>
 - Post-audit wiki links: <result>
 
-### Publish
+### Local publish target
 - Chinese structure/fixed-language validation: <N>/<N> Level-3 source/target pairs
 - Target-language check: <result>
 - Link conversion: <N>/<N>
 - Idempotency: <result>
+- Git state: local working-tree changes only; no stage/commit/push
 - Checklist: <result and updated totals>
 
 ### Lookup DB
@@ -42,11 +43,12 @@ Use this compact structure. Replace every count with independently verified file
 - Mustpass runtime coverage: <passed>/<total>
 - Lookup tests: <result>
 - Tracked mappings JSON: <reviewed delta/result>
-- Post-publish ownership repair loop: <affected pages or none; republish result>
+- Post-preparation ownership repair loop: <affected pages or none; local regeneration result>
 
 ### Safety
-- Audited English pages during publish: unchanged
+- Audited English pages during publish-target preparation: unchanged
 - Git index: unchanged
+- Git commit/push: not performed
 - Unauthorized paths: none, or describe and escalate
 
 ### Recovery

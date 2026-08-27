@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -361,6 +362,143 @@ class TranslationStructureValidatorTests(unittest.TestCase):
             )
         self.assertEqual(english_issues, [])
         self.assertIn("translated-multishader-h5", {issue.rule for issue in issues})
+
+
+class TranslationStructureValidatorCliTests(unittest.TestCase):
+    def run_cli(self, *arguments: str) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            [sys.executable, str(SCRIPT), *arguments],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+    def test_accepts_multiple_categories_and_matches_english_summary_output(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            wiki_dir = root / "english"
+            target_dir = root / "chinese"
+            for category in ("api", "compute"):
+                source = wiki_dir / "testfiles" / category / "Sample.md"
+                target = target_dir / category / "Sample.md"
+                source.parent.mkdir(parents=True)
+                target.parent.mkdir(parents=True)
+                source.write_text(ENGLISH_PAGE, encoding="utf-8")
+                target.write_text(CHINESE_PAGE, encoding="utf-8")
+
+            result = self.run_cli(
+                "api",
+                "compute",
+                "--wiki-dir",
+                str(wiki_dir),
+                "--target-dir",
+                str(target_dir),
+            )
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn(f"PASS {wiki_dir / 'testfiles' / 'api'}", result.stdout)
+        self.assertIn(f"PASS {wiki_dir / 'testfiles' / 'compute'}", result.stdout)
+        self.assertIn("Total checked category count 2, page count 2.", result.stdout)
+        self.assertIn(
+            "Failure category count 0, page count 0, finding count 0.",
+            result.stdout,
+        )
+
+    def test_reports_category_page_and_findings_like_english_validator(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            wiki_dir = root / "english"
+            target_dir = root / "chinese"
+            source = wiki_dir / "testfiles" / "api" / "Sample.md"
+            target = target_dir / "api" / "Sample.md"
+            source.parent.mkdir(parents=True)
+            target.parent.mkdir(parents=True)
+            source.write_text(ENGLISH_PAGE, encoding="utf-8")
+            target.write_text(
+                CHINESE_PAGE.replace("## 要点总结", "## 要点"),
+                encoding="utf-8",
+            )
+
+            result = self.run_cli(
+                "api",
+                "--wiki-dir",
+                str(wiki_dir),
+                "--target-dir",
+                str(target_dir),
+            )
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn(f"FAIL {wiki_dir / 'testfiles' / 'api'}", result.stdout)
+        self.assertIn("     Sample.md:", result.stdout)
+        self.assertIn("     - [translated-section-contract]", result.stdout)
+        self.assertIn("Total checked category count 1, page count 1.", result.stdout)
+        self.assertIn(
+            "Failure category count 1, page count 1, finding count 1.",
+            result.stdout,
+        )
+
+    def test_files_mode_infers_matching_chinese_target(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            wiki_dir = root / "english"
+            target_dir = root / "chinese"
+            source = wiki_dir / "testfiles" / "api" / "Sample.md"
+            target = target_dir / "api" / "Sample.md"
+            source.parent.mkdir(parents=True)
+            target.parent.mkdir(parents=True)
+            source.write_text(ENGLISH_PAGE, encoding="utf-8")
+            target.write_text(CHINESE_PAGE, encoding="utf-8")
+
+            result = self.run_cli(
+                "--files",
+                str(source),
+                "--wiki-dir",
+                str(wiki_dir),
+                "--target-dir",
+                str(target_dir),
+            )
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn(f"PASS {wiki_dir / 'testfiles' / 'api'}", result.stdout)
+        self.assertIn("Total checked category count 1, page count 1.", result.stdout)
+
+    def test_reports_empty_category_without_treating_it_as_an_invocation_error(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            wiki_dir = root / "english"
+            target_dir = root / "chinese"
+            (wiki_dir / "testfiles" / "empty").mkdir(parents=True)
+            (target_dir / "empty").mkdir(parents=True)
+
+            result = self.run_cli(
+                "empty",
+                "--wiki-dir",
+                str(wiki_dir),
+                "--target-dir",
+                str(target_dir),
+            )
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn(f"PASS {wiki_dir / 'testfiles' / 'empty'}", result.stdout)
+        self.assertIn("Total checked category count 1, page count 0.", result.stdout)
+
+    def test_rejects_unknown_category_with_input_error(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            wiki_dir = root / "english"
+            target_dir = root / "chinese"
+            (wiki_dir / "testfiles").mkdir(parents=True)
+
+            result = self.run_cli(
+                "missing",
+                "--wiki-dir",
+                str(wiki_dir),
+                "--target-dir",
+                str(target_dir),
+            )
+
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("Error: category directory not found:", result.stderr)
 
 
 if __name__ == "__main__":
