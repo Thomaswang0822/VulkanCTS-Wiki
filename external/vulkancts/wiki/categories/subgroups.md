@@ -1,10 +1,16 @@
-# subgroups
-
 ## Overview
 
-The `subgroups` category documents Vulkan subgroup built-ins and subgroup operations across compute, graphics/framebuffer, mesh, and ray-tracing execution paths. The category is rooted in [`vktSubgroupsTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L25-L47), which includes the registering subgroup files and attaches the verified child groups in [`createChildren()`](../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L55-L82).
+The `subgroups` test category collects tests that check subgroup built-ins, collective operations, data exchange, execution control, and subgroup-aware resource access across Vulkan shader stages.
 
-## Registration Entry Point
+## Background Knowledge
+
+- **Subgroup identity and active invocations.** A subgroup is an implementation-defined set of shader invocations that can perform subgroup operations together. Each invocation has a subgroup-local ID, and each operation observes the invocations that are active when it executes.
+- **Ballots and masks.** A ballot represents a Boolean contribution from each participating invocation as a bit mask. CTS uses ballots both as results under test and as reference data for determining which invocation IDs should contribute to another subgroup operation.
+- **Collective result shapes.** Election chooses one active invocation. Votes combine Boolean conditions. Reductions combine all selected values, while inclusive and exclusive scans combine ordered prefixes. Shuffle and broadcast operations move one invocation's value to others.
+- **Quad and clustered partitions.** Quad operations use quad scope instances associated with four subgroup invocations; the exact grouping depends on the shader execution model, and many tested non-fragment paths expose consecutive groups of four subgroup-local IDs. Clustered operations divide a subgroup into consecutive power-of-two partitions and compute a result inside each partition.
+- **Subgroup-size control.** An implementation reports supported subgroup sizes and stages. Eligible pipelines can request a power-of-two subgroup size and, for selected stages, full subgroups in which all launched invocations are active.
+
+## Category Structure
 
 ```text
 subgroups
@@ -17,97 +23,50 @@ subgroups
 ├── ballot_other
 ├── arithmetic
 ├── clustered
-├── partitioned (non-VulkanSC only)
+├── partitioned
 ├── shuffle
 ├── quad
 ├── shape
 ├── ballot_mask
 ├── multiple_dispatches
 ├── size_control
-├── subgroup_uniform_control_flow (non-VulkanSC only)
-├── uniform_descriptor_indexing (non-VulkanSC only)
-└── shader_quad_control (non-VulkanSC only)
+├── subgroup_uniform_control_flow
+├── uniform_descriptor_indexing
+└── shader_quad_control
 ```
 
-## File Inventory
+The dispatcher registers all 19 test families. `partitioned`, `subgroup_uniform_control_flow`, `uniform_descriptor_indexing`, and `shader_quad_control` are omitted from Vulkan SC builds by the registration guards in [`vktSubgroupsTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L40-L46) and [`createChildren()`](../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L68-L81).
 
-| File | Role | Notes | Level-3 |
-|---|---|---|---|
-| [`vktSubgroupsTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L1) | Registration | Top-level dispatcher | [`vktSubgroupsTests.md`](../testfiles/subgroups/vktSubgroupsTests.md) |
-| [`vktSubgroupsBuiltinVarTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsBuiltinVarTests.cpp#L1) | Implementation | Registers `builtin_var` | [`vktSubgroupsBuiltinVarTests.md`](../testfiles/subgroups/vktSubgroupsBuiltinVarTests.md) |
-| [`vktSubgroupsBuiltinMaskVarTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsBuiltinMaskVarTests.cpp#L1) | Implementation | Registers `builtin_mask_var` | [`vktSubgroupsBuiltinMaskVarTests.md`](../testfiles/subgroups/vktSubgroupsBuiltinMaskVarTests.md) |
-| [`vktSubgroupsBasicTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsBasicTests.cpp#L1) | Implementation | Registers `basic` | [`vktSubgroupsBasicTests.md`](../testfiles/subgroups/vktSubgroupsBasicTests.md) |
-| [`vktSubgroupsVoteTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsVoteTests.cpp#L1) | Implementation | Registers `vote` | [`vktSubgroupsVoteTests.md`](../testfiles/subgroups/vktSubgroupsVoteTests.md) |
-| [`vktSubgroupsBallotTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L1) | Implementation | Registers `ballot` | [`vktSubgroupsBallotTests.md`](../testfiles/subgroups/vktSubgroupsBallotTests.md) |
-| [`vktSubgroupsBallotBroadcastTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsBallotBroadcastTests.cpp#L1) | Implementation | Registers `ballot_broadcast` | [`vktSubgroupsBallotBroadcastTests.md`](../testfiles/subgroups/vktSubgroupsBallotBroadcastTests.md) |
-| [`vktSubgroupsBallotOtherTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsBallotOtherTests.cpp#L1) | Implementation | Registers `ballot_other` | [`vktSubgroupsBallotOtherTests.md`](../testfiles/subgroups/vktSubgroupsBallotOtherTests.md) |
-| [`vktSubgroupsArithmeticTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsArithmeticTests.cpp#L1) | Implementation | Registers `arithmetic` | [`vktSubgroupsArithmeticTests.md`](../testfiles/subgroups/vktSubgroupsArithmeticTests.md) |
-| [`vktSubgroupsClusteredTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L1) | Implementation | Registers `clustered` | [`vktSubgroupsClusteredTests.md`](../testfiles/subgroups/vktSubgroupsClusteredTests.md) |
-| [`vktSubgroupsPartitionedTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsPartitionedTests.cpp#L1) | Implementation | Registers `partitioned` | [`vktSubgroupsPartitionedTests.md`](../testfiles/subgroups/vktSubgroupsPartitionedTests.md) |
-| [`vktSubgroupsShuffleTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsShuffleTests.cpp#L1) | Implementation | Registers `shuffle` | [`vktSubgroupsShuffleTests.md`](../testfiles/subgroups/vktSubgroupsShuffleTests.md) |
-| [`vktSubgroupsQuadTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsQuadTests.cpp#L1) | Implementation | Registers `quad` | [`vktSubgroupsQuadTests.md`](../testfiles/subgroups/vktSubgroupsQuadTests.md) |
-| [`vktSubgroupsShapeTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsShapeTests.cpp#L1) | Implementation | Registers `shape` | [`vktSubgroupsShapeTests.md`](../testfiles/subgroups/vktSubgroupsShapeTests.md) |
-| [`vktSubgroupsBallotMasksTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsBallotMasksTests.cpp#L1) | Implementation | Registers `ballot_mask` | [`vktSubgroupsBallotMasksTests.md`](../testfiles/subgroups/vktSubgroupsBallotMasksTests.md) |
-| [`vktSubgroupsMultipleDispatchesUniformSubgroupSizeTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsMultipleDispatchesUniformSubgroupSizeTests.cpp#L1) | Implementation | Registers `multiple_dispatches` | [`vktSubgroupsMultipleDispatchesUniformSubgroupSizeTests.md`](../testfiles/subgroups/vktSubgroupsMultipleDispatchesUniformSubgroupSizeTests.md) |
-| [`vktSubgroupsSizeControlTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsSizeControlTests.cpp#L1) | Implementation | Registers `size_control` | [`vktSubgroupsSizeControlTests.md`](../testfiles/subgroups/vktSubgroupsSizeControlTests.md) |
-| [`vktSubgroupUniformControlFlowTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupUniformControlFlowTests.cpp#L1) | Implementation | Registers `subgroup_uniform_control_flow` | [`vktSubgroupUniformControlFlowTests.md`](../testfiles/subgroups/vktSubgroupUniformControlFlowTests.md) |
-| [`vktSubgroupsUniformDescriptorIndexingTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsUniformDescriptorIndexingTests.cpp#L1) | Implementation | Registers `uniform_descriptor_indexing` | [`vktSubgroupsUniformDescriptorIndexingTests.md`](../testfiles/subgroups/vktSubgroupsUniformDescriptorIndexingTests.md) |
-| [`vktSubgroupsQuadControlTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L1) | Implementation | Registers `shader_quad_control` | [`vktSubgroupsQuadControlTests.md`](../testfiles/subgroups/vktSubgroupsQuadControlTests.md) |
-| [`vktSubgroupsTestsUtils.cpp`](../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1) | Helper | Shared execution and verification helpers; no direct test registration page | — |
-| [`vktSubgroupsScanHelpers.cpp`](../../modules/vulkan/subgroups/vktSubgroupsScanHelpers.cpp#L1) | Helper | Shared scan/reference support; no direct test registration page | — |
+## How the Families Fit Together
 
-## Level-3 Documents
+The families divide subgroup conformance by the kind of value or execution property being observed.
 
-| Source file | Wiki document |
-|---|---|
-| [`vktSubgroupsTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L1) | [`vktSubgroupsTests.md`](../testfiles/subgroups/vktSubgroupsTests.md) |
-| [`vktSubgroupsBuiltinVarTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsBuiltinVarTests.cpp#L1) | [`vktSubgroupsBuiltinVarTests.md`](../testfiles/subgroups/vktSubgroupsBuiltinVarTests.md) |
-| [`vktSubgroupsBuiltinMaskVarTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsBuiltinMaskVarTests.cpp#L1) | [`vktSubgroupsBuiltinMaskVarTests.md`](../testfiles/subgroups/vktSubgroupsBuiltinMaskVarTests.md) |
-| [`vktSubgroupsBasicTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsBasicTests.cpp#L1) | [`vktSubgroupsBasicTests.md`](../testfiles/subgroups/vktSubgroupsBasicTests.md) |
-| [`vktSubgroupsVoteTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsVoteTests.cpp#L1) | [`vktSubgroupsVoteTests.md`](../testfiles/subgroups/vktSubgroupsVoteTests.md) |
-| [`vktSubgroupsBallotTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L1) | [`vktSubgroupsBallotTests.md`](../testfiles/subgroups/vktSubgroupsBallotTests.md) |
-| [`vktSubgroupsBallotBroadcastTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsBallotBroadcastTests.cpp#L1) | [`vktSubgroupsBallotBroadcastTests.md`](../testfiles/subgroups/vktSubgroupsBallotBroadcastTests.md) |
-| [`vktSubgroupsBallotOtherTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsBallotOtherTests.cpp#L1) | [`vktSubgroupsBallotOtherTests.md`](../testfiles/subgroups/vktSubgroupsBallotOtherTests.md) |
-| [`vktSubgroupsArithmeticTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsArithmeticTests.cpp#L1) | [`vktSubgroupsArithmeticTests.md`](../testfiles/subgroups/vktSubgroupsArithmeticTests.md) |
-| [`vktSubgroupsClusteredTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L1) | [`vktSubgroupsClusteredTests.md`](../testfiles/subgroups/vktSubgroupsClusteredTests.md) |
-| [`vktSubgroupsPartitionedTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsPartitionedTests.cpp#L1) | [`vktSubgroupsPartitionedTests.md`](../testfiles/subgroups/vktSubgroupsPartitionedTests.md) |
-| [`vktSubgroupsShuffleTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsShuffleTests.cpp#L1) | [`vktSubgroupsShuffleTests.md`](../testfiles/subgroups/vktSubgroupsShuffleTests.md) |
-| [`vktSubgroupsQuadTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsQuadTests.cpp#L1) | [`vktSubgroupsQuadTests.md`](../testfiles/subgroups/vktSubgroupsQuadTests.md) |
-| [`vktSubgroupsShapeTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsShapeTests.cpp#L1) | [`vktSubgroupsShapeTests.md`](../testfiles/subgroups/vktSubgroupsShapeTests.md) |
-| [`vktSubgroupsBallotMasksTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsBallotMasksTests.cpp#L1) | [`vktSubgroupsBallotMasksTests.md`](../testfiles/subgroups/vktSubgroupsBallotMasksTests.md) |
-| [`vktSubgroupsMultipleDispatchesUniformSubgroupSizeTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsMultipleDispatchesUniformSubgroupSizeTests.cpp#L1) | [`vktSubgroupsMultipleDispatchesUniformSubgroupSizeTests.md`](../testfiles/subgroups/vktSubgroupsMultipleDispatchesUniformSubgroupSizeTests.md) |
-| [`vktSubgroupsSizeControlTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsSizeControlTests.cpp#L1) | [`vktSubgroupsSizeControlTests.md`](../testfiles/subgroups/vktSubgroupsSizeControlTests.md) |
-| [`vktSubgroupUniformControlFlowTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupUniformControlFlowTests.cpp#L1) | [`vktSubgroupUniformControlFlowTests.md`](../testfiles/subgroups/vktSubgroupUniformControlFlowTests.md) |
-| [`vktSubgroupsUniformDescriptorIndexingTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsUniformDescriptorIndexingTests.cpp#L1) | [`vktSubgroupsUniformDescriptorIndexingTests.md`](../testfiles/subgroups/vktSubgroupsUniformDescriptorIndexingTests.md) |
-| [`vktSubgroupsQuadControlTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L1) | [`vktSubgroupsQuadControlTests.md`](../testfiles/subgroups/vktSubgroupsQuadControlTests.md) |
+- The built-in, vote, ballot, arithmetic, shuffle, quad, and shape families check shader-visible subgroup state and collective operations.
+- `basic`, `size_control`, `multiple_dispatches`, `subgroup_uniform_control_flow`, and `shader_quad_control` check synchronization or execution conditions that affect subgroup participation and size.
+- `partitioned` and `clustered` restrict collective arithmetic to selected invocation sets, while `uniform_descriptor_indexing` uses subgroup-uniform values to select descriptor-array elements.
 
-## Subgroup Structure and Major Themes
+The navigation below describes test intent. A family page may also document deliberate coverage limits or a source-side support-gating defect found during audit; those notes belong to the exact implementation path and do not redefine Vulkan requirements for the category as a whole.
 
-- Built-in variable coverage is split into [`builtin_var`](../../modules/vulkan/subgroups/vktSubgroupsBuiltinVarTests.cpp#L1948) and [`builtin_mask_var`](../../modules/vulkan/subgroups/vktSubgroupsBuiltinMaskVarTests.cpp#L1337).
-- Core operation families include [`basic`](../../modules/vulkan/subgroups/vktSubgroupsBasicTests.cpp#L2198), [`vote`](../../modules/vulkan/subgroups/vktSubgroupsVoteTests.cpp#L547), [`ballot`](../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L1021), [`arithmetic`](../../modules/vulkan/subgroups/vktSubgroupsArithmeticTests.cpp#L477), [`clustered`](../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L386), [`shuffle`](../../modules/vulkan/subgroups/vktSubgroupsShuffleTests.cpp#L663), [`quad`](../../modules/vulkan/subgroups/vktSubgroupsQuadTests.cpp#L414), and [`shape`](../../modules/vulkan/subgroups/vktSubgroupsShapeTests.cpp#L391).
-- Extension or specialized branches include [`partitioned`](../../modules/vulkan/subgroups/vktSubgroupsPartitionedTests.cpp#L528), [`ballot_mask`](../../modules/vulkan/subgroups/vktSubgroupsBallotMasksTests.cpp#L1417), [`size_control`](../../modules/vulkan/subgroups/vktSubgroupsSizeControlTests.cpp#L1015), [`subgroup_uniform_control_flow`](../../modules/vulkan/subgroups/vktSubgroupUniformControlFlowTests.cpp#L224), [`uniform_descriptor_indexing`](../../modules/vulkan/subgroups/vktSubgroupsUniformDescriptorIndexingTests.cpp#L827), and [`shader_quad_control`](../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L807).
+## Level-3 Pages Navigation
 
-## Recurring Parameter Dimensions
-
-| Dimension | Observed examples |
-|---|---|
-| Operation family | Operation enums such as vote, ballot, arithmetic, clustered, shuffle, quad, and shape operation types in the individual files |
-| Shader stage family | Direct child groups repeatedly divide coverage into `graphics`, `compute`, `framebuffer`, `ray_tracing`, and `mesh`, for example in [`arithmetic`](../../modules/vulkan/subgroups/vktSubgroupsArithmeticTests.cpp#L477-L484) |
-| Data format and input layout | Generated test names combine operation names with formats, input SSBO/image data, and helper layouts, with shared input descriptors defined by [`SSBOData`](../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.hpp#L75-L121) |
-| Required subgroup size | Many compute/mesh paths iterate min-to-max power-of-two required subgroup sizes; [`size_control`](../../modules/vulkan/subgroups/vktSubgroupsSizeControlTests.cpp#L44-L86) makes this the central parameter |
-| Extension variant | Vote and ballot files add nested legacy extension groups such as [`ext_shader_subgroup_vote`](../../modules/vulkan/subgroups/vktSubgroupsVoteTests.cpp#L558-L565) and [`ext_shader_subgroup_ballot`](../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L1030-L1033) |
-| External data | Uniform-control-flow tests load Amber case groups from large/small/control/discard directories in [`vktSubgroupUniformControlFlowTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupUniformControlFlowTests.cpp#L227-L249) |
-
-## Recurring Support Requirements
-
-The common baseline is subgroup support, checked through local calls to [`isSubgroupSupported()`](../../modules/vulkan/subgroups/vktSubgroupsArithmeticTests.cpp#L279-L285) and related helpers. Operation families then require their feature bits, such as arithmetic, ballot, clustered, shuffle, quad, vote, or partitioned support. Cross-stage branches check shader-stage support and optional ray-tracing or mesh requirements, while size-control paths require `VK_EXT_subgroup_size_control` and validate required-size stage support in [`supportedCheckFeatures()`](../../modules/vulkan/subgroups/vktSubgroupsSizeControlTests.cpp#L514-L570).
-
-## Recurring Verification Methods
-
-Most operation files generate shaders, execute them through framebuffer or compute-like helpers, read back result storage, and call local callbacks. The shared callback signatures carry `subgroupSize` and dimensions through [`CheckResult` declarations](../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.hpp#L58-L63), and common helpers turn callback failures into CTS failures in [`vktSubgroupsTestsUtils.cpp`](../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2622-L2637). Specialized branches add image/color classification for uniform descriptor indexing in [`iterate()`](../../modules/vulkan/subgroups/vktSubgroupsUniformDescriptorIndexingTests.cpp#L366-L377), output correctness checks for shader quad control in [`iterate()`](../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L331-L336), and subgroup-size property/range checks in [`vktSubgroupsSizeControlTests.cpp`](../../modules/vulkan/subgroups/vktSubgroupsSizeControlTests.cpp#L974-L1005).
-
-
-## Notes / Uncertainties
-
-- Level-3 pages are created only for files that register tests. Helper files such as [`vktSubgroupsTestsUtils.cpp`](../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1) and [`vktSubgroupsScanHelpers.cpp`](../../modules/vulkan/subgroups/vktSubgroupsScanHelpers.cpp#L1) are documented as support files only.
-- Generated leaf matrices are large; the parseable trees list direct children and the prose summarizes deeper generated leaves.
+| Registered test family or area | Level-3 page | What to read there |
+|--------------------------------|--------------|--------------------|
+| `builtin_var` | [BuiltinVar.md](../testfiles/subgroups/BuiltinVar.md) | Subgroup size, invocation, subgroup, and workgroup built-ins. |
+| `builtin_mask_var` | [BuiltinMaskVar.md](../testfiles/subgroups/BuiltinMaskVar.md) | Relational subgroup masks and ray-tracing repacking. |
+| `basic` | [Basic.md](../testfiles/subgroups/Basic.md) | Election, barriers, memory semantics, and required subgroup-size variants. |
+| `vote` | [Vote.md](../testfiles/subgroups/Vote.md) | All, any, and all-equal vote operations. |
+| `ballot` | [Ballot.md](../testfiles/subgroups/Ballot.md) | Core and legacy ballot-mask generation. |
+| `ballot_broadcast` | [BallotBroadcast.md](../testfiles/subgroups/BallotBroadcast.md) | Broadcast by invocation ID and broadcast-first behavior. |
+| `ballot_other` | [BallotOther.md](../testfiles/subgroups/BallotOther.md) | Ballot tests, bit counts, prefix counts, and set-bit searches. |
+| `arithmetic` | [Arithmetic.md](../testfiles/subgroups/Arithmetic.md) | Subgroup reductions and inclusive or exclusive scans. |
+| `clustered` | [Clustered.md](../testfiles/subgroups/Clustered.md) | Arithmetic within consecutive power-of-two clusters. |
+| `partitioned` | [Partitioned.md](../testfiles/subgroups/Partitioned.md) | `VK_NV_shader_subgroup_partitioned` masks, reductions, and scans. |
+| `shuffle` | [Shuffle.md](../testfiles/subgroups/Shuffle.md) | Shuffle, XOR, up, down, rotate, and clustered-rotate data exchange. |
+| `quad` | [Quad.md](../testfiles/subgroups/Quad.md) | Values exchanged within four-invocation quads. |
+| `shape` | [Shape.md](../testfiles/subgroups/Shape.md) | Membership rules for clustered and quad operation shapes. |
+| `ballot_mask` | [BallotMasks.md](../testfiles/subgroups/BallotMasks.md) | Legacy equality and relational ballot-mask built-ins. |
+| `multiple_dispatches` | [MultipleDispatchesUniformSubgroupSize.md](../testfiles/subgroups/MultipleDispatchesUniformSubgroupSize.md) | Subgroup-size uniformity within each compute dispatch. |
+| `size_control` | [SizeControl.md](../testfiles/subgroups/SizeControl.md) | Advertised, required, varying, and full subgroup sizes. |
+| `subgroup_uniform_control_flow` | [UniformControlFlow.md](../testfiles/subgroups/UniformControlFlow.md) | Amber reconvergence cases for full, partial, controlled, and discard variants. |
+| `uniform_descriptor_indexing` | [UniformDescriptorIndexing.md](../testfiles/subgroups/UniformDescriptorIndexing.md) | Subgroup-uniform indexing across nine descriptor classes. |
+| `shader_quad_control` | [QuadControl.md](../testfiles/subgroups/QuadControl.md) | Quad derivatives, full quads, divergence, and terminated invocations. |

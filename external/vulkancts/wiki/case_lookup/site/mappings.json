@@ -1,6 +1,6 @@
 {
-  "category_count": 32,
-  "mapping_count": 10188,
+  "category_count": 33,
+  "mapping_count": 10287,
   "mappings": {
     "dEQP-VK.api.buffer.basic": [
       "Buffer",
@@ -46661,6 +46661,501 @@
       "SSBOLayoutNestedUnsizedArraysTests",
       "ssbo",
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/ssbo/SSBOLayoutNestedUnsizedArraysTests"
+    ],
+    "dEQP-VK.subgroups.arithmetic.compute": [
+      "Arithmetic",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Arithmetic"
+    ],
+    "dEQP-VK.subgroups.arithmetic.framebuffer": [
+      "Arithmetic",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Arithmetic"
+    ],
+    "dEQP-VK.subgroups.arithmetic.graphics": [
+      "Arithmetic",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Arithmetic"
+    ],
+    "dEQP-VK.subgroups.arithmetic.mesh": [
+      "Arithmetic",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Arithmetic"
+    ],
+    "dEQP-VK.subgroups.arithmetic.ray_tracing": [
+      "Arithmetic",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Arithmetic"
+    ],
+    "dEQP-VK.subgroups.ballot.compute": [
+      "Ballot",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Ballot"
+    ],
+    "dEQP-VK.subgroups.ballot.ext_shader_subgroup_ballot": [
+      "Ballot",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Ballot"
+    ],
+    "dEQP-VK.subgroups.ballot.framebuffer": [
+      "Ballot",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Ballot"
+    ],
+    "dEQP-VK.subgroups.ballot.graphics": [
+      "Ballot",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Ballot"
+    ],
+    "dEQP-VK.subgroups.ballot.mesh": [
+      "Ballot",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Ballot"
+    ],
+    "dEQP-VK.subgroups.ballot.ray_tracing": [
+      "Ballot",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Ballot"
+    ],
+    "dEQP-VK.subgroups.ballot_broadcast.compute": [
+      "BallotBroadcast",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BallotBroadcast"
+    ],
+    "dEQP-VK.subgroups.ballot_broadcast.ext_shader_subgroup_ballot": [
+      "BallotBroadcast",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BallotBroadcast"
+    ],
+    "dEQP-VK.subgroups.ballot_broadcast.framebuffer": [
+      "BallotBroadcast",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BallotBroadcast"
+    ],
+    "dEQP-VK.subgroups.ballot_broadcast.graphics": [
+      "BallotBroadcast",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BallotBroadcast"
+    ],
+    "dEQP-VK.subgroups.ballot_broadcast.mesh": [
+      "BallotBroadcast",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BallotBroadcast"
+    ],
+    "dEQP-VK.subgroups.ballot_broadcast.ray_tracing": [
+      "BallotBroadcast",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BallotBroadcast"
+    ],
+    "dEQP-VK.subgroups.ballot_mask.ext_shader_subgroup_ballot.compute": [
+      "BallotMasks",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BallotMasks"
+    ],
+    "dEQP-VK.subgroups.ballot_mask.ext_shader_subgroup_ballot.framebuffer": [
+      "BallotMasks",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BallotMasks"
+    ],
+    "dEQP-VK.subgroups.ballot_mask.ext_shader_subgroup_ballot.graphics": [
+      "BallotMasks",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BallotMasks"
+    ],
+    "dEQP-VK.subgroups.ballot_mask.ext_shader_subgroup_ballot.mesh": [
+      "BallotMasks",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BallotMasks"
+    ],
+    "dEQP-VK.subgroups.ballot_mask.ext_shader_subgroup_ballot.ray_tracing": [
+      "BallotMasks",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BallotMasks"
+    ],
+    "dEQP-VK.subgroups.ballot_other.compute": [
+      "BallotOther",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BallotOther"
+    ],
+    "dEQP-VK.subgroups.ballot_other.framebuffer": [
+      "BallotOther",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BallotOther"
+    ],
+    "dEQP-VK.subgroups.ballot_other.graphics": [
+      "BallotOther",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BallotOther"
+    ],
+    "dEQP-VK.subgroups.ballot_other.mesh": [
+      "BallotOther",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BallotOther"
+    ],
+    "dEQP-VK.subgroups.ballot_other.ray_tracing": [
+      "BallotOther",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BallotOther"
+    ],
+    "dEQP-VK.subgroups.basic.compute": [
+      "Basic",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Basic"
+    ],
+    "dEQP-VK.subgroups.basic.framebuffer": [
+      "Basic",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Basic"
+    ],
+    "dEQP-VK.subgroups.basic.graphics": [
+      "Basic",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Basic"
+    ],
+    "dEQP-VK.subgroups.basic.mesh": [
+      "Basic",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Basic"
+    ],
+    "dEQP-VK.subgroups.basic.ray_tracing": [
+      "Basic",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Basic"
+    ],
+    "dEQP-VK.subgroups.builtin_mask_var.compute": [
+      "BuiltinMaskVar",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BuiltinMaskVar"
+    ],
+    "dEQP-VK.subgroups.builtin_mask_var.framebuffer": [
+      "BuiltinMaskVar",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BuiltinMaskVar"
+    ],
+    "dEQP-VK.subgroups.builtin_mask_var.graphics": [
+      "BuiltinMaskVar",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BuiltinMaskVar"
+    ],
+    "dEQP-VK.subgroups.builtin_mask_var.mesh": [
+      "BuiltinMaskVar",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BuiltinMaskVar"
+    ],
+    "dEQP-VK.subgroups.builtin_mask_var.ray_tracing": [
+      "BuiltinMaskVar",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BuiltinMaskVar"
+    ],
+    "dEQP-VK.subgroups.builtin_var.compute": [
+      "BuiltinVar",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BuiltinVar"
+    ],
+    "dEQP-VK.subgroups.builtin_var.framebuffer": [
+      "BuiltinVar",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BuiltinVar"
+    ],
+    "dEQP-VK.subgroups.builtin_var.graphics": [
+      "BuiltinVar",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BuiltinVar"
+    ],
+    "dEQP-VK.subgroups.builtin_var.mesh": [
+      "BuiltinVar",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BuiltinVar"
+    ],
+    "dEQP-VK.subgroups.builtin_var.ray_tracing": [
+      "BuiltinVar",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/BuiltinVar"
+    ],
+    "dEQP-VK.subgroups.clustered.compute": [
+      "Clustered",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Clustered"
+    ],
+    "dEQP-VK.subgroups.clustered.framebuffer": [
+      "Clustered",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Clustered"
+    ],
+    "dEQP-VK.subgroups.clustered.graphics": [
+      "Clustered",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Clustered"
+    ],
+    "dEQP-VK.subgroups.clustered.mesh": [
+      "Clustered",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Clustered"
+    ],
+    "dEQP-VK.subgroups.clustered.ray_tracing": [
+      "Clustered",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Clustered"
+    ],
+    "dEQP-VK.subgroups.multiple_dispatches.uniform_subgroup_size": [
+      "MultipleDispatchesUniformSubgroupSize",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/MultipleDispatchesUniformSubgroupSize"
+    ],
+    "dEQP-VK.subgroups.partitioned.compute": [
+      "Partitioned",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Partitioned"
+    ],
+    "dEQP-VK.subgroups.partitioned.framebuffer": [
+      "Partitioned",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Partitioned"
+    ],
+    "dEQP-VK.subgroups.partitioned.graphics": [
+      "Partitioned",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Partitioned"
+    ],
+    "dEQP-VK.subgroups.partitioned.mesh": [
+      "Partitioned",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Partitioned"
+    ],
+    "dEQP-VK.subgroups.partitioned.ray_tracing": [
+      "Partitioned",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Partitioned"
+    ],
+    "dEQP-VK.subgroups.quad.compute": [
+      "Quad",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Quad"
+    ],
+    "dEQP-VK.subgroups.quad.framebuffer": [
+      "Quad",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Quad"
+    ],
+    "dEQP-VK.subgroups.quad.graphics": [
+      "Quad",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Quad"
+    ],
+    "dEQP-VK.subgroups.quad.mesh": [
+      "Quad",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Quad"
+    ],
+    "dEQP-VK.subgroups.quad.ray_tracing": [
+      "Quad",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Quad"
+    ],
+    "dEQP-VK.subgroups.shader_quad_control.divergent_condition": [
+      "QuadControl",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/QuadControl"
+    ],
+    "dEQP-VK.subgroups.shader_quad_control.quad_derivatives": [
+      "QuadControl",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/QuadControl"
+    ],
+    "dEQP-VK.subgroups.shader_quad_control.require_full_quads": [
+      "QuadControl",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/QuadControl"
+    ],
+    "dEQP-VK.subgroups.shader_quad_control.terminated_invocation": [
+      "QuadControl",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/QuadControl"
+    ],
+    "dEQP-VK.subgroups.shape.compute": [
+      "Shape",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Shape"
+    ],
+    "dEQP-VK.subgroups.shape.framebuffer": [
+      "Shape",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Shape"
+    ],
+    "dEQP-VK.subgroups.shape.graphics": [
+      "Shape",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Shape"
+    ],
+    "dEQP-VK.subgroups.shape.mesh": [
+      "Shape",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Shape"
+    ],
+    "dEQP-VK.subgroups.shape.ray_tracing": [
+      "Shape",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Shape"
+    ],
+    "dEQP-VK.subgroups.shuffle.compute": [
+      "Shuffle",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Shuffle"
+    ],
+    "dEQP-VK.subgroups.shuffle.framebuffer": [
+      "Shuffle",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Shuffle"
+    ],
+    "dEQP-VK.subgroups.shuffle.graphics": [
+      "Shuffle",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Shuffle"
+    ],
+    "dEQP-VK.subgroups.shuffle.mesh": [
+      "Shuffle",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Shuffle"
+    ],
+    "dEQP-VK.subgroups.shuffle.ray_tracing": [
+      "Shuffle",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Shuffle"
+    ],
+    "dEQP-VK.subgroups.size_control.compute": [
+      "SizeControl",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/SizeControl"
+    ],
+    "dEQP-VK.subgroups.size_control.framebuffer": [
+      "SizeControl",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/SizeControl"
+    ],
+    "dEQP-VK.subgroups.size_control.generic": [
+      "SizeControl",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/SizeControl"
+    ],
+    "dEQP-VK.subgroups.size_control.graphics": [
+      "SizeControl",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/SizeControl"
+    ],
+    "dEQP-VK.subgroups.size_control.mesh": [
+      "SizeControl",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/SizeControl"
+    ],
+    "dEQP-VK.subgroups.size_control.ray_tracing": [
+      "SizeControl",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/SizeControl"
+    ],
+    "dEQP-VK.subgroups.subgroup_uniform_control_flow.discard": [
+      "UniformControlFlow",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/UniformControlFlow"
+    ],
+    "dEQP-VK.subgroups.subgroup_uniform_control_flow.large_full": [
+      "UniformControlFlow",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/UniformControlFlow"
+    ],
+    "dEQP-VK.subgroups.subgroup_uniform_control_flow.large_full_control": [
+      "UniformControlFlow",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/UniformControlFlow"
+    ],
+    "dEQP-VK.subgroups.subgroup_uniform_control_flow.small_full": [
+      "UniformControlFlow",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/UniformControlFlow"
+    ],
+    "dEQP-VK.subgroups.subgroup_uniform_control_flow.small_full_control": [
+      "UniformControlFlow",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/UniformControlFlow"
+    ],
+    "dEQP-VK.subgroups.uniform_descriptor_indexing.combined_image_sampler": [
+      "UniformDescriptorIndexing",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/UniformDescriptorIndexing"
+    ],
+    "dEQP-VK.subgroups.uniform_descriptor_indexing.input_attachment": [
+      "UniformDescriptorIndexing",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/UniformDescriptorIndexing"
+    ],
+    "dEQP-VK.subgroups.uniform_descriptor_indexing.sampled_image": [
+      "UniformDescriptorIndexing",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/UniformDescriptorIndexing"
+    ],
+    "dEQP-VK.subgroups.uniform_descriptor_indexing.sampler": [
+      "UniformDescriptorIndexing",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/UniformDescriptorIndexing"
+    ],
+    "dEQP-VK.subgroups.uniform_descriptor_indexing.storage_buffer": [
+      "UniformDescriptorIndexing",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/UniformDescriptorIndexing"
+    ],
+    "dEQP-VK.subgroups.uniform_descriptor_indexing.storage_image": [
+      "UniformDescriptorIndexing",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/UniformDescriptorIndexing"
+    ],
+    "dEQP-VK.subgroups.uniform_descriptor_indexing.storage_texel_buffer": [
+      "UniformDescriptorIndexing",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/UniformDescriptorIndexing"
+    ],
+    "dEQP-VK.subgroups.uniform_descriptor_indexing.uniform_buffer": [
+      "UniformDescriptorIndexing",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/UniformDescriptorIndexing"
+    ],
+    "dEQP-VK.subgroups.uniform_descriptor_indexing.uniform_texel_buffer": [
+      "UniformDescriptorIndexing",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/UniformDescriptorIndexing"
+    ],
+    "dEQP-VK.subgroups.vote.compute": [
+      "Vote",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Vote"
+    ],
+    "dEQP-VK.subgroups.vote.ext_shader_subgroup_vote": [
+      "Vote",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Vote"
+    ],
+    "dEQP-VK.subgroups.vote.frag_helper": [
+      "Vote",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Vote"
+    ],
+    "dEQP-VK.subgroups.vote.framebuffer": [
+      "Vote",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Vote"
+    ],
+    "dEQP-VK.subgroups.vote.graphics": [
+      "Vote",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Vote"
+    ],
+    "dEQP-VK.subgroups.vote.mesh": [
+      "Vote",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Vote"
+    ],
+    "dEQP-VK.subgroups.vote.ray_tracing": [
+      "Vote",
+      "subgroups",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/subgroups/Vote"
     ],
     "dEQP-VK.synchronization.basic.binary_semaphore": [
       "BasicSemaphore",
