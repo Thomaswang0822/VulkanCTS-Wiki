@@ -122,7 +122,14 @@ Do not edit CTS C/C++ source or mustpass. Report the blocker with the exact path
 
 ### 5. Add regression coverage
 
-For every new handler or important ownership repair, add a focused regression test that proves:
+Not every category needs a dedicated test. Add a focused category-scoped regression test ONLY when this category's ownership required a repair or special handling:
+
+- an ownership repair to an English page (tree defect fix, owner correction, excluded-branch change);
+- a new category-specific projection/handler in `category_handlers.py`.
+
+Do not add one merely because a category was added with an uneventful, first-pass build.
+
+The test must prove:
 
 - the representative executable leaf resolves to the expected page;
 - component-boundary longest-prefix behavior remains intact;
