@@ -77,7 +77,7 @@ CATEGORY_MUSTPASS_FILES: dict[str, tuple[Path, ...]] = {
     "fragment_operations": (Path("fragment-operations.txt"),),
     "texture": (Path("texture.txt"),),
     "geometry": (Path("geometry.txt"),),
-    # "robustness": (Path("robustness.txt"),),
+    "robustness": (Path("robustness.txt"),),
     # "multiview": (Path("multiview.txt"),),
     # "subgroups": (Path("subgroups.txt"),),
     # "ycbcr": (Path("ycbcr.txt"),),

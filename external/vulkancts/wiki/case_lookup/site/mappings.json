@@ -1,6 +1,6 @@
 {
-  "category_count": 31,
-  "mapping_count": 10141,
+  "category_count": 32,
+  "mapping_count": 10188,
   "mappings": {
     "dEQP-VK.api.buffer.basic": [
       "Buffer",
@@ -42826,6 +42826,241 @@
       "SubpassMergeFeedback",
       "renderpasses",
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/renderpasses/SubpassMergeFeedback"
+    ],
+    "dEQP-VK.robustness.bind_index_buffer2.offset_0": [
+      "IndexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/IndexAccess"
+    ],
+    "dEQP-VK.robustness.bind_index_buffer2.offset_100": [
+      "IndexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/IndexAccess"
+    ],
+    "dEQP-VK.robustness.buffer_access.compute": [
+      "BufferAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/BufferAccess"
+    ],
+    "dEQP-VK.robustness.buffer_access.fragment": [
+      "BufferAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/BufferAccess"
+    ],
+    "dEQP-VK.robustness.buffer_access.through_pointers": [
+      "BufferAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/BufferAccess"
+    ],
+    "dEQP-VK.robustness.buffer_access.through_pointers.compute": [
+      "VariablePointers",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/VariablePointers"
+    ],
+    "dEQP-VK.robustness.buffer_access.through_pointers.graphics": [
+      "VariablePointers",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/VariablePointers"
+    ],
+    "dEQP-VK.robustness.buffer_access.vertex": [
+      "BufferAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/BufferAccess"
+    ],
+    "dEQP-VK.robustness.descriptor_heap_buffer_access.compute": [
+      "BufferAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/BufferAccess"
+    ],
+    "dEQP-VK.robustness.descriptor_heap_buffer_access.fragment": [
+      "BufferAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/BufferAccess"
+    ],
+    "dEQP-VK.robustness.descriptor_heap_buffer_access.vertex": [
+      "BufferAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/BufferAccess"
+    ],
+    "dEQP-VK.robustness.image_robustness": [
+      "Exts",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/Exts"
+    ],
+    "dEQP-VK.robustness.index_access.draw_indexed_2": [
+      "IndexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/IndexAccess"
+    ],
+    "dEQP-VK.robustness.index_access.draw_indexed_2_device_address": [
+      "IndexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/IndexAccess"
+    ],
+    "dEQP-VK.robustness.index_access.draw_indexed_indirect_2": [
+      "IndexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/IndexAccess"
+    ],
+    "dEQP-VK.robustness.index_access.draw_indexed_indirect_2_device_address": [
+      "IndexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/IndexAccess"
+    ],
+    "dEQP-VK.robustness.index_access.draw_indexed_indirect_count_2": [
+      "IndexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/IndexAccess"
+    ],
+    "dEQP-VK.robustness.index_access.draw_indexed_indirect_count_2_device_address": [
+      "IndexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/IndexAccess"
+    ],
+    "dEQP-VK.robustness.index_access.draw_multi_indexed_2": [
+      "IndexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/IndexAccess"
+    ],
+    "dEQP-VK.robustness.non_robust_buffer_access.unexecuted_oob_overflow": [
+      "NonRobustBufferAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/NonRobustBufferAccess"
+    ],
+    "dEQP-VK.robustness.non_robust_buffer_access.unexecuted_oob_underflow": [
+      "NonRobustBufferAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/NonRobustBufferAccess"
+    ],
+    "dEQP-VK.robustness.oob_access.robust_off": [
+      "OOBAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/OOBAccess"
+    ],
+    "dEQP-VK.robustness.oob_access.robust_on": [
+      "OOBAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/OOBAccess"
+    ],
+    "dEQP-VK.robustness.pipeline_robustness": [
+      "Exts",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/Exts"
+    ],
+    "dEQP-VK.robustness.pipeline_robustness_buffer_access.compute": [
+      "BufferAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/BufferAccess"
+    ],
+    "dEQP-VK.robustness.pipeline_robustness_buffer_access.fragment": [
+      "BufferAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/BufferAccess"
+    ],
+    "dEQP-VK.robustness.pipeline_robustness_buffer_access.vertex": [
+      "BufferAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/BufferAccess"
+    ],
+    "dEQP-VK.robustness.robustness1_vertex_access.out_of_bounds_stride_0": [
+      "Robustness1VertexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/Robustness1VertexAccess"
+    ],
+    "dEQP-VK.robustness.robustness1_vertex_access.out_of_bounds_stride_16_single_buffer": [
+      "Robustness1VertexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/Robustness1VertexAccess"
+    ],
+    "dEQP-VK.robustness.robustness1_vertex_access.out_of_bounds_stride_30_middle_of_buffer": [
+      "Robustness1VertexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/Robustness1VertexAccess"
+    ],
+    "dEQP-VK.robustness.robustness1_vertex_access.out_of_bounds_stride_8_middle_of_buffer_separate": [
+      "Robustness1VertexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/Robustness1VertexAccess"
+    ],
+    "dEQP-VK.robustness.robustness2": [
+      "Exts",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/Exts"
+    ],
+    "dEQP-VK.robustness.vertex_access.a2b10g10r10_unorm_pack32": [
+      "VertexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/VertexAccess"
+    ],
+    "dEQP-VK.robustness.vertex_access.r32_sfloat": [
+      "VertexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/VertexAccess"
+    ],
+    "dEQP-VK.robustness.vertex_access.r32_sint": [
+      "VertexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/VertexAccess"
+    ],
+    "dEQP-VK.robustness.vertex_access.r32_uint": [
+      "VertexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/VertexAccess"
+    ],
+    "dEQP-VK.robustness.vertex_access.r32g32_sfloat": [
+      "VertexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/VertexAccess"
+    ],
+    "dEQP-VK.robustness.vertex_access.r32g32_sint": [
+      "VertexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/VertexAccess"
+    ],
+    "dEQP-VK.robustness.vertex_access.r32g32_uint": [
+      "VertexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/VertexAccess"
+    ],
+    "dEQP-VK.robustness.vertex_access.r32g32b32_sfloat": [
+      "VertexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/VertexAccess"
+    ],
+    "dEQP-VK.robustness.vertex_access.r32g32b32_sint": [
+      "VertexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/VertexAccess"
+    ],
+    "dEQP-VK.robustness.vertex_access.r32g32b32_uint": [
+      "VertexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/VertexAccess"
+    ],
+    "dEQP-VK.robustness.vertex_access.r32g32b32a32_sfloat": [
+      "VertexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/VertexAccess"
+    ],
+    "dEQP-VK.robustness.vertex_access.r32g32b32a32_sint": [
+      "VertexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/VertexAccess"
+    ],
+    "dEQP-VK.robustness.vertex_access.r32g32b32a32_uint": [
+      "VertexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/VertexAccess"
+    ],
+    "dEQP-VK.robustness.vertex_access.r64_sint": [
+      "VertexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/VertexAccess"
+    ],
+    "dEQP-VK.robustness.vertex_access.r64_uint": [
+      "VertexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/VertexAccess"
     ],
     "dEQP-VK.shader_object.api.discard_rectangles": [
       "ApiTests",

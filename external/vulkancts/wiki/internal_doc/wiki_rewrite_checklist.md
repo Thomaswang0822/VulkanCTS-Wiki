@@ -34,7 +34,7 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [x] 24. fragment_operations — 5 (UB: 5)
 - [x] 25. texture — 12 (UB: 12)
 - [x] 26. geometry — 7 (UB: 7)
-- [ ] 27. robustness — 9
+- [x] 27. robustness — 8 (UB: 8)
 - [ ] 28. multiview — 2
 - [ ] 29. subgroups — 20
 - [ ] 30. ycbcr — 10
@@ -62,4 +62,4 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [ ] 52. tensor — 7
 - [ ] 53. data_graph — 4
 
-**Summary**: 31 done, 22 todo.
+**Summary**: 32 done, 21 todo.

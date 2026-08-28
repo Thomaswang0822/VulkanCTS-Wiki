@@ -126,6 +126,7 @@ class MustpassInputTests(unittest.TestCase):
                 "fragment_operations",
                 "texture",
                 "geometry",
+                "robustness",
                 "memory_model",
                 "ray_tracing_pipeline",
                 "ray_query",
@@ -154,11 +155,11 @@ class MustpassInputTests(unittest.TestCase):
     def test_rejects_category_not_enabled_in_registry(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            with self.assertRaisesRegex(MappingBuildError, "不支持的 category：robustness"):
+            with self.assertRaisesRegex(MappingBuildError, "不支持的 category：multiview"):
                 build_database(
                     REPO_ROOT,
                     root / "final.sqlite3",
-                    ("robustness",),
+                    ("multiview",),
                     category_db_dir=root / "db",
                 )
             self.assertFalse((root / "final.sqlite3").exists())
