@@ -81,7 +81,7 @@ CATEGORY_MUSTPASS_FILES: dict[str, tuple[Path, ...]] = {
     # "multiview": (Path("multiview.txt"),),
     "subgroups": (Path("subgroups.txt"),),
     # "ycbcr": (Path("ycbcr.txt"),),
-    # "protected_memory": (Path("protected-memory.txt"),),
+    "protected_memory": (Path("protected-memory.txt"),),
     # "device_group": (Path("device-group.txt"),),
     "memory_model": (Path("memory-model.txt"),),
     # "conditional_rendering": (Path("conditional-rendering.txt"),),

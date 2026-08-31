@@ -38,7 +38,7 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [ ] 28. multiview — 2
 - [x] 29. subgroups — 19 (UB: 19)
 - [ ] 30. ycbcr — 10
-- [ ] 31. protected_memory — 15
+- [x] 31. protected_memory — 14 (UB: 14)
 - [ ] 32. device_group — 1
 - [x] 33. memory_model — 3 (UB: 2)
 - [ ] 34. conditional_rendering — 7
@@ -62,4 +62,4 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [ ] 52. tensor — 7
 - [ ] 53. data_graph — 4
 
-**Summary**: 33 done, 20 todo.
+**Summary**: 34 done, 19 todo.

@@ -1,6 +1,6 @@
 {
-  "category_count": 33,
-  "mapping_count": 10287,
+  "category_count": 34,
+  "mapping_count": 10400,
   "mappings": {
     "dEQP-VK.api.buffer.basic": [
       "Buffer",
@@ -38541,6 +38541,571 @@
       "VertexInputSRGB",
       "pipeline",
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/pipeline/VertexInputSRGB"
+    ],
+    "dEQP-VK.protected_memory.attachment.clear_op.primary": [
+      "AttachmentClear",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/AttachmentClear"
+    ],
+    "dEQP-VK.protected_memory.attachment.clear_op.secondary": [
+      "AttachmentClear",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/AttachmentClear"
+    ],
+    "dEQP-VK.protected_memory.attachment.load_op.random": [
+      "AttachmentLoad",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/AttachmentLoad"
+    ],
+    "dEQP-VK.protected_memory.attachment.load_op.static": [
+      "AttachmentLoad",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/AttachmentLoad"
+    ],
+    "dEQP-VK.protected_memory.buffer.copy.float_buffer": [
+      "FillUpdateCopyBuffer",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/FillUpdateCopyBuffer"
+    ],
+    "dEQP-VK.protected_memory.buffer.copy.integer_buffer": [
+      "FillUpdateCopyBuffer",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/FillUpdateCopyBuffer"
+    ],
+    "dEQP-VK.protected_memory.buffer.copy.unsigned_buffer": [
+      "FillUpdateCopyBuffer",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/FillUpdateCopyBuffer"
+    ],
+    "dEQP-VK.protected_memory.buffer.copy_image_to_float_buffer.primary": [
+      "CopyImageToBuffer",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/CopyImageToBuffer"
+    ],
+    "dEQP-VK.protected_memory.buffer.copy_image_to_float_buffer.secondary": [
+      "CopyImageToBuffer",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/CopyImageToBuffer"
+    ],
+    "dEQP-VK.protected_memory.buffer.fill.float_buffer": [
+      "FillUpdateCopyBuffer",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/FillUpdateCopyBuffer"
+    ],
+    "dEQP-VK.protected_memory.buffer.fill.integer_buffer": [
+      "FillUpdateCopyBuffer",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/FillUpdateCopyBuffer"
+    ],
+    "dEQP-VK.protected_memory.buffer.fill.unsigned_buffer": [
+      "FillUpdateCopyBuffer",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/FillUpdateCopyBuffer"
+    ],
+    "dEQP-VK.protected_memory.buffer.update.float_buffer": [
+      "FillUpdateCopyBuffer",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/FillUpdateCopyBuffer"
+    ],
+    "dEQP-VK.protected_memory.buffer.update.integer_buffer": [
+      "FillUpdateCopyBuffer",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/FillUpdateCopyBuffer"
+    ],
+    "dEQP-VK.protected_memory.buffer.update.unsigned_buffer": [
+      "FillUpdateCopyBuffer",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/FillUpdateCopyBuffer"
+    ],
+    "dEQP-VK.protected_memory.image.access.compute": [
+      "ShaderImageAccess",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/ShaderImageAccess"
+    ],
+    "dEQP-VK.protected_memory.image.access.fragment": [
+      "ShaderImageAccess",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/ShaderImageAccess"
+    ],
+    "dEQP-VK.protected_memory.image.access.misc": [
+      "ShaderImageAccess",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/ShaderImageAccess"
+    ],
+    "dEQP-VK.protected_memory.image.blit.primary": [
+      "BlitImage",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/BlitImage"
+    ],
+    "dEQP-VK.protected_memory.image.blit.secondary": [
+      "BlitImage",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/BlitImage"
+    ],
+    "dEQP-VK.protected_memory.image.clear_color.primary": [
+      "ClearColorImage",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/ClearColorImage"
+    ],
+    "dEQP-VK.protected_memory.image.clear_color.secondary": [
+      "ClearColorImage",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/ClearColorImage"
+    ],
+    "dEQP-VK.protected_memory.image.copy.primary": [
+      "CopyImage",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/CopyImage"
+    ],
+    "dEQP-VK.protected_memory.image.copy.secondary": [
+      "CopyImage",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/CopyImage"
+    ],
+    "dEQP-VK.protected_memory.image.copy_buffer_to_image.primary": [
+      "CopyBufferToImage",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/CopyBufferToImage"
+    ],
+    "dEQP-VK.protected_memory.image.copy_buffer_to_image.secondary": [
+      "CopyBufferToImage",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/CopyBufferToImage"
+    ],
+    "dEQP-VK.protected_memory.interaction.wsi.android": [
+      "WsiSwapchain",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/WsiSwapchain"
+    ],
+    "dEQP-VK.protected_memory.interaction.wsi.direct": [
+      "WsiSwapchain",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/WsiSwapchain"
+    ],
+    "dEQP-VK.protected_memory.interaction.wsi.direct_drm": [
+      "WsiSwapchain",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/WsiSwapchain"
+    ],
+    "dEQP-VK.protected_memory.interaction.wsi.headless": [
+      "WsiSwapchain",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/WsiSwapchain"
+    ],
+    "dEQP-VK.protected_memory.interaction.wsi.metal": [
+      "WsiSwapchain",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/WsiSwapchain"
+    ],
+    "dEQP-VK.protected_memory.interaction.wsi.wayland": [
+      "WsiSwapchain",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/WsiSwapchain"
+    ],
+    "dEQP-VK.protected_memory.interaction.wsi.win32": [
+      "WsiSwapchain",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/WsiSwapchain"
+    ],
+    "dEQP-VK.protected_memory.interaction.wsi.xcb": [
+      "WsiSwapchain",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/WsiSwapchain"
+    ],
+    "dEQP-VK.protected_memory.interaction.wsi.xlib": [
+      "WsiSwapchain",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/WsiSwapchain"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.a1b5g5r5_unorm_pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.a1r5g5b5_unorm_pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.a2b10g10r10_unorm_pack32": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.a2r10g10b10_unorm_pack32": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.a4b4g4r4_unorm_pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.a4r4g4b4_unorm_pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.a8_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.a8b8g8r8_unorm_pack32": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.b10g11r11_ufloat_pack32": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.b10x6g10x6r10x6g10x6_422_unorm_4pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.b12x4g12x4r12x4g12x4_422_unorm_4pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.b16g16r16g16_422_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.b4g4r4a4_unorm_pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.b5g5r5a1_unorm_pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.b5g6r5_unorm_pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.b8g8r8_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.b8g8r8a8_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.b8g8r8g8_422_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g10x6_b10x6_r10x6_3plane_420_unorm_3pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g10x6_b10x6_r10x6_3plane_422_unorm_3pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g10x6_b10x6_r10x6_3plane_444_unorm_3pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g10x6_b10x6r10x6_2plane_420_unorm_3pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g10x6_b10x6r10x6_2plane_422_unorm_3pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g10x6_b10x6r10x6_2plane_444_unorm_3pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g10x6b10x6g10x6r10x6_422_unorm_4pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g12x4_b12x4_r12x4_3plane_420_unorm_3pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g12x4_b12x4_r12x4_3plane_422_unorm_3pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g12x4_b12x4_r12x4_3plane_444_unorm_3pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g12x4_b12x4r12x4_2plane_420_unorm_3pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g12x4_b12x4r12x4_2plane_422_unorm_3pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g12x4_b12x4r12x4_2plane_444_unorm_3pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g12x4b12x4g12x4r12x4_422_unorm_4pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g16_b16_r16_3plane_420_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g16_b16_r16_3plane_422_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g16_b16_r16_3plane_444_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g16_b16r16_2plane_420_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g16_b16r16_2plane_422_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g16_b16r16_2plane_444_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g16b16g16r16_422_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g8_b8_r8_3plane_420_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g8_b8_r8_3plane_422_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g8_b8_r8_3plane_444_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g8_b8r8_2plane_420_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g8_b8r8_2plane_422_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g8_b8r8_2plane_444_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.g8b8g8r8_422_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.r10x6_unorm_pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.r10x6g10x6_unorm_2pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.r10x6g10x6b10x6a10x6_unorm_4pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.r12x4_unorm_pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.r12x4g12x4_unorm_2pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.r12x4g12x4b12x4a12x4_unorm_4pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.r16_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.r16g16_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.r16g16b16_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.r16g16b16a16_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.r4g4_unorm_pack8": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.r4g4b4a4_unorm_pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.r5g5b5a1_unorm_pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.r5g6b5_unorm_pack16": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.r8_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.r8g8_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.r8g8b8_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.interaction.ycbcr.r8g8b8a8_unorm": [
+      "YCbCrConversion",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/YCbCrConversion"
+    ],
+    "dEQP-VK.protected_memory.ssbo.ssbo_atomic": [
+      "StorageBuffer",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/StorageBuffer"
+    ],
+    "dEQP-VK.protected_memory.ssbo.ssbo_read": [
+      "StorageBuffer",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/StorageBuffer"
+    ],
+    "dEQP-VK.protected_memory.ssbo.ssbo_write": [
+      "StorageBuffer",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/StorageBuffer"
+    ],
+    "dEQP-VK.protected_memory.stack.stacksize_128": [
+      "Stack",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/Stack"
+    ],
+    "dEQP-VK.protected_memory.stack.stacksize_256": [
+      "Stack",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/Stack"
+    ],
+    "dEQP-VK.protected_memory.stack.stacksize_32": [
+      "Stack",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/Stack"
+    ],
+    "dEQP-VK.protected_memory.stack.stacksize_512": [
+      "Stack",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/Stack"
+    ],
+    "dEQP-VK.protected_memory.stack.stacksize_64": [
+      "Stack",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/Stack"
+    ],
+    "dEQP-VK.protected_memory.workgroupstorage.memsize_1": [
+      "WorkgroupStorage",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/WorkgroupStorage"
+    ],
+    "dEQP-VK.protected_memory.workgroupstorage.memsize_101": [
+      "WorkgroupStorage",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/WorkgroupStorage"
+    ],
+    "dEQP-VK.protected_memory.workgroupstorage.memsize_4": [
+      "WorkgroupStorage",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/WorkgroupStorage"
+    ],
+    "dEQP-VK.protected_memory.workgroupstorage.memsize_5": [
+      "WorkgroupStorage",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/WorkgroupStorage"
+    ],
+    "dEQP-VK.protected_memory.workgroupstorage.memsize_503": [
+      "WorkgroupStorage",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/WorkgroupStorage"
+    ],
+    "dEQP-VK.protected_memory.workgroupstorage.memsize_60": [
+      "WorkgroupStorage",
+      "protected_memory",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/protected_memory/WorkgroupStorage"
     ],
     "dEQP-VK.query_pool.concurrent_queries.primary_command_buffer": [
       "Concurrent",

@@ -116,6 +116,16 @@ PAGES_WITHOUT_WALKTHROUGH: dict[str, set[str]] = {
         'Stencil.md',
         'Timestamp.md',
     },
+    'protected_memory': {
+        'AttachmentClear.md',
+        'AttachmentLoad.md',
+        'BlitImage.md',
+        'ClearColorImage.md',
+        'CopyBufferToImage.md',
+        'CopyImage.md',
+        'CopyImageToBuffer.md',
+        'FillUpdateCopyBuffer.md',
+    },
     'query_pool': {
         'Concurrent.md',
         'Maintenance7.md',

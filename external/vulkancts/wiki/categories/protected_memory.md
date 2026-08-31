@@ -1,10 +1,14 @@
-# protected_memory
-
 ## Overview
 
-The [`protected_memory`](../../modules/vulkan/protected_memory/vktProtectedMemTests.cpp#L50-L104) category verifies protected-memory behavior across attachment operations, image transfers and shader image access, buffer transfer operations, storage-buffer shader access, WSI swapchain interaction, YCbCr conversion, workgroup storage, and stack storage. The category is registered by [`createTests()`](../../modules/vulkan/protected_memory/vktProtectedMemTests.cpp#L50-L104), which assembles named branch groups from implementation factories included at [`vktProtectedMemTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemTests.cpp#L30-L43).
+The `protected_memory` test category collects tests that check protected-memory access through attachments, image and buffer transfers, shader resources, and protected WSI interaction.
 
-## Registration Entry Point
+## Background Knowledge
+
+- **Protected memory and protected queues.** Vulkan separates protected and unprotected device memory. A protected resource must be accessed by protected queue operations, while protected command buffers come from protected command pools. These rules are shared by the rendering, transfer, shader, and interaction families.
+- **Protected submission.** A submission identifies protected execution through `VkProtectedSubmitInfo`. The tests use this boundary to exercise device work that reads or writes protected resources, then use an appropriate validation path for the result.
+- **Resource validation boundaries.** Some tests validate a protected image through a compute shader, while others copy data into a buffer or validate presentation. The validator is part of the observation path and does not necessarily implement the operation being tested.
+
+## Category Structure
 
 ```text
 protected_memory
@@ -17,79 +21,38 @@ protected_memory
 └── stack
 ```
 
-The WSI child of `interaction` is guarded out for Vulkan SC builds at [`vktProtectedMemTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemTests.cpp#L92-L98). The top-level group names above are constructed explicitly in [`vktProtectedMemTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemTests.cpp#L54-L102).
+The registration-only dispatcher `vktProtectedMemTests.cpp` routes these direct children to the implementation-bearing families. `interaction.wsi` is registered only outside Vulkan SC; `interaction.ycbcr` remains available through its separate conversion implementation.
 
-## File Inventory
+## How the Families Fit Together
 
-| File | Role | Notes |
-|---|---|---|
-| [`vktProtectedMemTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemTests.cpp#L1) | Registration | Category dispatcher and top-level branch grouping |
-| [`vktProtectedMemAttachmentLoadTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemAttachmentLoadTests.cpp#L216-L350) | Implementation | Attachment load-op static/random cases |
-| [`vktProtectedMemAttachmentClearTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemAttachmentClearTests.cpp#L404-L410) | Implementation | Attachment clear-op primary/secondary command-buffer cases |
-| [`vktProtectedMemCopyImageTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemCopyImageTests.cpp#L467-L474) | Implementation | Protected image copy cases |
-| [`vktProtectedMemBlitImageTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemBlitImageTests.cpp#L470-L475) | Implementation | Protected image blit cases |
-| [`vktProtectedMemClearColorImageTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemClearColorImageTests.cpp#L387-L392) | Implementation | Protected clear-color-image cases |
-| [`vktProtectedMemCopyBufferToImageTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemCopyBufferToImageTests.cpp#L431-L436) | Implementation | Protected buffer-to-image copy cases |
-| [`vktProtectedMemCopyImageToBufferTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemCopyImageToBufferTests.cpp#L400-L405) | Implementation | Protected image-to-buffer copy cases |
-| [`vktProtectedMemFillUpdateCopyBufferTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemFillUpdateCopyBufferTests.cpp#L616-L647) | Implementation | Fill, update, and copy buffer roots |
-| [`vktProtectedMemStorageBufferTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemStorageBufferTests.cpp#L864-L905) | Implementation | SSBO read, write, and atomic roots |
-| [`vktProtectedMemShaderImageAccessTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemShaderImageAccessTests.cpp#L1251-L1400) | Implementation | Shader image access matrix |
-| [`vktProtectedMemWsiSwapchainTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemWsiSwapchainTests.cpp#L1461-L1471) | Implementation | Non-VulkanSC WSI swapchain interaction |
-| [`vktProtectedMemYCbCrConversionTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemYCbCrConversionTests.cpp#L1230-L1349) | Implementation | Protected YCbCr conversion matrix |
-| [`vktProtectedMemWorkgroupStorageTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemWorkgroupStorageTests.cpp#L370-L381) | Implementation | Shared-memory-size workgroup-storage cases |
-| [`vktProtectedMemStackTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemStackTests.cpp#L409-L421) | Implementation | Stack-size cases |
-| [`vktProtectedMemUtils.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemUtils.cpp#L50-L125) | Helper | Protected-context support and command-buffer-name helpers |
+The families exercise the same protected-execution boundary through different resource operations.
 
-## Level-3 Documents
+- **Attachments** test render-pass load and clear behavior, with separate cases for primary and secondary command-buffer recording.
+- **Images and buffers** test fixed-function clears, copies, fills, updates, and copyback paths. The transfer direction determines whether the final observation is an image comparison or a buffer comparison.
+- **Shader resources** test protected image access, storage-buffer reads/writes/atomics, workgroup storage, and shader stack storage. These pages vary shader stage, access mode, data type, or storage size.
+- **Interaction** covers protected swapchain creation/render/presentation and protected YCbCr sampling and conversion. WSI coverage is platform-specific and unavailable on Vulkan SC.
 
-| Source file | Wiki document |
-|---|---|
-| [`vktProtectedMemAttachmentClearTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemAttachmentClearTests.cpp#L1) | [`vktProtectedMemAttachmentClearTests.md`](../testfiles/protected_memory/vktProtectedMemAttachmentClearTests.md) |
-| [`vktProtectedMemAttachmentLoadTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemAttachmentLoadTests.cpp#L1) | [`vktProtectedMemAttachmentLoadTests.md`](../testfiles/protected_memory/vktProtectedMemAttachmentLoadTests.md) |
-| [`vktProtectedMemBlitImageTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemBlitImageTests.cpp#L1) | [`vktProtectedMemBlitImageTests.md`](../testfiles/protected_memory/vktProtectedMemBlitImageTests.md) |
-| [`vktProtectedMemClearColorImageTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemClearColorImageTests.cpp#L1) | [`vktProtectedMemClearColorImageTests.md`](../testfiles/protected_memory/vktProtectedMemClearColorImageTests.md) |
-| [`vktProtectedMemCopyBufferToImageTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemCopyBufferToImageTests.cpp#L1) | [`vktProtectedMemCopyBufferToImageTests.md`](../testfiles/protected_memory/vktProtectedMemCopyBufferToImageTests.md) |
-| [`vktProtectedMemCopyImageTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemCopyImageTests.cpp#L1) | [`vktProtectedMemCopyImageTests.md`](../testfiles/protected_memory/vktProtectedMemCopyImageTests.md) |
-| [`vktProtectedMemCopyImageToBufferTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemCopyImageToBufferTests.cpp#L1) | [`vktProtectedMemCopyImageToBufferTests.md`](../testfiles/protected_memory/vktProtectedMemCopyImageToBufferTests.md) |
-| [`vktProtectedMemFillUpdateCopyBufferTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemFillUpdateCopyBufferTests.cpp#L1) | [`vktProtectedMemFillUpdateCopyBufferTests.md`](../testfiles/protected_memory/vktProtectedMemFillUpdateCopyBufferTests.md) |
-| [`vktProtectedMemShaderImageAccessTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemShaderImageAccessTests.cpp#L1) | [`vktProtectedMemShaderImageAccessTests.md`](../testfiles/protected_memory/vktProtectedMemShaderImageAccessTests.md) |
-| [`vktProtectedMemStackTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemStackTests.cpp#L1) | [`vktProtectedMemStackTests.md`](../testfiles/protected_memory/vktProtectedMemStackTests.md) |
-| [`vktProtectedMemStorageBufferTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemStorageBufferTests.cpp#L1) | [`vktProtectedMemStorageBufferTests.md`](../testfiles/protected_memory/vktProtectedMemStorageBufferTests.md) |
-| [`vktProtectedMemTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemTests.cpp#L1) | [`vktProtectedMemTests.md`](../testfiles/protected_memory/vktProtectedMemTests.md) |
-| [`vktProtectedMemWorkgroupStorageTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemWorkgroupStorageTests.cpp#L1) | [`vktProtectedMemWorkgroupStorageTests.md`](../testfiles/protected_memory/vktProtectedMemWorkgroupStorageTests.md) |
-| [`vktProtectedMemWsiSwapchainTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemWsiSwapchainTests.cpp#L1) | [`vktProtectedMemWsiSwapchainTests.md`](../testfiles/protected_memory/vktProtectedMemWsiSwapchainTests.md) |
-| [`vktProtectedMemYCbCrConversionTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemYCbCrConversionTests.cpp#L1) | [`vktProtectedMemYCbCrConversionTests.md`](../testfiles/protected_memory/vktProtectedMemYCbCrConversionTests.md) |
+The category therefore compares both protected resource handling and the command or shader path that observes the resource.
 
-## Subgroup Structure and Major Themes
+## Level-3 Pages Navigation
 
-- [`attachment`](../../modules/vulkan/protected_memory/vktProtectedMemTests.cpp#L54-L60): load-op and clear-op tests with static and random reference data.
-- [`image`](../../modules/vulkan/protected_memory/vktProtectedMemTests.cpp#L62-L70): copy, blit, clear-color, buffer-to-image transfer, and shader image access tests.
-- [`buffer`](../../modules/vulkan/protected_memory/vktProtectedMemTests.cpp#L73-L80): fill, update, copy, and image-to-buffer transfer tests.
-- [`ssbo`](../../modules/vulkan/protected_memory/vktProtectedMemTests.cpp#L83-L89): protected storage-buffer read, write, and atomic operations across shader stages and pipeline-protection variants.
-- [`interaction`](../../modules/vulkan/protected_memory/vktProtectedMemTests.cpp#L92-L98): WSI swapchain tests outside Vulkan SC and protected YCbCr conversion tests.
-- [`workgroupstorage`](../../modules/vulkan/protected_memory/vktProtectedMemWorkgroupStorageTests.cpp#L370-L381) and [`stack`](../../modules/vulkan/protected_memory/vktProtectedMemStackTests.cpp#L409-L421): compute-shader storage-size sweeps validated through image output.
+| Registered test family or area | Level-3 page | What to read there |
+|--------------------------------|--------------|--------------------|
+| `attachment.clear_op` | [AttachmentClear](../testfiles/protected_memory/AttachmentClear.md) | Primary versus secondary `vkCmdClearAttachments` recording, protected render-pass setup, and four-sample image validation. |
+| `attachment.load_op` | [AttachmentLoad](../testfiles/protected_memory/AttachmentLoad.md) | Static and seeded-random render-pass load values, protected attachment initialization, and copyback checking. |
+| `image.blit` | [BlitImage](../testfiles/protected_memory/BlitImage.md) | Protected `vkCmdBlitImage` source/destination images, layout transitions, filtering, and image validation. |
+| `image.copy` | [CopyImage](../testfiles/protected_memory/CopyImage.md) | Protected `vkCmdCopyImage` transfer direction, primary/secondary recording, and destination checks. |
+| `image.clear_color` | [ClearColorImage](../testfiles/protected_memory/ClearColorImage.md) | Protected `vkCmdClearColorImage` cases and the image-validation path. |
+| `image.copy_buffer_to_image` | [CopyBufferToImage](../testfiles/protected_memory/CopyBufferToImage.md) | Protected buffer initialization, `vkCmdCopyBufferToImage`, layout synchronization, and image validation. |
+| `image.access` | [ShaderImageAccess](../testfiles/protected_memory/ShaderImageAccess.md) | Shader sampling, fetch, image load/store, atomic access, protection modes, and generated shader walkthroughs. |
+| `buffer.fill`, `buffer.update`, `buffer.copy` | [FillUpdateCopyBuffer](../testfiles/protected_memory/FillUpdateCopyBuffer.md) | Buffer fill, update, and copy operations across numeric types, command-buffer modes, and device-address variants. |
+| `buffer.copy_image_to_float_buffer` | [CopyImageToBuffer](../testfiles/protected_memory/CopyImageToBuffer.md) | Protected image-to-buffer transfer, pipeline-protected-access variants, and buffer validation. |
+| `ssbo.ssbo_read`, `ssbo.ssbo_write`, `ssbo.ssbo_atomic` | [StorageBuffer](../testfiles/protected_memory/StorageBuffer.md) | Shader-stage storage-buffer reads, writes, atomics, pipeline protection modes, and generated shader behavior. |
+| `interaction.wsi` | [WsiSwapchain](../testfiles/protected_memory/WsiSwapchain.md) | Platform-specific protected swapchain creation, acquire/render/present flow, and non-VulkanSC scope. |
+| `interaction.ycbcr` | [YCbCrConversion](../testfiles/protected_memory/YCbCrConversion.md) | Format and conversion matrices, protected multi-plane images, sampler conversion, and shader validation. |
+| `workgroupstorage` | [WorkgroupStorage](../testfiles/protected_memory/WorkgroupStorage.md) | Generated compute shaders that vary workgroup storage size and report results through an image. |
+| `stack` | [Stack](../testfiles/protected_memory/Stack.md) | Generated compute shaders that vary stack-array size and validate protected output through an image. |
 
-## Recurring Parameter Dimensions
+## Category Notes
 
-| Dimension | Observed examples |
-|---|---|
-| Command-buffer type | `primary` and `secondary` from [`getCmdBufferTypeStr()`](../../modules/vulkan/protected_memory/vktProtectedMemUtils.cpp#L575-L584) |
-| Static vs random data | Attachment, image-transfer, and buffer-transfer files create fixed data plus 10 seeded random cases |
-| Protection/pipeline access | `default`, `protected_access`, `protected_access_only`, and `no_protected_access` groups in SSBO and image-access files |
-| Shader stage | Fragment and compute branches in shader image access, SSBO, and YCbCr conversion files |
-| Storage sizes | Workgroup sizes `(1, 4, 5, 60, 101, 503)` and stack sizes `(32, 64, 128, 256, 512)` |
-| YCbCr conversion axes | Format, shader type, color model, color range, chroma location, optimal tiling, and disjoint flag |
-
-## Recurring Support Requirements
-
-The common support gate is [`checkProtectedContextSupport()`](../../modules/vulkan/protected_memory/vktProtectedMemUtils.cpp#L102-L124), which checks Vulkan 1.1, protected-memory feature support, optional YCbCr support, and optional pipeline-protected-access support. Several secondary-command-buffer tests include Vulkan SC property checks. YCbCr conversion additionally checks format features in [`checkSupport()`](../../modules/vulkan/protected_memory/vktProtectedMemYCbCrConversionTests.cpp#L148-L215), and fill/update/copy buffer device-address cases require `VK_KHR_device_address_commands` at [`vktProtectedMemFillUpdateCopyBufferTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemFillUpdateCopyBufferTests.cpp#L104-L109).
-
-## Recurring Verification Methods
-
-Observed verification uses image validation after protected rendering or transfer work, buffer validation after protected buffer operations, WSI swapchain creation/render helpers, and YCbCr shader conversion validation. Image-output validation is visible in files such as [`vktProtectedMemShaderImageAccessTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemShaderImageAccessTests.cpp#L1227-L1245), and buffer validation is visible in [`vktProtectedMemFillUpdateCopyBufferTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemFillUpdateCopyBufferTests.cpp#L331-L335) and [`vktProtectedMemStorageBufferTests.cpp`](../../modules/vulkan/protected_memory/vktProtectedMemStorageBufferTests.cpp#L671-L675).
-
-
-## Notes / Uncertainties
-
-- The documentation scope includes source files that register tests; helper-only files such as validators, context, and utilities are cited as supporting evidence but do not receive Level-3 pages.
-- Some implementation files register multiple sibling roots. Their Level-3 pages use one canonical parseable hierarchy tree and document additional roots in prose to satisfy the one-tree hierarchy contract.
+The visible Level-3 page count is fourteen because the dispatcher itself is registration-only and the direct `buffer` and `interaction` children each route to multiple implementation pages. The legacy `vkt*.md` pages remain source-navigation records; the links above point to the rewritten pages.
