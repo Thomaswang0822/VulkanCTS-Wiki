@@ -128,6 +128,7 @@ class MustpassInputTests(unittest.TestCase):
                 "geometry",
                 "robustness",
                 "subgroups",
+                "ycbcr",
                 "protected_memory",
                 "memory_model",
                 "ray_tracing_pipeline",

@@ -170,6 +170,10 @@ PAGES_WITHOUT_WALKTHROUGH: dict[str, set[str]] = {
     'tessellation': {
         'Limits.md',
     },
+    'ycbcr': {
+        'Copy.md',
+        'ImageOffset.md',
+    },
     'wsi': {
         'AcquireDrmDisplayTests.md',
         'DisplayTests.md',
