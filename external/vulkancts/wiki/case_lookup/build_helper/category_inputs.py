@@ -87,7 +87,7 @@ CATEGORY_MUSTPASS_FILES: dict[str, tuple[Path, ...]] = {
     # "conditional_rendering": (Path("conditional-rendering.txt"),),
     # "graphicsfuzz": (Path("graphicsfuzz.txt"),),
     # "imageless_framebuffer": (Path("imageless-framebuffer.txt"),),
-    # "transform_feedback": (Path("transform-feedback.txt"),),
+    "transform_feedback": (Path("transform-feedback.txt"),),
     # "descriptor_indexing": (Path("descriptor-indexing.txt"),),
     # "fragment_shader_interlock": (Path("fragment-shader-interlock.txt"),),
     # "fragment_shading_barycentric": (Path("fragment-shading-barycentric.txt"),),

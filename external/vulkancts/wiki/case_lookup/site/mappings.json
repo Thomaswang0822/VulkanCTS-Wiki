@@ -1,6 +1,6 @@
 {
-  "category_count": 35,
-  "mapping_count": 10669,
+  "category_count": 36,
+  "mapping_count": 10694,
   "mappings": {
     "dEQP-VK.api.buffer.basic": [
       "Buffer",
@@ -49281,6 +49281,131 @@
       "TexelOffset",
       "texture",
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/texture/TexelOffset"
+    ],
+    "dEQP-VK.transform_feedback.fuzz.2_level_array": [
+      "FuzzLayout",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/FuzzLayout"
+    ],
+    "dEQP-VK.transform_feedback.fuzz.2_level_struct_array": [
+      "FuzzLayout",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/FuzzLayout"
+    ],
+    "dEQP-VK.transform_feedback.fuzz.3_level_array": [
+      "FuzzLayout",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/FuzzLayout"
+    ],
+    "dEQP-VK.transform_feedback.fuzz.instance_array_basic_type": [
+      "FuzzLayout",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/FuzzLayout"
+    ],
+    "dEQP-VK.transform_feedback.fuzz.multi_basic_types": [
+      "FuzzLayout",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/FuzzLayout"
+    ],
+    "dEQP-VK.transform_feedback.fuzz.multi_nested_struct": [
+      "FuzzLayout",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/FuzzLayout"
+    ],
+    "dEQP-VK.transform_feedback.fuzz.random_geometry": [
+      "FuzzLayout",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/FuzzLayout"
+    ],
+    "dEQP-VK.transform_feedback.fuzz.random_vertex": [
+      "FuzzLayout",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/FuzzLayout"
+    ],
+    "dEQP-VK.transform_feedback.fuzz.single_basic_array": [
+      "FuzzLayout",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/FuzzLayout"
+    ],
+    "dEQP-VK.transform_feedback.fuzz.single_basic_type": [
+      "FuzzLayout",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/FuzzLayout"
+    ],
+    "dEQP-VK.transform_feedback.fuzz.single_nested_struct": [
+      "FuzzLayout",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/FuzzLayout"
+    ],
+    "dEQP-VK.transform_feedback.fuzz.single_nested_struct_array": [
+      "FuzzLayout",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/FuzzLayout"
+    ],
+    "dEQP-VK.transform_feedback.fuzz.single_struct": [
+      "FuzzLayout",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/FuzzLayout"
+    ],
+    "dEQP-VK.transform_feedback.fuzz.single_struct_array": [
+      "FuzzLayout",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/FuzzLayout"
+    ],
+    "dEQP-VK.transform_feedback.fuzz.various_buffers": [
+      "FuzzLayout",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/FuzzLayout"
+    ],
+    "dEQP-VK.transform_feedback.primitive_restart.dynamic_primitive_restart_dynamic_primitive_topology": [
+      "PrimitiveRestart",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/PrimitiveRestart"
+    ],
+    "dEQP-VK.transform_feedback.primitive_restart.dynamic_primitive_restart_static_primitive_topology": [
+      "PrimitiveRestart",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/PrimitiveRestart"
+    ],
+    "dEQP-VK.transform_feedback.primitive_restart.static_primitive_restart_dynamic_primitive_topology": [
+      "PrimitiveRestart",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/PrimitiveRestart"
+    ],
+    "dEQP-VK.transform_feedback.primitive_restart.static_primitive_restart_static_primitive_topology": [
+      "PrimitiveRestart",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/PrimitiveRestart"
+    ],
+    "dEQP-VK.transform_feedback.primitives_generated_query.concurrent": [
+      "PrimitivesGeneratedQuery",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/PrimitivesGeneratedQuery"
+    ],
+    "dEQP-VK.transform_feedback.primitives_generated_query.copy": [
+      "PrimitivesGeneratedQuery",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/PrimitivesGeneratedQuery"
+    ],
+    "dEQP-VK.transform_feedback.primitives_generated_query.get": [
+      "PrimitivesGeneratedQuery",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/PrimitivesGeneratedQuery"
+    ],
+    "dEQP-VK.transform_feedback.simple": [
+      "Simple",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/Simple"
+    ],
+    "dEQP-VK.transform_feedback.simple_fast_gpl": [
+      "Simple",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/Simple"
+    ],
+    "dEQP-VK.transform_feedback.simple_optimized_gpl": [
+      "Simple",
+      "transform_feedback",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/transform_feedback/Simple"
     ],
     "dEQP-VK.ubo.2_level_array": [
       "UniformBlockTests",

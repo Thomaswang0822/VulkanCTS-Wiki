@@ -1,12 +1,14 @@
-# transform_feedback
-
 ## Overview
 
-The [`transform_feedback`](../../modules/vulkan/transform_feedback/vktTransformFeedbackTests.cpp#L36-L55) category documents Vulkan transform-feedback tests. Inspected files cover simple transform-feedback capture and replay patterns, graphics-pipeline-library construction variants, interface-block layout fuzzing, primitives-generated-query interactions, and primitive-restart behavior.
+The `transform_feedback` test category collects tests that check transform-feedback capture, its buffer layout and counters, and its interaction with primitive generation, pipeline state, and query results.
 
-## Registration Entry Point
+## Background Knowledge
 
-The category is rooted in [`createTests()`](../../modules/vulkan/transform_feedback/vktTransformFeedbackTests.cpp#L36-L55):
+- **Transform feedback** captures outputs from the last pre-rasterization shader stage into application-provided buffers. Buffer number, byte offset, and stride determine where each captured output is written; the layout cases and simple capture cases depend on this relationship.
+- **Primitive assembly and generated primitives** determine what a draw produces before rasterization. This is needed to interpret both primitive-restart capture results and primitives-generated query counts.
+- **Vulkan query results** are stored asynchronously in query pools and can be read by the host or copied to a buffer. Query reset, result width, availability, and synchronization affect how the query-oriented pages interpret a result.
+
+## Category Structure
 
 ```text
 transform_feedback
@@ -18,55 +20,26 @@ transform_feedback
 └── simple_optimized_gpl
 ```
 
-## File Inventory
+The `simple`, `simple_fast_gpl`, and `simple_optimized_gpl` test families share one implementation-oriented Level-3 page because they exercise the same generated matrix under different graphics-pipeline construction modes.
 
-| File | Role | Notes |
-|---|---|---|
-| [`vktTransformFeedbackTests.cpp`](../../modules/vulkan/transform_feedback/vktTransformFeedbackTests.cpp#L1) | Registration | Top-level dispatcher |
-| [`vktTransformFeedbackSimpleTests.cpp`](../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1) | Implementation | Simple, fast GPL (graphics pipeline library), and optimized-GPL transform-feedback matrices |
-| [`vktTransformFeedbackFuzzLayoutTests.cpp`](../../modules/vulkan/transform_feedback/vktTransformFeedbackFuzzLayoutTests.cpp#L1) | Implementation | Interface-block layout group registration |
-| [`vktTransformFeedbackFuzzLayoutCase.cpp`](../../modules/vulkan/transform_feedback/vktTransformFeedbackFuzzLayoutCase.cpp#L1) | Helper/implementation support | Fuzz-layout execution, support, and validation logic |
-| [`vktTransformFeedbackRandomLayoutCase.cpp`](../../modules/vulkan/transform_feedback/vktTransformFeedbackRandomLayoutCase.cpp#L1) | Helper | Random layout case construction support |
-| [`vktPrimitivesGeneratedQueryTests.cpp`](../../modules/vulkan/transform_feedback/vktPrimitivesGeneratedQueryTests.cpp#L1) | Implementation | Primitives generated query and transform-feedback query interactions |
-| [`vktTransformFeedbackPrimitiveRestartTests.cpp`](../../modules/vulkan/transform_feedback/vktTransformFeedbackPrimitiveRestartTests.cpp#L1) | Implementation | Primitive restart and dynamic topology/restart matrix |
+## How the Families Fit Together
 
-## Level-3 Documents
+The families observe different parts of the same transform-feedback data path:
 
-| Source file | Wiki document |
-|---|---|
-| [`vktPrimitivesGeneratedQueryTests.cpp`](../../modules/vulkan/transform_feedback/vktPrimitivesGeneratedQueryTests.cpp#L1) | [`vktPrimitivesGeneratedQueryTests.md`](../testfiles/transform_feedback/vktPrimitivesGeneratedQueryTests.md) |
-| [`vktTransformFeedbackFuzzLayoutTests.cpp`](../../modules/vulkan/transform_feedback/vktTransformFeedbackFuzzLayoutTests.cpp#L1) | [`vktTransformFeedbackFuzzLayoutTests.md`](../testfiles/transform_feedback/vktTransformFeedbackFuzzLayoutTests.md) |
-| [`vktTransformFeedbackPrimitiveRestartTests.cpp`](../../modules/vulkan/transform_feedback/vktTransformFeedbackPrimitiveRestartTests.cpp#L1) | [`vktTransformFeedbackPrimitiveRestartTests.md`](../testfiles/transform_feedback/vktTransformFeedbackPrimitiveRestartTests.md) |
-| [`vktTransformFeedbackSimpleTests.cpp`](../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1) | [`vktTransformFeedbackSimpleTests.md`](../testfiles/transform_feedback/vktTransformFeedbackSimpleTests.md) |
-| [`vktTransformFeedbackTests.cpp`](../../modules/vulkan/transform_feedback/vktTransformFeedbackTests.cpp#L1) | [`vktTransformFeedbackTests.md`](../testfiles/transform_feedback/vktTransformFeedbackTests.md) |
+- **when** capture is laid out across scalar, aggregate, or multiple-buffer outputs, `fuzz` checks the generated interface-block layout and captured values;
+- **when** indexed primitive assembly changes because of restart state or topology state, `primitive_restart` checks the captured positions and capture counter;
+- **when** the question is how many primitives the pipeline generated, `primitives_generated_query` checks query-pool results and their interaction with transform-feedback queries;
+- **when** the capture operation itself is varied, the `simple` family checks basic output capture, resume, streams, built-in outputs, indirect consumers, synchronization, and graphics-pipeline-library construction paths.
 
-## Subgroup Structure and Major Themes
+## Level-3 Pages Navigation
 
-- [`simple`](../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L7264-L7276), [`simple_fast_gpl`](../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L7267-L7274), and [`simple_optimized_gpl`](../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L7267-L7274) use the same generator under different pipeline construction modes.
-- [`fuzz`](../../modules/vulkan/transform_feedback/vktTransformFeedbackFuzzLayoutTests.cpp#L364-L365) covers deterministic and randomized transform-feedback interface-block layout cases.
-- [`primitives_generated_query`](../../modules/vulkan/transform_feedback/vktPrimitivesGeneratedQueryTests.cpp#L3062-L3065) checks primitives-generated-query results, optionally cross-checking transform-feedback query counters.
-- [`primitive_restart`](../../modules/vulkan/transform_feedback/vktTransformFeedbackPrimitiveRestartTests.cpp#L426-L440) covers static/dynamic primitive restart and topology combinations.
+| Registered test family or area | Level-3 page | What to read there |
+|--------------------------------|--------------|--------------------|
+| `simple`, `simple_fast_gpl`, `simple_optimized_gpl` | [Simple](../testfiles/transform_feedback/Simple.md) | Shared generated capture matrix, pipeline construction variants, resume, streams, indirect draws, built-in outputs, and host-side validation. |
+| `fuzz` | [FuzzLayout](../testfiles/transform_feedback/FuzzLayout.md) | Deterministic and seeded-random interface-block layouts, recursive aggregate packing, and captured-value validation. |
+| `primitive_restart` | [PrimitiveRestart](../testfiles/transform_feedback/PrimitiveRestart.md) | Static and dynamic primitive-restart/topology state and its observable transform-feedback output. |
+| `primitives_generated_query` | [PrimitivesGeneratedQuery](../testfiles/transform_feedback/PrimitivesGeneratedQuery.md) | Host-read and device-copy query results, reset/readback variants, query ordering, stream selection, and concurrent query cases. |
 
-## Recurring Parameter Dimensions
+## Category Notes
 
-| Dimension | Observed examples |
-|---|---|
-| Pipeline construction | Monolithic, fast linked library, link-time optimized library in [`constructionTypes[]`](../../modules/vulkan/transform_feedback/vktTransformFeedbackTests.cpp#L42-L46) |
-| Buffer count and size | `{1,2,4,8}` buffers and `{256,512,128*1024}` sizes in [`createTransformFeedbackSimpleTests()`](../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L6457-L6501) |
-| Stream id | Stream ids such as `{0,1,3,6,14}` in simple and stream cases |
-| Query dimensions | read/reset/result type, query count, command-buffer case, query order, outside draws, and availability bit in [`testGenerator()`](../../modules/vulkan/transform_feedback/vktPrimitivesGeneratedQueryTests.cpp#L2801-L2953) |
-| Interface layout | GLSL data type, precision, arrays, structs, nested structs, instance arrays, buffers, and vertex/geometry stage in [`InterfaceBlockTests::init()`](../../modules/vulkan/transform_feedback/vktTransformFeedbackFuzzLayoutTests.cpp#L372-L740) |
-| Dynamic state | Dynamic primitive restart and dynamic primitive topology in [`createTransformFeedbackPrimitiveRestartTests()`](../../modules/vulkan/transform_feedback/vktTransformFeedbackPrimitiveRestartTests.cpp#L432-L438) |
-
-## Recurring Support Requirements
-
-The central requirement is `VK_EXT_transform_feedback`, checked in [`TransformFeedbackTestCase::checkSupport()`](../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4597-L4607), [`PrimitiveRestartCase::checkSupport()`](../../modules/vulkan/transform_feedback/vktTransformFeedbackPrimitiveRestartTests.cpp#L90-L99), and primitives-generated-query support paths. Other observed gates include `VK_KHR_get_physical_device_properties2`, `VK_EXT_primitives_generated_query`, `VK_EXT_host_query_reset`, `VK_EXT_color_write_enable`, `VK_EXT_extended_dynamic_state`, `VK_EXT_extended_dynamic_state2`, `VK_KHR_maintenance5`, `VK_KHR_draw_indirect_count`, `VK_KHR_device_address_commands`, `VK_EXT_shader_object`, geometry/tessellation shader core features, large points, shaderFloat64, multiview, pipeline statistics, inherited queries, and transform-feedback property limits.
-
-## Recurring Verification Methods
-
-Observed verification methods include transform-feedback buffer readback and byte/value validation, query-pool get/copy counter comparison, image comparison for draw-indirect rendering, interface-layout value validation through [`validateValues()`](../../modules/vulkan/transform_feedback/vktTransformFeedbackFuzzLayoutCase.cpp#L1853-L1858), and primitive-restart counter/position validation after transform-feedback capture.
-
-
-## Notes / Uncertainties
-
-- The simple transform-feedback groups generate thousands of leaf cases from source loops. Their Level-3 page documents the three sibling top-level roots (`simple`, `simple_fast_gpl`, and `simple_optimized_gpl`) and summarizes generated leaf matrices in prose instead of duplicating every leaf case in the hierarchy tree.
+The preserved `vkt*.md` files are the original source-navigation pages. The shortened CamelCase pages above are the rewritten English documents; the dispatcher itself is represented by this category gateway rather than by an additional technical Level-3 page.
