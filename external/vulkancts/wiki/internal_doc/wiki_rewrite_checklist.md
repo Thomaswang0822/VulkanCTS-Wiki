@@ -41,7 +41,7 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [x] 31. protected_memory — 14 (UB: 14)
 - [ ] 32. device_group — 1
 - [x] 33. memory_model — 3 (UB: 2)
-- [ ] 34. conditional_rendering — 7
+- [x] 34. conditional_rendering — 6
 - [ ] 35. graphicsfuzz — 1
 - [ ] 36. imageless_framebuffer — 1
 - [x] 37. transform_feedback — 4 (UB: 4)
@@ -62,4 +62,4 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [ ] 52. tensor — 7
 - [ ] 53. data_graph — 4
 
-**Summary**: 36 done, 17 todo.
+**Summary**: 37 done, 16 todo.

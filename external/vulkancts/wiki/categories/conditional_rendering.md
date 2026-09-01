@@ -1,18 +1,14 @@
-# Conditional Rendering Tests
+## Overview
 
-## Summary
+The `conditional_rendering` test category collects tests that check whether Vulkan commands execute, are suppressed, or remain unaffected under `VK_EXT_conditional_rendering`.
 
-The conditional rendering category exercises `VK_EXT_conditional_rendering` behavior around commands that are conditionally executed and commands that are expected to ignore the active conditional-rendering state. The root registration file adds six direct child groups. Source evidence is concentrated under `external/vulkancts/modules/vulkan/conditional_rendering/`.
+## Background Knowledge
 
-## Registration Entry Point
+- **Conditional rendering state:** `vkCmdBeginConditionalRenderingEXT` reads a 32-bit value from a buffer and controls affected commands until `vkCmdEndConditionalRenderingEXT`. The inverted flag reverses the zero/nonzero decision. The draw, dispatch, clear, transform-feedback, and ignored-command families all rely on this state.
+- **Command-buffer inheritance:** A secondary command buffer can inherit conditional-rendering state when its inheritance structure enables it. This matters when the same affected command is recorded at different primary or secondary levels.
+- **Observable command effects:** A conditional decision is tested through an external result such as pixels, a dispatch counter, transform-feedback data, or buffer contents. A successful submission alone does not show that the command had the intended effect.
 
-| Item | Evidence |
-|---|---|
-| Package root registration | [`addRootChild("conditional_rendering", ...)`](../../modules/vulkan/vktTestPackage.cpp#L1377-L1380) |
-| Category factory | [`conditional::createTests()`](../../modules/vulkan/conditional_rendering/vktConditionalTests.cpp#L56-L59) |
-| Direct child registration | [`createChildren()`](../../modules/vulkan/conditional_rendering/vktConditionalTests.cpp#L42-L52) |
-
-## Subgroup Structure
+## Category Structure
 
 ```text
 conditional_rendering
@@ -24,54 +20,30 @@ conditional_rendering
 └── transform_feedback
 ```
 
-## File Inventory
+The registration-only dispatcher `vktConditionalTests.cpp` creates these six direct families. The shared conditional-rendering utility supplies predicate data, naming, buffers, and capability checks; it does not register another family.
 
-| File | Registered group | Role |
-|---|---:|---|
-| [vktConditionalTests.cpp](../../modules/vulkan/conditional_rendering/vktConditionalTests.cpp) | `conditional_rendering` | Category dispatcher registering six direct children. |
-| [vktConditionalDrawTests.cpp](../../modules/vulkan/conditional_rendering/vktConditionalDrawTests.cpp) | `draw` | Draw-command implementation. |
-| [vktConditionalDispatchTests.cpp](../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp) | `dispatch` | Dispatch-command implementation. |
-| [vktConditionalClearAttachmentTests.cpp](../../modules/vulkan/conditional_rendering/vktConditionalClearAttachmentTests.cpp) | `clear_attachments` | Clear-attachments implementation. |
-| [vktConditionalDrawAndClearTests.cpp](../../modules/vulkan/conditional_rendering/vktConditionalDrawAndClearTests.cpp) | `draw_clear` | Draw/clear interaction implementation. |
-| [vktConditionalIgnoreTests.cpp](../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp) | `conditional_ignore` | Commands expected to ignore conditional rendering. |
-| [vktConditionalTransformFeedbackTests.cpp](../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp) | `transform_feedback` | Transform-feedback implementation. |
-| [vktConditionalRenderingTestUtil.cpp](../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp) / [vktConditionalRenderingTestUtil.hpp](../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.hpp) | helper only | Shared condition data, naming, buffers, and capability checks; no separate Level-3 page because it does not register tests. |
+## How the Families Fit Together
 
-## Recurring Themes
+The families vary both **which command** is under conditional control and **how its effect** is observed.
 
-- Shared `ConditionalData` rows encode condition placement, inversion, inheritance, expected execution, nested secondary command buffers, render-pass-clear behavior, and host/local memory choices.
-- Draw, dispatch, and clear-attachment groups use the shared condition rows to verify whether command effects are present or absent.
-- `conditional_ignore` documents command classes that should still produce their expected effects while conditional rendering is active.
-- `transform_feedback` combines conditional rendering with transform-feedback draw command variants.
+- **Draw**, **dispatch**, and **clear_attachments** test affected commands that should run for an allowed predicate and have no observable effect for a suppressed predicate.
+- **draw_clear** combines attachment clears with draw and buffer-update interactions so the command scope and result state can be compared in one family.
+- **conditional_ignore** checks commands that must continue to operate even while conditional rendering is active, which is the category's contrast case.
+- **transform_feedback** applies the same conditional-rendering question to captured vertex data and draw variants rather than only to a color image.
 
-## Recurring Parameters
+Together, the families cover predicate interpretation, inversion, memory placement, command-buffer scope, inheritance, nesting, and command-specific result checking.
 
-| Dimension | Evidence |
-|---|---|
-| Condition buffer memory and command-buffer placement | [`ConditionalData`](../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.hpp#L44-L59) and [`s_testsData`](../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.hpp#L61-L144) |
-| Condition-name generation | [`operator<<`](../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L138-L185) |
-| Draw command names | [`getDrawCommandTypeName()`](../../modules/vulkan/conditional_rendering/vktConditionalDrawTests.cpp#L63-L83) |
-| Dispatch command names | [`getDispatchCommandTypeName()`](../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L50-L64) |
-| Transform-feedback command names | [`getDrawCommandTypeName()`](../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L64-L90) |
+## Level-3 Pages Navigation
 
-## Support / Feature Requirements
+| Registered test family or area | Level-3 page | What to read there |
+|---|---|---|
+| `draw` | [Draw.md](../testfiles/conditional_rendering/Draw.md) | Direct, indexed, indirect, and indirect-count draws, including image comparison and command-buffer variants. |
+| `dispatch` | [Dispatch.md](../testfiles/conditional_rendering/Dispatch.md) | Direct, indirect, and base dispatch paths, compute execution, predicate variants, and counter validation. |
+| `clear_attachments` | [ClearAttachments.md](../testfiles/conditional_rendering/ClearAttachments.md) | Conditional color and depth/stencil attachment clears, including secondary and nested command-buffer paths. |
+| `draw_clear` | [DrawAndClear.md](../testfiles/conditional_rendering/DrawAndClear.md) | Combined clear, draw, and update-buffer interactions under the shared condition matrix. |
+| `conditional_ignore` | [Ignore.md](../testfiles/conditional_rendering/Ignore.md) | Commands that are expected to ignore active conditional rendering and their command-specific observations. |
+| `transform_feedback` | [TransformFeedback.md](../testfiles/conditional_rendering/TransformFeedback.md) | Conditional transform-feedback draw commands and captured-buffer validation. |
 
-The shared helper requires `VK_EXT_conditional_rendering`, checks the `conditionalRendering` and `inheritedConditionalRendering` feature bits where applicable, requires `VK_EXT_nested_command_buffer` for nested rows, and requires `VK_KHR_maintenance7` for inherited primary-command-buffer cases. Individual files add command-specific gates such as `VK_KHR_draw_indirect_count`, `VK_KHR_device_group` for `dispatch_base`, `VK_EXT_transform_feedback`, `VK_EXT_multi_draw`, `VK_EXT_shader_object`, `VK_KHR_ray_tracing_pipeline`, `VK_KHR_ray_tracing_maintenance1`, `VK_KHR_maintenance5`, and `VK_KHR_device_address_commands` where their source paths require them.
+## Category Notes
 
-## Verification Methods
-
-Verification is result-oriented: draw and clear tests compare rendered images against references; dispatch tests compare an output counter to the expected number of shader invocations; transform-feedback tests compare captured float values; ignore tests compare command-specific image, depth/stencil, or buffer outputs.
-
-## Level-3 Pages
-
-- [vktConditionalTests.md](../testfiles/conditional_rendering/vktConditionalTests.md)
-- [vktConditionalDrawTests.md](../testfiles/conditional_rendering/vktConditionalDrawTests.md)
-- [vktConditionalDispatchTests.md](../testfiles/conditional_rendering/vktConditionalDispatchTests.md)
-- [vktConditionalClearAttachmentTests.md](../testfiles/conditional_rendering/vktConditionalClearAttachmentTests.md)
-- [vktConditionalDrawAndClearTests.md](../testfiles/conditional_rendering/vktConditionalDrawAndClearTests.md)
-- [vktConditionalIgnoreTests.md](../testfiles/conditional_rendering/vktConditionalIgnoreTests.md)
-- [vktConditionalTransformFeedbackTests.md](../testfiles/conditional_rendering/vktConditionalTransformFeedbackTests.md)
-
-## Scope Notes
-
-Only files under the conditional-rendering source directory that register tests have Level-3 pages. The shared utility file is documented as supporting evidence but is not given a Level-3 page because it does not register a test group.
+The legacy dispatcher page `vktConditionalTests.md` is folded into this category gateway because it contains registration rather than an independent implementation-bearing test family. The legacy family pages remain as source-navigation records; the shortened pages above are the canonical rewritten documentation.

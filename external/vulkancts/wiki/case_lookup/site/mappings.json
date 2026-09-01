@@ -1,6 +1,6 @@
 {
-  "category_count": 36,
-  "mapping_count": 10694,
+  "category_count": 37,
+  "mapping_count": 11050,
   "mappings": {
     "dEQP-VK.api.buffer.basic": [
       "Buffer",
@@ -3526,6 +3526,1786 @@
       "ZeroInitializeWorkgroupMemory",
       "compute",
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/compute/ZeroInitializeWorkgroupMemory"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_expect_execution": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_expect_execution_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_expect_noop": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_expect_noop_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_inherited_expect_execution": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_inherited_expect_execution_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_inherited_expect_noop": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_inherited_expect_noop_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_nested_buffer_expect_execution": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_nested_buffer_expect_execution_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_nested_buffer_expect_noop": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_nested_buffer_expect_noop_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_nested_buffer_nested_inherited_expect_execution": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_nested_buffer_nested_inherited_expect_execution_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_nested_buffer_nested_inherited_expect_noop": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_nested_buffer_nested_inherited_expect_noop_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_nested_inherited_expect_execution": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_nested_inherited_expect_execution_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_nested_inherited_expect_noop": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_nested_inherited_expect_noop_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_secondary_buffer_expect_execution": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_secondary_buffer_expect_execution_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_secondary_buffer_expect_noop": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_secondary_buffer_expect_noop_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_secondary_buffer_inherited_expect_execution": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_secondary_buffer_inherited_expect_execution_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_secondary_buffer_inherited_expect_noop": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_host_memory_secondary_buffer_inherited_expect_noop_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_expect_execution": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_expect_execution_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_expect_noop": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_expect_noop_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_inherited_expect_execution": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_inherited_expect_execution_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_inherited_expect_noop": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_inherited_expect_noop_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_nested_buffer_expect_execution": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_nested_buffer_expect_execution_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_nested_buffer_expect_noop": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_nested_buffer_expect_noop_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_nested_buffer_nested_inherited_expect_execution": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_nested_buffer_nested_inherited_expect_execution_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_nested_buffer_nested_inherited_expect_noop": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_nested_buffer_nested_inherited_expect_noop_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_nested_inherited_expect_execution": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_nested_inherited_expect_execution_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_nested_inherited_expect_noop": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_nested_inherited_expect_noop_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_secondary_buffer_expect_execution": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_secondary_buffer_expect_execution_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_secondary_buffer_expect_noop": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_secondary_buffer_expect_noop_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_secondary_buffer_inherited_expect_execution": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_secondary_buffer_inherited_expect_execution_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_secondary_buffer_inherited_expect_noop": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.condition_local_memory_secondary_buffer_inherited_expect_noop_inverted": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.no_condition_host_memory_nested_buffer_nested_inherited_expect_execution": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.no_condition_host_memory_secondary_buffer_inherited_expect_execution": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.no_condition_local_memory_nested_buffer_nested_inherited_expect_execution": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.clear_attachments.no_condition_local_memory_secondary_buffer_inherited_expect_execution": [
+      "ClearAttachments",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/ClearAttachments"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.bind_descriptor_sets": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.bind_descriptor_sets_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.bind_index_buffer": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.bind_index_buffer_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.bind_pipeline": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.bind_pipeline_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.bind_shaders": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.bind_shaders_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.bind_vertex_buffers": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.bind_vertex_buffers_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.blit_image": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.blit_image_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_inherited_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_inherited_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_inherited_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_nested_buffer_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_nested_buffer_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_nested_buffer_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_nested_buffer_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_nested_buffer_nested_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_nested_buffer_nested_inherited_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_nested_buffer_nested_inherited_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_nested_buffer_nested_inherited_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_nested_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_nested_inherited_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_nested_inherited_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_nested_inherited_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_secondary_buffer_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_secondary_buffer_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_secondary_buffer_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_secondary_buffer_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_secondary_buffer_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_secondary_buffer_inherited_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_secondary_buffer_inherited_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_host_memory_secondary_buffer_inherited_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_inherited_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_inherited_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_inherited_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_nested_buffer_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_nested_buffer_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_nested_buffer_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_nested_buffer_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_nested_buffer_nested_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_nested_buffer_nested_inherited_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_nested_buffer_nested_inherited_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_nested_buffer_nested_inherited_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_nested_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_nested_inherited_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_nested_inherited_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_nested_inherited_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_secondary_buffer_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_secondary_buffer_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_secondary_buffer_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_secondary_buffer_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_secondary_buffer_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_secondary_buffer_inherited_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_secondary_buffer_inherited_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_condition_local_memory_secondary_buffer_inherited_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_image": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_image_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_no_condition_host_memory_nested_buffer_nested_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_no_condition_host_memory_secondary_buffer_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_no_condition_local_memory_nested_buffer_nested_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_color_no_condition_local_memory_secondary_buffer_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_inherited_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_inherited_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_inherited_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_nested_buffer_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_nested_buffer_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_nested_buffer_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_nested_buffer_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_nested_buffer_nested_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_nested_buffer_nested_inherited_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_nested_buffer_nested_inherited_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_nested_buffer_nested_inherited_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_nested_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_nested_inherited_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_nested_inherited_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_nested_inherited_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_secondary_buffer_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_secondary_buffer_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_secondary_buffer_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_secondary_buffer_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_secondary_buffer_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_secondary_buffer_inherited_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_secondary_buffer_inherited_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_host_memory_secondary_buffer_inherited_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_inherited_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_inherited_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_inherited_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_nested_buffer_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_nested_buffer_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_nested_buffer_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_nested_buffer_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_nested_buffer_nested_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_nested_buffer_nested_inherited_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_nested_buffer_nested_inherited_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_nested_buffer_nested_inherited_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_nested_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_nested_inherited_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_nested_inherited_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_nested_inherited_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_secondary_buffer_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_secondary_buffer_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_secondary_buffer_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_secondary_buffer_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_secondary_buffer_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_secondary_buffer_inherited_expect_execution_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_secondary_buffer_inherited_expect_noop": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_condition_local_memory_secondary_buffer_inherited_expect_noop_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_no_condition_host_memory_nested_buffer_nested_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_no_condition_host_memory_secondary_buffer_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_no_condition_local_memory_nested_buffer_nested_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_no_condition_local_memory_secondary_buffer_inherited_expect_execution": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_stencil_image": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.clear_depth_stencil_image_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.copy_buffer": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.copy_buffer_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.copy_buffer_to_image": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.copy_buffer_to_image_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.copy_image": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.copy_image_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.copy_image_to_buffer": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.copy_image_to_buffer_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.fill_buffer": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.fill_buffer_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.push_constant": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.push_constant_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.resolve_image": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.resolve_image_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.trace_rays": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.trace_rays_indirect": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.trace_rays_indirect2": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.trace_rays_indirect2_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.trace_rays_indirect_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.trace_rays_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.update_buffer": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.conditional_ignore.update_buffer_inverted": [
+      "Ignore",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Ignore"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.alloc_offset": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.compute_queue": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_expect_execution": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_expect_execution_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_expect_noop": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_expect_noop_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_inherited_expect_execution": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_inherited_expect_execution_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_inherited_expect_noop": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_inherited_expect_noop_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_nested_buffer_expect_execution": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_nested_buffer_expect_execution_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_nested_buffer_expect_noop": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_nested_buffer_expect_noop_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_nested_buffer_nested_inherited_expect_execution": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_nested_buffer_nested_inherited_expect_execution_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_nested_buffer_nested_inherited_expect_noop": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_nested_buffer_nested_inherited_expect_noop_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_nested_inherited_expect_execution": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_nested_inherited_expect_execution_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_nested_inherited_expect_noop": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_nested_inherited_expect_noop_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_secondary_buffer_expect_execution": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_secondary_buffer_expect_execution_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_secondary_buffer_expect_noop": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_secondary_buffer_expect_noop_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_secondary_buffer_inherited_expect_execution": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_secondary_buffer_inherited_expect_execution_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_secondary_buffer_inherited_expect_noop": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_host_memory_secondary_buffer_inherited_expect_noop_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_expect_execution": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_expect_execution_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_expect_noop": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_expect_noop_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_inherited_expect_execution": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_inherited_expect_execution_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_inherited_expect_noop": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_inherited_expect_noop_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_nested_buffer_expect_execution": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_nested_buffer_expect_execution_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_nested_buffer_expect_noop": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_nested_buffer_expect_noop_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_nested_buffer_nested_inherited_expect_execution": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_nested_buffer_nested_inherited_expect_execution_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_nested_buffer_nested_inherited_expect_noop": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_nested_buffer_nested_inherited_expect_noop_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_nested_inherited_expect_execution": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_nested_inherited_expect_execution_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_nested_inherited_expect_noop": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_nested_inherited_expect_noop_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_secondary_buffer_expect_execution": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_secondary_buffer_expect_execution_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_secondary_buffer_expect_noop": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_secondary_buffer_expect_noop_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_secondary_buffer_inherited_expect_execution": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_secondary_buffer_inherited_expect_execution_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_secondary_buffer_inherited_expect_noop": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_local_memory_secondary_buffer_inherited_expect_noop_inverted": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.condition_size": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.no_condition_host_memory_nested_buffer_nested_inherited_expect_execution": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.no_condition_host_memory_secondary_buffer_inherited_expect_execution": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.no_condition_local_memory_nested_buffer_nested_inherited_expect_execution": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.dispatch.no_condition_local_memory_secondary_buffer_inherited_expect_execution": [
+      "Dispatch",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Dispatch"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_expect_execution": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_expect_execution_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_expect_execution_inverted_rp_clear": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_expect_execution_rp_clear": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_expect_noop": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_expect_noop_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_expect_noop_inverted_rp_clear": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_expect_noop_rp_clear": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_inherited_expect_execution": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_inherited_expect_execution_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_inherited_expect_noop": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_inherited_expect_noop_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_nested_buffer_expect_execution": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_nested_buffer_expect_execution_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_nested_buffer_expect_noop": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_nested_buffer_expect_noop_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_nested_buffer_nested_inherited_expect_execution": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_nested_buffer_nested_inherited_expect_execution_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_nested_buffer_nested_inherited_expect_noop": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_nested_buffer_nested_inherited_expect_noop_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_nested_inherited_expect_execution": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_nested_inherited_expect_execution_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_nested_inherited_expect_noop": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_nested_inherited_expect_noop_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_secondary_buffer_expect_execution": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_secondary_buffer_expect_execution_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_secondary_buffer_expect_noop": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_secondary_buffer_expect_noop_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_secondary_buffer_inherited_expect_execution": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_secondary_buffer_inherited_expect_execution_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_secondary_buffer_inherited_expect_noop": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_host_memory_secondary_buffer_inherited_expect_noop_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_expect_execution": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_expect_execution_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_expect_noop": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_expect_noop_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_inherited_expect_execution": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_inherited_expect_execution_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_inherited_expect_noop": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_inherited_expect_noop_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_nested_buffer_expect_execution": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_nested_buffer_expect_execution_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_nested_buffer_expect_noop": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_nested_buffer_expect_noop_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_nested_buffer_nested_inherited_expect_execution": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_nested_buffer_nested_inherited_expect_execution_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_nested_buffer_nested_inherited_expect_noop": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_nested_buffer_nested_inherited_expect_noop_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_nested_inherited_expect_execution": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_nested_inherited_expect_execution_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_nested_inherited_expect_noop": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_nested_inherited_expect_noop_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_secondary_buffer_expect_execution": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_secondary_buffer_expect_execution_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_secondary_buffer_expect_noop": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_secondary_buffer_expect_noop_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_secondary_buffer_inherited_expect_execution": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_secondary_buffer_inherited_expect_execution_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_secondary_buffer_inherited_expect_noop": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.condition_local_memory_secondary_buffer_inherited_expect_noop_inverted": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.no_condition_host_memory_nested_buffer_nested_inherited_expect_execution": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.no_condition_host_memory_secondary_buffer_inherited_expect_execution": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.no_condition_local_memory_nested_buffer_nested_inherited_expect_execution": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw.no_condition_local_memory_secondary_buffer_inherited_expect_execution": [
+      "Draw",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/Draw"
+    ],
+    "dEQP-VK.conditional_rendering.draw_clear.clear": [
+      "DrawAndClear",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/DrawAndClear"
+    ],
+    "dEQP-VK.conditional_rendering.draw_clear.draw": [
+      "DrawAndClear",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/DrawAndClear"
+    ],
+    "dEQP-VK.conditional_rendering.transform_feedback.draw": [
+      "TransformFeedback",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/TransformFeedback"
+    ],
+    "dEQP-VK.conditional_rendering.transform_feedback.draw_indexed": [
+      "TransformFeedback",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/TransformFeedback"
+    ],
+    "dEQP-VK.conditional_rendering.transform_feedback.draw_indexed_indirect": [
+      "TransformFeedback",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/TransformFeedback"
+    ],
+    "dEQP-VK.conditional_rendering.transform_feedback.draw_indexed_indirect_count": [
+      "TransformFeedback",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/TransformFeedback"
+    ],
+    "dEQP-VK.conditional_rendering.transform_feedback.draw_indirect": [
+      "TransformFeedback",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/TransformFeedback"
+    ],
+    "dEQP-VK.conditional_rendering.transform_feedback.draw_indirect_byte_count_ext": [
+      "TransformFeedback",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/TransformFeedback"
+    ],
+    "dEQP-VK.conditional_rendering.transform_feedback.draw_indirect_count": [
+      "TransformFeedback",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/TransformFeedback"
+    ],
+    "dEQP-VK.conditional_rendering.transform_feedback.draw_multi_ext": [
+      "TransformFeedback",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/TransformFeedback"
+    ],
+    "dEQP-VK.conditional_rendering.transform_feedback.draw_multi_indexed_ext": [
+      "TransformFeedback",
+      "conditional_rendering",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/TransformFeedback"
     ],
     "dEQP-VK.draw.dynamic_rendering.complete_secondary_cmd_buff.ahb_external_format_resolve.clear": [
       "AhbExternalFormatResolveTests",

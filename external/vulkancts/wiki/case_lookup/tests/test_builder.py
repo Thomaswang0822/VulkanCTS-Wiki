@@ -131,6 +131,7 @@ class MustpassInputTests(unittest.TestCase):
                 "ycbcr",
                 "protected_memory",
                 "memory_model",
+                "conditional_rendering",
                 "transform_feedback",
                 "ray_tracing_pipeline",
                 "ray_query",
