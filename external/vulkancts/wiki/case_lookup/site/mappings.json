@@ -1,6 +1,6 @@
 {
-  "category_count": 37,
-  "mapping_count": 11050,
+  "category_count": 41,
+  "mapping_count": 11910,
   "mappings": {
     "dEQP-VK.api.buffer.basic": [
       "Buffer",
@@ -5306,6 +5306,96 @@
       "TransformFeedback",
       "conditional_rendering",
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/TransformFeedback"
+    ],
+    "dEQP-VK.device_group.afr": [
+      "Rendering",
+      "device_group",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/device_group/Rendering"
+    ],
+    "dEQP-VK.device_group.afr_dedicated": [
+      "Rendering",
+      "device_group",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/device_group/Rendering"
+    ],
+    "dEQP-VK.device_group.afr_dedicated_peer": [
+      "Rendering",
+      "device_group",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/device_group/Rendering"
+    ],
+    "dEQP-VK.device_group.afr_sys": [
+      "Rendering",
+      "device_group",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/device_group/Rendering"
+    ],
+    "dEQP-VK.device_group.afr_tessellated": [
+      "Rendering",
+      "device_group",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/device_group/Rendering"
+    ],
+    "dEQP-VK.device_group.afr_tessellated_linefill": [
+      "Rendering",
+      "device_group",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/device_group/Rendering"
+    ],
+    "dEQP-VK.device_group.compute_alternate_dispatch": [
+      "Rendering",
+      "device_group",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/device_group/Rendering"
+    ],
+    "dEQP-VK.device_group.compute_alternate_dispatch_dedicated": [
+      "Rendering",
+      "device_group",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/device_group/Rendering"
+    ],
+    "dEQP-VK.device_group.compute_alternate_dispatch_peer": [
+      "Rendering",
+      "device_group",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/device_group/Rendering"
+    ],
+    "dEQP-VK.device_group.compute_split_dispatch": [
+      "Rendering",
+      "device_group",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/device_group/Rendering"
+    ],
+    "dEQP-VK.device_group.compute_split_dispatch_dedicated": [
+      "Rendering",
+      "device_group",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/device_group/Rendering"
+    ],
+    "dEQP-VK.device_group.compute_split_dispatch_peer": [
+      "Rendering",
+      "device_group",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/device_group/Rendering"
+    ],
+    "dEQP-VK.device_group.sfr": [
+      "Rendering",
+      "device_group",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/device_group/Rendering"
+    ],
+    "dEQP-VK.device_group.sfr_dedicated": [
+      "Rendering",
+      "device_group",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/device_group/Rendering"
+    ],
+    "dEQP-VK.device_group.sfr_dedicated_peer": [
+      "Rendering",
+      "device_group",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/device_group/Rendering"
+    ],
+    "dEQP-VK.device_group.sfr_sys": [
+      "Rendering",
+      "device_group",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/device_group/Rendering"
+    ],
+    "dEQP-VK.device_group.sfr_tessellated": [
+      "Rendering",
+      "device_group",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/device_group/Rendering"
+    ],
+    "dEQP-VK.device_group.sfr_tessellated_linefill": [
+      "Rendering",
+      "device_group",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/device_group/Rendering"
     ],
     "dEQP-VK.draw.dynamic_rendering.complete_secondary_cmd_buff.ahb_external_format_resolve.clear": [
       "AhbExternalFormatResolveTests",
@@ -28692,6 +28782,3791 @@
       "glsl",
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/glsl/TextureGatherTests"
     ],
+    "dEQP-VK.graphicsfuzz.access-new-vector-inside-if-condition": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.always-discarding-function": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.always-false-if-in-do-while": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.always-false-if-with-discard-return": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.arr-value-set-to-arr-value-squared": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.array-idx-multiplied-by-for-loop-idx": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.assign-array-value-to-another-array": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.assign-array-value-to-another-array-2": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.barrier-in-loop-with-break": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.break-in-do-while-with-nested-if": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.call-function-with-discard": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.call-if-while-switch": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.color-set-in-for-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.color-write-in-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.complex-nested-loops-and-call": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.conditional-return-in-infinite-while": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.continue-and-merge": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.control-flow-in-function": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.control-flow-switch": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cosh-return-inf-unused": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-access-array-dot": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-analysis-reachable-from-many": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-and-even-numbers-from-fragcoord": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-apfloat-acos-ldexp": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-apfloat-determinant": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-apfloat-determinant-for-if": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-apfloat-mix-nan": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-apfloat-mod-zero": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-apfloat-module-small-number": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-apfloat-negative-step-func": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-apfloat-reflect-denorm": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-apfloat-sinh-negative-log2": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-apfloat-tanh": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-apfloat-undefined-matrix-mul": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-apfloat-unpackunorm-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-array-accesses-clamp": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-array-cast-bool-float-div-by-zero-no-effect": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-array-copies-loops-with-limiters": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-array-set-element-condition-negative-modulus": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-asin-undefined-smoothstep": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-atan-trunc-vec4": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-basic-block-discard-in-function": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-bitcount": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-bitfieldExtract-undefined": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-bitfieldinsert-undefined": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-bitfieldreverse-left-shift-findmsb": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-bitfieldreverse-loop-limit-underflow": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-bitwise-and-variable-and-its-negation": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-bitwise-inverse-uniform-condition": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-bitwise-or-uniform-zero-tenth-bit-loop-limit-find-lsb": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-bitwise-shift-right-always-select-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-bitwise-shift-right-full-bits-no-effect-clamp": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-blockfrequency-several-for-loops": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-branch-probability-identity-matrix": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-cast-float-to-int-and-back": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-clamp-loop-limit-increment-float-array": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-clamp-lower-limit-from-always-false": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-clamp-min-bitcount-uniform": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-clamp-value-and-min-select-uniform": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-clamp-vector-component-condition-using-matrix": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-clamp-vector-element-ceil-negative": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-clamp-vector-variable-negative-offset": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-clear-yz-inside-condition": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-color-output-undefined-in-unexecuted-branch": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-color-overwrite-identity-matrix-multiply": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-combine-and-or-xor-gt-lt": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-condition-bitfield-extract-integer": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-condition-clamp-min-from-uniform-never-larger": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-condition-increment-zero-to-one-divide-by-two": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-condition-loop-index-bitwise-not": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-condition-matrix-determinant-uniform": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-conditional-discard-inside-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-conditions-empty-blocks-index-array-one-divided-by-findlsb": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-const-folding-bitfieldinsert-div-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-const-folding-ceil-vec4": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-const-folding-clamp": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-const-folding-clamp-inside-while": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-const-folding-clamp-max": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-const-folding-clamp-min": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-const-folding-clamp-vs-original": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-const-folding-det-identity": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-const-folding-dot-condition-true": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-const-folding-dot-determinant": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-const-folding-gte-const-first": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-const-folding-min-as-loop-range": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-const-folding-mod-one-one-lte": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-const-folding-pow-large-exp": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-const-folding-same-condition": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-const-folding-sinh-inf": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-const-folding-vector-shuffle": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-constant-folding-atan-over-tanh": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-constants-combine-add-sub": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-constants-mix-uniform": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-continue-break-discard-return-in-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-copy-array-elements-except-first-nested-loop-replace-identical-values": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-copy-output-color-swizzle-array-indexing": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-copy-prop-arrays-no-stores": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-copy-prop-arrays-param-uniform": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-cosh-clamped-to-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-cumulate-loops-unreachable": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-dag-combiner-clamp-undefined-access-array": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-dag-combiner-combine-casts-legalize-vector-types-xyz-swizzle-for-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-dag-combiner-findmsb-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-dag-combiner-glf_color": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-dag-combiner-increment-color": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-dag-combiner-loop-bitfieldreverse": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-dag-combiner-neg-div-pow2": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-dag-combiner-same-cond-nested": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-dead-branch-func-return-arg": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-dead-code-unreachable-merge": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-decrement-vector-elements-clamp-index": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-derivative-uniform-vector-global-loop-count": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-descending-loop-index-temporary-array": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-descending-loop-min-max-always-zero": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-determinant-uninitialized-matrix-never-chosen": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-dfdx-dfdy-after-nested-loops": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-discard-condition-loop-same-condition-again": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-divide-matrix-transpose-by-constant": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-do-while-loop-until-uniform-lt-itself": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-do-while-negative-iterator-nested-loops-increment-array-element": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-do-while-switch-case-bitcount-findmsb": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-double-if-true-in-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-double-negation-fragcoord-cast-ivec2-bitwise-and": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-dummy-function-loop-array-element-increment-never-read": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-empty-loop-minus-one-modulo-variable-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-enable-bits-pixel-location-negate-not-equal-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-exp2-two": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-extend-uniform-vec2-to-vec3-matrix-multiply": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-find-msb-input-either-zero-or-minus-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-findlsb-division-by-zero": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-float-array-init-pow": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fold-and-in-for-loop-range": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fold-bitwise-and-zero": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fold-bitwise-or-full-mask": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fold-bitwise-xor": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fold-logical-and-const-variable": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fold-logical-and-constant": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fold-logical-or-constant": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fold-negate-min-int-value": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fold-negate-variable": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fold-shift-gte32": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fold-shift-right-arithmetic": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fold-switch-udiv": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-folding-clamp-cmp-const-first": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-folding-merge-add-sub-uniform": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-folding-rules-construct-extract": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-folding-rules-dot-extract": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-folding-rules-dot-no-extract": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-folding-rules-merge-add-sub": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-folding-rules-merge-div-mul": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-folding-rules-merge-divs": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-folding-rules-merge-mul-div": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-folding-rules-merge-sub-add": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-folding-rules-merge-sub-sub": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-folding-rules-merge-var-sub": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-folding-rules-mix-uniform-weight": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-folding-rules-negate-div": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-folding-rules-negate-sub": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-folding-rules-redundant-mix": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-folding-rules-shuffle-extract": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-folding-rules-shuffle-mix": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-folding-rules-split-vector-init": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-folding-rules-vec-mix-uniform": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-for-array-initializing-modulo": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-for-loop-condition-one-shift-right-integer-comparison-break": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-for-loop-min-increment-array-element": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-for-loop-start-negative-increment-variable": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-for-loop-struct-as-iterator": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-for-switch-fallthrough": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fract-asin-undefined-never-used": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fract-smoothstep-undefined": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fract-trunc-always-zero": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fragcood-multiple-conditions-function-loop-global-counter": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fragcoord-and-one-or-same-value": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fragcoord-bitwise-and-loop-reduce-value-index-array": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fragcoord-bitwise-not": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fragcoord-clamp-array-access": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fragcoord-conditions-never-return-index-array-using-uniform": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fragcoord-integer-loop-reduce-to-range": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fragcoord-loop-limit-negative-decrease-sum-first-iteration": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fragcoord-multiple-conditions-function-global-loop-counter-simplified": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fragcoord-multiply": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-fragcoord-select-always-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-always-return-negative-bitfield-extract": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-argument-uniform-float-loop-never-return": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-call-twice-clamp-global-variable": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-check-argument-one-always-return-minus-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-clamp-min-identical-shift-right": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-divide-argument-until-lt-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-find-lsb-ivec2-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-fragcoord-condition-always-return": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-global-loop-counter-sample-texture": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-global-variables-fragcoord-condition-call-twice": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-index-array-redundant-clamps": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-infinite-loop-always-return": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-infinite-loop-return-identical-condition": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-large-array-max-clamp": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-large-loop-always-return-first-iteration": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-large-loop-break-argument-lte-global-loop-bound": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-loop-check-determinant-zero-return-vector": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-loop-clamp-no-effect": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-loop-condition-constant-array-always-false": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-loop-condition-uniform-shift-right": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-loop-condition-variable-less-than-min-itself": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-loop-copy-array-elements-based-on-arguments": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-loop-modify-ivec-components-infinite-loop-never-executed": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-loop-same-conditions-multiple-times-struct-array": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-loop-switch-increment-array-element-return": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-loop-variable-multiplied-unused": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-loops-vector-mul-matrix-never-executed": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-max-all-ones-select-always-true": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-min-identical-integer-division-multiplication": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-min-integer-large-shift-unused": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-multiple-loops-compare-integer-return": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-nested-do-whiles-looped-once": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-nested-loops-break-early-never-discard": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-nested-loops-limit-uniform-xor-uniform": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-parameter-zero-divided-by-uniform": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-round-unpack-half-2x16": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-set-struct-field-zero-loop-reset-first-element": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-struct-int-array-loop-check-element": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-switch-case-constant-clamp-transpose-identity-matrices": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-trivial-switch-case": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-two-loops-limit-using-arguments-array-element-copies": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-undefined-shift-left-index-array-with-return-value": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-unpack-unorm-2x16-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-unused-argument-single-loop-iteration-icrement-global-counter": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-variable-plus-one-minus-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-vec2-never-discard": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-function-with-nested-loops-called-from-nested-loops": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-global-loop-bound-true-logical-or": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-global-loop-count-array-struct-field-set-int-array-element": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-global-loop-counter-accumulate-integer-condition-large-array-elements": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-global-loop-counter-exhaust-calling-function-twice": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-global-loop-counter-findlsb-zero": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-global-loop-counter-float-accumulate-matrix": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-global-loop-counter-for-loop-function-call-inside-never-called": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-global-loop-counter-main-function-call": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-global-loop-counter-multiply-one-minus": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-global-loop-counter-read-past-matrix-size-never-executed": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-global-loop-counter-select-one-or-zero-never-greater-than-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-global-loop-counter-set-array-element-once-index-using-findmsb": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-global-loop-counter-squared-comparison": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-global-loop-counter-texture-sample-loop-condition-set-array-element": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-if-conversion-identical-branches": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-if-switch-fallthrough": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-if-true-continue": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-if-true-discard-in-do-while-never-reached": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-if-true-float-bits-to-int-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inc-array-element-loop-lsb": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inc-inside-switch-and-for": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-increment-array-element-in-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-increment-array-element-usub-borrow": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-increment-float-in-loop-abs": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-increment-global-counter-loop-function": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-increment-inside-clamp": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-increment-int-loop-counter-mod-array": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-increment-multiple-integers": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-increment-one-array-element-check-index-from-fragcoord": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-increment-vector-array-matrix-element": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-increment-vector-component-with-matrix-copy": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-increment-vector-function-call-conditional": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-index-array-using-uniform-bitwise-or-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-initialize-integer-array-variable-divided-by-itself": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inline-pass-empty-block": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inline-pass-nested-loops": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inline-pass-return-in-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inline-pass-unreachable-func": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-add-sub-determinant": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-add-sub-increase-negative": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-add-sub-ldexp": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-add-sub-neg-func-arg": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-add-sub-pre-increase": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-and-or-xor-for-bitfieldinsert": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-and-or-xor-pack-unpack": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-and-or-xor-switch": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-and-or-xor-xor-add": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-compares-combine-select-uaddcarry": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-compares-isnan": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-compares-ldexp": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-compares-pre-increment-clamp": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-compares-ternary-vector-access": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-compares-while-modulo": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-mul-div-rem-if-undefined-divide-mix": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-pack-unpack": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-select-findlsb-uaddcarry": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-shifts-bitfield-bitcount": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-shifts-left-shift-for": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-shifts-mix-mix-clamp": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-simplify-demanded-pack-unpack": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-simplify-demanded-packsnorm-unpackunorm": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-simplify-demanded-switch-or-xor": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-combine-vector-ops-asin": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-peephole-optimizer-acosh": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-inst-value-tracking-inversesqrt": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-instr-emitter-pow-asinh": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-instr-info-det-mat-min": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-instruction-simplify-atanh-log-undefined": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-instruction-simplify-bit-shifting": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-instruction-simplify-inclusive-or": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-instruction-simplify-inst-combine-calls-for-compare-function-call-result": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-instruction-simplify-mod-acos-undefined": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-instruction-simplify-mod-sqrt-undefined": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-instruction-simplify-sqrt": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-instructions-first-value-phi": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-instructions-for-if-less-than-equal": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-int-div-round-to-zero": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-int-full-bits-divide-by-two-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-int-initialize-from-multiple-large-arrays": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-integer-constant-mod-variable-increased-condition-array-element": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-integer-minus-one-increased-before-indexing-array": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-integer-modulo-negative": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-integer-variable-or-with-inversion": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-intervalmap-set-stop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-ir-builder-constant-fold-inst-combine-calls-value-tracking-findmsb-incr-if": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-irbuilder-matrix-cell-uniform": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-isnan-asinh-clamp-always-zero": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-ivec-from-uniform-float-shift-right-add-components": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-ivec-shift-right-by-large-number": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-large-for-loop-exit-early-set-iterator-array-element": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-large-int-array-nested-loops-set-ivec-index-component-sum": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-large-loop-break-early-condition-iterator-divided": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-large-loop-multiply-integer-by-uniform-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-large-number-of-false-conditions-return-discard-continue": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-ldexp-exponent-undefined-divided-fragcoord-never-executed": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-ldexp-undefined-mat-vec-multiply": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-left-shift-array-access": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-left-shift-right-shift-compare": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-liveinterval-different-dest": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-abs-multiply-offset": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-array-element-bitfield-insert-undefined-never-read": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-array-element-copy-index-clamp-sign": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-array-index-decrement-never-negative": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-array-struct-field-index-array-with-uniforms": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-break-after-first-iteration-set-array-element": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-break-floor-nan-never-executed": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-break-fragcoord-x-empty-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-clamp-to-one-empty-condition": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-condition-bitfield-extract-set-array-elements": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-condition-clamp-vec-of-ones": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-condition-constant-struct-field-data": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-condition-divide-by-uniform-always-false": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-condition-double-negate": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-condition-filter-some-iterations-never-discard": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-condition-increment-integer-fallback-global-counter": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-condition-logical-or-never-iterated": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-construct-vec4-from-vec4-clamp-same-min-max": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-decrease-integer-never-break": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-decrease-vector-component-only-first-iteration": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-decrease-vector-components-assign-multiple-times": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-dfdx-constant-divide": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-divide-uninitialized-vector-min-unused": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-exit-conditions-sampler-struct-integer-variable": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-find-lsb-eight-fragcoord-never-discard": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-findmsb-findlsb": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-fragcoord-identical-condition": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-function-call-negative-argument": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-function-call-vector-matrix-multiplication": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-global-counter-break-set-ivec-elements": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-global-counter-increment-iterator-select-uniform": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-increase-iterator-condition-uniform-copy-array-elements": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-increment-array-elements-clamp-index": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-increment-array-index-array-usuborrow-feedback": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-increment-integer-findmsb-minus-uniform": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-increment-integer-set-output-color-break": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-increment-matrix-element-break-after-first-iteration": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-increment-or-divide-by-loop-index": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-index-array-max-negative-zero": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-integer-half-minus-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-iterator-bitwise-negate": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-iterator-limit-xor-and-unifrom": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-iterator-plus-one-variable-outside-index-array": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-iterator-start-select-uniform-negative-integer": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-iterator-start-shift-left-right": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-large-array-index-clamp-negative-value": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-limiter-min-findlsb": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-limiter-uniform-bitwise-and-one-always-break": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-logical-xor": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-max-divide-integer-by-ten": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-min-max-clamp-increment-only-first-iteration": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-multiple-iterator-variables-copy-array-elements": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-never-iterated-constant-vector-condition": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-overwrite-sample-texture-as-color-output": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-read-array-index-from-array-data": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-replace-output-color-restore-original": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-returns-behind-true-and-false": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-sampled-texel-integer-counter": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-set-vector-components-pow-two": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-start-fragcoord-while-iterates-once": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-start-from-one-switch-case-invalid-color-never-executed": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-start-from-one-switch-case-never-executed": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-struct-array-field-set-value-self-dependency": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-switch-discard-never-hit": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-two-iterators-increment-array-empty-do-while": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-variable-less-than-itself": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loop-with-two-integers": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loops-and-conditions-fragcoord-always-false-floats-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-loops-same-code-outside-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-machine-basic-block-for-for-for-less-than": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-machine-scheduler-for-if-pow": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-machinevaluetype-one-iter-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-matching-conditions-break": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-matching-if-always-true-inside-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-matrix-double-transpose": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-matrix-mult-round-even-asinh": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-matrix-square-mul-with-vector": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-max-clamp-same-minval": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-max-min-less-than": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-mem-pass-sum-struct-members": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-mem-pass-unused-component": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-merge-return-condition-twice": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-min-identical-uint-uniform": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-min-identical-uint-uniform-check-highest-bit": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-min-intbitstofloat-undefined-never-used": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-min-negative-constant-always-below-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-min-nested-loop-same-value-for-variables": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-min-vec2-transpose-mat2-identity": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-missing-return-value-function-never-called": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-mix-uninitialized-float-never-selected": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-mix-uninitialized-vector-select-only-defined-data": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-mod-acosh": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-mod-uint-bits-float": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-modf-clamp-for": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-modf-integer-to-private": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-modulo-zero-never-executed": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-multiple-fragcoord-conditions-false-never-return-sample-texture": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-multiple-fragcoord-conditions-never-return-color-uninitialized": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-multiple-functions-global-never-change": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-multiple-loops-same-condition-always-false-global-loop-counter": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-multiple-one-iteration-loops-global-counter-write-matrices": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-negative-integer-bitwise-or-uniform-increment-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-functions-accumulate-global-matrix": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-functions-compare-fragcood-length-zero-vector": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-functions-loop-assign-global-array-element": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-functions-struct-arrays-vector-lengths": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-functions-vec4-array-element-argument": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loop-continue-inner-copy-array-element": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loop-decrease-vector-components": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loop-initializer-value-increased-inside": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loop-large-array-index-using-vector-components": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loop-not-greater-than-increment-array-element": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loop-undefined-smoothstep-never-executed": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-array-choose-red-last-iteration": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-assign-vector-elements-from-matrix-no-negative-indexing": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-clamp-ivec-push-constant-increment-global-counter": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-copy-array-elements-skip-first": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-decrease-ivec-component": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-decrease-vector-component-by-matrix-element-global-loop-counter": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-different-iteration-rates-function-copy-array-elements": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-divide-integer-constant-always-zero": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-float-array-select-by-fragcoord": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-float-bits-to-int-increment-array": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-fragcoord-conditions-empty-blocks": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-fragcoord-never-return-descending-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-global-counter-func-set-struct-field": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-global-counter-increment-single-element": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-global-loop-counter-do-while-accumulate-float": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-global-loop-counter-fragcoord-negative-always-false": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-global-loop-counter-index-array-vec2": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-global-loop-counter-iterator-dependency": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-global-loop-counter-output-color-from-backup": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-global-loop-counter-reached-second-iteration": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-identical-iterator-names-multiply-divide": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-identical-iterators-compare-same-array-elements": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-increase-integer-dot-product": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-inner-loop-min-copy-array-elements": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-iterator-times-two-while-min": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-never-change-array-element-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-redundant-condition": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-return-inside-while-never-executed": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-sample-opposite-corners": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-select-starting-value-fragcoord": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-set-struct-data-verify-in-function": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-substract-matrix-element-change-float": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-switch-add-zero-matrix-elements": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-switch-case-fallthrough-increment-array-element": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-temporary-copy-output-color-index-matrix": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-while-condition-integer-range-increment-variable": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-loops-while-min-iterator-condition-always-false": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nested-structs-function-set-inner-struct-field-return": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nir-array-access": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nir-opt-large-constants-for-clamp-vector-access": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nir-opt-loop-unroll-if-if-if-if-do-while": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-not-clamp-matrix-access": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-nouble-negation-fragcoord-cast-ivec2-bitwise-and": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-one-bitwise-and-bitwise-or-full-bits": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-one-minus-clamp-always-one-cast-to-int": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-optimize-phis-for": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-optimize-phis-for-for-do-while-if-if": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-packhalf-unpackunorm": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-pattern-match-signum": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-pattern-match-single-bit": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-peephole-optimizer-target-instr-info-for-if-if-if": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-pow-distance-uniform-vector-constant-one-vector": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-pow-identical-value-sqrt": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-pow-undefined": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-pow-undefined-result-condition-with-always-true": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-rcp-negative-int": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-read-matrix-push-constant": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-reciprocal-var-minus-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-reduce-load-replace-extract": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-register-coalescer-live-intervals-target-instr-info-for-discard-for-discard": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-reinitialize-matrix-after-undefined-value": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-repeating-conditions-fract-unused": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-replace-copy-object": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-return-after-do-while": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-return-after-first-iteration": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-return-partly-undefined-vector-from-array": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-sample-texture-hundred-iterations": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-sampler-as-function-argument": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-scaled-number-nested-loops": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-scaled-number-nested-loops-array-access": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-schedule-dag-rrlist-mix-log-cos": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-selection-dag-assign-back-and-forth": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-selection-dag-inverse-clamp": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-selection-dag-lt-gt": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-selection-dag-same-cond-twice": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-set-array-elements-to-uniform-check-value-break": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-set-output-color-function-call-nested-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-set-vector-cos-fragcoord": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-sign-array-access-uaddcarry": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-simplification-unused-struct": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-simplification-while-inside-for": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-simplify-clamp-max-itself": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-simplify-combine-compares-max-max-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-simplify-component-uniform-idx": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-simplify-div-by-uint-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-simplify-for-bitwise-condition": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-simplify-ldexp-exponent-zero": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-simplify-max-multiplied-values": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-simplify-modulo-1": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-simplify-mul-identity": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-simplify-not-less-than-neg": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-simplify-right-shift-greater-than-zero": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-simplify-select-fragcoord": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-simplify-sign-cosh": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-simplify-smoothstep-undef": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-sin-mul-mat-mat-mul-vec-mat": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-single-block-elim-self-assign": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-single-store-elim-assume-store": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-sinh-ldexp": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-small-array-overwrite-most-uniform-value-check-data-break": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-ssa-rewrite-case-with-default": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-step-sinh": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-struct-array-ivec-negative-modulus-empty-function": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-struct-float-array-mix-uniform-vectors": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-struct-int-array-select-uniform-ivec": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-sum-uniform-vector-components-round": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-switch-fallthrough-variable-from-first-case": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-tail-duplicator-for-for-for": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-tail-duplicator-infinite-loops": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-target-lowering-dfdx-cos": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-target-lowering-inst-combine-compares-struct-array-clamp-function-cal": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-texel-double-negation": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-transpose-multiply": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-trunc-fract-always-zero": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-two-functions-loops-copy-elements-infinite-loops-never-executed": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-two-functions-modify-struct-array-element-return-from-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-two-loops-global-loop-counter-clamp-ivec-elements-index-array": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-two-loops-global-loop-counter-shift-right-zero-increment-array-element": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-two-loops-increment-integer-global-counter-break-square-threshold": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-two-loops-never-iterated": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-two-nested-loops-switch-case-matrix-array-increment": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-types-return-in-main-never-hit": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-uadd-carry-bit-count-index-array": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-ucarryadd-one-and-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-undefined-inversesqrt-reflect": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-uniform-vector-copy": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-uniform-vector-function-argument-mod-increment-integers": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-uninitialized-values-passed-to-function-never-executed": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-unpack-unorm-mix-always-one": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-unused-access-past-matrix-elements": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-unused-matrix-copy-inside-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-val-cfg-case-fallthrough": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-value-inst-combine-select-value-tracking-flip-bits": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-value-tracking-apint-inst-combine-simplify-one-mod-loop-iterator": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-value-tracking-const-dfdy": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-value-tracking-constant-fold-refraction-dfxd-determinant": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-value-tracking-inclusive-or": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-value-tracking-known-nonzero": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-value-tracking-max-uintbitstofloat": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-value-tracking-selection-dag-negation-clamp-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-value-tracking-uniform-incident": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-variable-copy-in-function-tex-sample": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-vec2-dot-max-uniform": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-vec2-dot-minus-negative-zero": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-vec2-duplicate-min-always-half": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-vector-dce-inc-unused-comp": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-vector-dce-unused-component": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-vector-illegal-index-never-executed": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-vector-log2-cosh": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-wrap-op-kill-for-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-wrap-op-kill-two-branches": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-write-past-matrix-elements-unused": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-x86-instr-info-determinant-min": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-x86-isel-lowering-apfloat-nan-cos-cos": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-x86-isel-lowering-determinant-exp-acos": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-x86-isel-lowering-machine-value-type-uint-to-float": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-x86-isel-lowering-negative-left-shift": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.cov-x86-isel-lowering-selection-dag-struct-array-clamp-index": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.create-color-in-do-while-for-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.dead-barriers-in-loops": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.dead-struct-init": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.disc-and-add-in-func-in-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.discard-continue-return": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.discard-in-array-manipulating-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.discard-in-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.discard-in-loop-in-function": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.discards-in-control-flow": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.do-while-false-if": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.do-while-false-loops": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.do-while-if-return": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.do-while-loop-in-conditionals": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.do-while-with-always-true-if": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.do-while-with-if-condition": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.early-return-and-barrier": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.find-msb-from-lsb": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.flag-always-false-if": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.for-condition-always-false": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.for-loop-with-return": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.for-with-ifs-and-return": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.frag-coord-func-call-and-ifs": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.fragcoord-control-flow": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.fragcoord-control-flow-2": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.function-with-float-comparison": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.function-with-uniform-return": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.global-array-loops": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.if-and-switch": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.increment-value-in-nested-for-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.injection-switch-as-comparison": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.int-mat2-struct": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.loop-call-discard": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.loop-dead-if-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.loop-nested-ifs": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.loops-breaks-returns": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.loops-ifs-continues-call": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.mat-array-deep-control-flow": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.mat-array-distance": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.mat-mul-in-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.matrices-and-return-in-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.max-mix-conditional-discard": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.mix-floor-add": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.modf-gl-color": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.modf-temp-modf-color": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.nested-for-break-mat-color": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.nested-for-loops-switch-fallthrough": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.nested-for-loops-with-return": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.nested-ifs-and-return-in-for-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.nested-loops-switch": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.nested-switch-break-discard": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.one-sized-array": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.pow-vec4": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.return-before-writing-wrong-color": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.return-float-from-while-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.return-in-loop-in-function": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.return-inside-loop-in-function": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.returned-boolean-in-vector": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.set-color-in-one-iteration-while-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.similar-nested-ifs": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.smoothstep-after-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-access-chains": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-composite-phi": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-composite2": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-composites": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-copy-object": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-dead-break-and-unroll": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-declare-bvec4": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-double-branch-to-same-block": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-double-branch-to-same-block2": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-double-branch-to-same-block3": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-load-from-frag-color": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-null-in-phi-and-unroll": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-stable-bifurcation-Os-mutate-var-vector-shuffle": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-stable-bubblesort-flag-complex-conditionals": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-stable-collatz-O-mutate-composite-construct-extract": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-stable-colorgrid-modulo-O-move-block-down": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-stable-maze-O-dead-code": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-stable-maze-O-memory-accesses": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-stable-maze-flatten-copy-composite": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-stable-mergesort-O-prop-up-mutate-var": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-stable-mergesort-dead-code": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-stable-mergesort-flatten-selection-dead-continues": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-stable-mergesort-func-inline-mutate-var": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-stable-orbit-O-mutate-variable": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-stable-orbit-Os-access-chain-mutate-pointer": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-stable-pillars-O-op-select-to-op-phi": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-stable-pillars-volatile-nontemporal-store": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-stable-quicksort-dontinline": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-stable-quicksort-mat-func-param": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-stable-rects-Os-mutate-var-push-through-var": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-stable-sampler-loop-extra-instructions": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.spv-stable-sampler-polar-simple-O-access-chain": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-binarysearch-tree-false-if-discard-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-binarysearch-tree-fragcoord-less-than-zero": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-binarysearch-tree-nested-if-and-conditional": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-binarysearch-tree-with-loop-read-write-global": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-collatz-push-constant-with-nested-min-max": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-colorgrid-modulo-double-always-false-discard": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-colorgrid-modulo-float-mat-determinant-clamp": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-colorgrid-modulo-injected-conditional-true": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-colorgrid-modulo-true-conditional-divided-1": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-colorgrid-modulo-true-conditional-simple-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-colorgrid-modulo-vec3-values-from-matrix": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-mergesort-clamped-conditional-bit-shift": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-mergesort-for-always-false-if-discard": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-mergesort-reversed-for-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-quicksort-conditional-bitwise-or-clamp": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-quicksort-for-loop-with-injection": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-quicksort-if-false-else-return": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-quicksort-max-value-as-index": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-rects-vec4-clamp-conditional-min-mix": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-triangle-array-nested-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-triangle-clamp-conditional-mix": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-triangle-nested-conditional-clamped-float": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.stable-triangle-nested-for-loop-and-true-if": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.struct-and-unreachable-infinite-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.struct-array-data-as-loop-iterator": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.struct-array-index": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.struct-controlled-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.struct-used-as-temporary": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.switch-if-discard": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.switch-inside-while-always-return": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.switch-loop-switch-if": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.switch-with-empty-if-false": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.switch-with-fall-through-cases": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.swizzle-struct-init-min": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.transpose-rectangular-matrix": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.two-2-iteration-loops": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.two-for-loops-with-barrier-function": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.two-loops-mat-add": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.two-loops-matrix": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.two-loops-set-struct": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.two-loops-with-break": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.two-nested-do-whiles": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.two-nested-for-loops-with-returns": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.two-nested-infinite-loops-discard": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.undefined-assign-in-infinite-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.undefined-integer-in-function": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.uninit-element-cast-in-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.uninitialized-var-decrement-and-add": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.unreachable-barrier-in-loops": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.unreachable-continue-statement": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.unreachable-discard-statement": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.unreachable-discard-statement-in-if": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.unreachable-loops": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.unreachable-loops-in-switch": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.unreachable-return-in-loop": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.unreachable-switch-case-with-discards": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.uv-value-comparison-as-boolean": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.vec2-modf": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.vector-values-multiplied-by-fragcoord": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.vectors-and-discard-in-function": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.while-function-always-false": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.while-inside-switch": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.write-before-break": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.write-red-in-loop-nest": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
+    "dEQP-VK.graphicsfuzz.wrong-color-in-always-false-if": [
+      "AmberTests",
+      "graphicsfuzz",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/graphicsfuzz/AmberTests"
+    ],
     "dEQP-VK.image.2d_array_compatible.0_1_8": [
       "2dArrayCompatible",
       "image",
@@ -30177,6 +34052,36 @@
       "image_processing",
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/image_processing/BlockMatching"
     ],
+    "dEQP-VK.imageless_framebuffer.color": [
+      "Tests",
+      "imageless_framebuffer",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/imageless_framebuffer/Tests"
+    ],
+    "dEQP-VK.imageless_framebuffer.color_resolve": [
+      "Tests",
+      "imageless_framebuffer",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/imageless_framebuffer/Tests"
+    ],
+    "dEQP-VK.imageless_framebuffer.depth_stencil": [
+      "Tests",
+      "imageless_framebuffer",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/imageless_framebuffer/Tests"
+    ],
+    "dEQP-VK.imageless_framebuffer.depth_stencil_resolve": [
+      "Tests",
+      "imageless_framebuffer",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/imageless_framebuffer/Tests"
+    ],
+    "dEQP-VK.imageless_framebuffer.different_attachments": [
+      "Tests",
+      "imageless_framebuffer",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/imageless_framebuffer/Tests"
+    ],
+    "dEQP-VK.imageless_framebuffer.multisubpass": [
+      "Tests",
+      "imageless_framebuffer",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/imageless_framebuffer/Tests"
+    ],
     "dEQP-VK.info.build": [
       "InfoTests",
       "info",
@@ -30641,6 +34546,401 @@
       "MessagePassing",
       "memory_model",
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/memory_model/MessagePassing"
+    ],
+    "dEQP-VK.multiview.clear_attachments": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.depth": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.depth_different_ranges": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.depth_without_fragment_shader": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.draw_indexed": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.draw_indirect": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.draw_indirect_indexed": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.clear_attachments": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.depth": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.depth_different_ranges": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.depth_without_fragment_shader": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.draw_indexed": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.draw_indirect": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.draw_indirect_indexed": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.index": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.input_attachments_geometry": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.input_instance": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.instanced": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.masks": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.multisample": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.multisample_resolve": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.nested_cmd_buffer": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.non_precise_queries": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.non_precise_queries_with_availability": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.point_size": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.queries": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.readback_explicit_clear": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.readback_implicit_clear": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.secondary_cmd_buffer": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.secondary_cmd_buffer_geometry": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.stencil": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.dynamic_rendering.view_mask_iteration": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.index": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.input_attachments": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.input_attachments_geometry": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.input_instance": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.instanced": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.masks": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.multisample": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.multisample_resolve": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.nested_cmd_buffer": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.non_precise_queries": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.non_precise_queries_with_availability": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.point_size": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.queries": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.readback_explicit_clear": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.readback_implicit_clear": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.clear_attachments": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.depth": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.depth_different_ranges": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.depth_without_fragment_shader": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.draw_indexed": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.draw_indirect": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.draw_indirect_indexed": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.index": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.input_attachments": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.input_attachments_geometry": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.input_instance": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.instanced": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.masks": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.multisample": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.multisample_resolve": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.nested_cmd_buffer": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.non_precise_queries": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.non_precise_queries_with_availability": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.point_size": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.queries": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.readback_explicit_clear": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.readback_implicit_clear": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.secondary_cmd_buffer": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.secondary_cmd_buffer_geometry": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.stencil": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.renderpass2.view_mask_iteration": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.secondary_cmd_buffer": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.secondary_cmd_buffer_geometry": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.stencil": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
+    ],
+    "dEQP-VK.multiview.view_mask_iteration": [
+      "RenderTests",
+      "multiview",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/multiview/RenderTests"
     ],
     "dEQP-VK.pipeline.fast_linked_library.attachment_feedback_loop_layout.sampler": [
       "AttachmentFeedbackLoopLayout",

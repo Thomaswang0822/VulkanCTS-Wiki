@@ -55,6 +55,10 @@ SPARSE_DEVICE_GROUP_FAMILIES = {
     "device_group_mipmap_sparse_residency": "mipmap_sparse_residency",
 }
 
+# Large generated registration spaces keep a compact canonical tree. Their
+# mustpass namespaces are expanded here, not in the common resolver.
+LARGE_GENERATED_CATEGORIES = frozenset({"multiview", "graphicsfuzz"})
+
 
 # synchronization2 pages are intentionally shared with the synchronization
 # category. The two categories still have independent mustpass universes.
@@ -220,6 +224,19 @@ def project_category_mappings(
     projected: dict[str, OwnerValue] = {}
     generated_rules = GENERATED_FAMILY_ROOTS.get(category, ())
     for path in paths:
+        if category == "multiview":
+            parts = path.split(".")
+            if len(parts) > 3 and parts[2] in {"renderpass2", "dynamic_rendering"}:
+                owner = mappings.get(".".join(parts[:3]))
+                if owner is not None:
+                    projected[".".join(parts[:4])] = owner
+
+        elif category == "graphicsfuzz":
+            parts = path.split(".")
+            owners = set(mappings.values())
+            if len(owners) == 1 and len(parts) == 3:
+                projected[path] = next(iter(owners))
+
         if category == "api":
             actual_parts = path.split(".")
             if (

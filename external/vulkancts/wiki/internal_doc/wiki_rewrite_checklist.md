@@ -35,15 +35,15 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [x] 25. texture — 12 (UB: 12)
 - [x] 26. geometry — 7 (UB: 7)
 - [x] 27. robustness — 8 (UB: 8)
-- [ ] 28. multiview — 2
+- [x] 28. multiview — 1
 - [x] 29. subgroups — 19 (UB: 19)
 - [x] 30. ycbcr — 9 (UB: 8)
 - [x] 31. protected_memory — 14 (UB: 14)
-- [ ] 32. device_group — 1
+- [x] 32. device_group — 1
 - [x] 33. memory_model — 3 (UB: 2)
 - [x] 34. conditional_rendering — 6
-- [ ] 35. graphicsfuzz — 1
-- [ ] 36. imageless_framebuffer — 1
+- [x] 35. graphicsfuzz — 1
+- [x] 36. imageless_framebuffer — 1
 - [x] 37. transform_feedback — 4 (UB: 4)
 - [ ] 38. descriptor_indexing — 3
 - [ ] 39. fragment_shader_interlock — 2
@@ -62,4 +62,4 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [ ] 52. tensor — 7
 - [ ] 53. data_graph — 4
 
-**Summary**: 37 done, 16 todo.
+**Summary**: 41 done, 12 todo.

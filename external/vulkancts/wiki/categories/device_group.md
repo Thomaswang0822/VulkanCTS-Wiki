@@ -1,19 +1,14 @@
-# Device Group Tests
+## Overview
 
-## Summary
+The `device_group` test category checks whether rendering and compute work produce the expected results when a logical device uses one or more physical devices from an enumerated device group.
 
-The `device_group` category documents tests from one source file, `vktDeviceGroupRendering.cpp`. The tests create and use device groups to exercise split-frame rendering, alternate-frame rendering, split and alternate compute dispatch, dedicated allocations, peer access, host-memory render targets, tessellated geometry, and line-fill variants where registered. The Vulkan API test plan provides only broad device-initialization context for multiple devices from one physical device and queue configurations ([`apitests.adoc`](../../../../doc/testspecs/VK/apitests.adoc#L345-L349)); source evidence below defines this category's current behavior.
+## Background Knowledge
 
-## Registration Entry Point
+- **Physical-device groups.** Vulkan can enumerate a group of compatible physical devices and create one logical device from a subset of that group. The group determines which physical devices may participate in the test. See [device-group enumeration and logical-device creation](../../../vulkan-docs/src/chapters/devsandqueues.adoc#L2010-L2017).
+- **Device masks.** A device mask selects the physical devices that execute a command or own an allocation. Split-frame and split-dispatch cases use different masks for different portions of the work; alternate cases rotate the active device between submissions.
+- **Peer memory.** A device may read memory allocated for another group member only when the device group reports the required peer access. This is why peer variants have a stricter support check than ordinary split or alternate variants.
 
-| Item | Evidence |
-|---|---|
-| Package root registration | [`addRootChild("device_group", ...)`](../../modules/vulkan/vktTestPackage.cpp#L1377-L1379) |
-| Category factory | [`DeviceGroup::createTests()`](../../modules/vulkan/device_group/vktDeviceGroupRendering.cpp#L2717-L2720) |
-| Direct child registration | [`DeviceGroupTestRendering::init()`](../../modules/vulkan/device_group/vktDeviceGroupRendering.cpp#L2645-L2715) |
-| Related test-plan context | [device initialization notes](../../../../doc/testspecs/VK/apitests.adoc#L345-L349) |
-
-## Subgroup Structure
+## Category Structure
 
 ```text
 device_group
@@ -37,41 +32,22 @@ device_group
 └── sfr_tessellated_linefill
 ```
 
-## File Inventory
+All 18 direct test families are implemented and registered by `vktDeviceGroupRendering.cpp`. The header only declares the category factory.
 
-| File | Registered group | Role |
-|---|---:|---|
-| [vktDeviceGroupRendering.cpp](../../modules/vulkan/device_group/vktDeviceGroupRendering.cpp) | `device_group` | Category implementation and direct test registration. |
-| [vktDeviceGroupTests.hpp](../../modules/vulkan/device_group/vktDeviceGroupTests.hpp) | declaration only | Declares `DeviceGroup::createTests()`; no separate Level-3 page because it does not register tests. |
+## How the Families Fit Together
 
-## Recurring Test Families
+The families vary the work distribution and the memory arrangement used by the same device-group idea.
 
-- `sfr*` cases exercise split-frame rendering and are registered only outside `CTS_USES_VULKANSC` guards.
-- `afr*` cases exercise alternate-frame rendering and include host-memory, dedicated-allocation, peer-fetch, tessellated, and line-fill variants observed in registration.
-- `compute_split_dispatch*` cases exercise split compute dispatch and are registered only outside `CTS_USES_VULKANSC` guards.
-- `compute_alternate_dispatch*` cases exercise alternate compute dispatch with dedicated and peer-memory variants.
+- `sfr*` splits rendering work between devices, while `compute_split_dispatch*` splits compute work. The SFR and split-dispatch families are absent from Vulkan SC builds when guarded by `CTS_USES_VULKANSC`.
+- `afr*` assigns successive frames or dispatches to alternate devices. The rendering variants add host-memory, dedicated-allocation, peer-fetch, tessellation, or line-fill choices.
+- `compute_split_dispatch*` and `compute_alternate_dispatch*` apply the corresponding distribution choices to a storage-image compute operation.
 
-## Recurring Parameters
+## Level-3 Pages Navigation
 
-| Dimension | Evidence |
-|---|---|
-| Rendering flags | [`TestModeType`](../../modules/vulkan/device_group/vktDeviceGroupRendering.cpp#L71-L80) |
-| Rendering direct children | [`DeviceGroupTestRendering::init()`](../../modules/vulkan/device_group/vktDeviceGroupRendering.cpp#L2645-L2690) |
-| Compute direct children | [`DeviceGroupTestRendering::init()`](../../modules/vulkan/device_group/vktDeviceGroupRendering.cpp#L2692-L2715) |
-| Device-group selection | Command-line group/device IDs used during initialization in rendering and compute paths. |
+| Registered test family or area | Level-3 page | What to read there |
+|---|---|---|
+| All rendering and compute device-group families | [Rendering.md](../testfiles/device_group/Rendering.md) | Device masks, allocation and peer-memory variants, shader roles, readback checks, support gates, and failure meaning |
 
-## Support / Feature Requirements
+## Category Notes
 
-The rendering support path requires `VK_KHR_device_group_creation` and `VK_KHR_device_group`, adds `VK_KHR_dedicated_allocation` for dedicated variants, validates selected group and device IDs, rejects peer-fetch cases with fewer than two physical devices, and conditionally requires `VK_KHR_bind_memory2`. Tessellated and line-fill variants check `tessellationShader` and `fillModeNonSolid`. The compute path performs corresponding extension, selected-device, peer-memory, and bind-memory2 checks.
-
-## Verification Methods
-
-Rendering paths compare readback images to either archived sphere PNG references or generated triangle references. Compute paths compare readback images to a uniform expected color. These comparisons are implemented in the source using `tcu::fuzzyCompare()` and `tcu::intThresholdPositionDeviationCompare()`.
-
-## Level-3 Pages
-
-- [vktDeviceGroupRendering.md](../testfiles/device_group/vktDeviceGroupRendering.md)
-
-## Scope Notes
-
-This category has one Level-3 page because only `vktDeviceGroupRendering.cpp` registers tests in the inspected `device_group` source directory.
+The default Vulkan mustpass contains 18 device-group paths. Vulkan SC conditional compilation removes the split-frame and split-dispatch families from registration; the source and mustpass evidence determine the active set for the build.

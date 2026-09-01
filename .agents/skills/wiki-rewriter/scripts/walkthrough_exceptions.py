@@ -67,8 +67,14 @@ PAGES_WITHOUT_WALKTHROUGH: dict[str, set[str]] = {
         'OcclusionQuery.md',
         'Scissor.md',
     },
+    'device_group': {
+        'Rendering.md',
+    },
     'image_processing': {
         'ApiTests.md',
+    },
+    'imageless_framebuffer': {
+        'Tests.md',
     },
     'rasterization': {
         'DepthBiasControl.md',

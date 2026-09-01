@@ -127,11 +127,15 @@ class MustpassInputTests(unittest.TestCase):
                 "texture",
                 "geometry",
                 "robustness",
+                "multiview",
                 "subgroups",
                 "ycbcr",
                 "protected_memory",
+                "device_group",
                 "memory_model",
                 "conditional_rendering",
+                "graphicsfuzz",
+                "imageless_framebuffer",
                 "transform_feedback",
                 "ray_tracing_pipeline",
                 "ray_query",
@@ -157,17 +161,37 @@ class MustpassInputTests(unittest.TestCase):
             with self.assertRaisesRegex(MappingBuildError, "重复 path"):
                 list(iter_mustpass_leaves((first, second), "api"))
 
-    def test_rejects_category_not_enabled_in_registry(self) -> None:
+    def test_projects_multiview_rendering_wrapper(self) -> None:
+        from build_helper.category_handlers import project_category_mappings
+
+        owner = object()
+        projected = project_category_mappings(
+            {"dEQP-VK.multiview.renderpass2": owner},
+            ("dEQP-VK.multiview.renderpass2.masks.no_queries.15",),
+            "multiview",
+        )
+        self.assertIs(projected["dEQP-VK.multiview.renderpass2.masks"], owner)
+
+    def test_projects_graphicsfuzz_generated_leaf(self) -> None:
+        from build_helper.category_handlers import project_category_mappings
+
+        owner = object()
+        path = "dEQP-VK.graphicsfuzz.access-new-vector-inside-if-condition"
+        projected = project_category_mappings(
+            {"dEQP-VK.graphicsfuzz": owner}, (path,), "graphicsfuzz"
+        )
+        self.assertIs(projected[path], owner)
+
+    def test_accepts_newly_enabled_category(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            with self.assertRaisesRegex(MappingBuildError, "不支持的 category：multiview"):
-                build_database(
-                    REPO_ROOT,
-                    root / "final.sqlite3",
-                    ("multiview",),
-                    category_db_dir=root / "db",
-                )
-            self.assertFalse((root / "final.sqlite3").exists())
+            stats = build_category_databases(
+                REPO_ROOT,
+                ("multiview",),
+                "https://example.test/-/wikis",
+                root / "db",
+            )
+            self.assertEqual(stats["multiview"]["leaves"], 694)
 
 
 class BuildDatabaseTests(unittest.TestCase):
