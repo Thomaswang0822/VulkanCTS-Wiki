@@ -110,7 +110,7 @@ CATEGORY_MUSTPASS_FILES: dict[str, tuple[Path, ...]] = {
         Path("shader-object/rendering.txt"),
         Path("shader-object/tessellation.txt"),
     ),
-    # "dgc": (Path("dgc.txt"),),
+    "dgc": (Path("dgc.txt"),),
     # "cooperative_vector": (Path("cooperative-vector.txt"),),
     # "tensor": (Path("tensor.txt"),),
     # "data_graph": (Path("data-graph.txt"),),

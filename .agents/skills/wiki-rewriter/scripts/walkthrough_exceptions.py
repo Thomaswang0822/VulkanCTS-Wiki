@@ -47,6 +47,10 @@ PAGES_WITHOUT_WALKTHROUGH: dict[str, set[str]] = {
         'ToolingInfo.md',
         'VersionCheck.md',
     },
+    'dgc': {
+        'ComputeGetInfo.md',
+        'ComputeGetInfoExt.md',
+    },
     'dynamic_state': {
         'CB.md',
         'Clear.md',

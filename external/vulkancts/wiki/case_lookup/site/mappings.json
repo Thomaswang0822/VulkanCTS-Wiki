@@ -1,6 +1,6 @@
 {
-  "category_count": 41,
-  "mapping_count": 11910,
+  "category_count": 42,
+  "mapping_count": 12421,
   "mappings": {
     "dEQP-VK.api.buffer.basic": [
       "Buffer",
@@ -5396,6 +5396,2561 @@
       "Rendering",
       "device_group",
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/device_group/Rendering"
+    ],
+    "dEQP-VK.dgc.ext.compute.conditional_rendering.general": [
+      "ComputeConditionalExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeConditionalExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.conditional_rendering.preprocess": [
+      "ComputeConditionalExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeConditionalExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.get_info.constant_cmd_memory_requirements_basic_case": [
+      "ComputeGetInfoExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeGetInfoExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.get_info.constant_cmd_memory_requirements_basic_case_with_pipeline": [
+      "ComputeGetInfoExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeGetInfoExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.get_info.constant_cmd_memory_requirements_ignore_unordered_flag": [
+      "ComputeGetInfoExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeGetInfoExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.get_info.constant_cmd_memory_requirements_increase_count": [
+      "ComputeGetInfoExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeGetInfoExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.get_info.constant_cmd_memory_requirements_max_sequence_count": [
+      "ComputeGetInfoExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeGetInfoExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.layout": [
+      "ComputeLayoutExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayoutExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.layout.complementary_push_dispatch": [
+      "ComputeLayoutExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayoutExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.layout.complementary_push_index_dispatch": [
+      "ComputeLayoutExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayoutExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.layout.execution_set_complementary_push_dispatch": [
+      "ComputeLayoutExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayoutExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.layout.execution_set_dispatch": [
+      "ComputeLayoutExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayoutExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.layout.execution_set_index_push_dispatch": [
+      "ComputeLayoutExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayoutExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.layout.execution_set_push_dispatch": [
+      "ComputeLayoutExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayoutExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.layout.multi_push_dispatch": [
+      "ComputeLayoutExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayoutExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.layout.offset_execution_set_dispatch": [
+      "ComputeLayoutExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayoutExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.layout.push_dispatch": [
+      "ComputeLayoutExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayoutExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.misc": [
+      "ComputeMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.misc.descriptor_buffer_push_descriptor": [
+      "ComputeMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.misc.execute_many_64_universal_queue": [
+      "ComputeMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.misc.iubs": [
+      "ComputeMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.misc.many_sequences_64_universal_queue": [
+      "ComputeMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.misc.max_pc_range_128_full": [
+      "ComputeMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.misc.multiple_sets": [
+      "ComputeMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.misc.null_set_layouts_info": [
+      "ComputeMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.misc.scratch_space": [
+      "ComputeMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.misc.two_cmd_buffers": [
+      "ComputeMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_compute": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_compute_separate_state_cmd_buffer": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_compute_with_count_buffer": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_compute_with_count_buffer_separate_state_cmd_buffer": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_compute_with_count_buffer_zero_count": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_compute_with_count_buffer_zero_count_separate_state_cmd_buffer": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_compute_with_universal_exec": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_compute_with_universal_exec_separate_state_cmd_buffer": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_compute_with_universal_exec_with_count_buffer": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_compute_with_universal_exec_with_count_buffer_separate_state_cmd_buffer": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_compute_with_universal_exec_with_count_buffer_zero_count": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_compute_with_universal_exec_with_count_buffer_zero_count_separate_state_cmd_buffer": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_universal": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_universal_separate_state_cmd_buffer": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_universal_with_compute_exec": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_universal_with_compute_exec_separate_state_cmd_buffer": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_universal_with_compute_exec_with_count_buffer": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_universal_with_compute_exec_with_count_buffer_separate_state_cmd_buffer": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_universal_with_compute_exec_with_count_buffer_zero_count": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_universal_with_compute_exec_with_count_buffer_zero_count_separate_state_cmd_buffer": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_universal_with_count_buffer": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_universal_with_count_buffer_separate_state_cmd_buffer": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_universal_with_count_buffer_zero_count": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_universal_with_count_buffer_zero_count_separate_state_cmd_buffer": [
+      "ComputePreprocessExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_device_local_from_compute_no_preprocess_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_device_local_from_compute_no_preprocess_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_device_local_from_compute_preprocess_state_same_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_device_local_from_compute_preprocess_state_same_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_device_local_from_compute_preprocess_state_separate_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_device_local_from_compute_preprocess_state_separate_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_device_local_from_host_no_preprocess_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_device_local_from_host_no_preprocess_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_device_local_from_host_preprocess_state_same_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_device_local_from_host_preprocess_state_same_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_device_local_from_host_preprocess_state_separate_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_device_local_from_host_preprocess_state_separate_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_host_visible_from_compute_no_preprocess_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_host_visible_from_compute_no_preprocess_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_host_visible_from_compute_preprocess_state_same_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_host_visible_from_compute_preprocess_state_same_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_host_visible_from_compute_preprocess_state_separate_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_host_visible_from_compute_preprocess_state_separate_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_host_visible_from_host_no_preprocess_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_host_visible_from_host_no_preprocess_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_host_visible_from_host_preprocess_state_same_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_host_visible_from_host_preprocess_state_same_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_host_visible_from_host_preprocess_state_separate_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_host_visible_from_host_preprocess_state_separate_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_device_local_from_compute_no_preprocess_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_device_local_from_compute_no_preprocess_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_device_local_from_compute_preprocess_state_same_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_device_local_from_compute_preprocess_state_same_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_device_local_from_compute_preprocess_state_separate_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_device_local_from_compute_preprocess_state_separate_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_device_local_from_host_no_preprocess_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_device_local_from_host_no_preprocess_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_device_local_from_host_preprocess_state_same_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_device_local_from_host_preprocess_state_same_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_device_local_from_host_preprocess_state_separate_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_device_local_from_host_preprocess_state_separate_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_host_visible_from_compute_no_preprocess_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_host_visible_from_compute_no_preprocess_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_host_visible_from_compute_preprocess_state_same_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_host_visible_from_compute_preprocess_state_same_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_host_visible_from_compute_preprocess_state_separate_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_host_visible_from_compute_preprocess_state_separate_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_host_visible_from_host_no_preprocess_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_host_visible_from_host_no_preprocess_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_host_visible_from_host_preprocess_state_same_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_host_visible_from_host_preprocess_state_same_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_host_visible_from_host_preprocess_state_separate_compute_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.smoke.4_sequences_host_visible_from_host_preprocess_state_separate_universal_queue": [
+      "ComputeSmokeExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmokeExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.subgroups.builtins": [
+      "ComputeSubgroupExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSubgroupExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.conditional_rendering.general": [
+      "GraphicsConditionalExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsConditionalExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.conditional_rendering.preprocess": [
+      "GraphicsConditionalExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsConditionalExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.draw.token_draw": [
+      "GraphicsDrawExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsDrawExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.draw.token_draw_indexed": [
+      "GraphicsDrawExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsDrawExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.draw_count.token_draw_count": [
+      "GraphicsDrawCountExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsDrawCountExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.draw_count.token_draw_indexed_count": [
+      "GraphicsDrawCountExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsDrawCountExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.mesh.conditional_rendering.general": [
+      "GraphicsMeshConditionalExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMeshConditionalExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.mesh.conditional_rendering.preprocess": [
+      "GraphicsMeshConditionalExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMeshConditionalExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.mesh.misc": [
+      "GraphicsMeshExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMeshExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.mesh.token_draw": [
+      "GraphicsMeshExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMeshExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.mesh.token_draw_count": [
+      "GraphicsMeshExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMeshExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.dynamic_vertex_input_fast_lib": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.dynamic_vertex_input_fast_lib_execution_set": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.dynamic_vertex_input_monolithic": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.dynamic_vertex_input_monolithic_execution_set": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.dynamic_vertex_input_optimized_lib": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.dynamic_vertex_input_optimized_lib_execution_set": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.dynamic_vertex_input_unlinked_spirv": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.dynamic_vertex_input_unlinked_spirv_execution_set": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.early_fragment_tests": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.early_fragment_tests_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_a2c_disabled": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_a2c_disabled_ies": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_a2c_disabled_ies_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_a2c_disabled_ies_preprocess_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_a2c_disabled_ies_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_a2c_disabled_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_a2c_disabled_preprocess_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_a2c_disabled_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_a2c_enabled": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_a2c_enabled_ies": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_a2c_enabled_ies_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_a2c_enabled_ies_preprocess_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_a2c_enabled_ies_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_a2c_enabled_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_a2c_enabled_preprocess_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_a2c_enabled_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_first": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_first_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_first_ies": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_first_ies_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_first_ies_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_first_ies_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_first_ies_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_first_ies_preprocess_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_first_ies_preprocess_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_first_ies_preprocess_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_first_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_first_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_first_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_first_preprocess_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_first_preprocess_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_first_preprocess_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_second": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_second_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_second_ies": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_second_ies_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_second_ies_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_second_ies_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_second_ies_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_second_ies_preprocess_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_second_ies_preprocess_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_second_ies_preprocess_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_second_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_second_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_second_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_second_preprocess_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_second_preprocess_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.fast_lib_dynamic_fsr_sample_shading_second_preprocess_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ies_add": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ies_add_shader_objects": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ies_increase_vtx_bindings_fast_lib": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ies_increase_vtx_bindings_fast_lib_indirect_vtx_binds": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ies_increase_vtx_bindings_fast_lib_indirect_vtx_binds_with_holes": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ies_increase_vtx_bindings_fast_lib_with_holes": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ies_increase_vtx_bindings_monolithic": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ies_increase_vtx_bindings_monolithic_indirect_vtx_binds": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ies_increase_vtx_bindings_monolithic_indirect_vtx_binds_with_holes": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ies_increase_vtx_bindings_monolithic_with_holes": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ies_increase_vtx_bindings_optimized_lib": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ies_increase_vtx_bindings_optimized_lib_indirect_vtx_binds": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ies_increase_vtx_bindings_optimized_lib_indirect_vtx_binds_with_holes": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ies_increase_vtx_bindings_optimized_lib_with_holes": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ies_increase_vtx_bindings_unlinked_spirv": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ies_increase_vtx_bindings_unlinked_spirv_indirect_vtx_binds": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ies_increase_vtx_bindings_unlinked_spirv_indirect_vtx_binds_with_holes": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ies_increase_vtx_bindings_unlinked_spirv_with_holes": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ies_replace": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ies_replace_shader_objects": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.indexed_draws_with_draw_index_base_instance": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.indexed_draws_with_draw_index_base_instance_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.interface_matching": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.interface_matching_shader_objects": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_mesh": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_mesh_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_mesh_preprocess_with_ies": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_mesh_with_ies": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_preprocess_with_ies": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_preprocess_with_ies_with_vbo_token": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_preprocess_with_vbo_token": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_shader_objects": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_shader_objects_mesh": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_shader_objects_mesh_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_shader_objects_mesh_preprocess_with_ies": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_shader_objects_mesh_with_ies": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_shader_objects_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_shader_objects_preprocess_with_ies": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_shader_objects_preprocess_with_ies_with_vbo_token": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_shader_objects_preprocess_with_vbo_token": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_shader_objects_with_ies": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_shader_objects_with_ies_with_vbo_token": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_shader_objects_with_vbo_token": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_with_ies": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_with_ies_with_vbo_token": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.mix_normal_dgc_with_vbo_token": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_a2c_disabled": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_a2c_disabled_ies": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_a2c_disabled_ies_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_a2c_disabled_ies_preprocess_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_a2c_disabled_ies_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_a2c_disabled_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_a2c_disabled_preprocess_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_a2c_disabled_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_a2c_enabled": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_a2c_enabled_ies": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_a2c_enabled_ies_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_a2c_enabled_ies_preprocess_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_a2c_enabled_ies_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_a2c_enabled_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_a2c_enabled_preprocess_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_a2c_enabled_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_first": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_first_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_first_ies": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_first_ies_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_first_ies_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_first_ies_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_first_ies_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_first_ies_preprocess_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_first_ies_preprocess_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_first_ies_preprocess_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_first_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_first_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_first_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_first_preprocess_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_first_preprocess_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_first_preprocess_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_second": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_second_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_second_ies": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_second_ies_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_second_ies_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_second_ies_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_second_ies_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_second_ies_preprocess_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_second_ies_preprocess_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_second_ies_preprocess_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_second_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_second_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_second_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_second_preprocess_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_second_preprocess_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.monolithic_dynamic_fsr_sample_shading_second_preprocess_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_a2c_disabled": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_a2c_disabled_ies": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_a2c_disabled_ies_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_a2c_disabled_ies_preprocess_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_a2c_disabled_ies_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_a2c_disabled_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_a2c_disabled_preprocess_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_a2c_disabled_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_a2c_enabled": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_a2c_enabled_ies": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_a2c_enabled_ies_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_a2c_enabled_ies_preprocess_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_a2c_enabled_ies_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_a2c_enabled_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_a2c_enabled_preprocess_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_a2c_enabled_sample_mask": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_first": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_first_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_first_ies": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_first_ies_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_first_ies_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_first_ies_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_first_ies_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_first_ies_preprocess_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_first_ies_preprocess_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_first_ies_preprocess_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_first_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_first_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_first_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_first_preprocess_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_first_preprocess_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_first_preprocess_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_second": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_second_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_second_ies": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_second_ies_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_second_ies_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_second_ies_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_second_ies_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_second_ies_preprocess_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_second_ies_preprocess_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_second_ies_preprocess_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_second_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_second_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_second_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_second_preprocess_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_second_preprocess_multisample": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.optimized_lib_dynamic_fsr_sample_shading_second_preprocess_multisample_dynamic_sample_count": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ray_query": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.ray_query_ies": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.rebind_normal_state": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.rebind_normal_state_with_execution_set": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.reuse_dgc_for_normal_fast_lib_order_dgc_normal": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.reuse_dgc_for_normal_fast_lib_order_dgc_normal_execution_set": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.reuse_dgc_for_normal_fast_lib_order_normal_dgc": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.reuse_dgc_for_normal_fast_lib_order_normal_dgc_execution_set": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.reuse_dgc_for_normal_monolithic_order_dgc_normal": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.reuse_dgc_for_normal_monolithic_order_dgc_normal_execution_set": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.reuse_dgc_for_normal_monolithic_order_normal_dgc": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.reuse_dgc_for_normal_monolithic_order_normal_dgc_execution_set": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.reuse_dgc_for_normal_optimized_lib_order_dgc_normal": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.reuse_dgc_for_normal_optimized_lib_order_dgc_normal_execution_set": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.reuse_dgc_for_normal_optimized_lib_order_normal_dgc": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.reuse_dgc_for_normal_optimized_lib_order_normal_dgc_execution_set": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.reuse_dgc_for_normal_unlinked_spirv_order_dgc_normal": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.reuse_dgc_for_normal_unlinked_spirv_order_dgc_normal_execution_set": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.reuse_dgc_for_normal_unlinked_spirv_order_normal_dgc": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.reuse_dgc_for_normal_unlinked_spirv_order_normal_dgc_execution_set": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.robust_vbo": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.robust_vbo_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.robust_vbo_shader_objects": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.robust_vbo_shader_objects_preprocess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.sample_id_state_0_fast_lib": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.sample_id_state_0_monolithic": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.sample_id_state_0_optimized_lib": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.sample_id_state_0_preprocess_fast_lib": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.sample_id_state_0_preprocess_monolithic": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.sample_id_state_0_preprocess_optimized_lib": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.sample_id_state_0_preprocess_unlinked_spirv": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.sample_id_state_0_unlinked_spirv": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.sample_id_state_1_fast_lib": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.sample_id_state_1_monolithic": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.sample_id_state_1_optimized_lib": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.sample_id_state_1_preprocess_fast_lib": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.sample_id_state_1_preprocess_monolithic": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.sample_id_state_1_preprocess_optimized_lib": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.sample_id_state_1_preprocess_unlinked_spirv": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.sample_id_state_1_unlinked_spirv": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.sequence_index_token": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.sequence_index_token_descriptor_heap": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.sparse_vbo_token": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.tg_push_constants_geom": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.tg_push_constants_geom_descriptor_heap": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.tg_push_constants_geom_partial": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.tg_push_constants_geom_partial_descriptor_heap": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.tg_push_constants_tess": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.tg_push_constants_tess_descriptor_heap": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.tg_push_constants_tess_partial": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.tg_push_constants_tess_partial_descriptor_heap": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.vbo_update_0001": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.vbo_update_0010": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.vbo_update_0100": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.vbo_update_1000": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.misc.vbo_update_1111": [
+      "GraphicsMiscExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMiscExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.multiview.view_mask_1": [
+      "GraphicsMultiviewExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMultiviewExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.multiview.view_mask_2": [
+      "GraphicsMultiviewExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMultiviewExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.multiview.view_mask_3": [
+      "GraphicsMultiviewExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsMultiviewExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.tess_state.dynamic_states": [
+      "GraphicsTessStateExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsTessStateExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.tess_state.fast_lib": [
+      "GraphicsTessStateExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsTessStateExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.tess_state.monolithic": [
+      "GraphicsTessStateExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsTessStateExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.tess_state.shader_objects": [
+      "GraphicsTessStateExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsTessStateExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.xfb.discard": [
+      "GraphicsXfbExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsXfbExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.xfb.discard_geom": [
+      "GraphicsXfbExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsXfbExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.xfb.discard_geom_shader_objects": [
+      "GraphicsXfbExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsXfbExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.xfb.discard_shader_objects": [
+      "GraphicsXfbExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsXfbExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.xfb.discard_tess": [
+      "GraphicsXfbExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsXfbExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.xfb.discard_tess_geom": [
+      "GraphicsXfbExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsXfbExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.xfb.discard_tess_geom_shader_objects": [
+      "GraphicsXfbExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsXfbExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.xfb.discard_tess_shader_objects": [
+      "GraphicsXfbExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsXfbExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.xfb.nodiscard": [
+      "GraphicsXfbExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsXfbExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.xfb.nodiscard_geom": [
+      "GraphicsXfbExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsXfbExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.xfb.nodiscard_geom_shader_objects": [
+      "GraphicsXfbExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsXfbExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.xfb.nodiscard_shader_objects": [
+      "GraphicsXfbExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsXfbExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.xfb.nodiscard_tess": [
+      "GraphicsXfbExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsXfbExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.xfb.nodiscard_tess_geom": [
+      "GraphicsXfbExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsXfbExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.xfb.nodiscard_tess_geom_shader_objects": [
+      "GraphicsXfbExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsXfbExt"
+    ],
+    "dEQP-VK.dgc.ext.graphics.xfb.nodiscard_tess_shader_objects": [
+      "GraphicsXfbExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/GraphicsXfbExt"
+    ],
+    "dEQP-VK.dgc.ext.misc.properties.maxIndirectCommandsStreamIndirect": [
+      "PropertyExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/PropertyExt"
+    ],
+    "dEQP-VK.dgc.ext.misc.properties.maxIndirectCommandsTokenCount_16": [
+      "PropertyExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/PropertyExt"
+    ],
+    "dEQP-VK.dgc.ext.misc.properties.maxIndirectCommandsTokenCount_32": [
+      "PropertyExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/PropertyExt"
+    ],
+    "dEQP-VK.dgc.ext.misc.properties.maxIndirectCommandsTokenOffset": [
+      "PropertyExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/PropertyExt"
+    ],
+    "dEQP-VK.dgc.ext.misc.properties.maxIndirectSequenceCount": [
+      "PropertyExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/PropertyExt"
+    ],
+    "dEQP-VK.dgc.ext.misc.properties.valid_limits": [
+      "PropertyExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/PropertyExt"
+    ],
+    "dEQP-VK.dgc.ext.ray_tracing.no_execution_set": [
+      "RayTracingExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/RayTracingExt"
+    ],
+    "dEQP-VK.dgc.ext.ray_tracing.no_execution_set_cq": [
+      "RayTracingExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/RayTracingExt"
+    ],
+    "dEQP-VK.dgc.ext.ray_tracing.no_execution_set_preprocess": [
+      "RayTracingExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/RayTracingExt"
+    ],
+    "dEQP-VK.dgc.ext.ray_tracing.no_execution_set_preprocess_cq": [
+      "RayTracingExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/RayTracingExt"
+    ],
+    "dEQP-VK.dgc.ext.ray_tracing.no_execution_set_preprocess_unordered": [
+      "RayTracingExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/RayTracingExt"
+    ],
+    "dEQP-VK.dgc.ext.ray_tracing.no_execution_set_preprocess_unordered_cq": [
+      "RayTracingExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/RayTracingExt"
+    ],
+    "dEQP-VK.dgc.ext.ray_tracing.no_execution_set_unordered": [
+      "RayTracingExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/RayTracingExt"
+    ],
+    "dEQP-VK.dgc.ext.ray_tracing.no_execution_set_unordered_cq": [
+      "RayTracingExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/RayTracingExt"
+    ],
+    "dEQP-VK.dgc.ext.ray_tracing.with_execution_set": [
+      "RayTracingExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/RayTracingExt"
+    ],
+    "dEQP-VK.dgc.ext.ray_tracing.with_execution_set_cq": [
+      "RayTracingExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/RayTracingExt"
+    ],
+    "dEQP-VK.dgc.ext.ray_tracing.with_execution_set_preprocess": [
+      "RayTracingExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/RayTracingExt"
+    ],
+    "dEQP-VK.dgc.ext.ray_tracing.with_execution_set_preprocess_cq": [
+      "RayTracingExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/RayTracingExt"
+    ],
+    "dEQP-VK.dgc.ext.ray_tracing.with_execution_set_preprocess_unordered": [
+      "RayTracingExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/RayTracingExt"
+    ],
+    "dEQP-VK.dgc.ext.ray_tracing.with_execution_set_preprocess_unordered_cq": [
+      "RayTracingExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/RayTracingExt"
+    ],
+    "dEQP-VK.dgc.ext.ray_tracing.with_execution_set_unordered": [
+      "RayTracingExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/RayTracingExt"
+    ],
+    "dEQP-VK.dgc.ext.ray_tracing.with_execution_set_unordered_cq": [
+      "RayTracingExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/RayTracingExt"
+    ],
+    "dEQP-VK.dgc.nv.compute.conditional_rendering.general": [
+      "ComputeConditional",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeConditional"
+    ],
+    "dEQP-VK.dgc.nv.compute.conditional_rendering.preprocess": [
+      "ComputeConditional",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeConditional"
+    ],
+    "dEQP-VK.dgc.nv.compute.get_info.constant_cmd_memory_requirements_basic_case": [
+      "ComputeGetInfo",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeGetInfo"
+    ],
+    "dEQP-VK.dgc.nv.compute.get_info.constant_cmd_memory_requirements_basic_case_with_pipeline": [
+      "ComputeGetInfo",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeGetInfo"
+    ],
+    "dEQP-VK.dgc.nv.compute.get_info.constant_cmd_memory_requirements_ignore_unordered_flag": [
+      "ComputeGetInfo",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeGetInfo"
+    ],
+    "dEQP-VK.dgc.nv.compute.get_info.constant_cmd_memory_requirements_increase_count": [
+      "ComputeGetInfo",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeGetInfo"
+    ],
+    "dEQP-VK.dgc.nv.compute.get_info.constant_cmd_memory_requirements_max_sequence_count": [
+      "ComputeGetInfo",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeGetInfo"
+    ],
+    "dEQP-VK.dgc.nv.compute.get_info.constant_pipeline_capture_replay_address": [
+      "ComputeGetInfo",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeGetInfo"
+    ],
+    "dEQP-VK.dgc.nv.compute.get_info.constant_pipeline_device_address": [
+      "ComputeGetInfo",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeGetInfo"
+    ],
+    "dEQP-VK.dgc.nv.compute.get_info.constant_pipeline_memory_requirements": [
+      "ComputeGetInfo",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeGetInfo"
+    ],
+    "dEQP-VK.dgc.nv.compute.layout.complementary_push_dispatch": [
+      "ComputeLayout",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayout"
+    ],
+    "dEQP-VK.dgc.nv.compute.layout.complementary_push_dispatch_cq": [
+      "ComputeLayout",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayout"
+    ],
+    "dEQP-VK.dgc.nv.compute.layout.partial_push_dispatch": [
+      "ComputeLayout",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayout"
+    ],
+    "dEQP-VK.dgc.nv.compute.layout.partial_push_dispatch_cq": [
+      "ComputeLayout",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayout"
+    ],
+    "dEQP-VK.dgc.nv.compute.layout.pipeline_complementary_push_dispatch": [
+      "ComputeLayout",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayout"
+    ],
+    "dEQP-VK.dgc.nv.compute.layout.pipeline_complementary_push_dispatch_cq": [
+      "ComputeLayout",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayout"
+    ],
+    "dEQP-VK.dgc.nv.compute.layout.pipeline_dispatch": [
+      "ComputeLayout",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayout"
+    ],
+    "dEQP-VK.dgc.nv.compute.layout.pipeline_dispatch_align4": [
+      "ComputeLayout",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayout"
+    ],
+    "dEQP-VK.dgc.nv.compute.layout.pipeline_dispatch_align4_cq": [
+      "ComputeLayout",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayout"
+    ],
+    "dEQP-VK.dgc.nv.compute.layout.pipeline_dispatch_cq": [
+      "ComputeLayout",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayout"
+    ],
+    "dEQP-VK.dgc.nv.compute.layout.pipeline_push_dispatch": [
+      "ComputeLayout",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayout"
+    ],
+    "dEQP-VK.dgc.nv.compute.layout.pipeline_push_dispatch_align4": [
+      "ComputeLayout",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayout"
+    ],
+    "dEQP-VK.dgc.nv.compute.layout.pipeline_push_dispatch_align4_cq": [
+      "ComputeLayout",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayout"
+    ],
+    "dEQP-VK.dgc.nv.compute.layout.pipeline_push_dispatch_capture_replay": [
+      "ComputeLayout",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayout"
+    ],
+    "dEQP-VK.dgc.nv.compute.layout.pipeline_push_dispatch_capture_replay_cq": [
+      "ComputeLayout",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayout"
+    ],
+    "dEQP-VK.dgc.nv.compute.layout.pipeline_push_dispatch_cq": [
+      "ComputeLayout",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayout"
+    ],
+    "dEQP-VK.dgc.nv.compute.layout.push_dispatch": [
+      "ComputeLayout",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayout"
+    ],
+    "dEQP-VK.dgc.nv.compute.layout.push_dispatch_cq": [
+      "ComputeLayout",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeLayout"
+    ],
+    "dEQP-VK.dgc.nv.compute.misc.execute_many_1024_primary_cmd_compute_queue": [
+      "ComputeMisc",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMisc"
+    ],
+    "dEQP-VK.dgc.nv.compute.misc.execute_many_1024_primary_cmd_universal_queue": [
+      "ComputeMisc",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMisc"
+    ],
+    "dEQP-VK.dgc.nv.compute.misc.execute_many_1024_secondary_cmd_compute_queue": [
+      "ComputeMisc",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMisc"
+    ],
+    "dEQP-VK.dgc.nv.compute.misc.execute_many_1024_secondary_cmd_universal_queue": [
+      "ComputeMisc",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMisc"
+    ],
+    "dEQP-VK.dgc.nv.compute.misc.execute_many_64_primary_cmd_compute_queue": [
+      "ComputeMisc",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMisc"
+    ],
+    "dEQP-VK.dgc.nv.compute.misc.execute_many_64_primary_cmd_universal_queue": [
+      "ComputeMisc",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMisc"
+    ],
+    "dEQP-VK.dgc.nv.compute.misc.execute_many_64_secondary_cmd_compute_queue": [
+      "ComputeMisc",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMisc"
+    ],
+    "dEQP-VK.dgc.nv.compute.misc.execute_many_64_secondary_cmd_universal_queue": [
+      "ComputeMisc",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMisc"
+    ],
+    "dEQP-VK.dgc.nv.compute.misc.execute_many_8192_primary_cmd_compute_queue": [
+      "ComputeMisc",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMisc"
+    ],
+    "dEQP-VK.dgc.nv.compute.misc.execute_many_8192_primary_cmd_universal_queue": [
+      "ComputeMisc",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMisc"
+    ],
+    "dEQP-VK.dgc.nv.compute.misc.execute_many_8192_secondary_cmd_compute_queue": [
+      "ComputeMisc",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMisc"
+    ],
+    "dEQP-VK.dgc.nv.compute.misc.execute_many_8192_secondary_cmd_universal_queue": [
+      "ComputeMisc",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMisc"
+    ],
+    "dEQP-VK.dgc.nv.compute.misc.full_replay": [
+      "ComputeMisc",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMisc"
+    ],
+    "dEQP-VK.dgc.nv.compute.misc.scratch_space": [
+      "ComputeMisc",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeMisc"
+    ],
+    "dEQP-VK.dgc.nv.compute.preprocess.parallel_preprocessing_compute": [
+      "ComputePreprocess",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocess"
+    ],
+    "dEQP-VK.dgc.nv.compute.preprocess.parallel_preprocessing_compute_with_count_buffer": [
+      "ComputePreprocess",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocess"
+    ],
+    "dEQP-VK.dgc.nv.compute.preprocess.parallel_preprocessing_compute_with_count_buffer_zero_count": [
+      "ComputePreprocess",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocess"
+    ],
+    "dEQP-VK.dgc.nv.compute.preprocess.parallel_preprocessing_compute_with_universal_exec": [
+      "ComputePreprocess",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocess"
+    ],
+    "dEQP-VK.dgc.nv.compute.preprocess.parallel_preprocessing_compute_with_universal_exec_with_count_buffer": [
+      "ComputePreprocess",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocess"
+    ],
+    "dEQP-VK.dgc.nv.compute.preprocess.parallel_preprocessing_compute_with_universal_exec_with_count_buffer_zero_count": [
+      "ComputePreprocess",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocess"
+    ],
+    "dEQP-VK.dgc.nv.compute.preprocess.parallel_preprocessing_universal": [
+      "ComputePreprocess",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocess"
+    ],
+    "dEQP-VK.dgc.nv.compute.preprocess.parallel_preprocessing_universal_with_compute_exec": [
+      "ComputePreprocess",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocess"
+    ],
+    "dEQP-VK.dgc.nv.compute.preprocess.parallel_preprocessing_universal_with_compute_exec_with_count_buffer": [
+      "ComputePreprocess",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocess"
+    ],
+    "dEQP-VK.dgc.nv.compute.preprocess.parallel_preprocessing_universal_with_compute_exec_with_count_buffer_zero_count": [
+      "ComputePreprocess",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocess"
+    ],
+    "dEQP-VK.dgc.nv.compute.preprocess.parallel_preprocessing_universal_with_count_buffer": [
+      "ComputePreprocess",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocess"
+    ],
+    "dEQP-VK.dgc.nv.compute.preprocess.parallel_preprocessing_universal_with_count_buffer_zero_count": [
+      "ComputePreprocess",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocess"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.1024_sequences_device_local_from_compute_explicit_preprocess_compute_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.1024_sequences_device_local_from_compute_explicit_preprocess_universal_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.1024_sequences_device_local_from_compute_implicit_preprocess_compute_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.1024_sequences_device_local_from_compute_implicit_preprocess_universal_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.1024_sequences_device_local_from_host_explicit_preprocess_compute_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.1024_sequences_device_local_from_host_explicit_preprocess_universal_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.1024_sequences_device_local_from_host_implicit_preprocess_compute_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.1024_sequences_device_local_from_host_implicit_preprocess_universal_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.1024_sequences_host_visible_from_compute_explicit_preprocess_compute_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.1024_sequences_host_visible_from_compute_explicit_preprocess_universal_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.1024_sequences_host_visible_from_compute_implicit_preprocess_compute_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.1024_sequences_host_visible_from_compute_implicit_preprocess_universal_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.1024_sequences_host_visible_from_host_explicit_preprocess_compute_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.1024_sequences_host_visible_from_host_explicit_preprocess_universal_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.1024_sequences_host_visible_from_host_implicit_preprocess_compute_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.1024_sequences_host_visible_from_host_implicit_preprocess_universal_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.4_sequences_device_local_from_compute_explicit_preprocess_compute_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.4_sequences_device_local_from_compute_explicit_preprocess_universal_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.4_sequences_device_local_from_compute_implicit_preprocess_compute_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.4_sequences_device_local_from_compute_implicit_preprocess_universal_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.4_sequences_device_local_from_host_explicit_preprocess_compute_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.4_sequences_device_local_from_host_explicit_preprocess_universal_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.4_sequences_device_local_from_host_implicit_preprocess_compute_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.4_sequences_device_local_from_host_implicit_preprocess_universal_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.4_sequences_host_visible_from_compute_explicit_preprocess_compute_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.4_sequences_host_visible_from_compute_explicit_preprocess_universal_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.4_sequences_host_visible_from_compute_implicit_preprocess_compute_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.4_sequences_host_visible_from_compute_implicit_preprocess_universal_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.4_sequences_host_visible_from_host_explicit_preprocess_compute_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.4_sequences_host_visible_from_host_explicit_preprocess_universal_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.4_sequences_host_visible_from_host_implicit_preprocess_compute_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.smoke.4_sequences_host_visible_from_host_implicit_preprocess_universal_queue": [
+      "ComputeSmoke",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSmoke"
+    ],
+    "dEQP-VK.dgc.nv.compute.subgroups.builtins": [
+      "ComputeSubgroup",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputeSubgroup"
+    ],
+    "dEQP-VK.dgc.nv.misc.properties.maxIndirectCommandsStreamCount": [
+      "Property",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/Property"
+    ],
+    "dEQP-VK.dgc.nv.misc.properties.maxIndirectCommandsStreamStrideRun": [
+      "Property",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/Property"
+    ],
+    "dEQP-VK.dgc.nv.misc.properties.maxIndirectCommandsTokenCount": [
+      "Property",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/Property"
+    ],
+    "dEQP-VK.dgc.nv.misc.properties.maxIndirectCommandsTokenOffset": [
+      "Property",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/Property"
+    ],
+    "dEQP-VK.dgc.nv.misc.properties.minIndirectCommandsBufferOffsetAlignment_offset_256": [
+      "Property",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/Property"
+    ],
+    "dEQP-VK.dgc.nv.misc.properties.minIndirectCommandsBufferOffsetAlignment_offset_4": [
+      "Property",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/Property"
+    ],
+    "dEQP-VK.dgc.nv.misc.properties.minIndirectCommandsBufferOffsetAlignment_offset_8": [
+      "Property",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/Property"
+    ],
+    "dEQP-VK.dgc.nv.misc.properties.minSequencesCountBufferOffsetAlignment": [
+      "Property",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/Property"
+    ],
+    "dEQP-VK.dgc.nv.misc.properties.minSequencesIndexBufferOffsetAlignment": [
+      "Property",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/Property"
+    ],
+    "dEQP-VK.dgc.nv.misc.properties.valid_limits": [
+      "Property",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/Property"
     ],
     "dEQP-VK.draw.dynamic_rendering.complete_secondary_cmd_buff.ahb_external_format_resolve.clear": [
       "AhbExternalFormatResolveTests",

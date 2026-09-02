@@ -139,6 +139,16 @@ GENERATED_FAMILY_ROOTS = {
             "dEQP-VK.wsi.headless.incremental_present",
         ),
     ),
+    "dgc": (
+        (
+            "dEQP-VK.dgc.ext.compute.layout.complementary_push_dispatch",
+            "dEQP-VK.dgc.ext.compute.layout",
+        ),
+        (
+            "dEQP-VK.dgc.ext.compute.misc.descriptor_buffer_push_descriptor",
+            "dEQP-VK.dgc.ext.compute.misc",
+        ),
+    ),
 }
 
 API_COPY_PARENT_VARIANTS = frozenset(
@@ -224,6 +234,15 @@ def project_category_mappings(
     projected: dict[str, OwnerValue] = {}
     generated_rules = GENERATED_FAMILY_ROOTS.get(category, ())
     for path in paths:
+        if category == "dgc":
+            parts = path.split(".")
+            for prefix, owner in mappings.items():
+                prefix_parts = prefix.split(".")
+                if len(parts) < len(prefix_parts) or parts[: len(prefix_parts) - 1] != prefix_parts[:-1]:
+                    continue
+                actual = parts[len(prefix_parts) - 1]
+                if actual == prefix_parts[-1] or actual.startswith(prefix_parts[-1] + "_"):
+                    projected[".".join(parts[: len(prefix_parts) - 1]) + "." + prefix_parts[-1]] = owner
         if category == "multiview":
             parts = path.split(".")
             if len(parts) > 3 and parts[2] in {"renderpass2", "dynamic_rendering"}:
