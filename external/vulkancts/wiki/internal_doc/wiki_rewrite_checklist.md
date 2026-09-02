@@ -45,11 +45,11 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [x] 35. graphicsfuzz — 1
 - [x] 36. imageless_framebuffer — 1
 - [x] 37. transform_feedback — 4 (UB: 4)
-- [ ] 38. descriptor_indexing — 3
-- [ ] 39. fragment_shader_interlock — 2
-- [ ] 40. fragment_shading_barycentric — 1
-- [ ] 41. fragment_shading_rate — 5
-- [ ] 42. drm_format_modifiers — 1
+- [x] 38. descriptor_indexing — 3
+- [x] 39. fragment_shader_interlock — 2
+- [x] 40. fragment_shading_barycentric — 1
+- [x] 41. fragment_shading_rate — 5
+- [x] 42. drm_format_modifiers — 1
 - [x] 43. ray_tracing_pipeline — 30 (UB: 18)
 - [x] 44. ray_query — 14 (UB: 8)
 - [x] 45. reconvergence — 2 (UB: 2)
@@ -62,4 +62,4 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [ ] 52. tensor — 7
 - [ ] 53. data_graph — 4
 
-**Summary**: 42 done, 11 todo.
+**Summary**: 47 done, 6 todo.

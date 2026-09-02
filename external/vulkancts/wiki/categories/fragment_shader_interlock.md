@@ -1,48 +1,32 @@
-# Fragment Shader Interlock
+## Overview
 
-This page summarizes the Vulkan CTS `fragment_shader_interlock` category, which verifies `VK_EXT_fragment_shader_interlock` behavior through a generated `basic` test matrix.
+The `fragment_shader_interlock` test category collects cases that check ordered fragment access to overlapping pixel, sample, and shading-rate regions.
 
-## Registration Entry Point
+## Background Knowledge
 
-The category is registered through [`FragmentShaderInterlock::createTests()`](../../modules/vulkan/fragment_shader_interlock/vktFragmentShaderInterlockTests.cpp#L51-L54). Its root dispatcher adds exactly one child, `basic`, via [`createChildren()`](../../modules/vulkan/fragment_shader_interlock/vktFragmentShaderInterlockTests.cpp#L37-L42).
+- **Fragment shader interlock.** An interlock region orders fragment invocations that access the same rasterization region, allowing a shader to perform a read-modify-write without losing a conflicting update.
+- **Interlock scopes.** Pixel-ordered, sample-ordered, and shading-rate-ordered regions define different sets of fragments that must be serialized.
+- **Discard and sample shading.** Discard removes a fragment's normal output, while sample shading changes fragment invocation frequency. Both affect the writes observed by the interlock checks.
 
-## Subgroup Structure
+## Category Structure
 
 ```text
 fragment_shader_interlock
 └── basic
 ```
 
-## File Inventory
+The `basic` test family contains image and SSBO cases with discard and nodiscard variants.
 
-| File | Role | Wiki page |
+## How the Families Fit Together
+
+The category has one implementation-bearing family. It varies interlock scope, destination resource, discard behavior, sample count, sample shading, and render dimensions within that family.
+
+## Level-3 Pages Navigation
+
+| Registered test family or area | Level-3 page | What to read there |
 |---|---|---|
-| [`vktFragmentShaderInterlockTests.cpp`](../../modules/vulkan/fragment_shader_interlock/vktFragmentShaderInterlockTests.cpp#L1) | Root registration file | [`vktFragmentShaderInterlockTests.cpp`](../testfiles/fragment_shader_interlock/vktFragmentShaderInterlockTests.md) |
-| [`vktFragmentShaderInterlockBasic.cpp`](../../modules/vulkan/fragment_shader_interlock/vktFragmentShaderInterlockBasic.cpp#L1) | Registered implementation file for `basic` | [`vktFragmentShaderInterlockBasic.cpp`](../testfiles/fragment_shader_interlock/vktFragmentShaderInterlockBasic.md) |
-| [`vktFragmentShaderInterlockBasic.hpp`](../../modules/vulkan/fragment_shader_interlock/vktFragmentShaderInterlockBasic.hpp#L32-L35) | Declares the `basic` factory | Header only |
-| [`CMakeLists.txt`](../../modules/vulkan/fragment_shader_interlock/CMakeLists.txt#L1) | Build inventory | Build metadata |
+| `basic` | [Basic.md](../testfiles/fragment_shader_interlock/Basic.md) | Interlock scopes, image/SSBO read-modify-write, discard and sample variants, and result checking |
 
-## Cross-File Test Themes
+## Category Notes
 
-The dispatcher exposes the `basic` branch, while [`vktFragmentShaderInterlockBasic.cpp`](../testfiles/fragment_shader_interlock/vktFragmentShaderInterlockBasic.md) generates the full case matrix. The implementation writes shaders using `GL_ARB_fragment_shader_interlock`, emits the selected pixel/sample/shading-rate interlock layout qualifier, and performs image or SSBO read/modify/write operations inside an invocation interlock region at [`vktFragmentShaderInterlockBasic.cpp`](../../modules/vulkan/fragment_shader_interlock/vktFragmentShaderInterlockBasic.cpp#L218-L327).
-
-## Cross-File Parameter Dimensions
-
-The generated matrix varies discard behavior, resource type, interlock mode, sample count, sample-shading state, and dimensions. The registration loops and value tables are in [`createBasicTests()`](../../modules/vulkan/fragment_shader_interlock/vktFragmentShaderInterlockBasic.cpp#L787-L862). The mustpass list confirms the category path shape with entries such as `fragment_shader_interlock.basic.discard.image.pixel_ordered...` at [`fragment-shader-interlock.txt`](../../mustpass/main/vk-default/fragment-shader-interlock.txt#L1-L24).
-
-## Cross-File Support Requirements and Feature Gates
-
-Per-case support checks require `VK_EXT_fragment_shader_interlock`; then they require the selected pixel, sample, or shading-rate interlock feature bits. Shading-rate interlock checks are guarded out for Vulkan SC and additionally require fragment-shading-rate support for fragment shader interlock at [`vktFragmentShaderInterlockBasic.cpp`](../../modules/vulkan/fragment_shader_interlock/vktFragmentShaderInterlockBasic.cpp#L154-L185).
-
-## Cross-File Verification Methods
-
-The implementation copies the tested image or SSBO data into a host-visible buffer and compares every copied word against the expected interlock bitmask, with zero expected for discarded odd entries at [`vktFragmentShaderInterlockBasic.cpp`](../../modules/vulkan/fragment_shader_interlock/vktFragmentShaderInterlockBasic.cpp#L735-L772).
-
-## Level-3 Pages
-
-- [`vktFragmentShaderInterlockTests.cpp`](../testfiles/fragment_shader_interlock/vktFragmentShaderInterlockTests.md)
-- [`vktFragmentShaderInterlockBasic.cpp`](../testfiles/fragment_shader_interlock/vktFragmentShaderInterlockBasic.md)
-
-## Notes / Scope
-
-No direct test-plan match was used for this category; the claims above are based on inspected source and mustpass evidence.
+The dispatcher page is registration-only. The implementation page owns the generated matrix and its Vulkan execution semantics. The default Vulkan mustpass contains 576 leaves.

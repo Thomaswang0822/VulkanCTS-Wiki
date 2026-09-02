@@ -57,6 +57,9 @@ PAGES_WITHOUT_WALKTHROUGH: dict[str, set[str]] = {
         'DS.md',
         'LineWidth.md',
     },
+    'drm_format_modifiers': {
+        'Modifiers.md',
+    },
     'draw': {
         'AhbTests.md',
         'DiscardRectanglesTests.md',
