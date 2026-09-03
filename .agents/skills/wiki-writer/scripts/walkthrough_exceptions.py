@@ -199,4 +199,12 @@ PAGES_WITHOUT_WALKTHROUGH: dict[str, set[str]] = {
         'SurfaceTests.md',
         'SwapchainTests.md',
     },
+    'video': {
+        'Video.md',
+        'Capabilities.md',
+        'ProfilesValidation.md',
+        'Decode.md',
+        'Encode.md',
+        'EncodeAV1.md',
+    },
 }
