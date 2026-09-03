@@ -98,7 +98,7 @@ CATEGORY_MUSTPASS_FILES: dict[str, tuple[Path, ...]] = {
     "reconvergence": (Path("reconvergence.txt"),),
     "mesh_shader": (Path("mesh-shader.txt"),),
     # "depth": (Path("depth.txt"),),
-    # "video": (Path("video.txt"),),
+    "video": (Path("video.txt"),),
     "shader_object": (
         Path("shader-object/api.txt"),
         Path("shader-object/binary.txt"),

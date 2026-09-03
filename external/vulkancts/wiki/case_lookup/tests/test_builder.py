@@ -146,6 +146,7 @@ class MustpassInputTests(unittest.TestCase):
                 "ray_query",
                 "reconvergence",
                 "mesh_shader",
+                "video",
                 "shader_object",
                 "dgc",
             ],

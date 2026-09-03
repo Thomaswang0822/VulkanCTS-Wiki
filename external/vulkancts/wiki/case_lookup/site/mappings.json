@@ -1,6 +1,6 @@
 {
-  "category_count": 48,
-  "mapping_count": 12997,
+  "category_count": 49,
+  "mapping_count": 13059,
   "mappings": {
     "dEQP-VK.api.buffer.basic": [
       "Buffer",
@@ -60996,6 +60996,316 @@
       "UniformBlockTests",
       "ubo",
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/ubo/UniformBlockTests"
+    ],
+    "dEQP-VK.video.capabilities.av1_decode_capabilities_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.av1_decode_dpb_video_format_support_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.av1_decode_dst_video_format_support_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.av1_encode_capabilities_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.av1_encode_dpb_video_format_support_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.av1_encode_intra_refresh_capabilities_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.av1_encode_src_video_format_support_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.h264_decode_capabilities_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.h264_decode_dpb_video_format_support_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.h264_decode_dst_video_format_support_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.h264_encode_capabilities_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.h264_encode_dpb_video_format_support_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.h264_encode_intra_refresh_capabilities_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.h264_encode_src_video_format_support_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.h265_decode_capabilities_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.h265_decode_dpb_video_format_support_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.h265_decode_dst_video_format_support_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.h265_encode_capabilities_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.h265_encode_dpb_video_format_support_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.h265_encode_intra_refresh_capabilities_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.h265_encode_src_video_format_support_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.queue_support_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.vp9_decode_capabilities_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.vp9_decode_dpb_video_format_support_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.capabilities.vp9_decode_dst_video_format_support_query": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.decode.av1": [
+      "Decode",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Decode"
+    ],
+    "dEQP-VK.video.decode.h264": [
+      "Decode",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Decode"
+    ],
+    "dEQP-VK.video.decode.h265": [
+      "Decode",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Decode"
+    ],
+    "dEQP-VK.video.decode.vp9": [
+      "Decode",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Decode"
+    ],
+    "dEQP-VK.video.encode.av1.128x128_10le_420": [
+      "EncodeAV1",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/EncodeAV1"
+    ],
+    "dEQP-VK.video.encode.av1.128x128_8le_420": [
+      "EncodeAV1",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/EncodeAV1"
+    ],
+    "dEQP-VK.video.encode.av1.176x144_10le_420": [
+      "EncodeAV1",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/EncodeAV1"
+    ],
+    "dEQP-VK.video.encode.av1.176x144_8le_420": [
+      "EncodeAV1",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/EncodeAV1"
+    ],
+    "dEQP-VK.video.encode.av1.1920x1080_10le_420": [
+      "EncodeAV1",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/EncodeAV1"
+    ],
+    "dEQP-VK.video.encode.av1.1920x1080_8le_420": [
+      "EncodeAV1",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/EncodeAV1"
+    ],
+    "dEQP-VK.video.encode.av1.352x288_10le_420": [
+      "EncodeAV1",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/EncodeAV1"
+    ],
+    "dEQP-VK.video.encode.av1.352x288_8le_420": [
+      "EncodeAV1",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/EncodeAV1"
+    ],
+    "dEQP-VK.video.encode.av1.3840x2160_10le_420": [
+      "EncodeAV1",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/EncodeAV1"
+    ],
+    "dEQP-VK.video.encode.av1.3840x2160_8le_420": [
+      "EncodeAV1",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/EncodeAV1"
+    ],
+    "dEQP-VK.video.encode.av1.720x480_10le_420": [
+      "EncodeAV1",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/EncodeAV1"
+    ],
+    "dEQP-VK.video.encode.av1.720x480_8le_420": [
+      "EncodeAV1",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/EncodeAV1"
+    ],
+    "dEQP-VK.video.encode.av1.7680x4320_10le_420": [
+      "EncodeAV1",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/EncodeAV1"
+    ],
+    "dEQP-VK.video.encode.av1.7680x4320_8le_420": [
+      "EncodeAV1",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/EncodeAV1"
+    ],
+    "dEQP-VK.video.encode.h264": [
+      "Encode",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Encode"
+    ],
+    "dEQP-VK.video.encode.h265": [
+      "Encode",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Encode"
+    ],
+    "dEQP-VK.video.formats": [
+      "Capabilities",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Capabilities"
+    ],
+    "dEQP-VK.video.profiles.decode": [
+      "ProfilesValidation",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/ProfilesValidation"
+    ],
+    "dEQP-VK.video.profiles.encode": [
+      "ProfilesValidation",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/ProfilesValidation"
+    ],
+    "dEQP-VK.video.synchronization.decode_av1": [
+      "Synchronization",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Synchronization"
+    ],
+    "dEQP-VK.video.synchronization.decode_h264": [
+      "Synchronization",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Synchronization"
+    ],
+    "dEQP-VK.video.synchronization.decode_h265": [
+      "Synchronization",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Synchronization"
+    ],
+    "dEQP-VK.video.synchronization.decode_vp9": [
+      "Synchronization",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Synchronization"
+    ],
+    "dEQP-VK.video.synchronization.encode_av1": [
+      "Synchronization",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Synchronization"
+    ],
+    "dEQP-VK.video.synchronization.encode_h264": [
+      "Synchronization",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Synchronization"
+    ],
+    "dEQP-VK.video.synchronization.encode_h265": [
+      "Synchronization",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Synchronization"
+    ],
+    "dEQP-VK.video.synchronization2.decode_av1": [
+      "Synchronization",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Synchronization"
+    ],
+    "dEQP-VK.video.synchronization2.decode_h264": [
+      "Synchronization",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Synchronization"
+    ],
+    "dEQP-VK.video.synchronization2.decode_h265": [
+      "Synchronization",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Synchronization"
+    ],
+    "dEQP-VK.video.synchronization2.decode_vp9": [
+      "Synchronization",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Synchronization"
+    ],
+    "dEQP-VK.video.synchronization2.encode_av1": [
+      "Synchronization",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Synchronization"
+    ],
+    "dEQP-VK.video.synchronization2.encode_h264": [
+      "Synchronization",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Synchronization"
+    ],
+    "dEQP-VK.video.synchronization2.encode_h265": [
+      "Synchronization",
+      "video",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/video/Synchronization"
     ],
     "dEQP-VK.wsi.acquire_drm_display.acquire_drm_display": [
       "AcquireDrmDisplayTests",
