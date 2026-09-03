@@ -121,7 +121,7 @@ The test family is the primary axis because it selects two different Vulkan cont
 
 ## Conversion Notes for Final Wiki Page
 
-- Use `video.capabilities` and `video.formats` as the two direct children in the registration tree. Keep the 25 capability leaves and 1701 format leaves as compact count and dimension statements rather than expanding them into the hierarchy.
+- Use `video.capabilities` with its 25 exact children and `video.formats` as a bare root in the registration tree. Keep the 1701 format leaves as compact count and dimension statements rather than expanding them into the hierarchy.
 - Distill the profile and `pNext` explanations into short prerequisite bullets. Keep the conceptual AV1 format case only as a concise example of the generated name and query sequence.
 - Use `test family` as the primary behavior axis with `capabilities` and `formats` values. Copy the `### Failure Cause Mapping` table above directly into the final page.
 - Write `### Cause Analysis` fresh. Explain capability-query failures through returned fields, masks, chains, and relationships; explain format failures through usage inclusion, image-format properties, modifiers, and feature mapping.

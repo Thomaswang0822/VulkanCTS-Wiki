@@ -43,9 +43,11 @@ video.capabilities
 ├── vp9_decode_capabilities_query
 ├── vp9_decode_dpb_video_format_support_query
 └── vp9_decode_dst_video_format_support_query
+
+video.formats
 ```
 
-The `capabilities` and `formats` families are both implemented by this source file. The deeper capability leaves and generated format leaves are described in the parameter sections rather than expanded here.
+The `capabilities` and `formats` families are both implemented by this source file and owned by this page. The `capabilities` tree lists its 25 exact registered leaves. The `formats` tree is a bare root because its 1701 generated leaves are flat single components that each combine a codec operation, format, usage, subsampling, and bit depth; the matrix is described in the parameter sections rather than expanded in the tree.
 
 ## Parameter Dimensions and Observed Values
 

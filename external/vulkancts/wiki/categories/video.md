@@ -21,7 +21,7 @@ video
 └── synchronization2
 ```
 
-The video dispatcher registers both the `capabilities` and `formats` families. The six Level-3 pages below therefore cover seven direct families: the dispatcher page covers the category entry point and synchronization routing, while the H.264/H.265 and AV1 encode families have separate pages.
+The video dispatcher `vktVideoTests.cpp` is registration-only: it attaches the seven direct families but implements no test cases itself. The five Level-3 pages below cover the five video-owned families — `capabilities` and `formats` share one page, and `encode` is split into an H.264/H.265 page and an AV1 page. The `synchronization` and `synchronization2` branches do not have a dedicated Level-3 page yet.
 
 ## How the Families Fit Together
 
@@ -30,13 +30,12 @@ The families test different layers of the same video API contract:
 - **When** the question is whether a device advertises a usable combination of queue, codec, profile, usage, and image format, read the capability and profile-validation pages.
 - **When** the question is whether compressed input becomes the expected pictures, read the decode page; **when** the question is whether generated pictures become an acceptable bitstream, read the encode pages.
 - **Which fields** are queried, cross-checked, or pruned differs from **which bytes** are produced and compared during decode and encode execution.
-- The synchronization branches are video-specialized registrations of shared synchronization tests. Their detailed dependency rules remain in the synchronization documentation boundary.
+- The synchronization branches are a special ownership case: their implementation code is the shared synchronization category's builders in `synchronization/vktSynchronizationTests.cpp`, but the video dispatcher registers them under `video.synchronization` and `video.synchronization2`, one child per codec operation. Their 273 mustpass cases therefore belong to the `video` category by registration path, not to the synchronization categories. The detailed dependency rules remain in the synchronization documentation boundary; dedicated Level-3 pages for these video-registered branches are planned.
 
 ## Level-3 Pages Navigation
 
 | Registered test family or area | Level-3 page | What to read there |
 |--------------------------------|--------------|--------------------|
-| Category entry point, direct branch routing, and video-specialized synchronization registration | [Video](../testfiles/video/Video.md) | How the seven direct branches are attached and where shared synchronization behavior is delegated. |
 | `capabilities` and `formats` | [Capabilities](../testfiles/video/Capabilities.md) | Queue and codec capability queries, video-format support queries, cross-query checks, and pruning. |
 | `profiles` | [ProfilesValidation](../testfiles/video/ProfilesValidation.md) | Codec profile combinations and consistency checks across capability, format, image, and session APIs. |
 | `decode` → H.264, H.265, AV1, and VP9 | [Decode](../testfiles/video/Decode.md) | Clip-driven decode execution, DPB and layout variants, status handling, and decoded-frame checking. |

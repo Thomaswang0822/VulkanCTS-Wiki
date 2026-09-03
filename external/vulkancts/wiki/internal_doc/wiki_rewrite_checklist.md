@@ -55,7 +55,7 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [x] 45. reconvergence — 2 (UB: 2)
 - [x] 46. mesh_shader — 16 (UB: 11)
 - [ ] 47. depth — 1
-- [ ] 48. video — 6
+- [ ] 48. video — 5
 - [x] 49. shader_object — 10 (UB: 8)
 - [x] 50. dgc — 26 (UB: 22)
 - [ ] 51. cooperative_vector — 3
