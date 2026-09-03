@@ -96,7 +96,7 @@ CATEGORY_MUSTPASS_FILES: dict[str, tuple[Path, ...]] = {
     "ray_tracing_pipeline": (Path("ray-tracing-pipeline.txt"),),
     "ray_query": (Path("ray-query.txt"),),
     "reconvergence": (Path("reconvergence.txt"),),
-    # "mesh_shader": (Path("mesh-shader.txt"),),
+    "mesh_shader": (Path("mesh-shader.txt"),),
     # "depth": (Path("depth.txt"),),
     # "video": (Path("video.txt"),),
     "shader_object": (

@@ -1,16 +1,15 @@
-# mesh_shader
+## Overview
 
-The `mesh_shader` category documents Vulkan CTS tests for `VK_NV_mesh_shader` and `VK_EXT_mesh_shader`. The root registration file creates `nv` and `ext` children in [vktMeshShaderTests.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderTests.cpp#L55-L84). The shared support helpers require the corresponding extension and requested task/mesh feature bits in [vktMeshShaderUtil.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L111-L139).
+The `mesh_shader` test category collects Vulkan CTS tests that check task and mesh shader execution, mesh-generated primitives, shader built-ins and interfaces, draw and synchronization commands, limits, queries, and related EXT mesh-shader pipeline behavior.
 
-## Registration Entry Point
+## Background Knowledge
 
-| Item | Evidence |
-|------|----------|
-| Category root | [vktMeshShaderTests.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderTests.cpp#L55-L84) |
-| NV support helper | [vktMeshShaderUtil.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L111-L124) |
-| EXT support helper | [vktMeshShaderUtil.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L126-L139) |
+- A task shader optionally launches mesh workgroups and can pass per-task payload data to them. A mesh shader runs as a workgroup, explicitly sets its output counts, and emits indexed vertices and primitives for rasterization. The NV and EXT branches expose closely related concepts through different extension interfaces.
+- Mesh-shader tests replace the ordinary vertex-input and vertex-shader path with shader-generated geometry. Per-vertex values, per-primitive values, primitive indices, and fragment inputs therefore form explicit interfaces that several families validate.
+- Vulkan memory dependencies combine execution ordering with availability and visibility for selected access scopes. They matter when a host, transfer, task, mesh, or fragment operation consumes a value produced by an earlier memory access; task-to-mesh payload data is instead carried through the shader interface.
+- Vulkan query results have both numerical data and availability state. Mesh-primitives-generated queries count emitted primitives that reach the fragment stage, while pipeline-statistics queries can count task and mesh shader invocations; multiview and command-buffer variants change where or how those results are recorded and retrieved.
 
-## Registration Hierarchy
+## Category Structure
 
 ```text
 mesh_shader
@@ -18,56 +17,40 @@ mesh_shader
 └── ext
 ```
 
-## Test Families
+The `nv` and `ext` branches are registered directly by [vktMeshShaderTests.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderTests.cpp#L55-L85). The NV branch has seven direct families. The EXT branch has eleven direct families, including `pipeline`, which is registered by the EXT built-in implementation file.
 
-### nv — `VK_NV_mesh_shader` branch
+## How the Families Fit Together
 
-The `nv` branch registers `smoke`, `api`, `synchronization`, `property`, `builtin`, `misc`, and `in_out` children from the root dispatcher [vktMeshShaderTests.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderTests.cpp#L63-L69). Its files cover basic rendering, draw APIs, synchronization, limits, built-ins, miscellaneous behavior, and interface variables.
+The category separates tests by the mechanism used to launch mesh work, expose shader state, or observe the result:
 
-### ext — `VK_EXT_mesh_shader` branch
+- **when** the test checks basic geometry generation or a particular shader built-in, use the smoke and built-in pages;
+- **when** the test checks a Vulkan command, memory dependency, property, or query contract, use the corresponding API, synchronization, property, or query page;
+- **when** the test changes shader interface declarations or generated output, use the NV miscellaneous/in-out page or the EXT interface page;
+- **when** the test combines EXT mesh shaders with conditional rendering, provoking-vertex selection, pipeline construction, or broader miscellaneous state, use the focused EXT pages.
 
-The `ext` branch registers `smoke`, `api`, `synchronization`, `builtin`, `pipeline`, `misc`, `in_out`, `properties`, `conditional_rendering`, `provoking_vertex`, and `query` children [vktMeshShaderTests.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderTests.cpp#L71-L81). The inspected EXT files add pipeline-construction modes, shader objects, conditional rendering, provoking vertex, query matrices, multiview, secondary command buffers, and device-address-command variants.
+NV and EXT pages are kept separate because their shader built-ins, command entry points, feature structures, and support checks differ even where the observable behavior is similar.
 
-## File Inventory
+## Level-3 Pages Navigation
 
-| Wiki page | Source role | Registered path roots |
-|-----------|-------------|-----------------------|
-| [vktMeshShaderTests](../testfiles/mesh_shader/vktMeshShaderTests.md) | Category dispatcher | `mesh_shader` |
-| [vktMeshShaderSmokeTests](../testfiles/mesh_shader/vktMeshShaderSmokeTests.md) | NV smoke implementation | `mesh_shader.nv.smoke` |
-| [vktMeshShaderApiTests](../testfiles/mesh_shader/vktMeshShaderApiTests.md) | NV draw API implementation | `mesh_shader.nv.api` |
-| [vktMeshShaderSyncTests](../testfiles/mesh_shader/vktMeshShaderSyncTests.md) | NV synchronization implementation | `mesh_shader.nv.synchronization` |
-| [vktMeshShaderPropertyTests](../testfiles/mesh_shader/vktMeshShaderPropertyTests.md) | NV property implementation | `mesh_shader.nv.property` |
-| [vktMeshShaderBuiltinTests](../testfiles/mesh_shader/vktMeshShaderBuiltinTests.md) | NV built-in implementation | `mesh_shader.nv.builtin` |
-| [vktMeshShaderMiscTests](../testfiles/mesh_shader/vktMeshShaderMiscTests.md) | NV misc and in/out implementation | `mesh_shader.nv.misc`, `mesh_shader.nv.in_out` |
-| [vktMeshShaderSmokeTestsEXT](../testfiles/mesh_shader/vktMeshShaderSmokeTestsEXT.md) | EXT smoke implementation | `mesh_shader.ext.smoke` |
-| [vktMeshShaderApiTestsEXT](../testfiles/mesh_shader/vktMeshShaderApiTestsEXT.md) | EXT draw API implementation | `mesh_shader.ext.api` |
-| [vktMeshShaderSyncTestsEXT](../testfiles/mesh_shader/vktMeshShaderSyncTestsEXT.md) | EXT synchronization implementation | `mesh_shader.ext.synchronization` |
-| [vktMeshShaderBuiltinTestsEXT](../testfiles/mesh_shader/vktMeshShaderBuiltinTestsEXT.md) | EXT built-in and pipeline implementation | `mesh_shader.ext.builtin`, `mesh_shader.ext.pipeline` |
-| [vktMeshShaderMiscTestsEXT](../testfiles/mesh_shader/vktMeshShaderMiscTestsEXT.md) | EXT miscellaneous implementation | `mesh_shader.ext.misc` |
-| [vktMeshShaderInOutTestsEXT](../testfiles/mesh_shader/vktMeshShaderInOutTestsEXT.md) | EXT interface variables | `mesh_shader.ext.in_out` |
-| [vktMeshShaderPropertyTestsEXT](../testfiles/mesh_shader/vktMeshShaderPropertyTestsEXT.md) | EXT properties | `mesh_shader.ext.properties` |
-| [vktMeshShaderConditionalRenderingTestsEXT](../testfiles/mesh_shader/vktMeshShaderConditionalRenderingTestsEXT.md) | EXT conditional rendering | `mesh_shader.ext.conditional_rendering` |
-| [vktMeshShaderProvokingVertexTestsEXT](../testfiles/mesh_shader/vktMeshShaderProvokingVertexTestsEXT.md) | EXT provoking vertex | `mesh_shader.ext.provoking_vertex` |
-| [vktMeshShaderQueryTestsEXT](../testfiles/mesh_shader/vktMeshShaderQueryTestsEXT.md) | EXT queries | `mesh_shader.ext.query` |
+| Registered test family or area | Level-3 page | What to read there |
+|---|---|---|
+| `mesh_shader.nv.api` | [Api](../testfiles/mesh_shader/Api.md) | Direct, indirect, and indirect-count NV mesh draws, buffer layouts, task use, and image checking. |
+| `mesh_shader.nv.smoke` | [Smoke](../testfiles/mesh_shader/Smoke.md) | Basic NV mesh/task triangles, task-only behavior, fullscreen gradients, and shading-rate output. |
+| `mesh_shader.nv.synchronization` | [Sync](../testfiles/mesh_shader/Sync.md) | NV stage pairs, resource and barrier combinations, memory dependencies, and value propagation. |
+| `mesh_shader.nv.property` | [Property](../testfiles/mesh_shader/Property.md) | NV mesh/task limits and property-backed validation. |
+| `mesh_shader.nv.builtin` | [Builtin](../testfiles/mesh_shader/Builtin.md) | NV built-in variables, primitive shading rate, generated shader behavior, and rasterized checks. |
+| `mesh_shader.nv.misc` and `mesh_shader.nv.in_out` | [Misc](../testfiles/mesh_shader/Misc.md) | NV miscellaneous execution plus the NV mesh/task interface-variable matrix. |
+| `mesh_shader.ext.api` | [ApiExt](../testfiles/mesh_shader/ApiExt.md) | EXT direct, indirect, indirect-count, secondary-command-buffer, and device-address draw forms. |
+| `mesh_shader.ext.smoke` | [SmokeExt](../testfiles/mesh_shader/SmokeExt.md) | EXT smoke geometry, task launch, partial output, gradients, shared fragments, depth paths, and construction modes. |
+| `mesh_shader.ext.synchronization` | [SyncExt](../testfiles/mesh_shader/SyncExt.md) | EXT synchronization stage/resource/access matrix and the secondary-command-buffer barrier case. |
+| `mesh_shader.ext.builtin` and `mesh_shader.ext.pipeline.builtin` | [BuiltinExt](../testfiles/mesh_shader/BuiltinExt.md) | EXT built-ins, primitive behavior, and pipeline, graphics-pipeline-library, and shader-object construction. |
+| `mesh_shader.ext.in_out` | [InOutExt](../testfiles/mesh_shader/InOutExt.md) | EXT interface-variable feature groups, stage ownership, types, interpolation, and permutations. |
+| `mesh_shader.ext.properties` | [PropertyExt](../testfiles/mesh_shader/PropertyExt.md) | EXT properties, limits, query-backed values, and shader-supported property checks. |
+| `mesh_shader.ext.misc` | [MiscExt](../testfiles/mesh_shader/MiscExt.md) | EXT miscellaneous shader, resource, command, and rendering paths. |
+| `mesh_shader.ext.conditional_rendering` | [ConditionalRenderingExt](../testfiles/mesh_shader/ConditionalRenderingExt.md) | Conditional predicate execution around EXT mesh draws and secondary command buffers. |
+| `mesh_shader.ext.provoking_vertex` | [ProvokingVertexExt](../testfiles/mesh_shader/ProvokingVertexExt.md) | First and last provoking-vertex modes for mesh-generated lines and triangles. |
+| `mesh_shader.ext.query` | [QueryExt](../testfiles/mesh_shader/QueryExt.md) | Mesh primitive and pipeline-statistics queries across reset, retrieval, availability, draw, task, multiview, and command-buffer variants. |
 
-## Recurring Parameter Dimensions
+## Category Notes
 
-| Theme | Observed dimensions | Evidence |
-|-------|---------------------|----------|
-| Draw APIs | direct/indirect/count draws, draw count, offsets/strides, count limits, task usage | [vktMeshShaderApiTests.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L662-L720), [vktMeshShaderApiTestsEXT.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderApiTestsEXT.cpp#L787-L855) |
-| Synchronization | stage pair, resource, barrier, access pair | [vktMeshShaderSyncTests.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderSyncTests.cpp#L1334-L1386), [vktMeshShaderSyncTestsEXT.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderSyncTestsEXT.cpp#L1774-L1839) |
-| Built-ins | explicit built-in cases and primitive shading-rate pairs | [vktMeshShaderBuiltinTests.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderBuiltinTests.cpp#L2045-L2087), [vktMeshShaderBuiltinTestsEXT.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderBuiltinTestsEXT.cpp#L2564-L2617) |
-| Interface variables | feature groups, owner, type, width, dimension, interpolation, permutations | [vktMeshShaderInOutTestsEXT.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderInOutTestsEXT.cpp#L1601-L1715) |
-| Queries | query combination, geometry, reset/access, wait, draw call, result size, availability, blocks, task, ordering, multiview, command buffer | [vktMeshShaderQueryTestsEXT.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderQueryTestsEXT.cpp#L1391-L1515) |
-
-## Recurring Support Requirements
-
-Common support starts with the NV or EXT mesh-shader helper [vktMeshShaderUtil.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L111-L139). Additional inspected gates include `VK_KHR_draw_indirect_count`, `multiDrawIndirect`, `vertexPipelineStoresAndAtomics`, `VK_KHR_fragment_shading_rate`, `VK_EXT_conditional_rendering`, `VK_EXT_provoking_vertex`, `VK_EXT_host_query_reset`, and numeric shader features [vktMeshShaderApiTestsEXT.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderApiTestsEXT.cpp#L343-L358), [vktMeshShaderQueryTestsEXT.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderQueryTestsEXT.cpp#L537-L553), [vktMeshShaderInOutTestsEXT.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderInOutTestsEXT.cpp#L590-L605).
-
-## Recurring Verification Methods
-
-Rendering cases compare reference images or layers [vktMeshShaderSmokeTests.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderSmokeTests.cpp#L540-L542), synchronization cases verify expected values in buffers or rendered output [vktMeshShaderSyncTests.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderSyncTests.cpp#L1290-L1327), query cases check availability and numeric ranges [vktMeshShaderQueryTestsEXT.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderQueryTestsEXT.cpp#L766-L805), and property cases fail on invalid limits or shader-backed results [vktMeshShaderPropertyTestsEXT.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L2419-L2421).
-
-## Scope Notes
-
-Helper-only mesh-shader utility files were not given Level-3 pages because they do not register tests.
+The registration-only dispatcher is represented by this gateway rather than a separate technical page. The utility helper [vktMeshShaderUtil.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L111-L139) supplies common NV and EXT support checks but does not register test cases. The Level-3 pages retain the original `vkt*.md` files as obsolete source-navigation records and use shortened CamelCase names for the rewritten documents.

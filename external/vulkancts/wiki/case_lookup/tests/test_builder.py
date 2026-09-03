@@ -145,6 +145,7 @@ class MustpassInputTests(unittest.TestCase):
                 "ray_tracing_pipeline",
                 "ray_query",
                 "reconvergence",
+                "mesh_shader",
                 "shader_object",
                 "dgc",
             ],
