@@ -29,10 +29,7 @@ from typing import Any, Sequence
 
 SCRIPT_PATH = Path(__file__).resolve()
 REPO_ROOT = SCRIPT_PATH.parents[4]
-ENGLISH_VALIDATOR_PATH = (
-    REPO_ROOT
-    / ".agents/skills/wiki-rewriter/scripts/verify_english_structure.py"
-)
+ENGLISH_VALIDATOR_PATH = REPO_ROOT / ".agents/skills/wiki-writer/scripts/verify_english_structure.py"
 
 H2_TRANSLATIONS = {
     "Overview": "概览",

@@ -1,12 +1,12 @@
-# Rewritten-Page Professor Review Protocol
+# Final-Page Professor Review Protocol
 
-Load this reference when auditing rewritten Level-2 or Level-3 Vulkan CTS wiki pages.
+Load this reference when auditing final Level-2 or Level-3 Vulkan CTS wiki pages.
 
 ## Review Objective
 
-Reduce human review burden. Find and correct meaningful technical or explanatory defects without turning the audit into another rewrite or presenting the reviewer’s full reasoning to the user.
+Reduce human review burden. Find and correct meaningful technical or explanatory defects without turning the audit into another broad rewrite or presenting the reviewer’s full reasoning to the user.
 
-Treat existing rewritten pages as generally strong. Do not optimize prose merely because an alternative is possible.
+Treat writer-produced pages as generally strong. Do not optimize prose merely because an alternative is possible.
 
 ## Target Reader
 
@@ -111,7 +111,7 @@ Do not verify every sentence equally.
 
 ### 3. Knowledge prerequisite and responsibility-boundary audit
 
-For a category audit with a rewritten Level-2 page, audit the Level-2 `## Background Knowledge` section before judging Level-3 BGK
+For a category audit with a final Level-2 page, audit the Level-2 `## Background Knowledge` section before judging Level-3 BGK
 sections. The Level-2 section is the owner for repeated category-shared prerequisites. It must either explain those shared concepts
 or use the canonical Level-2 no-common-concepts sentence when no category-level prerequisite explanation is needed. When the
 no-common-concepts sentence is used, Level-3 pages have no upward link and their local sufficiency is judged from the Level-3 page
@@ -210,14 +210,14 @@ Verify that:
 
 ## Editing Policy
 
-Edit confirmed meaningful defects directly in the rewritten target page.
+Edit confirmed meaningful defects directly in the final target page.
 
 - Preserve protected technical content and exact identifiers.
 - Prefer the smallest correction that restores accuracy or clarity.
 - Do not broaden page scope.
 - Do not add teaching material unless required to close a demonstrated explanatory gap.
 - Do not edit an uncertain point. Report it as unresolved after inspecting the relevant evidence.
-- Keep obsolete navigation-style originals untouched.
+
 
 ### Generated shader boundary
 

@@ -1,42 +1,43 @@
 ---
 name: wiki-auditor
-description: Audits explanation-first Vulkan CTS wiki pages produced by wiki-rewriter, corrects confirmed technical and explanatory defects in place, validates the edited pages, and writes a compact page-centered category audit summary. This skill should be used after Level-3 rewrites stabilize, before or after Level-2 synthesis, or whenever rewritten pages need low-burden expert review in sequential or parallel mode.
+description: Audits explanation-first Vulkan CTS wiki pages produced by wiki-writer, corrects confirmed technical and explanatory defects in place, validates the edited pages, and writes a compact page-centered category audit summary. This skill should be used after Level-3 writing stabilizes, before or after Level-2 synthesis, or whenever final pages need low-burden expert review in sequential or parallel mode.
 ---
 
 # Wiki Auditor
 
-Audit rewritten Vulkan CTS wiki pages as an expert technical-writing professor. Verify technical truth and explanatory sufficiency, correct confirmed meaningful defects directly in the rewritten pages, and leave the user a compact findings summary rather than a transcript of the review reasoning.
+Audit final Vulkan CTS wiki pages as an expert technical-writing professor. Verify technical truth and explanatory sufficiency, correct confirmed meaningful defects directly in the pages, and leave the user a compact findings summary rather than a transcript of the review reasoning.
 
-Optimize for reducing human review burden. Treat rewritten pages as generally strong. Find consequential defects; do not perform another broad rewrite or optional polishing pass.
+Optimize for reducing human review burden. Treat writer-produced pages as generally strong. Find consequential defects; do not perform another broad rewrite or optional polishing pass.
 
 ## Scope
 
 Use this skill for:
 
-- one rewritten Level-3 page;
-- all rewritten Level-3 pages in one test category;
-- a rewritten Level-2 category page after its Level-3 pages stabilize;
-- a full rewritten category audit in sequential or orchestrated parallel mode;
+- one final Level-3 page;
+- all final Level-3 pages in one test category;
+- a final Level-2 category page after its Level-3 pages stabilize;
+- a full final-category audit in sequential or orchestrated parallel mode;
 - re-auditing pages after source or documentation changes.
 
-Target explanation-first outputs created under [`wiki-rewriter`](../wiki-rewriter/SKILL.md), not first-version source-navigation pages created by the old wiki-analysis workflow.
+Target explanation-first outputs created under [`wiki-writer`](../wiki-writer/SKILL.md). This skill audits the final pages produced by
+the scratch-writing workflow, not temporary outlines or first-version source-analysis notes.
 
-Do not treat Understanding Briefs, obsolete navigation-style originals, rewrite outlines, or other internal tracking files as user-facing audit targets unless explicitly requested. Never delete obsolete originals.
+Do not treat Understanding Briefs, writing outlines, or other internal coordination files as user-facing audit targets unless explicitly requested.
 
-If a requested page is still navigation-first rather than a rewritten output, stop and route it through `wiki-rewriter` instead of adapting this audit to the old page shape.
+If a requested page is still a temporary source-analysis artifact rather than a final writer output, stop and route it through `wiki-writer` instead of adapting this audit to an incomplete page shape.
 
 ## Required Inputs
 
 Resolve before auditing:
 
 - target page or test category;
-- rewritten Level-2 and/or Level-3 scope;
+- final Level-2 and/or Level-3 scope;
 - implementation source cited by each page;
 - registration and mustpass evidence;
 - relevant Vulkan specification chapters for semantic claims;
-- applicable rewrite templates and validation policy.
+- applicable writer templates and validation policy.
 
-For a category audit, enumerate the complete target set before assigning work. Include every rewritten Level-3 page and the rewritten Level-2 page when present. Exclude files ending in `_brief.md` and files under `wiki/internal_doc/` from user-facing page ownership.
+For a category audit, enumerate the complete target set before assigning work. Include every final Level-3 page and the final Level-2 page when present. Exclude files ending in `_brief.md` and files under `wiki/internal_doc/` from user-facing page ownership.
 
 ## References
 
@@ -45,12 +46,12 @@ Before starting any audit, read all bundled references. This is mandatory, not o
 - [`references/review-protocol.md`](references/review-protocol.md) — sole canonical owner of the professor model, meaningful-defect threshold, internal worksheet, editing policy, generated-shader boundary, worker contract, and category summary template.
 - [`../shader-analyzer/SKILL.md`](../shader-analyzer/SKILL.md) — read when a shader walkthrough's source-level reconstruction or explanation is defective.
 - [`../shader-disassembler/SKILL.md`](../shader-disassembler/SKILL.md) — read for the canonical `#### SPIR-V` output contract whenever a page contains generated SPIR-V.
-- [`../wiki-rewriter/references/level3-template.md`](../wiki-rewriter/references/level3-template.md) — canonical Level-3 structure and section semantics, including Background Knowledge ownership rules.
-- [`../wiki-rewriter/references/level2-template.md`](../wiki-rewriter/references/level2-template.md) — canonical Level-2 gateway semantics.
-- [`../wiki-rewriter/references/terminology-policy.md`](../wiki-rewriter/references/terminology-policy.md) — canonical hierarchy terminology.
-- [`../wiki-rewriter/references/validation-checklist.md`](../wiki-rewriter/references/validation-checklist.md) — canonical mechanical and semantic completion gates.
+- [`../wiki-writer/references/level3-template.md`](../wiki-writer/references/level3-template.md) — canonical Level-3 structure and section semantics, including Background Knowledge ownership rules.
+- [`../wiki-writer/references/level2-template.md`](../wiki-writer/references/level2-template.md) — canonical Level-2 gateway semantics.
+- [`../wiki-writer/references/terminology-policy.md`](../wiki-writer/references/terminology-policy.md) — canonical hierarchy terminology.
+- [`../wiki-writer/references/validation-checklist.md`](../wiki-writer/references/validation-checklist.md) — canonical mechanical and semantic completion gates.
 
-This `SKILL.md` owns audit orchestration, scope, phase ordering, severity decisions, dependencies, checkpoints, and reporting. The detailed review procedure and classification rules live in `references/review-protocol.md`; the rewritten-page structure contracts live in the rewriter templates. This file does not restate those contracts.
+This `SKILL.md` owns audit orchestration, scope, phase ordering, severity decisions, dependencies, checkpoints, and reporting. The detailed review procedure and classification rules live in `references/review-protocol.md`; the final-page structure contracts live in the writer templates. This file does not restate those contracts.
 
 ## Core Review Rule
 
@@ -84,14 +85,14 @@ In parallel mode:
 - reserve Level-2 review, category validation, and summary ownership for the orchestrator;
 - require workers to return the compact result contract from `references/review-protocol.md`.
 
-Do not let convenience sampling replace the declared category audit. Audit every rewritten page in scope, varying depth according to complexity while preserving the same meaningful-defect threshold.
+Do not let convenience sampling replace the declared category audit. Audit every final page in scope, varying depth according to complexity while preserving the same meaningful-defect threshold.
 
 ### 2. Run the mechanical gate
 
-Before semantic edits, check the page against the applicable rewrite template and terminology policy.
+Before semantic edits, check the page against the applicable writer template and terminology policy.
 
 Run the canonical mechanical validators before professor review. For each Level-3 page, use the exact page-scoped commands in
-`../wiki-rewriter/references/validation-checklist.md`:
+`../wiki-writer/references/validation-checklist.md`:
 
 ```text
 verify_english_structure.py
@@ -114,10 +115,9 @@ At minimum the combined gate verifies:
 - behavior parameter and failure mapping alignment;
 - exact `shader-disassembler` output shape and target/header agreement when generated SPIR-V is present;
 - source-reviewed no-walkthrough status: a page without a walkthrough must be listed in
-  `../wiki-rewriter/scripts/walkthrough_exceptions.py`; do not add an exception merely to silence validation;
+  `../wiki-writer/scripts/walkthrough_exceptions.py`; do not add an exception merely to silence validation;
 - local relative source links and GitHub `#L` fragments;
-- absence of stale workflow text;
-- preservation of obsolete originals.
+- absence of stale workflow text.
 
 Do not continue to professor review with an unexplained mechanical failure. Repair a clear page-local structural defect through its
 owning template/generated-artifact workflow, or record a blocker when the correct repair is uncertain. Treat all three validator
@@ -125,7 +125,7 @@ results as necessary but insufficient; after they pass, continue to professor re
 
 ### 3. Audit category-shared Background Knowledge ownership
 
-For a category audit where a rewritten Level-2 page exists, audit Level-2 BGK before Level-3. The BGK section contracts — mandatory heading, shared-prerequisite ownership, opening shapes, consolidation classification, and no-prerequisite sentences — are owned by `../wiki-rewriter/references/level2-template.md` and `../wiki-rewriter/references/level3-template.md`. The detailed prerequisite review and classification procedure is owned by `references/review-protocol.md`. Verify each page against those contracts.
+For a category audit where a final Level-2 page exists, audit Level-2 BGK before Level-3. The BGK section contracts — mandatory heading, shared-prerequisite ownership, opening shapes, consolidation classification, and no-prerequisite sentences — are owned by `../wiki-writer/references/level2-template.md` and `../wiki-writer/references/level3-template.md`. The detailed prerequisite review and classification procedure is owned by `references/review-protocol.md`. Verify each page against those contracts.
 
 If the Level-2 page is not in scope yet, audit Level-3 BGK for local sufficiency only and record repeated shared concepts as a category-level follow-up.
 
@@ -156,14 +156,14 @@ The truth test, exposition test, meaningful-defect threshold, BGK classification
 
 ### 6. Correct confirmed defects in place
 
-Edit the rewritten target page directly.
+Edit the final target page directly.
 
 - Make the smallest evidence-backed correction, except where the generated-shader boundary below requires complete regeneration.
 - Preserve exact identifiers, links, code fences, registered paths, and generated artifacts that are not being regenerated through their owning skill.
 - Avoid broad restructuring and added tutorial material.
 - Keep the established natural technical voice.
 - Do not reopen already completed language-worker wording merely for stylistic preference.
-- If a defect requires substantial re-analysis or broad rewriting rather than a surgical correction, report it as unresolved and route the page back through `wiki-rewriter`.
+- If a defect requires substantial re-analysis or broad rewriting rather than a surgical correction, report it as unresolved and route the page back through `wiki-writer`.
 - If evidence remains uncertain after reasonable inspection, leave the point unchanged and record an unresolved finding.
 
 Treat each shader walkthrough as a generated unit. Follow the mandatory `Generated shader boundary` decision table in
@@ -210,7 +210,7 @@ Verify that it:
 - represents the direct category hierarchy accurately;
 - includes the mandatory `## Background Knowledge` section with either shared prerequisites or the canonical no-common-concepts
   sentence;
-- routes each family or conceptual area to the correct rewritten Level-3 page;
+- routes each family or conceptual area to the correct final Level-3 page;
 - explains family relationships at category level;
 - reflects corrected Level-3 meanings;
 - avoids duplicating Level-3 mechanisms, matrices, validation details, or shader walkthroughs.
@@ -220,7 +220,7 @@ Edit confirmed defects in place and validate its links.
 ### 10. Run category validation
 
 After all page edits, run the canonical category-scoped English structure and registration validators plus the category wiki-link
-command from `../wiki-rewriter/references/validation-checklist.md`. Exclude Understanding Briefs from semantic target accounting even
+command from `../wiki-writer/references/validation-checklist.md`. Exclude Understanding Briefs from semantic target accounting even
 when a glob includes them in link validation.
 
 Rerun until validation passes or record the remaining limitation compactly.
@@ -260,7 +260,7 @@ Complete a page audit only when:
 
 Complete a category audit only when:
 
-- every rewritten Level-3 page in declared scope has one completed owner result;
+- every final Level-3 page in declared scope has one completed owner result;
 - repeated defect patterns have been handled;
 - the Level-2 page has been audited when present;
 - category English structure, registration hierarchy, and wiki-link validators pass or remaining limitations are recorded;

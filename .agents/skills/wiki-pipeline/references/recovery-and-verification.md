@@ -45,12 +45,11 @@ For non-429 ordinary interruptions, missing outputs, validator failures, or unce
 
 If an erroneous multi-page worker was accidentally dispatched, its outputs are untrusted. Re-run every affected page through the correct single-page worker and verify the final on-disk version after all competing workers finish.
 
-## Rewrite checks
+## Writing checks
 
-For every Level-3 rewrite:
+For every Level-3 page:
 
-- expected new page and required brief exist;
-- obsolete `vkt*.md` source remains untouched;
+- expected final page and required brief exist;
 - output follows the page classification and filename in the approved outline;
 - the canonical English structure validator passes, including headings/spacing, fixed subsections, walkthrough tables, SPIR-V
   artifacts, and multi-stage H5 organization;
@@ -63,14 +62,14 @@ For every Level-3 rewrite:
 
 For Level-2:
 
-- navigation covers every rewritten Level-3 family;
+- navigation covers every final Level-3 family;
 - dispatcher-only facts are folded according to the outline;
 - shared Background Knowledge consolidation and Level-3 upward links are complete;
 - category validation passes.
 
 ## Audit checks
 
-- every rewritten Level-3 page has one worker result;
+- every final Level-3 page has one worker result;
 - every failed worker is retried;
 - every edited page revalidates;
 - English structure, registration hierarchy, and wiki-link validators are rerun after every audit edit and at category completion;
@@ -117,16 +116,16 @@ and only then accept the rebuilt runtime JSON. This bounded repair loop adds no 
 
 Derive values from disk:
 
-- rewritten Level-3 count excludes obsolete `vkt*.md` files and `*_brief.md`;
+- final Level-3 count excludes `*_brief.md` files and source scopes classified as registration-only or helper-only;
 - UB count includes only `*_brief.md` Understanding Briefs;
 - update the category checkbox and `(UB: N)` annotation;
 - recompute done/todo category counts and L3/UB totals arithmetically;
 - ensure spoken counts match the file and final report exactly.
 
-## Rewrite staging checkpoint
+## Writing staging checkpoint
 
-After rewrite and Level-2 synthesis validate, the lead agent stages the paths produced by the rewrite phase before starting audit. Preserve unrelated pre-existing staged or unstaged work; do not stage broad globs that could capture it. This staging checkpoint is not a user-approval stop. Audit continues immediately.
+After writing and Level-2 synthesis validate, the lead agent stages the paths produced by the writing phase before starting audit. Preserve unrelated pre-existing staged or unstaged work; do not stage broad globs that could capture it. This staging checkpoint is not a user-approval stop. Audit continues immediately.
 
 ## Repository safety
 
-Before final reporting, compare Git status and index state with the initial state. The pipeline's explicit rewrite staging checkpoint authorizes `git add` for rewrite-produced paths only; do not stage unrelated work or any Chinese publish-target path. Never commit or push. Do not unstage, restore, or rewrite history unless separately authorized. Report any unauthorized-path write instead of silently deleting or repairing it.
+Before final reporting, compare Git status and index state with the initial state. The pipeline's explicit writing staging checkpoint authorizes `git add` for writing-phase paths only; do not stage unrelated work or any Chinese publish-target path. Never commit or push. Do not unstage, restore, or rewrite history unless separately authorized. Report any unauthorized-path write instead of silently deleting or repairing it.

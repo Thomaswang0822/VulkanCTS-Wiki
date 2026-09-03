@@ -2,43 +2,41 @@
 
 This reference defines only what the lead agent supplies to each primary skill. The primary skill remains the canonical owner of how that phase is executed.
 
-## Rewrite: one Level-3 page
+## Writing: one Level-3 page
 
 Supply:
 
 - repository root and category;
-- approved rewrite-outline path and the assigned batch entry;
-- exactly one obsolete Level-3 page, read-only;
-- exactly one rewritten output path;
+- approved writing-outline path and the assigned batch entry;
+- exactly one final output path;
 - owning implementation source and relevant support files;
 - relevant registration and mustpass evidence;
-- exact page-scoped completion commands from `wiki-rewriter/references/validation-checklist.md` for English structure,
+- exact page-scoped completion commands from `wiki-writer/references/validation-checklist.md` for English structure,
   Registration Hierarchy/mustpass validation, and wiki links;
 - source-backed no-walkthrough status: either a required `shader-analyzer` walkthrough or an existing/lead-approved entry in
-  `wiki-rewriter/scripts/walkthrough_exceptions.py`; workers must not create an exception merely to make validation pass;
-- the outline's `brief required` or `direct rewrite` decision;
+-  `wiki-writer/scripts/walkthrough_exceptions.py`; workers must not create an exception merely to make validation pass;
+- the outline's `brief required` or `direct write` decision;
 - dispatcher-folding or page-specific scope notes from the outline;
-- explicit permission to write only the assigned brief, when required, and assigned rewritten page;
-- explicit prohibition on modifying/deleting the obsolete page, editing summaries, translating, publishing, or changing the Git index.
+- explicit permission to write only the assigned brief, when required, and assigned final page;
+- explicit prohibition on editing other pages, summaries, translating, publishing, or changing the Git index.
 
-Tell the worker to load `.agents/skills/wiki-rewriter/SKILL.md` and every dependency it requires. Do not restate its internal rewrite,
+Tell the worker to load `.agents/skills/wiki-writer/SKILL.md` and every dependency it requires. Do not restate its internal writing,
 shader, language-pass, template, or validator rule implementations. Require the worker result to report English structure,
 registration, and link validator status for its assigned page.
 
-A required Understanding Brief and its final rewrite stay with the same page worker. They do not make the worker a multi-page worker.
+A required Understanding Brief and its final page stay with the same page worker. They do not make the worker a multi-page worker.
 
-## Rewrite: Level-2 synthesis
+## Writing: Level-2 synthesis
 
-This is lead-owned. Perform it only after every Level-3 page is stable. Supply the primary rewriter workflow with:
+This is lead-owned. Perform it only after every Level-3 page is stable. Supply the wiki-writer workflow with:
 
 - approved outline;
-- obsolete Level-2 page;
-- every stabilized rewritten Level-3 page;
+- every stabilized final Level-3 page;
 - registration-only dispatcher source and its fold/no-fold decision;
 - category mustpass hierarchy;
 - repeated Level-3 Background Knowledge concepts requiring consolidation.
 
-After drafting the ordinary gateway sections, run the category Background Knowledge consolidation required by wiki-rewriter. Revalidate affected Level-3 upward links and the Level-2 page.
+After drafting the ordinary gateway sections, run the category Background Knowledge consolidation required by wiki-writer. Revalidate affected Level-3 upward links and the Level-2 page.
 
 Before declaring Level-3 input stable for synthesis, the lead runs the category-scoped English structure and registration validators.
 After synthesis and Background Knowledge consolidation, run the category wiki-link command from the canonical validation checklist
@@ -49,7 +47,7 @@ against the new Level-2 page and all Level-3 pages. Level-2 synthesis does not w
 Supply:
 
 - repository root and category;
-- exactly one rewritten Level-3 page;
+- exactly one final Level-3 page;
 - its owning implementation source and support files;
 - relevant registration, mustpass, and Vulkan specification evidence;
 - current page-scoped English structure, registration hierarchy, and wiki-link validator commands and starting results;
@@ -101,7 +99,7 @@ Run only after all translation outputs exist and pass structural and target-lang
 
 After local publish-target preparation and link verification, supply `db-lookup-updater` with:
 
-- the completed category and current rewrite-checklist state;
+- the completed category and current category-checklist state;
 - the audit-stable English Level-3 page set;
 - exact category mustpass inputs and current case-lookup registry state;
 - the pre-update `site/mappings.json` counts/hash;

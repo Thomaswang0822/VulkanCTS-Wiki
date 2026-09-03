@@ -5,14 +5,14 @@ Formatting contract for the whole Level-3 page:
 - Omit a top-level `#` title.
 - Use only the canonical `##` sections in this template and keep them in template order.
 - Precede every heading (`##` through `######`) with exactly one blank line, except a heading on line 1.
-- Treat `.agents/skills/wiki-rewriter/scripts/verify_english_structure.py` as the mechanical authority for this page shape. Run it after drafting and after later edits.
+- Treat `.agents/skills/wiki-writer/scripts/verify_english_structure.py` as the mechanical authority for this page shape. Run it after drafting and after later edits.
 
 Start with a single bold `Core question` line that states the main correctness question answered by the page. Keep it short,
 reader-facing, and sharper than the full overview bullets.
 
 Then use a high-information-density summary, usually an unordered list.
 
-Condense only the helpful information from the old opening paragraph, `Overview`, and `Role of File` sections:
+Build the opening directly from inspected source, registration, mustpass, and generated-artifact evidence:
 
 - what source file or generated test area this page covers;
 - what test category, test family, intermediate node, or test cases it registers or implements;
@@ -64,7 +64,7 @@ During later category Background Knowledge consolidation, classify every existin
 | Concrete setup, parameters, execution, validation, expected result, or conclusion | Remove from BGK or relocate only if the correct later section does not already explain it. |
 | Helpful illustrative example for a shared concept | Preserve once in Level-2 BGK when it materially improves the shared mental model. |
 
-Do not leave the upward link embedded inside a prerequisite bullet after consolidation. Do not rewrite this section wholesale during consolidation.
+Do not leave the upward link embedded inside a prerequisite bullet after consolidation. Do not write this section wholesale during consolidation.
 
 If the target reader needs no additional prerequisite concepts, keep the heading and write exactly:
 
@@ -195,7 +195,7 @@ Keep this heading in every Level-3 page. If the test has no shader or shader cod
 briefly here and do not create any `### Representative Shader Walkthrough` subsection.
 
 A no-walkthrough page is not self-authorizing. Before completion, inspect the source-backed shader role and ensure the page is listed
-under its category in `.agents/skills/wiki-rewriter/scripts/walkthrough_exceptions.py`. Add a new exception only for a
+under its category in `.agents/skills/wiki-writer/scripts/walkthrough_exceptions.py`. Add a new exception only for a
 source-reviewed page whose shader code is absent or not part of the tested behavior; record the exact page filename and keep the
 justification in the page's `## Shader Analysis`. Do not use the exception registry to bypass a missing required walkthrough.
 
@@ -344,8 +344,6 @@ Examples for `memory_model` / `message_passing`:
 - The test can expose missing release/acquire propagation, incorrect scope handling, guard visibility without payload visibility, or shader compiler lowering that weakens memory semantics.
 
 ## Source Reference Appendix
-
-Combine the old `Source Code` and `Other Inspected Related Files` sections here.
 
 This section is intentionally last. It is an appendix for readers who want source entry points after understanding the page.
 

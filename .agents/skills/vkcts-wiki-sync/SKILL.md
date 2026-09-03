@@ -14,8 +14,9 @@ Use this skill only after the user has created and checked out a merge-specific 
 identify affected completed wiki categories, refresh stale wiki facts from current source and mustpass evidence, validate
 the result, update the durable merge log, and guide the user through the final merge back to `vkcts-wiki`.
 
-This skill complements [wiki-analyzer](../wiki-analyzer/SKILL.md). Use `wiki-analyzer` evidence rules for all factual wiki
-claims and validation expectations.
+Use the evidence and validation contracts in [wiki-writer](../wiki-writer/SKILL.md) for factual wiki claims and canonical
+page validation. Because `wiki-writer` is scratch-only, do not invoke its page-writing workflow while refreshing existing pages;
+apply only source-proven maintenance edits under this skill.
 
 ## Non-Negotiable Git Safety Rules
 
@@ -185,7 +186,7 @@ Do not update user-facing wiki for purely mechanical changes, such as:
 
 Still record the no-update decision in the TODO tracker.
 
-### 3. Follow Wiki Analyzer Evidence Rules
+### 3. Follow Canonical Wiki Evidence Rules
 
 For user-facing docs:
 
@@ -195,14 +196,14 @@ For user-facing docs:
 - Link verification claims to check/comparison code.
 - Avoid overclaiming; state uncertainty when evidence is incomplete.
 - Preserve the canonical `## Registration Hierarchy` contract used by
-  [verify_registration_paths.py](../wiki-analyzer/scripts/verify_registration_paths.py).
+  [verify_registration_paths.py](../wiki-writer/scripts/verify_registration_paths.py).
 
 ### 4. Validate Each Category Batch
 
 Run category-scoped link validation:
 
 ```bash
-python3 .agents/skills/wiki-analyzer/scripts/validate_wiki_links.py \
+python3 .agents/skills/wiki-writer/scripts/validate_wiki_links.py \
   --wiki-dir external/vulkancts/wiki \
   --files external/vulkancts/wiki/categories/<category>.md external/vulkancts/wiki/testfiles/<category>/*.md \
   --repo-root . \
@@ -212,7 +213,7 @@ python3 .agents/skills/wiki-analyzer/scripts/validate_wiki_links.py \
 Run registration validation:
 
 ```bash
-python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category>
+python3 .agents/skills/wiki-writer/scripts/verify_registration_paths.py <category>
 ```
 
 If a category shares wiki files with another category, validate both relevant category pages and shared Level-3 files.
@@ -261,7 +262,7 @@ Complete written actionable items when they are in scope. If an item is a policy
 Run a practical user-facing link sweep over completed category and testfile docs:
 
 ```bash
-python3 .agents/skills/wiki-analyzer/scripts/validate_wiki_links.py \
+python3 .agents/skills/wiki-writer/scripts/validate_wiki_links.py \
   --wiki-dir external/vulkancts/wiki \
   --repo-root . \
   --files $(find external/vulkancts/wiki/categories external/vulkancts/wiki/testfiles -name '*.md' | sort) \
@@ -271,7 +272,7 @@ python3 .agents/skills/wiki-analyzer/scripts/validate_wiki_links.py \
 Also consider whole-wiki validation:
 
 ```bash
-python3 .agents/skills/wiki-analyzer/scripts/validate_wiki_links.py \
+python3 .agents/skills/wiki-writer/scripts/validate_wiki_links.py \
   --wiki-dir external/vulkancts/wiki \
   --repo-root . \
   --verbose

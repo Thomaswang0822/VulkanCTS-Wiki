@@ -136,7 +136,7 @@ Tasks:
 - preserve exact registered identifiers;
 - map each dimension to its source-controlled meaning.
 
-When a checked rewritten wiki page already contains a trustworthy parameter interpretation table, use it as a convenience aid. Treat source code and mustpass evidence as authoritative.
+When a validated wiki-writer page already contains a trustworthy parameter interpretation table, use it as a convenience aid. Treat source code and mustpass evidence as authoritative.
 
 ### 2. Resolve the owning builder path
 

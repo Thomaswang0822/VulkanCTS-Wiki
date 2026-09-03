@@ -12,9 +12,8 @@ trees, each beginning with a category-qualified root and expanding exactly one
 level below that root. The validator reconstructs full prefixes internally from
 the tree set.
 
-This script is intended for post-normalization wiki content. Existing legacy wiki
-files are expected to work with the validator after they have been normalized to
-that canonical Level-3 contract.
+This script validates wiki content written to the canonical Level-3 hierarchy
+contract.
 
 MUSTPASS TXT FILE FORMAT:
     The mustpass TXT files contain test names in the format:

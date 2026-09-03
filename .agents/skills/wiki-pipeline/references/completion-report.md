@@ -6,12 +6,12 @@ Use this compact structure. Replace every count with independently verified file
 ## <category> category complete
 
 ### Scope
-- Level-3 rewritten: <N>
-- Level-2 rewritten: <N>
+- Level-3 written: <N>
+- Level-2 written: <N>
 - Understanding Briefs: <N>
 - Chinese publish-target pages prepared: <N>
 
-### Rewrite
+### Writing
 - Outline: <path and approval status>
 - Outline batches: <batch count and page counts>
 - Worker granularity: one page per worker

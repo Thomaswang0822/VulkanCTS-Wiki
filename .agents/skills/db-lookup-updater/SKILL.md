@@ -5,11 +5,11 @@ description: Use after a Wiki category stabilizes to update lookup DB.
 
 # DB Lookup Updater
 
-Add one rewrite/audit-stable Vulkan CTS Wiki category to the registration-path lookup index. Keep complex ownership construction local and supervised; SQLite is intermediate, while `case_lookup/site/mappings.json` is the tracked runtime artifact.
+Add one writing/audit-stable Vulkan CTS Wiki category to the registration-path lookup index. Keep complex ownership construction local and supervised; SQLite is intermediate, while `case_lookup/site/mappings.json` is the tracked runtime artifact.
 
 ## Scope
 
-Use this skill after a category's canonical English Level-3 pages pass rewrite and audit gates.
+Use this skill after a category's canonical English Level-3 pages pass writing and audit gates.
 
 This skill owns:
 
@@ -38,12 +38,12 @@ external/vulkancts/wiki/internal_doc/wiki_rewrite_checklist.md
 Confirm the category's Level-3 English pages already pass:
 
 ```bash
-python3 .agents/skills/wiki-rewriter/scripts/verify_english_structure.py <category>
-python3 .agents/skills/wiki-analyzer/scripts/verify_registration_paths.py <category>
+python3 .agents/skills/wiki-writer/scripts/verify_english_structure.py <category>
+python3 .agents/skills/wiki-writer/scripts/verify_registration_paths.py <category>
 ```
 
 Use the category-scoped link command from
-`.agents/skills/wiki-rewriter/references/validation-checklist.md` as the third precondition.
+`.agents/skills/wiki-writer/references/validation-checklist.md` as the third precondition.
 
 ## Procedure
 
@@ -62,7 +62,7 @@ Also record both Git repositories' status. Preserve the user's index and unrelat
 
 Inspect `external/vulkancts/mustpass/main/vk-default/` and identify every file that belongs to the category. Do not guess from filename alone when the category uses split directories or construction variants.
 
-Add the category to `CATEGORY_MUSTPASS_FILES` in rewrite-checklist order. Keep unsupported future categories commented.
+Add the category to `CATEGORY_MUSTPASS_FILES` in the category-checklist order. Keep unsupported future categories commented.
 
 Update `test_only_validated_categories_are_enabled` in `tests/test_builder.py` so its expected registry order matches exactly.
 

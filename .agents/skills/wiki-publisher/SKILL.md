@@ -18,10 +18,10 @@ Apply this skill one category at a time unless the user explicitly requests a na
 For normal category publishing, use Orchestrator mode to coordinate page-scoped workers with fixed roles:
 
 - One Level-2 translation worker translates `external/vulkancts/wiki/categories/<category>.md`.
-- One Level-3 translation worker translates exactly one publishable rewritten page under
+- One Level-3 translation worker translates exactly one canonical English page under
   `external/vulkancts/wiki/testfiles/<category>/`.
 - Exclude Understanding Brief files from publisher inputs. Files matching
-  `external/vulkancts/wiki/testfiles/<category>/*_brief.md` are internal English-only audit notes for rewrite work; do not
+  `external/vulkancts/wiki/testfiles/<category>/*_brief.md` are internal English-only understanding notes for writing work; do not
   translate, publish, link-convert, or count them as Level-3 publish pages.
 - Prepared Level-3 outputs live under the category directory,
   `vkcts-wiki-pages/categories/<category>/`, so GitLab Wiki can show a category page and its

@@ -1,12 +1,12 @@
 ---
 name: wiki-pipeline
-description: Use for end-to-end VK-GL-CTS wiki category work. Follow the rewrite outline, dispatch one page per subagent per phase, then run rewrite, audit, and local Chinese publish-target preparation with page-level recovery and final verification.
+description: Use for end-to-end VK-GL-CTS wiki category work. Follow the writing outline, dispatch one page per subagent per phase, then run writing, audit, and local Chinese publish-target preparation with page-level recovery and final verification.
 version: 1.0.0
 author: Hermes Agent
 license: MIT
 metadata:
   hermes:
-    tags: [wiki, pipeline, orchestration, rewrite, audit, publish]
+    tags: [wiki, pipeline, orchestration, writing, audit, publish]
     related_skills: []
 ---
 
@@ -16,11 +16,11 @@ metadata:
 
 Orchestrate one complete project-local wiki category lifecycle:
 
-`outline → rewrite → Level-2 synthesis → audit → Chinese publish-target preparation → lookup DB update → final verification → checklist`
+`outline → Level-3 writing → Level-2 synthesis → audit → Chinese publish-target preparation → lookup DB update → final verification → checklist`
 
 This is a **lead-agent orchestration skill**. Load and follow the project-local primary skills instead of duplicating their page-writing, auditing, translation, shader, or link-conversion rules:
 
-- `.agents/skills/wiki-rewriter/SKILL.md`
+- `.agents/skills/wiki-writer/SKILL.md`
 - `.agents/skills/wiki-auditor/SKILL.md`
 - `.agents/skills/wiki-publisher/SKILL.md`
 - `.agents/skills/db-lookup-updater/SKILL.md`
@@ -29,13 +29,13 @@ Read their required references and helper skills as those primary skills direct.
 
 ## Non-negotiable workflow
 
-1. Run wiki-rewriter Step 0 yourself as lead agent: inspect category state and create or resume `external/vulkancts/wiki/internal_doc/<category>_rewrite_outline.md`.
-2. **Hard stop 1 for user approval:** when Step 0 creates a new outline for a new category, stop and ask the user to approve it before inspecting, briefing, or rewriting pages. Resume only after approval or an explicit request to continue. A resumed category with an existing approved outline skips only this checkpoint.
-3. Follow the approved outline's batches exactly for rewrite dispatch.
-4. Rewrite all assigned Level-3 pages. A page stabilizes only after the canonical English structure, registration hierarchy, and
+1. Run wiki-writer's outline/discovery step yourself as lead agent: inspect the clean category source and create or resume `external/vulkancts/wiki/internal_doc/<category>_outline.md`.
+2. **Hard stop 1 for user approval:** when the outline is new, stop and ask the user to approve it before briefing or writing pages. Resume only after approval or an explicit request to continue. The outline is the only temporary coordination artifact; do not create a progress tracker.
+3. Follow the approved outline's batches exactly for page-writing dispatch.
+4. Write all assigned Level-3 pages. A page stabilizes only after the canonical English structure, registration hierarchy, and
    wiki-link validators pass. Then synthesize the Level-2 page after every Level-3 page is stable.
-5. Stage the changes produced by the rewrite phase, preserving unrelated pre-existing work, and continue directly into audit without stopping.
-6. Audit the Level-2 page and every rewritten Level-3 page. Re-run the same three English Level-3 validators after any audit edit;
+5. Stage the changes produced by the writing phase, preserving unrelated pre-existing work, and continue directly into audit without stopping.
+6. Audit the Level-2 page and every final Level-3 page. Re-run the same three English Level-3 validators after any audit edit;
    validator success is necessary but does not replace the semantic audit.
 7. **Hard stop 2 for user approval:** after audit repairs, Level-2 audit, category validation, and audit-summary finalization pass, stop before local Chinese publish-target preparation and ask the user to review and approve the audited result. Do not translate, write Chinese targets, or convert links before approval.
 8. After approval, freeze the audited English source set, then translate and prepare the local Chinese publish target for every Level-2 and Level-3 page. Each translated
@@ -48,13 +48,13 @@ Read their required references and helper skills as those primary skills direct.
 12. Verify the lookup category build, full runtime index, tests, and mustpass coverage.
 13. **Final mandatory update:** only after local publish-target preparation and lookup DB verification both pass, update `external/vulkancts/wiki/internal_doc/wiki_rewrite_checklist.md`, then report.
     - Mark the category done.
-    - Count rewritten Level-3 pages only: exclude `_brief.md`, legacy `vkt*.md`, and dispatcher pages folded into Level-2.
+    - Count final Level-3 pages only: exclude `_brief.md`, source/dispatcher pages folded into Level-2, and helper-only files.
     - Set `UB` from the category's `*_brief.md` count.
     - Recount checked and unchecked rows and update the summary.
 
 ## Dispatch invariant
 
-For **rewrite, audit, and local publish-target preparation**:
+For **writing, audit, and local publish-target preparation**:
 
 > **one subagent = one page = one phase**
 
@@ -79,7 +79,7 @@ The lead agent owns:
 - the final checklist update;
 - final counts and completion report.
 
-Workers own only their assigned page in their assigned phase. They must not edit shared summaries, enter a later phase, translate during rewrite/audit, or run link conversion during translation.
+Workers own only their assigned page in their assigned phase. They must not edit shared summaries, enter a later phase, translate during writing/audit, or run link conversion during translation.
 
 ## Final lookup DB phase
 
@@ -114,6 +114,6 @@ audit, Chinese structure/fixed-language, target-language, local publish-target, 
 links are converted and idempotent; the category is covered by the verified runtime lookup index; the tracked mappings JSON and final
 checklist match filesystem evidence; audited English pages remain unchanged during local publish-target preparation except for any later evidence-backed
 ownership repair required by `db-lookup-updater`; and unauthorized paths and the Git index remain untouched except for the explicit
-rewrite staging checkpoint.
+writing staging checkpoint.
 
 Use `references/completion-report.md` for the final report shape.

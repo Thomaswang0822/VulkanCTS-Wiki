@@ -184,7 +184,7 @@ Rules:
 - The left column uses the same values listed in `## Behavior Parameter Identification` above.
 - For families with multiple behavioral axes, use multiple small tables, one per axis.
 - The right column names the cause concisely. Do not include detailed analysis here — the detailed `### Cause Analysis` is written
-  during the final Level-3 rewrite, not in this brief.
+  during the final Level-3 page, not in this brief.
 
 ## Important Variations and Special Cases
 
@@ -241,7 +241,7 @@ Examples:
 - Is any analogy misleading?
 - Which parts should become final wiki content, and which parts are only learning scaffolding?
 
-## Conversion Notes for Final Wiki Rewrite
+## Conversion Notes for Final Wiki Page
 
 Briefly record how this Understanding Brief should influence the final Level-3 page.
 
@@ -264,6 +264,6 @@ Examples:
 - Which flow or resource table should be preserved in a more formal style?
 - The `### Failure Cause Mapping` table from `## What Failure Means` should be copied directly into the final page's
   `## Failure Meaning` → `### Failure Cause Mapping`. The `### Cause Analysis` subsection is written fresh during the final
-  rewrite, not carried from the brief.
+  write, not carried from the brief.
 - Read the relevant Vulkan spec chapters at `external/vulkan-docs/src/chapters/` before writing the brief, so that Background
   Knowledge and Failure Cause Mapping are grounded in spec semantics.
