@@ -97,7 +97,7 @@ CATEGORY_MUSTPASS_FILES: dict[str, tuple[Path, ...]] = {
     "ray_query": (Path("ray-query.txt"),),
     "reconvergence": (Path("reconvergence.txt"),),
     "mesh_shader": (Path("mesh-shader.txt"),),
-    # "depth": (Path("depth.txt"),),
+    "depth": (Path("depth.txt"),),
     "video": (Path("video.txt"),),
     "shader_object": (
         Path("shader-object/api.txt"),
@@ -111,7 +111,7 @@ CATEGORY_MUSTPASS_FILES: dict[str, tuple[Path, ...]] = {
         Path("shader-object/tessellation.txt"),
     ),
     "dgc": (Path("dgc.txt"),),
-    # "cooperative_vector": (Path("cooperative-vector.txt"),),
-    # "tensor": (Path("tensor.txt"),),
-    # "data_graph": (Path("data-graph.txt"),),
+    "cooperative_vector": (Path("cooperative-vector.txt"),),
+    "tensor": (Path("tensor.txt"),),
+    "data_graph": (Path("data-graph.txt"),),
 }

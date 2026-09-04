@@ -74,6 +74,9 @@ PAGES_WITHOUT_WALKTHROUGH: dict[str, set[str]] = {
         'OcclusionQuery.md',
         'Scissor.md',
     },
+    'data_graph': {
+        'PipelineCache.md',
+    },
     'device_group': {
         'Rendering.md',
     },
@@ -206,5 +209,18 @@ PAGES_WITHOUT_WALKTHROUGH: dict[str, set[str]] = {
         'Encode.md',
         'EncodeAV1.md',
         'Synchronization.md',
+    },
+    'cooperative_vector': {
+
+        'Matrix.md',
+    },
+    'tensor': {
+        'Copies.md',
+        'CreateRequirements.md',
+    },
+    'data_graph': {
+        'DataGraph.md',
+        'PipelineCache.md',
+        'Properties.md',
     },
 }

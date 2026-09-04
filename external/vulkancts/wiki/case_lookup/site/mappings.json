@@ -1,6 +1,6 @@
 {
-  "category_count": 49,
-  "mapping_count": 13059,
+  "category_count": 53,
+  "mapping_count": 13104,
   "mappings": {
     "dEQP-VK.api.buffer.basic": [
       "Buffer",
@@ -5306,6 +5306,121 @@
       "TransformFeedback",
       "conditional_rendering",
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/conditional_rendering/TransformFeedback"
+    ],
+    "dEQP-VK.cooperative_vector.basic": [
+      "Basic",
+      "cooperative_vector",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/cooperative_vector/Basic"
+    ],
+    "dEQP-VK.cooperative_vector.layoutconvert": [
+      "Matrix",
+      "cooperative_vector",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/cooperative_vector/Matrix"
+    ],
+    "dEQP-VK.cooperative_vector.longvec": [
+      "Basic",
+      "cooperative_vector",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/cooperative_vector/Basic"
+    ],
+    "dEQP-VK.cooperative_vector.matmul": [
+      "Basic",
+      "cooperative_vector",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/cooperative_vector/Basic"
+    ],
+    "dEQP-VK.cooperative_vector.training": [
+      "Basic",
+      "cooperative_vector",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/cooperative_vector/Basic"
+    ],
+    "dEQP-VK.cooperative_vector.typeconvert": [
+      "Matrix",
+      "cooperative_vector",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/cooperative_vector/Matrix"
+    ],
+    "dEQP-VK.data_graph.basic": [
+      "DataGraph",
+      "data_graph",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/data_graph/DataGraph"
+    ],
+    "dEQP-VK.data_graph.basic.create_pipeline": [
+      "Basic",
+      "data_graph",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/data_graph/Basic"
+    ],
+    "dEQP-VK.data_graph.basic.submit_pipeline": [
+      "Basic",
+      "data_graph",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/data_graph/Basic"
+    ],
+    "dEQP-VK.data_graph.cache": [
+      "DataGraph",
+      "data_graph",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/data_graph/DataGraph"
+    ],
+    "dEQP-VK.data_graph.cache.create_pipeline": [
+      "PipelineCache",
+      "data_graph",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/data_graph/PipelineCache"
+    ],
+    "dEQP-VK.data_graph.cache.submit_pipeline": [
+      "PipelineCache",
+      "data_graph",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/data_graph/PipelineCache"
+    ],
+    "dEQP-VK.data_graph.properties": [
+      "DataGraph",
+      "data_graph",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/data_graph/DataGraph"
+    ],
+    "dEQP-VK.data_graph.properties.available": [
+      "Properties",
+      "data_graph",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/data_graph/Properties"
+    ],
+    "dEQP-VK.data_graph.properties.get": [
+      "Properties",
+      "data_graph",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/data_graph/Properties"
+    ],
+    "dEQP-VK.depth.bias_fs_clamp": [
+      "Amber",
+      "depth",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/depth/Amber"
+    ],
+    "dEQP-VK.depth.bias_outside_range": [
+      "Amber",
+      "depth",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/depth/Amber"
+    ],
+    "dEQP-VK.depth.bias_outside_range_fs_clamp": [
+      "Amber",
+      "depth",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/depth/Amber"
+    ],
+    "dEQP-VK.depth.bias_outside_range_fs_clamp_unrestricted": [
+      "Amber",
+      "depth",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/depth/Amber"
+    ],
+    "dEQP-VK.depth.ez_fs_clamp": [
+      "Amber",
+      "depth",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/depth/Amber"
+    ],
+    "dEQP-VK.depth.fs_clamp": [
+      "Amber",
+      "depth",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/depth/Amber"
+    ],
+    "dEQP-VK.depth.out_of_range": [
+      "Amber",
+      "depth",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/depth/Amber"
+    ],
+    "dEQP-VK.depth.out_of_range_unrestricted": [
+      "Amber",
+      "depth",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/depth/Amber"
     ],
     "dEQP-VK.descriptor_indexing.combined_image_sampler": [
       "DescriptorSetsIndexing",
@@ -59816,6 +59931,116 @@
       "TimelineSemaphore",
       "synchronization2",
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/synchronization/TimelineSemaphore"
+    ],
+    "dEQP-VK.tensor.array_access": [
+      "ArrayAccess",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/ArrayAccess"
+    ],
+    "dEQP-VK.tensor.basic_access": [
+      "BasicShaderAccess",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/BasicShaderAccess"
+    ],
+    "dEQP-VK.tensor.boolean": [
+      "Bool",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/Bool"
+    ],
+    "dEQP-VK.tensor.copies": [
+      "Copies",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/Copies"
+    ],
+    "dEQP-VK.tensor.creation_and_requirements.linear_r16_sint": [
+      "CreateRequirements",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/CreateRequirements"
+    ],
+    "dEQP-VK.tensor.creation_and_requirements.linear_r16_uint": [
+      "CreateRequirements",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/CreateRequirements"
+    ],
+    "dEQP-VK.tensor.creation_and_requirements.linear_r32_sint": [
+      "CreateRequirements",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/CreateRequirements"
+    ],
+    "dEQP-VK.tensor.creation_and_requirements.linear_r32_uint": [
+      "CreateRequirements",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/CreateRequirements"
+    ],
+    "dEQP-VK.tensor.creation_and_requirements.linear_r64_sint": [
+      "CreateRequirements",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/CreateRequirements"
+    ],
+    "dEQP-VK.tensor.creation_and_requirements.linear_r64_uint": [
+      "CreateRequirements",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/CreateRequirements"
+    ],
+    "dEQP-VK.tensor.creation_and_requirements.linear_r8_sint": [
+      "CreateRequirements",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/CreateRequirements"
+    ],
+    "dEQP-VK.tensor.creation_and_requirements.linear_r8_uint": [
+      "CreateRequirements",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/CreateRequirements"
+    ],
+    "dEQP-VK.tensor.creation_and_requirements.optimal_r16_sint": [
+      "CreateRequirements",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/CreateRequirements"
+    ],
+    "dEQP-VK.tensor.creation_and_requirements.optimal_r16_uint": [
+      "CreateRequirements",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/CreateRequirements"
+    ],
+    "dEQP-VK.tensor.creation_and_requirements.optimal_r32_sint": [
+      "CreateRequirements",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/CreateRequirements"
+    ],
+    "dEQP-VK.tensor.creation_and_requirements.optimal_r32_uint": [
+      "CreateRequirements",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/CreateRequirements"
+    ],
+    "dEQP-VK.tensor.creation_and_requirements.optimal_r64_sint": [
+      "CreateRequirements",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/CreateRequirements"
+    ],
+    "dEQP-VK.tensor.creation_and_requirements.optimal_r64_uint": [
+      "CreateRequirements",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/CreateRequirements"
+    ],
+    "dEQP-VK.tensor.creation_and_requirements.optimal_r8_sint": [
+      "CreateRequirements",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/CreateRequirements"
+    ],
+    "dEQP-VK.tensor.creation_and_requirements.optimal_r8_uint": [
+      "CreateRequirements",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/CreateRequirements"
+    ],
+    "dEQP-VK.tensor.dimension_query": [
+      "DimensionQuery",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/DimensionQuery"
+    ],
+    "dEQP-VK.tensor.graphics_pipeline": [
+      "GraphicsPipeline",
+      "tensor",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/tensor/GraphicsPipeline"
     ],
     "dEQP-VK.tessellation.common_edge.quads_equal_spacing": [
       "CommonEdge",
