@@ -128,6 +128,7 @@ PAGES_WITHOUT_WALKTHROUGH: dict[str, set[str]] = {
         'Multisample.md',
         'MultisampleResolveRenderArea.md',
         'NoQueues.md',
+        'PrimitiveRestartIndex.md',
         'RenderToImage.md',
         'Stencil.md',
         'Timestamp.md',

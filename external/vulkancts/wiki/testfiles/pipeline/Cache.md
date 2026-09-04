@@ -3,7 +3,7 @@
 **Core question:** Can Vulkan reuse, export, merge, validate, and concurrently update pipeline-cache data without changing the behavior of the resulting graphics or compute pipelines?
 
 - `vktPipelineCacheTests.cpp` implements the `cache` test family in the `pipeline` test category.
-- The page covers graphics pipeline reuse, pipeline creation from complete and incomplete `vkGetPipelineCacheData` blobs, compute pipeline cache use, cache merging, cache validation errors, and internally synchronized merge access.
+- The page covers graphics pipeline reuse, pipeline creation from complete and incomplete `vkGetPipelineCacheData` blobs, compute pipeline cache use, cache merging, cache validation errors, internally synchronized merge access, and the graphics-pipeline-library cache-collision case.
 - The graphics and compute cases compare two pipelines created through the cache path. The remaining cases check Vulkan return codes, exported header fields, and successful object use for opaque cache-data operations.
 
 ## Background Knowledge
@@ -24,17 +24,23 @@ pipeline.monolithic.cache
 ├── compute_tests
 ├── merge
 └── misc_tests
+
+pipeline.pipeline_library.cache
+└── gpl_collision (registration only)
+
+pipeline.fast_linked_library.cache
+└── gpl_collision (registration only)
 ```
 
-The source file implements all six direct intermediate nodes. The monolithic construction path adds `compute_tests` and `internally_synchronized_test`; the incomplete-data, merge, and miscellaneous intermediate nodes are cache-mode-specific. Equivalent cache roots under the other pipeline construction types register the graphics, complete-data, incomplete-data, merge, and miscellaneous coverage documented below.
+The source file implements the six ordinary direct intermediate nodes. The monolithic construction path adds `compute_tests` and `internally_synchronized_test`; the incomplete-data, merge, and miscellaneous intermediate nodes are cache-mode-specific. `gpl_collision` is registered by the separate cache-collision source only below the `pipeline_library` and `fast_linked_library` roots. Equivalent cache roots under the other pipeline construction types register the graphics, complete-data, incomplete-data, merge, and miscellaneous coverage documented below.
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Pipeline construction type | `PIPELINE_CONSTRUCTION_TYPE_MONOLITHIC`, other supported construction types | Selects the pipeline-construction wrapper used by the cache-backed pipeline. Compute cache tests and `internally_synchronized_test` are limited to the monolithic path. | [`createPipelineBlobTestsInternal`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L2288-L2458) |
-| Shader-stage combination | `vertex_stage_fragment_stage`, `vertex_stage_geometry_stage_fragment_stage`, `vertex_stage_tessellation_control_stage_tessellation_evaluation_stage_fragment_stage`, `compute_stage` | Changes the graphics pipeline stage chain or selects compute pipeline creation. | [`getShaderFlagStr`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L66-L85), [registration matrix](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L2292-L2373) |
-| Cache operation family | `graphics_tests`, `pipeline_from_get_data`, `pipeline_from_incomplete_get_data`, `compute_tests`, `merge`, `misc_tests` | Selects the cache contract under test. | [cache registration](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L2297-L2450) |
+| Pipeline construction type | `PIPELINE_CONSTRUCTION_TYPE_MONOLITHIC`, other supported construction types | Selects the pipeline-construction wrapper used by the cache-backed pipeline. Compute cache tests and `internally_synchronized_test` are limited to the monolithic path. | [`createPipelineBlobTestsInternal`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L2324-L2488) |
+| Shader-stage combination | `vertex_stage_fragment_stage`, `vertex_stage_geometry_stage_fragment_stage`, `vertex_stage_tessellation_control_stage_tessellation_evaluation_stage_fragment_stage`, `compute_stage` | Changes the graphics pipeline stage chain or selects compute pipeline creation. | [`getShaderFlagStr`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L66-L85), [registration matrix](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L2329-L2373) |
+| Cache operation family | `graphics_tests`, `pipeline_from_get_data`, `pipeline_from_incomplete_get_data`, `compute_tests`, `merge`, `misc_tests`, `gpl_collision` | Selects the cache contract under test. `gpl_collision` is restricted to the two graphics-pipeline-library construction types. | [ordinary cache registration](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L2324-L2503), [GPL collision registration](../../../modules/vulkan/pipeline/vktPipelineCacheGplTests.cpp#L531-L537) |
 | Cache creation flags | `0`, `VK_PIPELINE_CACHE_CREATE_EXTERNALLY_SYNCHRONIZED_BIT`, `VK_PIPELINE_CACHE_CREATE_INTERNALLY_SYNCHRONIZED_MERGE_BIT_KHR` | Exercises ordinary cache access, externally synchronized graphics cases, and the concurrent merge case. | [`TestParam`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L88-L156), [`InternallySynchronizedInstance::iterate`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L2143-L2240) |
 | Cache blob state | `empty`, `from_data`, `hit`, `miss`, `misshit`, `merged`, incomplete, invalid, zero-size | Selects the initial contents and expected cache-data behavior for merge and validation cases. | [`MergeBlobsType`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L1441-L1483), [`MergeBlobsTestInstance::createPipelineCache`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L1571-L1710) |
 
@@ -66,6 +72,10 @@ For each graphics stage combination, the source creates a destination cache and 
 
 The family contains `cache_header_test`, `invalid_size_test`, `zero_size_test`, and `invalid_blob_test`. The invalid-blob case changes individual cache-header fields and verifies that cache creation still succeeds, as invalid initial data is ignored rather than reported as an API error. The monolithic path also registers `internally_synchronized_test`, which runs concurrent pipeline creation and cache merging under `VK_PIPELINE_CACHE_CREATE_INTERNALLY_SYNCHRONIZED_MERGE_BIT_KHR`, exports and recreates the merged cache, and creates more compute pipelines from it.
 
+### `gpl_collision`: distinguish pipeline-library cache keys
+
+This family is registered only for `pipeline.pipeline_library.cache` and `pipeline.fast_linked_library.cache`. It creates two samplers with otherwise matching sampler state: one ordinary RGB sampler and one sampler carrying a YCbCr conversion through `VkSamplerYcbcrConversionInfo`. It then creates equivalent graphics-pipeline-library paths with the two sampler layouts and renders the YUV path, requiring the sampled result to remain visibly green. The case is designed to catch an implementation that hashes or reuses pipeline-cache data without distinguishing the sampler conversion state. [`GplCacheCollisionTestCase::checkSupport`](../../../modules/vulkan/pipeline/vktPipelineCacheGplTests.cpp#L497-L518) [`createGplCacheCollisionTests`](../../../modules/vulkan/pipeline/vktPipelineCacheGplTests.cpp#L531-L537)
+
 ## Shader Analysis
 
 The shaders provide small graphics and compute workloads so most cases can observe pipelines created through a cache. Shader execution itself is not the primary behavior under test. The graphics variants use vertex, fragment, optional geometry, and optional tessellation shaders; miss variants alter the generated shader expression by `+ 0.1` to select a distinct pipeline description. The `compute_tests` shader squares each input `vec4` into an output storage buffer. The internally synchronized case compiles the same arithmetic shader but only creates pipelines from it; it allocates no storage buffers and records no dispatch.
@@ -78,6 +88,7 @@ The shaders provide small graphics and compute workloads so most cases can obser
 - Complete-blob cases export an initially empty cache, create a new cache with those bytes as initial data, and create one pipeline against each cache. Incomplete-blob cases likewise export the initially empty cache, check the required `VK_INCOMPLETE` status for a buffer one byte too small, and use the returned truncated bytes as initial data.
 - Merge cases prepare source caches according to their `MergeBlobsType`, merge them into a destination cache, and exercise the destination through pipeline creation. The source creation path can populate a cache with a hit, a miss, or both before export or merge.
 - The internally synchronized case starts `CreatePipelineThread` and `MergePipelineCacheThread`, waits for both, exports the global cache, destroys and recreates it from the blob, then creates two more compute pipelines. It returns pass after these operations complete without an error.
+- The GPL collision case creates RGB and YUV sampler/layout variants, builds their graphics-pipeline-library components using one cache, renders the YUV variant, and reads the color attachment back. It fails when the sampled center pixel is not green enough, which exposes a cache collision that incorrectly reuses the RGB sampler state.
 
 ## Failure Meaning
 
@@ -91,6 +102,7 @@ The shaders provide small graphics and compute workloads so most cases can obser
 | `compute_tests` | Two sequential compute-pipeline creations against the same cache produce different buffer results. |
 | `merge` | Cache initialization, cache-entry merging, or merged-cache pipeline lookup is mishandled. |
 | `misc_tests` | Exported cache-header fields, size/status handling, required acceptance of zero-size or invalid initial data, or the internally synchronized merge contract is mishandled. |
+| `gpl_collision` | Pipeline-library cache data is reused across sampler states that differ by YCbCr conversion, causing the YUV pipeline to render the wrong sampled result. |
 
 ### Cause Analysis
 
@@ -133,6 +145,7 @@ The shaders provide small graphics and compute workloads so most cases can obser
 - The construction wrapper must satisfy `checkPipelineConstructionRequirements` for the selected `PipelineConstructionType`.
 - `internally_synchronized_test` requires `VK_KHR_maintenance8`.
 - Pipeline-cache tests are excluded for Vulkan SC by the source's `CTS_USES_VULKANSC` guard.
+- `gpl_collision` additionally requires the standard YUV sampling format features and `VK_KHR_sampler_ycbcr_conversion` with `samplerYcbcrConversion` enabled.
 
 ### Design-based pruning
 
@@ -140,6 +153,7 @@ The shaders provide small graphics and compute workloads so most cases can obser
 - `compute_tests` is not repeated for graphics pipeline library construction types because the source explicitly restricts it to `PIPELINE_CONSTRUCTION_TYPE_MONOLITHIC`.
 - The graphics stage matrix uses three representative stage chains rather than every possible shader-stage combination. The externally synchronized flag is paired with the same graphics cases instead of creating a separate family.
 - Merge cases cover one and two source caches over the six cache-state values, which exercises source-count behavior without an unbounded number of cache combinations.
+- `gpl_collision` is limited to the two graphics-pipeline-library construction types because the collision concerns GPL cache construction and the source adds it only to those roots.
 
 ## Key Takeaways
 
@@ -148,6 +162,7 @@ The shaders provide small graphics and compute workloads so most cases can obser
 - Export/import and merge cases treat cache bytes as opaque and validate behavior through API status and subsequent pipeline use. The complete and incomplete export cases obtain their bytes before populating the source cache with a graphics pipeline.
 - The incomplete-data case checks the size/data-query contract before attempting to consume the truncated blob.
 - The internal-synchronization case combines concurrent pipeline creation and cache merging with later cache export, recreation, and use.
+- The GPL collision case checks that pipeline-library cache reuse preserves sampler conversion state instead of treating otherwise similar sampler descriptions as interchangeable.
 
 ## Source Reference Appendix
 
@@ -161,5 +176,6 @@ The shaders provide small graphics and compute workloads so most cases can obser
 | Cache-state construction and merge | [`MergeBlobsTestInstance`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L1492-L1710) | Covers cache source states and `vkMergePipelineCaches` |
 | Cache validation tests | [`CacheHeaderTest`, `InvalidSizeTest`, `ZeroSizeTest`, and `InvalidBlobTest`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L1710-L2040) | Exercises malformed headers, sizes, zero-size data, and invalid blobs |
 | Concurrent cache access | [`InternallySynchronizedInstance::iterate`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L2143-L2240) | Runs concurrent creation and merge, then recreates and uses the cache |
-| Registration | [`createCacheTests`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L2288-L2458) | Defines the direct `pipeline.cache` test-family tree and gating |
+| Registration | [`createCacheTests`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L2491-L2503) | Defines the direct `pipeline.cache` test-family tree and gating |
+| GPL cache collision | [`GplCacheCollisionTestInstance`](../../../modules/vulkan/pipeline/vktPipelineCacheGplTests.cpp#L76-L456) and [`createGplCacheCollisionTests`](../../../modules/vulkan/pipeline/vktPipelineCacheGplTests.cpp#L531-L537) | Distinguishes sampler YCbCr-conversion state while exercising graphics-pipeline-library cache construction |
 | Vulkan cache specification | [Pipeline Cache](../../../../vulkan-docs/src/chapters/pipelines.adoc#pipelines-cache) | Provides the normative cache creation, data, and merge contract |

@@ -25,8 +25,8 @@ Temporary tracker for the 2026-09 upstream sync. Do not treat this file as a dur
 
 ## Immediate Structural Risks
 
-- [ ] Inspect the pipeline mustpass reshaping before category edits: `vk-default/pipeline` contains 95 added paths, 7 modified paths, and 1 deleted path; the `shader-object-unlinked-spirv` aggregate file was replaced by nested files.
-- [ ] Confirm recursive mustpass discovery and registration validation for `pipeline` and the shader-object-linked/unlinked variants.
+- [~] Inspect the pipeline mustpass reshaping before category edits: structural inspection is complete, but the category refresh is still partial. `vk-default/pipeline` contains 95 added paths, 7 modified paths, and 1 deleted path; the `shader-object-unlinked-spirv` aggregate file was replaced by nested files. The current layout is present and contains 102 pipeline TXT files, including 99 files under construction-variant directories. Existing pipeline pages still need a complete source-to-page review.
+- [x] Confirm recursive mustpass discovery and registration validation for `pipeline` and the shader-object-linked/unlinked variants. `verify_registration_paths.py pipeline` collected 452 paths and passed; the validator loaded the nested pipeline files. `verify_registration_paths.py shader_object` collected 83 paths and passed.
 - [ ] Inspect newly added mustpass coverage: `image/store-load-consistency.txt`, `postmortem.txt`, `shader-object/m11-independent-sets.txt`, and `vksc-fraction-mandatory-tests.txt`.
 - [ ] Check source/mustpass naming mappings: `renderpass` → `renderpasses`, `device_generated_commands` → `dgc`, `ray_tracing` → `ray_tracing_pipeline`, `modifiers` → `drm_format_modifiers`; also normalize hyphenated mustpass names such as `binding-model` and `query-pool`.
 - [ ] Keep generated Vulkan/framework changes separate from user-facing category facts unless they change documented behavior or evidence links.
@@ -219,7 +219,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/memory.txt`
   - `M` `external/vulkancts/mustpass/main/vksc-default/memory.txt`
-- [ ] `pipeline` — source `37` (A=4, M=33); mustpass `103` (A=95, M=7, D=1). Raw groups: `pipeline`. Decision: pending.
+- [~] `pipeline` — source `37` (A=4, M=33); mustpass `103` (A=95, M=7, D=1). Raw groups: `pipeline`. Decision: partial update; do not consider this category complete. English files changed so far: `categories/pipeline.md`, `testfiles/pipeline/Cache.md`, `testfiles/pipeline/PrimitiveRestartIndex.md`, and `scripts/walkthrough_exceptions.py`. Added `gpl_collision` coverage to the cache page and documented the new `primitive_restart_index` family; no Chinese pages were modified. Validation passed so far: English structure for the two changed Level-3 pages, scoped links for the category page and two changed Level-3 pages, full pipeline registration paths (452 paths), shader-object registration paths (83 paths), and the wiki-writer unit suite (50 tests). Remaining findings: the upstream range also changes existing pipeline behavior/coverage that still requires page-by-page review, especially `InputAssembly.md`, `InputAttributeOffset.md`, `LegacyAttr.md`, `Library.md`, `Multisample.md`, `MultisampledRenderToSingleSampled.md`, `NoPosition.md`, `PushDescriptor.md`, `Timestamp.md`, `VertexInput.md`, `ExtendedDynamicState.md`, and related delegated pages. The current changes do not yet cover those findings.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/pipeline/CMakeLists.txt`
   - `M` `external/vulkancts/modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp`
@@ -865,7 +865,7 @@ Inventory check: `53` category pages found; `52` mapped categories have direct c
 
 ## Recommended Execution Order
 
-1. [ ] Resolve mustpass layout/validator checks for `pipeline`, including shared shader-object paths.
+1. [~] Pipeline mustpass layout/validator checks are structurally resolved and validated, but the pipeline category refresh remains partial; complete the remaining existing-page reviews before marking this item complete.
 2. [ ] Review P0 categories in queue order, grouping only tightly coupled pairs: `ray_query` + `ray_tracing_pipeline`, `shader_object` + `pipeline`, and `synchronization` + `synchronization2`.
 3. [ ] Review P1 categories and explicitly record no-update decisions where changes are mechanical.
 4. [ ] Review P2 categories and all existing pages with no direct paths for indirect/global effects.
