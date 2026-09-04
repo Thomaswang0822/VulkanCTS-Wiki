@@ -197,6 +197,7 @@ enum TestType
     TEST_TYPE_AV1_DECODE_GLOBALMOTION_8,
     TEST_TYPE_AV1_DECODE_FILMGRAIN_8,
     TEST_TYPE_AV1_DECODE_SVCL1T2_8,
+    TEST_TYPE_AV1_DECODE_SVCL1T2_8_SB_TILE_UNITS,
     TEST_TYPE_AV1_DECODE_SUPERRES_8,
     TEST_TYPE_AV1_DECODE_SIZEUP_8,
 
@@ -207,6 +208,7 @@ enum TestType
     TEST_TYPE_AV1_DECODE_LOOPFILTER_10,
     TEST_TYPE_AV1_DECODE_CDEF_10,
     TEST_TYPE_AV1_DECODE_ARGON_FILMGRAIN_10,
+    TEST_TYPE_AV1_DECODE_ARGON_FILMGRAIN_10_SB_TILE_UNITS,
     TEST_TYPE_AV1_DECODE_ARGON_TEST_787,
     TEST_TYPE_AV1_DECODE_GOLDEN_FRAME,
 
@@ -249,212 +251,6 @@ enum TestCodec
 
     TEST_CODEC_LAST
 };
-
-static const char *testTypeToStr(TestType type)
-{
-    const char *testName;
-    switch (type)
-    {
-    case TEST_TYPE_H264_DECODE_I:
-    case TEST_TYPE_H265_DECODE_I:
-    case TEST_TYPE_AV1_DECODE_I:
-        testName = "i";
-        break;
-    case TEST_TYPE_H264_DECODE_I_P:
-    case TEST_TYPE_H265_DECODE_I_P:
-    case TEST_TYPE_AV1_DECODE_I_P:
-        testName = "i_p";
-        break;
-    case TEST_TYPE_H264_DECODE_CLIP_A:
-        testName = "420_8bit_high_176x144_30frames";
-        break;
-    case TEST_TYPE_H264_DECODE_I_P_NOT_MATCHING_ORDER:
-    case TEST_TYPE_H265_DECODE_I_P_NOT_MATCHING_ORDER:
-    case TEST_TYPE_AV1_DECODE_I_P_NOT_MATCHING_ORDER:
-        testName = "i_p_not_matching_order";
-        break;
-    case TEST_TYPE_H264_DECODE_I_P_B_13:
-    case TEST_TYPE_H265_DECODE_I_P_B_13:
-        testName = "i_p_b_13";
-        break;
-    case TEST_TYPE_H264_DECODE_I_P_B_13_NOT_MATCHING_ORDER:
-    case TEST_TYPE_H265_DECODE_I_P_B_13_NOT_MATCHING_ORDER:
-        testName = "i_p_b_13_not_matching_order";
-        break;
-    case TEST_TYPE_H264_DECODE_QUERY_RESULT_WITH_STATUS:
-    case TEST_TYPE_H265_DECODE_QUERY_RESULT_WITH_STATUS:
-        testName = "query_with_status";
-        break;
-    case TEST_TYPE_H264_DECODE_INLINE_QUERY_RESULT_WITH_STATUS:
-    case TEST_TYPE_H265_DECODE_INLINE_QUERY_RESULT_WITH_STATUS:
-        testName = "inline_query_with_status";
-        break;
-    case TEST_TYPE_H264_DECODE_RESOURCES_WITHOUT_PROFILES:
-    case TEST_TYPE_H265_DECODE_RESOURCES_WITHOUT_PROFILES:
-        testName = "resources_without_profiles";
-        break;
-    case TEST_TYPE_H264_DECODE_RESOLUTION_CHANGE:
-        testName = "resolution_change";
-        break;
-    case TEST_TYPE_H264_DECODE_RESOLUTION_CHANGE_DPB:
-        testName = "resolution_change_dpb";
-        break;
-    case TEST_TYPE_H264_DECODE_INTERLEAVED:
-        testName = "interleaved";
-        break;
-    case TEST_TYPE_H264_H265_DECODE_INTERLEAVED:
-        testName = "h265_interleaved";
-        break;
-    case TEST_TYPE_H265_DECODE_CLIP_D:
-        testName = "420_8bit_main_176x144_30frames";
-        break;
-    case TEST_TYPE_H265_DECODE_SLIST_A:
-        testName = "slist_a";
-        break;
-    case TEST_TYPE_H265_DECODE_SLIST_B:
-        testName = "slist_b";
-        break;
-    case TEST_TYPE_H265_DECODE_LONG_TERM_REFERENCE:
-        testName = "long_term_reference";
-        break;
-    case TEST_TYPE_AV1_DECODE_BASIC_8:
-        testName = "basic_8";
-        break;
-    case TEST_TYPE_AV1_DECODE_BASIC_8_NOT_MATCHING_ORDER:
-        testName = "basic_8_not_matching_order";
-        break;
-    case TEST_TYPE_AV1_DECODE_BASIC_10:
-        testName = "basic_10";
-        break;
-    case TEST_TYPE_AV1_DECODE_ALLINTRA_8:
-        testName = "allintra_8";
-        break;
-    case TEST_TYPE_AV1_DECODE_ALLINTRA_NOSETUP_8:
-        testName = "allintra_nosetup_8";
-        break;
-    case TEST_TYPE_AV1_DECODE_ALLINTRA_BC_8:
-        testName = "allintrabc_8";
-        break;
-    case TEST_TYPE_AV1_DECODE_CDFUPDATE_8:
-        testName = "cdfupdate_8";
-        break;
-    case TEST_TYPE_AV1_DECODE_GLOBALMOTION_8:
-        testName = "globalmotion_8";
-        break;
-    case TEST_TYPE_AV1_DECODE_FILMGRAIN_8:
-        testName = "filmgrain_8";
-        break;
-    case TEST_TYPE_AV1_DECODE_SVCL1T2_8:
-        testName = "svcl1t2_8";
-        break;
-    case TEST_TYPE_AV1_DECODE_SUPERRES_8:
-        testName = "superres_8";
-        break;
-    case TEST_TYPE_AV1_DECODE_SIZEUP_8:
-        testName = "sizeup_8";
-        break;
-    case TEST_TYPE_AV1_DECODE_ARGON_SEQCHANGE_AFFINE_8:
-        testName = "argon_seqchange_affine_8";
-        break;
-    case TEST_TYPE_AV1_DECODE_ORDERHINT_10:
-        testName = "orderhint_10";
-        break;
-    case TEST_TYPE_AV1_DECODE_FORWARDKEYFRAME_10:
-        testName = "forwardkeyframe_10";
-        break;
-    case TEST_TYPE_AV1_DECODE_LOSSLESS_10:
-        testName = "lossless_10";
-        break;
-    case TEST_TYPE_AV1_DECODE_LOOPFILTER_10:
-        testName = "loopfilter_10";
-        break;
-    case TEST_TYPE_AV1_DECODE_CDEF_10:
-        testName = "cdef_10";
-        break;
-    case TEST_TYPE_AV1_DECODE_GOLDEN_FRAME:
-        testName = "golden_frame";
-        break;
-    case TEST_TYPE_AV1_DECODE_ARGON_FILMGRAIN_10:
-        testName = "argon_filmgrain_10_test1019";
-        break;
-    case TEST_TYPE_AV1_DECODE_ARGON_TEST_787:
-        testName = "argon_test787";
-        break;
-    case TEST_TYPE_H264_DECODE_INLINE_SESSION_PARAMS:
-    case TEST_TYPE_H265_DECODE_INLINE_SESSION_PARAMS:
-    case TEST_TYPE_AV1_DECODE_INLINE_SESSION_PARAMS:
-        testName = "inline_session_params";
-        break;
-    case TEST_TYPE_H264_DECODE_RELAXED_SESSION_PARAMS:
-    case TEST_TYPE_H265_DECODE_RELAXED_SESSION_PARAMS:
-    case TEST_TYPE_AV1_DECODE_RELAXED_SESSION_PARAMS:
-        testName = "relaxed_session_params";
-        break;
-    case TEST_TYPE_VP9_DECODE_KEYFRAME_10:
-        testName = "keyframe_10";
-        break;
-    case TEST_TYPE_VP9_DECODE_BASIC_10:
-        testName = "basic_10";
-        break;
-    case TEST_TYPE_VP9_DECODE_BASIC_10_NOT_MATCHING_ORDER:
-        testName = "basic_10_not_matching_order";
-        break;
-    case TEST_TYPE_VP9_DECODE_SHOW_EXISTING_FRAMES_10:
-        testName = "show_existing_frames_10";
-        break;
-    case TEST_TYPE_VP9_DECODE_351_287_10:
-        testName = "351x287";
-        break;
-    case TEST_TYPE_VP9_DECODE_TILE_1X2_10:
-        testName = "tile_1x2";
-        break;
-    case TEST_TYPE_VP9_DECODE_TILE_1X4_10:
-        testName = "tile_1x4";
-        break;
-    case TEST_TYPE_VP9_DECODE_TILE_1X8_10:
-        testName = "tile_1x8";
-        break;
-    case TEST_TYPE_VP9_DECODE_TILE_4X4_10:
-        testName = "tile_4x4";
-        break;
-    case TEST_TYPE_VP9_DECODE_RESIZE_10:
-        testName = "resize";
-        break;
-    case TEST_TYPE_VP9_DECODE_LF:
-        testName = "lf";
-        break;
-    case TEST_TYPE_VP9_DECODE_10BITS_10:
-        testName = "10bits";
-        break;
-    case TEST_TYPE_VP9_DECODE_INTRA_ONLY:
-        testName = "intra_only";
-        break;
-    case TEST_TYPE_VP9_DECODE_INTER_INTRA_ONLY:
-        testName = "inter_intra_only";
-        break;
-    case TEST_TYPE_VP9_DECODE_SEG_KEY_30:
-        testName = "seg_key";
-        break;
-    case TEST_TYPE_VP9_DECODE_QUANT_00:
-        testName = "quant_00";
-        break;
-    case TEST_TYPE_VP9_DECODE_QUANT_26:
-        testName = "quant_26";
-        break;
-    case TEST_TYPE_VP9_DECODE_QUANT_59:
-        testName = "quant_59";
-        break;
-    case TEST_TYPE_VP9_DECODE_RESIZE_1_2:
-        testName = "resize_1_2";
-        break;
-    case TEST_TYPE_VP9_DECODE_SVC:
-        testName = "svc";
-        break;
-    default:
-        TCU_THROW(InternalError, "Unknown TestType");
-    }
-    return testName;
-}
 
 enum TestCodec getTestCodec(const TestType testType)
 {
@@ -506,6 +302,7 @@ enum TestCodec getTestCodec(const TestType testType)
     case TEST_TYPE_AV1_DECODE_GLOBALMOTION_8:
     case TEST_TYPE_AV1_DECODE_FILMGRAIN_8:
     case TEST_TYPE_AV1_DECODE_SVCL1T2_8:
+    case TEST_TYPE_AV1_DECODE_SVCL1T2_8_SB_TILE_UNITS:
     case TEST_TYPE_AV1_DECODE_SUPERRES_8:
     case TEST_TYPE_AV1_DECODE_SIZEUP_8:
     case TEST_TYPE_AV1_DECODE_ARGON_SEQCHANGE_AFFINE_8:
@@ -516,6 +313,7 @@ enum TestCodec getTestCodec(const TestType testType)
     case TEST_TYPE_AV1_DECODE_CDEF_10:
     case TEST_TYPE_AV1_DECODE_GOLDEN_FRAME:
     case TEST_TYPE_AV1_DECODE_ARGON_FILMGRAIN_10:
+    case TEST_TYPE_AV1_DECODE_ARGON_FILMGRAIN_10_SB_TILE_UNITS:
     case TEST_TYPE_AV1_DECODE_ARGON_TEST_787:
     case TEST_TYPE_AV1_DECODE_INLINE_SESSION_PARAMS:
     case TEST_TYPE_AV1_DECODE_RELAXED_SESSION_PARAMS:
@@ -572,6 +370,10 @@ enum DecoderOption : uint32_t
     UseInlineSessionParams    = 1 << 8,
     ResetCodecNoSessionParams = 1 << 9,
     ForceDisableFilmGrain     = 1 << 10,
+    // Feed AV1 tile MiColStarts/MiRowStarts in SB units instead of MI units to verify
+    // the driver ignores them, as recommended by the AV1 decode spec note. Drivers that
+    // consume those fields and produce incorrect pixels will trigger a QualityWarning.
+    ForceSbTileUnits = 1 << 11,
 };
 
 static const int ALL_FRAMES = 0;
@@ -639,6 +441,8 @@ struct DecodeTestParam
     {TEST_TYPE_AV1_DECODE_GLOBALMOTION_8, {CLIP_AV1_DEC_GLOBALMOTION_8, ALL_FRAMES, DecoderOption::Default}},
     {TEST_TYPE_AV1_DECODE_FILMGRAIN_8, {CLIP_AV1_DEC_FILMGRAIN_8, ALL_FRAMES, DecoderOption::FilmGrainPresent}},
     {TEST_TYPE_AV1_DECODE_SVCL1T2_8, {CLIP_AV1_DEC_SVCL1T2_8, ALL_FRAMES, DecoderOption::Default}},
+    {TEST_TYPE_AV1_DECODE_SVCL1T2_8_SB_TILE_UNITS,
+     {CLIP_AV1_DEC_SVCL1T2_8, ALL_FRAMES, DecoderOption::ForceSbTileUnits}},
     {TEST_TYPE_AV1_DECODE_SUPERRES_8, {CLIP_AV1_DEC_SUPERRES_8, ALL_FRAMES, DecoderOption::Default}},
     {TEST_TYPE_AV1_DECODE_SIZEUP_8, {CLIP_AV1_DEC_SIZEUP_8, ALL_FRAMES, DecoderOption::Default}},
     {TEST_TYPE_AV1_DECODE_BASIC_10, {CLIP_AV1_DEC_BASIC_10, ALL_FRAMES, DecoderOption::Default}},
@@ -660,6 +464,9 @@ struct DecodeTestParam
     {TEST_TYPE_AV1_DECODE_ARGON_FILMGRAIN_10,
      {CLIP_AV1_DEC_ARGON_FILMGRAIN_10, 1,
       (DecoderOption)(DecoderOption::AnnexB | DecoderOption::ForceDisableFilmGrain)}},
+    {TEST_TYPE_AV1_DECODE_ARGON_FILMGRAIN_10_SB_TILE_UNITS,
+     {CLIP_AV1_DEC_ARGON_FILMGRAIN_10, 1,
+      (DecoderOption)(DecoderOption::AnnexB | DecoderOption::ForceDisableFilmGrain | DecoderOption::ForceSbTileUnits)}},
 
     // TODO: Did not have sufficient implementations to find out why this is failing.
     //{TEST_TYPE_AV1_DECODE_ARGON_TEST_787, {CLIP_ARGON_TEST_787, 2, DecoderOption::AnnexB}},
@@ -729,11 +536,6 @@ public:
         {
             m_params.stream.framesToCheck = m_info->totalFrames;
         }
-
-        if (params.type == TEST_TYPE_H264_DECODE_RESOLUTION_CHANGE_DPB)
-        {
-            m_pictureParameterUpdateTriggerHack = 3;
-        }
     }
 
     TestType getTestType() const
@@ -770,19 +572,225 @@ public:
 
     const std::string getTestName() const
     {
-        std::stringstream oss;
-        oss << testTypeToStr(getTestType());
+        std::string testName;
+        switch (getTestType())
+        {
+        case TEST_TYPE_H264_DECODE_I:
+        case TEST_TYPE_H265_DECODE_I:
+        case TEST_TYPE_AV1_DECODE_I:
+            testName = "i";
+            break;
+        case TEST_TYPE_H264_DECODE_I_P:
+        case TEST_TYPE_H265_DECODE_I_P:
+        case TEST_TYPE_AV1_DECODE_I_P:
+            testName = "i_p";
+            break;
+        case TEST_TYPE_H264_DECODE_CLIP_A:
+            testName = "420_8bit_high_176x144_30frames";
+            break;
+        case TEST_TYPE_H264_DECODE_I_P_NOT_MATCHING_ORDER:
+        case TEST_TYPE_H265_DECODE_I_P_NOT_MATCHING_ORDER:
+        case TEST_TYPE_AV1_DECODE_I_P_NOT_MATCHING_ORDER:
+            testName = "i_p_not_matching_order";
+            break;
+        case TEST_TYPE_H264_DECODE_I_P_B_13:
+        case TEST_TYPE_H265_DECODE_I_P_B_13:
+            testName = "i_p_b_13";
+            break;
+        case TEST_TYPE_H264_DECODE_I_P_B_13_NOT_MATCHING_ORDER:
+        case TEST_TYPE_H265_DECODE_I_P_B_13_NOT_MATCHING_ORDER:
+            testName = "i_p_b_13_not_matching_order";
+            break;
+        case TEST_TYPE_H264_DECODE_QUERY_RESULT_WITH_STATUS:
+        case TEST_TYPE_H265_DECODE_QUERY_RESULT_WITH_STATUS:
+            testName = "query_with_status";
+            break;
+        case TEST_TYPE_H264_DECODE_INLINE_QUERY_RESULT_WITH_STATUS:
+        case TEST_TYPE_H265_DECODE_INLINE_QUERY_RESULT_WITH_STATUS:
+            testName = "inline_query_with_status";
+            break;
+        case TEST_TYPE_H264_DECODE_RESOURCES_WITHOUT_PROFILES:
+        case TEST_TYPE_H265_DECODE_RESOURCES_WITHOUT_PROFILES:
+            testName = "resources_without_profiles";
+            break;
+        case TEST_TYPE_H264_DECODE_RESOLUTION_CHANGE:
+            testName = "resolution_change";
+            break;
+        case TEST_TYPE_H264_DECODE_RESOLUTION_CHANGE_DPB:
+            testName = "resolution_change_dpb";
+            break;
+        case TEST_TYPE_H264_DECODE_INTERLEAVED:
+            testName = "interleaved";
+            break;
+        case TEST_TYPE_H264_H265_DECODE_INTERLEAVED:
+            testName = "h265_interleaved";
+            break;
+        case TEST_TYPE_H265_DECODE_CLIP_D:
+            testName = "420_8bit_main_176x144_30frames";
+            break;
+        case TEST_TYPE_H265_DECODE_SLIST_A:
+            testName = "slist_a";
+            break;
+        case TEST_TYPE_H265_DECODE_SLIST_B:
+            testName = "slist_b";
+            break;
+        case TEST_TYPE_H265_DECODE_LONG_TERM_REFERENCE:
+            testName = "long_term_reference";
+            break;
+        case TEST_TYPE_AV1_DECODE_BASIC_8:
+            testName = "basic_8";
+            break;
+        case TEST_TYPE_AV1_DECODE_BASIC_8_NOT_MATCHING_ORDER:
+            testName = "basic_8_not_matching_order";
+            break;
+        case TEST_TYPE_AV1_DECODE_BASIC_10:
+            testName = "basic_10";
+            break;
+        case TEST_TYPE_AV1_DECODE_ALLINTRA_8:
+            testName = "allintra_8";
+            break;
+        case TEST_TYPE_AV1_DECODE_ALLINTRA_NOSETUP_8:
+            testName = "allintra_nosetup_8";
+            break;
+        case TEST_TYPE_AV1_DECODE_ALLINTRA_BC_8:
+            testName = "allintrabc_8";
+            break;
+        case TEST_TYPE_AV1_DECODE_CDFUPDATE_8:
+            testName = "cdfupdate_8";
+            break;
+        case TEST_TYPE_AV1_DECODE_GLOBALMOTION_8:
+            testName = "globalmotion_8";
+            break;
+        case TEST_TYPE_AV1_DECODE_FILMGRAIN_8:
+            testName = "filmgrain_8";
+            break;
+        case TEST_TYPE_AV1_DECODE_SVCL1T2_8:
+            testName = "svcl1t2_8";
+            break;
+        case TEST_TYPE_AV1_DECODE_SVCL1T2_8_SB_TILE_UNITS:
+            testName = "svcl1t2_8_sb_tile_units";
+            break;
+        case TEST_TYPE_AV1_DECODE_SUPERRES_8:
+            testName = "superres_8";
+            break;
+        case TEST_TYPE_AV1_DECODE_SIZEUP_8:
+            testName = "sizeup_8";
+            break;
+        case TEST_TYPE_AV1_DECODE_ARGON_SEQCHANGE_AFFINE_8:
+            testName = "argon_seqchange_affine_8";
+            break;
+        case TEST_TYPE_AV1_DECODE_ORDERHINT_10:
+            testName = "orderhint_10";
+            break;
+        case TEST_TYPE_AV1_DECODE_FORWARDKEYFRAME_10:
+            testName = "forwardkeyframe_10";
+            break;
+        case TEST_TYPE_AV1_DECODE_LOSSLESS_10:
+            testName = "lossless_10";
+            break;
+        case TEST_TYPE_AV1_DECODE_LOOPFILTER_10:
+            testName = "loopfilter_10";
+            break;
+        case TEST_TYPE_AV1_DECODE_CDEF_10:
+            testName = "cdef_10";
+            break;
+        case TEST_TYPE_AV1_DECODE_GOLDEN_FRAME:
+            testName = "golden_frame";
+            break;
+        case TEST_TYPE_AV1_DECODE_ARGON_FILMGRAIN_10:
+            testName = "argon_filmgrain_10_test1019";
+            break;
+        case TEST_TYPE_AV1_DECODE_ARGON_FILMGRAIN_10_SB_TILE_UNITS:
+            testName = "argon_filmgrain_10_test1019_sb_tile_units";
+            break;
+        case TEST_TYPE_AV1_DECODE_ARGON_TEST_787:
+            testName = "argon_test787";
+            break;
+        case TEST_TYPE_H264_DECODE_INLINE_SESSION_PARAMS:
+        case TEST_TYPE_H265_DECODE_INLINE_SESSION_PARAMS:
+        case TEST_TYPE_AV1_DECODE_INLINE_SESSION_PARAMS:
+            testName = "inline_session_params";
+            break;
+        case TEST_TYPE_H264_DECODE_RELAXED_SESSION_PARAMS:
+        case TEST_TYPE_H265_DECODE_RELAXED_SESSION_PARAMS:
+        case TEST_TYPE_AV1_DECODE_RELAXED_SESSION_PARAMS:
+            testName = "relaxed_session_params";
+            break;
+        case TEST_TYPE_VP9_DECODE_KEYFRAME_10:
+            testName = "keyframe_10";
+            break;
+        case TEST_TYPE_VP9_DECODE_BASIC_10:
+            testName = "basic_10";
+            break;
+        case TEST_TYPE_VP9_DECODE_BASIC_10_NOT_MATCHING_ORDER:
+            testName = "basic_10_not_matching_order";
+            break;
+        case TEST_TYPE_VP9_DECODE_SHOW_EXISTING_FRAMES_10:
+            testName = "show_existing_frames_10";
+            break;
+        case TEST_TYPE_VP9_DECODE_351_287_10:
+            testName = "351x287";
+            break;
+        case TEST_TYPE_VP9_DECODE_TILE_1X2_10:
+            testName = "tile_1x2";
+            break;
+        case TEST_TYPE_VP9_DECODE_TILE_1X4_10:
+            testName = "tile_1x4";
+            break;
+        case TEST_TYPE_VP9_DECODE_TILE_1X8_10:
+            testName = "tile_1x8";
+            break;
+        case TEST_TYPE_VP9_DECODE_TILE_4X4_10:
+            testName = "tile_4x4";
+            break;
+        case TEST_TYPE_VP9_DECODE_RESIZE_10:
+            testName = "resize";
+            break;
+        case TEST_TYPE_VP9_DECODE_LF:
+            testName = "lf";
+            break;
+        case TEST_TYPE_VP9_DECODE_10BITS_10:
+            testName = "10bits";
+            break;
+        case TEST_TYPE_VP9_DECODE_INTRA_ONLY:
+            testName = "intra_only";
+            break;
+        case TEST_TYPE_VP9_DECODE_INTER_INTRA_ONLY:
+            testName = "inter_intra_only";
+            break;
+        case TEST_TYPE_VP9_DECODE_SEG_KEY_30:
+            testName = "seg_key";
+            break;
+        case TEST_TYPE_VP9_DECODE_QUANT_00:
+            testName = "quant_00";
+            break;
+        case TEST_TYPE_VP9_DECODE_QUANT_26:
+            testName = "quant_26";
+            break;
+        case TEST_TYPE_VP9_DECODE_QUANT_59:
+            testName = "quant_59";
+            break;
+        case TEST_TYPE_VP9_DECODE_RESIZE_1_2:
+            testName = "resize_1_2";
+            break;
+        case TEST_TYPE_VP9_DECODE_SVC:
+            testName = "svc";
+            break;
+        default:
+            TCU_THROW(InternalError, "Unknown TestType");
+        }
+
         if (isLayered())
-            oss << "_layered_dpb";
+            testName += "_layered_dpb";
         else
-            oss << "_separated_dpb";
+            testName += "_separated_dpb";
 
         if (usesGeneralLayout())
-            oss << "_general_layout";
+            testName += "_general_layout";
         else
-            oss << "_video_layout";
+            testName += "_video_layout";
 
-        return oss.str();
+        return testName;
     }
 
     int framesToCheck() const
@@ -803,11 +811,6 @@ public:
     bool usesGeneralLayout() const
     {
         return m_generalLayout;
-    }
-
-    int getParamaterUpdateHackRequirement() const
-    {
-        return m_pictureParameterUpdateTriggerHack;
     }
 
     VideoDevice::VideoDeviceFlags requiredDeviceFlags() const
@@ -874,13 +877,6 @@ private:
     bool m_isLayeredDpb{};
     bool m_generalLayout{};
     std::vector<VkVideoCoreProfile> m_profiles;
-    // The 1-based count of parameter set updates after which to force
-    // a parameter object release.  This is required due to the design
-    // of the NVIDIA decode-client API. It sends parameter updates and
-    // expects constructed parameter objects back synchronously,
-    // before the next video session is created in a following
-    // BeginSequence call.
-    int m_pictureParameterUpdateTriggerHack{0}; // Zero is "off"
 };
 
 // Vulkan video is not supported on android platform
@@ -896,22 +892,22 @@ static std::shared_ptr<VideoBaseDecoder> decoderFromTestDefinition(DeviceContext
                                             vkVideoFrameBuffer));
 
     VideoBaseDecoder::Parameters params;
-    params.profile                           = test.getProfile(0);
-    params.context                           = devctx;
-    params.framebuffer                       = vkVideoFrameBuffer;
-    params.framesToCheck                     = test.framesToCheck();
-    params.layeredDpb                        = test.isLayered();
-    params.queryDecodeStatus                 = test.hasOption(DecoderOption::UseStatusQueries);
-    params.useInlineQueries                  = test.hasOption(DecoderOption::UseInlineStatusQueries);
-    params.useInlineSessionParams            = test.hasOption(DecoderOption::UseInlineSessionParams);
-    params.resetCodecNoSessionParams         = test.hasOption(DecoderOption::ResetCodecNoSessionParams);
-    params.resourcesWithoutProfiles          = test.hasOption(DecoderOption::ResourcesWithoutProfiles);
-    params.outOfOrderDecoding                = test.hasOption(DecoderOption::CachedDecoding);
-    params.alwaysRecreateDPB                 = test.hasOption(DecoderOption::RecreateDPBImages);
-    params.intraOnlyDecodingNoSetupRef       = test.hasOption(DecoderOption::IntraOnlyDecodingNoSetupRef);
-    params.pictureParameterUpdateTriggerHack = test.getParamaterUpdateHackRequirement();
-    params.forceDisableFilmGrain             = forceDisableFilmGrain;
-    params.useGeneralLayout                  = test.usesGeneralLayout();
+    params.profile                     = test.getProfile(0);
+    params.context                     = devctx;
+    params.framebuffer                 = vkVideoFrameBuffer;
+    params.framesToCheck               = test.framesToCheck();
+    params.layeredDpb                  = test.isLayered();
+    params.queryDecodeStatus           = test.hasOption(DecoderOption::UseStatusQueries);
+    params.useInlineQueries            = test.hasOption(DecoderOption::UseInlineStatusQueries);
+    params.useInlineSessionParams      = test.hasOption(DecoderOption::UseInlineSessionParams);
+    params.resetCodecNoSessionParams   = test.hasOption(DecoderOption::ResetCodecNoSessionParams);
+    params.resourcesWithoutProfiles    = test.hasOption(DecoderOption::ResourcesWithoutProfiles);
+    params.outOfOrderDecoding          = test.hasOption(DecoderOption::CachedDecoding);
+    params.alwaysRecreateDPB           = test.hasOption(DecoderOption::RecreateDPBImages);
+    params.intraOnlyDecodingNoSetupRef = test.hasOption(DecoderOption::IntraOnlyDecodingNoSetupRef);
+    params.forceDisableFilmGrain       = forceDisableFilmGrain;
+    params.forceSbTileUnits            = test.hasOption(DecoderOption::ForceSbTileUnits);
+    params.useGeneralLayout            = test.usesGeneralLayout();
 
     return std::make_shared<VideoBaseDecoder>(std::move(params));
 }
@@ -940,7 +936,7 @@ inline uint16_t roru16(uint16_t x, uint16_t n)
     return n == 0 ? x : (x >> n) | (x << (-n & 15));
 }
 
-static void copyAllPlanesToBuffers(const DeviceDriver &vkd, const DecodedFrame &frame, const VkExtent2D &imageExtent,
+static void copyAllPlanesToBuffers(const DeviceInterface &vkd, const DecodedFrame &frame, const VkExtent2D &imageExtent,
                                    const PlanarFormatDescription &planarDescription, VkCommandBuffer cmdbuf,
                                    std::vector<std::unique_ptr<BufferWithMemory>> &planeBuffers)
 {
@@ -1414,9 +1410,12 @@ tcu::TestStatus VideoDecodeTestInstance::iterate()
         TCU_CHECK_AND_THROW(InternalError, *handle != nullptr, "Failed to open temporary file");
     };
 
+    const std::string decodePrefix = util::getVideoCodecPathSegment(m_testDefinition->getCodecOperation(0));
+
     if (dumpMode == tcu::DUMP_DEC_TO_SINGLE)
     {
-        openTemporaryFile("output.yuv", &debug_OutputFileHandle);
+        openTemporaryFile(util::getVideoDumpPath(true, m_testDefinition->getTestName(), decodePrefix, "yuv"),
+                          &debug_OutputFileHandle);
     }
 
     bool throwFilmGrainQualityWarning = false;
@@ -1436,9 +1435,9 @@ tcu::TestStatus VideoDecodeTestInstance::iterate()
 
         if (dumpMode == tcu::DUMP_DEC_TO_SEPARATE_FILES)
         {
-            std::stringstream oss;
-            oss << "output" << frame.displayOrder << "_" << frame.displayWidth << "_" << frame.displayHeight << ".yuv";
-            openTemporaryFile(oss.str(), &debug_OutputFileHandle);
+            openTemporaryFile(
+                util::getVideoDumpPath(true, m_testDefinition->getTestName(), decodePrefix, "yuv", frame.displayOrder),
+                &debug_OutputFileHandle);
         }
 
         VkImageLayout downloadedFrameLayout;
@@ -1551,6 +1550,15 @@ tcu::TestStatus VideoDecodeTestInstance::iterate()
         if (throwFilmGrainQualityWarning)
         {
             TCU_THROW(QualityWarning, std::string("Potentially non-standard filmgrain synthesis process: ") + ss.str());
+        }
+
+        if (m_testDefinition->hasOption(DecoderOption::ForceSbTileUnits))
+        {
+            return tcu::TestStatus(
+                QP_TEST_RESULT_QUALITY_WARNING,
+                std::string("Driver appears to consume pMiColStarts/pMiRowStarts. Per the AV1 decode spec note, "
+                            "drivers should ignore them and derive tile starts independently: ") +
+                    ss.str());
         }
 
         return tcu::TestStatus::fail(ss.str());
@@ -1824,6 +1832,7 @@ void VideoDecodeTestCase::checkSupport(Context &context) const
     case TEST_TYPE_AV1_DECODE_CDFUPDATE_8:
     case TEST_TYPE_AV1_DECODE_FILMGRAIN_8:
     case TEST_TYPE_AV1_DECODE_SVCL1T2_8:
+    case TEST_TYPE_AV1_DECODE_SVCL1T2_8_SB_TILE_UNITS:
     case TEST_TYPE_AV1_DECODE_SUPERRES_8:
     case TEST_TYPE_AV1_DECODE_SIZEUP_8:
     case TEST_TYPE_AV1_DECODE_ARGON_SEQCHANGE_AFFINE_8:
@@ -1834,6 +1843,7 @@ void VideoDecodeTestCase::checkSupport(Context &context) const
     case TEST_TYPE_AV1_DECODE_CDEF_10:
     case TEST_TYPE_AV1_DECODE_GOLDEN_FRAME:
     case TEST_TYPE_AV1_DECODE_ARGON_FILMGRAIN_10:
+    case TEST_TYPE_AV1_DECODE_ARGON_FILMGRAIN_10_SB_TILE_UNITS:
     case TEST_TYPE_AV1_DECODE_ARGON_TEST_787:
     {
         context.requireDeviceFunctionality("VK_KHR_video_decode_av1");

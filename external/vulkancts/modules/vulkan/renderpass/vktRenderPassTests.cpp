@@ -28,42 +28,38 @@
 #include "vktRenderPassMultisampleTests.hpp"
 #include "vktRenderPassMultisampleResolveTests.hpp"
 #include "vktRenderPassSampleReadTests.hpp"
-#ifndef CTS_USES_VULKANSC
-#include "vktRenderPassSparseRenderTargetTests.hpp"
-#endif // CTS_USES_VULKANSC
 #include "vktRenderPassSubpassDependencyTests.hpp"
 #include "vktRenderPassUnusedAttachmentTests.hpp"
 #include "vktRenderPassUnusedClearAttachmentTests.hpp"
 #include "vktRenderPassDepthStencilResolveTests.hpp"
 #include "vktRenderPassUnusedAttachmentSparseFillingTests.hpp"
-#include "vktRenderPassFragmentDensityMapTests.hpp"
 #include "vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.hpp"
+#include "vktRenderPassRemainingArrayLayersTests.hpp"
+#include "vktRenderPassLowResolutionZTests.hpp"
+
 #ifndef CTS_USES_VULKANSC
+#include "vktRenderPassSparseRenderTargetTests.hpp"
 #include "vktRenderPassLoadStoreOpNoneTests.hpp"
 #include "vktDynamicRenderingTests.hpp"
 #include "vktDynamicRenderingLocalReadTests.hpp"
 #include "vktDynamicRenderingLocalReadMaint10Tests.hpp"
 #include "vktDynamicRenderingDepthStencilResolveTests.hpp"
 #include "vktRenderPassNestedCommandBuffersTests.hpp"
-#endif // CTS_USES_VULKANSC
+#include "vktRenderPassCustomResolveTests.hpp"
+#include "vktRenderPassFragmentDensityMapTests.hpp"
 #include "vktRenderPassDepthStencilWriteConditionsTests.hpp"
 #include "vktRenderPassSubpassMergeFeedbackTests.hpp"
 #include "vktDynamicRenderingRandomTests.hpp"
 #include "vktRenderPassDitheringTests.hpp"
 #include "vktDynamicRenderingUnusedAttachmentsTests.hpp"
-#include "vktRenderPassRemainingArrayLayersTests.hpp"
 #include "vktRenderPassPerformanceCountersByRegionTests.hpp"
-#ifndef CTS_USES_VULKANSC
-#include "vktRenderPassCustomResolveTests.hpp"
-#endif // CTS_USES_VULKANSC
 #include "vktRenderPassMultiviewPerViewTests.hpp"
 #include "vktDynamicRenderingMultiviewClearTests.hpp"
+#endif // CTS_USES_VULKANSC
 
-#include "vktTestCaseUtil.hpp"
 #include "vktTestGroupUtil.hpp"
 
 #include "vkDefs.hpp"
-#include "vkDeviceUtil.hpp"
 #include "vkImageUtil.hpp"
 #include "vkMemUtil.hpp"
 #include "vkPlatform.hpp"
@@ -82,7 +78,6 @@
 #include "tcuFloat.hpp"
 #include "tcuFormatUtil.hpp"
 #include "tcuMaybe.hpp"
-#include "tcuResultCollector.hpp"
 #include "tcuTestLog.hpp"
 #include "tcuTextureUtil.hpp"
 #include "tcuVectorUtil.hpp"
@@ -97,10 +92,8 @@
 #include <set>
 #include <string>
 #include <vector>
-#include <numeric>
 #include <memory>
 #include <algorithm>
-#include <iterator>
 
 using namespace vk;
 
@@ -3443,16 +3436,19 @@ void pushDynamicRenderingCommands(const DeviceInterface &vk, VkCommandBuffer com
         if (renderingLayout == VK_IMAGE_LAYOUT_UNDEFINED)
             renderingLayout = VK_IMAGE_LAYOUT_GENERAL;
 
-        VkImageMemoryBarrier &beforeBarrier       = imageBarriersBeforeRendering[attachmentIndex];
-        beforeBarrier.srcAccessMask               = getAllMemoryWriteFlags() | getMemoryFlagsForLayout(initialLayout);
-        beforeBarrier.dstAccessMask               = getMemoryFlagsForLayout(renderingLayout);
+        VkImageMemoryBarrier &beforeBarrier = imageBarriersBeforeRendering[attachmentIndex];
+        beforeBarrier.srcAccessMask         = getAllMemoryWriteFlags() | getMemoryFlagsForLayout(initialLayout);
+        beforeBarrier.dstAccessMask         = getMemoryFlagsForLayout(renderingLayout) |
+                                      VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
+                                      VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
         beforeBarrier.oldLayout                   = initialLayout;
         beforeBarrier.newLayout                   = renderingLayout;
         beforeBarrier.image                       = attachmentResources[attachmentIndex]->getImage();
         beforeBarrier.subresourceRange.aspectMask = aspectMask;
 
-        VkImageMemoryBarrier &afterBarrier       = imageBarriersAfterRendering[attachmentIndex];
-        afterBarrier.srcAccessMask               = getMemoryFlagsForLayout(renderingLayout);
+        VkImageMemoryBarrier &afterBarrier = imageBarriersAfterRendering[attachmentIndex];
+        afterBarrier.srcAccessMask =
+            getMemoryFlagsForLayout(renderingLayout) | VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
         afterBarrier.dstAccessMask               = getAllMemoryReadFlags() | getMemoryFlagsForLayout(finalLayout);
         afterBarrier.oldLayout                   = renderingLayout;
         afterBarrier.newLayout                   = finalLayout;
@@ -5664,6 +5660,23 @@ void RenderPassTestCase::checkSupport(Context &context) const
 
     for (const auto feature : m_config.requiredFeatures)
         context.requireDeviceCoreFeature(feature);
+
+    for (const auto &attchment : renderPassInfo.getAttachments())
+    {
+        if (attchment.getSamples() == VK_SAMPLE_COUNT_1_BIT)
+            continue;
+
+        const tcu::TextureFormat tcuFormat = mapVkFormat(attchment.getFormat());
+        const bool isDS                    = hasDepthComponent(tcuFormat.order) || hasStencilComponent(tcuFormat.order);
+        const VkImageUsageFlags usage =
+            isDS ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        VkImageFormatProperties imgProps;
+        const VkResult res = vki.getPhysicalDeviceImageFormatProperties(
+            physDevice, attchment.getFormat(), VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, usage, 0u, &imgProps);
+
+        if (res != VK_SUCCESS || (imgProps.sampleCounts & attchment.getSamples()) == 0u)
+            TCU_THROW(NotSupportedError, "MSAA sample count not supported for format");
+    }
 
     if (!checkTextureFormatSupport(context))
         TCU_THROW(NotSupportedError, "Format not supported");
@@ -8564,6 +8577,7 @@ tcu::TestCaseGroup *createRenderPassTestsInternal(tcu::TestContext &testCtx, con
     suballocationTestGroup->addChild(createRenderPassUnusedAttachmentSparseFillingTests(testCtx, groupParams));
     suballocationTestGroup->addChild(createRenderPassSubpassDependencyTests(testCtx, groupParams));
     suballocationTestGroup->addChild(createRenderPassMultisampleResolveTests(testCtx, groupParams));
+    suballocationTestGroup->addChild(createRenderPassLowResolutionZTests(testCtx, groupParams));
 #ifndef CTS_USES_VULKANSC
     suballocationTestGroup->addChild(createRenderPassLoadStoreOpNoneTests(testCtx, groupParams));
 #endif // CTS_USES_VULKANSC

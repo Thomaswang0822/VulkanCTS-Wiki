@@ -311,7 +311,7 @@ void getInstanceExtensionFunctions (uint32_t apiVersion, const std::vector<std::
 	if (extName == "VK_KHR_swapchain")
 	{
 		// Dependencies: VK_VERSION_1_1
-		if (checkVersion(1, 1, apiVersion)) {
+		if (true) {
 			if(apiVersion >= VK_API_VERSION_1_1) functions.push_back("vkGetPhysicalDevicePresentRectanglesKHR");
 		}
 		return;
@@ -690,7 +690,7 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 		functions.push_back("vkAcquireNextImageKHR");
 		functions.push_back("vkQueuePresentKHR");
 		// Dependencies: VK_VERSION_1_1
-		if (checkVersion(1, 1, apiVersion)) {
+		if (true) {
 			if(apiVersion >= VK_API_VERSION_1_1) functions.push_back("vkGetDeviceGroupPresentCapabilitiesKHR");
 			if(apiVersion >= VK_API_VERSION_1_1) functions.push_back("vkGetDeviceGroupSurfacePresentModesKHR");
 			if(apiVersion >= VK_API_VERSION_1_1) functions.push_back("vkAcquireNextImage2KHR");
@@ -736,11 +736,11 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 	}
 	if (extName == "VK_NV_external_sci_sync2")
 	{
-		functions.push_back("vkCreateSemaphoreSciSyncPoolNV");
 		functions.push_back("vkGetFenceSciSyncFenceNV");
 		functions.push_back("vkGetFenceSciSyncObjNV");
 		functions.push_back("vkImportFenceSciSyncFenceNV");
 		functions.push_back("vkImportFenceSciSyncObjNV");
+		functions.push_back("vkCreateSemaphoreSciSyncPoolNV");
 		return;
 	}
 	if (extName == "VK_NV_private_vendor_info")

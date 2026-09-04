@@ -163,24 +163,6 @@ uint32_t calculateRate(uint32_t rateWidth, uint32_t rateHeight)
     return (deCtz32(rateWidth) << 2u) | deCtz32(rateHeight);
 }
 
-class DeviceHolder
-{
-public:
-    DeviceHolder(Move<VkDevice> device, de::MovePtr<DeviceDriver> vk, de::MovePtr<Allocator> allocator);
-
-private:
-    Move<VkDevice> m_device;
-    de::MovePtr<DeviceDriver> m_vk;
-    de::MovePtr<Allocator> m_allocator;
-};
-
-DeviceHolder::DeviceHolder(Move<VkDevice> device, de::MovePtr<DeviceDriver> vk, de::MovePtr<Allocator> allocator)
-    : m_device(device)
-    , m_vk(vk)
-    , m_allocator(allocator)
-{
-}
-
 class AttachmentRateInstance : public TestInstance
 {
 public:
@@ -236,7 +218,7 @@ private:
     void startRendering(const VkCommandBuffer commandBuffer, const VkRenderPass renderPass,
                         const VkFramebuffer framebuffer, const VkRect2D &renderArea,
                         const std::vector<FBAttachmentInfo> &attachmentInfo, const uint32_t srTileWidth = 0,
-                        const uint32_t srTileHeight = 0, const DeviceInterface *customDevice = nullptr) const;
+                        const uint32_t srTileHeight = 0) const;
     void finishRendering(const VkCommandBuffer commandBuffer) const;
 
     bool verifyUsingAtomicChecks(uint32_t tileWidth, uint32_t tileHeight, uint32_t rateWidth, uint32_t rateHeight,
@@ -252,13 +234,8 @@ private:
     bool runTwoSubpassMode(void);
 
 private:
-    // A custom device is by tests from runCopyModeOnTransferQueue.
-    // In this test the device is passed to various utils, that create
-    // Vulkan objects later assigned to various members below. To guarantee
-    // proper destruction order, below variable acts as an owner of this custom device
-    // - however, it is not to be used (the device is not accessible directly from this object
-    //   to avoid misusages of the framework device vs custom device).
-    de::MovePtr<DeviceHolder> m_customDeviceHolder;
+    const InstanceWrapper m_instance;
+    DeviceWrapper m_device;
 
     const de::SharedPtr<TestParams> m_params;
     const uint32_t m_cbWidth;
@@ -297,6 +274,8 @@ private:
 
 AttachmentRateInstance::AttachmentRateInstance(Context &context, const de::SharedPtr<TestParams> params)
     : vkt::TestInstance(context)
+    , m_instance(context)
+    , m_device(context)
     , m_params(params)
     , m_cbWidth(60)
     , m_cbHeight(60)
@@ -911,10 +890,9 @@ VkDescriptorSetAllocateInfo AttachmentRateInstance::makeDescriptorSetAllocInfo(
 void AttachmentRateInstance::startRendering(const VkCommandBuffer commandBuffer, const VkRenderPass renderPass,
                                             const VkFramebuffer framebuffer, const VkRect2D &renderArea,
                                             const std::vector<FBAttachmentInfo> &attachmentInfo,
-                                            const uint32_t srTileWidth, const uint32_t srTileHeight,
-                                            const DeviceInterface *customDevice) const
+                                            const uint32_t srTileWidth, const uint32_t srTileHeight) const
 {
-    const DeviceInterface &vk = (customDevice != nullptr) ? *customDevice : m_context.getDeviceInterface();
+    const DeviceInterface &vk = m_device.getDriver();
     std::vector<VkClearValue> clearColor(attachmentInfo.size(), makeClearValueColorU32(0, 0, 0, 0));
 
 #ifndef CTS_USES_VULKANSC
@@ -1002,7 +980,7 @@ void AttachmentRateInstance::startRendering(const VkCommandBuffer commandBuffer,
 
 void AttachmentRateInstance::finishRendering(const VkCommandBuffer commandBuffer) const
 {
-    const DeviceInterface &vk = m_context.getDeviceInterface();
+    const DeviceInterface &vk = m_device.getDriver();
 
 #ifndef CTS_USES_VULKANSC
     if (m_params->useDynamicRendering)
@@ -1350,7 +1328,9 @@ bool AttachmentRateInstance::runComputeShaderMode(void)
             submitCommandsAndWait(vk, device, queue, cmdBuffer.get());
 
             invalidateAlloc(vk, device, m_cbReadBuffer[0]->getAllocation());
-            if (!verifyUsingAtomicChecks(tileWidth, tileHeight, m_params->srRate.width, m_params->srRate.height,
+            if (!verifyUsingAtomicChecks(tileWidth, tileHeight,
+                                         m_params->useNullShadingRateImage ? 1u : m_params->srRate.width,
+                                         m_params->useNullShadingRateImage ? 1u : m_params->srRate.height,
                                          (uint32_t *)m_cbReadBuffer[0]->getAllocation().getHostPtr()))
                 return false;
 
@@ -1514,7 +1494,9 @@ bool AttachmentRateInstance::runFragmentShaderMode(void)
             submitCommandsAndWait(vk, device, queue, cmdBuffer.get());
 
             invalidateAlloc(vk, device, m_cbReadBuffer[0]->getAllocation());
-            if (!verifyUsingAtomicChecks(tileWidth, tileHeight, m_params->srRate.width, m_params->srRate.height,
+            if (!verifyUsingAtomicChecks(tileWidth, tileHeight,
+                                         m_params->useNullShadingRateImage ? 1u : m_params->srRate.width,
+                                         m_params->useNullShadingRateImage ? 1u : m_params->srRate.height,
                                          (uint32_t *)m_cbReadBuffer[0]->getAllocation().getHostPtr()))
                 return false;
 
@@ -1668,7 +1650,9 @@ bool AttachmentRateInstance::runCopyMode(void)
             submitCommandsAndWait(vk, device, queue, cmdBuffer.get());
 
             invalidateAlloc(vk, device, m_cbReadBuffer[0]->getAllocation());
-            if (!verifyUsingAtomicChecks(tileWidth, tileHeight, m_params->srRate.width, m_params->srRate.height,
+            if (!verifyUsingAtomicChecks(tileWidth, tileHeight,
+                                         m_params->useNullShadingRateImage ? 1u : m_params->srRate.width,
+                                         m_params->useNullShadingRateImage ? 1u : m_params->srRate.height,
                                          (uint32_t *)m_cbReadBuffer[0]->getAllocation().getHostPtr()))
                 return false;
 
@@ -1683,9 +1667,8 @@ bool AttachmentRateInstance::runCopyModeOnTransferQueue(void)
     // the shading rate image on separate transfer queue and then use copied
     // image to draw a basic triangle and do basic checks
 
-    const PlatformInterface &vkp      = m_context.getPlatformInterface();
-    const InstanceInterface &vki      = m_context.getInstanceInterface();
-    VkPhysicalDevice pd               = m_context.getPhysicalDevice();
+    const InstanceInterface &vki      = m_instance.getDriver();
+    VkPhysicalDevice pd               = m_instance.getPhysicalDevice();
     uint32_t transferQueueFamilyIndex = std::numeric_limits<uint32_t>::max();
     uint32_t graphicsQueueFamilyIndex = std::numeric_limits<uint32_t>::max();
     VkMemoryBarrier memoryBarrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER, nullptr, 0u, 0u};
@@ -1711,10 +1694,6 @@ bool AttachmentRateInstance::runCopyModeOnTransferQueue(void)
         queueFamilies = {graphicsQueueFamilyIndex, transferQueueFamilyIndex};
 
     // create custom device
-    VkDevice device;
-    DeviceInterface *driver;
-    Allocator *allocator;
-
     {
         const float queuePriorities = 1.0f;
         std::vector<VkDeviceQueueCreateInfo> queueInfo(
@@ -1753,7 +1732,10 @@ bool AttachmentRateInstance::runCopyModeOnTransferQueue(void)
 #endif // CTS_USES_VULKANSC
         if (m_params->useImagelessFramebuffer)
         {
+#ifndef CTS_USES_VULKANSC
+            // Imageless framebuffers are core in Vulkan SC 1.0 and does not exist as an extension
             enabledExtensions.push_back("VK_KHR_imageless_framebuffer");
+#endif // CTS_USES_VULKANSC
             ifbFeatures.pNext = pNext;
             pNext             = &ifbFeatures;
         }
@@ -1765,28 +1747,19 @@ bool AttachmentRateInstance::runCopyModeOnTransferQueue(void)
             (VkDeviceCreateFlags)0u,                         // VkDeviceCreateFlags flags;
             2u,                                              // uint32_t queueCreateInfoCount;
             queueInfo.data(),                                // const VkDeviceQueueCreateInfo* pQueueCreateInfos;
-            0u,                                              // uint32_t enabledLayerCount;
+            0,                                               // uint32_t enabledLayerCount;
             nullptr,                                         // const char* const* ppEnabledLayerNames;
             static_cast<uint32_t>(enabledExtensions.size()), // uint32_t enabledExtensionCount;
             enabledExtensions.data(),                        // const char* const* ppEnabledExtensionNames;
             nullptr                                          // const VkPhysicalDeviceFeatures* pEnabledFeatures;
         };
 
-        vk::Move<VkDevice> customDevice        = createDevice(vkp, m_context.getInstance(), vki, pd, &deviceInfo);
-        de::MovePtr<DeviceDriver> customDriver = de::MovePtr<DeviceDriver>(
-            new DeviceDriver(vkp, m_context.getInstance(), *customDevice, m_context.getUsedApiVersion(),
-                             m_context.getTestContext().getCommandLine()));
-        de::MovePtr<Allocator> customAllocator = de::MovePtr<Allocator>(
-            new SimpleAllocator(*customDriver, *customDevice, getPhysicalDeviceMemoryProperties(vki, pd)));
-
-        device    = *customDevice;
-        driver    = &*customDriver;
-        allocator = &*customAllocator;
-
-        m_customDeviceHolder = de::MovePtr<DeviceHolder>(new DeviceHolder(customDevice, customDriver, customAllocator));
+        m_device = m_instance.createCustomDevice(pd, &deviceInfo);
     }
 
-    DeviceInterface &vk = *driver;
+    VkDevice device           = *m_device;
+    const DeviceInterface &vk = m_device.getDriver();
+    Allocator *allocator      = &m_device.getAllocator();
 
     VkQueue transferQueue;
     vk.getDeviceQueue(device, transferQueueFamilyIndex, 0u, &transferQueue);
@@ -1905,7 +1878,7 @@ bool AttachmentRateInstance::runCopyModeOnTransferQueue(void)
 
             // release exclusive ownership from the transfer queue family
             srcStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
-            dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            dstStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
             VkImageMemoryBarrier srImageBarrierOwnershipTransfer =
                 makeImageMemoryBarrier(VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_NONE_KHR, VK_IMAGE_LAYOUT_GENERAL,
                                        VK_IMAGE_LAYOUT_GENERAL, **m_srImage[0], m_defaultImageSubresourceRange);
@@ -1926,7 +1899,7 @@ bool AttachmentRateInstance::runCopyModeOnTransferQueue(void)
                                   &srImageBarrierOwnershipTransfer);
 
             // wait till sr image layout is changed
-            srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            srcStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
             dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR;
             VkMemoryBarrier srMemoryBarrierShadingRate =
                 makeMemoryBarrier(VK_ACCESS_NONE_KHR, VK_ACCESS_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR);
@@ -1948,7 +1921,7 @@ bool AttachmentRateInstance::runCopyModeOnTransferQueue(void)
                                   &cbImageBarrier);
 
             startRendering(*graphicsCmdBuffer, *renderPass, *framebuffer, makeRect2D(m_cbWidth, m_cbHeight),
-                           attachmentInfo, tileWidth, tileHeight, driver);
+                           attachmentInfo, tileWidth, tileHeight);
 
             // draw single triangle to cb
             vk.cmdBindDescriptorSets(*graphicsCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, *graphicsPipelineLayout, 0, 1,
@@ -1988,7 +1961,7 @@ bool AttachmentRateInstance::runCopyModeOnTransferQueue(void)
                 1u,                            // uint32_t signalSemaphoreCount;
                 &*semaphore,                   // const VkSemaphore* pSignalSemaphores;
             };
-            const VkPipelineStageFlags waitDstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+            const VkPipelineStageFlags waitDstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR;
             const VkSubmitInfo graphicsSubmitInfo{
                 VK_STRUCTURE_TYPE_SUBMIT_INFO, // VkStructureType sType;
                 nullptr,                       // const void* pNext;
@@ -2009,7 +1982,9 @@ bool AttachmentRateInstance::runCopyModeOnTransferQueue(void)
             VK_CHECK(vk.waitForFences(device, 2u, fences, true, ~0ull));
 
             invalidateAlloc(vk, device, m_cbReadBuffer[0]->getAllocation());
-            if (!verifyUsingAtomicChecks(tileWidth, tileHeight, m_params->srRate.width, m_params->srRate.height,
+            if (!verifyUsingAtomicChecks(tileWidth, tileHeight,
+                                         m_params->useNullShadingRateImage ? 1u : m_params->srRate.width,
+                                         m_params->useNullShadingRateImage ? 1u : m_params->srRate.height,
                                          (uint32_t *)m_cbReadBuffer[0]->getAllocation().getHostPtr()))
                 return false;
 
@@ -2137,7 +2112,9 @@ bool AttachmentRateInstance::runFillLinearTiledImage(void)
             submitCommandsAndWait(vk, device, queue, cmdBuffer.get());
 
             invalidateAlloc(vk, device, m_cbReadBuffer[0]->getAllocation());
-            if (!verifyUsingAtomicChecks(tileWidth, tileHeight, m_params->srRate.width, m_params->srRate.height,
+            if (!verifyUsingAtomicChecks(tileWidth, tileHeight,
+                                         m_params->useNullShadingRateImage ? 1u : m_params->srRate.width,
+                                         m_params->useNullShadingRateImage ? 1u : m_params->srRate.height,
                                          (uint32_t *)m_cbReadBuffer[0]->getAllocation().getHostPtr()))
                 return false;
 
@@ -2620,34 +2597,35 @@ void createAttachmentRateTests(tcu::TestContext &testCtx, tcu::TestCaseGroup *pa
                 {
                     // Duplicate all tests using dynamic rendering for NULL shading image.
                     std::string nullShadingName = std::string(srRate.name) + "_null_shading";
-                    formatGroup->addChild(new AttachmentRateTestCase(testCtx, nullShadingName.c_str(),
-                                                                     de::SharedPtr<TestParams>(new TestParams{
-                                                                         testModeParam.mode, // TestMode mode;
-                                                                         srFormat.format,    // VkFormat srFormat;
-                                                                         srRate.count,       // VkExtent2D srRate;
-                                                                         false,        // bool useDynamicRendering;
-                                                                         false,        // bool useImagelessFramebuffer;
-                                                                         true,         // bool useNullShadingRateImage;
-                                                                         false,        // bool useGeneralLayout;
-                                                                         tcu::Nothing, // OptDSParams dsParams;
-                                                                     })));
+                    formatGroup->addChild(
+                        new AttachmentRateTestCase(testCtx, nullShadingName.c_str(),
+                                                   de::SharedPtr<TestParams>(new TestParams{
+                                                       testModeParam.mode,               // TestMode mode;
+                                                       srFormat.format,                  // VkFormat srFormat;
+                                                       srRate.count,                     // VkExtent2D srRate;
+                                                       groupParams->useDynamicRendering, // bool useDynamicRendering;
+                                                       false,        // bool useImagelessFramebuffer;
+                                                       true,         // bool useNullShadingRateImage;
+                                                       false,        // bool useGeneralLayout;
+                                                       tcu::Nothing, // OptDSParams dsParams;
+                                                   })));
                 }
-
-                if (!groupParams->useDynamicRendering)
+                else
                 {
                     // duplicate all tests for imageless framebuffer
                     std::string imagelessName = std::string(srRate.name) + "_imageless";
-                    formatGroup->addChild(new AttachmentRateTestCase(testCtx, imagelessName.c_str(),
-                                                                     de::SharedPtr<TestParams>(new TestParams{
-                                                                         testModeParam.mode, // TestMode mode;
-                                                                         srFormat.format,    // VkFormat srFormat;
-                                                                         srRate.count,       // VkExtent2D srRate;
-                                                                         false,        // bool useDynamicRendering;
-                                                                         true,         // bool useImagelessFramebuffer;
-                                                                         false,        // bool useNullShadingRateImage;
-                                                                         false,        // bool useGeneralLayout;
-                                                                         tcu::Nothing, // OptDSParams dsParams;
-                                                                     })));
+                    formatGroup->addChild(
+                        new AttachmentRateTestCase(testCtx, imagelessName.c_str(),
+                                                   de::SharedPtr<TestParams>(new TestParams{
+                                                       testModeParam.mode,               // TestMode mode;
+                                                       srFormat.format,                  // VkFormat srFormat;
+                                                       srRate.count,                     // VkExtent2D srRate;
+                                                       groupParams->useDynamicRendering, // bool useDynamicRendering;
+                                                       true,         // bool useImagelessFramebuffer;
+                                                       false,        // bool useNullShadingRateImage;
+                                                       false,        // bool useGeneralLayout;
+                                                       tcu::Nothing, // OptDSParams dsParams;
+                                                   })));
 
                     // duplicate all tests using only general layout
                     std::string generalLayoutName = std::string(srRate.name) + "_general_layout";

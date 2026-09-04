@@ -205,6 +205,7 @@ public:
     bool isDefaultContext() const;
     std::string getDeviceID() const;
     DevCaps::QueueInfo getDeviceQueueInfo(uint32_t queueIndex);
+    uint32_t getDeviceQueueCount() const;
 
     void collectAndReportDebugMessages();
 
@@ -278,6 +279,7 @@ public:
     virtual void initPrograms(vk::SourceCollections &programCollection) const;
     virtual TestInstance *createInstance(Context &context) const;
     virtual void checkSupport(Context &context) const;
+    virtual bool needsRebuildPrograms(TestCase const *testCase, Context &context) const;
 
     IterateResult iterate(void)
     {
@@ -306,7 +308,7 @@ private:
     TestInstance &operator=(const TestInstance &);
 };
 
-enum QueueCapabilities
+enum QueueCapabilities : int
 {
     GRAPHICS_QUEUE = 0,
     COMPUTE_QUEUE,

@@ -30,8 +30,10 @@ namespace vkt
 {
 namespace pipeline
 {
+
 void addDualBlendMultiAttachmentTests(tcu::TestContext &testCtx, tcu::TestCaseGroup *const dualSourceGroup,
                                       vk::PipelineConstructionType pipelineConstructionType);
+
 } // namespace pipeline
 } // namespace vkt
 

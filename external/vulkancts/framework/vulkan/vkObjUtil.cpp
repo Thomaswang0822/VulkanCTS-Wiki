@@ -184,7 +184,8 @@ Move<VkPipeline> makeGraphicsPipeline(const DeviceInterface &vk, const VkDevice 
                                       const VkPipelineDepthStencilStateCreateInfo *depthStencilStateCreateInfo,
                                       const VkPipelineColorBlendStateCreateInfo *colorBlendStateCreateInfo,
                                       const VkPipelineDynamicStateCreateInfo *dynamicStateCreateInfo, const void *pNext,
-                                      const VkPipelineCreateFlags pipelineCreateFlags, const void *stagePNext)
+                                      const VkPipelineCreateFlags pipelineCreateFlags, const void *stagePNext,
+                                      const VkSpecializationInfo *vertexShaderSpecializationInfo)
 {
     DE_ASSERT(tessStateCreateInfo ||
               (tessellationControlShaderModule == VK_NULL_HANDLE && tessellationEvalShaderModule == VK_NULL_HANDLE));
@@ -204,8 +205,9 @@ Move<VkPipeline> makeGraphicsPipeline(const DeviceInterface &vk, const VkDevice 
     std::vector<VkPipelineShaderStageCreateInfo> pipelineShaderStageParams;
 
     {
-        stageCreateInfo.stage  = VK_SHADER_STAGE_VERTEX_BIT;
-        stageCreateInfo.module = vertexShaderModule;
+        stageCreateInfo.stage               = VK_SHADER_STAGE_VERTEX_BIT;
+        stageCreateInfo.module              = vertexShaderModule;
+        stageCreateInfo.pSpecializationInfo = vertexShaderSpecializationInfo;
         pipelineShaderStageParams.push_back(stageCreateInfo);
     }
 
@@ -699,12 +701,11 @@ Move<VkRenderPass> makeRenderPass(const DeviceInterface &vk, const VkDevice devi
 
 Move<VkImageView> makeImageView(const DeviceInterface &vk, const VkDevice vkDevice, const VkImage image,
                                 const VkImageViewType imageViewType, const VkFormat format,
-                                const VkImageSubresourceRange subresourceRange,
-                                const VkImageViewUsageCreateInfo *imageUsageCreateInfo)
+                                const VkImageSubresourceRange subresourceRange, const void *pNext)
 {
     const VkImageViewCreateInfo imageViewParams = {
         VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO, // VkStructureType sType;
-        imageUsageCreateInfo,                     // const void* pNext;
+        pNext,                                    // const void* pNext;
         0u,                                       // VkImageViewCreateFlags flags;
         image,                                    // VkImage image;
         imageViewType,                            // VkImageViewType viewType;

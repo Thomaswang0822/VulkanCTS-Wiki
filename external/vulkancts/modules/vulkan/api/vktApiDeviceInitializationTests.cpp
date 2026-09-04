@@ -29,14 +29,13 @@
 #include "vkPlatform.hpp"
 #include "vkStrUtil.hpp"
 #include "vkRef.hpp"
-#include "vkRefUtil.hpp"
 #include "vkQueryUtil.hpp"
-#include "vkMemUtil.hpp"
-#include "vkDeviceUtil.hpp"
 #include "vkApiVersion.hpp"
 #include "vkAllocationCallbackUtil.hpp"
 #include "vkDeviceFeatures.hpp"
 #include "vkSafetyCriticalUtil.hpp"
+#include "vkCmdUtil.hpp"
+#include "vkBufferWithMemory.hpp"
 
 #include "tcuTestLog.hpp"
 #include "tcuResultCollector.hpp"
@@ -48,7 +47,6 @@
 #include <limits>
 #include <numeric>
 #include <vector>
-#include <set>
 
 namespace vkt
 {
@@ -630,15 +628,13 @@ tcu::TestStatus enumerateDevicesAllocLeakTest(Context &context)
 
 tcu::TestStatus createDeviceTest(Context &context)
 {
-    const PlatformInterface &platformInterface = context.getPlatformInterface();
-    const CustomInstance instance(createCustomInstanceFromContext(context));
-    const InstanceDriver &instanceDriver(instance.getDriver());
-    const VkPhysicalDevice physicalDevice =
-        chooseDevice(instanceDriver, instance, context.getTestContext().getCommandLine());
-    const uint32_t queueFamilyIndex = 0;
-    const uint32_t queueCount       = 1;
-    const uint32_t queueIndex       = 0;
-    const float queuePriority       = 1.0f;
+    const InstanceWrapper instance(createCustomInstanceFromContext(context));
+    const auto &instanceDriver(instance.getDriver());
+    const VkPhysicalDevice physicalDevice = instance.getPhysicalDevice();
+    const uint32_t queueFamilyIndex       = 0;
+    const uint32_t queueCount             = 1;
+    const uint32_t queueIndex             = 0;
+    const float queuePriority             = 1.0f;
 
     const vector<VkQueueFamilyProperties> queueFamilyProperties =
         getPhysicalDeviceQueueFamilyProperties(instanceDriver, physicalDevice);
@@ -652,22 +648,9 @@ tcu::TestStatus createDeviceTest(Context &context)
         &queuePriority,   //pQueuePriorities;
     };
 
-    void *pNext = nullptr;
-#ifdef CTS_USES_VULKANSC
-    VkDeviceObjectReservationCreateInfo memReservationInfo = context.getTestContext().getCommandLine().isSubProcess() ?
-                                                                 context.getResourceInterface()->getStatMax() :
-                                                                 resetDeviceObjectReservationCreateInfo();
-    memReservationInfo.pNext                               = pNext;
-    pNext                                                  = &memReservationInfo;
-
-    VkPhysicalDeviceVulkanSC10Features sc10Features = createDefaultSC10Features();
-    sc10Features.pNext                              = pNext;
-    pNext                                           = &sc10Features;
-#endif // CTS_USES_VULKANSC
-
     const VkDeviceCreateInfo deviceCreateInfo = {
         VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO, //sType;
-        pNext,                                //pNext;
+        nullptr,                              //pNext;
         (VkDeviceCreateFlags)0u,
         1,                      //queueRecordCount;
         &deviceQueueCreateInfo, //pRequestedQueues;
@@ -678,11 +661,9 @@ tcu::TestStatus createDeviceTest(Context &context)
         nullptr,                //pEnabledFeatures;
     };
 
-    const Unique<VkDevice> device(
-        createCustomDevice(platformInterface, instance, instanceDriver, physicalDevice, &deviceCreateInfo));
-    const DeviceDriver deviceDriver(platformInterface, instance, device.get(), context.getUsedApiVersion(),
-                                    context.getTestContext().getCommandLine());
-    const VkQueue queue = getDeviceQueue(deviceDriver, *device, queueFamilyIndex, queueIndex);
+    const DeviceWrapper device = instance.createCustomDevice(physicalDevice, &deviceCreateInfo);
+    const auto &deviceDriver   = device.getDriver();
+    const VkQueue queue        = getDeviceQueue(deviceDriver, device, queueFamilyIndex, queueIndex);
 
     VK_CHECK(deviceDriver.queueWaitIdle(queue));
 
@@ -699,10 +680,8 @@ tcu::TestStatus createMultipleDevicesTest(Context &context)
     const int numDevices = 2;
 #endif // CTS_USES_VULKANSC
 
-    const PlatformInterface &platformInterface = context.getPlatformInterface();
-
-    vector<CustomInstance> instances;
-    vector<VkDevice> devices(numDevices, VK_NULL_HANDLE);
+    vector<InstanceWrapper> instances;
+    vector<UncheckedDevice> devices(numDevices);
 
     try
     {
@@ -710,9 +689,8 @@ tcu::TestStatus createMultipleDevicesTest(Context &context)
         {
             instances.emplace_back(createCustomInstanceFromContext(context));
 
-            const InstanceDriver &instanceDriver(instances.back().getDriver());
-            const VkPhysicalDevice physicalDevice =
-                chooseDevice(instanceDriver, instances.back(), context.getTestContext().getCommandLine());
+            const auto &instanceDriver(instances.back().getDriver());
+            const VkPhysicalDevice physicalDevice = instances.back().getPhysicalDevice();
             const vector<VkQueueFamilyProperties> queueFamilyProperties =
                 getPhysicalDeviceQueueFamilyProperties(instanceDriver, physicalDevice);
             const uint32_t queueFamilyIndex                     = 0;
@@ -728,23 +706,9 @@ tcu::TestStatus createMultipleDevicesTest(Context &context)
                 &queuePriority,               //pQueuePriorities;
             };
 
-            void *pNext = nullptr;
-#ifdef CTS_USES_VULKANSC
-            VkDeviceObjectReservationCreateInfo memReservationInfo =
-                context.getTestContext().getCommandLine().isSubProcess() ?
-                    context.getResourceInterface()->getStatMax() :
-                    resetDeviceObjectReservationCreateInfo();
-            memReservationInfo.pNext = pNext;
-            pNext                    = &memReservationInfo;
-
-            VkPhysicalDeviceVulkanSC10Features sc10Features = createDefaultSC10Features();
-            sc10Features.pNext                              = pNext;
-            pNext                                           = &sc10Features;
-#endif // CTS_USES_VULKANSC
-
             const VkDeviceCreateInfo deviceCreateInfo = {
                 VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO, //sType;
-                pNext,                                //pNext;
+                nullptr,                              //pNext;
                 (VkDeviceCreateFlags)0u,
                 1,                      //queueRecordCount;
                 &deviceQueueCreateInfo, //pRequestedQueues;
@@ -755,8 +719,8 @@ tcu::TestStatus createMultipleDevicesTest(Context &context)
                 nullptr,                //pEnabledFeatures;
             };
 
-            const VkResult result = createUncheckedDevice(instanceDriver, physicalDevice, &deviceCreateInfo,
-                                                          nullptr /*pAllocator*/, &devices[deviceNdx]);
+            const VkResult result = instances.back().createUncheckedDevice(physicalDevice, &deviceCreateInfo,
+                                                                           nullptr /*pAllocator*/, &devices[deviceNdx]);
 
             if (result != VK_SUCCESS)
             {
@@ -766,8 +730,7 @@ tcu::TestStatus createMultipleDevicesTest(Context &context)
             }
 
             {
-                const DeviceDriver deviceDriver(platformInterface, instances.back(), devices[deviceNdx],
-                                                context.getUsedApiVersion(), context.getTestContext().getCommandLine());
+                const auto &deviceDriver = devices[deviceNdx].getDriver();
                 const VkQueue queue = getDeviceQueue(deviceDriver, devices[deviceNdx], queueFamilyIndex, queueIndex);
 
                 VK_CHECK(deviceDriver.queueWaitIdle(queue));
@@ -778,44 +741,16 @@ tcu::TestStatus createMultipleDevicesTest(Context &context)
     {
         resultCollector.fail(de::toString(error.getError()));
     }
-    catch (...)
-    {
-        for (int deviceNdx = (int)devices.size() - 1; deviceNdx >= 0; deviceNdx--)
-        {
-            if (devices[deviceNdx] != VK_NULL_HANDLE)
-            {
-                DeviceDriver deviceDriver(platformInterface, instances[deviceNdx], devices[deviceNdx],
-                                          context.getUsedApiVersion(), context.getTestContext().getCommandLine());
-                deviceDriver.destroyDevice(devices[deviceNdx], nullptr /*pAllocator*/);
-            }
-        }
-
-        throw;
-    }
-
-    for (int deviceNdx = (int)devices.size() - 1; deviceNdx >= 0; deviceNdx--)
-    {
-        if (devices[deviceNdx] != VK_NULL_HANDLE)
-        {
-            DeviceDriver deviceDriver(platformInterface, instances[deviceNdx], devices[deviceNdx],
-                                      context.getUsedApiVersion(), context.getTestContext().getCommandLine());
-            deviceDriver.destroyDevice(devices[deviceNdx], nullptr /*pAllocator*/);
-        }
-    }
 
     return tcu::TestStatus(resultCollector.getResult(), resultCollector.getMessage());
 }
 
 tcu::TestStatus createDeviceWithUnsupportedExtensionsTest(Context &context)
 {
-    tcu::TestLog &log                          = context.getTestContext().getLog();
-    const PlatformInterface &platformInterface = context.getPlatformInterface();
-    const CustomInstance instance(createCustomInstanceFromContext(context, nullptr, false));
-    const InstanceDriver &instanceDriver(instance.getDriver());
+    tcu::TestLog &log = context.getTestContext().getLog();
+    const InstanceWrapper instance(createCustomInstanceFromContext(context, nullptr, false));
     const char *enabledExtensions[] = {"VK_UNSUPPORTED_EXTENSION", "THIS_IS_NOT_AN_EXTENSION", "VK_DONT_SUPPORT_ME"};
-    const VkPhysicalDevice physicalDevice =
-        chooseDevice(instanceDriver, instance, context.getTestContext().getCommandLine());
-    const float queuePriority                           = 1.0f;
+    const float queuePriority       = 1.0f;
     const VkDeviceQueueCreateInfo deviceQueueCreateInfo = {
         VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
         nullptr,
@@ -825,22 +760,9 @@ tcu::TestStatus createDeviceWithUnsupportedExtensionsTest(Context &context)
         &queuePriority, //pQueuePriorities;
     };
 
-    void *pNext = nullptr;
-#ifdef CTS_USES_VULKANSC
-    VkDeviceObjectReservationCreateInfo memReservationInfo = context.getTestContext().getCommandLine().isSubProcess() ?
-                                                                 context.getResourceInterface()->getStatMax() :
-                                                                 resetDeviceObjectReservationCreateInfo();
-    memReservationInfo.pNext                               = pNext;
-    pNext                                                  = &memReservationInfo;
-
-    VkPhysicalDeviceVulkanSC10Features sc10Features = createDefaultSC10Features();
-    sc10Features.pNext                              = pNext;
-    pNext                                           = &sc10Features;
-#endif // CTS_USES_VULKANSC
-
     const VkDeviceCreateInfo deviceCreateInfo = {
         VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO, //sType;
-        pNext,                                //pNext;
+        nullptr,                              //pNext;
         (VkDeviceCreateFlags)0u,
         1,                                     //queueRecordCount;
         &deviceQueueCreateInfo,                //pRequestedQueues;
@@ -857,17 +779,9 @@ tcu::TestStatus createDeviceWithUnsupportedExtensionsTest(Context &context)
         log << TestLog::Message << enabledExtensions[ndx] << TestLog::EndMessage;
 
     {
-        VkDevice device = VK_NULL_HANDLE;
-        const VkResult result =
-            createUncheckedDevice(instanceDriver, physicalDevice, &deviceCreateInfo, nullptr /*pAllocator*/, &device);
-        const bool gotDevice = !!device;
-
-        if (device)
-        {
-            const DeviceDriver deviceIface(platformInterface, instance, device, context.getUsedApiVersion(),
-                                           context.getTestContext().getCommandLine());
-            deviceIface.destroyDevice(device, nullptr /*pAllocator*/);
-        }
+        UncheckedDevice device{};
+        const VkResult result = instance.createUncheckedDevice(&deviceCreateInfo, nullptr /*pAllocator*/, &device);
+        const bool gotDevice  = !!device;
 
         if (result == VK_ERROR_EXTENSION_NOT_PRESENT)
         {
@@ -893,13 +807,11 @@ uint32_t getGlobalMaxQueueCount(const vector<VkQueueFamilyProperties> &queueFami
 
 tcu::TestStatus createDeviceWithVariousQueueCountsTest(Context &context)
 {
-    tcu::TestLog &log                          = context.getTestContext().getLog();
-    const int queueCountDiff                   = 1;
-    const PlatformInterface &platformInterface = context.getPlatformInterface();
-    const CustomInstance instance(createCustomInstanceFromContext(context));
-    const InstanceDriver &instanceDriver(instance.getDriver());
-    const VkPhysicalDevice physicalDevice =
-        chooseDevice(instanceDriver, instance, context.getTestContext().getCommandLine());
+    tcu::TestLog &log        = context.getTestContext().getLog();
+    const int queueCountDiff = 1;
+    const InstanceWrapper instance(createCustomInstanceFromContext(context));
+    const auto &instanceDriver(instance.getDriver());
+    const VkPhysicalDevice physicalDevice = instance.getPhysicalDevice();
     const vector<VkQueueFamilyProperties> queueFamilyProperties =
         getPhysicalDeviceQueueFamilyProperties(instanceDriver, physicalDevice);
     const vector<float> queuePriorities(getGlobalMaxQueueCount(queueFamilyProperties), 1.0f);
@@ -925,22 +837,10 @@ tcu::TestStatus createDeviceWithVariousQueueCountsTest(Context &context)
     for (size_t testNdx = 0; testNdx < deviceQueueCreateInfos.size(); testNdx++)
     {
         const VkDeviceQueueCreateInfo &queueCreateInfo = deviceQueueCreateInfos[testNdx];
-        void *pNext                                    = nullptr;
-#ifdef CTS_USES_VULKANSC
-        VkDeviceObjectReservationCreateInfo memReservationInfo =
-            context.getTestContext().getCommandLine().isSubProcess() ? context.getResourceInterface()->getStatMax() :
-                                                                       resetDeviceObjectReservationCreateInfo();
-        memReservationInfo.pNext = pNext;
-        pNext                    = &memReservationInfo;
-
-        VkPhysicalDeviceVulkanSC10Features sc10Features = createDefaultSC10Features();
-        sc10Features.pNext                              = pNext;
-        pNext                                           = &sc10Features;
-#endif // CTS_USES_VULKANSC
 
         const VkDeviceCreateInfo deviceCreateInfo = {
             VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO, //sType;
-            pNext,                                //pNext;
+            nullptr,                              //pNext;
             (VkDeviceCreateFlags)0u,
             1,                //queueRecordCount;
             &queueCreateInfo, //pRequestedQueues;
@@ -951,10 +851,8 @@ tcu::TestStatus createDeviceWithVariousQueueCountsTest(Context &context)
             nullptr,          //pEnabledFeatures;
         };
 
-        const Unique<VkDevice> device(
-            createCustomDevice(platformInterface, instance, instanceDriver, physicalDevice, &deviceCreateInfo));
-        const DeviceDriver deviceDriver(platformInterface, instance, device.get(), context.getUsedApiVersion(),
-                                        context.getTestContext().getCommandLine());
+        const DeviceWrapper device(instance.createCustomDevice(physicalDevice, &deviceCreateInfo));
+        const auto &deviceDriver(device.getDriver());
         const uint32_t queueFamilyIndex = deviceCreateInfo.pQueueCreateInfos->queueFamilyIndex;
         const uint32_t queueCount       = deviceCreateInfo.pQueueCreateInfos->queueCount;
 
@@ -978,6 +876,202 @@ tcu::TestStatus createDeviceWithVariousQueueCountsTest(Context &context)
     return tcu::TestStatus::pass("Pass");
 }
 
+vector<float> makeSpanningQueuePriorities(uint32_t queueCount)
+{
+    vector<float> priorities(queueCount);
+    for (uint32_t queueNdx = 0; queueNdx < queueCount; queueNdx++)
+        priorities[queueNdx] = (queueCount == 1) ? 1.0f : (float)queueNdx / (float)(queueCount - 1);
+    return priorities;
+}
+
+tcu::TestStatus createDeviceWithQueuePrioritiesTest(Context &context)
+{
+    tcu::TestLog &log = context.getTestContext().getLog();
+    const InstanceWrapper instance(createCustomInstanceFromContext(context));
+    const auto &instanceDriver(instance.getDriver());
+    const VkPhysicalDevice physicalDevice = instance.getPhysicalDevice();
+    const vector<VkQueueFamilyProperties> queueFamilyProperties =
+        getPhysicalDeviceQueueFamilyProperties(instanceDriver, physicalDevice);
+
+    VkPhysicalDeviceProperties properties;
+    instanceDriver.getPhysicalDeviceProperties(physicalDevice, &properties);
+    const uint32_t discreteQueuePriorities = properties.limits.discreteQueuePriorities;
+
+    log << TestLog::Message << "VkPhysicalDeviceLimits::discreteQueuePriorities = " << discreteQueuePriorities
+        << TestLog::EndMessage;
+
+    for (uint32_t queueFamilyNdx = 0; queueFamilyNdx < (uint32_t)queueFamilyProperties.size(); queueFamilyNdx++)
+    {
+        const uint32_t queueCount =
+            de::min(queueFamilyProperties[queueFamilyNdx].queueCount, discreteQueuePriorities + 1);
+        const vector<float> queuePriorities = makeSpanningQueuePriorities(queueCount);
+
+        const VkDeviceQueueCreateInfo queueCreateInfo = {VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+                                                         nullptr,
+                                                         (VkDeviceQueueCreateFlags)0u,
+                                                         queueFamilyNdx,
+                                                         queueCount,
+                                                         queuePriorities.data()};
+
+        const VkDeviceCreateInfo deviceCreateInfo = {
+            VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO, //sType;
+            nullptr,                              //pNext;
+            (VkDeviceCreateFlags)0u,
+            1,                //queueRecordCount;
+            &queueCreateInfo, //pRequestedQueues;
+            0,                //layerCount;
+            nullptr,          //ppEnabledLayerNames;
+            0,                //extensionCount;
+            nullptr,          //ppEnabledExtensionNames;
+            nullptr,          //pEnabledFeatures;
+        };
+
+        const DeviceWrapper device(instance.createCustomDevice(physicalDevice, &deviceCreateInfo));
+        const auto &deviceDriver(device.getDriver());
+
+        for (uint32_t queueIndex = 0; queueIndex < queueCount; queueIndex++)
+        {
+            const VkQueue queue = getDeviceQueue(deviceDriver, *device, queueFamilyNdx, queueIndex);
+
+            TCU_CHECK(!!queue);
+
+            const VkResult result = deviceDriver.queueWaitIdle(queue);
+            if (result != VK_SUCCESS)
+            {
+                log << TestLog::Message << "vkQueueWaitIdle failed, queueFamilyIndex = " << queueFamilyNdx
+                    << ", queueIndex = " << queueIndex << ", priority = " << queuePriorities[queueIndex]
+                    << ", Error Code: " << result << TestLog::EndMessage;
+                return tcu::TestStatus::fail("Fail");
+            }
+        }
+    }
+    return tcu::TestStatus::pass("Pass");
+}
+
+tcu::TestStatus createDeviceWithQueuePrioritiesContentionTest(Context &context)
+{
+    tcu::TestLog &log = context.getTestContext().getLog();
+    const InstanceWrapper instance(createCustomInstanceFromContext(context));
+    const auto &instanceDriver(instance.getDriver());
+    const VkPhysicalDevice physicalDevice = instance.getPhysicalDevice();
+    const vector<VkQueueFamilyProperties> queueFamilyProperties =
+        getPhysicalDeviceQueueFamilyProperties(instanceDriver, physicalDevice);
+
+    VkPhysicalDeviceProperties properties;
+    instanceDriver.getPhysicalDeviceProperties(physicalDevice, &properties);
+    const uint32_t discreteQueuePriorities = properties.limits.discreteQueuePriorities;
+
+    const VkDeviceSize bufferSize      = 4 * 1024 * 1024;
+    const uint32_t elementCount        = (uint32_t)(bufferSize / sizeof(uint32_t));
+    const VkQueueFlags transferCapable = (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT);
+    bool anyFamilyTested               = false;
+    bool anyFailed                     = false;
+
+    for (uint32_t queueFamilyNdx = 0; queueFamilyNdx < (uint32_t)queueFamilyProperties.size(); queueFamilyNdx++)
+    {
+        if ((queueFamilyProperties[queueFamilyNdx].queueFlags & transferCapable) == 0)
+            continue;
+
+        const uint32_t queueCount =
+            de::min(queueFamilyProperties[queueFamilyNdx].queueCount, discreteQueuePriorities + 1);
+
+        if (queueCount < 2)
+            continue; // Nothing to contend with a single queue
+
+        anyFamilyTested = true;
+
+        const vector<float> queuePriorities = makeSpanningQueuePriorities(queueCount);
+
+        const VkDeviceQueueCreateInfo queueCreateInfo = {VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+                                                         nullptr,
+                                                         (VkDeviceQueueCreateFlags)0u,
+                                                         queueFamilyNdx,
+                                                         queueCount,
+                                                         queuePriorities.data()};
+
+        const VkDeviceCreateInfo deviceCreateInfo = {
+            VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO, //sType;
+            nullptr,                              //pNext;
+            (VkDeviceCreateFlags)0u,
+            1,                //queueRecordCount;
+            &queueCreateInfo, //pRequestedQueues;
+            0,                //layerCount;
+            nullptr,          //ppEnabledLayerNames;
+            0,                //extensionCount;
+            nullptr,          //ppEnabledExtensionNames;
+            nullptr,          //pEnabledFeatures;
+        };
+
+        const DeviceWrapper device(instance.createCustomDevice(physicalDevice, &deviceCreateInfo));
+        const auto &vkd(device.getDriver());
+        Allocator &allocator = device.getAllocator();
+
+        const Unique<VkCommandPool> commandPool(makeCommandPool(vkd, *device, queueFamilyNdx));
+        const VkBufferCreateInfo bufferCreateInfo = makeBufferCreateInfo(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+
+        vector<de::SharedPtr<BufferWithMemory>> buffers(queueCount);
+        vector<Move<VkCommandBuffer>> commandBuffers(queueCount);
+        vector<Move<VkFence>> fences(queueCount);
+        vector<VkFence> fenceHandles(queueCount);
+        vector<uint32_t> fillValues(queueCount);
+
+        // Record every queue's command buffer up front
+        for (uint32_t queueIndex = 0; queueIndex < queueCount; queueIndex++)
+        {
+            buffers[queueIndex] = de::SharedPtr<BufferWithMemory>(
+                new BufferWithMemory(vkd, *device, allocator, bufferCreateInfo, MemoryRequirement::HostVisible));
+            commandBuffers[queueIndex] =
+                allocateCommandBuffer(vkd, *device, *commandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+            fillValues[queueIndex] = 0xACE00000u | queueIndex;
+
+            beginCommandBuffer(vkd, *commandBuffers[queueIndex]);
+            vkd.cmdFillBuffer(*commandBuffers[queueIndex], **buffers[queueIndex], 0, bufferSize,
+                              fillValues[queueIndex]);
+            endCommandBuffer(vkd, *commandBuffers[queueIndex]);
+        }
+
+        // Submit to every queue before waiting on any of them so the differently prioritized
+        // queues have overlapping work in flight
+        for (uint32_t queueIndex = 0; queueIndex < queueCount; queueIndex++)
+        {
+            const VkQueue queue = getDeviceQueue(vkd, *device, queueFamilyNdx, queueIndex);
+
+            fences[queueIndex]       = submitCommands(vkd, *device, queue, *commandBuffers[queueIndex]);
+            fenceHandles[queueIndex] = *fences[queueIndex];
+        }
+
+        VK_CHECK(vkd.waitForFences(*device, queueCount, fenceHandles.data(), VK_TRUE, ~0ull));
+
+        for (uint32_t queueIndex = 0; queueIndex < queueCount; queueIndex++)
+        {
+            const Allocation &alloc = buffers[queueIndex]->getAllocation();
+            invalidateAlloc(vkd, *device, alloc);
+
+            const uint32_t *data = reinterpret_cast<const uint32_t *>(alloc.getHostPtr());
+
+            for (uint32_t elementNdx = 0; elementNdx < elementCount; elementNdx++)
+            {
+                if (data[elementNdx] != fillValues[queueIndex])
+                {
+                    log << TestLog::Message << "Corrupted data for queueFamilyIndex = " << queueFamilyNdx
+                        << ", queueIndex = " << queueIndex << ", priority = " << queuePriorities[queueIndex]
+                        << ", element " << elementNdx << ": expected " << fillValues[queueIndex] << ", got "
+                        << data[elementNdx] << TestLog::EndMessage;
+                    anyFailed = true;
+                }
+            }
+        }
+    }
+
+    if (!anyFamilyTested)
+        TCU_THROW(NotSupportedError, "No queue family exposes enough queues to test priority contention");
+
+    if (anyFailed)
+        return tcu::TestStatus::fail("Fail, corrupted data under priority-differentiated contention");
+
+    return tcu::TestStatus::pass("Pass");
+}
+
 void checkGlobalPrioritySupport(Context &context, bool useKhrGlobalPriority)
 {
     const std::string extName = (useKhrGlobalPriority ? "VK_KHR_global_priority" : "VK_EXT_global_priority");
@@ -986,12 +1080,9 @@ void checkGlobalPrioritySupport(Context &context, bool useKhrGlobalPriority)
 
 tcu::TestStatus createDeviceWithGlobalPriorityTest(Context &context, bool useKhrGlobalPriority)
 {
-    tcu::TestLog &log                          = context.getTestContext().getLog();
-    const PlatformInterface &platformInterface = context.getPlatformInterface();
-    const auto &instanceDriver                 = context.getInstanceInterface();
-    const auto instance                        = context.getInstance();
-    const VkPhysicalDevice physicalDevice =
-        chooseDevice(instanceDriver, instance, context.getTestContext().getCommandLine());
+    tcu::TestLog &log                     = context.getTestContext().getLog();
+    const auto instance                   = InstanceWrapper(context);
+    const VkPhysicalDevice physicalDevice = instance.getPhysicalDevice();
     const vector<float> queuePriorities(1, 1.0f);
     const VkQueueGlobalPriority globalPriorities[] = {
         VK_QUEUE_GLOBAL_PRIORITY_LOW_KHR, VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_KHR, VK_QUEUE_GLOBAL_PRIORITY_HIGH_KHR,
@@ -1000,6 +1091,7 @@ tcu::TestStatus createDeviceWithGlobalPriorityTest(Context &context, bool useKhr
 #ifndef CTS_USES_VULKANSC
     uint32_t queueFamilyPropertyCount = ~0u;
 
+    const auto &instanceDriver = instance.getDriver();
     instanceDriver.getPhysicalDeviceQueueFamilyProperties2(physicalDevice, &queueFamilyPropertyCount, nullptr);
     TCU_CHECK(queueFamilyPropertyCount > 0);
 
@@ -1058,17 +1150,7 @@ tcu::TestStatus createDeviceWithGlobalPriorityTest(Context &context, bool useKhr
         };
 
         void *pNext = nullptr;
-#ifdef CTS_USES_VULKANSC
-        VkDeviceObjectReservationCreateInfo memReservationInfo =
-            context.getTestContext().getCommandLine().isSubProcess() ? context.getResourceInterface()->getStatMax() :
-                                                                       resetDeviceObjectReservationCreateInfo();
-        memReservationInfo.pNext = pNext;
-        pNext                    = &memReservationInfo;
-
-        VkPhysicalDeviceVulkanSC10Features sc10Features = createDefaultSC10Features();
-        sc10Features.pNext                              = pNext;
-        pNext                                           = &sc10Features;
-#else
+#ifndef CTS_USES_VULKANSC
         pNext = useKhrGlobalPriority ? &globalPriorityQueryFeatures : nullptr;
 #endif // CTS_USES_VULKANSC
 
@@ -1095,12 +1177,10 @@ tcu::TestStatus createDeviceWithGlobalPriorityTest(Context &context, bool useKhr
 
         try
         {
-            const Unique<VkDevice> device(
-                createCustomDevice(platformInterface, instance, instanceDriver, physicalDevice, &deviceCreateInfo));
-            const DeviceDriver deviceDriver(platformInterface, instance, device.get(), context.getUsedApiVersion(),
-                                            context.getTestContext().getCommandLine());
+            const DeviceWrapper device(instance.createCustomDevice(physicalDevice, &deviceCreateInfo));
+            const auto &deviceDriver(device.getDriver());
             const uint32_t queueFamilyIndex = deviceCreateInfo.pQueueCreateInfos->queueFamilyIndex;
-            const VkQueue queue             = getDeviceQueue(deviceDriver, *device, queueFamilyIndex, 0);
+            const VkQueue queue             = getDeviceQueue(deviceDriver, device, queueFamilyIndex, 0);
             VkResult result;
 
             TCU_CHECK(!!queue);
@@ -1195,12 +1275,10 @@ void checkGlobalPriorityProperties(const VkQueueFamilyGlobalPriorityPropertiesEX
 #ifndef CTS_USES_VULKANSC
 tcu::TestStatus createDeviceWithQueriedGlobalPriorityTest(Context &context, bool useKhrGlobalPriority)
 {
-    tcu::TestLog &log                          = context.getTestContext().getLog();
-    const PlatformInterface &platformInterface = context.getPlatformInterface();
-    const auto &instanceDriver                 = context.getInstanceInterface();
-    const auto instance                        = context.getInstance();
-    const VkPhysicalDevice physicalDevice =
-        chooseDevice(instanceDriver, instance, context.getTestContext().getCommandLine());
+    tcu::TestLog &log                                 = context.getTestContext().getLog();
+    const auto instance                               = InstanceWrapper(context);
+    const auto &instanceDriver                        = instance.getDriver();
+    const VkPhysicalDevice physicalDevice             = instance.getPhysicalDevice();
     const VkQueueGlobalPriorityEXT globalPriorities[] = {
         VK_QUEUE_GLOBAL_PRIORITY_LOW_EXT, VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_EXT, VK_QUEUE_GLOBAL_PRIORITY_HIGH_EXT,
         VK_QUEUE_GLOBAL_PRIORITY_REALTIME_EXT};
@@ -1278,11 +1356,9 @@ tcu::TestStatus createDeviceWithQueriedGlobalPriorityTest(Context &context, bool
 
             try
             {
-                const Unique<VkDevice> device(
-                    createCustomDevice(platformInterface, instance, instanceDriver, physicalDevice, &deviceCreateInfo));
-                const DeviceDriver deviceDriver(platformInterface, instance, device.get(), context.getUsedApiVersion(),
-                                                context.getTestContext().getCommandLine());
-                const VkQueue queue = getDeviceQueue(deviceDriver, *device, ndx, 0);
+                const DeviceWrapper device(instance.createCustomDevice(physicalDevice, &deviceCreateInfo));
+                const auto &deviceDriver(device.getDriver());
+                const VkQueue queue = getDeviceQueue(deviceDriver, device, ndx, 0);
 
                 TCU_CHECK(!!queue);
 
@@ -1317,10 +1393,14 @@ tcu::TestStatus createDeviceWithQueriedGlobalPriorityTest(Context &context, bool
 
 tcu::TestStatus createDeviceFeatures2Test(Context &context)
 {
-    const PlatformInterface &vkp = context.getPlatformInterface();
-    const CustomInstance instance(createCustomInstanceWithExtension(context, "VK_KHR_get_physical_device_properties2"));
-    const InstanceDriver &vki(instance.getDriver());
-    const VkPhysicalDevice physicalDevice = chooseDevice(vki, instance, context.getTestContext().getCommandLine());
+#ifndef CTS_USES_VULKANSC
+    const InstanceWrapper instance(
+        createCustomInstanceWithExtension(context, "VK_KHR_get_physical_device_properties2"));
+#else
+    const InstanceWrapper instance(context);
+#endif // CTS_USES_VULKANSC
+    const auto &vki(instance.getDriver());
+    const VkPhysicalDevice physicalDevice = instance.getPhysicalDevice();
     const uint32_t queueFamilyIndex       = 0;
     const uint32_t queueCount             = 1;
     const uint32_t queueIndex             = 0;
@@ -1340,11 +1420,10 @@ tcu::TestStatus createDeviceFeatures2Test(Context &context)
 
     void *pNext = &enabledFeatures;
 #ifdef CTS_USES_VULKANSC
-    VkDeviceObjectReservationCreateInfo memReservationInfo = context.getTestContext().getCommandLine().isSubProcess() ?
-                                                                 context.getResourceInterface()->getStatMax() :
-                                                                 resetDeviceObjectReservationCreateInfo();
-    memReservationInfo.pNext                               = pNext;
-    pNext                                                  = &memReservationInfo;
+    VkDeviceObjectReservationCreateInfo memReservationInfo =
+        context.getResourceInterface()->getDefaultDeviceObjectReservationCreateInfo();
+    memReservationInfo.pNext = pNext;
+    pNext                    = &memReservationInfo;
 
     VkPhysicalDeviceVulkanSC10Features sc10Features = createDefaultSC10Features();
     sc10Features.pNext                              = pNext;
@@ -1371,10 +1450,9 @@ tcu::TestStatus createDeviceFeatures2Test(Context &context)
     vki.getPhysicalDeviceFeatures2(physicalDevice, &enabledFeatures);
 
     {
-        const Unique<VkDevice> device(createCustomDevice(vkp, instance, vki, physicalDevice, &deviceCreateInfo));
-        const DeviceDriver vkd(vkp, instance, device.get(), context.getUsedApiVersion(),
-                               context.getTestContext().getCommandLine());
-        const VkQueue queue = getDeviceQueue(vkd, *device, queueFamilyIndex, queueIndex);
+        const DeviceWrapper device(instance.createCustomDevice(physicalDevice, &deviceCreateInfo));
+        const auto &vkd(device.getDriver());
+        const VkQueue queue = getDeviceQueue(vkd, device, queueFamilyIndex, queueIndex);
 
         VK_CHECK(vkd.queueWaitIdle(queue));
     }
@@ -1397,16 +1475,11 @@ struct Feature
     std::min<size_t>(sizeof(LIMITING_STRUCT) - sizeof(VkBool32), offsetof(STRUCT, MEMBER))
 
 template <typename StructType>
-void checkFeatures(const PlatformInterface &vkp, const VkInstance &instance, const InstanceDriver &instanceDriver,
-                   const VkPhysicalDevice physicalDevice, int numFeatures, const Feature features[],
-                   const StructType *supportedFeatures, const uint32_t queueFamilyIndex, const uint32_t queueCount,
-                   const float queuePriority, int &numErrors, tcu::ResultCollector &resultCollector,
-                   const vector<const char *> *extensionNames,
-                   const VkPhysicalDeviceFeatures &defaultPhysicalDeviceFeatures,
-#ifdef CTS_USES_VULKANSC
-                   VkDeviceObjectReservationCreateInfo memReservationStatMax,
-#endif // CTS_USES_VULKANSC
-                   bool isSubProcess, uint32_t usedApiVersion, const tcu::CommandLine &commandLine)
+void checkFeatures(const InstanceWrapper &instance, const VkPhysicalDevice physicalDevice, int numFeatures,
+                   const Feature features[], const StructType *supportedFeatures, const uint32_t queueFamilyIndex,
+                   const uint32_t queueCount, const float queuePriority, int &numErrors,
+                   tcu::ResultCollector &resultCollector, const vector<const char *> *extensionNames,
+                   const VkPhysicalDeviceFeatures &defaultPhysicalDeviceFeatures)
 {
     struct StructureBase
     {
@@ -1586,18 +1659,6 @@ void checkFeatures(const PlatformInterface &vkp, const VkInstance &instance, con
         };
 
         void *pNext = &deviceFeatures2;
-#ifdef CTS_USES_VULKANSC
-        VkDeviceObjectReservationCreateInfo memReservationInfo =
-            isSubProcess ? memReservationStatMax : resetDeviceObjectReservationCreateInfo();
-        memReservationInfo.pNext = pNext;
-        pNext                    = &memReservationInfo;
-
-        VkPhysicalDeviceVulkanSC10Features sc10Features = createDefaultSC10Features();
-        sc10Features.pNext                              = pNext;
-        pNext                                           = &sc10Features;
-#else
-        DE_UNREF(isSubProcess);
-#endif // CTS_USES_VULKANSC
 
         const VkDeviceCreateInfo deviceCreateInfo = {
             VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,                                          // sType
@@ -1612,8 +1673,8 @@ void checkFeatures(const PlatformInterface &vkp, const VkInstance &instance, con
             nullptr                                                                        // pEnabledFeatures
         };
 
-        VkDevice device    = VK_NULL_HANDLE;
-        const VkResult res = createUncheckedDevice(instanceDriver, physicalDevice, &deviceCreateInfo, nullptr, &device);
+        UncheckedDevice device{};
+        const VkResult res = instance.createUncheckedDevice(physicalDevice, &deviceCreateInfo, nullptr, &device);
 
         if (res != VK_ERROR_FEATURE_NOT_PRESENT)
         {
@@ -1621,28 +1682,21 @@ void checkFeatures(const PlatformInterface &vkp, const VkInstance &instance, con
             resultCollector.fail("Not returning VK_ERROR_FEATURE_NOT_PRESENT when creating device with feature " +
                                  de::toString(features[featureNdx].name) + ", which was reported as unsupported.");
         }
-        if (device != VK_NULL_HANDLE)
-        {
-            DeviceDriver deviceDriver(vkp, instance, device, usedApiVersion, commandLine);
-            deviceDriver.destroyDevice(device, nullptr);
-        }
     }
 }
 
 tcu::TestStatus createDeviceWithUnsupportedFeaturesTest(Context &context)
 {
-    const PlatformInterface &vkp = context.getPlatformInterface();
-    tcu::TestLog &log            = context.getTestContext().getLog();
+    tcu::TestLog &log = context.getTestContext().getLog();
     tcu::ResultCollector resultCollector(log);
-    const CustomInstance instance(
+    const InstanceWrapper instance(
         createCustomInstanceWithExtensions(context, context.getInstanceExtensions(), nullptr, true));
-    const InstanceDriver &instanceDriver(instance.getDriver());
-    const VkPhysicalDevice physicalDevice =
-        chooseDevice(instanceDriver, instance, context.getTestContext().getCommandLine());
-    const uint32_t queueFamilyIndex = 0;
-    const uint32_t queueCount       = 1;
-    const float queuePriority       = 1.0f;
-    const DeviceFeatures deviceFeaturesAll(context.getInstanceInterface(), context.getUsedApiVersion(), physicalDevice,
+    const auto &instanceDriver(instance.getDriver());
+    const VkPhysicalDevice physicalDevice = instance.getPhysicalDevice();
+    const uint32_t queueFamilyIndex       = 0;
+    const uint32_t queueCount             = 1;
+    const float queuePriority             = 1.0f;
+    const DeviceFeatures deviceFeaturesAll(instanceDriver, context.getUsedApiVersion(), physicalDevice,
                                            context.getInstanceExtensions(), context.getDeviceExtensions(), true);
     const VkPhysicalDeviceFeatures2 deviceFeatures2 = deviceFeaturesAll.getCoreFeatures2();
     const VkPhysicalDeviceFeatures deviceFeatures   = deviceFeatures2.features;
@@ -1724,22 +1778,8 @@ tcu::TestStatus createDeviceWithUnsupportedFeaturesTest(Context &context)
                                                                    queueCount,
                                                                    &queuePriority};
 
-            void *pNext = nullptr;
-#ifdef CTS_USES_VULKANSC
-            VkDeviceObjectReservationCreateInfo memReservationInfo =
-                context.getTestContext().getCommandLine().isSubProcess() ?
-                    context.getResourceInterface()->getStatMax() :
-                    resetDeviceObjectReservationCreateInfo();
-            memReservationInfo.pNext = pNext;
-            pNext                    = &memReservationInfo;
-
-            VkPhysicalDeviceVulkanSC10Features sc10Features = createDefaultSC10Features();
-            sc10Features.pNext                              = pNext;
-            pNext                                           = &sc10Features;
-#endif // CTS_USES_VULKANSC
-
             const VkDeviceCreateInfo deviceCreateInfo = {VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-                                                         pNext,
+                                                         nullptr,
                                                          (VkDeviceCreateFlags)0u,
                                                          1,
                                                          &deviceQueueCreateInfo,
@@ -1749,21 +1789,13 @@ tcu::TestStatus createDeviceWithUnsupportedFeaturesTest(Context &context)
                                                          nullptr,
                                                          &enabledFeatures};
 
-            VkDevice device = VK_NULL_HANDLE;
-            const VkResult res =
-                createUncheckedDevice(instanceDriver, physicalDevice, &deviceCreateInfo, nullptr, &device);
+            UncheckedDevice device{};
+            const VkResult res = instance.createUncheckedDevice(physicalDevice, &deviceCreateInfo, nullptr, &device);
 
             if (res != VK_ERROR_FEATURE_NOT_PRESENT)
             {
                 resultCollector.fail("Not returning VK_ERROR_FEATURE_NOT_PRESENT when creating device with feature " +
                                      de::toString(feature.name) + ", which was reported as unsupported.");
-            }
-
-            if (device != nullptr)
-            {
-                DeviceDriver deviceDriver(vkp, instance, device, context.getUsedApiVersion(),
-                                          context.getTestContext().getCommandLine());
-                deviceDriver.destroyDevice(device, nullptr);
             }
         }
     }
@@ -1775,33 +1807,17 @@ tcu::TestStatus createDeviceWithUnsupportedFeaturesTest(Context &context)
 
 tcu::TestStatus createDeviceQueue2Test(Context &context)
 {
-    if (!context.contextSupports(vk::ApiVersion(0, 1, 1, 0)))
-        TCU_THROW(NotSupportedError, "Vulkan 1.1 is not supported");
+    const InstanceWrapper instance(createCustomInstanceFromContext(context));
+    const auto &instanceDriver(instance.getDriver());
+    const VkPhysicalDevice physicalDevice = instance.getPhysicalDevice();
+    const uint32_t queueFamilyIndex       = context.getUniversalQueueFamilyIndex();
+    const uint32_t queueCount             = 1;
+    const uint32_t queueIndex             = 0;
+    const float queuePriority             = 1.0f;
 
-    const PlatformInterface &platformInterface = context.getPlatformInterface();
-    const CustomInstance instance(createCustomInstanceFromContext(context));
-    const InstanceDriver &instanceDriver(instance.getDriver());
-    const VkPhysicalDevice physicalDevice =
-        chooseDevice(instanceDriver, instance, context.getTestContext().getCommandLine());
-    const uint32_t queueFamilyIndex = context.getUniversalQueueFamilyIndex();
-    const uint32_t queueCount       = 1;
-    const uint32_t queueIndex       = 0;
-    const float queuePriority       = 1.0f;
-
-    VkPhysicalDeviceProtectedMemoryFeatures protectedMemoryFeature = {
-        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROTECTED_MEMORY_FEATURES, // VkStructureType sType;
-        nullptr,                                                     // void* pNext;
-        VK_FALSE                                                     // VkBool32 protectedMemory;
-    };
-
-    VkPhysicalDeviceFeatures2 features2;
-    deMemset(&features2, 0, sizeof(features2));
-    features2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-    features2.pNext = &protectedMemoryFeature;
-
+    VkPhysicalDeviceProtectedMemoryFeatures protectedMemoryFeature = initVulkanStructure();
+    VkPhysicalDeviceFeatures2 features2                            = initVulkanStructure(&protectedMemoryFeature);
     instanceDriver.getPhysicalDeviceFeatures2(physicalDevice, &features2);
-    if (protectedMemoryFeature.protectedMemory == VK_FALSE)
-        TCU_THROW(NotSupportedError, "Protected memory feature is not supported");
 
     const VkDeviceQueueCreateInfo deviceQueueCreateInfo = {
         VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, // VkStructureType sType;
@@ -1813,17 +1829,6 @@ tcu::TestStatus createDeviceQueue2Test(Context &context)
     };
 
     void *pNext = &features2;
-#ifdef CTS_USES_VULKANSC
-    VkDeviceObjectReservationCreateInfo memReservationInfo = context.getTestContext().getCommandLine().isSubProcess() ?
-                                                                 context.getResourceInterface()->getStatMax() :
-                                                                 resetDeviceObjectReservationCreateInfo();
-    memReservationInfo.pNext                               = pNext;
-    pNext                                                  = &memReservationInfo;
-
-    VkPhysicalDeviceVulkanSC10Features sc10Features = createDefaultSC10Features();
-    sc10Features.pNext                              = pNext;
-    pNext                                           = &sc10Features;
-#endif // CTS_USES_VULKANSC
 
     const VkDeviceCreateInfo deviceCreateInfo = {
         VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO, // VkStructureType sType;
@@ -1847,11 +1852,9 @@ tcu::TestStatus createDeviceQueue2Test(Context &context)
     };
 
     {
-        const Unique<VkDevice> device(
-            createCustomDevice(platformInterface, instance, instanceDriver, physicalDevice, &deviceCreateInfo));
-        const DeviceDriver deviceDriver(platformInterface, instance, device.get(), context.getUsedApiVersion(),
-                                        context.getTestContext().getCommandLine());
-        const VkQueue queue2 = getDeviceQueue2(deviceDriver, *device, &deviceQueueInfo2);
+        const DeviceWrapper device(instance.createCustomDevice(physicalDevice, &deviceCreateInfo));
+        const auto &deviceDriver(device.getDriver());
+        const VkQueue queue2 = getDeviceQueue2(deviceDriver, device, &deviceQueueInfo2);
 
         VK_CHECK(deviceDriver.queueWaitIdle(queue2));
     }
@@ -1886,34 +1889,14 @@ void checkProtectedMemorySupport(Context &context)
     if (!context.contextSupports(vk::ApiVersion(0, 1, 1, 0)))
         TCU_THROW(NotSupportedError, "Vulkan 1.1 is not supported");
 
-    const InstanceInterface &instanceDriver = context.getInstanceInterface();
-    const VkPhysicalDevice physicalDevice   = context.getPhysicalDevice();
-
-    VkPhysicalDeviceProtectedMemoryFeatures protectedMemoryFeature = {
-        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROTECTED_MEMORY_FEATURES, // VkStructureType sType;
-        nullptr,                                                     // void* pNext;
-        VK_FALSE                                                     // VkBool32 protectedMemory;
-    };
-
-    VkPhysicalDeviceFeatures2 features2;
-    deMemset(&features2, 0, sizeof(features2));
-    features2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-    features2.pNext = &protectedMemoryFeature;
-
-    instanceDriver.getPhysicalDeviceFeatures2(physicalDevice, &features2);
-    if (protectedMemoryFeature.protectedMemory == VK_FALSE)
+    if (context.getProtectedMemoryFeatures().protectedMemory == VK_FALSE)
         TCU_THROW(NotSupportedError, "Protected memory feature is not supported");
 }
 
-Move<VkDevice> createProtectedDeviceWithQueueConfig(Context &context,
-                                                    const std::vector<VkDeviceQueueCreateInfo> &queueCreateInfos,
-                                                    bool dumpExtraInfo = false)
+static CustomDevice createProtectedDeviceWithQueueConfig(Context &context, const InstanceWrapper &instance,
+                                                         const std::vector<VkDeviceQueueCreateInfo> &queueCreateInfos,
+                                                         bool dumpExtraInfo = false)
 {
-    const PlatformInterface &platformInterface = context.getPlatformInterface();
-    const VkInstance instance                  = context.getInstance();
-    const InstanceInterface &instanceDriver    = context.getInstanceInterface();
-    const VkPhysicalDevice physicalDevice      = context.getPhysicalDevice();
-
     if (dumpExtraInfo)
     {
         tcu::TestLog &log = context.getTestContext().getLog();
@@ -1944,41 +1927,23 @@ Move<VkDevice> createProtectedDeviceWithQueueConfig(Context &context,
     features2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
     features2.pNext = &protectedMemoryFeature;
 
-#ifdef CTS_USES_VULKANSC
-    void *pNext = nullptr;
-
-    VkDeviceObjectReservationCreateInfo memReservationInfo = context.getTestContext().getCommandLine().isSubProcess() ?
-                                                                 context.getResourceInterface()->getStatMax() :
-                                                                 resetDeviceObjectReservationCreateInfo();
-    memReservationInfo.pNext                               = pNext;
-    pNext                                                  = &memReservationInfo;
-
-    VkPhysicalDeviceVulkanSC10Features sc10Features = createDefaultSC10Features();
-    sc10Features.pNext                              = pNext;
-    pNext                                           = &sc10Features;
-#endif // CTS_USES_VULKANSC
-
     const VkDeviceCreateInfo deviceCreateInfo = {
         VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO, // VkStructureType sType;
-#ifdef CTS_USES_VULKANSC
-        &sc10Features, // const void* pNext;
-#else
-        &features2, // const void* pNext;
-#endif                                     // CTS_USES_VULKANSC
-        (VkDeviceCreateFlags)0u,           // VkDeviceCreateFlags flags;
-        (uint32_t)queueCreateInfos.size(), // uint32_t queueCreateInfoCount;
-        queueCreateInfos.data(),           // const VkDeviceQueueCreateInfo* pQueueCreateInfos;
-        0,                                 // uint32_t enabledLayerCount;
-        nullptr,                           // const char* const* ppEnabledLayerNames;
-        0,                                 // uint32_t enabledExtensionCount;
-        nullptr,                           // const char* const* ppEnabledExtensionNames;
-        nullptr,                           // const VkPhysicalDeviceFeatures* pEnabledFeatures;
+        &features2,                           // const void* pNext;
+        (VkDeviceCreateFlags)0u,              // VkDeviceCreateFlags flags;
+        (uint32_t)queueCreateInfos.size(),    // uint32_t queueCreateInfoCount;
+        queueCreateInfos.data(),              // const VkDeviceQueueCreateInfo* pQueueCreateInfos;
+        0,                                    // uint32_t enabledLayerCount;
+        nullptr,                              // const char* const* ppEnabledLayerNames;
+        0,                                    // uint32_t enabledExtensionCount;
+        nullptr,                              // const char* const* ppEnabledExtensionNames;
+        nullptr,                              // const VkPhysicalDeviceFeatures* pEnabledFeatures;
     };
 
-    return createCustomDevice(platformInterface, instance, instanceDriver, physicalDevice, &deviceCreateInfo);
+    return instance.createCustomDevice(&deviceCreateInfo);
 }
 
-VkQueue getDeviceQueue2WithOptions(const DeviceDriver &deviceDriver, const VkDevice device,
+VkQueue getDeviceQueue2WithOptions(const DeviceInterface &deviceDriver, const VkDevice device,
                                    VkDeviceQueueCreateFlags flags, uint32_t queueFamilyIndex, uint32_t queueIndex)
 {
     VkDeviceQueueInfo2 queueInfo2 = {
@@ -2025,12 +1990,9 @@ bool runQueueCreationTestCombination(Context &context, tcu::ResultCollector &res
         queueCreateInfo.push_back(queueInfo);
     }
 
-    const PlatformInterface &platformInterface = context.getPlatformInterface();
-    const VkInstance instance                  = context.getInstance();
-
-    const Unique<VkDevice> device(createProtectedDeviceWithQueueConfig(context, queueCreateInfo, dumpExtraInfo));
-    const DeviceDriver deviceDriver(platformInterface, instance, *device, context.getUsedApiVersion(),
-                                    context.getTestContext().getCommandLine());
+    const InstanceWrapper instance(context);
+    const DeviceWrapper device(createProtectedDeviceWithQueueConfig(context, instance, queueCreateInfo, dumpExtraInfo));
+    const auto &deviceDriver(device.getDriver());
 
     for (const QueueCreationInfo &info : testCombination)
     {
@@ -2776,22 +2738,9 @@ tcu::TestStatus createInstanceDeviceIntentionalAllocFail(Context &context)
             &queuePriority                              // pQueuePriorities
         };
 
-        void *pNext = nullptr;
-#ifdef CTS_USES_VULKANSC
-        VkDeviceObjectReservationCreateInfo memReservationInfo =
-            context.getTestContext().getCommandLine().isSubProcess() ? context.getResourceInterface()->getStatMax() :
-                                                                       resetDeviceObjectReservationCreateInfo();
-        memReservationInfo.pNext = pNext;
-        pNext                    = &memReservationInfo;
-
-        VkPhysicalDeviceVulkanSC10Features sc10Features = createDefaultSC10Features();
-        sc10Features.pNext                              = pNext;
-        pNext                                           = &sc10Features;
-#endif // CTS_USES_VULKANSC
-
         const VkDeviceCreateInfo deviceCreateInfo = {
             VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO, // sType
-            pNext,                                // pNext
+            nullptr,                              // pNext
             (VkDeviceCreateFlags)0u,              // flags
             1u,                                   // queueCreateInfoCount
             &deviceQueueCreateInfo,               // pQueueCreateInfos
@@ -2802,8 +2751,7 @@ tcu::TestStatus createInstanceDeviceIntentionalAllocFail(Context &context)
             nullptr                               // pEnabledFeatures
         };
 
-        result =
-            createUncheckedDevice(vki, physicalDevices[chosenDevice], &deviceCreateInfo, &allocationCallbacks, &device);
+        result = vki.createDevice(physicalDevices[chosenDevice], &deviceCreateInfo, &allocationCallbacks, &device);
 
         if (result == VK_ERROR_OUT_OF_HOST_MEMORY)
         {
@@ -2892,6 +2840,12 @@ tcu::TestCaseGroup *createDeviceInitializationTests(tcu::TestContext &testCtx)
                                  createDeviceWithUnsupportedExtensionsTest);
     addFunctionCaseInNewSubgroup(testCtx, deviceInitializationTests.get(), "create_device_various_queue_counts",
                                  createDeviceWithVariousQueueCountsTest);
+    {
+        de::MovePtr<tcu::TestCaseGroup> subgroup(new tcu::TestCaseGroup(testCtx, "create_device_queue_priorities"));
+        addFunctionCase(subgroup.get(), "basic", createDeviceWithQueuePrioritiesTest);
+        addFunctionCase(subgroup.get(), "concurrent_submission", createDeviceWithQueuePrioritiesContentionTest);
+        deviceInitializationTests->addChild(subgroup.release());
+    }
     addFunctionCaseInNewSubgroup(testCtx, deviceInitializationTests.get(), "create_device_global_priority",
                                  checkGlobalPrioritySupport, createDeviceWithGlobalPriorityTest, false);
 #ifndef CTS_USES_VULKANSC
@@ -2911,7 +2865,7 @@ tcu::TestCaseGroup *createDeviceInitializationTests(tcu::TestContext &testCtx)
         deviceInitializationTests->addChild(subgroup.release());
     }
     addFunctionCaseInNewSubgroup(testCtx, deviceInitializationTests.get(), "create_device_queue2",
-                                 createDeviceQueue2Test);
+                                 checkProtectedMemorySupport, createDeviceQueue2Test);
 #ifndef CTS_USES_VULKANSC
     // Removed because in main process this test does not really create any instance nor device and functions creating it always return VK_SUCCESS
     addFunctionCaseInNewSubgroup(testCtx, deviceInitializationTests.get(),

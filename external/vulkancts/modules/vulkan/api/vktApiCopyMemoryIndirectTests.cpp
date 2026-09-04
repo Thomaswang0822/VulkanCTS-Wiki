@@ -658,6 +658,7 @@ tcu::TestStatus CopyMemoryToImageIndirect::iterate(void)
     invalidateAlloc(vk, vkDevice, bufferAllocation);
     uint8_t *hostPtr = (uint8_t *)bufferAllocation.getHostPtr();
     deMemcpy(hostPtr, indirectCommands.data(), (uint32_t)indirectBufferSize);
+    flushAlloc(vk, vkDevice, bufferAllocation);
 
     std::vector<VkImageSubresourceLayers> imageSubresourceLayers;
     for (const auto &region : m_params.regions)
@@ -1256,7 +1257,12 @@ void add2dMemoryToImageTests(tcu::TestCaseGroup *group, TestGroupParamsPtr testG
         group->addChild(new CopyMemoryToImageIndirectTestCase(testCtx, "buffer_offset", params));
     }
 
-    if (testGroupParams->queueSelection == QueueSelectionOptions::Universal)
+    bool testBufferOffsetRelaxed = testGroupParams->queueSelection == QueueSelectionOptions::Universal;
+#ifndef CTS_USES_VULKANSC
+    testBufferOffsetRelaxed |= testGroupParams->queueSelection == QueueSelectionOptions::TransferOnly;
+#endif // CTS_USES_VULKANSC
+
+    if (testBufferOffsetRelaxed)
     {
         TestParams params;
         params.src.buffer.size           = defaultSize * defaultSize;
@@ -1269,6 +1275,9 @@ void add2dMemoryToImageTests(tcu::TestCaseGroup *group, TestGroupParamsPtr testG
         params.extensionFlags            = testGroupParams->extensionFlags;
         params.queueSelection            = testGroupParams->queueSelection;
         params.useSparseBinding          = testGroupParams->useSparseBinding;
+
+        if (testGroupParams->queueSelection == QueueSelectionOptions::TransferOnly)
+            params.extensionFlags |= MAINTENANCE_11;
 
         const VkBufferImageCopy bufferImageCopy = {
             defaultQuarterSize + 1u,                     // VkDeviceSize bufferOffset;
@@ -1975,6 +1984,7 @@ private:
             const Allocation &bufferAllocation = srcBuffer.getAllocation();
             invalidateAlloc(ctx.vkd, ctx.device, bufferAllocation);
             memcpy(bufferAllocation.getHostPtr(), m_copyData.data(), bufferSize);
+            flushAlloc(ctx.vkd, ctx.device, bufferAllocation);
         }
 
         // Copy Commands -> indirectBuffer
@@ -1997,6 +2007,7 @@ private:
             }
             else
                 DE_ASSERT(false);
+            flushAlloc(ctx.vkd, ctx.device, bufferAllocation);
         }
 
         // dstBuffer
@@ -2004,6 +2015,7 @@ private:
             const Allocation &bufferAllocation = dstBuffer.getAllocation();
             invalidateAlloc(ctx.vkd, ctx.device, bufferAllocation);
             memset(bufferAllocation.getHostPtr(), 0xFF, std::max(m_copyParams.copyCount, (uint32_t)1) * bufferSize);
+            flushAlloc(ctx.vkd, ctx.device, bufferAllocation);
         }
 
         const Unique<VkCommandPool> cmdPool(makeCommandPool(ctx.vkd, ctx.device, qfIndex));

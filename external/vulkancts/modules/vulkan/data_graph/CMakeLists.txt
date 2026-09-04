@@ -10,11 +10,16 @@ include_directories(
 set(DEQP_VK_DATA_GRAPH_SRCS
 	tosa/vktDataGraphTosaSpirv.cpp
 	vktDataGraphBasicTests.cpp
+	vktDataGraphExternalMemoryTests.cpp
+	vktDataGraphImageAliasingTests.cpp
+	vktDataGraphDescriptorBufferTests.cpp
 	vktDataGraphPipelineCacheTests.cpp
 	vktDataGraphPropertiesTests.cpp
+	vktDataGraphSpecializationConstantsTests.cpp
 	vktDataGraphTestProvider.cpp
 	vktDataGraphTests.cpp
 	vktDataGraphTestUtil.cpp
+	vktDataGraphUpdateAfterBindTests.cpp
 	)
 
 PCH(DEQP_VK_DATA_GRAPH_SRCS ../pch.cpp)

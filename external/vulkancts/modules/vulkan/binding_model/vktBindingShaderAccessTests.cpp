@@ -42,7 +42,6 @@
 #include "tcuVectorUtil.hpp"
 #include "tcuTexture.hpp"
 #include "tcuTextureUtil.hpp"
-#include "tcuResultCollector.hpp"
 #include "tcuTestLog.hpp"
 #include "tcuRGBA.hpp"
 #include "tcuSurface.hpp"
@@ -52,14 +51,10 @@
 #include "deSharedPtr.hpp"
 #include "deStringUtil.hpp"
 #include "deArrayUtil.hpp"
-#include "deRandom.h"
 
-#include "qpInfo.h"
 #include <iostream>
 
-namespace vkt
-{
-namespace BindingModel
+namespace vkt::BindingModel
 {
 namespace
 {
@@ -80,27 +75,6 @@ enum DescriptorUpdateMethod
 
     DESCRIPTOR_UPDATE_METHOD_LAST
 };
-
-std::string stringifyDescriptorUpdateMethod(DescriptorUpdateMethod method)
-{
-    switch (method)
-    {
-    case DESCRIPTOR_UPDATE_METHOD_NORMAL:
-        return "";
-
-    case DESCRIPTOR_UPDATE_METHOD_WITH_TEMPLATE:
-        return "with_template";
-
-    case DESCRIPTOR_UPDATE_METHOD_WITH_PUSH:
-        return "with_push";
-
-    case DESCRIPTOR_UPDATE_METHOD_WITH_PUSH_TEMPLATE:
-        return "with_push_template";
-
-    default:
-        return "N/A";
-    }
-}
 
 static const char *const s_quadrantGenVertexPosSource =
     "    highp int quadPhase = gl_VertexIndex % 6;\n"
@@ -161,28 +135,20 @@ bool isDynamicDescriptorType(vk::VkDescriptorType type)
            type == vk::VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
 }
 
-void verifyDriverSupport(const uint32_t apiVersion, const vk::VkPhysicalDeviceFeatures &deviceFeatures,
-                         const std::vector<std::string> &deviceExtensions, DescriptorUpdateMethod updateMethod,
-                         vk::VkDescriptorType descType, vk::VkShaderStageFlags activeStages,
-                         vk::VkImageViewType viewType = vk::VK_IMAGE_VIEW_TYPE_2D)
+void verifyDriverSupport(Context &context, DescriptorUpdateMethod updateMethod, vk::VkDescriptorType descType,
+                         vk::VkShaderStageFlags activeStages, vk::VkImageViewType viewType = vk::VK_IMAGE_VIEW_TYPE_2D)
 {
-    std::vector<std::string> extensionNames;
-    size_t numExtensionsNeeded = 0;
-
     switch (updateMethod)
     {
     case DESCRIPTOR_UPDATE_METHOD_WITH_PUSH:
-        if (!vk::isCoreDeviceExtension(apiVersion, "VK_KHR_push_descriptor"))
-            extensionNames.push_back("VK_KHR_push_descriptor");
+        context.requireDeviceFunctionality("VK_KHR_push_descriptor");
         break;
 
     case DESCRIPTOR_UPDATE_METHOD_WITH_PUSH_TEMPLATE:
-        if (!vk::isCoreDeviceExtension(apiVersion, "VK_KHR_push_descriptor"))
-            extensionNames.push_back("VK_KHR_push_descriptor");
+        context.requireDeviceFunctionality("VK_KHR_push_descriptor");
     // Fallthrough
     case DESCRIPTOR_UPDATE_METHOD_WITH_TEMPLATE:
-        if (!vk::isCoreDeviceExtension(apiVersion, "VK_KHR_descriptor_update_template"))
-            extensionNames.push_back("VK_KHR_descriptor_update_template");
+        context.requireDeviceFunctionality("VK_KHR_descriptor_update_template");
         break;
 
     case DESCRIPTOR_UPDATE_METHOD_NORMAL:
@@ -193,31 +159,7 @@ void verifyDriverSupport(const uint32_t apiVersion, const vk::VkPhysicalDeviceFe
         DE_FATAL("Impossible");
     }
 
-    numExtensionsNeeded = extensionNames.size();
-
-    if (numExtensionsNeeded > 0)
-    {
-        for (size_t deviceExtNdx = 0; deviceExtNdx < deviceExtensions.size(); deviceExtNdx++)
-        {
-            for (size_t requiredExtNdx = 0; requiredExtNdx < extensionNames.size(); requiredExtNdx++)
-            {
-                if (deviceExtensions[deviceExtNdx] == extensionNames[requiredExtNdx])
-                {
-                    --numExtensionsNeeded;
-                    break;
-                }
-            }
-
-            if (numExtensionsNeeded == 0)
-                break;
-        }
-
-        if (numExtensionsNeeded > 0)
-        {
-            TCU_THROW(NotSupportedError,
-                      (stringifyDescriptorUpdateMethod(updateMethod) + " tests are not supported").c_str());
-        }
-    }
+    const vk::VkPhysicalDeviceFeatures &deviceFeatures = context.getDeviceFeatures();
 
     switch (descType)
     {
@@ -253,6 +195,14 @@ void verifyDriverSupport(const uint32_t apiVersion, const vk::VkPhysicalDeviceFe
     default:
         DE_FATAL("Impossible");
     }
+
+    const auto tessellationStages =
+        vk::VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT | vk::VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+    if ((activeStages & tessellationStages) && !deviceFeatures.tessellationShader)
+        TCU_THROW(NotSupportedError, "Tessellation shader is not supported");
+
+    if ((activeStages & vk::VK_SHADER_STAGE_GEOMETRY_BIT) && !deviceFeatures.geometryShader)
+        TCU_THROW(NotSupportedError, "Geometry shader is not supported");
 
     if (viewType == vk::VK_IMAGE_VIEW_TYPE_CUBE_ARRAY && !deviceFeatures.imageCubeArray)
         TCU_THROW(NotSupportedError, "imageCubeArray feature not supported");
@@ -813,24 +763,15 @@ void RenderInstanceShaders::addStage(const vk::DeviceInterface &vki, vk::VkDevic
                                      const vk::BinaryCollection &programCollection, const char *name,
                                      vk::VkShaderStageFlagBits stage, vk::Move<vk::VkShaderModule> *outModule)
 {
-    if (programCollection.contains(name))
-    {
-        if (vk::isShaderStageSupported(deviceFeatures, stage))
-        {
-            vk::Move<vk::VkShaderModule> module =
-                createShaderModule(vki, device, programCollection.get(name), (vk::VkShaderModuleCreateFlags)0);
+    if (!programCollection.contains(name))
+        return;
 
-            m_stageInfos.push_back(getShaderStageCreateInfo(stage, *module));
-            *outModule = module;
-        }
-        else
-        {
-            // Wait for the GPU to idle so that throwing the exception
-            // below doesn't free in-use GPU resource.
-            vki.deviceWaitIdle(device);
-            TCU_THROW(NotSupportedError, (de::toString(stage) + " is not supported").c_str());
-        }
-    }
+    DE_UNREF(deviceFeatures);
+    DE_ASSERT(vk::isShaderStageSupported(deviceFeatures, stage));
+
+    auto module = createShaderModule(vki, device, programCollection.get(name), (vk::VkShaderModuleCreateFlags)0);
+    m_stageInfos.push_back(getShaderStageCreateInfo(stage, *module));
+    *outModule = module;
 }
 
 vk::VkPipelineShaderStageCreateInfo RenderInstanceShaders::getShaderStageCreateInfo(vk::VkShaderStageFlagBits stage,
@@ -2361,7 +2302,7 @@ void ComputeCommand::submitAndWait(uint32_t queueFamilyIndex, vk::VkQueue queue,
 }
 #endif
 
-class BufferComputeInstance : public vkt::TestInstance
+class BufferComputeInstance : public vkt::MultiQueueRunnerTestInstance
 {
 public:
     BufferComputeInstance(Context &context, DescriptorUpdateMethod updateMethod, vk::VkDescriptorType descriptorType,
@@ -2385,9 +2326,9 @@ private:
                                         vk::VkPipelineLayout pipelineLayout = VK_NULL_HANDLE);
 #endif
 
-    tcu::TestStatus iterate(void);
+    tcu::TestStatus queuePass(const vkt::QueueData &queueData) override;
     void logTestPlan(void) const;
-    tcu::TestStatus testResourceAccess(void);
+    tcu::TestStatus testResourceAccess(vk::VkQueue queue, uint32_t queueFamilyIndex);
 
     enum
     {
@@ -2428,7 +2369,7 @@ BufferComputeInstance::BufferComputeInstance(Context &context, DescriptorUpdateM
                                              vk::VkDescriptorType descriptorType, DescriptorSetCount descriptorSetCount,
                                              ShaderInputInterface shaderInterface, bool viewOffset, bool dynamicOffset,
                                              bool dynamicOffsetNonZero, bool bind2)
-    : vkt::TestInstance(context)
+    : vkt::MultiQueueRunnerTestInstance(context, vkt::COMPUTE_QUEUE)
     , m_updateMethod(updateMethod)
     , m_descriptorType(descriptorType)
     , m_descriptorSetCount(descriptorSetCount)
@@ -2759,10 +2700,19 @@ void BufferComputeInstance::writeDescriptorSetWithTemplate(vk::VkDescriptorSet d
 }
 #endif
 
-tcu::TestStatus BufferComputeInstance::iterate(void)
+tcu::TestStatus BufferComputeInstance::queuePass(const vkt::QueueData &queueData)
 {
     logTestPlan();
-    return testResourceAccess();
+
+    // Reset accumulating descriptor-update state so repeated queue passes start clean.
+#ifndef CTS_USES_VULKANSC
+    m_updateTemplates.clear();
+    m_updateRegistry.clear();
+#endif
+    m_updateBuilder.clear();
+    m_descriptorsPerSet.clear();
+
+    return testResourceAccess(queueData.handle, queueData.familyIndex);
 }
 
 void BufferComputeInstance::logTestPlan(void) const
@@ -2801,7 +2751,7 @@ void BufferComputeInstance::logTestPlan(void) const
     m_context.getTestContext().getLog() << tcu::TestLog::Message << msg.str() << tcu::TestLog::EndMessage;
 }
 
-tcu::TestStatus BufferComputeInstance::testResourceAccess(void)
+tcu::TestStatus BufferComputeInstance::testResourceAccess(vk::VkQueue queue, uint32_t queueFamilyIndex)
 {
     enum
     {
@@ -2963,7 +2913,7 @@ tcu::TestStatus BufferComputeInstance::testResourceAccess(void)
                                            viewOffsets[ndx0], **buffers[ndx1], viewOffsets[ndx1], m_result.getBuffer(),
                                            true, pipeline.getPipelineLayout());
         }
-        compute.submitAndWait(m_queueFamilyIndex, m_queue, &m_updateTemplates, &m_updateRegistry);
+        compute.submitAndWait(queueFamilyIndex, queue, &m_updateTemplates, &m_updateRegistry);
     }
     else if (m_updateMethod == DESCRIPTOR_UPDATE_METHOD_WITH_PUSH)
     {
@@ -2976,12 +2926,12 @@ tcu::TestStatus BufferComputeInstance::testResourceAccess(void)
                                viewOffsets[ndx1], m_result.getBuffer());
         }
 
-        compute.submitAndWait(m_queueFamilyIndex, m_queue, m_updateBuilder, m_descriptorsPerSet);
+        compute.submitAndWait(queueFamilyIndex, queue, m_updateBuilder, m_descriptorsPerSet);
     }
     else
 #endif
     {
-        compute.submitAndWait(m_queueFamilyIndex, m_queue);
+        compute.submitAndWait(queueFamilyIndex, queue);
     }
     m_result.readResultContentsTo(&results);
 
@@ -3612,9 +3562,6 @@ std::string BufferDescriptorCase::genNoAccessSource(void) const
 
 vkt::TestInstance *BufferDescriptorCase::createInstance(vkt::Context &context) const
 {
-    verifyDriverSupport(context.getUsedApiVersion(), context.getDeviceFeatures(), context.getDeviceExtensions(),
-                        m_updateMethod, m_descriptorType, m_activeStages);
-
     if (m_exitingStages == vk::VK_SHADER_STAGE_COMPUTE_BIT)
     {
         DE_ASSERT(m_isPrimaryCmdBuf); // secondaries are only valid within renderpass
@@ -3630,6 +3577,8 @@ vkt::TestInstance *BufferDescriptorCase::createInstance(vkt::Context &context) c
 
 void BufferDescriptorCase::checkSupport(Context &context) const
 {
+    verifyDriverSupport(context, m_updateMethod, m_descriptorType, m_activeStages);
+
     if (m_bind2)
         context.requireDeviceFunctionality("VK_KHR_maintenance6");
 }
@@ -4684,7 +4633,7 @@ tcu::TestStatus ImageFetchRenderInstance::verifyResultImage(const tcu::ConstPixe
         return tcu::TestStatus::pass("Pass");
 }
 
-class ImageFetchComputeInstance : public vkt::TestInstance
+class ImageFetchComputeInstance : public vkt::MultiQueueRunnerTestInstance
 {
 public:
     ImageFetchComputeInstance(vkt::Context &context, DescriptorUpdateMethod updateMethod,
@@ -4704,9 +4653,9 @@ private:
                                         vk::VkPipelineLayout pipelineLayout = VK_NULL_HANDLE);
 #endif
 
-    tcu::TestStatus iterate(void);
+    tcu::TestStatus queuePass(const vkt::QueueData &queueData) override;
     void logTestPlan(void) const;
-    tcu::TestStatus testResourceAccess(void);
+    tcu::TestStatus testResourceAccess(vk::VkQueue queue, uint32_t queueFamilyIndex);
 
     const DescriptorUpdateMethod m_updateMethod;
     const vk::VkDescriptorType m_descriptorType;
@@ -4739,7 +4688,7 @@ ImageFetchComputeInstance::ImageFetchComputeInstance(Context &context, Descripto
                                                      DescriptorSetCount descriptorSetCount,
                                                      ShaderInputInterface shaderInterface, vk::VkImageViewType viewType,
                                                      uint32_t baseMipLevel, uint32_t baseArraySlice, const bool bind2)
-    : vkt::TestInstance(context)
+    : vkt::MultiQueueRunnerTestInstance(context, vkt::COMPUTE_QUEUE)
     , m_updateMethod(updateMethod)
     , m_descriptorType(descriptorType)
     , m_descriptorSetCount(descriptorSetCount)
@@ -5035,10 +4984,19 @@ void ImageFetchComputeInstance::writeDescriptorSetWithTemplate(vk::VkDescriptorS
 }
 #endif
 
-tcu::TestStatus ImageFetchComputeInstance::iterate(void)
+tcu::TestStatus ImageFetchComputeInstance::queuePass(const vkt::QueueData &queueData)
 {
     logTestPlan();
-    return testResourceAccess();
+
+    // Reset accumulating descriptor-update state so repeated queue passes start clean.
+#ifndef CTS_USES_VULKANSC
+    m_updateTemplates.clear();
+    m_updateRegistry.clear();
+#endif
+    m_updateBuilder.clear();
+    m_descriptorsPerSet.clear();
+
+    return testResourceAccess(queueData.handle, queueData.familyIndex);
 }
 
 void ImageFetchComputeInstance::logTestPlan(void) const
@@ -5080,7 +5038,7 @@ void ImageFetchComputeInstance::logTestPlan(void) const
     m_context.getTestContext().getLog() << tcu::TestLog::Message << msg.str() << tcu::TestLog::EndMessage;
 }
 
-tcu::TestStatus ImageFetchComputeInstance::testResourceAccess(void)
+tcu::TestStatus ImageFetchComputeInstance::testResourceAccess(vk::VkQueue queue, uint32_t queueFamilyIndex)
 {
     const vk::Unique<vk::VkDescriptorPool> descriptorPool(createDescriptorPool());
     std::vector<DescriptorSetLayoutHandleSp> descriptorSetLayouts;
@@ -5136,19 +5094,19 @@ tcu::TestStatus ImageFetchComputeInstance::testResourceAccess(void)
             writeDescriptorSetWithTemplate(VK_NULL_HANDLE, layoutHandles[setNdx], setNdx, true,
                                            pipeline.getPipelineLayout());
 
-        compute.submitAndWait(m_queueFamilyIndex, m_queue, &m_updateTemplates, &m_updateRegistry);
+        compute.submitAndWait(queueFamilyIndex, queue, &m_updateTemplates, &m_updateRegistry);
     }
     else if (m_updateMethod == DESCRIPTOR_UPDATE_METHOD_WITH_PUSH)
     {
         for (uint32_t setNdx = 0; setNdx < getDescriptorSetCount(m_descriptorSetCount); setNdx++)
             writeDescriptorSet(VK_NULL_HANDLE, setNdx);
 
-        compute.submitAndWait(m_queueFamilyIndex, m_queue, m_updateBuilder, m_descriptorsPerSet);
+        compute.submitAndWait(queueFamilyIndex, queue, m_updateBuilder, m_descriptorsPerSet);
     }
     else
 #endif
     {
-        compute.submitAndWait(m_queueFamilyIndex, m_queue);
+        compute.submitAndWait(queueFamilyIndex, queue);
     }
     m_result.readResultContentsTo(&results);
 
@@ -5198,7 +5156,7 @@ public:
                               vk::VkQueue queue, vk::Allocator &allocator, vk::VkDescriptorType descriptorType,
                               DescriptorSetCount descriptorSetCount, ShaderInputInterface shaderInterface,
                               vk::VkImageViewType viewType, uint32_t numLevels, uint32_t baseMipLevel,
-                              uint32_t baseArraySlice, bool immutable, bool computeOnly);
+                              uint32_t baseArraySlice, bool immutable, bool computeOnly = false);
 
     static std::vector<tcu::Sampler> getRefSamplers(DescriptorSetCount descriptorSetCount,
                                                     ShaderInputInterface shaderInterface);
@@ -5699,8 +5657,7 @@ ImageSampleRenderInstance::ImageSampleRenderInstance(
 #endif
     , m_updateBuilder()
     , m_images(m_vki, m_device, m_queueFamilyIndex, m_queue, m_allocator, m_descriptorType, m_descriptorSetCount,
-               m_shaderInterface, m_viewType, m_numLevels, m_baseMipLevel, m_baseArraySlice, isImmutable,
-               context.getTestContext().getCommandLine().isComputeOnly())
+               m_shaderInterface, m_viewType, m_numLevels, m_baseMipLevel, m_baseArraySlice, isImmutable)
     , m_descriptorSetLayouts(createDescriptorSetLayouts(m_vki, m_device, m_descriptorType, m_descriptorSetCount,
                                                         m_shaderInterface, m_stageFlags, m_images, m_updateMethod))
     , m_pipelineLayout(createPipelineLayout(m_vki, m_device, m_descriptorSetLayouts))
@@ -6502,7 +6459,7 @@ tcu::TestStatus ImageSampleRenderInstance::verifyResultImage(const tcu::ConstPix
         return tcu::TestStatus::pass("Pass");
 }
 
-class ImageSampleComputeInstance : public vkt::TestInstance
+class ImageSampleComputeInstance : public vkt::MultiQueueRunnerTestInstance
 {
 public:
     ImageSampleComputeInstance(vkt::Context &context, DescriptorUpdateMethod updateMethod,
@@ -6531,9 +6488,9 @@ private:
                                                vk::VkPipelineLayout pipelineLayout = VK_NULL_HANDLE);
 #endif
 
-    tcu::TestStatus iterate(void);
+    tcu::TestStatus queuePass(const vkt::QueueData &queueData) override;
     void logTestPlan(void) const;
-    tcu::TestStatus testResourceAccess(void);
+    tcu::TestStatus testResourceAccess(vk::VkQueue queue, uint32_t queueFamilyIndex);
 
     const DescriptorUpdateMethod m_updateMethod;
     const vk::VkDescriptorType m_descriptorType;
@@ -6567,7 +6524,7 @@ ImageSampleComputeInstance::ImageSampleComputeInstance(
     Context &context, DescriptorUpdateMethod updateMethod, vk::VkDescriptorType descriptorType,
     DescriptorSetCount descriptorSetCount, ShaderInputInterface shaderInterface, vk::VkImageViewType viewType,
     uint32_t baseMipLevel, uint32_t baseArraySlice, bool isImmutableSampler, const bool bind2)
-    : vkt::TestInstance(context)
+    : vkt::MultiQueueRunnerTestInstance(context, vkt::COMPUTE_QUEUE)
     , m_updateMethod(updateMethod)
     , m_descriptorType(descriptorType)
     , m_descriptorSetCount(descriptorSetCount)
@@ -6588,8 +6545,7 @@ ImageSampleComputeInstance::ImageSampleComputeInstance(
     , m_allocator(context.getDefaultAllocator())
     , m_result(m_vki, m_device, m_allocator)
     , m_images(m_vki, m_device, m_queueFamilyIndex, m_queue, m_allocator, m_descriptorType, m_descriptorSetCount,
-               m_shaderInterface, m_viewType, m_numLevels, m_baseMipLevel, m_baseArraySlice, isImmutableSampler,
-               context.getTestContext().getCommandLine().isComputeOnly())
+               m_shaderInterface, m_viewType, m_numLevels, m_baseMipLevel, m_baseArraySlice, isImmutableSampler)
 #ifndef CTS_USES_VULKANSC
     , m_updateRegistry()
 #endif
@@ -7153,10 +7109,19 @@ void ImageSampleComputeInstance::writeImageSamplerDescriptorSetWithTemplate(vk::
 }
 #endif
 
-tcu::TestStatus ImageSampleComputeInstance::iterate(void)
+tcu::TestStatus ImageSampleComputeInstance::queuePass(const vkt::QueueData &queueData)
 {
     logTestPlan();
-    return testResourceAccess();
+
+    // Reset accumulating descriptor-update state so repeated queue passes start clean.
+#ifndef CTS_USES_VULKANSC
+    m_updateTemplates.clear();
+    m_updateRegistry.clear();
+#endif
+    m_updateBuilder.clear();
+    m_descriptorsPerSet.clear();
+
+    return testResourceAccess(queueData.handle, queueData.familyIndex);
 }
 
 void ImageSampleComputeInstance::logTestPlan(void) const
@@ -7228,7 +7193,7 @@ void ImageSampleComputeInstance::logTestPlan(void) const
     m_context.getTestContext().getLog() << tcu::TestLog::Message << msg.str() << tcu::TestLog::EndMessage;
 }
 
-tcu::TestStatus ImageSampleComputeInstance::testResourceAccess(void)
+tcu::TestStatus ImageSampleComputeInstance::testResourceAccess(vk::VkQueue queue, uint32_t queueFamilyIndex)
 {
     const vk::Unique<vk::VkDescriptorPool> descriptorPool(createDescriptorPool());
     std::vector<DescriptorSetLayoutHandleSp> descriptorSetLayouts;
@@ -7284,7 +7249,7 @@ tcu::TestStatus ImageSampleComputeInstance::testResourceAccess(void)
             writeDescriptorSet(VK_NULL_HANDLE, layoutHandles[getDescriptorSetNdx(m_descriptorSetCount, setNdx)], setNdx,
                                pipeline.getPipelineLayout()); // descriptor set not applicable
 
-        compute.submitAndWait(m_queueFamilyIndex, m_queue, &m_updateTemplates, &m_updateRegistry);
+        compute.submitAndWait(queueFamilyIndex, queue, &m_updateTemplates, &m_updateRegistry);
     }
     else if (m_updateMethod == DESCRIPTOR_UPDATE_METHOD_WITH_PUSH)
     {
@@ -7292,12 +7257,12 @@ tcu::TestStatus ImageSampleComputeInstance::testResourceAccess(void)
             writeDescriptorSet(VK_NULL_HANDLE, layoutHandles[getDescriptorSetNdx(m_descriptorSetCount, setNdx)], setNdx,
                                pipeline.getPipelineLayout()); // descriptor set not applicable
 
-        compute.submitAndWait(m_queueFamilyIndex, m_queue, m_updateBuilder, m_descriptorsPerSet);
+        compute.submitAndWait(queueFamilyIndex, queue, m_updateBuilder, m_descriptorsPerSet);
     }
     else
 #endif
     {
-        compute.submitAndWait(m_queueFamilyIndex, m_queue);
+        compute.submitAndWait(queueFamilyIndex, queue);
     }
     m_result.readResultContentsTo(&results);
 
@@ -7410,6 +7375,8 @@ ImageDescriptorCase::ImageDescriptorCase(tcu::TestContext &testCtx, const char *
 
 void ImageDescriptorCase::checkSupport(Context &context) const
 {
+    verifyDriverSupport(context, m_updateMethod, m_descriptorType, m_activeStages, m_viewType);
+
     if (m_baseMipLevel == 1u)
     {
         vk::VkImageFormatProperties properties;
@@ -7877,9 +7844,6 @@ std::string ImageDescriptorCase::genNoAccessSource(void) const
 
 vkt::TestInstance *ImageDescriptorCase::createInstance(vkt::Context &context) const
 {
-    verifyDriverSupport(context.getUsedApiVersion(), context.getDeviceFeatures(), context.getDeviceExtensions(),
-                        m_updateMethod, m_descriptorType, m_activeStages, m_viewType);
-
     switch (m_descriptorType)
     {
     case vk::VK_DESCRIPTOR_TYPE_SAMPLER:
@@ -8876,7 +8840,7 @@ tcu::TestStatus TexelBufferRenderInstance::verifyResultImage(const tcu::ConstPix
         return tcu::TestStatus::pass("Pass");
 }
 
-class TexelBufferComputeInstance : public vkt::TestInstance
+class TexelBufferComputeInstance : public vkt::MultiQueueRunnerTestInstance
 {
 public:
     TexelBufferComputeInstance(vkt::Context &context, DescriptorUpdateMethod updateMethod,
@@ -8895,9 +8859,9 @@ private:
                                         vk::VkPipelineLayout pipelineLayout = VK_NULL_HANDLE);
 #endif
 
-    tcu::TestStatus iterate(void);
+    tcu::TestStatus queuePass(const vkt::QueueData &queueData) override;
     void logTestPlan(void) const;
-    tcu::TestStatus testResourceAccess(void);
+    tcu::TestStatus testResourceAccess(vk::VkQueue queue, uint32_t queueFamilyIndex);
 
     const DescriptorUpdateMethod m_updateMethod;
     const vk::VkDescriptorType m_descriptorType;
@@ -8930,7 +8894,7 @@ TexelBufferComputeInstance::TexelBufferComputeInstance(Context &context, Descrip
                                                        DescriptorSetCount descriptorSetCount,
                                                        ShaderInputInterface shaderInterface, bool nonzeroViewOffset,
                                                        const bool bind2)
-    : vkt::TestInstance(context)
+    : vkt::MultiQueueRunnerTestInstance(context, vkt::COMPUTE_QUEUE)
     , m_updateMethod(updateMethod)
     , m_descriptorType(descriptorType)
     , m_descriptorSetCount(descriptorSetCount)
@@ -9214,10 +9178,19 @@ void TexelBufferComputeInstance::writeDescriptorSetWithTemplate(vk::VkDescriptor
 }
 #endif
 
-tcu::TestStatus TexelBufferComputeInstance::iterate(void)
+tcu::TestStatus TexelBufferComputeInstance::queuePass(const vkt::QueueData &queueData)
 {
     logTestPlan();
-    return testResourceAccess();
+
+    // Reset accumulating descriptor-update state so repeated queue passes start clean.
+#ifndef CTS_USES_VULKANSC
+    m_updateTemplates.clear();
+    m_updateRegistry.clear();
+#endif
+    m_updateBuilder.clear();
+    m_descriptorsPerSet.clear();
+
+    return testResourceAccess(queueData.handle, queueData.familyIndex);
 }
 
 void TexelBufferComputeInstance::logTestPlan(void) const
@@ -9254,7 +9227,7 @@ void TexelBufferComputeInstance::logTestPlan(void) const
     m_context.getTestContext().getLog() << tcu::TestLog::Message << msg.str() << tcu::TestLog::EndMessage;
 }
 
-tcu::TestStatus TexelBufferComputeInstance::testResourceAccess(void)
+tcu::TestStatus TexelBufferComputeInstance::testResourceAccess(vk::VkQueue queue, uint32_t queueFamilyIndex)
 {
     const vk::Unique<vk::VkDescriptorPool> descriptorPool(createDescriptorPool());
     std::vector<DescriptorSetLayoutHandleSp> descriptorSetLayouts;
@@ -9310,19 +9283,19 @@ tcu::TestStatus TexelBufferComputeInstance::testResourceAccess(void)
             writeDescriptorSetWithTemplate(VK_NULL_HANDLE, layoutHandles[setNdx], setNdx, true,
                                            pipeline.getPipelineLayout());
 
-        compute.submitAndWait(m_queueFamilyIndex, m_queue, &m_updateTemplates, &m_updateRegistry);
+        compute.submitAndWait(queueFamilyIndex, queue, &m_updateTemplates, &m_updateRegistry);
     }
     else if (m_updateMethod == DESCRIPTOR_UPDATE_METHOD_WITH_PUSH)
     {
         for (uint32_t setNdx = 0; setNdx < getDescriptorSetCount(m_descriptorSetCount); setNdx++)
             writeDescriptorSet(VK_NULL_HANDLE, setNdx);
 
-        compute.submitAndWait(m_queueFamilyIndex, m_queue, m_updateBuilder, m_descriptorsPerSet);
+        compute.submitAndWait(queueFamilyIndex, queue, m_updateBuilder, m_descriptorsPerSet);
     }
     else
 #endif
     {
-        compute.submitAndWait(m_queueFamilyIndex, m_queue);
+        compute.submitAndWait(queueFamilyIndex, queue);
     }
     m_result.readResultContentsTo(&results);
 
@@ -9415,6 +9388,8 @@ TexelBufferDescriptorCase::TexelBufferDescriptorCase(
 
 void TexelBufferDescriptorCase::checkSupport(Context &context) const
 {
+    verifyDriverSupport(context, m_updateMethod, m_descriptorType, m_activeStages);
+
     if (m_bind2)
         context.requireDeviceFunctionality("VK_KHR_maintenance6");
 }
@@ -9560,9 +9535,6 @@ std::string TexelBufferDescriptorCase::genNoAccessSource(void) const
 
 vkt::TestInstance *TexelBufferDescriptorCase::createInstance(vkt::Context &context) const
 {
-    verifyDriverSupport(context.getUsedApiVersion(), context.getDeviceFeatures(), context.getDeviceExtensions(),
-                        m_updateMethod, m_descriptorType, m_activeStages);
-
     if (m_exitingStages == vk::VK_SHADER_STAGE_COMPUTE_BIT)
     {
         DE_ASSERT(m_isPrimaryCmdBuf); // secondaries are only valid within renderpass
@@ -10011,5 +9983,4 @@ tcu::TestCaseGroup *createShaderAccessTests(tcu::TestContext &testCtx)
     return group.release();
 }
 
-} // namespace BindingModel
-} // namespace vkt
+} // namespace vkt::BindingModel

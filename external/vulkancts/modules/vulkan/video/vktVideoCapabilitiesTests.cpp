@@ -70,12 +70,16 @@ enum TestType
     TEST_TYPE_H264_ENCODE_INTRA_REFRESH_CAPABILITIES_QUERY,
     TEST_TYPE_H265_ENCODE_INTRA_REFRESH_CAPABILITIES_QUERY,
     TEST_TYPE_AV1_ENCODE_INTRA_REFRESH_CAPABILITIES_QUERY,
+    TEST_TYPE_H264_ENCODE_FEEDBACK2_CAPABILITIES_QUERY,
+    TEST_TYPE_H265_ENCODE_FEEDBACK2_CAPABILITIES_QUERY,
+    TEST_TYPE_AV1_ENCODE_FEEDBACK2_CAPABILITIES_QUERY,
     TEST_TYPE_LAST
 };
 
 struct CaseDef
 {
     TestType testType;
+    bool extendedFlags;
 };
 
 #define VALIDATE_FIELD_EQUAL(A, B, X)           \
@@ -362,11 +366,23 @@ tcu::TestStatus VideoFormatPropertiesQueryTestInstance<ProfileOperation>::iterat
         &videoProfile,                                 //  const VkVideoProfileInfoKHR* pProfiles;
     };
 
-    const VkPhysicalDeviceVideoFormatInfoKHR videoFormatInfo = {
+    VkPhysicalDeviceVideoFormatInfoKHR videoFormatInfo = {
         VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_FORMAT_INFO_KHR, //  VkStructureType sType;
         const_cast<VkVideoProfileListInfoKHR *>(&videoProfiles), //  const void* pNext;
         m_imageUsageFlags,                                       //  VkImageUsageFlags imageUsage;
     };
+#ifndef CTS_USES_VULKANSC
+    const VkImageUsageFlags2CreateInfoKHR usageFlags2Info = {
+        VK_STRUCTURE_TYPE_IMAGE_USAGE_FLAGS_2_CREATE_INFO_KHR,
+        const_cast<void *>(videoFormatInfo.pNext),
+        (VkImageUsageFlags2KHR)m_imageUsageFlags,
+    };
+    if (m_caseDef.extendedFlags)
+    {
+        videoFormatInfo.pNext      = &usageFlags2Info;
+        videoFormatInfo.imageUsage = 0u;
+    }
+#endif
     const VkImageUsageFlags imageUsageFlagsDPB =
         VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR | VK_IMAGE_USAGE_VIDEO_ENCODE_DPB_BIT_KHR;
     const bool imageUsageDPB = (videoFormatInfo.imageUsage & imageUsageFlagsDPB) != 0;
@@ -389,7 +405,7 @@ tcu::TestStatus VideoFormatPropertiesQueryTestInstance<ProfileOperation>::iterat
     }
 
     {
-        const VkVideoFormatPropertiesKHR videoFormatPropertiesKHR = {
+        VkVideoFormatPropertiesKHR videoFormatPropertiesKHR = {
             VK_STRUCTURE_TYPE_VIDEO_FORMAT_PROPERTIES_KHR, //  VkStructureType sType;
             nullptr,                                       //  void* pNext;
             VK_FORMAT_MAX_ENUM,                            //  VkFormat format;
@@ -402,6 +418,35 @@ tcu::TestStatus VideoFormatPropertiesQueryTestInstance<ProfileOperation>::iterat
         };
         std::vector<VkVideoFormatPropertiesKHR> videoFormatProperties(videoFormatPropertiesCount,
                                                                       videoFormatPropertiesKHR);
+
+#ifndef CTS_USES_VULKANSC
+        std::vector<VkImageCreateFlags2CreateInfoKHR> createFlags2Infos(videoFormatPropertiesCount);
+        std::vector<VkImageUsageFlags2CreateInfoKHR> usageFlags2Infos(videoFormatPropertiesCount);
+        if (m_caseDef.extendedFlags)
+        {
+            for (uint32_t i = 0; i < videoFormatPropertiesCount; ++i)
+            {
+                VkImageCreateFlags2CreateInfoKHR createFlags2Info = {
+                    VK_STRUCTURE_TYPE_IMAGE_CREATE_FLAGS_2_CREATE_INFO_KHR,
+                    nullptr,
+                    (VkImageCreateFlags2KHR)videoFormatProperties[i].imageCreateFlags,
+                };
+                VkImageUsageFlags2CreateInfoKHR usageFlags2Info2 = {
+                    VK_STRUCTURE_TYPE_IMAGE_USAGE_FLAGS_2_CREATE_INFO_KHR,
+                    nullptr,
+                    (VkImageUsageFlags2KHR)videoFormatProperties[i].imageUsageFlags,
+                };
+                createFlags2Infos.push_back(createFlags2Info);
+                usageFlags2Infos.push_back(usageFlags2Info2);
+
+                usageFlags2Infos[i].pNext      = &createFlags2Infos[i];
+                videoFormatProperties[i].pNext = &usageFlags2Infos[i];
+
+                videoFormatProperties[i].imageCreateFlags = 0u;
+                videoFormatProperties[i].imageUsageFlags  = 0u;
+            }
+        }
+#endif
 
         const VkResult result = vk.getPhysicalDeviceVideoFormatPropertiesKHR(
             physicalDevice, &videoFormatInfo, &videoFormatPropertiesCount, videoFormatProperties.data());
@@ -490,6 +535,7 @@ protected:
 
 private:
     bool videoMaintenance2Support;
+    bool videoEncodeFeedback2Support;
 };
 
 VideoCapabilitiesQueryTestInstance::VideoCapabilitiesQueryTestInstance(Context &context, const CaseDef &data)
@@ -498,7 +544,8 @@ VideoCapabilitiesQueryTestInstance::VideoCapabilitiesQueryTestInstance(Context &
 {
     DE_UNREF(m_caseDef);
 
-    videoMaintenance2Support = context.isDeviceFunctionalitySupported("VK_KHR_video_maintenance2");
+    videoMaintenance2Support    = context.isDeviceFunctionalitySupported("VK_KHR_video_maintenance2");
+    videoEncodeFeedback2Support = context.isDeviceFunctionalitySupported("VK_KHR_video_encode_feedback2");
 }
 
 VideoCapabilitiesQueryTestInstance::~VideoCapabilitiesQueryTestInstance(void)
@@ -585,7 +632,6 @@ void VideoCapabilitiesQueryTestInstance::validateVideoEncodeCapabilities(
     VALIDATE_FIELD_EQUAL(videoEncodeCapabilitiesKHR, videoEncodeCapabilitiesKHRSecond, maxQualityLevels);
     VALIDATE_FIELD_EQUAL(videoEncodeCapabilitiesKHR, videoEncodeCapabilitiesKHRSecond, encodeInputPictureGranularity);
     VALIDATE_FIELD_EQUAL(videoEncodeCapabilitiesKHR, videoEncodeCapabilitiesKHRSecond, supportedEncodeFeedbackFlags);
-    VALIDATE_FIELD_EQUAL(videoEncodeCapabilitiesKHR, videoEncodeCapabilitiesKHRSecond, supportedEncodeFeedbackFlags);
 
     const VkVideoEncodeCapabilityFlagsKHR videoEncodeCapabilityFlags =
         VK_VIDEO_ENCODE_CAPABILITY_PRECEDING_EXTERNALLY_ENCODED_BYTES_BIT_KHR |
@@ -594,6 +640,34 @@ void VideoCapabilitiesQueryTestInstance::validateVideoEncodeCapabilities(
 
     if ((videoEncodeCapabilitiesKHR.flags & ~videoEncodeCapabilityFlags) != 0)
         TCU_FAIL("Undeclared VkVideoEncodeCapabilitiesKHR.flags returned");
+
+    // VK_KHR_video_encode_queue feedback flags
+    VkVideoEncodeFeedbackFlagsKHR allFeedbackFlags = VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_BUFFER_OFFSET_BIT_KHR |
+                                                     VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_BYTES_WRITTEN_BIT_KHR |
+                                                     VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_HAS_OVERRIDES_BIT_KHR;
+
+    // Add VK_KHR_video_encode_feedback2 flags if extension is supported
+    if (videoEncodeFeedback2Support)
+    {
+        allFeedbackFlags |=
+            VK_VIDEO_ENCODE_FEEDBACK_AVERAGE_QUANTIZATION_BIT_KHR | VK_VIDEO_ENCODE_FEEDBACK_MIN_QUANTIZATION_BIT_KHR |
+            VK_VIDEO_ENCODE_FEEDBACK_MAX_QUANTIZATION_BIT_KHR | VK_VIDEO_ENCODE_FEEDBACK_INTRA_PIXELS_BIT_KHR |
+            VK_VIDEO_ENCODE_FEEDBACK_INTER_PIXELS_BIT_KHR | VK_VIDEO_ENCODE_FEEDBACK_SKIPPED_PIXELS_BIT_KHR |
+            VK_VIDEO_ENCODE_FEEDBACK_PICTURE_PARTITION_COUNT_BIT_KHR;
+    }
+
+    // Validate that only known flags are returned
+    if ((videoEncodeCapabilitiesKHR.supportedEncodeFeedbackFlags & ~allFeedbackFlags) != 0)
+        TCU_FAIL("Unknown VkVideoEncodeCapabilitiesKHR.supportedEncodeFeedbackFlags returned");
+
+    // Validate baseline support
+    if ((videoEncodeCapabilitiesKHR.supportedEncodeFeedbackFlags &
+         VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_BUFFER_OFFSET_BIT_KHR) == 0)
+        TCU_FAIL("VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_BUFFER_OFFSET_BIT_KHR must be supported");
+
+    if ((videoEncodeCapabilitiesKHR.supportedEncodeFeedbackFlags &
+         VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_BYTES_WRITTEN_BIT_KHR) == 0)
+        TCU_FAIL("VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_BYTES_WRITTEN_BIT_KHR must be supported");
 
     if (videoEncodeCapabilitiesKHR.maxRateControlLayers == 0)
         TCU_FAIL("videoEncodeCapabilitiesKHR.maxRateControlLayers is zero. Implementations must report at least 1.");
@@ -1723,6 +1797,374 @@ tcu::TestStatus VideoCapabilitiesIntraRefreshAV1EncodeTestInstance::iterate(void
     return tcu::TestStatus::pass("Pass");
 }
 
+// VK_KHR_video_encode_feedback2 capabilities test classes
+
+class VideoCapabilitiesFeedback2H264EncodeTestInstance : public VideoCapabilitiesQueryTestInstance
+{
+public:
+    VideoCapabilitiesFeedback2H264EncodeTestInstance(Context &context, const CaseDef &data);
+    virtual ~VideoCapabilitiesFeedback2H264EncodeTestInstance(void);
+    tcu::TestStatus iterate(void);
+
+protected:
+    void validateFeedback2Capabilities(const VkVideoEncodeFeedback2CapabilitiesKHR &feedback2Capabilities,
+                                       const VkVideoEncodeCapabilitiesKHR &encodeCapabilities,
+                                       const VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR &feedback2Features);
+};
+
+VideoCapabilitiesFeedback2H264EncodeTestInstance::VideoCapabilitiesFeedback2H264EncodeTestInstance(Context &context,
+                                                                                                   const CaseDef &data)
+    : VideoCapabilitiesQueryTestInstance(context, data)
+{
+}
+
+VideoCapabilitiesFeedback2H264EncodeTestInstance::~VideoCapabilitiesFeedback2H264EncodeTestInstance(void)
+{
+}
+
+tcu::TestStatus VideoCapabilitiesFeedback2H264EncodeTestInstance::iterate(void)
+{
+    const InstanceInterface &vk                                = m_context.getInstanceInterface();
+    const VkPhysicalDevice physicalDevice                      = m_context.getPhysicalDevice();
+    const VkVideoCodecOperationFlagBitsKHR videoCodecOperation = VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR;
+
+    if (!m_context.isDeviceFunctionalitySupported("VK_KHR_video_encode_feedback2"))
+        TCU_THROW(NotSupportedError, "VK_KHR_video_encode_feedback2 not supported");
+
+    const VkVideoEncodeH264ProfileInfoKHR videoProfileOperation = {
+        VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PROFILE_INFO_KHR, //  VkStructureType sType;
+        VK_NULL_HANDLE,                                       //  const void* pNext;
+        STD_VIDEO_H264_PROFILE_IDC_BASELINE,                  //  StdVideoH264ProfileIdc stdProfileIdc;
+    };
+
+    const VkVideoProfileInfoKHR videoProfile = {
+        VK_STRUCTURE_TYPE_VIDEO_PROFILE_INFO_KHR, //  VkStructureType sType;
+        &videoProfileOperation,                   //  const void* pNext;
+        videoCodecOperation,                      //  VkVideoCodecOperationFlagBitsKHR videoCodecOperation;
+        VK_VIDEO_CHROMA_SUBSAMPLING_420_BIT_KHR,  //  VkVideoChromaSubsamplingFlagsKHR chromaSubsampling;
+        VK_VIDEO_COMPONENT_BIT_DEPTH_8_BIT_KHR,   //  VkVideoComponentBitDepthFlagsKHR lumaBitDepth;
+        VK_VIDEO_COMPONENT_BIT_DEPTH_8_BIT_KHR,   //  VkVideoComponentBitDepthFlagsKHR chromaBitDepth;
+    };
+
+    VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR feedback2Features = {
+        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_FEEDBACK_2_FEATURES_KHR, //  VkStructureType sType;
+        VK_NULL_HANDLE,                                                         //  void* pNext;
+        VK_FALSE,                                                               //  VkBool32 videoEncodeFeedback2;
+    };
+
+    VkPhysicalDeviceFeatures2 deviceFeatures2 = {
+        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2, //  VkStructureType sType;
+        &feedback2Features,                           //  void* pNext;
+        {},                                           //  VkPhysicalDeviceFeatures features;
+    };
+
+    vk.getPhysicalDeviceFeatures2(physicalDevice, &deviceFeatures2);
+
+    VkVideoEncodeH264CapabilitiesKHR h264Capabilities = {};
+    h264Capabilities.sType                            = VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_CAPABILITIES_KHR;
+    h264Capabilities.pNext                            = VK_NULL_HANDLE;
+
+    VkVideoEncodeFeedback2CapabilitiesKHR feedback2Capabilities = {
+        VK_STRUCTURE_TYPE_VIDEO_ENCODE_FEEDBACK_2_CAPABILITIES_KHR, //  VkStructureType sType;
+        &h264Capabilities,                                          //  void* pNext;
+        0u,                                                         //  uint32_t maxPerPartitionFeedbackEntries;
+        0u, //  VkVideoEncodePerPartitionFeedbackFlagsKHR supportedPerPartitionEncodeFeedbackFlags;
+    };
+
+    VkVideoEncodeCapabilitiesKHR videoEncodeCapabilities = {};
+    videoEncodeCapabilities.sType                        = VK_STRUCTURE_TYPE_VIDEO_ENCODE_CAPABILITIES_KHR;
+    videoEncodeCapabilities.pNext                        = &feedback2Capabilities;
+
+    VkVideoCapabilitiesKHR videoCapabilities = {};
+    videoCapabilities.sType                  = VK_STRUCTURE_TYPE_VIDEO_CAPABILITIES_KHR;
+    videoCapabilities.pNext                  = &videoEncodeCapabilities;
+
+    const VkResult result = vk.getPhysicalDeviceVideoCapabilitiesKHR(physicalDevice, &videoProfile, &videoCapabilities);
+    if (result != VK_SUCCESS)
+    {
+        std::ostringstream failMsg;
+        failMsg << "Failed to query video capabilities, error: " << result;
+        return tcu::TestStatus::fail(failMsg.str());
+    }
+
+    validateFeedback2Capabilities(feedback2Capabilities, videoEncodeCapabilities, feedback2Features);
+
+    return tcu::TestStatus::pass("Pass");
+}
+
+void VideoCapabilitiesFeedback2H264EncodeTestInstance::validateFeedback2Capabilities(
+    const VkVideoEncodeFeedback2CapabilitiesKHR &feedback2Capabilities,
+    const VkVideoEncodeCapabilitiesKHR &encodeCapabilities,
+    const VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR &feedback2Features)
+{
+    // Validate that the feature bit is reported
+    if (feedback2Features.videoEncodeFeedback2 == VK_FALSE)
+        TCU_FAIL("videoEncodeFeedback2 feature bit is not reported as supported");
+
+    // Validate required baseline feedback flags are supported
+    const VkVideoEncodeFeedbackFlagsKHR requiredFeedbackFlags =
+        VK_VIDEO_ENCODE_FEEDBACK_AVERAGE_QUANTIZATION_BIT_KHR | VK_VIDEO_ENCODE_FEEDBACK_INTRA_PIXELS_BIT_KHR |
+        VK_VIDEO_ENCODE_FEEDBACK_INTER_PIXELS_BIT_KHR | VK_VIDEO_ENCODE_FEEDBACK_PICTURE_PARTITION_COUNT_BIT_KHR;
+
+    if ((encodeCapabilities.supportedEncodeFeedbackFlags & requiredFeedbackFlags) != requiredFeedbackFlags)
+        TCU_FAIL("Required feedback2 flags not supported in supportedEncodeFeedbackFlags");
+
+    // Validate required per-partition feedback flags are supported
+    const VkVideoEncodePerPartitionFeedbackFlagsKHR requiredPerPartitionFlags =
+        VK_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_STATUS_BIT_KHR |
+        VK_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_BITSTREAM_BUFFER_OFFSET_BIT_KHR |
+        VK_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_BITSTREAM_BYTES_WRITTEN_BIT_KHR;
+
+    if (feedback2Capabilities.maxPerPartitionFeedbackEntries > 0 &&
+        (feedback2Capabilities.supportedPerPartitionEncodeFeedbackFlags & requiredPerPartitionFlags) !=
+            requiredPerPartitionFlags)
+        TCU_FAIL("Required per-partition feedback flags not supported");
+}
+
+class VideoCapabilitiesFeedback2H265EncodeTestInstance : public VideoCapabilitiesQueryTestInstance
+{
+public:
+    VideoCapabilitiesFeedback2H265EncodeTestInstance(Context &context, const CaseDef &data);
+    virtual ~VideoCapabilitiesFeedback2H265EncodeTestInstance(void);
+    tcu::TestStatus iterate(void);
+
+protected:
+    void validateFeedback2Capabilities(const VkVideoEncodeFeedback2CapabilitiesKHR &feedback2Capabilities,
+                                       const VkVideoEncodeCapabilitiesKHR &encodeCapabilities,
+                                       const VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR &feedback2Features);
+};
+
+VideoCapabilitiesFeedback2H265EncodeTestInstance::VideoCapabilitiesFeedback2H265EncodeTestInstance(Context &context,
+                                                                                                   const CaseDef &data)
+    : VideoCapabilitiesQueryTestInstance(context, data)
+{
+}
+
+VideoCapabilitiesFeedback2H265EncodeTestInstance::~VideoCapabilitiesFeedback2H265EncodeTestInstance(void)
+{
+}
+
+tcu::TestStatus VideoCapabilitiesFeedback2H265EncodeTestInstance::iterate(void)
+{
+    const InstanceInterface &vk                                = m_context.getInstanceInterface();
+    const VkPhysicalDevice physicalDevice                      = m_context.getPhysicalDevice();
+    const VkVideoCodecOperationFlagBitsKHR videoCodecOperation = VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR;
+
+    if (!m_context.isDeviceFunctionalitySupported("VK_KHR_video_encode_feedback2"))
+        TCU_THROW(NotSupportedError, "VK_KHR_video_encode_feedback2 not supported");
+
+    const VkVideoEncodeH265ProfileInfoKHR videoProfileOperation = {
+        VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PROFILE_INFO_KHR, //  VkStructureType sType;
+        VK_NULL_HANDLE,                                       //  const void* pNext;
+        STD_VIDEO_H265_PROFILE_IDC_MAIN,                      //  StdVideoH265ProfileIdc stdProfileIdc;
+    };
+
+    const VkVideoProfileInfoKHR videoProfile = {
+        VK_STRUCTURE_TYPE_VIDEO_PROFILE_INFO_KHR, //  VkStructureType sType;
+        &videoProfileOperation,                   //  const void* pNext;
+        videoCodecOperation,                      //  VkVideoCodecOperationFlagBitsKHR videoCodecOperation;
+        VK_VIDEO_CHROMA_SUBSAMPLING_420_BIT_KHR,  //  VkVideoChromaSubsamplingFlagsKHR chromaSubsampling;
+        VK_VIDEO_COMPONENT_BIT_DEPTH_8_BIT_KHR,   //  VkVideoComponentBitDepthFlagsKHR lumaBitDepth;
+        VK_VIDEO_COMPONENT_BIT_DEPTH_8_BIT_KHR,   //  VkVideoComponentBitDepthFlagsKHR chromaBitDepth;
+    };
+
+    VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR feedback2Features = {
+        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_FEEDBACK_2_FEATURES_KHR, //  VkStructureType sType;
+        VK_NULL_HANDLE,                                                         //  void* pNext;
+        VK_FALSE,                                                               //  VkBool32 videoEncodeFeedback2;
+    };
+
+    VkPhysicalDeviceFeatures2 deviceFeatures2 = {
+        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2, //  VkStructureType sType;
+        &feedback2Features,                           //  void* pNext;
+        {},                                           //  VkPhysicalDeviceFeatures features;
+    };
+
+    vk.getPhysicalDeviceFeatures2(physicalDevice, &deviceFeatures2);
+
+    VkVideoEncodeH265CapabilitiesKHR h265Capabilities = {};
+    h265Capabilities.sType                            = VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_CAPABILITIES_KHR;
+    h265Capabilities.pNext                            = VK_NULL_HANDLE;
+
+    VkVideoEncodeFeedback2CapabilitiesKHR feedback2Capabilities = {
+        VK_STRUCTURE_TYPE_VIDEO_ENCODE_FEEDBACK_2_CAPABILITIES_KHR, //  VkStructureType sType;
+        &h265Capabilities,                                          //  void* pNext;
+        0u,                                                         //  uint32_t maxPerPartitionFeedbackEntries;
+        0u, //  VkVideoEncodePerPartitionFeedbackFlagsKHR supportedPerPartitionEncodeFeedbackFlags;
+    };
+
+    VkVideoEncodeCapabilitiesKHR videoEncodeCapabilities = {};
+    videoEncodeCapabilities.sType                        = VK_STRUCTURE_TYPE_VIDEO_ENCODE_CAPABILITIES_KHR;
+    videoEncodeCapabilities.pNext                        = &feedback2Capabilities;
+
+    VkVideoCapabilitiesKHR videoCapabilities = {};
+    videoCapabilities.sType                  = VK_STRUCTURE_TYPE_VIDEO_CAPABILITIES_KHR;
+    videoCapabilities.pNext                  = &videoEncodeCapabilities;
+
+    const VkResult result = vk.getPhysicalDeviceVideoCapabilitiesKHR(physicalDevice, &videoProfile, &videoCapabilities);
+    if (result != VK_SUCCESS)
+    {
+        std::ostringstream failMsg;
+        failMsg << "Failed to query video capabilities, error: " << result;
+        return tcu::TestStatus::fail(failMsg.str());
+    }
+
+    validateFeedback2Capabilities(feedback2Capabilities, videoEncodeCapabilities, feedback2Features);
+
+    return tcu::TestStatus::pass("Pass");
+}
+
+void VideoCapabilitiesFeedback2H265EncodeTestInstance::validateFeedback2Capabilities(
+    const VkVideoEncodeFeedback2CapabilitiesKHR &feedback2Capabilities,
+    const VkVideoEncodeCapabilitiesKHR &encodeCapabilities,
+    const VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR &feedback2Features)
+{
+    // Validate that the feature bit is reported
+    if (feedback2Features.videoEncodeFeedback2 == VK_FALSE)
+        TCU_FAIL("videoEncodeFeedback2 feature bit is not reported as supported");
+
+    // Validate required baseline feedback flags are supported
+    const VkVideoEncodeFeedbackFlagsKHR requiredFeedbackFlags =
+        VK_VIDEO_ENCODE_FEEDBACK_AVERAGE_QUANTIZATION_BIT_KHR | VK_VIDEO_ENCODE_FEEDBACK_INTRA_PIXELS_BIT_KHR |
+        VK_VIDEO_ENCODE_FEEDBACK_INTER_PIXELS_BIT_KHR | VK_VIDEO_ENCODE_FEEDBACK_PICTURE_PARTITION_COUNT_BIT_KHR;
+
+    if ((encodeCapabilities.supportedEncodeFeedbackFlags & requiredFeedbackFlags) != requiredFeedbackFlags)
+        TCU_FAIL("Required feedback2 flags not supported in supportedEncodeFeedbackFlags");
+
+    // Validate required per-partition feedback flags are supported
+    const VkVideoEncodePerPartitionFeedbackFlagsKHR requiredPerPartitionFlags =
+        VK_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_STATUS_BIT_KHR |
+        VK_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_BITSTREAM_BUFFER_OFFSET_BIT_KHR |
+        VK_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_BITSTREAM_BYTES_WRITTEN_BIT_KHR;
+
+    if (feedback2Capabilities.maxPerPartitionFeedbackEntries > 0 &&
+        (feedback2Capabilities.supportedPerPartitionEncodeFeedbackFlags & requiredPerPartitionFlags) !=
+            requiredPerPartitionFlags)
+        TCU_FAIL("Required per-partition feedback flags not supported");
+}
+
+class VideoCapabilitiesFeedback2AV1EncodeTestInstance : public VideoCapabilitiesQueryTestInstance
+{
+public:
+    VideoCapabilitiesFeedback2AV1EncodeTestInstance(Context &context, const CaseDef &data);
+    virtual ~VideoCapabilitiesFeedback2AV1EncodeTestInstance(void);
+    tcu::TestStatus iterate(void);
+
+protected:
+    void validateFeedback2Capabilities(const VkVideoEncodeFeedback2CapabilitiesKHR &feedback2Capabilities,
+                                       const VkVideoEncodeCapabilitiesKHR &encodeCapabilities,
+                                       const VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR &feedback2Features);
+};
+
+VideoCapabilitiesFeedback2AV1EncodeTestInstance::VideoCapabilitiesFeedback2AV1EncodeTestInstance(Context &context,
+                                                                                                 const CaseDef &data)
+    : VideoCapabilitiesQueryTestInstance(context, data)
+{
+}
+
+VideoCapabilitiesFeedback2AV1EncodeTestInstance::~VideoCapabilitiesFeedback2AV1EncodeTestInstance(void)
+{
+}
+
+tcu::TestStatus VideoCapabilitiesFeedback2AV1EncodeTestInstance::iterate(void)
+{
+    const InstanceInterface &vk                                = m_context.getInstanceInterface();
+    const VkPhysicalDevice physicalDevice                      = m_context.getPhysicalDevice();
+    const VkVideoCodecOperationFlagBitsKHR videoCodecOperation = VK_VIDEO_CODEC_OPERATION_ENCODE_AV1_BIT_KHR;
+
+    if (!m_context.isDeviceFunctionalitySupported("VK_KHR_video_encode_feedback2"))
+        TCU_THROW(NotSupportedError, "VK_KHR_video_encode_feedback2 not supported");
+
+    const VkVideoEncodeAV1ProfileInfoKHR videoProfileOperation = {
+        VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_PROFILE_INFO_KHR, //  VkStructureType sType;
+        VK_NULL_HANDLE,                                      //  const void* pNext;
+        STD_VIDEO_AV1_PROFILE_MAIN,                          //  StdVideoAV1Profile stdProfile;
+    };
+
+    const VkVideoProfileInfoKHR videoProfile = {
+        VK_STRUCTURE_TYPE_VIDEO_PROFILE_INFO_KHR, //  VkStructureType sType;
+        &videoProfileOperation,                   //  const void* pNext;
+        videoCodecOperation,                      //  VkVideoCodecOperationFlagBitsKHR videoCodecOperation;
+        VK_VIDEO_CHROMA_SUBSAMPLING_420_BIT_KHR,  //  VkVideoChromaSubsamplingFlagsKHR chromaSubsampling;
+        VK_VIDEO_COMPONENT_BIT_DEPTH_8_BIT_KHR,   //  VkVideoComponentBitDepthFlagsKHR lumaBitDepth;
+        VK_VIDEO_COMPONENT_BIT_DEPTH_8_BIT_KHR,   //  VkVideoComponentBitDepthFlagsKHR chromaBitDepth;
+    };
+
+    VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR feedback2Features = {
+        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_FEEDBACK_2_FEATURES_KHR, //  VkStructureType sType;
+        VK_NULL_HANDLE,                                                         //  void* pNext;
+        VK_FALSE,                                                               //  VkBool32 videoEncodeFeedback2;
+    };
+
+    VkPhysicalDeviceFeatures2 deviceFeatures2 = {
+        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2, //  VkStructureType sType;
+        &feedback2Features,                           //  void* pNext;
+        {},                                           //  VkPhysicalDeviceFeatures features;
+    };
+
+    vk.getPhysicalDeviceFeatures2(physicalDevice, &deviceFeatures2);
+
+    VkVideoEncodeAV1CapabilitiesKHR av1Capabilities = {};
+    av1Capabilities.sType                           = VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_CAPABILITIES_KHR;
+    av1Capabilities.pNext                           = VK_NULL_HANDLE;
+
+    VkVideoEncodeFeedback2CapabilitiesKHR feedback2Capabilities = {
+        VK_STRUCTURE_TYPE_VIDEO_ENCODE_FEEDBACK_2_CAPABILITIES_KHR, //  VkStructureType sType;
+        &av1Capabilities,                                           //  void* pNext;
+        0u,                                                         //  uint32_t maxPerPartitionFeedbackEntries;
+        0u, //  VkVideoEncodePerPartitionFeedbackFlagsKHR supportedPerPartitionEncodeFeedbackFlags;
+    };
+
+    VkVideoEncodeCapabilitiesKHR videoEncodeCapabilities = {};
+    videoEncodeCapabilities.sType                        = VK_STRUCTURE_TYPE_VIDEO_ENCODE_CAPABILITIES_KHR;
+    videoEncodeCapabilities.pNext                        = &feedback2Capabilities;
+
+    VkVideoCapabilitiesKHR videoCapabilities = {};
+    videoCapabilities.sType                  = VK_STRUCTURE_TYPE_VIDEO_CAPABILITIES_KHR;
+    videoCapabilities.pNext                  = &videoEncodeCapabilities;
+
+    const VkResult result = vk.getPhysicalDeviceVideoCapabilitiesKHR(physicalDevice, &videoProfile, &videoCapabilities);
+    if (result != VK_SUCCESS)
+    {
+        std::ostringstream failMsg;
+        failMsg << "Failed to query video capabilities, error: " << result;
+        return tcu::TestStatus::fail(failMsg.str());
+    }
+
+    validateFeedback2Capabilities(feedback2Capabilities, videoEncodeCapabilities, feedback2Features);
+
+    return tcu::TestStatus::pass("Pass");
+}
+
+void VideoCapabilitiesFeedback2AV1EncodeTestInstance::validateFeedback2Capabilities(
+    const VkVideoEncodeFeedback2CapabilitiesKHR &feedback2Capabilities,
+    const VkVideoEncodeCapabilitiesKHR &encodeCapabilities,
+    const VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR &feedback2Features)
+{
+    // Validate that the feature bit is reported
+    if (feedback2Features.videoEncodeFeedback2 == VK_FALSE)
+        TCU_FAIL("videoEncodeFeedback2 feature bit is not reported as supported");
+
+    // Validate required baseline feedback flags are supported
+    const VkVideoEncodeFeedbackFlagsKHR requiredFeedbackFlags =
+        VK_VIDEO_ENCODE_FEEDBACK_AVERAGE_QUANTIZATION_BIT_KHR | VK_VIDEO_ENCODE_FEEDBACK_INTRA_PIXELS_BIT_KHR |
+        VK_VIDEO_ENCODE_FEEDBACK_INTER_PIXELS_BIT_KHR | VK_VIDEO_ENCODE_FEEDBACK_PICTURE_PARTITION_COUNT_BIT_KHR;
+
+    if ((encodeCapabilities.supportedEncodeFeedbackFlags & requiredFeedbackFlags) != requiredFeedbackFlags)
+        TCU_FAIL("Required feedback2 flags not supported in supportedEncodeFeedbackFlags");
+
+    // Validate required per-partition feedback flags are supported
+    const VkVideoEncodePerPartitionFeedbackFlagsKHR requiredPerPartitionFlags =
+        VK_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_STATUS_BIT_KHR |
+        VK_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_BITSTREAM_BUFFER_OFFSET_BIT_KHR |
+        VK_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_BITSTREAM_BYTES_WRITTEN_BIT_KHR;
+
+    if (feedback2Capabilities.maxPerPartitionFeedbackEntries > 0 &&
+        (feedback2Capabilities.supportedPerPartitionEncodeFeedbackFlags & requiredPerPartitionFlags) !=
+            requiredPerPartitionFlags)
+        TCU_FAIL("Required per-partition feedback flags not supported");
+}
+
 class VideoCapabilitiesQueryTestCase : public TestCase
 {
 public:
@@ -1824,9 +2266,24 @@ void VideoCapabilitiesQueryTestCase::checkSupport(Context &context) const
         context.requireDeviceFunctionality("VK_KHR_video_encode_av1");
         context.requireDeviceFunctionality("VK_KHR_video_encode_intra_refresh");
         break;
+    case TEST_TYPE_H264_ENCODE_FEEDBACK2_CAPABILITIES_QUERY:
+        context.requireDeviceFunctionality("VK_KHR_video_encode_h264");
+        context.requireDeviceFunctionality("VK_KHR_video_encode_feedback2");
+        break;
+    case TEST_TYPE_H265_ENCODE_FEEDBACK2_CAPABILITIES_QUERY:
+        context.requireDeviceFunctionality("VK_KHR_video_encode_h265");
+        context.requireDeviceFunctionality("VK_KHR_video_encode_feedback2");
+        break;
+    case TEST_TYPE_AV1_ENCODE_FEEDBACK2_CAPABILITIES_QUERY:
+        context.requireDeviceFunctionality("VK_KHR_video_encode_av1");
+        context.requireDeviceFunctionality("VK_KHR_video_encode_feedback2");
+        break;
     default:
         TCU_THROW(NotSupportedError, "Unknown TestType");
     }
+
+    if (m_caseDef.extendedFlags)
+        context.requireDeviceFunctionality(VK_KHR_EXTENDED_FLAGS_EXTENSION_NAME);
 }
 
 TestInstance *VideoCapabilitiesQueryTestCase::createInstance(Context &context) const
@@ -1883,6 +2340,12 @@ TestInstance *VideoCapabilitiesQueryTestCase::createInstance(Context &context) c
         return new VideoCapabilitiesIntraRefreshH265EncodeTestInstance(context, m_caseDef);
     case TEST_TYPE_AV1_ENCODE_INTRA_REFRESH_CAPABILITIES_QUERY:
         return new VideoCapabilitiesIntraRefreshAV1EncodeTestInstance(context, m_caseDef);
+    case TEST_TYPE_H264_ENCODE_FEEDBACK2_CAPABILITIES_QUERY:
+        return new VideoCapabilitiesFeedback2H264EncodeTestInstance(context, m_caseDef);
+    case TEST_TYPE_H265_ENCODE_FEEDBACK2_CAPABILITIES_QUERY:
+        return new VideoCapabilitiesFeedback2H265EncodeTestInstance(context, m_caseDef);
+    case TEST_TYPE_AV1_ENCODE_FEEDBACK2_CAPABILITIES_QUERY:
+        return new VideoCapabilitiesFeedback2AV1EncodeTestInstance(context, m_caseDef);
     default:
         TCU_THROW(NotSupportedError, "Unknown TestType");
     }
@@ -1942,6 +2405,12 @@ const char *getTestName(const TestType testType)
         return "h265_encode_intra_refresh_capabilities_query";
     case TEST_TYPE_AV1_ENCODE_INTRA_REFRESH_CAPABILITIES_QUERY:
         return "av1_encode_intra_refresh_capabilities_query";
+    case TEST_TYPE_H264_ENCODE_FEEDBACK2_CAPABILITIES_QUERY:
+        return "h264_encode_feedback2_capabilities_query";
+    case TEST_TYPE_H265_ENCODE_FEEDBACK2_CAPABILITIES_QUERY:
+        return "h265_encode_feedback2_capabilities_query";
+    case TEST_TYPE_AV1_ENCODE_FEEDBACK2_CAPABILITIES_QUERY:
+        return "av1_encode_feedback2_capabilities_query";
     default:
         TCU_THROW(NotSupportedError, "Unknown TestType");
     }
@@ -2117,7 +2586,8 @@ MaybeFormatProperties getVideoFormatProperties(const InstanceInterface &vki, VkP
         return ret;
     }
 
-    DE_ASSERT(numVideoFormatInfos > 0);
+    if (numVideoFormatInfos == 0)
+        TCU_THROW(TestError, "vkGetPhysicalDeviceVideoFormatPropertiesKHR returned VK_SUCCESS with zero formats");
 
     ret.items.resize(numVideoFormatInfos);
     for (auto &item : ret.items)
@@ -2299,14 +2769,21 @@ tcu::TestCaseGroup *createVideoCapabilitiesTests(tcu::TestContext &testCtx)
     // Video encoding and decoding capability query tests
     de::MovePtr<tcu::TestCaseGroup> group(new tcu::TestCaseGroup(testCtx, "capabilities"));
 
-    for (int testTypeNdx = 0; testTypeNdx < TEST_TYPE_LAST; ++testTypeNdx)
+    for (const bool extendedFlags : {false, true})
     {
-        const TestType testType = static_cast<TestType>(testTypeNdx);
-        const CaseDef caseDef   = {
-            testType, //  TestType testType;
-        };
+        const char *flagsGroupName = extendedFlags ? "extended_flags" : "none";
+        de::MovePtr<tcu::TestCaseGroup> flagsGroup(new tcu::TestCaseGroup(testCtx, flagsGroupName));
+        for (int testTypeNdx = 0; testTypeNdx < TEST_TYPE_LAST; ++testTypeNdx)
+        {
+            const TestType testType = static_cast<TestType>(testTypeNdx);
+            const CaseDef caseDef   = {
+                testType,     //  TestType testType;
+                extendedFlags //  bool extendedFlags;
+            };
 
-        group->addChild(new VideoCapabilitiesQueryTestCase(testCtx, getTestName(testType), caseDef));
+            flagsGroup->addChild(new VideoCapabilitiesQueryTestCase(testCtx, getTestName(testType), caseDef));
+        }
+        group->addChild(flagsGroup.release());
     }
 
     return group.release();

@@ -98,6 +98,8 @@ set(DEQP_VK_VKSC_API_SRCS
 	vktApiDSColorBitCopyTests.hpp
 	vktApiUseAfterCopyTests.cpp
 	vktApiUseAfterCopyTests.hpp
+	vktApiMaintenance11Tests.hpp
+	vktApiMaintenance11Tests.cpp
 	)
 
 set(DEQP_VK_API_SRCS
@@ -127,6 +129,10 @@ set(DEQP_VK_API_SRCS
 	vktApiFragmentShaderOutputTests.hpp
 	vktApiPerformanceCountersByRegionTests.cpp
 	vktApiPerformanceCountersByRegionTests.hpp
+	vktApiGPAInterfaceTests.cpp
+	vktApiGPAInterfaceTests.hpp
+	vktApiArrayTests.cpp
+	vktApiArrayTests.hpp
 	)
 
 PCH(DEQP_VK_API_SRCS ../pch.cpp)

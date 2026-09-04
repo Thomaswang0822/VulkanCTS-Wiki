@@ -302,10 +302,116 @@ void DevCaps::reset()
     m_features.clear();
     setOwnExtensions();
 
-    const VkQueueFlags requiredFlags = m_contextManager->getCommandLine().isComputeOnly() ?
-                                           VkQueueFlags(VK_QUEUE_COMPUTE_BIT) :
-                                           (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT);
+    const auto &vki            = m_contextManager->getInstanceInterface();
+    const auto physDev         = m_contextManager->getPhysicalDevice();
+    VkQueueFlags requiredFlags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT;
+    try
+    {
+        findQueueFamilyIndexWithCaps(vki, physDev, requiredFlags);
+    }
+    catch (const tcu::NotSupportedError &)
+    {
+        requiredFlags = VK_QUEUE_COMPUTE_BIT;
+    }
     resetQueues({{requiredFlags, 0, 1u, 1.0f}});
+}
+
+void DevCaps::resetQueuesForMultiQueueRunner(QueueCapabilities caps)
+{
+    const auto &vki    = m_contextManager->getInstanceInterface();
+    const auto physDev = m_contextManager->getPhysicalDevice();
+
+    if (caps == COMPUTE_QUEUE)
+    {
+        bool hasUniversal        = false;
+        bool hasDedicatedCompute = false;
+
+        try
+        {
+            findQueueFamilyIndexWithCaps(vki, physDev, VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT);
+            hasUniversal = true;
+            try
+            {
+                findQueueFamilyIndexWithCaps(vki, physDev, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_GRAPHICS_BIT);
+                hasDedicatedCompute = true;
+            }
+            catch (const tcu::NotSupportedError &)
+            {
+            }
+        }
+        catch (const tcu::NotSupportedError &)
+        {
+        }
+
+        if (hasUniversal && hasDedicatedCompute)
+        {
+            QueueCreateInfo infos[]{
+                {VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT, 0, 1u, 1.0f},
+                {VK_QUEUE_COMPUTE_BIT, VK_QUEUE_GRAPHICS_BIT, 1u, 1.0f},
+            };
+            resetQueues(infos);
+        }
+        else if (hasUniversal)
+        {
+            resetQueues({{VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT, 0, 1u, 1.0f}});
+        }
+        else
+        {
+            resetQueues({{VK_QUEUE_COMPUTE_BIT, 0, 1u, 1.0f}});
+        }
+    }
+    else if (caps == TRANSFER_QUEUE)
+    {
+        bool hasUniversal         = false;
+        bool hasDedicatedCompute  = false;
+        bool hasDedicatedTransfer = false;
+
+        try
+        {
+            findQueueFamilyIndexWithCaps(vki, physDev, VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT);
+            hasUniversal = true;
+        }
+        catch (const tcu::NotSupportedError &)
+        {
+        }
+
+        if (hasUniversal)
+        {
+            try
+            {
+                findQueueFamilyIndexWithCaps(vki, physDev, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_GRAPHICS_BIT);
+                hasDedicatedCompute = true;
+            }
+            catch (const tcu::NotSupportedError &)
+            {
+            }
+        }
+
+        try
+        {
+            findQueueFamilyIndexWithCaps(vki, physDev, VK_QUEUE_TRANSFER_BIT,
+                                         VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT);
+            hasDedicatedTransfer = true;
+        }
+        catch (const tcu::NotSupportedError &)
+        {
+        }
+
+        std::vector<QueueCreateInfo> infos;
+        if (hasUniversal)
+            infos.push_back({VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT, 0, 1u, 1.0f});
+        else
+            infos.push_back({VK_QUEUE_COMPUTE_BIT, 0, 1u, 1.0f}); // compute-only hardware fallback
+        if (hasDedicatedCompute)
+            infos.push_back({VK_QUEUE_COMPUTE_BIT, VK_QUEUE_GRAPHICS_BIT, 1u, 1.0f});
+        if (hasDedicatedTransfer)
+            infos.push_back({VK_QUEUE_TRANSFER_BIT, VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT, 1u, 1.0f});
+        resetQueues(infos);
+    }
+    else if (caps == GRAPHICS_QUEUE)
+    {
+        resetQueues({{VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT, 0, 1u, 1.0f}});
+    }
 }
 
 template <class Stream>
@@ -381,24 +487,30 @@ void DevCaps::verifyFeature(vk::VkStructureType sType, bool checkRuntimeApiVersi
     // by the addition of the corresponding feature structure from the blob;
     // the reverse sequence is also detected
 
-    const std::map<uint32_t, vk::VkStructureType> apiToBlob{
-        {VK_API_VERSION_1_1, vk::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES},
-        {VK_API_VERSION_1_2, vk::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES},
+    const std::map<uint32_t, std::vector<vk::VkStructureType>> apiToBlob{
 #ifdef CTS_USES_VULKANSC
-        {VK_API_VERSION_1_0, vk::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_SC_1_0_FEATURES}
+        {VKSC_API_VERSION_1_0,
+         {vk::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES,
+          vk::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES,
+          vk::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_SC_1_0_FEATURES}}
 #else
-        {VK_API_VERSION_1_3, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES},
-        {VK_API_VERSION_1_4, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES},
+        {VK_API_VERSION_1_1, {vk::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES}},
+        {VK_API_VERSION_1_2, {vk::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES}},
+        {VK_API_VERSION_1_3, {vk::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES}},
+        {VK_API_VERSION_1_4, {vk::VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES}},
 #endif
     };
     const uint32_t newFeatureBlobVersion = vk::DeviceFeatures::getBlobFeatureVersion(sType);
     const bool newFeatureIsBlob          = newFeatureBlobVersion == 0u;
     auto blobToApi                       = [&](vk::VkStructureType blob) -> uint32_t
     {
-        for (const std::pair<const uint32_t, vk::VkStructureType> &item : apiToBlob)
+        for (const auto &items : apiToBlob)
         {
-            if (item.second == blob)
-                return item.first;
+            for (const auto &item : items.second)
+            {
+                if (item == blob)
+                    return items.first;
+            }
         }
         return 0u;
     };
@@ -490,7 +602,10 @@ void DevCaps::verifyFeature(vk::VkStructureType sType, bool checkRuntimeApiVersi
     {
         auto blob = apiToBlob.find(newFeatureBlobVersion);
         DE_ASSERT(apiToBlob.end() != blob);
-        traverseFeatures(m_features, blob->second, blobInFeatures);
+        for (const auto &item : blob->second)
+        {
+            traverseFeatures(m_features, item, blobInFeatures);
+        }
     }
 
     if (Status::Ok != status)
@@ -902,9 +1017,8 @@ Move<VkDevice> ContextManager::createDevice(const DevCaps &caps, DevCaps::Runtim
     const InstanceInterface &vki                           = getInstanceInterface();
     const VkPhysicalDevice physicalDevice                  = getPhysicalDevice();
     const VkInstance instance                              = getInstanceHandle();
-    const uint32_t universalQueueIndex                     = findQueueFamilyIndexWithCaps(
-        vki, physicalDevice,
-        cmdLine.isComputeOnly() ? VK_QUEUE_COMPUTE_BIT : VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT);
+    const uint32_t universalQueueIndex =
+        findQueueFamilyIndexWithCaps(vki, physicalDevice, VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT);
 
     // queues block
     std::vector<float> queuePriorities;
@@ -933,7 +1047,7 @@ Move<VkDevice> ContextManager::createDevice(const DevCaps &caps, DevCaps::Runtim
 
     // devices created for Vulkan SC must have VkDeviceObjectReservationCreateInfo
     // structure defined in VkDeviceCreateInfo::pNext chain
-    VkDeviceObjectReservationCreateInfo dorCI = resetDeviceObjectReservationCreateInfo();
+    VkDeviceObjectReservationCreateInfo dorCI = resourceInterface->getDefaultDeviceObjectReservationCreateInfo();
     const bool hasReservationCreateInfo =
         createCaps.getFeatureInfo(makeFeatureDesc<VkDeviceObjectReservationCreateInfo>().sType,
                                   createCaps.m_features) != nullptr;
@@ -1017,6 +1131,12 @@ Move<VkDevice> ContextManager::createDevice(const DevCaps &caps, DevCaps::Runtim
 #else
 Move<VkDevice> ContextManager::createDevice(const DevCaps &caps, DevCaps::RuntimeData &data) const
 {
+    const PlatformInterface &vkp                           = getPlatformInterface();
+    de::SharedPtr<vk::ResourceInterface> resourceInterface = getResourceInterface();
+    const InstanceInterface &vki                           = getInstanceInterface();
+    const VkPhysicalDevice physicalDevice                  = getPhysicalDevice();
+    const VkInstance instance                              = getInstanceHandle();
+
     // queues block
     std::vector<float> queuePriorities;
     std::vector<VkDeviceQueueCreateInfo> queueInfos;
@@ -1049,8 +1169,7 @@ Move<VkDevice> ContextManager::createDevice(const DevCaps &caps, DevCaps::Runtim
 
     print(caps.m_testContext.getLog(), deviceParams);
 
-    return createCustomDevice(getPlatformInterface(), getInstanceHandle(), getInstanceInterface(), getPhysicalDevice(),
-                              &deviceParams, nullptr);
+    return vk::createDevice(vkp, instance, vki, physicalDevice, &deviceParams);
 }
 #endif // CTS_USES_VULKANSC
 

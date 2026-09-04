@@ -187,7 +187,6 @@ BufferSparseResidencyInstance::BufferSparseResidencyInstance(Context &context, c
 
 tcu::TestStatus BufferSparseResidencyInstance::iterate(void)
 {
-    const InstanceInterface &instance = m_context.getInstanceInterface();
     {
         // Create logical device supporting both sparse and compute operations
         QueueRequirementsVec queueRequirements;
@@ -196,6 +195,7 @@ tcu::TestStatus BufferSparseResidencyInstance::iterate(void)
 
         createDeviceSupportingQueues(queueRequirements);
     }
+    const InstanceInterface &instance                         = getInstanceInterface();
     const VkPhysicalDevice physicalDevice                     = getPhysicalDevice();
     const VkPhysicalDeviceProperties physicalDeviceProperties = getPhysicalDeviceProperties(instance, physicalDevice);
 
@@ -601,8 +601,6 @@ BufferSparseResidencyNonResidentInstance::BufferSparseResidencyNonResidentInstan
 
 tcu::TestStatus BufferSparseResidencyNonResidentInstance::iterate(void)
 {
-    const InstanceInterface &instance = m_context.getInstanceInterface();
-
     // Try to use transfer queue (if available) for copy, fill and update operations
     const VkQueueFlagBits cmdQueueBit =
         (m_testParams.bufferInitCmd == BUFF_INIT_COPY) ? VK_QUEUE_COMPUTE_BIT : VK_QUEUE_TRANSFER_BIT;
@@ -621,6 +619,7 @@ tcu::TestStatus BufferSparseResidencyNonResidentInstance::iterate(void)
         createDeviceSupportingQueues(queueRequirements);
     }
 
+    const InstanceInterface &instance                         = getInstanceInterface();
     const VkPhysicalDevice physicalDevice                     = getPhysicalDevice();
     const VkPhysicalDeviceProperties physicalDeviceProperties = getPhysicalDeviceProperties(instance, physicalDevice);
     const DeviceInterface &deviceInterface                    = getDeviceInterface();
@@ -1433,8 +1432,7 @@ TexelBufferSparseResidencyInstance::TexelBufferSparseResidencyInstance(Context &
 
 tcu::TestStatus TexelBufferSparseResidencyInstance::iterate(void)
 {
-    const InstanceInterface &instance = m_context.getInstanceInterface();
-    const bool isformat64b            = formatIsR64(m_format);
+    const bool isformat64b = formatIsR64(m_format);
     {
         // Create logical device supporting both sparse and compute operations
         QueueRequirementsVec queueRequirements;
@@ -1444,6 +1442,7 @@ tcu::TestStatus TexelBufferSparseResidencyInstance::iterate(void)
         createDeviceSupportingQueues(queueRequirements, isformat64b);
     }
 
+    const InstanceInterface &instance                         = getInstanceInterface();
     const VkPhysicalDevice physicalDevice                     = getPhysicalDevice();
     const VkPhysicalDeviceProperties physicalDeviceProperties = getPhysicalDeviceProperties(instance, physicalDevice);
 
@@ -1630,7 +1629,7 @@ tcu::TestStatus TexelBufferSparseResidencyInstance::iterate(void)
 
     const Unique<VkDescriptorPool> descriptorPool(
         DescriptorPoolBuilder()
-            .addType(VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1u)
+            .addType(descriptorType, 1u)
             .addType(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1u)
             .build(deviceInterface, getDevice(), VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT, 1u));
 

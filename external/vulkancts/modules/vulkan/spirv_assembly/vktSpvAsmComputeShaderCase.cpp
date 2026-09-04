@@ -532,7 +532,7 @@ TestInstance *SpvAsmComputeShaderCase::createInstance(Context &ctx) const
 // ComputeShaderTestInstance implementations
 
 SpvAsmComputeShaderInstance::SpvAsmComputeShaderInstance(Context &ctx, const ComputeShaderSpec &spec)
-    : TestInstance(ctx)
+    : MultiQueueRunnerTestInstance(ctx, vkt::COMPUTE_QUEUE)
     , m_shaderSpec(spec)
 {
 }
@@ -553,13 +553,13 @@ VkImageUsageFlags getMatchingComputeImageUsageFlags(VkDescriptorType dType)
     return (VkImageUsageFlags)0;
 }
 
-tcu::TestStatus SpvAsmComputeShaderInstance::iterate(void)
+tcu::TestStatus SpvAsmComputeShaderInstance::queuePass(const vkt::QueueData &queueData)
 {
-    const uint32_t queueFamilyIndex = m_context.getUniversalQueueFamilyIndex();
+    const uint32_t queueFamilyIndex = queueData.familyIndex;
     const VkDevice &device          = m_context.getDevice();
     const DeviceInterface &vkdi     = m_context.getDeviceInterface();
     Allocator &allocator            = m_context.getDefaultAllocator();
-    const VkQueue queue             = m_context.getUniversalQueue();
+    const VkQueue queue             = queueData.handle;
 
     vector<AllocationSp> inputAllocs;
     vector<AllocationSp> outputAllocs;
@@ -584,7 +584,7 @@ tcu::TestStatus SpvAsmComputeShaderInstance::iterate(void)
 
     for (uint32_t inputNdx = 0; inputNdx < m_shaderSpec.inputs.size(); ++inputNdx)
     {
-        const VkDescriptorType descType = m_shaderSpec.inputs[inputNdx].getDescriptorType();
+        const VkDescriptorType descType = m_shaderSpec.inputs[inputNdx].descriptorType;
 
         const bool hasImage = (descType == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) ||
                               (descType == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) ||
@@ -601,7 +601,7 @@ tcu::TestStatus SpvAsmComputeShaderInstance::iterate(void)
         {
             vector<uint8_t> inputBytes;
 
-            m_shaderSpec.inputs[inputNdx].getBytes(inputBytes);
+            m_shaderSpec.inputs[inputNdx].buffer->getBytes(inputBytes);
 
             const size_t numBytes = inputBytes.size();
 
@@ -619,7 +619,7 @@ tcu::TestStatus SpvAsmComputeShaderInstance::iterate(void)
         {
             vector<uint8_t> inputBytes;
 
-            m_shaderSpec.inputs[inputNdx].getBytes(inputBytes);
+            m_shaderSpec.inputs[inputNdx].buffer->getBytes(inputBytes);
 
             const size_t numBytes = inputBytes.size();
 
@@ -659,9 +659,7 @@ tcu::TestStatus SpvAsmComputeShaderInstance::iterate(void)
             vector<VkBufferImageCopy> copyRegions;
             copyRegions.push_back(copyRegion);
 
-            VkFlags destPipelineStageFlags = m_context.getTestContext().getCommandLine().isComputeOnly() ?
-                                                 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT :
-                                                 VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+            const VkFlags destPipelineStageFlags = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
             copyBufferToImage(vkdi, device, queue, queueFamilyIndex, buffer->get(), (uint32_t)numBytes, copyRegions,
                               nullptr, VK_IMAGE_ASPECT_COLOR_BIT, 1u, 1u, image->get(), imageLayout,
                               destPipelineStageFlags);
@@ -806,13 +804,13 @@ tcu::TestStatus SpvAsmComputeShaderInstance::iterate(void)
 
     for (uint32_t outputNdx = 0; outputNdx < m_shaderSpec.outputs.size(); ++outputNdx)
     {
-        DE_ASSERT(m_shaderSpec.outputs[outputNdx].getDescriptorType() == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
+        DE_ASSERT(m_shaderSpec.outputs[outputNdx].descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
 
-        descriptorTypes.push_back(m_shaderSpec.outputs[outputNdx].getDescriptorType());
+        descriptorTypes.push_back(m_shaderSpec.outputs[outputNdx].descriptorType);
 
         AllocationMp alloc;
         vector<uint8_t> outputBytes;
-        m_shaderSpec.outputs[outputNdx].getBytes(outputBytes);
+        m_shaderSpec.outputs[outputNdx].buffer->getBytes(outputBytes);
 
         const size_t numBytes  = outputBytes.size();
         BufferHandleUp *buffer = new BufferHandleUp(
@@ -954,7 +952,7 @@ tcu::TestStatus SpvAsmComputeShaderInstance::iterate(void)
         for (size_t outputNdx = 0; outputNdx < m_shaderSpec.outputs.size(); ++outputNdx)
         {
             vector<uint8_t> expectedBytes;
-            m_shaderSpec.outputs[outputNdx].getBytes(expectedBytes);
+            m_shaderSpec.outputs[outputNdx].buffer->getBytes(expectedBytes);
 
             if (deMemCmp(&expectedBytes.front(), outputAllocs[outputNdx]->getHostPtr(), expectedBytes.size()))
             {

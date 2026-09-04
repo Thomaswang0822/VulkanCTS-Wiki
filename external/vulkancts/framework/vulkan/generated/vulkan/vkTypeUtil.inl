@@ -515,6 +515,28 @@ inline VkExternalMemoryProperties makeExternalMemoryProperties (VkExternalMemory
 	return res;
 }
 
+inline VkGpaPerfBlockPropertiesAMD makeGpaPerfBlockPropertiesAMD (VkGpaPerfBlockAMD blockType, VkGpaPerfBlockPropertiesFlagsAMD flags, uint32_t instanceCount, uint32_t maxEventID, uint32_t maxGlobalOnlyCounters, uint32_t maxGlobalSharedCounters, uint32_t maxStreamingCounters)
+{
+	VkGpaPerfBlockPropertiesAMD res;
+	res.blockType				= blockType;
+	res.flags					= flags;
+	res.instanceCount			= instanceCount;
+	res.maxEventID				= maxEventID;
+	res.maxGlobalOnlyCounters	= maxGlobalOnlyCounters;
+	res.maxGlobalSharedCounters	= maxGlobalSharedCounters;
+	res.maxStreamingCounters	= maxStreamingCounters;
+	return res;
+}
+
+inline VkGpaPerfCounterAMD makeGpaPerfCounterAMD (VkGpaPerfBlockAMD blockType, uint32_t blockInstance, uint32_t eventID)
+{
+	VkGpaPerfCounterAMD res;
+	res.blockType		= blockType;
+	res.blockInstance	= blockInstance;
+	res.eventID			= eventID;
+	return res;
+}
+
 inline VkHostAddressRangeConstEXT makeHostAddressRangeConstEXT (const void* address, size_t size)
 {
 	VkHostAddressRangeConstEXT res;
@@ -650,6 +672,15 @@ inline VkMicromapTriangleKHR makeMicromapTriangleKHR (uint32_t dataOffset, uint1
 inline VkMicromapUsageEXT makeMicromapUsageEXT (uint32_t count, uint32_t subdivisionLevel, uint32_t format)
 {
 	VkMicromapUsageEXT res;
+	res.count				= count;
+	res.subdivisionLevel	= subdivisionLevel;
+	res.format				= format;
+	return res;
+}
+
+inline VkMicromapUsageKHR makeMicromapUsageKHR (uint32_t count, uint32_t subdivisionLevel, VkOpacityMicromapFormatKHR format)
+{
+	VkMicromapUsageKHR res;
 	res.count				= count;
 	res.subdivisionLevel	= subdivisionLevel;
 	res.format				= format;

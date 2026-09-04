@@ -24,10 +24,7 @@
 #include "vktApiCopiesAndBlittingUtil.hpp"
 #include "vktApiBlittingTests.hpp"
 
-namespace vkt
-{
-
-namespace api
+namespace vkt::api
 {
 
 namespace
@@ -166,6 +163,16 @@ const tcu::CompressedTexture &CompressedTextureForBlit::getCompressedTexture() c
     return m_compressedTexture;
 }
 
+static VkExtent3D getBlittingImageExtent(const ImageParms &parms)
+{
+    const VkExtent3D extent = {
+        parms.extent.width,
+        (parms.imageType != VK_IMAGE_TYPE_1D) ? parms.extent.height : 1u,
+        (parms.imageType == VK_IMAGE_TYPE_3D) ? parms.extent.depth : 1u,
+    };
+    return extent;
+}
+
 // Copy from image to image with scaling.
 
 class BlittingImages : public CopiesAndBlittingTestInstanceWithSparseSemaphore
@@ -240,6 +247,86 @@ VkImageBlit make3Dto2DArrayBlit(VkExtent3D srcBaseSize, VkExtent3D dstBaseSize, 
     return blit;
 }
 
+// Helper to create a blit from a 2D array to a 3D image.
+VkImageBlit make2DArrayTo3DBlit(VkExtent3D srcBaseSize, VkExtent3D dstBaseSize, uint32_t srcBaseSlice,
+                                uint32_t dstBaseSlice)
+{
+    const VkImageBlit blit = {
+        makeDefaultSRL(srcBaseSlice, 1), // src subresource layers.
+        {
+            // src offsets.
+            {0, 0, 0},
+            {static_cast<int32_t>(srcBaseSize.width), static_cast<int32_t>(srcBaseSize.height), 1},
+        },
+        makeDefaultSRL(), // dst subresource layers
+        {
+            // dst offsets.
+            {0, 0, static_cast<int32_t>(dstBaseSlice)},
+            {static_cast<int32_t>(dstBaseSize.width), static_cast<int32_t>(dstBaseSize.height),
+             static_cast<int32_t>(dstBaseSlice + 1)},
+        },
+    };
+
+    return blit;
+}
+
+VkImageBlit makeReverseBlit3D2D(
+    VkExtent3D srcBaseSize, // Size of the src image, including amount of slices.
+    VkExtent3D dstBaseSize, // Size of the dst image, including amount of slices.
+    uint32_t srcBaseSlice,  // Slice we want to blit from src to dst.
+    uint32_t dstBaseSlice,  // Dst slice.
+    bool srcIs3D,           // If true, from 3D to 2D array. If false, from 2D array to 3D.
+    bool srcLarger,         // Src and dst regions will be different in size. Which one will be larger?
+    bool invertSrcX,        // Invert coordinates in the X axis for src?
+    bool invertDstX,        // Invert coordinates in the X axis for dst?
+    bool invertSrcY,        // Invert coordinates in the Y axis for src?
+    bool invertDstY,        // Invert coordinates in the Y axis for dst?
+    bool invertZ)           // Invert coordinates in Z for the 3D image?
+{
+    VkImageBlit blit;
+
+    blit.srcSubresource = (srcIs3D ? makeDefaultSRL() : makeDefaultSRL(srcBaseSlice));
+    blit.dstSubresource = (!srcIs3D ? makeDefaultSRL() : makeDefaultSRL(dstBaseSlice));
+
+    blit.srcOffsets[0].x = (srcBaseSize.width / 8u);
+    blit.srcOffsets[0].y = (srcBaseSize.height / 4u);
+    blit.srcOffsets[0].z = (srcIs3D ? srcBaseSlice : 0u);
+
+    blit.srcOffsets[1].x = blit.srcOffsets[0].x + srcBaseSize.width / (srcLarger ? 2u : 4u);
+    blit.srcOffsets[1].y = blit.srcOffsets[0].y + srcBaseSize.height / (srcLarger ? 4u : 8u);
+    blit.srcOffsets[1].z = blit.srcOffsets[0].z + 1u;
+
+    blit.dstOffsets[0].x = (dstBaseSize.width / 16u);
+    blit.dstOffsets[0].y = (dstBaseSize.height / 8u);
+    blit.dstOffsets[0].z = (!srcIs3D ? dstBaseSlice : 0u);
+
+    blit.dstOffsets[1].x = blit.dstOffsets[0].x + dstBaseSize.width / (!srcLarger ? 4u : 8u);
+    blit.dstOffsets[1].y = blit.dstOffsets[0].y + dstBaseSize.height / (!srcLarger ? 2u : 4u);
+    blit.dstOffsets[1].z = blit.dstOffsets[0].z + 1u;
+
+    if (invertSrcX)
+        std::swap(blit.srcOffsets[0].x, blit.srcOffsets[1].x);
+
+    if (invertDstX)
+        std::swap(blit.dstOffsets[0].x, blit.dstOffsets[1].x);
+
+    if (invertSrcY)
+        std::swap(blit.srcOffsets[0].y, blit.srcOffsets[1].y);
+
+    if (invertDstY)
+        std::swap(blit.dstOffsets[0].y, blit.dstOffsets[1].y);
+
+    if (invertZ)
+    {
+        if (srcIs3D)
+            std::swap(blit.srcOffsets[0].z, blit.srcOffsets[1].z);
+        else
+            std::swap(blit.dstOffsets[0].z, blit.dstOffsets[1].z);
+    }
+
+    return blit;
+}
+
 BlittingImages::BlittingImages(Context &context, TestParams params)
     : CopiesAndBlittingTestInstanceWithSparseSemaphore(context, params)
 {
@@ -254,68 +341,55 @@ BlittingImages::BlittingImages(Context &context, TestParams params)
     const auto dstCreateFlags = getCreateFlags(m_params.dst.image);
 
     const VkImageCreateInfo sourceImageParams = {
-        VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO, // VkStructureType sType;
-        nullptr,                             // const void* pNext;
-        srcCreateFlags,                      // VkImageCreateFlags flags;
-        m_params.src.image.imageType,        // VkImageType imageType;
-        m_params.src.image.format,           // VkFormat format;
-        m_params.src.image.extent,           // VkExtent3D extent;
-        1u,                                  // uint32_t mipLevels;
-        getArraySize(m_params.src.image),    // uint32_t arraySize;
-        VK_SAMPLE_COUNT_1_BIT,               // uint32_t samples;
-        m_params.src.image.tiling,           // VkImageTiling tiling;
-        imageUsage,                          // VkImageUsageFlags usage;
-        VK_SHARING_MODE_EXCLUSIVE,           // VkSharingMode sharingMode;
-        0u,                                  // uint32_t queueFamilyIndexCount;
-        nullptr,                             // const uint32_t* pQueueFamilyIndices;
-        VK_IMAGE_LAYOUT_UNDEFINED,           // VkImageLayout initialLayout;
+        VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,        // VkStructureType sType;
+        nullptr,                                    // const void* pNext;
+        srcCreateFlags,                             // VkImageCreateFlags flags;
+        m_params.src.image.imageType,               // VkImageType imageType;
+        m_params.src.image.format,                  // VkFormat format;
+        getBlittingImageExtent(m_params.src.image), // VkExtent3D extent;
+        1u,                                         // uint32_t mipLevels;
+        getArraySize(m_params.src.image),           // uint32_t arraySize;
+        VK_SAMPLE_COUNT_1_BIT,                      // uint32_t samples;
+        m_params.src.image.tiling,                  // VkImageTiling tiling;
+        imageUsage,                                 // VkImageUsageFlags usage;
+        VK_SHARING_MODE_EXCLUSIVE,                  // VkSharingMode sharingMode;
+        0u,                                         // uint32_t queueFamilyIndexCount;
+        nullptr,                                    // const uint32_t* pQueueFamilyIndices;
+        VK_IMAGE_LAYOUT_UNDEFINED,                  // VkImageLayout initialLayout;
     };
 
     const VkImageCreateInfo destinationImageParams = {
-        VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO, // VkStructureType sType;
-        nullptr,                             // const void* pNext;
-        dstCreateFlags,                      // VkImageCreateFlags flags;
-        m_params.dst.image.imageType,        // VkImageType imageType;
-        m_params.dst.image.format,           // VkFormat format;
-        m_params.dst.image.extent,           // VkExtent3D extent;
-        1u,                                  // uint32_t mipLevels;
-        getArraySize(m_params.dst.image),    // uint32_t arraySize;
-        VK_SAMPLE_COUNT_1_BIT,               // uint32_t samples;
-        m_params.dst.image.tiling,           // VkImageTiling tiling;
-        imageUsage,                          // VkImageUsageFlags usage;
-        VK_SHARING_MODE_EXCLUSIVE,           // VkSharingMode sharingMode;
-        0u,                                  // uint32_t queueFamilyIndexCount;
-        nullptr,                             // const uint32_t* pQueueFamilyIndices;
-        VK_IMAGE_LAYOUT_UNDEFINED,           // VkImageLayout initialLayout;
+        VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,        // VkStructureType sType;
+        nullptr,                                    // const void* pNext;
+        dstCreateFlags,                             // VkImageCreateFlags flags;
+        m_params.dst.image.imageType,               // VkImageType imageType;
+        m_params.dst.image.format,                  // VkFormat format;
+        getBlittingImageExtent(m_params.dst.image), // VkExtent3D extent;
+        1u,                                         // uint32_t mipLevels;
+        getArraySize(m_params.dst.image),           // uint32_t arraySize;
+        VK_SAMPLE_COUNT_1_BIT,                      // uint32_t samples;
+        m_params.dst.image.tiling,                  // VkImageTiling tiling;
+        imageUsage,                                 // VkImageUsageFlags usage;
+        VK_SHARING_MODE_EXCLUSIVE,                  // VkSharingMode sharingMode;
+        0u,                                         // uint32_t queueFamilyIndexCount;
+        nullptr,                                    // const uint32_t* pQueueFamilyIndices;
+        VK_IMAGE_LAYOUT_UNDEFINED,                  // VkImageLayout initialLayout;
     };
 
     // Create source image
     {
-#ifndef CTS_USES_VULKANSC
+        m_source = createImage(vk, m_device, &sourceImageParams);
+
         if (!params.useSparseBinding)
         {
-#endif
-            m_source           = createImage(vk, m_device, &sourceImageParams);
             m_sourceImageAlloc = allocateImage(vki, vk, vkPhysDevice, m_device, *m_source, MemoryRequirement::Any,
                                                *m_allocator, m_params.allocationKind, 0u);
             VK_CHECK(vk.bindImageMemory(m_device, *m_source, m_sourceImageAlloc->getMemory(),
                                         m_sourceImageAlloc->getOffset()));
-#ifndef CTS_USES_VULKANSC
         }
+#ifndef CTS_USES_VULKANSC
         else
         {
-            VkImageFormatProperties imageFormatProperties;
-            if (vki.getPhysicalDeviceImageFormatProperties(vkPhysDevice, sourceImageParams.format,
-                                                           sourceImageParams.imageType, sourceImageParams.tiling,
-                                                           sourceImageParams.usage, sourceImageParams.flags,
-                                                           &imageFormatProperties) == VK_ERROR_FORMAT_NOT_SUPPORTED)
-            {
-                TCU_THROW(NotSupportedError, "Image format not supported");
-            }
-
-            m_source = createImage(
-                vk, m_device,
-                &sourceImageParams); //de::MovePtr<SparseImage>(new SparseImage(vk, vk, vkPhysDevice, vki, sourceImageParams, m_queue, *m_allocator, mapVkFormat(sourceImageParams.format)));
             m_sparseSemaphore = createSemaphore(vk, m_device);
             allocateAndBindSparseImage(vk, m_device, vkPhysDevice, vki, sourceImageParams, m_sparseSemaphore.get(),
                                        context.getSparseQueue(), *m_allocator, m_sparseAllocations,
@@ -490,7 +564,10 @@ tcu::TestStatus BlittingImages::iterate(void)
         tcu::TextureLevel decompressedLevel(getUncompressedFormat(dstCompressedFormat), dstWidth, dstHeight, dstDepth);
         tcu::PixelBufferAccess decompressedAccess(decompressedLevel.getAccess());
 
-        tcu::decompress(decompressedAccess, dstCompressedFormat, compressedDataSrc);
+        const tcu::TexDecompressionParams params(tcu::isAstcSFLOATFormat(dstCompressedFormat) ?
+                                                     tcu::TexDecompressionParams::ASTCMODE_HDR :
+                                                     tcu::TexDecompressionParams::ASTCMODE_LDR);
+        tcu::decompress(decompressedAccess, dstCompressedFormat, compressedDataSrc, params);
 
         return checkTestResult(decompressedAccess);
     }
@@ -553,14 +630,17 @@ bool BlittingImages::checkNonNearestFilteredResult(const tcu::ConstPixelBufferAc
         const tcu::IVec4 srcBitDepth = tcu::getTextureFormatBitDepth(srcFormat);
         for (uint32_t i = 0; i < 4; ++i)
         {
-            DE_ASSERT(dstBitDepth[i] < std::numeric_limits<uint64_t>::digits);
-            DE_ASSERT(srcBitDepth[i] < std::numeric_limits<uint64_t>::digits);
-            uint64_t threshold64 =
-                1 + de::max(((UINT64_C(1) << dstBitDepth[i]) - 1) /
-                                de::clamp((UINT64_C(1) << srcBitDepth[i]) - 1, UINT64_C(1), UINT64_C(256)),
-                            UINT64_C(1));
-            DE_ASSERT(threshold64 <= std::numeric_limits<uint32_t>::max());
-            threshold[i] = static_cast<uint32_t>(threshold64);
+            const uint64_t dstMax = (dstBitDepth[i] == std::numeric_limits<uint64_t>::digits) ?
+                                        std::numeric_limits<uint64_t>::max() :
+                                        (UINT64_C(1) << dstBitDepth[i]) - 1;
+            const uint64_t srcMax = (srcBitDepth[i] == std::numeric_limits<uint64_t>::digits) ?
+                                        std::numeric_limits<uint64_t>::max() :
+                                        (UINT64_C(1) << srcBitDepth[i]) - 1;
+
+            const uint64_t threshold64 =
+                1 + de::max(dstMax / de::clamp(srcMax, UINT64_C(1), UINT64_C(256)), UINT64_C(1));
+
+            threshold[i] = static_cast<uint32_t>(de::min(threshold64, uint64_t(std::numeric_limits<uint32_t>::max())));
         }
 
         isOk = tcu::intThresholdCompare(log, "Compare", "Result comparsion", clampedExpected, result, threshold,
@@ -666,20 +746,22 @@ bool BlittingImages::checkCompressedNonNearestFilteredResult(const tcu::ConstPix
         filteredResultVerification ? filteredClampedReference.getAccess() : clampedReference;
     const tcu::ConstPixelBufferAccess res = filteredResultVerification ? filteredResult.getAccess() : result;
 
-    log << tcu::TestLog::Section("ClampedSourceImage", "Region with clamped edges on source image.");
-    bool isOk = tcu::floatThresholdCompare(log, "Compare", "Result comparsion", clampedRef, res, threshold,
-                                           tcu::COMPARE_LOG_ON_ERROR);
-    log << tcu::TestLog::EndSection;
+    bool isOk;
+    {
+        const tcu::ScopedLogSection section(log, "ClampedSourceImage", "Region with clamped edges on source image.");
+        isOk = tcu::floatThresholdCompare(log, "Compare", "Result comparsion", clampedRef, res, threshold,
+                                          tcu::COMPARE_LOG_ON_ERROR);
+    }
 
     if (!isOk)
     {
         const tcu::ConstPixelBufferAccess unclampedRef =
             filteredResultVerification ? filteredUnclampedReference.getAccess() : unclampedReference;
 
-        log << tcu::TestLog::Section("NonClampedSourceImage", "Region with non-clamped edges on source image.");
+        const tcu::ScopedLogSection section(log, "NonClampedSourceImage",
+                                            "Region with non-clamped edges on source image.");
         isOk = tcu::floatThresholdCompare(log, "Compare", "Result comparsion", unclampedRef, res, threshold,
                                           tcu::COMPARE_LOG_ON_ERROR);
-        log << tcu::TestLog::EndSection;
     }
 
     return isOk;
@@ -997,20 +1079,29 @@ void BlittingImages::copyRegionToTextureLevel(tcu::ConstPixelBufferAccess src, t
 
     flipCoordinates(region, mirrorMode);
 
-    const VkOffset3D srcOffset = region.imageBlit.srcOffsets[0];
-    const VkOffset3D srcExtent = {
+    VkOffset3D srcOffset = region.imageBlit.srcOffsets[0];
+    VkOffset3D srcExtent = {
         region.imageBlit.srcOffsets[1].x - srcOffset.x,
         region.imageBlit.srcOffsets[1].y - srcOffset.y,
         region.imageBlit.srcOffsets[1].z - srcOffset.z,
     };
 
     VkOffset3D dstOffset = region.imageBlit.dstOffsets[0];
-
     VkOffset3D dstExtent = {
         region.imageBlit.dstOffsets[1].x - dstOffset.x,
         region.imageBlit.dstOffsets[1].y - dstOffset.y,
         region.imageBlit.dstOffsets[1].z - dstOffset.z,
     };
+
+    if (m_params.src.image.imageType == VK_IMAGE_TYPE_2D)
+    {
+        // Without taking layers into account.
+        DE_ASSERT(srcOffset.z == 0u && srcExtent.z == 1);
+
+        // Modify offset and extent taking layers into account. This is used for the 2D_ARRAY-to-3D case.
+        srcOffset.z += region.imageBlit.srcSubresource.baseArrayLayer;
+        srcExtent.z = region.imageBlit.srcSubresource.layerCount;
+    }
 
     if (m_params.dst.image.imageType == VK_IMAGE_TYPE_2D)
     {
@@ -1020,6 +1111,49 @@ void BlittingImages::copyRegionToTextureLevel(tcu::ConstPixelBufferAccess src, t
         // Modify offset and extent taking layers into account. This is used for the 3D-to-2D_ARRAY case.
         dstOffset.z += region.imageBlit.dstSubresource.baseArrayLayer;
         dstExtent.z = region.imageBlit.dstSubresource.layerCount;
+    }
+
+    // The logic in flipCoordinates is not detailed enough for the use case we have here. The extent will be used
+    // to obtain subregions of the pixel buffer accesses below, so it needs to be positive.
+    VkOffset3D srcRegionOffset = srcOffset;
+    VkOffset3D srcRegionExtent = srcExtent;
+    VkOffset3D dstRegionOffset = dstOffset;
+    VkOffset3D dstRegionExtent = dstExtent;
+
+    if (srcRegionExtent.x < 0)
+    {
+        srcRegionExtent.x = -srcRegionExtent.x;
+        srcRegionOffset.x = region.imageBlit.srcOffsets[1].x;
+    }
+
+    if (srcRegionExtent.y < 0)
+    {
+        srcRegionExtent.y = -srcRegionExtent.y;
+        srcRegionOffset.y = region.imageBlit.srcOffsets[1].y;
+    }
+
+    if (srcRegionExtent.z < 0)
+    {
+        srcRegionExtent.z = -srcRegionExtent.z;
+        srcRegionOffset.z = region.imageBlit.srcOffsets[1].z;
+    }
+
+    if (dstRegionExtent.x < 0)
+    {
+        dstRegionExtent.x = -dstRegionExtent.x;
+        dstRegionOffset.x = region.imageBlit.dstOffsets[1].x;
+    }
+
+    if (dstRegionExtent.y < 0)
+    {
+        dstRegionExtent.y = -dstRegionExtent.y;
+        dstRegionOffset.y = region.imageBlit.dstOffsets[1].y;
+    }
+
+    if (dstRegionExtent.z < 0)
+    {
+        dstRegionExtent.z = -dstRegionExtent.z;
+        dstRegionOffset.z = region.imageBlit.dstOffsets[1].z;
     }
 
     tcu::Sampler::FilterMode filter;
@@ -1045,10 +1179,12 @@ void BlittingImages::copyRegionToTextureLevel(tcu::ConstPixelBufferAccess src, t
         if (tcu::hasDepthComponent(src.getFormat().order))
         {
             const tcu::ConstPixelBufferAccess srcSubRegion = getEffectiveDepthStencilAccess(
-                tcu::getSubregion(src, srcOffset.x, srcOffset.y, srcOffset.z, srcExtent.x, srcExtent.y, srcExtent.z),
+                tcu::getSubregion(src, srcRegionOffset.x, srcRegionOffset.y, srcRegionOffset.z, srcRegionExtent.x,
+                                  srcRegionExtent.y, srcRegionExtent.z),
                 tcu::Sampler::MODE_DEPTH);
             const tcu::PixelBufferAccess dstSubRegion = getEffectiveDepthStencilAccess(
-                tcu::getSubregion(dst, dstOffset.x, dstOffset.y, dstOffset.z, dstExtent.x, dstExtent.y, dstExtent.z),
+                tcu::getSubregion(dst, dstRegionOffset.x, dstRegionOffset.y, dstRegionOffset.z, dstRegionExtent.x,
+                                  dstRegionExtent.y, dstRegionExtent.z),
                 tcu::Sampler::MODE_DEPTH);
             tcu::scale(dstSubRegion, srcSubRegion, filter);
 
@@ -1057,8 +1193,9 @@ void BlittingImages::copyRegionToTextureLevel(tcu::ConstPixelBufferAccess src, t
                 const tcu::ConstPixelBufferAccess depthSrc =
                     getEffectiveDepthStencilAccess(src, tcu::Sampler::MODE_DEPTH);
                 const tcu::PixelBufferAccess unclampedSubRegion = getEffectiveDepthStencilAccess(
-                    tcu::getSubregion(m_unclampedExpectedTextureLevel->getAccess(), dstOffset.x, dstOffset.y,
-                                      dstOffset.z, dstExtent.x, dstExtent.y, dstExtent.z),
+                    tcu::getSubregion(m_unclampedExpectedTextureLevel->getAccess(), dstRegionOffset.x,
+                                      dstRegionOffset.y, dstRegionOffset.z, dstRegionExtent.x, dstRegionExtent.y,
+                                      dstRegionExtent.z),
                     tcu::Sampler::MODE_DEPTH);
                 scaleFromWholeSrcBuffer(unclampedSubRegion, depthSrc, srcOffset, srcExtent, filter, mirrorMode);
             }
@@ -1068,10 +1205,12 @@ void BlittingImages::copyRegionToTextureLevel(tcu::ConstPixelBufferAccess src, t
         if (tcu::hasStencilComponent(src.getFormat().order))
         {
             const tcu::ConstPixelBufferAccess srcSubRegion = getEffectiveDepthStencilAccess(
-                tcu::getSubregion(src, srcOffset.x, srcOffset.y, srcOffset.z, srcExtent.x, srcExtent.y, srcExtent.z),
+                tcu::getSubregion(src, srcRegionOffset.x, srcRegionOffset.y, srcRegionOffset.z, srcRegionExtent.x,
+                                  srcRegionExtent.y, srcRegionExtent.z),
                 tcu::Sampler::MODE_STENCIL);
             const tcu::PixelBufferAccess dstSubRegion = getEffectiveDepthStencilAccess(
-                tcu::getSubregion(dst, dstOffset.x, dstOffset.y, dstOffset.z, dstExtent.x, dstExtent.y, dstExtent.z),
+                tcu::getSubregion(dst, dstRegionOffset.x, dstRegionOffset.y, dstRegionOffset.z, dstRegionExtent.x,
+                                  dstRegionExtent.y, dstRegionExtent.z),
                 tcu::Sampler::MODE_STENCIL);
             blit(dstSubRegion, srcSubRegion, filter, mirrorMode);
 
@@ -1080,8 +1219,9 @@ void BlittingImages::copyRegionToTextureLevel(tcu::ConstPixelBufferAccess src, t
                 const tcu::ConstPixelBufferAccess stencilSrc =
                     getEffectiveDepthStencilAccess(src, tcu::Sampler::MODE_STENCIL);
                 const tcu::PixelBufferAccess unclampedSubRegion = getEffectiveDepthStencilAccess(
-                    tcu::getSubregion(m_unclampedExpectedTextureLevel->getAccess(), dstOffset.x, dstOffset.y,
-                                      dstOffset.z, dstExtent.x, dstExtent.y, dstExtent.z),
+                    tcu::getSubregion(m_unclampedExpectedTextureLevel->getAccess(), dstRegionOffset.x,
+                                      dstRegionOffset.y, dstRegionOffset.z, dstRegionExtent.x, dstRegionExtent.y,
+                                      dstRegionExtent.z),
                     tcu::Sampler::MODE_STENCIL);
                 scaleFromWholeSrcBuffer(unclampedSubRegion, stencilSrc, srcOffset, srcExtent, filter, mirrorMode);
             }
@@ -1090,17 +1230,19 @@ void BlittingImages::copyRegionToTextureLevel(tcu::ConstPixelBufferAccess src, t
     else
     {
         const tcu::ConstPixelBufferAccess srcSubRegion =
-            tcu::getSubregion(src, srcOffset.x, srcOffset.y, srcOffset.z, srcExtent.x, srcExtent.y, srcExtent.z);
+            tcu::getSubregion(src, srcRegionOffset.x, srcRegionOffset.y, srcRegionOffset.z, srcRegionExtent.x,
+                              srcRegionExtent.y, srcRegionExtent.z);
         const tcu::PixelBufferAccess dstSubRegion =
-            tcu::getSubregion(dst, dstOffset.x, dstOffset.y, dstOffset.z, dstExtent.x, dstExtent.y, dstExtent.z);
+            tcu::getSubregion(dst, dstRegionOffset.x, dstRegionOffset.y, dstRegionOffset.z, dstRegionExtent.x,
+                              dstRegionExtent.y, dstRegionExtent.z);
         blit(dstSubRegion, srcSubRegion, filter, mirrorMode);
 
         if (filter != tcu::Sampler::NEAREST)
         {
             const tcu::PixelBufferAccess unclampedSubRegion =
-                tcu::getSubregion(m_unclampedExpectedTextureLevel->getAccess(), dstOffset.x, dstOffset.y, dstOffset.z,
-                                  dstExtent.x, dstExtent.y, dstExtent.z);
-            scaleFromWholeSrcBuffer(unclampedSubRegion, src, srcOffset, srcExtent, filter, mirrorMode);
+                tcu::getSubregion(m_unclampedExpectedTextureLevel->getAccess(), dstRegionOffset.x, dstRegionOffset.y,
+                                  dstRegionOffset.z, dstRegionExtent.x, dstRegionExtent.y, dstRegionExtent.z);
+            scaleFromWholeSrcBuffer(unclampedSubRegion, src, srcRegionOffset, srcRegionExtent, filter, mirrorMode);
         }
     }
 }
@@ -1270,6 +1412,8 @@ public:
 
     virtual void checkSupport(Context &context) const
     {
+        const InstanceInterface &vki      = context.getInstanceInterface();
+        const VkPhysicalDevice physDevice = context.getPhysicalDevice();
 
 #ifndef CTS_USES_VULKANSC
         if (m_params.src.image.format == VK_FORMAT_A8_UNORM_KHR ||
@@ -1280,20 +1424,22 @@ public:
 
         if (isAstc3DFormat(m_params.src.image.format) || isAstc3DFormat(m_params.dst.image.format))
             context.requireDeviceFunctionality("VK_EXT_texture_compression_astc_3d");
+
+        if (m_params.useSparseBinding)
+            checkSparseBindingSupport(context, m_params.src.image);
+
 #endif // CTS_USES_VULKANSC
 
         VkImageFormatProperties properties;
-        if (context.getInstanceInterface().getPhysicalDeviceImageFormatProperties(
-                context.getPhysicalDevice(), m_params.src.image.format, m_params.src.image.imageType,
-                m_params.src.image.tiling, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, 0,
-                &properties) == VK_ERROR_FORMAT_NOT_SUPPORTED)
+        if (vki.getPhysicalDeviceImageFormatProperties(
+                physDevice, m_params.src.image.format, m_params.src.image.imageType, m_params.src.image.tiling,
+                VK_IMAGE_USAGE_TRANSFER_SRC_BIT, 0, &properties) == VK_ERROR_FORMAT_NOT_SUPPORTED)
         {
             TCU_THROW(NotSupportedError, "Source format not supported");
         }
-        if (context.getInstanceInterface().getPhysicalDeviceImageFormatProperties(
-                context.getPhysicalDevice(), m_params.dst.image.format, m_params.dst.image.imageType,
-                m_params.dst.image.tiling, VK_IMAGE_USAGE_TRANSFER_DST_BIT, 0,
-                &properties) == VK_ERROR_FORMAT_NOT_SUPPORTED)
+        if (vki.getPhysicalDeviceImageFormatProperties(
+                physDevice, m_params.dst.image.format, m_params.dst.image.imageType, m_params.dst.image.tiling,
+                VK_IMAGE_USAGE_TRANSFER_DST_BIT, 0, &properties) == VK_ERROR_FORMAT_NOT_SUPPORTED)
         {
             TCU_THROW(NotSupportedError, "Destination format not supported");
         }
@@ -1301,8 +1447,7 @@ public:
         checkExtensionSupport(context, m_params.extensionFlags);
 
         VkFormatProperties srcFormatProperties;
-        context.getInstanceInterface().getPhysicalDeviceFormatProperties(
-            context.getPhysicalDevice(), m_params.src.image.format, &srcFormatProperties);
+        vki.getPhysicalDeviceFormatProperties(physDevice, m_params.src.image.format, &srcFormatProperties);
         VkFormatFeatureFlags srcFormatFeatures = m_params.src.image.tiling == VK_IMAGE_TILING_LINEAR ?
                                                      srcFormatProperties.linearTilingFeatures :
                                                      srcFormatProperties.optimalTilingFeatures;
@@ -1312,8 +1457,7 @@ public:
         }
 
         VkFormatProperties dstFormatProperties;
-        context.getInstanceInterface().getPhysicalDeviceFormatProperties(
-            context.getPhysicalDevice(), m_params.dst.image.format, &dstFormatProperties);
+        vki.getPhysicalDeviceFormatProperties(physDevice, m_params.dst.image.format, &dstFormatProperties);
         VkFormatFeatureFlags dstFormatFeatures = m_params.dst.image.tiling == VK_IMAGE_TILING_LINEAR ?
                                                      dstFormatProperties.linearTilingFeatures :
                                                      dstFormatProperties.optimalTilingFeatures;
@@ -1337,8 +1481,6 @@ public:
                 TCU_THROW(NotSupportedError, "Source format feature sampled image filter cubic not supported");
             }
         }
-
-        checkExtensionSupport(context, m_params.extensionFlags);
     }
 
 private:
@@ -1399,32 +1541,20 @@ BlittingMipmaps::BlittingMipmaps(Context &context, TestParams params)
             VK_IMAGE_LAYOUT_UNDEFINED,                                         // VkImageLayout initialLayout;
         };
 
-#ifndef CTS_USES_VULKANSC
         if (!params.useSparseBinding)
         {
-#endif
             m_source           = createImage(vk, m_device, &sourceImageParams);
             m_sourceImageAlloc = allocateImage(vki, vk, vkPhysDevice, m_device, *m_source, MemoryRequirement::Any,
                                                *m_allocator, m_params.allocationKind, 0u);
             VK_CHECK(vk.bindImageMemory(m_device, *m_source, m_sourceImageAlloc->getMemory(),
                                         m_sourceImageAlloc->getOffset()));
-#ifndef CTS_USES_VULKANSC
         }
+#ifndef CTS_USES_VULKANSC
         else
         {
             sourceImageParams.flags |=
                 (vk::VK_IMAGE_CREATE_SPARSE_BINDING_BIT | vk::VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT);
-            vk::VkImageFormatProperties imageFormatProperties;
-            if (vki.getPhysicalDeviceImageFormatProperties(vkPhysDevice, sourceImageParams.format,
-                                                           sourceImageParams.imageType, sourceImageParams.tiling,
-                                                           sourceImageParams.usage, sourceImageParams.flags,
-                                                           &imageFormatProperties) == vk::VK_ERROR_FORMAT_NOT_SUPPORTED)
-            {
-                TCU_THROW(NotSupportedError, "Image format not supported");
-            }
-            m_source = createImage(
-                vk, m_device,
-                &sourceImageParams); //de::MovePtr<SparseImage>(new SparseImage(vk, vk, vkPhysDevice, vki, sourceImageParams, m_queue, *m_allocator, mapVkFormat(sourceImageParams.format)));
+            m_source          = createImage(vk, m_device, &sourceImageParams);
             m_sparseSemaphore = createSemaphore(vk, m_device);
             allocateAndBindSparseImage(vk, m_device, vkPhysDevice, vki, sourceImageParams, m_sparseSemaphore.get(),
                                        context.getSparseQueue(), *m_allocator, m_sparseAllocations,
@@ -2119,11 +2249,21 @@ public:
     {
         const InstanceInterface &vki        = context.getInstanceInterface();
         const VkPhysicalDevice vkPhysDevice = context.getPhysicalDevice();
+
+#ifndef CTS_USES_VULKANSC
+        // VUID-vkGetPhysicalDeviceImageFormatProperties-format-parameter
+        if (m_params.src.image.format == VK_FORMAT_A8_UNORM_KHR ||
+            m_params.dst.image.format == VK_FORMAT_A8_UNORM_KHR ||
+            m_params.src.image.format == VK_FORMAT_A1B5G5R5_UNORM_PACK16_KHR ||
+            m_params.dst.image.format == VK_FORMAT_A1B5G5R5_UNORM_PACK16_KHR)
+            context.requireDeviceFunctionality("VK_KHR_maintenance5");
+#endif // CTS_USES_VULKANSC
+
         {
             VkImageFormatProperties properties;
-            if (context.getInstanceInterface().getPhysicalDeviceImageFormatProperties(
-                    context.getPhysicalDevice(), m_params.src.image.format, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL,
-                    VK_IMAGE_USAGE_TRANSFER_SRC_BIT, 0, &properties) == VK_ERROR_FORMAT_NOT_SUPPORTED)
+            if (vki.getPhysicalDeviceImageFormatProperties(vkPhysDevice, m_params.src.image.format, VK_IMAGE_TYPE_2D,
+                                                           VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, 0,
+                                                           &properties) == VK_ERROR_FORMAT_NOT_SUPPORTED)
             {
                 TCU_THROW(NotSupportedError, "Format not supported");
             }
@@ -2137,9 +2277,9 @@ public:
 
         {
             VkImageFormatProperties properties;
-            if (context.getInstanceInterface().getPhysicalDeviceImageFormatProperties(
-                    context.getPhysicalDevice(), m_params.dst.image.format, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL,
-                    VK_IMAGE_USAGE_TRANSFER_DST_BIT, 0, &properties) == VK_ERROR_FORMAT_NOT_SUPPORTED)
+            if (vki.getPhysicalDeviceImageFormatProperties(vkPhysDevice, m_params.dst.image.format, VK_IMAGE_TYPE_2D,
+                                                           VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT, 0,
+                                                           &properties) == VK_ERROR_FORMAT_NOT_SUPPORTED)
             {
                 TCU_THROW(NotSupportedError, "Format not supported");
             }
@@ -2184,6 +2324,11 @@ public:
                 TCU_THROW(NotSupportedError, "Source format feature sampled image filter cubic not supported");
             }
         }
+
+#ifndef CTS_USES_VULKANSC
+        if (m_params.useSparseBinding)
+            checkSparseBindingSupport(context, m_params.src.image);
+#endif
     }
 
 private:
@@ -2434,6 +2579,148 @@ void addBlittingImage3DTo2DArrayTests(tcu::TestCaseGroup *group, TestParamsPtr p
             }
 
             group->addChild(new BlitImageTestCase(testCtx, "complex_blit_" + suffix, params));
+        }
+
+        if (params.allocationKind != ALLOCATION_KIND_DEDICATED)
+        {
+            for (const auto srcLarger : {false, true})
+                for (const auto invertSrcX : {false, true})
+                    for (const auto invertDstX : {false, true})
+                        for (const auto invertSrcY : {false, true})
+                            for (const auto invertDstY : {false, true})
+                                for (const auto invertZ : {false, true})
+                                {
+                                    auto blit = makeReverseBlit3D2D(params.src.image.extent, params.dst.image.extent,
+                                                                    4u, 9u, true, srcLarger, invertSrcX, invertDstX,
+                                                                    invertSrcY, invertDstY, invertZ);
+
+                                    CopyRegion region;
+                                    region.imageBlit = blit;
+                                    params.regions.clear();
+                                    params.regions.push_back(region);
+
+                                    const auto testName =
+                                        std::string("reverse_blit") + (srcLarger ? "_srclarger" : "_dstlarger") +
+                                        (invertSrcX ? "_invert_src_x" : "") + (invertDstX ? "_invert_dst_x" : "") +
+                                        (invertSrcY ? "_invert_src_y" : "") + (invertDstY ? "_invert_dst_y" : "") +
+                                        (invertZ ? "_invert_z" : "") + "_" + suffix;
+
+                                    group->addChild(new BlitImageTestCase(testCtx, testName, params));
+                                }
+        }
+    }
+}
+
+void addBlittingImage2DArrayTo3DTests(tcu::TestCaseGroup *group, TestParamsPtr paramsPtr)
+{
+    tcu::TestContext &testCtx = group->getTestContext();
+    TestParams params         = *paramsPtr;
+
+    const uint32_t layerCount     = 16u;
+    params.dst.image.format       = VK_FORMAT_R8G8B8A8_UNORM;
+    params.src.image.extent       = defaultExtent;
+    params.dst.image.extent       = defaultExtent;
+    params.src.image.extent.depth = layerCount;
+    params.dst.image.extent.depth = layerCount;
+    params.extensionFlags |= MAINTENANCE_8;
+
+    for (const auto filter : {VK_FILTER_NEAREST, VK_FILTER_LINEAR})
+    {
+        params.filter            = filter;
+        const std::string suffix = getFilterSuffix(filter);
+
+        // Attempt to blit a single slice into a cube.
+        {
+            const auto cubeLayers             = 6u;
+            TestParams cubeParams             = params;
+            cubeParams.src.image.extent.depth = cubeLayers;
+            cubeParams.dst.image.extent.depth = cubeLayers;
+
+            const std::vector<VkImageBlit> blits{
+                make2DArrayTo3DBlit(cubeParams.src.image.extent, cubeParams.dst.image.extent, 3u, 1u),
+            };
+
+            cubeParams.regions.clear();
+            cubeParams.regions.reserve(blits.size());
+
+            for (const auto &blit : blits)
+            {
+                CopyRegion region;
+                region.imageBlit = blit;
+                cubeParams.regions.push_back(region);
+            }
+
+            group->addChild(new BlitImageTestCase(testCtx, "cube_slice_" + suffix, cubeParams));
+        }
+
+        // Attempt to blit one layer at a time, for multiple layers.
+        {
+            const std::vector<VkImageBlit> blits{
+                make2DArrayTo3DBlit(params.src.image.extent, params.dst.image.extent, 2u, 5u),
+                make2DArrayTo3DBlit(params.src.image.extent, params.dst.image.extent, 4u, 11u),
+                make2DArrayTo3DBlit(params.src.image.extent, params.dst.image.extent, 7u, 2u),
+                make2DArrayTo3DBlit(params.src.image.extent, params.dst.image.extent, 13u, 0u),
+            };
+
+            params.regions.clear();
+            params.regions.reserve(blits.size());
+
+            for (const auto &blit : blits)
+            {
+                CopyRegion region;
+                region.imageBlit = blit;
+                params.regions.push_back(region);
+            }
+
+            group->addChild(new BlitImageTestCase(testCtx, "single_slices_" + suffix, params));
+        }
+
+        // Blit a slice into a smaller slice of a cube image.
+        {
+            auto blit = make2DArrayTo3DBlit(params.src.image.extent, params.dst.image.extent, 3u, 7u);
+
+            blit.dstOffsets[0].x = defaultSize / 4;
+            blit.dstOffsets[0].y = defaultSize / 2;
+
+            blit.dstOffsets[1].x = defaultSize / 4 + defaultSize / 2;
+            blit.dstOffsets[1].y = defaultSize;
+
+            {
+                CopyRegion region;
+                region.imageBlit = blit;
+                params.regions.clear();
+                params.regions.push_back(region);
+            }
+
+            group->addChild(new BlitImageTestCase(testCtx, "complex_blit_" + suffix, params));
+        }
+
+        if (params.allocationKind != ALLOCATION_KIND_DEDICATED)
+        {
+            for (const auto srcLarger : {false, true})
+                for (const auto invertSrcX : {false, true})
+                    for (const auto invertDstX : {false, true})
+                        for (const auto invertSrcY : {false, true})
+                            for (const auto invertDstY : {false, true})
+                                for (const auto invertZ : {false, true})
+                                {
+                                    auto blit = makeReverseBlit3D2D(params.src.image.extent, params.dst.image.extent,
+                                                                    4u, 9u, false, srcLarger, invertSrcX, invertDstX,
+                                                                    invertSrcY, invertDstY, invertZ);
+
+                                    CopyRegion region;
+                                    region.imageBlit = blit;
+                                    params.regions.clear();
+                                    params.regions.push_back(region);
+
+                                    const auto testName =
+                                        std::string("reverse_blit") + (srcLarger ? "_srclarger" : "_dstlarger") +
+                                        (invertSrcX ? "_invert_src_x" : "") + (invertDstX ? "_invert_dst_x" : "") +
+                                        (invertSrcY ? "_invert_src_y" : "") + (invertDstY ? "_invert_dst_y" : "") +
+                                        (invertZ ? "_invert_z" : "") + "_" + suffix;
+
+                                    group->addChild(new BlitImageTestCase(testCtx, testName, params));
+                                }
         }
     }
 }
@@ -2784,6 +3071,11 @@ void addBlittingImageSimpleTests(tcu::TestCaseGroup *group, AllocationKind alloc
     params.dst.image.imageType = VK_IMAGE_TYPE_2D;
     TestParamsPtr params3D2D(new TestParams(params));
     addTestGroup(group, "3d_to_2d_array", addBlittingImage3DTo2DArrayTests, params3D2D);
+
+    params.src.image.imageType = VK_IMAGE_TYPE_2D;
+    params.dst.image.imageType = VK_IMAGE_TYPE_3D;
+    TestParamsPtr params2D3D(new TestParams(params));
+    addTestGroup(group, "2d_array_to_3d", addBlittingImage2DArrayTo3DTests, params2D3D);
 }
 
 enum FilterMaskBits
@@ -4120,5 +4412,4 @@ void addBlittingImageTests(tcu::TestCaseGroup *group, AllocationKind allocationK
     addTestGroup(group, "all_formats", addBlittingImageAllFormatsTests, allocationKind, extensionFlags);
 }
 
-} // namespace api
-} // namespace vkt
+} // namespace vkt::api

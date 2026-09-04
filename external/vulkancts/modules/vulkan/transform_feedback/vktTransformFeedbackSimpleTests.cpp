@@ -33,6 +33,7 @@
 #include "vkQueryUtil.hpp"
 #include "vkRefUtil.hpp"
 #include "vkTypeUtil.hpp"
+#include "vkDeviceUtil.hpp"
 
 #include "deUniquePtr.hpp"
 #include "deRandom.hpp"
@@ -113,6 +114,7 @@ enum TestType
     TEST_TYPE_HOLES_GEOMETRY,
     TEST_TYPE_MAX_OUTPUT_COMPONENTS,
     TEST_TYPE_SHADER_OBJECT_REBIND,
+    TEST_TYPE_DRAW_INDIRECT_COUNTER_RESUBMIT,
     TEST_TYPE_LAST
 };
 
@@ -143,6 +145,7 @@ struct TestParameters
     VkPrimitiveTopology primTopology;
     bool queryResultWithAvailability;
     bool nullCounterBuffers;
+    bool nullPtrsInEndTransformFeedback;
 
     bool isPoints(void) const
     {
@@ -272,10 +275,9 @@ public:
 
     NoShaderTessellationAndGeometryPointSizeDeviceHelper(Context &context)
     {
-        const auto &vkp           = context.getPlatformInterface();
-        const auto &vki           = context.getInstanceInterface();
-        const auto instance       = context.getInstance();
-        const auto physicalDevice = context.getPhysicalDevice();
+        const auto instance       = InstanceWrapper(context);
+        const auto &vki           = instance.getDriver();
+        const auto physicalDevice = instance.getPhysicalDevice();
 
         m_queueFamilyIndex = context.getUniversalQueueFamilyIndex();
 
@@ -327,12 +329,9 @@ public:
         };
 
         // Create custom device and related objects
-        m_device = createCustomDevice(vkp, instance, vki, physicalDevice, &createInfo);
-        m_vkd.reset(new DeviceDriver(vkp, instance, *m_device, context.getUsedApiVersion(),
-                                     context.getTestContext().getCommandLine()));
-        m_queue = getDeviceQueue(*m_vkd, *m_device, m_queueFamilyIndex, 0u);
-        m_allocator.reset(
-            new SimpleAllocator(*m_vkd, *m_device, getPhysicalDeviceMemoryProperties(vki, physicalDevice)));
+        m_device        = instance.createCustomDevice(physicalDevice, &createInfo);
+        const auto &vkd = m_device.getDriver();
+        m_queue         = getDeviceQueue(vkd, *m_device, m_queueFamilyIndex, 0u);
     }
 
     virtual ~NoShaderTessellationAndGeometryPointSizeDeviceHelper()
@@ -341,11 +340,11 @@ public:
 
     const vk::DeviceInterface &getDeviceInterface(void) const override
     {
-        return *m_vkd;
+        return m_device.getDriver();
     }
     vk::VkDevice getDevice(void) const override
     {
-        return m_device.get();
+        return m_device;
     }
     uint32_t getQueueFamilyIndex(void) const override
     {
@@ -357,15 +356,13 @@ public:
     }
     vk::Allocator &getAllocator(void) const override
     {
-        return *m_allocator;
+        return m_device.getAllocator();
     }
 
 protected:
-    vk::Move<vk::VkDevice> m_device;
-    std::unique_ptr<vk::DeviceDriver> m_vkd;
+    DeviceWrapper m_device;
     uint32_t m_queueFamilyIndex;
     vk::VkQueue m_queue;
-    std::unique_ptr<vk::SimpleAllocator> m_allocator;
 };
 
 std::unique_ptr<DeviceHelper> g_noShaderTessellationAndGeometryPointSizeHelper;
@@ -1443,8 +1440,10 @@ tcu::TestStatus TransformFeedbackResumeTestInstance::iterate(void)
                 {
                     vk.cmdDraw(*cmdBuffer, numPoints, 1u, 0u, 0u);
                 }
-                cmdEndTransformFeedback(vk, *cmdBuffer, 0, 1, &*tfcBuf, &tfcBufDeviceAddress,
-                                        &tfcBufBindingOffsets[drawNdx], &tfcBufSizes[drawNdx]);
+                const bool useNull = drawNdx == 0 && m_parameters.nullPtrsInEndTransformFeedback;
+                cmdEndTransformFeedback(
+                    vk, *cmdBuffer, 0, 1, useNull ? nullptr : &*tfcBuf, useNull ? nullptr : &tfcBufDeviceAddress,
+                    useNull ? nullptr : &tfcBufBindingOffsets[drawNdx], useNull ? nullptr : &tfcBufSizes[drawNdx]);
             }
             endRenderPass(vk, *cmdBuffer);
 
@@ -2922,8 +2921,10 @@ tcu::TestStatus TransformFeedbackBackwardDependencyTestInstance::iterate(void)
     const std::vector<VkDeviceSize> chunkSizesList = generateSizesList(m_parameters.bufferSize, m_parameters.partCount);
     const std::vector<VkDeviceSize> chunkOffsetsList = generateOffsetsList(chunkSizesList);
 
-    const uint32_t numPoints = static_cast<uint32_t>(chunkSizesList[0] / sizeof(uint32_t));
-    const bool indirectDraw  = (m_parameters.testType == TEST_TYPE_BACKWARD_DEPENDENCY_INDIRECT);
+    const uint32_t numPoints     = static_cast<uint32_t>(chunkSizesList[0] / sizeof(uint32_t));
+    const bool indirectDraw      = (m_parameters.testType == TEST_TYPE_BACKWARD_DEPENDENCY_INDIRECT);
+    const uint32_t resubmitCount = 16u; // Number of submissions of the same command buffer
+    const bool resubmitCmdBuffer = (m_parameters.testType == TEST_TYPE_DRAW_INDIRECT_COUNTER_RESUBMIT);
 
     // Color buffer.
     const tcu::IVec3 fbExtent(static_cast<int>(numPoints), 1, 1);
@@ -3051,7 +3052,10 @@ tcu::TestStatus TransformFeedbackBackwardDependencyTestInstance::iterate(void)
             indirectDeviceAddress = getBufferDeviceAddress(vk, device, **indirectBuffer);
     }
 
-    beginCommandBuffer(vk, *cmdBuffer);
+    VkCommandBufferUsageFlags cmdBufferFlags =
+        resubmitCmdBuffer ? VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT : VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    beginCommandBuffer(vk, *cmdBuffer, cmdBufferFlags);
     {
         beginRenderPass(vk, *cmdBuffer, *renderPass, *framebuffer, scissors.at(0u), clearColor);
         {
@@ -3119,7 +3123,17 @@ tcu::TestStatus TransformFeedbackBackwardDependencyTestInstance::iterate(void)
     }
     copyImageToBuffer(vk, *cmdBuffer, colorBuffer.getImage(), colorBuffer.getBuffer(), fbExtent.swizzle(0, 1));
     endCommandBuffer(vk, *cmdBuffer);
-    submitCommandsAndWait(vk, device, queue, *cmdBuffer);
+
+    if (!resubmitCmdBuffer)
+        submitCommandsAndWait(vk, device, queue, *cmdBuffer);
+    else
+    {
+        // Resubmit the same command buffer
+        for (uint32_t execIdx = 0u; execIdx < resubmitCount; execIdx++)
+        {
+            submitCommandsAndWait(vk, device, queue, *cmdBuffer);
+        }
+    }
 
     verifyTransformFeedbackBuffer(deviceHelper, tfBufAllocation, m_parameters.bufferSize);
 
@@ -4557,7 +4571,8 @@ vkt::TestInstance *TransformFeedbackTestCase::createInstance(vkt::Context &conte
         return new TransformFeedbackIndirectDrawTestInstance(context, m_parameters, true, false, true);
 
     if (m_parameters.testType == TEST_TYPE_BACKWARD_DEPENDENCY ||
-        m_parameters.testType == TEST_TYPE_BACKWARD_DEPENDENCY_INDIRECT)
+        m_parameters.testType == TEST_TYPE_BACKWARD_DEPENDENCY_INDIRECT ||
+        m_parameters.testType == TEST_TYPE_DRAW_INDIRECT_COUNTER_RESUBMIT)
         return new TransformFeedbackBackwardDependencyTestInstance(context, m_parameters);
 
     if (m_parameters.testType == TEST_TYPE_QUERY_GET || m_parameters.testType == TEST_TYPE_QUERY_COPY ||
@@ -4624,7 +4639,8 @@ void TransformFeedbackTestCase::checkSupport(Context &context) const
     }
 
     if (m_parameters.testType == TEST_TYPE_BACKWARD_DEPENDENCY ||
-        m_parameters.testType == TEST_TYPE_BACKWARD_DEPENDENCY_INDIRECT)
+        m_parameters.testType == TEST_TYPE_BACKWARD_DEPENDENCY_INDIRECT ||
+        m_parameters.testType == TEST_TYPE_DRAW_INDIRECT_COUNTER_RESUBMIT)
     {
         if (!xfbProperties.transformFeedbackDraw)
             TCU_THROW(NotSupportedError, "transformFeedbackDraw not supported");
@@ -4726,7 +4742,8 @@ void TransformFeedbackTestCase::checkSupport(Context &context) const
 void TransformFeedbackTestCase::initPrograms(SourceCollections &programCollection) const
 {
     const bool backwardDependency = (m_parameters.testType == TEST_TYPE_BACKWARD_DEPENDENCY ||
-                                     m_parameters.testType == TEST_TYPE_BACKWARD_DEPENDENCY_INDIRECT);
+                                     m_parameters.testType == TEST_TYPE_BACKWARD_DEPENDENCY_INDIRECT ||
+                                     m_parameters.testType == TEST_TYPE_DRAW_INDIRECT_COUNTER_RESUBMIT);
     const bool vertexShaderOnly =
         m_parameters.testType == TEST_TYPE_BASIC || m_parameters.testType == TEST_TYPE_RESUME ||
         (m_parameters.testType == TEST_TYPE_WINDING && m_parameters.primTopology != VK_PRIMITIVE_TOPOLOGY_PATCH_LIST);
@@ -6493,6 +6510,7 @@ void createTransformFeedbackSimpleTests(tcu::TestCaseGroup *group, vk::PipelineC
                                                  false,
                                                  VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
                                                  false,
+                                                 false,
                                                  false};
 
                     // Simple Transform Feedback test
@@ -6522,6 +6540,11 @@ void createTransformFeedbackSimpleTests(tcu::TestCaseGroup *group, vk::PipelineC
                         parameters.useDeviceAddressCommands = false;
                         parameters.nullCounterBuffers       = true;
                         addTransformFeedbackTestCaseVariants(group, (testName + postfixStr + "_null_counter_buffers"),
+                                                             parameters);
+
+                        parameters.nullCounterBuffers             = false;
+                        parameters.nullPtrsInEndTransformFeedback = true;
+                        addTransformFeedbackTestCaseVariants(group, (testName + postfixStr + "_null_ptrs_end_xfb"),
                                                              parameters);
                     }
                 }
@@ -6676,6 +6699,33 @@ void createTransformFeedbackSimpleTests(tcu::TestCaseGroup *group, vk::PipelineC
             parameters.useDeviceAddressCommands = true;
             addTransformFeedbackTestCaseVariants(group, (testName + "_device_address"), parameters);
         }
+    }
+
+    {
+        const auto testType         = TEST_TYPE_DRAW_INDIRECT_COUNTER_RESUBMIT;
+        const std::string &testName = "draw_indirect_counter_resubmit";
+        TestParameters parameters   = {constructionType,
+                                       testType,
+                                       512u,
+                                       2u,
+                                       0u,
+                                       0u,
+                                       0u,
+                                       STREAM_ID_0_NORMAL,
+                                       false,
+                                       false,
+                                       false,
+                                       false,
+                                       false,
+                                       false,
+                                       VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
+                                       false,
+                                       false};
+
+        addTransformFeedbackTestCaseVariants(group, testName, parameters);
+
+        parameters.useDeviceAddressCommands = true;
+        addTransformFeedbackTestCaseVariants(group, (testName + "_device_address"), parameters);
     }
 
     {
@@ -7255,7 +7305,6 @@ public:
     void deinit(void) override
     {
         cleanupDevices();
-        tcu::TestCaseGroup::deinit();
     }
 };
 

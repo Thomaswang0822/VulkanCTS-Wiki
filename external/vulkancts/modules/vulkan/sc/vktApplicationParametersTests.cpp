@@ -192,21 +192,15 @@ void checkSupport(Context &context, TestParams testParams)
 
 tcu::TestStatus createDeviceTest(Context &context, TestParams testParams)
 {
-    tcu::TestLog &log                          = context.getTestContext().getLog();
-    const PlatformInterface &platformInterface = context.getPlatformInterface();
-    const CustomInstance instance(createCustomInstanceFromContext(context));
-    const InstanceDriver &instanceDriver(instance.getDriver());
-    const VkPhysicalDevice physicalDevice =
-        chooseDevice(instanceDriver, instance, context.getTestContext().getCommandLine());
-    const std::vector<TestData> testDataList                   = getTestDataList(context, testParams);
-    const float queuePriority                                  = 1.0f;
-    VkDeviceObjectReservationCreateInfo devObjectResCreateInfo = resetDeviceObjectReservationCreateInfo();
-    bool testPassed                                            = true;
-    const VkPhysicalDeviceVulkanSC10Features sc10Features      = {
-        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_SC_1_0_FEATURES, // sType;
-        &devObjectResCreateInfo,                                  // pNext;
-        VK_FALSE                                                  // shaderAtomicInstructions;
-    };
+    tcu::TestLog &log = context.getTestContext().getLog();
+    const InstanceWrapper instance(createCustomInstanceFromContext(context));
+    const std::vector<TestData> testDataList = getTestDataList(context, testParams);
+    const float queuePriority                = 1.0f;
+    VkDeviceObjectReservationCreateInfo devObjectResCreateInfo =
+        context.getResourceInterface()->getDefaultDeviceObjectReservationCreateInfo();
+    bool testPassed                                 = true;
+    VkPhysicalDeviceVulkanSC10Features sc10Features = createDefaultSC10Features();
+    sc10Features.pNext                              = &devObjectResCreateInfo;
 
     for (TestData testData : testDataList)
     {
@@ -242,15 +236,8 @@ tcu::TestStatus createDeviceTest(Context &context, TestParams testParams)
         log << tcu::TestLog::Message << "Creating device with application parameters: " << appParams
             << tcu::TestLog::EndMessage;
 
-        VkDevice device       = VK_NULL_HANDLE;
-        const VkResult result = instanceDriver.createDevice(physicalDevice, &deviceCreateInfo, nullptr, &device);
-
-        if (device)
-        {
-            const DeviceDriver deviceIface(platformInterface, instance, device, context.getUsedApiVersion(),
-                                           context.getTestContext().getCommandLine());
-            deviceIface.destroyDevice(device, nullptr /*pAllocator*/);
-        }
+        UncheckedDevice device;
+        const VkResult result = instance.createUncheckedDevice(&deviceCreateInfo, nullptr, &device);
 
         log << tcu::TestLog::Message
             << "Device creation returned with " + de::toString(getResultName(result)) + " (expecting " +

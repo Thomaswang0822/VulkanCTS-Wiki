@@ -91,7 +91,8 @@ Move<VkPipeline> makeGraphicsPipeline(
     const VkPipelineDepthStencilStateCreateInfo *depthStencilStateCreateInfo   = nullptr,
     const VkPipelineColorBlendStateCreateInfo *colorBlendStateCreateInfo       = nullptr,
     const VkPipelineDynamicStateCreateInfo *dynamicStateCreateInfo = nullptr, const void *pNext = nullptr,
-    const VkPipelineCreateFlags pipelineCreateFlags = 0u, const void *stagePNext = nullptr);
+    const VkPipelineCreateFlags pipelineCreateFlags = 0u, const void *stagePNext = nullptr,
+    const VkSpecializationInfo *vertexShaderSpecializationInfo = nullptr);
 
 #ifndef CTS_USES_VULKANSC
 Move<VkPipeline> makeGraphicsPipeline(
@@ -132,8 +133,7 @@ Move<VkRenderPass> makeRenderPass(
 
 Move<VkImageView> makeImageView(const DeviceInterface &vk, const VkDevice vkDevice, const VkImage image,
                                 const VkImageViewType imageViewType, const VkFormat format,
-                                const VkImageSubresourceRange subresourceRange,
-                                const vk::VkImageViewUsageCreateInfo *imageUsageCreateInfo = nullptr);
+                                const VkImageSubresourceRange subresourceRange, const void *pNext = nullptr);
 
 Move<VkBufferView> makeBufferView(const DeviceInterface &vk, const VkDevice vkDevice, const VkBuffer buffer,
                                   const VkFormat format, const VkDeviceSize offset, const VkDeviceSize size);

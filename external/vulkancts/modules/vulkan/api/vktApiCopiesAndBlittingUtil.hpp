@@ -140,6 +140,7 @@ enum ExtensionUseBits
     MAINTENANCE_8                 = (1 << 5),
     INDIRECT_COPY                 = (1 << 6),
     MAINTENANCE_10                = (1 << 7),
+    MAINTENANCE_11                = (1 << 8),
     DEVICE_ADDRESS_COMMANDS       = (1 << 8),
 };
 
@@ -377,6 +378,7 @@ void submitCommandsAndWaitWithTransferSync(const DeviceInterface &vkd, VkDevice 
 void checkTransferQueueGranularity(Context &context, const VkExtent3D &extent, VkImageType imageType);
 void checkTransferQueueGranularity(const Context &context, const VkImageCreateInfo &imgInfo,
                                    const VkBufferImageCopy &region);
+void checkSparseBindingSupport(const Context &context, ImageParms image);
 
 std::string getSampleCountCaseName(VkSampleCountFlagBits sampleFlag);
 

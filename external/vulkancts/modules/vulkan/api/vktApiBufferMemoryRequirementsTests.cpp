@@ -454,9 +454,27 @@ void MemoryRequirementsTest::checkSupport(Context &context) const
         int entryCount    = 0;
         msgs.fill(false);
 
+        // VUID-VkBufferCreateInfo-flags-09641
+        const VkBufferUsageFlags protectedAllowedUsage =
+            VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+            VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT |
+            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
+            VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT
+#ifndef CTS_USES_VULKANSC
+            | VK_BUFFER_USAGE_DESCRIPTOR_HEAP_BIT_EXT | VK_BUFFER_USAGE_VIDEO_DECODE_SRC_BIT_KHR |
+            VK_BUFFER_USAGE_VIDEO_ENCODE_DST_BIT_KHR
+#endif // CTS_USES_VULKANSC
+            ;
+        const bool isProtected = m_testConfig.createBits->contains(VK_BUFFER_CREATE_PROTECTED_BIT);
+
         for (auto i = usageFlags.begin(); i != usageFlags.end();)
         {
             notSupported = false;
+
+            if (isProtected && (((*i)() & ~protectedAllowedUsage) != 0u))
+            {
+                notSupported = true;
+            }
 
 #ifndef CTS_USES_VULKANSC
             if (i->any({VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR,
@@ -791,7 +809,7 @@ void *BufferMemoryRequirementsInstance::chainVkStructure<VkVideoProfileListInfoK
 }
 #endif // CTS_USES_VULKANSC
 
-static Move<VkDevice> createProtectedDevice(const Context &context)
+static CustomDevice createProtectedDevice(const Context &context, const InstanceWrapper &instance)
 {
     const float queuePriority = 1.0f;
 
@@ -820,13 +838,12 @@ static Move<VkDevice> createProtectedDevice(const Context &context)
         nullptr,                              // const char* const* ppEnabledExtensionNames;
         nullptr                               // const VkPhysicalDeviceFeatures* pEnabledFeatures;
     };
-    return createCustomDevice(context.getPlatformInterface(), context.getInstance(), context.getInstanceInterface(),
-                              context.getPhysicalDevice(), &deviceInfo);
+    return instance.createCustomDevice(&deviceInfo);
 }
 
 TestStatus BufferMemoryRequirementsInstance::iterate(void)
 {
-    const DeviceInterface &vkd      = m_context.getDeviceInterface();
+    const auto instance             = InstanceWrapper(m_context);
     const uint32_t queueFamilyIndex = m_context.getUniversalQueueFamilyIndex();
     const Method method = m_config.useMethod2 ? &BufferMemoryRequirementsInstance::getBufferMemoryRequirements2 :
                                                 &BufferMemoryRequirementsInstance::getBufferMemoryRequirements;
@@ -837,17 +854,12 @@ TestStatus BufferMemoryRequirementsInstance::iterate(void)
     std::vector<BufferUsageBitsPtr> failUsageBits;
     std::vector<ExternalMemoryHandleBitsPtr> failExtMemHandleBits;
 
-    Move<VkDevice> protectedDevice;
-    VkDevice device;
+    DeviceWrapper device(m_context);
     if (m_config.createBits->contains(VK_BUFFER_CREATE_PROTECTED_BIT))
     {
-        protectedDevice = createProtectedDevice(m_context);
-        device          = *protectedDevice;
+        device = createProtectedDevice(m_context, instance);
     }
-    else
-    {
-        device = m_context.getDevice();
-    }
+    const DeviceInterface &vkd = device.getDriver();
 
     DE_ASSERT(!m_config.createBits->empty());
     const VkBufferCreateFlags infoCreateFlags = *m_config.createBits;
