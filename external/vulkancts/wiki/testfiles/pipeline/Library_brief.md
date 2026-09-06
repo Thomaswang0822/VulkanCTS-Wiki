@@ -2,7 +2,7 @@
 
 ## One-Sentence Test Purpose
 
-This test checks whether Vulkan graphics pipeline libraries can be created from partial pipeline state, linked into a complete graphics pipeline, and executed with the expected rendering and descriptor-layout behavior.
+This test checks whether Vulkan graphics pipeline libraries can be created from partial pipeline state, linked into a complete graphics pipeline, and executed with the expected rendering, rebind, and independent descriptor-layout behavior.
 
 ## Background Knowledge
 
@@ -13,6 +13,8 @@ This test checks whether Vulkan graphics pipeline libraries can be created from 
 ### Pipeline layout compatibility
 
 A pipeline library can use a layout that exposes only the descriptor-set layouts needed by its shader stages. The final linked pipeline combines those partial layouts. The independent-set cases exercise `VK_PIPELINE_LAYOUT_CREATE_INDEPENDENT_SETS_BIT_EXT`, while null-layout cases exercise `VK_NULL_HANDLE` entries in the layout array. These choices affect whether the library can link, not merely how descriptors are bound.
+
+The `independent_sets_random` family goes further: for each construction type (`monolithic`, `fast_lib`, `optimized_lib`) it generates pseudorandom per-stage descriptor sets for twelve stage combinations (eight classic vertex-pipeline combinations and four mesh-pipeline combinations), ten seeded cases per combination, each with and without the `_io_ssbo_first` set-order variant. Each descriptor holds a known value; shaders copy the values they read into a shared storage buffer, and the host compares with zero tolerance, so a wrong set assignment is reported with its exact set, binding, and descriptor index.
 
 ## One Concrete Example
 
@@ -59,15 +61,15 @@ Miscellaneous leaves use the same setup where applicable, but some validate crea
 
 The configuration tests render a 16 by 16 image. The color comparison expects green in the upper-left three-quarters, blue in the lower-left three-quarters, and black in the rightmost quarter. The depth comparison converts the observed depth to an 8-bit reference and checks the diagonal and right-hand regions with an exact integer comparison.
 
-Miscellaneous image tests compare selected texels or reference images with a small tolerance. `always_null_set_layout` writes stage-derived values to a storage buffer and checks those values after synchronization. Creation and shader-module cases pass when the intended Vulkan object creation succeeds or produces the expected validation result. `primary_rebind` checks the result after rebinding the pipeline in a primary command buffer following secondary-command execution.
+Miscellaneous image tests compare selected texels or reference images with a small tolerance. `always_null_set_layout` writes stage-derived values to a storage buffer and checks those values after synchronization. Creation and shader-module cases pass when the intended Vulkan object creation succeeds or produces the expected validation result. `primary_rebind` checks the result after rebinding the pipeline in a primary command buffer following secondary-command execution, and `primary_rebind_diff_layouts` repeats that rebind with a different descriptor-set count between the secondary-bound and primary-bound pipelines, so the primary must correctly rebind a pipeline whose layout declares two sets after the secondary bound a one-set layout. `independent_sets_random` leaves render a one-pixel image and compare the IO storage-buffer values against the descriptor contents with zero tolerance.
 
 ## Behavior Parameter Identification
 
 > **Behavior parameter:** registered intermediate test family
 >
-> **Candidate values:** `fast`, `optimize`, `misc`
+> **Candidate values:** `fast`, `optimize`, `independent_sets_random`, `misc`
 
-The main behavioral split is the first-level child under `graphics_library`. `fast` and `optimize` use the same pipeline-tree matrix with different link optimization flags. `misc` contains focused linkage, layout, creation, execution, and lifetime checks.
+The main behavioral split is the first-level child under `graphics_library`. `fast` and `optimize` use the same pipeline-tree matrix with different link optimization flags. `independent_sets_random` generates pseudorandom per-stage descriptor-set layouts for three construction types. `misc` contains focused linkage, layout, creation, execution, and lifetime checks.
 
 ## What Failure Means
 
@@ -77,11 +79,13 @@ The main behavioral split is the first-level child under `graphics_library`. `fa
 |----------------------------------------|---------------------------|
 | `fast` | Incorrect creation or linkage of graphics pipeline libraries without link-time optimization. |
 | `optimize` | Incorrect retention or use of link-time optimization information when linking libraries. |
+| `independent_sets_random` | Incorrect combination of independently specified per-stage descriptor-set layouts, or a shader stage reading a descriptor through the wrong set assignment in the general layout created with `VK_PIPELINE_LAYOUT_CREATE_INDEPENDENT_SETS_BIT_EXT`. |
 | `misc` | A focused pipeline-library contract failed, such as layout compatibility, null descriptor handling, creation-info validation, resource lifetime, device-group view selection, or pipeline rebinding. |
 
 ## Important Variations and Special Cases
 
 - All leaves are registered under `pipeline.pipeline_library.graphics_library`, which is created only for `PIPELINE_CONSTRUCTION_TYPE_LINK_TIME_OPTIMIZED_LIBRARY`; the `fast` leaves explicitly exercise fast-linked library construction inside that group.
+- `independent_sets_random` contains 720 leaves (3 construction types × 12 stage groups × 10 seeds × 2 set-order variants), making it the largest part of this family in mustpass.
 - The `maintenance5` fast leaf changes pipeline-library creation behavior to use the Maintenance5 path rather than the independent-set flag path.
 - Null descriptor names encode set-layout presence. For example, `1010` means that the first and third positions are used while the other positions are null.
 - The source also registers non-graphics shader-module cases for compute, ray-tracing, and ray-tracing-library pipeline create information. The ray-tracing-library case requires `VK_KHR_pipeline_library`.
@@ -91,12 +95,14 @@ The main behavioral split is the first-level child under `graphics_library`. `fa
 
 | Topic | Source link | Why it matters |
 |---|---|---|
-| Registration | [`createPipelineLibraryTests()`](../../../modules/vulkan/pipeline/vktPipelineLibraryTests.cpp#L6246-L6462) | Defines `graphics_library`, its three direct children, and all miscellaneous descendants. |
-| Pipeline-tree generation | [`addPipelineLibraryConfigurationsTests()`](../../../modules/vulkan/pipeline/vktPipelineLibraryTests.cpp#L5046-L5280) | Defines the `fast` and `optimize` configuration matrix. |
-| Library creation and linking | [`PipelineLibraryTestInstance::runTest()`](../../../modules/vulkan/pipeline/vktPipelineLibraryTests.cpp#L837-L1089) | Builds library leaves, links them toward the root, draws, and reads back results. |
-| Miscellaneous dispatch | [`PipelineLibraryMiscTestInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineLibraryTests.cpp#L1495-L1540) | Selects the focused behavior implementation for each `misc` leaf. |
-| Parent registration | [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L198-L218) | Attaches this implementation under the pipeline-library construction root. |
-| Mustpass | [`pipeline-library.txt`](../../../mustpass/main/vk-default/pipeline/pipeline-library.txt#L1-L112) | Contains 112 registered `graphics_library` leaves: 15 `fast`, 13 `optimize`, and 84 `misc`. |
+| Registration | [`createPipelineLibraryTests()`](../../../modules/vulkan/pipeline/vktPipelineLibraryTests.cpp#L6651-L6895) | Defines `graphics_library`, its four direct children, and all miscellaneous descendants. |
+| Pipeline-tree generation | [`addPipelineLibraryConfigurationsTests()`](../../../modules/vulkan/pipeline/vktPipelineLibraryTests.cpp#L5042-L5191) | Defines the `fast` and `optimize` configuration matrix. |
+| Library creation and linking | [`PipelineLibraryTestInstance::runTest()`](../../../modules/vulkan/pipeline/vktPipelineLibraryTests.cpp#L840-L1092) | Builds library leaves, links them toward the root, draws, and reads back results. |
+| Miscellaneous dispatch | [`PipelineLibraryMiscTestInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineLibraryTests.cpp#L1498-L1543) | Selects the focused behavior implementation for each `misc` leaf. |
+| Diff-layout rebind | [`PrimaryRebindDiffLayoutsRun()`](../../../modules/vulkan/pipeline/vktPipelineLibraryTests.cpp#L6037-L6376) | Rebinds a two-set pipeline after secondary work bound a one-set pipeline. |
+| Independent-sets generation | [`IndependentSets::createRandomTests()`](../../../modules/vulkan/util/vktIndependentSetsUtil.cpp#L1880-L1995) | Registers the pseudorandom per-stage layout cases for `independent_sets_random`. |
+| Parent registration | [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L213-L218) | Attaches this implementation under the pipeline-library construction root. |
+| Mustpass | [`pipeline-library.txt`](../../../mustpass/main/vk-default/pipeline/pipeline-library.txt#L36654-L37489) | Contains 836 registered `graphics_library` leaves: 15 `fast`, 13 `optimize`, 720 `independent_sets_random`, and 88 `misc`. |
 
 ## Questions / Risk Points for User Audit
 
@@ -106,4 +112,4 @@ The main behavioral split is the first-level child under `graphics_library`. `fa
 
 ## Conversion Notes for Final Wiki Rewrite
 
-Carry the `fast`/`optimize`/`misc` behavioral axis into the final page. Keep the pipeline-tree example as the main execution explanation. Copy the failure mapping table into `## Failure Meaning`, then write fresh cause analysis for each value. Keep the detailed leaf inventory in the mustpass reference rather than expanding the registration tree.
+Carry the `fast`/`optimize`/`independent_sets_random`/`misc` behavioral axis into the final page. Keep the pipeline-tree example as the main execution explanation. Copy the failure mapping table into `## Failure Meaning`, then write fresh cause analysis for each value. Keep the detailed leaf inventory in the mustpass reference rather than expanding the registration tree.

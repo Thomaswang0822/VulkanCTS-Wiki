@@ -100,10 +100,10 @@ The direct intermediate node is the primary behavioral axis. The eight ordinary 
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Factory and ordering registration | [`createExtendedDynamicStateTests()`](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.cpp#L6974-L7036) | Defines the registered ordering names and shader-object omission. |
-| Dynamic command recording and draw order | [`ExtendedDynamicStateInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.cpp#L6405-L6651) | Shows the placement of `setDynamicStates`, pipeline binds, and draws. |
-| Attachment and counter validation | [result checking](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.cpp#L6653-L6890) | Defines color/depth/stencil and optional counter pass conditions. |
-| Static/dynamic reversal | [value-swap rationale](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.cpp#L3102-L3110) | Explains sequences that must finish with a correct static pipeline. |
+| Factory and ordering registration | [`createExtendedDynamicStateTests()`](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.cpp#L7006-L7060) | Defines the registered ordering names and shader-object omission. |
+| Dynamic command recording and draw order | [`ExtendedDynamicStateInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.cpp#L5048-L6924) | Shows the placement of `setDynamicStates`, pipeline binds, and draws. |
+| Attachment and counter validation | [result checking](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.cpp#L6686-L6922) | Defines color/depth/stencil and optional counter pass conditions. |
+| Static/dynamic reversal | [value-swap rationale](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.cpp#L3109-L3116) | Explains sequences that must finish with a correct static pipeline. |
 | Vulkan dynamic-state rules | [pipeline dynamic state](../../../../vulkan-docs/src/chapters/pipelines.adoc#L2143-L2297) | Supplies the API-level context for EDS3 dynamic state. |
 
 ## Questions / Risk Points for User Audit

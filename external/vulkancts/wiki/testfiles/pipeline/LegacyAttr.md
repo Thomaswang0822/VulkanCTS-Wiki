@@ -2,9 +2,9 @@
 
 **Core question:** Does the dynamic vertex-input path fetch legacy attribute data with the requested format, stride, and offsets, then expose the result to a shader input with a selected numeric type?
 
-[`vktPipelineLegacyAttrTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L20-L23) implements the `legacy_vertex_attributes` family under the `vertex_input` group. The test exercises `VK_EXT_legacy_vertex_attributes` together with `VK_EXT_vertex_input_dynamic_state`. It supplies data through dynamically recorded `VkVertexInputBindingDescription2EXT` and `VkVertexInputAttributeDescription2EXT` structures, then checks both a rendered color target and storage-buffer values written by the fragment shader.
+[`vktPipelineLegacyAttrTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L20-L23) implements the `legacy_vertex_attributes` family under the `vertex_input` group. The test exercises `VK_EXT_legacy_vertex_attributes` together with `VK_EXT_vertex_input_dynamic_state`. It supplies data through dynamically recorded `VkVertexInputBindingDescription2EXT` and `VkVertexInputAttributeDescription2EXT` structures, then checks both a rendered color target and storage-buffer values written by the fragment shader. Device-address-command leaves bind the same vertex buffers through `vkCmdBindVertexBuffers3KHR` under `VK_KHR_device_address_commands`, either with the stride still supplied by the dynamic binding descriptions (`_dac`) or with the stride carried by the address range itself (`_dac_with_stride`).
 
-The parent registers this family only for monolithic and fast-linked-library construction types ([parent registration](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3111-L3120)). The current mustpass lists contain 1,360 leaves for each of those construction types: 1,336 under `single_binding` and 24 under `multi_binding`.
+The parent registers this family only for monolithic and fast-linked-library construction types ([parent registration](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3410-L3415)). The current mustpass lists contain 4,080 leaves for each of those construction types: 4,008 under `single_binding` and 72 under `multi_binding`; 2,720 of them use device-address commands.
 
 ## Background Knowledge
 
@@ -16,36 +16,43 @@ A pipeline that uses `VK_DYNAMIC_STATE_VERTEX_INPUT_EXT` can leave the static ve
 
 ### Format and shader reinterpretation
 
-`BindingParams` keeps the vertex `VkFormat` separate from `ShaderFormat`, whose values are `FLOAT`, `SIGNED_INT`, and `UNSIGNED_INT` ([definitions](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L58-L64)). The generated vertex shader declares the data input with the selected scalar or vector type, while the host-side `getOutputData()` function decodes the source bytes using the Vulkan format and expands each used component to a 32-bit value ([decoder](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L166-L242)). The comparison therefore checks the 32-bit component representations captured by the shader, including cases where the format's numeric type differs from the shader input's numeric type. It must not be read as requiring numeric conversion between float and integer types: the extension explicitly makes the resulting shader values implementation-dependent for float/integer type mismatches ([extension issue](../../../../vulkan-docs/src/appendices/VK_EXT_legacy_vertex_attributes.adoc#L35-L42)).
+`BindingParams` keeps the vertex `VkFormat` separate from `ShaderFormat`, whose values are `FLOAT`, `SIGNED_INT`, and `UNSIGNED_INT` ([definitions](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L59-L65)). The generated vertex shader declares the data input with the selected scalar or vector type, while the host-side `getOutputData()` function decodes the source bytes using the Vulkan format and expands each used component to a 32-bit value ([decoder](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L173-L249)). The comparison therefore checks the 32-bit component representations captured by the shader, including cases where the format's numeric type differs from the shader input's numeric type. It must not be read as requiring numeric conversion between float and integer types: the extension explicitly makes the resulting shader values implementation-dependent for float/integer type mismatches ([extension issue](../../../../vulkan-docs/src/appendices/VK_EXT_legacy_vertex_attributes.adoc#L35-L42)).
 
 ### Stride and offsets
 
-The binding stride controls the distance between records. The attribute offset is added to the start of each record, and the allocation's memory offset shifts the data buffer in memory. The source intentionally includes zero, one-byte, format-size, and `2 * formatSize - 1` stride forms for single-binding cases ([stride loop](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L913-L927)). Offset variants are retained only when they can exercise unaligned access, so the test does not spend cases on offsets that are still aligned for an all-eight-bit format ([offset filter](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L963-L973)).
+The binding stride controls the distance between records. The attribute offset is added to the start of each record, and the allocation's memory offset shifts the data buffer in memory. The source intentionally includes zero, one-byte, format-size, and `2 * formatSize - 1` stride forms for single-binding cases ([stride loop](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L943-L948)). Offset variants are retained only when they can exercise unaligned access, so the test does not spend cases on offsets that are still aligned for an all-eight-bit format ([offset filter](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L984-L994)).
+
+### Device-address vertex-buffer binding
+
+`VK_KHR_device_address_commands` adds `vkCmdBindVertexBuffers3KHR`, which binds vertex buffers through `VkStridedDeviceAddressRangeKHR` device addresses instead of buffer handles. Each `VkBindVertexBuffer3InfoKHR` carries one address range, a flag stating whether the range supplies the binding stride, and `VK_ADDRESS_COMMAND_FULLY_BOUND_BIT_KHR`. When the range supplies the stride, a later `vkCmdSetVertexInputEXT` binding description may set a zero stride and let the address command provide the final value.
 
 ## Registration Hierarchy
 
 ```text
 pipeline.monolithic.vertex_input.legacy_vertex_attributes
 ├── single_binding
+│   └── <format> (54 format-named groups)
 └── multi_binding
+    └── <format tuple> (3 tuple-named groups)
 ```
 
-The direct children are intermediate nodes. Their executable leaves are generated by `createLegacyVertexAttributesTests()` ([factory](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L833-L1071)). Equivalent registered roots exist under `pipeline.fast_linked_library.vertex_input.legacy_vertex_attributes`; the monolithic root above is the canonical tree used here.
+Each direct child is an intermediate node whose leaves are grouped by format: `single_binding` contains one group per entry of `formatsToTest[]` named by `getFormatSimpleName()`, and `multi_binding` contains one group per curated tuple named by `getFormatShortName()` ([factory](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L1192-L1196), [single-binding population](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L1026-L1093), [multi-binding population](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L1172-L1188)). Equivalent registered roots exist under `pipeline.fast_linked_library.vertex_input.legacy_vertex_attributes`; the monolithic root above is the canonical tree used here.
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | `single_binding` | `multi_binding` |
 |---|---|---|
-| Vertex formats | The 54 entries in `formatsToTest[]`, from mandatory vertex-input formats such as `VK_FORMAT_R8_UNORM` through 3-component formats ending at `VK_FORMAT_R16G16B16_SFLOAT` ([format list](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L841-L899)) | Three curated tuples: `{R8_UNORM, R16G16_UINT, R32G32B32A32_SINT}`, `{R32_SFLOAT, R16G16B16_SNORM, R8G8_UINT}`, and `{R32G32B32A32_SFLOAT, R16_SINT, R8G8_UNORM}` ([tuples](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L995-L1002)) |
-| Shader format | `FLOAT`, `SIGNED_INT`, or `UNSIGNED_INT`, with source filters for redundant or unstable combinations ([filter](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L937-L961)) | Selected per tuple member: float-like formats use a signed or unsigned integer shader type; integer formats use `FLOAT` where possible, otherwise the opposite integer type ([selection](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L1019-L1044)) |
+| Vertex formats | The 54 entries in `formatsToTest[]`, from mandatory vertex-input formats such as `VK_FORMAT_R8_UNORM` through 3-component formats ending at `VK_FORMAT_R16G16B16_SFLOAT` ([format list](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L1028-L1086)) | Three curated tuples: `{R8_UNORM, R16G16_UINT, R32G32B32A32_SINT}`, `{R32_SFLOAT, R16G16B16_SNORM, R8G8_UINT}`, and `{R32G32B32A32_SFLOAT, R16_SINT, R8G8_UNORM}` ([tuples](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L1175-L1181)) |
+| Shader format | `FLOAT`, `SIGNED_INT`, or `UNSIGNED_INT`, with source filters for redundant or unstable combinations ([filter](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L950-L982)) | Selected per tuple member: float-like formats use a signed or unsigned integer shader type; integer formats use `FLOAT` where possible, otherwise the opposite integer type ([selection](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L1109-L1141)) |
 | Binding stride | `0`, `1`, `formatSize`, or `2 * formatSize - 1` bytes | `formatSize` or `1` byte, named `stride_normal` and `stride_1_byte` |
 | Attribute offset | `0` or `1` byte | `0` or `1` byte, applied to each data binding |
 | Memory offset | `0` or `1` byte | `0` or `1` byte, applied to each data binding |
+| Buffer-binding path | Classic handle binding, or device-address binding with the stride in the dynamic descriptions (`_dac`) or in the address range (`_dac_with_stride`) | The same three choices |
 | Number of data bindings | One | Three |
 | Draw data | 16 point vertices and 16 source values per data binding | The same 16 points and 16 values for each of the three bindings |
 | Pipeline construction | Monolithic or fast-linked library | Monolithic or fast-linked library |
 
-`BindingParams::getRandomSeed()` packs the format, stride, attribute offset, and memory offset into a deterministic seed. `LegacyVertexAttributesParams` combines the seeds for all bindings and sets the high bit ([parameter structs](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L66-L162)).
+`BindingParams::getRandomSeed()` packs the format, stride, attribute offset, and memory offset into a deterministic seed. `LegacyVertexAttributesParams` combines the seeds for all bindings and sets the high bit, and additionally carries the two device-address-command booleans ([parameter structs](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L67-L171)).
 
 ## Behavior Parameters
 
@@ -53,15 +60,15 @@ The primary behavioral axis is the intermediate node directly below the register
 
 ### `single_binding`: one data binding
 
-Each leaf creates one `BindingParams` value. The source combines a format, an allowed shader interpretation, one of four stride values, and the two offset loops, subject to the filtering rules. The resulting name records the selected format, shader type, stride, and any nonzero offsets ([leaf construction](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L913-L993)).
+Each leaf creates one `BindingParams` value. The source combines a format, an allowed shader interpretation, one of four stride values, and the two offset loops, subject to the filtering rules. The resulting name records the selected shader type, stride, any nonzero offsets, and any device-address-command suffix, inside the format-named group ([leaf construction](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L922-L1024)).
 
 ### `multi_binding`: three data bindings
 
-Each leaf creates three bindings from one curated tuple. The three attributes occupy locations 1, 2, and 3, while position occupies location 0. The source tests normal and one-byte strides and all four attribute/memory-offset combinations for each tuple ([leaf construction](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L995-L1067)). This branch checks that simultaneous bindings remain associated with their own format and destination buffer.
+Each leaf creates three bindings from one curated tuple. The three attributes occupy locations 1, 2, and 3, while position occupies location 0. The source tests normal and one-byte strides and all four attribute/memory-offset combinations for each tuple, again with the three buffer-binding path choices, inside the tuple-named group ([leaf construction](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L1097-L1169)). This branch checks that simultaneous bindings remain associated with their own format and destination buffer.
 
 ## Shader Analysis
 
-The generated shader pair for the representative monolithic case copies the dynamically fetched legacy attribute through a flat vertex-to-fragment interface, then records it in a storage buffer. The vertex and fragment sources are emitted by `LegacyVertexAttributesCase::initPrograms()` ([source generator](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L365-L413)).
+The generated shader pair for the representative monolithic case copies the dynamically fetched legacy attribute through a flat vertex-to-fragment interface, then records it in a storage buffer. The vertex and fragment sources are emitted by `LegacyVertexAttributesCase::initPrograms()` ([source generator](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L374-L421)).
 
 ### Representative Shader Walkthrough 1
 
@@ -70,22 +77,23 @@ The generated shader pair for the representative monolithic case copies the dyna
 Representative path:
 
 ```text
-dEQP-VK.pipeline.monolithic.vertex_input.legacy_vertex_attributes.single_binding.r8_unorm_shader_float_stride_0
+dEQP-VK.pipeline.monolithic.vertex_input.legacy_vertex_attributes.single_binding.r8_unorm.shader_float_stride_0
 ```
 
-This leaf is registered in the `single_binding` group by `createLegacyVertexAttributesTests()` ([leaf construction](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L913-L993)) and is present in the monolithic mustpass list ([mustpass entry](../../../mustpass/main/vk-default/pipeline/monolithic/monolithic.txt#L452501-L452502)).
+This leaf is registered in the `r8_unorm` group under `single_binding` by the population functions behind `createLegacyVertexAttributesTests()` ([leaf construction](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L922-L1024)) and is present in the monolithic mustpass list with its `_dac` and `_dac_with_stride` siblings ([mustpass entry](../../../mustpass/main/vk-default/pipeline/monolithic/monolithic.txt#L455885-L455887)).
 
 | Parameter choice | Meaning in this representative case |
 |------------------|-------------------------------------|
 | `single_binding` | One data binding is tested in addition to the position binding; the generated shader therefore has one data input/output pair and one verification buffer. |
-| `VK_FORMAT_R8_UNORM` | The dynamic attribute description fetches one normalized 8-bit component from the data buffer; the host oracle expands each fetched component to a 32-bit value for comparison ([format and oracle](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L166-L242)). |
-| `shader_float` | The vertex input at location 1 is declared as scalar `float`, matching the generator's `getShaderType()` result for this one-channel choice ([shader type selection](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L93-L121)). |
-| `stride_0`, attribute offset `0`, memory offset `0` | A zero binding stride reuses the same record address for every vertex; both offsets remain aligned and are omitted from the registered name ([single-binding matrix](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L922-L982)). |
-| Monolithic construction | The parent registers this family for monolithic and fast-linked-library construction types; this walkthrough uses the monolithic root ([parent registration](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3111-L3120)). |
+| `VK_FORMAT_R8_UNORM` | The dynamic attribute description fetches one normalized 8-bit component from the data buffer; the host oracle expands each fetched component to a 32-bit value for comparison ([format and oracle](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L173-L249)). |
+| `shader_float` | The vertex input at location 1 is declared as scalar `float`, matching the generator's `getShaderType()` result for this one-channel choice ([shader type selection](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L94-L122)). |
+| `stride_0`, attribute offset `0`, memory offset `0` | A zero binding stride reuses the same record address for every vertex; both offsets remain aligned and are omitted from the registered name ([single-binding matrix](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L943-L1023)). |
+| Classic buffer-binding path | The leaf name carries no `_dac` suffix, so the command buffer uses `vkCmdBindVertexBuffers` and the stride comes from the dynamic binding descriptions ([binding-path loop](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L1007-L1021)). |
+| Monolithic construction | The parent registers this family for monolithic and fast-linked-library construction types; this walkthrough uses the monolithic root ([parent registration](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3410-L3415)). |
 
 #### Purpose
 
-The shader pair provides an observation path for dynamic legacy vertex-attribute fetch: the vertex stage copies the position and fetched scalar, while the fragment stage writes blue and stores the scalar at the fragment's x-coordinate. The host compares the blue image and the storage-buffer values against data decoded according to `VK_FORMAT_R8_UNORM`; the shaders themselves do not perform the conformance decision ([runtime checks](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L687-L809)).
+The shader pair provides an observation path for dynamic legacy vertex-attribute fetch: the vertex stage copies the position and fetched scalar, while the fragment stage writes blue and stores the scalar at the fragment's x-coordinate. The host compares the blue image and the storage-buffer values against data decoded according to `VK_FORMAT_R8_UNORM`; the shaders themselves do not perform the conformance decision ([runtime checks](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L771-L893)).
 
 #### Structural Design
 
@@ -94,7 +102,7 @@ The shader pair provides an observation path for dynamic legacy vertex-attribute
 | Vertex | `inPos` at location 0; `inData0` at location 1 | Copy position to `gl_Position`; copy the fetched scalar without arithmetic | `outData0` at location 0, declared `flat` | Interface transport to the fragment stage |
 | Fragment | `inData0` at location 0, declared `flat`; `gl_FragCoord.x` | Emit constant blue; convert x-coordinate to an integer index | `outColor` at location 0; `verificationBuffer0.value[index]` at set 0/binding 0 | Color attachment and SSBO readback |
 
-The dynamic vertex-input descriptions bind the position at binding 0 and the data attribute at binding/location 1; the selected leaf supplies `stride = 0`, `format = VK_FORMAT_R8_UNORM`, and `offset = 0` through `vkCmdSetVertexInputEXT()` ([dynamic descriptions](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L598-L671)).
+The dynamic vertex-input descriptions bind the position at binding 0 and the data attribute at binding/location 1; the selected leaf supplies `stride = 0`, `format = VK_FORMAT_R8_UNORM`, and `offset = 0` through `vkCmdSetVertexInputEXT()` ([dynamic descriptions](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L646-L706)).
 
 #### Shader Code
 
@@ -140,9 +148,10 @@ void main (void) {
 
 #### Additional Info
 
-- The fragment shader stays fixed across the page's `single_binding` and `multi_binding` cases except for the generated input and storage-buffer declarations; it matters here because it is the final capture point for the vertex-fetch result ([shader generator](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L375-L406)).
-- The zero-stride case intentionally exercises the address rule where successive vertices use the same binding base; the source still generates 16 points and the host oracle uses the selected stride when decoding the input ([stride generation](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L913-L927), [oracle](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L167-L180)).
-- `VK_EXT_scalar_block_layout` is not needed for this one-channel representative case; it is required only when any selected binding has three components, because the generator then uses scalar layout to avoid `vec3` padding ([layout selection and support](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L123-L129), [support check](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L345-L354)).
+- The fragment shader stays fixed across the page's `single_binding` and `multi_binding` cases except for the generated input and storage-buffer declarations; it matters here because it is the final capture point for the vertex-fetch result ([shader generator](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L384-L414)).
+- The zero-stride case intentionally exercises the address rule where successive vertices use the same binding base; the source still generates 16 points and the host oracle uses the selected stride when decoding the input ([stride generation](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L943-L948), [oracle](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L174-L187)).
+- `VK_EXT_scalar_block_layout` is not needed for this one-channel representative case; it is required only when any selected binding has three components, because the generator then uses scalar layout to avoid `vec3` padding ([layout selection and support](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L124-L130), [support check](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L350-L360)).
+- The `_dac` and `_dac_with_stride` siblings run the same generated shaders; only the command-buffer binding path changes (see Runtime Execution).
 
 #### Parameter Variation Summary
 
@@ -150,10 +159,10 @@ The page-level [Parameter Dimensions and Observed Values](#parameter-dimensions-
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| `single_binding` vs `multi_binding` | The generator emits one or three input/output pairs and one or three SSBO declarations; locations and descriptor bindings advance with the binding index. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L375-L388) |
-| `shader_int`, `shader_uint`, `shader_float` | `BindingParams::getShaderType()` changes the scalar/vector declaration and the matching interface/storage-buffer element type. | [`getShaderType()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L93-L121) |
-| Binding stride | The GLSL declarations remain unchanged, but the dynamic fetch address changes through `VkVertexInputBindingDescription2EXT::stride`; `single_binding` covers 0, 1, `formatSize`, and `2 * formatSize - 1`. | [`strides` loop](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L913-L927), [dynamic descriptions](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L613-L625) |
-| Attribute and memory offsets | Shader text remains unchanged; the dynamic attribute offset and bound-buffer memory offset exercise aligned or unaligned fetch addresses. | [`offset loops and filter`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L963-L973), [attribute description](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L641-L654) |
+| `single_binding` vs `multi_binding` | The generator emits one or three input/output pairs and one or three SSBO declarations; locations and descriptor bindings advance with the binding index. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L384-L397) |
+| `shader_int`, `shader_uint`, `shader_float` | `BindingParams::getShaderType()` changes the scalar/vector declaration and the matching interface/storage-buffer element type. | [`getShaderType()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L94-L122) |
+| Binding stride | The GLSL declarations remain unchanged, but the dynamic fetch address changes through `VkVertexInputBindingDescription2EXT::stride` or the address-range stride; `single_binding` covers 0, 1, `formatSize`, and `2 * formatSize - 1`. | [`strides` loop](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L943-L948), [dynamic descriptions](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L646-L677) |
+| Attribute and memory offsets | Shader text remains unchanged; the dynamic attribute offset and bound-buffer memory offset exercise aligned or unaligned fetch addresses. | [`offset loops and filter`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L963-L973), [attribute description](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L679-L706) |
 | Format | The shader type follows the selected `ShaderFormat`, while the host oracle decodes the source bytes using the selected Vulkan format; float/integer mismatches are implementation-dependent under the extension. | [`format/shader matrix`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L932-L961), [extension issue](../../../../vulkan-docs/src/appendices/VK_EXT_legacy_vertex_attributes.adoc#L35-L42) |
 
 #### SPIR-V
@@ -312,13 +321,13 @@ The page-level [Parameter Dimensions and Observed Values](#parameter-dimensions-
 
 ## Runtime Execution and Result Checking
 
-1. `LegacyVertexAttributesInstance::iterate()` creates a 16 by 1 `VK_FORMAT_R8G8B8A8_UNORM` color image with transfer-source usage, then builds 16 positions that form a point per pixel ([framebuffer and positions](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L415-L445)).
-2. It seeds `de::Random` from the parameter tuple and generates one byte vector per data binding. When the input will be interpreted as a float, `genInputData()` rejects NaN, infinity, denormals, and zero values so the conversion comparison remains deterministic ([input generation](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L245-L291)).
-3. It creates one host-visible vertex buffer for positions and one offset-allocated host-visible vertex buffer per data binding. Host writes are flushed before use; the data buffers flush the whole allocation because the requested memory offset need not satisfy the noncoherent atom size ([buffer setup](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L455-L501)).
-4. For each data binding, the test decodes the expected output with `getOutputData()`, creates a storage buffer of the reference size, clears it, and binds the buffers at descriptor bindings starting at zero ([reference and descriptors](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L503-L553)).
-5. The pipeline declares `VK_DYNAMIC_STATE_VERTEX_INPUT_EXT`, uses an empty static `VkPipelineVertexInputStateCreateInfo`, and uses point-list topology. The command buffer binds all buffers, records the dynamic binding and attribute descriptions, binds the pipeline, and draws 16 points ([pipeline and dynamic descriptions](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L568-L673)).
-6. After submission and completion, the test invalidates the color allocation and compares the image against an all-blue reference with zero threshold ([submission and color check](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L674-L698)).
-7. It invalidates each storage-buffer allocation and compares each fetched component according to the vertex format's channel class. Fixed-point values use thresholds derived from channel bit widths. Floating-point, signed-integer, and unsigned-integer values must match exactly ([storage-buffer check](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L700-L809)).
+1. `LegacyVertexAttributesInstance::iterate()` creates a 16 by 1 `VK_FORMAT_R8G8B8A8_UNORM` color image with transfer-source usage, then builds 16 positions that form a point per pixel ([framebuffer and positions](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L424-L455)).
+2. It seeds `de::Random` from the parameter tuple and generates one byte vector per data binding. When the input will be interpreted as a float, `genInputData()` rejects NaN, infinity, denormals, and zero values so the conversion comparison remains deterministic ([input generation](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L251-L329)).
+3. It creates one host-visible vertex buffer for positions and one offset-allocated host-visible vertex buffer per data binding. Host writes are flushed before use; the data buffers flush the whole allocation because the requested memory offset need not satisfy the noncoherent atom size. For device-address-command leaves, each buffer also records a `VkStridedDeviceAddressRangeKHR` whose stride is taken from the address range only when `setStrideWithDAC` is set ([buffer setup](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L466-L549)).
+4. For each data binding, the test decodes the expected output with `getOutputData()`, creates a storage buffer of the reference size, clears it, and binds the buffers at descriptor bindings starting at zero ([reference and descriptors](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L551-L601)).
+5. The pipeline declares `VK_DYNAMIC_STATE_VERTEX_INPUT_EXT`, uses an empty static `VkPipelineVertexInputStateCreateInfo`, and uses point-list topology. The command buffer then binds the buffers and records the dynamic binding and attribute descriptions. Classic leaves bind with `vkCmdBindVertexBuffers` and then record `vkCmdSetVertexInputEXT`. Device-address leaves bind through `vkCmdBindVertexBuffers3KHR`; when the address range supplies the stride, `vkCmdSetVertexInputEXT` is recorded first with a zero stride and the address command applies the final stride, while in the other direction the dynamic descriptions are recorded last so their stride wins. The pipeline is bound and 16 points are drawn ([pipeline and dynamic descriptions](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L603-L770)).
+6. After submission and completion, the test invalidates the color allocation and compares the image against an all-blue reference with zero threshold ([submission and color check](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L758-L782)).
+7. It invalidates each storage-buffer allocation and compares each fetched component according to the vertex format's channel class. Fixed-point values use thresholds derived from channel bit widths. Floating-point, signed-integer, and unsigned-integer values must match exactly ([storage-buffer check](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L784-L893)).
 
 ## Failure Meaning
 
@@ -341,29 +350,29 @@ The page-level [Parameter Dimensions and Observed Values](#parameter-dimensions-
 
 **Possible failure symptoms:** Values are correct at one point but wrong at later points, or failures appear only with zero, one-byte, or `2 * formatSize - 1` strides. Offset variants can fail only when an unaligned address is requested.
 
-**Possible implementation causes:** The implementation may calculate the binding address with the wrong vertex index, ignore the binding stride, apply the attribute offset twice, or mishandle an unaligned buffer base produced by the allocation memory offset. The test records stride and attribute offset in the dynamic descriptions and creates the buffer at the selected allocation offset ([descriptions](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L598-L655), [buffer allocation](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L476-L500)). The final SSBO mismatch cannot by itself identify which address input was mishandled.
+**Possible implementation causes:** The implementation may calculate the binding address with the wrong vertex index, ignore the binding stride, apply the attribute offset twice, or mishandle an unaligned buffer base produced by the allocation memory offset. The test records stride and attribute offset in the dynamic descriptions and creates the buffer at the selected allocation offset ([descriptions](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L646-L706), [buffer allocation](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L516-L549)). The final SSBO mismatch cannot by itself identify which address input was mishandled.
 
 #### Multiple-binding association
 
 **Possible failure symptoms:** `multi_binding` fails for one output buffer while the other two match, or all values are shifted to the wrong buffers or locations.
 
-**Possible implementation causes:** The implementation may associate a location with the wrong binding, use one format or stride for all three bindings, or route a fragment output to the wrong descriptor binding. The source assigns data locations and bindings from the same index, then creates one SSBO per binding ([multi-binding descriptions](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L613-L655), [SSBO writes](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L375-L389)).
+**Possible implementation causes:** The implementation may associate a location with the wrong binding, use one format or stride for all three bindings, or route a fragment output to the wrong descriptor binding. The source assigns data locations and bindings from the same index, then creates one SSBO per binding ([multi-binding descriptions](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L663-L706), [SSBO writes](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L384-L414)).
 
 #### Result observation and synchronization
 
 **Possible failure symptoms:** The color comparison fails, the storage-buffer comparison sees stale or incomplete data, or both observations fail together.
 
-**Possible implementation causes:** The draw, color attachment transition, fragment writes, copy-to-buffer operation, host visibility barrier, or invalidation path may be incorrect. The test waits for submission completion before invalidating and reading both result classes ([submission](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L674-L698), [storage readback](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L711-L718)). Further investigation is required to distinguish a synchronization or copyback defect from a preceding pipeline failure.
+**Possible implementation causes:** The draw, color attachment transition, fragment writes, copy-to-buffer operation, host visibility barrier, or invalidation path may be incorrect. The test waits for submission completion before invalidating and reading both result classes ([submission](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L756-L770), [storage readback](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L784-L799)). Further investigation is required to distinguish a synchronization or copyback defect from a preceding pipeline failure.
 
 ## Case Pruning
 
 ### Requirement-based pruning
 
-Devices that lack a required extension, feature, construction capability, or vertex-buffer format feature skip the affected case in `checkSupport()` ([support](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L336-L363)).
+Devices that lack a required extension, feature, construction capability, or vertex-buffer format feature skip the affected case in `checkSupport()` ([support](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L342-L372)).
 
 ### Design-based pruning
 
-The parent adds the family only for monolithic and fast-linked-library construction types. Within `single_binding`, the factory removes one of the signed or unsigned integer reinterpretations for float-like formats based on the Vulkan format enum parity, removes `shader_float` for integer formats with a channel below 32 bits, and removes offset combinations that do not create an unaligned access. `multi_binding` avoids a full cross-product by using three curated tuples and choosing one shader interpretation per tuple member ([matrix pruning](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L913-L1067)).
+The parent adds the family only for monolithic and fast-linked-library construction types. Within `single_binding`, the factory removes one of the signed or unsigned integer reinterpretations for float-like formats based on the Vulkan format enum parity, removes `shader_float` for integer formats with a channel below 32 bits, and removes offset combinations that do not create an unaligned access. `multi_binding` avoids a full cross-product by using three curated tuples and choosing one shader interpretation per tuple member ([matrix pruning](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L922-L1093)).
 
 ## Key Takeaways
 
@@ -377,12 +386,12 @@ The parent adds the family only for monolithic and fast-linked-library construct
 
 | Evidence | Source |
 |---|---|
-| Parameter structs and conversion oracle | [`BindingParams`, `LegacyVertexAttributesParams`, and `getOutputData()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L66-L242) |
-| Input generation and support | [`genInputData()` and `LegacyVertexAttributesCase::checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L245-L363) |
-| Generated GLSL | [`LegacyVertexAttributesCase::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L365-L413) |
-| Runtime setup and dynamic vertex input | [`LegacyVertexAttributesInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L415-L686) |
-| Color and storage-buffer validation | [`LegacyVertexAttributesInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L687-L809) |
-| Registration and matrix pruning | [`createLegacyVertexAttributesTests()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L833-L1071) |
-| Parent registration | [`createVertexInputTests()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3111-L3120) |
+| Parameter structs and conversion oracle | [`BindingParams`, `LegacyVertexAttributesParams`, and `getOutputData()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L67-L249) |
+| Input generation and support | [`genInputData()` and `LegacyVertexAttributesCase::checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L251-L372) |
+| Generated GLSL | [`LegacyVertexAttributesCase::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L374-L421) |
+| Runtime setup and dynamic vertex input | [`LegacyVertexAttributesInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L424-L757) |
+| Color and storage-buffer validation | [`LegacyVertexAttributesInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L758-L893) |
+| Registration and matrix pruning | [`populateSingleBindingGroup()`, `populateMultipleBindingsGroup()`, and `createLegacyVertexAttributesTests()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L1026-L1196) |
+| Parent registration | [`createVertexInputTests()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3410-L3415) |
 | Mustpass coverage | [`monolithic.txt`](../../../mustpass/main/vk-default/pipeline/monolithic/monolithic.txt) and [`fast-linked-library.txt`](../../../mustpass/main/vk-default/pipeline/fast-linked-library.txt) |
 | Vulkan dynamic vertex-input contract | [`fxvertex.adoc`](../../../../vulkan-docs/src/chapters/fxvertex.adoc#L258-L270) and [`Vertex Input Address Calculation`](../../../../vulkan-docs/src/chapters/fxvertex.adoc#L1076-L1130) |

@@ -95,10 +95,10 @@ These values choose the primary observation mechanism. Declaration form, view mo
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
 | Pipeline-category registration | [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L171-L175) | Adds `no_position` below each pipeline construction variant. |
-| Test registration | [`createNoPositionTests()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L1094-L1190) | Builds declaration, observation, view, stage-mask, and write-mask paths. |
-| Program generation | [`NoPositionCase::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L213-L394) | Emits selected shader stages, declarations, writes, and SSBO instrumentation. |
-| Support checks | [`NoPositionCase::checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L401-L445) | Gates stage features, multiview, SSBO atomics, device groups, and construction types. |
-| Runtime and result checks | [`NoPositionInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L684-L1089) | Creates resources, records the draw, copies the image, and validates pixels and counters. |
+| Test registration | [`createNoPositionTests()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L1029-L1126) | Builds declaration, observation, view, stage-mask, and write-mask paths. |
+| Program generation | [`NoPositionCase::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L203-L384) | Emits selected shader stages, declarations, writes, and SSBO instrumentation. |
+| Support checks | [`NoPositionCase::checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L391-L435) | Gates stage features, multiview, SSBO atomics, device groups, and construction types. |
+| Runtime and result checks | [`NoPositionInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L619-L1025) | Creates resources, records the draw, copies the image, and validates pixels and counters. |
 | `Position` contract | [`interfaces.adoc`](../../../../vulkan-docs/src/chapters/interfaces.adoc#L4147-L4184) | Defines the built-in and its role after the last pre-rasterization stage. |
 
 ## Questions / Risk Points for User Audit

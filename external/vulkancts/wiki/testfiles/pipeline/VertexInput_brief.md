@@ -2,7 +2,7 @@
 
 ## One-Sentence Test Purpose
 
-This test checks whether a graphics implementation fetches vertex-buffer data at the declared locations, bindings, offsets, formats, strides, and rates before the vertex shader consumes it.
+This test checks whether a graphics implementation fetches vertex-buffer data at the declared locations, bindings, offsets, formats, strides, and rates before the vertex shader consumes it, and whether a pipeline with a null vertex-input state still fetches through dynamically set descriptions.
 
 ## Background Knowledge
 
@@ -52,7 +52,7 @@ The `misc.unused_binding_dynamic` test makes the contract small: each vertex rec
 
 ## What Is Checked
 
-The main matrix compares a red-left/blue-right reference image with the rendered attachment by `tcu::intThresholdPositionDeviationCompare`, using channel threshold `(2,2,2,2)` and position deviation `(1,1,0)`. `stride_change`, `unused_binding`, and `unbound_input` use exact `tcu::floatThresholdCompare` references. The last two build a 2x2 expected image; `unbound_input` derives the expected alpha from `defaultVertexAttributeValue`.
+The main matrix compares a red-left/blue-right reference image with the rendered attachment by `tcu::intThresholdPositionDeviationCompare`, using channel threshold `(2,2,2,2)` and position deviation `(1,1,0)`. `stride_change`, `unused_binding`, and `unbound_input` use exact `tcu::floatThresholdCompare` references. The last two build a 2x2 expected image; `unbound_input` derives the expected alpha from `defaultVertexAttributeValue`. The null-state leaves require the discarded attachment to equal the clear color exactly and every storage entry to equal `vertexIndex + 1`.
 
 ## Behavior Parameter Identification
 
@@ -70,7 +70,7 @@ The main matrix compares a red-left/blue-right reference image with the rendered
 | `multiple_attributes` | Multi-binding mapping, interleaved or sequential placement, skipped locations, or out-of-order locations is incorrect. |
 | `max_attributes` | Fetch or shader input handling does not scale to the advertised attribute limit. |
 | `component_mismatch` | Legal 64-bit component conversion or the shader interface width is handled incorrectly. |
-| `misc` | A stride update, unused binding, dynamic vertex-input state, or maintenance9 default attribute value is handled incorrectly. |
+| `misc` | A stride update, unused binding, dynamic vertex-input state, maintenance9 default attribute value, or null pipeline vertex-input state with rasterizer discard is handled incorrectly. |
 | `legacy_vertex_attributes` | The delegated legacy-attribute behavior is incorrect; see `vktPipelineLegacyAttrTests.md`. |
 | `srgb_vertex_formats` | The delegated sRGB conversion behavior is incorrect; see `vktPipelineVertexInputSRGBTests.md`. |
 
@@ -80,6 +80,7 @@ The main matrix compares a red-left/blue-right reference image with the rendered
 - `legacy_vertex_attributes` is registered only for monolithic and fast-linked-library construction types.
 - `unused_binding` and `unbound_input` are added only for monolithic, fast-linked-library, and shader-object-unlinked-SPIR-V construction types; dynamic input requires `VK_EXT_vertex_input_dynamic_state` outside shader-object construction.
 - `unbound_input` is not built for Vulkan SC and requires `VK_KHR_maintenance9`.
+- The `null_state_dynamic_input_rast_discard` leaves are added for the same three construction types and excluded from Vulkan SC; they require `VK_EXT_vertex_input_dynamic_state` outside shader-object construction, `VK_EXT_extended_dynamic_state2` for the `_dynamic` discard variant, and the `vertexPipelineStoresAndAtomics` feature.
 - Float16 cases require `shaderFloat16` and `storageInputOutput16`; double-format cases require `shaderFloat64`. All selected formats must expose `VK_FORMAT_FEATURE_VERTEX_BUFFER_BIT`.
 
 ## Source Mapping
@@ -90,7 +91,8 @@ The main matrix compares a red-left/blue-right reference image with the rendered
 | Generated matrix shaders | [`VertexInputTest::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L695-L720) | Creates the diagnostic vertex and fragment shaders. |
 | Main image comparison | [`VertexInputInstance::verifyImage()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1776-L1816) | Defines the pass/fail image check. |
 | Focused misc cases | [`StrideChangeCase`, `UnusedBinding`, and `UnboundInput`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L2277-L3050) | Define the stride, unused-binding, and absent-attribute flows. |
-| Registration | [`createVertexInputTests()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3096-L3123) | Registers the direct test-family paths and guards. |
+| Null-state family | [`NullState` namespace](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3054-L3333) | Builds the null vertex-input-state pipeline and checks the storage write and clear attachment. |
+| Registration | [`createVertexInputTests()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3393-L3419) | Registers the direct test-family paths and guards. |
 
 ## Questions / Risk Points for User Audit
 

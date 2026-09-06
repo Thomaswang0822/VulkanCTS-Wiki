@@ -16,7 +16,7 @@ For the shared concept pipeline construction type, see [Background Knowledge](..
 
 ## Registration Hierarchy
 
-The source function [`createMultisampleShaderFragmentMaskTests`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1393-L1401) creates the `shader_fragment_mask` test family. The parent [`createMultisampleTests`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L7727-L7728) attaches it below `multisample`.
+The source function [`createMultisampleShaderFragmentMaskTests`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1410-L1419) creates the `shader_fragment_mask` test family. The parent [`createMultisampleTests`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L7727-L7728) attaches it below `multisample`.
 
 ```text
 pipeline.monolithic.multisample.shader_fragment_mask
@@ -32,12 +32,12 @@ The same family is registered below the other pipeline construction roots. The `
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Sample count | `samples_2`, `samples_4`, `samples_8`, `samples_16` | Selects the number of four-bit fragment-mask fields and the attachment's `VkSampleCountFlagBits`. | [`createShaderFragmentMaskTestsInGroup`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1336-L1341) |
-| Source form | `image_2d`, `image_2d_array`, `subpass_input` | Chooses a multisampled image, a layered multisampled image, or a multisampled input attachment. | [`SourceCase`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1343-L1352) |
-| Color format | `r8g8b8a8_unorm`, `r32_uint`, `r32_sint` | Selects GLSL image type, buffer representation, packing, and integer or UNORM comparison data. | [`initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L365-L400) |
-| Pipeline construction | `monolithic`, `pipeline_library`, `fast_linked_library`, and shader-object variants | Exercises the same behavior through supported CTS pipeline construction paths. | [`TestParams`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L292-L301) |
-| Image extent | `32 x 32` | Gives the compute path one workgroup per pixel and fixes the packed output indexing. | [`createShaderFragmentMaskTestsInGroup`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1374-L1379) |
-| Layer count | `1` for `image_2d` and `subpass_input`, `3` for `image_2d_array` | Tests both a single image layer and layer-aware sample extraction. | [`SourceCase`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1343-L1352) |
+| Sample count | `samples_2`, `samples_4`, `samples_8`, `samples_16` | Selects the number of four-bit fragment-mask fields and the attachment's `VkSampleCountFlagBits`. | [`createShaderFragmentMaskTestsInGroup`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1352-L1358) |
+| Source form | `image_2d`, `image_2d_array`, `subpass_input` | Chooses a multisampled image, a layered multisampled image, or a multisampled input attachment. | [`SourceCase`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1360-L1369) |
+| Color format | `r8g8b8a8_unorm`, `r32_uint`, `r32_sint` | Selects GLSL image type, buffer representation, packing, and integer or UNORM comparison data. | [`initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L384-L420) |
+| Pipeline construction | `monolithic`, `pipeline_library`, `fast_linked_library`, and shader-object variants | Exercises the same behavior through supported CTS pipeline construction paths. | [`TestParams`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L312-L324) |
+| Image extent | `32 x 32` | Gives the compute path one workgroup per pixel and fixes the packed output indexing. | [`createShaderFragmentMaskTestsInGroup`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1390-L1396) |
+| Layer count | `1` for `image_2d` and `subpass_input`, `3` for `image_2d_array` | Tests both a single image layer and layer-aware sample extraction. | [`SourceCase`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1360-L1369) |
 
 The default mustpass files contain 36 leaves for monolithic, pipeline-library, and fast-linked-library construction, and 24 leaves for each shader-object construction file. The 12-leaf difference comes from omitting the three `subpass_input` format leaves for each of the four sample counts.
 
@@ -130,10 +130,10 @@ void main(void)
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Sample count | `samples_2`, `samples_8`, and `samples_16` change `NUM_SAMPLES`, the local workgroup size, and the number of mask fields visited. | [`createShaderFragmentMaskTestsInGroup`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1336-L1341) |
-| Color format | `r8g8b8a8_unorm` changes the sampled value to `vec4` and packs it with `packUnorm4x8`; `r32_sint` uses signed image and buffer types. | [`initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L365-L400) |
-| Source form: `image_2d_array` | `image_2d_array` changes the coordinate to `ivec3` and includes the layer in the workgroup and output-buffer index. | [`SourceCase`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1343-L1352) |
-| Source form: `subpass_input` | `subpass_input` moves the mask and fragment fetches into a fragment shader and writes the buffer during a second render-pass subpass. | [`SourceCase`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1343-L1352) |
+| Sample count | `samples_2`, `samples_8`, and `samples_16` change `NUM_SAMPLES`, the local workgroup size, and the number of mask fields visited. | [`createShaderFragmentMaskTestsInGroup`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1352-L1358) |
+| Color format | `r8g8b8a8_unorm` changes the sampled value to `vec4` and packs it with `packUnorm4x8`; `r32_sint` uses signed image and buffer types. | [`initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L384-L420) |
+| Source form: `image_2d_array` | `image_2d_array` changes the coordinate to `ivec3` and includes the layer in the workgroup and output-buffer index. | [`SourceCase`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1360-L1369) |
+| Source form: `subpass_input` | `subpass_input` moves the mask and fragment fetches into a fragment shader and writes the buffer during a second render-pass subpass. | [`SourceCase`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1360-L1369) |
 
 #### SPIR-V
 
@@ -352,11 +352,11 @@ The final comparison identifies the sample-count behavior and mismatching layer/
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `checkRequirements` | [`vktPipelineMultisampleShaderFragmentMaskTests.cpp#L307-L344`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L307-L344) | Extension, sample-count, feature, and construction checks. |
-| Shader generation | [`initPrograms#L365-L570`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L365-L570) | Emits draw, FMASK, and ordinary-fetch shaders. |
-| Input-attachment path | [`drawAndSampleInputAttachment#L599-L912`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L599-L912) | Runs draw and FMASK fetch in dependent subpasses. |
-| Compute and comparison flow | [`test#L1214-L1318`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1214-L1318) | Creates resources, runs both paths, and compares samples. |
-| Matrix registration | [`createShaderFragmentMaskTestsInGroup#L1326-L1389`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1326-L1389) | Defines sample, source, format, and extent values. |
-| Extension registration | [`createMultisampleShaderFragmentMaskTests#L1393-L1401`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1393-L1401) | Creates the `shader_fragment_mask` test family. |
+| `checkRequirements` | [`vktPipelineMultisampleShaderFragmentMaskTests.cpp#L326-L363`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L326-L363) | Extension, sample-count, feature, and construction checks. |
+| Shader generation | [`initPrograms#L365-L570`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L384-L590) | Emits draw, FMASK, and ordinary-fetch shaders. |
+| Input-attachment path | [`drawAndSampleInputAttachment#L599-L912`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L619-L931) | Runs draw and FMASK fetch in dependent subpasses. |
+| Compute and comparison flow | [`test#L1214-L1318`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1233-L1335) | Creates resources, runs both paths, and compares samples. |
+| Matrix registration | [`createShaderFragmentMaskTestsInGroup#L1326-L1389`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1343-L1406) | Defines sample, source, format, and extent values. |
+| Extension registration | [`createMultisampleShaderFragmentMaskTests#L1393-L1401`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1410-L1419) | Creates the `shader_fragment_mask` test family. |
 | Extension semantics | [`VK_AMD_shader_fragment_mask.adoc#L21-L38`](../../../../vulkan-docs/src/appendices/VK_AMD_shader_fragment_mask.adoc#L21-L38) | Defines mask fields and fragment fetch operations. |
 | Extension example | [`VK_AMD_shader_fragment_mask.adoc#L46-L82`](../../../../vulkan-docs/src/appendices/VK_AMD_shader_fragment_mask.adoc#L46-L82) | Shows image, array, and subpass-input forms. |

@@ -34,14 +34,14 @@ The concrete monolithic root shows every direct intermediate node. The source re
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Direct intermediate node | `basic_graphics_tests`, `advanced_graphics_tests`, `basic_compute_tests`, `transfer_tests`, `calibrated`, `misc_tests` | Selects the workload and result checker. | [registration](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4210-L4480) |
-| Pipeline construction type | monolithic and supported non-monolithic types | Changes the registered root. Only graphics groups repeat outside monolithic construction. | [registration guards](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4306-L4399) |
-| Timestamp stages | basic graphics, advanced graphics, compute, transfer, host, `ALL_GRAPHICS`, `ALL_COMMANDS` | Determines where the command buffer writes one or more timestamp queries. | [stage matrices](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4222-L4231) and [monolithic matrices](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4312-L4340) |
-| Render-pass placement | `in_render_pass`, `out_of_render_pass` | Places graphics timestamp writes inside or outside the render pass. | [graphics registration](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4232-L4269) |
-| Reset method | command-buffer reset, `_host_query_reset` | Chooses `vkCmdResetQueryPool` or a host-side reset followed by unavailable-result checks. | [iteration path](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L635-L712) |
-| Result layout | 64-bit result, `_with_availability_bit` | Requests `WAIT_BIT` and optionally appends availability values. | [result flags](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4213-L4216) |
-| Transfer method and queue | 12 `TransferMethod` values; default or `_transfer_queue` | Exercises transfer and host stages around copy, blit, clear, fill, resolve, and query-result-copy operations. | [`TransferMethod`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L134-L149) and [transfer registration](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4332-L4379) |
-| Command-buffer level | primary, secondary | Exercises timestamp/query-result work split across command buffers. | [misc registration](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4418-L4459) |
+| Direct intermediate node | `basic_graphics_tests`, `advanced_graphics_tests`, `basic_compute_tests`, `transfer_tests`, `calibrated`, `misc_tests` | Selects the workload and result checker. | [registration](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4261-L4558) |
+| Pipeline construction type | monolithic and supported non-monolithic types | Changes the registered root. Only graphics groups repeat outside monolithic construction. | [registration guards](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4358-L4449) |
+| Timestamp stages | basic graphics, advanced graphics, compute, transfer, host, `ALL_GRAPHICS`, `ALL_COMMANDS` | Determines where the command buffer writes one or more timestamp queries. | [stage matrices](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4273-L4282) and [monolithic matrices](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4363-L4391) |
+| Render-pass placement | `in_render_pass`, `out_of_render_pass` | Places graphics timestamp writes inside or outside the render pass. | [graphics registration](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4269-L4355) |
+| Reset method | command-buffer reset, `_host_query_reset` | Chooses `vkCmdResetQueryPool` or a host-side reset followed by unavailable-result checks. | [iteration path](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L637-L703) |
+| Result layout | 64-bit result, `_with_availability_bit` | Requests `WAIT_BIT` and optionally appends availability values. | [result flags](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4264-L4267) |
+| Transfer method and queue | 12 `TransferMethod` values; default or `_transfer_queue` | Exercises transfer and host stages around copy, blit, clear, fill, resolve, and query-result-copy operations. | [`TransferMethod`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L133-L148) and [transfer registration](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4383-L4430) |
+| Command-buffer level | primary, secondary | Exercises timestamp/query-result work split across command buffers. | [misc registration](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4448-L4555) |
 
 ## Behavior Parameters
 
@@ -160,13 +160,13 @@ The same source-level indexing limitation means availability-enabled common leav
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Names and dimensions | [`TimestampTestParam::generateTestName`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L300-L343) | Defines stage, render-pass, host-reset, transfer-queue, and availability suffixes |
-| Capability checks | [`TimestampTest::checkSupport`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L530-L551) | Checks timestamp support, host query reset, and construction requirements |
-| Common command and result flow | [`TimestampTestInstance::configCommandBuffer` and `iterate`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L631-L715) | Resets, writes, submits, retrieves, masks, and host-resets timestamp queries |
-| Common ordering check | [`TimestampTestInstance::verifyTimestamp`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L717-L741) | Defines availability and comparable-pair ordering failures |
-| Transfer inventory | [`TransferMethod`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L134-L183) | Defines the transfer operations used by the transfer group |
-| Calibrated timestamp framework | [`CalibratedTimestampTestInstance`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L948-L1008) | Holds calibrated values, deviation limits, time domains, and timestamp period |
-| Registration | [`createTimestampTests`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4210-L4480) | Defines the direct groups, stage matrices, and monolithic-only branches |
+| Names and dimensions | [`TimestampTestParam::generateTestName`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L317-L343) | Defines stage, render-pass, host-reset, transfer-queue, and availability suffixes |
+| Capability checks | [`TimestampTest::checkSupport`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L525-L546) | Checks timestamp support, host query reset, and construction requirements |
+| Common command and result flow | [`TimestampTestInstance::configCommandBuffer` and `iterate`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L619-L703) | Resets, writes, submits, retrieves, masks, and host-resets timestamp queries |
+| Common ordering check | [`TimestampTestInstance::verifyTimestamp`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L705-L729) | Defines availability and comparable-pair ordering failures |
+| Transfer inventory | [`TransferMethod`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L133-L183) | Defines the transfer operations used by the transfer group |
+| Calibrated timestamp framework | [`CalibratedTimestampTestInstance`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L887-L947) | Holds calibrated values, deviation limits, time domains, and timestamp period |
+| Registration | [`createTimestampTests`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4261-L4558) | Defines the direct groups, stage matrices, and monolithic-only branches |
 | Timestamp command | [`vkCmdWriteTimestamp`](../../../../vulkan-docs/src/chapters/queries.adoc#L2247-L2355) | Defines legacy timestamp writes and their valid use |
 | Queue valid-bit property | [`timestampValidBits`](../../../../vulkan-docs/src/chapters/queries.adoc#L2105-L2110) | Defines the valid timestamp bits used to mask CTS results |
 | Query results and availability | [`vkGetQueryPoolResults`](../../../../vulkan-docs/src/chapters/queries.adoc#L1160-L1265) | Defines result layout, availability, and unavailable-query behavior |

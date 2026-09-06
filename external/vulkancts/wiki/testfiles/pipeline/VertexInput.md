@@ -27,7 +27,7 @@ pipeline.monolithic.vertex_input
 └── srgb_vertex_formats (registration only)
 ```
 
-[`createVertexInputTests()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3096-L3123) adds `multiple_attributes` and `max_attributes` only outside shader-object construction. It delegates the final two intermediate nodes to separate implementations.
+[`createVertexInputTests()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3393-L3419) adds `multiple_attributes` and `max_attributes` only outside shader-object construction. It delegates the final two intermediate nodes to separate implementations.
 
 ## Parameter Dimensions and Observed Values
 
@@ -40,7 +40,7 @@ pipeline.monolithic.vertex_input
 | Attribute layout | `INTERLEAVED`, `SEQUENTIAL` | Changes offsets and strides within a shared binding. | [enum](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L174-L179) |
 | Location placement | layout skip enabled/disabled; in-order/out-of-order | Exercises non-contiguous and reordered shader locations. | [enums](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L181-L191) |
 | Stress count | `16`, `32`, `64`, `128`, device maximum | Scales the number of input attributes. | [`createMaxAttributeTests`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L2137) |
-| Misc variants | tessellation on/off, geometry on/off, static/dynamic input state, float/integer unbound input | Isolates stride, unused binding, and absent-attribute behavior. | [misc registration](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3053-L3091) |
+| Misc variants | tessellation on/off, geometry on/off, static/dynamic input state, float/integer unbound input, static/dynamic rasterizer discard with null pipeline vertex-input state | Isolates stride, unused binding, absent-attribute, and null-state behavior. | [misc registration](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3336-L3389) |
 
 The implementation rejects a selected format without `VK_FORMAT_FEATURE_VERTEX_BUFFER_BIT`, rejects a 64-bit floating-point format without `shaderFloat64`, and checks float16 support. It also checks `maxVertexInputAttributes`, the number of generated bindings, and portability-subset stride alignment ([support and layout checks](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L493-L513), [layout construction](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L540-L689)).
 
@@ -66,7 +66,7 @@ This family uses the specific mappings in [`createComponentMismatchTests()`](../
 
 ### misc: State changes and absent descriptions
 
-`stride_change_*` draws with pipelines that differ in binding stride after one vertex-buffer bind. `unused_binding` checks that a declared but unused binding does not alter valid inputs, with static and dynamic vertex-input descriptions. `unbound_input` omits the color attribute and checks the `VK_KHR_maintenance9` default value, including the device-reported alpha convention.
+`stride_change_*` draws with pipelines that differ in binding stride after one vertex-buffer bind. `unused_binding` checks that a declared but unused binding does not alter valid inputs, with static and dynamic vertex-input descriptions. `unbound_input` omits the color attribute and checks the `VK_KHR_maintenance9` default value, including the device-reported alpha convention. `null_state_dynamic_input_rast_discard*` builds the pipeline with a null `VkPipelineVertexInputStateCreateInfo` pointer, which requires the vertex-input state to be dynamic: the two bindings and two attributes are established with `cmdSetVertexInputEXT` after the pipeline exists, and one bound vertex buffer supplies the drawn vertices while the second declared binding carries no attribute and no buffer. Rasterizer discard is baked into the pipeline without a fragment shader, or set through `cmdSetRasterizerDiscardEnable` in the `_dynamic` leaf; the vertex stage must still execute error-free, which the storage write of `gl_VertexIndex + 1` records ([NullState registration](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3375-L3387), [`NullState::runTest()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3111-L3331)).
 
 ### legacy_vertex_attributes: Delegated behavior
 
@@ -78,7 +78,7 @@ This source registers the intermediate node through `createVertexInputSRGBTests(
 
 ## Shader Analysis
 
-The general matrix generates source from the selected attributes: the vertex shader declares inputs at generated locations, validates fetched components, emits red for the first instance and blue for the second when all comparisons succeed, and the fragment shader copies that color ([generator](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L695-L849)). The focused `misc` shaders keep the diagnostic path smaller.
+The general matrix generates source from the selected attributes: the vertex shader declares inputs at generated locations, validates fetched components, emits red for the first instance and blue for the second when all comparisons succeed, and the fragment shader copies that color ([generator](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L695-L849)). The focused `misc` shaders keep the diagnostic path smaller; the null-state vertex shader passes position and color through and adds a storage-buffer write of `gl_VertexIndex + 1` ([`NullState::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3078-L3103)).
 
 ### Representative Shader Walkthrough 1
 
@@ -94,8 +94,8 @@ This is the `single_attribute` `vec4` leaf for `VK_FORMAT_R32G32B32A32_SFLOAT` w
 
 | Parameter choice | Meaning in this representative case |
 |---|---|
-| Pipeline construction: `monolithic` | The leaf is under `dEQP-VK.pipeline.monolithic`; the factory registers `single_attribute` for every construction type ([registration](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3096-L3105)). |
-| Test family: `single_attribute` | The factory adds the one-attribute group ([registration](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3096-L3100)). |
+| Pipeline construction: `monolithic` | The leaf is under `dEQP-VK.pipeline.monolithic`; the factory registers `single_attribute` for every construction type ([registration](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3393-L3403)). |
+| Test family: `single_attribute` | The factory adds the one-attribute group ([registration](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3393-L3396)). |
 | Shader input type: `vec4` | The leaf name selects the `vec4` GLSL type; single-attribute construction records the selected GLSL type in `AttributeInfo` ([case creation](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1883-L1891)). |
 | Vertex format: `VK_FORMAT_R32G32B32A32_SFLOAT` | The exact format appears in the registered compatible format list ([format list](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1852-L1855)). |
 | Input rate: `VK_VERTEX_INPUT_RATE_VERTEX` | The leaf suffix is `_rate_vertex`; case creation assigns the vertex rate ([case creation](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1882-L1887)). |
@@ -144,7 +144,7 @@ This reconstruction matches the artifact's `OpEntryPoint`, `Location 0`/`Locatio
 | `...as_r32g32b32a32_sfloat_rate_instance` | Input rate changes to `VK_VERTEX_INPUT_RATE_INSTANCE` | [single-attribute case creation](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1893-L1899) |
 | Other `vec4` formats | The declared vertex format changes while the `vec4` input remains compatible | [registered vertex formats](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1842-L1875) |
 | `..._missing_components` cases | The generated declaration expands to four components to check format-to-RGBA conversion | [missing-component case creation](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1902-L1927) |
-| `multiple_attributes` | More attributes vary binding mapping, layout, skipped locations, and location order | [family registration](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3100-L3105) and [parameter dimensions](#parameter-dimensions-and-observed-values) |
+| `multiple_attributes` | More attributes vary binding mapping, layout, skipped locations, and location order | [family registration](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3400-L3403) and [parameter dimensions](#parameter-dimensions-and-observed-values) |
 
 #### SPIR-V
 
@@ -220,7 +220,7 @@ This reconstruction matches the artifact's `OpEntryPoint`, `Location 0`/`Locatio
 - The matrix implementation builds binding descriptions and attribute descriptions from the selected parameters. For a shared binding, interleaved layout increments an element-relative offset and then aligns the stride; sequential layout places each attribute's array apart and uses a rounded element stride ([construction](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L540-L659)).
 - It fills vertex data with values the generated shader can recompute, creates the color attachment and graphics pipeline, draws, submits, and reads the attachment. `VertexInputInstance::iterate()` waits for the work before `verifyImage()` reads it ([iteration](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1728-L1737)).
 - The main matrix expects red in the left half and blue in the right half. `intThresholdPositionDeviationCompare` permits the source-defined small channel and position tolerances ([comparison](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1776-L1816)).
-- `stride_change` copies its attachment to a host-visible buffer and expects exact blue. `unused_binding` and `unbound_input` each render four quadrants, copy to a buffer, invalidate the allocation, and require exact expected pixels ([focused checks](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L2551-L2564), [unused-binding check](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L2785-L2812), [unbound-input check](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3014-L3047)).
+- `stride_change` copies its attachment to a host-visible buffer and expects exact blue. `unused_binding` and `unbound_input` each render four quadrants, copy to a buffer, invalidate the allocation, and require exact expected pixels ([focused checks](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L2551-L2564), [unused-binding check](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L2785-L2812), [unbound-input check](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3014-L3047)). The null-state leaves require the discarded 2×2 attachment to equal the clear color exactly and the storage buffer to hold `vertexIndex + 1` for every drawn vertex ([null-state check](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3310-L3328)).
 
 ## Failure Meaning
 
@@ -232,7 +232,7 @@ This reconstruction matches the artifact's `OpEntryPoint`, `Location 0`/`Locatio
 | `multiple_attributes` | Multi-binding mapping, interleaved or sequential placement, skipped locations, or out-of-order locations is incorrect. |
 | `max_attributes` | Fetch or shader input handling does not scale to the advertised attribute limit. |
 | `component_mismatch` | Legal 64-bit component conversion or the shader interface width is handled incorrectly. |
-| `misc` | A stride update, unused binding, dynamic vertex-input state, or maintenance9 default attribute value is handled incorrectly. |
+| `misc` | A stride update, unused binding, dynamic vertex-input state, maintenance9 default attribute value, or null pipeline vertex-input state with rasterizer discard is handled incorrectly. |
 | `legacy_vertex_attributes` | The delegated legacy-attribute behavior is incorrect; see `vktPipelineLegacyAttrTests.md`. |
 | `srgb_vertex_formats` | The delegated sRGB conversion behavior is incorrect; see `vktPipelineVertexInputSRGBTests.md`. |
 
@@ -252,9 +252,9 @@ This reconstruction matches the artifact's `OpEntryPoint`, `Location 0`/`Locatio
 
 #### Dynamic or special vertex-input state
 
-**Possible failure symptoms:** A `misc` image differs from its exact reference. Dynamic leaves can fail while static leaves pass; `unbound_input` can produce an unexpected alpha or color.
+**Possible failure symptoms:** A `misc` image differs from its exact reference. Dynamic leaves can fail while static leaves pass; `unbound_input` can produce an unexpected alpha or color; the null-state leaves can leave rasterized pixels in the attachment or miss storage entries for drawn vertices.
 
-**Possible implementation causes:** A stride update may not replace the active stride, `vkCmdSetVertexInputEXT` may not establish the supplied descriptions, an unused binding may interfere with used locations, or the maintenance9 default value may be applied incorrectly. The dynamic command replaces vertex-input descriptions when the relevant state is enabled ([dynamic vertex input](../../../../vulkan-docs/src/chapters/fxvertex.adoc#L258-L270), [command semantics](../../../../vulkan-docs/src/chapters/fxvertex.adoc#L412-L435)).
+**Possible implementation causes:** A stride update may not replace the active stride, `vkCmdSetVertexInputEXT` may not establish the supplied descriptions, an unused binding may interfere with used locations, or the maintenance9 default value may be applied incorrectly. A pipeline built with a null vertex-input state pointer may fail to execute its vertex stage correctly when rasterizer discard is enabled statically or dynamically. The dynamic command replaces vertex-input descriptions when the relevant state is enabled ([dynamic vertex input](../../../../vulkan-docs/src/chapters/fxvertex.adoc#L258-L270), [command semantics](../../../../vulkan-docs/src/chapters/fxvertex.adoc#L412-L435)).
 
 #### Delegated conversion or legacy behavior
 
@@ -268,18 +268,19 @@ This reconstruction matches the artifact's `OpEntryPoint`, `Location 0`/`Locatio
 
 - The dynamic form of `unused_binding` and `unbound_input` requires `VK_EXT_vertex_input_dynamic_state` unless shader-object construction supplies the state path.
 - `unbound_input` is excluded from Vulkan SC and requires `VK_KHR_maintenance9`; tessellation and geometry stride cases require their respective core features.
+- The null-state leaves require `VK_EXT_vertex_input_dynamic_state` outside shader-object construction, add `VK_EXT_extended_dynamic_state2` for the `_dynamic` discard variant, and need the `vertexPipelineStoresAndAtomics` feature for the storage write ([`NullState::checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3063-L3076)).
 - Per-case support checks also prune unsupported float16, float64, format-feature, attribute-count, binding-count, and portability-subset stride configurations.
 
 ### Design-based pruning
 
 - The factory omits `multiple_attributes` and `max_attributes` for shader-object construction types.
 - `legacy_vertex_attributes` is present only for monolithic and fast-linked-library construction types.
-- The `unused_binding` and `unbound_input` leaves exist only for monolithic, fast-linked-library, and shader-object-unlinked-SPIR-V construction.
+- The `unused_binding`, `unbound_input`, and null-state leaves exist only for monolithic, fast-linked-library, and shader-object-unlinked-SPIR-V construction; `unbound_input` and the null-state leaves are additionally compiled out for Vulkan SC.
 
 ## Key Takeaways
 
 - The family checks the complete mapping from buffer bytes to shader input locations, not merely pipeline creation validity.
-- The broad matrix varies formats and layouts, while `misc` isolates state replacement, unused descriptions, and absent attributes.
+- The broad matrix varies formats and layouts, while `misc` isolates state replacement, unused descriptions, absent attributes, and a null-state pipeline whose vertex stage must still run under rasterizer discard.
 - Rendered colors make fetch errors observable to host-side image comparison; a failed image classifies the exercised operation shape but does not by itself isolate the driver or hardware layer.
 - `legacy_vertex_attributes` and `srgb_vertex_formats` remain separate implementation-bearing pages even though this source registers their paths.
 
@@ -287,11 +288,12 @@ This reconstruction matches the artifact's `OpEntryPoint`, `Location 0`/`Locatio
 
 | Evidence | Source |
 |---|---|
-| Test-family registration and construction guards | [`createVertexInputTests()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3096-L3123) |
+| Test-family registration and construction guards | [`createVertexInputTests()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3393-L3419) |
 | Type, binding, layout, and location dimensions | [`VertexInputTest` enums](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L119-L208) |
 | Attribute and binding description generation | [`VertexInputTest::createInstance()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L516-L693) |
 | Generated shader and component diagnostic | [`initPrograms()` and `getGlslVertexCheck()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L695-L849) |
 | Matrix image reference and comparison | [`VertexInputInstance::verifyImage()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1776-L1816) |
 | Focused stride, unused-binding, and unbound-input cases | [`StrideChangeCase`, `UnusedBinding`, `UnboundInput`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L2277-L3050) |
+| Null-state pipeline with dynamic vertex input | [`NullState` namespace](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3054-L3333) |
 | Mustpass coverage | [`fast-linked-library.txt`](../../../mustpass/main/vk-default/pipeline/fast-linked-library.txt), [`monolithic.txt`](../../../mustpass/main/vk-default/pipeline/monolithic/monolithic.txt), [`pipeline-library.txt`](../../../mustpass/main/vk-default/pipeline/pipeline-library.txt), and shader-object pipeline lists under [`mustpass/main/vk-default/pipeline/`](../../../mustpass/main/vk-default/pipeline/) |
 | Vulkan vertex-input contracts | [`fxvertex.adoc`](../../../../vulkan-docs/src/chapters/fxvertex.adoc#L14-L38) |

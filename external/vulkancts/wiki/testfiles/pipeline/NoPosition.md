@@ -23,17 +23,17 @@ pipeline.monolithic.no_position
 └── explicit_declarations
 ```
 
-[`createNoPositionTests()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L1094-L1190) adds both declaration forms. Each form contains the `basic` and `ssbo_writes` intermediate nodes; those nodes then select a view mode, a legal selected-stage mask, and every subset of that mask as a write mask. [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L171-L175) attaches this family to each pipeline construction variant.
+[`createNoPositionTests()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L1029-L1126) adds both declaration forms. Each form contains the `basic` and `ssbo_writes` intermediate nodes; those nodes then select a view mode, a legal selected-stage mask, and every subset of that mask as a write mask. [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L171-L175) attaches this family to each pipeline construction variant.
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Declaration form | `implicit_declarations`, `explicit_declarations` | Chooses GLSL's implicit interface or emitted `gl_PerVertex` input/output blocks. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L255-L375) |
-| Observation mode | `basic`, `ssbo_writes` | Chooses color-image checking alone or color-image checking plus per-stage SSBO counters. | [`createNoPositionTests()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L1106-L1112) |
-| View mode | `single_view`, `multiview`, `device_index_as_view_index` | Selects one view, multiview layers, or a device-group path that maps device index to view index. | [`createNoPositionTests()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L1112-L1136) |
-| Selected stages | `v`, `v_c_e`, `v_g`, `v_c_e_g` | Installs vertex alone, vertex plus tessellation, vertex plus geometry, or all available pre-rasterization stages. Vertex is mandatory and tessellation-control and tessellation-evaluation occur together. | [`createNoPositionTests()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L1138-L1148) |
-| Position write mask | each subset of the selected stages | Names the selected stages that assign `gl_Position`; for example, `v1_c0_e1_g0`. | [`getWriteSubCases()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L117-L124), [`createNoPositionTests()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L1149-L1177) |
+| Declaration form | `implicit_declarations`, `explicit_declarations` | Chooses GLSL's implicit interface or emitted `gl_PerVertex` input/output blocks. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L245-L365) |
+| Observation mode | `basic`, `ssbo_writes` | Chooses color-image checking alone or color-image checking plus per-stage SSBO counters. | [`createNoPositionTests()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L1041-L1045) |
+| View mode | `single_view`, `multiview`, `device_index_as_view_index` | Selects one view, multiview layers, or a device-group path that maps device index to view index. | [`createNoPositionTests()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L1047-L1071) |
+| Selected stages | `v`, `v_c_e`, `v_g`, `v_c_e_g` | Installs vertex alone, vertex plus tessellation, vertex plus geometry, or all available pre-rasterization stages. Vertex is mandatory and tessellation-control and tessellation-evaluation occur together. | [`createNoPositionTests()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L1073-L1082) |
+| Position write mask | each subset of the selected stages | Names the selected stages that assign `gl_Position`; for example, `v1_c0_e1_g0`. | [`getWriteSubCases()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L117-L124), [`createNoPositionTests()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L1084-L1113) |
 | Pipeline construction type | pipeline construction variants | Repeats the family under the construction variants created by the pipeline test category. | [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L171-L175) |
 
 The source registers one and two views for `basic`; `ssbo_writes` also registers `device_index_as_view_index`. Shader-object construction omits any view mode other than `single_view`.
@@ -112,17 +112,17 @@ void main (void)
 
 #### Additional Info
 
-- [`NoPositionCase::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L255-L273) emits `gl_Position = in_pos;` only when the vertex bit is set in `writeStages`.
+- [`NoPositionCase::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L245-L263) emits `gl_Position = in_pos;` only when the vertex bit is set in `writeStages`.
 - The generated fragment shader remains present and writes the same blue value used to clear the attachment, so the `basic` result does not distinguish clear from fragment output.
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Write mask | A set vertex bit adds `gl_Position = in_pos;`; later-stage bits add copying or interpolation assignments in their own generated stages. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L270-L372) |
-| Declaration form | `implicit_declarations` omits the explicit `gl_PerVertex` text while keeping the stage generator and assignment choices. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L260-L267) |
-| Selected stages | Tessellation-control, tessellation-evaluation, and geometry add their generated shader modules and their stage-specific optional position writes. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L275-L375) |
-| `ssbo_writes` and view mode | Adds the storage-buffer declaration and atomic increments; multiview and device-group paths index the counters with `gl_ViewIndex`. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L225-L253) |
+| Write mask | A set vertex bit adds `gl_Position = in_pos;`; later-stage bits add copying or interpolation assignments in their own generated stages. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L260-L362) |
+| Declaration form | `implicit_declarations` omits the explicit `gl_PerVertex` text while keeping the stage generator and assignment choices. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L250-L257) |
+| Selected stages | Tessellation-control, tessellation-evaluation, and geometry add their generated shader modules and their stage-specific optional position writes. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L265-L365) |
+| `ssbo_writes` and view mode | Adds the storage-buffer declaration and atomic increments; multiview and device-group paths index the counters with `gl_ViewIndex`. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L215-L243) |
 
 #### SPIR-V
 
@@ -221,7 +221,7 @@ For `device_index_as_view_index`, a passing case does not establish that the att
 - Multiview cases require `VK_KHR_multiview`, the `multiview` feature, and the associated tessellation or geometry multiview features when those stages are selected. Their view count must not exceed `maxMultiviewViewCount`.
 - `ssbo_writes` requires `vertexPipelineStoresAndAtomics`.
 - `device_index_as_view_index` requires `VK_KHR_device_group_creation` and `VK_KHR_device_group`.
-- Every case also passes [`checkPipelineConstructionRequirements()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L443-L444) for its construction type.
+- Every case also passes [`checkPipelineConstructionRequirements()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L433-L434) for its construction type.
 
 ### Design-based pruning
 
@@ -241,10 +241,10 @@ For `device_index_as_view_index`, a passing case does not establish that the att
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Family registration | [`createNoPositionTests()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L1094-L1190) | Registers declaration, observation, view, stage, and write-mask paths. |
-| Shader generator | [`NoPositionCase::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L213-L394) | Generates stage GLSL, explicit declarations, optional position assignments, and SSBO instrumentation. |
-| Support gate | [`NoPositionCase::checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L401-L445) | Checks stage features, multiview, atomics, device groups, and construction requirements. |
-| Device-group setup | [`NoPositionInstance::createDeviceGroup()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L461-L611) | Creates the device-group path used by `device_index_as_view_index`. |
-| Runtime and validation | [`NoPositionInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L684-L1089) | Creates resources, records draws, copies the image, and checks pixels and SSBO counters. |
+| Family registration | [`createNoPositionTests()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L1029-L1126) | Registers declaration, observation, view, stage, and write-mask paths. |
+| Shader generator | [`NoPositionCase::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L203-L384) | Generates stage GLSL, explicit declarations, optional position assignments, and SSBO instrumentation. |
+| Support gate | [`NoPositionCase::checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L391-L435) | Checks stage features, multiview, atomics, device groups, and construction requirements. |
+| Device-group setup | [`NoPositionInstance::createDeviceGroup()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L451-L547) | Creates the device-group path used by `device_index_as_view_index`. |
+| Runtime and validation | [`NoPositionInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineNoPositionTests.cpp#L619-L1025) | Creates resources, records draws, copies the image, and checks pixels and SSBO counters. |
 | Pipeline-category attachment | [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L171-L175) | Attaches `no_position` under each pipeline construction variant. |
 | Mustpass coverage | [`monolithic.txt`](../../../mustpass/main/vk-default/pipeline/monolithic/monolithic.txt), [`pipeline-library.txt`](../../../mustpass/main/vk-default/pipeline/pipeline-library.txt), [`shader-object-linked-spirv.txt`](../../../mustpass/main/vk-default/pipeline/shader-object-linked-spirv.txt) | Provide representative standard, library, and shader-object registrations for the counts above. |
