@@ -25,22 +25,22 @@ shader_object
 ```
 
 All 273 registered cases are direct test case leaves of `shader_object.binding`; the family has no intermediate nodes. The leaves form seven behavioral groups: 5 simple stage swaps plus the 250-case swap cross product, 5 classic unbind cases, 4 disabled-stage cases, 2 draw/dispatch interleaving cases, 2 mesh swaps, 2 binding-list cases, and 3 final unbind cases
-([registration](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L2073-L2200)). The root file adds this branch unconditionally
-([vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L57)), and no `binding` case appears in `excluded-tests.txt`.
+([registration](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L2069-L2196)). The root file adds this branch unconditionally
+([vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L58)), and no `binding` case appears in `excluded-tests.txt`.
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Swapped stage | `vert`, `tesc`, `tese`, `geom`, `frag` | The stage whose alt shader is rebound between the two draws of a swap case; each alt shader changes the covered region in a way only that stage can. | [stageTest table](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L2088-L2098) |
-| Unused-output stage | `vert`, `tesc`, `tese`, `geom`, `frag` | Names the stage whose alt shader declares an extra output no following stage consumes; it takes effect only when it matches the swapped stage. | [alt shader generation](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L747-L859) |
-| Binary stage | `vert`, `tesc`, `tese`, `geom`, `frag` | The named stage's shader is created from its own `vkGetShaderBinaryDataEXT` binary instead of SPIR-V. | [createShader round-trip](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L152-L180) |
-| State timing | `before`, `after` | Whether the dynamic state block is recorded before or after the initial shader binding. | [timing branch](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L362-L363) |
-| Unbind style | `null_handle`, `null_pshaders` | Compares an array of `VK_NULL_HANDLE` entries against a null `pShaders` pointer for the same unbind. | [unbind branch](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L456-L480) |
-| Disabled feature | `geom`, `tess`, each with and without explicit bind | Runs on a custom device with the feature off; the `_bind` variants also null-bind the disabled stage. | [custom device](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L112-L150) |
-| Mesh swap stage | `task`, `mesh` | Which mesh-pipeline stage is swapped between two mesh draws. | [meshStageTest](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L2153-L2168) |
-| Mesh binding toggle | off, on | `bindings_mesh_shaders` adds real task and mesh shaders to the eight-stage bind matrix. | [bindings registration](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L2185-L2189) |
-| Final unbind mode | `vtg`, `task_mesh`, `mesh_draw_vertex` | Chooses which vertex/mesh path-switching sequence runs. | [final unbind registration](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L2191-L2197) |
+| Swapped stage | `vert`, `tesc`, `tese`, `geom`, `frag` | The stage whose alt shader is rebound between the two draws of a swap case; each alt shader changes the covered region in a way only that stage can. | [stageTest table](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L2084-L2094) |
+| Unused-output stage | `vert`, `tesc`, `tese`, `geom`, `frag` | Names the stage whose alt shader declares an extra output no following stage consumes; it takes effect only when it matches the swapped stage. | [alt shader generation](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L743-L855) |
+| Binary stage | `vert`, `tesc`, `tese`, `geom`, `frag` | The named stage's shader is created from its own `vkGetShaderBinaryDataEXT` binary instead of SPIR-V. | [createShader round-trip](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L150-L178) |
+| State timing | `before`, `after` | Whether the dynamic state block is recorded before or after the initial shader binding. | [timing branch](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L358-L359) |
+| Unbind style | `null_handle`, `null_pshaders` | Compares an array of `VK_NULL_HANDLE` entries against a null `pShaders` pointer for the same unbind. | [unbind branch](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L452-L476) |
+| Disabled feature | `geom`, `tess`, each with and without explicit bind | Runs on a custom device with the feature off; the `_bind` variants also null-bind the disabled stage. | [custom device](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L111-L148) |
+| Mesh swap stage | `task`, `mesh` | Which mesh-pipeline stage is swapped between two mesh draws. | [meshStageTest](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L2149-L2164) |
+| Mesh binding toggle | off, on | `bindings_mesh_shaders` adds real task and mesh shaders to the eight-stage bind matrix. | [bindings registration](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L2181-L2185) |
+| Final unbind mode | `vtg`, `task_mesh`, `mesh_draw_vertex` | Chooses which vertex/mesh path-switching sequence runs. | [final unbind registration](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L2187-L2193) |
 
 ## Behavior Parameters
 
@@ -49,71 +49,71 @@ The primary behavioral axis is the **behavioral group**: the registered case fam
 ### Swap families: one stage rebound between two draws
 
 The 255 swap cases bind the full classic chain, draw, rebind one stage's alt shader with a single-stage `cmdBindShadersEXT` call, and draw again
-([SWAP branch](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L394-L414)). The first draw covers a 24x24 rectangle inset 4 pixels, because the base vertex shader emits a half-size quad that the evaluation shader scales in x and the geometry shader scales in y. Each alt shader then produces a stage-characteristic second region: the vertex alt scales positions to cover the whole target, the control and evaluation alts halve positions on one or both axes, the geometry alt halves only y, and the fragment alt keeps the region but outputs red. The expected image is the combination: 0.75 gray where both draws land, 0.5 gray where exactly one lands, black elsewhere, and red instead of 0.75 gray for the fragment swap. The 250 cross-product cases add the unused-output, binary, and timing dimensions to the same two-draw sequence.
+([SWAP branch](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L390-L410)). The first draw covers a 24x24 rectangle inset 4 pixels, because the base vertex shader emits a half-size quad that the evaluation shader scales in x and the geometry shader scales in y. Each alt shader then produces a stage-characteristic second region: the vertex alt scales positions to cover the whole target, the control and evaluation alts halve positions on one or both axes, the geometry alt halves only y, and the fragment alt keeps the region but outputs red. The expected image is the combination: 0.75 gray where both draws land, 0.5 gray where exactly one lands, black elsewhere, and red instead of 0.75 gray for the fragment swap. The 250 cross-product cases add the unused-output, binary, and timing dimensions to the same two-draw sequence.
 
 ### Classic unbind: stages unbound between draws
 
 Five cases unbind stages between two draws and check that the second draw runs as if the stage never existed
-([UNBIND branch](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L456-L480)). `unbind_passthrough_geom` draws once with a pass-through geometry shader, unbinds the geometry stage, and draws again; both draws must cover the same rectangle, because a pass-through geometry shader reproduces the same primitives as no geometry stage. `unbind_geom_null_handle` and `unbind_geom_null_pshaders` unbind geometry after a scaling geometry shader ran, so the second quad must lose its y scaling and come out shorter. `unbind_tesc_null_handle` and `unbind_tesc_null_pshaders` unbind the tessellation pair in one two-stage call, so the second quad must lose its x scaling and come out narrower. The two styles must be equivalent: a null handle per stage versus a null `pShaders` pointer.
+([UNBIND branch](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L452-L476)). `unbind_passthrough_geom` draws once with a pass-through geometry shader, unbinds the geometry stage, and draws again; both draws must cover the same rectangle, because a pass-through geometry shader reproduces the same primitives as no geometry stage. `unbind_geom_null_handle` and `unbind_geom_null_pshaders` unbind geometry after a scaling geometry shader ran, so the second quad must lose its y scaling and come out shorter. `unbind_tesc_null_handle` and `unbind_tesc_null_pshaders` unbind the tessellation pair in one two-stage call, so the second quad must lose its x scaling and come out narrower. The two styles must be equivalent: a null handle per stage versus a null `pShaders` pointer.
 
 ### Disabled-stage families: drawing with feature-disabled stages
 
 The four `disabled_*` cases create a custom device with `geometryShader` or `tessellationShader` turned off, never create the disabled stage's shader, and draw once with the remaining stages
-([DISABLED branch](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L415-L455),
-[custom device](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L112-L150)). Because the feature is off at device creation, the spec does not require the stage to be bound at all. `disabled_geom_bind` and `disabled_tess_bind` also record a `VK_NULL_HANDLE` bind for the disabled stage, which must be accepted and change nothing.
+([DISABLED branch](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L411-L451),
+[custom device](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L111-L148)). Because the feature is off at device creation, the spec does not require the stage to be bound at all. `disabled_geom_bind` and `disabled_tess_bind` also record a `VK_NULL_HANDLE` bind for the disabled stage, which must be accepted and change nothing.
 
 ### Draw and dispatch interleaving: cross-domain binding between executions
 
 `draw_dispatch_draw` draws, binds the compute shader, and draws again
-([DRAW_DISPATCH_DRAW branch](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L481-L491)); the second draw must cover the same rectangle as the first, producing one uniform 0.75 gray region. `dispatch_draw_dispatch` dispatches with one descriptor set and buffer, binds all graphics shaders, binds a second descriptor set, and dispatches again
-([DISPATCH_DRAW_DISPATCH branch](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L492-L504)); both buffers must hold `0..15`, proving each dispatch ran the compute shader with its own descriptor set. Together the two cases check that neither binding domain disturbs the other.
+([DRAW_DISPATCH_DRAW branch](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L477-L487)); the second draw must cover the same rectangle as the first, producing one uniform 0.75 gray region. `dispatch_draw_dispatch` dispatches with one descriptor set and buffer, binds all graphics shaders, binds a second descriptor set, and dispatches again
+([DISPATCH_DRAW_DISPATCH branch](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L488-L500)); both buffers must hold `0..15`, proving each dispatch ran the compute shader with its own descriptor set. Together the two cases check that neither binding domain disturbs the other.
 
 ### Mesh swap: task or mesh rebound between mesh draws
 
 `mesh_swap_task` and `mesh_swap_mesh` first null-bind the classic rasterization stages, then draw once with task and mesh shaders that write `0,1` and `2,3` into a storage buffer, then rebind the task or mesh alt shader and draw again
-([mesh swap instance](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1179-L1224)). The task alt writes `4,5` and the mesh alt writes `6,7`, so the final buffer is `[4, 5, 2, 3]` for a task swap and `[0, 1, 6, 7]` for a mesh swap. The case never reads the image back; only the buffer distinguishes which binding each draw used.
+([mesh swap instance](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1175-L1220)). The task alt writes `4,5` and the mesh alt writes `6,7`, so the final buffer is `[4, 5, 2, 3]` for a task swap and `[0, 1, 6, 7]` for a mesh swap. The case never reads the image back; only the buffer distinguishes which binding each draw used.
 
 ### Binding lists: full-stage bind combination matrix
 
 `bindings` and `bindings_mesh_shaders` iterate every bind/don't-bind combination of the eight stages (vertex, tessellation control, tessellation evaluation, geometry, fragment, compute, mesh, task) and submit one eight-stage `cmdBindShadersEXT` call per combination, with `VK_NULL_HANDLE` for unbound or unsupported stages
-([combination loop](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L971-L1026)). Combinations that bind vertex together with task or mesh are skipped, because a single call may not carry valid handles for both vertex and task, or for both vertex and mesh. When the device reports all four optional stage features (tessellation, geometry, task, mesh), one extra call passes `pShaders = NULL` for all eight stages, unbinding everything in one command
-([null-pointer call](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1028-L1045)). In `bindings_mesh_shaders`, real task and mesh shaders replace the null entries. No draw or dispatch is recorded; the case passes when every call records and the submission completes.
+([combination loop](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L967-L1022)). Combinations that bind vertex together with task or mesh are skipped, because a single call may not carry valid handles for both vertex and task, or for both vertex and mesh. When the device reports all four optional stage features (tessellation, geometry, task, mesh), one extra call passes `pShaders = NULL` for all eight stages, unbinding everything in one command
+([null-pointer call](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1024-L1041)). In `bindings_mesh_shaders`, real task and mesh shaders replace the null entries. No draw or dispatch is recorded; the case passes when every call records and the submission completes.
 
 ### Final unbind: vertex and mesh path switching
 
 Three cases cross from one pre-rasterization path to the other by unbinding the stages of the path they leave before drawing with the other:
-[VTG unbind](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1648-L1699),
-[task/mesh unbind](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1700-L1749),
-[mesh-draw-then-vertex-draw](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1750-L1773)). `unbind_vtg` unbinds vertex, tessellation control, tessellation evaluation, and geometry in one four-stage call, binds task and mesh, repeats the VTG unbind, and issues a mesh draw; the image must be white everywhere and the mesh shader's buffer must hold `[0, 1, 2, 3]`. `unbind_task_mesh` binds task, mesh, and fragment, unbinds task and mesh, binds a vertex shader, and draws; the expected image is a white center quad on black. `unbind_mesh_draw_vertex` draws with mesh shaders first, then unbinds task and mesh, binds a vertex shader with a red fragment shader, and issues an indexed draw whose primitive-restart entry splits the strip; the mesh background stays white, the red quad lands in the center, and the mesh shader's buffer still reads `[0, 1, 2, 3]`.
+[VTG unbind](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1644-L1695),
+[task/mesh unbind](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1696-L1745),
+[mesh-draw-then-vertex-draw](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1746-L1769)). `unbind_vtg` unbinds vertex, tessellation control, tessellation evaluation, and geometry in one four-stage call, binds task and mesh, repeats the VTG unbind, and issues a mesh draw; the image must be white everywhere and the mesh shader's buffer must hold `[0, 1, 2, 3]`. `unbind_task_mesh` binds task, mesh, and fragment, unbinds task and mesh, binds a vertex shader, and draws; the expected image is a white center quad on black. `unbind_mesh_draw_vertex` draws with mesh shaders first, then unbinds task and mesh, binds a vertex shader with a red fragment shader, and issues an indexed draw whose primitive-restart entry splits the strip; the mesh background stays white, the red quad lands in the center, and the mesh shader's buffer still reads `[0, 1, 2, 3]`.
 
 ## Shader Analysis
 
 This page has no representative shader walkthrough. The tested behavior is command-buffer binding semantics, and the shader code is incidental: the graphics cases use the shared basic shader object set plus alt variants that only shift vertex positions or output a constant color, the compute shader writes its local invocation index into a buffer, and the task and mesh shaders emit one workgroup and a viewport-covering triangle while writing constant buffer values
-([alt and variant programs](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L690-L875),
-[mesh programs](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1303-L1394),
-[unbind programs](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L2000-L2069),
+([alt and variant programs](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L686-L871),
+[mesh programs](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1299-L1390),
+[unbind programs](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1996-L2065),
 [basic shader set](../../../modules/vulkan/shader_object/vktShaderObjectCreateUtil.cpp#L122-L211)). No shader contains logic that depends on the binding sequence under test, so a walkthrough would not clarify the tested property. The page is listed under `shader_object` in the walkthrough exception registry for this reason.
 
 ## Runtime Execution and Result Checking
 
 - **Common graphics setup.** Every image-checked case creates a 32x32 `R8G8B8A8_UNORM` target, a host-visible copyback buffer, and, for compute cases, two 16-entry storage buffers with their own descriptor sets. Dynamic states come from `setDefaultShaderObjectDynamicStates`, and blending is enabled with src `ONE` and dst `ONE_MINUS_SRC_ALPHA`, so the shared fragment shader's 0.5 gray leaves 0.5 over black and 0.75 over a previous 0.5
-  ([setup](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L206-L352)).
+  ([setup](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L204-L348)).
 - **Shader variant selection.** The vertex shader binary is chosen from the device's tessellation and geometry support (`vert`, `vertNoTess`, `vertNoGeom`, `vertNoTessGeom`, each with an alt counterpart), and the tessellation and geometry shaders are skipped when the matching feature is absent
-  ([variant selection](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L314-L350)).
+  ([variant selection](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L310-L346)).
 - **Binary round-trip.** When the binary-stage dimension names a stage, that stage's shader is created from SPIR-V, read back with `vkGetShaderBinaryDataEXT`, and recreated from the retrieved data with `VK_SHADER_CODE_TYPE_BINARY_EXT`
-  ([createShader](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L152-L180)).
+  ([createShader](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L150-L178)).
 - **Recording.** Each family records its own binding and execution sequence in one command buffer, as described under `## Behavior Parameters`; the disabled-stage families draw once, and the binding-list family records no execution at all. The timing axis controls whether the dynamic state block is recorded before the initial binding or between the binding and the first draw
-  ([timing branch](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L362-L363)).
+  ([timing branch](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L358-L359)).
 - **Copyback.** After the last execution, the image is barriered to transfer and copied into the host-visible buffer, and the submit waits for completion
-  ([copyback](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L509-L525)).
+  ([copyback](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L505-L521)).
 - **Image check.** The host walks every pixel and compares it against the two-rectangle model, with a tolerance of 1/256 per channel; the first mismatching pixel is logged with its expected and actual color
-  ([pixel check](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L624-L650)).
+  ([pixel check](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L620-L646)).
 - **Buffer checks.** `dispatch_draw_dispatch` scans both storage buffers for `0..15`; mesh swap expects `[4, 5, 2, 3]` or `[0, 1, 6, 7]`; the final unbind cases expect `[0, 1, 2, 3]` from the mesh shader
-  ([dispatch check](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L605-L622),
-  [mesh check](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1245-L1263),
-  [unbind check](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1857-L1960)).
+  ([dispatch check](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L601-L618),
+  [mesh check](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1241-L1259),
+  [unbind check](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1853-L1956)).
 - **Binding-list pass condition.** The `bindings` family has no output comparison; it passes when all bind calls record and the command buffer submits and waits without error
-  ([bindings iterate](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L895-L1048)).
+  ([bindings iterate](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L891-L1044)).
 
 ## Failure Meaning
 
@@ -189,27 +189,27 @@ Secondary axes (swap cross product and unbind style):
 ### Requirement-based pruning
 
 - Every case requires `VK_EXT_shader_object`
-  ([draw-family support check](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L676-L688)).
+  ([draw-family support check](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L672-L684)).
 - The draw family requires the `tessellationShader` feature when the swapped or binary stage is a tessellation stage, and the `geometryShader` feature when it is the geometry stage. This also applies to the `disabled_*` cases: the physical device must support the feature so the custom device can turn it off. The two interleaving cases inherit a leftover tessellation stage parameter from the registration loop, so they require the tessellation feature as well.
 - The mesh swap cases and all final unbind cases require `VK_EXT_mesh_shader` with both the `taskShader` and `meshShader` features
-  ([mesh support check](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1292-L1301),
-  [unbind support check](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1989-L1998)).
+  ([mesh support check](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1288-L1297),
+  [unbind support check](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1985-L1994)).
 - `bindings_mesh_shaders` requires `VK_EXT_mesh_shader`; plain `bindings` does not, and its task and mesh entries are always null handles
-  ([bindings support check](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1419-L1424)).
+  ([bindings support check](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1415-L1420)).
 - Registration itself is unconditional once the root adds the branch, and `excluded-tests.txt` removes only `shader_object.performance.*`, so no `binding` case is excluded from the default mustpass.
 
 ### Design-based pruning
 
 - The binding-list matrix skips every combination that binds vertex together with task or mesh, mirroring the single-call validity rule; those pairings are never submitted in one call
-  ([skip conditions](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L986-L991)).
+  ([skip conditions](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L982-L987)).
 - The tessellation pair is unbound in a single two-stage call, because leaving one half bound would leave a dangling tessellation stage at draw time
-  ([pair unbind](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L469-L478)).
+  ([pair unbind](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L465-L474)).
 - The unused-output declaration becomes active only when it names the same stage as the swapped stage, since only that stage's alt shader is bound. Four of the five unused-output values per (stage, binary, timing) combination therefore re-run the same swap without the extra output, keeping the registered matrix complete at little cost
-  ([alt shader generation](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L747-L859)).
+  ([alt shader generation](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L743-L855)).
 - `draw_dispatch_draw` records no actual dispatch between its two draws; the compute binding alone is the interference under test, and both draws must render identically
-  ([DRAW_DISPATCH_DRAW branch](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L481-L491)).
+  ([DRAW_DISPATCH_DRAW branch](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L477-L487)).
 - In `unbind_mesh_draw_vertex`, the indexed strip after the restart entry contains only two vertices and renders nothing, so only the first strip's red quad is observable; the mesh-draw background and buffer side effects carry the rest of the check
-  ([indexed draw](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1816-L1819)).
+  ([indexed draw](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1812-L1815)).
 
 ## Key Takeaways
 
@@ -225,15 +225,15 @@ Secondary axes (swap cross product and unbind style):
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Parameter structs and test types | [vktShaderObjectBindingTests.cpp#L52-L81](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L52-L81) | Defines `BindingDrawParams`, `MeshBindingDrawParams`, `BindingParams`, and the six draw test types. |
-| Custom device for disabled stages | [vktShaderObjectBindingTests.cpp#L112-L150](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L112-L150) | Creates the device with `geometryShader` or `tessellationShader` off. |
-| Binary round-trip creation | [vktShaderObjectBindingTests.cpp#L152-L180](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L152-L180) | Creates one stage's shader from its own binary data. |
-| Draw-family command recording | [vktShaderObjectBindingTests.cpp#L353-L519](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L353-L519) | Implements the passthrough, swap, disabled, unbind, and interleaving sequences. |
-| Expected region model and checks | [vktShaderObjectBindingTests.cpp#L527-L650](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L527-L650) | The two-rectangle pixel model, the dispatch buffer check, and the pixel scan. |
-| Draw-family shader variants | [vktShaderObjectBindingTests.cpp#L690-L875](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L690-L875) | Alt shaders with optional unused outputs and feature-dependent vertex variants. |
-| Bindings matrix instance | [vktShaderObjectBindingTests.cpp#L895-L1048](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L895-L1048) | The eight-stage combination loop and the null-pointer unbind call. |
-| Mesh swap instance | [vktShaderObjectBindingTests.cpp#L1068-L1267](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1068-L1267) | Two mesh draws with a task or mesh swap between them, checked through the storage buffer. |
-| Final unbind instance | [vktShaderObjectBindingTests.cpp#L1503-L1964](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1503-L1964) | VTG unbind, task/mesh unbind, and mesh-draw-then-indexed-vertex-draw sequences with image and buffer checks. |
-| Registration | [vktShaderObjectBindingTests.cpp#L2073-L2200](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L2073-L2200) | Builds all 273 leaves of the `binding` group. |
+| Custom device for disabled stages | [vktShaderObjectBindingTests.cpp#L111-L148](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L111-L148) | Creates the device with `geometryShader` or `tessellationShader` off. |
+| Binary round-trip creation | [vktShaderObjectBindingTests.cpp#L150-L178](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L150-L178) | Creates one stage's shader from its own binary data. |
+| Draw-family command recording | [vktShaderObjectBindingTests.cpp#L349-L515](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L349-L515) | Implements the passthrough, swap, disabled, unbind, and interleaving sequences. |
+| Expected region model and checks | [vktShaderObjectBindingTests.cpp#L523-L646](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L523-L646) | The two-rectangle pixel model, the dispatch buffer check, and the pixel scan. |
+| Draw-family shader variants | [vktShaderObjectBindingTests.cpp#L686-L871](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L686-L871) | Alt shaders with optional unused outputs and feature-dependent vertex variants. |
+| Bindings matrix instance | [vktShaderObjectBindingTests.cpp#L891-L1044](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L891-L1044) | The eight-stage combination loop and the null-pointer unbind call. |
+| Mesh swap instance | [vktShaderObjectBindingTests.cpp#L1064-L1263](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1064-L1263) | Two mesh draws with a task or mesh swap between them, checked through the storage buffer. |
+| Final unbind instance | [vktShaderObjectBindingTests.cpp#L1499-L1960](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1499-L1960) | VTG unbind, task/mesh unbind, and mesh-draw-then-indexed-vertex-draw sequences with image and buffer checks. |
+| Registration | [vktShaderObjectBindingTests.cpp#L2069-L2196](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L2069-L2196) | Builds all 273 leaves of the `binding` group. |
 | Shared shader set and bind helpers | [vktShaderObjectCreateUtil.cpp#L122-L211](../../../modules/vulkan/shader_object/vktShaderObjectCreateUtil.cpp#L122-L211), [vktShaderObjectCreateUtil.cpp#L420-L489](../../../modules/vulkan/shader_object/vktShaderObjectCreateUtil.cpp#L420-L489) | Basic GLSL set, `bindGraphicsShaders`, and null-stage bind helpers. |
-| Parent registration | [vktShaderObjectTests.cpp#L47-L63](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L47-L63) | Adds the `binding` branch to the `shader_object` tree. |
+| Parent registration | [vktShaderObjectTests.cpp#L48-L65](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L48-L65) | Adds the `binding` branch to the `shader_object` tree. |
 | Mustpass evidence | [binding.txt](../../../mustpass/main/vk-default/shader-object/binding.txt) | All 273 registered `dEQP-VK.shader_object.binding.*` case paths. |

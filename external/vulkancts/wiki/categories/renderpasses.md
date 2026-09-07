@@ -21,7 +21,7 @@ renderpasses
     └── graphics_pipeline_library
 ```
 
-Each rendering-type root holds a mix of directly-attached test families (for example `depth_stencil_write_conditions`, `dithering`, `fragment_density_map`) and an allocation subtree (`suballocation`, `dedicated_allocation`, `no_draws`) that carries the core `simple`, `formats`, `attachment`, `attachment_write_mask`, `attachment_allocation`, multisample, resolve, unused-attachment, and dependency families. The `dynamic_rendering` root additionally carries dynamic-rendering-specific families (`basic`, `random`, `unused_attachments`, `local_read`, `local_read_maint10`, `multiview_clear`). The visible Level-3 page count (29) is smaller than the full registered tree because one Level-3 page covers all rendering-type registrations of the same implementation file.
+Each rendering-type root holds a mix of directly-attached test families (for example `depth_stencil_write_conditions`, `dithering`, `fragment_density_map`) and an allocation subtree (`suballocation`, `dedicated_allocation`, `no_draws`) that carries the core `simple`, `formats`, `attachment`, `attachment_write_mask`, `attachment_allocation`, multisample, resolve, unused-attachment, and dependency families. The `dynamic_rendering` root additionally carries dynamic-rendering-specific families (`basic`, `random`, `unused_attachments`, `local_read`, `local_read_maint10`, `multiview_clear`). The visible Level-3 page count (30) is smaller than the full registered tree because one Level-3 page covers all rendering-type registrations of the same implementation file.
 
 ## How the Families Fit Together
 
@@ -66,6 +66,7 @@ The families share one theme: each verifies that a specific render-pass or dynam
 | `subpass_merge_feedback` (RP2) | [SubpassMergeFeedback](../testfiles/renderpasses/SubpassMergeFeedback.md) | `VK_EXT_subpass_merge_feedback` merge metadata query |
 | `nested_command_buffers` (monolithic) | [NestedCommandBuffers](../testfiles/renderpasses/NestedCommandBuffers.md) | `VK_EXT_nested_command_buffer` inline-and-secondary mixing |
 | `performance_counters_by_region` | [PerformanceCountersByRegion](../testfiles/renderpasses/PerformanceCountersByRegion.md) | `VK_ARM_performance_counters_by_region` per-tile counter capture |
+| `low_resolution_z` | [LowResolutionZ](../testfiles/renderpasses/LowResolutionZ.md) | Depth-operation and render-pass-boundary coverage for low-resolution-Z behavior |
 
 ## Category Notes
 
@@ -75,4 +76,5 @@ The families share one theme: each verifies that a specific render-pass or dynam
 - `depth_stencil_write_conditions` is registered only under `renderpass1` and is excluded from VulkanSC.
 - `multiview_per_view` is registered under `renderpass2` and `dynamic_rendering` but not under `renderpass1`.
 - `depth_stencil_resolve` has separate implementation files for render-pass (`vktRenderPassDepthStencilResolveTests.cpp`) and dynamic-rendering (`vktDynamicRenderingDepthStencilResolveTests.cpp`); each has its own Level-3 page.
+- `low_resolution_z` is registered below the shared allocation groups and covers legacy render pass, render pass 2, and dynamic-rendering configurations selected by `SharedGroupParams`.
 - `vktRenderPassTestsUtil.cpp` and `vktRenderPassGroupParams.hpp` are shared utilities without their own Level-3 pages; Level-3 pages reference them as supporting evidence for `GroupParams`, `RenderingType`, and `SynchronizationType`.

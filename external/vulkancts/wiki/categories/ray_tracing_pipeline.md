@@ -97,7 +97,7 @@ All families exercise `vkCmdTraceRays*` dispatch through a ray tracing pipeline,
 | `memguarantee` | [MemGuarantee.md](../testfiles/ray_tracing_pipeline/MemGuarantee.md) | Shader-call memory behavior: inside and between cases with `shadercallcoherent` qualifiers. |
 | `complexcontrolflow` | [ComplexControlFlow.md](../testfiles/ray_tracing_pipeline/ComplexControlFlow.md) | Conditionals, switches, loops, nested loops, and function-call patterns around trace-ray calls. |
 | `data_spill` | [DataSpill.md](../testfiles/ray_tracing_pipeline/DataSpill.md) | Data spilling around trace-ray, report-intersection, execute-callable, and pipeline-interface paths. |
-| `opacity_micromap` | [OpacityMicromap.md](../testfiles/ray_tracing_pipeline/OpacityMicromap.md) | `VK_EXT_opacity_micromap` integration: opacity flags, special-index use, modes, levels, copy behavior, and non-zero base variants. |
+| `opacity_micromap` | [OpacityMicromap.md](../testfiles/ray_tracing_pipeline/OpacityMicromap.md) | `VK_EXT_opacity_micromap` integration: opacity flags, special-index use, null handles, large multi-triangle builds, and query-pool size queries. |
 | `position_fetch` | [PositionFetch.md](../testfiles/ray_tracing_pipeline/PositionFetch.md) | `VK_KHR_ray_tracing_position_fetch`: vertex formats, CPU and GPU build, flag masks, and fetched-position tolerance. |
 | `ser` | [ShaderExecutionReorder.md](../testfiles/ray_tracing_pipeline/ShaderExecutionReorder.md) | `VK_NV_shader_invocation_reorder`: built-in, large-dimension, motion, and reorder cases. |
 | `linear_swept_spheres` | [LinearSweptSpheres.md](../testfiles/ray_tracing_pipeline/LinearSweptSpheres.md) | `VK_NV_ray_tracing_linear_swept_spheres`: sphere and LSS geometry modes, copy, endcap, ray-query, hit-object, vertex-format, and radius-format choices. |
@@ -106,5 +106,5 @@ All families exercise `vkCmdTraceRays*` dispatch through a ray tracing pipeline,
 ## Category Notes
 
 - The dispatcher [vktRayTracingTests.cpp](../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L65-L104) contains no test implementation. It adds 34 child groups, each delegated to a separate `create*Tests` function.
-- Most families require `VK_KHR_ray_tracing_pipeline` and `VK_KHR_acceleration_structure`. Extension families add `VK_EXT_opacity_micromap`, `VK_KHR_ray_tracing_position_fetch`, `VK_NV_shader_invocation_reorder`, or `VK_NV_ray_tracing_linear_swept_spheres`. Pipeline-library tests add `VK_KHR_pipeline_library` and related extension gates.
+- Most families require `VK_KHR_ray_tracing_pipeline` and `VK_KHR_acceleration_structure`. Extension families add `VK_EXT_opacity_micromap`, `VK_KHR_ray_tracing_position_fetch`, `VK_NV_shader_invocation_reorder`, or `VK_NV_ray_tracing_linear_swept_spheres`. The opacity-micromap family also registers a `khr` subgroup for KHR serialization/copy coverage, while the EXT implementation adds null-handle, multi-triangle, and query-pool cases. Pipeline-library tests add `VK_KHR_pipeline_library` and related extension gates.
 - The build file [CMakeLists.txt](../../modules/vulkan/ray_tracing/CMakeLists.txt#L6-L70) lists all implementation sources.

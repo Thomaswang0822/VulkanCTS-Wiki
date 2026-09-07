@@ -43,6 +43,8 @@ robustness.bind_index_buffer2
 | Binding offset | `offset_0`, `offset_100` | Checks a binding at the buffer start and after leading index data. | [`offsets`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1132-L1140) |
 | Out-of-range type | `oo_none`, `oo_index`, `oo_size`, `oo_whole_size` | Selects a valid baseline or the source of the unusable index access. | [`OutOfTypes`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1125-L1130) |
 | Binding command | handle, `_device_address` | Compares classic binding/draw commands with device-address command variants where registered. | [variant generation](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1153-L1164) |
+| Index type | `uint8`, `uint16`, `uint32` | Exercises the core and extended index-buffer element widths; `uint8` requires `indexTypeUint8`. | [index-type combinations](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1142-L1151) |
+| Pipeline robustness | Versions 1 and 2; vertex/fragment, geometry, tessellation, and combined stage paths | Applies pipeline robustness to the indexed draw and varies the stages used by the pipeline. | [pipeline-robustness registration](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1167-L1202) |
 
 ## Behavior Parameters
 

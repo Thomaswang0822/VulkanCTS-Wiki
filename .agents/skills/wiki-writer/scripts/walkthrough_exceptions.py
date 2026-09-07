@@ -171,6 +171,7 @@ PAGES_WITHOUT_WALKTHROUGH: dict[str, set[str]] = {
         'CreateTests.md',
         'LinkTests.md',
         'PipelineInteractionTests.md',
+        'IndependentSetsTests.md',
     },
     'sparse_resources': {
         'ImageAlignedMipSize.md',

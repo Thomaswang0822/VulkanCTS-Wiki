@@ -4,7 +4,7 @@
 
 This page covers the `misc` and `helper_invocations` test families registered by [vktRayQueryMiscTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L2207-L2271) and [vktRayQueryMiscTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L2142-L2205). The two families are siblings only because they share one implementation file; their failure mechanisms do not overlap.
 
-- `misc` is itself heterogeneous. It contains `dynamic_indexing` and `dynamic_indexing_use_first` (arrays of `rayQueryEXT` indexed at runtime), `reuse_scratch_buffer` (one scratch buffer shared across two sequential BLAS builds), `update_empty_bottom` and `update_empty_top` (in-place update of an empty AS pre-filled with random bytes), and a `ray_per_inv_*` matrix (one ray per compute invocation across 11 workgroup sizes and four single-invocation gating modes).
+- `misc` is itself heterogeneous. It contains `dynamic_indexing`, `dynamic_indexing_use_first`, and `dynamic_indexing_inbounds` (arrays of `rayQueryEXT` indexed at runtime, including a hand-written SPIR-V `OpInBoundsAccessChain` variant), `reuse_scratch_buffer` (one scratch buffer shared across two sequential BLAS builds), `update_empty_bottom` and `update_empty_top` (in-place update of an empty AS pre-filled with random bytes), a `ray_per_inv_*` matrix (one ray per compute invocation across 11 workgroup sizes and four single-invocation gating modes), and the `preserve_flip_facing` and `shared_memory_consistency` cases.
 - `helper_invocations` is one coherent matrix: 2 build paths × 3 derivative styles × 3 surface modes × 2 screen sizes × 2 model sizes = 72 cases. The fragment shader runs an inline ray query and writes a color computed from both the analytic and the screen-space derivative of the surface. The host scans the color buffer for negative `.z` or `.w` channels.
 - The shared theme is corner-case coverage. Each subfamily isolates one property that the larger matrices do not exercise on its own.
 
@@ -28,7 +28,7 @@ ray_query
 
 The two families are direct children of the `ray_query` test category. They share one source file but not one failure mechanism, so the page treats them as siblings and does not collapse one into the other.
 
-`misc` itself contains six subfamilies with no intermediate hierarchy node: `dynamic_indexing`, `dynamic_indexing_use_first`, `reuse_scratch_buffer`, `update_empty_bottom`, `update_empty_top`, and a flat list of 44 `ray_per_inv_*` test case leaves. `helper_invocations` expands into a 5-dimensional matrix (build, style, mode, screen, model) below the family node.
+`misc` itself contains the dynamic-indexing variants, scratch/update cases, the `ray_per_inv_*` leaves, and the `preserve_flip_facing` and `shared_memory_consistency` leaves. `helper_invocations` expands into a 5-dimensional matrix (build, style, mode, screen, model) below the family node.
 
 ## Parameter Dimensions and Observed Values
 
@@ -37,6 +37,7 @@ The two families are direct children of the `ray_query` test category. They shar
 | Test family | `misc`, `helper_invocations` | Selects which subfamily matrix runs. The two families are unrelated except for sharing one source file. | [vktRayQueryMiscTests.cpp:2207-L2271](../../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L2207-L2271), [L2142-L2205](../../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L2142-L2205) |
 | `misc` subfamily | `dynamic_indexing`, `dynamic_indexing_use_first`, `reuse_scratch_buffer`, `update_empty_bottom`, `update_empty_top`, `ray_per_inv_*` | Selects the corner-case mechanism under test. | [vktRayQueryMiscTests.cpp:2212-L2268](../../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L2212-L2268) |
 | `useFirst` ordering (`dynamic_indexing`) | `false`, `true` | When `true`, the use site precedes the init site textually in the GLSL source. Reduces workgroup to 2 invocations and 2 queries. | [vktRayQueryMiscTests.cpp:69-L82](../../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L69-L82), [L180-L191](../../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L180-L191) |
+| SPIR-V indexing (`dynamic_indexing_inbounds`) | `OpInBoundsAccessChain` | Uses a hand-written compute SPIR-V variant with in-bounds access chains for the query array; it uses 48 invocations and 48 queries. | [vktRayQueryMiscTests.cpp:130-L2579](../../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L130-L2579) |
 | Workgroup size (`ray_per_inv_*`) | `61`, `64`, `127`, `128`, `251`, `256`, `509`, `512`, `1021`, `1024`, `0` (device max) | The `local_size_x` specialization constant. `0` defers to `limits.maxComputeWorkGroupSize[0]`. | [vktRayQueryMiscTests.cpp:2238](../../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L2238), [L1986-L1987](../../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L1986-L1987) |
 | Single-invocation mode (`ray_per_inv_*`) | `_all`, `_single_first`, `_single_last`, `_single_middle` | Whether every invocation runs a query or only one invocation does. `_single_last` uses `UINT32_MAX` to mean "the last invocation." | [vktRayQueryMiscTests.cpp:2233-L2266](../../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L2233-L2266) |
 | Build path (`helper_invocations`) | `gpu`, `cpu` | `VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR` vs `_HOST_KHR`. CPU requires `accelerationStructureHostCommands`. | [vktRayQueryMiscTests.cpp:2144](../../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L2144), [L588-L590](../../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L588-L590), [L873-L875](../../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L873-L875) |
@@ -56,6 +57,14 @@ A 48-element `rayQueryEXT rayQueries[48]` array is initialized per invocation. O
 ### `misc.dynamic_indexing_use_first` — use site before init site textually
 
 The workgroup shrinks to 2 invocations and 2 queries. The GLSL emits the use loop textually before the initialization loop inside a `for (i = 0; i < 2; ++i)` wrapper that runs the use site on iteration 1 and the init site on iteration 0. The SPIR-V must trace query state across the loop body. The same invariance as `dynamic_indexing` holds, but with a hostile source order.
+
+### `misc.dynamic_indexing_inbounds` — in-bounds SPIR-V access chains
+
+This compute-only variant keeps the 48-query shape but supplies hand-written SPIR-V whose query-array accesses use `OpInBoundsAccessChain` for initialization and proceeding. It targets the lowering and execution of in-bounds access into an array of ray-query objects rather than a GLSL compiler's choice of access-chain opcode.
+
+### `misc.preserve_flip_facing` and `misc.shared_memory_consistency`
+
+`preserve_flip_facing` dispatches a ray query against an instance carrying `VK_GEOMETRY_INSTANCE_TRIANGLE_FLIP_FACING_BIT_KHR` and counts the two expected triangle candidates. `shared_memory_consistency` runs 64 compute invocations, writes a per-lane pattern to shared memory, proceeds a ray query while checking and rewriting that pattern with barriers, and expects every output value to be `1`. These cases are registered directly under `misc` ([vktRayQueryMiscTests.cpp:2637-L2640](../../../modules/vulkan/ray_query/vktRayQueryMiscTests.cpp#L2637-L2640)).
 
 ### `misc.reuse_scratch_buffer` — shared scratch across two BLAS builds
 

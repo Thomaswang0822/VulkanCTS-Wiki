@@ -6,6 +6,7 @@
 - The family creates `VK_QUERY_TYPE_PIPELINE_STATISTICS` pools for compute, input-assembly, shader, clipping, and tessellation counters.
 - It varies command-buffer mode, result transport, record width, reset timing, and selected graphics or compute work.
 - The source also contains separate multi-counter and multiple-geometry-statistics cases.
+- Graphics statistics also cover primitive restart and front-and-back culling cases; compute invocation cases execute across every device queue exposed by the test context.
 
 ## Background Knowledge
 
@@ -49,7 +50,8 @@ query_pool.statistics_query
 | Result transport | `vkGetQueryPoolResults`, `vkCmdCopyQueryPoolResults`, and selected `vkCmdCopyQueryPoolResultsToMemoryKHR` paths | Changes the destination and decoding route. |
 | Result layout | 32-bit or 64-bit values, optional availability, destination offset, valid or zero stride | Changes record size, placement, and decoding. |
 | Reset workflow | Normal, host reset, reset before copy, reset after copy | Determines whether CTS expects a completed value or an unavailable result. |
-| Work shape | Compute group and local sizes; graphics topology, stage configuration, clear operation, and repeated draws | Supplies the expected count or lower bound. |
+| Work shape | Compute group and local sizes; graphics topology, stage configuration, clear operation, primitive restart, front-and-back culling, and repeated draws | Supplies the expected count or lower bound. |
+| Queue selection | Each device queue exposed by the context for compute-invocation tests | Repeats the compute query workload on every available queue and fails on the first non-passing result. |
 
 The general generator iterates host-get and command-copy modes, 32-bit and 64-bit results, and destination-offset choices. It suppresses destination-offset cases for host retrieval because that API has no destination-offset parameter. It permits zero stride only for command copies. See [`QueryPoolStatisticsTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L6388).
 
@@ -59,7 +61,7 @@ The standard graphics repeat vector is `{1, 3, 5, 8, 15, 24}`. The test uses it 
 
 The ordinary direct intermediate nodes name the requested statistic. `compute_shader_invocations` dispatches a compute workload. The graphics nodes cover input assembly, vertex, fragment, geometry, clipping, tessellation-control, and tessellation-evaluation statistics. `vertex_only` is a reduced-pipeline subset for input-assembly and vertex counters.
 
-Topology expands the graphics cases across point, line, triangle, adjacency, and patch-list forms. Patch-list cases enable tessellation and add patch-size and primitive-count variants. Geometry and tessellation paths use their own expected counts because their counters measure different pipeline stages.
+Topology expands the graphics cases across point, line, triangle, adjacency, and patch-list forms. Graphics variants additionally exercise primitive restart and culling of both front and back faces where applicable. Patch-list cases enable tessellation and add patch-size and primitive-count variants. Geometry and tessellation paths use their own expected counts because their counters measure different pipeline stages.
 
 ### Command-buffer modes: placement and inheritance
 
@@ -77,7 +79,7 @@ The base families reset the pool in the command buffer before issuing the query.
 
 ## Behavior Parameters
 
-The behavioral axes are the selected statistic, command-buffer mode, reset workflow, and result layout. Topology and stage configuration determine an expected count, but they do not change the query protocol.
+The behavioral axes are the selected statistic, command-buffer mode, reset workflow, and result layout. Topology, primitive restart, culling, and stage configuration determine an expected count, but they do not change the query protocol.
 
 ### Normal and reset-after-copy: completed result
 

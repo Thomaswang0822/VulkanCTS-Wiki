@@ -36,6 +36,8 @@ The factory creates both direct children, while the generated test case leaves c
 | Texel-buffer backing size | `256`, `1024`, `4096` bytes | Varies allocation size while the tested access remains outside the view. | [`createOOBAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L997-L998) |
 | Storage-image extent | `16x16`, `64x64`, `128x128` | Varies image bounds and therefore the invalid coordinate. | [`createOOBAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L1034-L1050) |
 
+The non-VulkanSC `misc` subgroup also contains `fma_test_hang`. It is an Amber regression case for a partially out-of-bounds subgroup-uniform read-only shared-memory load where the out-of-bounds portion is unmapped; it requires `robustBufferAccess` and asserts successful execution rather than a generated numeric result. See [`OOBPartialAccessTestCase`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L951-L994).
+
 ## Behavior Parameters
 
 The primary behavioral axis is the direct robustness-mode component below `robustness.oob_access`.

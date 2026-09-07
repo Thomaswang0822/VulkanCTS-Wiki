@@ -175,5 +175,5 @@ Expected outcome axis (leaves of every stage group):
 | Registration, `createShaderObjectCreateTests` | [vktShaderObjectCreateTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectCreateTests.cpp#L829-L879) | Builds the `multiple` node and all ten stage groups. |
 | `getShaderObjectNextStages` | [vktShaderObjectCreateUtil.cpp](../../../modules/vulkan/shader_object/vktShaderObjectCreateUtil.cpp#L58-L94) | The `nextStage` values, following the spec's legal stage chains. |
 | `getShaderName` | [vktShaderObjectCreateUtil.cpp](../../../modules/vulkan/shader_object/vktShaderObjectCreateUtil.cpp#L31-L56) | Stage to program-binary name mapping used by the stage groups. |
-| Parent registration, `createTests` | [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L47-L63) | Attaches the `create` family under the `shader_object` test category. |
+| Parent registration, `createTests` | [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L48-L65) | Attaches the `create` family under the `shader_object` test category. |
 | Mustpass leaves | [create.txt](../../../mustpass/main/vk-default/shader-object/create.txt) | All 22 registered leaves of the family. |

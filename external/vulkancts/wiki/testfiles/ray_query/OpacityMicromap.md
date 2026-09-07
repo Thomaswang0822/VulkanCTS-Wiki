@@ -4,7 +4,8 @@
 
 This page covers the `opacity_micromap` test family registered by [vktRayQueryOpacityMicromapTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L1267-L1278).
 
-- Two direct children: `render` exercises the traversal path against the full parameter matrix; `copy` exercises the host-side `cmdCopyMicromapEXT` paths with a fixed compute shader.
+- Two implementations contribute under the `opacity_micromap` node. The original EXT implementation provides `render` and `copy`; the KHR implementation adds `render`, `copy`, `update`, `device_compatibility_khr`, and `header_micromap_address` ([vktRayQueryOpacityMicromapTestsKHR.cpp:1945-L1957](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTestsKHR.cpp#L1945-L1957)).
+- The original EXT implementation also adds `_mix_omm` render variants that enable the opacity-micromap ray-query mode through specialization constant `1045`, and null-micromap-handle coverage where applicable.
 - The host builds an opacity micromap from a seeded random byte stream, attaches it to a single-triangle BLAS through `VkAccelerationStructureTrianglesOpacityMicromapEXT`, wraps that BLAS in a one-instance TLAS, and dispatches `1024` ray striding invocations from a per-subtriangle centroid buffer.
 - The shader never calls `rayQueryConfirmIntersectionEXT`. The implementation's per-subtriangle opacity state therefore decides whether each ray writes `0` (miss), `1` (non-opaque candidate), or `2` (committed triangle hit) into the `modes` SSBO.
 - The host reproduces the same `~state` bitwise-NOT encoding, applies the same force-opaque and force-2-state overrides, then compares every entry of `modes` to `expectedOutputModes` and logs per-ray mismatches.
@@ -24,8 +25,8 @@ For the shared concept acceleration-structure and traversal, see [Background Kno
 
 ```text
 ray_query.opacity_micromap
-├── render
-└── copy
+├── ext
+└── khr
 ```
 
 Each direct child is an intermediate node. Test case leaves live several levels deeper inside each subtree, indexed by shader stage, flag mask, special-index use, mode, subdivision level, and (for `render`) the optional `non_zero_base` suffix, or by copy type, mode, level, and (for `copy`) the single `misc.maintenance5` leaf.
@@ -34,7 +35,7 @@ Each direct child is an intermediate node. Test case leaves live several levels 
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Test family | `render`, `copy` | Behavioral axis. `render` varies what traversal must do per subtriangle; `copy` varies how the micromap is produced. | [vktRayQueryOpacityMicromapTests.cpp:1273-L1275](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L1273-L1275) |
+| Test family | EXT: `render`, `copy`; KHR: `render`, `copy`, `update`, `device_compatibility_khr`, `header_micromap_address` | Behavioral axis. EXT `render` varies traversal and `copy` varies production; KHR adds update, compatibility, and header-address operations. | [vktRayQueryOpacityMicromapTests.cpp:1418-L1421](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L1418-L1421), [vktRayQueryOpacityMicromapTestsKHR.cpp:1945-L1957](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTestsKHR.cpp#L1945-L1957) |
 | Shader stage (`render` only) | `vertex_shader`, `compute_shader`, `rgen_shader` | Selects the pipeline that hosts the inline ray query. rgen requires `VK_KHR_ray_tracing_pipeline` and sets the opacity-micromap pipeline create flag. | [vktRayQueryOpacityMicromapTests.cpp:1080-L1092](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L1080-L1092) |
 | Test flag mask (`render` only) | All 32 combinations of `force_opaque_instance`, `force_opaque_ray_flag`, `disable_opacity_micromap_instance`, `force_2_state_instance`, `force_2_state_ray_flag`; `NoFlags` when zero | The five opacity override bits crossed fully. Drives both ray flags and per-instance flags. | [vktRayQueryOpacityMicromapTests.cpp:68-L81](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L68-L81), [L1110-L1124](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L1110-L1124) |
 | Special-index use (`render` only) | `map_value`, `special_index` | `map_value` reads per-subtriangle state from the data buffer. `special_index` sets a single special index value for the whole triangle. | [vktRayQueryOpacityMicromapTests.cpp:1094-L1101](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L1094-L1101) |
@@ -42,7 +43,8 @@ Each direct child is an intermediate node. Test case leaves live several levels 
 | Mode (`render`, `copy`) | `2`, `4` | Selects `VK_OPACITY_MICROMAP_FORMAT_2_STATE_EXT` or `VK_OPACITY_MICROMAP_FORMAT_4_STATE_EXT`. | [vktRayQueryOpacityMicromapTests.cpp:1160-L1164](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L1160-L1164), [L1222-L1226](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L1222-L1226) |
 | Subdivision level | `level_0` through `level_15` | Sets `4^level` subtriangles and the `numRays` shader array length. Limited by `maxOpacity2StateSubdivisionLevel` / `maxOpacity4StateSubdivisionLevel`. | [vktRayQueryOpacityMicromapTests.cpp:1170](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L1170), [L1232](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L1232) |
 | Non-zero base (`render` only) | absent, `_non_zero_base` | Adds a second triangle to the BLAS and sets `baseTriangle = 1` so only the second triangle's micromap data is consulted. Registered only when `testFlagMask == 0` and `map_value`. | [vktRayQueryOpacityMicromapTests.cpp:1191-L1196](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L1191-L1196) |
-| Copy type (`copy` only) | `Clone`, `Compact` | Selects `CT_CLONE` or `CT_COMPACT`. Both currently emit `VK_COPY_MICROMAP_MODE_CLONE_EXT`. | [vktRayQueryOpacityMicromapTests.cpp:1217-L1255](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L1217-L1255) |
+| Copy type (`copy` only) | `clone`, `compact` | Selects `CT_CLONE` or `CT_COMPACT`; the upstream refresh lowercases the registered group names. Both currently emit `VK_COPY_MICROMAP_MODE_CLONE_EXT`. | [vktRayQueryOpacityMicromapTests.cpp:92-L96](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L92-L96), [L1354-L1365](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L1354-L1365) |
+| Mixed OMM mode (`render` only) | `_mix_omm` | Doubles the ray stream for EXT/KHR OMM mixing and enables the opacity-micromap ray-query mode through specialization constant `1045`; support requires `VK_KHR_opacity_micromap` and `VK_KHR_device_address_commands`. | [vktRayQueryOpacityMicromapTests.cpp:162-L182](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L162-L182), [L245-L267](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L245-L267) |
 | Maintenance5 (`copy` only) | `misc.maintenance5` | Replaces `VkBufferUsageFlags` with `VkBufferUsageFlags2CreateInfoKHR` on the micromap data, scratch, origins, and modes buffers. | [vktRayQueryOpacityMicromapTests.cpp:1257-L1264](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L1257-L1264) |
 | Random seed | per-leaf monotonic from `1614674687u` (`render`) or `1614674688u` (`copy`) | Drives the `opacityMicromapData` byte stream. Same seed reproduces the same per-subtriangle state. | [vktRayQueryOpacityMicromapTests.cpp:1073](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L1073), [L1213](../../../modules/vulkan/ray_query/vktRayQueryOpacityMicromapTests.cpp#L1213) |
 

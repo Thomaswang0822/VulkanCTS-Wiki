@@ -385,13 +385,13 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `A` `external/vulkancts/mustpass/main/vk-default/pipeline/shader-object-unlinked-spirv/timestamp.txt`
   - `A` `external/vulkancts/mustpass/main/vk-default/pipeline/shader-object-unlinked-spirv/vertex-input.txt`
   - `M` `external/vulkancts/mustpass/main/vksc-default/pipeline/monolithic.txt`
-- [ ] `query_pool` — source `1` (M=1); mustpass `2` (M=2). Raw groups: `query-pool, query_pool`. Decision: pending.
+- [x] `query_pool` — source `1` (M=1); mustpass `2` (M=2). Raw groups: `query-pool, query_pool`. Decision: English documentation refresh complete.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp`
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/query-pool.txt`
   - `M` `external/vulkancts/mustpass/main/vksc-default/query-pool.txt`
-- [ ] `ray_query` — source `8` (A=2, M=6); mustpass `1` (M=1). Raw groups: `ray-query, ray_query`. Decision: pending.
+- [x] `ray_query` — source `8` (A=2, M=6); mustpass `1` (M=1). Raw groups: `ray-query, ray_query`. Decision: English documentation refresh complete.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/ray_query/CMakeLists.txt`
   - `M` `external/vulkancts/modules/vulkan/ray_query/vktRayQueryAccelerationStructuresTests.cpp`
@@ -403,7 +403,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `M` `external/vulkancts/modules/vulkan/ray_query/vktRayQueryTests.cpp`
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/ray-query.txt`
-- [ ] `ray_tracing_pipeline` — source `12` (A=2, M=10); mustpass `1` (M=1). Raw groups: `ray-tracing-pipeline, ray_tracing`. Decision: pending.
+- [x] `ray_tracing_pipeline` — source `12` (A=2, M=10); mustpass `1` (M=1). Raw groups: `ray-tracing-pipeline, ray_tracing`. Decision: English documentation refresh complete.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/ray_tracing/CMakeLists.txt`
   - `M` `external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingAccelerationStructuresTests.cpp`
@@ -419,7 +419,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `M` `external/vulkancts/modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp`
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/ray-tracing-pipeline.txt`
-- [ ] `renderpasses` — source `14` (A=2, M=12); mustpass `2` (M=2). Raw groups: `renderpass, renderpasses`. Decision: pending.
+- [x] `renderpasses` — source `14` (A=2, M=12); mustpass `2` (M=2). Raw groups: `renderpass, renderpasses`. Decision: English documentation refresh complete.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/renderpass/CMakeLists.txt`
   - `M` `external/vulkancts/modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp`
@@ -438,7 +438,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/renderpasses.txt`
   - `M` `external/vulkancts/mustpass/main/vksc-default/renderpasses.txt`
-- [ ] `robustness` — source `11` (M=11); mustpass `1` (M=1). Raw groups: `robustness`. Decision: pending.
+- [x] `robustness` — source `11` (M=11); mustpass `1` (M=1). Raw groups: `robustness`. Decision: English documentation refresh complete.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp`
   - `M` `external/vulkancts/modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp`
@@ -453,7 +453,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `M` `external/vulkancts/modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp`
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/robustness.txt`
-- [ ] `shader_object` — source `9` (A=2, M=7); mustpass `2` (A=1, M=1). Raw groups: `shader-object, shader_object`. Decision: pending.
+- [x] `shader_object` — source `9` (A=2, M=7); mustpass `2` (A=1, M=1). Raw groups: `shader-object, shader_object`. Decision: English documentation refresh complete.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/shader_object/CMakeLists.txt`
   - `M` `external/vulkancts/modules/vulkan/shader_object/vktShaderObjectApiTests.cpp`
@@ -467,6 +467,9 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   Mustpass evidence:
   - `A` `external/vulkancts/mustpass/main/vk-default/shader-object/m11-independent-sets.txt`
   - `M` `external/vulkancts/mustpass/main/vk-default/shader-object/rendering.txt`
+  - Review: added the `m11_independent_sets` family and its 1,440 default paths, and documented the new `rendering.push_data.unused` case requiring `VK_EXT_descriptor_heap`. Updated source links for line shifts in the existing shader-object pages.
+  - Validation: category structure, registration, and links passed.
+  - Unresolved source coverage risk retained in `RenderingTests.md`: the seven output-array format names currently register the same RGBA8 format.
 - [ ] `spirv_assembly` — source `32` (A=2, M=30); mustpass `2` (M=2). Raw groups: `spirv-assembly, spirv_assembly`. Decision: pending.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/spirv_assembly/CMakeLists.txt`
