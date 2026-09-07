@@ -164,7 +164,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `M`/`A` files under `external/vulkancts/modules/vulkan/data_graph/` listed in the scoped upstream diff, including `vktDataGraphDescriptorBufferTests.cpp`, `vktDataGraphExternalMemoryTests.cpp`, `vktDataGraphImageAliasingTests.cpp`, `vktDataGraphSpecializationConstantsTests.cpp`, and `vktDataGraphUpdateAfterBindTests.cpp`.
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/data-graph.txt`.
-- [ ] `dgc` — source `13` (A=4, M=9); mustpass `1` (M=1). Raw groups: `device_generated_commands, dgc`. Decision: pending.
+- [x] `dgc` — source `13` (A=4, M=9); mustpass `1` (M=1). Raw groups: `device_generated_commands, dgc`. Decision: English documentation refresh complete.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/device_generated_commands/CMakeLists.txt`
   - `M` `external/vulkancts/modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp`
@@ -181,7 +181,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `M` `external/vulkancts/modules/vulkan/device_generated_commands/vktDGCTests.cpp`
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/dgc.txt`
-- [ ] `image` — source `12` (M=12); mustpass `8` (A=2, M=6). Raw groups: `image`. Decision: pending.
+- [x] `image` — source `12` (M=12); mustpass `8` (A=2, M=6). Raw groups: `image`. Decision: English documentation refresh complete.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp`
   - `M` `external/vulkancts/modules/vulkan/image/vktImageAtomicOperationTests.cpp`
@@ -219,7 +219,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `A` `external/vulkancts/modules/vulkan/image_processing/vktImageProcessingWeightImageSamplingTests.hpp`
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/image-processing.txt`
-- [ ] `memory` — source `18` (A=10, M=8); mustpass `2` (M=2). Raw groups: `memory`. Decision: pending.
+- [x] `memory` — source `18` (A=10, M=8); mustpass `2` (M=2). Raw groups: `memory`. Decision: English documentation refresh complete.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/memory/CMakeLists.txt`
   - `M` `external/vulkancts/modules/vulkan/memory/vktMemoryAddressBindingTests.cpp`

@@ -25,13 +25,14 @@ memory
 ├── external_memory_host
 ├── device_memory_report
 ├── address_binding_report
+├── opaque_and_dma
 ├── decompression
 ├── zero_initialize_device_memory
 ├── dma_heap_memory
 └── map_placed
 ```
 
-The registration-only dispatcher routes these 16 test families to 14 implementation-focused Level-3 pages. `allocation`, `device_group_allocation`, and `pageable_allocation` share one implementation and one page.
+The registration-only dispatcher routes these 17 test families to 15 implementation-focused Level-3 pages. `allocation`, `device_group_allocation`, and `pageable_allocation` share one implementation and one page.
 
 ## How the Families Fit Together
 
@@ -39,7 +40,7 @@ The test families cover the lifetime of device memory and the ways applications 
 
 - **Allocation and compatibility:** `allocation`, `device_group_allocation`, `pageable_allocation`, `requirements`, and `binding` check which memory can be created and attached to resources.
 - **Host access and visibility:** `mapping`, `map_placed`, `pipeline_barrier`, `concurrent_access`, and `zero_initialize_device_memory` check mapped access, address placement, synchronization, and observable initial contents.
-- **External and platform memory:** `external_memory_acquire_unmodified`, `external_memory_host`, and `dma_heap_memory` check ownership transfer or import from host and operating-system memory facilities.
+- **External and platform memory:** `external_memory_acquire_unmodified`, `external_memory_host`, `opaque_and_dma`, and `dma_heap_memory` check ownership transfer, external-image content preservation, or import from host and operating-system memory facilities.
 - **Specialized operations and reporting:** `decompression`, `device_memory_report`, and `address_binding_report` check decompression commands and callback records for memory or address-space events.
 
 ## Level-3 Pages Navigation
@@ -56,6 +57,7 @@ The test families cover the lifetime of device memory and the ways applications 
 | `external_memory_host` | [ExternalMemoryHost.md](../testfiles/memory/ExternalMemoryHost.md) | Host-pointer import, rendering from imported memory, and host/device synchronization. |
 | `device_memory_report` | [DeviceMemoryReport.md](../testfiles/memory/DeviceMemoryReport.md) | Allocation, free, import, and unimport callback records and memory-object identity. |
 | `address_binding_report` | [AddressBinding.md](../testfiles/memory/AddressBinding.md) | Device-address BIND/UNBIND callback pairing across Vulkan object types. |
+| `opaque_and_dma` | [OpaqueAndDma.md](../testfiles/memory/OpaqueAndDma.md) | External-memory image preservation through sampling and transfer readback. |
 | `decompression` | [Decompression.md](../testfiles/memory/Decompression.md) | Direct and indirect memory-decompression dispatch and host verification. |
 | `zero_initialize_device_memory` | [ZeroInitializeDeviceMemory.md](../testfiles/memory/ZeroInitializeDeviceMemory.md) | Zero-initialized buffer and image allocations observed through transfer, shader, and depth/stencil paths. |
 | `dma_heap_memory` | [ExternalDmaHeap.md](../testfiles/memory/ExternalDmaHeap.md) | DMA-heap allocation, dma-buf import, binding, shader access, offsets, and readback. |
