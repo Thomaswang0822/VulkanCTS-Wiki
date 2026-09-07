@@ -155,32 +155,15 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/compute.txt`
   - `M` `external/vulkancts/mustpass/main/vksc-default/compute.txt`
-- [ ] `data_graph` — source `22` (A=10, M=12); mustpass `1` (M=1). Raw groups: `data-graph, data_graph`. Decision: pending.
+- [x] `data_graph` — source `22` (A=10, M=12); mustpass `1` (M=1). Raw groups: `data-graph, data_graph`. Decision: update dispatcher pages.
+  - Review: upstream added five direct dispatcher families: `descriptor_buffer`, `update_after_bind`, `image_aliasing`, `external_memory`, and `specialization_constants`; it also expanded parameter generation with image aliasing, sparsity variations, and specialization-constant modes. Existing `basic`, `cache`, and `properties` runtime behavior changes were mechanical except for the `basic.submit_pipeline` matrix call, which now explicitly includes expanded variations.
+  - Modified files: `external/vulkancts/wiki/categories/data_graph.md`, `external/vulkancts/wiki/testfiles/data_graph/DataGraph.md`.
+  - Validation: `verify_registration_paths.py data_graph` passed (15 paths checked); category link validation passed for 5 Markdown files.
+  - Findings: The repository currently has no dedicated Level-3 pages for the five new families, so the dispatcher page records their registration and scope without inventing implementation details. New source includes image aliasing fill/verify compute helpers, specialization-constant SPIR-V generation, external-memory, descriptor-buffer, and update-after-bind test implementations. Source-only refactors in TOSA reference/SPIR-V helpers do not require edits to existing Basic, PipelineCache, or Properties pages beyond the dispatcher hierarchy update.
   Source evidence:
-  - `M` `external/vulkancts/modules/vulkan/data_graph/CMakeLists.txt`
-  - `M` `external/vulkancts/modules/vulkan/data_graph/tosa/vktDataGraphTosaReference.hpp`
-  - `M` `external/vulkancts/modules/vulkan/data_graph/tosa/vktDataGraphTosaSpirv.cpp`
-  - `M` `external/vulkancts/modules/vulkan/data_graph/tosa/vktDataGraphTosaSpirv.hpp`
-  - `M` `external/vulkancts/modules/vulkan/data_graph/tosa/vktDataGraphTosaUtil.hpp`
-  - `M` `external/vulkancts/modules/vulkan/data_graph/vktDataGraphBasicTests.cpp`
-  - `A` `external/vulkancts/modules/vulkan/data_graph/vktDataGraphDescriptorBufferTests.cpp`
-  - `A` `external/vulkancts/modules/vulkan/data_graph/vktDataGraphDescriptorBufferTests.hpp`
-  - `A` `external/vulkancts/modules/vulkan/data_graph/vktDataGraphExternalMemoryTests.cpp`
-  - `A` `external/vulkancts/modules/vulkan/data_graph/vktDataGraphExternalMemoryTests.hpp`
-  - `A` `external/vulkancts/modules/vulkan/data_graph/vktDataGraphImageAliasingTests.cpp`
-  - `A` `external/vulkancts/modules/vulkan/data_graph/vktDataGraphImageAliasingTests.hpp`
-  - `M` `external/vulkancts/modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp`
-  - `M` `external/vulkancts/modules/vulkan/data_graph/vktDataGraphPropertiesTests.cpp`
-  - `A` `external/vulkancts/modules/vulkan/data_graph/vktDataGraphSpecializationConstantsTests.cpp`
-  - `A` `external/vulkancts/modules/vulkan/data_graph/vktDataGraphSpecializationConstantsTests.hpp`
-  - `M` `external/vulkancts/modules/vulkan/data_graph/vktDataGraphTestProvider.cpp`
-  - `M` `external/vulkancts/modules/vulkan/data_graph/vktDataGraphTestUtil.cpp`
-  - `M` `external/vulkancts/modules/vulkan/data_graph/vktDataGraphTestUtil.hpp`
-  - `M` `external/vulkancts/modules/vulkan/data_graph/vktDataGraphTests.cpp`
-  - `A` `external/vulkancts/modules/vulkan/data_graph/vktDataGraphUpdateAfterBindTests.cpp`
-  - `A` `external/vulkancts/modules/vulkan/data_graph/vktDataGraphUpdateAfterBindTests.hpp`
+  - `M`/`A` files under `external/vulkancts/modules/vulkan/data_graph/` listed in the scoped upstream diff, including `vktDataGraphDescriptorBufferTests.cpp`, `vktDataGraphExternalMemoryTests.cpp`, `vktDataGraphImageAliasingTests.cpp`, `vktDataGraphSpecializationConstantsTests.cpp`, and `vktDataGraphUpdateAfterBindTests.cpp`.
   Mustpass evidence:
-  - `M` `external/vulkancts/mustpass/main/vk-default/data-graph.txt`
+  - `M` `external/vulkancts/mustpass/main/vk-default/data-graph.txt`.
 - [ ] `dgc` — source `13` (A=4, M=9); mustpass `1` (M=1). Raw groups: `device_generated_commands, dgc`. Decision: pending.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/device_generated_commands/CMakeLists.txt`
@@ -221,7 +204,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `M` `external/vulkancts/mustpass/main/vksc-default/image/atomic-operations.txt`
   - `M` `external/vulkancts/mustpass/main/vksc-default/image/mutable.txt`
   - `A` `external/vulkancts/mustpass/main/vksc-default/image/store-load-consistency.txt`
-- [ ] `image_processing` — source `11` (A=4, M=7); mustpass `1` (M=1). Raw groups: `image-processing, image_processing`. Decision: pending.
+- [x] `image_processing` — source `11` (A=4, M=7); mustpass `1` (M=1). Raw groups: `image-processing, image_processing`. Decision: English documentation refresh complete.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/image_processing/CMakeLists.txt`
   - `M` `external/vulkancts/modules/vulkan/image_processing/vktImageProcessingApiTests.cpp`

@@ -2,7 +2,7 @@
 
 The `dgc` test category collects tests that check whether Vulkan device-generated commands correctly describe, prepare, execute, and validate compute, graphics, and ray-tracing work.
 
-The category contains the NV device-generated-command branch and the EXT branch. The root dispatcher registers these branches in [`vktDGCTests.cpp`](../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L68-L120); the implementation details are split across the Level-3 pages below.
+The category contains the NV device-generated-command branch and the EXT branch. The root dispatcher registers these branches in [`vktDGCTests.cpp`](../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L68-L128); the implementation details are split across the Level-3 pages below.
 
 ## Background Knowledge
 
@@ -17,9 +17,16 @@ The category contains the NV device-generated-command branch and the EXT branch.
 dgc
 ├── nv
 └── ext
+    ├── compute
+    ├── misc
+    ├── graphics
+    ├── stat_query
+    └── ray_tracing
+        ├── basic
+        └── conditional_rendering
 ```
 
-`nv` contains compute and property families. `ext` contains compute, property, graphics, and ray-tracing families. `vktDGCTests.cpp` is a registration dispatcher, so its facts are represented here rather than by a separate technical Level-3 page.
+`nv` contains compute and property families. `ext` contains compute, property, graphics, ray-tracing, and pipeline-statistics-query families. `vktDGCTests.cpp` is a registration dispatcher, so its facts are represented here rather than by a separate technical Level-3 page.
 
 ## How the Families Fit Together
 
@@ -59,7 +66,14 @@ The pages divide the category by the command family and the Vulkan state that ma
 | `dgc.ext.graphics.xfb` | [GraphicsXfbExt](../testfiles/dgc/GraphicsXfbExt.md) | EXT transform-feedback capture, stage combinations, and buffer validation. |
 | `dgc.ext.graphics.tess_state` | [GraphicsTessStateExt](../testfiles/dgc/GraphicsTessStateExt.md) | EXT tessellation state, pipeline construction, dynamic patch control points, and reference images. |
 | `dgc.ext.graphics.multiview` | [GraphicsMultiviewExt](../testfiles/dgc/GraphicsMultiviewExt.md) | EXT multiview view masks, generated draws, and per-view color/depth validation. |
-| `dgc.ext.ray_tracing` | [RayTracingExt](../testfiles/dgc/RayTracingExt.md) | EXT trace-ray commands, execution sets, preprocessing, ordering, shader records, and payload checks. |
+| `dgc.ext.ray_tracing.basic` | [RayTracingExt](../testfiles/dgc/RayTracingExt.md) | EXT trace-ray commands, execution sets, preprocessing, ordering, shader records, and payload checks. |
+
+### New EXT families
+
+The root dispatcher now places the existing ray-tracing tests under `dgc.ext.ray_tracing.basic` and adds `dgc.ext.ray_tracing.conditional_rendering` and `dgc.ext.stat_query` ([registration](../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L112-L123)). The existing [RayTracingExt](../testfiles/dgc/RayTracingExt.md) page covers `basic`; the new families have the following source-backed scope.
+
+- `dgc.ext.ray_tracing.conditional_rendering` checks whether a conditional predicate permits or suppresses generated ray-generation work. Its 32 `general` leaves combine ordinary binding or a pipeline token, count-buffer use, predicate value, inversion, and universal or compute queue execution. Its 12 `preprocess` leaves vary predicate, inversion, separate state, and execution queue; compute-queue execution requires separate state. Both families expect the raygen shader to write push constant `777` when the effective predicate is true and leave the initialized output at `0` otherwise. The shader performs no ray traversal. Support checks require ray-tracing pipelines, conditional rendering, DGC raygen-stage support, and the requested pipeline-binding or compute-queue capability. See [support and shader](../../modules/vulkan/device_generated_commands/vktDGCRayTracingConditionalTestsExt.cpp#L74-L131), [general result check](../../modules/vulkan/device_generated_commands/vktDGCRayTracingConditionalTestsExt.cpp#L326-L341), [preprocess check and registration](../../modules/vulkan/device_generated_commands/vktDGCRayTracingConditionalTestsExt.cpp#L590-L667), and [44 mustpass leaves](../../mustpass/main/vk-default/dgc.txt#L4332-L4375).
+- `dgc.ext.stat_query` checks pipeline statistics around generated execution and also checks the resulting storage buffer or rendered colors. Its 120 leaves combine ten statistic selections (`input_vert`, `input_prim`, `vert_inv`, `geom_inv`, `geom_prim`, `frag_inv`, `tesc_patch`, `tese_inv`, `comp_inv`, `task_mesh_inv`), three construction modes (`monolithic`, `fast_lib`, `shader_obj`), optional `_ies`, and optional `_preprocess`. The test checks exact counts for input assembly, geometry primitives, tessellation-control patches, and task/mesh invocations; other invocation checks use lower bounds. The fragment lower bound accounts for the reported maximum fragment size when fragment shading rate is available. Support checks require `pipelineStatisticsQuery`, DGC support for the selected stages and binding mode, the construction-mode requirements, and any selected geometry, tessellation, or task/mesh query features. See [support](../../modules/vulkan/device_generated_commands/vktDGCStatQueryTestsExt.cpp#L177-L203), [query recording](../../modules/vulkan/device_generated_commands/vktDGCStatQueryTestsExt.cpp#L1038-L1080), [output and statistic checks](../../modules/vulkan/device_generated_commands/vktDGCStatQueryTestsExt.cpp#L1087-L1390), [registration](../../modules/vulkan/device_generated_commands/vktDGCStatQueryTestsExt.cpp#L1404-L1449), and [120 mustpass leaves](../../mustpass/main/vk-default/dgc.txt#L4376-L4495).
 
 ## Category Notes
 

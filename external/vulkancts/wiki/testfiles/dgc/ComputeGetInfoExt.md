@@ -24,7 +24,7 @@ dgc.ext.compute.get_info
 └── constant_cmd_memory_requirements_max_sequence_count
 ```
 
-The root is attached to the EXT compute branch by [vktDGCTests.cpp](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L95-L101). The five direct children come from the factory in [vktDGCComputeGetInfoTestsExt.cpp](../../../modules/vulkan/device_generated_commands/vktDGCComputeGetInfoTestsExt.cpp#L256-L280) and appear in [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L57-L61).
+The root is attached to the EXT compute branch by [vktDGCTests.cpp](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L95-L101). The five direct children come from the factory in [vktDGCComputeGetInfoTestsExt.cpp](../../../modules/vulkan/device_generated_commands/vktDGCComputeGetInfoTestsExt.cpp#L256-L280) and appear in [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L45-L49).
 
 ## Parameter Dimensions and Observed Values
 
@@ -66,7 +66,7 @@ The test creates two otherwise identical dispatch layouts. The second adds `VK_I
 
 The source generates one compute shader for all five cases. It declares a storage buffer at set `0`, binding `0`, uses a `local_size` of `64 x 1 x 1`, and adds a one-word push-constant block only for `constant_cmd_memory_requirements_increase_count`. The shader computes a global invocation index and would write `uint(sqrt(float(globalInvocationIndex))) + offset` to the output buffer if a dispatch executed it.
 
-The test never submits generated commands or a dispatch. The shader therefore supplies the compute pipeline module used while constructing the memory-requirements inputs; its arithmetic and output buffer are outside the behavior checked here. This page intentionally has no representative shader walkthrough. The source-backed exception is recorded as `dgc/ComputeGetInfoExt.md` in [walkthrough_exceptions.py](../../../../../.agents/skills/wiki-rewriter/scripts/walkthrough_exceptions.py).
+The test never submits generated commands or a dispatch. The shader therefore supplies the compute pipeline module used while constructing the memory-requirements inputs; its arithmetic and output buffer are outside the behavior checked here. This page intentionally has no representative shader walkthrough. The source-backed exception is recorded as `dgc/ComputeGetInfoExt.md` in [walkthrough_exceptions.py](../../../../../.agents/skills/wiki-writer/scripts/walkthrough_exceptions.py).
 
 ## Runtime Execution and Result Checking
 
@@ -149,4 +149,4 @@ The test never submits generated commands or a dispatch. The shader therefore su
 | EXT compute support | [checkDGCExtComputeSupport](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.cpp#L44-L75) | Applies extension, compute-stage, and pipeline-binding support checks. |
 | EXT utility declarations | [vktDGCUtilExt.hpp](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.hpp#L42-L53) | Declares the support types used by the test factory. |
 | Category registration | [vktDGCTests.cpp](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L72-L120) | Places `get_info` under `dgc.ext.compute`. |
-| vk-default mustpass paths | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L57-L61) | Lists the five registered EXT compute get-info paths. |
+| vk-default mustpass paths | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L45-L49) | Lists the five registered EXT compute get-info paths. |

@@ -2,7 +2,7 @@
 
 **Core question:** Does EXT device-generated command execution preserve ray-tracing shader selection, launch coordinates, and shader-visible results?
 
-- This page covers `dgc.ext.ray_tracing`, implemented by [RayTracingCase::initPrograms](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L419-L845) and [RayTracingInstance::iterate](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L852-L1988).
+- This page covers `dgc.ext.ray_tracing.basic`, implemented by [RayTracingCase::initPrograms](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L419-L845) and [RayTracingInstance::iterate](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L852-L1988).
 - The sixteen registered leaves combine execution-set use, explicit preprocessing, unordered sequences, and compute-queue submission.
 - Each case emits two `16 x 8 x 1` trace-ray commands and checks a `16 x 16` result grid. The shaders record payloads, ray built-ins, hit attributes, transforms, launch values, and shader-record-buffer data.
 
@@ -15,7 +15,7 @@
 ## Registration Hierarchy
 
 ```text
-dgc.ext.ray_tracing
+dgc.ext.ray_tracing.basic
 ├── no_execution_set
 ├── no_execution_set_cq
 ├── no_execution_set_preprocess
@@ -34,7 +34,7 @@ dgc.ext.ray_tracing
 └── with_execution_set_unordered_cq
 ```
 
-The leaves come from the nested Boolean loops in [createDGCRayTracingTestsExt](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L1993-L2010) and appear in [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4334-L4349).
+The leaves come from the nested Boolean loops in [createDGCRayTracingBasicTestsExt](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L1993-L2010) and appear in [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4316-L4331).
 
 ## Parameter Dimensions and Observed Values
 
@@ -82,7 +82,7 @@ The generator emits raygen, miss, closest-hit, intersection, and two callable st
 Representative path:
 
 ```text
-dEQP-VK.dgc.ext.ray_tracing.no_execution_set
+dEQP-VK.dgc.ext.ray_tracing.basic.no_execution_set
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -660,4 +660,4 @@ These exclusions are part of the test design rather than support failures.
 | Acceleration structures | [makeBottomLevelASWithParams and makeTopLevelASWithParams](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L256-L330) | Creates the geometry, inactive geometry, and translated instances. |
 | DGC layout and records | [layout](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L1092-L1104), [records and execution](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L1289-L1408) | Defines tokens, SBT regions, dimensions, preprocessing, execution, and barriers. |
 | Result model | [cell output verification](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L1410-L1988) | Computes expected traversal and shader results and returns CTS status. |
-| Registration and mustpass | [createDGCRayTracingTestsExt](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L1993-L2010), [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4334-L4349) | Confirms all sixteen registered identifiers. |
+| Registration and mustpass | [createDGCRayTracingBasicTestsExt](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L1993-L2010), [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4316-L4331) | Confirms all sixteen registered identifiers. |

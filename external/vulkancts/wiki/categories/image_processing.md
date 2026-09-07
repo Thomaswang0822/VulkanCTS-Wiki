@@ -1,6 +1,6 @@
 ## Overview
 
-The `image_processing` test category collects tests that check the `VK_QCOM_image_processing` extension's advertised limits and block-matching operations in graphics and compute pipelines.
+The `image_processing` category covers the `VK_QCOM_image_processing` API contract plus functional block matching, box-filter sampling, and weight-image sampling across compute and graphics paths. The category dispatcher is [`vktImageProcessingTests.cpp`](../../modules/vulkan/image_processing/vktImageProcessingTests.cpp#L43-L85).
 
 ## Background Knowledge
 
@@ -12,31 +12,33 @@ The `image_processing` test category collects tests that check the `VK_QCOM_imag
 
 ```text
 image_processing
-├── graphics
 ├── api
-└── compute
+├── compute
+│   ├── block_matching
+│   ├── box_filter_sampling
+│   └── weight_image_sampling
+└── graphics
+    ├── fast_lib
+    ├── monolithic
+    └── shader_objects
 ```
 
-`graphics` contains `monolithic`, `fast_lib`, and `shader_objects` intermediate nodes, each with a `block_matching` test family. `compute` contains `block_matching`; `api` contains the fixed `properties` test case. The registration-only dispatcher [`vktImageProcessingTests.cpp`](../../modules/vulkan/image_processing/vktImageProcessingTests.cpp#L43-L85) is folded into this category page rather than represented by a separate rewritten technical page.
+`graphics` contains `fast_lib`, `monolithic`, and `shader_objects` intermediate nodes. Each construction branch contains the functional families registered by the corresponding factory. The implementation-bearing families are documented in [ApiTests.md](../testfiles/image_processing/ApiTests.md), [BlockMatching.md](../testfiles/image_processing/BlockMatching.md), [BoxFilterSampling.md](../testfiles/image_processing/BoxFilterSampling.md), and [WeightImageSampling.md](../testfiles/image_processing/WeightImageSampling.md).
 
 ## How the Families Fit Together
 
-The category separates the extension contract from the functional block-matching workload and then repeats the workload across execution paths:
+- **API:** operation-specific feature and property-limit checks.
+- **Block matching:** SAD and SSD operations with target/reference images and CPU reference comparison.
+- **Box filtering:** `textureBoxFilterQCOM` coverage across compute and graphics shader paths.
+- **Weight-image sampling:** `textureWeightedSampleQCOM` coverage for weighted, min, and max reduction behavior, filter shape, image state, and descriptor conditions.
 
-- **API limits:** `api.properties` checks the minimum values reported in `VkPhysicalDeviceImageProcessingPropertiesQCOM`.
-- **Graphics execution:** `graphics` runs block matching through three pipeline-construction branches. The monolithic branch adds the extended image, sampler, shader-stage, and descriptor variations.
-- **Compute execution:** `compute.block_matching` runs the same SAD/SSD operations in a compute shader and adds `self` cases that compare two regions of one image.
-
-The API page establishes the reported capability floor; the block-matching page checks functional results under the registered resource and pipeline conditions.
+The mustpass inventory in [`image-processing.txt`](../../mustpass/main/vk-default/image-processing.txt) is the authoritative list of current registered paths.
 
 ## Level-3 Pages Navigation
 
-| Registered test family or area | Level-3 page | What to read there |
-|---|---|---|
-| `api.properties` | [ApiTests.md](../testfiles/image_processing/ApiTests.md) | Extension property-query support, minimum limits, repeated queries, and failure meaning. |
-| `graphics.*.block_matching`, `compute.block_matching` | [BlockMatching.md](../testfiles/image_processing/BlockMatching.md) | SAD/SSD operation selection, graphics and compute setup, parameter groups, shader shape, result checking, and pruning. |
-
-## Category Notes
-
-- The current registration table adds only `sad` and `ssd` block-matching operations, although the shared base contains support branches for other image-processing operations ([operation registration](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1881-L1898); [shared support branches](../../modules/vulkan/image_processing/vktImageProcessingBase.cpp#L102-L161)).
-- Candidate formats are supplied by a fixed list, but per-device format features and image-format usage are checked before each block-matching case executes ([format list](../../modules/vulkan/image_processing/vktImageProcessingTestsUtil.cpp#L408-L435); [block-match support](../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L141-L213)).
+| Area | Page |
+|---|---|
+| API properties | [ApiTests.md](../testfiles/image_processing/ApiTests.md) |
+| SAD/SSD block matching | [BlockMatching.md](../testfiles/image_processing/BlockMatching.md) |
+| Box-filter sampling | [BoxFilterSampling.md](../testfiles/image_processing/BoxFilterSampling.md) |
+| Weight-image sampling | [WeightImageSampling.md](../testfiles/image_processing/WeightImageSampling.md) |

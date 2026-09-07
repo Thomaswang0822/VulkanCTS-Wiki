@@ -30,7 +30,7 @@ dgc.nv.misc.properties
 └── valid_limits
 ```
 
-The root is attached below `dgc.nv.misc` by [`createTests()`](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L75-L93). The ten direct children are registered by [`createDGCPropertyTests()`](../../../modules/vulkan/device_generated_commands/vktDGCPropertyTests.cpp#L1232-L1268), and the same paths are listed in the Vulkan default mustpass file [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4578-L4587).
+The root is attached below `dgc.nv.misc` by [`createTests()`](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L75-L93). The ten direct children are registered by [`createDGCPropertyTests()`](../../../modules/vulkan/device_generated_commands/vktDGCPropertyTests.cpp#L1232-L1268), and the same paths are listed in the Vulkan default mustpass file [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4724-L4733).
 
 ## Parameter Dimensions and Observed Values
 
@@ -306,4 +306,4 @@ Support failures are separate from these result failures. `checkDGCSupport()` re
 | `minSequencesOffsetAlignmentsRun()` | [`sequence metadata alignment`](../../../modules/vulkan/device_generated_commands/vktDGCPropertyTests.cpp#L955-L1191) | Tests count and index buffer offsets, sequence selection, and output comparison. |
 | `validLimits()` | [`property verification`](../../../modules/vulkan/device_generated_commands/vktDGCPropertyTests.cpp#L1193-L1227) | Checks the advertised DGC property ranges. |
 | `checkDGCSupport()` and `checkDGCComputeSupport()` | [`DGC support utilities`](../../../modules/vulkan/device_generated_commands/vktDGCUtil.cpp#L40-L56) | Define the extension and feature requirements used by this file. |
-| `dgc.nv.misc.properties` mustpass paths | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4578-L4587) | Confirms the ten registered test paths in the default Vulkan profile. |
+| `dgc.nv.misc.properties` mustpass paths | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4724-L4733) | Confirms the ten registered test paths in the default Vulkan profile. |

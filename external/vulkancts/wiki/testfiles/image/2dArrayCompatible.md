@@ -21,10 +21,13 @@ For the shared concepts image views, subresources, copies, layouts, and synchron
 image.2d_array_compatible
 ├── 0_1_8
 ├── 3_7_16
-└── 3_4_5
+├── 3_4_5
+├── extended_create
+├── extended_usage
+└── extended_create_usage
 ```
 
-[`createImage2dArrayCompatibleTests()`](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L464-L524) registers the three layer-configuration groups. Each contains `linear` and `optimal`, and each tiling contains `3d`; non-Vulkan-SC builds also register `2d`. [`createChildren()`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L100) adds this family to `image`.
+[`createImage2dArrayCompatibleTests()`](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L464-L555) registers the three layer-configuration groups plus the non-Vulkan-SC extended create/usage flag cases. Each contains `linear` and `optimal`, and each tiling contains `3d`; non-Vulkan-SC builds also register `2d`. The extended cases require `VK_KHR_extended_flags`. [`createChildren()`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L100) adds this family to `image`.
 
 The Vulkan default mustpass inventory contains all twelve leaves, while the Vulkan SC inventory contains the six `3d` leaves: [`vk-default`](../../../mustpass/main/vk-default/image/2d-array-compatible.txt) and [`vksc-default`](../../../mustpass/main/vksc-default/image/2d-array-compatible.txt).
 

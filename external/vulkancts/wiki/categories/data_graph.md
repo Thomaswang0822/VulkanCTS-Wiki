@@ -14,10 +14,15 @@ The `data_graph` category covers creation, execution, pipeline-cache behavior, a
 data_graph
 ├── basic
 ├── cache
-└── properties
+├── properties
+├── descriptor_buffer
+├── update_after_bind
+├── image_aliasing
+├── external_memory
+└── specialization_constants
 ```
 
-The dispatcher is documented on [DataGraph](../testfiles/data_graph/DataGraph.md). The three direct families each have a separate implementation-bearing page.
+The dispatcher is documented on [DataGraph](../testfiles/data_graph/DataGraph.md). The eight direct families each have a separate implementation-bearing page.
 
 ## How the Families Fit Together
 

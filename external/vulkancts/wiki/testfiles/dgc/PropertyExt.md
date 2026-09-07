@@ -316,5 +316,5 @@ void main (void) {
 | Generated graphics shaders | [basicGraphicsPrograms](../../../modules/vulkan/device_generated_commands/vktDGCPropertyTestsExt.cpp#L99-L116) | Defines the vertex position pass-through and solid-blue fragment output. |
 | EXT support helper | [checkDGCExtSupport](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.cpp#L44-L75) | Requires the extension and validates shader-stage, binding, and input-mode support. |
 | DGC layout and execution helpers | [DGC utility declarations](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.hpp#L166-L327) | Describes the `DGCGenCmdsInfo`, `IndirectCommandsLayoutBuilderExt`, and `PreprocessBufferExt` wrappers used by the tests. |
-| vk-default mustpass paths | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4328-L4333) | Lists all six `dEQP-VK.dgc.ext.misc.properties` paths. |
+| vk-default mustpass paths | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4310-L4315) | Lists all six `dEQP-VK.dgc.ext.misc.properties` paths. |
 | Android mustpass paths | The Android mustpass file is outside this repository checkout; the vk-default list above is the available local mustpass evidence. |

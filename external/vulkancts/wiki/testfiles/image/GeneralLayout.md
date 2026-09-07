@@ -31,7 +31,7 @@ image.general_layout
 |-----------|-------------------|----------------------|----------|
 | Test family | `astc_sample`, `memory_barrier`, `input_attachment`, `msaa` | Selects the image-use property under test. | [Registration](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2304-L2435) |
 | ASTC transfer form | `copy_into_image`, `copy_from_image`, `host_copy_into_image`, `host_copy_from_image`, `sample_alias` | Chooses the operation between two sampling passes, or the mutable ASTC alias-view path. The host-copy forms are not VulkanSC leaves. | [ASTC leaves](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2310-L2329) |
-| Barrier shader stage | `compute`, `fragment` | Selects the producer and consumer execution path. | [Stage matrix](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2333-L2341) |
+| Barrier shader stage | `compute` | The current factory uses compute producer and consumer dispatches. | [Execution and registration](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L915-L962), [registration](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2333-L2374) |
 | Barrier ordering | `write_read`, `read_write` | Selects whether the first shader writes the image or reads the uploaded value before the synchronization2 barrier. | [Ordering matrix](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2354-L2374) |
 | Barrier access pair | `shader_read_write`, `sampled_read_storage_write`, `storage_read_storage_write` | Supplies the `VkAccessFlags2` values used for the selected read and write accesses. | [Access matrix](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2343-L2352) |
 | Input read form | `input_attachment`, `sampled` | Selects `subpassLoad` or `texture` in the first fragment shader. | [Input matrix](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2390-L2416) |
@@ -54,9 +54,9 @@ The source generates deterministic ASTC LDR blocks and decompresses them to form
 
 ### `memory_barrier` - shader producer and consumer dependency
 
-The memory-barrier family tests a synchronization2 memory barrier between two accesses to an `R32_SFLOAT` image in `GENERAL`. The stage parameter selects compute dispatches or graphics draws. The access-pair parameter selects storage-image reads and writes, or sampled reads with storage writes.
+The memory-barrier family tests a synchronization2 memory barrier between two accesses to an `R32_SFLOAT` image in `GENERAL`. The current implementation uses compute dispatches for both accesses. The access-pair parameter selects storage-image reads and writes, or sampled reads with storage writes.
 
-For `write_read`, the first shader stores `x + y`, then the second shader reads it. For `read_write`, the first shader reads the uploaded random value, then the second stores `x + y`. The test copies the image and, for the fragment path, the framebuffer result to host-visible buffers. The expected results distinguish the producer/consumer order.
+For `write_read`, the first shader stores `x + y`, then the second shader reads it. For `read_write`, the first shader reads the uploaded random value, then the second stores `x + y`. The test copies the image to a host-visible buffer after the compute passes. The expected results distinguish the producer/consumer order.
 
 ### `input_attachment` - two-pass attachment-local read
 

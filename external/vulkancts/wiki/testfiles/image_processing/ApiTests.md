@@ -1,93 +1,87 @@
 ## Overview
 
-**Core question:** Does the device report the minimum `VK_QCOM_image_processing` limits required for image-processing operations?
+**Core question:** Does the device expose the operation-specific properties required by `VK_QCOM_image_processing`?
 
-- This page covers the `image_processing.api.properties` test family implemented by [`vktImageProcessingApiTests.cpp`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L48-L144).
-- The test queries `VkPhysicalDeviceImageProcessingPropertiesQCOM` through `vkGetPhysicalDeviceProperties2` and checks the extension's minimum limits.
-- The source registers one fixed test case, `properties`; the mustpass file contains the corresponding `dEQP-VK.image_processing.api.properties` case.
+- This page covers the four host-side property cases in [`vktImageProcessingApiTests.cpp`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L48-L207).
 
 ## Background Knowledge
 
-- Vulkan exposes extension-specific physical-device properties by attaching a structure to the `pNext` chain of `VkPhysicalDeviceProperties2`. The query writes the implementation's advertised limits into that structure; the test then checks the returned fields rather than exercising an image-processing command.
+- Vulkan exposes extension-specific physical-device properties by attaching a structure to `VkPhysicalDeviceProperties2` through `pNext`. The query writes the implementation's limits into that structure; the test then checks the fields relevant to the selected operation rather than executing an image-processing command.
 - Vulkan 1.3 promoted the format-feature query structures used by the broader image-processing category. Devices using an older API version need `VK_KHR_format_feature_flags2` for this test's support path.
 
 ## Registration Hierarchy
 
 ```text
 image_processing.api
-└── properties
+├── properties_block_matching_sad
+├── properties_block_matching_ssd
+├── properties_weight_sampling
+└── properties_box_filtering
 ```
-
-The `api` test family is added to the category by [`createChildren()`](../../../modules/vulkan/image_processing/vktImageProcessingTests.cpp#L43-L78); [`createImageProcessingApiTests()`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L137-L143) registers the `properties` test case.
 
 ## Parameter Dimensions and Observed Values
 
-This is a single fixed test case. The only runtime variation is the number of repeated property queries, selected by the deterministic CTS random generator.
-
-| Dimension | Registered values | Meaning in this test | Evidence |
+| Dimension | Registered values | Meaning | Evidence |
 |---|---|---|---|
-| Test case | `properties` | Queries and validates the QCOM property structure. | [`createImageProcessingApiTests()`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L137-L143) |
-| Query iterations | Random integer from `1` through `20`, inclusive | Repeats the same property-limit checks within one test execution. | [`ImageProcessingApiTestInstance::iterate()`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L85-L100) |
+| Operation | `block_matching_sad`, `block_matching_ssd`, `weight_sampling`, `box_filtering` | Selects feature and property checks. | [`createImageProcessingApiTests()`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L192-L207) |
+| Iterations | `1..20` | Repeats the deterministic query. | [`iterate()`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L104-L181) |
 
 ## Behavior Parameters
 
-The test has no meaningful behavioral parameter axis: every registered case checks the same seven minimum limits.
+The operation selects the relevant feature and minimum limits:
 
-- `maxWeightFilterPhases` must be at least `1024`.
-- `maxWeightFilterDimension.width` and `.height` must each be at least `64`.
-- `maxBoxFilterBlockSize.width` and `.height` must each be at least `64`.
-- `maxBlockMatchRegion.width` and `.height` must each be at least `64`.
+- `maxBlockMatchRegion.width` and `.height` must each be at least `64` for SAD and SSD;
+- `maxWeightFilterPhases` must be at least `1024`, and both dimensions of `maxWeightFilterDimension` must be at least `64` for weighted sampling;
+- both dimensions of `maxBoxFilterBlockSize` must be at least `64` for box filtering.
 
-The comparisons are implemented in [`ImageProcessingApiTestInstance::iterate()`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L93-L127).
+The comparisons are implemented in [`ImageProcessingApiTestInstance::iterate()`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L104-L181).
 
 ## Shader Analysis
 
-This test does not create or execute a shader. Its tested behavior is a host-side physical-device property query.
+No shader is created or executed.
 
 ## Runtime Execution and Result Checking
 
-- [host] The support check requires `VK_QCOM_image_processing`. When the used API version is below Vulkan 1.3, it also requires `VK_KHR_format_feature_flags2` ([`checkSupport()`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L66-L72)).
-- [host] The instance chooses an iteration count from the inclusive range `1..20`, using a generator seeded with `1234` ([constructor and `iterate()`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L74-L99)).
-- [host] Each iteration zero-initializes `VkPhysicalDeviceImageProcessingPropertiesQCOM`, attaches it to `VkPhysicalDeviceProperties2`, and calls `getPhysicalDeviceProperties2` ([query path](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L101-L110)).
-- [host] The test returns failure at the first property below its minimum. If all iterations pass, it returns `TestStatus::pass("Pass")` ([result path](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L112-L127)).
+- [host] The support check requires `VK_QCOM_image_processing`. When the used API version is below Vulkan 1.3, it also requires `VK_KHR_format_feature_flags2`; each operation additionally requires its corresponding feature ([support](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L75-L105)).
+- [host] The instance chooses an iteration count from the inclusive range `1..20`, using a generator seeded with `1234` ([constructor and iterate](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L104-L123)).
+- [host] Each iteration zero-initializes `VkPhysicalDeviceImageProcessingPropertiesQCOM`, attaches it to `VkPhysicalDeviceProperties2`, and calls `getPhysicalDeviceProperties2` ([query and checks](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L124-L181)).
+- [host] The test returns failure at the first relevant property below its minimum; if all iterations pass, it returns `TestStatus::pass("Pass")`.
 
 ## Failure Meaning
 
 ### Failure Cause Mapping
 
-For this fixed test case, a failure means that at least one required property was reported below the coded extension minimum.
+A failure indicates an unavailable operation feature or an advertised property below the required minimum.
 
 ### Cause Analysis
 
-#### Reported image-processing limit is below the required minimum
+#### Property query or feature exposure
 
-**Possible failure symptoms:** The test identifies one of `maxWeightFilterPhases`, `maxWeightFilterDimension`, `maxBoxFilterBlockSize`, or `maxBlockMatchRegion` as less than its required value and returns a failure status.
+**Possible failure symptoms:** The selected case is reported unsupported or a checked property is below its minimum.
 
-**Possible implementation causes:** The implementation may be reporting an incorrect physical-device limit, may be exposing `VK_QCOM_image_processing` with incomplete property support, or may have a property-query/pNext handling defect. The test does not distinguish among those causes; source-level and implementation-level investigation is needed.
+**Possible implementation causes:**
+
+The implementation may expose incomplete feature support, report an incorrect limit, or mishandle the properties2 pNext query. The test does not distinguish these causes.
 
 ## Case Pruning
 
 ### Requirement-based pruning
 
-- The case is not executed when `VK_QCOM_image_processing` is unavailable.
-- For API versions below Vulkan 1.3, the case is not executed when `VK_KHR_format_feature_flags2` is unavailable.
+Missing required extensions or the operation-specific feature causes the corresponding case to be unsupported.
 
 ### Design-based pruning
 
-There are no additional generated combinations. The repeated query count is an execution detail, not a separate registered test case.
+There are no generated combinations beyond the four operation cases and repeated queries.
 
 ## Key Takeaways
 
-- `properties` is a fixed API-contract test, not a functional block-matching workload.
-- A passing result establishes that the queried QCOM property values meet the minimum limits checked by this CTS implementation.
-- The test does not establish the correctness of block-matching execution; those checks belong to the `block_matching` test family.
+- These are host-side limit checks, not functional image-processing workloads.
+- SAD and SSD share block-match limits; weighted sampling and box filtering use separate property groups.
 
 ## Source Reference Appendix
 
-| Entry point | Link | Why it matters |
+| Entry point | Link | Purpose |
 |---|---|---|
-| Category dispatch | [`vktImageProcessingTests.cpp#createChildren()`](../../../modules/vulkan/image_processing/vktImageProcessingTests.cpp#L43-L78) | Adds the `api` test family to `image_processing`. |
-| API registration | [`createImageProcessingApiTests()`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L137-L143) | Registers the `properties` test case. |
-| Support gate | [`ImageProcessingApiTest::checkSupport()`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L66-L72) | Defines extension and API-version prerequisites. |
-| Property query and checks | [`ImageProcessingApiTestInstance::iterate()`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L93-L127) | Performs the query, minimum comparisons, and final status. |
-| Mustpass case | [`image-processing.txt`](../../../mustpass/main/vk-default/image-processing.txt) | Contains `dEQP-VK.image_processing.api.properties`. |
+| Registration | [`createImageProcessingApiTests()`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L192-L207) | Registers the four cases. |
+| Checks | [`ImageProcessingApiTest`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L75-L181) | Implements support, query, and validation behavior. |
+| Mustpass | [`image-processing.txt`](../../../mustpass/main/vk-default/image-processing.txt) | Lists the cases. |

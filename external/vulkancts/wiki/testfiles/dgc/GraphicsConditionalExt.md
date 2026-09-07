@@ -210,4 +210,4 @@ void main (void) {
 | `IndirectCommandsLayoutBuilderExt` and `PreprocessBufferExt` | [DGC helpers](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.hpp#L199-L327) | Build the token layout and preprocess storage used by the tests. |
 | Conditional rendering semantics | [drawing conditional rendering](../../../../vulkan-docs/src/chapters/drawing.adoc#drawing-conditional-rendering) | Defines zero/nonzero predicates and inversion. |
 | DGC preprocessing semantics | [generated commands](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc#device-generated-commands) | Defines preprocessing and synchronization requirements. |
-| Mustpass coverage | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L488-L507) | Lists the registered graphics conditional cases. |
+| Mustpass coverage | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L470-L489) | Lists the registered graphics conditional cases. |

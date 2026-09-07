@@ -34,7 +34,7 @@ dgc.nv.compute.misc
 └── scratch_space
 ```
 
-The category root is attached by [`createTests()`](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L72-L93). The fourteen direct children are created by [`createDGCComputeMiscTests()`](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTests.cpp#L733-L757) and listed in [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4480-L4493).
+The category root is attached by [`createTests()`](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L72-L93). The fourteen direct children are created by [`createDGCComputeMiscTests()`](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTests.cpp#L733-L757) and listed in [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4626-L4639).
 
 ## Parameter Dimensions and Observed Values
 
@@ -260,6 +260,6 @@ void main (void) { atomicAdd(outputBuffer.values[pc.valueIndex], 1u); }
 | Scratch-space case | [`vktDGCComputeMiscTests.cpp#L460-L728`](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTests.cpp#L460-L728) | Loads direct SPIR-V, submits through two queue paths, and checks four references. |
 | Test registration | [`vktDGCComputeMiscTests.cpp#L733-L757`](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTests.cpp#L733-L757) | Creates all fourteen direct children under `misc`. |
 | Category routing | [`vktDGCTests.cpp#L72-L93`](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L72-L93) | Places the group under `dgc.nv.compute.misc`. |
-| Mustpass coverage | [`dgc.txt#L4480-L4493`](../../../mustpass/main/vk-default/dgc.txt#L4480-L4493) | Lists the registered NV miscellaneous cases. |
+| Mustpass coverage | [`dgc.txt#L4626-L4639`](../../../mustpass/main/vk-default/dgc.txt#L4626-L4639) | Lists the registered NV miscellaneous cases. |
 | DGC semantics | [device-generated commands](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc#device-generated-commands) | Defines indirect layouts, preprocessing, and compute-command requirements. |
 | Synchronization semantics | [synchronization access types](../../../../vulkan-docs/src/chapters/synchronization.adoc#synchronization-access-types) | Grounds shader-write and host-read ordering. |
