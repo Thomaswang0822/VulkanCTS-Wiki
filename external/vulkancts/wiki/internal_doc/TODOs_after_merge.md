@@ -143,7 +143,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/binding-model.txt`
   - `M` `external/vulkancts/mustpass/main/vksc-default/binding-model.txt`
-- [ ] `compute` — source `7` (M=7); mustpass `2` (M=2). Raw groups: `compute`. Decision: pending.
+- [x] `compute` — source `7` (M=7); mustpass `2` (M=2). Raw groups: `compute`. Decision: English documentation refresh complete.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp`
   - `M` `external/vulkancts/modules/vulkan/compute/vktComputeCooperativeMatrixOpConstantNullTests.cpp`

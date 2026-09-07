@@ -10,7 +10,7 @@ This test checks whether compute pipelines correctly honor dispatch parameters s
 
 ### Two flavors, one parameter matrix
 
-The page covers two intermediate nodes (`upload_buffer`, `gen_in_compute`) under `compute.pipeline.indirect_dispatch`. The two flavors share the exact same `s_dispatchCases` parameter matrix declared in [`createIndirectComputeDispatchTests`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L842-L872), so the only structural difference between them is *how* the indirect command buffer is populated before each dispatch. Both flavors register a base case and a `_compute_only_queue` variant for every entry in `s_dispatchCases`, and non-VulkanSC builds also add a `_device_address` variant that uses `vkCmdDispatchIndirect2KHR` instead of `vkCmdDispatchIndirect`. The matrix alternates device-address variants between `upload_buffer` and `gen_in_compute` based on `(ndx % 2) == (computePipelineConstructionType % 2)` so each pipeline-construction type registers roughly half of the device-address cases under each subgroup [`vktComputeIndirectComputeDispatchTests.cpp#L899-L917`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L899-L917).
+The page covers two intermediate nodes (`upload_buffer`, `gen_in_compute`) under `compute.pipeline.indirect_dispatch`. The two flavors share the exact same `s_dispatchCases` parameter matrix declared in [`createIndirectComputeDispatchTests`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L842-L872), so the only structural difference between them is *how* the indirect command buffer is populated before each dispatch. Both flavors register a base case for every entry in `s_dispatchCases`; empty commands additionally register directional `empty_command_x`, `empty_command_y`, and `empty_command_z` leaves (and selected device-address leaves), replacing the former blanket `_compute_only_queue` variants, and non-VulkanSC builds also add a `_device_address` variant that uses `vkCmdDispatchIndirect2KHR` instead of `vkCmdDispatchIndirect`. The matrix alternates device-address variants between `upload_buffer` and `gen_in_compute` based on `(ndx % 2) == (computePipelineConstructionType % 2)` so each pipeline-construction type registers roughly half of the device-address cases under each subgroup [`vktComputeIndirectComputeDispatchTests.cpp#L899-L917`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L899-L917).
 
 Why it matters here:
 
@@ -46,7 +46,7 @@ Why it matters here:
 
 ### Compute-only queue families
 
-Each base case in `s_dispatchCases` is duplicated as a `<case>_compute_only_queue` variant. The `_compute_only_queue` variant requires a queue family that has `VK_QUEUE_COMPUTE_BIT` but not `VK_QUEUE_GRAPHICS_BIT`, and the host builds a custom device that exposes that queue family alongside the universal queue family [`vktComputeIndirectComputeDispatchTests.cpp#L88-L206`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L88-L206), [`vktComputeIndirectComputeDispatchTests.cpp#L661-L681`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L661-L681). The device-address variant additionally checks `VK_KHR_device_address_commands` [`vktComputeIndirectComputeDispatchTests.cpp#L683-L684`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L683-L684).
+Each base case in `s_dispatchCases` is registered directly, and zero-axis cases also register directional `empty_command_x`, `empty_command_y`, and `empty_command_z` leaves. Runtime instances use the runner-selected compute queue and family index [`vktComputeIndirectComputeDispatchTests.cpp#L88-L206`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L88-L206), [`vktComputeIndirectComputeDispatchTests.cpp#L661-L681`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L661-L681). The device-address variant additionally checks `VK_KHR_device_address_commands` [`vktComputeIndirectComputeDispatchTests.cpp#L683-L684`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L683-L684).
 
 Why it matters here:
 
@@ -120,7 +120,7 @@ The `empty_command` case is special: it dispatches `(0,0,0)` workgroups, so the 
 >
 > **Candidate values:** `upload_buffer`, `gen_in_compute`
 
-If the identification is wrong, the failure analysis below will need to be redone. The flavor is chosen as the primary behavioral axis because it determines the command-buffer construction mechanism (host upload vs compute generation) and therefore the only nontrivial synchronization (the compute-to-indirect barrier). The `_compute_only_queue` and `_device_address` modifiers live inside the parameter dimension table; they are secondary axes, not flavors.
+If the identification is wrong, the failure analysis below will need to be redone. The flavor is chosen as the primary behavioral axis because it determines the command-buffer construction mechanism (host upload vs compute generation) and therefore the only nontrivial synchronization (the compute-to-indirect barrier). The `_device_address` modifier is a secondary axis, not a flavor.
 
 ## What Failure Means
 

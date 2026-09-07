@@ -18,6 +18,8 @@
 
 ## Registration Hierarchy
 
+All migrated runtime instances derive from `vkt::MultiQueueRunnerTestInstance` and select the submitted compute queue and queue-family index through `queuePass(const vkt::QueueData&)`; the test logic is unchanged, but it no longer hard-codes the universal queue.
+
 ```text
 compute.pipeline.builtin_var
 ├── num_work_groups
