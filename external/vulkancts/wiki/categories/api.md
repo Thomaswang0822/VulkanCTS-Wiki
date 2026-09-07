@@ -38,7 +38,9 @@ api
 ├── pipeline
 ├── invariance
 ├── tooling_info                           (not in Vulkan SC)
-├── format_feature_flags2                  (not in Vulkan SC)
+├── format_features                        (not in Vulkan SC)
+│   ├── format_feature_flags2
+│   └── extended_flags
 ├── buffer_memory_requirements
 ├── image_compression_control              (not in Vulkan SC)
 ├── get_device_proc_addr                   (not in Vulkan SC)
@@ -49,15 +51,18 @@ api
 ├── maintenance7                           (not in Vulkan SC)
 ├── device_address                         (not in Vulkan SC)
 ├── extension_duplicates
-└── performance_counters_by_region         (not in Vulkan SC)
+├── performance_counters_by_region         (not in Vulkan SC)
+├── gpa_interface                          (not in Vulkan SC)
+├── array                                  (not in Vulkan SC)
+└── maintenance11                          (not in Vulkan SC)
 ```
 
-The category has 38 direct children registered by [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L86), verified against mustpass [`api.txt`](../../mustpass/main/vk-default/api.txt). Two registration-only dispatcher files are folded into this Level-2 page rather than getting their own Level-3 pages:
+The category has 41 direct children registered by [`createApiTests()`](../../modules/vulkan/api/vktApiTests.cpp#L91-L148), verified against mustpass [`api.txt`](../../mustpass/main/vk-default/api.txt). Two registration-only dispatcher files are folded into this Level-2 page rather than getting their own Level-3 pages:
 
-- [`vktApiTests.cpp`](../../modules/vulkan/api/vktApiTests.cpp#L1) assembles the 38 top-level groups into the `api` tree and contains no test logic.
+- [`vktApiTests.cpp`](../../modules/vulkan/api/vktApiTests.cpp#L1) assembles the 41 top-level groups into the `api` tree and contains no test logic.
 - [`vktApiCopiesAndBlittingTests.cpp`](../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L1) dispatches the `copy_and_blit` family to 14 delegated implementation files via `addCopiesAndBlittingTests()` and friends.
 
-The `buffer_view` group is a composite created locally in `vktApiTests.cpp` from two implementation files (`vktApiBufferViewCreateTests.cpp` for `create`, `vktApiBufferViewAccessTests.cpp` for `access`) rather than through a single external factory. The 52 rewritten Level-3 pages exceed the 38 direct children because `copy_and_blit` produces 14 Level-3 pages from its delegated files and `buffer_view` produces 2 (`create` and `access`). Fifteen of the 38 groups are excluded from Vulkan SC builds via `#ifndef CTS_USES_VULKANSC` in `vktApiTests.cpp`.
+The `buffer_view` group is a composite created locally from `vktApiBufferViewCreateTests.cpp` and `vktApiBufferViewAccessTests.cpp`. The 55 Level-3 pages exceed the 41 direct children because `copy_and_blit` delegates to multiple implementations and `buffer_view` has separate create/access pages. Eighteen direct groups are excluded from Vulkan SC; its mustpass has 23 API roots.
 
 ## How the Families Fit Together
 
@@ -67,6 +72,14 @@ The `buffer_view` group is a composite created locally in `vktApiTests.cpp` from
 - Extension-gated families (`buffer_marker`, `frame_boundary`, `device_address`, `image_compression_control`, `format_feature_flags2`, `fragment_shader_output`, `performance_counters_by_region`, `copy_memory_indirect`) are excluded from Vulkan SC builds and require their respective extensions before their cases execute.
 
 ## Level-3 Pages Navigation
+
+### Newly added API families
+
+| Registered test family | Level-3 page | What to read there |
+|---|---|---|
+| `array` | [Array.md](../testfiles/api/Array.md) | Oversized-array handling for extension enumeration, pipeline binaries, and WSI paths. |
+| `gpa_interface` | [GPAInterface.md](../testfiles/api/GPAInterface.md) | `VK_AMD_gpa_interface` session creation, status, reset, copy, and synchronization checks. |
+| `maintenance11` | [Maintenance11.md](../testfiles/api/Maintenance11.md) | `VK_KHR_maintenance11` queue-family property checks. |
 
 ### Property, version, and maintenance checks
 
@@ -83,7 +96,7 @@ The `buffer_view` group is a composite created locally in `vktApiTests.cpp` from
 | `maintenance3_check` | [Maintenance3Check.md](../testfiles/api/Maintenance3Check.md) | Maintenance3 property minimums and descriptor set layout support query. |
 | `maintenance6_check` | [Maintenance6Check.md](../testfiles/api/Maintenance6Check.md) | Maintenance6 property checks. |
 | `maintenance7` | [Maintenance7.md](../testfiles/api/Maintenance7.md) | Maintenance7 property checks. |
-| `format_feature_flags2` | [FormatPropertiesExtendedKHR.md](../testfiles/api/FormatPropertiesExtendedKHR.md) | Extended `VkFormatProperties3` feature flags2 reporting. |
+| `format_features` | [FormatPropertiesExtendedKHR.md](../testfiles/api/FormatPropertiesExtendedKHR.md) | `VkFormatProperties3` required-bit checks through ordinary and extended-flags query chains. |
 | `maintenance5` | [PhysicalDeviceFormatPropertiesMaint5.md](../testfiles/api/PhysicalDeviceFormatPropertiesMaint5.md) | Maintenance5 format properties and `VK_REMAINING_ARRAY_LAYERS` query path. |
 | `get_memory_commitment` | [GetMemoryCommitment.md](../testfiles/api/GetMemoryCommitment.md) | `vkGetDeviceMemoryCommitment` query for sparse memory. |
 | `granularity` | [Granularity.md](../testfiles/api/Granularity.md) | `VkQueueFamilyProperties::minImageTransferGranularity` submission granularity query. |

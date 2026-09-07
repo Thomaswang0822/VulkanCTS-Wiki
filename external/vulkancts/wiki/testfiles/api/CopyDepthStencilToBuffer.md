@@ -75,7 +75,7 @@ No shader is involved in this test family. The source image is uploaded with kno
 
 ## Runtime Execution and Result Checking
 
-[host] The constructor checks that the source format is supported ([lines 112-115](../../../modules/vulkan/api/vktApiCopyDepthStencilToBufferTests.cpp#L112-L115)), creates the source image (regular or sparse-bound depending on `useSparseBinding`), and creates a host-visible destination buffer sized for the depth and stencil packed data of the active aspects ([lines 169-187](../../../modules/vulkan/api/vktApiCopyDepthStencilToBufferTests.cpp#L169-L187)).
+[host] The support callback checks the depth/stencil format before the constructor creates the source image and packed host-visible destination buffer ([format check](../../../modules/vulkan/api/vktApiCopyDepthStencilToBufferTests.cpp#L477-L484)).
 
 [host] `iterate()` generates a `tcu::TextureLevel` with gradient depth/stencil content for the source image, and a second `tcu::TextureLevel` for the destination buffer treated as a 1D texture ([lines 213-225](../../../modules/vulkan/api/vktApiCopyDepthStencilToBufferTests.cpp#L213-L225)). `generateExpectedResult()` runs `copyRegionToTextureLevel` once per region to build a software reference that mirrors the same `VkBufferImageCopy` parameters ([line 230](../../../modules/vulkan/api/vktApiCopyDepthStencilToBufferTests.cpp#L230)).
 
@@ -154,7 +154,7 @@ A shared infrastructure cause affects all six values: incorrect `bufferOffset`, 
 - Non-Universal queue variants require `VK_KHR_format_feature_flags2`. `checkSupport` requires the extension and reads `VkFormatProperties3` to inspect the per-queue copy feature bits ([lines 493-504](../../../modules/vulkan/api/vktApiCopyDepthStencilToBufferTests.cpp#L493-L504)).
 - The compute queue variant requires `VK_FORMAT_FEATURE_2_DEPTH_COPY_ON_COMPUTE_QUEUE_BIT_KHR` for depth regions and `VK_FORMAT_FEATURE_2_STENCIL_COPY_ON_COMPUTE_QUEUE_BIT_KHR` for stencil regions. If the required bit is missing, the case is skipped with `NotSupportedError` ([lines 511-537](../../../modules/vulkan/api/vktApiCopyDepthStencilToBufferTests.cpp#L511-L537)).
 - The transfer queue variant requires the corresponding `..._TRANSFER_QUEUE_BIT_KHR` bits and an available transfer queue. `context.getTransferQueue()` throws `NotSupportedError` if no transfer queue is exposed ([lines 539-566](../../../modules/vulkan/api/vktApiCopyDepthStencilToBufferTests.cpp#L539-L566)).
-- The sparse path requires `VK_IMAGE_CREATE_SPARSE_BINDING_BIT` and `VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT` to be supported for the format, plus a sparse-capable queue. The constructor queries `getPhysicalDeviceImageFormatProperties` with the sparse flags and skips with `NotSupportedError` if the format is not supported ([lines 152-159](../../../modules/vulkan/api/vktApiCopyDepthStencilToBufferTests.cpp#L152-L159)).
+- The non-SC sparse support check is now in the case callback through `checkSparseBindingSupport`, rather than the constructor ([call](../../../modules/vulkan/api/vktApiCopyDepthStencilToBufferTests.cpp#L556-L557)). Registered cases still do not enable the sparse path described above.
 - The `COPY_COMMANDS_2` extension flag requires `VK_KHR_copy_commands2`, validated by `checkExtensionSupport` in `checkSupport` ([line 491](../../../modules/vulkan/api/vktApiCopyDepthStencilToBufferTests.cpp#L491)).
 - Sparse binding and compute/transfer queue paths are disabled on Vulkan SC builds through `#ifndef CTS_USES_VULKANSC` guards.
 

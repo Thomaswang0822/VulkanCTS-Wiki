@@ -57,7 +57,7 @@ Shader code is not part of the tested behavior. The `memory_commitment` leaf bui
 
 `memory_commitment` ([MemoryCommitmentTestInstance::iterate()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L113-L332)):
 
-- Throws `NotSupportedError` if no memory type supports `VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT` ([L139-L140](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L139-L140)).
+- The case support callback first skips if no lazily allocated memory type exists ([callback](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L402-L407)).
 - Creates a `256x256` `VK_FORMAT_R32_UINT` image with `VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT` and `VK_IMAGE_TILING_OPTIMAL` ([L142-L158](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L142-L158)).
 - Allocates and binds lazy memory to the image ([L160-L164](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L160-L164)).
 - Creates image view, render pass, framebuffer, descriptor set layout, pipeline layout, shader modules, and graphics pipeline ([L166-L264](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L166-L264)).
@@ -69,7 +69,7 @@ Shader code is not part of the tested behavior. The `memory_commitment` leaf bui
 
 `memory_commitment_allocate_only` ([MemoryCommitmentAllocateOnlyTestInstance::iterate()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L362-L408)):
 
-- Throws `NotSupportedError` if no memory type supports `VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT` ([L375-L376](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L375-L376)).
+- The allocation-only support callback first skips if no lazily allocated memory type exists ([callback](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L349-L354)).
 - Generates 10 random allocation sizes in the range 1 to 1000 bytes using `rand() % 1000 + 1` ([L379-L382](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L379-L382)). The test does not seed the RNG deterministically.
 - For each lazy memory type, for each of the 10 sizes: allocates `VkDeviceMemory`, queries `vkGetDeviceMemoryCommitment`, logs a warning if commitment is non-zero, and returns `fail` if commitment exceeds the allocation size ([L384-L406](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L384-L406)).
 - Passes if no allocation reported commitment greater than its size.

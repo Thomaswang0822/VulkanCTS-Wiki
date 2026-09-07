@@ -163,6 +163,8 @@ No shader code participates in this test. The `ShaderModule`, `GraphicsPipeline`
 
 ### Requirement-based pruning
 
+Device-group cases now run [checkDeviceGroupSupport()](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3399-L3408) before resource construction: it requires `VK_KHR_device_group_creation` and verifies the requested group index exists. Private-data cases use [checkPrivateDataSupport()](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3410-L3422), which checks `privateData` and retains the image-cube-array or event gates for those object types. Instance and device ownership now uses `InstanceWrapper`/`DeviceWrapper`; other object kinds retain `Unique` handles.
+
 - `max_concurrent`, `single_alloc_callbacks`, `alloc_callback_fail`, `alloc_callback_fail_multiple`, and `private_data` are excluded from Vulkan SC builds because `VkAllocationCallbacks` and `VK_EXT_private_data` are not part of Vulkan SC. The `CTS_USES_VULKANSC` preprocessor guard removes them at registration time. See [Vulkan SC exclusions](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3845-L3846).
 - `Device` and `DeviceGroup` cases are excluded from `multiple_unique_resources` and `multiple_shared_resources` on Vulkan SC. See the `EMPTY_CASE_DESC(Device)` and `EMPTY_CASE_DESC(DeviceGroup)` entries gated by `CTS_USES_VULKANSC`.
 - `ImageView` cube-array leaves require the `imageCubeArray` feature. See [`checkImageCubeArraySupport`](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3488-L3492).

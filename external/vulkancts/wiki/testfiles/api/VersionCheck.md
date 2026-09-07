@@ -121,7 +121,7 @@ No shader is involved in this test family. The leaves exercise host-side version
 - Extensions that have been promoted to core for the requested API version are filtered out before the enabled-extension phase, so they are not double-tested as both core and extension functions [vktApiVersionCheck.cpp](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L357-L385).
 - `regularCheck` skips `vkGetInstanceProcAddr` itself below Vulkan 1.2, skips `vkCmdDrawIndirectCount` / `vkCmdDrawIndexedIndirectCount` unless `VK_KHR_draw_indirect_count` is supported, and skips `vkCmdPushDescriptorSetWithTemplateKHR` unless the prerequisite push-descriptor and (below 1.1) descriptor-update-template extensions are present. These skips reflect per-function availability rules that the spec does not express purely through the API version [regularCheck()](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L550-L599).
 - `unavailable_entry_points` skips the highest API version in the per-version map because there is no higher version whose functions it could test [vktApiVersionCheck.cpp](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L649-L650).
-- The queue-family requirement for `entry_points` defaults to graphics-plus-compute, switching to compute-only under explicit command-line control [vktApiVersionCheck.cpp](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L396-L398). This is a test-configuration choice rather than a per-case pruning rule.
+- The `entry_points` helper selects a queue family with both graphics and compute capability; it no longer switches this request through the compute-only command-line option ([selection](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L387-L400)).
 
 ## Key Takeaways
 

@@ -165,6 +165,8 @@ For the verification-mode axis (orthogonal to `create_*`):
 
 `checkSupport` prunes by removing unsupported usage-flag combinations from the instance input list; if all combinations for a case are removed, the case throws `NotSupportedError` and is reported as skipped rather than failed.
 
+For `create_protected`, it also removes usage combinations containing bits outside the protected-buffer allowlist: transfer source/destination, uniform/storage texel buffer, uniform/storage buffer, and shader device address; non-SC builds additionally allow descriptor heap, video decode source, and video encode destination. This filters usage combinations within a registered leaf rather than removing the leaf from mustpass. See [the VUID-09641 filter](../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L457-L480).
+
 ### Design-based pruning
 
 [`updateBufferCreateFlags()`](../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L193) prunes the `create_*` matrix during test registration:

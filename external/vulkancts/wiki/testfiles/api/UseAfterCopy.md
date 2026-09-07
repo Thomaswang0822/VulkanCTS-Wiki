@@ -254,6 +254,8 @@ The runtime support gate is [`AfterUsageCase::checkSupport()`](../../../modules/
 
 The generator removes several combinations before runtime support checks, all in [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1716-L1958):
 
+- Multisampled image-to-image copies of depth/stencil formats are restricted to the universal queue, because they need a graphics queue. This removes the compute-only and transfer-only variants rather than skipping them at execution time ([registration predicate](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1881-L1885)).
+
 - Indirect DS copies only remain on the universal queue, due to VUID-VkCopyMemoryToImageIndirectInfoKHR-commandBuffer-07674 ([source](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1781-L1784)).
 - Vulkan SC excludes single-slice `use3DImage` cases because `VK_EXT_image_2d_view_of_3d` is unavailable ([source](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1814-L1818)).
 - DS cases never use 3D images or 3D views, because DS attachments cannot be 3D ([source](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1822-L1832)).

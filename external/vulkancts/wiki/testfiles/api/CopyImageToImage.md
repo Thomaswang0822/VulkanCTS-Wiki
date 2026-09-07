@@ -204,6 +204,7 @@ This test family does not use shaders. All work is recorded through `vkCmdCopyIm
 - Transfer-only queue variants require a transfer-only queue family and that `minImageTransferGranularity` is not violated, validated by `checkTransferQueueGranularity()`.
 - Sparse variants require sparse image support for the requested format, plus `VK_IMAGE_CREATE_SPARSE_BINDING_BIT` and `VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT` support.
 - Compressed-format cases require the device to support the compressed format at the requested tiling and usage.
+- Both ordinary and mipmap cases explicitly require `VK_EXT_texture_compression_astc_3d` before querying ASTC 3D formats ([ordinary gate](../../../modules/vulkan/api/vktApiCopyImageToImageTests.cpp#L549-L553), [mipmap gate](../../../modules/vulkan/api/vktApiCopyImageToImageTests.cpp#L1070-L1074)).
 - All format/image-type combinations are validated against `getPhysicalDeviceImageFormatProperties()` in `checkSupport()`.
 
 ### Design-based pruning

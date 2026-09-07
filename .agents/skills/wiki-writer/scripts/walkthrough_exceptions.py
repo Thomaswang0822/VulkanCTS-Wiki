@@ -6,6 +6,7 @@ category directory names and values are sets of Markdown filenames.
 
 PAGES_WITHOUT_WALKTHROUGH: dict[str, set[str]] = {
     'api': {
+        'Array.md',
         'Blitting.md',
         'Buffer.md',
         'BufferMemoryRequirements.md',
@@ -36,6 +37,7 @@ PAGES_WITHOUT_WALKTHROUGH: dict[str, set[str]] = {
         'ImageClearing.md',
         'ImageCompressionControl.md',
         'Maintenance3Check.md',
+        'Maintenance11.md',
         'Maintenance6Check.md',
         'Maintenance7.md',
         'MemoryRequirementInvariance.md',

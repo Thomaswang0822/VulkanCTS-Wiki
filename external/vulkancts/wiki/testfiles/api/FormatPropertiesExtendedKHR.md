@@ -2,8 +2,8 @@
 
 **Core question:** For every core Vulkan format, does the implementation's `VkFormatProperties3` (reported through `VK_KHR_format_feature_flags2`) contain at least the feature bits that CTS derives as required for that format?
 
-- Covers the `api.format_feature_flags2` test family implemented in [`vktApiFormatPropertiesExtendedKHRtests.cpp`](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L1) and attached to the `api` test category by [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L125-L125) inside `#ifndef CTS_USES_VULKANSC`.
-- The family registers one test case leaf per core Vulkan format: 184 leaves total, named as the lowercase format name with the `VK_FORMAT_` prefix stripped, e.g. `r4g4_unorm_pack8` and `x8_d24_unorm_pack32` [`createTestCases()`](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L73-L80), [api.txt](../../../mustpass/main/vk-default/api.txt#L271425-L271608).
+- Covers `api.format_features`, implemented in [vktApiFormatPropertiesExtendedKHRtests.cpp](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L125-L138), with ordinary and extended-flags branches; both are excluded from Vulkan SC.
+- Each branch registers 184 core-format leaves, for 368 total, named by the lowercase format name without `VK_FORMAT_` ([registration](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L103-L117)).
 - Each leaf reads the implementation-reported `VkFormatProperties3` for its format, computes the CTS-required `VkFormatProperties3`, and verifies the reported flags are a superset of the required flags for `bufferFeatures`, `linearTilingFeatures`, and `optimalTilingFeatures` [`test()`](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L59-L70).
 - The family is host-side property validation only: it queries physical-device format properties and compares bit masks on the host. No pipeline, dispatch, draw, shader, or device-side resource is involved.
 - Passing means every required feature bit for the leaf's format is present in the corresponding reported feature set. Each leaf produces its own pass/fail result.
@@ -18,10 +18,12 @@
 ## Registration Hierarchy
 
 ```text
-api.format_feature_flags2
+api.format_features
+├── format_feature_flags2
+└── extended_flags
 ```
 
-The test family is created by [`createFormatPropertiesExtendedKHRTests()`](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L90-L93), which installs a callback that registers leaf cases directly through `addFunctionCase()` in [`createTestCases()`](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L73-L80). The family has no intermediate nodes: every child of `format_feature_flags2` is a test case leaf named after one core Vulkan format. The 184 leaves are listed in the canonical mustpass from [`api.txt#L271425`](../../../mustpass/main/vk-default/api.txt#L271425) through [`api.txt#L271608`](../../../mustpass/main/vk-default/api.txt#L271608); the alphabetically first leaf is `a1r5g5b5_unorm_pack16` and the last is `x8_d24_unorm_pack32`. The full leaf range is described in `## Parameter Dimensions and Observed Values` rather than enumerated in the tree.
+The [factory](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L125-L138) creates two intermediate nodes, each with 184 format leaves, for 368 entries in [api.txt](../../../mustpass/main/vk-default/api.txt). The former root is now `api.format_features.format_feature_flags2`.
 
 ## Parameter Dimensions and Observed Values
 
@@ -29,14 +31,14 @@ The test family is created by [`createFormatPropertiesExtendedKHRTests()`](../..
 |-----------|-------------------|----------------------|----------|
 | Test case leaf | 184 leaves, one per core Vulkan format from `VK_FORMAT_R4G4_UNORM_PACK8` up to but not including `VK_CORE_FORMAT_LAST` | Selects which Vulkan core format's `VkFormatProperties3` is validated. Every leaf runs the identical superset check; only the input format and the CTS-derived required bits differ. | [`createTestCases()`](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L73-L80), [api.txt](../../../mustpass/main/vk-default/api.txt#L271425-L271608) |
 | Leaf name derivation | Lowercase `getFormatName(format)` with the leading `VK_FORMAT_` (10 characters) stripped | Each leaf is named after its format, e.g. `r4g4_unorm_pack8`, `b8g8r8a8_unorm`, `d32_sfloat_s8_uint`, `bc1_rgb_unorm_block`, `astc_4x4_srgb_block`. | [`createTestCases()` name derivation](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L78-L78) |
-| Feature set checked | `bufferFeatures`, `linearTilingFeatures`, `optimalTilingFeatures` | Each leaf validates all three feature sets of `VkFormatProperties3` in a fixed order. The three sets are independent: a failure in one does not short-circuit the others within the same leaf. | [`test()` feature-set loop](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L64-L68) |
-| Reported-flags source | Implementation-reported `VkFormatProperties3` returned by `Context::getFormatProperties()` via `vkGetPhysicalDeviceFormatProperties2` with `VkFormatProperties3` chained through `pNext` | The values being checked. The support gate guarantees `VK_KHR_format_feature_flags2` is present, so the chained-struct path is taken. | [`vktTestCase.cpp getFormatProperties()`](../../../modules/vulkan/vktTestCase.cpp#L1671-L1688) |
+| Feature set checked | `bufferFeatures`, `linearTilingFeatures`, `optimalTilingFeatures` | Checks masks in this order; `TCU_FAIL` terminates on the first mismatch. | [checks](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L94-L100) |
+| Reported-flags source | `VkFormatProperties3`, with or without an additional `VkFormatProperties4KHR` output structure | Both branches compare the properties3 masks; properties4 values are not themselves asserted. | [query paths](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L68-L92) |
 | Required-flags source | CTS-derived `VkFormatProperties3` returned by `Context::getRequiredFormatProperties()` | Built from the legacy `VkFormatProperties` plus spec-derived implications: depth formats with `SAMPLED_IMAGE_BIT` also require `SAMPLED_IMAGE_DEPTH_COMPARISON_BIT`; extended storage formats with `shaderStorageImageReadWithoutFormat` / `shaderStorageImageWriteWithoutFormat` require the corresponding `STORAGE_READ_WITHOUT_FORMAT_BIT` / `STORAGE_WRITE_WITHOUT_FORMAT_BIT`; non-SPIR-V-compatible formats exposing `*_WITHOUT_FORMAT` storage bits must also expose `STORAGE_IMAGE_BIT` or `STORAGE_TEXEL_BUFFER_BIT`. | [`vktTestCase.cpp getRequiredFormatProperties()`](../../../modules/vulkan/vktTestCase.cpp#L1616-L1669) |
 | Required extensions | `VK_KHR_format_feature_flags2`, `VK_KHR_get_physical_device_properties2` | Both are checked in `checkSupport()` before the leaf runs. Either being absent causes the leaf to be skipped. | [`checkSupport()`](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L39-L44) |
 
 ## Behavior Parameters
 
-The primary behavioral axis is the test case leaf: each leaf selects one core Vulkan format and runs the same three-feature-set superset check against the implementation's `VkFormatProperties3`. Because every leaf applies the identical validation rule, leaves vary only in which required feature bits the CTS-side `getRequiredFormatProperties` derives for that format's category.
+The query-chain choice distinguishes `format_feature_flags2` from `extended_flags`. The first uses `Context::getFormatProperties()`. The second explicitly chains `VkFormatProperties4KHR` after `VkFormatProperties3` and calls `vkGetPhysicalDeviceFormatProperties2`. Both validate only the three `VkFormatProperties3` masks; the source does not assert on returned `VkFormatProperties4KHR` fields ([test](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L68-L100)). Within each branch, a leaf selects one core Vulkan format.
 
 The behavior splits into the following format-category-driven required-bit implications. The check itself does not branch on these categories; they describe which required bits get added on top of the legacy `VkFormatProperties` baseline before the superset comparison.
 
@@ -64,7 +66,7 @@ No shader is involved in this test family. Every leaf performs host-side physica
 
 Each leaf runs the same host-side sequence inside [`test()`](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L59-L70):
 
-1. Acquire the implementation-reported `VkFormatProperties3` for the leaf's format via [`Context::getFormatProperties()`](../../../modules/vulkan/vktTestCase.cpp#L1671-L1688). Because the support gate already required `VK_KHR_format_feature_flags2`, the implementation's chained-struct query is used: `VkFormatProperties3` is chained into `VkFormatProperties2::pNext` and populated by `vkGetPhysicalDeviceFormatProperties2`.
+1. Acquire reported properties through the selected ordinary or extended-flags chain. The extended path includes `VkFormatProperties4KHR` but still compares only the `VkFormatProperties3` masks ([query](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L68-L92)).
 2. Acquire the CTS-required `VkFormatProperties3` for the same format via [`Context::getRequiredFormatProperties()`](../../../modules/vulkan/vktTestCase.cpp#L1616-L1669). This call issues the legacy `vkGetPhysicalDeviceFormatProperties` query, reinterprets the 32-bit feature flags as 64-bit `VK_FORMAT_FEATURE_2_*` bits, and applies the spec-derived implications described in `## Behavior Parameters`.
 3. Validate `bufferFeatures`, `linearTilingFeatures`, and `optimalTilingFeatures` in that fixed order through [`checkFlags()`](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L46-L57). Each call computes `(reportedFlags & requestedFlags)`, compares the result to `requestedFlags`, and on mismatch computes the missing mask as `andMask ^ requestedFlags`.
 4. On any mismatch, format a failure message as `"<setName>: missing flags 0x<16-hex-digits>"` where `<setName>` is `"Buffer features"`, `"Linear tiling features"`, or `"Optimal tiling features"`, then call `TCU_FAIL(msg.str())` to terminate the leaf with a failed status and that message [`checkFlags()` diagnostic](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L51-L55).
@@ -122,21 +124,21 @@ All leaves share the same superset-check mechanism in [`checkFlags()`](../../../
 
 ### Requirement-based pruning
 
-- All 184 leaves are registered only for non-VulkanSC builds: the parent `addChild(createFormatPropertiesExtendedKHRTests(testCtx))` call is wrapped in `#ifndef CTS_USES_VULKANSC` in [`vktApiTests.cpp#L123-L126`](../../../modules/vulkan/api/vktApiTests.cpp#L123-L126). The Vulkan SC profile does not include this test family.
+- All 368 leaves are registered only for non-VulkanSC builds: the parent `addChild(createFormatPropertiesExtendedKHRTests(testCtx))` call is wrapped in `#ifndef CTS_USES_VULKANSC` in [`vktApiTests.cpp#L123-L126`](../../../modules/vulkan/api/vktApiTests.cpp#L123-L126). The Vulkan SC profile does not include this test family.
 - [`checkSupport()`](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L39-L44) requires both `VK_KHR_format_feature_flags2` (device functionality) and `VK_KHR_get_physical_device_properties2` (instance functionality). Implementations that do not expose either extension skip every leaf in this family before any property query runs.
-- No device features, queue-family capabilities, or device limits are checked. The test only requires the two extensions and the physical-device format-property query entry points they expose.
+- `extended_flags` additionally requires `VK_KHR_extended_flags`. No device-feature or queue-capability gate is added ([support](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L45-L54)).
 
 ### Design-based pruning
 
 - The format enumeration range is exactly the core Vulkan format enum interval `VK_FORMAT_R4G4_UNORM_PACK8` to `VK_CORE_FORMAT_LAST` exclusive [`createTestCases()` format loop](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L75-L76). YCbCr formats and extension-defined formats outside this interval are not generated as leaves in this family.
 - The test only verifies that required bits are present; the inspected code does not check whether extra reported bits should be absent. A format that reports additional `VK_FORMAT_FEATURE_2_*` bits beyond the CTS-derived required mask still passes.
-- The test does not vary tiling, image type, image usage, or `pNext` chain combinations. Those variations are exercised by the `api.info` family's `pnext_format_properties` and `image_format_properties` intermediate nodes, not by this family.
+- The two branches vary the output `pNext` chain, not image type or image usage. Both retain the same required-bit comparison.
 - The test does not re-query the legacy `VkFormatProperties` independently; it relies on `Context::getRequiredFormatProperties()` to issue that query internally and to apply the spec-derived implications. The implementation-reported and CTS-required queries both run inside the same leaf.
 
 ## Key Takeaways
 
-- The `api.format_feature_flags2` family is a host-side property-validation family; it does not execute any device-side work beyond the physical-device format-property query.
-- All 184 leaves share the identical superset-check mechanism in [`checkFlags()`](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L46-L57); they differ only in which Vulkan core format's `VkFormatProperties3` is being validated and which required bits `Context::getRequiredFormatProperties()` derives for that format.
+- The `api.format_features` family is a host-side property-validation family; it does not execute any device-side work beyond the physical-device format-property query.
+- Both sets of 184 leaves share the identical superset-check mechanism in [`checkFlags()`](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L46-L57); they differ only in which Vulkan core format's `VkFormatProperties3` is being validated and which required bits `Context::getRequiredFormatProperties()` derives for that format.
 - The CTS-required mask adds spec-derived implications on top of the legacy `VkFormatProperties` bits reinterpreted as 64-bit values: depth/stencil formats, extended storage formats with `shaderStorageImageRead/WriteWithoutFormat`, and non-SPIR-V-compatible formats exposing `*_WITHOUT_FORMAT` storage bits. See `## Behavior Parameters` for the category-by-category breakdown.
 - The superset check is one-directional: missing required bits fail the leaf, but extra reported bits are not flagged. The diagnostic message names the affected feature set and prints the exact missing mask in 16-digit hexadecimal, which is enough to identify which `VK_FORMAT_FEATURE_2_*` bits the implementation failed to report.
 - See `## Failure Meaning` for the case-by-case analysis of what each missing-bit pattern implies about the implementation's format-capability table.
@@ -154,4 +156,4 @@ All leaves share the same superset-check mechanism in [`checkFlags()`](../../../
 | Header | [vktApiFormatPropertiesExtendedKHRtests.hpp](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.hpp) | Public declaration of `createFormatPropertiesExtendedKHRTests()`. |
 | `Context::getFormatProperties()` | [vktTestCase.cpp#L1671-L1688](../../../modules/vulkan/vktTestCase.cpp#L1671-L1688) | Returns the implementation-reported `VkFormatProperties3` via the chained `VkFormatProperties2` query. |
 | `Context::getRequiredFormatProperties()` | [vktTestCase.cpp#L1616-L1669](../../../modules/vulkan/vktTestCase.cpp#L1616-L1669) | Builds the CTS-required `VkFormatProperties3` from the legacy query plus spec-derived implications. |
-| Mustpass entries | [api.txt#L271425-L271608](../../../mustpass/main/vk-default/api.txt#L271425-L271608) | The 184 `dEQP-VK.api.format_feature_flags2.*` leaves in the canonical `api` mustpass. |
+| Mustpass entries | [api.txt#L271425-L271608](../../../mustpass/main/vk-default/api.txt#L271425-L271608) | The 368 `dEQP-VK.api.format_features.*` leaves in the canonical `api` mustpass. |

@@ -329,6 +329,8 @@ void main() {
 
 ## Runtime Execution and Result Checking
 
+The verification render pass uses `VK_ATTACHMENT_LOAD_OP_LOAD` for both depth and stencil. Loading stencil preserves the copied values for the verification shader instead of discarding them at render-pass entry ([attachment](../../../modules/vulkan/api/vktApiCopyDepthStencilMSAATests.cpp#L748-L762)).
+
 - The host creates two multisampled `VK_IMAGE_TYPE_2D` images of the same format, sample count, and extent (`defaultExtent` for `whole`/`partial`; `defaultExtent` width and height with `extent.depth = 5` for `array_to_array`). Both images carry `VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_OPTIMAL | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT`. See [`vktApiCopyDepthStencilMSAATests.cpp#L242-L277`](../../../modules/vulkan/api/vktApiCopyDepthStencilMSAATests.cpp#L242-L277).
 - When `imageOffset` is true, the source image is bound with `bindImageMemory` at `srcImageAlloc->getOffset() + req.alignment`; otherwise it is bound at the allocator's natural offset. See [`vktApiCopyDepthStencilMSAATests.cpp#L264-L270`](../../../modules/vulkan/api/vktApiCopyDepthStencilMSAATests.cpp#L264-L270).
 - The host clears both images to known values: source to depth `0.1f` and stencil `0x10`, destination to depth `0.0f` and stencil `0`. See [`vktApiCopyDepthStencilMSAATests.cpp#L487-L525`](../../../modules/vulkan/api/vktApiCopyDepthStencilMSAATests.cpp#L487-L525).

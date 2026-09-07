@@ -37,7 +37,47 @@ Priority is an initial triage based on changed-path scale and visible add/delete
 
 ### P0 — inspect first
 
-- [ ] `api` — source `41` (A=6, M=35); mustpass `2` (M=2). Raw groups: `api`. Decision: pending.
+- [x] `api` — source `41` (A=6, M=35); mustpass `2` (M=2). Raw groups: `api`. Decision: English documentation refresh complete; source defects below remain unresolved and were not modified.
+  - Review: compared the listed upstream source paths and Vulkan/Vulkan SC mustpass changes. Added Array, GPAInterface, and Maintenance11 pages; updated registration, extended flags, queue priorities, copy alignment/indirect upload, support-check placement, device ownership, allocation offsets, and result-checking changes in existing pages.
+  - No separate page edit: `vktApiBufferViewCreateTests.cpp` retains the same dedicated-allocation requirement after switching to `requireDeviceFunctionality`; CMake/header additions are covered by the new family pages. Shared allocation/copy helpers are documented through their affected callers rather than new helper pages.
+  - Validation: API English structure passed (55 Level-3 pages), category plus all API Markdown links passed, registration passed (423 paths), wiki-writer unit tests passed (50 tests). GPA compute GLSL was compiled with glslangValidator, validated with spirv-val, and its complete spirv-dis output matched the embedded artifact. These are documentation/tool validations, not device-side CTS execution.
+  - Unresolved source defects: `vktApiCopiesAndBlittingUtil.hpp` assigns both `MAINTENANCE_11` and `DEVICE_ADDRESS_COMMANDS` to `(1 << 8)`, so the shared checker requires both extensions; `vktApiArrayTests.cpp` routes `GetPhysicalDeviceDisplayProperties2` to the swapchain-image oversized-array implementation. The affected English pages describe actual behavior without claiming these defects are fixed. The pre-existing stencil sample-count gate observation in `CopyDepthStencilMSAA.md` also remains unchanged.
+  - New no-shader exceptions: Array and Maintenance11 are host query tests. GPAInterface has a real compute shader walkthrough, not an exception.
+  - Modified files (repository-relative; briefs and Chinese pages unchanged):
+    - `.agents/skills/wiki-writer/scripts/walkthrough_exceptions.py`
+    - `external/vulkancts/wiki/categories/api.md`
+    - `external/vulkancts/wiki/testfiles/api/Array.md`
+    - `external/vulkancts/wiki/testfiles/api/Blitting.md`
+    - `external/vulkancts/wiki/testfiles/api/BufferMarker.md`
+    - `external/vulkancts/wiki/testfiles/api/BufferMemoryRequirements.md`
+    - `external/vulkancts/wiki/testfiles/api/BufferViewAccess.md`
+    - `external/vulkancts/wiki/testfiles/api/CommandBuffers.md`
+    - `external/vulkancts/wiki/testfiles/api/CopyBufferToDepthStencil.md`
+    - `external/vulkancts/wiki/testfiles/api/CopyBufferToImage.md`
+    - `external/vulkancts/wiki/testfiles/api/CopyDepthStencilMSAA.md`
+    - `external/vulkancts/wiki/testfiles/api/CopyDepthStencilToBuffer.md`
+    - `external/vulkancts/wiki/testfiles/api/CopyImageToBuffer.md`
+    - `external/vulkancts/wiki/testfiles/api/CopyImageToImage.md`
+    - `external/vulkancts/wiki/testfiles/api/CopyMemoryIndirect.md`
+    - `external/vulkancts/wiki/testfiles/api/DebugUtils.md`
+    - `external/vulkancts/wiki/testfiles/api/DescriptorPool.md`
+    - `external/vulkancts/wiki/testfiles/api/DeviceInitialization.md`
+    - `external/vulkancts/wiki/testfiles/api/ExtensionDuplicates.md`
+    - `external/vulkancts/wiki/testfiles/api/ExternalMemory.md`
+    - `external/vulkancts/wiki/testfiles/api/FeatureInfo.md`
+    - `external/vulkancts/wiki/testfiles/api/FillBuffer.md`
+    - `external/vulkancts/wiki/testfiles/api/FormatPropertiesExtendedKHR.md`
+    - `external/vulkancts/wiki/testfiles/api/FrameBoundary.md`
+    - `external/vulkancts/wiki/testfiles/api/GPAInterface.md`
+    - `external/vulkancts/wiki/testfiles/api/GetMemoryCommitment.md`
+    - `external/vulkancts/wiki/testfiles/api/ImageClearing.md`
+    - `external/vulkancts/wiki/testfiles/api/ImageCompressionControl.md`
+    - `external/vulkancts/wiki/testfiles/api/Maintenance11.md`
+    - `external/vulkancts/wiki/testfiles/api/ObjectManagement.md`
+    - `external/vulkancts/wiki/testfiles/api/Resolve.md`
+    - `external/vulkancts/wiki/testfiles/api/UseAfterCopy.md`
+    - `external/vulkancts/wiki/testfiles/api/VersionCheck.md`
+  - Tracker updated: `external/vulkancts/wiki/internal_doc/TODOs_after_merge.md`.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/api/CMakeLists.txt`
   - `A` `external/vulkancts/modules/vulkan/api/vktApiArrayTests.cpp`

@@ -5,7 +5,7 @@
 - Covers the `api.info` test family implemented in [`vktApiFeatureInfo.cpp`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L1) and registered as a direct child of the `api` test category by [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L95) via [`createFeatureInfoTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8639).
 - Exercises `vkGetPhysicalDeviceFormatProperties`, `vkGetPhysicalDeviceImageFormatProperties`, `vkGetPhysicalDeviceProperties2` and the related `*2` queries, Vulkan 1.2/1.3/1.4 feature/property consistency, limits validation, Vulkan profile conformance, and subgroup feature-flag consistency.
 - The core test idea is query-result consistency: legacy Vulkan 1.0 queries must match their `*2` counterparts, reported values must satisfy spec-required minimums, promoted extensions must be reflected in the corresponding core version, and unsupported usage/feature combinations must not be reported as supported.
-- The family is organized as 15 direct intermediate nodes, each covering one query area with its own behavior parameters, validation rule, and failure meaning; the shared validation mechanism (offset-table field-by-field comparison, guard-byte initialization checks, `tcu::ResultCollector` aggregation) underlies every leaf.
+- The mustpass-backed hierarchy contains 17 direct query areas. Shared helpers also implement instance/device information checks registered outside `api.info`; those are not additional children of this tree.
 
 ## Background Knowledge
 
@@ -32,12 +32,14 @@ api.info
 ├── vulkan1p3_limits_validation
 ├── vulkan1p4_limits_validation
 ├── image_format_properties2
+├── extended_flags_image_format_properties2
 ├── sparse_image_format_properties2
+├── extended_flags_sparse_image_format_properties2
 ├── profiles
 └── subgroup_features
 ```
 
-The `info` test family is added to the `api` test category by [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L96) via [`createFeatureInfoTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8639), which registers the 15 direct intermediate nodes shown above. The source also registers an `android` subgroup at [`vktApiFeatureInfo.cpp#L8900-L8912`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8900-L8912), but `dEQP-VK.api.info.android` is absent from [`api.txt`](../../../mustpass/main/vk-default/api.txt), so it is excluded from the canonical mustpass tree and is documented only as auxiliary coverage.
+The `info` test family is added to the `api` test category by [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L96) via [`createFeatureInfoTests()`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8639), which registers the 17 direct intermediate nodes shown above. The source also registers an `android` subgroup at [`vktApiFeatureInfo.cpp#L8900-L8912`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8900-L8912), but `dEQP-VK.api.info.android` is absent from [`api.txt`](../../../mustpass/main/vk-default/api.txt), so it is excluded from the canonical mustpass tree and is documented only as auxiliary coverage.
 
 ## Parameter Dimensions and Observed Values
 
@@ -53,7 +55,7 @@ The `info` test family is added to the `api` test category by [`createApiTests()
 
 ## Behavior Parameters
 
-The primary behavioral axis is the **intermediate node**: each direct child of `info` exercises a distinct physical-device query area with its own validation rule. The 15 intermediate nodes form the parameter values documented below.
+The primary behavioral axis is the query area. The two extended-flags branches add query-chain precedence checks to the existing families.
 
 ### `format_properties` — `vkGetPhysicalDeviceFormatProperties` per-format checks
 
@@ -106,6 +108,14 @@ For every format × image type × tiling × valid usage × create-flag combinati
 ### `sparse_image_format_properties2` — `vkGetPhysicalDeviceSparseImageFormatProperties2` consistency
 
 For every format × image type × sample count × usage × tiling combination, queries both sparse-image-format query entrypoints and verifies that the reported property counts and per-property `VkSparseImageFormatProperties` contents match exactly. Also verifies that devices without the `sparseBinding` feature report zero sparse-image properties.
+
+### `extended_flags_image_format_properties2` — extended image-format query flags
+
+Requires `VK_KHR_extended_flags` and chains `VkImageUsageFlags2CreateInfoKHR` and `VkImageCreateFlags2CreateInfoKHR` into the `*2` input. The ordinary usage/create fields are deliberately swapped to check that the chained values take precedence. Result codes and image-format properties are compared with a legacy query using the intended flags ([query](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8174-L8266)).
+
+### `extended_flags_sparse_image_format_properties2` — extended sparse-image query flags
+
+Requires `VK_KHR_extended_flags` and supplies usage through `VkImageUsageFlags2CreateInfoKHR`, while the ordinary usage field contains its bitwise complement. The checker compares counts and returned sparse properties with the legacy query. Both extended-flags branches are excluded from Vulkan SC ([query](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8269-L8398), [registration](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L9117-L9125)).
 
 ### `profiles` — Vulkan profile conformance
 
@@ -236,7 +246,7 @@ All leaves share a common pass/fail mechanism (`ResultCollector` or direct `TCU_
 
 - The `api.info` test family is a host-side query-result consistency suite: it does not execute any shader, pipeline, or draw, and every pass/fail decision is derived from values returned by physical-device query entrypoints.
 - The shared validation pattern is field-by-field comparison through offset tables, guard-byte initialization checks, and `tcu::ResultCollector` aggregation; understanding this pattern explains the shape of every leaf failure.
-- The 15 direct intermediate nodes each cover one physical-device query area (format properties, image-format properties, properties2, version-specific feature/property consistency, limits validation, profile conformance, subgroup feature flags) and each failure points to a specific spec rule violated by the reported values.
+- The 17 direct intermediate nodes each cover one physical-device query area (format properties, image-format properties, properties2, version-specific feature/property consistency, limits validation, profile conformance, subgroup feature flags) and each failure points to a specific spec rule violated by the reported values.
 - The `android` subgroup exists in source but is excluded from the mustpass tree; treat its leaves as auxiliary coverage, not as part of the canonical conformance run.
 - For failure analysis, see `## Failure Meaning`: most failures reduce to either a vk1/vk2 mismatch, a reported value outside spec-required bounds, or a promoted-extension/core-version inconsistency.
 
@@ -245,7 +255,7 @@ All leaves share a common pass/fail mechanism (`ResultCollector` or direct `TCU_
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Parent registration in `createApiTests()` | [`vktApiTests.cpp#L95`](../../../modules/vulkan/api/vktApiTests.cpp#L95) | Attaches the `info` test family to the `api` test category. |
-| Local registration in `createFeatureInfoTests()` | [`vktApiFeatureInfo.cpp#L8639-L8925`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8639-L8925) | Registers the 15 direct intermediate nodes (plus source-only `android`) and delegates format/image-format subgroups to their helpers. |
+| Local registration in `createFeatureInfoTests()` | [`vktApiFeatureInfo.cpp#L8639-L8925`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8639-L8925) | Registers the 17 direct intermediate nodes (plus source-only `android`) and delegates format/image-format subgroups to their helpers. |
 | `formatProperties` per-format validator | [`vktApiFeatureInfo.cpp#L4308-L4402`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L4308-L4402) | Implements the `format_properties` leaves. |
 | `createFormatTests` generator | [`vktApiFeatureInfo.cpp#L4606-L4641`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L4606-L4641) | Generates per-format leaves under `format_properties`. |
 | `imageFormatProperties` validator | [`vktApiFeatureInfo.cpp#L4940-L5111`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L4940-L5111) | Implements the `image_format_properties` leaves. |

@@ -4,7 +4,7 @@
 
 - Source file: [`vktApiFillBufferTests.cpp`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L1).
 - Test category: `api`. Test family: `fill_and_update_buffer`, registered by [`createFillAndUpdateBufferTests()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L787-L926) and added to `api` by [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L111).
-- Intermediate nodes: `suballocation`, `suballocation_transfer_queue`, `dedicated_alloc`. Each varies the buffer allocator and the queue family.
+- Intermediate nodes: `suballocation`, `suballocation_bind_offset`, `suballocation_transfer_queue`, `dedicated_alloc`. They vary the allocator, memory-binding offset, and queue family.
 - Test case leaves: `fill_buffer_*` and `update_buffer_*` variants covering whole-buffer, first-word, second-word, second-half, `VK_WHOLE_SIZE`, and selected `*_device_address` cases.
 - Core test idea: pre-fill a destination buffer with a known pattern, record a fill or update command targeting a specific range, submit, read back, and compare bytes against an expected pattern computed on the host.
 - The page explains which command each leaf exercises, how the expected bytes are computed, what the `VK_WHOLE_SIZE` alignment rule verifies, and what a failure localizes to.
@@ -16,26 +16,27 @@
 - `VK_WHOLE_SIZE` as the `size` argument means "from `dstOffset` to the end of the buffer". For `vkCmdFillBuffer`, the effective write range is clamped to a 4-byte-aligned boundary.
 - `VK_KHR_device_address_commands` provides `vkCmdFillMemoryKHR` and `vkCmdUpdateMemoryKHR`, which take a `VkDeviceAddressRangeKHR` (base address plus size) and `VkAddressCommandFlagsKHR` instead of a `VkBuffer` handle. The destination buffer must be created with `VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT` and the allocation must be `MemoryRequirement::DeviceAddress`.
 - Suballocation vs dedicated allocation: Vulkan allows one `VkDeviceMemory` object to back multiple buffers (suballocation) or one object per buffer (dedicated allocation). The test exercises both paths because driver memory-binding and tracking behavior can differ.
-- Transfer-only queue family: a queue family exposing `VK_QUEUE_TRANSFER_BIT` but not graphics or compute. Compute-only queue family: exposes `VK_QUEUE_COMPUTE_BIT` but not graphics. The test uses a custom device to access a transfer-only queue, and uses the universal compute queue index for the compute-only case.
+- Transfer-only queue family: a queue family exposing `VK_QUEUE_TRANSFER_BIT` but not graphics or compute. Compute-only queue family: exposes `VK_QUEUE_COMPUTE_BIT` but not graphics. These are distinct from the universal queue.
 
 ## Registration Hierarchy
 
 ```text
 api.fill_and_update_buffer
 ├── suballocation
+├── suballocation_bind_offset
 ├── suballocation_transfer_queue
 └── dedicated_alloc
 ```
 
-The three intermediate nodes are defined in the `testGroupData` array in [`vktApiFillBufferTests.cpp#L801-L808`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L801-L808) and iterated by the loop in [`vktApiFillBufferTests.cpp#L811-L922`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L811-L922). Each intermediate node registers the same base set of `fill_buffer_*` and `update_buffer_*` leaves, with device-address variants added selectively.
+The four intermediate nodes are defined by [`populateFillAndUpdateBufferTests()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L787-L804). `suballocation_bind_offset` repeats the suballocation cases with a nonzero memory-binding offset; command offsets remain relative to the buffer rather than its backing allocation. Device-address variants are added selectively within each group.
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Intermediate node | `suballocation`, `suballocation_transfer_queue`, `dedicated_alloc` | Varies allocation strategy and queue family. | [`vktApiFillBufferTests.cpp#L801-L808`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L801-L808) |
+| Intermediate node | `suballocation`, `suballocation_bind_offset`, `suballocation_transfer_queue`, `dedicated_alloc` | Varies allocation strategy, memory-binding offset, and queue family. | [group table](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L787-L804) |
 | Buffer allocator | `BufferSuballocation`, `BufferDedicatedAllocation` | Backs the destination buffer with suballocated or dedicated memory. | [`vktApiFillBufferTests.cpp#L789-L791`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L789-L791) |
-| Queue type | `GRAPHICS_COMPUTE`, `TRANSFER_ONLY`, `COMPUTE_ONLY` | Selects the queue family that records and submits the command. `COMPUTE_ONLY` is used only for the `dedicated_alloc` `fill_buffer_vk_whole_size_device_address` leaf. | [`vktApiFillBufferTests.cpp#L56-L61`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L56-L61), [`vktApiFillBufferTests.cpp#L914-L916`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L914-L916) |
+| Queue type | `UNIVERSAL`, `TRANSFER_ONLY`, `COMPUTE_ONLY` | Selects the queue family that records and submits the command. `COMPUTE_ONLY` is used only for the `dedicated_alloc` `fill_buffer_vk_whole_size_device_address` leaf. | [`vktApiFillBufferTests.cpp#L56-L61`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L56-L61), [`vktApiFillBufferTests.cpp#L914-L916`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L914-L916) |
 | Device-address commands | `false` (default), `true` (selected leaves) | For non-WHOLE_SIZE leaves, switches `vkCmdFillBuffer`/`vkCmdUpdateBuffer` to `vkCmdFillMemoryKHR`/`vkCmdUpdateMemoryKHR`. For the `VK_WHOLE_SIZE` device-address leaf, the fill command stays as `vkCmdFillBuffer` and only the post-write barrier switches to a `VkMemoryRangeBarrierKHR`. | [`vktApiFillBufferTests.cpp#L834-L888`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L834-L888), [`vktApiFillBufferTests.cpp#L909-L919`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L909-L919) |
 | Destination offset | `0`, `4`, `dstSize / 2`, `j * sizeof(uint32_t)` for `j = 0..3` | Where in the buffer the write starts. | [`vktApiFillBufferTests.cpp#L824-L907`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L824-L907) |
 | Operation size | `dstSize`, `4`, `dstSize / 2`, `VK_WHOLE_SIZE` | How many bytes the command writes. | [`vktApiFillBufferTests.cpp#L824-L919`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L824-L919) |
@@ -79,8 +80,8 @@ No shader is involved in this test family. All work is recorded by the host via 
 ### Buffer setup
 
 - Destination buffer is created with `VK_BUFFER_USAGE_TRANSFER_DST_BIT` (and `VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT` when device-address commands are used), backed by either `BufferSuballocation` or `BufferDedicatedAllocation`, and host-visible so the result can be read back without a staging copy. See [`vktApiFillBufferTests.cpp#L255-L266`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L255-L266) and [`vktApiFillBufferTests.cpp#L504-L518`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L504-L518).
-- For transfer-only queue cases, a custom device is created by [`createCustomDevice()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L77-L184) that exposes a queue family with `VK_QUEUE_TRANSFER_BIT` but not graphics or compute. See [`vktApiFillBufferTests.cpp#L231-L243`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L231-L243).
-- For compute-only queue cases (only the `dedicated_alloc` `fill_buffer_vk_whole_size_device_address` leaf), the universal compute queue family index is used and [`checkSupport()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L408-L418) rejects the case if no exclusive compute queue exists.
+- The instances use the context device and select its transfer, compute, or universal queue-family index. They create a `SimpleAllocator`; `suballocation_bind_offset` supplies offset parameters based on `nonCoherentAtomSize` and buffer size. The allocation helper binds memory using the allocation's returned offset ([setup](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L104-L141), [binding](../../../modules/vulkan/api/vktApiBufferAndImageAllocationUtil.cpp#L53-L61)).
+- The dedicated-allocation whole-size device-address leaf selects the context's compute queue. Support checks request `getComputeQueue()` or `getTransferQueue()` as applicable and skip unavailable queues; dedicated allocation is checked through the selected allocator ([support](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L277-L297)).
 
 ### Initial pattern
 
@@ -144,7 +145,7 @@ No shader is involved in this test family. All work is recorded by the host via 
 
 **Possible failure symptoms:** All leaves under `suballocation_transfer_queue` fail (or a subset fails), while the corresponding `suballocation` leaves pass. The failure is queue-specific rather than command-specific.
 
-**Possible implementation causes:** The custom device created by [`createCustomDevice()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L77-L184) selects a queue family with `VK_QUEUE_TRANSFER_BIT` but not graphics or compute. A driver that does not support `vkCmdFillBuffer` or `vkCmdUpdateBuffer` on a transfer-only queue, or that misroutes the command to a different queue, would produce this symptom. Vulkan spec requires transfer commands to be supported on any queue with `VK_QUEUE_TRANSFER_BIT`. Determine whether the failure is in queue selection or in command execution on the transfer queue.
+**Possible implementation causes:** The test selects the context's transfer queue rather than creating a separate device. A queue-specific failure may come from command routing, fill/update execution, or transfer-to-host visibility. An unavailable transfer queue is a support skip, not a failed result comparison.
 
 #### Dedicated allocation memory binding
 
@@ -163,8 +164,8 @@ No shader is involved in this test family. All work is recorded by the host via 
 ### Requirement-based pruning
 
 - `*_device_address` variants require `VK_KHR_device_address_commands`. The `fill_buffer_vk_whole_size_device_address` leaf also requires `VK_KHR_synchronization2`. `checkSupport()` throws `NotSupportedError` if the extension is missing. See [`vktApiFillBufferTests.cpp#L410-L414`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L410-L414), [`vktApiFillBufferTests.cpp#L652-L653`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L652-L653), and [`vktApiFillBufferTests.cpp#L769-L770`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L769-L770).
-- The `fill_buffer_vk_whole_size_device_address` leaf under `dedicated_alloc` is switched to `COMPUTE_ONLY` queue before registration. `checkSupport()` throws `NotSupportedError` if `context.getComputeQueueFamilyIndex() == -1`. See [`vktApiFillBufferTests.cpp#L416-L417`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L416-L417) and [`vktApiFillBufferTests.cpp#L914-L916`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L914-L916).
-- The `suballocation_transfer_queue` intermediate node relies on a transfer-only queue family existing on the device. `findQueueFamilyIndexWithCaps()` in [`createCustomDevice()`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L96-L97) throws `NotSupportedError` if no queue family has `VK_QUEUE_TRANSFER_BIT` without graphics or compute.
+- The dedicated-allocation whole-size device-address leaf uses `COMPUTE_ONLY`; transfer variants use `TRANSFER_ONLY`. The support callbacks request the corresponding context queue and skip when it is unavailable ([support](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L277-L297)).
+- The selected buffer allocator runs its support check before instance creation; `BufferDedicatedAllocation` requires `VK_KHR_dedicated_allocation` ([allocator support](../../../modules/vulkan/api/vktApiBufferAndImageAllocationUtil.cpp#L92-L95)).
 
 ### Design-based pruning
 
@@ -175,7 +176,7 @@ No shader is involved in this test family. All work is recorded by the host via 
 
 ## Key Takeaways
 
-- The family tests four command paths (`vkCmdFillBuffer`, `vkCmdUpdateBuffer`, `vkCmdFillMemoryKHR`, `vkCmdUpdateMemoryKHR`) under three allocation/queue configurations, sharing the same destination-buffer and result-checking infrastructure.
+- The family tests four command paths under four allocation/queue configurations, including nonzero memory-binding offsets. The byte-comparison oracle remains shared.
 - The `VK_WHOLE_SIZE` sweep verifies the alignment rule: when the buffer size is not a multiple of 4, `vkCmdFillBuffer` with `VK_WHOLE_SIZE` writes only the 4-byte-aligned prefix and leaves the trailing 1 to 3 bytes untouched.
 - Device-address coverage is selective by design: one whole-buffer case (dedicated-allocation only) and one second-part case (every intermediate node) per command, plus the `VK_WHOLE_SIZE` device-address case. This bounds runtime while still exercising `VkAddressCommandFlagsKHR` and `VkMemoryRangeBarrierKHR`.
 - The `dedicated_alloc` `fill_buffer_vk_whole_size_device_address` leaf is the only one forced onto a compute-only queue, validating that the device-address command path works on a non-graphics queue when an exclusive compute queue is available.
@@ -186,11 +187,11 @@ No shader is involved in this test family. All work is recorded by the host via 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | `createFillAndUpdateBufferTests()` registration | [`vktApiFillBufferTests.cpp#L787-L926`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L787-L926) | Owns the test family tree, intermediate-node loop, and leaf registration. |
-| `testGroupData` array | [`vktApiFillBufferTests.cpp#L801-L808`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L801-L808) | Defines the three intermediate nodes with their allocator and queue type. |
+| `testGroupData` array | [`vktApiFillBufferTests.cpp#L801-L808`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L801-L808) | Defines the four intermediate nodes with their allocator, binding offset, and queue type. |
 | `TestParams` struct | [`vktApiFillBufferTests.cpp#L63-L77`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L63-L77) | Carries `dstSize`, `dstOffset`, `size`, `testData`, allocator, queue type, and device-address flag. |
 | `FillWholeBufferTestInstance::iterate()` | [`vktApiFillBufferTests.cpp#L269-L397`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L269-L397) | Runs `vkCmdFillBuffer` with `VK_WHOLE_SIZE` and byte-wise verification. |
 | `FillBufferTestInstance::iterate()` | [`vktApiFillBufferTests.cpp#L524-L585`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L524-L585) | Runs `vkCmdFillBuffer` (or `vkCmdFillMemoryKHR`) with explicit sizes and texture-level comparison. |
 | `UpdateBufferTestInstance::iterate()` | [`vktApiFillBufferTests.cpp#L682-L743`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L682-L743) | Runs `vkCmdUpdateBuffer` (or `vkCmdUpdateMemoryKHR`) with explicit sizes. |
 | `FillWholeBufferTestCase::checkSupport()` | [`vktApiFillBufferTests.cpp#L408-L418`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L408-L418) | Gates device-address extension and compute-queue requirements. |
-| `createCustomDevice()` | [`vktApiFillBufferTests.cpp#L77-L184`](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L77-L184) | Creates a device with a transfer-only queue family for `suballocation_transfer_queue`. |
+| Allocator and queue selection | [instance setup](../../../modules/vulkan/api/vktApiFillBufferTests.cpp#L104-L141) | Selects the context queue and nonzero-offset allocator configuration. |
 | Parent registration | [`vktApiTests.cpp#L111`](../../../modules/vulkan/api/vktApiTests.cpp#L111) | Adds `fill_and_update_buffer` to the `api` test category. |

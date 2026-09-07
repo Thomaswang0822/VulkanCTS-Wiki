@@ -33,7 +33,7 @@ api.extension_duplicates
 | Duplicate multiplicity | 2, 3, or 4 copies per input extension | Each input extension is repeated two, three, or four times in the output list, depending on its zero-based index `i` in the deduplicated input: `i % 2 == 0` yields 2, `i % 3 == 0` yields 3, otherwise 4. | [`duplicatePointers()`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L83-L113), [`duplicateStrings()`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L114-L151) |
 | Instance extension source | all extensions reported by `vkEnumerateInstanceExtensionProperties(nullptr)` | Drives the instance branch input list at runtime; the actual contents are platform-dependent. | [`InstanceExtensionDuplicatesInstance::iterate()`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L208-L208) |
 | Device extension source | `Context::getDeviceCreationExtensions()` | Drives the device branch input list at runtime; these are the extensions the test context already enables for the device under test. | [`DeviceExtensionDuplicatesInstance::iterate()`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L286-L286) |
-| Build guard | `CTS_USES_VULKANSC` | On Vulkan SC builds the device branch chains `VkDeviceObjectReservationCreateInfo` and `VkPhysicalDeviceVulkanSC10Features` through `VkDeviceCreateInfo::pNext` before creation, and uses a `DeviceDriver` wrapper for destruction. | [SC-only block](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L275-L316) |
+| Device ownership | `InstanceWrapper` and `UncheckedDevice` | The wrapper creates the device and owns cleanup; the local create-info has null `pNext`. | [device branch](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L273-L313) |
 
 ## Behavior Parameters
 
@@ -49,7 +49,7 @@ If the platform reports zero instance extensions, the case returns `QP_TEST_RESU
 
 #### `device`: `vkCreateDevice` with duplicated extension names
 
-The leaf takes the device-creation extension list from `Context::getDeviceCreationExtensions()`, deduplicates and duplicates it the same way as the instance branch, then builds a `VkDeviceQueueCreateInfo` for the universal queue family with priority `1.0f` and a `VkDeviceCreateInfo` whose `ppEnabledExtensionNames` is the duplicated list. The test calls [`createUncheckedDevice()`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L333-L335) and requires `VK_SUCCESS`. On success the created device is explicitly destroyed through `DeviceInterface::destroyDevice()` on regular Vulkan or `DeviceDriver::destroyDevice()` on Vulkan SC, so the acceptance check itself does not leak a device. See [`DeviceExtensionDuplicatesInstance::iterate()`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L273-L365).
+The device branch duplicates the context device-extension list and requests one universal queue with priority `1.0f`. `InstanceWrapper::createUncheckedDevice` returns the raw result into an `UncheckedDevice` owner; success still requires `VK_SUCCESS`, and wrapper lifetime supplies cleanup ([device branch](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L273-L326)).
 
 If the device-creation extension list is empty after deduplication, the case returns `QP_TEST_RESULT_QUALITY_WARNING` with the message `Unable to perform test due to empty device extension list` ([`vktApiExtensionDuplicatesTests.cpp`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L290-L294)).
 
@@ -77,9 +77,9 @@ All verification is host-side. The shared execution shape across the four leaves
 4. Select the duplication strategy from the test case leaf: `duplicatePointers()` for `by_pointers`, `duplicateStrings()` for `by_names` ([instance selection](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L224-L227), [device selection](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L286-L289)).
 5. Build the create-info struct:
    - For `instance`: a `VkApplicationInfo` with `apiVersion = m_context.getUsedApiVersion()` and a `VkInstanceCreateInfo` whose `enabledExtensionCount` and `ppEnabledExtensionNames` carry the duplicated list ([struct setup](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L229-L248)).
-   - For `device`: a `VkDeviceQueueCreateInfo` for the universal queue family with priority `1.0f`, optional Vulkan SC `pNext` chaining, and a `VkDeviceCreateInfo` whose `enabledExtensionCount` and `ppEnabledExtensionNames` carry the duplicated list ([struct setup](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L296-L330)).
+   - For `device`: one universal-queue create-info and the duplicated extension list, with null local `pNext`; device creation and ownership are delegated to the wrapper.
 6. Call `createUncheckedInstance()` or `createUncheckedDevice()` and capture the returned `VkResult`.
-7. For the `device` branch only, on `VK_SUCCESS` with a non-null handle, explicitly destroy the device through `DeviceInterface::destroyDevice()` or, on Vulkan SC, through a `DeviceDriver` wrapper that calls `destroyDevice()` ([cleanup block](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L334-L345)).
+7. The `UncheckedDevice` owner cleans up a successfully created device when it leaves scope.
 8. Decide pass/fail:
    - `VK_SUCCESS` → `tcu::TestStatus::pass()` with a message reporting the duplicate count and the input extension count, for example `Created <dup> duplicates of <input> extensions` ([instance pass message](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L262-L268), [device pass message](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L355-L361)).
    - Any other `VkResult` → `tcu::TestStatus::fail()` with a message of the form `vkCreateInstance returned <name>` or `vkCreateDevice returned <name>` ([instance fail message](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L254-L260), [device fail message](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L347-L353)).
@@ -111,7 +111,7 @@ All four leaves share a common infrastructure failure mode: the input extension 
 
 **Possible failure symptoms:** `DeviceExtensionDuplicatesInstance::iterate()` returns `tcu::TestStatus::fail()` with the message `vkCreateDevice returned <name>` where `<name>` is the implementation-reported `VkResult` name. As with the instance branch, the reported result is typically `VK_ERROR_EXTENSION_NOT_PRESENT` or `VK_ERROR_INITIALIZATION_FAILED`.
 
-**Possible implementation causes:** the same root causes as the instance branch, applied to `vkCreateDevice`: pointer-identity comparison instead of string comparison, an internal "extension already enabled" rejection that the spec does not permit, or state corruption when the device-creation extension list contains repeated entries. On Vulkan SC, the additional `pNext` structures chained by the test (`VkDeviceObjectReservationCreateInfo`, `VkPhysicalDeviceVulkanSC10Features`) interact with the duplicated extension list during device creation, so a failure specific to the SC build could also indicate that the SC reservation or feature struct validation does not tolerate duplicate extension entries; source-level investigation is needed to distinguish an SC-specific defect from a general deduplication defect.
+**Possible implementation causes:** The device-creation path may compare pointer identity instead of name contents, reject repeated enabled names, or corrupt its extension table. The current test delegates device lifecycle to the wrapper; it no longer assembles a local Vulkan SC reservation chain.
 
 #### Shared infrastructure failure: empty input extension list
 
@@ -123,7 +123,7 @@ All four leaves share a common infrastructure failure mode: the input extension 
 
 ### Requirement-based pruning
 
-No feature bit, named extension, queue-family capability, or platform requirement is enforced as a registered support gate by this family. The test creates raw `VkInstance` and `VkDevice` objects through the unchecked helpers and accepts whatever extensions the platform exposes. The Vulkan SC build guards add `pNext` structures to device creation but do not prune any test case leaf; all four leaves exist in both regular and Vulkan SC builds.
+No named feature or extension is imposed by a registered support callback. Both regular Vulkan and Vulkan SC retain the four leaves. The device branch delegates creation and cleanup to instance/device wrappers.
 
 ### Design-based pruning
 
@@ -136,7 +136,7 @@ The family generates no parameter combinations. The two intermediate nodes are f
 - `by_pointers` exercises pointer-equal duplicates; `by_names` exercises distinct-address equal-string duplicates. Both must be accepted by a conformant implementation.
 - The duplicate multiplicity pattern (2, 3, or 4 copies per extension) is incidental to the test design; the contract is independent of how many times each name appears, only that duplicates as a class are accepted.
 - An empty input extension list is reported as a quality warning, not a failure, because the contract cannot be exercised. See `## Failure Meaning` for the analysis.
-- The `device` branch explicitly destroys the device it creates on success, so the test does not leak a device object while checking the acceptance contract.
+- The device wrapper owns cleanup while the test checks the raw creation result.
 
 ## Source Reference Appendix
 

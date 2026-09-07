@@ -205,6 +205,8 @@ No shader is involved in this test family. All work is recorded by the host thro
 
 ### Requirement-based pruning
 
+The case callback now checks image format support with the derived usage/create flags, array-layer and sample-count limits, renderability for attachment-clear instances, and the applicable renderpass2 requirement before resource construction ([ImageClearingTestCase::checkSupport](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L2084-L2138)). Unsupported configurations no longer wait until image/render-pass creation to be rejected.
+
 - The destination format must support `VK_FORMAT_FEATURE_TRANSFER_SRC_BIT | VK_FORMAT_FEATURE_TRANSFER_DST_BIT` for the requested tiling. `checkSupport` throws `NotSupportedError` when the feature is missing. See [`vktApiImageClearingTests.cpp#L533-L542`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L533-L542).
 - `dedicated_allocation` cases require `VK_KHR_dedicated_allocation`. See [`vktApiImageClearingTests.cpp#L527-L528`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L527-L528).
 - `_separate_layouts_depth` and `_separate_layouts_stencil` cases require `VK_KHR_separate_depth_stencil_layouts`. See [`vktApiImageClearingTests.cpp#L530-L531`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L530-L531).

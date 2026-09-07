@@ -445,6 +445,8 @@ void main() {
 
 ### Requirement-based pruning
 
+Sparse destination-image support is checked in the case callback through `checkSparseBindingSupport`, before the instance creates or binds the image ([gate](../../../modules/vulkan/api/vktApiResolveTests.cpp#L1646-L1647)).
+
 - **Sample count support.** `checkSupport` reads `VkPhysicalDeviceLimits::framebufferColorSampleCounts` and throws `NotSupportedError` when the requested `VkSampleCountFlagBits` is not supported ([`vktApiResolveTests.cpp#L1621-L1622`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L1621-L1622)).
 - **Format support.** `getPhysicalDeviceImageFormatProperties` is queried for both source and destination formats with the required usage flags. `VK_ERROR_FORMAT_NOT_SUPPORTED` throws `NotSupportedError` ([`vktApiResolveTests.cpp#L1624-L1635`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L1624-L1635)).
 - **`fragmentStoresAndAtomics`.** Required for intermediate-copy verification. `checkSupport` throws `NotSupportedError` when the feature is missing and `shouldVerifyIntermediateResults(option)` is true ([`vktApiResolveTests.cpp#L1614-L1619`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L1614-L1619)).

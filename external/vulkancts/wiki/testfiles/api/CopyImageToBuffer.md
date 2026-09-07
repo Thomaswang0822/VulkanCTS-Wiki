@@ -13,7 +13,7 @@
 
 - `vkCmdCopyImageToBuffer` copies image texels into a buffer. Each region is described by a `VkBufferImageCopy` with `bufferOffset` (byte offset into the destination buffer), `bufferRowLength` and `bufferImageHeight` (the row stride and image height in texels, where `0` means "tightly packed against `imageExtent`"), `imageSubresource` (aspect, mip level, array layer range), `imageOffset`, and `imageExtent`. The destination buffer receives texel data laid out row by row using the row stride derived from `bufferRowLength` and the per-texel size.
 - `vkCmdCopyImageToBuffer2` (from `VK_KHR_copy_commands2`) takes the same data through a `VkBufferImageCopy2KHR` and a `VkCopyImageToBufferInfo2KHR` struct so multiple regions can be passed in one call. The semantics match the original command.
-- `vkCmdCopyImageToMemoryKHR` (from `VK_KHR_copy_memory_indirect`) writes to a device address plus a computed size instead of a `VkBuffer` handle, using `VkDeviceMemoryImageCopyKHR` regions. The destination buffer must be created with `VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT` and allocated with `MemoryRequirement::DeviceAddress`.
+- `vkCmdCopyImageToMemoryKHR` (from `VK_KHR_device_address_commands`) writes to a device address plus a computed size instead of a `VkBuffer` handle, using `VkDeviceMemoryImageCopyKHR` regions. The destination buffer needs device-address usage and allocation support.
 - Compressed formats (BC, ETC2, EAC, ASTC) store texels in fixed-size compressed blocks. Image-to-buffer copies of compressed images transfer raw compressed block bytes; the implementation does not decompress. The destination layout follows `bufferRowLength` and `bufferImageHeight`, but in texel units that translate to whole blocks.
 - `VK_REMAINING_ARRAY_LAYERS` as `imageSubresource.layerCount` means "from `baseArrayLayer` to the last layer of the image". `VK_KHR_maintenance5` is required to use this sentinel in copy regions.
 - Sparse binding (`VK_IMAGE_CREATE_SPARSE_BINDING_BIT` plus `VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT`) lets an image be backed by multiple memory bindings through `vkQueueBindSparse`. The test exercises this path only when the dispatcher enables sparse binding; a sparse semaphore synchronizes the bind operation with the copy.
@@ -36,7 +36,7 @@ The same `1d_images` / `2d_images` / `3d_images` subtree is registered under eac
 - `api.copy_and_blit.core.image_to_buffer_general_layout`: `VK_IMAGE_LAYOUT_GENERAL` ([line 227](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L227)).
 - `api.copy_and_blit.dedicated_allocation.image_to_buffer`: dedicated allocation.
 - `api.copy_and_blit.copy_commands2.image_to_buffer`: `VK_KHR_copy_commands2` extension.
-- `api.copy_and_blit.device_address.image_to_buffer`: `VK_KHR_copy_memory_indirect` device-address commands, non-VulkanSC only ([line 254](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L254)).
+- `api.copy_and_blit.device_address.image_to_buffer`: device-address commands, non-VulkanSC only ([dispatcher](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L249-L258)).
 
 This page uses the `core.image_to_buffer` path as the canonical registration root because that is the primary, no-extension configuration. The other dispatcher nodes reuse the same `1d_images` / `2d_images` / `3d_images` test case set with different `TestGroupParams` (allocation kind, extension flags, queue selection, sparse binding, general layout).
 
@@ -69,7 +69,7 @@ Tests a single region covering the full image. `whole` uses `bufferRowLength = 0
 
 ### `buffer_offset` and `buffer_offset_relaxed`: non-zero destination offset
 
-Tests a copy where `bufferOffset` is non-zero and the image subregion is offset by `defaultQuarterSize`. `buffer_offset` aligns the offset to the texel size by rounding up `defaultSize * defaultHalfSize` to a multiple of `tcu::getPixelSize(tcuFormat)`. `buffer_offset_relaxed` uses a non-texel-aligned offset of `defaultSize * defaultHalfSize + 1` rounded up to the texel size; it is registered only when `queueSelection == Universal` because the relaxed alignment is checked against the universal queue's `optimalBufferCopyOffsetAlignment`. Registered at [`vktApiCopyImageToBufferTests.cpp#L1175-L1239`](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1175-L1239).
+Tests a copy with a nonzero destination offset. The relaxed case rounds `defaultSize * defaultHalfSize + 1` up to the texel size; it is still texel-aligned. It is registered for universal queues and, outside Vulkan SC, transfer-only queues with `MAINTENANCE_11` set ([registration](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1200-L1238)). The shared flag collision described below also changes the selected command for the transfer-only relaxed cases.
 
 ### `regions`: multiple copy regions in one command
 
@@ -139,7 +139,7 @@ No shader is involved in this test family. All work is recorded by the host thro
 | If this behavior parameter value fails | Possible failure cause(s) |
 |----------------------------------------|---------------------------|
 | `whole`, `whole_unaligned`, `tightly_sized_buffer`, `larger_buffer` (uncompressed) | Row stride or image-height handling in the copy region, or `bufferImageHeight` larger than `imageExtent.height` not respected. |
-| `buffer_offset`, `buffer_offset_relaxed` | Destination `bufferOffset` handling, including alignment to `optimalBufferCopyOffsetAlignment` for the relaxed variant. |
+| `buffer_offset`, `buffer_offset_relaxed` | Destination byte-offset handling and queue-specific command selection. |
 | `regions` | Multi-region composition: per-region `bufferOffset`, `imageExtent`, or stride isolation. |
 | `array`, `array_larger_buffer`, `array_tightly_sized_buffer` | Per-layer `baseArrayLayer` handling or stride between layer destinations. |
 | `array_all_remaining_layers`, `array_not_all_remaining_layers` | `VK_REMAINING_ARRAY_LAYERS` resolution from `baseArrayLayer` 0 vs 2, or maintenance5 support. |
@@ -167,9 +167,9 @@ No shader is involved in this test family. All work is recorded by the host thro
 
 #### Destination buffer offset handling
 
-**Possible failure symptoms:** For `buffer_offset` or `tightly_sized_buffer_offset`, the bytes at the beginning of the destination buffer are written instead of skipped, or the bytes from `bufferOffset` onward are shifted by a small amount. For `buffer_offset_relaxed`, the failure is specific to the non-texel-aligned offset case.
+**Possible failure symptoms:** Bytes before the destination offset are overwritten or copied texels are shifted. The relaxed case uses a texel-aligned nonzero offset and may expose queue-specific differences.
 
-**Possible implementation causes:** Per Vulkan spec, `bufferOffset` is the byte offset into the destination buffer where the first texel of the copied region is written. The implementation must respect `VkPhysicalDeviceLimits::optimalBufferCopyOffsetAlignment` for the relaxed case. A driver that rounds `bufferOffset` differently, or that writes from offset 0 ignoring the supplied value, would produce this symptom. For `buffer_offset_relaxed`, check whether the driver accepts the offset but writes to the wrong location, versus rejecting the case when it should accept it.
+**Possible implementation causes:** The implementation may round or apply the destination offset incorrectly. The test does not align this case to `optimalBufferCopyOffsetAlignment`. For transfer-only relaxed cases, first account for the shared extension-bit collision below, which changes both support gates and command selection.
 
 #### Multi-region composition
 
@@ -247,7 +247,7 @@ No shader is involved in this test family. All work is recorded by the host thro
 
 ### Requirement-based pruning
 
-- `device_address.image_to_buffer` requires `VK_KHR_copy_memory_indirect` (gated as `DEVICE_ADDRESS_COMMANDS`) and is non-VulkanSC only. `checkExtensionSupport()` throws `NotSupportedError` if the extension is missing. See [`vktApiCopyImageToBufferTests.cpp#L381`](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L381) and [`vktApiCopiesAndBlittingTests.cpp#L248-L258`](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L248-L258).
+- Device-address commands belong to `VK_KHR_device_address_commands`. In the current source, `DEVICE_ADDRESS_COMMANDS` and `MAINTENANCE_11` share a bit: either flag triggers both extension checks, and transfer-only relaxed-offset cases also take the device-address branch. This is an unresolved source defect, not an intended dependency ([flags](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L132-L145), [checks](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.cpp#L279-L283)).
 - `copy_commands2.image_to_buffer` requires `VK_KHR_copy_commands2` (gated as `COPY_COMMANDS_2`). Same `checkExtensionSupport()` path.
 - `dedicated_allocation.image_to_buffer` requires `VK_KHR_dedicated_allocation`. See [`vktApiCopyImageToBufferTests.cpp#L375-L378`](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L375-L378).
 - `array_all_remaining_layers` and `array_not_all_remaining_layers` require `VK_KHR_maintenance5`, added via `extensionFlags |= MAINTENANCE_5`. See [`vktApiCopyImageToBufferTests.cpp#L1522`](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1522) and [`vktApiCopyImageToBufferTests.cpp#L1567`](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1567).
@@ -255,11 +255,11 @@ No shader is involved in this test family. All work is recorded by the host thro
 - The device must support enough array layers and mip levels for the requested image. See [`vktApiCopyImageToBufferTests.cpp#L393-L394`](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L393-L394) and [`vktApiCopyImageToBufferTests.cpp#L745-L749`](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L745-L749).
 - `TransferOnly` queue selection validates `minImageTransferGranularity` against the source image extent and each region's `imageExtent`. See [`vktApiCopyImageToBufferTests.cpp#L397-L405`](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L397-L405).
 - `INDIRECT_COPY` (compressed only, non-VulkanSC) requires `VK_FORMAT_FEATURE_2_COPY_IMAGE_INDIRECT_DST_BIT_KHR` for the source format and queue support in `VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR.supportedQueues`. See [`vktApiCopyImageToBufferTests.cpp#L751-L809`](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L751-L809).
-- Sparse binding requires the source format to support `VK_IMAGE_CREATE_SPARSE_BINDING_BIT | VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT`. The constructor queries `getPhysicalDeviceImageFormatProperties` with those flags and throws `NotSupportedError` on `VK_ERROR_FORMAT_NOT_SUPPORTED`. See [`vktApiCopyImageToBufferTests.cpp#L128-L137`](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L128-L137).
+- Sparse support is checked before instance construction through `checkSparseBindingSupport`, querying sparse-binding/residency flags and transfer source/destination usage ([call](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L397-L398), [helper](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.cpp#L470-L485)).
 
 ### Design-based pruning
 
-- `buffer_offset_relaxed` is registered only for the Universal queue because the relaxed alignment is only meaningful against the universal queue's `optimalBufferCopyOffsetAlignment`. See [`vktApiCopyImageToBufferTests.cpp#L1207`](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1207).
+- `buffer_offset_relaxed` includes universal and non-SC transfer-only queues, but not compute-only queues. Its offset is rounded to the texel size, not to `optimalBufferCopyOffsetAlignment` ([predicate and offset](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1200-L1224)).
 - `padding_bytes` is registered only for linear tiling, non-sparse, non-general-layout images because the row-padding behavior it tests is specific to linear tiling and the pre-fill pattern would be overwritten by the general-layout memory barrier path. See [`vktApiCopyImageToBufferTests.cpp#L1594-L1597`](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1594-L1597).
 - 1D compressed tests use `VK_IMAGE_TYPE_2D` because the Vulkan spec requires compressed formats to use 2D image types. The naming reflects the dispatcher placement under `1d_images`, not the actual image type. See [`vktApiCopyImageToBufferTests.cpp#L1947-L1971`](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1947-L1971) and the source comment at [`vktApiCopyImageToBufferTests.cpp#L1951`](../../../modules/vulkan/api/vktApiCopyImageToBufferTests.cpp#L1951).
 - 1D uncompressed tests use only `VK_FORMAT_R8G8B8A8_UNORM` and `VK_IMAGE_TILING_OPTIMAL` to keep the 1D matrix small; the format and tiling axes are exercised by the 2D leaves.
