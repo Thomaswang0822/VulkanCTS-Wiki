@@ -218,6 +218,7 @@ void main()
 ### `samplerless`
 
 - The host creates the source image and output framebuffer with `VK_FORMAT_R8G8B8A8_UNORM`. The source image is cleared to `kDescriptorColor`, `(0, 1, 0, 1)`.
+- The graphics color-attachment reference uses the selected `attachmentLayout`, matching the attachment description rather than always forcing `COLOR_ATTACHMENT_OPTIMAL` ([reference](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L634-L640)).
 - The host creates empty descriptor-set layouts before the selected set when `descriptorSet` is 1, then adds binding 0 with the selected image descriptor type. The compute path also adds a storage-image output binding.
 - The host writes the selected `VkDescriptorImageInfo`, using the selected sampler field, image view, and image layout. The graphics path records a full-screen draw. The compute path dispatches `64 x 64 x 1` invocations.
 - The host copies the output image to a host-visible buffer. It scans the result and fails with `Pixel mismatch` if any pixel differs from the green descriptor color.

@@ -356,6 +356,8 @@ void main (void) {
 
 ### Common generated resource-access path
 
+The custom device is owned by `InstanceWrapper` and `DeviceWrapper`; queue retrieval, allocation, acceleration-structure operations, and descriptor calls use that device's driver and allocator ([device creation](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L3147-L3163)).
+
 - `DescriptorBufferTestCase::delayedInit()` expands registered parameters into `SimpleBinding` records. It creates helper samplers, result buffers, and service acceleration structures only when the selected descriptor or stage needs them.
 - `checkSupport()` requires `VK_EXT_descriptor_buffer`, buffer device address, synchronization2, descriptor indexing, and maintenance4. It applies sparse features, stage features, descriptor-buffer binding limits, robustness, inline-uniform, push-descriptor, mutable-descriptor, YCbCr, maintenance5/6, acceleration-structure, ray-query, and ray-tracing gates as needed.
 - The test creates descriptor-set layouts with `VK_DESCRIPTOR_SET_LAYOUT_CREATE_DESCRIPTOR_BUFFER_BIT_EXT`. It queries each layout's byte size and every binding's byte offset. Set regions in a descriptor buffer are rounded up to `descriptorBufferOffsetAlignment`.
@@ -477,11 +479,13 @@ Scenario-family axis:
 ### Requirement-based pruning
 
 - All generated cases require `VK_EXT_descriptor_buffer`, the `descriptorBuffer` feature, buffer device address, synchronization2, descriptor indexing, maintenance4, and a compatible execution queue ([common support gates](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L2351-L2410)).
-- Sparse-binding cases require `sparseBinding`; sparse-residency cases also require `sparseResidencyBuffer` and a sparse-capable queue. A missing feature or queue produces `NotSupported`, not a failed descriptor comparison ([sparse support](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L2384-L2396), [queue selection](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L2893-L2952)).
+- Sparse-binding cases require `sparseBinding`; sparse-residency cases also require `sparseResidencyBuffer`. The support callback rejects missing sparse support and graphics requests unsupported by the context's universal queue. Custom-device queue selection then asserts that an execution family was found ([support](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L2608-L2615), [queue selection](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L2918-L2972)).
 - Tessellation, geometry, ray query, acceleration structure, ray-tracing pipeline, inline uniform block, push descriptor, descriptor-buffer push descriptor, robustness2 null descriptor, mutable descriptor, YCbCr conversion, maintenance5, and maintenance6 gates apply only to cases that request them.
 - The source checks `maxBoundDescriptorSets`, descriptor-buffer binding limits, per-stage descriptor limits, inline-uniform limits, and mutable layout support. Counts above device limits are skipped as unsupported ([parameter limits](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L2435-L2564), [per-stage counts](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L2828-L2890)).
 - Input attachments run only in fragment shaders. YCbCr cases query format properties and use the implementation-reported `combinedImageSamplerDescriptorCount`.
 - Vulkan SC does not register this family.
+
+Acceleration-structure and ray-tracing feature checks now run in `checkSupport()`, including capture/replay feature requirements. Optional acceleration structures require their extension only when ray-query support selects that path. The same callback checks aggregate inline-uniform bytes against Vulkan 1.3 `maxInlineUniformTotalSize`, rather than deferring that check to execution ([checks](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L2543-L2606)). `basic.limits` returns `NotSupported` when the extension is exposed but `descriptorBuffer` is false, instead of asserting ([limits entry](../../../modules/vulkan/binding_model/vktBindingDescriptorBufferTests.cpp#L5990-L5997)).
 
 ### Design-based pruning
 

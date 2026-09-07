@@ -52,10 +52,16 @@ binding_model.descriptor_heap
 ├── shader_object_invariance
 ├── push_data_access
 ├── non_uniform_access
+├── non_uniform_shader_record
 ├── special_heap
 ├── non_packed
 ├── unaligned
-└── secondary
+├── secondary
+├── descriptor_precise_size
+├── zero_stride
+├── offset_id
+├── small_buffer
+└── custom_border_color
 ```
 
 The factory registers these children in one implementation file ([factory](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L15415-L15461)). The default mustpass lists their 457 executable leaves at [`binding-model.txt#L10441-L10897`](../../../mustpass/main/vk-default/binding-model.txt#L10441-L10897). The hierarchy stays one level deep here; generated stage, descriptor-type, mapping, and stride descendants appear in the next sections.

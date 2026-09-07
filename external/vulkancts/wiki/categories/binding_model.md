@@ -24,6 +24,8 @@ binding_model
 ├── descriptor_combination
 ├── push_constant_bank
 ├── descriptor_heap
+├── descriptor_heap_random
+├── image_array_m11
 ├── stages
 ├── inline_uniform_blocks
 └── unused_invalid_descriptor
@@ -56,10 +58,12 @@ The families share a shader-visible resource-binding problem but vary the storag
 | `descriptor_combination` | [DescriptorCombination.md](../testfiles/binding_model/DescriptorCombination.md) | Legacy and descriptor-buffer state interaction plus sampler capture replay. |
 | `push_constant_bank` | [PushConstantBank.md](../testfiles/binding_model/PushConstantBank.md) | Bank and member placement for ordinary push constants and descriptor-heap push data. |
 | `descriptor_heap` | [DescriptorHeap.md](../testfiles/binding_model/DescriptorHeap.md) | Heap mappings, direct heap access, state lifetime, queue use, and graphics or compute integration. |
+| `descriptor_heap_random` | [DescriptorHeapRandom.md](../testfiles/binding_model/DescriptorHeapRandom.md) | Randomized heap-backed resource layouts and shader access. |
+| `image_array_m11` | [ImageArrayMaintenance11.md](../testfiles/binding_model/ImageArrayMaintenance11.md) | Maintenance11 image-array descriptor behavior. |
 | `stages` | [Stages.md](../testfiles/binding_model/Stages.md) | Descriptor binding from multiple pipeline bind points and stage-specific observations. |
 | `inline_uniform_blocks` | [DescriptorInlineUniform.md](../testfiles/binding_model/DescriptorInlineUniform.md) | Byte-addressed inline uniform writes, copies, shader representation, and readback. |
 | `unused_invalid_descriptor` | [UnusedInvalidDescriptor.md](../testfiles/binding_model/UnusedInvalidDescriptor.md) | Static use, dynamic use, partial binding, undefined descriptors, and actual access. |
 
 ## Category Notes
 
-The category dispatcher, [`vktBindingModelTests.cpp`](../../modules/vulkan/binding_model/vktBindingModelTests.cpp), registers five direct families outside the `CTS_USES_VULKANSC` guard and the remaining nine only for Vulkan ([`createChildren()`](../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L71)). The nested `descriptor_update.acceleration_structure` branch is also Vulkan-only ([nested registration](../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L1909-L1917)). The dispatcher has no separate technical page, so this page records its root routing and availability. [`binding-model.txt`](../../mustpass/main/vk-default/binding-model.txt) lists the default Vulkan leaves.
+The category dispatcher, [`vktBindingModelTests.cpp`](../../modules/vulkan/binding_model/vktBindingModelTests.cpp), registers five direct families outside the `CTS_USES_VULKANSC` guard and eleven only for Vulkan ([`createChildren()`](../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L54-L76)). The nested `descriptor_update.acceleration_structure` branch is also Vulkan-only ([nested registration](../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L1909-L1917)). The dispatcher has no separate technical page, so this page records its root routing and availability. [`binding-model.txt`](../../mustpass/main/vk-default/binding-model.txt) lists the default Vulkan leaves.

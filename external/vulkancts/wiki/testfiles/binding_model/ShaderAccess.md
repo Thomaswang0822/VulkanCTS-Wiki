@@ -319,6 +319,8 @@ void main (void)
 
 ## Runtime Execution and Result Checking
 
+Buffer, image-fetch, sampled-image, and texel-buffer compute instances use the compute multi-queue runner. Each pass clears accumulated descriptor-update templates, registries, builders, and per-set counts before recording work for the supplied queue and family, so a later queue pass does not reuse accumulated writes ([buffer pass](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp#L2703-L2716), [image fetch](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp#L4987-L5000), [sampling](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp#L7112-L7125), [texel buffers](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp#L9181-L9194)).
+
 - The host creates resource data whose color values identify which descriptor, set, array element, range, mip, or slice the shader reached. Buffer cases place guard values outside the selected data range so an offset mistake does not silently read the same payload.
 - Descriptor-set layouts mirror the generated `set` and `binding` declarations. The host populates ordinary sets with direct writes or update templates. Push variants record descriptor writes in the command buffer instead of binding allocated descriptor sets.
 - For normal and template-updated sets, `bind` records `vkCmdBindDescriptorSets`, while `bind2` records `vkCmdBindDescriptorSets2` with the pipeline layout, set range, descriptor sets, dynamic offsets, and existing stage mask. Push variants bypass both bind commands and record `vkCmdPushDescriptorSetKHR` or `vkCmdPushDescriptorSetWithTemplateKHR`-style operations through the CTS device interface.
@@ -359,6 +361,8 @@ void main (void)
 - Storage image, storage texel-buffer, and storage-buffer access in vertex-pipeline stages requires `vertexPipelineStoresAndAtomics`; fragment access requires `fragmentStoresAndAtomics`.
 - Cube-array image cases require `imageCubeArray`. Tessellation and geometry paths also depend on support for those shader stages.
 - Unsupported cases raise `NotSupportedError`; they do not report a conformance failure.
+
+The shared `verifyDriverSupport()` now runs in the case support callbacks rather than `createInstance()`. It requires push/template functionality through the context and rejects active tessellation or geometry stages when their features are absent; module creation subsequently asserts stage support ([shared checks](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp#L138-L208), [buffer callback](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp#L3578-L3584)).
 
 ### Design-based pruning
 

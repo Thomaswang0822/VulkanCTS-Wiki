@@ -393,6 +393,8 @@ void main()
 
 ## Runtime Execution and Result Checking
 
+The instance uses `MultiQueueRunnerTestInstance`: compute cases request `COMPUTE_QUEUE`, and other stages request `GRAPHICS_QUEUE`. Each `queuePass()` creates the command pool for the supplied family and submits to its queue handle. Compute passes restrict shader-access barriers to the compute stage; this runtime queue choice does not add a registration-path component ([runner](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L289-L307), [pass setup](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L1467-L1480), [submission](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L3090-L3096)).
+
 - The test replays the internal seed used during shader generation, then creates each generated descriptor-set layout. It applies variable-count and update-after-bind flags where the generated binding and device support permit them.
 - It creates descriptor pools and sets, one pipeline layout containing all 4, 8, 16, or 32 set layouts, and the stage-specific pipeline. The test creates buffer, image, texel-buffer, input-attachment, inline-uniform-block, and acceleration-structure resources when the generated case needs them.
 - Each readable descriptor receives its global descriptor number. Before binding each set, the host writes ordinary descriptors. It calls `vkCmdBindDescriptorSets`, then writes bindings selected for update-after-bind.

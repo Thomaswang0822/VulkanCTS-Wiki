@@ -123,7 +123,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/api.txt`
   - `M` `external/vulkancts/mustpass/main/vksc-default/api.txt`
-- [ ] `binding_model` — source `15` (A=4, M=11); mustpass `2` (M=2). Raw groups: `binding-model, binding_model`. Decision: pending.
+- [x] `binding_model` — source `15` (A=4, M=11); mustpass `2` (M=2). Raw groups: `binding-model, binding_model`. Decision: English documentation refresh complete.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/binding_model/CMakeLists.txt`
   - `M` `external/vulkancts/modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp`
