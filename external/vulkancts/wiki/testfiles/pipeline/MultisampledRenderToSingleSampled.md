@@ -2333,4 +2333,4 @@ The compute verifier is generated from the same `initBasicPrograms` branch as th
 | Vulkan multisample and resolve rules | [`fragops.adoc`](../../../../vulkan-docs/src/chapters/fragops.adoc#L2530-L2545) |
 | Monolithic mustpass coverage | [`monolithic.txt`](../../../../vulkancts/mustpass/main/vk-default/pipeline/monolithic/monolithic.txt) |
 | Fast-linked-library mustpass coverage | [`fast-linked-library.txt`](../../../../vulkancts/mustpass/main/vk-default/pipeline/fast-linked-library.txt) |
-| Unlinked shader-object mustpass coverage | [`shader-object-unlinked-spirv.txt`](../../../../vulkancts/mustpass/main/vk-default/pipeline/shader-object-unlinked-spirv/shader-object-unlinked-spirv.txt) |
+| Unlinked shader-object mustpass coverage | [`shader-object-unlinked-spirv/multisample-with-fragment-shading-rate.txt`](../../../../vulkancts/mustpass/main/vk-default/pipeline/shader-object-unlinked-spirv/multisample-with-fragment-shading-rate.txt) |

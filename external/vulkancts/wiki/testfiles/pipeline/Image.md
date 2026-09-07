@@ -276,5 +276,5 @@ These are source-defined matrix boundaries, not pass/fail expectations.
 - [`vktPipelineImageSamplingInstance.cpp`](../../../modules/vulkan/pipeline/vktPipelineImageSamplingInstance.cpp#L455-L1023): image setup, resource creation, pipeline setup, and commands.
 - [`vktPipelineImageSamplingInstance.cpp`](../../../modules/vulkan/pipeline/vktPipelineImageSamplingInstance.cpp#L1640-L1778): reference comparison and test status.
 - [`monolithic.txt`](../../../mustpass/main/vk-default/pipeline/monolithic/monolithic.txt): default monolithic image leaves.
-- [`shader-object-unlinked-spirv.txt`](../../../mustpass/main/vk-default/pipeline/shader-object-unlinked-spirv/shader-object-unlinked-spirv.txt): default shader-object image leaves.
+- [`shader-object-unlinked-spirv/image.txt`](../../../mustpass/main/vk-default/pipeline/shader-object-unlinked-spirv/image.txt): default unlinked-SPIR-V shader-object image leaves.
 - [Image Views](../../../../vulkan-docs/src/chapters/resources.adoc#image-views): Vulkan image-view semantics.

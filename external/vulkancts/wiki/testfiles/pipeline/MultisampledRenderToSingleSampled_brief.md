@@ -108,7 +108,7 @@ A representative `basic` case uses a 2D color or depth/stencil attachment with 2
 | Compute verification setup | [`setupVerifyDescriptorSetAndPipeline`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.cpp#L2508-L2581) | Binds result storage and resolved views |
 | Vulkan render-pass contract | [`pipelines.adoc`](../../../../vulkan-docs/src/chapters/pipelines.adoc#L3036-L3048) | Defines MSRTSS image and rendering requirements |
 | Vulkan resolve operations | [`fragops.adoc`](../../../../vulkan-docs/src/chapters/fragops.adoc#L2530-L2545) | Defines multisample and resolve behavior |
-| Mustpass coverage | [`monolithic.txt`](../../../../vulkancts/mustpass/main/vk-default/pipeline/monolithic/monolithic.txt), [`fast-linked-library.txt`](../../../../vulkancts/mustpass/main/vk-default/pipeline/fast-linked-library.txt), [`shader-object-unlinked-spirv.txt`](../../../../vulkancts/mustpass/main/vk-default/pipeline/shader-object-unlinked-spirv/shader-object-unlinked-spirv.txt) | Records registered executable leaves |
+| Mustpass coverage | [`monolithic.txt`](../../../../vulkancts/mustpass/main/vk-default/pipeline/monolithic/monolithic.txt), [`fast-linked-library.txt`](../../../../vulkancts/mustpass/main/vk-default/pipeline/fast-linked-library.txt), [`shader-object-unlinked-spirv/multisample-with-fragment-shading-rate.txt`](../../../../vulkancts/mustpass/main/vk-default/pipeline/shader-object-unlinked-spirv/multisample-with-fragment-shading-rate.txt) | Records registered executable leaves |
 
 ## Questions / Risk Points for User Audit
 

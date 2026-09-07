@@ -113,7 +113,6 @@ The implementation omits `compute` outside monolithic construction because the s
 
 ## Source Reference Appendix
 
-- [Legacy navigation page](vktPipelineExecutablePropertiesTests.md)
 - [Implementation file](../../../modules/vulkan/pipeline/vktPipelineExecutablePropertiesTests.cpp#L1)
 - [Properties, statistics, and representation verification](../../../modules/vulkan/pipeline/vktPipelineExecutablePropertiesTests.cpp#L297)
 - [Graphics support and pipeline setup](../../../modules/vulkan/pipeline/vktPipelineExecutablePropertiesTests.cpp#L857)

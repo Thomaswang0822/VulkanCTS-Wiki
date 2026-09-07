@@ -31,10 +31,10 @@ The binding stride controls the distance between records. The attribute offset i
 ```text
 pipeline.monolithic.vertex_input.legacy_vertex_attributes
 ├── single_binding
-│   └── <format> (54 format-named groups)
 └── multi_binding
-    └── <format tuple> (3 tuple-named groups)
 ```
+
+The source expands `single_binding` into 54 format-named groups and `multi_binding` into three curated format tuples. Those generated names are documented in the parameter table below rather than represented as placeholder hierarchy nodes.
 
 Each direct child is an intermediate node whose leaves are grouped by format: `single_binding` contains one group per entry of `formatsToTest[]` named by `getFormatSimpleName()`, and `multi_binding` contains one group per curated tuple named by `getFormatShortName()` ([factory](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L1192-L1196), [single-binding population](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L1026-L1093), [multi-binding population](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L1172-L1188)). Equivalent registered roots exist under `pipeline.fast_linked_library.vertex_input.legacy_vertex_attributes`; the monolithic root above is the canonical tree used here.
 

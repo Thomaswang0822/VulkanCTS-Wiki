@@ -50,7 +50,6 @@ A passing case does not require a driver to expose a fixed number of executables
 
 ## Source Trail
 
-- [Legacy navigation page](vktPipelineExecutablePropertiesTests.md)
 - [Implementation and query checks](../../../modules/vulkan/pipeline/vktPipelineExecutablePropertiesTests.cpp#L272)
 - [Family registration](../../../modules/vulkan/pipeline/vktPipelineExecutablePropertiesTests.cpp#L1213)
 - [Extension feature requirement](../../../scripts/src/extensions/VK_KHR_pipeline_executable_properties.json#L1)
