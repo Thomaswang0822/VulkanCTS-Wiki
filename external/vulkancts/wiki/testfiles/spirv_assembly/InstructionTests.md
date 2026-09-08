@@ -27,7 +27,7 @@ spirv_assembly.instruction
 └── terminate_invocation (non-VulkanSC only)
 ```
 
-`compute` and `graphics` are themselves aggregators of ~50 inline groups plus separate-source subfamilies. Of the other six direct children, four are implemented in separate source files; `function_params` and `image_query` are Amber wrappers defined here. The aggregator root is built by [`createInstructionTests`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21311-L21547), which assembles the [`computeTests`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21316-L21449) and [`graphicsTests`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21451-L21533) subtrees and then adds the six direct children.
+`compute` and `graphics` are themselves aggregators of inline groups plus separate-source subfamilies. The compute branch now includes `expression_rearrangement`, `op_undef`, and the physical-storage-buffer `ptr_access_chain_from_ubo` leaf. The aggregator root is built by [`createInstructionTests`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21721-L21737), which assembles [`createComputeChildren`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21494-L21631) and [`createGraphicsChildren`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21632-L21720) subtrees and then adds the direct children.
 
 The `(non-VulkanSC only)` marker means the family's test case leaves are registered only when `CTS_USES_VULKANSC` is not defined; on VulkanSC builds the family is either not registered at all (`spirv1p4`, `function_params`) or registered as an empty group (`image_query`, `terminate_invocation`).
 
@@ -64,7 +64,8 @@ These inline groups are defined directly in [`vktSpvAsmInstructionTests.cpp`](..
 | `memory_access` / `opmemoryaccess` | compute, graphics | `Volatile`/`Aligned`/`Nontemporal` qualifiers on load/store/copy |
 | `opcopymemory` / `opcopyobject` | compute | `OpCopyMemory`/`OpCopyObject` across composite types |
 | `nocontraction` | compute, graphics | `NoContraction` decoration preventing fused multiply-add |
-| `opundef` | compute, graphics | `OpUndef` across bool/scalars/vectors/matrices/images/samplers/pointers/arrays/structs |
+| `opundef` | compute | `OpUndef` across inline instruction types; buffer-based descriptor/control-flow variants are documented in [`OpUndefTests.md`](OpUndefTests.md) |
+| `expression_rearrangement` | compute | Floating-point expression reassociation with denorm preserve/flush-to-zero and `NoContraction` variants |
 | `opunreachable` | compute | `OpUnreachable` in unreachable code paths |
 | `opquantize` / `opquantize_vec4` | compute, graphics | `OpQuantizeToF16` scalar and vec4 forms |
 | `opfrem` / `frem` | compute, graphics | `OpFRem` (sign follows dividend) |
@@ -95,41 +96,41 @@ These subfamilies are implemented in separate source files. They are registered 
 
 | Delegated subfamily | Registered under | Implementation page |
 |---------------------|------------------|---------------------|
-| `8bit_storage` | compute, graphics | [`vktSpvAsm8bitStorageTests.md`](vktSpvAsm8bitStorageTests.md) |
-| `16bit_storage` | compute, graphics | [`vktSpvAsm16bitStorageTests.md`](vktSpvAsm16bitStorageTests.md) |
-| `64bit_compare` | compute, graphics | [`vktSpvAsm64bitCompareTests.md`](vktSpvAsm64bitCompareTests.md) |
-| `float_controls` / `float_controls2` / `float_controls_extensionless` | compute, graphics | [`vktSpvAsmFloatControlsTests.md`](vktSpvAsmFloatControlsTests.md), [`vktSpvAsmFloatControls2Tests.md`](vktSpvAsmFloatControls2Tests.md), [`vktSpvAsmFloatControlsExtensionlessTests.md`](vktSpvAsmFloatControlsExtensionlessTests.md) |
-| `ubo_padding` | compute, graphics | [`vktSpvAsmUboMatrixPaddingTests.md`](vktSpvAsmUboMatrixPaddingTests.md) |
-| `composite_insert` | compute, graphics | [`vktSpvAsmCompositeInsertTests.md`](vktSpvAsmCompositeInsertTests.md) |
-| `variable_init` | compute, graphics | [`vktSpvAsmVariableInitTests.md`](vktSpvAsmVariableInitTests.md) |
-| `conditional_branch` | compute, graphics | [`vktSpvAsmConditionalBranchTests.md`](vktSpvAsmConditionalBranchTests.md) |
-| `indexing` | compute, graphics | [`vktSpvAsmIndexingTests.md`](vktSpvAsmIndexingTests.md) |
-| `variable_pointers` / `physical_pointers` | compute | [`vktSpvAsmVariablePointersTests.md`](vktSpvAsmVariablePointersTests.md) |
-| `image_sampler` | compute, graphics | [`vktSpvAsmImageSamplerTests.md`](vktSpvAsmImageSamplerTests.md) |
-| `pointer_parameter` | compute, graphics | [`vktSpvAsmPointerParameterTests.md`](vktSpvAsmPointerParameterTests.md) |
-| `workgroup_memory` | compute | [`vktSpvAsmWorkgroupMemoryTests.md`](vktSpvAsmWorkgroupMemoryTests.md) |
-| `signed_int_compare` | compute | [`vktSpvAsmSignedIntCompareTests.md`](vktSpvAsmSignedIntCompareTests.md) |
-| `signed_op` | compute | [`vktSpvAsmSignedOpTests.md`](vktSpvAsmSignedOpTests.md) |
-| `ptr_access_chain` | compute | [`vktSpvAsmPtrAccessChainTests.md`](vktSpvAsmPtrAccessChainTests.md) |
-| `vector_shuffle` | compute | [`vktSpvAsmVectorShuffleTests.md`](vktSpvAsmVectorShuffleTests.md) |
-| `hlsl_cases` | compute | [`vktSpvAsmFromHlslTests.md`](vktSpvAsmFromHlslTests.md) |
-| `empty_struct` | compute | [`vktSpvAsmEmptyStructTests.md`](vktSpvAsmEmptyStructTests.md) |
-| `physical_storage_buffer` | compute | [`vktSpvAsmPhysicalStorageBufferPointerTests.md`](vktSpvAsmPhysicalStorageBufferPointerTests.md) |
-| `raw_access_chain` | compute | [`vktSpvAsmRawAccessChainTests.md`](vktSpvAsmRawAccessChainTests.md) |
-| `untyped_pointers` | compute | [`vktSpvAsmUntypedPointersTests.md`](vktSpvAsmUntypedPointersTests.md) |
-| `compute_shader_derivatives` | compute | [`vktSpvAsmComputeShaderDerivativesTests.md`](vktSpvAsmComputeShaderDerivativesTests.md) |
-| `non_semantic_info` | compute | [`vktSpvAsmNonSemanticInfoTests.md`](vktSpvAsmNonSemanticInfoTests.md) |
-| `relaxed_with_forward_reference` | compute | [`vktSpvAsmRelaxedWithForwardReferenceTests.md`](vktSpvAsmRelaxedWithForwardReferenceTests.md) |
-| `multiple_shaders_extended` | compute | [`vktSpvAsmMultipleShadersTests.md`](vktSpvAsmMultipleShadersTests.md) |
-| `opfma` | compute | [`vktSpvAsmFmaTests.md`](vktSpvAsmFmaTests.md) |
-| `opsdotkhr`..`opsudotaccsatkhr` | compute | [`vktSpvAsmIntegerDotProductTests.md`](vktSpvAsmIntegerDotProductTests.md) |
-| `ldexp` | compute | [`vktSpvAsmLdexpTests.md`](vktSpvAsmLdexpTests.md) |
-| `cross_stage` | graphics | [`vktSpvAsmCrossStageInterfaceTests.md`](vktSpvAsmCrossStageInterfaceTests.md) |
-| `varying_name` | graphics | [`vktSpvAsmVaryingNameTests.md`](vktSpvAsmVaryingNameTests.md) |
-| `amd_trinary_minmax` | instruction | [`vktSpvAsmTrinaryMinMaxTests.md`](vktSpvAsmTrinaryMinMaxTests.md) |
-| `maint9_vectorization` | instruction | [`vktSpvAsmMaint9VectorizationTests.md`](vktSpvAsmMaint9VectorizationTests.md) |
-| `spirv1p4` | instruction | [`vktSpvAsmSpirvVersion1p4Tests.md`](vktSpvAsmSpirvVersion1p4Tests.md) |
-| `terminate_invocation` | instruction | [`vktSpvAsmTerminateInvocationTests.md`](vktSpvAsmTerminateInvocationTests.md) |
+| `8bit_storage` | compute, graphics | [`8bitStorageTests.md`](8bitStorageTests.md) |
+| `16bit_storage` | compute, graphics | [`16bitStorageTests.md`](16bitStorageTests.md) |
+| `64bit_compare` | compute, graphics | [`64bitCompareTests.md`](64bitCompareTests.md) |
+| `float_controls` / `float_controls2` / `float_controls_extensionless` | compute, graphics | [`FloatControlsTests.md`](FloatControlsTests.md), [`FloatControls2Tests.md`](FloatControls2Tests.md), [`FloatControlsExtensionlessTests.md`](FloatControlsExtensionlessTests.md) |
+| `ubo_padding` | compute, graphics | [`UboMatrixPaddingTests.md`](UboMatrixPaddingTests.md) |
+| `composite_insert` | compute, graphics | [`CompositeInsertTests.md`](CompositeInsertTests.md) |
+| `variable_init` | compute, graphics | [`VariableInitTests.md`](VariableInitTests.md) |
+| `conditional_branch` | compute, graphics | [`ConditionalBranchTests.md`](ConditionalBranchTests.md) |
+| `indexing` | compute, graphics | [`IndexingTests.md`](IndexingTests.md) |
+| `variable_pointers` / `physical_pointers` | compute | [`VariablePointersTests.md`](VariablePointersTests.md) |
+| `image_sampler` | compute, graphics | [`ImageSamplerTests.md`](ImageSamplerTests.md) |
+| `pointer_parameter` | compute, graphics | [`PointerParameterTests.md`](PointerParameterTests.md) |
+| `workgroup_memory` | compute | [`WorkgroupMemoryTests.md`](WorkgroupMemoryTests.md) |
+| `signed_int_compare` | compute | [`SignedIntCompareTests.md`](SignedIntCompareTests.md) |
+| `signed_op` | compute | [`SignedOpTests.md`](SignedOpTests.md) |
+| `ptr_access_chain` | compute | [`PtrAccessChainTests.md`](PtrAccessChainTests.md) |
+| `vector_shuffle` | compute | [`VectorShuffleTests.md`](VectorShuffleTests.md) |
+| `hlsl_cases` | compute | [`FromHlslTests.md`](FromHlslTests.md) |
+| `empty_struct` | compute | [`EmptyStructTests.md`](EmptyStructTests.md) |
+| `physical_storage_buffer` | compute | [`PhysicalStorageBufferPointerTests.md`](PhysicalStorageBufferPointerTests.md) |
+| `raw_access_chain` | compute | [`RawAccessChainTests.md`](RawAccessChainTests.md) |
+| `untyped_pointers` | compute | [`UntypedPointersTests.md`](UntypedPointersTests.md) |
+| `compute_shader_derivatives` | compute | [`ComputeShaderDerivativesTests.md`](ComputeShaderDerivativesTests.md) |
+| `non_semantic_info` | compute | [`NonSemanticInfoTests.md`](NonSemanticInfoTests.md) |
+| `relaxed_with_forward_reference` | compute | [`RelaxedWithForwardReferenceTests.md`](RelaxedWithForwardReferenceTests.md) |
+| `multiple_shaders_extended` | compute | [`MultipleShadersTests.md`](MultipleShadersTests.md) |
+| `opfma` | compute | [`FmaTests.md`](FmaTests.md) |
+| `opsdotkhr`..`opsudotaccsatkhr` | compute | [`IntegerDotProductTests.md`](IntegerDotProductTests.md) |
+| `ldexp` | compute | [`LdexpTests.md`](LdexpTests.md) |
+| `cross_stage` | graphics | [`CrossStageInterfaceTests.md`](CrossStageInterfaceTests.md) |
+| `varying_name` | graphics | [`VaryingNameTests.md`](VaryingNameTests.md) |
+| `amd_trinary_minmax` | instruction | [`TrinaryMinMaxTests.md`](TrinaryMinMaxTests.md) |
+| `maint9_vectorization` | instruction | [`Maint9VectorizationTests.md`](Maint9VectorizationTests.md) |
+| `spirv1p4` | instruction | [`SpirvVersion1p4Tests.md`](SpirvVersion1p4Tests.md) |
+| `terminate_invocation` | instruction | [`TerminateInvocationTests.md`](TerminateInvocationTests.md) |
 
 ## Behavior Parameters
 
@@ -145,7 +146,7 @@ Container for instruction tests that render through graphics shader utilities (v
 
 ### `amd_trinary_minmax`: AMD trinary min/max operations
 
-Tests `VK_AMD_shader_trinary_minmax` operations (`FMin3`/`FMax3`/`FMid3`/`SMin3`/`SMax3`/`SMid3`/`UMin3`/`UMax3`/`UMid3`) across data types and vector widths, with `deMemCmp`-based verification. Implemented in [`vktSpvAsmTrinaryMinMaxTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTrinaryMinMaxTests.cpp); see [`vktSpvAsmTrinaryMinMaxTests.md`](vktSpvAsmTrinaryMinMaxTests.md) for detail.
+Tests `VK_AMD_shader_trinary_minmax` operations (`FMin3`/`FMax3`/`FMid3`/`SMin3`/`SMax3`/`SMid3`/`UMin3`/`UMax3`/`UMid3`) across data types and vector widths, with `deMemCmp`-based verification. Implemented in [`vktSpvAsmTrinaryMinMaxTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTrinaryMinMaxTests.cpp); see [`TrinaryMinMaxTests.md`](TrinaryMinMaxTests.md) for detail.
 
 ### `function_params`: combined image sampler as function parameter
 
@@ -157,15 +158,15 @@ A single Amber test case, `samples_storage`, exercising `OpImageQuery` on a mult
 
 ### `maint9_vectorization`: `VK_KHR_maintenance9` vectorized bit operations
 
-Tests vectorization of `OpBitCount`/`OpBitReverse`/`OpBitFieldInsert`/`OpBitFieldSExtract`/`OpBitFieldUExtract` under `VK_KHR_maintenance9`. Implemented in [`vktSpvAsmMaint9VectorizationTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmMaint9VectorizationTests.cpp); see [`vktSpvAsmMaint9VectorizationTests.md`](vktSpvAsmMaint9VectorizationTests.md) for detail.
+Tests vectorization of `OpBitCount`/`OpBitReverse`/`OpBitFieldInsert`/`OpBitFieldSExtract`/`OpBitFieldUExtract` under `VK_KHR_maintenance9`. Implemented in [`vktSpvAsmMaint9VectorizationTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmMaint9VectorizationTests.cpp); see [`Maint9VectorizationTests.md`](Maint9VectorizationTests.md) for detail.
 
 ### `spirv1p4`: SPIR-V 1.4 features
 
-Tests SPIR-V 1.4 additions: `OpCopyLogical`, selective image operands, `OpPtrEqual`/`OpPtrDiff`, and entry-point interface changes. Non-VulkanSC only; see [`vktSpvAsmSpirvVersion1p4Tests.md`](vktSpvAsmSpirvVersion1p4Tests.md) for detail.
+Tests SPIR-V 1.4 additions: `OpCopyLogical`, selective image operands, `OpPtrEqual`/`OpPtrDiff`, and entry-point interface changes. Non-VulkanSC only; see [`SpirvVersion1p4Tests.md`](SpirvVersion1p4Tests.md) for detail.
 
 ### `terminate_invocation`: `VK_KHR_shader_terminate_invocation`
 
-Verifies that `OpTerminateInvocation` prevents subsequent stores/atomics/loads in the terminated invocation. Non-VulkanSC only; see [`vktSpvAsmTerminateInvocationTests.md`](vktSpvAsmTerminateInvocationTests.md) for detail.
+Verifies that `OpTerminateInvocation` prevents subsequent stores/atomics/loads in the terminated invocation. Non-VulkanSC only; see [`TerminateInvocationTests.md`](TerminateInvocationTests.md) for detail.
 
 ### `android` and `maintenance8`: `OpSRem`/`OpSMod` `failResult` variants
 

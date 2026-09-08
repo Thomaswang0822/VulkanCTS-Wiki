@@ -144,7 +144,7 @@ Secondary dimensions (covered in `## Parameter Dimensions and Observed Values` o
 | Narrowing checkers | [`computeCheck16BitFloats`/`graphicsCheck16BitFloats`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L189-L284) | Rounding-mode-aware re-derivation of expected 16-bit values. |
 | Widening checkers | [`check32BitFloats`/`check64BitFloats`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L314-L362) | Exact comparison for unambiguous widening. |
 | `16_to_16x2` builder | [`addShaderCode16BitStorageInputOutput16To16x2()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L4022-L4226) | Dual-output pass-through shader. |
-| Registration entry points | [`create16BitStorageComputeGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8620-L8648), [`create16BitStorageGraphicsGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8650-L8701) | Map test family names to builder functions. |
+| Registration entry points | [`create16BitStorageComputeGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8620-L8648), [`create16BitStorageGraphicsGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8646-L8700) | Map test family names to builder functions. |
 
 ## Questions / Risk Points for User Audit
 

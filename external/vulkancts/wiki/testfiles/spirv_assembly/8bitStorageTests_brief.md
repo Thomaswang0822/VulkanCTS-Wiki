@@ -132,8 +132,8 @@ The detailed `### Cause Analysis` subsections are written fresh during the Level
 | Struct verifier | [vktSpvAsm8bitStorageTests.cpp#L654-L670](../../../modules/vulkan/spirv_assembly/vktSpvAsm8bitStorageTests.cpp#L654-L670) | `checkStruct<originType, resultType, funcOrigin, funcResult>` template; filters bytes through `infoXStdY` bitmasks. |
 | Layout decoration fragments | [vktSpvAsm8bitStorageTests.cpp#L738-L892](../../../modules/vulkan/spirv_assembly/vktSpvAsm8bitStorageTests.cpp#L738-L892) | Six `ShaderTemplate` variants encoding std140/std430 × 8/32/mixed struct layouts. |
 | Representative compute case `storagebuffer_32_to_8` | [vktSpvAsm8bitStorageTests.cpp#L928-L1084](../../../modules/vulkan/spirv_assembly/vktSpvAsm8bitStorageTests.cpp#L928-L1084) | Simplest conversion group; SPIR-V template and 4 composite-type cases. |
-| Mustpass entry range (compute) | [spirv-assembly.txt#L740-L770](../../../external/vulkancts/mustpass/main/vk-default/spirv-assembly.txt#L740-L770) | Mirrors registered `dEQP-VK.spirv_assembly.instruction.compute.8bit_storage.*` cases. |
-| Mustpass entry range (graphics) | [spirv-assembly.txt#L22460-L22560](../../../external/vulkancts/mustpass/main/vk-default/spirv-assembly.txt#L22460-L22560) | Mirrors registered `dEQP-VK.spirv_assembly.instruction.graphics.8bit_storage.*` cases (one leaf per stage × type × direction). |
+| Mustpass entry range (compute) | [spirv-assembly.txt#L740-L770](../../../mustpass/main/vk-default/spirv-assembly.txt#L740-L770) | Mirrors registered `dEQP-VK.spirv_assembly.instruction.compute.8bit_storage.*` cases. |
+| Mustpass entry range (graphics) | [spirv-assembly.txt#L22460-L22560](../../../mustpass/main/vk-default/spirv-assembly.txt#L22460-L22560) | Mirrors registered `dEQP-VK.spirv_assembly.instruction.graphics.8bit_storage.*` cases (one leaf per stage × type × direction). |
 
 ## Questions / Risk Points for User Audit
 

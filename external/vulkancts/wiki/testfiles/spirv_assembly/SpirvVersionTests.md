@@ -4,7 +4,7 @@
 
 `spirv_version` is a SPIR-V-assembly family beneath both instruction-test roots. It requests each version from `1.0` through `1.6` for a compute shader or for one selected graphics stage, examines every compiled module's version header, and then runs the ordinary compute or graphics validation path.
 
-The implementation is [`vktSpvAsmSpirvVersionTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersionTests.cpp). The obsolete navigation page [`vktSpvAsmSpirvVersionTests.md`](vktSpvAsmSpirvVersionTests.md) remains unchanged.
+The implementation is [`vktSpvAsmSpirvVersionTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersionTests.cpp).
 
 ## Background Knowledge
 

@@ -4,7 +4,7 @@
 
 `64bit_compare` is a SPIR-V-assembly test family for 64-bit comparison instructions. It runs the same type-specific comparison matrix in one compute stage and in vertex and fragment graphics stages. The device reads two storage buffers, writes an integer `0` or `1` for each relation, and the host checks that result against the corresponding C++ comparison operation.
 
-The authoritative implementation is [`vktSpvAsm64bitCompareTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp). The older [`vktSpvAsm64bitCompareTests.md`](vktSpvAsm64bitCompareTests.md) remains intact as the obsolete source document; this page is the rewrite.
+The authoritative implementation is [`vktSpvAsm64bitCompareTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp).
 
 ## Background Knowledge
 

@@ -55,7 +55,7 @@ spirv_assembly.instruction.graphics.16bit_storage
 └── struct_mixed_types
 ```
 
-The `instruction` ancestor and its `compute`/`graphics` children are registered by [`vktSpvAsmInstructionTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp); this page does not expand them. The two `16bit_storage` test families (one under `compute`, one under `graphics`) are registered by [`create16BitStorageComputeGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8620-L8648) and [`create16BitStorageGraphicsGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8650-L8701). Each visible child is a test family implemented by a dedicated `add*Group` builder in the same source file.
+The `instruction` ancestor and its `compute`/`graphics` children are registered by [`vktSpvAsmInstructionTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp); this page does not expand them. The two `16bit_storage` test families (one under `compute`, one under `graphics`) are registered by [`create16BitStorageComputeGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8620-L8645) and [`create16BitStorageGraphicsGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8646-L8700). Each visible child is a test family implemented by a dedicated `add*Group` builder in the same source file.
 
 ## Parameter Dimensions and Observed Values
 
@@ -329,4 +329,4 @@ This representative case does not use GLSL or HLSL. CTS supplies the shader modu
 | Widening checkers | [`check32BitFloats`/`check64BitFloats`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L314-L362) | Exact comparison for unambiguous widening. |
 | `computeCheckBuffersFloats` | [`vktSpvAsm16bitStorageTests.cpp#L238-L259`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L238-L259) | 16-to-16 pass-through checker with NaN-equality fallback. |
 | `addInfo` | [`vktSpvAsm16bitStorageTests.cpp#L364-L368`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L364-L368) | Builds the padding-vs-data bitmask for struct comparison. |
-| Registration entry points | [`create16BitStorageComputeGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8620-L8648), [`create16BitStorageGraphicsGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8650-L8701) | Map test family names to builder functions. |
+| Registration entry points | [`create16BitStorageComputeGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8620-L8648), [`create16BitStorageGraphicsGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8646-L8700) | Map test family names to builder functions. |

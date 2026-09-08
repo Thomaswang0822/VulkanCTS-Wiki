@@ -53,7 +53,8 @@ The category varies the point at which SPIR-V behavior is stressed:
 | `maint9_vectorization` | [`Maint9VectorizationTests.md`](../testfiles/spirv_assembly/Maint9VectorizationTests.md) | Maintenance 9 vectorized bit operations |
 | `multiple_shaders_extended` | [`MultipleShadersTests.md`](../testfiles/spirv_assembly/MultipleShadersTests.md) | Multiple entry points and distinct interfaces in one module |
 | `non_semantic_info` | [`NonSemanticInfoTests.md`](../testfiles/spirv_assembly/NonSemanticInfoTests.md) | Non-semantic extended instructions |
-| `physical_storage_buffer` | [`PhysicalStorageBufferPointerTests.md`](../testfiles/spirv_assembly/PhysicalStorageBufferPointerTests.md) | Physical-storage-buffer pointer addressing |
+| `physical_storage_buffer` | [`PhysicalStorageBufferPointerTests.md`](../testfiles/spirv_assembly/PhysicalStorageBufferPointerTests.md) | Physical-storage-buffer pointer addressing, including `ptr_access_chain_from_ubo` |
+| `op_undef` | [`OpUndefTests.md`](../testfiles/spirv_assembly/OpUndefTests.md) | Buffer-based `OpUndef` descriptor and live/dead control-flow cases |
 | `pointer_parameter` | [`PointerParameterTests.md`](../testfiles/spirv_assembly/PointerParameterTests.md) | Pointer parameters across compute and graphics |
 | `ptr_access_chain` | [`PtrAccessChainTests.md`](../testfiles/spirv_assembly/PtrAccessChainTests.md) | Amber `OpPtrAccessChain` workgroup cases |
 | `raw_access_chain` | [`RawAccessChainTests.md`](../testfiles/spirv_assembly/RawAccessChainTests.md) | Generated raw access-chain matrix |
