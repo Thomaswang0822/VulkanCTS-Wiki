@@ -182,10 +182,10 @@ These direct children are the exact command components present in the current mu
 
 | Dimension | Registered values or areas | Meaning in this test | Evidence |
 |---|---|---|---|
-| Ignored command | Binding, transfer, image-clear, push-constant, update, and ray-tracing areas | Selects the command that must ignore active conditional rendering. | [`ConditionalIgnoreTests::init()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L2319-L2436) |
+| Ignored command | Binding, transfer, image-clear, push-constant, update, and ray-tracing areas | Selects the command that must ignore active conditional rendering. | [`ConditionalIgnoreTests::init()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L2312-L2430) |
 | Predicate form | Condition, inverted, and no-condition forms where registered | Places the command inside the conditional-state matrix or provides a control path. | [`s_testsData`](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.hpp#L61-L144) |
-| Command-buffer scope | Primary, secondary, inherited, and nested paths for the generated clear cases | Checks the ignored-command rule at different recording and execution scopes. | [`ConditionalIgnoreClearColorTestInstance::queuePass()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L135-L307) and [`ConditionalIgnoreClearDepthTestInstance::iterate()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L355-L528) |
-| Observable result | Image, depth/stencil, buffer, or ray-generation output | Supplies the pass/fail signal for the selected command. | The command-specific test functions in [`vktConditionalIgnoreTests.cpp`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L135-L2305) |
+| Command-buffer scope | Primary, secondary, inherited, and nested paths for the generated clear cases | Checks the ignored-command rule at different recording and execution scopes. | [`ConditionalIgnoreClearColorTestInstance::queuePass()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L136-L301) and [`ConditionalIgnoreClearDepthTestInstance::iterate()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L345-L511) |
+| Observable result | Image, depth/stencil, buffer, or ray-generation output | Supplies the pass/fail signal for the selected command. | The command-specific test functions in [`vktConditionalIgnoreTests.cpp`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L136-L2302) |
 
 ## Behavior Parameters
 
@@ -256,9 +256,9 @@ void main(void) { outBuffer.value = ((pc.a == pc.b) ? 1u : 0u); }
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---|---|---|
-| Inversion | The shader is unchanged; the test pairs a zero predicate with no inversion and a nonzero predicate with inversion, so an affected command would be suppressed in both variants while the enclosed push-constant update must still be applied. | [`GeneralCmdParams`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L531-L544) and [`pushConstantTest()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L578-L630) |
-| Push-constant values | The shader is unchanged; command recording changes the second value from `7` to `3` inside the conditional block. | [`pushConstantTest()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L562-L657) |
-| Output buffer | The shader is unchanged; the host reads the storage-buffer value after the compute-stage barrier. | [`pushConstantTest()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L604-L657) |
+| Inversion | The shader is unchanged; the test pairs a zero predicate with no inversion and a nonzero predicate with inversion, so an affected command would be suppressed in both variants while the enclosed push-constant update must still be applied. | [`GeneralCmdParams`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L513-L526) and [`pushConstantTest()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L598-L613) |
+| Push-constant values | The shader is unchanged; command recording changes the second value from `7` to `3` inside the conditional block. | [`pushConstantTest()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L544-L641) |
+| Output buffer | The shader is unchanged; the host reads the storage-buffer value after the compute-stage barrier. | [`pushConstantTest()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L617-L638) |
 
 #### SPIR-V
 
@@ -400,11 +400,12 @@ void main(void) { outBuffer.value = ((pc.a == pc.b) ? 1u : 0u); }
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| Registration | [`ConditionalIgnoreTests::init()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L2319-L2436) | Defines the generated clear children and direct command areas. |
-| Clear execution and validation | [`ConditionalIgnoreClearColorTestInstance::queuePass()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L135-L307) and [`ConditionalIgnoreClearDepthTestInstance::iterate()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L355-L528) | Records clear operations and compares the resulting image data. |
-| General command execution | [`pushConstantTest()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L562-L657) and the neighboring command test functions | Records each unaffected command and checks its command-specific result. |
-| Graphics and ray tracing | [`graphicsBindTest()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L1791-L2048) and [`rayTracingTest()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L2083-L2305) | Exercises shader-backed binding and ray-generation command paths. |
+| Registration | [`ConditionalIgnoreTests::init()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L2312-L2430) | Defines the generated clear children and direct command areas. |
+| Support gating | [`commonCheckSupport()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L79-L93) | Rejects nesting variants at support time when `VK_EXT_nested_command_buffer` is unavailable. |
+| Clear execution and validation | [`ConditionalIgnoreClearColorTestInstance::queuePass()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L136-L301) and [`ConditionalIgnoreClearDepthTestInstance::iterate()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L345-L511) | Records clear operations and compares the resulting image data. |
+| General command execution | [`pushConstantTest()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L544-L641) and the neighboring command test functions | Records each unaffected command and checks its command-specific result. |
+| Graphics and ray tracing | [`graphicsBindTest()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L1778-L2040) and [`rayTracingTest()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L2076-L2302) | Exercises shader-backed binding and ray-generation command paths. |
 | Shared condition data | [`ConditionalData` and `s_testsData`](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.hpp#L44-L144) | Supplies predicate, inversion, memory, inheritance, and nesting variants. |
-| Conditional begin/end | [`beginConditionalRendering()`](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L124-L136) | Shows how the condition buffer and inversion flags enter command recording. |
+| Conditional begin/end | [`beginConditionalRendering()`](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L123-L134) | Shows how the condition buffer and inversion flags enter command recording. |
 | Mustpass coverage | [conditional-rendering.txt](../../../mustpass/main/vk-default/conditional-rendering.txt) | Lists executable `conditional_ignore` paths. |
 | Specification semantics | [drawing.adoc](../../../../vulkan-docs/src/chapters/drawing.adoc#L2086-L2167) | Defines affected commands and conditional-rendering behavior. |

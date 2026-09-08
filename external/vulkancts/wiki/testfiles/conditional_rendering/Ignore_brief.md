@@ -67,8 +67,8 @@ Each case compares the observed result with the ordinary result expected for the
 
 | Topic | Source link | Why it matters |
 |---|---|---|
-| Registration and command areas | [vktConditionalIgnoreTests.cpp](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L1450-L1535) | Defines the direct ignored-command groups. |
-| Runtime and results | [vktConditionalIgnoreTests.cpp](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L400-L1015) | Records commands and checks command-specific output. |
+| Registration and command areas | [vktConditionalIgnoreTests.cpp](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L2312-L2430) | Defines the direct ignored-command groups. |
+| Runtime and results | [vktConditionalIgnoreTests.cpp](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L136-L2302) | Records commands and checks command-specific output. |
 | Shared condition matrix | [vktConditionalRenderingTestUtil.hpp](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.hpp#L44-L144) | Defines condition and command-buffer variants. |
 | Conditional semantics | [drawing.adoc](../../../../vulkan-docs/src/chapters/drawing.adoc#L2086-L2167) | Defines which commands are affected. |
 | Mustpass coverage | [conditional-rendering.txt](../../../mustpass/main/vk-default/conditional-rendering.txt) | Lists executable ignore-family paths. |

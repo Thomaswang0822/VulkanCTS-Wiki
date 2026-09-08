@@ -19,16 +19,16 @@ The category has many direct generated test-case leaves rather than a small name
 ## How the Families Fit Together
 
 - The main page covers descriptor-type and suffix combinations, runtime-array and fixed-array forms, minimum-`NonUniform` cases, and `non_uniform_atomics`.
-- The misc page covers four direct sampled-image-array compute cases.
+- The misc page covers four direct sampled-image-array compute cases plus the `misc_variable_count` variable-count partially bound sampler-array render case.
 - The dispatcher page is registration-only and is folded into this category gateway.
 
 ## Level-3 Pages Navigation
 
 | Registered test family or area | Level-3 page | What to read there |
 |---|---|---|
-| Main descriptor-type matrix, suffix variants, runtime-array forms, minimum-`NonUniform`, and `non_uniform_atomics` | [DescriptorSetsIndexing.md](../testfiles/descriptor_indexing/DescriptorSetsIndexing.md) | Descriptor classes, shader generation, update timing, execution, and result checking |
-| `misc_common_nonuniform_index_arraysize_*` cases | [Misc.md](../testfiles/descriptor_indexing/Misc.md) | Sampled-image arrays, compute dispatch, and CPU reference checking |
+| Main descriptor-type matrix, suffix variants, runtime-array forms, minimum-`NonUniform`, and `non_uniform_atomics` | [DescriptorSetsIndexing.md](../testfiles/descriptor_indexing/DescriptorSetsIndexing.md) | Descriptor classes, shader generation, update timing, queue-pass execution, and result checking |
+| `misc_common_nonuniform_index_arraysize_*` and `misc_variable_count` cases | [Misc.md](../testfiles/descriptor_indexing/Misc.md) | Sampled-image arrays, compute dispatch, CPU reference checking, and variable-count partially bound descriptor allocation |
 
 ## Category Notes
 
-The default Vulkan mustpass contains 114 executable leaves. The two rewritten Level-3 pages preserve separate ownership for the main implementation and the misc implementation.
+The default Vulkan mustpass contains 115 executable leaves. The two rewritten Level-3 pages preserve separate ownership for the main implementation and the misc implementation.

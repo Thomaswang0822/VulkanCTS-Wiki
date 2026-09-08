@@ -393,7 +393,7 @@ A `NotSupportedError` from this callback means the case was pruned for the decla
 
 Mustpass cross-check:
 
-The default Vulkan draw mustpass lists the registered path under `draw.renderpass.output_location`, including the `array` and `shuffle` cases ([`draw.txt`](../../../mustpass/main/vk-default/draw.txt#L28946-L28975)). The mustpass names are the compatibility-sensitive identifiers; they should remain exactly as registered in the C++ arrays.
+The default Vulkan draw mustpass lists the registered path under `draw.renderpass.output_location`, including the `array` and `shuffle` cases ([`draw.txt`](../../../mustpass/main/vk-default/draw.txt#L28991-L29020)). The mustpass names are the compatibility-sensitive identifiers; they should remain exactly as registered in the C++ arrays.
 
 Source evidence:
 

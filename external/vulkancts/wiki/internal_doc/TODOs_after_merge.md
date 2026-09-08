@@ -571,7 +571,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
 
 ### P1 — inspect after P0
 
-- [ ] `conditional_rendering` — source `7` (M=7); mustpass `0` (none). Raw groups: `conditional_rendering`. Decision: pending.
+- [x] `conditional_rendering` — source `7` (M=7); mustpass `0` (none). Raw groups: `conditional_rendering`. Decision: complete; upstream changes are refactor-only (namespace collapse, support checks moved from constructors to free `checkSupport()` wired via `FunctionSupport1`/registration factories, Dispatch switched to `MultiQueueRunnerTestInstance` with `COMPUTE_QUEUE`, `commonCheckSupport()` gates nested-command-buffer variants at support time, `flushAlloc` coherence fixes). Registration hierarchy and mustpass are unchanged. English files changed: `testfiles/conditional_rendering/Dispatch.md`, `Dispatch_brief.md`, `Ignore.md`, `Ignore_brief.md`, `Draw.md`, `Draw_brief.md`, `ClearAttachments.md`, `ClearAttachments_brief.md`, `TransformFeedback.md`, `TransformFeedback_brief.md` (line-reference recalibration plus support-gating/multi-queue wording). `DrawAndClear.md` unchanged (its source file was not modified upstream). No Chinese pages modified. Validation passed: `verify_english_structure.py`, `verify_registration_paths.py` (362 paths), and `validate_wiki_links.py` all PASS for the category.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/conditional_rendering/vktConditionalClearAttachmentTests.cpp`
   - `M` `external/vulkancts/modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp`
@@ -582,7 +582,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `M` `external/vulkancts/modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp`
   Mustpass evidence:
   - none
-- [ ] `descriptor_indexing` — source `2` (M=2); mustpass `2` (M=2). Raw groups: `descriptor-indexing, descriptor_indexing`. Decision: pending.
+- [x] `descriptor_indexing` — source `2` (M=2); mustpass `2` (M=2). Raw groups: `descriptor-indexing, descriptor_indexing`. Decision: synced. Upstream added the `misc_variable_count` test (variable descriptor count + partially bound sampler array, new mustpass line at `descriptor-indexing.txt` L28, total 115 leaves) and refactored `CommonDescriptorInstance` to `MultiQueueRunnerTestInstance` with `queuePass`/`resetForQueuePass`. Pages updated: `testfiles/descriptor_indexing/Misc.md` (five-case coverage, new behavior section, second shader walkthrough with generated vert/frag SPIR-V, failure/pruning/appendix rows, shifted refs +204 in the registration region), `testfiles/descriptor_indexing/DescriptorSetsIndexing.md` (queue-pass execution wording, 115-leaf counts, all refs recalibrated by hunk shifts +0/+12/+14/+16/+18), `categories/descriptor_indexing.md` (misc wording and 115-leaf count). Validators: `verify_english_structure.py` PASS, `verify_registration_paths.py` PASS (116 paths), `validate_wiki_links.py` PASS, line-ref drift check issues=0.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/descriptor_indexing/vktDescriptorIndexingMiscTests.cpp`
   - `M` `external/vulkancts/modules/vulkan/descriptor_indexing/vktDescriptorSetsIndexingTests.cpp`

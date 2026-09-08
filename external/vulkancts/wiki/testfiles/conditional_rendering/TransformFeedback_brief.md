@@ -111,13 +111,13 @@ layout(location = 3, stream = 3, xfb_offset = 0, xfb_stride = 4, xfb_buffer = 3)
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Command names and test-family registration | [getDrawCommandTypeName() and init()](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L64-L90) | Defines the nine direct children and attaches each child to the same implementation. |
-| Capability checks | [checkSupport()](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L131-L160) | Defines required extensions, features, command-specific requirements, and transform-feedback limits. |
-| Draw dispatch | [recordDraw()](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L386-L455) | Maps each behavior value to its Vulkan draw command. |
-| Query and conditional-rendering flow | [iterate()](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L457-L601) | Shows query setup, barriers, conditional rendering, transform feedback, and submission order. |
-| Result check | [iterate() result validation](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L603-L634) | Defines the exact query and 24-float pass conditions. |
-| Generated shaders | [AddProgramsDraw::init()](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L636-L714) | Defines the vertex, geometry, and fragment shader sources. |
-| Shared conditional buffer creation | [createConditionalRenderingBuffer()](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L70-L121) | Documents host-visible and device-local conditional predicate buffers used by the category. |
+| Command names and test-family registration | [getDrawCommandTypeName()](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L62-L88) and [init()](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L726-L742) | Defines the nine direct children and attaches each child to the same implementation. |
+| Capability checks | [checkSupport()](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L129-L158) | Defines required extensions, features, command-specific requirements, and transform-feedback limits. |
+| Draw dispatch | [recordDraw()](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L384-L453) | Maps each behavior value to its Vulkan draw command. |
+| Query and conditional-rendering flow | [iterate()](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L455-L599) | Shows query setup, barriers, conditional rendering, transform feedback, and submission order. |
+| Result check | [iterate() result validation](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L601-L631) | Defines the exact query and 24-float pass conditions. |
+| Generated shaders | [AddProgramsDraw::init()](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L634-L712) | Defines the vertex, geometry, and fragment shader sources. |
+| Shared conditional buffer creation | [createConditionalRenderingBuffer()](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L69-L121) | Documents host-visible and device-local conditional predicate buffers used by the category. |
 | Conditional rendering semantics | [Conditional Rendering](../../../../vulkan-docs/src/chapters/drawing.adoc#drawing-conditional-rendering) | Defines zero and nonzero predicate behavior, inversion, active scope, and synchronization stage. |
 | Transform-feedback synchronization | [transform-feedback access and stage rules](../../../../vulkan-docs/src/chapters/synchronization.adoc#synchronization-pipeline-stages) | Defines transform-feedback writes and the transform-feedback pipeline stage. |
 

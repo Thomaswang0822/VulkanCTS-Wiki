@@ -40,12 +40,12 @@ draw.dynamic_rendering.complete_secondary_cmd_buff.concurrent
 | Dimension | Registered or observed values | Meaning in this test | Evidence |
 |---|---|---|---|
 | Rendering path | `renderpass`; `dynamic_rendering.primary_cmd_buff`; `dynamic_rendering.partial_secondary_cmd_buff`; `dynamic_rendering.complete_secondary_cmd_buff` | Selects legacy render-pass recording or one of the supported primary/secondary dynamic-rendering arrangements. | [`createTests` and `createChildren`](../../../modules/vulkan/draw/vktDrawTests.cpp#L70-L198) |
-| Test case | `compute_and_triangle_list` | Selects the one fixed pair of independent compute and graphics workloads. | [`ConcurrentDrawTests::init`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L535-L546) |
-| Graphics shaders | `vulkan/draw/VertexFetch.vert`, `vulkan/draw/VertexFetch.frag` | Produces a blue rectangle only when the fetched reference vertex indices match `gl_VertexIndex`. | [`testSpec`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L537-L541) |
-| Compute shader | `vulkan/draw/ConcurrentPayload.comp` | Replaces every storage-buffer value with its bitwise complement. | [`testSpec`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L537-L541), [`ConcurrentPayload.comp`](../../../data/vulkan/draw/ConcurrentPayload.comp) |
-| Graphics topology | `VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST` | Interprets the six drawn vertices as two triangles. | [`testSpec`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L537-L541) |
-| Compute input and dispatch | 1024 `uint32_t` values; `vkCmdDispatch(1, 1, 1)` | One compute invocation loops over all 1024 elements. | [`numValues`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L117), [`dispatch`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L303-L312) |
-| Graphics draw call | `vkCmdDraw(..., 6, 1, 2, 0)` | Draws six vertices beginning at vertex 2; only the first stored rectangle is consumed. | [`graphics recording`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L333-L395) |
+| Test case | `compute_and_triangle_list` | Selects the one fixed pair of independent compute and graphics workloads. | [`ConcurrentDrawTests::init`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L472-L483) |
+| Graphics shaders | `vulkan/draw/VertexFetch.vert`, `vulkan/draw/VertexFetch.frag` | Produces a blue rectangle only when the fetched reference vertex indices match `gl_VertexIndex`. | [`testSpec`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L474-L478) |
+| Compute shader | `vulkan/draw/ConcurrentPayload.comp` | Replaces every storage-buffer value with its bitwise complement. | [`testSpec`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L474-L478), [`ConcurrentPayload.comp`](../../../data/vulkan/draw/ConcurrentPayload.comp) |
+| Graphics topology | `VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST` | Interprets the six drawn vertices as two triangles. | [`testSpec`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L474-L478) |
+| Compute input and dispatch | 1024 `uint32_t` values; `vkCmdDispatch(1, 1, 1)` | One compute invocation loops over all 1024 elements. | [`numValues`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L117), [`dispatch`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L240-L249) |
+| Graphics draw call | `vkCmdDraw(..., 6, 1, 2, 0)` | Draws six vertices beginning at vertex 2; only the first stored rectangle is consumed. | [`graphics recording`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L263-L332) |
 
 ## Behavior Parameters
 
@@ -110,15 +110,15 @@ void main (void) {
 
 #### Additional Info
 
-- The host binds exactly 4096 bytes (`1024 * sizeof(uint32_t)`) to descriptor set 0, binding 0, and records host-to-compute and compute-to-host buffer barriers around the dispatch ([compute setup and recording](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L234-L312)).
+- The host binds exactly 4096 bytes (`1024 * sizeof(uint32_t)`) to descriptor set 0, binding 0, and records host-to-compute and compute-to-host buffer barriers around the dispatch ([compute setup and recording](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L170-L261)).
 - No explicit `ShaderBuildOptions` accompanies the data-file shader registration, so the CTS baseline target is SPIR-V 1.0.
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Rendering path | None. Render-pass versus dynamic-rendering selection changes only graphics command recording; the same compute module, descriptor, and `1 x 1 x 1` dispatch are used. | [`ConcurrentDraw::iterate`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L286-L395) |
-| Registered case | None. The family registers only `compute_and_triangle_list`, with this fixed compute shader. | [`ConcurrentDrawTests::init`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L535-L546) |
+| Rendering path | None. Render-pass versus dynamic-rendering selection changes only graphics command recording; the same compute module, descriptor, and `1 x 1 x 1` dispatch are used. | [`ConcurrentDraw::iterate`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L223-L332) |
+| Registered case | None. The family registers only `compute_and_triangle_list`, with this fixed compute shader. | [`ConcurrentDrawTests::init`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L472-L483) |
 
 #### SPIR-V
 
@@ -291,7 +291,7 @@ The base class handles graphics pipeline and attachment setup. Depending on `Sha
 
 The compute submission has no wait or signal semaphores and is sent to the custom compute queue with `computeFence`. The intended graphics submission likewise has no semaphores and targets the universal draw queue with `drawFence`. This lack of cross-queue synchronization is deliberate because the workloads are independent. Both fence waits are attempted before a wait error is returned.
 
-The current source does not consistently use the two devices' dispatch interfaces. It constructs `vk` as a `DeviceDriver` for the custom compute device, then passes the context device and its universal queue through that compute-device interface when creating `drawFence`, submitting the graphics command buffer, and waiting for `drawFence` ([source](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L217-L230), [draw path](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L397-L437)). The Vulkan requirement for a device-specific function pointer is that its first dispatchable object be that device or one of its children. The page therefore documents the intended draw submission and the observed mismatch, rather than claiming that this source path is valid.
+The current source does not consistently use the two devices' dispatch interfaces. It obtains `vk` from the custom compute `DeviceWrapper` via `computeDevice.getDriver()`, then passes the context device and its universal queue through that compute-device interface when creating `drawFence`, submitting the graphics command buffer, and waiting for `drawFence` ([source](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L170-L171), [draw path](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L333-L373)). The Vulkan requirement for a device-specific function pointer is that its first dispatchable object be that device or one of its children. The page therefore documents the intended draw submission and the observed mismatch, rather than claiming that this source path is valid.
 
 ### Result checking
 
@@ -313,7 +313,7 @@ The source-level mismatch below can invalidate both submission observations. If 
 
 **Possible failure symptoms:** Device/queue validation errors, a draw submission or fence wait that does not complete successfully, or inability to reach reliable output validation.
 
-**Possible implementation causes:** This is an unresolved CTS source-level issue, not an inferred implementation defect. `vk` is constructed for `computeDevice` at lines 217-230, but it is used with `drawDevice` and `drawQueue` at lines 400 and 428-437. The Vulkan [`vkGetDeviceProcAddr` requirement](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/vkGetDeviceProcAddr.html) restricts a returned device function pointer to its device and that device's children.
+**Possible implementation causes:** This is an unresolved CTS source-level issue, not an inferred implementation defect. `vk` is obtained for `computeDevice` at line 171, but it is used with `drawDevice` and `drawQueue` at lines 336, 365, and 372-373. The Vulkan [`vkGetDeviceProcAddr` requirement](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/vkGetDeviceProcAddr.html) restricts a returned device function pointer to its device and that device's children.
 
 #### Compute completion or output
 
@@ -351,11 +351,11 @@ The source-level mismatch below can invalidate both submission observations. If 
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| Test implementation | [`ConcurrentDraw::iterate`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L101-L518) | Creates both workloads, submits them, and checks their results. |
-| Compute setup and recording | [queue, device, buffer, pipeline, barriers, and dispatch](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L117-L324) | Defines the custom compute path and its output contract. |
-| Graphics recording | [rendering-path branches and draw](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L326-L395) | Defines the supported graphics command-buffer arrangements. |
-| Submission and validation | [fences, submissions, waits, and checks](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L397-L518) | Exposes the device-interface mismatch and both result oracles. |
-| Family registration | [`ConcurrentDrawTests`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L528-L546) | Supplies the exact `concurrent.compute_and_triangle_list` identifiers. |
+| Test implementation | [`ConcurrentDraw::iterate`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L101-L455) | Creates both workloads, submits them, and checks their results. |
+| Compute setup and recording | [queue, device, buffer, pipeline, barriers, and dispatch](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L117-L261) | Defines the custom compute path and its output contract. |
+| Graphics recording | [rendering-path branches and draw](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L263-L332) | Defines the supported graphics command-buffer arrangements. |
+| Submission and validation | [fences, submissions, waits, and checks](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L333-L455) | Exposes the device-interface mismatch and both result oracles. |
+| Family registration | [`ConcurrentDrawTests`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L465-L483) | Supplies the exact `concurrent.compute_and_triangle_list` identifiers. |
 | Draw dispatcher | [`createChildren` and `createTests`](../../../modules/vulkan/draw/vktDrawTests.cpp#L70-L198) | Places the family under render-pass and non-nested dynamic-rendering paths. |
 | Shared draw base | [`DrawTestsBaseClass`](../../../modules/vulkan/draw/vktDrawBaseClass.cpp#L51-L216) | Creates the graphics resources, pipeline, vertex buffer, and attachment barriers. |
 | Shader inputs | [`ConcurrentPayload.comp`](../../../data/vulkan/draw/ConcurrentPayload.comp), [`VertexFetch.vert`](../../../data/vulkan/draw/VertexFetch.vert), [`VertexFetch.frag`](../../../data/vulkan/draw/VertexFetch.frag) | Defines the compute complement and blue-rectangle shader outputs. |

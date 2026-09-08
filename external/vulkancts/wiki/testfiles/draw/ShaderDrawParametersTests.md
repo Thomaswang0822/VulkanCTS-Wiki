@@ -392,6 +392,6 @@ void main() {
 | Combined shader | [`VertexFetchShaderDrawParameters.vert`](../../../data/vulkan/draw/VertexFetchShaderDrawParameters.vert) | Exercises all three shader draw-parameter built-ins. |
 | Isolated shaders | [`VertexFetchShaderDrawParametersBaseVert.vert`](../../../data/vulkan/draw/VertexFetchShaderDrawParametersBaseVert.vert), [`VertexFetchShaderDrawParametersBaseInst.vert`](../../../data/vulkan/draw/VertexFetchShaderDrawParametersBaseInst.vert) | Separate base-vertex and base-instance checks. |
 | Draw-index shader | [`VertexFetchShaderDrawParametersDrawIndex.vert`](../../../data/vulkan/draw/VertexFetchShaderDrawParametersDrawIndex.vert) | Uses draw ID to select per-draw offsets and colors. |
-| Mustpass registration | [`draw.txt`](../../../mustpass/main/vk-default/draw.txt#L28999-L29022) | Confirms the `draw.renderpass.shader_draw_parameters` hierarchy and leaves. |
+| Mustpass registration | [`draw.txt`](../../../mustpass/main/vk-default/draw.txt#L29044-L29067) | Confirms the `draw.renderpass.shader_draw_parameters` hierarchy and leaves. |
 | Vulkan feature requirements | [`features.adoc`](../../../../vulkan-docs/src/chapters/features.adoc#L1795-L1805) | Defines the relevant shader-draw-parameter and draw-command feature context. |
 | Vulkan draw semantics | [`drawing.adoc`](../../../../vulkan-docs/src/chapters/drawing.adoc#L1540-L1580) | Defines direct and indirect draw parameter behavior. |

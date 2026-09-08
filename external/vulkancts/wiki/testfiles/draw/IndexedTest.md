@@ -495,5 +495,5 @@ void main() {
 | Maintenance6 path | [`DrawIndexedMaintenance6::iterate`](../../../modules/vulkan/draw/vktDrawIndexedTest.cpp#L642-L957) |
 | 8-bit multi-bind | [`Multibind8BitInstance::iterate`](../../../modules/vulkan/draw/vktDrawIndexedTest.cpp#L1032-L1390) |
 | Update before draw | [`UpdateBeforeDrawInstance::iterate`](../../../modules/vulkan/draw/vktDrawIndexedTest.cpp#L1402-L1598) |
-| Mustpass registration evidence | [`draw.txt`](../../../mustpass/main/vk-default/draw.txt#L18050-L18252) |
+| Mustpass registration evidence | [`draw.txt`](../../../mustpass/main/vk-default/draw.txt#L18089-L18291) |
 | Indexed draw semantics | [`drawing.adoc`](../../../../vulkan-docs/src/chapters/drawing.adoc#L37-L89) |

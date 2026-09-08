@@ -50,7 +50,7 @@ Consider `dEQP-VK.conditional_rendering.dispatch.condition_host_memory_expect_ex
 [host] wait for completion, invalidate the output allocation, and compare the counter with the expected dispatch count or zero
 ```
 
-The main generated cases submit three dispatches. The focused `condition_size`, `alloc_offset`, and `compute_queue` cases submit one dispatch [recordDispatch](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L160-L186), [registration](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L414-L755).
+The main generated cases submit three dispatches. The focused `condition_size`, `alloc_offset`, and `compute_queue` cases submit one dispatch [recordDispatch](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L157-L183), [registration](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L413-L754).
 
 ## Generated Test Artifacts and Bound Resources
 
@@ -62,7 +62,7 @@ The command variant changes host command recording, not shader source:
 
 - `dispatch` records `vkCmdDispatch(1, 1, 1)`.
 - `dispatch_indirect` records `vkCmdDispatchIndirect` using an indirect buffer that contains `{1, 1, 1}`.
-- `dispatch_base` records `vkCmdDispatchBase(0, 0, 0, 1, 1, 1)` [recordDispatch](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L160-L186).
+- `dispatch_base` records `vkCmdDispatchBase(0, 0, 0, 1, 1, 1)` [recordDispatch](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L157-L183).
 
 ### Bound resources and memory objects
 
@@ -74,7 +74,7 @@ The command variant changes host command recording, not shader source:
 | Compute pipeline and descriptor set | yes | compute pipeline state | runs the fixed shader and exposes the output buffer | no | Provides the common execution and observation path for all command variants. |
 | Primary, secondary, and nested secondary command buffers | yes | submitted or executed by another command buffer | contain conditional-rendering and dispatch commands | no | Exercise direct placement, inheritance, and nesting behavior. |
 
-The helper fills padding bytes with `0x01`, writes the selected four-byte predicate at the chosen begin offset, and can bind the buffer at a nonzero allocation offset. For device-local cases, it copies the bytes from a host-visible staging buffer before use [createConditionalRenderingBuffer](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L70-L121), [beginConditionalRendering](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L124-L136).
+The helper fills padding bytes with `0x01`, writes the selected four-byte predicate at the chosen begin offset, and can bind the buffer at a nonzero allocation offset. For device-local cases, it copies the bytes from a host-visible staging buffer before use [createConditionalRenderingBuffer](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L69-L121), [beginConditionalRendering](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L123-L134).
 
 ## What Is Checked
 
@@ -83,13 +83,13 @@ The shader increments the output counter once per executed dispatch. The host de
 - `numCalls` when `expectCommandExecution` is true;
 - `0` when `expectCommandExecution` is false.
 
-The host invalidates the output allocation and compares its first 32-bit word with that value. There is no tolerance or aggregation across cases [result check](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L368-L400).
+The host invalidates the output allocation and compares its first 32-bit word with that value. There is no tolerance or aggregation across cases [result check](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L384-L399).
 
 Focused checks add these meanings:
 
 - `condition_size` places a nonzero bit in each of the four predicate bytes and surrounds a zero predicate with nonzero padding.
 - `alloc_offset` distinguishes zero from nonzero predicates when the buffer has a nonzero memory allocation offset.
-- `compute_queue` repeats direct or indirect dispatch with host-visible or device-local predicates on a compute queue.
+- `compute_queue` repeats direct or indirect dispatch with host-visible or device-local predicates; the multi-queue runner executes each pass on every eligible queue family (universal queue plus a distinct dedicated compute family when present).
 
 ## Behavior Parameter Identification
 
@@ -106,7 +106,7 @@ Focused checks add these meanings:
 | `condition_*` and `no_condition_*` | Incorrect predicate, inversion, command-buffer placement, inheritance, nesting, or dispatch-command handling in the shared condition matrix. |
 | `condition_size` | The implementation did not read exactly the selected 32-bit predicate at the begin offset. |
 | `alloc_offset` | The implementation used the wrong memory address when the condition buffer was bound at a nonzero allocation offset. |
-| `compute_queue` | Conditional dispatch behavior failed on a compute queue for a direct or indirect command or for the selected predicate memory type. |
+| `compute_queue` | Conditional dispatch behavior failed on one of the eligible queue families for a direct or indirect command or for the selected predicate memory type. |
 
 ## Important Variations and Special Cases
 
@@ -114,7 +114,7 @@ Focused checks add these meanings:
 - `condition_size` uses four command-buffer locations and five predicate layouts: `first_byte`, `second_byte`, `third_byte`, `fourth_byte`, and `padded_zero`, for 20 cases.
 - `alloc_offset` combines four locations, zero or nonzero predicate state, and device-local or host-visible memory, for 16 cases.
 - `compute_queue` combines four locations, four predicate/inversion outcomes, direct or indirect dispatch, and host-visible or device-local memory, for 64 cases.
-- `dispatch_base` requires `VK_KHR_device_group`. Inherited cases require `inheritedConditionalRendering`; nested cases require `VK_EXT_nested_command_buffer`; primary-active inheritance also requires `VK_KHR_maintenance7`. Compute-queue cases require an available compute queue [checkSupport](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L138-L147), [shared capability checks](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L36-L58).
+- `dispatch_base` requires `VK_KHR_device_group`. Inherited cases require `inheritedConditionalRendering`; nested cases require `VK_EXT_nested_command_buffer`; primary-active inheritance also requires `VK_KHR_maintenance7`. No case requires a dedicated compute queue: the multi-queue runner adds the compute family as an extra pass only when one exists [checkSupport](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L138-L144), [shared capability checks](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L35-L57), [queue selection](../../../modules/vulkan/vktTestCase.cpp#L1855-L1862).
 - The mustpass file contains 280 executable paths for this test family [conditional-rendering.txt](../../../mustpass/main/vk-default/conditional-rendering.txt#L219-L498).
 
 ## Source Mapping
@@ -124,11 +124,11 @@ Focused checks add these meanings:
 | Predicate and inheritance semantics | [drawing.adoc](../../../../vulkan-docs/src/chapters/drawing.adoc#L2085-L2167) | Defines affected commands, active scope, inheritance, and 32-bit predicate interpretation. |
 | Inversion semantics | [drawing.adoc](../../../../vulkan-docs/src/chapters/drawing.adoc#L2255-L2269) | Defines the inverted predicate decision. |
 | Shader generation | [initPrograms](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L121-L136) | Emits the fixed counter shader. |
-| Command selection | [recordDispatch](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L160-L186) | Records direct, indirect, or base dispatch commands. |
-| Runtime and result checking | [iterate](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L188-L400) | Builds resources and command buffers, submits work, and checks the counter. |
-| Main and focused registration | [ConditionalDispatchTests::init](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L414-L755) | Builds all four behavior areas and their parameter combinations. |
+| Command selection | [recordDispatch](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L157-L183) | Records direct, indirect, or base dispatch commands. |
+| Runtime and result checking | [queuePass](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L185-L400) | Builds resources and command buffers, submits work on the runner-provided queue, and checks the counter. |
+| Main and focused registration | [ConditionalDispatchTests::init](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L413-L754) | Builds all four behavior areas and their parameter combinations. |
 | Shared condition matrix | [s_testsData](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.hpp#L44-L144) | Defines predicate, placement, inversion, inheritance, nesting, expected result, and memory combinations. |
-| Condition buffer construction | [createConditionalRenderingBuffer](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L70-L121) | Implements padding, allocation offset, host-visible memory, and device-local staging. |
+| Condition buffer construction | [createConditionalRenderingBuffer](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L69-L121) | Implements padding, allocation offset, host-visible memory, and device-local staging. |
 | Mustpass coverage | [conditional-rendering.txt](../../../mustpass/main/vk-default/conditional-rendering.txt#L219-L498) | Lists all 280 executable dispatch paths. |
 
 ## Questions / Risk Points for User Audit

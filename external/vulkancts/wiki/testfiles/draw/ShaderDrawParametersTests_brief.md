@@ -99,7 +99,7 @@ The image comparison localizes the symptom to the rendered result. Further inves
 | Reference and validation | [`drawReferenceImage`](../../../modules/vulkan/draw/vktDrawShaderDrawParametersTests.cpp#L225-L255), [`DrawTest::iterate`](../../../modules/vulkan/draw/vktDrawShaderDrawParametersTests.cpp#L257-L279) | Defines expected rectangles and the pass/fail comparison. |
 | Combined shader | [`VertexFetchShaderDrawParameters.vert`](../../../data/vulkan/draw/VertexFetchShaderDrawParameters.vert) | Uses base vertex, base instance, and draw ID together. |
 | Draw-index shader | [`VertexFetchShaderDrawParametersDrawIndex.vert`](../../../data/vulkan/draw/VertexFetchShaderDrawParametersDrawIndex.vert) | Shows per-draw offset and color selection. |
-| Mustpass evidence | [`draw.txt`](../../../mustpass/main/vk-default/draw.txt#L28999-L29022) | Confirms the exact `draw.renderpass.shader_draw_parameters` registration paths. |
+| Mustpass evidence | [`draw.txt`](../../../mustpass/main/vk-default/draw.txt#L29044-L29067) | Confirms the exact `draw.renderpass.shader_draw_parameters` registration paths. |
 | Vulkan feature semantics | [`features.adoc`](../../../../vulkan-docs/src/chapters/features.adoc#L1795-L1805) | Grounds the support requirements. |
 
 ## Questions / Risk Points for User Audit

@@ -63,16 +63,16 @@ The primary behavior is the fixed `compute_and_triangle_list` workload. The rend
 
 - Dynamic rendering requires `VK_KHR_dynamic_rendering`.
 - Compute and graphics use separate resources; this is not a cross-queue shared-resource ownership-transfer test.
-- VulkanSC resource reservation and pipeline-cache setup is conditional on the build and subprocess/resource-interface state.
+- VulkanSC resource reservation and pipeline-cache setup is handled by the compute-device `DeviceWrapper` and is conditional on the build and subprocess/resource-interface state.
 - Both fence waits are attempted before reporting a wait failure so the other queue is not left hanging.
 
 ## Source Mapping
 
-- [registration and exact identifiers](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L390-L407)
-- [compute queue/device and buffer setup](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L80-L239)
-- [barriers and dispatch](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L240-L257)
-- [graphics recording and submissions](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L258-L350)
-- [dual validation](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L351-L389)
+- [registration and exact identifiers](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L457-L483)
+- [compute queue/device and buffer setup](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L80-L261)
+- [barriers and dispatch](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L240-L261)
+- [graphics recording and submissions](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L263-L391)
+- [dual validation](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L392-L455)
 - [class declaration](../../../modules/vulkan/draw/vktDrawConcurrentTests.hpp)
 
 ## Questions / Risk Points for User Audit
