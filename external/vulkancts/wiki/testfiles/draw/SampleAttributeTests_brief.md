@@ -2,7 +2,7 @@
 
 ## One-Sentence Test Purpose
 
-This test checks whether a fragment shader construct that requires implicit sample shading produces at least one fragment invocation for every covered sample while pipeline sample shading is disabled.
+This test checks whether a fragment shader construct that requires implicit sample shading produces at least one fragment invocation for every covered sample, with pipeline sample shading either disabled or enabled at a configured rate below 1.0.
 
 ## Background Knowledge
 
@@ -13,7 +13,7 @@ A multisampled attachment contains several coverage samples for each pixel. Pixe
 The pipeline can request sample shading explicitly, but Vulkan also defines implicit triggers. Static use of `gl_SampleID` or `gl_SamplePosition` requires sample shading at a rate of 1.0. A dynamically used fragment input decorated with `sample` also requires sample-rate behavior. See [sample shading](https://registry.khronos.org/vulkan/specs/latest/html/chapters/primsrast.html#primsrast-sampleshading).
 
 Why it matters here:
-- The test deliberately sets explicit pipeline sample shading off, leaving the shader construct as the only intended trigger.
+- The base leaves disable explicit pipeline sample shading. The override leaves enable it with `minSampleShading` set to 0.0, 0.25, or 0.5; the shader trigger must still force full sample shading.
 - Counting shader invocations distinguishes a sample-rate result from a pixel-rate result without relying on a color-image comparison.
 
 ### The counter is the observable result
@@ -51,7 +51,7 @@ The `sample_decoration_dynamic_use` case uses a different trigger: the vertex sh
 [host] generate vertex and fragment GLSL specialized for that trigger
 [host] allocate and clear a host-visible one-uint storage buffer
 [host] create a 4 × 4 four-sample color attachment and bind the storage buffer at fragment binding 0
-[host] create a pipeline with sampleShadingEnable = VK_FALSE and minSampleShading = 0.0
+[host] create a pipeline with the selected base or override sample-shading state
 [host] record one full-screen triangle draw through a render pass or dynamic rendering
 [device] execute fragment shader invocations; each invocation atomically increments the storage-buffer counter
 [host] add a fragment-write-to-host-read buffer barrier, submit, wait, invalidate mapped memory, and read the counter
@@ -133,6 +133,6 @@ The dynamic-rendering primary, partial-secondary, and complete-secondary paths a
 ## Conversion Notes for Final Wiki Rewrite
 
 - Retain the two concise prerequisite bullets on sample shading and sample-related fragment inputs.
-- Use the three registered leaves as the final page's behavior parameter values.
+- Cover the three trigger mechanisms and their `minSampleShadingValue_*` override leaves. Vulkan SC includes all 12 render-pass leaves; Vulkan includes 39 leaves across the four non-nested rendering roots.
 - Copy the failure-cause mapping table unchanged into the final page; write detailed cause analysis separately.
-- Keep the full-screen triangle, fixed 4 × 4 × 4 lower bound, and disabled pipeline sample-shading state in runtime/result checking rather than Background Knowledge.
+- Keep the full-screen triangle, fixed 4 × 4 × 4 lower bound, and per-leaf pipeline sample-shading state in runtime/result checking rather than Background Knowledge.

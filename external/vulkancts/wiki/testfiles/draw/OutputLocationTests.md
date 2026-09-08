@@ -20,7 +20,7 @@ draw.renderpass.output_location
 
 `createOutputLocationTests()` creates the `output_location` group through `createTestGroup()` ([source](../../../modules/vulkan/draw/vktDrawOutputLocationTests.cpp#L127-L131)). The draw dispatcher adds that group only while building the render-pass branch and only when `CTS_USES_VULKANSC` is not defined and `useDynamicRendering` is false ([dispatcher](../../../modules/vulkan/draw/vktDrawTests.cpp#L103-L117)). Therefore this page describes neither a Vulkan SC registration nor a dynamic-rendering variant.
 
-The public entry point is declared in [`vktDrawOutputLocationTests.hpp`](../../../modules/vulkan/draw/vktDrawOutputLocationTests.hpp#L27-L40), and the wrapper implementation is [`vktDrawOutputLocationTests.cpp`](../../../modules/vulkan/draw/vktDrawOutputLocationTests.cpp#L25-L135).
+The public entry point is declared in [`vktDrawOutputLocationTests.hpp`](../../../modules/vulkan/draw/vktDrawOutputLocationTests.hpp#L27-L40), and the wrapper implementation is [`vktDrawOutputLocationTests.cpp`](../../../modules/vulkan/draw/vktDrawOutputLocationTests.cpp#L25-L134).
 
 ## Parameter Dimensions and Observed Values
 

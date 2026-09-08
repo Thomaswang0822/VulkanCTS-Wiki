@@ -232,4 +232,4 @@ The execution details above describe resource setup, command recording, readback
 
 ### Preservation Note
 
-The obsolete page [`vktDrawIndirectInstancedTests.md`](vktDrawIndirectInstancedTests.md) remains in place and is not modified. The registration group and leaf names remain exactly `indirect_instanced`, `1`, `2`, `4`, and `16`.
+The registration group and leaf names remain exactly `indirect_instanced`, `1`, `2`, `4`, and `16`. This page is the canonical documentation for that group; no obsolete duplicate page is referenced.

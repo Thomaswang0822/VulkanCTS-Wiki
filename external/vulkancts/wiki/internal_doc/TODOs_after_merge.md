@@ -589,7 +589,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/descriptor-indexing.txt`
   - `M` `external/vulkancts/mustpass/main/vksc-default/descriptor-indexing.txt`
-- [ ] `draw` — source `3` (M=3); mustpass `2` (M=2). Raw groups: `draw`. Decision: pending.
+- [x] `draw` — source `3` (M=3); mustpass `2` (M=2). Raw groups: `draw`. Decision: complete; reviewed the device-wrapper refactor in `concurrent`, initial image transitions in `explicit_vertex_parameter`, and sample-shading overrides/pipeline pNext selection in `implicit_sample_shading`. Confirmed 27 added Vulkan mustpass leaves and 9 added Vulkan SC leaves, with no removals; corrected the sample-shading page's Vulkan SC count from 3 to 12 and updated stale base-only brief wording. Repaired the obsolete-page link and out-of-range source reference. Structure (30 pages), registration (1,581 paths), line references (0 issues), and `git diff --check` passed. Link validation reports two manually reviewed false positives in the valid fenced GLSL array constructors at `ShaderDrawParametersTests.md:117-118`; the snippet and validator remain unchanged. The device-interface mismatch documented in `ConcurrentTests.md` remains an unresolved CTS source issue; source was not modified.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/draw/vktDrawConcurrentTests.cpp`
   - `M` `external/vulkancts/modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp`

@@ -67,7 +67,7 @@ draw.dynamic_rendering.complete_secondary_cmd_buff.implicit_sample_shading
 
 Each rendering-path root owns the same three direct base leaves. The render-pass, primary-command-buffer, and partial-secondary roots additionally own the nine `minSampleShadingValue_{zero,quarter,half}_*` override leaves; the complete-secondary root omits them because registration of the override leaves is skipped when `secondaryCmdBufferCompletelyContainsDynamicRenderpass` is true ([registration gate](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L524-L527)).
 
-The checked-in mustpass lists confirm the twelve leaves (three base leaves and nine `minSampleShadingValue_*` overrides) under `draw.renderpass`, `draw.dynamic_rendering.primary_cmd_buff`, and `draw.dynamic_rendering.partial_secondary_cmd_buff`, and the three base leaves alone under `draw.dynamic_rendering.complete_secondary_cmd_buff`, in `external/vulkancts/mustpass/main/vk-default/draw.txt` (39 entries total). The Vulkan SC list contains the three base render-pass leaves in `external/vulkancts/mustpass/main/vksc-default/draw.txt` (3 entries total), matching the `#ifndef CTS_USES_VULKANSC` guard around dynamic-rendering test-tree creation and execution. Neither list contains the two nested dynamic-rendering roots, matching the dispatcher's `nestedSecondaryCmdBuffer` guard. The mustpass files select registered paths; feature and extension availability still determines whether an individual case is supported at runtime.
+The checked-in mustpass lists confirm the twelve leaves (three base leaves and nine `minSampleShadingValue_*` overrides) under `draw.renderpass`, `draw.dynamic_rendering.primary_cmd_buff`, and `draw.dynamic_rendering.partial_secondary_cmd_buff`, and the three base leaves alone under `draw.dynamic_rendering.complete_secondary_cmd_buff`, in [`vk-default/draw.txt`](../../../mustpass/main/vk-default/draw.txt) (39 entries total). The Vulkan SC list contains the three base render-pass leaves and all nine render-pass overrides in [`vksc-default/draw.txt`](../../../mustpass/main/vksc-default/draw.txt) (12 entries total). The `#ifndef CTS_USES_VULKANSC` guard excludes dynamic-rendering test-tree creation and execution, not the render-pass overrides. Neither list contains the two nested dynamic-rendering roots, matching the dispatcher's `nestedSecondaryCmdBuffer` guard. The mustpass files select registered paths; feature and extension availability still determines whether an individual case is supported at runtime.
 
 ## Parameter Dimensions and Observed Values
 
@@ -81,7 +81,7 @@ The checked-in mustpass lists confirm the twelve leaves (three base leaves and n
 
 ## Behavior Parameters
 
-Two behavioral axes are registered as test case names. The trigger mechanism changes the fragment-shader construct that must cause implicit sample shading; the `minSampleShadingValue_*` suffix changes the pipeline multisample state that the trigger must overcome. The host setup and counter check remain shared across both axes.
+Two behavioral axes are registered as test case names. The trigger mechanism changes the fragment-shader construct that must cause implicit sample shading; the `minSampleShadingValue_*` prefix changes the pipeline multisample state that the trigger must overcome. The host setup and counter check remain shared across both axes.
 
 ### `sample_decoration_dynamic_use`: dynamically used sample-qualified input
 
