@@ -110,7 +110,7 @@ The first two values are the registered linear shader direction. Optimal leaves 
 | Format mapping | [`getTensorFormat`](../../../modules/vulkan/tensor/shaders/vktTensorShaderUtil.cpp#L39-L71) | Maps Vulkan formats to GLSL types. |
 | Linear execution and check | [`LinearTensorAccessTestInstance::iterate`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L401-L616) | Creates resources, dispatches, synchronizes, downloads, and compares. |
 | Optimal execution and check | [`OptimalTensorAccessTestInstance::iterate`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L618-L850) | Runs the two-direction round trip and compares source and destination buffers. |
-| Support helpers | [`formatSupportTensorFlags` and feature helpers](../../../modules/vulkan/tensor/vktTensorTestsUtil.cpp#L341-L432) | Checks format features, shader tensor features, stages, non-packed tensors, and DMA import. |
+| Support helpers | [`formatSupportTensorFlags` and feature helpers](../../../modules/vulkan/tensor/vktTensorTestsUtil.cpp#L341-L441) | Checks format features, shader tensor features, stages, non-packed tensors, and DMA import. |
 | Tensor operation rules | [Tensor Operations](../../../../vulkan-docs/src/chapters/VK_ARM_tensors/tensorops.adoc#tensors) | Defines tensor coordinates, compatibility validation, format conversion, and read/write behavior. |
 
 ## Questions / Risk Points for User Audit

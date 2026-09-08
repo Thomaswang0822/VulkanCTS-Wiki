@@ -750,17 +750,17 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `M` `external/vulkancts/modules/vulkan/amber/vktAmberTestCase.hpp`
   Mustpass evidence:
   - none
-- [ ] `cooperative_vector` — source `1` (M=1); mustpass `0` (none). Raw groups: `cooperative_vector`. Decision: pending.
+- [x] `cooperative_vector` — source `1` (M=1); mustpass `0` (none). Raw groups: `cooperative_vector`. Decision: complete; renumbered all `vktCooperativeVectorBasicTests.cpp` fragments for the added `getTypeWidth` helper (+37) and the compute workgroup shared-memory support check (+52 beyond that), verified shifted symbol anchors against current source, documented the new `maxComputeSharedMemorySize` gate in the pruning section and brief/appendix wording, and confirmed the training `TRAINING_OPTIMAL_NV` layout fix matches the page's existing "training-optimal matrix layout" wording. Structure, registration, link, and line-reference validators pass.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/cooperative_vector/vktCooperativeVectorBasicTests.cpp`
   Mustpass evidence:
   - none
-- [ ] `device_group` — source `1` (M=1); mustpass `0` (none). Raw groups: `device_group`. Decision: pending.
+- [x] `device_group` — source `1` (M=1); mustpass `0` (none). Raw groups: `device_group`. Decision: complete; the upstream change is an `InstanceWrapper`/`DeviceWrapper` modernization with no registered-behavior change described by the page, so only `vktDeviceGroupRendering.cpp` fragment line numbers were renumbered per the per-hunk shift map (−5 to −112), with the compute `init()`/`iterate()` anchors boundary-corrected against current source. Structure, registration, link, and line-reference validators pass.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/device_group/vktDeviceGroupRendering.cpp`
   Mustpass evidence:
   - none
-- [ ] `info` — source `0` (none); mustpass `2` (M=2). Raw groups: `info`. Decision: pending.
+- [x] `info` — source `0` (none); mustpass `2` (M=2). Raw groups: `info`. Decision: complete; pages reference `api/vktApiFeatureInfo.cpp` and `vktTestPackage.cpp` which changed in this range even though the info directory itself did not. Synced InfoTests.md, ApiFeatureInfo.md, ApiFeatureInfo_brief.md and categories/info.md: renumbered all FeatureInfo anchors from hunk headers; added `device_extension_supported` pairing rule and `device_memory_budget_multi_instance` (shared support fn, cross-instance usage growth, SC parent skip); recorded removal of the Vulkan SC compile-time exclusion of both dependency leaves; corrected mandatory-features wording (compute-only flag removed, 1.4 hostImageCopy/queue rule); both mustpass lists are now 23 identical leaves; vktTestPackage attachment anchors updated. All four wiki-writer validators pass.
   Source evidence:
   - none
   Mustpass evidence:
@@ -781,7 +781,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `M` `external/vulkancts/modules/vulkan/postmortem/vktPostmortemUtil.hpp`
   Mustpass evidence:
   - `A` `external/vulkancts/mustpass/main/vk-default/postmortem.txt`
-- [ ] `rasterization` — source `1` (M=1); mustpass `0` (none). Raw groups: `rasterization`. Decision: pending.
+- [x] `rasterization` — source `1` (M=1); mustpass `0` (none). Raw groups: `rasterization`. Decision: complete; no page changes needed. The only source change is a one-line log-message typo fix in the color-buffer failure branch (`depthResultAccess.getPixel` -> `colorResultAccess.getPixel` at L688 of vktRasterizationDepthBiasControlTests.cpp), a 1:1 replacement with no line shift. DepthBiasControl.md comparison anchors (#L677-L683, #L685-L690) still cover the same statements, and the page's color-failure symptom description now matches the fixed code exactly. All four wiki-writer validators pass.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/rasterization/vktRasterizationDepthBiasControlTests.cpp`
   Mustpass evidence:
@@ -840,7 +840,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `M` `external/vulkancts/modules/vulkan/subgroups/vktSubgroupsVoteTests.cpp`
   Mustpass evidence:
   - none
-- [ ] `tensor` — source `2` (M=2); mustpass `0` (none). Raw groups: `tensor`. Decision: pending.
+- [x] `tensor` — source `2` (M=2); mustpass `0` (none). Raw groups: `tensor`. Decision: complete; the source change is additive only (`formatSupportImageFlags` inserted at vktTensorTestsUtil.cpp L365-L372 + hpp declaration), and the helper is consumed solely by data_graph, so no tensor page semantics changed. Shifted the three support-helper end anchors spanning the insertion (#L341-L412 -> #L341-L421 in DimensionQuery_brief; #L341-L432 -> #L341-L441 twice in BasicShaderAccess.md and once in BasicShaderAccess_brief); anchors below old L365 and all hpp #L68-L101 anchors unaffected. Also repaired pre-existing HEAD defects in tensor briefs so validators pass: wrong relative-path depths for modules/mustpass/framework/vulkan-docs links in ArrayAccess_brief.md and GraphicsPipeline_brief.md, and a `[]( ... )` markdown false link inside the ArrayAccess_brief shader code block. All four wiki-writer validators pass.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/tensor/vktTensorTestsUtil.cpp`
   - `M` `external/vulkancts/modules/vulkan/tensor/vktTensorTestsUtil.hpp`

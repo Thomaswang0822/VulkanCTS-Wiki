@@ -18,7 +18,7 @@ info
 ├── physical_device_groups
 ├── instance_layers
 ├── instance_extensions
-├── instance_extension_dependencies (Vulkan only)
+├── instance_extension_dependencies
 ├── instance_extension_device_functions
 ├── device_features
 ├── device_properties
@@ -26,14 +26,16 @@ info
 ├── device_memory_properties
 ├── device_layers
 ├── device_extensions
-├── device_extension_dependencies (Vulkan only)
+├── device_extension_dependencies
+├── device_extension_supported
 ├── device_no_khx_extensions
 ├── device_memory_budget
+├── device_memory_budget_multi_instance
 ├── device_mandatory_features
 └── device_group_peer_memory_features
 ```
 
-`vktInfoTests.cpp` implements the first four test case leaves and registers the category. It delegates the remaining leaves to the API feature-info builders. The two extension-dependency leaves are absent from Vulkan SC builds [registration](../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8928-L8960).
+`vktInfoTests.cpp` implements the first four test case leaves and registers the category. It delegates the remaining leaves to the API feature-info builders, which register the same leaf set in both package profiles [registration](../../modules/vulkan/api/vktApiFeatureInfo.cpp#L9163-L9195).
 
 ## How the Families Fit Together
 

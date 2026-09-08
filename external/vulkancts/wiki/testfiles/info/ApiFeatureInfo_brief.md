@@ -46,8 +46,8 @@ This page has no generated shaders, GPU work, result image, or readback buffer. 
 
 - Enumeration leaves check incomplete-result handling and, where applicable, duplicate layer or extension names and unknown Khronos extension names.
 - Query leaves check guard bytes, structure initialization, selected consistency rules, and API-version or mandatory-feature requirements.
-- Capability leaves check generated extension dependencies, device-level entry-point availability, absence of obsolete `VK_KHX_` names, memory-budget ranges, or peer-memory flags.
-- Unsupported `VK_EXT_memory_budget` and insufficient device-group configurations are skipped with `NotSupportedError` rather than reported as failures.
+- Capability leaves check generated extension dependencies, paired extension-support requirements, device-level entry-point availability, absence of obsolete `VK_KHX_` names, memory-budget ranges and usage growth, or peer-memory flags.
+- Unsupported `VK_EXT_memory_budget` configurations are skipped by the leaves' shared support check, and insufficient device-group configurations throw `NotSupportedError`; neither is reported as a failure.
 
 ## Behavior Parameter Identification
 
@@ -63,24 +63,24 @@ This page has no generated shaders, GPU work, result image, or readback buffer. 
 |----------------------------------------|---------------------------|
 | `enumeration and list validation` | Enumeration result handling, duplicate-name reporting, or Khronos extension-name validation failure. |
 | `core physical-device query validation` | Query buffer overwrite, incomplete initialization, inconsistent reported properties, memory properties, or mandatory features. |
-| `extension and entry-point consistency` | Advertised extension dependency, device-level entry-point, or obsolete extension-name failure. |
-| `optional memory-budget and device-group capability checks` | Invalid memory-budget values or peer-memory flags after the required extension or device-group configuration is available. |
+| `extension and entry-point consistency` | Advertised extension dependency, paired extension-support requirement, device-level entry-point, or obsolete extension-name failure. |
+| `optional memory-budget and device-group capability checks` | Invalid memory-budget values, missing heap-usage growth after allocation, cross-instance budget inconsistency, or peer-memory flags after the required extension or device-group configuration is available. |
 
 ## Important Variations and Special Cases
 
-- `instance_extension_dependencies` and `device_extension_dependencies` are compiled out under `CTS_USES_VULKANSC`.
+- `instance_extension_dependencies` and `device_extension_dependencies` are registered in both package profiles; the former `CTS_USES_VULKANSC` compile-time exclusion was removed.
 - `physical_device_groups` and `device_group_peer_memory_features` use `CustomInstanceTest<E071>` to request `VK_KHR_device_group_creation`.
-- `device_memory_budget` requires `VK_EXT_memory_budget`.
+- `device_memory_budget` and `device_memory_budget_multi_instance` require `VK_EXT_memory_budget` through a shared `checkSupport()` function.
 - `device_group_peer_memory_features` needs the selected device group to contain at least two physical devices.
 
 ## Source Mapping
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| `info` registrations | [`vktApiFeatureInfo.cpp#L8928-L8960`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L8928-L8960) | Defines every leaf in this page and the Vulkan SC exclusions. |
-| Enumeration and extension checks | [`vktApiFeatureInfo.cpp#L2632-L3016`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L2632-L3016) | Implements enumeration, dependency, entry-point, and extension-name checks. |
-| Core property queries | [`vktApiFeatureInfo.cpp#L3056-L3493`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L3056-L3493) | Implements feature, property, queue-family, and memory-property checks. |
-| Optional capabilities | [`vktApiFeatureInfo.cpp#L3495-L3802`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L3495-L3802) | Implements peer-memory, memory-budget, and mandatory-feature checks. |
+| `info` registrations | [`vktApiFeatureInfo.cpp#L9163-L9195`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L9163-L9195) | Defines every leaf in this page; both package profiles register the same set. |
+| Enumeration and extension checks | [`vktApiFeatureInfo.cpp#L2592-L2993`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L2592-L2993) | Implements enumeration, dependency, paired-support, entry-point, and extension-name checks. |
+| Core property queries | [`vktApiFeatureInfo.cpp#L3032-L3469`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L3032-L3469) | Implements feature, property, queue-family, and memory-property checks. |
+| Optional capabilities | [`vktApiFeatureInfo.cpp#L3471-L3936`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L3471-L3936) | Implements peer-memory, memory-budget (single and multi-instance), and mandatory-feature checks. |
 
 ## Questions / Risk Points for User Audit
 
