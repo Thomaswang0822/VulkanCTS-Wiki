@@ -40,7 +40,7 @@ The default mustpass contains 49 non-WSI and 134 WSI cases (183 total). This cou
 
 ## Source and related documentation
 
-- [Rewritten test page](vktSynchronizationInternallySynchronizedTests.md)
+- [Test page](InternallySynchronized.md)
 - [Source: vktSynchronizationInternallySynchronizedTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedTests.cpp)
 - [Registration: vktSynchronizationTests.cpp](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp)
 - [Synchronization2 category](../../categories/synchronization2.md)

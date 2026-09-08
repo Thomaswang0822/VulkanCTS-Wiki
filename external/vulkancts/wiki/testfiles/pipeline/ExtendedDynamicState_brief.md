@@ -94,7 +94,7 @@ The direct intermediate node is the primary behavioral axis. The eight ordinary 
 - The mesh-shader branch is compiled only outside Vulkan SC and also requires mesh-shader support.
 - Shader-object construction omits `between_pipelines` and `after_pipelines`, because those ordering concepts depend on the pipeline-binding sequence that shader objects do not use in the same way.
 - Some state leaves need further extensions or features, such as line rasterization, depth-bias control, conservative rasterization, or `VK_KHR_maintenance10`; unsupported requirements result in NotSupported rather than an incorrect rendering failure.
-- `misc` is registered by the main factory but implemented in `vktPipelineExtendedDynamicStateMiscTests.cpp`; its separate legacy page remains its navigation source.
+- `misc` is registered by the main factory but implemented in `vktPipelineExtendedDynamicStateMiscTests.cpp`; see [ExtendedDynamicStateMisc.md](ExtendedDynamicStateMisc.md).
 
 ## Source Mapping
 

@@ -96,4 +96,4 @@ Cross-cutting dimensions are the exact registered draw-type suffixes (`sequentia
 
 ## Conversion Notes for Final Wiki Rewrite
 
-Preserve `vktDrawIndirectTest.md` unchanged. This brief belongs to the new `IndirectTest.md` page and preserves the exact registration vocabulary, source links, spec chapters, mustpass evidence, language gates, and validator-auditable headings.
+This brief supports `IndirectTest.md` and preserves the exact registration vocabulary, source links, spec chapters, mustpass evidence, language gates, and validator-auditable headings.

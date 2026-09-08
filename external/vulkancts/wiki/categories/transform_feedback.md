@@ -42,4 +42,4 @@ The families observe different parts of the same transform-feedback data path:
 
 ## Category Notes
 
-The preserved `vkt*.md` files are the original source-navigation pages. The shortened CamelCase pages above are the rewritten English documents; the dispatcher itself is represented by this category gateway rather than by an additional technical Level-3 page.
+This category gateway covers the dispatcher; the Level-3 pages document the implementation-bearing families.

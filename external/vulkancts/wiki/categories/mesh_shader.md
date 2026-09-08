@@ -53,4 +53,4 @@ NV and EXT pages are kept separate because their shader built-ins, command entry
 
 ## Category Notes
 
-The registration-only dispatcher is represented by this gateway rather than a separate technical page. The utility helper [vktMeshShaderUtil.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L111-L139) supplies common NV and EXT support checks but does not register test cases. The Level-3 pages retain the original `vkt*.md` files as obsolete source-navigation records and use shortened CamelCase names for the rewritten documents.
+The registration-only dispatcher is represented by this gateway rather than a separate technical page. The utility helper [vktMeshShaderUtil.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L111-L139) supplies common NV and EXT support checks but does not register test cases.

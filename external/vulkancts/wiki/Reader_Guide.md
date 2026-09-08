@@ -71,7 +71,7 @@ details from Level-3 pages.
 
 Use a Level-2 page when you need to decide where to go next. For example, [memory_model.md](categories/memory_model.md) explains
 that `message_passing`, `write_after_read`, and `transitive` are covered by
-[vktMemoryModelMessagePassing.md](testfiles/memory_model/vktMemoryModelMessagePassing.md), while `padding` and `shared` have their
+[MessagePassing.md](testfiles/memory_model/MessagePassing.md), while `padding` and `shared` have their
 own Level-3 pages.
 
 ## How to Read Level-3 Testfile Pages
@@ -172,7 +172,7 @@ A practical reading path is:
 
 1. Open [memory_model.md](categories/memory_model.md) to identify the category theme and the relevant Level-3 page.
 2. Follow the navigation row for `message_passing`, `write_after_read`, and `transitive` to
-   [vktMemoryModelMessagePassing.md](testfiles/memory_model/vktMemoryModelMessagePassing.md).
+   [MessagePassing.md](testfiles/memory_model/MessagePassing.md).
 3. Read the Level-3 `Overview` and `Behavior Parameters` sections to understand how `message_passing`, `write_after_read`, and `transitive` differ.
 4. Use `Parameter Dimensions and Observed Values` to decode path components such as `ext`, `noncoherent`, `atomic_atomic`,
    `subgroup`, payload storage, guard storage, and shader stage.

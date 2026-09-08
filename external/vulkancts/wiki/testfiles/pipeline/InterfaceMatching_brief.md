@@ -104,4 +104,4 @@ In `misc.skip_output_variable`, the vertex shader writes `v0`, `v1`, and `v2` at
 - Keep the brief's four-row failure-cause table unchanged in the final page.
 - Distill the two prerequisite concepts into short final-page bullets.
 - Use `misc.skip_output_variable` as the formal representative shader explanation, because its source is explicit and it isolates location-based matching.
-- Keep `shader_layout_component_matching` as a delegated test family and link to its preserved page until that family receives its own rewritten page.
+- Keep `shader_layout_component_matching` as a delegated test family and link to [ShaderComponentDecoratedLayoutMatching.md](ShaderComponentDecoratedLayoutMatching.md) for its implementation.

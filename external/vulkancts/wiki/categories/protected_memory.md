@@ -55,4 +55,4 @@ The category therefore compares both protected resource handling and the command
 
 ## Category Notes
 
-The visible Level-3 page count is fourteen because the dispatcher itself is registration-only and the direct `buffer` and `interaction` children each route to multiple implementation pages. The legacy `vkt*.md` pages remain source-navigation records; the links above point to the rewritten pages.
+The visible Level-3 page count is fourteen because the dispatcher itself is registration-only and the direct `buffer` and `interaction` children each route to multiple implementation pages.

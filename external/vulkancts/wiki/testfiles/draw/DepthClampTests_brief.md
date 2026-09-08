@@ -2,7 +2,7 @@
 
 ### Scope
 
-`DepthClampTests` exercises depth clamping in the draw pipeline. The implementation is `vktDrawDepthClampTests.cpp`; the obsolete page is retained as a historical navigation aid, but the source and registration code are authoritative.
+`DepthClampTests` exercises depth clamping in the draw pipeline. The implementation is `vktDrawDepthClampTests.cpp`; the source and registration code are authoritative.
 
 ### Registration and expansion
 

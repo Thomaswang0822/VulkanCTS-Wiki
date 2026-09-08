@@ -143,4 +143,4 @@ No unresolved source ambiguity changes the selected representative case, the nin
 - Preserve the ordered support gates exactly: subgroup size greater than one, fragment subgroup support, `runtimeDescriptorArray`, then the descriptor-specific non-uniform-indexing feature.
 - Copy the `### Failure Cause Mapping` table directly into the final page. Write `### Cause Analysis` fresh during the Level-3 rewrite.
 - Use `dEQP-VK.subgroups.uniform_descriptor_indexing.storage_buffer` for the one representative fragment walkthrough and preserve the exact SPIR-V 1.3 artifact generated from that specialization.
-- Keep the legacy navigation page untouched and limit the rewrite to `UniformDescriptorIndexing_brief.md` and `UniformDescriptorIndexing.md`.
+- Keep this brief and `UniformDescriptorIndexing.md` consistent.

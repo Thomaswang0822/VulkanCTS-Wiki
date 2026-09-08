@@ -71,8 +71,8 @@ The main matrix compares a red-left/blue-right reference image with the rendered
 | `max_attributes` | Fetch or shader input handling does not scale to the advertised attribute limit. |
 | `component_mismatch` | Legal 64-bit component conversion or the shader interface width is handled incorrectly. |
 | `misc` | A stride update, unused binding, dynamic vertex-input state, maintenance9 default attribute value, or null pipeline vertex-input state with rasterizer discard is handled incorrectly. |
-| `legacy_vertex_attributes` | The delegated legacy-attribute behavior is incorrect; see `vktPipelineLegacyAttrTests.md`. |
-| `srgb_vertex_formats` | The delegated sRGB conversion behavior is incorrect; see `vktPipelineVertexInputSRGBTests.md`. |
+| `legacy_vertex_attributes` | The delegated legacy-attribute behavior is incorrect; see [LegacyAttr.md](LegacyAttr.md). |
+| `srgb_vertex_formats` | The delegated sRGB conversion behavior is incorrect; see [VertexInputSRGB.md](VertexInputSRGB.md). |
 
 ## Important Variations and Special Cases
 

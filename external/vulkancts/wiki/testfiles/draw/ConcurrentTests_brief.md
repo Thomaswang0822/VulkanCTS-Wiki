@@ -83,4 +83,4 @@ The primary behavior is the fixed `compute_and_triangle_list` workload. The rend
 
 ## Conversion Notes for Final Wiki Rewrite
 
-Preserve `concurrent` and `compute_and_triangle_list` exactly. Keep the obsolete `vktDrawConcurrentTests.md` page unchanged; this brief supports the replacement `ConcurrentTests.md` only.
+Preserve `concurrent` and `compute_and_triangle_list` exactly. This brief supports `ConcurrentTests.md`.

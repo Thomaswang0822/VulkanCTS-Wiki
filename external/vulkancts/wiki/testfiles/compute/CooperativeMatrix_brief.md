@@ -91,7 +91,7 @@ The shader loads a `coopmat<int32_t, gl_ScopeSubgroup, M, N, gl_MatrixUseAccumul
 
 ### Delegated `op_constant_null`
 
-The `op_constant_null` subtree is registered through `vktComputeCooperativeMatrixOpConstantNullTests.cpp` via `createCooperativeMatrixOpConstantNullTests`. It owns its own Level-3 page (`vktComputeCooperativeMatrixOpConstantNullTests.md`) and is therefore **not** the subject of this rewrite. The current page only mentions its delegation under `## Registration Hierarchy`.
+The `op_constant_null` subtree is registered through `vktComputeCooperativeMatrixOpConstantNullTests.cpp` via `createCooperativeMatrixOpConstantNullTests`. Its implementation is documented in [CooperativeMatrixOpConstantNull.md](CooperativeMatrixOpConstantNull.md). The current page only mentions its delegation under `## Registration Hierarchy`.
 
 ## One Concrete Example
 

@@ -4,7 +4,7 @@
 
 `draw.renderpass.multiple_clears_within_render_pass` checks that a color attachment, depth attachment, or color/depth pair keeps the value established by a sequence of render-pass load, draw, and `vkCmdClearAttachments` operations. Every case records the sequence in one render pass and validates the complete 400 × 300 result image.
 
-The implementation is `MultipleClearsWithinRenderPassTests`, a `TestCaseGroup` whose literal group name is `multiple_clears_within_render_pass` ([source](../../../modules/vulkan/draw/vktDrawMultipleClearsWithinRenderPass.cpp#L818-L823)). The legacy page is retained as historical material; this page is the normalized replacement.
+The implementation is `MultipleClearsWithinRenderPassTests`, a `TestCaseGroup` whose literal group name is `multiple_clears_within_render_pass` ([source](../../../modules/vulkan/draw/vktDrawMultipleClearsWithinRenderPass.cpp#L818-L823)).
 
 ## Background Knowledge
 

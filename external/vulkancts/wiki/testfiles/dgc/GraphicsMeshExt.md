@@ -23,7 +23,7 @@ dgc.ext.graphics.mesh
 └── token_draw_count
 ```
 
-`conditional_rendering` is attached by this registration function but implemented by [`createDGCGraphicsMeshConditionalTestsExt`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshConditionalTestsExt.cpp#L680-L718). Its detailed `general` and `preprocess` paths remain in [the legacy conditional-rendering page](GraphicsMeshConditionalExt.md).
+`conditional_rendering` is attached by this registration function but implemented by [`createDGCGraphicsMeshConditionalTestsExt`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshConditionalTestsExt.cpp#L680-L718). [GraphicsMeshConditionalExt.md](GraphicsMeshConditionalExt.md) documents its `general` and `preprocess` paths.
 
 ## Parameter Dimensions and Observed Values
 

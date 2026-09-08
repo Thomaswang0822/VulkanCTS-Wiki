@@ -92,7 +92,6 @@ Preemption performs its own support checks, including `VK_KHR_global_priority` a
 - The default mustpass list contains 396 leaves: 24 each under `low`, `medium`, `high`, and `realtime`, plus 300 under `preemption`.
 - The transition matrix is 4 priorities × 2 sync modes × 3 modifiers × 4 directions = 96 registered leaves in total; the default mustpass selection contains 24 per priority.
 - No graphics↔transfer transition leaves are generated.
-- The old page remains intentionally preserved as the obsolete/source-era page; this brief is the audit companion for the rewritten page.
 
 ## Source map
 

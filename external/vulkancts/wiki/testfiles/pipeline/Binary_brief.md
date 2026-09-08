@@ -85,7 +85,7 @@ The shaders support valid pipeline creation and observable work. Binary identity
 
 ## Questions / Risk Points for User Audit
 
-- The rewritten pair preserves the legacy `vktPipelineBinaryTests.md` page and documents the existing `pipeline_binary` registration and mustpass split.
+- The page and brief document the `pipeline_binary` registration and mustpass split.
 - The mustpass files available in this checkout use `fast-linked-library.txt`, `pipeline-library.txt`, and `no-queues.txt`; the source registration also describes monolithic coverage, so counts should be read as file-scoped evidence rather than a single category total.
 
 ## Conversion Notes for Final Wiki Rewrite

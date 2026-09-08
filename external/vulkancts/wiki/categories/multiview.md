@@ -57,7 +57,7 @@ The category varies the way multiview work is submitted and the observable resul
 |---|---|---|
 | All implementation-bearing multiview families, including the `index`, `renderpass2`, and `dynamic_rendering` areas | [RenderTests.md](../testfiles/multiview/RenderTests.md) | Behavior parameters, generated shader paths, host-side image/query checks, support gates, and failure meaning |
 
-The old [`vktMultiViewTests.md`](../testfiles/multiview/vktMultiViewTests.md) page describes only the registration dispatcher and is folded into this gateway rather than rewritten as a separate technical page.
+This gateway covers the registration-only dispatcher rather than assigning it a separate technical page.
 
 ## Category Notes
 

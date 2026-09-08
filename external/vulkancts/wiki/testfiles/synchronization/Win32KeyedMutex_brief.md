@@ -112,7 +112,6 @@ A missing prerequisite is a `NotSupported` outcome, not a conformance failure. A
 | D3D11 keyed-mutex protocol | [D3D11 operation and key sequence](../../../modules/vulkan/synchronization/vktSynchronizationWin32KeyedMutexTests.cpp#L563-L888) | Defines resource creation, mutex keys, and the D3D11 copy/render handoff. |
 | Test instance execution | [queue iteration and submissions](../../../modules/vulkan/synchronization/vktSynchronizationWin32KeyedMutexTests.cpp#L1421-L1709) | Defines command recording, keyed-mutex submits, comparison, and status progression. |
 | Support gates and registration | [support checks and generated cases](../../../modules/vulkan/synchronization/vktSynchronizationWin32KeyedMutexTests.cpp#L1712-L1865) | Defines extension requirements, NT/KMT selection, filtering, and legacy registration. |
-| Legacy page and case shape | [legacy test page](vktSynchronizationWin32KeyedMutexTests.md) | Records the older registration overview and legacy-only scope. |
 | Mustpass coverage | [legacy synchronization mustpass](../../../mustpass/main/vk-default/synchronization.txt) | Grounds the registered `dEQP-VK.synchronization.win32_keyed_mutex` leaves. |
 | Synchronization2 exclusion | [synchronization2 mustpass](../../../mustpass/main/vk-default/synchronization2.txt) | Contains no `win32_keyed_mutex` entries. |
 | Keyed-mutex submission structure | [Vulkan command-buffer specification](../../../../vulkan-docs/src/chapters/cmdbuffers.adoc#L2880-L2933) | Grounds acquire/release keys, memory arrays, and timeout semantics. |

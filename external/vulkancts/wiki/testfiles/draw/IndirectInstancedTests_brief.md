@@ -93,4 +93,4 @@ The image comparison cannot by itself distinguish command-fetch, vertex-input, s
 
 ## Conversion Notes for Final Wiki Rewrite
 
-Preserve the obsolete `vktDrawIndirectInstancedTests.md` page unchanged. Preserve the exact group and leaf identifiers: `indirect_instanced`, `1`, `2`, `4`, and `16`. Keep the command-buffer model, feature gates, mustpass boundaries, and image-validation details in the final `IndirectInstancedTests.md` page.
+Preserve the exact group and leaf identifiers: `indirect_instanced`, `1`, `2`, `4`, and `16`. Keep the command-buffer model, feature gates, mustpass boundaries, and image-validation details in the final `IndirectInstancedTests.md` page.

@@ -54,8 +54,6 @@ The legacy gateway documents the parallel `synchronization` category and its leg
 | `internally_synchronized_queues` | [`InternallySynchronized.md`](../testfiles/synchronization/InternallySynchronized.md) | Internally synchronized queue behavior. |
 | `implicit` | [`ImplicitTests.md`](../testfiles/synchronization/ImplicitTests.md) | Synchronization2 implicit ordering and visibility behavior. |
 
-The source dispatcher page `vktSynchronizationTests.md` is retained as an obsolete navigation aid, not as an implementation Level-3 page.
-
 ## Category Notes
 
 The synchronization2 category has no `basic.fence`, `win32_keyed_mutex`, `global_priority_transition`, or `internally_synchronized_objects` family. Those are legacy-only families. Shared pages must preserve exact category-qualified paths when one source file serves both categories.

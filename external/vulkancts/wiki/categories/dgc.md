@@ -77,4 +77,4 @@ The root dispatcher now places the existing ray-tracing tests under `dgc.ext.ray
 
 ## Category Notes
 
-The preserved `vkt*.md` files remain the original source-navigation pages. The shortened CamelCase pages above are the rewritten English documents. Understanding Briefs remain internal rewrite aids and are not navigation targets.
+Understanding Briefs remain internal rewrite aids and are not navigation targets.
