@@ -3,7 +3,8 @@
 ## One-Sentence Test Purpose
 
 This test family checks whether selected geometry-shader built-in variables carry the correct values across the vertex, geometry,
-and fragment stages, including point size, input primitive ID, output primitive ID, and an HLSL geometry-stage position path.
+and fragment stages, including point size, input primitive ID, output primitive ID, primitive-ID consistency through tessellation,
+and an HLSL geometry-stage position path.
 
 ## Background Knowledge
 
@@ -27,7 +28,7 @@ Why it matters here:
 
 ### The fixed input data
 
-All five leaves use the same host-side input positions and secondary attribute values:
+The original five leaves use the same host-side input positions and secondary attribute values:
 
 ```text
 positions:  (0.5, 0.0), (0.0, 0.5), (-0.7, -0.1), (-0.1, -0.7), (0.5, 0.0)
@@ -114,6 +115,7 @@ observable inputs are vertex attributes, index data for one leaf, shader built-i
 | `in_block.primitive_id_in_restarted` | `gl_PrimitiveIDIn` with primitive restart | line strip, indexed with `0xFFFF` restart | Primitive IDs remain correct when an index-buffer restart splits the strip. |
 | `in_block.primitive_id` | `gl_PrimitiveID` written by geometry shader and read by fragment shader | point list, non-indexed | Triangles are colored by the fragment shader using the geometry-written primitive ID. |
 | `outside_block.position` | position transfer through HLSL `SV_POSITION` | triangle strip, non-indexed | The HLSL geometry shader appends the expected triangle positions, rendered as fixed yellow. |
+| `primitive_id.matching` | matching primitive IDs across tessellation and geometry stages | four-vertex patch list, tessellated quads | Red, green, and blue IDs match per pixel, alpha is 255, and IDs are not all zero. |
 
 For every leaf, the final pass/fail decision is made by comparing the rendered image with the corresponding reference PNG through
 `compareWithFileImage()`.
@@ -163,6 +165,7 @@ Resolved by source inspection:
 - Validation uses reference PNGs named after the leaf, not a CPU formula generated inside this source file.
 - The HLSL case is limited to `outside_block.position`; the other leaves use GLSL geometry shader source.
 - The primitive-restart leaf changes only the draw/index path and still uses the `TEST_PRIMITIVE_ID_IN` shader behavior.
+- `primitive_id.matching` uses tessellation stages and direct pixel checks rather than the shared reference-PNG comparison.
 
 No open audit questions remain for the final rewrite.
 

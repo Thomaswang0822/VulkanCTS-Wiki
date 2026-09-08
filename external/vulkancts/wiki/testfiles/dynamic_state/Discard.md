@@ -203,6 +203,7 @@ void main ()
 
 ## Runtime Execution and Result Checking
 
+- Before clearing the depth/stencil image, `beginRenderPass()` selects the initial transition from the format's actual aspects: stencil-only, combined depth/stencil, or depth-only. Combined formats transition both aspects to `GENERAL`, rather than only stencil, with transfer-write access at the transfer stage ([aspect selection](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L258-L282)).
 - `checkSupport()` only checks pipeline construction requirements for all leaves. No device extension is required ([checkSupport](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L671-L675)).
 - Each test instance creates a depth/stencil image and view in addition to the shared color target. The vertex data is a full-screen triangle strip in green ([constructor](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L114-L149)).
 - `iterate()` allocates a uniform buffer, zeroes it, begins the render pass with a black color clear and a zeroed depth/stencil clear, records the leaf-specific `setDynamicState()` commands, binds the pipeline, draws the triangle strip, and ends the render pass. The shared harness submits and waits ([iterate](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L292-L358)).

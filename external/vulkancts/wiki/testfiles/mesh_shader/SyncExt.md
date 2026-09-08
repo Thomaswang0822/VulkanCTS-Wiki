@@ -299,7 +299,7 @@ void main ()
 ### Requirement-based pruning
 
 - Every regular case requires `VK_EXT_mesh_shader` and mesh support. A task-stage pair also requires task-shader support through `checkTaskMeshShaderSupportEXT` [EXT support helper](../../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L126-L139).
-- Cases with `shader_write` require `DEVICE_CORE_FEATURE_VERTEX_PIPELINE_STORES_AND_ATOMICS`. The `other` case requires task and mesh support plus that same feature [regular support gate](../../../modules/vulkan/mesh_shader/vktMeshShaderSyncTestsEXT.cpp#L647-L655), [secondary support gate](../../../modules/vulkan/mesh_shader/vktMeshShaderSyncTestsEXT.cpp#L1574-L1578).
+- Cases with `shader_write` require `DEVICE_CORE_FEATURE_FRAGMENT_STORES_AND_ATOMICS` only when the producer stage is fragment; task/mesh shader writes no longer require the vertex-pipeline feature. The `other` case requires task and mesh support but no vertex-pipeline stores/atomics feature [regular support gate](../../../modules/vulkan/mesh_shader/vktMeshShaderSyncTestsEXT.cpp#L647-L655), [secondary support gate](../../../modules/vulkan/mesh_shader/vktMeshShaderSyncTestsEXT.cpp#L1574-L1578).
 - The registration loop removes resource types that the source stage cannot write or the destination stage cannot read. It removes `uniform_read` except for uniform buffers and removes write/read access values that do not match the selected stage or resource.
 
 This pruning means the case is not legal or not supported for the selected implementation path. A skipped case is not a synchronization failure.

@@ -132,8 +132,8 @@ The five test-family values change the execution-mode or subgroup-operation cont
 | Shader code printer | [printCode](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L1752-L2012) | Maps operation records to GLSL control flow and observation writes. |
 | Compute result checking | [compute iterate](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L5220-L5314) | Runs the shader, executes the CPU reference, and compares outputs. |
 | Compute failure rules | [calculateAndLogResult](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L5317-L5420) | Defines exact maximal and SUCF comparison behavior. |
-| Feature semantics | [uniform-control-flow features](../../../vulkan-docs/src/chapters/features.adoc#L5147-L5170) and [maximal-reconvergence features](../../../vulkan-docs/src/chapters/features.adoc#L8602-L8624) | Defines the Vulkan feature fields and corresponding SPIR-V execution modes. |
-| Maximal helper-invocation rule | [shader execution rule](../../../vulkan-docs/src/chapters/shaders.adoc#L3755-L3767) | Grounds the helper-invocation consequence of maximal reconvergence. |
+| Feature semantics | [uniform-control-flow features](../../../../vulkan-docs/src/chapters/features.adoc#L5147-L5170) and [maximal-reconvergence features](../../../../vulkan-docs/src/chapters/features.adoc#L8602-L8624) | Defines the Vulkan feature fields and corresponding SPIR-V execution modes. |
+| Maximal helper-invocation rule | [shader execution rule](../../../../vulkan-docs/src/chapters/shaders.adoc#L3755-L3767) | Grounds the helper-invocation consequence of maximal reconvergence. |
 
 ## Questions / Risk Points for User Audit
 

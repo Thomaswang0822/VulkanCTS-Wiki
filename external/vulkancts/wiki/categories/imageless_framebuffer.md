@@ -12,15 +12,23 @@ The `imageless_framebuffer` test category checks whether an imageless framebuffe
 
 ```text
 imageless_framebuffer
-├── color
-├── depth_stencil
-├── color_resolve
-├── depth_stencil_resolve
-├── multisubpass
-└── different_attachments
+├── extended_flags
+│   ├── color
+│   ├── depth_stencil
+│   ├── color_resolve
+│   ├── depth_stencil_resolve
+│   ├── multisubpass
+│   └── different_attachments
+└── none
+    ├── color
+    ├── depth_stencil
+    ├── color_resolve
+    ├── depth_stencil_resolve
+    ├── multisubpass
+    └── different_attachments
 ```
 
-The six direct test families are registered by [`createTests()`](../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L3027-L3041). The default Vulkan mustpass contains one test case for each family.
+The two flag variants and their six test families are registered by [`createTests()`](../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L3066-L3090). The default Vulkan and Vulkan SC mustpass files each contain twelve executable paths.
 
 ## Level-3 Pages Navigation
 
@@ -32,7 +40,8 @@ The six direct test families are registered by [`createTests()`](../../modules/v
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |---|---|---|---|
-| Test family | `color`, `depth_stencil`, `color_resolve`, `depth_stencil_resolve`, `multisubpass`, `different_attachments` | Selects the attachment and render-pass scenario. | [`createTests()`](../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L2953-L3023) |
+| Extended flags variant | `none`, `extended_flags` | Selects whether the attachment image-info flags and usage are supplied through `VkImageCreateFlags2CreateInfoKHR` and `VkImageUsageFlags2CreateInfoKHR` (the extended variant is unavailable for Vulkan SC builds). | [`createTests()`](../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L3066-L3090), [`makeFramebuffer()`](../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L575-L708) |
+| Test family | `color`, `depth_stencil`, `color_resolve`, `depth_stencil_resolve`, `multisubpass`, `different_attachments` under each variant | Selects the attachment and render-pass scenario. | [`createTests()`](../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L2988-L3064) |
 | Color format | `VK_FORMAT_R8G8B8A8_UNORM` | Defines the color attachment and host readback format. | [`imagelessColorTests()`](../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L2953-L2959) |
 | Depth/stencil format | `VK_FORMAT_D24_UNORM_S8_UINT` or `VK_FORMAT_UNDEFINED` | Adds a combined depth/stencil attachment only to the depth/stencil families. | [`imagelessDepthStencilTests()`](../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L2965-L2971) |
 | Sample count | `1` or `4` | Selects single-sample rendering or multisample resolve behavior. | [`ColorResolveImagelessTestInstance::iterate()`](../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L1684-L1694), [`DepthResolveImagelessTestInstance::iterate()`](../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L1974-L1984) |
@@ -40,7 +49,7 @@ The six direct test families are registered by [`createTests()`](../../modules/v
 
 ## Behavior Parameters
 
-The primary behavioral axis is the test-family leaf. Each leaf changes the attachment roles or render-pass structure while retaining the same imageless-framebuffer binding contract.
+The primary behavioral axes are the `none`/`extended_flags` group and the test-family leaf. Each leaf changes the attachment roles or render-pass structure; the extended group additionally exercises the `VK_KHR_extended_flags` extended image flags and usage chain when supported.
 
 ### `color`: one color attachment
 
@@ -116,7 +125,7 @@ The test shaders only provide fixed vertex and fragment rendering for the attach
 
 ### Requirement-based pruning
 
-- All families require `VK_KHR_imageless_framebuffer` or its core equivalent and the `imagelessFramebuffer` feature through the shared test context and imageless framebuffer creation path.
+- All families require `VK_KHR_imageless_framebuffer` or its core equivalent and the `imagelessFramebuffer` feature through the shared test context and imageless framebuffer creation path. The `extended_flags` variant additionally requires `VK_KHR_extended_flags`; it is excluded under `CTS_USES_VULKANSC`.
 - Resolve families require `standardSampleLocations`. `depth_stencil_resolve` also requires the depth/stencil resolve support used by its render-pass construction.
 - The implementation checks image-format properties for the requested format, usage, extent, and sample count. Unsupported combinations do not execute.
 

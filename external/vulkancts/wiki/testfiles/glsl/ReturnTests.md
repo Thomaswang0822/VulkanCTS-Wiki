@@ -9,7 +9,7 @@
 ## Background Knowledge
 
 - In GLSL, `return` leaves the current function. A value-returning function passes its value to the caller; a `void` function returns control without producing a value.
-- A return from the shader entry point ends that invocation. Vulkan describes execution of `OpReturn` in an entry point as terminating the invocation ([Shader Termination](../../../vulkan-docs/src/chapters/shaders.adoc#shaders-termination)).
+- A return from the shader entry point ends that invocation. Vulkan describes execution of `OpReturn` in an entry point as terminating the invocation ([Shader Termination](../../../../../external/vulkan-docs/src/chapters/shaders.adoc#shaders-termination)).
 - Vertex and fragment shaders receive coordinates differently in this test. Vertex cases read the `a_coords` vertex attribute. Fragment cases read the interpolated `v_coords` input produced by the pass-through vertex shader.
 
 ## Registration Hierarchy
@@ -287,7 +287,7 @@ void main (void)
 - The instance prepares the render resources, creates a quad grid, renders the generated program, and copies the resulting image into a host-visible result surface ([iteration](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L773-L800), [image copy](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2580-L2600)).
 - Uniform-backed loop cases bind one uniform buffer at binding 0. `UI_ONE` supplies 1 for the dynamic finite loop, and `UI_ZERO` supplies 0 for the special zero-increment loop ([uniform setup](../../../modules/vulkan/shaderrender/vktShaderRenderReturnTests.cpp#L122-L135), [uniform values](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L945-L965)).
 - The host computes a reference image with the selected evaluator. Vertex cases evaluate at grid vertices and interpolate across the rendered quads. Fragment cases evaluate at pixel centers ([vertex reference](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2603-L2690), [fragment reference](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2692-L2719)).
-- The harness compares the rendered and reference images with fuzzy error threshold `0.2`. It returns `pass("Result image matches reference")` when the comparison succeeds and `fail("Image mismatch")` otherwise ([iteration](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L792-L805), [comparison](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2721-L2730)).
+- The harness compares the rendered and reference images with fuzzy error threshold `0.2`. It returns `pass("Result image matches reference")` when the comparison succeeds and `fail("Image mismatch")` otherwise ([iteration](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L792-L805), [comparison](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2721-L2727)).
 
 ## Failure Meaning
 
@@ -360,7 +360,7 @@ The inspected return test source has no return-specific `checkSupport()` overrid
 | `ShaderRenderCase::initPrograms()` | [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L607-L625) | Adds the generated GLSL sources to the program collection. |
 | `ShaderRenderCaseInstance::iterate()` | [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L773-L805) | Renders, builds the reference image, compares images, and returns the test status. |
 | Reference image generation | [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2603-L2719) | Defines vertex and fragment CPU reference construction. |
-| Image comparison | [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2721-L2730) | Defines fuzzy image comparison and its threshold path. |
+| Image comparison | [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2721-L2727) | Defines fuzzy image comparison and its threshold path. |
 | GLSL package registration | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1268) | Places `return` below the `glsl` test category. |
 | Mustpass registration | [Vulkan](../../../mustpass/main/vk-default/glsl.txt#L14608-L14645), [Vulkan SC](../../../mustpass/main/vksc-default/glsl.txt#L13687-L13724) | Confirms the 38 registered leaves in both default lists. |
-| Shader termination rule | [Vulkan Shaders chapter](../../../vulkan-docs/src/chapters/shaders.adoc#shaders-termination) | Provides the spec statement for `OpReturn` termination. |
+| Shader termination rule | [Vulkan Shaders chapter](../../../../../external/vulkan-docs/src/chapters/shaders.adoc#shaders-termination) | Provides the spec statement for `OpReturn` termination. |

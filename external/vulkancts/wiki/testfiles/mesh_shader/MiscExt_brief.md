@@ -29,7 +29,7 @@ Why it matters here:
 ## End-to-End Test Flow
 
 ```text
-[host] select one of 83 registered misc leaves and its fixed counts, extent, and leaf-specific dimensions
+[host] select one of 114 registered misc leaves and its fixed counts, extent, and leaf-specific dimensions
 [host] generate GLSL or, for selected cases, source-controlled SPIR-V assembly for task/mesh/fragment stages
 [host] create RGBA8 color resources, optional descriptors, push constants, staging/readback buffers, and the graphics pipeline
 [device] execute vkCmdDrawMeshTasksEXT; task-enabled cases launch mesh workgroups and may pass task payload data
@@ -117,9 +117,9 @@ Why it matters here:
 | Attributes, clipping, push constants, and limit cases | [EXT attribute/clip/limit implementations](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L2129-L4173) | Defines feature gates, interface outputs, clip variants, and maximization behavior. |
 | First invocation and `LocalSizeId` | [EXT invocation/assembly paths](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L4379-L4954) | Defines subgroup/API gates and direct SPIR-V specialization behavior. |
 | Payload, descriptor, output, control-flow, and ordering cases | [EXT later implementations](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L4955-L6704) | Defines special resources, exact checks, and direct function-case runtime paths. |
-| Registration hierarchy and pruning | [EXT registration function](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L6708-L7200) | Defines all 83 registered leaves, dimensions, and disabled branches. |
+| Registration hierarchy and pruning | [EXT registration function](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L6708-L7635) | Defines all 114 registered leaves, dimensions, and disabled branches. |
 | EXT support and shader build target | [mesh-shader utilities](../../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L126-L149) | Requires the extension/features and selects SPIR-V 1.4 for generated GLSL. |
-| vk-default coverage | [mesh-shader mustpass](../../../mustpass/main/vk-default/mesh-shader.txt#L1930-L2012) | Contains exactly the 83 `mesh_shader.ext.misc` paths. |
+| vk-default coverage | [mesh-shader mustpass](../../../mustpass/main/vk-default/mesh-shader.txt#L1930-L2043) | Contains exactly the 114 `mesh_shader.ext.misc` paths. |
 | Task/mesh execution and outputs | [mesh shader specification chapter](../../../../vulkan-docs/src/chapters/VK_NV_mesh_shader/mesh.adoc) | The chapter's EXT conditionals define task dispatch, payload, and mesh output semantics. |
 | Shader interfaces and locations | [interfaces specification chapter](../../../../vulkan-docs/src/chapters/interfaces.adoc#L55-L292) | Grounds interpolation, interface matching, and location explanations. |
 | Workgroups and barriers | [shaders specification chapter](../../../../vulkan-docs/src/chapters/shaders.adoc#L2387-L2481) | Grounds workgroup execution and synchronization explanations. |
@@ -129,7 +129,7 @@ Why it matters here:
 ## Questions / Risk Points for User Audit
 
 - The source mixes ordinary generated GLSL with CTS-authored direct SPIR-V. The final page must keep that distinction and must not present hand-edited assembly.
-- The common source registers 83 direct leaves, while the memory-barrier and clip families expand several naming dimensions. The final hierarchy must list the exact leaf names rather than inventing intermediate nodes.
+- The common source registers 114 direct leaves, while the memory-barrier and clip families expand several naming dimensions. The final hierarchy must list the exact leaf names rather than inventing intermediate nodes.
 - The `multiple_task_payloads` and extra-write code is useful for explaining pruning but must not be counted as executable coverage.
 
 No unresolved semantic risk point remains after inspecting the complete source, specification chapters, registration function, shader build helpers, and `vk-default` list.
@@ -139,4 +139,4 @@ No unresolved semantic risk point remains after inspecting the complete source, 
 - Use `complex_task_data` for the one representative shader walkthrough. It shows the task payload producer, mesh consumer, generated EXT GLSL, and image reference without duplicating every leaf.
 - Explain `local_size_id_*` as a direct-SPIR-V workflow in prose; do not reproduce or edit its large assembly in the page.
 - Copy the `### Failure Cause Mapping` table unchanged into the final page.
-- Preserve all 83 direct children in one `mesh_shader.ext.misc` tree, then explain the dimensions and exact mustpass count in tables and prose.
+- Preserve all 114 direct children in one `mesh_shader.ext.misc` tree, then explain the dimensions and exact mustpass count in tables and prose.

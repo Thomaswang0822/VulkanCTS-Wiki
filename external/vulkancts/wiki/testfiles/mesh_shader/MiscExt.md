@@ -4,7 +4,7 @@
 
 - [`vktMeshShaderMiscTestsEXT.cpp`](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp) registers and implements the `mesh_shader.ext.misc` test family.
 - The family covers task payloads, primitive emission and zero output, barriers, clip and interface behavior, push constants, output limits, large dispatches, descriptor rebinding, mixed pipelines, subgroup first-invocation behavior, `LocalSizeId`, control-flow emission, and workgroup ordering.
-- The registration function creates 83 direct test-case leaves. It uses fixed parameter objects and small loops over dimensions rather than exposing a deeper CTS group hierarchy.
+- The registration function creates 114 direct test-case leaves. The refresh adds `per_prim_block_output` and 32 `vertex_state_*` combinations; it uses fixed parameter objects and small loops over dimensions rather than exposing a deeper CTS group hierarchy.
 - Most cases generate EXT GLSL, compile it through the CTS shader collection, render into an RGBA8 image, copy that image to a host-visible buffer, and compare it with a generated reference. Two cases use source-controlled SPIR-V assembly.
 
 ## Background Knowledge
@@ -100,16 +100,47 @@ mesh_shader.ext.misc
 ├── single_point
 ├── single_point_default_size
 ├── single_triangle
-└── work_group_ordering
+├── work_group_ordering
+├── per_prim_block_output
+├── vertex_state_bind_ibo
+├── vertex_state_bind_ibo_dynamic_prim_restart
+├── vertex_state_bind_ibo_dynamic_prim_restart_dynamic_topo
+├── vertex_state_bind_ibo_dynamic_topo
+├── vertex_state_bind_ibo_dynamic_vtx_input
+├── vertex_state_bind_ibo_dynamic_vtx_input_dynamic_prim_restart
+├── vertex_state_bind_ibo_dynamic_vtx_input_dynamic_prim_restart_dynamic_topo
+├── vertex_state_bind_ibo_dynamic_vtx_input_dynamic_topo
+├── vertex_state_bind_vbo_bind_ibo
+├── vertex_state_bind_vbo_bind_ibo_dynamic_prim_restart
+├── vertex_state_bind_vbo_bind_ibo_dynamic_prim_restart_dynamic_topo
+├── vertex_state_bind_vbo_bind_ibo_dynamic_topo
+├── vertex_state_bind_vbo_bind_ibo_dynamic_vtx_input
+├── vertex_state_bind_vbo_bind_ibo_dynamic_vtx_input_dynamic_prim_restart
+├── vertex_state_bind_vbo_bind_ibo_dynamic_vtx_input_dynamic_prim_restart_dynamic_topo
+├── vertex_state_bind_vbo_bind_ibo_dynamic_vtx_input_dynamic_topo
+├── vertex_state_bind_vbo_dynamic_prim_restart
+├── vertex_state_bind_vbo_dynamic_prim_restart_dynamic_topo
+├── vertex_state_bind_vbo_dynamic_topo
+├── vertex_state_bind_vbo_dynamic_vtx_input
+├── vertex_state_bind_vbo_dynamic_vtx_input_dynamic_prim_restart
+├── vertex_state_bind_vbo_dynamic_vtx_input_dynamic_prim_restart_dynamic_topo
+├── vertex_state_bind_vbo_dynamic_vtx_input_dynamic_topo
+├── vertex_state_dynamic_prim_restart
+├── vertex_state_dynamic_prim_restart_dynamic_topo
+├── vertex_state_dynamic_topo
+├── vertex_state_dynamic_vtx_input
+├── vertex_state_dynamic_vtx_input_dynamic_prim_restart
+├── vertex_state_dynamic_vtx_input_dynamic_prim_restart_dynamic_topo
+└── vertex_state_dynamic_vtx_input_dynamic_topo
 ```
 
-The root comes from `createMeshShaderMiscTestsEXT`. The direct children above are the complete set of registered leaves. The `vk-default` mustpass file contains exactly 83 matching paths, from `dEQP-VK.mesh_shader.ext.misc.barrier_in_mesh` through `dEQP-VK.mesh_shader.ext.misc.work_group_ordering`; see [the exact mustpass slice](../../../mustpass/main/vk-default/mesh-shader.txt#L1930-L2012).
+The root comes from `createMeshShaderMiscTestsEXT`. The direct children above are the complete set of registered leaves. The `vk-default` mustpass file contains exactly 114 matching paths, from `dEQP-VK.mesh_shader.ext.misc.barrier_in_mesh` through `dEQP-VK.mesh_shader.ext.misc.vertex_state_dynamic_vtx_input_dynamic_topo`; see [the exact mustpass slice](../../../mustpass/main/vk-default/mesh-shader.txt#L1930-L2043).
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Test leaf | The 83 names in the hierarchy | Selects one implementation path and its fixed or loop-generated parameters. | [`createMeshShaderMiscTestsEXT`](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L6708-L7200) |
+| Test leaf | The 114 names in the hierarchy | Selects one implementation path and its fixed or loop-generated parameters. | [`createMeshShaderMiscTestsEXT`](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L6708-L7635) |
 | Task execution | task count absent, or fixed `1x1x1`, `2x1x1`, `128`/`256`/`65535`-based counts | An absent task count dispatches mesh workgroups directly. A present count adds a task shader; `drawCount()` then uses the task count. | [`MiscTestParams`](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L95-L133) |
 | Mesh dispatch | `1x1x1`, `2x1x1`, `256`/`512`/`65535`-based counts | Controls direct mesh dispatch or the mesh-workgroup count emitted by a task shader. | [registration parameters](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L6712-L6877) |
 | Render extent | `1x1`, `1x1020`, `2x1`, `5x7`, `8x5`, `8x8`, `16x16`, `128x1`, `2040x2056`, `2048x2048`, `512x512` | Determines rasterization coverage, image allocation, and the reference-image dimensions. | [registration parameters](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L6723-L6877) |
@@ -120,7 +151,7 @@ The root comes from `createMeshShaderMiscTestsEXT`. The direct children above ar
 | Barrier payload type | `struct`, `float`, `vector`, `array`, `uint64` | Changes the task payload declaration and the value written/read after the barrier. | [payload generation](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L1868-L1995) |
 | Clip combination | `clip_geom` or `clip_plane`, with optional `_and_task_shader`, `_provoking_last`, and `_multiview` suffixes | Selects clip-distance versus clip-plane behavior and toggles task transport, provoking-vertex order, and multiview. | [clip registration](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L6997-L7020) |
 | Output-limit stress | `max_points`, `max_lines`, `max_triangles_workgroupsize_16`, `_32`, `_64`, `maximize_primitives`, `maximize_vertices`, `maximize_invocations_32`, `_64`, `_128`, `_256` | Holds the draw shape mostly fixed while stressing output counts, local size, or invocation count. | [limit registration](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L6770-L6810), [maximization registration](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L7039-L7084) |
-| Pipeline/state path | `mixed_pipelines`, `mixed_pipelines_dynamic_topology`, `rebind_sets`, `push_constant`, `push_constant_and_task_shader` | Changes classic/mesh pipeline use, dynamic topology, descriptor-set rebinding, or stage-visible push constants. | [stateful case registration](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L7023-L7035), [mixed pipelines](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L7087-L7103) |
+| Pipeline/state path | `mixed_pipelines`, `mixed_pipelines_dynamic_topology`, `rebind_sets`, `push_constant`, `push_constant_and_task_shader`, `per_prim_block_output`, and 32 `vertex_state_*` leaves | Changes classic/mesh pipeline use, dynamic topology, descriptor-set rebinding, stage-visible push constants, per-primitive interface-block decoration, or unused vertex/index/dynamic state before a mesh draw. | [stateful and refreshed registration](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L7023-L7035), [new cases](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L6708-L7632) |
 | Invocation/assembly path | `first_invocation_mesh`, `first_invocation_task`, `local_size_id_mesh`, `local_size_id_task` | Selects direct mesh versus task execution and the first-invocation or specialization-constant behavior. | [invocation registration](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L7106-L7135) |
 | Exact result path | image comparison, dual-reference comparison, or color/depth comparison | Selects the host result checker implemented by the case. | [common checker](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L220-L266), [specialized checks](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L1822-L1852), [ordering check](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L6656-L6703) |
 
@@ -138,7 +169,7 @@ The `many_*_work_groups_*` leaves exercise large task, mesh, or task-plus-mesh d
 
 ### Interfaces, clipping, and state
 
-`custom_attributes` passes interpolated, flat, per-primitive, primitive-ID, viewport-index, and clip-distance data into the fragment shader. The 16 `clip_*` leaves vary clip implementation, task use, provoking-vertex order, and multiview. Push-constant leaves read values in mesh-only or task-plus-mesh pipelines. `multiple_outputs_vertices` checks interpolation of per-vertex values, while `payload_not_accessed` checks the corresponding mesh output path when task payload data is not used.
+`custom_attributes` passes interpolated, flat, per-primitive, primitive-ID, viewport-index, and clip-distance data into the fragment shader. The 16 `clip_*` leaves vary clip implementation, task use, provoking-vertex order, and multiview. Push-constant leaves read values in mesh-only or task-plus-mesh pipelines. `multiple_outputs_vertices` checks interpolation of per-vertex values, while `payload_not_accessed` checks the corresponding mesh output path when task payload data is not used. `per_prim_block_output` checks a user-defined per-primitive output block written through a dynamic primitive index and verified independently for both primitives. The `vertex_state_*` matrix binds optional unused vertex/index buffers and/or sets vertex input, primitive-restart, and topology dynamic state before `vkCmdDrawMeshTasksEXT`; the source currently constructs the VBO flag from the IBO boolean, so the registered matrix intentionally reflects that source behavior.
 
 ### Limits, pipeline switching, and invocation rules
 
@@ -387,12 +418,12 @@ A requirement-pruned case is unsupported on the current device or API configurat
 
 - The `no_*_extra_writes` branch is skipped by `continue`; it is preceded by a source comment questioning legality and is absent from the registration tree and mustpass file.
 - `multiple_task_payloads` is inside `if (false)` with a source comment that the case may be illegal. Its class and direct SPIR-V builder remain in the source, but the test is not registered and must not be counted.
-- The source therefore registers 83 leaves, not every branch or every possible Cartesian product of the dimensions shown above.
+- The source therefore registers 114 leaves, not every branch or every possible Cartesian product of the dimensions shown above.
 - `local_size_id_*` is documented as a direct-SPIR-V path. The CTS source owns that assembly; this page does not rewrite, synthesize, or hand-edit it.
 
 ## Key Takeaways
 
-- `mesh_shader.ext.misc` is one direct-child test family with 83 executable leaves in `vk-default`.
+- `mesh_shader.ext.misc` is one direct-child test family with 114 executable leaves in `vk-default`.
 - The leaf names encode the meaningful behavior choice: stage use, topology, barrier and payload type, clip combination, limit stress, pipeline state, invocation rule, or ordering mode.
 - Generated GLSL cases compile to EXT mesh-shader SPIR-V and render into host-checked images. `local_size_id_*` uses source-controlled SPIR-V and remains distinct from the generated-GLSL workflow.
 - A failure means that the selected leaf's execution, generated interface, resource/state setup, result transfer, or reference comparison did not meet its contract. A support-pruned case means that the required feature or property was unavailable.
@@ -408,9 +439,9 @@ A requirement-pruned case is unsupported on the current device or API configurat
 | Limit and pipeline cases | [limit and mixed-pipeline implementations](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L3661-L4378) | Defines output-limit checks, specialization of generated output counts, and classic/mesh pipeline switching. |
 | Invocation and `LocalSizeId` cases | [invocation implementations](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L4379-L4954) | Defines subgroup/API gates, first-invocation generation, and source-controlled SPIR-V specialization. |
 | Payload, descriptors, output, control-flow, and ordering cases | [later implementations](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L4955-L6704) | Defines descriptor rebinding, output interpolation, exact control-flow result, and color/depth ordering checks. |
-| Registration and disabled branches | [`createMeshShaderMiscTestsEXT`](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L6708-L7200) | Defines the exact 83 direct children and the branches excluded from coverage. |
+| Registration and disabled branches | [`createMeshShaderMiscTestsEXT`](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp#L6708-L7200) | Defines the exact 114 direct children and the branches excluded from coverage. |
 | EXT support and generated shader target | [`checkTaskMeshShaderSupportEXT`, `getMinMeshEXTBuildOptions`](../../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L126-L149) | Requires EXT task/mesh features and selects SPIR-V 1.4 for generated GLSL. |
-| vk-default coverage | [mesh-shader mustpass](../../../mustpass/main/vk-default/mesh-shader.txt#L1930-L2012) | Lists the exact 83 executable `mesh_shader.ext.misc` paths. |
+| vk-default coverage | [mesh-shader mustpass](../../../mustpass/main/vk-default/mesh-shader.txt#L1930-L2012) | Lists the exact 114 executable `mesh_shader.ext.misc` paths. |
 | Task/mesh execution | [mesh-shader specification](../../../../vulkan-docs/src/chapters/VK_NV_mesh_shader/mesh.adoc) | Grounds task dispatch, payload, and mesh output explanations for the EXT conditional text. |
 | Interfaces | [interfaces specification](../../../../vulkan-docs/src/chapters/interfaces.adoc#L55-L292) | Grounds stage matching, locations, and interpolation. |
 | Workgroups and barriers | [shaders specification](../../../../vulkan-docs/src/chapters/shaders.adoc#L2387-L2481) | Grounds workgroup and synchronization explanations. |

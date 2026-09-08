@@ -47,7 +47,7 @@ keeps the registered values but adds why each dimension matters for this test.
 | API/memory-model mode | `core11`, `ext` | Chooses legacy Vulkan 1.1 memory semantics versus extension-mode shaders using `#pragma use_vulkan_memory_model` and make-available / make-visible flags. | [core11Cases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2075-L2080), [shader header](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L481-L500) |
 | Data type | `u32`, `u64`, `f32`, `f64` | Changes payload type and atomic-feature pressure; non-`u32` cases mainly stress atomic support and are heavily pruned outside atomic-atomic synchronization. | [dtCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2082-L2091), [atomic-testing pruning](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2285-L2292) |
 | Payload coherence | `coherent`, `noncoherent` | Controls memory qualifiers and whether extension-mode shaders need explicit make-available / make-visible semantics for payload visibility. | [cohCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2093-L2098), [semantic flags](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L468-L479) |
-| Synchronization form | `fence_fence`, `fence_atomic`, `atomic_fence`, `atomic_atomic`, `control_barrier`, `control_and_memory_barrier` | Moves release/acquire responsibility among explicit memory barriers, guard atomics, and control barriers. | [stCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2100-L2113), [sync generation](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L815-L951) |
+| Synchronization form | `fence_fence`, `fence_atomic`, `atomic_fence`, `atomic_atomic`, `control_barrier`, `control_and_memory_barrier` | Moves release/acquire responsibility among explicit memory barriers, guard atomics, and control barriers. The split-barrier enum values exist in the source but are not registered while the pinned glslang lacks the required built-ins. | [stCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2157-L2173), [sync generation](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L815-L951) |
 | Atomic operation kind | `atomicwrite`, `atomicrmw` | Chooses simple atomic store/load guard signaling or RMW exchange signaling; RMW is limited to `atomic_atomic`. | [rmwCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2115-L2118), [RMW pruning](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2279-L2283) |
 | Scope | `device`, `queuefamily`, `workgroup`, `subgroup` | Changes the synchronization reach and also changes coordinate pairing: global mirror, local workgroup mirror, or subgroup-lane pairing. | [scopeCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2120-L2125), [coordinate formulas](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L617-L723) |
 | Payload locality | `payload_nonlocal`, `payload_local` | Selects non-local versus device-local memory allocation for buffer/image payload resources where that distinction is meaningful. | [plCases](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2127-L2132), [allocation selection](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1402-L1436) |
@@ -957,16 +957,19 @@ void main()
 - **Pipeline setup.** The host binds storage resources and a fail buffer, passes physical-buffer addresses through push
   constants when needed, and supplies `DIM` / `NUM_WORKGROUP_EACH_DIM` through specialization constants
   [vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1556-L1664).
-- **Execution loop.** Each command-buffer submit repeats the selected shader 50 times. Before every iteration, payload and guard
+- **Execution loop.** Each queue pass submits a command buffer whose selected shader repeats 50 times. Before every iteration, payload and guard
   resources are cleared to zero and a transfer-to-shader barrier exposes those clears to the shader
   [vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1933-L1947).
   - Compute cases dispatch `NUM_WORKGROUP_EACH_DIM x NUM_WORKGROUP_EACH_DIM x 1` workgroups.
   - Vertex cases draw one point per invocation.
   - Fragment cases draw a single quad over the `DIM * NUM_WORKGROUP_EACH_DIM` square target
     [vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1949-L1968).
-- **Submit count and copyback.** The command buffer is submitted four times. The fail buffer is cleared once before the first
-  submit, accumulates any shader-detected failures across all iterations, and is copied to a host-visible buffer only on the
-  final submit [vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1881-L1983).
+- **Queue passes, submits, and copyback.** `MultiQueueRunnerTestInstance` runs the pass once for each available queue selected
+  by the test stage. A pass submits the command buffer four times. The fail buffer is cleared once before the first submit,
+  accumulates shader-detected failures across all iterations, and is copied to a host-visible buffer only on the final submit
+  [vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1412-L1418),
+  [MultiQueueRunnerTestInstance](../../../modules/vulkan/vktTestCase.cpp#L1836-L1919), and
+  [vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1881-L1983).
 - **Pass/fail rule.** The host scans every fail-buffer entry. Any nonzero entry fails the case and logs up to the first 256
   failed invocation indices [vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1992-L2017).
 

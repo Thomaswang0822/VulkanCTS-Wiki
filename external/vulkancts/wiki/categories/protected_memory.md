@@ -55,4 +55,6 @@ The category therefore compares both protected resource handling and the command
 
 ## Category Notes
 
+`ProtectedContext` owns an `InstanceWrapper` and a `DeviceWrapper`. Its device interface, physical device, instance interface, and allocator come from those wrappers ([context](../../modules/vulkan/protected_memory/vktProtectedMemContext.hpp#L51-L109)). Protected queue selection and protected submissions retain their existing contracts. The workgroup-storage, WSI, and YCbCr callers use this shared interface; the wrapper refactor does not add registration leaves or change their result checks.
+
 The visible Level-3 page count is fourteen because the dispatcher itself is registration-only and the direct `buffer` and `interaction` children each route to multiple implementation pages.

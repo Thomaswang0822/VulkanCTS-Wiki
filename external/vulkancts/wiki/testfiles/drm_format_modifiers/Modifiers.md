@@ -2,7 +2,7 @@
 
 **Core question:** Does the implementation report, create, bind, export, import, and copy images with the DRM format modifiers that the device advertises?
 
-- `vktModifiersTests.cpp` owns the registered `drm_format_modifiers` test category. `createTests()` adds twelve direct test families and creates one format leaf in each family for every element of `formats::basicColorFormats` ([createTests](../../../modules/vulkan/modifiers/vktModifiersTests.cpp#L1601-L1766)).
+- `vktModifiersTests.cpp` owns the registered `drm_format_modifiers` test category. `createTests()` adds twelve direct test families and creates one format leaf in each family for every element of `formats::basicColorFormats` ([createTests](../../../modules/vulkan/modifiers/vktModifiersTests.cpp#L1642-L1807)).
 - The tests exercise `VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT` at two levels: metadata returned by `vkGetPhysicalDeviceFormatProperties2`, and image plus external-memory operations.
 - The default mustpass file contains 1,572 leaves: twelve direct families times 131 format leaves ([drm-format-modifiers.txt](../../../mustpass/main/vk-default/drm-format-modifiers.txt#L1-L1572)).
 - The implementation has no shader stage or generated shader source. The device work is image transfer work, and the host checks reported modifiers, external-memory setup, and copied pixels.
@@ -89,6 +89,7 @@ No shader code participates in these tests. `vktModifiersTests.cpp` creates imag
 
 ## Runtime Execution and Result Checking
 
+- The four opaque-FD export/import families run through [`QueueRunnerInstance`](../../../modules/vulkan/modifiers/vktModifiersTests.cpp#L1600-L1637) with `TRANSFER_QUEUE`: the same leaf runs on the universal queue and available dedicated compute and transfer families. Each pass uses `QueueData.familyIndex` for its command pool and foreign-family release/acquire barriers, and `QueueData.handle` for both submissions. These copies cover whole subresources at zero offset, so no extra `minImageTransferGranularity` pruning is needed. The upload helper uses transfer-stage/transfer-read synchronization for the subsequent image copy. The metadata-only families retain their existing execution path; no queue suffix is added to mustpass names.
 - The host queries modifier properties with `vkGetPhysicalDeviceFormatProperties2` twice: once for the count and once to fill the property array. It then filters each modifier through `vkGetPhysicalDeviceImageFormatProperties2` with the exact format, 2D image type, DRM modifier tiling, usage, handle type, and required external-memory features ([modifier query and filter](../../../modules/vulkan/modifiers/vktModifiersTests.cpp#L104-L178)).
 - The list and explicit-create helpers create 64 x 64 images with one mip level and one array layer. List creation checks membership of the reported modifier. Explicit creation checks equality with the requested modifier.
 - The dma-buf family allocates exportable memory, binds the image at offset zero, and obtains a native handle. The test treats completion of those operations as its result.

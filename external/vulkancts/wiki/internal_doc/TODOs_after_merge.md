@@ -597,18 +597,18 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/draw.txt`
   - `M` `external/vulkancts/mustpass/main/vksc-default/draw.txt`
-- [ ] `drm_format_modifiers` — source `1` (M=1); mustpass `0` (none). Raw groups: `modifiers`. Decision: pending.
+- [x] `drm_format_modifiers` — source `1` (M=1); mustpass `0` (none). Raw groups: `modifiers`. Decision: complete; updated transfer-queue execution and current source references. Validators passed: structure (1 page), registration (13 paths), links, line references (0 issues), and git diff check.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/modifiers/vktModifiersTests.cpp`
   Mustpass evidence:
   - none
-- [ ] `dynamic_state` — source `2` (M=2); mustpass `0` (none). Raw groups: `dynamic_state`. Decision: pending.
+- [x] `dynamic_state` — source `2` (M=2); mustpass `0` (none). Raw groups: `dynamic_state`. Decision: complete; refreshed compute-device helper ownership and combined depth/stencil discard transitions. Validators passed: structure (10 pages), registration (57 paths), links, line references (0 issues), and git diff check.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp`
   - `M` `external/vulkancts/modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp`
   Mustpass evidence:
   - none
-- [ ] `fragment_shading_rate` — source `5` (M=5); mustpass `2` (M=2). Raw groups: `fragment-shading-rate, fragment_shading_rate`. Decision: pending.
+- [x] `fragment_shading_rate` — source `5` (M=5); mustpass `2` (M=2). Raw groups: `fragment-shading-rate, fragment_shading_rate`. Decision: complete; updated the wiki mustpass total from 110,363 to 110,443 and repaired current source line references. Audited the upstream coverage changes (80 Vulkan additions; Vulkan SC 620 additions and 1,140 removals) without modifying source or MUSTPASS files. Validators passed: structure (4 pages), registration (168 paths), links, line references (0 issues), and git diff check.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp`
   - `M` `external/vulkancts/modules/vulkan/fragment_shading_rate/vktFragmentShadingRateBasic.cpp`
@@ -618,43 +618,45 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/fragment-shading-rate.txt`
   - `M` `external/vulkancts/mustpass/main/vksc-default/fragment-shading-rate.txt`
-- [ ] `geometry` — source `1` (M=1); mustpass `2` (M=2). Raw groups: `geometry`. Decision: pending.
+- [x] `geometry` — source `1` (M=1); mustpass `2` (M=2). Raw groups: `geometry`. Decision: complete; documented primitive-ID matching and current mustpass coverage. Validators passed: structure (7 pages), registration (84 paths), links, line references (0 issues), and git diff check.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp`
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/geometry.txt`
   - `M` `external/vulkancts/mustpass/main/vksc-default/geometry.txt`
-- [ ] `glsl` — source `0` (none); mustpass `2` (M=2). Raw groups: `glsl`. Decision: pending.
+- [x] `glsl` — source `0` (none); mustpass `2` (M=2). Raw groups: `glsl`. Decision: complete; refreshed mustpass-only coverage and repaired stale links and source line references. Validation passed: structure (23 pages), registration (319 paths), links, line references (0 issues), and git diff check.
   Source evidence:
   - none
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/glsl.txt`
   - `M` `external/vulkancts/mustpass/main/vksc-default/glsl.txt`
-- [ ] `imageless_framebuffer` — source `1` (M=1); mustpass `2` (M=2). Raw groups: `imageless-framebuffer, imageless_framebuffer`. Decision: pending.
+  Review: inspected all 23 Level-3 pages and the category gateway. Updated only broken source/spec links found by validators; no semantic page rewrite was needed because the pages already document the source-backed families and generated matrices.
+  Validation: English structure, registration paths, category links, and git diff check passed.
+- [x] `imageless_framebuffer` — source `1` (M=1); mustpass `2` (M=2). Raw groups: `imageless-framebuffer, imageless_framebuffer`. Decision: complete; documented extended-flags support and the twelve-path hierarchy. Validators passed: structure (1 page), registration (14 paths), links, line references (0 issues), and git diff check.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp`
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/imageless-framebuffer.txt`
   - `M` `external/vulkancts/mustpass/main/vksc-default/imageless-framebuffer.txt`
-- [ ] `memory_model` — source `1` (M=1); mustpass `0` (none). Raw groups: `memory_model`. Decision: pending.
+- [x] `memory_model` — source `1` (M=1); mustpass `0` (none). Raw groups: `memory_model`. Decision: complete; documented split-barrier registration status and queue-pass execution. Validators passed: structure (3 pages), registration (16 paths), links, line references (0 issues), and git diff check.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp`
   Mustpass evidence:
   - none
-- [ ] `mesh_shader` — source `3` (M=3); mustpass `1` (M=1). Raw groups: `mesh-shader, mesh_shader`. Decision: pending.
+- [x] `mesh_shader` — source `3` (M=3); mustpass `1` (M=1). Raw groups: `mesh-shader, mesh_shader`. Decision: complete; updated EXT misc coverage, synchronization support requirements, and bind parameter construction. Validators passed: structure (16 pages), registration (338 paths), links, line references (0 issues), and git diff check.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/mesh_shader/vktMeshShaderMiscTestsEXT.cpp`
   - `M` `external/vulkancts/modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp`
   - `M` `external/vulkancts/modules/vulkan/mesh_shader/vktMeshShaderSyncTestsEXT.cpp`
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/mesh-shader.txt`
-- [ ] `multiview` — source `1` (M=1); mustpass `2` (M=2). Raw groups: `multiview`. Decision: pending.
+- [x] `multiview` — source `1` (M=1); mustpass `2` (M=2). Raw groups: `multiview`. Decision: complete; added timestamp-query families, corrected query support semantics, attachment access masks, and current 838/564 mustpass totals. Validators passed: structure (1 page), registration (32 paths), links, line references (0 issues), and git diff check.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/multiview/vktMultiViewRenderTests.cpp`
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/multiview.txt`
   - `M` `external/vulkancts/mustpass/main/vksc-default/multiview.txt`
-- [ ] `protected_memory` — source `7` (M=7); mustpass `0` (none). Raw groups: `protected_memory`. Decision: pending.
+- [x] `protected_memory` — source `7` (M=7); mustpass `0` (none). Raw groups: `protected_memory`. Decision: complete; documented wrapper ownership/accessor migration and refreshed stale context references. Validators passed: structure (14 pages), registration (129 paths), links, line references (0 issues), and git diff check.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/protected_memory/vktProtectedMemContext.cpp`
   - `M` `external/vulkancts/modules/vulkan/protected_memory/vktProtectedMemContext.hpp`
@@ -665,7 +667,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `M` `external/vulkancts/modules/vulkan/protected_memory/vktProtectedMemYCbCrConversionTests.cpp`
   Mustpass evidence:
   - none
-- [ ] `reconvergence` — source `1` (M=1); mustpass `0` (none). Raw groups: `reconvergence`. Decision: pending.
+- [x] `reconvergence` — source `1` (M=1); mustpass `0` (none). Raw groups: `reconvergence`. Decision: complete; documented comparison optimization, watchdog servicing, allocation handling, and current specification links. Validators passed: structure (2 pages), registration (11 paths), links, line references (0 issues), and git diff check.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/reconvergence/vktReconvergenceTests.cpp`
   Mustpass evidence:

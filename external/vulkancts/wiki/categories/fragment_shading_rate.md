@@ -36,4 +36,4 @@ The implementation places `basic`, `attachment_rate`, `pixel_consistency`, and `
 
 ## Category Notes
 
-The default Vulkan mustpass contains 110,363 leaves. Each Level-3 page records its own complete ownership boundary for the relevant rendering-path subtree.
+The default Vulkan mustpass contains 110,443 leaves. Each Level-3 page records its own complete ownership boundary for the relevant rendering-path subtree.

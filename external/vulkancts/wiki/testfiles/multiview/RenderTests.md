@@ -32,8 +32,11 @@ multiview
 ├── multisample
 ├── multisample_resolve
 ├── queries
+├── queries_and_timestamps
 ├── non_precise_queries
+├── non_precise_queries_and_timestamps
 ├── non_precise_queries_with_availability
+├── non_precise_queries_with_availability_and_timestamps
 ├── readback_implicit_clear
 ├── readback_explicit_clear
 ├── depth
@@ -47,7 +50,7 @@ multiview
 └── dynamic_rendering
 ```
 
-The 28 direct children above exactly match the default Vulkan mustpass namespace. `renderpass2` and the non-VulkanSC `dynamic_rendering` child are wrapper roots that repeat the applicable implementation families below their own paths; `dynamic_rendering` omits `input_attachments`. Under `index`, the implementation registers `vertex_shader`, `fragment_shader`, `geometry_shader`, and `tessellation_shader`. Query families add `get_query_pool_results` and `cmd_copy_query_pool_results`; non-query families add `no_queries`. Those deeper paths are listed in the parameter and family sections rather than nested in the parseable tree.
+The 31 direct children above match the default Vulkan mustpass namespace. `renderpass2` and the non-VulkanSC `dynamic_rendering` child are wrapper roots that repeat the applicable implementation families below their own paths; `dynamic_rendering` omits `input_attachments`. Under `index`, the implementation registers `vertex_shader`, `fragment_shader`, `geometry_shader`, and `tessellation_shader`. Query families add `get_query_pool_results` and `cmd_copy_query_pool_results`; non-query families add `no_queries`. Those deeper paths are listed in the parameter and family sections rather than nested in the parseable tree.
 
 ## Parameter Dimensions and Observed Values
 
@@ -127,7 +130,7 @@ The instance adds a resolve attachment. Verification compares only layers resolv
 
 ### `queries` | precise query results
 
-The test collects occlusion and timestamp query results and requires precise occlusion-query support. Precise occlusion results use the expected exact value.
+The test checks occlusion results against the expected exact value and requires precise occlusion-query support. This base family does not validate timestamps.
 
 ### `non_precise_queries` | non-precise query results
 
@@ -136,6 +139,10 @@ The same query execution path accepts any non-zero occlusion result instead of r
 ### `non_precise_queries_with_availability` | query availability
 
 This variant checks the query path with availability-enabled result handling through both result retrieval modes.
+
+### Timestamp query variants
+
+The `queries_and_timestamps`, `non_precise_queries_and_timestamps`, and `non_precise_queries_with_availability_and_timestamps` siblings add timestamp validation to their corresponding occlusion families. Only these siblings check timestamp support and mask retrieved timestamps with the executing queue family's `timestampValidBits`; the three base query families no longer require timestamp support ([query classification](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L107-L124), [timestamp checks](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L3076-L3106)). A timestamp-series start requires a positive end value no earlier than its start; other entries also permit both values to be zero. Precise variants require exact occlusion results, while non-precise variants retain their nonzero test.
 
 ### `readback_implicit_clear` | implicit-clear readback
 
@@ -321,6 +328,7 @@ void main (void)
 
 ## Runtime Execution and Result Checking
 
+- Color-attachment transitions, repeated-view dependencies, and resolve/readback transitions include color-attachment read access as well as write access where the image was used as an attachment. This covers attachment reads around multiview rendering without changing the generated image reference.
 - The common instance creates a layered 2D image view. Its extent depth is the number of array layers needed by the selected mask sequence. It uploads position and color vertex buffers, and creates an index buffer for indexed families. See [`ImageAttachment`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L287-L330) and [`createVertexBuffer()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L778-L842).
 - For legacy and `renderpass2`, the helper creates a render pass and framebuffer from the view-mask sequence. Dynamic rendering supplies the view mask in `VkRenderingInfo` and uses one rendering operation per subpass-like iteration. See [`MultiViewRenderTestInstance::iterate()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L453-L507) and [`draw()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L618-L692).
 - The command buffer clears the layered color image, transitions it to attachment use, binds one pipeline per subpass, and issues direct or indexed draws. Repeated view-mask use receives an attachment barrier before the next rendering operation. See [`beforeRenderPass()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L509-L610).
@@ -390,7 +398,7 @@ void main (void)
 
 - All cases require `VK_KHR_multiview`. `renderpass2` requires `VK_KHR_create_renderpass2`; dynamic rendering requires `VK_KHR_dynamic_rendering` and is not registered for Vulkan SC. See [`checkSupport()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4577-L4593).
 - Geometry families require core `geometryShader` and `multiviewGeometryShader`; `tessellation_shader` requires `multiviewTessellationShader`. See [`checkSupport()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4579-L4604).
-- `point_size` requires `largePoints` and device limits/granularity that represent point sizes `2` and `4`. Query families require timestamp support, and `queries` additionally requires precise occlusion queries. See [`checkSupport()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4623-L4660).
+- `point_size` requires `largePoints` and device limits/granularity that represent point sizes `2` and `4`. Only the three `_and_timestamps` query families require timestamp support on the universal queue family; `queries` and `queries_and_timestamps` require precise occlusion queries. See [`checkSupport()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4651-L4652) and [timestamp support](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4711-L4716).
 - `depth_different_ranges` requires `VK_EXT_depth_range_unrestricted`. `nested_cmd_buffer` requires `VK_EXT_nested_command_buffer` and, outside Vulkan SC, both `nestedCommandBuffer` and `nestedCommandBufferRendering`. See [`checkSupport()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4594-L4599) and [`checkSupport()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4662-L4677).
 - Vulkan builds require `maxMultiviewViewCount` of at least six for the ordinary matrix. Vulkan SC checks that the device supports the number of views used by the selected case. See [`checkSupport()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4609-L4621).
 

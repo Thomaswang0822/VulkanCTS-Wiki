@@ -84,7 +84,7 @@ dEQP-VK.glsl.arrays.constructor.float3_fragment
 
 | Parameter choice | Meaning in this representative case |
 |------------------|-------------------------------------|
-| `arrays.constructor.float3` | Selects the ES 3.10 case whose body constructs `float[3](in0.z, in0.x, in0.y)` and expects the same reordered values as `vec3 out0`. |
+| `arrays.constructor.float3` | Selects the ES 3.10 case whose body constructs `float[3]` from `in0.z`, `in0.x`, and `in0.y`, then expects the same reordered values as `vec3 out0`. |
 | `_fragment` | Selects the fragment case generated from the data file's `both` block; `ShaderCase::initPrograms()` supplies a generated vertex counterpart. |
 | Value set 0: `in0 = vec3(0.5, 1.0, 2.0)` | Produces `out0 = vec3(2.0, 0.5, 1.0)`; the other two value sets execute the same shader with different host data. |
 | Default `OUTPUT_RESULT` | Makes the shader compare `out0` with `ref.out0` using epsilon `0.05` and emit white only on success. |
