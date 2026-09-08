@@ -23,10 +23,11 @@ ycbcr
 ├── copy_dimensions
 ├── storage_image_write
 ├── subresource_offset
-└── misc
+├── misc
+└── render_attachment
 ```
 
-The registration-only dispatcher [`populateTestGroup()`](../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L44-L58) creates these direct test families. The dispatcher itself is folded into this Level-2 gateway rather than represented by a separate rewritten implementation page.
+The registration-only dispatcher [`populateTestGroup()`](../../modules/vulkan/ycbcr/vktYCbCrTests.cpp#L44-L59) creates these direct test families. The dispatcher itself is folded into this Level-2 gateway rather than represented by a separate rewritten implementation page.
 
 ## How the Families Fit Together
 
@@ -52,6 +53,7 @@ Together, the families cover both the logical sampled-color view of YCbCr and th
 | `storage_image_write` | [StorageImageWrite.md](../testfiles/ycbcr/StorageImageWrite.md) | Joint and disjoint plane storage writes from compute and readback validation. |
 | `subresource_offset` | [ImageOffset.md](../testfiles/ycbcr/ImageOffset.md) | Separate plane bindings and the required zero subresource offsets for linear disjoint images. |
 | `misc.relaxed_precision` | [Misc.md](../testfiles/ycbcr/Misc.md) | CTS-authored SPIR-V relaxed-precision sampling and its result check. |
+| `render_attachment` | [RenderAttachment.md](../testfiles/ycbcr/RenderAttachment.md) | Multi-planar render attachments, plane-compatible views, and joint/disjoint binding. |
 
 ## Category Notes
 

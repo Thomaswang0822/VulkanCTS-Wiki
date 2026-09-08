@@ -470,7 +470,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - Review: added the `m11_independent_sets` family and its 1,440 default paths, and documented the new `rendering.push_data.unused` case requiring `VK_EXT_descriptor_heap`. Updated source links for line shifts in the existing shader-object pages.
   - Validation: category structure, registration, and links passed.
   - Unresolved source coverage risk retained in `RenderingTests.md`: the seven output-array format names currently register the same RGBA8 format.
-- [ ] `spirv_assembly` — source `32` (A=2, M=30); mustpass `2` (M=2). Raw groups: `spirv-assembly, spirv_assembly`. Decision: pending.
+- [x] `spirv_assembly` — source `32` (A=2, M=30); mustpass `2` (M=2). Raw groups: `spirv-assembly, spirv_assembly`. Decision: complete; updated the affected SPIR-V assembly pages, added `OpUndefTests.md`, refreshed registration paths, repaired local links, and recalibrated source line references. Validation passed: structure (41 pages), registration (557 paths), links, line references (0 issues), and `git diff --check`.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/spirv_assembly/CMakeLists.txt`
   - `M` `external/vulkancts/modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp`
@@ -507,7 +507,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/spirv-assembly.txt`
   - `M` `external/vulkancts/mustpass/main/vksc-default/spirv-assembly.txt`
-- [ ] `texture` — source `6` (M=6); mustpass `2` (M=2). Raw groups: `texture`. Decision: pending.
+- [x] `texture` — source `6` (M=6); mustpass `2` (M=2). Raw groups: `texture`. Decision: complete; updated the texture gateway and affected Mipmap, Swizzle, TexelBuffer, and TexelOffset references for the upstream sampling-matrix, format, and source-location changes. The ASTC 3D requirement and compute backend refactor were reviewed; no additional reader-facing page was needed. Validation passed: structure (12 pages), registration (46 paths), links, line references (0 issues), and `git diff --check`.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/texture/vktTextureCompressedFormatTests.cpp`
   - `M` `external/vulkancts/modules/vulkan/texture/vktTextureFilteringExplicitLodTests.cpp`
@@ -518,7 +518,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/texture.txt`
   - `M` `external/vulkancts/mustpass/main/vksc-default/texture.txt`
-- [ ] `video` — source `12` (M=12); mustpass `1` (M=1). Raw groups: `video`. Decision: pending.
+- [x] `video` — source `12` (M=12); mustpass `1` (M=1). Raw groups: `video`. Decision: complete; updated Capabilities for the `extended_flags` and `none` registration branches and the increased default mustpass coverage. The remaining video implementation/helper changes were reviewed as shared plumbing or already covered by existing pages. Validation passed: structure (6 pages), registration (46 paths), links, line references (0 issues), and `git diff --check`.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/video/CMakeLists.txt`
   - `M` `external/vulkancts/modules/vulkan/video/vktVideoBaseDecodeUtils.cpp`
@@ -534,7 +534,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `M` `external/vulkancts/modules/vulkan/video/vktVideoTestUtils.hpp`
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/video.txt`
-- [ ] `wsi` — source `18` (A=4, M=14); mustpass `1` (M=1). Raw groups: `wsi`. Decision: pending.
+- [x] `wsi` — source `18` (A=4, M=14); mustpass `1` (M=1). Raw groups: `wsi`. Decision: complete; added the multisampled-render-to-swapchain family, updated the WSI gateway, and recalibrated present-ID/wait references. Pre-transform and other shared WSI changes were reviewed against existing pages. Validation passed: structure (14 pages), registration (120 paths), links, line references (0 issues), and `git diff --check`.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/wsi/CMakeLists.txt`
   - `M` `external/vulkancts/modules/vulkan/wsi/vktWsiAcquireDrmDisplayTests.cpp`
@@ -556,7 +556,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `M` `external/vulkancts/modules/vulkan/wsi/vktWsiTests.cpp`
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/wsi.txt`
-- [ ] `ycbcr` — source `7` (A=2, M=5); mustpass `2` (M=2). Raw groups: `ycbcr`. Decision: pending.
+- [x] `ycbcr` — source `7` (A=2, M=5); mustpass `2` (M=2). Raw groups: `ycbcr`. Decision: complete; added the render-attachment family, updated the YCbCr gateway, and fixed the Filtering specification links. Existing conversion, copy, filtering, format, offset, image-query, storage, and view pages remain current for the reviewed source changes. Validation passed: structure (10 pages), registration (286 paths), links, line references (0 issues), and `git diff --check`.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/ycbcr/CMakeLists.txt`
   - `M` `external/vulkancts/modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp`

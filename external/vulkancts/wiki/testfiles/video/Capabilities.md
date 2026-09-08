@@ -18,36 +18,13 @@
 
 ```text
 video.capabilities
-├── av1_decode_capabilities_query
-├── av1_decode_dpb_video_format_support_query
-├── av1_decode_dst_video_format_support_query
-├── av1_encode_capabilities_query
-├── av1_encode_dpb_video_format_support_query
-├── av1_encode_intra_refresh_capabilities_query
-├── av1_encode_src_video_format_support_query
-├── h264_decode_capabilities_query
-├── h264_decode_dpb_video_format_support_query
-├── h264_decode_dst_video_format_support_query
-├── h264_encode_capabilities_query
-├── h264_encode_dpb_video_format_support_query
-├── h264_encode_intra_refresh_capabilities_query
-├── h264_encode_src_video_format_support_query
-├── h265_decode_capabilities_query
-├── h265_decode_dpb_video_format_support_query
-├── h265_decode_dst_video_format_support_query
-├── h265_encode_capabilities_query
-├── h265_encode_dpb_video_format_support_query
-├── h265_encode_intra_refresh_capabilities_query
-├── h265_encode_src_video_format_support_query
-├── queue_support_query
-├── vp9_decode_capabilities_query
-├── vp9_decode_dpb_video_format_support_query
-└── vp9_decode_dst_video_format_support_query
+├── extended_flags
+└── none
 
 video.formats
 ```
 
-The `capabilities` and `formats` families are both implemented by this source file and owned by this page. The `capabilities` tree lists its 25 exact registered leaves. The `formats` tree is a bare root because its 1701 generated leaves are flat single components that each combine a codec operation, format, usage, subsampling, and bit depth; the matrix is described in the parameter sections rather than expanded in the tree.
+`video.capabilities` and `video.formats` retain their existing family roots. The upstream mustpass reorganizes capability leaves below `extended_flags` and `none`, while the large `video.formats` matrix remains a separate flat generated family.
 
 ## Parameter Dimensions and Observed Values
 

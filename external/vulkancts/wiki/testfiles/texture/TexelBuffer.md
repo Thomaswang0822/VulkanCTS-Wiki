@@ -334,7 +334,7 @@ A broad failure across all three families can indicate a problem with buffer-vie
 | Representative SNORM recipe | [`r8-snorm.amber`](../../../data/vulkan/amber/texture/texel_buffer/uniform/snorm/r8-snorm.amber) | Shows the 39-texel sequence, endpoint remapping, and tolerance-1 framebuffer checks. |
 | Amber support checks | [`AmberTestCase::checkSupport`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L203-L286) | Checks image creation requirements and required `bufferFeatures` before execution. |
 | Amber execution | [`AmberTestInstance::iterate`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L546-L615) | Executes the recipes through the Vulkan engine and converts Amber success to CTS status. |
-| Default Vulkan mustpass | [`vk-default/texture.txt`](../../../mustpass/main/vk-default/texture.txt#L27278-L27300) | Lists the exact 23 executable paths. |
+| Default Vulkan mustpass | [`vk-default/texture.txt`](../../../mustpass/main/vk-default/texture.txt#L25646-L25668) | Lists the exact 23 executable paths. |
 | Uniform texel-buffer definition | [Uniform texel buffer descriptors](../../../../vulkan-docs/src/chapters/descriptors.adoc#L319-L333) | Defines formatted one-dimensional buffer access and its required format feature. |
 | Format feature definition | [`VK_FORMAT_FEATURE_UNIFORM_TEXEL_BUFFER_BIT`](../../../../vulkan-docs/src/chapters/formats.adoc#L2366-L2368) | Defines the queried buffer capability. |
 | SNORM conversion | [Normalized fixed-point conversion](../../../../vulkan-docs/src/chapters/fundamentals.adoc#L1682-L1717) | Defines signed-normalized conversion and clamping of the lowest encoding. |

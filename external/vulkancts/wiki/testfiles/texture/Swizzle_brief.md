@@ -135,7 +135,7 @@ A failure in any branch can also come from image upload, sparse binding/residenc
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
 | Category dispatch | [`createTextureTests`](../../../modules/vulkan/texture/vktTextureTests.cpp#L48-L66) | Registers `swizzle` under `texture`. |
-| Test-family registration | [`populateTextureSwizzleTests`](../../../modules/vulkan/texture/vktTextureSwizzleTests.cpp#L311-L649) | Defines formats, extents, mappings, backing modes, execution variants, hierarchy, and leaf names. |
+| Test-family registration | [`populateTextureSwizzleTests`](../../../modules/vulkan/texture/vktTextureSwizzleTests.cpp#L311-L632) | Defines formats, extents, mappings, backing modes, execution variants, hierarchy, and leaf names. |
 | Support gates | [`SwizzleTestCase::checkSupport`](../../../modules/vulkan/texture/vktTextureSwizzleTests.cpp#L75-L90) | Applies shared support checks and maintenance5 depth/stencil requirements. |
 | GPU setup | [`Swizzle2DTestInstance` constructor](../../../modules/vulkan/texture/vktTextureSwizzleTests.cpp#L129-L145) | Creates the test texture and selects graphics or compute rendering. |
 | Software reference and comparison | [`Swizzle2DTestInstance::iterate`](../../../modules/vulkan/texture/vktTextureSwizzleTests.cpp#L147-L307) | Implements coordinate remapping, sampling, component remapping, and final image comparison. |
@@ -143,7 +143,7 @@ A failure in any branch can also come from image upload, sparse binding/residenc
 | Image backing and view mapping | [`TextureBinding::updateTextureData` and `updateTextureViewMipLevels`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L808-L966) | Creates regular or sparse images, uploads data, chooses the aspect, and installs `VkComponentMapping`. |
 | Compute execution | [`ComputeBackend`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L2528-L2806) | Binds compute resources, dispatches workgroups, copies the result, and exposes it to the host. |
 | Component-swizzle semantics | [Vulkan texture specification](../../../../vulkan-docs/src/chapters/textures.adoc#L731-L810) | Defines texel component rearrangement, constants, identity, and the depth/stencil exception. |
-| Current conformance list | [`vk-default/texture.txt`](../../../mustpass/main/vk-default/texture.txt#L15774-L27277) | Confirms the executable Vulkan hierarchy and generated leaves. |
+| Current conformance list | [`vk-default/texture.txt`](../../../mustpass/main/vk-default/texture.txt#L15774-L25645) | Confirms the executable Vulkan hierarchy and generated leaves. |
 
 ## Questions / Risk Points for User Audit
 

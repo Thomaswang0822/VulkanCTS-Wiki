@@ -125,7 +125,7 @@ The graphics/compute choice, format, and size pair are important matrix dimensio
 | Shared reference setup | [`fillGradient()`](../../../modules/vulkan/ycbcr/vktYCbCrUtil.cpp#L364-L388) and [`uploadImage()`](../../../modules/vulkan/ycbcr/vktYCbCrUtil.cpp#L420-L454) | Builds per-plane gradient data and uploads it into the image. |
 | Bounds calculation | [`calculateBounds()`](../../../modules/vulkan/ycbcr/vktYCbCrUtil.cpp#L1625-L1665) | Produces the expected interval for each sampled pixel. |
 
-The relevant Vulkan semantics are described in the Vulkan specification's [`Sampler YCbCr Conversion`](../../../vulkan-docs/src/chapters/samplers.adoc#samplers-YCbCr-conversion) and [`Image Operations`](../../../vulkan-docs/src/chapters/textures.adoc#textures-sampler-YCbCr-conversion) sections.
+The relevant Vulkan semantics are described in the Vulkan specification's [`Sampler YCbCr Conversion`](../../../../vulkan-docs/src/chapters/samplers.adoc#samplers-YCbCr-conversion) and [`Image Operations`](../../../../vulkan-docs/src/chapters/textures.adoc#textures-sampler-YCbCr-conversion) sections.
 
 ## Questions / Risk Points for User Audit
 

@@ -299,7 +299,7 @@ void main(void)
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Test-family dispatcher | [`createTextureTests`](../../../modules/vulkan/texture/vktTextureTests.cpp#L48-L66) | Registers `mipmap` under the `texture` test category. |
-| Mipmap family creation | [`createTextureMipmappingTests`](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L4198-L4201) | Creates the registered `mipmap` test family. |
+| Mipmap family creation | [`createTextureMipmappingTests`](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L4190-L4193) | Creates the registered `mipmap` test family. |
 | Matrix and direct-child population | [`populateTextureMipmappingTests`](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L3343-L4196) | Defines the parameter tables, direct children, deeper intermediate nodes, and graphics or compute leaves. |
 | Ordinary sampled-image execution | [2D](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L149-L401), [cube](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L432-L665), [3D](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L696-L984) | Creates colored mip chains, executes the lookup matrix, and applies precision-aware verification. |
 | LOD-control execution | [2D](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L1013-L1265), [cube](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L1293-L1554), [3D](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L1780-L2042) | Applies sampler and image-view controls per cell. |

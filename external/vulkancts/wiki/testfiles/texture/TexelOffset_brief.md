@@ -114,7 +114,7 @@ Because this family has no varying behavior parameter, any failure means that at
 | Complete Amber program | [`texel_offset.amber`](../../../data/vulkan/amber/texture/texel_offset/texel_offset.amber#L1-L58) | Defines shaders, resources, pipelines, draws, and the exact expected image region. |
 | Amber compilation | [`AmberTestCase::initPrograms`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L435-L499) | Shows the default SPIR-V 1.0 target and GLSL stage insertion. |
 | Amber execution and result | [`AmberTestInstance::iterate`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L546-L615) | Executes with Vulkan and maps Amber success or failure to the CTS result. |
-| Exact mustpass leaf | [`vk-default/texture.txt`](../../../mustpass/main/vk-default/texture.txt#L27301) | Confirms `dEQP-VK.texture.texel_offset.texel_offset`. |
+| Exact mustpass leaf | [`vk-default/texture.txt`](../../../mustpass/main/vk-default/texture.txt#L25669) | Confirms `dEQP-VK.texture.texel_offset.texel_offset`. |
 | Offset coordinate semantics | [`textures.adoc`](../../../../vulkan-docs/src/chapters/textures.adoc#L1805-L1915) | Defines offset addition and nearest texel-coordinate selection. |
 | Offset limits | [`limits.adoc`](../../../../vulkan-docs/src/chapters/limits.adoc#L667-L676) | Defines device limits for sample and fetch offset operands. |
 

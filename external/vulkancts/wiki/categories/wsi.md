@@ -2,7 +2,7 @@
 
 The `wsi` test category collects tests that check how Vulkan connects surfaces, swapchains, presentation engines, and direct displays to native window systems.
 
-Most test families repeat below each supported WSI platform. Three direct-display families sit directly under `wsi` because they do not use a platform-specific surface type.
+Most test families repeat below each supported WSI platform. Four direct families sit directly under `wsi` because they do not use a platform-specific surface type.
 
 ## Background Knowledge
 
@@ -26,10 +26,11 @@ wsi
 ├── direct
 ├── display
 ├── display_control
-└── acquire_drm_display
+├── acquire_drm_display
+└── multisampled_render_to_swapchain
 ```
 
-The first nine branches repeat the same platform-routed test families. The last three are direct children of `wsi`. The registration-only dispatcher is folded into this page rather than represented by a separate rewritten Level-3 page.
+The first nine branches repeat the same platform-routed test families. The last four are direct children of `wsi`; the new multisampled family is also routed below supported WSI types. The registration-only dispatcher is folded into this page rather than represented by a separate rewritten Level-3 page.
 
 ## How the Families Fit Together
 
@@ -56,6 +57,7 @@ Together these families cover the WSI contract from native-target discovery thro
 | `display` | [Display Tests](../testfiles/wsi/DisplayTests.md) | Display, plane, mode, surface, capability, and extensible enumeration APIs, with validity limits for two source paths. |
 | `display_control` | [Display Control Tests](../testfiles/wsi/DisplayControlTests.md) | Reachable device-event registration and the currently gated counter, display-power, and display-event paths. |
 | `acquire_drm_display` | [Acquire DRM Display Tests](../testfiles/wsi/AcquireDrmDisplayTests.md) | DRM connector lookup, display acquisition, ownership errors, and release. |
+| `multisampled_render_to_swapchain` | [Multisampled Render to Swapchain](../testfiles/wsi/MultisampledRenderToSwapchain.md) | Multisample counts, render-pass and dynamic-rendering paths, framebuffer scope, and supported flags. |
 
 ## Category Notes
 
