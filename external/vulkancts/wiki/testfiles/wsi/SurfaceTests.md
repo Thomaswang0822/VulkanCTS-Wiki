@@ -27,6 +27,7 @@ wsi.xcb.surface
 ├── query_presentation_support
 ├── query_capabilities
 ├── query_capabilities2
+├── query_capabilities2_extended_flags
 ├── query_protected_capabilities
 ├── query_surface_counters
 ├── query_formats

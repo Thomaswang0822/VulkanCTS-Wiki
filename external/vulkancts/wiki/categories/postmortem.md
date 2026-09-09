@@ -2,7 +2,7 @@
 
 The `postmortem` test category collects tests that exercise Vulkan behavior around device faults and device loss, including the APIs used to retrieve information after execution has failed.
 
-The category has two registration surfaces. The standard package exposes the `device_fault` tests backed by `VK_EXT_device_fault`; the experimental package adds disruptive workloads and a second device-fault implementation for controlled real and fake fault paths ([standard dispatcher](../../modules/vulkan/postmortem/vktPostmortemTests.cpp#L41-L45), [experimental dispatcher](../../modules/vulkan/postmortem/vktPostmortemTests.cpp#L47-L54), [package registration](../../modules/vulkan/vktTestPackage.cpp#L1428-L1435)).
+The category has two registration surfaces. The standard package exposes the `device_fault` tests backed by `VK_KHR_device_fault`; the experimental package adds disruptive workloads and a second device-fault implementation backed by `VK_EXT_device_fault` for controlled real and fake fault paths ([standard dispatcher](../../modules/vulkan/postmortem/vktPostmortemTests.cpp#L41-L45), [experimental dispatcher](../../modules/vulkan/postmortem/vktPostmortemTests.cpp#L47-L54), [package registration](../../modules/vulkan/vktTestPackage.cpp#L1428-L1435)).
 
 ## Background Knowledge
 

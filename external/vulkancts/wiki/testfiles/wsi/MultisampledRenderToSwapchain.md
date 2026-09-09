@@ -17,14 +17,15 @@ For shared surface, swapchain, and presentation concepts, see [Background Knowle
 ## Registration Hierarchy
 
 ```text
-wsi.android.multisampled_render_to_swapchain
-├── b8g8r8a8_unorm_r16g16b16a16_sfloat_r16g16b16a16_sint
-├── r8g8b8a8_unorm_r16g16b16a16_sfloat_r16g16b16a16_sint
-├── r8g8b8a8_unorm_r16g16b16a16_sfloat_r32g32b32a32_uint
-└── supported_flags
+wsi.headless.multisampled_render_to_swapchain
 ```
 
-The same family is registered below the supported WSI type branches; deeper sample-count and rendering variants are kept in the parameter description.
+The `headless` tree is the representative tree for this family. The source
+registers the same family below the platform variants `android`, `direct`,
+`direct_drm`, `headless`, `metal`, `wayland`, `win32`, `xcb`, and `xlib`; those
+platform nodes are intentionally not combined into one multi-level tree here.
+The case-lookup builder maps every non-`headless` platform path to this
+representative ownership root while retaining the original runtime path.
 
 ## Parameter Dimensions and Observed Values
 

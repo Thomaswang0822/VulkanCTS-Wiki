@@ -32,9 +32,13 @@ dgc.ext.ray_tracing.basic
 ├── with_execution_set_preprocess_unordered_cq
 ├── with_execution_set_unordered
 └── with_execution_set_unordered_cq
+
+dgc.ext.ray_tracing.conditional_rendering
+├── general
+└── preprocess
 ```
 
-The leaves come from the nested Boolean loops in [createDGCRayTracingBasicTestsExt](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L1993-L2010) and appear in [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4316-L4331).
+The `basic` leaves come from the nested Boolean loops in [createDGCRayTracingBasicTestsExt](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L1993-L2010) and appear in [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4316-L4331). The conditional-rendering families are registered by [createDGCRayTracingConditionalTestsExt](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingConditionalTestsExt.cpp#L900-L970).
 
 ## Parameter Dimensions and Observed Values
 

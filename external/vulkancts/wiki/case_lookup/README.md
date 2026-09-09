@@ -1,6 +1,6 @@
 # CTS Registration Path 查询工具
 
-这个工具接收一个以 `dEQP-VK.` 开头的完整 Vulkan CTS registration path，并返回对应的中文 Level-3 Wiki 页面链接。当前索引覆盖 `wiki_rewrite_checklist.md` 中 53 个已完成的 category。
+这个工具接收一个以 `dEQP-VK.` 或 `dEQP-VKSC.` 开头的完整 Vulkan CTS registration path，并返回对应的中文 Level-3 Wiki 页面链接。当前索引覆盖 55 个 category；`sc` 使用独立的 `vksc-default/sc.txt` 输入和 `dEQP-VKSC` namespace。
 
 ## 设计边界
 
@@ -96,7 +96,7 @@ Category/final SQLite 写入和 runtime JSON 写入都使用临时文件加原�
 
 1. canonical English Level-3 页面的 `## Registration Hierarchy` 是 page ownership 的 primary evidence；
 2. builder 将 tree root 或 `root.direct_child` 转换成 exact prefix-to-page mapping；
-3. `vk-default` mustpass files 定义真实 executable path universe，并用于 namespace discovery 和 full coverage validation；
+3. 各 category 的 mustpass 文件定义真实 executable path universe，并用于 namespace discovery 和 full coverage validation；普通 Vulkan 使用 `vk-default`，SC 使用 `vksc-default/sc.txt`；
 4. `build_helper/category_handlers.py` 只处理有 source/mustpass 依据的 construction variants、generated families 和 shared category namespaces；
 5. explicit alias 和 generic anchor 不能让正式 build 通过；缺少 exact evidence 或合法 projection 时 build hard-fail；
 6. runtime JSON 只保存已经验证的真实 registration prefixes，不保存 runtime alias 或 suffix fallback。

@@ -22,7 +22,8 @@ shader_object.rendering
 ├── color_attachment_count_1
 ├── color_attachment_count_4
 ├── color_attachment_count_8
-└── output_array
+├── output_array
+└── push_data
 ```
 
 These five direct children are intermediate nodes below the `rendering` test family. The first four expand through seven deeper dimensions before the color or color-plus-depth test case leaf. `output_array` expands through a format-named intermediate node and a color-write leaf. The root file registers `rendering` directly

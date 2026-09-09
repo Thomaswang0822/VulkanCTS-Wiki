@@ -153,6 +153,8 @@ class MustpassInputTests(unittest.TestCase):
                 "cooperative_vector",
                 "tensor",
                 "data_graph",
+                "postmortem",
+                "sc",
             ],
         )
 
@@ -203,7 +205,7 @@ class MustpassInputTests(unittest.TestCase):
                 "https://example.test/-/wikis",
                 root / "db",
             )
-            self.assertEqual(stats["multiview"]["leaves"], 694)
+            self.assertEqual(stats["multiview"]["leaves"], 838)
 
 
 class BuildDatabaseTests(unittest.TestCase):
@@ -281,9 +283,9 @@ class BuildDatabaseTests(unittest.TestCase):
         self.assertEqual(first_bytes, rebuilt_bytes)
         self.assertEqual(first_json_bytes, rebuilt_json_bytes)
         self.assertEqual(first_api_bytes, rebuilt_api_bytes)
-        self.assertEqual(stats["categories"]["api"]["leaves"], 327795)
+        self.assertEqual(stats["categories"]["api"]["leaves"], 267497)
         self.assertEqual(stats["categories"]["rasterization"]["leaves"], 15079)
-        self.assertEqual(stats["final"]["mappings"], 535)
+        self.assertEqual(stats["final"]["mappings"], 566)
         self.assertEqual(api.page, "Buffer")
         self.assertEqual(api.matched_prefix, "dEQP-VK.api.buffer.basic")
         self.assertEqual(rasterization.page, "Core")

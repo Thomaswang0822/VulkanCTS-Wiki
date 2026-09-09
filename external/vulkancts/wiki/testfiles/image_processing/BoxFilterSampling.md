@@ -14,7 +14,27 @@ Box filtering combines texels in a selected rectangular region. The test uses sa
 ```text
 image_processing.compute.box_filter_sampling
 └── basic
+
+image_processing.graphics.monolithic.box_filter_sampling
+├── basic
+├── box_filter_params
+├── address_modes
+├── reduction_modes
+├── tiling
+├── swizzles
+├── layouts
+├── shader_stages
+├── descriptors
+└── normalized_coords
+
+image_processing.graphics.fast_lib.box_filter_sampling
+└── basic
+
+image_processing.graphics.shader_objects.box_filter_sampling
+└── basic
 ```
+
+The compute tree contains only `basic`. The graphics construction variants each register the `basic` child; the additional parameter groups are only created for the monolithic construction.
 
 ## Parameter Dimensions and Observed Values
 

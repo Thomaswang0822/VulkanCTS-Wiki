@@ -18,7 +18,7 @@
 </head>
 <body>
   <h1>CTS Registration Path 查询</h1>
-  <p>输入以 <code>dEQP-VK.</code> 开头的完整测试路径，查询对应的中文 Level-3 Wiki 页面。</p>
+  <p>输入以 <code>dEQP-VK.</code> 或 <code>dEQP-VKSC.</code> 开头的完整测试路径，查询对应的中文 Level-3 Wiki 页面。</p>
   <form id="lookup-form">
     <input id="path" name="path" autocomplete="off" autofocus disabled
       placeholder="dEQP-VK.api.buffer.basic.max_size">
@@ -34,9 +34,9 @@
 
     function validatePath(path) {
       const normalized = path.trim();
-      const pattern = /^dEQP-VK(?:\.[A-Za-z0-9_-]+){2,}$/;
+      const pattern = /^dEQP-VK(?:SC)?(?:\.[A-Za-z0-9_-]+){2,}$/;
       if (!pattern.test(normalized)) {
-        throw new Error('请输入以 dEQP-VK. 开头的完整 registration path。');
+        throw new Error('请输入以 dEQP-VK. 或 dEQP-VKSC. 开头的完整 registration path。');
       }
       return normalized;
     }

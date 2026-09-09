@@ -18,7 +18,8 @@ For the shared model of bounded resource access, robustness contracts, and shade
 ```text
 robustness.oob_access
 ├── robust_on
-└── robust_off
+├── robust_off
+└── misc
 ```
 
 The factory creates both direct children, while the generated test case leaves carry the resource, access, format, size, and robustness-level choices ([`createOOBAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L965-L1058)).

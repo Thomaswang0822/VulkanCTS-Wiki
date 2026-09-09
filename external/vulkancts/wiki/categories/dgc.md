@@ -67,6 +67,7 @@ The pages divide the category by the command family and the Vulkan state that ma
 | `dgc.ext.graphics.tess_state` | [GraphicsTessStateExt](../testfiles/dgc/GraphicsTessStateExt.md) | EXT tessellation state, pipeline construction, dynamic patch control points, and reference images. |
 | `dgc.ext.graphics.multiview` | [GraphicsMultiviewExt](../testfiles/dgc/GraphicsMultiviewExt.md) | EXT multiview view masks, generated draws, and per-view color/depth validation. |
 | `dgc.ext.ray_tracing.basic` | [RayTracingExt](../testfiles/dgc/RayTracingExt.md) | EXT trace-ray commands, execution sets, preprocessing, ordering, shader records, and payload checks. |
+| `dgc.ext.stat_query` | [StatQueryExt](../testfiles/dgc/StatQueryExt.md) | EXT pipeline-statistics queries across statistic selections, construction modes, execution sets, and preprocessing. |
 
 ### New EXT families
 

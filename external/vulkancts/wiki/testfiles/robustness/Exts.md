@@ -18,10 +18,20 @@ For the shared model of bounded resource access, robustness contracts, and shade
 The `robustness` test category registers the three extension test families implemented by this source file.
 
 ```text
-robustness
-├── robustness2
+robustness.robustness2
+├── 64b_indexing
+├── bind
+├── long_vector
+├── misc
+└── push
+
+robustness.image_robustness
+├── bind
+└── push
+
+robustness.pipeline_robustness
 ├── image_robustness
-└── pipeline_robustness
+└── robustness2
 ```
 
 `pipeline_robustness` is excluded from Vulkan SC builds. The factories and literal test family names are visible in the [top-level registration code](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L4311-L4372). Deeper generated paths are documented under parameter dimensions and behavior parameters.

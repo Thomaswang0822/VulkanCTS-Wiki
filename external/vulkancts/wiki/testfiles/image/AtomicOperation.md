@@ -25,7 +25,8 @@ image.atomic_operations
 ├── or
 ├── xor
 ├── exchange
-└── compare_exchange
+├── compare_exchange
+└── indexing
 ```
 
 [`createChildren()`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L89) registers `atomic_operations` under the `image` test category. [`createImageAtomicOperationTests()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2477-L2655) registers these eleven operation values and the leaves below each one.

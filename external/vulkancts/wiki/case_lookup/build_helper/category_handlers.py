@@ -50,6 +50,7 @@ DRAW_DYNAMIC_RENDERING_MODES = frozenset(
 WSI_PLATFORM_VARIANTS = frozenset(
     {"android", "direct", "direct_drm", "metal", "wayland", "win32", "xcb", "xlib"}
 )
+WSI_REPRESENTATIVE_FAMILIES = frozenset({"multisampled_render_to_swapchain"})
 SPARSE_DEVICE_GROUP_FAMILIES = {
     "device_group_image_sparse_memory_aliasing": "image_sparse_memory_aliasing",
     "device_group_mipmap_sparse_residency": "mipmap_sparse_residency",
@@ -132,6 +133,10 @@ GENERATED_FAMILY_ROOTS = {
             "dEQP-VK.tessellation.misc_draw.fill_cover_quads_equal_spacing_draw",
             "dEQP-VK.tessellation.misc_draw",
         ),
+        (
+            "dEQP-VK.tessellation.unused_builtin_outputs.point_size_tesc_to_tese",
+            "dEQP-VK.tessellation.unused_builtin_outputs",
+        ),
     ),
     "wsi": (
         (
@@ -210,7 +215,16 @@ def canonicalize_mustpass_path(path: str, category: str) -> str:
             parts[3] = "monolithic"
         return ".".join(parts)
     if category == "wsi" and len(parts) > 2:
-        if len(parts) > 3 and parts[3] == "surface" and (
+        if (
+            len(parts) > 3
+            and parts[3] in WSI_REPRESENTATIVE_FAMILIES
+            and parts[2] in WSI_PLATFORM_VARIANTS
+        ):
+            # The Wiki page displays one platform tree for this family. Keep
+            # every platform in the runtime DB, but project ownership through
+            # the displayed headless representative root.
+            parts[2] = "headless"
+        elif len(parts) > 3 and parts[3] == "surface" and (
             parts[2] in WSI_PLATFORM_VARIANTS or parts[2] == "headless"
         ):
             parts[2] = "xcb"

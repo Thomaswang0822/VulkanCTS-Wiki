@@ -27,7 +27,7 @@ postmortem.device_fault
 └── fake (experimental registration)
 ```
 
-The first tree is the standard KHR factory. Each `with_fault_*` family contains the same six report-query leaves and four vendor-binary leaves; `waitidle` adds `USE_DEVICE_WAIT_IDLE` after the loss trigger. The second tree is the experimental EXT factory and is a separate package path ([KHR factory](../../../modules/vulkan/postmortem/vktPostmortemCoreDeviceFaultTests.cpp#L1088-L1163), [EXT factory](../../../modules/vulkan/postmortem/vktPostmortemDeviceFaultTests.cpp#L492-L507)).
+The single tree combines the direct children supplied by two package-selected factories under the shared registered root. `no_fault`, `with_fault_base`, and `with_fault_waitidle` are the standard KHR children; `real` and `fake` are the experimental EXT children. Each `with_fault_*` family contains the same report-query and vendor-binary leaves; `waitidle` adds `USE_DEVICE_WAIT_IDLE` after the loss trigger ([KHR factory](../../../modules/vulkan/postmortem/vktPostmortemCoreDeviceFaultTests.cpp#L1088-L1163), [EXT factory](../../../modules/vulkan/postmortem/vktPostmortemDeviceFaultTests.cpp#L492-L507)).
 
 ## Parameter Dimensions and Observed Values
 

@@ -13,7 +13,27 @@ Weighted sampling combines source texels using a weight image and sampler state.
 ```text
 image_processing.compute.weight_image_sampling
 └── basic
+
+image_processing.graphics.monolithic.weight_image_sampling
+├── basic
+├── weight_filter_params
+├── address_modes
+├── reduction_modes
+├── tiling
+├── swizzles
+├── layouts
+├── shader_stages
+├── descriptors
+└── normalized_coords
+
+image_processing.graphics.fast_lib.weight_image_sampling
+└── basic
+
+image_processing.graphics.shader_objects.weight_image_sampling
+└── basic
 ```
+
+The compute tree contains only `basic`. The graphics construction variants each register the `basic` child; the additional parameter groups are only created for the monolithic construction.
 
 ## Parameter Dimensions and Observed Values
 

@@ -19,12 +19,43 @@ The tree shows one representative executable leaf for each major behavior. The n
 ```text
 tessellation.misc_draw
 ├── fill_cover_quads_equal_spacing_draw
-├── fill_overlap_quads_equal_spacing_draw
+├── fill_cover_quads_fractional_even_spacing_draw
+├── fill_cover_quads_fractional_odd_spacing_draw
+├── fill_cover_triangles_equal_spacing_draw
+├── fill_cover_triangles_fractional_even_spacing_draw
+├── fill_cover_triangles_fractional_odd_spacing_draw
 ├── isolines_equal_spacing_draw
-├── quads_no_patches
+├── isolines_fractional_even_spacing_draw
+├── isolines_fractional_odd_spacing_draw
+├── fill_overlap_quads_equal_spacing_draw
+├── fill_overlap_quads_fractional_even_spacing_draw
+├── fill_overlap_quads_fractional_odd_spacing_draw
+├── fill_overlap_triangles_equal_spacing_draw
+├── fill_overlap_triangles_fractional_even_spacing_draw
+├── fill_overlap_triangles_fractional_odd_spacing_draw
+├── non_zero_vertex_instance
 ├── quads_instances
+├── quads_no_patches
+├── switch_domain_origin_lower_left_to_upper_left
+├── switch_domain_origin_upper_left_to_lower_left
+├── switch_out_vertices_3_to_4
+├── switch_out_vertices_4_to_3
 ├── switch_primitive_quads_to_triangles
-└── tess_factor_barrier_bug
+├── switch_primitive_triangles_to_quads
+├── switch_spacing_mode_equal_spacing_to_fractional_even_spacing
+├── switch_spacing_mode_equal_spacing_to_fractional_odd_spacing
+├── switch_spacing_mode_fractional_even_spacing_to_equal_spacing
+├── switch_spacing_mode_fractional_even_spacing_to_fractional_odd_spacing
+├── switch_spacing_mode_fractional_odd_spacing_to_equal_spacing
+├── switch_spacing_mode_fractional_odd_spacing_to_fractional_even_spacing
+├── tess_factor_barrier_bug
+├── triangles_instances
+└── triangles_no_patches
+
+tessellation.unused_builtin_outputs
+├── point_size_tesc_to_tese
+├── point_size_tese_to_frag
+└── point_size_vertex_to_tesc
 ```
 
 ## Parameter Dimensions and Observed Values

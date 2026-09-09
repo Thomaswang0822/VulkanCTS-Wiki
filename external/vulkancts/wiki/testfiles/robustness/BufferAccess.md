@@ -26,6 +26,11 @@ robustness.pipeline_robustness_buffer_access
 ├── fragment
 └── vertex
 
+robustness.pipeline_robustness_heap_buffer_access
+├── compute
+├── fragment
+└── vertex
+
 robustness.descriptor_heap_buffer_access
 ├── compute
 ├── fragment

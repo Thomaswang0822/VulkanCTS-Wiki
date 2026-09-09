@@ -24,7 +24,8 @@ wsi.headless.swapchain
 ├── destroy
 ├── get_images
 ├── acquire
-└── private_data
+├── private_data
+└── extended_flags
 ```
 
 The WSI dispatcher registers this `swapchain` test family below each platform-specific branch. The direct children above are behavioral intermediate nodes implemented in the same source file.
