@@ -766,7 +766,8 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/info.txt`
   - `M` `external/vulkancts/mustpass/main/vksc-default/info.txt`
-- [ ] `postmortem` — source `11` (A=2, M=9); mustpass `1` (A=1). Raw groups: `postmortem`. Decision: pending.
+- [x] `postmortem` — source `11` (A=2, M=9); mustpass `1` (A=1). Raw groups: `postmortem`. Decision: complete; created and audited the new postmortem category gateway and implementation pages.
+  Note: category pages created and audited; standard registration validator limitations are recorded in the audit summary.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/postmortem/CMakeLists.txt`
   - `A` `external/vulkancts/modules/vulkan/postmortem/vktPostmortemCoreDeviceFaultTests.cpp`
@@ -786,7 +787,8 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `M` `external/vulkancts/modules/vulkan/rasterization/vktRasterizationDepthBiasControlTests.cpp`
   Mustpass evidence:
   - none
-- [ ] `sc` — source `6` (M=6); mustpass `1` (M=1). Raw groups: `sc`. Decision: pending.
+- [x] `sc` — source `6` (M=6); mustpass `1` (M=1). Raw groups: `sc`. Decision: complete; created and audited the new sc category gateway and implementation pages.
+  Note: category pages created and audited; standard registration validator limitations are recorded in the audit summary.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/sc/vktApplicationParametersTests.cpp`
   - `M` `external/vulkancts/modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp`

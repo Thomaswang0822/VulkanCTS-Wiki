@@ -5,6 +5,16 @@ category directory names and values are sets of Markdown filenames.
 """
 
 PAGES_WITHOUT_WALKTHROUGH: dict[str, set[str]] = {
+    'sc': {
+        'Api.md',
+        'ApplicationParameters.md',
+        'CommandPoolReservation.md',
+        'DeviceReservation.md',
+        'FaultHandling.md',
+        'ObjectRefresh.md',
+        'PipelineCache.md',
+        'PipelineIdentifier.md',
+    },
     'api': {
         'Array.md',
         'Blitting.md',
