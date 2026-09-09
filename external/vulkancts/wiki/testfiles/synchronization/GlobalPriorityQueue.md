@@ -2,7 +2,7 @@
 
 **Core question:** Do queues created with global priorities complete the registered cross-queue workloads and produce the expected results?
 
-- This page covers the LEGACY-only `synchronization.global_priority_transition` test family implemented by [`createGlobalPriorityQueueTests()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2281-L2420).
+- This page covers the LEGACY-only `synchronization.global_priority_transition` test family implemented by [`createGlobalPriorityQueueTests()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2281-L2407).
 - The four priority branches run graphics, compute, and transfer work across two distinct queue families that request the same global priority. The `preemption` branch submits a large workload before a smaller workload on a higher-priority queue.
 - The tests check resource contents or workload output. They do not prove that the implementation physically preempted one queue, because Vulkan global priorities impose no scheduling or ordering guarantee.
 - Parent registration adds this family only under `synchronization`, not `synchronization2`, and excludes it from Vulkan SC builds.
@@ -43,7 +43,7 @@ The four priority intermediate nodes expand through `no_sync` or `semaphore`, th
 | Dimension | Registered or observed values | Meaning in this test | Evidence |
 |---|---|---|---|
 | Queue A and B type | `graphics`, `compute`, `exclusive-compute`, `transfer`, `exclusive-transfer` | Selects graphics rendering, compute buffer writes, or transfer copies for each device. Exclusive variants require queue families without broader graphics or compute capability. | [queue-type names and support lookup](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L1516-L1616) |
-| Priority pair | `low`, `medium`, `high`, `realtime`, with A lower than B | Queue A runs the large workload and queue B runs the small higher-priority workload. | [preemption registration loops](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2381-L2415) |
+| Priority pair | `low`, `medium`, `high`, `realtime`, with A lower than B | Queue A runs the large workload and queue B runs the small higher-priority workload. | [preemption registration loops](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2381-L2407) |
 | Submission count for B | ordinary name or `_double_preemption` suffix | The suffix submits and waits for queue B's command buffer a second time. | [`PreemptionInstance::iterate()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2215-L2226) |
 | Workload extent | A: 512×512; B: 8×8 | Makes A much larger than B while preserving the same output rule for a selected queue type. | [workload sizing](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2110-L2128) |
 
@@ -391,7 +391,7 @@ The source uses explicit queue-family ownership release and acquire barriers for
 | Transition device setup | [`SpecialDevice`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueUtils.cpp#L91-L213) | Selects queue families and creates queues with global priority. |
 | Preemption setup and support | [`PreemptionCase` and `DeviceHelper`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L1430-L1805) | Selects queue types and priorities and creates the custom devices. |
 | Preemption commands and checks | [`WorkLoadData` and `PreemptionInstance::iterate()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L1807-L2277) | Records workloads, submits them, and validates their output. |
-| Complete registration matrix | [`createGlobalPriorityQueueTests()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2281-L2420) | Registers all priority, synchronization, modifier, direction, and preemption leaves. |
+| Complete registration matrix | [`createGlobalPriorityQueueTests()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2281-L2407) | Registers all priority, synchronization, modifier, direction, and preemption leaves. |
 | Parent registration | [`createTestsInternal()`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L114-L159) | Shows LEGACY-only and non-Vulkan-SC placement. |
 | Default legacy mustpass selection | [`synchronization.txt`](../../../mustpass/main/vk-default/synchronization.txt#L31336-L31731) | Lists the 396 selected leaves. |
 | Default synchronization2 mustpass selection | [`synchronization2.txt`](../../../mustpass/main/vk-default/synchronization2.txt) | Confirms that this family has no synchronization2 leaves. |

@@ -100,7 +100,7 @@ This is a simplified description of the `BufferObjectTestInstance` path, not a r
 | Sparse binding and rebind helpers | [`vktSparseResourcesBufferSparseBinding.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferSparseBinding.cpp#L149-L356), [`vktSparseResourcesBufferRebind.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferRebind.cpp#L23-L418) | Implements transfer and rebinding cases |
 | Residency and texel helpers | [`vktSparseResourcesBufferSparseResidency.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferSparseResidency.cpp#L1169-L1884) | Defines holes, strict behavior, commands, and texel variants |
 | Aliasing helper | [`vktSparseResourcesBufferMemoryAliasing.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferMemoryAliasing.cpp#L246-L439) | Tests shared physical memory |
-| Specification semantics | [`sparsemem.adoc`](../../../../../vulkan-docs/src/chapters/sparsemem.adoc#L7-L20) | Defines sparse binding, residency, and rebind behavior |
+| Specification semantics | [`sparsemem.adoc`](../../../../vulkan-docs/src/chapters/sparsemem.adoc#L7-L22) | Defines sparse binding, residency, and rebind behavior |
 
 ## Questions / Risk Points for User Audit
 

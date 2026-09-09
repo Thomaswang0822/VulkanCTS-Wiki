@@ -8,7 +8,7 @@ This test family checks whether Vulkan implementations agree with the CTS refere
 
 ### Storage-buffer layout is part of the shader interface
 
-A storage buffer declaration gives the shader a structured view of bytes in a `VkBuffer`. The layout qualifier and member types determine offsets, array strides, matrix strides, and total storage size. `std140`, `std430`, scalar layout, relaxed layout, row-major matrices, and column-major matrices do not describe different buffers; they describe different valid mappings from the same structured values to bytes. Vulkan records these rules in SPIR-V decorations such as `Block`, `Offset`, `ArrayStride`, and `MatrixStride` ([Shader Interfaces](../../../vulkan-docs/src/chapters/interfaces.adoc#interfaces-resources)).
+A storage buffer declaration gives the shader a structured view of bytes in a `VkBuffer`. The layout qualifier and member types determine offsets, array strides, matrix strides, and total storage size. `std140`, `std430`, scalar layout, relaxed layout, row-major matrices, and column-major matrices do not describe different buffers; they describe different valid mappings from the same structured values to bytes. Vulkan records these rules in SPIR-V decorations such as `Block`, `Offset`, `ArrayStride`, and `MatrixStride` ([Shader Interfaces](../../../../vulkan-docs/src/chapters/interfaces.adoc#interfaces-resources)).
 
 Why it matters here:
 - The CTS computes a reference layout from the generated type tree, then uses that layout for initial values, expected writes, and buffer bindings.

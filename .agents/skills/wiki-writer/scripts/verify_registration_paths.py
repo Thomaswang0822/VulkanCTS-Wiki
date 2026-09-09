@@ -349,7 +349,11 @@ def extract_canonical_hierarchy_paths(md_file: Path, category: str) -> Dict[str,
         if not SIMPLE_GROUP_PATTERN.fullmatch(root_text):
             add_error(root_idx + 1, "Registration Hierarchy root must be a concrete category-qualified path")
             continue
-        if root_text != category and not root_text.startswith(f'{category}.'):
+        if category in ('synchronization', 'synchronization2'):
+            if not (root_text.startswith('synchronization.') or root_text.startswith('synchronization2.')):
+                add_error(root_idx + 1, f"Registration Hierarchy root must belong to synchronization category '{category}'")
+                continue
+        elif root_text != category and not root_text.startswith(f'{category}.'):
             add_error(root_idx + 1, f"Registration Hierarchy root must belong to category '{category}'")
             continue
 

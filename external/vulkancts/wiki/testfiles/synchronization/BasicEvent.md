@@ -51,7 +51,8 @@ synchronization2.basic.event
 ├── multi_secondary_command_buffer_device_only
 ├── multi_secondary_command_buffer_device_only_cq
 ├── none_set_reset
-└── none_set_reset_cq
+├── none_set_reset_cq
+└── vertex_stage_barrier
 ```
 
 See the exact entries in the [legacy mustpass file](../../../mustpass/main/vk-default/synchronization.txt#L6-L15) and [synchronization2 mustpass file](../../../mustpass/main/vk-default/synchronization2.txt#L7-L22).
@@ -96,6 +97,10 @@ Two secondary command buffers record the set and wait. A primary command buffer 
 The synchronization2-only `none_set_reset` cases set an ordinary event using a dependency whose source stage is `VK_PIPELINE_STAGE_2_NONE`, then reset it with the same `NONE` stage. Host status queries after queue completion must still observe set and reset states. The `NONE` value contributes no stages to that scope; it does not suppress the event state operation.
 
 ### `device-only set/wait`: no host event commands
+
+### `vertex_stage_barrier`: graphics-stage event dependency
+
+This synchronization2-only case resets an event at `ALL_COMMANDS`, inserts an execution barrier from `ALL_COMMANDS` to `VERTEX_SHADER`, then sets and waits for the event using a vertex-stage dependency. It checks successful submission completion without a shader or data comparison. Registration excludes compute and video queues ([implementation](../../../modules/vulkan/synchronization/vktSynchronizationBasicEventTests.cpp#L303-L337), [registration](../../../modules/vulkan/synchronization/vktSynchronizationBasicEventTests.cpp#L638-L641)).
 
 Synchronization2 repeats each set/wait placement with `VK_EVENT_CREATE_DEVICE_ONLY_BIT`. These cases never query or modify the event from the host. Fence completion is the observable result.
 

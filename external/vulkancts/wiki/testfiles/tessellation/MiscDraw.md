@@ -2,9 +2,9 @@
 
 **Core question:** Do tessellation draws produce the right pixels when domain generation, draw form, instancing, or tessellation state changes?
 
-- This page covers the `tessellation.misc_draw` test family in `vktTessellationMiscDrawTests.cpp`, plus its delegated Amber regression.
-- The family has 107 leaves in the default Vulkan mustpass list. They test domain coverage and overlap, isolines, incomplete and instanced patches, state changes between draws, and a tessellation-control barrier regression.
-- Most cases validate a rendered image. Each mechanism has its own reference: PNG images, a software-rendered result, an independently rendered second-state image, or an exact Amber framebuffer expectation.
+- This page covers the `tessellation.misc_draw` test family in `vktTessellationMiscDrawTests.cpp`,.
+- The family has 109 leaves in the default Vulkan mustpass list (108 in Vulkan SC, where the barrier regression is omitted). They test domain coverage and overlap, isolines, incomplete and instanced patches, state changes between draws, and a tessellation-control barrier regression.
+- Most cases validate a rendered image. Each mechanism has its own reference: PNG images, a software-rendered result, an independently rendered second-state image, or a fixed framebuffer expectation.
 
 ## Background Knowledge
 
@@ -486,6 +486,6 @@ void main (void)
 | State-switch implementation | [`TessStateSwitchCase` and `TessStateSwitchInstance`](../../../modules/vulkan/tessellation/vktTessellationMiscDrawTests.cpp#L601-L1100) | Defines support gates, paired shaders, state binding, reference rendering, and comparison. |
 | Instancing and no-patch implementation | [`TessInstancedDrawTestCase` and `TessInstancedDrawTestInstance`](../../../modules/vulkan/tessellation/vktTessellationMiscDrawTests.cpp#L1109-L1481) | Defines complete-patch instancing, incomplete-patch submission, and software-reference comparison. |
 | Test registration | [`createMiscDrawTests()`](../../../modules/vulkan/tessellation/vktTessellationMiscDrawTests.cpp#L1859-L2084) | Generates all C++ leaves and registers the Amber case. |
-| Barrier regression fixture | [`tess_factor_barrier_bug.amber`](../../../data/vulkan/amber/tessellation/tess_factor_barrier_bug.amber#L1-L132) | Defines synchronization, factor writes, draw size, resources, and expected pixels. |
-| Current mustpass evidence | [`vk-default/tessellation.txt`](../../../mustpass/main/vk-default/tessellation.txt#L237-L343) | Lists all 107 current `dEQP-VK.tessellation.misc_draw.*` leaves. |
+| Barrier regression fixture | `tess_factor_barrier_bug.amber` | Defines synchronization, factor writes, draw size, resources, and expected pixels. |
+| Current mustpass evidence | [`vk-default/tessellation.txt`](../../../mustpass/main/vk-default/tessellation.txt#L237-L345) | Lists all 109 current `dEQP-VK.tessellation.misc_draw.*` leaves. |
 | Vulkan tessellation semantics | [`tessellation.adoc`](../../../../vulkan-docs/src/chapters/tessellation.adoc#L73-L220) | Defines primitive modes, domain coordinates, patch discard, and spacing. |

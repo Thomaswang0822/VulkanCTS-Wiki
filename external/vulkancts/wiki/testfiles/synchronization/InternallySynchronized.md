@@ -350,6 +350,7 @@ void main()
 
 ### Design-based pruning
 
+- Double-WSI cases are excluded for `direct` and `direct_drm`, as well as Android, because those display paths allow only one window. The two display leaves were removed from Vulkan mustpass. Queue selection requires all requested queue capability bits, and the custom device's own interface retrieves its internally synchronized queue ([registration exclusion](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedTests.cpp#L1688-L1700), [queue selection](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedTests.cpp#L1463-L1469)).
 - Threads 1 and 2 are fixed to `small` and `large`; the generator varies only the eight operation types assigned to threads 3 and 4.
 - WSI names are generated for each supported WSI type. The generator omits the Android double-WSI combination because the CTS activity does not support multiple concurrent WSI windows.
 - The generator selects one of five queue-creation modes with `(i + j) % queueCreation.size()`, rather than registering every queue-mode and queue-family combination as a separate case.
@@ -366,7 +367,7 @@ void main()
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| `createInternallySynchronizedTests()` | [test-family registration](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedTests.cpp#L1657-L1717) | Defines the family, the eight variable operations, WSI naming, and generated leaves. |
+| `createInternallySynchronizedTests()` | [test-family registration](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedTests.cpp#L1657-L1715) | Defines the family, the eight variable operations, WSI naming, and generated leaves. |
 | `createTestsInternal()` | [synchronization2 dispatcher](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L114-L140) | Shows that this factory belongs to synchronization2 and is excluded from Vulkan SC. |
 | `InternallySynchronizedQueuesTestInstance::iterate()` | [custom device and queue setup](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedTests.cpp#L1420-L1584) | Selects queue families, enables features, retrieves the queue, starts workers, and returns the current result. |
 | `InternallySynchronizedQueuesTestCase::checkSupport()` | [support checks](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedTests.cpp#L1607-L1630) | Defines extension, feature, and queue-operation requirements. |

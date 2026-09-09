@@ -134,7 +134,7 @@ The source registers host timeline waits and the thread handshake only for `LEGA
 | `basicThreadTimelineCase`, timeline wait helpers | [host timeline flows](../../../modules/vulkan/synchronization/vktSynchronizationBasicSemaphoreTests.cpp#L365-L515) | Defines thread and `waitSemaphores` behavior. |
 | `basicMultiQueueCase` | [multi-queue flow](../../../modules/vulkan/synchronization/vktSynchronizationBasicSemaphoreTests.cpp#L633-L892) | Defines custom queue creation, role reversal, and fence checks. |
 | `checkSupport`, `checkMultiQueueSupport` | [support gates](../../../modules/vulkan/synchronization/vktSynchronizationBasicSemaphoreTests.cpp#L895-L929) | Defines required extensions, features, and queues. |
-| `createBasicBinarySemaphoreTests`, `createBasicTimelineSemaphoreTests` | [registration](../../../modules/vulkan/synchronization/vktSynchronizationBasicSemaphoreTests.cpp#L933-L1006) | Defines exact registered family and test-case names. |
+| `createBasicBinarySemaphoreTests`, `createBasicTimelineSemaphoreTests` | [registration](../../../modules/vulkan/synchronization/vktSynchronizationBasicSemaphoreTests.cpp#L933-L950) | Defines exact registered family and test-case names. |
 | Vulkan synchronization chapter | [execution and memory dependencies](../../../../../external/vulkan-docs/src/chapters/synchronization.adoc#L16-L39) | Places semaphore ordering in Vulkan's synchronization model. |
 | Mustpass definitions | [synchronization](../../../../../external/vulkancts/mustpass/main/vk-default/synchronization.txt), [synchronization2](../../../../../external/vulkancts/mustpass/main/vk-default/synchronization2.txt) | Confirms legacy and sync2 registered coverage. |
 

@@ -55,6 +55,8 @@ def extract_group_paths(
     for md_file in candidate_files:
         canonical_paths = extract_canonical_hierarchy_paths(md_file, category)
         for full_path, locs in canonical_paths.items():
+            if not full_path.startswith(f'{category}.'):
+                continue
             for source_file, line_num in locs:
                 if _is_cross_category_child(source_file, line_num, category):
                     continue

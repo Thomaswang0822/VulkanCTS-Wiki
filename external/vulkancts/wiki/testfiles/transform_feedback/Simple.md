@@ -3,7 +3,7 @@
 **Core question:** Does the simple transform-feedback generator capture the selected pre-rasterization outputs at the requested offsets across pipeline construction, draw, stream, query, and resume variants?
 
 - This page covers the implementation behind the `simple`, `simple_fast_gpl`, and `simple_optimized_gpl` test families. The root dispatcher invokes the same generator with monolithic, fast linked graphics pipeline library, and link-time optimized graphics pipeline library construction modes ([dispatcher](../../../modules/vulkan/transform_feedback/vktTransformFeedbackTests.cpp#L40-L49), [group naming](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L7264-L7276)).
-- The generator combines basic capture, resume, stream and built-in output, query, indirect draw, multiview, synchronization, and layout cases. The current mustpass contains 7894 `simple`, 7886 `simple_fast_gpl`, and 7886 `simple_optimized_gpl` entries ([mustpass](../../../mustpass/main/vk-default/transform-feedback.txt#L110039)).
+- The generator combines basic capture, resume, stream and built-in output, query, indirect draw, multiview, synchronization, and layout cases. The current mustpass contains 7899 `simple`, 7891 `simple_fast_gpl`, and 7891 `simple_optimized_gpl` entries ([mustpass](../../../mustpass/main/vk-default/transform-feedback.txt#L110039)).
 - Cases write shader outputs into host-visible transform-feedback storage. The host invalidates the allocation and checks values, counters, query results, or an image produced by an indirect draw.
 - The three roots share test behavior. The construction mode changes pipeline creation, while the generated leaf matrices select the transform-feedback operation being exercised.
 

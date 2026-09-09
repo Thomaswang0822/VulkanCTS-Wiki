@@ -90,9 +90,9 @@ No shader or generated program artifact participates in this test. The device wo
 | Support checks | [`ImageSparseBindingCase::checkSupport`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseBinding.cpp#L107-L163) | Establishes feature, limit, and queue requirements |
 | Bind packaging | [`ImageSparseBindingInstance::iterate`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseBinding.cpp#L257-L427) | Implements the three submission layouts and device-group extension |
 | Transfer and comparison | [`ImageSparseBindingInstance::iterate`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseBinding.cpp#L429-L611) | Defines the data path and pass/fail check |
-| Opaque bind semantics | [`VkSparseImageOpaqueMemoryBindInfo`](../../../vulkan-docs/src/chapters/sparsemem.adoc#L1516-L1568) | Specifies the Vulkan structure used by the test |
-| Submission semantics | [`vkQueueBindSparse`](../../../vulkan-docs/src/chapters/sparsemem.adoc#L1691-L1758) | Defines batch submission and completion behavior |
-| Device-group indices | [`VkDeviceGroupBindSparseInfo`](../../../vulkan-docs/src/chapters/sparsemem.adoc#L1877-L1921) | Defines resource and memory device selection |
+| Opaque bind semantics | [`VkSparseImageOpaqueMemoryBindInfo`](../../../../vulkan-docs/src/chapters/sparsemem.adoc#L1516-L1568) | Specifies the Vulkan structure used by the test |
+| Submission semantics | [`vkQueueBindSparse`](../../../../vulkan-docs/src/chapters/sparsemem.adoc#L1691-L1758) | Defines batch submission and completion behavior |
+| Device-group indices | [`VkDeviceGroupBindSparseInfo`](../../../../vulkan-docs/src/chapters/sparsemem.adoc#L1877-L1921) | Defines resource and memory device selection |
 
 ## Questions / Risk Points for User Audit
 

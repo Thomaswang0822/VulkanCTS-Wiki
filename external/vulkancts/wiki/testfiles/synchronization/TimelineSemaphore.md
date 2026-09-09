@@ -398,6 +398,7 @@ void main (void)
 
 ## Runtime Execution and Result Checking
 
+- In `one_to_n`, the writer command pool uses the writer's actual queue family. `recordReleaseBarrier()` emits a release only when producer and consumer families differ, pairing the producer's write scope with destination `BOTTOM_OF_PIPE` and no destination access. The shared write resource receives release/acquire handling for copy indices 0 and 1 (`copyOpIdx <= 1u`); every copied resource receives a release before its read consumer ([release helper](../../../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.cpp#L2037-L2088), [recording](../../../modules/vulkan/synchronization/vktSynchronizationTimelineSemaphoreTests.cpp#L2198-L2229)). The source predicate, rather than the comment's “only one” wording, defines the recorded barriers.
 - All leaves require timeline semaphore functionality through `VK_KHR_timeline_semaphore` or its core equivalent. Synchronization2 leaves also require `VK_KHR_synchronization2`. Generated cases run the support checks for their selected operations and resources.
 - The common code creates timeline semaphores and uses `vkWaitSemaphores`, `vkSignalSemaphore`, and `vkGetSemaphoreCounterValue`. `SynchronizationWrapper` selects legacy or synchronization2 submission structures according to the test category.
 - `device_host` alternates submitted operation pairs with a host thread that waits, copies data for the next iteration, and signals the next timeline value. It compares the first input with the final output after twelve iterations.

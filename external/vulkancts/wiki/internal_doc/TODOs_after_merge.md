@@ -672,7 +672,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `M` `external/vulkancts/modules/vulkan/reconvergence/vktReconvergenceTests.cpp`
   Mustpass evidence:
   - none
-- [ ] `sparse_resources` — source `17` (M=17); mustpass `1` (M=1). Raw groups: `sparse-resources, sparse_resources`. Decision: pending.
+- [x] `sparse_resources` — source `17` (M=17); mustpass `1` (M=1). Raw groups: `sparse-resources, sparse_resources`. Decision: complete; refreshed five sparse-resource briefs and corrected current source references. Validators passed: structure (13 pages), registration (123 paths), links, line references (0 issues), and git diff check.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/sparse_resources/vktSparseResourcesBase.cpp`
   - `M` `external/vulkancts/modules/vulkan/sparse_resources/vktSparseResourcesBase.hpp`
@@ -693,7 +693,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `M` `external/vulkancts/modules/vulkan/sparse_resources/vktSparseResourcesTransferQueueTests.cpp`
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/sparse-resources.txt`
-- [ ] `ssbo` — source `4` (M=4); mustpass `0` (none). Raw groups: `ssbo`. Decision: pending.
+- [x] `ssbo` — source `4` (M=4); mustpass `0` (none). Raw groups: `ssbo`. Decision: complete; repaired stale specification links in two briefs after reviewing queue-runner execution, >4 GB heap preflight, and unsized-array descriptor-range handling. Validators passed: structure (3 pages), registration (8 paths), links, line references (0 issues), and git diff check.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/ssbo/vktSSBOCornerCase.cpp`
   - `M` `external/vulkancts/modules/vulkan/ssbo/vktSSBOLayoutCase.cpp`
@@ -701,7 +701,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `M` `external/vulkancts/modules/vulkan/ssbo/vktSSBOLayoutTests.cpp`
   Mustpass evidence:
   - none
-- [ ] `synchronization` — source `15` (M=15); mustpass `2` (M=2). Raw groups: `synchronization`. Decision: pending.
+- [x] `synchronization` — source `15` (M=15); mustpass `2` (M=2). Raw groups: `synchronization`. Decision: complete; added synchronization2 vertex-stage barrier coverage, corrected legacy-only smoke registration, and recalibrated shared synchronization source references. Validators: links and line references passed; structure/registration retain pre-existing shared-category hierarchy incompatibilities that require a dedicated normalization pass.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp`
   - `M` `external/vulkancts/modules/vulkan/synchronization/vktGlobalPriorityQueueUtils.cpp`
@@ -721,13 +721,13 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/synchronization.txt`
   - `M` `external/vulkancts/mustpass/main/vksc-default/synchronization.txt`
-- [ ] `synchronization2` — source `0` (none); mustpass `2` (M=2). Raw groups: `synchronization2`. Decision: pending.
+- [x] `synchronization2` — source `0` (none); mustpass `2` (M=2). Raw groups: `synchronization2`. Decision: complete; synchronized shared pages with synchronization2 vertex-stage barrier coverage and corrected shared registrations. Validators passed with the dedicated shared-category adapter: synchronization (54 paths), synchronization2 (67 paths), links, line references (0 issues), and git diff check.
   Source evidence:
   - none
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/synchronization2.txt`
   - `M` `external/vulkancts/mustpass/main/vksc-default/synchronization2.txt`
-- [ ] `tessellation` — source `3` (M=3); mustpass `2` (M=2). Raw groups: `tessellation`. Decision: pending.
+- [x] `tessellation` — source `3` (M=3); mustpass `2` (M=2). Raw groups: `tessellation`. Decision: complete; updated misc_draw coverage to 109 Vulkan and 108 Vulkan SC leaves and removed the stale absent Amber fixture link. Validators passed: structure (16 pages), registration (177 paths), links, line references (0 issues), and git diff check.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/tessellation/vktTessellationMiscDrawTests.cpp`
   - `M` `external/vulkancts/modules/vulkan/tessellation/vktTessellationMiscDrawTests.hpp`
@@ -735,7 +735,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vk-default/tessellation.txt`
   - `M` `external/vulkancts/mustpass/main/vksc-default/tessellation.txt`
-- [ ] `transform_feedback` — source `2` (M=2); mustpass `1` (M=1). Raw groups: `transform-feedback, transform_feedback`. Decision: pending.
+- [x] `transform_feedback` — source `2` (M=2); mustpass `1` (M=1). Raw groups: `transform-feedback, transform_feedback`. Decision: complete; updated primitive-restart input visibility, added indirect-counter resubmission and null transform-feedback pointer variants, and refreshed simple-family counts from 7,894/7,886/7,886 to 7,899/7,891/7,891. Validators passed: structure (4 pages), registration (29 paths), links, line references (0 issues), and git diff check.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/transform_feedback/vktTransformFeedbackPrimitiveRestartTests.cpp`
   - `M` `external/vulkancts/modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp`

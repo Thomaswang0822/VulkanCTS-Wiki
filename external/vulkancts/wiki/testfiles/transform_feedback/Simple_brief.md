@@ -102,7 +102,7 @@ The same shader template also supports split-buffer cases. For example, a four-p
 
 ## Important Variations and Special Cases
 
-- The generator registers 7,894 `simple` cases and 7,886 cases under each GPL root in the inspected mustpass file. The monolithic-only device-address-command variants and `shader_object_rebind` account for the eight-case difference.
+- The generator registers 7,899 `simple` cases and 7,891 cases under each GPL root in the inspected mustpass file. The monolithic-only device-address-command variants and `shader_object_rebind` account for the eight-case difference.
 - Basic matrices use buffer counts `{1, 2, 4, 8}` and total buffer sizes `{256, 512, 131072}` bytes. Point-size variants add `_ptsz` where the generator can emit both forms.
 - Indirect cases use byte strides `{16, 244, 508, 1004, 2036}` and deliberately exclude the combination that uses both a counter offset and a counter-buffer offset.
 - Query generation uses stream IDs `{0, 1, 3, 6, 14}`, source vertex counts `{6, 61, 127, 251, 509}`, topology-adjusted counts, and both 32-bit and 64-bit results.

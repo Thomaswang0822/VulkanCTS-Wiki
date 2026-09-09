@@ -97,7 +97,7 @@ Preemption performs its own support checks, including `VK_KHR_global_priority` a
 
 | Topic | Source |
 |---|---|
-| Test factory and complete registration loops | [`vktGlobalPriorityQueueTests.cpp`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2281-L2420) |
+| Test factory and complete registration loops | [`vktGlobalPriorityQueueTests.cpp`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2281-L2407) |
 | LEGACY-only parent registration | [`vktSynchronizationTests.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L114-L159) |
 | Default mustpass selection | [`synchronization.txt`](../../../mustpass/main/vk-default/synchronization.txt#L31336) |
 | Transition support and queue-family checks | [`vktGlobalPriorityQueueTests.cpp`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L484-L555) |

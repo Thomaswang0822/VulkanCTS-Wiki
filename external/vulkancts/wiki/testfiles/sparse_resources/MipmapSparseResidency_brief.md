@@ -93,7 +93,7 @@ The test does not generate shader or program artifacts. Its observable work uses
 | Residency and metadata binds | [`iterate()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMipmapSparseResidency.cpp#L242-L409) | Non-tail blocks, mip tails, metadata, and sparse submission |
 | Transfer comparison | [`iterate()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMipmapSparseResidency.cpp#L411-L582) | All-plane/all-mip copies and byte comparison |
 | Parameter generation | [`createMipmapSparseResidencyTestsCommon()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMipmapSparseResidency.cpp#L592-L649) | Image types, extents, formats, and pruning |
-| Sparse semantics | [`sparsemem.adoc`](../../../../../vulkan-docs/src/chapters/sparsemem.adoc#L867-L914) | Sparse format properties, mip-tail flags, and aspects |
+| Sparse semantics | [`sparsemem.adoc`](../../../../vulkan-docs/src/chapters/sparsemem.adoc#L867-L914) | Sparse format properties, mip-tail flags, and aspects |
 | Registered mustpass roots | [`sparse-resources.txt`](../../../mustpass/main/vk-default/sparse-resources.txt) | Default mustpass coverage |
 
 ## Questions / Risk Points for User Audit

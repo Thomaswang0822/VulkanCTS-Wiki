@@ -10830,11 +10830,11 @@ void main (void)
 
 ## Runtime Execution and Result Checking
 
-- `CornerCase::createInstance()` checks buffer-device-address support and reports `NotSupportedError` when physical storage-buffer pointers are unavailable. [`createInstance()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L317-L322)
+- `CornerCase::checkSupport()` checks buffer-device-address support and reports `NotSupportedError` when physical storage-buffer pointers are unavailable ([support check](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L311-L315)). The instance uses `MultiQueueRunnerTestInstance` with `COMPUTE_QUEUE`; each `queuePass()` rebuilds resources and uses the supplied queue and family ([queue selection](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L150-L176)).
 - The instance creates a 4-byte host-visible storage buffer for `ac_numIrrelevant`, clears it, and flushes the mapped memory. [`SSBOCornerCaseInstance::iterate()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L168-L217)
 - It creates a second storage buffer with `VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT`. Its size is `64 * 589` bytes, which accommodates the 589 `ivec4` elements read by the shader, and the host obtains its device address with `vkGetBufferDeviceAddress`. [`SSBOCornerCaseInstance::iterate()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L217-L241)
 - The host builds a descriptor set with one storage-buffer binding for the auxiliary buffer and a pipeline layout with one compute-stage push-constant range large enough for `VkDeviceAddress`. [`SSBOCornerCaseInstance::iterate()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L188-L211), [`SSBOCornerCaseInstance::iterate()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L243-L283)
-- The command buffer binds the compute pipeline, pushes the buffer address, binds the descriptor set, and dispatches `(1, 1, 1)`. The host submits that primary command buffer to the universal queue and waits for completion. [`SSBOCornerCaseInstance::iterate()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L285-L304)
+- The command buffer binds the compute pipeline, pushes the buffer address, binds the descriptor set, and dispatches `(1, 1, 1)`. The host submits that primary command buffer to the current queue pass's queue and waits for completion. [`SSBOCornerCaseInstance::queuePass()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L286-L305)
 - After the wait returns, the instance reports `pass("Test did not cause a crash")`. The test has no host-side comparison or expected-value check. [`SSBOCornerCaseInstance::iterate()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L300-L307)
 
 ## Failure Meaning
@@ -10857,7 +10857,7 @@ void main (void)
 
 ### Requirement-based pruning
 
-`CornerCase::createInstance()` skips the test with `NotSupportedError` unless the context supports buffer-device addresses. This excludes implementations that cannot provide the physical storage-buffer pointer feature required by the shader. [`createInstance()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L317-L322)
+`CornerCase::checkSupport()` skips the test with `NotSupportedError` unless the context supports buffer-device addresses. This excludes implementations that cannot provide the physical storage-buffer pointer feature required by the shader. [Support check](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L311-L315).
 
 ### Design-based pruning
 
