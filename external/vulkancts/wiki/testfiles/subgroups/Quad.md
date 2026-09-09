@@ -389,7 +389,7 @@ All five values also depend on correct stage support reporting, input binding, s
 - 8-bit and 16-bit framebuffer input formats require the corresponding uniform-buffer storage support.
 - `subgroupquadbroadcast_nonconst` requires dynamic subgroup broadcast ID support.
 - `_requiredsubgroupsize` compute and mesh cases require `VK_EXT_subgroup_size_control`, `subgroupSizeControl`, `computeFullSubgroups`, and required-size support for the tested stage.
-- Ray-tracing cases require `VK_KHR_ray_tracing_pipeline`. Mesh cases require `VK_EXT_mesh_shader` and vertex-pipeline stores and atomics; task cases also require `taskShader`.
+- Ray-tracing cases require `VK_KHR_ray_tracing_pipeline`. Mesh cases require `VK_EXT_mesh_shader`; task cases also require `taskShader`.
 - The common stage-support check skips stages that cannot execute the requested quad operation.
 
 ### Design-based pruning

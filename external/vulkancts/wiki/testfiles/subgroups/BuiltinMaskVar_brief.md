@@ -100,8 +100,8 @@ All values can also fail if `subgroupBallotBitExtract`, `subgroupBallotBitCount`
 | Runtime routing | [`test`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinMaskVarTests.cpp#L1266-L1333) | Selects execution helper and loops over required subgroup sizes. |
 | Registration | [`createSubgroupsBuiltinMaskVarTests`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinMaskVarTests.cpp#L1335-L1450) | Constructs all families and exact leaf names. |
 | Result callbacks | [`check` and `checkComputeOrMesh`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2640-L2663) | Require every returned value to equal one. |
-| Built-in semantics | [Vulkan interfaces chapter](../../../../../vulkan-docs/src/chapters/interfaces.adoc#L4983-L5120) | Defines the five relational masks and their input-vector form. |
-| Ray invocation repacking | [Vulkan ray-tracing chapter](../../../../../vulkan-docs/src/chapters/raytracing.adoc#L150-L175) | Explains why ray-tracing mask built-ins use volatile semantics around repack instructions. |
+| Built-in semantics | [Vulkan interfaces chapter](../../../../vulkan-docs/src/chapters/interfaces.adoc#L4983-L5120) | Defines the five relational masks and their input-vector form. |
+| Ray invocation repacking | [Vulkan ray-tracing chapter](../../../../vulkan-docs/src/chapters/raytracing.adoc#L150-L175) | Explains why ray-tracing mask built-ins use volatile semantics around repack instructions. |
 
 ## Questions / Risk Points for User Audit
 

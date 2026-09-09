@@ -495,7 +495,7 @@ All three values also depend on correct stage support reporting, input binding, 
 - The device must support Vulkan subgroups, arithmetic subgroup operations, the selected shader stage, and the selected format.
 - Extended 8-bit and 16-bit input types require the corresponding shader and storage capabilities. Integer 64-bit, floating 16-bit, and double cases likewise depend on their format support checks.
 - `_requiredsubgroupsize` cases require `VK_EXT_subgroup_size_control`, `subgroupSizeControl`, `computeFullSubgroups`, and required-size support for the tested stage.
-- Ray-tracing cases require `VK_KHR_ray_tracing_pipeline`. Mesh cases require vertex-pipeline stores and atomics plus `VK_EXT_mesh_shader`; task cases also require `taskShader`.
+- Ray-tracing cases require `VK_KHR_ray_tracing_pipeline`. Mesh cases require `VK_EXT_mesh_shader`; task cases also require `taskShader`.
 - The common stage-support check skips stages that cannot execute the requested subgroup operation.
 
 ### Design-based pruning

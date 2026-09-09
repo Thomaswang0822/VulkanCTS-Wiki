@@ -1405,7 +1405,7 @@ A failure in any row can also come from incorrect active-lane ballot handling, i
 - The device must support Vulkan subgroups, clustered subgroup operations, the selected data format, and the selected shader stage.
 - Extended 8-bit, 16-bit, 64-bit, float16, double, long-vector, and Boolean cases use the corresponding format and storage checks in [`supportedCheck`](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L188-L232).
 - Required-subgroup-size cases need `VK_EXT_subgroup_size_control`, both `subgroupSizeControl` and `computeFullSubgroups`, and required-size support for the selected stage.
-- Ray-tracing cases need `VK_KHR_ray_tracing_pipeline`. Mesh cases need `VK_EXT_mesh_shader` and vertex-pipeline stores and atomics; task cases also need `taskShader`.
+- Ray-tracing cases need `VK_KHR_ray_tracing_pipeline`. Mesh cases need `VK_EXT_mesh_shader`; task cases also need `taskShader`.
 
 ### Design-based pruning
 

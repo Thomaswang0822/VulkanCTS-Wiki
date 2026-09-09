@@ -96,7 +96,7 @@ The primary behavioral axis is the operation group selected by the direct child 
 
 ### `query` metadata operations
 
-The `query` child has five intermediate nodes. `texturesize` returns mip dimensions, `texturesizems` returns multisample image dimensions, `texturesamples` returns the sample count, `texturequerylevels` returns accessible mip levels, and `texturequerylod` returns a level/LOD pair derived from coordinates and sampler state. Dedicated instances compare these outputs with exact expected integers or source-calculated floating-point bounds ([query-instance dispatch](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L3988-L4005), [generated query expressions](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L4068-L4116)).
+The `query` child has six intermediate nodes. `texturesize` returns mip dimensions, `texturesizems` returns multisample sampled-texture dimensions, `imagesizems` returns multisample image dimensions through `imageSize`, `texturesamples` returns the sample count, `texturequerylevels` returns accessible mip levels, and `texturequerylod` returns a level/LOD pair derived from coordinates and sampler state. Dedicated instances compare these outputs with exact expected integers or source-calculated floating-point bounds ([query-instance dispatch](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L3988-L4005), [generated query expressions](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L4068-L4116), [image-size registration](../../../modules/vulkan/shaderrender/vktShaderRenderTextureFunctionTests.cpp#L8178-L8208)).
 
 ## Shader Analysis
 

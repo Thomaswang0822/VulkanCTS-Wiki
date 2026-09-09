@@ -105,8 +105,8 @@ The primary behavioral axis is the reconvergence control-flow form. The other re
 | Representative Amber script | [`subgroup_reconverge00.amber`](../../../data/vulkan/amber/subgroup_uniform_control_flow/large/subgroup_reconverge00.amber#L1-L76) | Defines the two shaders, buffers, pipelines, runs, and expectations. |
 | Partial-case exclusion | [`test-issues.txt`](../../../mustpass/main/src/test-issues.txt#L23-L24) | Excludes every path containing `partial` from the default mustpass selection. |
 | Representative mustpass path | [`subgroups.txt`](../../../mustpass/main/vk-default/subgroups.txt#L47724) | Confirms the exact `large_full.subgroup_reconverge00` case is selected. |
-| Vulkan feature semantics | [`VK_KHR_shader_subgroup_uniform_control_flow`](../../../vulkan-docs/src/appendices/VK_KHR_shader_subgroup_uniform_control_flow.adoc#L21-L34) | Defines the stronger reconvergence guarantee and its SPIR-V extension relationship. |
-| SPIR-V execution-mode requirements | [`spirvenv.adoc`](../../../vulkan-docs/src/appendices/spirvenv.adoc#L2742-L2752) | Requires the feature and supported stage for `SubgroupUniformControlFlowKHR`. |
+| Vulkan feature semantics | [`VK_KHR_shader_subgroup_uniform_control_flow`](../../../../vulkan-docs/src/appendices/VK_KHR_shader_subgroup_uniform_control_flow.adoc#L21-L34) | Defines the stronger reconvergence guarantee and its SPIR-V extension relationship. |
+| SPIR-V execution-mode requirements | [`spirvenv.adoc`](../../../../vulkan-docs/src/appendices/spirvenv.adoc#L2742-L2752) | Requires the feature and supported stage for `SubgroupUniformControlFlowKHR`. |
 
 ## Questions / Risk Points for User Audit
 

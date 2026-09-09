@@ -744,7 +744,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
 
 ### P2 — inspect for no-update or small update
 
-- [ ] `amber` — source `2` (M=2); mustpass `0` (none). Raw groups: `amber`. Decision: pending.
+- [x] `amber` — source `2` (M=2); mustpass `0` (none). Raw groups: `amber`. Decision: reviewed; updated the existing GLSL Amber page for VkPhysicalDeviceFeatures2 forwarding and removal of the obsolete compute-only rejection. No standalone amber page is needed because Amber-backed families are registered under glsl/depth/graphicsfuzz. Amber feature forwarding changed execution plumbing, and removal of the compute-only rejection does not change the existing GLSL Amber registration, requirements, or result contracts.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/amber/vktAmberTestCase.cpp`
   - `M` `external/vulkancts/modules/vulkan/amber/vktAmberTestCase.hpp`
@@ -796,7 +796,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `M` `external/vulkancts/modules/vulkan/sc/vktPipelineIdentifierTests.cpp`
   Mustpass evidence:
   - `M` `external/vulkancts/mustpass/main/vksc-default/sc.txt`
-- [ ] `shaderexecutor` — source `9` (M=9); mustpass `0` (none). Raw groups: `shaderexecutor`. Decision: pending.
+- [x] `shaderexecutor` — source `9` (M=9); mustpass `0` (none). Raw groups: `shaderexecutor`. Decision: complete; updated the existing GLSL Builtin page for clamp_const_array_dynamic_index and expanded FConvert coverage and references. No standalone shaderexecutor page is needed. No separate shaderexecutor page is needed.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp`
   - `M` `external/vulkancts/modules/vulkan/shaderexecutor/vktShaderBuiltinPrecisionTests.cpp`
@@ -809,7 +809,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `M` `external/vulkancts/modules/vulkan/shaderexecutor/vktShaderPackingFunctionTests.cpp`
   Mustpass evidence:
   - none
-- [ ] `shaderrender` — source `7` (A=2, M=5); mustpass `0` (none). Raw groups: `shaderrender`. Decision: pending.
+- [x] `shaderrender` — source `7` (A=2, M=5); mustpass `0` (none). Raw groups: `shaderrender`. Decision: complete; updated GLSL TextureFunctionTests for the new imagesizems query family and corrected the query-node count from five to six; added the singular glsl.helper_invocation page for five new load-after-store variants.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/shaderrender/CMakeLists.txt`
   - `M` `external/vulkancts/modules/vulkan/shaderrender/vktShaderRender.cpp`
@@ -820,7 +820,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `M` `external/vulkancts/modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp`
   Mustpass evidence:
   - none
-- [ ] `subgroups` — source `16` (M=16); mustpass `0` (none). Raw groups: `subgroups`. Decision: pending.
+- [x] `subgroups` — source `16` (M=16); mustpass `0` (none). Raw groups: `subgroups`. Decision: complete; removed obsolete vertexPipelineStoresAndAtomics requirements from nine subgroup pages after the upstream support-gate removal, and repaired four pre-existing brief links.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/subgroups/vktSubgroupsArithmeticTests.cpp`
   - `M` `external/vulkancts/modules/vulkan/subgroups/vktSubgroupsBallotBroadcastTests.cpp`
@@ -846,7 +846,7 @@ Priority is an initial triage based on changed-path scale and visible add/delete
   - `M` `external/vulkancts/modules/vulkan/tensor/vktTensorTestsUtil.hpp`
   Mustpass evidence:
   - none
-- [ ] `util` — source `3` (A=2, M=1); mustpass `0` (none). Raw groups: `util`. Decision: pending.
+- [x] `util` — source `3` (A=2, M=1); mustpass `0` (none). Raw groups: `util`. Decision: complete; corrected the independent-sets utility source reference in pipeline/Library.md. The shared utility is documented through pipeline and shader_object owning pages; no util page is needed. No util page is needed.
   Source evidence:
   - `M` `external/vulkancts/modules/vulkan/util/CMakeLists.txt`
   - `A` `external/vulkancts/modules/vulkan/util/vktIndependentSetsUtil.cpp`

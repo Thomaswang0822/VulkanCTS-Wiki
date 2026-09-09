@@ -510,7 +510,7 @@ A failure in any value can also come from shader compilation or stage lowering, 
 - Subgroup operations and `VK_SUBGROUP_FEATURE_BALLOT_BIT` are required. The selected shader stages must also support subgroup operations.
 - Required-subgroup-size variants require `VK_EXT_subgroup_size_control`, `subgroupSizeControl`, `computeFullSubgroups`, and support for the selected stage in `requiredSubgroupSizeStages`.
 - Required sizes are the powers of two from `minSubgroupSize` through `maxSubgroupSize`, matching the Vulkan subgroup-size-control limits.
-- Ray-tracing paths require `VK_KHR_ray_tracing_pipeline`. Mesh and task paths require `VK_EXT_mesh_shader`, vertex-pipeline stores and atomics, and the task shader feature when a task case is selected.
+- Ray-tracing paths require `VK_KHR_ray_tracing_pipeline`. Mesh and task paths require `VK_EXT_mesh_shader`, and the task shader feature when a task case is selected.
 - Unsupported graphics or ray-tracing stages are removed by the shared stage-support helpers. Geometry and tessellation point-size behavior is generated only when the implementation supports it.
 
 ### Design-based pruning

@@ -408,7 +408,7 @@ All values can also fail if `subgroupBallotBitExtract`, `subgroupBallotBitCount`
 
 - Cases require Vulkan subgroup support, support for the requested shader stage, and `VK_SUBGROUP_FEATURE_BALLOT_BIT`.
 - `_requiredsubgroupsize` cases require `VK_EXT_subgroup_size_control`, the `subgroupSizeControl` and `computeFullSubgroups` features, and support for a required subgroup size in the selected stage.
-- Ray-tracing cases require `VK_KHR_ray_tracing_pipeline`; mesh/task cases require `VK_EXT_mesh_shader`, vertex-pipeline stores and atomics, and `taskShader` when the task stage is selected.
+- Ray-tracing cases require `VK_KHR_ray_tracing_pipeline`; mesh/task cases require `VK_EXT_mesh_shader`, and `taskShader` when the task stage is selected.
 - Shared helpers restrict graphics and ray-tracing execution to stages reported as supporting subgroup operations. Unsupported stage combinations are not run.
 
 ### Design-based pruning

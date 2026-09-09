@@ -465,7 +465,7 @@ Failures across all values can also come from shared stage plumbing, input initi
 - Rotate requires `shaderSubgroupRotate`; clustered rotate requires `shaderSubgroupRotateClustered`. Both require extension specification version 2 or later when supplied by `VK_KHR_shader_subgroup_rotate`.
 - The selected data format and shader stage must support subgroup operations. Narrow framebuffer formats also require matching 8-bit or 16-bit UBO storage support.
 - Required-subgroup-size cases require `VK_EXT_subgroup_size_control`, `subgroupSizeControl`, `computeFullSubgroups`, and support for the selected stage in `requiredSubgroupSizeStages`.
-- Ray-tracing cases require `VK_KHR_ray_tracing_pipeline`. Mesh cases require `VK_EXT_mesh_shader`, vertex-pipeline stores and atomics, and `taskShader` for task-stage cases.
+- Ray-tracing cases require `VK_KHR_ray_tracing_pipeline`. Mesh cases require `VK_EXT_mesh_shader`, and `taskShader` for task-stage cases.
 
 ### Design-based pruning
 

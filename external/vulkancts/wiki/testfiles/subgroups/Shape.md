@@ -393,7 +393,7 @@ A failure in either value can also come from stage-specific execution, result st
 - The device must support Vulkan subgroups, ballot operations, the selected clustered or quad operation, and the chosen shader stage.
 - Quad tests in stages other than fragment and compute require quad operations in all subgroup-capable stages.
 - `_requiredsubgroupsize` leaves require `VK_EXT_subgroup_size_control`, `subgroupSizeControl`, `computeFullSubgroups`, and required-size support for the selected compute, mesh, or task stage.
-- Ray-tracing cases require `VK_KHR_ray_tracing_pipeline`. Mesh cases require vertex-pipeline stores and atomics plus `VK_EXT_mesh_shader`; task cases also require `taskShader`.
+- Ray-tracing cases require `VK_KHR_ray_tracing_pipeline`. Mesh cases require `VK_EXT_mesh_shader`; task cases also require `taskShader`.
 - Runtime clustered checks skip generated cluster sizes larger than `gl_SubgroupSize`.
 
 ### Design-based pruning
