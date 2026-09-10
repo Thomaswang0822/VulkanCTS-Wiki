@@ -97,3 +97,44 @@ Completed categories not touched by upstream source changes in this sync:
 - User-facing wiki link sweep over [categories](../categories) and [testfiles](../testfiles) passed after cleanup.
 - Whole-wiki link validation still reports expected non-actionable findings from not-yet-created [README.md](../README.md)
   category links and temporary/internal tracker evidence links.
+
+## 2026-09 Sync: upstream `main` into `merge_main_26-09-04`
+
+### Git Baseline
+
+- Integration branch: `merge_main_26-09-04`.
+- Long-lived target branch: `vkcts-wiki`.
+- Merge commit: `d5e1620a698832983338f8a024733acdf77db54` (`Merge branch 'main' into merge_main_26-09-04`).
+- Local wiki parent: `d9deee7c26e57dd5e3806d76f63ccfc3e2d928db`.
+- Upstream main parent: `cf7edb26d3be2d8763595ed08fdc41f3c1b1966f`.
+- Upstream range: `e6b2240610e7d1dcefd84c8c5c32f88306e05f87..cf7edb26d3be2d8763595ed08fdc41f3c1b1966f`.
+- Merge base: `e6b2240610e7d1dcefd84c8c5c32f88306e05f87`.
+- No unresolved merge conflicts remained for the wiki sync.
+
+### Scope and Wiki Work
+
+- Completed the P0, P1, and P2 category review queues from the temporary TODO tracker.
+- Removed dangling references to deleted legacy `vkt*.md` pages across the English wiki.
+- Repaired pipeline nested-mustpass discovery and registration coverage.
+- Added complete English gateways and Level-3 pages for `postmortem` and Vulkan SC `sc`.
+- Audited and refreshed `amber`, `shaderexecutor`, `shaderrender`, `util`, and `subgroups` impacts. Shared helpers remained documented through their owning categories; no helper-only categories were created.
+- Repaired stale source references and registration trees across the affected categories, including `draw`, `synchronization`, `synchronization2`, and the P1/P2 batches.
+- Reworked the English pages to use the canonical wiki-writer structure and expanded previously shallow `postmortem` and `sc` pages with source-backed execution, result checking, failure analysis, pruning, and source-reference sections.
+- Added shader walkthroughs and validated SPIR-V artifacts for the postmortem compute-shader pages; setup-only or host-only SC pages explicitly document their shader boundary without fabricating walkthroughs.
+- Completed the final TODO tracker and recorded the remaining synchronization validator limitation as an expected shared-category/tree condition.
+
+### Validator and Maintenance Work
+
+- Ran wiki-writer structure, registration, link, and unit validators throughout the category batches.
+- Added the line-reference validator redesign in `internal_doc/check_line_refs.py`; the validator now performs target/bounds checks and conservative C/C++ source analysis while avoiding false positives for intentional subranges, wider context ranges, ambiguous definitions, and external URLs.
+- Corrected stale source line references across the affected wiki pages and briefs. The final bounds/target sweep reported zero remaining line-reference issues after the repairs.
+- Fixed whole-wiki link validation so Markdown-like text inside fenced code blocks is not treated as a local link.
+- Final wiki-writer unit tests: 50 tests passed.
+- Final whole-wiki local-link validation passed for the user-facing categories and testfiles.
+- Source and MUSTPASS files remained read-only; no source or MUSTPASS changes were made by the sync.
+
+### Scope Boundary and Follow-Up
+
+- Chinese synchronization/publishing was not performed in this branch.
+- `vkcts-wiki-pages/` remained untouched.
+- The next process improvement is to redesign `vkcts-wiki-sync` around a smaller pipeline: establish the merge range and diff artifact, classify changed files into unrelated/framework/category-impact groups, resolve framework-impact items, refresh category-impact items, run wiki-writer validators, update the case-lookup database, and only then synchronize English changes to Chinese pages one worker per category under wiki-publisher rules.
