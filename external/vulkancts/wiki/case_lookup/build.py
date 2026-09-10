@@ -13,6 +13,8 @@ from typing import Iterable, Iterator, Sequence
 
 from build_helper import (
     CATEGORY_MUSTPASS_FILES,
+    mustpass_root_for,
+    package_prefix_for,
     OWNERSHIP_ALIASES,
     OWNERSHIP_EXCLUSIONS,
 )
@@ -289,11 +291,13 @@ def collect_ownership_evidence(
                     if evidence in excluded_roots:
                         continue
                     exact_candidates.setdefault(
-                        f"dEQP-VK.{evidence}", []
+                        f"{package_prefix_for(category)}.{evidence}", []
                     ).append((page_owner, False))
                     anchor_candidates.setdefault(child, []).append(page_owner)
             else:
-                exact_candidates.setdefault(f"dEQP-VK.{tree.root}", []).append(
+                exact_candidates.setdefault(
+                    f"{package_prefix_for(category)}.{tree.root}", []
+                ).append(
                     (page_owner, True)
                 )
 
@@ -436,9 +440,10 @@ def iter_mustpass_leaves(
                 if not path:
                     continue
                 components = path.split(".")
+                package_prefix = package_prefix_for(category)
                 if (
                     len(components) < 3
-                    or components[:2] != ["dEQP-VK", category]
+                    or components[:2] != [package_prefix, category]
                     or not all(
                         MUSTPASS_COMPONENT_RE.fullmatch(part)
                         for part in components[1:]
@@ -542,7 +547,7 @@ def build_category_database(
         relative_mustpass_files = CATEGORY_MUSTPASS_FILES[category]
     except KeyError as error:
         raise MappingBuildError(f"不支持的 category：{category}") from error
-    mustpass_root = repo_root / "external/vulkancts/mustpass/main/vk-default"
+    mustpass_root = mustpass_root_for(category, repo_root)
     mustpass_files = tuple(mustpass_root / path for path in relative_mustpass_files)
     missing_files = [path for path in mustpass_files if not path.is_file()]
     if missing_files:

@@ -237,7 +237,7 @@ The factory itself has no parameter loop or optional child: it always registers 
 | Evidence | Source |
 |---|---|
 | Factory registration | [`createDynamicVertexAttributeTests()`](../../../modules/vulkan/pipeline/vktPipelineDynamicVertexAttributeTests.cpp#L565-L575) |
-| Pipeline-category routing | [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L94-L113) |
+| Pipeline-category routing | [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L95-L223) |
 | Dynamic descriptions and pipeline state | [`NonSequentialInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineDynamicVertexAttributeTests.cpp#L165-L314) |
 | Vertex data, commands, and image comparison | [`NonSequentialInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineDynamicVertexAttributeTests.cpp#L316-L420) |
 | Generated shaders and support | [`NonSequentialCase`](../../../modules/vulkan/pipeline/vktPipelineDynamicVertexAttributeTests.cpp#L423-L561) |

@@ -57,7 +57,7 @@ The source constructs GLSL strings for each behavior. `sampled_image` uses fragm
 ## What Is Checked
 
 - `sampled_image` compares each sample-derived checksum against the expected rendered color.
-- `storage_image` reads multisample storage-image data through two paths and compares the resulting layered images, with integer-format tolerance handling in [`compareImages()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2074-L2139).
+- `storage_image` reads multisample storage-image data through two paths and compares the resulting layered images, with integer-format tolerance handling in [`compareImages()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2076-L2141).
 - `standardsampleposition` counts checksum failures after rendering colors derived from standard sample locations.
 - `samples_mapping_order` calculates a sample-index-weighted value per pixel and requires every storage-buffer value to match the first.
 - `3d` uses its dedicated 3D image setup and checksum validation path.
@@ -90,12 +90,12 @@ The source constructs GLSL strings for each behavior. `sampled_image` uses fragm
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Common format and feature check | [`checkImageFormatRequirements()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L590-L608) | Checks image-format support and storage-image feature use. |
-| Sampled-image validation | [`SampledImage::test()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1183-L1391) | Produces and validates sample-derived checksums. |
-| Storage-image comparison | [`StorageImage::test()` and `compareImages()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2152-L2208) | Defines the two-path image comparison. |
-| Standard-position validation | [`StandardSamplePosition::test()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2299-L2491) | Counts unexpected per-sample colors. |
-| Sample-order validation | [`SamplesMappingOrder::test()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2552-L2723) | Compares every computed sample-order value with the first. |
-| Registration matrix | [`addTestCasesWithFunctions()` through the factories](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2748-L2988) | Creates the registered leaves and five intermediate nodes. |
+| Common format and feature check | [`checkImageFormatRequirements()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L591-L609) | Checks image-format support and storage-image feature use. |
+| Sampled-image validation | [`SampledImage::test()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1184-L1392) | Produces and validates sample-derived checksums. |
+| Storage-image comparison | [`StorageImage::test()` and `compareImages()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2153-L2209) | Defines the two-path image comparison. |
+| Standard-position validation | [`StandardSamplePosition::test()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2300-L2492) | Counts unexpected per-sample colors. |
+| Sample-order validation | [`SamplesMappingOrder::test()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2553-L2724) | Compares every computed sample-order value with the first. |
+| Registration matrix | [`addTestCasesWithFunctions()` through the factories](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2749-L2989) | Creates the registered leaves and five intermediate nodes. |
 
 ## Questions / Risk Points for User Audit
 

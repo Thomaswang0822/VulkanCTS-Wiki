@@ -60,13 +60,13 @@ The pipeline uses dynamic rendering, `VK_FORMAT_R8G8B8A8_UINT`, triangle-list in
 | Image buffer backing | yes | copy destination | transfer writes it | yes | Host-visible readback for the pixel scan. |
 | Descriptor set and pipeline | yes | bound for the draw | device consumes state | no | Expose both tensor bindings to their stages. |
 
-`uploadToTensor()` either copies directly into host-visible tensor memory and flushes it, or uses a staging buffer, an aliasing buffer bound to the tensor allocation, a transfer copy, a transfer-to-memory-read barrier, and a waited submission ([uploadToTensor](../../../vulkan/framework/vulkan/vkTensorUtil.cpp#L41-L101)).
+`uploadToTensor()` either copies directly into host-visible tensor memory and flushes it, or uses a staging buffer, an aliasing buffer bound to the tensor allocation, a transfer copy, a transfer-to-memory-read barrier, and a waited submission ([uploadToTensor](../../../framework/vulkan/vkTensorUtil.cpp#L41-L101)).
 
 ## What Is Checked
 
 - A pixel inside either rectangle must be `(0, fragmentTensorData[y * width + x], 0, 255)`.
 - A pixel outside both rectangles must be `(255, 0, 0, 255)`.
-- The host invalidates the image readback allocation and checks every pixel. The first mismatch names its coordinate, actual RGBA value, and expected RGBA value ([pixel scan](../../../vulkancts/modules/vulkan/tensor/vktTensorGraphicsPipeline.cpp#L447-L500)).
+- The host invalidates the image readback allocation and checks every pixel. The first mismatch names its coordinate, actual RGBA value, and expected RGBA value ([pixel scan](../../../modules/vulkan/tensor/vktTensorGraphicsPipeline.cpp#L447-L500)).
 
 ## Behavior Parameter Identification
 
@@ -95,14 +95,14 @@ The four leaves keep the same shader logic and rectangle definitions. They vary 
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Registration and test-case names | [createGraphicsPipelineTests](../../../vulkancts/modules/vulkan/tensor/vktTensorGraphicsPipeline.cpp#L503-L509) | Defines all four executable leaves. |
-| Category registration | [tensor root](../../../vulkancts/modules/vulkan/tensor/vktTensorTests.cpp#L37-L49) | Adds `graphics_pipeline` under `tensor`. |
-| Support gates | [checkSupport](../../../vulkancts/modules/vulkan/tensor/vktTensorGraphicsPipeline.cpp#L97-L128) | Requires extension, rank, formats, tensor access, and both stages. |
-| Shader generation | [initPrograms](../../../vulkancts/modules/vulkan/tensor/vktTensorGraphicsPipeline.cpp#L130-L175) | Defines tensor declarations, coordinates, specialization constants, and outputs. |
-| Tensor and image setup | [resource setup](../../../vulkancts/modules/vulkan/tensor/vktTensorGraphicsPipeline.cpp#L189-L255) | Shows ranks, dimensions, formats, usages, and initialized data. |
-| Descriptors and pipeline | [descriptor and pipeline setup](../../../vulkancts/modules/vulkan/tensor/vktTensorGraphicsPipeline.cpp#L257-L390) | Binds tensor views and builds dynamic rendering state. |
-| Render and synchronization | [command recording](../../../vulkancts/modules/vulkan/tensor/vktTensorGraphicsPipeline.cpp#L392-L445) | Transitions, renders, copies, submits, and waits. |
-| Tensor coordinate semantics | [coordinate validation](../../../vulkan-docs/src/chapters/VK_ARM_tensors/tensorops.adoc#tensors-coordinate-validation) | Defines coordinate bounds for tensor reads. |
+| Registration and test-case names | [createGraphicsPipelineTests](../../../modules/vulkan/tensor/vktTensorGraphicsPipeline.cpp#L503-L509) | Defines all four executable leaves. |
+| Category registration | [tensor root](../../../modules/vulkan/tensor/vktTensorTests.cpp#L37-L49) | Adds `graphics_pipeline` under `tensor`. |
+| Support gates | [checkSupport](../../../modules/vulkan/tensor/vktTensorGraphicsPipeline.cpp#L97-L128) | Requires extension, rank, formats, tensor access, and both stages. |
+| Shader generation | [initPrograms](../../../modules/vulkan/tensor/vktTensorGraphicsPipeline.cpp#L130-L175) | Defines tensor declarations, coordinates, specialization constants, and outputs. |
+| Tensor and image setup | [resource setup](../../../modules/vulkan/tensor/vktTensorGraphicsPipeline.cpp#L189-L255) | Shows ranks, dimensions, formats, usages, and initialized data. |
+| Descriptors and pipeline | [descriptor and pipeline setup](../../../modules/vulkan/tensor/vktTensorGraphicsPipeline.cpp#L257-L390) | Binds tensor views and builds dynamic rendering state. |
+| Render and synchronization | [command recording](../../../modules/vulkan/tensor/vktTensorGraphicsPipeline.cpp#L392-L445) | Transitions, renders, copies, submits, and waits. |
+| Tensor coordinate semantics | [coordinate validation](../../../../vulkan-docs/src/chapters/VK_ARM_tensors/tensorops.adoc#tensors-coordinate-validation) | Defines coordinate bounds for tensor reads. |
 
 ## Questions / Risk Points for User Audit
 

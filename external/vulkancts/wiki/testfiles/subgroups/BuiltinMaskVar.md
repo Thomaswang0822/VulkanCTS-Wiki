@@ -408,7 +408,7 @@ All values can also fail if `subgroupBallotBitExtract`, `subgroupBallotBitCount`
 
 - Cases require Vulkan subgroup support, support for the requested shader stage, and `VK_SUBGROUP_FEATURE_BALLOT_BIT`.
 - `_requiredsubgroupsize` cases require `VK_EXT_subgroup_size_control`, the `subgroupSizeControl` and `computeFullSubgroups` features, and support for a required subgroup size in the selected stage.
-- Ray-tracing cases require `VK_KHR_ray_tracing_pipeline`; mesh/task cases require `VK_EXT_mesh_shader`, vertex-pipeline stores and atomics, and `taskShader` when the task stage is selected.
+- Ray-tracing cases require `VK_KHR_ray_tracing_pipeline`; mesh/task cases require `VK_EXT_mesh_shader`, and `taskShader` when the task stage is selected.
 - Shared helpers restrict graphics and ray-tracing execution to stages reported as supporting subgroup operations. Unsupported stage combinations are not run.
 
 ### Design-based pruning
@@ -435,8 +435,8 @@ All values can also fail if `subgroupBallotBitExtract`, `subgroupBallotBitCount`
 | Framebuffer builder | [`initFrameBufferPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinMaskVarTests.cpp#L165-L1143) | Supplies direct SPIR-V 1.3 programs for the four framebuffer stage choices. |
 | Standard builder | [`initPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinMaskVarTests.cpp#L1178-L1194) | Builds generated GLSL paths through `initStdPrograms` and chooses SPIR-V 1.3 or 1.4. |
 | Feature checks | [`supportedCheck`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinMaskVarTests.cpp#L1196-L1245) | Applies subgroup, ballot, subgroup-size-control, ray-tracing, and mesh requirements. |
-| Execution routing | [`noSSBOtest` and `test`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinMaskVarTests.cpp#L1247-L1333) | Selects framebuffer, compute, graphics, ray-tracing, or mesh runtime helpers. |
-| Registration matrix | [`createSubgroupsBuiltinMaskVarTests`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinMaskVarTests.cpp#L1335-L1450) | Creates all five families, relation leaves, stage suffixes, and required-size variants. |
+| Execution routing | [`noSSBOtest` and `test`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinMaskVarTests.cpp#L1246-L1332) | Selects framebuffer, compute, graphics, ray-tracing, or mesh runtime helpers. |
+| Registration matrix | [`createSubgroupsBuiltinMaskVarTests`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinMaskVarTests.cpp#L1334-L1449) | Creates all five families, relation leaves, stage suffixes, and required-size variants. |
 | Shared shader wrappers | [`initStdPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1406-L1675) | Places the generated check in the selected standard shader-stage wrapper. |
 | Host result checks | [`check` and `checkComputeOrMesh`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2640-L2663) | Require every read-back verdict to equal one. |
 | Vulkan mask semantics | [Interface built-ins](../../../../vulkan-docs/src/chapters/interfaces.adoc#L4983-L5120) | Defines exact bit membership and input-vector requirements for all five masks. |

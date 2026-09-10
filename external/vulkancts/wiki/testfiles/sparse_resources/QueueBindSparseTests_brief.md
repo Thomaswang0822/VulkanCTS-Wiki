@@ -87,12 +87,12 @@ No shader, command buffer, or generated program artifact is used. The test const
 
 | Topic | Source link | Why it matters |
 |---|---|---|
-| Parameters and submission structures | [`TestParams` and builders](../../../../modules/vulkan/sparse_resources/vktSparseResourcesQueueBindSparseTests.cpp#L54-L124) | Defines the behavioral inputs and zero-bind sparse operation. |
-| Queue and semaphore setup | [`SparseQueueBindTestInstance::iterate`](../../../../modules/vulkan/sparse_resources/vktSparseResourcesQueueBindSparseTests.cpp#L150-L193) | Creates queues and synchronization objects. |
-| Submission ordering | [submission preparation](../../../../modules/vulkan/sparse_resources/vktSparseResourcesQueueBindSparseTests.cpp#L195-L258) | Builds the wait, bind, and signal sequence. |
-| Result checking | [fence waits and idle check](../../../../modules/vulkan/sparse_resources/vktSparseResourcesQueueBindSparseTests.cpp#L261-L304) | Defines pass/fail behavior. |
-| Registered cases | [`populateTestGroup`](../../../../modules/vulkan/sparse_resources/vktSparseResourcesQueueBindSparseTests.cpp#L337-L496) | Lists the exact test case leaves. |
-| Sparse queue registration | [`createQueueBindSparseTests`](../../../../modules/vulkan/sparse_resources/vktSparseResourcesQueueBindSparseTests.cpp#L500-L505) | Registers `sparse_resources.queue_bind`. |
+| Parameters and submission structures | [`TestParams` and builders](../../../modules/vulkan/sparse_resources/vktSparseResourcesQueueBindSparseTests.cpp#L54-L124) | Defines the behavioral inputs and zero-bind sparse operation. |
+| Queue and semaphore setup | [`SparseQueueBindTestInstance::iterate`](../../../modules/vulkan/sparse_resources/vktSparseResourcesQueueBindSparseTests.cpp#L150-L193) | Creates queues and synchronization objects. |
+| Submission ordering | [submission preparation](../../../modules/vulkan/sparse_resources/vktSparseResourcesQueueBindSparseTests.cpp#L195-L258) | Builds the wait, bind, and signal sequence. |
+| Result checking | [fence waits and idle check](../../../modules/vulkan/sparse_resources/vktSparseResourcesQueueBindSparseTests.cpp#L261-L304) | Defines pass/fail behavior. |
+| Registered cases | [`populateTestGroup`](../../../modules/vulkan/sparse_resources/vktSparseResourcesQueueBindSparseTests.cpp#L337-L496) | Lists the exact test case leaves. |
+| Sparse queue registration | [`createQueueBindSparseTests`](../../../modules/vulkan/sparse_resources/vktSparseResourcesQueueBindSparseTests.cpp#L500-L505) | Registers `sparse_resources.queue_bind`. |
 
 ## Questions / Risk Points for User Audit
 

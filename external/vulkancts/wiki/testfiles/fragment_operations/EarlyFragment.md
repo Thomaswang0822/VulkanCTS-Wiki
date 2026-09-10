@@ -414,6 +414,6 @@ void main (void)
 | Sample-mask implementation | [`EarlyFragmentSampleMaskTestInstance`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L1127-L1916) | Tests `gl_SampleMask` across multisample counts |
 | Sample-count implementation | [`EarlyFragmentSampleCountTestInstance::iterate()`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L2136-L2522) | Runs the paired queries and applies acceptance rules |
 | Sample-count shaders and support | [`EarlyFragmentSampleCountTest`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.cpp#L2524-L2750) | Defines sample-mask, alpha-to-coverage, AMD mode, and maintenance5 variants |
-| Declaration | [`vktFragmentOperationsEarlyFragmentTests.hpp`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.hpp#L1-L41) | Declares `createEarlyFragmentTests()` |
+| Declaration | [`vktFragmentOperationsEarlyFragmentTests.hpp`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsEarlyFragmentTests.hpp#L1-L40) | Declares `createEarlyFragmentTests()` |
 | Vulkan fragment operation order | [`Fragment Operations`](../../../../vulkan-docs/src/chapters/fragops.adoc#fragops) | Defines early-fragment, sample-mask, multisample coverage, maintenance5, and sample-count semantics |
 | Mustpass list | [`fragment-operations.txt`](../../../mustpass/main/vk-default/fragment-operations.txt) | Records vk-default coverage for the registered paths |

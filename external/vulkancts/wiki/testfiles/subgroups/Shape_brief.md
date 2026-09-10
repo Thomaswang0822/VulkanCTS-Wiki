@@ -105,9 +105,9 @@ A failure in either value can also come from stage-specific execution, result st
 | Program generation | [`initFrameBufferPrograms()` and `initPrograms()`](../../../modules/vulkan/subgroups/vktSubgroupsShapeTests.cpp#L168-L225) | Selects wrappers, declarations, stages, and target SPIR-V versions. |
 | Feature and stage gates | [`supportedCheck()`](../../../modules/vulkan/subgroups/vktSubgroupsShapeTests.cpp#L227-L292) | Rejects unsupported subgroup operations, stages, and required-size modes. |
 | Runtime dispatch selection | [`test()`](../../../modules/vulkan/subgroups/vktSubgroupsShapeTests.cpp#L315-L381) | Routes compute, mesh, graphics, and ray tracing cases and iterates required sizes. |
-| Registration | [`createSubgroupsShapeTests()`](../../../modules/vulkan/subgroups/vktSubgroupsShapeTests.cpp#L389-L500) | Generates the five execution families and their exact leaves. |
+| Registration | [`createSubgroupsShapeTests()`](../../../modules/vulkan/subgroups/vktSubgroupsShapeTests.cpp#L388-L499) | Generates the five execution families and their exact leaves. |
 | Common compute shader wrapper | [`initStdPrograms()`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1406-L1434) | Adds specialization-controlled local size, output indexing, and result storage. |
-| Compute and mesh iteration matrix | [`makeComputeOrMeshTest()`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L4090-L4113) | Defines workgroup counts and local sizes used by the compute-like paths. |
+| Compute and mesh iteration matrix | [`makeComputeOrMeshTest()`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L4094-L4118) | Defines workgroup counts and local sizes used by the compute-like paths. |
 | Host result check | [`check()` and `checkComputeOrMesh()`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2640-L2663) | Requires every observed marker to equal 1. |
 | Cluster semantics | [Vulkan shader chapter](../../../../vulkan-docs/src/chapters/shaders.adoc#L3543-L3552) | Defines consecutive power-of-two partitions. |
 | Quad semantics | [Vulkan shader chapter](../../../../vulkan-docs/src/chapters/shaders.adoc#L3283-L3369) | Defines four-member quad scope and stage availability. |

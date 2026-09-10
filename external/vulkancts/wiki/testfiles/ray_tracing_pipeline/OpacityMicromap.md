@@ -6,7 +6,7 @@ This page covers the `opacity_micromap` test family registered from [vktRayTraci
 
 - The family attaches an opacity micromap to a single triangle, traces one ray per subtriangle at the subtriangle centroid, and records which shader stage executed (miss, any-hit, or closest-hit) as the output mode.
 - The host computes the expected output mode for each ray using the same micromap data and the same flag precedence rules the spec defines for traversal, then compares entry by entry.
-- 120 direct children are registered, one per valid combination of nine test flags controlling opacity forcing, culling, force-2-state, and disable-micromap behavior. Each child has `map_value` and `special_index` subgroups that vary the micromap data source, format, subdivision level, and base triangle offset.
+- Direct children are registered for every valid combination of the nine test flags controlling opacity forcing, culling, force-2-state, and disable-micromap behavior. Each child has `map_value` and `special_index` subgroups, plus `null_handle` coverage; the baseline `no_flags` branch also varies the base triangle offset. The EXT implementation additionally registers `many_triangles` and `query` groups. The sibling `khr` implementation covers KHR serialization/copy workflows.
 - The page explains the flag-based behavioral axis, the opacity resolution logic, the representative raygen shader, the host-side expected value computation, and what each failure mode means.
 
 ## Background Knowledge
@@ -22,129 +22,13 @@ This page covers the `opacity_micromap` test family registered from [vktRayTraci
 
 ```text
 ray_tracing_pipeline.opacity_micromap
-├── NoFlags
-├── cull_no_opaque_ray_flag
-├── cull_opaque_ray_flag
-├── disable_opacity_micromap_instance
-├── disable_opacity_micromap_instance_cull_no_opaque_ray_flag
-├── disable_opacity_micromap_instance_cull_opaque_ray_flag
-├── disable_opacity_micromap_instance_force_2_state_instance
-├── disable_opacity_micromap_instance_force_2_state_instance_cull_no_opaque_ray_flag
-├── disable_opacity_micromap_instance_force_2_state_instance_cull_opaque_ray_flag
-├── disable_opacity_micromap_instance_force_2_state_instance_force_2_state_ray_flag
-├── disable_opacity_micromap_instance_force_2_state_instance_force_2_state_ray_flag_cull_no_opaque_ray_flag
-├── disable_opacity_micromap_instance_force_2_state_instance_force_2_state_ray_flag_cull_opaque_ray_flag
-├── disable_opacity_micromap_instance_force_2_state_instance_force_2_state_ray_flag_force_no_opaque_instance
-├── disable_opacity_micromap_instance_force_2_state_instance_force_2_state_ray_flag_force_no_opaque_instance_cull_no_opaque_ray_flag
-├── disable_opacity_micromap_instance_force_2_state_instance_force_2_state_ray_flag_force_no_opaque_instance_cull_opaque_ray_flag
-├── disable_opacity_micromap_instance_force_2_state_instance_force_2_state_ray_flag_force_no_opaque_instance_no_opaque_ray_flag
-├── disable_opacity_micromap_instance_force_2_state_instance_force_2_state_ray_flag_no_opaque_ray_flag
-├── disable_opacity_micromap_instance_force_2_state_instance_force_no_opaque_instance
-├── disable_opacity_micromap_instance_force_2_state_instance_force_no_opaque_instance_cull_no_opaque_ray_flag
-├── disable_opacity_micromap_instance_force_2_state_instance_force_no_opaque_instance_cull_opaque_ray_flag
-├── disable_opacity_micromap_instance_force_2_state_instance_force_no_opaque_instance_no_opaque_ray_flag
-├── disable_opacity_micromap_instance_force_2_state_instance_no_opaque_ray_flag
-├── disable_opacity_micromap_instance_force_2_state_ray_flag
-├── disable_opacity_micromap_instance_force_2_state_ray_flag_cull_no_opaque_ray_flag
-├── disable_opacity_micromap_instance_force_2_state_ray_flag_cull_opaque_ray_flag
-├── disable_opacity_micromap_instance_force_2_state_ray_flag_force_no_opaque_instance
-├── disable_opacity_micromap_instance_force_2_state_ray_flag_force_no_opaque_instance_cull_no_opaque_ray_flag
-├── disable_opacity_micromap_instance_force_2_state_ray_flag_force_no_opaque_instance_cull_opaque_ray_flag
-├── disable_opacity_micromap_instance_force_2_state_ray_flag_force_no_opaque_instance_no_opaque_ray_flag
-├── disable_opacity_micromap_instance_force_2_state_ray_flag_no_opaque_ray_flag
-├── disable_opacity_micromap_instance_force_no_opaque_instance
-├── disable_opacity_micromap_instance_force_no_opaque_instance_cull_no_opaque_ray_flag
-├── disable_opacity_micromap_instance_force_no_opaque_instance_cull_opaque_ray_flag
-├── disable_opacity_micromap_instance_force_no_opaque_instance_no_opaque_ray_flag
-├── disable_opacity_micromap_instance_no_opaque_ray_flag
-├── force_2_state_instance
-├── force_2_state_instance_cull_no_opaque_ray_flag
-├── force_2_state_instance_cull_opaque_ray_flag
-├── force_2_state_instance_force_2_state_ray_flag
-├── force_2_state_instance_force_2_state_ray_flag_cull_no_opaque_ray_flag
-├── force_2_state_instance_force_2_state_ray_flag_cull_opaque_ray_flag
-├── force_2_state_instance_force_2_state_ray_flag_force_no_opaque_instance
-├── force_2_state_instance_force_2_state_ray_flag_force_no_opaque_instance_cull_no_opaque_ray_flag
-├── force_2_state_instance_force_2_state_ray_flag_force_no_opaque_instance_cull_opaque_ray_flag
-├── force_2_state_instance_force_2_state_ray_flag_force_no_opaque_instance_no_opaque_ray_flag
-├── force_2_state_instance_force_2_state_ray_flag_no_opaque_ray_flag
-├── force_2_state_instance_force_no_opaque_instance
-├── force_2_state_instance_force_no_opaque_instance_cull_no_opaque_ray_flag
-├── force_2_state_instance_force_no_opaque_instance_cull_opaque_ray_flag
-├── force_2_state_instance_force_no_opaque_instance_no_opaque_ray_flag
-├── force_2_state_instance_no_opaque_ray_flag
-├── force_2_state_ray_flag
-├── force_2_state_ray_flag_cull_no_opaque_ray_flag
-├── force_2_state_ray_flag_cull_opaque_ray_flag
-├── force_2_state_ray_flag_force_no_opaque_instance
-├── force_2_state_ray_flag_force_no_opaque_instance_cull_no_opaque_ray_flag
-├── force_2_state_ray_flag_force_no_opaque_instance_cull_opaque_ray_flag
-├── force_2_state_ray_flag_force_no_opaque_instance_no_opaque_ray_flag
-├── force_2_state_ray_flag_no_opaque_ray_flag
-├── force_no_opaque_instance
-├── force_no_opaque_instance_cull_no_opaque_ray_flag
-├── force_no_opaque_instance_cull_opaque_ray_flag
-├── force_no_opaque_instance_no_opaque_ray_flag
-├── force_opaque_instance
-├── force_opaque_instance_cull_no_opaque_ray_flag
-├── force_opaque_instance_cull_opaque_ray_flag
-├── force_opaque_instance_disable_opacity_micromap_instance
-├── force_opaque_instance_disable_opacity_micromap_instance_cull_no_opaque_ray_flag
-├── force_opaque_instance_disable_opacity_micromap_instance_cull_opaque_ray_flag
-├── force_opaque_instance_disable_opacity_micromap_instance_force_2_state_instance
-├── force_opaque_instance_disable_opacity_micromap_instance_force_2_state_instance_cull_no_opaque_ray_flag
-├── force_opaque_instance_disable_opacity_micromap_instance_force_2_state_instance_cull_opaque_ray_flag
-├── force_opaque_instance_disable_opacity_micromap_instance_force_2_state_instance_force_2_state_ray_flag
-├── force_opaque_instance_disable_opacity_micromap_instance_force_2_state_instance_force_2_state_ray_flag_cull_no_opaque_ray_flag
-├── force_opaque_instance_disable_opacity_micromap_instance_force_2_state_instance_force_2_state_ray_flag_cull_opaque_ray_flag
-├── force_opaque_instance_disable_opacity_micromap_instance_force_2_state_instance_force_2_state_ray_flag_no_opaque_ray_flag
-├── force_opaque_instance_disable_opacity_micromap_instance_force_2_state_instance_no_opaque_ray_flag
-├── force_opaque_instance_disable_opacity_micromap_instance_force_2_state_ray_flag
-├── force_opaque_instance_disable_opacity_micromap_instance_force_2_state_ray_flag_cull_no_opaque_ray_flag
-├── force_opaque_instance_disable_opacity_micromap_instance_force_2_state_ray_flag_cull_opaque_ray_flag
-├── force_opaque_instance_disable_opacity_micromap_instance_force_2_state_ray_flag_no_opaque_ray_flag
-├── force_opaque_instance_disable_opacity_micromap_instance_no_opaque_ray_flag
-├── force_opaque_instance_force_2_state_instance
-├── force_opaque_instance_force_2_state_instance_cull_no_opaque_ray_flag
-├── force_opaque_instance_force_2_state_instance_cull_opaque_ray_flag
-├── force_opaque_instance_force_2_state_instance_force_2_state_ray_flag
-├── force_opaque_instance_force_2_state_instance_force_2_state_ray_flag_cull_no_opaque_ray_flag
-├── force_opaque_instance_force_2_state_instance_force_2_state_ray_flag_cull_opaque_ray_flag
-├── force_opaque_instance_force_2_state_instance_force_2_state_ray_flag_no_opaque_ray_flag
-├── force_opaque_instance_force_2_state_instance_no_opaque_ray_flag
-├── force_opaque_instance_force_2_state_ray_flag
-├── force_opaque_instance_force_2_state_ray_flag_cull_no_opaque_ray_flag
-├── force_opaque_instance_force_2_state_ray_flag_cull_opaque_ray_flag
-├── force_opaque_instance_force_2_state_ray_flag_no_opaque_ray_flag
-├── force_opaque_instance_force_opaque_ray_flag
-├── force_opaque_instance_force_opaque_ray_flag_disable_opacity_micromap_instance
-├── force_opaque_instance_force_opaque_ray_flag_disable_opacity_micromap_instance_force_2_state_instance
-├── force_opaque_instance_force_opaque_ray_flag_disable_opacity_micromap_instance_force_2_state_instance_force_2_state_ray_flag
-├── force_opaque_instance_force_opaque_ray_flag_disable_opacity_micromap_instance_force_2_state_ray_flag
-├── force_opaque_instance_force_opaque_ray_flag_force_2_state_instance
-├── force_opaque_instance_force_opaque_ray_flag_force_2_state_instance_force_2_state_ray_flag
-├── force_opaque_instance_force_opaque_ray_flag_force_2_state_ray_flag
-├── force_opaque_instance_no_opaque_ray_flag
-├── force_opaque_ray_flag
-├── force_opaque_ray_flag_disable_opacity_micromap_instance
-├── force_opaque_ray_flag_disable_opacity_micromap_instance_force_2_state_instance
-├── force_opaque_ray_flag_disable_opacity_micromap_instance_force_2_state_instance_force_2_state_ray_flag
-├── force_opaque_ray_flag_disable_opacity_micromap_instance_force_2_state_instance_force_2_state_ray_flag_force_no_opaque_instance
-├── force_opaque_ray_flag_disable_opacity_micromap_instance_force_2_state_instance_force_no_opaque_instance
-├── force_opaque_ray_flag_disable_opacity_micromap_instance_force_2_state_ray_flag
-├── force_opaque_ray_flag_disable_opacity_micromap_instance_force_2_state_ray_flag_force_no_opaque_instance
-├── force_opaque_ray_flag_disable_opacity_micromap_instance_force_no_opaque_instance
-├── force_opaque_ray_flag_force_2_state_instance
-├── force_opaque_ray_flag_force_2_state_instance_force_2_state_ray_flag
-├── force_opaque_ray_flag_force_2_state_instance_force_2_state_ray_flag_force_no_opaque_instance
-├── force_opaque_ray_flag_force_2_state_instance_force_no_opaque_instance
-├── force_opaque_ray_flag_force_2_state_ray_flag
-├── force_opaque_ray_flag_force_2_state_ray_flag_force_no_opaque_instance
-├── force_opaque_ray_flag_force_no_opaque_instance
-└── no_opaque_ray_flag
+├── ext
+└── khr
 ```
 
-Each direct child is a test flag mask name. Under each child, the registration adds a `map_value` subgroup (per-subtriangle data with 2-state and 4-state formats, levels 0 through 15) and a `special_index` subgroup (four special index values 0 through 3). The `NoFlags` child also adds `_non_zero_base` variants for every `map_value` level. The `special_index` subgroup forces subdivision level to 0 because the entire triangle uses one special index value.
+The `ext` branch contains the flag-mask cases. Each direct flag-mask child adds a `map_value` subgroup (per-subtriangle data with 2-state and 4-state formats, levels 0 through 15) and a `special_index` subgroup (four special index values 0 through 3). The `NoFlags` child also adds `_non_zero_base` variants for every `map_value` level. The `special_index` subgroup forces subdivision level to 0 because the entire triangle uses one special index value.
+
+The EXT registration also adds a `null_handle` subgroup under every valid flag mask. Its four leaves use `VK_NULL_HANDLE` for the micromap and exercise the four special-index values. At the root, `many_triangles` builds 4225 triangles (`65 * 65`) in 2-state and 4-state modes at levels 0 and 2, covering multi-triangle build paths beyond `64^2`. The `query` subgroup contains `compacted_size` and `serialization_size`; each writes `vkCmdWriteMicromapsPropertiesEXT` to a query pool and requires a non-zero 64-bit result. The KHR sibling adds serialization cases that query serialization size, deserialize the micromap, and use the deserialized handle in ray tracing; its matrix covers 2- and 4-state modes, levels 0 through 9, and copy/serialization variants.
 
 ## Parameter Dimensions and Observed Values
 

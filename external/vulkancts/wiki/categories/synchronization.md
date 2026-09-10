@@ -54,8 +54,6 @@ The synchronization2 gateway documents the parallel `VK_KHR_synchronization2` ca
 | `global_priority_transition` | [`GlobalPriorityQueue.md`](../testfiles/synchronization/GlobalPriorityQueue.md) | Global-priority queue transition and workload cases. |
 | `implicit` | [`ImplicitTests.md`](../testfiles/synchronization/ImplicitTests.md) | Legacy implicit ordering and visibility behavior. |
 
-The source dispatcher page `vktSynchronizationTests.md` is retained as an obsolete navigation aid, not as an implementation Level-3 page.
-
 ## Category Notes
 
 The legacy category has no `none_stage`, `layout_transition`, or `internally_synchronized_queues` family. Those are synchronization2-specific families. The shared pages must preserve exact category-qualified paths when a source file serves both categories.

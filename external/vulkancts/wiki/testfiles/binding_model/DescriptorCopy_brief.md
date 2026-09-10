@@ -144,7 +144,7 @@ The four values are the primary behavioral axis because each selects a distinct 
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Binding-model attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L60) | Attaches `descriptor_copy` under `binding_model`. |
+| Binding-model attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L54-L80) | Attaches `descriptor_copy` under `binding_model`. |
 | Descriptor-copy factory | [`createDescriptorCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3754-L3786) | Creates the four top-level test families and the immutable-sampler leaves. |
 | Descriptor-type family registration | [`createTestsForAllDescriptorTypes()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3713-L3751) | Selects descriptor classes and gates update-after-bind, dynamic, graphics-only, and mixed cases. |
 | Copy-case construction | [`addDescriptorCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L2605-L2865) | Defines the ordinary copy and array-range scenarios. |

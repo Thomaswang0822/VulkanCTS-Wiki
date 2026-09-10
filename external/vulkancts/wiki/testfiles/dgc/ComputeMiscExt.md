@@ -2,7 +2,7 @@
 
 **Core question:** Does the EXT compute miscellaneous coverage execute each generated-command variant and produce the values its shader and host setup require?
 
-This page covers the implementation behind `dgc.ext.compute.misc` in [vktDGCComputeMiscTestsExt.cpp](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2519-L2617). It tests repeated generated dispatches, sequence indices, push-constant ranges, multiple descriptor sets, inline uniform blocks, descriptor-buffer push descriptors, pipeline and shader-object execution sets, and scratch-space use.
+This page covers the implementation behind `dgc.ext.compute.misc` in [vktDGCComputeMiscTestsExt.cpp](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2521-L2619). It tests repeated generated dispatches, sequence indices, push-constant ranges, multiple descriptor sets, inline uniform blocks, descriptor-buffer push descriptors, pipeline and shader-object execution sets, and scratch-space use.
 
 The registered cases form one implementation-bearing test family with several focused case groups. The suffixes and prefixes encode the matrix, so a reader can distinguish queue selection, preprocessing, descriptor layout, execution-set use, and the behavior under test without treating every leaf as a separate mechanism.
 
@@ -35,16 +35,16 @@ The source constructs the matrix with these dimensions. The names in the last co
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |---|---|---|---|
-| Repeated execute count | `64`, `1024`, `8192` | Number of separate one-sequence `cmdExecuteGeneratedCommandsEXT` calls. | [repeated execute registration](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2525-L2533) |
-| Sequence count | `64`, `1024`, `8192`, `131072` | Number of sequences executed in one generated-command call using a sequence-index token. | [sequence registration](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2535-L2543) |
-| Push-constant range size | `128`, `256`, `4096` bytes | Size of the generated push-constant array and the resulting dispatch count. | [push-constant matrix](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2547-L2564) |
-| Push-constant update coverage | `full`, `partial` | Whether DGC supplies the middle range or the host supplies it with `cmdPushConstants`. | [MaxPushConstantRangeParams](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L1150-L1169) |
-| Preprocessing | no suffix, `_preprocess` | Whether the case records explicit preprocessing and executes with `isPreprocessed = VK_TRUE`. | [preprocess matrix](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2547-L2564) |
-| Pipeline execution set | no suffix, `_with_execution_set` | Whether generated commands select a DGC pipeline from an indirect execution set. | [execution-set matrix](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2547-L2564) |
-| Descriptor path | no suffix, `_push_descriptor` | Whether the maximum push-constant case uses a push-descriptor layout and command. | [push-descriptor matrix](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2547-L2564) |
-| Queue | `_cq` or `_compute_queue` versus the universal form | Selects the compute queue family or the test context queue and creates the command pool for that family. | [queue selection](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L1374-L1377) |
-| Inline uniform block layout | no suffix, `_multiset` | Places both blocks in one descriptor set or in separate sets. | [IUB registration](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2580-L2594) |
-| Pipeline execution set | no suffix, `_with_ies` | Selects whether `iubs`, `two_cmd_buffers`, or `descriptor_buffer_push_descriptor` uses an indirect execution set containing DGC pipelines. | [`_with_ies` registration](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2580-L2612) |
+| Repeated execute count | `64`, `1024`, `8192` | Number of separate one-sequence `cmdExecuteGeneratedCommandsEXT` calls. | [repeated execute registration](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2527-L2535) |
+| Sequence count | `64`, `1024`, `8192`, `131072` | Number of sequences executed in one generated-command call using a sequence-index token. | [sequence registration](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2537-L2545) |
+| Push-constant range size | `128`, `256`, `4096` bytes | Size of the generated push-constant array and the resulting dispatch count. | [push-constant matrix](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2549-L2566) |
+| Push-constant update coverage | `full`, `partial` | Whether DGC supplies the middle range or the host supplies it with `cmdPushConstants`. | [MaxPushConstantRangeParams](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L1152-L1171) |
+| Preprocessing | no suffix, `_preprocess` | Whether the case records explicit preprocessing and executes with `isPreprocessed = VK_TRUE`. | [preprocess matrix](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2549-L2566) |
+| Pipeline execution set | no suffix, `_with_execution_set` | Whether generated commands select a DGC pipeline from an indirect execution set. | [execution-set matrix](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2549-L2566) |
+| Descriptor path | no suffix, `_push_descriptor` | Whether the maximum push-constant case uses a push-descriptor layout and command. | [push-descriptor matrix](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2549-L2566) |
+| Queue | `_cq` or `_compute_queue` versus the universal form | Selects the compute queue family or the test context queue and creates the command pool for that family. | [queue selection](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L1376-L1379) |
+| Inline uniform block layout | no suffix, `_multiset` | Places both blocks in one descriptor set or in separate sets. | [IUB registration](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2582-L2596) |
+| Pipeline execution set | no suffix, `_with_ies` | Selects whether `iubs`, `two_cmd_buffers`, or `descriptor_buffer_push_descriptor` uses an indirect execution set containing DGC pipelines. | [`_with_ies` registration](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2582-L2614) |
 
 The matrix has 130 leaves: 6 `execute_many`, 8 `many_sequences`, 1 `scratch_space`, 96 `max_pc_range`, 4 `multiple_sets`, 8 `iubs`, 4 `two_cmd_buffers`, 2 `descriptor_buffer_push_descriptor`, and 1 `null_set_layouts_info`.
 
@@ -62,7 +62,7 @@ This family puts a sequence-index token and a dispatch token in one stream, then
 
 ### `two_cmd_buffers` family: ordinary and generated dispatches
 
-The source records one ordinary dispatch in one command buffer and three generated sequences in a separate command buffer, then submits both buffers together. The ordinary dispatch uses the default push-constant index `0`; generated sequences use indices `1` through `3`. Each workgroup contributes 64 atomic increments to its selected output element, so every element must contain `64`. The optional `_with_ies` form adds a pipeline token and selects a DGC pipeline through an execution set.
+The source records one ordinary dispatch in one command buffer and three generated sequences in a separate command buffer, then submits both buffers together. The host explicitly pushes index `0` before the ordinary dispatch ([command recording](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L264-L277)); generated sequences use indices `1` through `3`. Each workgroup contributes 64 atomic increments to its selected output element, so every element must contain `64`. The optional `_with_ies` form adds a pipeline token and selects a DGC pipeline through an execution set.
 
 ### `scratch_space` family: register-spill support
 
@@ -136,16 +136,16 @@ void main (void) { atomicAdd(outputBuffer.values[pc.valueIndex], 1u); }
 #### Additional Info
 
 - `increaseValueByIndexPrograms` emits this same compute source for the `execute_many` and `many_sequences` implementations [shader generator](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L91-L103).
-- `manyExecutesRun` writes the loop index followed by `(1, 1, 1)` into each command record [generated command data](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L398-L415).
-- The loop passes one command record and one corresponding preprocess-buffer region to each `cmdExecuteGeneratedCommandsEXT` call [per-execution offsets](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L426-L509).
+- `manyExecutesRun` writes the loop index followed by `(1, 1, 1)` into each command record [generated command data](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L400-L417).
+- The loop passes one command record and one corresponding preprocess-buffer region to each `cmdExecuteGeneratedCommandsEXT` call [per-execution offsets](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L428-L511).
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Execute count | The shader text stays fixed while the host changes the number of command records to `64`, `1024`, or `8192`. | [execute-count registration](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2525-L2533) |
-| Queue | The shader text stays fixed; the queue variant changes queue-family selection and submission. | [queue selection](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L346-L353) |
-| Command token data | The push-constant token supplies `valueIndex`; the dispatch token supplies `(1, 1, 1)` for this family. | [token layout and data](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L398-L415) |
+| Execute count | The shader text stays fixed while the host changes the number of command records to `64`, `1024`, or `8192`. | [execute-count registration](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2527-L2535) |
+| Queue | The shader text stays fixed; the queue variant changes queue-family selection and submission. | [queue selection](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L348-L355) |
+| Command token data | The push-constant token supplies `valueIndex`; the dispatch token supplies `(1, 1, 1)` for this family. | [token layout and data](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L400-L417) |
 
 #### SPIR-V
 
@@ -305,15 +305,15 @@ These checks mean that the implementation does not support the selected legal te
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| Registration and matrix construction | [createDGCComputeMiscTestsExt](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2519-L2617) | Creates all exact EXT registered identifiers. |
-| Repeated executes | [manyExecutesRun](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L346-L541) | Builds per-execution command and preprocess regions and checks `64`. |
-| Many sequences | [manySequencesRun](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L543-L682) | Uses the sequence-index token for large sequence counts. |
-| Null set-layout information | [nullSetLayoutsInfoRun](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L684-L890) | Creates a shader-object execution set with null layout metadata and checks ordered and reversed copies. |
-| Scratch space | [ScratchSpaceInstance::iterate](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L892-L1147) | Loads the SPIR-V artifact and checks four fixed signed results. |
-| Maximum push-constant range | [MaxPushConstantRangeInstance::iterate](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L1261-L1452) | Defines full and partial range updates and all configuration variants. |
-| Multiple sets | [MultipleSetsInstance::iterate](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L1561-L1702) | Binds input and output through two descriptor sets and checks 1024 copied values. |
-| Inline uniform blocks | [IUBUsageCase and IUBUsageInstance](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L1752-L2147) | Defines set placement, forward and reverse shaders, execution sets, and checks. |
-| Descriptor-buffer push descriptors | [DBPDCase and DBPDInstance](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2192-L2515) | Combines descriptor buffers, push descriptors, execution sets, and specialization constants. |
+| Registration and matrix construction | [createDGCComputeMiscTestsExt](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2521-L2619) | Creates all exact EXT registered identifiers. |
+| Repeated executes | [manyExecutesRun](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L348-L543) | Builds per-execution command and preprocess regions and checks `64`. |
+| Many sequences | [manySequencesRun](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L545-L684) | Uses the sequence-index token for large sequence counts. |
+| Null set-layout information | [nullSetLayoutsInfoRun](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L686-L892) | Creates a shader-object execution set with null layout metadata and checks ordered and reversed copies. |
+| Scratch space | [ScratchSpaceInstance::iterate](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L894-L1149) | Loads the SPIR-V artifact and checks four fixed signed results. |
+| Maximum push-constant range | [MaxPushConstantRangeInstance::iterate](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L1263-L1454) | Defines full and partial range updates and all configuration variants. |
+| Multiple sets | [MultipleSetsInstance::iterate](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L1563-L1704) | Binds input and output through two descriptor sets and checks 1024 copied values. |
+| Inline uniform blocks | [IUBUsageCase and IUBUsageInstance](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L1754-L2149) | Defines set placement, forward and reverse shaders, execution sets, and checks. |
+| Descriptor-buffer push descriptors | [DBPDCase and DBPDInstance](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2194-L2517) | Combines descriptor buffers, push descriptors, execution sets, and specialization constants. |
 | Descriptor set semantics | [Descriptor set layouts](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#descriptors-setlayout) | Defines binding interfaces and inline uniform block rules. |
 | Descriptor-buffer semantics | [Descriptor buffers](../../../../vulkan-docs/src/chapters/descriptorbuffers.adoc) | Defines descriptor-buffer binding and push-descriptor behavior. |
 | DGC support helpers | [vktDGCUtilExt.hpp](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.hpp) | Supplies the DGC support and resource helpers used by the implementation. |

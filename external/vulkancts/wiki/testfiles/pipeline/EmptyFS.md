@@ -34,7 +34,7 @@ pipeline.monolithic.empty_fs
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |---|---|---|---|
-| Pipeline construction type | `monolithic`, `pipeline_library`, `fast_linked_library`, `shader_object_linked_spirv`, `shader_object_linked_binary`, `shader_object_unlinked_binary`, `shader_object_unlinked_spirv` | Repeats the same test-family behavior through each Vulkan default construction route. | [`createTests()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L224-L240) and mustpass files listed above |
+| Pipeline construction type | `monolithic`, `pipeline_library`, `fast_linked_library`, `shader_object_linked_spirv`, `shader_object_linked_binary`, `shader_object_unlinked_binary`, `shader_object_unlinked_spirv` | Repeats the same test-family behavior through each Vulkan default construction route. | [`createTests()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L227-L267) and mustpass files listed above |
 | Basic leaf label | `vert`, `tess`, `geom` | Chooses the registered basic-leaf prefix. `tess` passes a tessellation-evaluation stage flag; `vert` and the current `geom` registration pass the vertex-stage flag. | [`vertexStages`](../../../modules/vulkan/pipeline/vktPipelineEmptyFSTests.cpp#L804-L821) |
 | Fragment Shader choice | `_no_fs`, `_empty_fs` | `_no_fs` supplies an empty shader wrapper. `_empty_fs` loads `frag`, whose `main` has inputs but no declared outputs. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineEmptyFSTests.cpp#L675-L795) |
 | Selective-update mechanism | `primitive_discard`, `masked_samples` | Chooses cull-distance-based primitive selection with depth copyback, or four-sample depth selection with compute and SSBO checking. | [`EmptyFSSelectiveDSUpdateInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineEmptyFSTests.cpp#L266-L577) |
@@ -338,7 +338,7 @@ void main()
 | Feature and construction checks | [`EmptyFSCase::checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineEmptyFSTests.cpp#L606-L622) | States the feature gates and construction-type requirement. |
 | Generated shader programs | [`EmptyFSCase::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineEmptyFSTests.cpp#L624-L795) | Generates the empty `frag`, `gl_CullDistance` vertex program, and compute readback program. |
 | Registration and `geom` parameter | [`createEmptyFSTests()`](../../../modules/vulkan/pipeline/vktPipelineEmptyFSTests.cpp#L800-L829) | Registers the exact eight leaves and shows the `geom` vertex-stage assignment. |
-| Pipeline construction roots | [`createTests()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L224-L240) | Creates the construction-type roots that repeat `empty_fs`. |
+| Pipeline construction roots | [`createTests()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L227-L267) | Creates the construction-type roots that repeat `empty_fs`. |
 | Vulkan fragment operations | [fragment operations](../../../../vulkan-docs/src/chapters/fragops.adoc#fragops) | Defines the depth and sample-mask operations relevant to the observed depth effects. |
 | Vulkan occlusion queries | [occlusion queries](../../../../vulkan-docs/src/chapters/queries.adoc#queries-occlusion) | Defines the query result used by the selective-update leaves. |
 | Vulkan default monolithic mustpass | [`monolithic.txt`](../../../mustpass/main/vk-default/pipeline/monolithic/monolithic.txt#L33409-L33416) | Shows the eight monolithic `empty_fs` leaves. |

@@ -94,21 +94,21 @@ A representative `basic` case uses a 2D color or depth/stencil attachment with 2
 - Shader objects can only use the dynamic-rendering path, so non-dynamic groups are omitted for shader-object construction types.
 - `multi_subpass` requires a render pass. Input-attachment cases do not use dynamic rendering or shader objects.
 - Formats cover floating-point color, integer color, depth-only, stencil-only, and combined depth/stencil cases. The source also includes Android Hardware Buffer color and depth/stencil memory variants.
-- The source permits sample counts up to 16. The registered mustpass files cover 4,288 leaves each for monolithic and fast-linked-library construction, and 1,520 leaves for unlinked shader-object SPIR-V construction.
+- The source permits sample counts up to 16. The registered mustpass files cover 4,288 leaves for monolithic construction, 4,296 for fast-linked-library, and 1,528 for unlinked shader-object SPIR-V construction.
 
 ## Source Mapping
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Registration entry points | [`createMultisampledRenderToSingleSampledTests`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.cpp#L6099-L6105), [`createMultisampledMiscTests`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.cpp#L6107-L6111) | Defines the two root families |
-| Intermediate groups | [`createMultisampledRenderToSingleSampledTestsInGroup`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.cpp#L6067-L6080) | Defines `dynamic_rendering` and construction-type gating |
-| Test group generation | [`createMultisampledTestsInGroup`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.cpp#L5641-L6065) | Defines the seven behavior intermediates and their matrices |
-| MSRTSS image creation | [`makeImage`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.cpp#L440-L466) | Sets the extension image-create flag |
-| Generated programs and expected values | [`initBasicPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.cpp#L3007-L3250) | Makes per-sample rendering observable |
-| Compute verification setup | [`setupVerifyDescriptorSetAndPipeline`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.cpp#L2354-L2427) | Binds result storage and resolved views |
+| Registration entry points | [`createMultisampledRenderToSingleSampledTests`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.cpp#L7059-L7065), [`createMultisampledMiscTests`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.cpp#L7067-L7071) | Defines the two root families |
+| Intermediate groups | [`createMultisampledRenderToSingleSampledTestsInGroup`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.cpp#L7027-L7040) | Defines `dynamic_rendering` and construction-type gating |
+| Test group generation | [`createMultisampledTestsInGroup`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.cpp#L6474-L7025) | Defines the seven behavior intermediates and their matrices |
+| MSRTSS image creation | [`makeImage`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.cpp#L459-L485) | Sets the extension image-create flag |
+| Generated programs and expected values | [`initBasicPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.cpp#L3161-L3426) | Makes per-sample rendering observable |
+| Compute verification setup | [`setupVerifyDescriptorSetAndPipeline`](../../../modules/vulkan/pipeline/vktPipelineMultisampledRenderToSingleSampledTests.cpp#L2508-L2581) | Binds result storage and resolved views |
 | Vulkan render-pass contract | [`pipelines.adoc`](../../../../vulkan-docs/src/chapters/pipelines.adoc#L3036-L3048) | Defines MSRTSS image and rendering requirements |
 | Vulkan resolve operations | [`fragops.adoc`](../../../../vulkan-docs/src/chapters/fragops.adoc#L2530-L2545) | Defines multisample and resolve behavior |
-| Mustpass coverage | [`monolithic.txt`](../../../../vulkancts/mustpass/main/vk-default/pipeline/monolithic/monolithic.txt), [`fast-linked-library.txt`](../../../../vulkancts/mustpass/main/vk-default/pipeline/fast-linked-library.txt), [`shader-object-unlinked-spirv.txt`](../../../../vulkancts/mustpass/main/vk-default/pipeline/shader-object-unlinked-spirv/shader-object-unlinked-spirv.txt) | Records registered executable leaves |
+| Mustpass coverage | [`monolithic.txt`](../../../../vulkancts/mustpass/main/vk-default/pipeline/monolithic/monolithic.txt), [`fast-linked-library.txt`](../../../../vulkancts/mustpass/main/vk-default/pipeline/fast-linked-library.txt), [`shader-object-unlinked-spirv/multisample-with-fragment-shading-rate.txt`](../../../../vulkancts/mustpass/main/vk-default/pipeline/shader-object-unlinked-spirv/multisample-with-fragment-shading-rate.txt) | Records registered executable leaves |
 
 ## Questions / Risk Points for User Audit
 

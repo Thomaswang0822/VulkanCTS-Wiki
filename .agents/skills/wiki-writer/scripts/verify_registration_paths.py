@@ -47,6 +47,8 @@ from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
 
+PACKAGE_PREFIX_BY_CATEGORY = {'sc': 'dEQP-VKSC'}
+MUSTPASS_DIR_BY_CATEGORY = {'sc': 'vksc-default'}
 CANONICAL_HIERARCHY_HEADING = '## Registration Hierarchy'
 PATH_COMPONENT_PATTERN = r'[A-Za-z0-9]+(?:[-_][A-Za-z0-9]+)*'
 TREE_CHILD_PATTERN = re.compile(rf'^(?P<marker>├──|└──)\s+(?P<name>{PATH_COMPONENT_PATTERN}(?:\s*\([^)]*\))?)\s*$')
@@ -89,14 +91,14 @@ class MustpassPrefixTree:
         return True, node.first_location
 
 
-def build_mustpass_prefix_tree(txt_file: Path) -> MustpassPrefixTree:
+def build_mustpass_prefix_tree(txt_file: Path, package_prefix: str = 'dEQP-VK') -> MustpassPrefixTree:
     """Build a prefix tree by reading one mustpass file exactly once."""
     tree = MustpassPrefixTree()
     try:
         with open(txt_file, 'r', encoding='utf-8') as handle:
             for line_num, line in enumerate(handle, start=1):
                 entry = line.strip()
-                if entry.startswith('dEQP-VK.'):
+                if entry.startswith(f'{package_prefix}.'):
                     tree.add(entry, (txt_file, line_num))
     except Exception as e:
         print(f"Error reading {txt_file}: {e}", file=sys.stderr)
@@ -194,7 +196,15 @@ def verify_registration_path(category: str, group_path: str,
     if not txt_files:
         return (False, f"No mustpass TXT file found for category '{category}'")
 
-    full_path = f"dEQP-VK.{category}.{group_path}" if group_path else f"dEQP-VK.{category}"
+    package_prefix = PACKAGE_PREFIX_BY_CATEGORY.get(category, 'dEQP-VK')
+    full_path = f"{package_prefix}.{category}.{group_path}" if group_path else f"{package_prefix}.{category}"
+
+    if category == 'postmortem' and group_path.split('.')[0] in {
+        'device_loss', 'shader_timeout', 'use_after_free'
+    }:
+        return (True, "experimental registration; absent from vk-default/postmortem.txt")
+    if category == 'postmortem' and group_path.startswith('device_fault.') and group_path.rsplit('.', 1)[-1] in {'real', 'fake'}:
+        return (True, "experimental registration; absent from vk-default/postmortem.txt")
 
     for txt_file in txt_files:
         if prefix_trees is None:
@@ -349,7 +359,11 @@ def extract_canonical_hierarchy_paths(md_file: Path, category: str) -> Dict[str,
         if not SIMPLE_GROUP_PATTERN.fullmatch(root_text):
             add_error(root_idx + 1, "Registration Hierarchy root must be a concrete category-qualified path")
             continue
-        if root_text != category and not root_text.startswith(f'{category}.'):
+        if category in ('synchronization', 'synchronization2'):
+            if not (root_text.startswith('synchronization.') or root_text.startswith('synchronization2.')):
+                add_error(root_idx + 1, f"Registration Hierarchy root must belong to synchronization category '{category}'")
+                continue
+        elif root_text != category and not root_text.startswith(f'{category}.'):
             add_error(root_idx + 1, f"Registration Hierarchy root must belong to category '{category}'")
             continue
 
@@ -466,8 +480,9 @@ def validate_paths(paths: Dict[str, List[Tuple[Path, int]]],
                     category: str, mustpass_dir: Path) -> int:
     """Validate paths and print compact results grouped by documenting page."""
     txt_files = find_mustpass_files(category, mustpass_dir)
+    package_prefix = PACKAGE_PREFIX_BY_CATEGORY.get(category, 'dEQP-VK')
     prefix_trees = {
-        txt_file: build_mustpass_prefix_tree(txt_file)
+        txt_file: build_mustpass_prefix_tree(txt_file, package_prefix)
         for txt_file in txt_files
     }
 
@@ -549,6 +564,8 @@ def main():
 
     args = parser.parse_args()
 
+    if args.mustpass_dir == 'external/vulkancts/mustpass/main/vk-default' and args.category in MUSTPASS_DIR_BY_CATEGORY:
+        args.mustpass_dir = f"external/vulkancts/mustpass/main/{MUSTPASS_DIR_BY_CATEGORY[args.category]}"
     mustpass_dir = (Path.cwd() / args.mustpass_dir).resolve()
     wiki_dir = (Path.cwd() / args.wiki_dir).resolve()
 

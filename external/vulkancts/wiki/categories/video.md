@@ -45,4 +45,4 @@ The families test different layers of the same video API contract:
 
 ## Category Notes
 
-The default `video` mustpass file contains 9,301 leaves across the seven direct families. The exact registered identifiers and current coverage are maintained by the source and mustpass links in the Level-3 pages; this gateway keeps the category-level relationships and navigation concise.
+The default `video` mustpass file contains 9,471 leaves across the seven direct families. The exact registered identifiers and current coverage are maintained by the source and mustpass links in the Level-3 pages; this gateway keeps the category-level relationships and navigation concise.

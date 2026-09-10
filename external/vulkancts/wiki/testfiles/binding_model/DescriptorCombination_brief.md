@@ -132,7 +132,7 @@ The two leaves are the primary behavioral axis. They select different test insta
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Binding-model attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L70) | Shows that this test family is omitted from Vulkan SC builds and attached under `binding_model` in other builds. |
+| Binding-model attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L54-L80) | Shows that this test family is omitted from Vulkan SC builds and attached under `binding_model` in other builds. |
 | Case registration | [`populateDescriptorCombinationTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L668-L684) | Defines `basic` and the two exact test case leaves. |
 | Legacy and descriptor-buffer runtime | [`DescriptorCombinationTestInstance::iterate()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L81-L313) | Creates resources, records the ordered compute operations, and checks the three arrays. |
 | Capture-replay runtime | [`DescriptorCustomBorderColorTestInstance::iterate()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L362-L569) | Creates, captures, recreates, binds, samples, and checks custom-border samplers. |

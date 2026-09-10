@@ -102,7 +102,7 @@ The same shader template also supports split-buffer cases. For example, a four-p
 
 ## Important Variations and Special Cases
 
-- The generator registers 7,894 `simple` cases and 7,886 cases under each GPL root in the inspected mustpass file. The monolithic-only device-address-command variants and `shader_object_rebind` account for the eight-case difference.
+- The generator registers 7,899 `simple` cases and 7,891 cases under each GPL root in the inspected mustpass file. The monolithic-only device-address-command variants and `shader_object_rebind` account for the eight-case difference.
 - Basic matrices use buffer counts `{1, 2, 4, 8}` and total buffer sizes `{256, 512, 131072}` bytes. Point-size variants add `_ptsz` where the generator can emit both forms.
 - Indirect cases use byte strides `{16, 244, 508, 1004, 2036}` and deliberately exclude the combination that uses both a counter offset and a counter-buffer offset.
 - Query generation uses stream IDs `{0, 1, 3, 6, 14}`, source vertex counts `{6, 61, 127, 251, 509}`, topology-adjusted counts, and both 32-bit and 64-bit results.
@@ -119,11 +119,11 @@ The same shader template also supports split-buffer cases. For example, a four-p
 | Counter-driven drawing | [`drawing.adoc`](../../../../vulkan-docs/src/chapters/drawing.adoc#L1949-L1959) | Requires synchronization between counter writes and indirect reads. |
 | Graphics pipeline library linking | [`pipelines.adoc`](../../../../vulkan-docs/src/chapters/pipelines.adoc#L713-L722) | Distinguishes fast linking from link-time optimization. |
 | Category registration | [`createTests()`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackTests.cpp#L36-L53) | Registers the same simple factory for all three construction modes. |
-| Parameters and instance routing | [`TestParameters` and `createInstance()`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L126-L204) and [`createInstance()`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4497-L4595) | Connect generated dimensions and test types to runtime implementations. |
-| Feature and limit gates | [`TransformFeedbackTestCase::checkSupport()`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4597-L4724) | Lists requirement-based pruning. |
+| Parameters and instance routing | [`TestParameters` and `createInstance()`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L126-L204) and [`createInstance()`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4511-L4610) | Connect generated dimensions and test types to runtime implementations. |
+| Feature and limit gates | [`TransformFeedbackTestCase::checkSupport()`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4612-L4740) | Lists requirement-based pruning. |
 | Shader generation | [`TransformFeedbackTestCase::initPrograms()`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4726-L6153) | Generates the stage programs and transform-feedback declarations. |
 | Main test matrices | [`createTransformFeedbackSimpleTests()`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L6455-L7002) | Generates capture, topology, indirect, query, and special cases. |
-| Stream and layout matrices | [`createTransformFeedbackStreamsSimpleTests()`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L7004-L7239) | Generates stream, multiquery, holes, and output-limit cases. |
+| Stream and layout matrices | [`createTransformFeedbackStreamsSimpleTests()`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L7054-L7289) | Generates stream, multiquery, holes, and output-limit cases. |
 | Root names | [`createTransformFeedbackSimpleTests()` factory](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L7264-L7276) | Maps construction modes to the three registered roots. |
 | Mustpass roots | [`transform-feedback.txt`](../../../mustpass/main/vk-default/transform-feedback.txt#L110039-L133704) | Confirms current executable paths and root counts. |
 

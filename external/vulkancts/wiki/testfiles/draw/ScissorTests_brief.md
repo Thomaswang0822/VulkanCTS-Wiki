@@ -74,7 +74,7 @@ Missing required functionality is an unsupported case, not evidence of a failed 
 
 ## Audit Risks
 
-- Do not treat the legacy `vktDrawScissorTests.md` prose as the registration source; the C++ `addChild` calls are authoritative.
+- Use the C++ `addChild` calls as the authoritative registration source.
 - Do not collapse dynamic-rendering variants into new case names: the shared draw hierarchy supplies those prefixes.
 - Do not describe a clear command as a draw; the source uses `vkCmdClearAttachments` and models its clipping separately.
 - Do not call a missing feature a test failure; `checkSupport` rejects unsupported configurations before execution.

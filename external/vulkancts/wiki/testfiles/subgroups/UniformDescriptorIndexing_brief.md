@@ -118,7 +118,7 @@ The descriptor family is the primary behavioral axis because each value changes 
 | Buffer and image helpers | [`setupImages()` and buffer helpers](../../../modules/vulkan/subgroups/vktSubgroupsUniformDescriptorIndexingTests.cpp#L438-L581) | Defines image sizes, buffer contents, alignment, and buffer-view ranges. |
 | Command execution | [`iterate()` draw and copy](../../../modules/vulkan/subgroups/vktSubgroupsUniformDescriptorIndexingTests.cpp#L284-L351) | Defines barriers, render-pass draw, copyback, and queue completion. |
 | Host-side result | [`iterate()` result classification](../../../modules/vulkan/subgroups/vktSubgroupsUniformDescriptorIndexingTests.cpp#L353-L378) | Counts colors and emits pass/fail status. |
-| Category dispatcher | [`createChildren()`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L40-L81) | Establishes the non-VulkanSC registration boundary. |
+| Category dispatcher | [`createChildren()`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L55-L82) | Establishes the non-VulkanSC registration boundary. |
 | Mustpass coverage | [`subgroups.txt`](../../../mustpass/main/vk-default/subgroups.txt#L47808-L47816) | Confirms the nine executable family paths in the default mustpass list. |
 | Descriptor-indexing feature semantics | [Descriptor-indexing features](../../../../vulkan-docs/src/chapters/features.adoc#L2004-L2077) | Defines the descriptor-array non-uniform-indexing feature meanings. |
 | Runtime descriptor arrays | [Runtime descriptor arrays](../../../../vulkan-docs/src/chapters/features.adoc#L2141-L2145) | Defines the runtime-array prerequisite. |
@@ -143,4 +143,4 @@ No unresolved source ambiguity changes the selected representative case, the nin
 - Preserve the ordered support gates exactly: subgroup size greater than one, fragment subgroup support, `runtimeDescriptorArray`, then the descriptor-specific non-uniform-indexing feature.
 - Copy the `### Failure Cause Mapping` table directly into the final page. Write `### Cause Analysis` fresh during the Level-3 rewrite.
 - Use `dEQP-VK.subgroups.uniform_descriptor_indexing.storage_buffer` for the one representative fragment walkthrough and preserve the exact SPIR-V 1.3 artifact generated from that specialization.
-- Keep the legacy navigation page untouched and limit the rewrite to `UniformDescriptorIndexing_brief.md` and `UniformDescriptorIndexing.md`.
+- Keep this brief and `UniformDescriptorIndexing.md` consistent.

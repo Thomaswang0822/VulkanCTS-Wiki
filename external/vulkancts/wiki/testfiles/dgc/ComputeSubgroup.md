@@ -942,4 +942,4 @@ This exclusion keeps the generated matrix aligned with `getNumSubgroups()`, whic
 | Generated dispatch and synchronization | [`verifyBuiltins` execution](../../../modules/vulkan/device_generated_commands/vktDGCComputeSubgroupTests.cpp#L299-L326) | Builds the command stream, executes one sequence, and makes shader writes visible to the host. |
 | Output scan | [`verifyBuiltins` result check](../../../modules/vulkan/device_generated_commands/vktDGCComputeSubgroupTests.cpp#L328-L355) | Defines mismatch logging and the pass/fail result. |
 | Registration matrix | [`createDGCComputeSubgroupTests`](../../../modules/vulkan/device_generated_commands/vktDGCComputeSubgroupTests.cpp#L359-L388) | Defines exact names, values, and design pruning. |
-| Registered mustpass leaves | [`dgc.txt` subgroup entries](../../../mustpass/main/vk-default/dgc.txt#L4538-L4577) | Confirms the 40 current registered variants. |
+| Registered mustpass leaves | [`dgc.txt` subgroup entries](../../../mustpass/main/vk-default/dgc.txt#L4684-L4723) | Confirms the 40 current registered variants. |

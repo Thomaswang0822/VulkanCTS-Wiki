@@ -38,7 +38,7 @@ Why it matters here:
 
 Representative compute case: `dEQP-VK.spirv_assembly.instruction.compute.16bit_storage.uniform_16_to_32.uniform_buffer_block_scalar_float`.
 
-The C++ builder [`addCompute16bitStorageUniform16To32Group()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L1128-L1504) holds a `tcu::StringTemplate` with `${...}` placeholders. For the `uniform_buffer_block` capability and the `scalar` float composite type, the host fills the template with:
+The C++ builder [`addCompute16bitStorageUniform16To32Group()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L1130-L1506) holds a `tcu::StringTemplate` with `${...}` placeholders. For the `uniform_buffer_block` capability and the `scalar` float composite type, the host fills the template with:
 
 - `${capability}` = `StorageUniformBufferBlock16`
 - `${storage}` = `BufferBlock` (so the 16-bit input is an SSBO)
@@ -48,7 +48,7 @@ The C++ builder [`addCompute16bitStorageUniform16To32Group()`](../../../modules/
 
 The specialized SPIR-V declares two SSBOs: `%ssbo16` (a struct wrapping `f16 x 128`) at binding 0 and `%ssbo32` (a struct wrapping `f32 x 128`) at binding 1. The entry point loads `%ssbo16` at index `x`, runs `OpFConvert %f32 %val16`, and stores the result into `%ssbo32` at the same index. Each compute invocation converts one element; the host dispatches `128` work groups.
 
-The host fills `%ssbo16` with random `deFloat16` values, precomputes the expected `%ssbo32` content by widening each `deFloat16` to `float` with `deFloat16To32`, and after dispatch checks the readback with [`check32BitFloats`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L341-L362), an exact float comparison.
+The host fills `%ssbo16` with random `deFloat16` values, precomputes the expected `%ssbo32` content by widening each `deFloat16` to `float` with `deFloat16To32`, and after dispatch checks the readback with [`check32BitFloats`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L343-L364), an exact float comparison.
 
 ## End-to-End Test Flow
 
@@ -90,13 +90,13 @@ The compute and graphics paths share the same logical sequence; the graphics pat
 ## What Is Checked
 
 - The host `verifyIO` callback compares every element of the readback buffer against the expected buffer. The callback is chosen per family based on the conversion direction and data type:
-  - Widening to 32-bit float: [`check32BitFloats`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L341-L362) — exact `float` comparison.
-  - Widening to 64-bit float: [`check64BitFloats`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L314-L335) — exact `double` comparison.
+  - Widening to 32-bit float: [`check32BitFloats`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L343-L364) — exact `float` comparison.
+  - Widening to 64-bit float: [`check64BitFloats`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L316-L337) — exact `double` comparison.
   - Narrowing to 16-bit float from 32-bit: [`computeCheck16BitFloats<RoundingMode>`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L261-L284) / [`graphicsCheck16BitFloats<RoundingMode>`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L189-L212) — re-derives the expected 16-bit value from the original 32-bit float using the case's rounding mode.
   - Narrowing to 16-bit float from 64-bit: `computeCheck16BitFloats64`/`graphicsCheck16BitFloats64` — same idea, from `double`.
-  - 16-to-16 pass-through: [`computeCheckBuffersFloats`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L238-L259) — exact `uint16_t` comparison with NaN-equality fallback.
+  - 16-to-16 pass-through: [`computeCheckBuffersFloats`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L239-L260) — exact `uint16_t` comparison with NaN-equality fallback.
   - Integers: exact `int32_t`/`uint32_t` comparison with sign-extension handled on the host side.
-- Struct families additionally use an `info` bitmask (built by [`addInfo`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L364-L368)) to skip padding bytes during comparison, since std140/std430 padding is not part of the tested data.
+- Struct families additionally use an `info` bitmask (built by [`addInfo`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L366-L370)) to skip padding bytes during comparison, since std140/std430 padding is not part of the tested data.
 - Graphics I/O `unspecified_rnd_mode` cases accept either RTE or RTZ results; the rounding-mode flags passed to `interfaces.setRoundingMode()` are `ROUNDINGMODE_RTE | ROUNDINGMODE_RTZ`.
 - Each case is checked independently; there is no aggregation across the matrix.
 
@@ -137,14 +137,14 @@ Secondary dimensions (covered in `## Parameter Dimensions and Observed Values` o
 |-------|-------------|----------------|
 | `CAPABILITIES[]` table | [`vktSpvAsm16bitStorageTests.cpp#L126-L129`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L126-L129) | Defines the two uniform/storage capabilities iterated by every uniform-buffer family. |
 | `get16BitStorageFeatures()` | [`vktSpvAsm16bitStorageTests.cpp#L149-L160`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L149-L160) | Maps capability name to the `ext16BitStorage` feature bit. |
-| Compute uniform 16-to-32 builder | [`addCompute16bitStorageUniform16To32Group()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L1128-L1504) | Representative SPIR-V `StringTemplate` and the float/int composite matrices. |
-| Compute push-constant builder | [`addCompute16bitStoragePushConstant16To32Group()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L1703-L2000) | Push-constant SPIR-V template (`%pc16`, `PushConstant` storage class). |
-| Graphics I/O 32-to-16 builder | [`addGraphics16BitStorageInputOutputFloat32To16Group()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L3637-L3804) | `StorageInputOutput16`, `FPRoundingMode`, `createTestsForAllStages`. |
-| Struct mixed-types builder | [`addCompute16bitStructMixedTypesGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L3053-L3275) | Nested struct + mixed 16/32 layout with `addInfo` bitmask comparison. |
-| Narrowing checkers | [`computeCheck16BitFloats`/`graphicsCheck16BitFloats`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L189-L284) | Rounding-mode-aware re-derivation of expected 16-bit values. |
-| Widening checkers | [`check32BitFloats`/`check64BitFloats`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L314-L362) | Exact comparison for unambiguous widening. |
-| `16_to_16x2` builder | [`addShaderCode16BitStorageInputOutput16To16x2()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L4022-L4226) | Dual-output pass-through shader. |
-| Registration entry points | [`create16BitStorageComputeGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8620-L8648), [`create16BitStorageGraphicsGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8650-L8701) | Map test family names to builder functions. |
+| Compute uniform 16-to-32 builder | [`addCompute16bitStorageUniform16To32Group()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L1130-L1506) | Representative SPIR-V `StringTemplate` and the float/int composite matrices. |
+| Compute push-constant builder | [`addCompute16bitStoragePushConstant16To32Group()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L1705-L2001) | Push-constant SPIR-V template (`%pc16`, `PushConstant` storage class). |
+| Graphics I/O 32-to-16 builder | [`addGraphics16BitStorageInputOutputFloat32To16Group()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L3642-L3809) | `StorageInputOutput16`, `FPRoundingMode`, `createTestsForAllStages`. |
+| Struct mixed-types builder | [`addCompute16bitStructMixedTypesGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L3055-L3277) | Nested struct + mixed 16/32 layout with `addInfo` bitmask comparison. |
+| Narrowing checkers | [`computeCheck16BitFloats`/`graphicsCheck16BitFloats`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L190-L286) | Rounding-mode-aware re-derivation of expected 16-bit values. |
+| Widening checkers | [`check32BitFloats`/`check64BitFloats`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L316-L364) | Exact comparison for unambiguous widening. |
+| `16_to_16x2` builder | [`addShaderCode16BitStorageInputOutput16To16x2()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L4027-L4230) | Dual-output pass-through shader. |
+| Registration entry points | [`create16BitStorageComputeGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8616-L8644), [`create16BitStorageGraphicsGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8646-L8700) | Map test family names to builder functions. |
 
 ## Questions / Risk Points for User Audit
 

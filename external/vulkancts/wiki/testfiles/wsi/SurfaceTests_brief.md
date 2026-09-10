@@ -155,7 +155,7 @@ A custom allocator that receives no calls produces a quality warning rather than
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Per-platform routing | [createTypeSpecificTests()](../../../modules/vulkan/wsi/vktWsiTests.cpp#L50-L74) | Registers `surface` beneath each WSI platform path. |
+| Per-platform routing | [createTypeSpecificTests()](../../../modules/vulkan/wsi/vktWsiTests.cpp#L52-L83) | Registers `surface` beneath each WSI platform path. |
 | Shared instance and surface setup | [createInstanceWithWsi() and `InstanceHelper`](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L173-L221) | Enables required surface extensions and builds the instance used by most cases. |
 | Lifecycle and allocation paths | [surface creation, custom allocator, and OOM tests](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L223-L351) | Implements the creation and allocation-failure behavior. |
 | Support queries | [surface and native presentation support](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L353-L442) | Checks queue-family support and cross-query agreement. |

@@ -292,7 +292,7 @@ void main()
 - The selected format and tiling must expose `VK_FORMAT_FEATURE_2_TENSOR_SHADER_BIT_ARM`.
 - `shaderTensorAccess` and compute-stage membership in `shaderTensorSupportedStages` are required.
 - Explicit non-packed linear cases require the `tensorNonPacked` feature.
-- DMA cases require `VK_EXT_external_memory_dma_buf`, a supported `DmaHeapAllocator`, and an external tensor query that reports importable DMA-BUF support, does not require dedicated-only allocation, and accepts the DMA-BUF handle type. [`formatSupportTensorFlags`, feature helpers, and `tensorSupportsDmaBufImport`](../../../modules/vulkan/tensor/vktTensorTestsUtil.cpp#L341-L432)
+- DMA cases require `VK_EXT_external_memory_dma_buf`, a supported `DmaHeapAllocator`, and an external tensor query that reports importable DMA-BUF support, does not require dedicated-only allocation, and accepts the DMA-BUF handle type. [`formatSupportTensorFlags`, feature helpers, and `tensorSupportsDmaBufImport`](../../../modules/vulkan/tensor/vktTensorTestsUtil.cpp#L341-L441)
 
 These checks report unsupported cases rather than failed tensor results.
 
@@ -318,13 +318,13 @@ These checks report unsupported cases rather than failed tensor results.
 |-------------|------|----------------|
 | Tensor category registration | [`createTests`](../../../modules/vulkan/tensor/vktTensorTests.cpp#L37-L49) | Adds the `basic_access` test family below `tensor`. |
 | Basic-access registration | [`createBasicAccessTests`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L1025-L1036) | Defines the page boundary and format-type instantiations. |
-| Linear and special-case matrix | [`addShaderAccessTests`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L853-L953) | Registers shapes, strides, directions, staging, offsets, optimal leaves, and max-rank leaves. |
+| Linear and special-case matrix | [`addShaderAccessTests`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L854-L954) | Registers shapes, strides, directions, staging, offsets, optimal leaves, and max-rank leaves. |
 | DMA matrix | [`addDmaHeapBufferAccessTestInternal`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L956-L1013) | Registers DMA-BUF, staging, and DMA-offset leaves. |
 | Linear runtime | [`LinearTensorAccessTestInstance::iterate`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L401-L616) | Creates resources, dispatches, synchronizes, transfers, and compares. |
 | Optimal runtime | [`OptimalTensorAccessTestInstance::iterate`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L618-L850) | Runs buffer-to-tensor-to-buffer and compares the two host buffers. |
 | Shader generator | [`genShaderTensorAccess`](../../../modules/vulkan/tensor/shaders/vktTensorAccessShaders.cpp#L40-L94) | Emits the rank-specific compute shader and chooses tensor read/write. |
 | Shader type mapping | [`getTensorFormat`](../../../modules/vulkan/tensor/shaders/vktTensorShaderUtil.cpp#L39-L71) | Maps `VkFormat` to GLSL explicit arithmetic types. |
 | Tensor parameters | [`TensorParameters`](../../../modules/vulkan/tensor/vktTensorTestsUtil.hpp#L68-L101) | Defines dimensions, strides, rank, element count, and packed detection. |
-| Feature and DMA checks | [`formatSupportTensorFlags` and helpers](../../../modules/vulkan/tensor/vktTensorTestsUtil.cpp#L341-L432) | Implements format, feature, stage, non-packed, and DMA support queries. |
+| Feature and DMA checks | [`formatSupportTensorFlags` and helpers](../../../modules/vulkan/tensor/vktTensorTestsUtil.cpp#L341-L441) | Implements format, feature, stage, non-packed, and DMA support queries. |
 | Tensor operation semantics | [Tensor Operations](../../../../vulkan-docs/src/chapters/VK_ARM_tensors/tensorops.adoc#tensors) | Defines coordinate, type/rank compatibility, read, write, and format-conversion rules. |
 | Registered cases | [`tensor.txt`](../../../mustpass/main/vk-default/tensor.txt#L129-L408) | Lists the 280 `tensor.basic_access` mustpass leaves, including special suffixes. |

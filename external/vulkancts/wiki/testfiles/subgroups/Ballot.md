@@ -178,8 +178,8 @@ void main (void)
 |---------------------|---------------------------------------|----------|
 | Ballot interface | Generated legacy wrappers replace the core extension and `subgroupBallot` with `GL_ARB_shader_ballot`, `uint64_t`, and `ballotARB`; the shared helper returns a packed 64-bit mask. Legacy framebuffer variants instead use CTS-authored direct `OpSubgroupBallotKHR` with a four-component 32-bit result. | [`getExtHeader`, `getBodySource`, and helper selection`](../../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L762-L827) and [`initFrameBufferPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L64-L760) |
 | Execution path | Graphics, ray tracing, and mesh/task wrappers omit the shared reference helper and test nonzero true-predicate masks; only the compute wrapper uses the shared reference helper. | [`getBodySource` and helper selection](../../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L770-L827) and [`initStdPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1406-L1671) |
-| Required subgroup size | The shader text is unchanged, but pipeline creation supplies each supported required subgroup size and the harness reruns its local-size matrix. | [`test`](../../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L941-L974) and [`makeComputeOrMeshTest`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L4090-L4109) |
-| Local workgroup size | Specialization constants 0, 1, and 2 set `gl_WorkGroupSize`; this changes shared-array size, invocation layout, and result count without changing ballot logic. | [`initStdPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1415-L1434) and [`makeComputeOrMeshTest`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L4090-L4104) |
+| Required subgroup size | The shader text is unchanged, but pipeline creation supplies each supported required subgroup size and the harness reruns its local-size matrix. | [`test`](../../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L941-L974) and [`makeComputeOrMeshTest`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L4094-L4118) |
+| Local workgroup size | Specialization constants 0, 1, and 2 set `gl_WorkGroupSize`; this changes shared-array size, invocation layout, and result count without changing ballot logic. | [`initStdPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1415-L1434) and [`makeComputeOrMeshTest`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L4094-L4118) |
 
 #### SPIR-V
 
@@ -533,7 +533,7 @@ void main (void)
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Registration and test matrix | [`createSubgroupsBallotTests`](../../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L1019-L1160) | Registers the direct hierarchy, executable leaves, interfaces, stages, and required-size variants. |
+| Registration and test matrix | [`createSubgroupsBallotTests`](../../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L1018-L1159) | Registers the direct hierarchy, executable leaves, interfaces, stages, and required-size variants. |
 | Generated shader builder | [`initPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L809-L828) | Selects the exact extensions, test body, shared helper, shader stages, and SPIR-V target for the representative path. |
 | Ballot source fragments | [`getExtHeader` and `getBodySource`](../../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L762-L807) | Defines core versus legacy source and the three result bits. |
 | Direct framebuffer programs | [`initFrameBufferPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L64-L760) | Provides SPIR-V 1.3 ballot shaders for vertex-pipeline framebuffer cases. |
@@ -541,7 +541,7 @@ void main (void)
 | Runtime routing | [`test` and `noSSBOtest`](../../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L891-L1012) | Selects resources and execution helpers for every path. |
 | Shared ballot helpers | [`getSharedMemoryBallotHelper` and `getSharedMemoryBallotHelperARB`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L867-L925) | Build independent core and legacy reference masks. |
 | Standard shader wrappers | [`initStdPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1406-L1675) | Supplies stage-specific declarations, indexing, and result writes. |
-| Compute and mesh runtime | [`makeComputeOrMeshTest`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L3830-L4113) | Binds resources, varies local sizes, dispatches work, synchronizes host reads, and invokes result checking. |
+| Compute and mesh runtime | [`makeComputeOrMeshTest`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L4094-L4118) | Binds resources, varies local sizes, dispatches work, synchronizes host reads, and invokes result checking. |
 | Result comparison | [`check` and `checkComputeOrMesh`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2640-L2663) | Requires every output value to equal `0x7`. |
 | Default mustpass registration | [`subgroups.txt`](../../../mustpass/main/vk-default/subgroups.txt#L12088-L12110) | Confirms all 23 executable ballot paths documented here. |
 | Ballot operation semantics | [`shaders.adoc`](../../../../vulkan-docs/src/chapters/shaders.adoc#L3447-L3523) | Defines subgroup group operations and ballot predicate-mask behavior. |

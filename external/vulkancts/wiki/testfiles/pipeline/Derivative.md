@@ -22,7 +22,7 @@ pipeline.monolithic.derivative
 └── compute
 ```
 
-[`createPipelineTests`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L198-L205) adds this test family only for `PIPELINE_CONSTRUCTION_TYPE_MONOLITHIC`. [`createDerivativeTests`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L170-L186) registers these test case leaves below `compute`: `derivative_by_handle`, `derivative_by_handle_maintenance5`, and `derivative_by_index`.
+[`createPipelineTests`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L198-L205) adds this test family only for `PIPELINE_CONSTRUCTION_TYPE_MONOLITHIC`. [`createDerivativeTests`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L172-L188) registers these test case leaves below `compute`: `derivative_by_handle`, `derivative_by_handle_maintenance5`, and `derivative_by_index`.
 
 ## Parameter Dimensions and Observed Values
 
@@ -119,10 +119,10 @@ The source compiles one trivial `comp` shader with `local_size_x=1` and an empty
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Capability check | [`checkSupport`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L60-L64) | Requires `VK_KHR_maintenance5` for its dedicated leaf |
-| Compute fixture | [`initComputeDerivativePrograms`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L66-L78) | Defines the no-op shader used only to create a compute stage |
-| Parent-handle path | [`testComputeDerivativeByHandle`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L80-L127) | Creates the base and derivative in separate calls and handles flags2 |
-| Parent-index path | [`testComputeDerivativeByIndex`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L129-L166) | Supplies ordered base and derivative create infos in one call |
-| Test-family registration | [`createDerivativeTests`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L170-L186) | Registers the exact test case leaves below `compute` |
+| Compute fixture | [`initComputeDerivativePrograms`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L68-L80) | Defines the no-op shader used only to create a compute stage |
+| Parent-handle path | [`testComputeDerivativeByHandle`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L82-L129) | Creates the base and derivative in separate calls and handles flags2 |
+| Parent-index path | [`testComputeDerivativeByIndex`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L131-L168) | Supplies ordered base and derivative create infos in one call |
+| Test-family registration | [`createDerivativeTests`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L172-L188) | Registers the exact test case leaves below `compute` |
 | Enclosing registration | [`createPipelineTests`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L198-L205) | Restricts the family to monolithic construction |
 | Mustpass coverage | [`monolithic.txt`](../../../mustpass/main/vk-default/pipeline/monolithic/monolithic.txt#L32589-L32591) | Lists the three default Vulkan leaves |
 | Vulkan derivative rules | [Pipeline Derivatives](../../../../vulkan-docs/src/chapters/pipelines.adoc#L7940-L7967) | Defines derivative parent selection, ordering, and allowed-parent requirements |

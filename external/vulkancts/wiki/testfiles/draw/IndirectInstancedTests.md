@@ -204,9 +204,9 @@ drawCountTests[] = {{1, "1"}, {2, "2"}, {4, "4"}, {16, "16"}};
 The default Vulkan mustpass lists the four render-pass leaves and the same leaves under `primary_cmd_buff`, `partial_secondary_cmd_buff`, and `complete_secondary_cmd_buff`. The VulkanSC default lists only the four render-pass leaves:
 
 - [`vk-default draw.txt`](../../../mustpass/main/vk-default/draw.txt#L793-L796): dynamic complete-secondary examples.
-- [`vk-default draw.txt`](../../../mustpass/main/vk-default/draw.txt#L3327-L3330): dynamic partial-secondary examples.
-- [`vk-default draw.txt`](../../../mustpass/main/vk-default/draw.txt#L6126-L6129): dynamic primary examples.
-- [`vk-default draw.txt`](../../../mustpass/main/vk-default/draw.txt#L18613-L18616): render-pass examples.
+- [`vk-default draw.txt`](../../../mustpass/main/vk-default/draw.txt#L3336-L3339): dynamic partial-secondary examples.
+- [`vk-default draw.txt`](../../../mustpass/main/vk-default/draw.txt#L6153-L6156): dynamic primary examples.
+- [`vk-default draw.txt`](../../../mustpass/main/vk-default/draw.txt#L18652-L18655): render-pass examples.
 - [`vksc-default draw.txt`](../../../mustpass/main/vksc-default/draw.txt#L959-L962): VulkanSC render-pass examples.
 
 ### Runtime Execution Details
@@ -232,4 +232,4 @@ The execution details above describe resource setup, command recording, readback
 
 ### Preservation Note
 
-The obsolete page [`vktDrawIndirectInstancedTests.md`](vktDrawIndirectInstancedTests.md) remains in place and is not modified. The registration group and leaf names remain exactly `indirect_instanced`, `1`, `2`, `4`, and `16`.
+The registration group and leaf names remain exactly `indirect_instanced`, `1`, `2`, `4`, and `16`. This page is the canonical documentation for that group; no obsolete duplicate page is referenced.

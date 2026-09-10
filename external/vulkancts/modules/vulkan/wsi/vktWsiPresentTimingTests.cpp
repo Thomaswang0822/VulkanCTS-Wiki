@@ -84,7 +84,7 @@ constexpr uint32_t kDefaultWindowWidth            = 128;
 constexpr uint32_t kDefaultWindowHeight           = 128;
 constexpr uint32_t kNumParallelThreads            = 4;
 constexpr uint32_t kMaxPresentStageCount          = 4;
-constexpr uint64_t kTargetTimeMarginNs            = 100'000;
+constexpr uint64_t kTargetTimeMarginNs            = 2'000'000;
 constexpr uint64_t kCalibratedHostTimeMarginNs    = 10'000;
 constexpr uint64_t kMinSleepTimeToDrainNs         = 5'000'000;
 constexpr uint64_t kNsPerSec                      = 1'000'000'000;
@@ -193,11 +193,10 @@ vk::VkPhysicalDeviceFeatures getDeviceNullFeatures(void)
     return features;
 }
 
-Move<vk::VkDevice> createDeviceWithWsi(const vk::PlatformInterface &vkp, vk::VkInstance instance,
-                                       const InstanceInterface &vki, vk::VkPhysicalDevice physicalDevice,
-                                       const Extensions &supportedExtensions, const uint32_t queueFamilyIndex,
-                                       PresentAtMode presentAtMethod, bool requireFifoLatestReady,
-                                       const vk::VkAllocationCallbacks *pAllocator = nullptr)
+static CustomDevice createDeviceWithWsi(const InstanceWrapper &instance, vk::VkPhysicalDevice physicalDevice,
+                                        const Extensions &supportedExtensions, const uint32_t queueFamilyIndex,
+                                        PresentAtMode presentAtMethod, bool requireFifoLatestReady,
+                                        const vk::VkAllocationCallbacks *pAllocator = nullptr)
 {
     const float queuePriorities[]                  = {1.0f};
     const vk::VkDeviceQueueCreateInfo queueInfos[] = {{
@@ -261,7 +260,7 @@ Move<vk::VkDevice> createDeviceWithWsi(const vk::PlatformInterface &vkp, vk::VkI
         nullptr,
     };
 
-    return createCustomDevice(vkp, instance, vki, physicalDevice, &deviceParams, pAllocator);
+    return instance.createCustomDevice(physicalDevice, &deviceParams, pAllocator);
 }
 
 vk::VkPresentTimingSurfaceCapabilitiesEXT getSurfacePresentTimingCapabilities(
@@ -314,6 +313,20 @@ vk::VkSwapchainCreateInfoKHR getBasicSwapchainParameters(vk::wsi::Type wsiType, 
     vk::VkSurfaceCapabilitiesKHR capabilities{};
     getSurfacePresentTimingCapabilities(vki, physicalDevice, surface, &capabilities);
 
+    if (presentMode == VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR ||
+        presentMode == VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR)
+    {
+        // Can only ever be 1, per spec.
+        desiredImageCount = 1;
+    }
+    else
+    {
+        // otherwise clamp to the range the driver says is acceptable.
+        desiredImageCount = de::clamp(desiredImageCount, capabilities.minImageCount,
+                                      capabilities.maxImageCount > 0 ? capabilities.maxImageCount :
+                                                                       capabilities.minImageCount + desiredImageCount);
+    }
+
     const std::vector<vk::VkSurfaceFormatKHR> formats =
         vk::wsi::getPhysicalDeviceSurfaceFormats(vki, physicalDevice, surface);
     const vk::wsi::PlatformProperties &platformProperties = vk::wsi::getPlatformProperties(wsiType);
@@ -334,7 +347,7 @@ vk::VkSwapchainCreateInfoKHR getBasicSwapchainParameters(vk::wsi::Type wsiType, 
         0u,
         nullptr,
         VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,
-        VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+        VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR,
         presentMode,
         VK_FALSE,
         VK_NULL_HANDLE,
@@ -433,8 +446,8 @@ struct PresentResult
 struct InstanceHelper
 {
     const std::vector<vk::VkExtensionProperties> supportedExtensions;
-    const CustomInstance instance;
-    const InstanceDriver &vki;
+    const InstanceWrapper instance;
+    const InstanceInterface &vki;
 
     InstanceHelper(Context &context, Type wsiType)
         : supportedExtensions(enumerateInstanceExtensionProperties(context.getPlatformInterface(), nullptr))
@@ -448,20 +461,18 @@ struct DeviceHelper
 {
     const vk::VkPhysicalDevice physicalDevice;
     const uint32_t queueFamilyIndex;
-    const Unique<vk::VkDevice> device;
-    const DeviceDriver vkd;
+    const DeviceWrapper device;
+    const DeviceInterface &vkd;
     const vk::VkQueue queue;
 
-    DeviceHelper(Context &context, const InstanceInterface &vki, vk::VkInstance instance, vk::VkSurfaceKHR surface,
-                 PresentAtMode presentAtMethod, bool requireFifoLatestReady,
-                 const vk::VkAllocationCallbacks *pAllocator = nullptr)
-        : physicalDevice(chooseDevice(vki, instance, context.getTestContext().getCommandLine()))
-        , queueFamilyIndex(chooseQueueFamilyIndex(vki, physicalDevice, surface))
-        , device(createDeviceWithWsi(context.getPlatformInterface(), instance, vki, physicalDevice,
-                                     enumerateDeviceExtensionProperties(vki, physicalDevice, nullptr), queueFamilyIndex,
-                                     presentAtMethod, requireFifoLatestReady, pAllocator))
-        , vkd(context.getPlatformInterface(), instance, *device, context.getUsedApiVersion(),
-              context.getTestContext().getCommandLine())
+    DeviceHelper(const InstanceHelper &instanceHelper, vk::VkSurfaceKHR surface, PresentAtMode presentAtMethod,
+                 bool requireFifoLatestReady, const vk::VkAllocationCallbacks *pAllocator = nullptr)
+        : physicalDevice(instanceHelper.instance.getPhysicalDevice())
+        , queueFamilyIndex(chooseQueueFamilyIndex(instanceHelper.vki, physicalDevice, surface))
+        , device(createDeviceWithWsi(instanceHelper.instance, physicalDevice,
+                                     enumerateDeviceExtensionProperties(instanceHelper.vki, physicalDevice, nullptr),
+                                     queueFamilyIndex, presentAtMethod, requireFifoLatestReady, pAllocator))
+        , vkd(device.getDriver())
         , queue(getDeviceQueue(vkd, *device, queueFamilyIndex, 0))
     {
     }
@@ -971,12 +982,12 @@ uint32_t getPastPresentationTiming(const DeviceInterface &vkd, vk::VkDevice devi
         if (pth.timings[i].presentStageCount < 1)
             TCU_FAIL("Unexpected present stage count");
 
+        if (!(pth.pastPresentationTimingFlags & VK_PAST_PRESENTATION_TIMING_ALLOW_PARTIAL_RESULTS_BIT_EXT) &&
+            !pth.timings[i].reportComplete)
+            TCU_FAIL("Received partial result when disallowed");
+
         if (pth.timings[i].reportComplete)
         {
-            if (!(pth.pastPresentationTimingFlags & VK_PAST_PRESENTATION_TIMING_ALLOW_PARTIAL_RESULTS_BIT_EXT) &&
-                !pth.timings[i].reportComplete)
-                TCU_FAIL("Received partial result when disallowed");
-
             PresentResult result;
 
             if (pth.timings[i].presentStageCount != pth.stageCount)
@@ -1029,9 +1040,8 @@ tcu::TestStatus surfaceCapabilitiesTest(Context &context, Type wsiType)
     const NativeObjects native(context, instHelper.supportedExtensions, wsiType, 1u, tcu::just(kDefaultWindowSize));
     Unique<vk::VkSurfaceKHR> surface(createSurface(instHelper.vki, instHelper.instance, wsiType, native.getDisplay(),
                                                    native.getWindow(), context.getTestContext().getCommandLine()));
-    vk::VkPresentTimingSurfaceCapabilitiesEXT caps = getSurfacePresentTimingCapabilities(
-        instHelper.vki, chooseDevice(instHelper.vki, instHelper.instance, context.getTestContext().getCommandLine()),
-        *surface);
+    vk::VkPresentTimingSurfaceCapabilitiesEXT caps =
+        getSurfacePresentTimingCapabilities(instHelper.vki, instHelper.instance.getPhysicalDevice(), *surface);
 
     if ((caps.presentStageQueries & VK_PRESENT_STAGE_QUEUE_OPERATIONS_END_BIT_EXT) == 0)
         TCU_FAIL("VK_PRESENT_STAGE_QUEUE_OPERATIONS_END_BIT_EXT must be supported if presentTimingSupported is true");
@@ -1065,7 +1075,7 @@ tcu::TestStatus timingQueueTest(Context &context, vk::wsi::Type wsiType)
     const NativeObjects native(context, instHelper.supportedExtensions, wsiType, 1u, tcu::just(kDefaultWindowSize));
     Unique<vk::VkSurfaceKHR> surface(createSurface(instHelper.vki, instHelper.instance, wsiType, native.getDisplay(),
                                                    native.getWindow(), context.getTestContext().getCommandLine()));
-    DeviceHelper devHelper(context, instHelper.vki, instHelper.instance, *surface, PresentAtMode::NONE, false);
+    DeviceHelper devHelper(instHelper, *surface, PresentAtMode::NONE, false);
     const DeviceInterface &vkd = devHelper.vkd;
     const vk::VkDevice device  = *devHelper.device;
 
@@ -1169,6 +1179,8 @@ tcu::TestStatus timingQueueTest(Context &context, vk::wsi::Type wsiType)
     if (resultsCount != remainingResults + 1)
         TCU_FAIL("Failed to retrieve remaining results");
 
+    vkd.queueWaitIdle(devHelper.queue);
+
     return tcu::TestStatus::pass("Tests ran successfully");
 }
 
@@ -1180,7 +1192,7 @@ tcu::TestStatus timingTest(Context &context, PresentTimingTestConfig config)
     Unique<vk::VkSurfaceKHR> surface(createSurface(instHelper.vki, instHelper.instance, config.wsiType,
                                                    native.getDisplay(), native.getWindow(),
                                                    context.getTestContext().getCommandLine()));
-    DeviceHelper devHelper(context, instHelper.vki, instHelper.instance, *surface, PresentAtMode::NONE,
+    DeviceHelper devHelper(instHelper, *surface, PresentAtMode::NONE,
                            (config.presentMode == VK_PRESENT_MODE_FIFO_LATEST_READY_KHR));
     const DeviceInterface &vkd = devHelper.vkd;
     const vk::VkDevice device  = *devHelper.device;
@@ -1264,6 +1276,8 @@ tcu::TestStatus timingTest(Context &context, PresentTimingTestConfig config)
     pth.sortResults();
     pth.verifyPresentIds(initialPresentId, presentIdStep, frameCount, config.presentStageQueries);
 
+    vkd.queueWaitIdle(devHelper.queue);
+
     return tcu::TestStatus::pass("All tests ran successfully");
 }
 
@@ -1273,7 +1287,7 @@ tcu::TestStatus largeQueueSizeTest(Context &context, vk::wsi::Type wsiType)
     const NativeObjects native(context, instHelper.supportedExtensions, wsiType, 1u, tcu::just(kDefaultWindowSize));
     Unique<vk::VkSurfaceKHR> surface(createSurface(instHelper.vki, instHelper.instance, wsiType, native.getDisplay(),
                                                    native.getWindow(), context.getTestContext().getCommandLine()));
-    DeviceHelper devHelper(context, instHelper.vki, instHelper.instance, *surface, PresentAtMode::NONE, false);
+    DeviceHelper devHelper(instHelper, *surface, PresentAtMode::NONE, false);
     const DeviceInterface &vkd = devHelper.vkd;
     const vk::VkDevice device  = *devHelper.device;
 
@@ -1363,6 +1377,8 @@ tcu::TestStatus largeQueueSizeTest(Context &context, vk::wsi::Type wsiType)
     pth.sortResults();
     pth.verifyPresentIds(initialPresentId, presentIdStep, frameCount, kAllPresentStages);
 
+    vkd.queueWaitIdle(devHelper.queue);
+
     return tcu::TestStatus::pass("All tests ran successfully");
 }
 
@@ -1443,7 +1459,7 @@ tcu::TestStatus timingTestWithBackgroundQueryThreads(Context &context, Type wsiT
     const NativeObjects native(context, instHelper.supportedExtensions, wsiType, 1u, tcu::just(kDefaultWindowSize));
     Unique<vk::VkSurfaceKHR> surface(createSurface(instHelper.vki, instHelper.instance, wsiType, native.getDisplay(),
                                                    native.getWindow(), context.getTestContext().getCommandLine()));
-    DeviceHelper devHelper(context, instHelper.vki, instHelper.instance, *surface, PresentAtMode::NONE, false);
+    DeviceHelper devHelper(instHelper, *surface, PresentAtMode::NONE, false);
     const DeviceInterface &vkd = devHelper.vkd;
     const vk::VkDevice device  = *devHelper.device;
 
@@ -1560,6 +1576,8 @@ tcu::TestStatus timingTestWithBackgroundQueryThreads(Context &context, Type wsiT
     pth.sortResults();
     pth.verifyPresentIds(initialPresentId, presentIdStep, frameCount, surfaceCaps.presentStageQueries);
 
+    vkd.queueWaitIdle(devHelper.queue);
+
     return tcu::TestStatus::pass("All tests ran successfully");
 }
 
@@ -1571,8 +1589,7 @@ tcu::TestStatus retiredSwapchainTest(Context &context, vk::wsi::Type wsiType)
                                                          native.getDisplay(), native.getWindow(),
                                                          context.getTestContext().getCommandLine()));
 
-    const DeviceHelper devHelper(context, instHelper.vki, instHelper.instance, surface.get(), PresentAtMode::NONE,
-                                 false);
+    const DeviceHelper devHelper(instHelper, surface.get(), PresentAtMode::NONE, false);
     const DeviceInterface &vkd                 = devHelper.vkd;
     const vk::VkDevice device                  = *devHelper.device;
     vk::VkSwapchainCreateInfoKHR swapchainInfo = getBasicSwapchainParameters(
@@ -1658,6 +1675,8 @@ tcu::TestStatus retiredSwapchainTest(Context &context, vk::wsi::Type wsiType)
         swapchains[swapchainIdx].m_swapchain = {};
     }
 
+    vkd.queueWaitIdle(devHelper.queue);
+
     return tcu::TestStatus::pass("Tests ran successfully");
 }
 
@@ -1680,11 +1699,10 @@ tcu::TestStatus presentAtTest(Context &context, PresentTimingTestConfig config)
                                                          native.getDisplay(), native.getWindow(),
                                                          context.getTestContext().getCommandLine()));
 
-    const DeviceHelper devHelper(context, instHelper.vki, instHelper.instance, surface.get(), config.presentAtMode,
+    const DeviceHelper devHelper(instHelper, surface.get(), config.presentAtMode,
                                  (config.presentMode == VK_PRESENT_MODE_FIFO_LATEST_READY_KHR));
-    const DeviceInterface &vkd = devHelper.vkd;
-    const vk::VkDevice device  = *devHelper.device;
-    SimpleAllocator allocator(vkd, device, getPhysicalDeviceMemoryProperties(instHelper.vki, devHelper.physicalDevice));
+    const DeviceInterface &vkd                       = devHelper.vkd;
+    const vk::VkDevice device                        = *devHelper.device;
     const vk::VkSwapchainCreateInfoKHR swapchainInfo = getBasicSwapchainParameters(
         config.wsiType, instHelper.vki, devHelper.physicalDevice, *surface, kDefaultWindowSize, config.presentMode, 2);
     const vk::VkPresentTimingSurfaceCapabilitiesEXT surfaceCaps =
@@ -1771,10 +1789,20 @@ tcu::TestStatus presentAtTest(Context &context, PresentTimingTestConfig config)
 
             pth.sortResults();
 
-            // Check for non-zero result, starting from the end
+            // Check for non-zero result for the target time domain stage, starting from the end.
+            // Per spec, VK_TIME_DOMAIN_PRESENT_STAGE_LOCAL_EXT values are "comparable only with
+            // other values from the same swapchain and present stage." The base timestamp used to
+            // build an absolute PresentAt target must match targetTimeDomainPresentStage.
             for (int32_t i = resultCount - 1; i >= 0; i--)
             {
-                if (pth.results[i].times.begin()->second != 0)
+                auto baseTimeIt = pth.results[i].times.end();
+
+                if (targetTimeDomainPresentStage != 0)
+                    baseTimeIt = pth.results[i].times.find(targetTimeDomainPresentStage);
+                else if (!pth.results[i].times.empty())
+                    baseTimeIt = pth.results[i].times.begin();
+
+                if (baseTimeIt != pth.results[i].times.end() && baseTimeIt->second != 0)
                 {
                     baseResult = pth.results[i];
                     break;
@@ -1822,8 +1850,13 @@ tcu::TestStatus presentAtTest(Context &context, PresentTimingTestConfig config)
                              **renderSemaphores[frame.imageIndex], frame.renderFence);
 
         if (config.presentAtMode == PresentAtMode::ABSOLUTE)
-            presentTimingInfo.targetTime = calculateTargetPresentTime(basePresentId, baseResult.times.begin()->second,
-                                                                      presentId, pth.refreshCycleDuration);
+        {
+            const uint64_t baseTime = (targetTimeDomainPresentStage != 0) ?
+                                          baseResult.times.at(targetTimeDomainPresentStage) :
+                                          baseResult.times.begin()->second;
+            presentTimingInfo.targetTime =
+                calculateTargetPresentTime(basePresentId, baseTime, presentId, pth.refreshCycleDuration);
+        }
         else
             presentTimingInfo.targetTime = pth.refreshCycleDuration * refreshCycleDurationFactor;
 
@@ -1884,7 +1917,8 @@ tcu::TestStatus presentAtTest(Context &context, PresentTimingTestConfig config)
             if (i > 0)
             {
                 const PresentResult &prevResult = pth.results[firstResultIdx + i - 1];
-                const uint64_t prevPresentTime  = prevResult.times.at(presentStage);
+                auto prevIt                     = prevResult.times.find(presentStage);
+                const uint64_t prevPresentTime  = (prevIt != prevResult.times.end()) ? prevIt->second : 0;
 
                 if (!config.allowOutOfOrder && prevPresentTime != 0 && actualPresentTime <= prevPresentTime)
                     TCU_FAIL("Frames presented out of order when disallowed");
@@ -1909,6 +1943,8 @@ tcu::TestStatus presentAtTest(Context &context, PresentTimingTestConfig config)
         }
     }
 
+    vkd.queueWaitIdle(devHelper.queue);
+
     return tcu::TestStatus::pass("Tests ran successfully");
 }
 
@@ -1919,7 +1955,7 @@ tcu::TestStatus timeDomainPropertiesTest(Context &context, Type wsiType)
     const NativeObjects native(context, instHelper.supportedExtensions, wsiType, 1u, tcu::just(kDefaultWindowSize));
     Unique<vk::VkSurfaceKHR> surface(createSurface(instHelper.vki, instHelper.instance, wsiType, native.getDisplay(),
                                                    native.getWindow(), context.getTestContext().getCommandLine()));
-    DeviceHelper devHelper(context, instHelper.vki, instHelper.instance, *surface, PresentAtMode::NONE, false);
+    DeviceHelper devHelper(instHelper, *surface, PresentAtMode::NONE, false);
     const DeviceInterface &vkd = devHelper.vkd;
     const vk::VkDevice device  = *devHelper.device;
 
@@ -2044,6 +2080,8 @@ tcu::TestStatus timeDomainPropertiesTest(Context &context, Type wsiType)
     if (drainPresentationTimingResults(vkd, device, *swapchain, pth, pendingResults) != pendingResults)
         TCU_FAIL("Failed to retrieve all remaining timing results");
 
+    vkd.queueWaitIdle(devHelper.queue);
+
     return tcu::TestStatus::pass("Tests ran successfully");
 }
 
@@ -2056,7 +2094,7 @@ tcu::TestStatus timeDomainCalibrationTest(Context &context, CalibrationTestConfi
     Unique<vk::VkSurfaceKHR> surface(createSurface(instHelper.vki, instHelper.instance, config.wsiType,
                                                    native.getDisplay(), native.getWindow(),
                                                    context.getTestContext().getCommandLine()));
-    DeviceHelper devHelper(context, instHelper.vki, instHelper.instance, *surface, PresentAtMode::NONE, false);
+    DeviceHelper devHelper(instHelper, *surface, PresentAtMode::NONE, false);
     const DeviceInterface &vkd = devHelper.vkd;
     const vk::VkDevice device  = *devHelper.device;
 
@@ -2315,6 +2353,12 @@ void populateQueryGroup(tcu::TestCaseGroup *testGroup, vk::wsi::Type wsiType)
 {
     for (auto presentMode : presentModes)
     {
+
+        // skip shared present modes as these tests violate many assumptions of them.
+        if (presentMode.mode == VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR ||
+            presentMode.mode == VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR)
+            continue;
+
         de::MovePtr<tcu::TestCaseGroup> presentModeGroup(
             new tcu::TestCaseGroup(testGroup->getTestContext(), presentMode.name));
 

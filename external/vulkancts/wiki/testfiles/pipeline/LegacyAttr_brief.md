@@ -2,7 +2,7 @@
 
 ## One-sentence test purpose
 
-This family checks whether the dynamic vertex-input path fetches legacy attribute data with the requested format, stride, and offsets, then exposes the result to a shader input with a selected numeric type. The test compares that result with a CTS host reference.
+This family checks whether the dynamic vertex-input path fetches legacy attribute data with the requested format, stride, and offsets, then exposes the result to a shader input with a selected numeric type. The test compares that result with a CTS host reference. Device-address-command leaves repeat the same matrix while binding the vertex buffers through `vkCmdBindVertexBuffers3KHR` under `VK_KHR_device_address_commands`, with the stride supplied either by the dynamic binding descriptions (`_dac`) or by the address range itself (`_dac_with_stride`).
 
 ## Background knowledge
 
@@ -34,6 +34,8 @@ A `single_binding` leaf can use `VK_FORMAT_R32_SFLOAT`, shader type `float`, a s
 [device] fetch and convert attributes, pass them through the vertex interface, and write them from the fragment shader
 [host] copy the color image, invalidate color and SSBO allocations, then compare both observations
 ```
+
+For `_dac` and `_dac_with_stride` leaves, the buffer-binding step replaces `vkCmdBindVertexBuffers` with `vkCmdBindVertexBuffers3KHR`: the stride comes from the dynamic descriptions when they are recorded after the address command, or from the address range when the dynamic descriptions are recorded first with a zero stride.
 
 ## Generated test artifacts and bound resources
 
@@ -69,22 +71,22 @@ The source makes two independent observations. First, it expects every pixel in 
 
 ## Important variations and special cases
 
-- The factory registers 1,336 `single_binding` leaves and 24 `multi_binding` leaves in each of the monolithic and fast-linked-library mustpass lists.
-- `single_binding` iterates a source list of 58 formats, three candidate shader formats, a deduplicated stride set, and binary attribute and allocation offsets. Source filtering removes selected redundant or unsuitable reinterpretation combinations.
+- The factory registers 4,008 `single_binding` leaves and 72 `multi_binding` leaves in each of the monolithic and fast-linked-library mustpass lists; 2,720 of the 4,080 leaves bind their vertex buffers through device-address commands.
+- `single_binding` iterates a source list of 54 formats, three candidate shader formats, a deduplicated stride set, and binary attribute and allocation offsets. Source filtering removes selected redundant or unsuitable reinterpretation combinations.
 - `multi_binding` uses three curated three-format tuples, normal or one-byte strides, and binary attribute and allocation offsets.
-- Every case requires `fragmentStoresAndAtomics`, `VK_EXT_vertex_input_dynamic_state`, `VK_EXT_legacy_vertex_attributes`, selected pipeline-construction support, and `VK_FORMAT_FEATURE_VERTEX_BUFFER_BIT` for each tested format. Cases with a three-component attribute also require `VK_EXT_scalar_block_layout`.
-- The parent only adds this nested subgroup for monolithic and fast-linked-library construction ([parent registration](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3111-L3120)).
+- Every case requires `fragmentStoresAndAtomics`, `VK_EXT_vertex_input_dynamic_state`, `VK_EXT_legacy_vertex_attributes`, selected pipeline-construction support, and `VK_FORMAT_FEATURE_VERTEX_BUFFER_BIT` for each tested format. Cases with a three-component attribute also require `VK_EXT_scalar_block_layout`. Device-address-command leaves additionally require `VK_KHR_device_address_commands`.
+- The parent only adds this nested subgroup for monolithic and fast-linked-library construction ([parent registration](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3410-L3415)).
 
 ## Source mapping
 
 | Topic | Source link | Why it matters |
 |---|---|---|
-| Parameters and expected-value decoder | [`BindingParams` and `getOutputData()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L66-L242) | Defines the configurable address inputs and host reference conversion. |
-| Input generation and support gates | [`genInputData()` and `checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L245-L363) | Rejects unstable float values and requires extensions, features, and format support. |
-| Generated shaders | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L365-L413) | Generates the vertex interface and fragment SSBO stores. |
-| Runtime and comparisons | [`LegacyVertexAttributesInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L415-L809) | Allocates resources, records commands, and validates color plus captured values. |
-| Matrix registration | [`createLegacyVertexAttributesTests()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L833-L1071) | Registers `single_binding` and `multi_binding` leaves. |
-| Parent routing | [`createVertexInputTests()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3111-L3120) | Registers `legacy_vertex_attributes` only for the two construction types. |
+| Parameters and expected-value decoder | [`BindingParams` and `getOutputData()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L67-L249) | Defines the configurable address inputs and host reference conversion. |
+| Input generation and support gates | [`genInputData()` and `checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L251-L372) | Rejects unstable float values and requires extensions, features, and format support. |
+| Generated shaders | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L374-L421) | Generates the vertex interface and fragment SSBO stores. |
+| Runtime and comparisons | [`LegacyVertexAttributesInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L424-L893) | Allocates resources, records commands, and validates color plus captured values. |
+| Matrix registration | [`populateSingleBindingGroup()`, `populateMultipleBindingsGroup()`, and `createLegacyVertexAttributesTests()`](../../../modules/vulkan/pipeline/vktPipelineLegacyAttrTests.cpp#L1026-L1196) | Registers `single_binding` and `multi_binding` leaves, including the device-address variants. |
+| Parent routing | [`createVertexInputTests()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3410-L3415) | Registers `legacy_vertex_attributes` only for the two construction types. |
 
 ## Questions / risk points for user audit
 

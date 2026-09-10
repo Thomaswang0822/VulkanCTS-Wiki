@@ -127,13 +127,13 @@ This color pattern converts an overlap error into a visible image mismatch witho
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Fill and isoline runtime | [`runTest()`](../../../modules/vulkan/tessellation/vktTessellationMiscDrawTests.cpp#L138-L361) | Uploads levels, issues draws, reads images, and applies the `0.002` comparison. |
+| Fill and isoline runtime | [`runTest()`](../../../modules/vulkan/tessellation/vktTessellationMiscDrawTests.cpp#L141-L363) | Uploads levels, issues draws, reads images, and applies the `0.002` comparison. |
 | Fill and isoline shaders | [`initCommonPrograms()` and evaluation builders](../../../modules/vulkan/tessellation/vktTessellationMiscDrawTests.cpp#L363-L594) | Defines generated behavior for coverage, overlap, and isolines. |
 | State-switch path | [`TessStateSwitchCase` and `iterate()`](../../../modules/vulkan/tessellation/vktTessellationMiscDrawTests.cpp#L636-L1100) | Builds paired programs, draws the independent reference, and compares images. |
 | Instanced and no-patch path | [`TessInstancedDrawTestCase` and `iterate()`](../../../modules/vulkan/tessellation/vktTessellationMiscDrawTests.cpp#L1224-L1481) | Generates shaders, chooses complete or incomplete patch draws, and compares output. |
 | Registration matrix | [`createMiscDrawTests()`](../../../modules/vulkan/tessellation/vktTessellationMiscDrawTests.cpp#L1859-L2084) | Generates leaves and delegates the barrier regression to Amber. |
-| Barrier regression | [`tess_factor_barrier_bug.amber`](../../../data/vulkan/amber/tessellation/tess_factor_barrier_bug.amber#L1-L132) | Defines the barrier, discard pattern, draw size, and expected framebuffer. |
-| Mustpass coverage | [`tessellation.txt`](../../../mustpass/main/vk-default/tessellation.txt#L237-L343) | Confirms all 107 `misc_draw` leaves in the default Vulkan mustpass list. |
+| Barrier regression | `tess_factor_barrier_bug.amber` | Defines the barrier, discard pattern, draw size, and expected framebuffer. |
+| Mustpass coverage | [`tessellation.txt`](../../../mustpass/main/vk-default/tessellation.txt#L237-L345) | Confirms all 109 `misc_draw` leaves in the default Vulkan mustpass list (108 in Vulkan SC). |
 
 ## Questions / Risk Points for User Audit
 

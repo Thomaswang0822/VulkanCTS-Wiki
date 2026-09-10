@@ -111,9 +111,9 @@ Why it matters here:
 | Both registration roots | [`createMeshShaderMiscTests` and `createMeshShaderInOutTests`](../../../modules/vulkan/mesh_shader/vktMeshShaderMiscTests.cpp#L4808-L5232) | Registers the 33 direct `misc` leaves and the 560 generated `in_out` leaves. |
 | NV support helper | [`checkTaskMeshShaderSupportNV`](../../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L111-L124) | Requires the extension and requested task/mesh feature bits. |
 | vk-default mustpass slice | [mesh-shader mustpass](../../../mustpass/main/vk-default/mesh-shader.txt#L27356-L27948) | Enumerates all covered `in_out` and `misc` executable cases. |
-| NV mesh execution model | [Vulkan specification chapter](../../../../../vulkan-docs/src/chapters/VK_NV_mesh_shader/mesh.adoc) | Defines task-generated mesh workgroups and mesh outputs. |
-| Shader interface rules | [Vulkan specification chapter](../../../../../vulkan-docs/src/chapters/interfaces.adoc#L55-L292) | Defines interface matching and location allocation. |
-| Shader workgroups and barriers | [Vulkan specification chapter](../../../../../vulkan-docs/src/chapters/shaders.adoc#L2389-L2480) | Defines task/mesh workgroups, shared data, and control barriers. |
+| NV mesh execution model | [Vulkan specification chapter](../../../../vulkan-docs/src/chapters/VK_NV_mesh_shader/mesh.adoc) | Defines task-generated mesh workgroups and mesh outputs. |
+| Shader interface rules | [Vulkan specification chapter](../../../../vulkan-docs/src/chapters/interfaces.adoc#L55-L292) | Defines interface matching and location allocation. |
+| Shader workgroups and barriers | [Vulkan specification chapter](../../../../vulkan-docs/src/chapters/shaders.adoc#L2389-L2480) | Defines task/mesh workgroups, shared data, and control barriers. |
 
 ## Questions / Risk Points for User Audit
 

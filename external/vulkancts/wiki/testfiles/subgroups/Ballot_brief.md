@@ -117,13 +117,13 @@ Each successful check contributes one bit to `tempResult`. The expected output i
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Registration and case matrix | [`createSubgroupsBallotTests`](../../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L1019-L1160) | Defines every direct child and executable ballot path. |
+| Registration and case matrix | [`createSubgroupsBallotTests`](../../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L1018-L1159) | Defines every direct child and executable ballot path. |
 | Generated shader selection | [`initPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L809-L828) | Selects extensions, body text, helper text, stages, and SPIR-V target. |
 | Ballot body | [`getBodySource`](../../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L770-L807) | Defines the three result bits and compute-like comparison rule. |
 | Shared-memory reference ballot | [`getSharedMemoryBallotHelper`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L867-L895) | Independently constructs the core mask with subgroup-scoped shared atomics. |
 | Standard shader wrappers | [`initStdPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1406-L1675) | Supplies declarations, stage wrappers, indexing, and result writes. |
 | Support gates | [`supportedCheck`](../../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L830-L889) | Enforces subgroup, ballot, stage, extension, int64, and optional feature requirements. |
-| Runtime routing | [`test`](../../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L920-L1012) | Chooses compute, mesh, graphics, and ray tracing helpers and resources. |
+| Runtime routing | [`test`](../../../modules/vulkan/subgroups/vktSubgroupsBallotTests.cpp#L919-L1011) | Chooses compute, mesh, graphics, and ray tracing helpers and resources. |
 | Result callbacks | [`check` and `checkComputeOrMesh`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2640-L2663) | Require every observed value to equal `0x7`. |
 | Registered mustpass leaves | [`subgroups.txt`](../../../mustpass/main/vk-default/subgroups.txt#L12088-L12110) | Confirms the executable paths included in the default mustpass set. |
 | Subgroup and ballot semantics | [`shaders.adoc`](../../../../vulkan-docs/src/chapters/shaders.adoc#L3220-L3247) and [`shaders.adoc`](../../../../vulkan-docs/src/chapters/shaders.adoc#L3447-L3523) | Defines subgroups, group operations, and ballot behavior. |

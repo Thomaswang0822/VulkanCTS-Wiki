@@ -77,9 +77,9 @@ The primary behavioral axis is the direct intermediate node below `pipeline.<con
 
 ## Source Mapping
 
-- [`createMultisampleTests`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L7256-L8096) creates the direct hierarchy and applies construction-type and fragment-shading-rate conditions.
-- [`RasterizationSamplesInstance::verifyImage`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L2465-L2541), [`MinSampleShadingInstance::verifySampleShadedImage`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L2598-L2672), and [`SampleMaskInstance::verifyImage`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L2793-L2816) show representative result checks.
-- [`AlphaToOneInstance`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L2916-L3000) and [`AlphaToCoverageInstance`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L3003-L3115) show paired-control and depth-check flows.
+- [`createMultisampleTests`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L7251-L8091) creates the direct hierarchy and applies construction-type and fragment-shading-rate conditions.
+- [`RasterizationSamplesInstance::verifyImage`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L2460-L2536), [`MinSampleShadingInstance::verifySampleShadedImage`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L2593-L2667), and [`SampleMaskInstance::verifyImage`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L2788-L2811) show representative result checks.
+- [`AlphaToOneInstance`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L2911-L2995) and [`AlphaToCoverageInstance`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L2998-L3110) show paired-control and depth-check flows.
 - Vulkan multisample state and fragment-operation rules: [`pipelines.adoc`](../../../../vulkan-docs/src/chapters/pipelines.adoc#L2188-L2200) and [`fragops.adoc`](../../../../vulkan-docs/src/chapters/fragops.adoc#L693-L1176).
 
 ## Questions / Risk Points for User Audit

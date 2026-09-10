@@ -21,11 +21,57 @@ For the shared model of indexed addressing and robustness contracts, see [Robust
 robustness.index_access
 ├── draw_indexed_2
 ├── draw_indexed_2_device_address
+├── draw_indexed_2_uint16
+├── draw_indexed_2_uint16_device_address
+├── draw_indexed_2_uint8
+├── draw_indexed_2_uint8_device_address
 ├── draw_indexed_indirect_2
 ├── draw_indexed_indirect_2_device_address
+├── draw_indexed_indirect_2_uint16
+├── draw_indexed_indirect_2_uint16_device_address
+├── draw_indexed_indirect_2_uint8
+├── draw_indexed_indirect_2_uint8_device_address
 ├── draw_indexed_indirect_count_2
 ├── draw_indexed_indirect_count_2_device_address
-└── draw_multi_indexed_2
+├── draw_indexed_indirect_count_2_uint16
+├── draw_indexed_indirect_count_2_uint16_device_address
+├── draw_indexed_indirect_count_2_uint8
+├── draw_indexed_indirect_count_2_uint8_device_address
+├── draw_indexed_indirect_count_pipeline_robustness_1_vert_frag
+├── draw_indexed_indirect_count_pipeline_robustness_1_vert_geom_frag
+├── draw_indexed_indirect_count_pipeline_robustness_1_vert_tess_frag
+├── draw_indexed_indirect_count_pipeline_robustness_1_vert_tess_geom_frag
+├── draw_indexed_indirect_count_pipeline_robustness_2_vert_frag
+├── draw_indexed_indirect_count_pipeline_robustness_2_vert_geom_frag
+├── draw_indexed_indirect_count_pipeline_robustness_2_vert_tess_frag
+├── draw_indexed_indirect_count_pipeline_robustness_2_vert_tess_geom_frag
+├── draw_indexed_indirect_pipeline_robustness_1_vert_frag
+├── draw_indexed_indirect_pipeline_robustness_1_vert_geom_frag
+├── draw_indexed_indirect_pipeline_robustness_1_vert_tess_frag
+├── draw_indexed_indirect_pipeline_robustness_1_vert_tess_geom_frag
+├── draw_indexed_indirect_pipeline_robustness_2_vert_frag
+├── draw_indexed_indirect_pipeline_robustness_2_vert_geom_frag
+├── draw_indexed_indirect_pipeline_robustness_2_vert_tess_frag
+├── draw_indexed_indirect_pipeline_robustness_2_vert_tess_geom_frag
+├── draw_indexed_pipeline_robustness_1_vert_frag
+├── draw_indexed_pipeline_robustness_1_vert_geom_frag
+├── draw_indexed_pipeline_robustness_1_vert_tess_frag
+├── draw_indexed_pipeline_robustness_1_vert_tess_geom_frag
+├── draw_indexed_pipeline_robustness_2_vert_frag
+├── draw_indexed_pipeline_robustness_2_vert_geom_frag
+├── draw_indexed_pipeline_robustness_2_vert_tess_frag
+├── draw_indexed_pipeline_robustness_2_vert_tess_geom_frag
+├── draw_multi_indexed_2
+├── draw_multi_indexed_2_uint16
+├── draw_multi_indexed_2_uint8
+├── draw_multi_indexed_pipeline_robustness_1_vert_frag
+├── draw_multi_indexed_pipeline_robustness_1_vert_geom_frag
+├── draw_multi_indexed_pipeline_robustness_1_vert_tess_frag
+├── draw_multi_indexed_pipeline_robustness_1_vert_tess_geom_frag
+├── draw_multi_indexed_pipeline_robustness_2_vert_frag
+├── draw_multi_indexed_pipeline_robustness_2_vert_geom_frag
+├── draw_multi_indexed_pipeline_robustness_2_vert_tess_frag
+└── draw_multi_indexed_pipeline_robustness_2_vert_tess_geom_frag
 
 robustness.bind_index_buffer2
 ├── offset_0
@@ -36,6 +82,8 @@ robustness.bind_index_buffer2
 
 ## Parameter Dimensions and Observed Values
 
+The added uint8/uint16 and pipeline-robustness leaves are direct test cases under `robustness.index_access`; they vary the index element width, indirect/count draw form, device-address path, and selected vertex/geometry/tessellation/fragment pipeline stages. They are not descendants of another intermediate registration node.
+
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
 | Test family | `index_access`, `bind_index_buffer2` | Selects out-of-bounds `firstIndex` behavior or sized-binding behavior. | [registration](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1116-L1205) |
@@ -43,6 +91,8 @@ robustness.bind_index_buffer2
 | Binding offset | `offset_0`, `offset_100` | Checks a binding at the buffer start and after leading index data. | [`offsets`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1132-L1140) |
 | Out-of-range type | `oo_none`, `oo_index`, `oo_size`, `oo_whole_size` | Selects a valid baseline or the source of the unusable index access. | [`OutOfTypes`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1125-L1130) |
 | Binding command | handle, `_device_address` | Compares classic binding/draw commands with device-address command variants where registered. | [variant generation](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1153-L1164) |
+| Index type | `uint8`, `uint16`, `uint32` | Exercises the core and extended index-buffer element widths; `uint8` requires `indexTypeUint8`. | [index-type combinations](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1142-L1151) |
+| Pipeline robustness | Versions 1 and 2; vertex/fragment, geometry, tessellation, and combined stage paths | Applies pipeline robustness to the indexed draw and varies the stages used by the pipeline. | [pipeline-robustness registration](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1167-L1202) |
 
 ## Behavior Parameters
 
@@ -258,7 +308,7 @@ void main(void)
 
 - [`vktRobustnessIndexAccessTests.cpp`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1-L1207) — implementation and registration.
 - [`DrawIndexedInstance::iterate()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L165-L461) — `index_access` setup, command recording, and validation.
-- [`BindIndexBuffer2Instance::iterate()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L787-L1113) — sized-binding setup, draws, and sampled validation.
+- [`BindIndexBuffer2Instance::iterate()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L892-L1228) — sized-binding setup, draws, and sampled validation.
 - [`createCmdBindIndexBuffer2Tests()` and `createIndexAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1116-L1205) — registered matrix.
 - [`vktRobustnessTests.cpp`](../../../modules/vulkan/robustness/vktRobustnessTests.cpp#L61-L99) — category registration and VulkanSC guard.
 - [`robustness.txt`](../../../mustpass/main/vk-default/robustness.txt#L1-L41) and [`index_access` entries](../../../mustpass/main/vk-default/robustness.txt#L13746-L13752) — default mustpass evidence.

@@ -85,9 +85,9 @@ For `dEQP-VK.subgroups.size_control.compute.require_full_subgroups`, the compute
 | Case model and checkers | [`CaseDefinition` and check functions](../../../modules/vulkan/subgroups/vktSubgroupsSizeControlTests.cpp#L44-L297) | Defines size modes and all host pass/fail comparisons. |
 | Shader generation | [`initFrameBufferPrograms`, `initPrograms`, and `initProgramsRequireFull`](../../../modules/vulkan/subgroups/vktSubgroupsSizeControlTests.cpp#L299-L504) | Emits the ordinary and full-subgroup observation shaders. |
 | Support gates | [`supportedCheckFeatures`](../../../modules/vulkan/subgroups/vktSubgroupsSizeControlTests.cpp#L506-L588) | Enforces extension, feature, stage, ballot, and SPIR-V requirements. |
-| Runtime case routing | [`test`, `testRequireFullSubgroups`, and `testRequireSubgroupSize`](../../../modules/vulkan/subgroups/vktSubgroupsSizeControlTests.cpp#L623-L933) | Selects local sizes, required values, execution helpers, and checkers. |
+| Runtime case routing | [`test`, `testRequireFullSubgroups`, and `testRequireSubgroupSize`](../../../modules/vulkan/subgroups/vktSubgroupsSizeControlTests.cpp#L622-L932) | Selects local sizes, required values, execution helpers, and checkers. |
 | Registration matrix | [`createSubgroupsSizeControlTests`](../../../modules/vulkan/subgroups/vktSubgroupsSizeControlTests.cpp#L1013-L1254) | Owns exact test family and test case names. |
-| Compute and mesh harness | [`makeComputeOrMeshTestRequiredSubgroupSize`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L3762-L4063) | Creates resources and pipelines, executes each local size, and reads results. |
+| Compute and mesh harness | [`makeComputeOrMeshTestRequiredSubgroupSize`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L3764-L4068) | Creates resources and pipelines, executes each local size, and reads results. |
 | Mustpass inventory | [`vk-default/subgroups.txt`](../../../mustpass/main/vk-default/subgroups.txt#L47660-L47722) | Confirms 63 executable `size_control` paths. |
 
 ## Questions / Risk Points for User Audit

@@ -3,7 +3,7 @@
 **Core question:** Does multiview rendering select and update the expected image layers across render-pass, shader-stage, resource, and query variants?
 
 - [`vktMultiViewRenderTests.cpp`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L70-L115) defines the implementation and the `TestType`, `RenderingType`, and `QueryType` dimensions for this Level-3 page.
-- [`multiViewRenderCreateTests()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4999-L5270) registers the legacy `multiview` tree, `renderpass2`, and, outside Vulkan SC, `dynamic_rendering`. The same implementation file owns all three rendering paths.
+- [`multiViewRenderCreateTests()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5054-L5333) registers the legacy `multiview` tree, `renderpass2`, and, outside Vulkan SC, `dynamic_rendering`. The same implementation file owns all three rendering paths.
 - The families exercise view masks, `gl_ViewIndex` in several shader stages, input attachments, instancing, indirect and indexed draws, clears, secondary and nested command buffers, point size, multisampling, queries, readback, depth, and stencil.
 - The test submits graphics work, copies layered results to host-visible memory, and compares each layer with a generated reference. Query families use query results instead of the common color-image check.
 
@@ -32,8 +32,11 @@ multiview
 ├── multisample
 ├── multisample_resolve
 ├── queries
+├── queries_and_timestamps
 ├── non_precise_queries
+├── non_precise_queries_and_timestamps
 ├── non_precise_queries_with_availability
+├── non_precise_queries_with_availability_and_timestamps
 ├── readback_implicit_clear
 ├── readback_explicit_clear
 ├── depth
@@ -47,7 +50,7 @@ multiview
 └── dynamic_rendering
 ```
 
-The 28 direct children above exactly match the default Vulkan mustpass namespace. `renderpass2` and the non-VulkanSC `dynamic_rendering` child are wrapper roots that repeat the applicable implementation families below their own paths; `dynamic_rendering` omits `input_attachments`. Under `index`, the implementation registers `vertex_shader`, `fragment_shader`, `geometry_shader`, and `tessellation_shader`. Query families add `get_query_pool_results` and `cmd_copy_query_pool_results`; non-query families add `no_queries`. Those deeper paths are listed in the parameter and family sections rather than nested in the parseable tree.
+The 31 direct children above match the default Vulkan mustpass namespace. `renderpass2` and the non-VulkanSC `dynamic_rendering` child are wrapper roots that repeat the applicable implementation families below their own paths; `dynamic_rendering` omits `input_attachments`. Under `index`, the implementation registers `vertex_shader`, `fragment_shader`, `geometry_shader`, and `tessellation_shader`. Query families add `get_query_pool_results` and `cmd_copy_query_pool_results`; non-query families add `no_queries`. Those deeper paths are listed in the parameter and family sections rather than nested in the parseable tree.
 
 ## Parameter Dimensions and Observed Values
 
@@ -62,8 +65,8 @@ The 28 direct children above exactly match the default Vulkan mustpass namespace
 | Color format | `VK_FORMAT_R8G8B8A8_UNORM`, `VK_FORMAT_R32G32B32A32_SFLOAT`, `VK_FORMAT_R8G8B8A8_UINT`, or `VK_FORMAT_UNDEFINED` | Exercises normalized color, multisample floating-point color, integer layer-index output, or depth-only rendering. | [`multiViewRenderCreateTests()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5113-L5126) |
 | Sample count | `VK_SAMPLE_COUNT_1_BIT` or `VK_SAMPLE_COUNT_4_BIT` | Enables four-sample rendering for `multisample` and `multisample_resolve`. | [`multiViewRenderCreateTests()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5113-L5116) |
 | Layout variant | absent or `_general_layout` | `view_mask_iteration` checks both transfer/color-attachment layouts and `VK_IMAGE_LAYOUT_GENERAL`. | [`multiViewRenderCreateTests()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5132-L5154) |
-| Special case | `max_multi_view_view_count` | Fills masks from the device's `maxMultiviewViewCount` and uses that property as the layer count. | [`fillMissingParameters()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L744-L775), [`multiViewRenderCreateTests()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5209-L5218) |
-| Point size | `2` and `4` | Uses different point sizes for view 0 and the remaining views. | [`TEST_POINT_SIZE_SMALL` and `TEST_POINT_SIZE_WIDE`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L148-L149), [`initPrograms()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4742-L4761) |
+| Special case | `max_multi_view_view_count` | Fills masks from the device's `maxMultiviewViewCount` and uses that property as the layer count. | [`fillMissingParameters()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L761-L793), [`multiViewRenderCreateTests()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5209-L5218) |
+| Point size | `2` and `4` | Uses different point sizes for view 0 and the remaining views. | [`TEST_POINT_SIZE_SMALL` and `TEST_POINT_SIZE_WIDE`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L148-L149), [`initPrograms()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4746-L4985) |
 
 ## Behavior Parameters
 
@@ -127,7 +130,7 @@ The instance adds a resolve attachment. Verification compares only layers resolv
 
 ### `queries` | precise query results
 
-The test collects occlusion and timestamp query results and requires precise occlusion-query support. Precise occlusion results use the expected exact value.
+The test checks occlusion results against the expected exact value and requires precise occlusion-query support. This base family does not validate timestamps.
 
 ### `non_precise_queries` | non-precise query results
 
@@ -136,6 +139,10 @@ The same query execution path accepts any non-zero occlusion result instead of r
 ### `non_precise_queries_with_availability` | query availability
 
 This variant checks the query path with availability-enabled result handling through both result retrieval modes.
+
+### Timestamp query variants
+
+The `queries_and_timestamps`, `non_precise_queries_and_timestamps`, and `non_precise_queries_with_availability_and_timestamps` siblings add timestamp validation to their corresponding occlusion families. Only these siblings check timestamp support and mask retrieved timestamps with the executing queue family's `timestampValidBits`; the three base query families no longer require timestamp support ([query classification](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L107-L124), [timestamp checks](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L3076-L3106)). A timestamp-series start requires a positive end value no earlier than its start; other entries also permit both values to be zero. Precise variants require exact occlusion results, while non-precise variants retain their nonzero test.
 
 ### `readback_implicit_clear` | implicit-clear readback
 
@@ -321,12 +328,13 @@ void main (void)
 
 ## Runtime Execution and Result Checking
 
-- The common instance creates a layered 2D image view. Its extent depth is the number of array layers needed by the selected mask sequence. It uploads position and color vertex buffers, and creates an index buffer for indexed families. See [`ImageAttachment`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L287-L330) and [`createVertexBuffer()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L778-L842).
-- For legacy and `renderpass2`, the helper creates a render pass and framebuffer from the view-mask sequence. Dynamic rendering supplies the view mask in `VkRenderingInfo` and uses one rendering operation per subpass-like iteration. See [`MultiViewRenderTestInstance::iterate()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L453-L507) and [`draw()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L618-L692).
+- Color-attachment transitions, repeated-view dependencies, and resolve/readback transitions include color-attachment read access as well as write access where the image was used as an attachment. This covers attachment reads around multiview rendering without changing the generated image reference.
+- The common instance creates a layered 2D image view. Its extent depth is the number of array layers needed by the selected mask sequence. It uploads position and color vertex buffers, and creates an index buffer for indexed families. See [`ImageAttachment`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L303-L322) and [`createVertexBuffer()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L795-L859).
+- For legacy and `renderpass2`, the helper creates a render pass and framebuffer from the view-mask sequence. Dynamic rendering supplies the view mask in `VkRenderingInfo` and uses one rendering operation per subpass-like iteration. See [`MultiViewRenderTestInstance::iterate()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L469-L523) and [`draw()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L618-L692).
 - The command buffer clears the layered color image, transitions it to attachment use, binds one pipeline per subpass, and issues direct or indexed draws. Repeated view-mask use receives an attachment barrier before the next rendering operation. See [`beforeRenderPass()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L509-L610).
-- The host copies the image to a host-visible buffer, waits for completion, invalidates the allocation, and compares the returned layers with generated references using a `0.01` float threshold. See [`readImage()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L1190-L1274) and [`checkImage()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L1276-L1331).
-- Query families use [`MultiViewQueriesTestInstance::iterate()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L2987-L3071). They retrieve results with either `getQueryPoolResults` or `cmdCopyQueryPoolResults`; precise occlusion tests require the expected value, while non-precise tests require a non-zero value.
-- Depth and stencil families use [`MultiViewDepthStencilTestInstance::iterate()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L3831-L3886). `view_mask_iteration` instead clears one layered image, performs one rendering per mask, copies all layers to verification buffers, and requires exact integer colors. See [`MultiViewMaskIterationTestInstance::iterate()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4306-L4508).
+- The host copies the image to a host-visible buffer, waits for completion, invalidates the allocation, and compares the returned layers with generated references using a `0.01` float threshold. See [`readImage()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L1190-L1274) and [`checkImage()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L1297-L1353).
+- Query families use [`MultiViewQueriesTestInstance::iterate()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L3016-L3105). They retrieve results with either `getQueryPoolResults` or `cmdCopyQueryPoolResults`; precise occlusion tests require the expected value, while non-precise tests require a non-zero value.
+- Depth and stencil families use [`MultiViewDepthStencilTestInstance::iterate()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L3886-L3942). `view_mask_iteration` instead clears one layered image, performs one rendering per mask, copies all layers to verification buffers, and requires exact integer colors. See [`MultiViewMaskIterationTestInstance::iterate()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4361-L4564).
 
 ## Failure Meaning
 
@@ -390,7 +398,7 @@ void main (void)
 
 - All cases require `VK_KHR_multiview`. `renderpass2` requires `VK_KHR_create_renderpass2`; dynamic rendering requires `VK_KHR_dynamic_rendering` and is not registered for Vulkan SC. See [`checkSupport()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4577-L4593).
 - Geometry families require core `geometryShader` and `multiviewGeometryShader`; `tessellation_shader` requires `multiviewTessellationShader`. See [`checkSupport()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4579-L4604).
-- `point_size` requires `largePoints` and device limits/granularity that represent point sizes `2` and `4`. Query families require timestamp support, and `queries` additionally requires precise occlusion queries. See [`checkSupport()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4623-L4660).
+- `point_size` requires `largePoints` and device limits/granularity that represent point sizes `2` and `4`. Only the three `_and_timestamps` query families require timestamp support on the universal queue family; `queries` and `queries_and_timestamps` require precise occlusion queries. See [`checkSupport()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4651-L4652) and [timestamp support](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4711-L4716).
 - `depth_different_ranges` requires `VK_EXT_depth_range_unrestricted`. `nested_cmd_buffer` requires `VK_EXT_nested_command_buffer` and, outside Vulkan SC, both `nestedCommandBuffer` and `nestedCommandBufferRendering`. See [`checkSupport()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4594-L4599) and [`checkSupport()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4662-L4677).
 - Vulkan builds require `maxMultiviewViewCount` of at least six for the ordinary matrix. Vulkan SC checks that the device supports the number of views used by the selected case. See [`checkSupport()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4609-L4621).
 
@@ -412,12 +420,12 @@ void main (void)
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| Test registration matrix | [`multiViewRenderCreateTests()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4999-L5270) | Defines roots, families, masks, formats, query modes, and special cases. |
+| Test registration matrix | [`multiViewRenderCreateTests()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L5054-L5333) | Defines roots, families, masks, formats, query modes, and special cases. |
 | Support checks | [`MultiViewRenderTestsCase::checkSupport()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4577-L4689) | Defines feature, extension, limit, and device-property gates. |
 | Shader generation | [`MultiViewRenderTestsCase::initPrograms()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4691-L4929) | Emits the vertex, tessellation, geometry, and fragment shader variants. |
-| Common render path | [`MultiViewRenderTestInstance::iterate()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L453-L507) | Creates pipelines, submits rendering, reads layers, and checks the result. |
+| Common render path | [`MultiViewRenderTestInstance::iterate()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L469-L523) | Creates pipelines, submits rendering, reads layers, and checks the result. |
 | Render helpers | [`vktMultiViewRenderUtil.cpp`](../../../modules/vulkan/multiview/vktMultiViewRenderUtil.cpp#L159-L230) | Builds multiview render passes and attachment descriptions. |
 | Render-pass wrappers | [`vktMultiViewRenderPassUtil.cpp`](../../../modules/vulkan/multiview/vktMultiViewRenderPassUtil.cpp#L35-L230) | Supplies legacy and `renderpass2` wrapper types. |
-| Query execution | [`MultiViewQueriesTestInstance::iterate()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L2987-L3071) | Checks precise, non-precise, availability, and retrieval variants. |
-| Depth and stencil execution | [`MultiViewDepthStencilTestInstance::iterate()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L3831-L3886) | Implements depth/stencil rendering and result checking. |
-| View-mask iteration | [`MultiViewMaskIterationTestInstance::iterate()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4306-L4508) | Checks exact per-layer view-index output and layout variants. |
+| Query execution | [`MultiViewQueriesTestInstance::iterate()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L3016-L3105) | Checks precise, non-precise, availability, and retrieval variants. |
+| Depth and stencil execution | [`MultiViewDepthStencilTestInstance::iterate()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L3886-L3942) | Implements depth/stencil rendering and result checking. |
+| View-mask iteration | [`MultiViewMaskIterationTestInstance::iterate()`](../../../modules/vulkan/multiview/vktMultiViewRenderTests.cpp#L4361-L4564) | Checks exact per-layer view-index output and layout variants. |

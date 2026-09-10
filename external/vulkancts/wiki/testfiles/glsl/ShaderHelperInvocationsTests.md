@@ -31,12 +31,12 @@ The factory adds these six test case leaves directly under the test family. Both
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |---|---|---|---|
-| Behavior leaf | `load_from_ssbo`, `load_from_address`, `load_from_ubo`, `load_from_image`, `load_from_texture`, `output_variables` | Selects the second fragment shader, the input transport, and one of two host oracles. | [`TestType` and `TestParam`](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L55-L68), [`addShaderHelperInvocationsTests()`](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L615-L630) |
+| Behavior leaf | `load_from_ssbo`, `load_from_address`, `load_from_ubo`, `load_from_image`, `load_from_texture`, `output_variables` | Selects the second fragment shader, the input transport, and one of two host oracles. | [`TestType` and `TestParam`](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L55-L68), [`addShaderHelperInvocationsTests()`](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L605-L620) |
 | Render target | 32 x 32, `VK_FORMAT_R32_UINT`, one sample | Provides 1,024 integer pixels for the first-pass pattern and final readback. | [`iterate()` image setup](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L162-L208) |
 | First-pass values | Clear `21`; triangle value `84` for the load cases; coordinate value `y*32+x` for `output_variables` | Produces the `63` step used by the derivative oracle or the per-pixel value used by the input-attachment oracle. | [Clear values](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L162-L170), [first fragment shader](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L541-L549) |
 | Final-pass values | Clear `30`; allowed load-case outputs `0`, `63`, and `126`; `output_variables` result `x+y*32+x*y` | Distinguishes untouched pixels, constant derivative quads, one-axis edges, two-axis edges, and the input-attachment arithmetic path. | [Load-case verification](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L407-L439), [`output_variables` verification](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L384-L406) |
 | Input transport | Storage buffer, buffer device address, uniform buffer, storage image, combined image sampler, or input attachment | Changes how the second fragment shader obtains first-pass data. | [Constructor configuration](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L95-L142) |
-| Pass structure | Two render passes for `load_from_*`; two subpasses in one render pass for `output_variables` | Selects explicit copy/barrier handling or a subpass dependency and input attachment. | [Command recording](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L282-L353), [`setupRenderPass()`](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L450-L504) |
+| Pass structure | Two render passes for `load_from_*`; two subpasses in one render pass for `output_variables` | Selects explicit copy/barrier handling or a subpass dependency and input attachment. | [Command recording](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L282-L353), [`setupRenderPass()`](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L440-L495) |
 
 ## Behavior Parameters
 
@@ -330,13 +330,13 @@ void main (void)
 #### Additional Info
 
 - The first-subpass shader differs from the load-case writer by appending the coordinate assignment after `outColor = 84`; the later assignment is the value stored for this leaf.
-- Both shaders draw the same generated triangle. The second subpass reads attachment 0 and writes attachment 1, with a `VK_DEPENDENCY_BY_REGION_BIT` dependency between them. [`setupRenderPass()`](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L471-L504)
+- Both shaders draw the same generated triangle. The second subpass reads attachment 0 and writes attachment 1, with a `VK_DEPENDENCY_BY_REGION_BIT` dependency between them. [`setupRenderPass()`](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L440-L495)
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---|---|---|
-| Behavior leaf | Only `output_variables` uses the coordinate-valued writer and `usubpassInput`; all five `load_from_*` leaves use the constant writer and `fwidth()` readers. | [`initPrograms()`](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L541-L607) |
+| Behavior leaf | Only `output_variables` uses the coordinate-valued writer and `usubpassInput`; all five `load_from_*` leaves use the constant writer and `fwidth()` readers. | [`initPrograms()`](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L521-L598) |
 
 #### SPIR-V
 
@@ -536,7 +536,7 @@ void main (void)
 
 ### Design-based pruning
 
-- The source registers exactly six hand-selected leaves rather than a cross product of resource types, pass structures, formats, dimensions, or sample counts. The format, extent, sample count, triangle, and clear values remain fixed so the load cases share one derivative oracle. [`addShaderHelperInvocationsTests()`](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L615-L630), [fixed render setup](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L162-L183)
+- The source registers exactly six hand-selected leaves rather than a cross product of resource types, pass structures, formats, dimensions, or sample counts. The format, extent, sample count, triangle, and clear values remain fixed so the load cases share one derivative oracle. [`addShaderHelperInvocationsTests()`](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L605-L620), [fixed render setup](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L162-L183)
 - `output_variables` is intentionally separate from the five `fwidth()` leaves. It uses an input attachment and arithmetic oracle, so combining it with the load-case histogram would not represent the implemented test design.
 
 ## Key Takeaways
@@ -555,9 +555,9 @@ void main (void)
 | Public factory | [`vktShaderHelperInvocationsTests.hpp`](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.hpp#L29-L34) | Declares the test-family factory. |
 | Behavior types and instance configuration | [`TestType` and constructor](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L55-L142) | Maps each leaf to its resource, descriptor, and pass structure. |
 | Runtime execution and verification | [`HelperInvocationsTestInstance::iterate()`](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L145-L448) | Creates resources, records both draws, reads the image back, and applies both host oracles. |
-| Render-pass and subpass construction | [`setupRenderPass()`](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L450-L504) | Defines the one-pass and two-subpass attachment layouts and dependency. |
+| Render-pass and subpass construction | [`setupRenderPass()`](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L440-L495) | Defines the one-pass and two-subpass attachment layouts and dependency. |
 | Support check and generated GLSL | [`HelperInvocationsTestCase`](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L507-L613) | Gates buffer-device-address use and emits the vertex and fragment shaders. |
-| Leaf registration and test-family factory | [`addShaderHelperInvocationsTests()` and factory](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L615-L637) | Registers the six exact leaves under `glsl.helper_invocations`. |
+| Leaf registration and test-family factory | [`addShaderHelperInvocationsTests()` and factory](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L605-L620) | Registers the six exact leaves under `glsl.helper_invocations`. |
 | Default Vulkan mustpass coverage | [`vk-default/glsl.txt`](../../../mustpass/main/vk-default/glsl.txt#L7177-L7182) | Confirms all six `dEQP-VK` paths. |
 | Vulkan SC mustpass coverage | [`vksc-default/glsl.txt`](../../../mustpass/main/vksc-default/glsl.txt#L6258-L6263) | Confirms the same six `dEQP-VKSC` paths. |
 | Derivative and helper-invocation semantics | [`shaders.adoc`](../../../../vulkan-docs/src/chapters/shaders.adoc#L3636-L3752) | Defines derivative grouping, helper invocation launch, and framebuffer side-effect rules used by the test rationale. |

@@ -69,6 +69,8 @@ No shader is part of the tested behavior. The command buffer recorded by [record
 
 ## Runtime Execution and Result Checking
 
+`recordCommands()` begins the command buffer with usage flags `0u`, rather than the helper's one-time-submit default, because the submission patterns reuse recorded commands ([recording](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L94-L100)).
+
 - **Resource setup.** The `core` and `sync2` paths create a single 16x16 `VK_FORMAT_R8G8B8A8_UNORM` 2D image with `VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT`, bind memory, and allocate a primary command buffer [testCase](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L215-L243). The `wsi` path replaces this with a swapchain image acquired from a platform surface [testCaseWsi](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L397-L429).
 - **Command recording.** [recordCommands](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L94-L127) begins the command buffer, inserts a pipeline barrier from `TOP_OF_PIPE` to `TRANSFER` that transitions the image to `VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL`, and clears it to white `{1.0f, 1.0f, 1.0f, 1.0f}`. No draw or dispatch is recorded.
 - **Frame boundary payload.** For `core` and `sync2`, each call to [submitCommands](../../../modules/vulkan/api/vktApiFrameBoundaryTests.cpp#L129-L208) builds a fresh `VkFrameBoundaryEXT` with the current `frameID`, `imageCount = 1` when `lastInFrame` is true (otherwise 0), `pImages` pointing at the image when `lastInFrame` is true (otherwise null), and `VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT` set only when `lastInFrame` is true. Buffer and tag fields are zero or null.

@@ -67,7 +67,7 @@ These cases schedule ten presentations at intervals of twice the current refresh
 
 ## Shader Analysis
 
-This test uses no shader. [`recordAndSubmitFrame`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L852-L882) clears each acquired image with `vkCmdClearColorImage` and transitions it to `VK_IMAGE_LAYOUT_PRESENT_SRC_KHR`; no shader module or graphics pipeline participates in the tested behavior. A representative shader and SPIR-V walkthrough therefore do not apply.
+This test uses no shader. [`recordAndSubmitFrame`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L863-L893) clears each acquired image with `vkCmdClearColorImage` and transitions it to `VK_IMAGE_LAYOUT_PRESENT_SRC_KHR`; no shader module or graphics pipeline participates in the tested behavior. A representative shader and SPIR-V walkthrough therefore do not apply.
 
 ## Runtime Execution and Result Checking
 
@@ -147,17 +147,17 @@ This test uses no shader. [`recordAndSubmitFrame`](../../../modules/vulkan/wsi/v
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Device and feature setup | [`createDeviceWithWsi`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L196-L265) | Enables required extensions and case-dependent present-at features. |
-| Surface and swapchain setup | [`getSurfacePresentTimingCapabilities` and `getBasicSwapchainParameters`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L267-L344) | Checks support and sets present-timing and present-ID creation flags. |
+| Surface and swapchain setup | [`getSurfacePresentTimingCapabilities` and `getBasicSwapchainParameters`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L266-L357) | Checks support and sets present-timing and present-ID creation flags. |
 | Result model and shared checks | [`PresentTimingHelper`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L470-L545) | Stores normalized reports and checks IDs, stages, counts, and time order. |
 | Time-domain metadata | [`TimeDomainHelper`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L608-L718) | Enumerates domains, IDs, and counters and compares stable snapshots. |
 | Timed present and transfer frame | [`presentWithTimingInfo` and `recordAndSubmitFrame`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L819-L882) | Builds the `pNext` chain and records the shader-free image clear. |
 | Result retrieval | [`getPastPresentationTiming` and `drainPresentationTimingResults`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L925-L1024) | Polls reports, checks counters, and releases complete entries. |
 | Basic and query tests | [`surfaceCapabilitiesTest` through `timingTestWithBackgroundQueryThreads`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L1026-L1564) | Implements capability, queue, matrix, large-queue, and parallel checks. |
-| Retired swapchain | [`retiredSwapchainTest`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L1566-L1662) | Retrieves timing data for an old swapchain and its replacement. |
-| Present-at behavior | [`presentAtTest`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L1674-L1913) | Computes targets and validates IDs, ordering, and early visibility. |
+| Retired swapchain | [`retiredSwapchainTest`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L1584-L1681) | Retrieves timing data for an old swapchain and its replacement. |
+| Present-at behavior | [`presentAtTest`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L1693-L1949) | Computes targets and validates IDs, ordering, and early visibility. |
 | Time-domain behavior | [`timeDomainPropertiesTest` and `timeDomainCalibrationTest`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L1916-L2235) | Checks dynamic domain metadata and calibrated clock relationships. |
 | Parameter arrays and registration | [`presentAtModes` through `createPresentTimingTests`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2241-L2449) | Defines every registered value and the four test families. |
-| WSI dispatcher | [`createTypeSpecificTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L50-L74) | Registers `present_timing` under each platform branch. |
+| WSI dispatcher | [`createTypeSpecificTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L52-L83) | Registers `present_timing` under each platform branch. |
 | Present-timing query specification | [`Present Timing Queries`](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L4738-L5291) | Defines queue allocation, timing/domain counters, asynchronous retrieval, ordering, and partial reports. |
 | Target-time specification | [`VkPresentTimingInfoEXT`](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L7898-L8027) | Defines target semantics, stage queries, nearest-cycle selection, and queue-full behavior. |
 | Mustpass registration | [`wsi.txt`](../../../mustpass/main/vk-default/wsi.txt#L14827) | Confirms all platform-qualified executable paths. |

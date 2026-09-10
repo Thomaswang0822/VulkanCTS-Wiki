@@ -27,6 +27,7 @@ wsi.xcb.surface
 ├── query_presentation_support
 ├── query_capabilities
 ├── query_capabilities2
+├── query_capabilities2_extended_flags
 ├── query_protected_capabilities
 ├── query_surface_counters
 ├── query_formats
@@ -51,11 +52,11 @@ The same `surface` test family appears under all nine WSI platform paths. Each p
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
 | WSI platform path | `xlib`, `xcb`, `wayland`, `android`, `win32`, `metal`, `headless`, `direct_drm`, `direct` | Selects the native objects, platform surface extension, creation command, and platform-specific rules. | [Platform registration](../../../modules/vulkan/wsi/vktWsiTests.cpp#L50-L83) |
-| Behavior leaf | 20 unconditional leaves; `initial_size` and `resize` when their platform features exist | Selects which lifecycle, support, query, enumeration, device-group, or extent contract the case checks. | [Surface registration](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L1694-L1748) |
+| Behavior leaf | 20 unconditional leaves including `query_capabilities2_extended_flags`; `initial_size` and `resize` when their platform features exist | Selects which lifecycle, support, query, enumeration, device-group, or extent contract the case checks. | [Surface registration](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L1694-L1748) |
 | Window size | `(64, 64)`, `(124, 119)`, `(256, 512)` | Exercises both square and nonsquare extents for initial-size and resize tracking. | [Size-aware tests](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L1578-L1669) |
 | Surface query form | base KHR, KHR2, EXT, or null-surface extension path | Checks base results, extensible structures, extension-specific data, and `VK_GOOGLE_surfaceless_query`. | [Capability and format queries](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L499-L1121) |
 | Enumeration capacity | full count or a reduced count, usually one-third or one-half | Every implemented reduced-capacity call must produce `VK_INCOMPLETE`; the base format/mode and KHR2 format paths also check that unwritten storage remains untouched. | [`CheckIncompleteResult`](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L117-L169), [KHR2 short-format check](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L849-L870), [other short calls](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L953-L960) |
-| OOM injection position | 0 through 1024 allowed allocations | Moves the deterministic failure point until surface creation succeeds or the bound is reached. | [`createSurfaceSimulateOOMTest()`](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L298-L351) |
+| OOM injection position | 0 through 1024 allowed allocations | Moves the deterministic failure point until surface creation succeeds or the bound is reached. | [`createSurfaceSimulateOOMTest()`](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L297-L350) |
 
 ## Behavior Parameters
 
@@ -71,7 +72,7 @@ The primary behavioral axis is the **behavioral group** formed by related test c
 
 ### `surface capability reporting`: return valid base and chained properties
 
-`query_capabilities` checks image counts and extents, array-layer limits, color-attachment usage, transforms, and composite-alpha support. `query_capabilities2` compares `VkSurfaceCapabilities2KHR::surfaceCapabilities` with the base KHR result and checks that the implementation preserves input bytes, `sType`, and `pNext`. `query_protected_capabilities` extends the output chain with `VkSurfaceProtectedCapabilitiesKHR`. `query_surface_counters` compares EXT and KHR base fields and requires zero surface-counter bits for non-display surfaces.
+`query_capabilities` checks image counts and extents, array-layer limits, color-attachment usage, transforms, and composite-alpha support. `query_capabilities2` compares `VkSurfaceCapabilities2KHR::surfaceCapabilities` with the base KHR result and checks that the implementation preserves input bytes, `sType`, and `pNext`. `query_capabilities2_extended_flags` adds the extended surface-capability flags chain and checks the flags returned by that path. `query_protected_capabilities` extends the output chain with `VkSurfaceProtectedCapabilitiesKHR`. `query_surface_counters` compares EXT and KHR base fields and requires zero surface-counter bits for non-display surfaces.
 
 ### `format and present-mode enumeration`: return complete, bounded lists
 
@@ -194,7 +195,7 @@ A case passes when all checks in its selected path hold. A thrown `NotSupportedE
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Per-platform routing | [createTypeSpecificTests()](../../../modules/vulkan/wsi/vktWsiTests.cpp#L50-L74) | Places `surface` beneath every WSI platform path. |
+| Per-platform routing | [createTypeSpecificTests()](../../../modules/vulkan/wsi/vktWsiTests.cpp#L52-L83) | Places `surface` beneath every WSI platform path. |
 | Instance and extension setup | [createInstanceWithWsi() and `InstanceHelper`](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L173-L221) | Creates the instance used by the surface cases and checks required extensions. |
 | Lifecycle and allocator tests | [surface creation, custom allocator, and OOM paths](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L223-L351) | Implements creation, callback validation, injected failure, and cleanup. |
 | Presentation support | [surface and native support queries](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L353-L442) | Queries queue-family support and compares platform and surface answers. |

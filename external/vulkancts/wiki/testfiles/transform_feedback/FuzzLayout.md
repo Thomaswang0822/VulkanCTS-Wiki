@@ -5,7 +5,7 @@
 - `vktTransformFeedbackFuzzLayoutTests.cpp` registers the `transform_feedback.fuzz` test family and builds deterministic and seeded-random interface-block cases.
 - The cases cover basic types, arrays, structures, nested aggregates, interface-block instance arrays, multiple blocks, multiple capture buffers, and vertex or geometry execution.
 - Each case computes a reference layout and values, captures one drawn point, and compares the host-visible transform-feedback bytes with that reference.
-- This page explains the layout axes, generated shader path, runtime capture, failure diagnostics, and pruning rules. The old navigation page remains preserved as `vktTransformFeedbackFuzzLayoutTests.md`.
+- This page explains the layout axes, generated shader path, runtime capture, failure diagnostics, and pruning rules.
 
 ## Background Knowledge
 
@@ -169,7 +169,7 @@ void main (void)
 |---------------------|---------------------------------------|----------|
 | Basic type | Changes the declared type and generated constructor or component values; matrices are assigned in column-major source order | [`generateValueSrc()`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackFuzzLayoutCase.cpp#L1237-L1305) |
 | Aggregate shape | Adds array brackets, structure declarations, and recursive member assignments | [`generateDeclaration()`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackFuzzLayoutCase.cpp#L1002-L1100) |
-| Stage | Geometry cases use a pass-through vertex shader plus `layout(points) in` and `layout(points, max_vertices = 1) out`, then emit one point | [`generateTestShader()`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackFuzzLayoutCase.cpp#L1562-L1618) |
+| Stage | Geometry cases use a pass-through vertex shader plus `layout(points) in` and `layout(points, max_vertices = 1) out`, then emit one point | [`generateTestShader()`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackFuzzLayoutCase.cpp#L1576-L1619) |
 | Random feature set | Enables vectors, matrices, doubles, arrays, structures, instance arrays, missing or unassigned members, and out-of-order offsets | [`FeatureBits`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackRandomLayoutCase.hpp#L40-L54) |
 
 #### SPIR-V
@@ -325,4 +325,3 @@ These checks classify a case as unsupported on the current device; they do not i
 | Random feature vocabulary | [`FeatureBits`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackRandomLayoutCase.hpp#L40-L82) | Names the enabled layout features and generator limits |
 | Transform-feedback specification | [Transform Feedback](../../../../../external/vulkan-docs/src/chapters/vertexpostproc.adoc#vertexpostproc-transform-feedback) | Defines capture, packing, stride, offsets, and buffer constraints |
 | Shader-stage specification | [Shaders](../../../../../external/vulkan-docs/src/chapters/shaders.adoc#shaders) | Defines the generated vertex and geometry execution context |
-| Legacy navigation page | [`vktTransformFeedbackFuzzLayoutTests.md`](vktTransformFeedbackFuzzLayoutTests.md) | Preserves the original source-navigation material |

@@ -38,11 +38,11 @@ The source registers six direct groups below `pipeline.timestamp`. The graphics 
 
 ## Source Anchors
 
-- [`TimestampTestParam::generateTestName`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L300-L343) defines stage, render-pass, host-reset, transfer-queue, and availability suffixes.
-- [`TimestampTest::checkSupport`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L530-L551) checks queue timestamp support, host reset, and pipeline construction requirements.
-- [`TimestampTestInstance::iterate`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L649-L715) records, reads, masks, and rechecks query values.
-- [`TimestampTestInstance::verifyTimestamp`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L717-L741) implements availability and comparable-pair ordering checks.
-- [`createTimestampTests`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4210-L4480) defines the registration matrix and monolithic-only boundaries.
+- [`TimestampTestParam::generateTestName`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L317-L343) defines stage, render-pass, host-reset, transfer-queue, and availability suffixes.
+- [`TimestampTest::checkSupport`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L525-L546) checks queue timestamp support, host reset, and pipeline construction requirements.
+- [`TimestampTestInstance::iterate`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L637-L703) records, reads, masks, and rechecks query values.
+- [`TimestampTestInstance::verifyTimestamp`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L705-L729) implements availability and comparable-pair ordering checks.
+- [`createTimestampTests`](../../../modules/vulkan/pipeline/vktPipelineTimestampTests.cpp#L4261-L4558) defines the registration matrix and monolithic-only boundaries.
 
 ## Vulkan Specification Anchors
 

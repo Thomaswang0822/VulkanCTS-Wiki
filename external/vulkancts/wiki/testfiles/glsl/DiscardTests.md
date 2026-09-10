@@ -31,7 +31,7 @@ glsl
 | Mode | `always`, `never`, `uniform`, `dynamic`, `texture`; plus `deriv` for `demote` | Changes the condition and data path that control whether the fragment loses coverage. This is the primary behavioral axis. | [`DiscardMode`](../../../modules/vulkan/shaderrender/vktShaderRenderDiscardTests.cpp#L153-L163), [`makeDiscardCase()`](../../../modules/vulkan/shaderrender/vktShaderRenderDiscardTests.cpp#L344-L399) |
 | Test case leaf | `<template>_<mode>` | Combines one control-flow placement with one behavior mode. | [`ShaderDiscardTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderDiscardTests.cpp#L426-L436) |
 | Matrix size | 25 `discard` leaves; 30 `demote` leaves | `discard` uses five templates by five ordinary modes. `demote` uses the same templates and adds `deriv`. | [`ShaderDiscardTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderDiscardTests.cpp#L426-L436) |
-| Image comparison | Fuzzy for ordinary modes; pixel threshold for `deriv` | Ordinary rendered images use tolerance `0.2f`. The expected-clear derivative cases use a per-channel threshold of one integer color unit. | [`makeDiscardCase()`](../../../modules/vulkan/shaderrender/vktShaderRenderDiscardTests.cpp#L393-L399), [`compareImages()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2721-L2730) |
+| Image comparison | Fuzzy for ordinary modes; pixel threshold for `deriv` | Ordinary rendered images use tolerance `0.2f`. The expected-clear derivative cases use a per-channel threshold of one integer color unit. | [`makeDiscardCase()`](../../../modules/vulkan/shaderrender/vktShaderRenderDiscardTests.cpp#L393-L399), [`compareImages()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2714-L2724) |
 
 ## Behavior Parameters
 
@@ -288,10 +288,10 @@ void main (void)
 
 ## Runtime Execution and Result Checking
 
-- [`ShaderDiscardCaseInstance`](../../../modules/vulkan/shaderrender/vktShaderRenderDiscardTests.cpp#L61-L83) configures the shared fragment render case with regular image backing and the default grid size. Texture cases also load `vulkan/data/brick.png` with clamp-to-edge addressing and linear filtering.
+- [`ShaderDiscardCaseInstance`](../../../modules/vulkan/shaderrender/vktShaderRenderDiscardTests.cpp#L61-L67) configures the shared fragment render case with regular image backing and the default grid size. Texture cases also load `vulkan/data/brick.png` with clamp-to-edge addressing and linear filtering.
 - [`SamplerUniformSetup::setup()`](../../../modules/vulkan/shaderrender/vktShaderRenderDiscardTests.cpp#L49-L55) binds `ui_one = 1` and `ui_two = 2`. It binds the brick sampler only for `texture` leaves.
-- The shared [`ShaderRenderCaseInstance::iterate()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L773-L805) creates a quad grid, renders it, copies the result image, computes a CPU fragment reference, and compares both images.
-- For ordinary modes, the CPU evaluator reproduces the condition and output color. [`computeFragmentReference()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2692-L2718) replaces evaluator-marked discarded fragments with the render target clear color.
+- The shared [`ShaderRenderCaseInstance::iterate()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L774-L807) creates a quad grid, renders it, copies the result image, computes a CPU fragment reference, and compares both images.
+- For ordinary modes, the CPU evaluator reproduces the condition and output color. [`computeFragmentReference()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2685-L2712) replaces evaluator-marked discarded fragments with the render target clear color.
 - `always`, `never`, `uniform`, `dynamic`, and `texture` use fuzzy comparison with error threshold `0.2f`. `deriv` uses `pixelThresholdCompare` with `tcu::RGBA(1, 1, 1, 1)` because its expected image is clear and any red fallback must remain visible.
 - The test passes with `Result image matches reference`. Any comparison failure returns `Image mismatch`.
 
@@ -379,6 +379,6 @@ A failure confined to one template prefix also points to the function or loop pl
 | Mode substitution and test case construction | [`makeDiscardCase()`](../../../modules/vulkan/shaderrender/vktShaderRenderDiscardTests.cpp#L344-L400) | Defines each mode's GLSL, expected evaluator, texture use, comparison choice, and leaf name. |
 | Matrix registration | [`ShaderDiscardTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderDiscardTests.cpp#L402-L449) | Generates the direct leaves and omits `discard` derivative cases. |
 | GLSL parent registration | [`createGlslTests()`](../../../modules/vulkan/vktTestPackage.cpp#L1215-L1288) | Places both test families under `glsl` and excludes `demote` from Vulkan SC. |
-| Shared render and compare path | [`ShaderRenderCaseInstance::iterate()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L773-L805) | Renders, computes the reference, compares images, and returns pass or fail. |
-| Discarded-fragment reference and comparison | [`computeFragmentReference()` and `compareImages()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2692-L2730) | Converts discarded reference fragments to clear color and selects fuzzy or pixel-threshold comparison. |
+| Shared render and compare path | [`ShaderRenderCaseInstance::iterate()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L774-L807) | Renders, computes the reference, compares images, and returns pass or fail. |
+| Discarded-fragment reference and comparison | [`computeFragmentReference()` and `compareImages()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2685-L2724) | Converts discarded reference fragments to clear color and selects fuzzy or pixel-threshold comparison. |
 | Default Vulkan mustpass coverage | [`glsl.discard`](../../../mustpass/main/vk-default/glsl.txt#L6954-L6978), [`glsl.demote`](../../../mustpass/main/vk-default/glsl.txt#L5250-L5279) | Confirms the 25 and 30 registered test case leaves. |

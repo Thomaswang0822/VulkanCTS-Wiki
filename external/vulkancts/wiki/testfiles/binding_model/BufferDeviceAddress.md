@@ -2,9 +2,9 @@
 
 **Core question:** Do queried buffer device addresses remain valid and exact when shaders load, convert, copy, offset, and dereference them, and when capture-replay objects are recreated?
 
-- The default Vulkan mustpass list contains 4,717 `buffer_device_address` leaves ([mustpass range](../../../mustpass/main/vk-default/binding-model.txt#L1-L4717)). Their implementation covers recursive physical-pointer loads, pointer/integer conversions, block layouts, compute and graphics stages, capture replay, direct SPIR-V access chains, and a copied buffer-reference struct.
+- The default Vulkan mustpass list contains 4,718 `buffer_device_address` leaves ([mustpass range](../../../mustpass/main/vk-default/binding-model.txt#L1-L4718)). Their implementation covers recursive physical-pointer loads, pointer/integer conversions, block layouts, compute and graphics stages, capture replay, direct SPIR-V access chains, and a copied buffer-reference struct.
 - Five ordinary intermediate nodes, `set0`, `set3`, `set7`, `set15`, and `set31`, run the same behavioral matrix at different descriptor set indices. `set3` carries the full depth and layout matrix; the other set nodes retain a reduced runtime sample.
-- `capture_replay_stress` recreates 100 buffers per seed without a shader. `op_access_chain` contains `memory_model_offset` and `fragment_store`. `misc` contains `copy_struct`.
+- `capture_replay_stress` recreates 100 buffers per seed without a shader. `op_access_chain` contains `memory_model_offset` and `fragment_store`. `misc` contains `copy_struct` and `multiple_access_chain`.
 - The primary behavioral axis is the mechanism under test: the ordinary pointer tree, capture-replay stress, access-chain behavior, or copied-reference behavior. The descriptor set index is one matrix dimension inside the ordinary group, not a separate semantic mechanism.
 
 ## Background Knowledge
@@ -31,7 +31,7 @@ binding_model.buffer_device_address
 └── misc
 ```
 
-The default Vulkan mustpass file lists all 4,717 leaves in one contiguous range. It contains 672 leaves under each reduced set node, 2,016 under `set3`, 10 capture-replay seeds, two `op_access_chain` leaves, and one `misc` leaf ([mustpass range](../../../mustpass/main/vk-default/binding-model.txt#L1-L4717)).
+The default Vulkan mustpass file lists all 4,718 leaves in one contiguous range. It contains 672 leaves under each reduced set node, 2,016 under `set3`, 10 capture-replay seeds, two `op_access_chain` leaves, and two `misc` leaves ([mustpass range](../../../mustpass/main/vk-default/binding-model.txt#L1-L4718)).
 
 ## Parameter Dimensions and Observed Values
 
@@ -57,9 +57,9 @@ The pointer tree uses fixed struct member offsets: `a` at 0, `b` at 32, `c` at 4
 |-------------------|-------------------|---------|----------|
 | `capture_replay_stress` | `seed_0` through `seed_9` | Each seed chooses 100 power-of-two sizes from 4 KiB through 4 MiB, then recreates all buffers in reverse order. | [stress registration](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2517-L2522), [size generation](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L1400-L1427) |
 | `op_access_chain` | `memory_model_offset`, `fragment_store` | Isolates a physical-pointer offset and numeric conversion in compute, then a fragment-stage nested-pointer atomic/store sequence used by debug-print lowering. | [access-chain registration](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2524-L2529) |
-| `misc` | `copy_struct` | Copies a `Foo` containing one `T1` buffer reference, then stores through the copied reference. | [misc registration](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2530-L2534), [shader](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2330-L2358) |
+| `misc` | `copy_struct`, `multiple_access_chain` | Copies a buffer-reference struct or follows nested physical access chains. | [misc registration](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2530-L2534), [shader](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2330-L2358) |
 
-The specialized leaves occupy the first 13 lines of the default mustpass file ([exact mustpass entries](../../../mustpass/main/vk-default/binding-model.txt#L1-L13)):
+The specialized leaves occupy the first 14 lines of the default mustpass file ([exact mustpass entries](../../../mustpass/main/vk-default/binding-model.txt#L1-L14)):
 
 ```text
 dEQP-VK.binding_model.buffer_device_address.capture_replay_stress.seed_0
@@ -73,6 +73,7 @@ dEQP-VK.binding_model.buffer_device_address.capture_replay_stress.seed_7
 dEQP-VK.binding_model.buffer_device_address.capture_replay_stress.seed_8
 dEQP-VK.binding_model.buffer_device_address.capture_replay_stress.seed_9
 dEQP-VK.binding_model.buffer_device_address.misc.copy_struct
+dEQP-VK.binding_model.buffer_device_address.misc.multiple_access_chain
 dEQP-VK.binding_model.buffer_device_address.op_access_chain.fragment_store
 dEQP-VK.binding_model.buffer_device_address.op_access_chain.memory_model_offset
 ```
@@ -99,13 +100,13 @@ This group has no shader. It separates API-level address replay from the ordinar
 
 `fragment_store` loads a physical pointer through two host-populated address levels. Its fragment SPIR-V atomically reserves print-buffer words and stores the debug-print record through repeated physical `OpAccessChain` instructions. The host compares the first 28 words with a fixed sequence ([resource chain](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L1752-L1818), [expected output](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L1899-L1915)).
 
-### `misc`: retain a buffer reference across a struct copy
+### `misc`: copied references and chained physical access
 
 `copy_struct` reads `foo.f[foo.index]` into local `Foo new_foo`. `Foo` contains one `T1` physical reference. The shader stores `2` through `new_foo.b.a`, and the host requires the addressed target integer to become `2` ([shader and resources](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2234-L2308)).
 
 ## Shader Analysis
 
-Two walkthroughs cover the distinct shader mechanisms. The first represents the large generated GLSL matrix and shows descriptor-to-physical pointer traversal. The second reconstructs the physical offset and pointer-to-integer conversion from the CTS-authored SPIR-V assembly for `memory_model_offset`. `capture_replay_stress` has no shader; `fragment_store` and `copy_struct` are described in the variation tables and runtime section.
+Three walkthroughs cover the distinct shader mechanisms. The first represents the large generated GLSL matrix and shows descriptor-to-physical pointer traversal. The second reconstructs the physical offset and pointer-to-integer conversion from the CTS-authored SPIR-V assembly for `memory_model_offset`. The third preserves the direct-SPIR-V nested-array access sequence of `multiple_access_chain`. `capture_replay_stress` has no shader; `fragment_store` and `copy_struct` are described in the variation tables and runtime section.
 
 ### Representative Shader Walkthrough 1
 
@@ -824,9 +825,140 @@ void main() {
 
 </details>
 
+### Representative Shader Walkthrough 3
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.binding_model.buffer_device_address.misc.multiple_access_chain
+```
+
+| Parameter choice | Meaning in this representative case |
+|---|---|
+| `misc.multiple_access_chain` | Selects `MiscTestType::MULTIPLE_ACCESS_CHAIN`. |
+| Compute | One workgroup with one invocation. |
+| Uniform root | Set 0 binding 0 carries the physical target address at offset 0. |
+
+#### Purpose
+
+Check that successive physical struct and array access chains preserve their type and byte offsets. The shader reads two initialized array elements and stores their product into the containing struct's first member.
+
+#### Structural Design
+
+| Element | Role |
+|---|---|
+| `globalParams` | Uniform block containing the physical target pointer. |
+| `Data_natural` | A uint result at byte 0 followed by a 16-uint array wrapper at byte 4. |
+| Nested access chains | Select the wrapper, its array, and elements 0 and 14, corresponding to target words 1 and 15. |
+| Result store | Writes the multiplication result at target byte 0 for host verification. |
+
+#### Shader Code
+
+##### Compute shader
+
+This stage uses direct CTS-authored SPIR-V, not generated GLSL or HLSL. The authoritative module is preserved below from [`BufferDeviceAddressMiscTestCase::initPrograms()`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2474-L2539); substituting GLSL would not preserve the access-chain sequence under test.
+
+#### Additional Info
+
+- The host allocates a 17-word target, writes 17 and 37 at words 1 and 15, flushes it, and supplies its address in a 16-byte UBO. After dispatch and invalidation, target word 0 must equal their product ([host setup and check](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2317-L2415)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---|---|---|
+| `copy_struct` sibling | Generated GLSL copies a struct containing a buffer reference and stores 2 through it. It uses a storage-buffer root instead of this uniform root. | [builder](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2443-L2472) |
+| Ordinary pointer matrix | Generated GLSL recursively checks data through many physical references instead of this fixed nested-array operation. | [ordinary builder](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L414-L603) |
+
+#### SPIR-V
+
+##### Compute shader
+
+- Status: assembled and validated with `spirv-as --target-env spv1.5` and `spirv-val --target-env vulkan1.2`.
+- Source: CTS-authored SPIR-V assembly, assembled and disassembled without GLSL reconstruction (numeric IDs are canonicalized).
+- Stage: `comp`
+- Target SPIRV version: `spirv1.5`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.5
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 35
+; Schema: 0
+               OpCapability PhysicalStorageBufferAddresses
+               OpCapability Shader
+               OpExtension "SPV_KHR_non_semantic_info"
+               OpExtension "SPV_KHR_physical_storage_buffer"
+               OpMemoryModel PhysicalStorageBuffer64 GLSL450
+               OpEntryPoint GLCompute %1 "main" %2
+               OpExecutionMode %1 LocalSize 1 1 1
+               OpDecorate %_ptr_PhysicalStorageBuffer__struct_10 ArrayStride 68
+               OpDecorate %_struct_4 Block
+               OpMemberDecorate %_struct_4 0 Offset 0
+               OpDecorate %2 Binding 0
+               OpDecorate %2 DescriptorSet 0
+               OpDecorate %_ptr_PhysicalStorageBuffer__struct_9 ArrayStride 64
+               OpDecorate %_arr_uint_int_16 ArrayStride 4
+               OpDecorate %_ptr_PhysicalStorageBuffer__arr_uint_int_16 ArrayStride 64
+               OpDecorate %_ptr_PhysicalStorageBuffer_uint ArrayStride 4
+               OpMemberDecorate %_struct_9 0 Offset 0
+               OpMemberDecorate %_struct_10 0 Offset 0
+               OpMemberDecorate %_struct_10 1 Offset 4
+       %void = OpTypeVoid
+       %uint = OpTypeInt 32 0
+         %13 = OpTypeFunction %void
+%_ptr_Function_uint = OpTypePointer Function %uint
+     %uint_0 = OpConstant %uint 0
+               OpTypeForwardPointer %_ptr_PhysicalStorageBuffer__struct_10 PhysicalStorageBuffer
+  %_struct_4 = OpTypeStruct %_ptr_PhysicalStorageBuffer__struct_10
+%_ptr_Uniform__struct_4 = OpTypePointer Uniform %_struct_4
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Uniform_3 = OpTypePointer Uniform %_ptr_PhysicalStorageBuffer__struct_10
+      %int_1 = OpConstant %int 1
+               OpTypeForwardPointer %_ptr_PhysicalStorageBuffer__struct_9 PhysicalStorageBuffer
+     %int_16 = OpConstant %int 16
+%_arr_uint_int_16 = OpTypeArray %uint %int_16
+%_ptr_PhysicalStorageBuffer__arr_uint_int_16 = OpTypePointer PhysicalStorageBuffer %_arr_uint_int_16
+%_ptr_PhysicalStorageBuffer_uint = OpTypePointer PhysicalStorageBuffer %uint
+     %int_14 = OpConstant %int 14
+  %_struct_9 = OpTypeStruct %_arr_uint_int_16
+ %_struct_10 = OpTypeStruct %uint %_struct_9
+%_ptr_PhysicalStorageBuffer__struct_10 = OpTypePointer PhysicalStorageBuffer %_struct_10
+%_ptr_PhysicalStorageBuffer__struct_9 = OpTypePointer PhysicalStorageBuffer %_struct_9
+          %2 = OpVariable %_ptr_Uniform__struct_4 Uniform
+          %1 = OpFunction %void None %13
+         %23 = OpLabel
+         %24 = OpVariable %_ptr_Function_uint Function
+         %25 = OpInBoundsAccessChain %_ptr_Uniform_3 %2 %int_0
+         %26 = OpLoad %_ptr_PhysicalStorageBuffer__struct_10 %25
+         %27 = OpInBoundsAccessChain %_ptr_PhysicalStorageBuffer__struct_9 %26 %int_1
+         %28 = OpInBoundsAccessChain %_ptr_PhysicalStorageBuffer__arr_uint_int_16 %27 %int_0
+         %29 = OpAccessChain %_ptr_PhysicalStorageBuffer_uint %28 %int_0
+         %30 = OpLoad %uint %29 Aligned 4
+         %31 = OpAccessChain %_ptr_PhysicalStorageBuffer_uint %28 %int_14
+         %32 = OpLoad %uint %31 Aligned 4
+         %33 = OpIMul %uint %30 %32
+               OpStore %24 %33
+         %34 = OpInBoundsAccessChain %_ptr_PhysicalStorageBuffer_uint %26 %int_0
+               OpStore %34 %33 Aligned 4
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
 ## Runtime Execution and Result Checking
 
 ### Ordinary pointer matrix
+
+The ordinary matrix runs through `MultiQueueRunnerTestInstance`, selecting compute or graphics queues from the case stage. Each pass uses the supplied queue family and handle; compute barriers use only the compute-shader stage ([runner](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L181-L186), [pass setup](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L626-L642)).
+
+Both ordinary replay and capture-replay stress now capture on a separate custom device, destroy the captured buffers and allocations, then recreate them on the context device. The capture device enables buffer device address, capture replay, and uniform-buffer standard layout ([capture device](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L121-L164), [ordinary transition](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L805-L863), [stress transition](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L1533-L1578)).
 
 - The host computes 128-byte-or-larger region alignment from UBO and SSBO offset limits. Depth determines the number of logical regions. `single` places all regions in one buffer; `multi` and `replay` create one buffer per region ([resource sizing](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L684-L738)).
 - Every buffer uses `VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT`; KHR allocations add `VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT`. A nonzero memory-offset leaf binds its single buffer at one `VkMemoryRequirements::alignment` offset ([allocation and binding](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L740-L792)).
@@ -843,6 +975,8 @@ void main() {
 
 ### `op_access_chain` and `misc`
 
+`multiple_access_chain` supplies the target address through a 16-byte UBO and allocates a 17-word physical target. Target words 1 and 15 contain 17 and 37. Direct SPIR-V 1.5 follows nested struct/array access chains, multiplies those two values, and stores the product in target word 0; the host checks that product after completion and invalidation ([host setup and oracle](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2317-L2415), [assembly](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2474-L2539)). Its support callback requires `VK_KHR_buffer_device_address` ([gate](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2543-L2546)).
+
 - `memory_model_offset` creates a 1,024-byte device-addressable target and a 16-byte host-visible SSBO. It writes the target base address into SSBO words 0 and 1, dispatches once, then expects word 3 to contain the low 32 bits of base plus 512 ([offset resources and check](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L1558-L1634)).
 - `fragment_store` creates a 1,024-byte print buffer, a root node containing its address, and a descriptor-backed root-pointer buffer containing the node address. One triangle runs the fragment module. After completion, the host invalidates the print buffer and compares 28 exact `uint32_t` values ([fragment runtime](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L1752-L1916)).
 - `copy_struct` writes the target buffer address at byte 8 of a 16-byte SSBO, dispatches once, invalidates the target allocation, and requires its first integer to equal `2` ([misc runtime](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2234-L2310)).
@@ -857,6 +991,7 @@ void main() {
 | `capture_replay_stress` | Capture-replay address recreation. |
 | `op_access_chain` | Access-chain lowering and output. |
 | `misc` | Buffer-reference struct copy. |
+| `misc.multiple_access_chain` | Incorrect nested struct/array physical-pointer indexing, aligned loads, multiplication, or result store. |
 
 ### Cause Analysis
 
@@ -912,15 +1047,15 @@ void main() {
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Test category registration | [`createChildren`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L70) | Adds `buffer_device_address` under `binding_model`. |
+| Test category registration | [`createChildren`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L54-L80) | Adds `buffer_device_address` under `binding_model`. |
 | Ordinary support and recursive data model | [`checkSupport`, `checkBuffer`, `fillBuffer`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L173-L368) | Defines feature gates and matching shader/host tree traversal. |
-| Ordinary shader generation | [`BufferAddressTestCase::initPrograms`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L370-L559) | Emits stage, conversion, and layout variants with explicit SPIR-V targets. |
+| Ordinary shader generation | [`BufferAddressTestCase::initPrograms`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L414-L603) | Emits stage, conversion, and layout variants with explicit SPIR-V targets. |
 | Ordinary runtime | [`BufferAddressTestInstance::iterate`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L582-L1324) | Creates addresses and resources, handles replay, executes, copies back, and scans. |
 | Capture-replay stress | [`CaptureReplayTestCase` and instance](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L1327-L1542) | Recreates 100 seeded buffers and compares addresses. |
 | Memory-model offset | [`MemoryModelOffsetTestCase` and instance](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L1544-L1736) | Supplies direct SPIR-V 1.5 and checks base plus 512. |
 | Fragment physical-pointer output | [`FragmentStoreTestCase` and instance](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L1738-L2218) | Builds a nested pointer chain and verifies the debug-print word sequence. |
 | Buffer-reference struct copy | [`BufferDeviceAddressMiscTestCase` and instance](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2220-L2363) | Stores through a copied `Foo::b` reference and checks `2`. |
 | Registration matrix | [`createBufferDeviceAddressTests`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2367-L2535) | Defines every intermediate node, ordinary dimension, specialized leaf, and design prune. |
-| Default Vulkan mustpass | [`binding-model.txt`](../../../mustpass/main/vk-default/binding-model.txt#L1-L4717) | Lists all 4,717 executable paths for this test family. |
+| Default Vulkan mustpass | [`binding-model.txt`](../../../mustpass/main/vk-default/binding-model.txt#L1-L4718) | Lists all 4,718 executable paths for this test family. |
 | CTS baseline SPIR-V target | [`getBaselineSpirvVersion`](../../../framework/vulkan/vkPrograms.cpp#L1048-L1052) | Confirms SPIR-V 1.0 when a GLSL source does not request a higher target. |
 | Buffer allocation helper | [`BufferWithMemory`](../../../framework/vulkan/vkBufferWithMemory.hpp#L43-L89) | Supplies the device-addressable and host-visible allocations used by the specialized leaves. |

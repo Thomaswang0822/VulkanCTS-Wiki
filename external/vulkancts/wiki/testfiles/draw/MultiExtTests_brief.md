@@ -109,7 +109,7 @@ Tessellation and geometry variants generate pass-through stages that retain the 
 | Runtime and validation | [`iterate`](../../../modules/vulkan/draw/vktDrawMultiExtTests.cpp#L823-L1392) | Creates resources, records work, copies attachments, and constructs exact references. |
 | Registered matrix | [`createDrawMultiExtTests`](../../../modules/vulkan/draw/vktDrawMultiExtTests.cpp#L1396-L1637) | Defines hierarchy values and pruning rules. |
 | Parent placement | [`createChildren` and `createTests`](../../../modules/vulkan/draw/vktDrawTests.cpp#L70-L190) | Adds the family to render-pass and applicable dynamic-rendering paths. |
-| Default-profile examples | [dynamic-rendering](../../../mustpass/main/vk-default/draw.txt#L1130-L1142) and [render-pass](../../../mustpass/main/vk-default/draw.txt#L28660-L28672) | Confirms default Vulkan mustpass entries. |
+| Default-profile examples | [dynamic-rendering](../../../mustpass/main/vk-default/draw.txt#L1130-L1142) and [render-pass](../../../mustpass/main/vk-default/draw.txt#L28705-L28717) | Confirms default Vulkan mustpass entries. |
 
 ## Questions / Risk Points for User Audit
 

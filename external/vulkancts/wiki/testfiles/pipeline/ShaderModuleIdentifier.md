@@ -271,7 +271,6 @@ The registration function adds `properties`, `constant_identifiers`, and `misc` 
 
 ## Source Reference Appendix
 
-- [Legacy navigation page](vktPipelineShaderModuleIdentifierTests.md)
 - [Implementation file](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L1)
 - [Identifier helper and size validation](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L80)
 - [Extension support and UUID property test](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L865)

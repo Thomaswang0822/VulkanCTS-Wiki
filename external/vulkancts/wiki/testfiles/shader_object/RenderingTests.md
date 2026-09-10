@@ -22,27 +22,30 @@ shader_object.rendering
 ├── color_attachment_count_1
 ├── color_attachment_count_4
 ├── color_attachment_count_8
-└── output_array
+├── output_array
+└── push_data
 ```
 
 These five direct children are intermediate nodes below the `rendering` test family. The first four expand through seven deeper dimensions before the color or color-plus-depth test case leaf. `output_array` expands through a format-named intermediate node and a color-write leaf. The root file registers `rendering` directly
-([parent registration](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L47-L63)), and the mustpass inventory contains all 240,686 paths
+([parent registration](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L48-L65)), and the mustpass inventory contains all 240,686 paths
 ([rendering.txt](../../../mustpass/main/vk-default/shader-object/rendering.txt)).
 
 ## Parameter Dimensions and Observed Values
 
+The `push_data` child is a direct rendering family that checks push-data interaction with shader objects; it is not another descendant of `output_array`.
+
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Direct intermediate node | `color_attachment_count_0`, `color_attachment_count_1`, `color_attachment_count_4`, `color_attachment_count_8`, `output_array` | Selects the base attachment count or the separate output-array mechanism. | [top-level registration](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1200-L1213), [output array](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1355-L1393) |
-| Extra image attachment | `none`, `extra_attachment_before_1`, `extra_attachment_between_1`, `extra_attachment_after_1`, and the corresponding `_2` values | Inserts one or two image-backed attachment slots without matching fragment outputs. | [extraAttachmentTests](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1215-L1226) |
-| Extra fragment output | `none`, `extra_output_before_1`, `extra_output_between_1`, `extra_output_after_1`, and the corresponding `_2` values | Adds one or two fragment outputs whose matching rendering attachment entries have null image views. | [extraOutputTests](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1228-L1239) |
-| Dummy rendering mode | `none`, `dynamic`, `static` | Optionally binds shaders while a prior dynamic or traditional render pass is active, then reuses them in the real dynamic rendering instance. | [dummyRenderPassTests](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1241-L1245), [recording branch](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L869-L894) |
-| Attachment formats | `same_color_formats`; `random_color_formats` for base counts 4 and 8 | Uses the named color format throughout or chooses supported later formats with fixed seed `102030`. | [format nodes](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1265-L1273), [selection](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L507-L549) |
-| Shader bind time | `before`, `after` | Binds the graphics shader objects before or after `vkCmdBeginRendering` for the real draw. | [bind nodes](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1274-L1279), [draw recording](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L883-L950) |
-| Depth mode | `gl_frag_write`, `none` | Generates a fragment depth write or omits it; only `none` also expands to leaves with depth attachments. | [depth nodes and leaves](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1280-L1336) |
-| Color/depth format leaf | 109 named color formats, alone or suffixed with one of the depth formats from `formats::depthFormats` | Controls image format class, generated output type, clear value, copyback layout, and comparison path. | [colorFormats](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L96-L206), [leaf creation](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1308-L1336) |
-| Output-array format name | `r8_unorm`, `r8g8b8a8_unorm`, `r8g8b8a8_snorm`, `r32_uint`, `r32_sint`, `r32_sfloat`, `r32g32b32a32_sfloat` | Names seven branches, but the current registration assigns `VK_FORMAT_R8G8B8A8_UNORM` to `TestParams::colorFormat` for all seven. | [output-array loop](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1361-L1389) |
-| Color-write feature mode | `color_write_enable`, `color_write_disable` | Requires and uses the feature in the first leaf. The second uses the normal device when the feature is unsupported; otherwise it creates a custom device without the extension. Both paths still expect color writes. | [colorWriteTests](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1355-L1359), [device selection](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L607-L751), [dynamic state](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L939-L943) |
+| Direct intermediate node | `color_attachment_count_0`, `color_attachment_count_1`, `color_attachment_count_4`, `color_attachment_count_8`, `output_array` | Selects the base attachment count or the separate output-array mechanism. | [top-level registration](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1199-L1212), [output array](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1355-L1394) |
+| Extra image attachment | `none`, `extra_attachment_before_1`, `extra_attachment_between_1`, `extra_attachment_after_1`, and the corresponding `_2` values | Inserts one or two image-backed attachment slots without matching fragment outputs. | [extraAttachmentTests](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1214-L1225) |
+| Extra fragment output | `none`, `extra_output_before_1`, `extra_output_between_1`, `extra_output_after_1`, and the corresponding `_2` values | Adds one or two fragment outputs whose matching rendering attachment entries have null image views. | [extraOutputTests](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1227-L1238) |
+| Dummy rendering mode | `none`, `dynamic`, `static` | Optionally binds shaders while a prior dynamic or traditional render pass is active, then reuses them in the real dynamic rendering instance. | [dummyRenderPassTests](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1240-L1244), [recording branch](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L851-L876) |
+| Attachment formats | `same_color_formats`; `random_color_formats` for base counts 4 and 8 | Uses the named color format throughout or chooses supported later formats with fixed seed `102030`. | [format nodes](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1264-L1272), [selection](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L507-L550) |
+| Shader bind time | `before`, `after` | Binds the graphics shader objects before or after `vkCmdBeginRendering` for the real draw. | [bind nodes](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1273-L1278), [draw recording](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L865-L932) |
+| Depth mode | `gl_frag_write`, `none` | Generates a fragment depth write or omits it; only `none` also expands to leaves with depth attachments. | [depth nodes and leaves](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1279-L1336) |
+| Color/depth format leaf | 109 named color formats, alone or suffixed with one of the depth formats from `formats::depthFormats` | Controls image format class, generated output type, clear value, copyback layout, and comparison path. | [colorFormats](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L97-L207), [leaf creation](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1308-L1336) |
+| Output-array format name | `r8_unorm`, `r8g8b8a8_unorm`, `r8g8b8a8_snorm`, `r32_uint`, `r32_sint`, `r32_sfloat`, `r32g32b32a32_sfloat` | Names seven branches, but the current registration assigns `VK_FORMAT_R8G8B8A8_UNORM` to `TestParams::colorFormat` for all seven. | [output-array loop](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1361-L1390) |
+| Color-write feature mode | `color_write_enable`, `color_write_disable` | Requires and uses the feature in the first leaf. The second uses the normal device when the feature is unsupported; otherwise it creates a custom device without the extension. Both paths still expect color writes. | [colorWriteTests](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1355-L1359), [device selection](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L608-L740), [dynamic state](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L921-L925) |
 
 ## Behavior Parameters
 
@@ -132,10 +135,10 @@ void main() {
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Extra image attachment placement/count | Moves later output locations forward by one or two slots, creating image-backed locations with no fragment output. | [location generation](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1150-L1163) |
-| Extra fragment output placement/count | Adds outputs while the host places null image views at their matching dynamic-rendering slots. | [output generation](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1141-L1184) |
-| Color format class | Selects `uvec4(255)`, `ivec4(255)`, or `vec4(1.0)` for the first written or same-format outputs. | [type and assignment branches](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1155-L1183) |
-| Fragment depth | Adds `gl_FragDepth = 0.5f` in `gl_frag_write` cases. | [depth generation](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1185-L1187) |
+| Extra image attachment placement/count | Moves later output locations forward by one or two slots, creating image-backed locations with no fragment output. | [location generation](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1149-L1162) |
+| Extra fragment output placement/count | Adds outputs while the host places null image views at their matching dynamic-rendering slots. | [output generation](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1140-L1183) |
+| Color format class | Selects `uvec4(255)`, `ivec4(255)`, or `vec4(1.0)` for the first written or same-format outputs. | [type and assignment branches](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1154-L1182) |
+| Fragment depth | Adds `gl_FragDepth = 0.5f` in `gl_frag_write` cases. | [depth generation](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1184-L1186) |
 
 #### SPIR-V
 
@@ -246,9 +249,9 @@ void main() {
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Color-write leaf | Does not alter GLSL; it changes device feature enablement and whether the host records `vkCmdSetColorWriteEnableEXT`. | [feature and command branches](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L618-L633), [dynamic command](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L939-L943) |
-| Format-named intermediate node | Does not alter GLSL in current source because all seven registrations keep `params.colorFormat = VK_FORMAT_R8G8B8A8_UNORM`. | [output-array registration](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1361-L1389) |
-| Output array versus separate outputs | Replaces separate location-qualified variables with `outColor[6]` and indexed stores. | [array generator](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1141-L1177) |
+| Color-write leaf | Does not alter GLSL; it changes device feature enablement and whether the host records `vkCmdSetColorWriteEnableEXT`. | [feature and command branches](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L619-L634), [dynamic command](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L921-L925) |
+| Format-named intermediate node | Does not alter GLSL in current source because all seven registrations keep `params.colorFormat = VK_FORMAT_R8G8B8A8_UNORM`. | [output-array registration](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1361-L1390) |
+| Output array versus separate outputs | Replaces separate location-qualified variables with `outColor[6]` and indexed stores. | [array generator](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1140-L1176) |
 
 #### SPIR-V
 
@@ -311,17 +314,17 @@ void main() {
 ## Runtime Execution and Result Checking
 
 - The instance normally uses the context device. For `output_array.*.color_write_disable`, it creates a custom device without `VK_EXT_color_write_enable` only when the context reports the feature as supported; otherwise the already feature-disabled context device is used
-  ([device selection](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L607-L755)).
+  ([device selection](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L608-L740)).
 - Every case uses a 32x32 render area. The host creates one color image and host-visible transfer buffer per image-backed color slot, plus an optional depth image. The output-array path therefore has six color images even though only four receive fragment stores
-  ([resource setup](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L776-L851)).
+  ([resource setup](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L758-L833)).
 - The vertex and fragment binaries become independent `VkShaderEXT` objects. Dummy cases begin an earlier dynamic or traditional render pass, bind the shader objects there, end it, and later begin the real dynamic rendering instance. Other cases bind before or after the real `vkCmdBeginRendering`, according to the registered `before` or `after` value
-  ([recording](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L853-L950)).
+  ([recording](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L835-L932)).
 - The host records the shared shader-object dynamic-state block, disables blending, enables all color components, enables depth test/write with compare op `LESS`, null-binds optional task and mesh stages, and draws a four-vertex triangle strip
-  ([dynamic state and draw](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L916-L952), [shared state helper](../../../modules/vulkan/shader_object/vktShaderObjectCreateUtil.cpp#L244-L418)).
+  ([dynamic state and draw](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L898-L948), [shared state helper](../../../modules/vulkan/shader_object/vktShaderObjectCreateUtil.cpp#L244-L418)).
 - The draw covers the central 16x16 part of each 32x32 image. Used color attachments contain `1.0` or integer `255` in each format channel inside that square and their clear value outside. Deliberate extra image attachments are skipped. Float formats use a `0.02` threshold, while non-float formats use an integer threshold of `2`
-  ([expected image](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L551-L600), [color checks](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L997-L1029)).
+  ([expected image](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L552-L601), [color checks](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L993-L1025)).
 - If a depth attachment exists, the host copies it through a temporary buffer and scans every pixel. Covered pixels must be within `0.02` of `0.5`; border pixels must be within `0.02` of the clear depth `1.0`
-  ([depth copy](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L234-L311), [depth check](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1031-L1064)).
+  ([depth copy](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L235-L312), [depth check](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1027-L1060)).
 
 ## Failure Meaning
 
@@ -380,20 +383,20 @@ Shared failures across these values can also come from shader-object creation or
 ### Requirement-based pruning
 
 - Every case requires `VK_EXT_shader_object`. The complete color attachment, extra attachment, and extra output count must not exceed `VkPhysicalDeviceLimits::maxColorAttachments`
-  ([support check](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1092-L1103)).
+  ([support check](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1088-L1099)).
 - The named color format must support optimal-tiling color attachment and transfer-source usage. Depth leaves also require the selected depth format to support depth/stencil attachment and transfer-source usage
-  ([format queries](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1105-L1121)).
+  ([format queries](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1101-L1117)).
 - `output_array.*.color_write_enable` requires the `colorWriteEnable` feature. The `color_write_disable` leaf has no such requirement: it uses the normal device when the feature is unsupported and otherwise creates a device without the extension
-  ([feature gate](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1122-L1126)).
+  ([feature gate](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1118-L1122)).
 - `setColorFormats` chooses each random later attachment only from formats that pass an image-format query on the device. The fixed seed keeps the accepted sequence deterministic for a given support set
-  ([mixed-format selection](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L518-L540)).
+  ([mixed-format selection](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L519-L541)).
 
 ### Design-based pruning
 
 - Registration never combines a nonzero extra image attachment with a nonzero extra fragment output. Each case isolates one direction of the interface mismatch
-  ([combination skip](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1251-L1257)).
+  ([combination skip](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1250-L1256)).
 - `random_color_formats` is skipped for base attachment counts 0 and 1 because there are fewer than two base outputs to compare
-  ([format skip](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1265-L1269)).
+  ([format skip](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1264-L1268)).
 - A case is omitted when `extraAttachmentCount` exceeds the base color attachment count. This removes placements whose inserted-hole model would dominate the ordinary outputs
   ([leaf skip](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1308-L1311)).
 - Binding `after` is omitted when a dummy render pass exists. Dummy cases isolate whether a binding recorded inside the earlier instance survives its end; they do not add a second after-binding path
@@ -401,7 +404,7 @@ Shared failures across these values can also come from shader-object creation or
 - `gl_frag_write` registers color-only leaves. The `none` depth-mode branch adds every depth format, so the depth attachment check uses the fixed vertex depth instead of combining two sources of 0.5
   ([depth expansion](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1322-L1336)).
 - The `output_array` registration loops over seven format names but never copies the loop variable into `params.colorFormat`; every branch uses `VK_FORMAT_R8G8B8A8_UNORM`. This is not intentional pruning expressed by a source guard. It is an unresolved source coverage risk and requires investigation before the names can be treated as seven tested formats
-  ([registration](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1361-L1389)).
+  ([registration](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1361-L1390)).
 
 ## Key Takeaways
 
@@ -410,26 +413,26 @@ Shared failures across these values can also come from shader-object creation or
 - Format classes affect shader output types and host comparison methods; mixed-format cases also test independent per-location attachment formats.
 - Output arrays consume consecutive locations, but this shader leaves elements 3 and 4 unwritten. The host validates the four written attachments and omits the two corresponding inserted images from comparison.
 - The `color_write_disable` leaf runs with the device feature disabled; it does not disable the writes. The host still expects the four ordinary attachments to receive white center squares.
-- The seven output-array format names currently collapse to one RGBA8 setup. This is an unresolved source coverage risk in [the registration code](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1361-L1389).
+- The seven output-array format names currently collapse to one RGBA8 setup. This is an unresolved source coverage risk in [the registration code](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1361-L1390).
 - The outside-depth failure diagnostic says "Color" and "expected to be 0.0" even though the check expects depth `1.0`; this affects failure reporting, not the pass condition
-  ([depth diagnostic](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1053-L1059)).
+  ([depth diagnostic](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1049-L1055)).
 - See `## Failure Meaning` for the evidence each comparison pattern provides and the implementation areas that can produce it.
 
 ## Source Reference Appendix
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Parameter model and format inventory | [vktShaderObjectRenderingTests.cpp#L54-L232](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L54-L232) | Defines attachment placement, dummy pass, color-write modes, and the ordinary color format pools. |
+| Parameter model and format inventory | [vktShaderObjectRenderingTests.cpp#L54-L233](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L54-L233) | Defines attachment placement, dummy pass, color-write modes, and the ordinary color format pools. |
 | Dynamic attachment list construction | [vktShaderObjectRenderingTests.cpp#L425-L505](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L425-L505) | Places image views and null entries at the locations consumed by fragment outputs. |
-| Expected color image | [vktShaderObjectRenderingTests.cpp#L551-L600](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L551-L600) | Builds format-aware clear values and the rendered center square. |
-| Custom device path | [vktShaderObjectRenderingTests.cpp#L607-L755](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L607-L755) | Removes `VK_EXT_color_write_enable` for the feature-disabled output-array leaf. |
-| Main execution path | [vktShaderObjectRenderingTests.cpp#L757-L990](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L757-L990) | Creates resources and shader objects, records dummy and real rendering, draws, barriers, and copies color images. |
-| Color and depth validation | [vktShaderObjectRenderingTests.cpp#L992-L1067](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L992-L1067) | Implements all thresholds, skipped inserted attachments, depth scan, and final status. |
-| Support checks | [vktShaderObjectRenderingTests.cpp#L1092-L1127](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1092-L1127) | Applies extension, attachment-limit, image-format, depth-format, and feature requirements. |
-| Shader generator | [vktShaderObjectRenderingTests.cpp#L1129-L1191](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1129-L1191) | Generates the fixed vertex shader and all separate-output or array fragment shaders. |
-| Registration | [vktShaderObjectRenderingTests.cpp#L1200-L1395](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1200-L1395) | Builds the complete ordinary and output-array matrices and their design exclusions. |
+| Expected color image | [vktShaderObjectRenderingTests.cpp#L552-L601](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L552-L601) | Builds format-aware clear values and the rendered center square. |
+| Custom device path | [vktShaderObjectRenderingTests.cpp#L608-L740](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L608-L740) | Removes `VK_EXT_color_write_enable` for the feature-disabled output-array leaf. |
+| Main execution path | [vktShaderObjectRenderingTests.cpp#L742-L986](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L742-L986) | Creates resources and shader objects, records dummy and real rendering, draws, barriers, and copies color images. |
+| Color and depth validation | [vktShaderObjectRenderingTests.cpp#L988-L1063](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L988-L1063) | Implements all thresholds, skipped inserted attachments, depth scan, and final status. |
+| Support checks | [vktShaderObjectRenderingTests.cpp#L1088-L1126](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1088-L1126) | Applies extension, attachment-limit, image-format, depth-format, and feature requirements. |
+| Shader generator | [vktShaderObjectRenderingTests.cpp#L1128-L1190](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1128-L1190) | Generates the fixed vertex shader and all separate-output or array fragment shaders. |
+| Registration | [vktShaderObjectRenderingTests.cpp#L1199-L1419](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1199-L1419) | Builds the complete ordinary and output-array matrices and their design exclusions. |
 | Shared shader-object helpers | [vktShaderObjectCreateUtil.cpp#L220-L447](../../../modules/vulkan/shader_object/vktShaderObjectCreateUtil.cpp#L220-L447) | Builds shader create info, sets required dynamic state, and binds graphics stages. |
-| Parent registration | [vktShaderObjectTests.cpp#L47-L63](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L47-L63) | Adds the `rendering` test family under `shader_object`. |
+| Parent registration | [vktShaderObjectTests.cpp#L48-L65](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L48-L65) | Adds the `rendering` test family under `shader_object`. |
 | Mustpass inventory | [rendering.txt](../../../mustpass/main/vk-default/shader-object/rendering.txt) | Lists all 240,686 executable paths used for registration audit. |
 | Shader object semantics | [shaders.adoc#L46-L60](../../../../vulkan-docs/src/chapters/shaders.adoc#L46-L60) | Defines per-stage shader objects and their dynamic-state model. |
 | Shader object binding and state | [shaders.adoc#L911-L1023](../../../../vulkan-docs/src/chapters/shaders.adoc#L911-L1023) | Defines command-buffer stage binding and the requirement to set relevant dynamic state before drawing. |

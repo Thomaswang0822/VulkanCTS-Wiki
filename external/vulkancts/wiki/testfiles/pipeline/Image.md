@@ -2,7 +2,7 @@
 
 **Core question:** Do Vulkan images produce valid sampled values when CTS varies their allocation, descriptor form, view type, format, dimensions, count, and graphics or compute execution path?
 
-[`vktPipelineImageTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L60-L88) implements the `pipeline.image` test family. It registers the allocation families `suballocation` and `dedicated_allocation`, then generates the descriptor, view-type, format, count, size, and execution leaves beneath each one ([`createImageTests()`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L891-L928)). The common runtime implementation lives in [`vktPipelineImageSamplingInstance.cpp`](../../../modules/vulkan/pipeline/vktPipelineImageSamplingInstance.cpp#L455-L1023).
+[`vktPipelineImageTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L60-L88) implements the `pipeline.image` test family. It registers the allocation families `suballocation` and `dedicated_allocation`, then generates the descriptor, view-type, format, count, size, and execution leaves beneath each one ([`createImageTests()`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L917-L929)). The common runtime implementation lives in [`vktPipelineImageSamplingInstance.cpp`](../../../modules/vulkan/pipeline/vktPipelineImageSamplingInstance.cpp#L455-L1023).
 
 The inspected default mustpass files contain 122,912 `pipeline.monolithic.image` leaves and 61,456 `pipeline.shader_object_unlinked_spirv.image` leaves. The monolithic total is twice the shader-object total because every monolithic leaf also has a `pipeline_protected_flag` variant that sets `VK_PIPELINE_CREATE_NO_PROTECTED_ACCESS_BIT_EXT`; that extension does not apply to shader objects.
 
@@ -22,13 +22,13 @@ pipeline.monolithic.image
 └── dedicated_allocation
 ```
 
-[`createImageTests()`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L917-L928) registers both direct intermediate nodes below the `image` group. This family is added only for the monolithic and unlinked shader-object construction roots ([`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L94-L118)); the hierarchy above uses the monolithic root as the canonical example.
+[`createImageTests()`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L917-L928) registers both direct intermediate nodes below the `image` group. This family is added only for the monolithic and unlinked shader-object construction roots ([`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L95-L223)); the hierarchy above uses the monolithic root as the canonical example.
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Observed values | Source evidence |
 |---|---|---|
-| Allocation family | `suballocation`, `dedicated_allocation` | [`createImageTests()`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L891-L928) |
+| Allocation family | `suballocation`, `dedicated_allocation` | [`createImageTests()`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L917-L929) |
 | Descriptor form | `combined` for `VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER`; `separate` for `VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE` | [`createImageSamplingTypeTests()`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L869-L889) |
 | Image-view type | `1d`, `1d_array`, `2d`, `2d_array`, `3d`, `cube`, `cube_array` | [`createImageViewTypeTests()`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L836-L867) |
 | Image format | `formats::pipelineImageFormats` for suballocation; `VK_FORMAT_R8G8B8A8_UNORM` and `VK_FORMAT_R16_SFLOAT` for dedicated allocation | [`createImageFormatTests()`](../../../modules/vulkan/pipeline/vktPipelineImageTests.cpp#L770-L833) |
@@ -276,5 +276,5 @@ These are source-defined matrix boundaries, not pass/fail expectations.
 - [`vktPipelineImageSamplingInstance.cpp`](../../../modules/vulkan/pipeline/vktPipelineImageSamplingInstance.cpp#L455-L1023): image setup, resource creation, pipeline setup, and commands.
 - [`vktPipelineImageSamplingInstance.cpp`](../../../modules/vulkan/pipeline/vktPipelineImageSamplingInstance.cpp#L1640-L1778): reference comparison and test status.
 - [`monolithic.txt`](../../../mustpass/main/vk-default/pipeline/monolithic/monolithic.txt): default monolithic image leaves.
-- [`shader-object-unlinked-spirv.txt`](../../../mustpass/main/vk-default/pipeline/shader-object-unlinked-spirv/shader-object-unlinked-spirv.txt): default shader-object image leaves.
+- [`shader-object-unlinked-spirv/image.txt`](../../../mustpass/main/vk-default/pipeline/shader-object-unlinked-spirv/image.txt): default unlinked-SPIR-V shader-object image leaves.
 - [Image Views](../../../../vulkan-docs/src/chapters/resources.adoc#image-views): Vulkan image-view semantics.

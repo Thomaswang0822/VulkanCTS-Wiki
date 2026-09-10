@@ -33,7 +33,7 @@ The `general` family expands each binding choice into the registered count-buffe
 | Queue selection | `_uq`, `_cq`, or `_exec_on_compute` | Uses the universal queue or a compute queue for the relevant operation. | [`checkConditionalDGCComputeSupport`](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTests.cpp#L84-L98) and [`conditionalPreprocessRun`](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTests.cpp#L406-L611) |
 | Preprocessing mode | `general`, `preprocess` | Chooses direct generated execution or explicit preprocessing followed by preprocessed execution. | [`createDGCComputeConditionalTests`](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTests.cpp#L615-L672) |
 
-The source registers 96 `general` cases and 8 `preprocess` cases. The exact executable leaves are listed in [the DGC mustpass file](../../../mustpass/main/vk-default/dgc.txt#L4350-L4453).
+The source registers 96 `general` cases and 8 `preprocess` cases. The exact executable leaves are listed in [the DGC mustpass file](../../../mustpass/main/vk-default/dgc.txt#L4496-L4599).
 
 ## Behavior Parameters
 
@@ -255,4 +255,4 @@ For `preprocess` cases, the corresponding failure may additionally involve condi
 | `conditionalPreprocessRun` | [preprocess runtime](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTests.cpp#L406-L611) | Separates preprocessing and execution and checks the same predicate contract. |
 | `createDGCComputeConditionalTests` | [registration](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTests.cpp#L615-L677) | Registers `general`, `preprocess`, and their exact case names. |
 | Conditional rendering semantics | [VK_EXT_conditional_rendering](../../../../vulkan-docs/src/appendices/VK_EXT_conditional_rendering.adoc#L21-L45) | Defines conditional execution and secondary-command-buffer inheritance semantics. |
-| Mustpass coverage | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4350-L4453) | Lists the exact NV registered identifiers. |
+| Mustpass coverage | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4496-L4599) | Lists the exact NV registered identifiers. |

@@ -28,7 +28,7 @@ layout(location = 0) __explicitInterpAMD out float out_data_explicit;
 layout(location = 1) smooth out float out_data_smooth;
 ```
 
-The fragment shader obtains three vertex values from `in_data_explicit`, reads `gl_BaryCoordSmoothAMD`, forms `(I, J, K)`, and calculates `I*data1 + J*data2 + K*data0`. It compares that result with `in_data_smooth`. The code above is a shortened faithful illustration; the exact generated templates are in [`initPrograms()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L257-L331).
+The fragment shader obtains three vertex values from `in_data_explicit`, reads `gl_BaryCoordSmoothAMD`, forms `(I, J, K)`, and calculates `I*data1 + J*data2 + K*data0`. It compares that result with `in_data_smooth`. The code above is a shortened faithful illustration; the exact generated templates are in [`initPrograms()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L259-L333).
 
 ## End-to-End Test Flow
 
@@ -99,14 +99,14 @@ Sample count is an orthogonal coverage dimension. The source registers names com
 
 | Topic | Source link | Why it matters |
 |---|---|---|
-| Registration factory | [`createExplicitVertexParameterTests()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L764-L768) | Creates the exact `explicit_vertex_parameter` test family. |
-| Matrix and pruning | [`createTests()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L727-L760) | Defines interpolation, auxiliary, sample-count, and secondary-buffer coverage. |
-| Support requirements | [`checkSupport()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L244-L255) | Requires the extension, sample support, dynamic rendering where needed, and sample-rate shading. |
-| Shader templates | [`initPrograms()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L257-L331) | Generates the explicit and ordinary interpolation paths. |
-| Resources and draw | [`iterate()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L338-L607) | Creates images/buffers/pipeline and submits the selected rendering path. |
+| Registration factory | [`createExplicitVertexParameterTests()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L771-L775) | Creates the exact `explicit_vertex_parameter` test family. |
+| Matrix and pruning | [`createTests()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L734-L767) | Defines interpolation, auxiliary, sample-count, and secondary-buffer coverage. |
+| Support requirements | [`checkSupport()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L246-L257) | Requires the extension, sample support, dynamic rendering where needed, and sample-rate shading. |
+| Shader templates | [`initPrograms()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L259-L333) | Generates the explicit and ordinary interpolation paths. |
+| Resources and draw | [`iterate()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L340-L607) | Creates images/buffers/pipeline and submits the selected rendering path. |
 | Verdict | [`iterate()` readback](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L609-L627) | Compares every expected/computed pair with tolerance 0.0005. |
 | Variant registration | [`createChildren()`](../../../modules/vulkan/draw/vktDrawTests.cpp#L70-L120) | Shows non-nested coverage and nested-mode omission. |
-| Mustpass evidence | [`vk-default/draw.txt`](../../../mustpass/main/vk-default/draw.txt#L439-L452) | Lists dynamic secondary variants and their reduced sample matrix. |
+| Mustpass evidence | [`vk-default/draw.txt`](../../../mustpass/main/vk-default/draw.txt#L448-L461) | Lists dynamic secondary variants and their reduced sample matrix. |
 | Vulkan interface semantics | [Shader Input and Output Interfaces](https://registry.khronos.org/vulkan/specs/latest/html/chapters/interfaces.html#interfaces-iointerfaces) | Grounds the stage-interface explanation. |
 
 ## Questions / Risk Points for User Audit

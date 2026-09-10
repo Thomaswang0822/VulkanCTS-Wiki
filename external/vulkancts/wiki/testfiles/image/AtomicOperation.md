@@ -25,16 +25,17 @@ image.atomic_operations
 ├── or
 ├── xor
 ├── exchange
-└── compare_exchange
+├── compare_exchange
+└── indexing
 ```
 
-[`createChildren()`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L89) registers `atomic_operations` under the `image` test category. [`createImageAtomicOperationTests()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2477-L2655) registers these eleven operation values and the leaves below each one.
+[`createChildren()`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L89) registers `atomic_operations` under the `image` test category. [`createImageAtomicOperationTests()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2640-L2824) registers these eleven operation values and the leaves below each one.
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Atomic operation | `add`, `sub`, `inc`, `dec`, `min`, `max`, `and`, `or`, `xor`, `exchange`, `compare_exchange` | Selects the atomic instruction and the reference rule. | [Operation enum and factory](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L306-L321) |
+| Atomic operation | `add`, `sub`, `inc`, `dec`, `min`, `max`, `and`, `or`, `xor`, `exchange`, `compare_exchange` | Selects the atomic instruction and the reference rule. The separate `indexing` child is a fixed storage-texel-buffer boundary test rather than another operation value. | [Operation enum and factory](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L306-L321), [indexing registration](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2818-L2821) |
 | Resource shape | `1d`, `1d_array`, `2d`, `2d_array`, `3d`, `cube`, `cube_array`, `buffer` | Changes coordinate dimensionality, layer handling, image-view type, and, for `buffer`, descriptor type. | [Image parameter array](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2481-L2499) |
 | Format | `r32ui`, `r32i`, `r32f`, `r64ui`, `r64i`, plus non-Vulkan-SC `rg16f` and `rgba16f` | Selects integer, float, 64-bit, or half-vector operation and reference type. | [Format array](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2501-L2511) |
 | Tiling | optimal; `linear` suffix | Changes format-feature support and excludes unsupported sparse or buffer combinations. | [Tiling array and factory pruning](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2513-L2516) |
@@ -92,6 +93,10 @@ The primary behavioral axis is **atomic operation**. The type, compute-stage, re
 ### `compare_exchange`: Conditional replacement
 
 `compare_exchange` replaces a texel only when its old value equals the fixed comparison value: 18 for 32-bit paths and 820338753304 for 64-bit paths. Its final-state check accepts a submitted replacement value, because one contender can win the comparison before the value changes.
+
+### `indexing`: 32-bit texel-buffer index boundary
+
+The `indexing` leaf is not part of the operation/format/image-type matrix. It creates an `R32_UINT` storage texel buffer with 131072 elements and performs `imageAtomicAdd` at index 65536. The check requires element 65536 to become `1` while element 0 remains `0`, catching accidental 16-bit index truncation ([implementation](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2475-L2634)).
 
 ## Shader Analysis
 
@@ -354,5 +359,5 @@ void main (void)
 | Generated atomic shaders | [`BinaryAtomicEndResultCase::initPrograms()` and `BinaryAtomicIntermValuesCase::initPrograms()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L1194-L1418) | Generates GLSL and selects specialized SPIR-V assembly. |
 | Shared execution path | [`BinaryAtomicInstanceBase::iterate()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L1498-L1663) | Allocates resources, initializes, dispatches, synchronizes, reads back, and reports pass/fail. |
 | Validation | [`BinaryAtomicEndResultInstance::verifyResult()` and `BinaryAtomicIntermValuesInstance::verifyRecursive()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L1935-L2099) | Implements final-value and returned-value sequence checks. |
-| Case matrix factory | [`createImageAtomicOperationTests()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2477-L2655) | Registers the operation, type, resource, and result-checking matrix. |
+| Case matrix factory | [`createImageAtomicOperationTests()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2640-L2824) | Registers the operation, type, resource, and result-checking matrix. |
 | SPIR-V template interface | [`vktImageAtomicSpirvShaders.hpp`](../../../modules/vulkan/image/vktImageAtomicSpirvShaders.hpp#L35-L57) | Defines selection of specialized templates for the SPIR-V-only operations. |

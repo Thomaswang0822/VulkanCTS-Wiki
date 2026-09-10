@@ -117,7 +117,7 @@ The shader supplies presentable work. The source intends to observe the display 
 | Direct-display enumeration | [`getDisplays`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L853-L887) | Finds displays for the function cases and rejects platform WSI ownership. |
 | Power control | [`testDisplayPowerControl`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L889-L930) | Defines the state sequence, waits, and return-value checks. |
 | Event registration | [`testDisplayEvent` and `testDeviceEvent`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L932-L984) | Defines event types, return-value checks, and fence lifetime. |
-| Registration | [`createDisplayControlTests`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L988-L994), [`createWsiTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L76-L90) | Registers the four leaves under `wsi.display_control`. |
+| Registration | [`createDisplayControlTests`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L988-L994), [`createWsiTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L85-L100) | Registers the four leaves under `wsi.display_control`. |
 | Default mustpass | [`wsi.txt`](../../../mustpass/main/vk-default/wsi.txt#L11515-L11518) | Lists all four executable paths. |
 | Extension semantics | [display control](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L2181-L2234), [surface counters](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L6434-L6491), [event fences](../../../../vulkan-docs/src/chapters/synchronization.adoc#L2882-L2989) | Grounds the power, counter, and event-fence descriptions. |
 

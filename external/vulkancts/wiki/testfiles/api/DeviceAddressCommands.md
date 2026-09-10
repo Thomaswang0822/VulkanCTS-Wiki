@@ -24,7 +24,7 @@ api.device_address
 └── misc
 ```
 
-The `device_address` test family is registered under the `api` test category in [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L86-L142), inside `#ifndef CTS_USES_VULKANSC`. The only intermediate node is `misc`, created by [`new tcu::TestCaseGroup(testCtx, "misc")`](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L929-L929). The six test case leaves are added through the [`caseVect`](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L931-L938) loop and appear in the mustpass file at [`api.txt#L269223-L269228`](../../../mustpass/main/vk-default/api.txt#L269223-L269228).
+The `device_address` test family is registered under the `api` test category in [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L89-L148), inside `#ifndef CTS_USES_VULKANSC`. The only intermediate node is `misc`, created by [`new tcu::TestCaseGroup(testCtx, "misc")`](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L929-L929). The six test case leaves are added through the [`caseVect`](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L931-L938) loop and appear in the mustpass file at [`api.txt#L269223-L269228`](../../../mustpass/main/vk-default/api.txt#L267497-L267497).
 
 ## Parameter Dimensions and Observed Values
 
@@ -419,4 +419,4 @@ All leaves share a common dependency on `vkGetBufferDeviceAddress` returning cor
 | `BufferAddressCommandTestCase::checkSupport()` | [vktApiDeviceAddressCommandsTests.cpp#L847-L863](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L847-L863) | Per-leaf feature requirements: `VK_KHR_device_address_commands`, `VK_EXT_vertex_input_dynamic_state`, `VK_KHR_synchronization2`, sparse core features. |
 | `BufferAddressCommandTestCase::initPrograms()` | [vktApiDeviceAddressCommandsTests.cpp#L865-L910](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L865-L910) | GLSL sources for the trivial vertex/fragment and compute shaders. |
 | `createApiTests()` registration | [vktApiTests.cpp#L136-L136](../../../modules/vulkan/api/vktApiTests.cpp#L136-L136) | Parent registration: `apiTests->addChild(createDeviceAddressCommandsTests(testCtx))`, inside `#ifndef CTS_USES_VULKANSC`. |
-| Mustpass entries | [api.txt#L269223-L269228](../../../mustpass/main/vk-default/api.txt#L269223-L269228) | The six `dEQP-VK.api.device_address.misc.*` leaves. |
+| Mustpass entries | [api.txt#L269223-L269228](../../../mustpass/main/vk-default/api.txt#L267497-L267497) | The six `dEQP-VK.api.device_address.misc.*` leaves. |

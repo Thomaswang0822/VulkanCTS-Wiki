@@ -3,7 +3,7 @@
 **Core question:** does the implementation correctly handle the full command buffer lifecycle across pool creation, primary and secondary buffer allocation, recording, submission, secondary execution, state transitions, and indirect dispatch alignment, under the documented flag, count, and offset combinations?
 
 - Source file covered: [`vktApiCommandBuffersTests.cpp`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1).
-- Test category: `api`. Test family: `command_buffers`. The family has no intermediate nodes; all 129 registered mustpass leaves are direct test case leaves of `api.command_buffers`.
+- `api.command_buffers` has 131 direct mustpass leaves, including two inheritance-without-primary-query cases.
 - Core test idea: drive `vkCreateCommandPool`, `vkAllocateCommandBuffers`, `vkBeginCommandBuffer` / `vkEndCommandBuffer`, `vkQueueSubmit`, `vkCmdExecuteCommands`, `vkResetCommandPool` / `vkResetCommandBuffer`, and `vkTrimCommandPool` across the documented flag and parameter matrix, and verify behavior through event signaling, color-attachment readback, atomic counter readback, buffer-content comparison, and absence of crashes.
 - The 64 `indirect_compute_dispatch_offsets_*` leaves form a generated 8×8 matrix that probes `vkCmdDispatchIndirect` alignment under paired memory and dispatch offsets.
 - The remaining sections cover the behavioral groups, what each group changes, what is checked, and what a failure of each group means.
@@ -58,6 +58,8 @@ api.command_buffers
 ├── record_query_precise_w_flag
 ├── record_query_imprecise_w_flag
 ├── record_query_imprecise_wo_flag
+├── inherited_occlusion_query_without_primary_query_imprecise
+├── inherited_occlusion_query_without_primary_query_precise
 ├── bad_inheritance_info_random
 ├── bad_inheritance_info_random_cont
 ├── bad_inheritance_info_random_data
@@ -117,7 +119,7 @@ The 64 `indirect_compute_dispatch_offsets_{memOffset}_{dispatchOffset}` leaves a
 
 ## Behavior Parameters
 
-The primary behavioral axis is the behavioral group: the 129 test case leaves cluster into groups that each exercise a distinct command buffer property. The groups follow the API section comments in the source file (`19.1` through `19.6` plus extension-driven groups).
+The primary behavioral axis is the command-buffer scenario; leaves cluster by lifecycle, execution, query inheritance, and command-state behavior.
 
 ### command_pool_create_reset — Pool creation and reset
 
@@ -150,6 +152,10 @@ Exercises `VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT` by executing the same s
 ### query_recording — Occlusion query recording in secondary buffers
 
 Exercises `vkCmdBeginQuery` / `vkCmdEndQuery` with precise and imprecise query control flags, gated by the `inheritedQueries` feature. Covers `record_query_precise_w_flag`, `record_query_imprecise_w_flag`, `record_query_imprecise_wo_flag`. Implemented by [`recordBufferQueryPreciseWithFlagTest()`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L2714) through [`recordBufferQueryImpreciseWithoutFlagTest()`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L2892).
+
+### inherited_occlusion_query_without_primary_query: inheritance without an active query
+
+The additional `inherited_occlusion_query_without_primary_query_imprecise` and `inherited_occlusion_query_without_primary_query_precise` leaves exercise a different inheritance condition: a secondary advertises `occlusionQueryEnable = VK_TRUE`, but the primary has no active query. The secondary draws a triangle inside a render pass; successful submission is the oracle, not query-result or image readback. Both require `inheritedQueries`, and the precise variant also requires `occlusionQueryPrecise` ([implementation](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L2931-L3024), [support](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L4670-L4677)).
 
 ### bad_inheritance_info — Robustness to unused invalid inheritance data
 
@@ -425,7 +431,7 @@ Final pass/fail is always derived from one of these checks; the test does not ag
 - **Events.** Leaves that rely on `vkCmdSetEvent` and `vk.getEventStatus` are gated by [`checkEventSupport()`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L4555), which throws `NotSupportedError` when `VK_KHR_portability_subset` is enabled without the `events` feature.
 - **`VK_KHR_maintenance1`.** `trim_command_pool` and `trim_command_pool_secondary` require `VK_KHR_maintenance1` ([`trimCommandPoolTest()`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L999)).
 - **`VK_EXT_nested_command_buffer` or `VK_KHR_maintenance7`.** `nested_render_pass_continue`, `nested_execute`, and `nested_execute_multiple_levels` require either `VK_EXT_nested_command_buffer` with `nestedCommandBuffer` (and `nestedCommandBufferRendering` for the render pass variant) or `VK_KHR_maintenance7` with the `maintenance7` feature enabled ([`renderPassContinueNestedTest()`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L1926), [`checkNestedCommandBufferSupport`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L6409)).
-- **`inheritedQueries` feature.** `record_query_precise_w_flag`, `record_query_imprecise_w_flag`, and `record_query_imprecise_wo_flag` are gated by `context.getDeviceFeatures().inheritedQueries` ([`recordBufferQueryPreciseWithFlagTest()`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L6272)).
+- **Query inheritance.** The two imprecise `record_query_*` leaves use `checkInheritedQueriesSupport`; `record_query_precise_w_flag` is registered with the secondary-framebuffer support callback, without an explicit inherited-queries check in that callback. The two new `inherited_occlusion_query_without_primary_query_*` leaves require `inheritedQueries`, with `occlusionQueryPrecise` additionally required for the precise leaf ([callbacks](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L4647-L4677), [registration](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L6437-L6454)).
 - **`VK_KHR_maintenance6`.** `secondary_push_constants_2` and `secondary_push_descriptor_set_2` require `VK_KHR_maintenance6` ([`secCmdExtraCaseSupportCheck()`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L5773)).
 - **`VK_KHR_push_descriptor`.** `secondary_push_descriptor_set_2` and `secondary_push_descriptor_set_with_template` require `VK_KHR_push_descriptor` ([`secCmdExtraCaseSupportCheck()`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L5773)).
 - **`VK_KHR_descriptor_update_template`.** `secondary_push_descriptor_set_with_template` requires `VK_KHR_descriptor_update_template` ([`secCmdExtraCaseSupportCheck()`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L5773)).
@@ -457,7 +463,7 @@ Final pass/fail is always derived from one of these checks; the test does not ag
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createCommandBuffersTests()` | [`vktApiCommandBuffersTests.cpp#L6266`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L6266) | Top-level registration for the `command_buffers` test family; adds all 129 test case leaves and the 64-case generated matrix. |
+| `createCommandBuffersTests()` | [`vktApiCommandBuffersTests.cpp#L6266`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L6266) | Top-level registration for the `command_buffers` test family; adds 131 direct leaves, including the 64-case generated matrix. |
 | Parent registration | [`vktApiTests.cpp#L107`](../../../modules/vulkan/api/vktApiTests.cpp#L107) | `apiTests->addChild(createCommandBuffersTests(testCtx))` attaches the family to the `api` test category. |
 | `createPoolNullParamsTest()` | [`vktApiCommandBuffersTests.cpp#L380`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L380) | Pool creation leaves. |
 | `resetPoolReuseTest()` | [`vktApiCommandBuffersTests.cpp#L511`](../../../modules/vulkan/api/vktApiCommandBuffersTests.cpp#L511) | Pool reset and reuse leaf. |

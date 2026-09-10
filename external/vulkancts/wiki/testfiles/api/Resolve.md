@@ -33,7 +33,7 @@ api.copy_and_blit.core.resolve_image
 └── diff_image_size
 ```
 
-The same `addResolveImageTests` implementation is also registered under the `api.copy_and_blit.dedicated_allocation.resolve_image` and `api.copy_and_blit.copy_commands2.resolve_image` variant roots through [`addCopiesAndBlittingTests`](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L119-L230). The `core` root is shown above as the canonical registration tree; the implementation is identical across the three variants and differs only in `allocationKind` (`ALLOCATION_KIND_SUBALLOCATED` versus `ALLOCATION_KIND_DEDICATED`) and `extensionFlags` (`0` versus `COPY_COMMANDS_2`). The `compute` and `transfer` queue-specific children are registered as direct children `whole_copy_before_resolving_compute` and `whole_copy_before_resolving_transfer` by [`addComputeAndTransferQueueTests`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L1965-L2022), rather than as a literal `compute_and_transfer_queue` path component.
+The same `addResolveImageTests` implementation is also registered under the `api.copy_and_blit.dedicated_allocation.resolve_image` and `api.copy_and_blit.copy_commands2.resolve_image` variant roots through [`addCopiesAndBlittingTests`](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L119-L230). The `core` root is shown above as the canonical registration tree; the implementation is identical across the three variants and differs only in `allocationKind` (`ALLOCATION_KIND_SUBALLOCATED` versus `ALLOCATION_KIND_DEDICATED`) and `extensionFlags` (`0` versus `COPY_COMMANDS_2`). The `compute` and `transfer` queue-specific children are registered as direct children `whole_copy_before_resolving_compute` and `whole_copy_before_resolving_transfer` by [`addComputeAndTransferQueueTests`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L1961-L2018), rather than as a literal `compute_and_transfer_queue` path component.
 
 ## Parameter Dimensions and Observed Values
 
@@ -445,6 +445,8 @@ void main() {
 
 ### Requirement-based pruning
 
+Sparse destination-image support is checked in the case callback through `checkSparseBindingSupport`, before the instance creates or binds the image ([gate](../../../modules/vulkan/api/vktApiResolveTests.cpp#L1646-L1647)).
+
 - **Sample count support.** `checkSupport` reads `VkPhysicalDeviceLimits::framebufferColorSampleCounts` and throws `NotSupportedError` when the requested `VkSampleCountFlagBits` is not supported ([`vktApiResolveTests.cpp#L1621-L1622`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L1621-L1622)).
 - **Format support.** `getPhysicalDeviceImageFormatProperties` is queried for both source and destination formats with the required usage flags. `VK_ERROR_FORMAT_NOT_SUPPORTED` throws `NotSupportedError` ([`vktApiResolveTests.cpp#L1624-L1635`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L1624-L1635)).
 - **`fragmentStoresAndAtomics`.** Required for intermediate-copy verification. `checkSupport` throws `NotSupportedError` when the feature is missing and `shouldVerifyIntermediateResults(option)` is true ([`vktApiResolveTests.cpp#L1614-L1619`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L1614-L1619)).
@@ -495,7 +497,7 @@ void main() {
 | `addResolveImageWholeArrayImageTests` | [`vktApiResolveTests.cpp#L2289-L2344`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L2289-L2344) | `whole_array_image` subgroup registration. |
 | `addResolveImageWholeArrayImageSingleRegionTests` | [`vktApiResolveTests.cpp#L2346-L2507`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L2346-L2507) | `whole_array_image_one_region` subgroup registration, including maintenance5 leaves. |
 | `addResolveImageDiffImageSizeTests` | [`vktApiResolveTests.cpp#L2509-L2584`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L2509-L2584) | `diff_image_size` subgroup registration with oversized src and dst extents. |
-| `addResolveImageTests` | [`vktApiResolveTests.cpp#L2588-L2608`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L2588-L2608) | Root registration that adds all 13 intermediate nodes. |
+| `addResolveImageTests` | [`vktApiResolveTests.cpp#L2588-L2608`](../../../modules/vulkan/api/vktApiResolveTests.cpp#L2588-L2607) | Root registration that adds all 13 intermediate nodes. |
 | `addCopiesAndBlittingTests` (parent dispatcher) | [`vktApiCopiesAndBlittingTests.cpp#L119-L230`](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L119-L230) | Routes `resolve_image` under the `core`, `dedicated_allocation`, and `copy_commands2` variant roots. |
 | `generateBuffer` / `FILL_MODE_MULTISAMPLE` | [`vktApiCopiesAndBlittingUtil.cpp#L1108-L1272`](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.cpp#L1108-L1272) | Host reference fill pattern: green / blue / diagonal teal, identical across samples. |
 | `generateExpectedResult` | [`vktApiCopiesAndBlittingUtil.cpp#L1487-L1498`](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.cpp#L1487-L1498) | Copies resolve regions into the destination-shaped expected level. |

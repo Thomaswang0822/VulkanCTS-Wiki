@@ -2,7 +2,7 @@
 
 The `shader_object` test category collects tests that check the API, lifecycle, execution, and performance behavior of `VK_EXT_shader_object`.
 
-The category has ten direct test families. The registration-only dispatcher in `vktShaderObjectTests.cpp` is represented here rather than by a separate rewritten Level-3 page.
+The category has eleven direct test families. The registration-only dispatcher in `vktShaderObjectTests.cpp` is represented here rather than by a separate rewritten Level-3 page.
 
 ## Background Knowledge
 
@@ -28,7 +28,7 @@ shader_object
 └── misc
 ```
 
-[`createTests()`](../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L47-L63) registers all ten test families directly. Each family maps to one rewritten Level-3 page.
+[`createTests()`](../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L48-L65) registers all ten test families directly. Each family maps to one rewritten Level-3 page, including the Maintenance11 independent-sets family.
 
 ## How the Families Fit Together
 
@@ -37,6 +37,7 @@ The families cover the shader-object lifecycle from capability discovery to exec
 - **API and object data:** `api` checks the required API surface, while `create` and `binary` cover creation, result handling, binary queries, and recreation.
 - **Stage relationships:** `link`, `binding`, and `tessellation` check legal stage chains, linked creation, per-stage replacement or unbinding, and tessellation execution modes.
 - **Execution state:** `pipeline_interaction`, `rendering`, and `misc` check switching between object types, dynamic-rendering attachment routing, dynamic state, interfaces, lifetime, and push constants.
+- **Descriptor-set layouts:** `m11_independent_sets` checks independent per-stage descriptor-set layouts across linked and unlinked shader-object creation, SPIR-V and binary inputs, and graphics stage combinations.
 - **Relative cost:** `performance` compares shader-object operations with pipeline, linked-shader, SPIR-V, binary, and host-copy reference paths.
 
 Together, these families check that shader objects expose the required API, preserve their data and relationships, and execute with the state active at each draw or dispatch.
@@ -55,6 +56,7 @@ Together, these families check that shader objects expose the required API, pres
 | `performance` | [PerformanceTests](../testfiles/shader_object/PerformanceTests.md) | Relative timing for draw, dispatch, binding, binary creation, and host-copy paths. |
 | `rendering` | [RenderingTests](../testfiles/shader_object/RenderingTests.md) | Attachment counts, output holes, formats, binding time, depth, and output arrays. |
 | `misc` | [MiscTests](../testfiles/shader_object/MiscTests.md) | Dynamic-state comparisons, stage interfaces, tessellation edge cases, lifetime, and push constants. |
+| `m11_independent_sets` | [IndependentSetsTests](../testfiles/shader_object/IndependentSetsTests.md) | Per-stage descriptor-set layouts with linked or unlinked shader objects, SPIR-V or binary shader data, and seeded descriptor-value checks. |
 
 ## Category Notes
 

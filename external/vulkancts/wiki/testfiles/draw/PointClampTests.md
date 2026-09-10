@@ -318,6 +318,6 @@ The source registers one fixed maximum-clamp case. It does not generate point-si
 | Test execution and comparison | [`renderPointSizeClampTest`](../../../modules/vulkan/draw/vktDrawPointClampTests.cpp#L93-L385) | Defines limits, resources, pipeline, draw, synchronization, readback, reference image, and pass/fail logic. |
 | Support gate and registration | [`checkSupport` and `createDrawPointClampTests`](../../../modules/vulkan/draw/vktDrawPointClampTests.cpp#L387-L400) | Checks `largePoints` and registers the sole test case. |
 | Renderpass dispatcher | [`createTests`](../../../modules/vulkan/draw/vktDrawTests.cpp#L126-L142) | Places `point_size_clamp` under `draw.renderpass`. |
-| Vulkan mustpass evidence | [`draw.txt`](../../../mustpass/main/vk-default/draw.txt#L28976) | Lists `dEQP-VK.draw.renderpass.point_size_clamp.point_size_clamp_max`. |
+| Vulkan mustpass evidence | [`draw.txt`](../../../mustpass/main/vk-default/draw.txt#L29021) | Lists `dEQP-VK.draw.renderpass.point_size_clamp.point_size_clamp_max`. |
 | Vulkan SC mustpass evidence | [`draw.txt`](../../../mustpass/main/vksc-default/draw.txt#L1528) | Lists `dEQP-VKSC.draw.renderpass.point_size_clamp.point_size_clamp_max`. |
 | Source declaration | [`vktDrawPointClampTests.hpp`](../../../modules/vulkan/draw/vktDrawPointClampTests.hpp#L35) | Declares the registration factory used by the dispatcher. |

@@ -2,8 +2,8 @@
 
 **Core question:** Do multisampled-image rendering, access, ordering, and resolve paths preserve the expected per-sample behavior and final image values?
 
-- This page documents the `pipeline.multisample` image-access intermediate nodes implemented by [`vktPipelineMultisampleImageTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1-L2988).
-- The source is mixed implementation and registration code. It implements `sampled_image`, `storage_image`, `standardsampleposition`, `samples_mapping_order`, and `3d`, while [`createMultisampleTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L7247-L8096) attaches those intermediate nodes below each multisample construction root.
+- This page documents the `pipeline.multisample` image-access intermediate nodes implemented by [`vktPipelineMultisampleImageTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1-L2989).
+- The source is mixed implementation and registration code. It implements `sampled_image`, `storage_image`, `standardsampleposition`, `samples_mapping_order`, and `3d`, while [`createMultisampleTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L7700-L7720) attaches those intermediate nodes below each multisample construction root.
 - The direct intermediate node is the behavioral axis. Format, extent, layer count, sample count, and construction type broaden the coverage of its selected mechanism.
 
 ## Background Knowledge
@@ -31,12 +31,12 @@ The same factories create the corresponding intermediate nodes under `pipeline.f
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Intermediate node | `sampled_image`, `storage_image`, `standardsampleposition`, `samples_mapping_order`, `3d` | Selects the image-access or sample-identity mechanism and its validator. | [Factories](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2916-L2988) |
-| 2D extent and layers | `64x64_1`, `64x64_4`, `79x31_1`, `79x31_4` | Exercises square and non-square images with one or four array layers in the sampled and storage paths. | [`addTestCasesWithFunctions()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2748-L2799) |
-| 3D extent and layers | `64x64x8_1` | Uses the separate 3D-image setup. | [`addTestCasesWithFunctions3d()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2801-L2845) |
-| Format | `r8g8b8a8_unorm`, `r32_uint`, `r16g16_sint`, `r32g32b32a32_sfloat`; position path also uses `r32g32b32a32_sfloat` | Changes the storage and comparison representation. | [2D matrix](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2763-L2799), [position matrix](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2847-L2885) |
-| Sample count | `samples_2`, `samples_4`, `samples_8`, `samples_16`, `samples_32`, `samples_64` | Changes the number of per-pixel values the selected mechanism must handle. | [Common matrix](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2754-L2799) |
-| Pipeline construction type | Supported construction variants | Repeats each C++ matrix through the pipeline registration framework. | [Parent registration](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L7247-L8096) |
+| Intermediate node | `sampled_image`, `storage_image`, `standardsampleposition`, `samples_mapping_order`, `3d` | Selects the image-access or sample-identity mechanism and its validator. | [Factories](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2917-L2989) |
+| 2D extent and layers | `64x64_1`, `64x64_4`, `79x31_1`, `79x31_4` | Exercises square and non-square images with one or four array layers in the sampled and storage paths. | [`addTestCasesWithFunctions()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2749-L2800) |
+| 3D extent and layers | `64x64x8_1` | Uses the separate 3D-image setup. | [`addTestCasesWithFunctions3d()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2802-L2846) |
+| Format | `r8g8b8a8_unorm`, `r32_uint`, `r16g16_sint`, `r32g32b32a32_sfloat`; position path also uses `r32g32b32a32_sfloat` | Changes the storage and comparison representation. | [2D matrix](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2764-L2800), [position matrix](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2848-L2886) |
+| Sample count | `samples_2`, `samples_4`, `samples_8`, `samples_16`, `samples_32`, `samples_64` | Changes the number of per-pixel values the selected mechanism must handle. | [Common matrix](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2755-L2800) |
+| Pipeline construction type | Supported construction variants | Repeats each C++ matrix through the pipeline registration framework. | [Parent registration](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L7700-L7720) |
 
 ## Behavior Parameters
 
@@ -44,23 +44,23 @@ The primary behavioral axis is the direct intermediate node below `pipeline.mono
 
 ### `sampled_image`: sampled per-sample reads
 
-This intermediate node renders values into a multisampled image, then samples its individual values in a fragment shader. CTS copies a checksum image to host memory and rejects any pixel that reports an unexpected sample color ([validation](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1356-L1391)).
+This intermediate node renders values into a multisampled image, then samples its individual values in a fragment shader. CTS copies a checksum image to host memory and rejects any pixel that reports an unexpected sample color ([validation](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1357-L1392)).
 
 ### `storage_image`: storage-image load/store comparison
 
-This intermediate node accesses a multisampled image through storage-image operations. The test produces two layered outputs and applies [`compareImages()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2074-L2139), which permits the source-defined integer-format error handling before declaring a mismatch.
+This intermediate node accesses a multisampled image through storage-image operations. The test produces two layered outputs and applies [`compareImages()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2076-L2141), which permits the source-defined integer-format error handling before declaring a mismatch.
 
 ### `standardsampleposition`: standard-location identity
 
-This intermediate node renders colors tied to standard sample positions and checks a checksum of the result. The support path requires `standardSampleLocations`, and the validator fails when a checksum pixel records one or more unexpected sample colors ([support and validation](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2278-L2491)).
+This intermediate node renders colors tied to standard sample positions and checks a checksum of the result. The support path requires `standardSampleLocations`, and the validator fails when a checksum pixel records one or more unexpected sample colors ([support and validation](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2279-L2492)).
 
 ### `samples_mapping_order`: cross-fragment sample order
 
-This intermediate node writes a sample-index-weighted value for each pixel through a compute shader. The host reads the storage buffer and requires every result after the first to equal the first within `0.001`, so it detects an inconsistent sample-index mapping ([validation](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2708-L2723)).
+This intermediate node writes a sample-index-weighted value for each pixel through a compute shader. The host reads the storage buffer and requires every result after the first to equal the first within `0.001`, so it detects an inconsistent sample-index mapping ([validation](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2709-L2724)).
 
 ### `3d`: resolving into a 3D image
 
-This intermediate node renders per-sample values into a multisampled 2D image, clears a single-sampled `64x64x8` 3D image to green, and resolves the 2D image into the first depth slice of the 3D image. CTS compares every destination slice with a host-generated reference using a per-component threshold of `0.01`: slice zero must contain the average-resolved colors and the other seven slices must retain the green clear color ([implementation](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1396-L1860)).
+This intermediate node renders per-sample values into a multisampled 2D image, clears a single-sampled `64x64x8` 3D image to green, and resolves the 2D image into the first depth slice of the 3D image. CTS compares every destination slice with a host-generated reference using a per-component threshold of `0.01`: slice zero must contain the average-resolved colors and the other seven slices must retain the green clear color ([implementation](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1397-L1861)).
 
 ## Shader Analysis
 
@@ -144,16 +144,16 @@ void main()
 #### Additional Info
 
 - The vertex shader stays fixed for every `3d` case. It matters only as the full-screen producer that covers every source pixel; all sample-distinguishing logic is in the fragment shader.
-- [`Image3d::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1399-L1438) explicitly ignores `caseDef`, so the shown stage sources are exact for every sample-count leaf; width, height, and sample count enter through push constants instead.
-- The host constructs the same per-sample values, resolves the 2D image into a depth-one region at destination offset `(0,0,0)`, and compares slice zero against the average while requiring slices 1-7 to retain the green clear value ([runtime and validation](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1567-L1860)).
+- [`Image3d::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1400-L1439) explicitly ignores `caseDef`, so the shown stage sources are exact for every sample-count leaf; width, height, and sample count enter through push constants instead.
+- The host constructs the same per-sample values, resolves the 2D image into a depth-one region at destination offset `(0,0,0)`, and compares slice zero against the average while requiring slices 1-7 to retain the green clear value ([runtime and validation](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1568-L1861)).
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Sample count | The source text is unchanged. `pc.numSamples` changes the R/G denominators, the B normalization, and the number of `gl_SampleID` values that contribute to the resolve. | [`addTestCasesWithFunctions3d()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2801-L2845) |
-| Extent, layer count, and format | This path registers only `64x64x8_1` and `r8g8b8a8_unorm`; width and height are runtime push constants, while depth, layer count, and format do not alter either shader. | [`addTestCasesWithFunctions3d()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2806-L2814) |
-| Pipeline construction type | Registration repeats the same builder for each supported construction route; no construction-type branch exists in `Image3d::initPrograms()`. | [`create3dImageTestsInGroup()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2922-L2925) |
+| Sample count | The source text is unchanged. `pc.numSamples` changes the R/G denominators, the B normalization, and the number of `gl_SampleID` values that contribute to the resolve. | [`addTestCasesWithFunctions3d()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2802-L2846) |
+| Extent, layer count, and format | This path registers only `64x64x8_1` and `r8g8b8a8_unorm`; width and height are runtime push constants, while depth, layer count, and format do not alter either shader. | [`addTestCasesWithFunctions3d()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2807-L2815) |
+| Pipeline construction type | Registration repeats the same builder for each supported construction route; no construction-type branch exists in `Image3d::initPrograms()`. | [`create3dImageTestsInGroup()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2923-L2926) |
 
 #### SPIR-V
 
@@ -364,7 +364,7 @@ void main()
 
 ## Runtime Execution and Result Checking
 
-- The 2D paths use [`checkImageFormatRequirements()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L590-L608) to check sample-count and format support for the requested usage. It also rejects a storage-image usage when `shaderStorageImageMultisample` is unavailable. The `3d` path instead checks the multisampled 2D source and single-sampled 3D destination format support separately ([support check](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1440-L1473)).
+- The 2D paths use [`checkImageFormatRequirements()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L591-L609) to check sample-count and format support for the requested usage. It also rejects a storage-image usage when `shaderStorageImageMultisample` is unavailable. The `3d` path instead checks the multisampled 2D source and single-sampled 3D destination format support separately ([support check](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1441-L1474)).
 - The selected path creates multisampled images and views, descriptor sets, graphics pipelines, and, where required, a host-visible checksum or storage buffer. The `samples_mapping_order` path submits a graphics pass, runs compute work over the multisample image, inserts a compute-to-host barrier, and reads the buffer after completion.
 - `sampled_image` and `standardsampleposition` copy a checksum image to a buffer, wait, invalidate its allocation, and fail on a nonzero error result. `storage_image` copies and compares its layered images. `samples_mapping_order` checks all computed values against the first value. `3d` resolves into depth slice zero, copies the full 3D image to a host-visible buffer, and threshold-compares all eight slices with generated references.
 - A failing final image identifies the selected behavior class, but its result cannot independently isolate image creation, rasterization, shader access, copyback, or comparison code. The source-level validators define the localization boundary.
@@ -417,7 +417,7 @@ void main()
 
 ### Requirement-based pruning
 
-- The 2D paths call [`checkImageFormatRequirements()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L590-L608) for the requested sample count, format, and image usage. The `3d` path has separate source and destination image-format queries and checks sample-count support on the multisampled 2D source.
+- The 2D paths call [`checkImageFormatRequirements()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L591-L609) for the requested sample count, format, and image usage. The `3d` path has separate source and destination image-format queries and checks sample-count support on the multisampled 2D source.
 - `storage_image` and `samples_mapping_order` require `shaderStorageImageMultisample`; `3d` does not use a multisampled storage image and does not require that feature.
 - `standardsampleposition` requires the `standardSampleLocations` device limit. Pipeline construction requirements also filter variants that the device cannot construct.
 
@@ -438,12 +438,12 @@ void main()
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Format and feature support | [`checkImageFormatRequirements()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L590-L608) | Checks image properties and multisampled storage-image support. |
-| Sampled-image path | [`SampledImage`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1081-L1394) | Implements generated shaders and checksum validation for `sampled_image`. |
-| 3D path | [`Image3d`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1396-L1863) | Implements the 3D image case. |
-| Storage-image path | [`StorageImage`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1865-L2211) | Implements storage-image access and image comparison. |
-| Position and ordering paths | [`StandardSamplePosition` and `SamplesMappingOrder`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2213-L2725) | Implement standard-position and sample-order validators. |
-| Matrix and factories | [`addTestCasesWithFunctions()` through `createMultisample3dImageTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2748-L2988) | Builds the registered matrices and intermediate nodes. |
-| Parent dispatcher | [`createMultisampleTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L7247-L8096) | Attaches these factories below multisample construction roots. |
+| Format and feature support | [`checkImageFormatRequirements()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L591-L609) | Checks image properties and multisampled storage-image support. |
+| Sampled-image path | [`SampledImage`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1082-L1395) | Implements generated shaders and checksum validation for `sampled_image`. |
+| 3D path | [`Image3d`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1397-L1864) | Implements the 3D image case. |
+| Storage-image path | [`StorageImage`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1866-L2212) | Implements storage-image access and image comparison. |
+| Position and ordering paths | [`StandardSamplePosition` and `SamplesMappingOrder`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2214-L2726) | Implement standard-position and sample-order validators. |
+| Matrix and factories | [`addTestCasesWithFunctions()` through `createMultisample3dImageTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2749-L2989) | Builds the registered matrices and intermediate nodes. |
+| Parent dispatcher | [`createMultisampleTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L7700-L7720) | Attaches these factories below multisample construction roots. |
 | Vulkan multisample state | [`VkPipelineMultisampleStateCreateInfo`](../../../../vulkan-docs/src/chapters/pipelines.adoc#L2188-L2200) | Defines pipeline multisample state. |
 | Multisampled storage-image feature | [`shaderStorageImageMultisample`](../../../../vulkan-docs/src/chapters/features.adoc#L577-L581) | Defines support for multisampled storage images. |

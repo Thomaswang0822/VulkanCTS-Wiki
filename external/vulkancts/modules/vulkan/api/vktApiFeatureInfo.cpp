@@ -593,6 +593,11 @@ void checkApiVersionSupport(Context &context)
                                          std::to_string(MINOR) + " required to run test");
 }
 
+void checkMemoryBudgetSupport(Context &context)
+{
+    context.requireDeviceFunctionality("VK_EXT_memory_budget");
+}
+
 typedef struct FeatureLimitTableItem_
 {
     const VkBool32 *cond;
@@ -1842,10 +1847,7 @@ tcu::TestStatus validateLimitsExtFragmentDensityMap(Context &context)
 
 void checkSupportNvRayTracing(Context &context)
 {
-    const std::string &requiredDeviceExtension = "VK_NV_ray_tracing";
-
-    if (!context.isDeviceFunctionalitySupported(requiredDeviceExtension))
-        TCU_THROW(NotSupportedError, requiredDeviceExtension + " is not supported");
+    context.requireDeviceFunctionality("VK_NV_ray_tracing");
 }
 
 tcu::TestStatus validateLimitsNvRayTracing(Context &context)
@@ -2039,16 +2041,13 @@ struct ProfileEntry
 void createTestDevice(Context &context, void *pNext, const char *const *ppEnabledExtensionNames,
                       uint32_t enabledExtensionCount)
 {
-    const PlatformInterface &platformInterface = context.getPlatformInterface();
-    const Unique<VkInstance> instance(createDefaultInstance(platformInterface, context.getUsedApiVersion(),
-                                                            context.getTestContext().getCommandLine()));
-    const InstanceDriver instanceDriver(platformInterface, instance.get());
-    const VkPhysicalDevice physicalDevice =
-        chooseDevice(instanceDriver, instance.get(), context.getTestContext().getCommandLine());
-    const uint32_t queueFamilyIndex = 0;
-    const uint32_t queueCount       = 1;
-    const uint32_t queueIndex       = 0;
-    const float queuePriority       = 1.0f;
+    const InstanceWrapper instance(context);
+    const auto &instanceDriver            = instance.getDriver();
+    const VkPhysicalDevice physicalDevice = instance.getPhysicalDevice();
+    const uint32_t queueFamilyIndex       = 0;
+    const uint32_t queueCount             = 1;
+    const uint32_t queueIndex             = 0;
+    const float queuePriority             = 1.0f;
     const vector<VkQueueFamilyProperties> queueFamilyProperties =
         getPhysicalDeviceQueueFamilyProperties(instanceDriver, physicalDevice);
     const VkDeviceQueueCreateInfo deviceQueueCreateInfo = {
@@ -2059,43 +2058,6 @@ void createTestDevice(Context &context, void *pNext, const char *const *ppEnable
         queueCount,                                 //  uint32_t queueCount;
         &queuePriority,                             //  const float* pQueuePriorities;
     };
-#ifdef CTS_USES_VULKANSC
-    VkDeviceObjectReservationCreateInfo memReservationInfo = context.getTestContext().getCommandLine().isSubProcess() ?
-                                                                 context.getResourceInterface()->getStatMax() :
-                                                                 resetDeviceObjectReservationCreateInfo();
-    memReservationInfo.pNext                               = pNext;
-    pNext                                                  = &memReservationInfo;
-
-    VkPhysicalDeviceVulkanSC10Features sc10Features = createDefaultSC10Features();
-    sc10Features.pNext                              = pNext;
-    pNext                                           = &sc10Features;
-
-    VkPipelineCacheCreateInfo pcCI;
-    std::vector<VkPipelinePoolSize> poolSizes;
-    if (context.getTestContext().getCommandLine().isSubProcess())
-    {
-        if (context.getResourceInterface()->getCacheDataSize() > 0)
-        {
-            pcCI = {
-                VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO, // VkStructureType sType;
-                nullptr,                                      // const void* pNext;
-                VK_PIPELINE_CACHE_CREATE_READ_ONLY_BIT |
-                    VK_PIPELINE_CACHE_CREATE_USE_APPLICATION_STORAGE_BIT, // VkPipelineCacheCreateFlags flags;
-                context.getResourceInterface()->getCacheDataSize(),       // uintptr_t initialDataSize;
-                context.getResourceInterface()->getCacheData()            // const void* pInitialData;
-            };
-            memReservationInfo.pipelineCacheCreateInfoCount = 1;
-            memReservationInfo.pPipelineCacheCreateInfos    = &pcCI;
-        }
-
-        poolSizes = context.getResourceInterface()->getPipelinePoolSizes();
-        if (!poolSizes.empty())
-        {
-            memReservationInfo.pipelinePoolSizeCount = uint32_t(poolSizes.size());
-            memReservationInfo.pPipelinePoolSizes    = poolSizes.data();
-        }
-    }
-#endif // CTS_USES_VULKANSC
 
     const VkDeviceCreateInfo deviceCreateInfo = {
         VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO, //  VkStructureType sType;
@@ -2109,11 +2071,9 @@ void createTestDevice(Context &context, void *pNext, const char *const *ppEnable
         ppEnabledExtensionNames,              //  const char* const* ppEnabledExtensionNames;
         nullptr,                              //  const VkPhysicalDeviceFeatures* pEnabledFeatures;
     };
-    const Unique<VkDevice> device(
-        createCustomDevice(platformInterface, *instance, instanceDriver, physicalDevice, &deviceCreateInfo));
-    const DeviceDriver deviceDriver(platformInterface, instance.get(), device.get(), context.getUsedApiVersion(),
-                                    context.getTestContext().getCommandLine());
-    const VkQueue queue = getDeviceQueue(deviceDriver, *device, queueFamilyIndex, queueIndex);
+    const DeviceWrapper device(instance.createCustomDevice(physicalDevice, &deviceCreateInfo));
+    const auto &deviceDriver = device.getDriver();
+    const VkQueue queue      = getDeviceQueue(deviceDriver, *device, queueFamilyIndex, queueIndex);
 
     VK_CHECK(deviceDriver.queueWaitIdle(queue));
 }
@@ -2736,8 +2696,6 @@ void checkDeviceExtensions(tcu::ResultCollector &results, const vector<string> &
     checkDuplicateExtensions(results, extensions);
 }
 
-#ifndef CTS_USES_VULKANSC
-
 void checkExtensionDependencies(tcu::ResultCollector &results, const DependencyCheckVect &dependencies,
                                 uint32_t versionMajor, uint32_t versionMinor,
                                 const ExtPropVect &instanceExtensionProperties,
@@ -2753,8 +2711,6 @@ void checkExtensionDependencies(tcu::ResultCollector &results, const DependencyC
         }
     }
 }
-
-#endif // CTS_USES_VULKANSC
 
 tcu::TestStatus enumerateInstanceLayers(Context &context)
 {
@@ -2824,7 +2780,6 @@ tcu::TestStatus enumerateInstanceExtensions(Context &context)
     return tcu::TestStatus(results.getResult(), results.getMessage());
 }
 
-#ifndef CTS_USES_VULKANSC
 tcu::TestStatus validateInstanceExtensionDependencies(Context &context)
 {
     TestLog &log = context.getTestContext().getLog();
@@ -2848,7 +2803,6 @@ tcu::TestStatus validateInstanceExtensionDependencies(Context &context)
 
     return tcu::TestStatus(results.getResult(), results.getMessage());
 }
-#endif
 
 tcu::TestStatus validateDeviceLevelEntryPointsFromInstanceExtensions(Context &context)
 {
@@ -2989,7 +2943,6 @@ tcu::TestStatus enumerateDeviceExtensions(Context &context)
     return tcu::TestStatus(results.getResult(), results.getMessage());
 }
 
-#ifndef CTS_USES_VULKANSC
 tcu::TestStatus validateDeviceExtensionDependencies(Context &context)
 {
     TestLog &log = context.getTestContext().getLog();
@@ -3014,7 +2967,30 @@ tcu::TestStatus validateDeviceExtensionDependencies(Context &context)
 
     return tcu::TestStatus(results.getResult(), results.getMessage());
 }
-#endif // CTS_USES_VULKANSC
+
+tcu::TestStatus validateDeviceExtensionSupport(Context &context)
+{
+    TestLog &log = context.getTestContext().getLog();
+    tcu::ResultCollector results(log);
+
+    const std::pair<std::string, std::string> requiredSupport[] = {
+        {"VK_EXT_descriptor_heap", "VK_KHR_shader_untyped_pointers"},
+    };
+
+    const auto deviceExtensionProperties =
+        enumerateDeviceExtensionProperties(context.getInstanceInterface(), context.getPhysicalDevice(), nullptr);
+
+    for (const auto &exts : requiredSupport)
+    {
+        if (isExtensionStructSupported(deviceExtensionProperties, RequiredExtension(exts.first)) &&
+            !isExtensionStructSupported(deviceExtensionProperties, RequiredExtension(exts.second)))
+        {
+            results.fail("" + exts.first + " is supported, but " + exts.second + " is not");
+        }
+    }
+
+    return tcu::TestStatus(results.getResult(), results.getMessage());
+}
 
 tcu::TestStatus extensionCoreVersions(Context &context)
 {
@@ -3495,9 +3471,8 @@ tcu::TestStatus deviceMemoryProperties(Context &context)
 tcu::TestStatus deviceGroupPeerMemoryFeatures(Context &context)
 {
     TestLog &log                    = context.getTestContext().getLog();
-    const PlatformInterface &vkp    = context.getPlatformInterface();
-    const VkInstance instance       = context.getInstance(); // "VK_KHR_device_group_creation"
-    const InstanceInterface &vki    = context.getInstanceInterface();
+    const auto instance             = InstanceWrapper(context); // "VK_KHR_device_group_creation"
+    const InstanceInterface &vki    = instance.getDriver();
     const tcu::CommandLine &cmdLine = context.getTestContext().getCommandLine();
     const uint32_t devGroupIdx      = cmdLine.getVKDeviceGroupId() - 1;
     const uint32_t deviceIdx        = vk::chooseDeviceIndex(vki, instance, cmdLine);
@@ -3561,43 +3536,6 @@ tcu::TestStatus deviceGroupPeerMemoryFeatures(Context &context)
     };
 
     void *pNext = &deviceGroupInfo;
-#ifdef CTS_USES_VULKANSC
-    VkDeviceObjectReservationCreateInfo memReservationInfo = context.getTestContext().getCommandLine().isSubProcess() ?
-                                                                 context.getResourceInterface()->getStatMax() :
-                                                                 resetDeviceObjectReservationCreateInfo();
-    memReservationInfo.pNext                               = pNext;
-    pNext                                                  = &memReservationInfo;
-
-    VkPhysicalDeviceVulkanSC10Features sc10Features = createDefaultSC10Features();
-    sc10Features.pNext                              = pNext;
-    pNext                                           = &sc10Features;
-
-    VkPipelineCacheCreateInfo pcCI;
-    std::vector<VkPipelinePoolSize> poolSizes;
-    if (context.getTestContext().getCommandLine().isSubProcess())
-    {
-        if (context.getResourceInterface()->getCacheDataSize() > 0)
-        {
-            pcCI = {
-                VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO, // VkStructureType sType;
-                nullptr,                                      // const void* pNext;
-                VK_PIPELINE_CACHE_CREATE_READ_ONLY_BIT |
-                    VK_PIPELINE_CACHE_CREATE_USE_APPLICATION_STORAGE_BIT, // VkPipelineCacheCreateFlags flags;
-                context.getResourceInterface()->getCacheDataSize(),       // uintptr_t initialDataSize;
-                context.getResourceInterface()->getCacheData()            // const void* pInitialData;
-            };
-            memReservationInfo.pipelineCacheCreateInfoCount = 1;
-            memReservationInfo.pPipelineCacheCreateInfos    = &pcCI;
-        }
-
-        poolSizes = context.getResourceInterface()->getPipelinePoolSizes();
-        if (!poolSizes.empty())
-        {
-            memReservationInfo.pipelinePoolSizeCount = uint32_t(poolSizes.size());
-            memReservationInfo.pPipelinePoolSizes    = poolSizes.data();
-        }
-    }
-#endif // CTS_USES_VULKANSC
 
     const VkDeviceCreateInfo deviceCreateInfo = {
         VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO, //sType;
@@ -3612,12 +3550,10 @@ tcu::TestStatus deviceGroupPeerMemoryFeatures(Context &context)
         nullptr,                              //pEnabledFeatures;
     };
 
-    Move<VkDevice> deviceGroup = createCustomDevice(
-        vkp, instance, vki, deviceGroupProps[devGroupIdx].physicalDevices[deviceIdx], &deviceCreateInfo);
-    const DeviceDriver vk(vkp, instance, *deviceGroup, context.getUsedApiVersion(),
-                          context.getTestContext().getCommandLine());
-    context.getInstanceInterface().getPhysicalDeviceMemoryProperties(
-        deviceGroupProps[devGroupIdx].physicalDevices[deviceIdx], &memProps);
+    const DeviceWrapper deviceGroup =
+        instance.createCustomDevice(deviceGroupProps[devGroupIdx].physicalDevices[deviceIdx], &deviceCreateInfo);
+    const auto &vk = deviceGroup.getDriver();
+    vki.getPhysicalDeviceMemoryProperties(deviceGroupProps[devGroupIdx].physicalDevices[deviceIdx], &memProps);
 
     peerMemFeatures = reinterpret_cast<VkPeerMemoryFeatureFlags *>(buffer);
     deMemset(buffer, GUARD_VALUE, sizeof(buffer));
@@ -3630,8 +3566,8 @@ tcu::TestStatus deviceGroupPeerMemoryFeatures(Context &context)
             {
                 if (localDeviceIndex != remoteDeviceIndex)
                 {
-                    vk.getDeviceGroupPeerMemoryFeatures(deviceGroup.get(), heapIndex, localDeviceIndex,
-                                                        remoteDeviceIndex, peerMemFeatures);
+                    vk.getDeviceGroupPeerMemoryFeatures(deviceGroup, heapIndex, localDeviceIndex, remoteDeviceIndex,
+                                                        peerMemFeatures);
 
                     // Check guard
                     for (int32_t ndx = 0; ndx < GUARD_SIZE; ndx++)
@@ -3651,7 +3587,7 @@ tcu::TestStatus deviceGroupPeerMemoryFeatures(Context &context)
                     if ((!(*peerMemFeatures & requiredFlag)) || *peerMemFeatures > maxValidFlag)
                         return tcu::TestStatus::fail("deviceGroupPeerMemoryFeatures invalid flag");
 
-                    log << TestLog::Message << "deviceGroup = " << deviceGroup.get() << TestLog::EndMessage
+                    log << TestLog::Message << "deviceGroup = " << deviceGroup << TestLog::EndMessage
                         << TestLog::Message << "heapIndex = " << heapIndex << TestLog::EndMessage << TestLog::Message
                         << "localDeviceIndex = " << localDeviceIndex << TestLog::EndMessage << TestLog::Message
                         << "remoteDeviceIndex = " << remoteDeviceIndex << TestLog::EndMessage << TestLog::Message
@@ -3664,30 +3600,33 @@ tcu::TestStatus deviceGroupPeerMemoryFeatures(Context &context)
     return tcu::TestStatus::pass("Querying deviceGroup peer memory features succeeded");
 }
 
-tcu::TestStatus deviceMemoryBudgetProperties(Context &context)
+struct MemoryBudgetInfo
 {
-    TestLog &log = context.getTestContext().getLog();
-    uint8_t buffer[sizeof(VkPhysicalDeviceMemoryBudgetPropertiesEXT) + GUARD_SIZE];
-
-    if (!context.isDeviceFunctionalitySupported("VK_EXT_memory_budget"))
-        TCU_THROW(NotSupportedError, "VK_EXT_memory_budget is not supported");
-
-    VkPhysicalDeviceMemoryBudgetPropertiesEXT *budgetProps =
-        reinterpret_cast<VkPhysicalDeviceMemoryBudgetPropertiesEXT *>(buffer);
-    deMemset(buffer, GUARD_VALUE, sizeof(buffer));
-
-    budgetProps->sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT;
-    budgetProps->pNext = nullptr;
-
     VkPhysicalDeviceMemoryProperties2 memProps;
-    deMemset(&memProps, 0, sizeof(memProps));
-    memProps.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
-    memProps.pNext = budgetProps;
+    VkPhysicalDeviceMemoryBudgetPropertiesEXT budgetProps;
 
-    context.getInstanceInterface().getPhysicalDeviceMemoryProperties2(context.getPhysicalDevice(), &memProps);
+    MemoryBudgetInfo() : memProps(initVulkanStructure()), budgetProps(initVulkanStructure())
+    {
+    }
+};
+using MemoryBudgetInfoPtr = std::unique_ptr<MemoryBudgetInfo>;
 
-    log << TestLog::Message << "device = " << context.getPhysicalDevice() << TestLog::EndMessage << TestLog::Message
-        << *budgetProps << TestLog::EndMessage;
+MemoryBudgetInfoPtr getBudgetInfo(TestLog &log, const InstanceInterface &vki, VkPhysicalDevice physicalDevice)
+{
+    MemoryBudgetInfoPtr info(new MemoryBudgetInfo);
+
+    alignas(VkPhysicalDeviceMemoryBudgetPropertiesEXT)
+        uint8_t buffer[sizeof(VkPhysicalDeviceMemoryBudgetPropertiesEXT) + GUARD_SIZE];
+    memset(buffer, GUARD_VALUE, sizeof(buffer));
+
+    VkPhysicalDeviceMemoryBudgetPropertiesEXT *budgetPropsPtr =
+        reinterpret_cast<VkPhysicalDeviceMemoryBudgetPropertiesEXT *>(buffer);
+    budgetPropsPtr->sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT;
+    budgetPropsPtr->pNext = nullptr;
+
+    info->memProps.pNext = budgetPropsPtr;
+
+    vki.getPhysicalDeviceMemoryProperties2(physicalDevice, &info->memProps);
 
     for (int32_t ndx = 0; ndx < GUARD_SIZE; ndx++)
     {
@@ -3695,38 +3634,234 @@ tcu::TestStatus deviceMemoryBudgetProperties(Context &context)
         {
             log << TestLog::Message << "deviceMemoryBudgetProperties - Guard offset " << ndx << " not valid"
                 << TestLog::EndMessage;
-            return tcu::TestStatus::fail("deviceMemoryBudgetProperties buffer overflow");
+            TCU_FAIL("deviceMemoryBudgetProperties buffer overflow");
         }
     }
 
-    for (uint32_t i = 0; i < memProps.memoryProperties.memoryHeapCount; ++i)
+    info->budgetProps = *budgetPropsPtr;
+    return info;
+}
+
+void runDeviceMemoryBudgetProperties(TestLog &log, const InstanceInterface &vki, VkPhysicalDevice physicalDevice)
+{
+    auto budgetInfo = getBudgetInfo(log, vki, physicalDevice);
+
+    log << TestLog::Message << "device = " << physicalDevice << TestLog::EndMessage << TestLog::Message
+        << budgetInfo->budgetProps << TestLog::EndMessage;
+
+    for (uint32_t i = 0; i < budgetInfo->memProps.memoryProperties.memoryHeapCount; ++i)
     {
-        if (budgetProps->heapBudget[i] == 0)
+        if (budgetInfo->budgetProps.heapBudget[i] == 0)
         {
             log << TestLog::Message << "deviceMemoryBudgetProperties - Supported heaps must report nonzero budget"
                 << TestLog::EndMessage;
-            return tcu::TestStatus::fail("deviceMemoryBudgetProperties invalid heap budget (zero)");
+            TCU_FAIL("deviceMemoryBudgetProperties invalid heap budget (zero)");
         }
-        if (budgetProps->heapBudget[i] > memProps.memoryProperties.memoryHeaps[i].size)
+        if (budgetInfo->budgetProps.heapBudget[i] > budgetInfo->memProps.memoryProperties.memoryHeaps[i].size)
         {
             log << TestLog::Message
                 << "deviceMemoryBudgetProperties - Heap budget must be less than or equal to heap size"
                 << TestLog::EndMessage;
-            return tcu::TestStatus::fail("deviceMemoryBudgetProperties invalid heap budget (too large)");
+            TCU_FAIL("deviceMemoryBudgetProperties invalid heap budget (too large)");
         }
     }
 
-    for (uint32_t i = memProps.memoryProperties.memoryHeapCount; i < VK_MAX_MEMORY_HEAPS; ++i)
+    for (uint32_t i = budgetInfo->memProps.memoryProperties.memoryHeapCount; i < VK_MAX_MEMORY_HEAPS; ++i)
     {
-        if (budgetProps->heapBudget[i] != 0 || budgetProps->heapUsage[i] != 0)
+        if (budgetInfo->budgetProps.heapBudget[i] != 0 || budgetInfo->budgetProps.heapUsage[i] != 0)
         {
             log << TestLog::Message << "deviceMemoryBudgetProperties - Unused heaps must report budget/usage of zero"
                 << TestLog::EndMessage;
-            return tcu::TestStatus::fail("deviceMemoryBudgetProperties invalid unused heaps");
+            TCU_FAIL("deviceMemoryBudgetProperties invalid unused heaps");
         }
     }
+}
 
+tcu::TestStatus deviceMemoryBudgetProperties(Context &context)
+{
+    auto &log = context.getTestContext().getLog();
+    runDeviceMemoryBudgetProperties(log, context.getInstanceInterface(), context.getPhysicalDevice());
     return tcu::TestStatus::pass("Querying memory budget properties succeeded");
+}
+
+tcu::TestStatus memoryBudgetMultiInstance(Context &context)
+{
+    const auto &cmdLine = context.getTestContext().getCommandLine();
+
+    auto instance1 =
+        InstanceWrapper(createCustomInstanceWithExtension(context, "VK_KHR_get_physical_device_properties2"));
+    auto instance2 =
+        InstanceWrapper(createCustomInstanceWithExtension(context, "VK_KHR_get_physical_device_properties2"));
+
+    const auto &vki1 = instance1.getDriver();
+    const auto &vki2 = instance2.getDriver();
+
+    const auto physDev1 = chooseDevice(vki1, instance1, cmdLine);
+    const auto physDev2 = chooseDevice(vki2, instance2, cmdLine);
+
+    // Both devices should refer to the same dev/driver combo.
+    auto &log              = context.getTestContext().getLog();
+    const auto budgetInfo1 = getBudgetInfo(log, vki1, physDev1);
+    const auto budgetInfo2 = getBudgetInfo(log, vki2, physDev2);
+
+    // Make sure both devices report basically the same information.
+    if (budgetInfo1->memProps.memoryProperties.memoryHeapCount !=
+        budgetInfo2->memProps.memoryProperties.memoryHeapCount)
+        TCU_FAIL("Different memory heap counts in both instances");
+
+    if (budgetInfo1->memProps.memoryProperties.memoryTypeCount !=
+        budgetInfo2->memProps.memoryProperties.memoryTypeCount)
+        TCU_FAIL("Different memory type counts in both instances");
+
+    // Create logical devices to do some basic allocations.
+    const std::vector<const char *> devExtensions{
+        "VK_EXT_memory_budget",
+    };
+    const float queuePriority = 1.0f;
+
+    const auto qfIndex1 = findQueueFamilyIndexWithCaps(vki1, physDev1, VK_QUEUE_COMPUTE_BIT);
+    const auto qfIndex2 = findQueueFamilyIndexWithCaps(vki2, physDev2, VK_QUEUE_COMPUTE_BIT);
+
+    const VkDeviceQueueCreateInfo queueInfo1{
+        VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, nullptr, 0u, qfIndex1, 1u, &queuePriority,
+    };
+
+    const VkDeviceQueueCreateInfo queueInfo2{
+        VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, nullptr, 0u, qfIndex2, 1u, &queuePriority,
+    };
+
+    const VkDeviceCreateInfo devCreateInfo1{
+        VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO, nullptr, 0u, 1u, &queueInfo1, 0u, nullptr, de::sizeU32(devExtensions),
+        de::dataOrNull(devExtensions),
+    };
+
+    const VkDeviceCreateInfo devCreateInfo2{
+        VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO, nullptr, 0u, 1u, &queueInfo2, 0u, nullptr, de::sizeU32(devExtensions),
+        de::dataOrNull(devExtensions),
+    };
+
+    const auto device1 = instance1.createCustomDevice(physDev1, &devCreateInfo1);
+    const auto device2 = instance2.createCustomDevice(physDev2, &devCreateInfo2);
+
+    const auto &vkd1 = device1.getDriver();
+    const auto &vkd2 = device2.getDriver();
+
+    const auto bufferSize  = static_cast<VkDeviceSize>(4u << 20); // 4 MiB.
+    const auto bufferUsage = static_cast<VkBufferUsageFlags>(VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+
+    const VkBufferCreateInfo bufferCreateInfo{
+        VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+        nullptr,
+        0u,
+        bufferSize,
+        bufferUsage,
+        VK_SHARING_MODE_EXCLUSIVE,
+        0u,
+        nullptr,
+    };
+
+    const auto buffer1 = createBuffer(vkd1, *device1, &bufferCreateInfo);
+    const auto buffer2 = createBuffer(vkd2, *device2, &bufferCreateInfo);
+
+    const auto bufferMemReqs1 = getBufferMemoryRequirements(vkd1, *device1, *buffer1);
+    const auto bufferMemReqs2 = getBufferMemoryRequirements(vkd2, *device2, *buffer2);
+
+    // Try different memory types and, potentially, heaps.
+    for (const auto hostIntent : {HostIntent::NONE, HostIntent::R, HostIntent::W, HostIntent::RW})
+    {
+        const auto genMemReq =
+            (hostIntent != HostIntent::NONE ? MemoryRequirement::HostVisible : MemoryRequirement::Any);
+        const auto memType1 = selectBestMemoryType(budgetInfo1->memProps.memoryProperties,
+                                                   bufferMemReqs1.memoryTypeBits, genMemReq, tcu::just(hostIntent));
+        const auto memType2 = selectBestMemoryType(budgetInfo2->memProps.memoryProperties,
+                                                   bufferMemReqs2.memoryTypeBits, genMemReq, tcu::just(hostIntent));
+
+        // In theory, both memory types should be the same.
+        if (memType1 != memType2)
+            TCU_FAIL("Memory types differ for identical buffers");
+
+        const auto heapIndex1 = budgetInfo1->memProps.memoryProperties.memoryTypes[memType1].heapIndex;
+        const auto heapIndex2 = budgetInfo2->memProps.memoryProperties.memoryTypes[memType2].heapIndex;
+
+        if (heapIndex1 != heapIndex2)
+            TCU_FAIL("Heap indices differ for the same memory types");
+
+        const VkMemoryAllocateInfo allocateInfo1{
+            VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+            nullptr,
+            bufferMemReqs1.size,
+            memType1,
+        };
+
+        const VkMemoryAllocateInfo allocateInfo2{
+            VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+            nullptr,
+            bufferMemReqs2.size,
+            memType2,
+        };
+
+        const auto memory1 = allocateMemory(vkd1, *device1, &allocateInfo1);
+
+#ifdef CTS_USES_VULKANSC
+        // We have to skip the actual budget checks in the parent process of the Vulkan SC CTS as they will obviously
+        // not increase, and it will cause the memory object reservation count to be wrong in the child process due to
+        // the early out.
+        // Preferably test cases should not early out, but here it seemed easier to handle things this way.
+        if (!context.getTestContext().getCommandLine().isSubProcess())
+            continue;
+#endif // CTS_USES_VULKANSC
+
+        const auto afterAlloc1Budget1 = getBudgetInfo(log, vki1, physDev1);
+
+        if (afterAlloc1Budget1->budgetProps.heapUsage[heapIndex1] <= budgetInfo1->budgetProps.heapUsage[heapIndex1])
+            TCU_FAIL("Memory heap usage not increased for heap " + std::to_string(heapIndex1));
+
+        // Not sure about this check. The spec says this about heapBudget: "The budget includes any currently allocated
+        // device memory." About heapUsage, it says "A heap's usage is an estimate of how much memory the process is
+        // currently using in that heap." From the first description, it looks like the budget includes the usage and
+        // the budget should always be at least as big as the usage. If there is no more room before degrading
+        // performance, the implementation can return the same value in both to indicate the limit has been reached.
+        // However, as the usage is just an estimation, maybe this is not always true.
+        if (afterAlloc1Budget1->budgetProps.heapBudget[heapIndex1] <=
+            afterAlloc1Budget1->budgetProps.heapUsage[heapIndex1])
+            TCU_FAIL("Memory heap budget below heap usage for heap " + std::to_string(heapIndex1));
+
+        // Because these are per-process, the data for the other instance should also have been affected.
+        const auto afterAlloc1Budget2 = getBudgetInfo(log, vki2, physDev2);
+
+        if (afterAlloc1Budget2->budgetProps.heapUsage[heapIndex2] <= budgetInfo2->budgetProps.heapUsage[heapIndex2])
+            TCU_FAIL("Memory heap usage not increased for heap " + std::to_string(heapIndex2));
+
+        if (afterAlloc1Budget2->budgetProps.heapBudget[heapIndex2] <=
+            afterAlloc1Budget2->budgetProps.heapUsage[heapIndex2])
+            TCU_FAIL("Memory heap budget below heap usage for heap " + std::to_string(heapIndex2));
+
+        const auto memory2 = allocateMemory(vkd2, *device2, &allocateInfo2);
+
+        const auto afterAlloc2Budget1 = getBudgetInfo(log, vki1, physDev1);
+
+        if (afterAlloc2Budget1->budgetProps.heapUsage[heapIndex1] <=
+            afterAlloc1Budget1->budgetProps.heapUsage[heapIndex1])
+            TCU_FAIL("Memory heap usage not increased for heap " + std::to_string(heapIndex1));
+
+        // Note sure about this check. See above for the same reasoning.
+        if (afterAlloc2Budget1->budgetProps.heapBudget[heapIndex1] <=
+            afterAlloc2Budget1->budgetProps.heapUsage[heapIndex1])
+            TCU_FAIL("Memory heap budget below heap usage for heap " + std::to_string(heapIndex1));
+
+        // Because these are per-process, the data for the other instance should also have been affected.
+        const auto afterAlloc2Budget2 = getBudgetInfo(log, vki2, physDev2);
+
+        if (afterAlloc2Budget2->budgetProps.heapUsage[heapIndex2] <=
+            afterAlloc1Budget2->budgetProps.heapUsage[heapIndex2])
+            TCU_FAIL("Memory heap usage not increased for heap " + std::to_string(heapIndex2));
+
+        if (afterAlloc2Budget2->budgetProps.heapBudget[heapIndex2] <=
+            afterAlloc2Budget2->budgetProps.heapUsage[heapIndex2])
+            TCU_FAIL("Memory heap budget below heap usage for heap " + std::to_string(heapIndex2));
+    }
+
+    return tcu::TestStatus::pass("Pass");
 }
 
 namespace
@@ -3750,10 +3885,9 @@ tcu::TestStatus deviceMandatoryFeatures(Context &context)
     {
         const InstanceInterface &vki    = context.getInstanceInterface();
         VkPhysicalDevice physicalDevice = context.getPhysicalDevice();
-        const auto &cmdLine             = context.getTestContext().getCommandLine();
         const auto &vulkan14Features    = context.getDeviceVulkan14Features();
 
-        if (!cmdLine.isComputeOnly() && (vulkan14Features.hostImageCopy == VK_FALSE))
+        if (vulkan14Features.hostImageCopy == VK_FALSE)
         {
             // find graphics and transfer queues
             std::optional<size_t> graphicsQueueNdx;
@@ -4169,6 +4303,14 @@ bool checkAstc3DfeatureSupport(Context &context)
     return true;
 }
 #endif // CTS_USES_VULKANSC
+
+void checkExtendedFlagsSupport(Context &context)
+{
+    (void)context;
+#ifndef CTS_USES_VULKANSC
+    context.requireDeviceFunctionality(VK_KHR_EXTENDED_FLAGS_EXTENSION_NAME);
+#endif
+}
 
 void checkYcbcrApiSupport(Context &context)
 {
@@ -4913,18 +5055,21 @@ VkSampleCountFlags getRequiredOptimalTilingSampleCounts(const VkPhysicalDeviceLi
 struct ImageFormatPropertyCase
 {
     typedef tcu::TestStatus (*Function)(Context &context, const VkFormat format, const VkImageType imageType,
-                                        const VkImageTiling tiling);
+                                        const VkImageTiling tiling, bool extendedFlags);
 
     Function testFunction;
     VkFormat format;
     VkImageType imageType;
     VkImageTiling tiling;
+    bool extendedFlags;
 
-    ImageFormatPropertyCase(Function testFunction_, VkFormat format_, VkImageType imageType_, VkImageTiling tiling_)
+    ImageFormatPropertyCase(Function testFunction_, VkFormat format_, VkImageType imageType_, VkImageTiling tiling_,
+                            bool extendedFlags_)
         : testFunction(testFunction_)
         , format(format_)
         , imageType(imageType_)
         , tiling(tiling_)
+        , extendedFlags(extendedFlags_)
     {
     }
 
@@ -4933,12 +5078,13 @@ struct ImageFormatPropertyCase
         , format(VK_FORMAT_UNDEFINED)
         , imageType(VK_CORE_IMAGE_TYPE_LAST)
         , tiling(VK_CORE_IMAGE_TILING_LAST)
+        , extendedFlags(false)
     {
     }
 };
 
 tcu::TestStatus imageFormatProperties(Context &context, const VkFormat format, const VkImageType imageType,
-                                      const VkImageTiling tiling)
+                                      const VkImageTiling tiling, bool extendedFlags)
 {
     if (isYCbCrFormat(format))
         // check if Ycbcr format enums are valid given the version and extensions
@@ -4995,18 +5141,44 @@ tcu::TestStatus imageFormatProperties(Context &context, const VkFormat format, c
 
             const bool isRequiredCombination = isRequiredImageParameterCombination(
                 deviceFeatures, format, formatProperties, imageType, tiling, curUsageFlags, curCreateFlags);
-            VkImageFormatProperties properties;
-            VkResult queryResult;
+            VkImageFormatProperties properties = {};
+            VkResult queryResult               = VK_SUCCESS;
 
-            log << TestLog::Message << "Testing " << getImageTypeStr(imageType) << ", " << getImageTilingStr(tiling)
-                << ", " << getImageUsageFlagsStr(curUsageFlags) << ", " << getImageCreateFlagsStr(curCreateFlags)
-                << TestLog::EndMessage;
+            if (!extendedFlags)
+            {
+                log << TestLog::Message << "Testing " << getImageTypeStr(imageType) << ", " << getImageTilingStr(tiling)
+                    << ", " << getImageUsageFlagsStr(curUsageFlags) << ", " << getImageCreateFlagsStr(curCreateFlags)
+                    << TestLog::EndMessage;
 
-            // Set return value to known garbage
-            deMemset(&properties, 0xcd, sizeof(properties));
+                // Set return value to known garbage
+                deMemset(&properties, 0xcd, sizeof(properties));
 
-            queryResult = context.getInstanceInterface().getPhysicalDeviceImageFormatProperties(
-                context.getPhysicalDevice(), format, imageType, tiling, curUsageFlags, curCreateFlags, &properties);
+                queryResult = context.getInstanceInterface().getPhysicalDeviceImageFormatProperties(
+                    context.getPhysicalDevice(), format, imageType, tiling, curUsageFlags, curCreateFlags, &properties);
+            }
+            else
+            {
+#ifndef CTS_USES_VULKANSC
+                log << TestLog::Message << "Testing " << getImageTypeStr(imageType) << ", " << getImageTilingStr(tiling)
+                    << ", " << getImageUsageFlagsStr(curUsageFlags) << ", " << getImageCreateFlagsStr(curCreateFlags)
+                    << " with VkImageCreateFlags2CreateInfoKHR" << TestLog::EndMessage;
+
+                VkImageCreateFlags2CreateInfoKHR imageCreateFlags2Info = initVulkanStructure();
+                imageCreateFlags2Info.flags                            = curCreateFlags;
+                VkImageUsageFlags2CreateInfoKHR imageUsageFlags2Info   = initVulkanStructure(&imageCreateFlags2Info);
+                imageUsageFlags2Info.usage                             = curUsageFlags;
+                VkPhysicalDeviceImageFormatInfo2 imageFormatInfo2      = initVulkanStructure(&imageUsageFlags2Info);
+                imageFormatInfo2.format                                = format;
+                imageFormatInfo2.type                                  = imageType;
+                imageFormatInfo2.tiling                                = tiling;
+                imageFormatInfo2.usage                                 = (VkImageUsageFlags)0xFFFFFFFFu;
+                imageFormatInfo2.flags                                 = (VkImageCreateFlags)0xFFFFFFFFu;
+                VkImageFormatProperties2 imageFormatProperties2        = initVulkanStructure();
+                queryResult = context.getInstanceInterface().getPhysicalDeviceImageFormatProperties2(
+                    context.getPhysicalDevice(), &imageFormatInfo2, &imageFormatProperties2);
+                properties = imageFormatProperties2.imageFormatProperties;
+#endif
+            }
 
             if (queryResult == VK_SUCCESS)
             {
@@ -7998,11 +8170,13 @@ tcu::TestStatus devicePropertyExtensionsConsistencyVulkan14(Context &context)
 #endif // CTS_USES_VULKANSC
 
 tcu::TestStatus imageFormatProperties2(Context &context, const VkFormat format, const VkImageType imageType,
-                                       const VkImageTiling tiling)
+                                       const VkImageTiling tiling, bool extendedFlags)
 {
     if (isYCbCrFormat(format))
         // check if Ycbcr format enums are valid given the version and extensions
         checkYcbcrApiSupport(context);
+    if (extendedFlags)
+        checkExtendedFlagsSupport(context);
 
     TestLog &log = context.getTestContext().getLog();
 
@@ -8026,15 +8200,13 @@ tcu::TestStatus imageFormatProperties2(Context &context, const VkFormat format, 
 
         for (VkImageCreateFlags curCreateFlags = 0; curCreateFlags <= allCreateFlags; curCreateFlags++)
         {
-            const VkPhysicalDeviceImageFormatInfo2 imageFormatInfo = {
-                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_FORMAT_INFO_2,
-                nullptr,
-                format,
-                imageType,
-                tiling,
-                curUsageFlags,
-                curCreateFlags};
-
+            VkPhysicalDeviceImageFormatInfo2 imageFormatInfo = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_FORMAT_INFO_2,
+                                                                nullptr,
+                                                                format,
+                                                                imageType,
+                                                                tiling,
+                                                                curUsageFlags,
+                                                                curCreateFlags};
             VkImageFormatProperties coreProperties;
             VkImageFormatProperties2 extProperties;
             VkResult coreResult;
@@ -8049,6 +8221,28 @@ tcu::TestStatus imageFormatProperties2(Context &context, const VkFormat format, 
             coreResult = vki.getPhysicalDeviceImageFormatProperties(
                 physicalDevice, imageFormatInfo.format, imageFormatInfo.type, imageFormatInfo.tiling,
                 imageFormatInfo.usage, imageFormatInfo.flags, &coreProperties);
+
+#ifndef CTS_USES_VULKANSC
+            VkImageCreateFlags2CreateInfoKHR createFlags2 = {
+                VK_STRUCTURE_TYPE_IMAGE_CREATE_FLAGS_2_CREATE_INFO_KHR,
+                nullptr,
+                curCreateFlags,
+            };
+            const VkImageUsageFlags2CreateInfoKHR usageFlags2 = {
+                VK_STRUCTURE_TYPE_IMAGE_USAGE_FLAGS_2_CREATE_INFO_KHR,
+                &createFlags2,
+                curUsageFlags,
+            };
+
+            if (extendedFlags)
+            {
+                imageFormatInfo.pNext = &usageFlags2;
+                // Swap the usage and create flags, to make sure they are correctly ignored
+                imageFormatInfo.usage = curCreateFlags;
+                imageFormatInfo.flags = curUsageFlags;
+            }
+#endif
+
             extResult = vki.getPhysicalDeviceImageFormatProperties2(physicalDevice, &imageFormatInfo, &extProperties);
 
             TCU_CHECK(extProperties.sType == VK_STRUCTURE_TYPE_IMAGE_FORMAT_PROPERTIES_2);
@@ -8073,8 +8267,11 @@ tcu::TestStatus imageFormatProperties2(Context &context, const VkFormat format, 
 
 #ifndef CTS_USES_VULKANSC
 tcu::TestStatus sparseImageFormatProperties2(Context &context, const VkFormat format, const VkImageType imageType,
-                                             const VkImageTiling tiling)
+                                             const VkImageTiling tiling, bool extendedFlags)
 {
+    if (extendedFlags)
+        checkExtendedFlagsSupport(context);
+
     TestLog &log = context.getTestContext().getLog();
 
     const InstanceInterface &vki          = context.getInstanceInterface();
@@ -8093,6 +8290,21 @@ tcu::TestStatus sparseImageFormatProperties2(Context &context, const VkFormat fo
             if (!isValidImageUsageFlagCombination(curUsageFlags))
                 continue;
 
+            const VkImageUsageFlags2CreateInfoKHR usageFlags2 = {
+                VK_STRUCTURE_TYPE_IMAGE_USAGE_FLAGS_2_CREATE_INFO_KHR,
+                nullptr,
+                curUsageFlags,
+            };
+
+            const VkPhysicalDeviceSparseImageFormatInfo2 extendedUsageIimageFormatInfo = {
+                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SPARSE_IMAGE_FORMAT_INFO_2,
+                &usageFlags2,
+                format,
+                imageType,
+                (VkSampleCountFlagBits)sampleCountBit,
+                ~curUsageFlags,
+                tiling,
+            };
             const VkPhysicalDeviceSparseImageFormatInfo2 imageFormatInfo = {
                 VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SPARSE_IMAGE_FORMAT_INFO_2,
                 nullptr,
@@ -8110,7 +8322,9 @@ tcu::TestStatus sparseImageFormatProperties2(Context &context, const VkFormat fo
             vki.getPhysicalDeviceSparseImageFormatProperties(
                 physicalDevice, imageFormatInfo.format, imageFormatInfo.type, imageFormatInfo.samples,
                 imageFormatInfo.usage, imageFormatInfo.tiling, &numCoreProperties, nullptr);
-            vki.getPhysicalDeviceSparseImageFormatProperties2(physicalDevice, &imageFormatInfo, &numExtProperties,
+            const VkPhysicalDeviceSparseImageFormatInfo2 *imageFormatInfoPtr =
+                extendedFlags ? &extendedUsageIimageFormatInfo : &imageFormatInfo;
+            vki.getPhysicalDeviceSparseImageFormatProperties2(physicalDevice, imageFormatInfoPtr, &numExtProperties,
                                                               nullptr);
 
             if (numCoreProperties != numExtProperties)
@@ -8151,7 +8365,7 @@ tcu::TestStatus sparseImageFormatProperties2(Context &context, const VkFormat fo
                 vki.getPhysicalDeviceSparseImageFormatProperties(
                     physicalDevice, imageFormatInfo.format, imageFormatInfo.type, imageFormatInfo.samples,
                     imageFormatInfo.usage, imageFormatInfo.tiling, &numCoreProperties, &coreProperties[0]);
-                vki.getPhysicalDeviceSparseImageFormatProperties2(physicalDevice, &imageFormatInfo, &numExtProperties,
+                vki.getPhysicalDeviceSparseImageFormatProperties2(physicalDevice, imageFormatInfoPtr, &numExtProperties,
                                                                   &extProperties[0]);
 
                 TCU_CHECK((size_t)numCoreProperties == coreProperties.size());
@@ -8186,7 +8400,7 @@ tcu::TestStatus sparseImageFormatProperties2(Context &context, const VkFormat fo
 
 tcu::TestStatus execImageFormatTest(Context &context, ImageFormatPropertyCase testCase)
 {
-    return testCase.testFunction(context, testCase.format, testCase.imageType, testCase.tiling);
+    return testCase.testFunction(context, testCase.format, testCase.imageType, testCase.tiling, testCase.extendedFlags);
 }
 
 void createImageFormatTypeTilingTests(tcu::TestCaseGroup *testGroup, ImageFormatPropertyCase params)
@@ -8244,26 +8458,43 @@ void createImageFormatTypeTests(tcu::TestCaseGroup *testGroup, ImageFormatProper
 {
     DE_ASSERT(params.tiling == VK_CORE_IMAGE_TILING_LAST);
 
-    testGroup->addChild(createTestGroup(
-        testGroup->getTestContext(), "optimal", createImageFormatTypeTilingTests,
-        ImageFormatPropertyCase(params.testFunction, VK_FORMAT_UNDEFINED, params.imageType, VK_IMAGE_TILING_OPTIMAL)));
-    testGroup->addChild(createTestGroup(
-        testGroup->getTestContext(), "linear", createImageFormatTypeTilingTests,
-        ImageFormatPropertyCase(params.testFunction, VK_FORMAT_UNDEFINED, params.imageType, VK_IMAGE_TILING_LINEAR)));
+    testGroup->addChild(
+        createTestGroup(testGroup->getTestContext(), "optimal", createImageFormatTypeTilingTests,
+                        ImageFormatPropertyCase(params.testFunction, VK_FORMAT_UNDEFINED, params.imageType,
+                                                VK_IMAGE_TILING_OPTIMAL, params.extendedFlags)));
+    testGroup->addChild(
+        createTestGroup(testGroup->getTestContext(), "linear", createImageFormatTypeTilingTests,
+                        ImageFormatPropertyCase(params.testFunction, VK_FORMAT_UNDEFINED, params.imageType,
+                                                VK_IMAGE_TILING_LINEAR, params.extendedFlags)));
 }
 
 void createImageFormatTests(tcu::TestCaseGroup *testGroup, ImageFormatPropertyCase::Function testFunction)
 {
+    testGroup->addChild(createTestGroup(testGroup->getTestContext(), "1d", createImageFormatTypeTests,
+                                        ImageFormatPropertyCase(testFunction, VK_FORMAT_UNDEFINED, VK_IMAGE_TYPE_1D,
+                                                                VK_CORE_IMAGE_TILING_LAST, false)));
+    testGroup->addChild(createTestGroup(testGroup->getTestContext(), "2d", createImageFormatTypeTests,
+                                        ImageFormatPropertyCase(testFunction, VK_FORMAT_UNDEFINED, VK_IMAGE_TYPE_2D,
+                                                                VK_CORE_IMAGE_TILING_LAST, false)));
+    testGroup->addChild(createTestGroup(testGroup->getTestContext(), "3d", createImageFormatTypeTests,
+                                        ImageFormatPropertyCase(testFunction, VK_FORMAT_UNDEFINED, VK_IMAGE_TYPE_3D,
+                                                                VK_CORE_IMAGE_TILING_LAST, false)));
+}
+
+#ifndef CTS_USES_VULKANSC
+void createExtendedFlagsImageFormatTests(tcu::TestCaseGroup *testGroup, ImageFormatPropertyCase::Function testFunction)
+{
     testGroup->addChild(createTestGroup(
         testGroup->getTestContext(), "1d", createImageFormatTypeTests,
-        ImageFormatPropertyCase(testFunction, VK_FORMAT_UNDEFINED, VK_IMAGE_TYPE_1D, VK_CORE_IMAGE_TILING_LAST)));
+        ImageFormatPropertyCase(testFunction, VK_FORMAT_UNDEFINED, VK_IMAGE_TYPE_1D, VK_CORE_IMAGE_TILING_LAST, true)));
     testGroup->addChild(createTestGroup(
         testGroup->getTestContext(), "2d", createImageFormatTypeTests,
-        ImageFormatPropertyCase(testFunction, VK_FORMAT_UNDEFINED, VK_IMAGE_TYPE_2D, VK_CORE_IMAGE_TILING_LAST)));
+        ImageFormatPropertyCase(testFunction, VK_FORMAT_UNDEFINED, VK_IMAGE_TYPE_2D, VK_CORE_IMAGE_TILING_LAST, true)));
     testGroup->addChild(createTestGroup(
         testGroup->getTestContext(), "3d", createImageFormatTypeTests,
-        ImageFormatPropertyCase(testFunction, VK_FORMAT_UNDEFINED, VK_IMAGE_TYPE_3D, VK_CORE_IMAGE_TILING_LAST)));
+        ImageFormatPropertyCase(testFunction, VK_FORMAT_UNDEFINED, VK_IMAGE_TYPE_3D, VK_CORE_IMAGE_TILING_LAST, true)));
 }
+#endif // CTS_USES_VULKANSC
 
 tcu::TestStatus execImageUsageTest(Context &context, ImageUsagePropertyCase testCase)
 {
@@ -8884,8 +9115,12 @@ tcu::TestCaseGroup *createFeatureInfoTests(tcu::TestContext &testCtx)
     infoTests->addChild(
         createTestGroup(testCtx, "image_format_properties2", createImageFormatTests, imageFormatProperties2));
 #ifndef CTS_USES_VULKANSC
+    infoTests->addChild(createTestGroup(testCtx, "extended_flags_image_format_properties2",
+                                        createExtendedFlagsImageFormatTests, imageFormatProperties2));
     infoTests->addChild(createTestGroup(testCtx, "sparse_image_format_properties2", createImageFormatTests,
                                         sparseImageFormatProperties2));
+    infoTests->addChild(createTestGroup(testCtx, "extended_flags_sparse_image_format_properties2",
+                                        createExtendedFlagsImageFormatTests, sparseImageFormatProperties2));
 
     {
         de::MovePtr<tcu::TestCaseGroup> profilesValidationTests(new tcu::TestCaseGroup(testCtx, "profiles"));
@@ -8931,9 +9166,7 @@ void createFeatureInfoInstanceTests(tcu::TestCaseGroup *testGroup)
     addFunctionCase<CustomInstanceTest<E071>>(testGroup, "physical_device_groups", enumeratePhysicalDeviceGroups);
     addFunctionCase(testGroup, "instance_layers", enumerateInstanceLayers);
     addFunctionCase(testGroup, "instance_extensions", enumerateInstanceExtensions);
-#ifndef CTS_USES_VULKANSC
     addFunctionCase(testGroup, "instance_extension_dependencies", validateInstanceExtensionDependencies);
-#endif
     addFunctionCase(testGroup, "instance_extension_device_functions",
                     validateDeviceLevelEntryPointsFromInstanceExtensions);
 }
@@ -8946,11 +9179,12 @@ void createFeatureInfoDeviceTests(tcu::TestCaseGroup *testGroup)
     addFunctionCase(testGroup, "device_memory_properties", deviceMemoryProperties);
     addFunctionCase(testGroup, "device_layers", enumerateDeviceLayers);
     addFunctionCase(testGroup, "device_extensions", enumerateDeviceExtensions);
-#ifndef CTS_USES_VULKANSC
     addFunctionCase(testGroup, "device_extension_dependencies", validateDeviceExtensionDependencies);
-#endif
+    addFunctionCase(testGroup, "device_extension_supported", validateDeviceExtensionSupport);
     addFunctionCase(testGroup, "device_no_khx_extensions", testNoKhxExtensions);
-    addFunctionCase(testGroup, "device_memory_budget", deviceMemoryBudgetProperties);
+    addFunctionCase(testGroup, "device_memory_budget", checkMemoryBudgetSupport, deviceMemoryBudgetProperties);
+    addFunctionCase(testGroup, "device_memory_budget_multi_instance", checkMemoryBudgetSupport,
+                    memoryBudgetMultiInstance);
     addFunctionCase(testGroup, "device_mandatory_features", deviceMandatoryFeatures);
 }
 

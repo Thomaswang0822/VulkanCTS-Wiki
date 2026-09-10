@@ -137,7 +137,7 @@ All six values also depend on the shared shader generator, tessellation executio
 - Primitive type changes the evaluation shader's `layout(... ) in`, the number of generated vertices, and the reference image. It does not change the user-defined declaration form or comparison sequence.
 - Standalone structures do not contain array members because the generator records that such an output declaration is illegal. Block forms add a two-float array member to the nested structure. The `per_patch_array` form omits the standalone structure variable because an array of structures is disallowed in that form. [`UserDefinedIOTest::UserDefinedIOTest()`](../../../modules/vulkan/tessellation/vktTessellationUserDefinedIO.cpp#L514-L563) encodes these choices.
 - `per_patch_block_array` uses a smaller block without the direct `blockS` member so the generated declaration stays within limited per-patch output storage. It still contains nested arrays through `blockFa` and `blockSa`.
-- The port did not include negative compile tests because its shader-library path cannot represent expected shader-compilation failures. The source records this scope boundary next to registration at [`createUserDefinedIOTests()`](../../../modules/vulkan/tessellation/vktTessellationUserDefinedIO.cpp#L1027-L1031).
+- The port did not include negative compile tests because its shader-library path cannot represent expected shader-compilation failures. The source records this scope boundary next to registration at [`createUserDefinedIOTests()`](../../../modules/vulkan/tessellation/vktTessellationUserDefinedIO.cpp#L1031-L1087).
 
 ## Source Mapping
 

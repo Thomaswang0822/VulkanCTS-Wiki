@@ -297,7 +297,7 @@ All values also depend on correct shader lowering, output addressing, pipeline e
 
 - Subgroup support is required, and the selected stage must support subgroup operations. Lack of compute subgroup support is a conformance failure because compute support is mandatory; unsupported optional stages are skipped.
 - `_requiredsubgroupsize` leaves require `VK_EXT_subgroup_size_control`, `subgroupSizeControl`, `computeFullSubgroups`, and support for required subgroup sizes in the selected stage.
-- Ray-tracing cases require `VK_KHR_ray_tracing_pipeline`. Mesh/task cases require `VK_EXT_mesh_shader`, vertex-pipeline stores and atomics, and `taskShader` for task cases.
+- Ray-tracing cases require `VK_KHR_ray_tracing_pipeline`. Mesh/task cases require `VK_EXT_mesh_shader`, and `taskShader` for task cases.
 - Tessellation and geometry paths adapt point-size handling to device support. Portability-subset devices without tessellation isolines skip the affected stages.
 
 ### Design-based pruning

@@ -288,7 +288,7 @@ The conformance tests come with native Android support. The following packages
 are needed in order to build an Android binary:
 - Python 3.x (for the build related scripts, some other scripts still use Python 2.7.x)
 - Android NDK r17c
-- Android SDK with API 28 packages and tools installed
+- Android SDK with API 34 packages and tools installed
 - Apache Ant
 
 There are two types of builds for Android:
@@ -303,7 +303,7 @@ An Android APK (for ES 3.2) can be built using command:
 
 	python scripts/android/build_apk.py --target=openglcts --sdk <path to Android SDK> --ndk <path to Android NDK>
 
-By default the CTS package will be built for the Android API level 28.
+By default the CTS package will be built for the Android API level 34.
 Another API level may be supplied using --native-api command line option.
 
 The package can be installed by either running:
@@ -324,9 +324,10 @@ This is identical to the builds on other platforms and is better for iterative
 runs of headless tests as CTS can be invoked and the output can be checked from
 a single interactive terminal.
 
-This build doesn't support WSI tests and shouldn't be used for conformance
-submissions, it also isn't recommended for longer running tests since Android
-will terminate this process as soon as the `adb shell` session ends which may
+This build supports WSI tests via a headless AImageReader fallback for both EGL
+and Vulkan (Android API 24+). However, it shouldn't be used for conformance
+submissions. It also isn't recommended for longer running tests since Android
+will terminate this process as soon as the `adb shell` session ends, which may
 happen due to an unintentional device disconnection.
 
 	cmake <path to openglcts> -GNinja -DCMAKE_BUILD_TYPE=Debug \
@@ -589,6 +590,14 @@ Full list of parameters for the `glcts` binary:
   --deqp-watchdog=[enable|disable]
     Enable test watchdog
     default: 'disable'
+
+  --deqp-watchdog-total-time-limit=<value>
+    Total test case time limit in seconds
+    default: '300'
+
+  --deqp-watchdog-interval-time-limit=<value>
+    Per iteration time limit in seconds
+    default: '30'
 
   --deqp-crashhandler=[enable|disable]
     Enable crash handling

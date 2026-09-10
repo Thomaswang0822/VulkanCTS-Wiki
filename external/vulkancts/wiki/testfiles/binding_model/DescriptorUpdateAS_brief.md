@@ -101,7 +101,7 @@ All values also depend on the selected `regular`, `with_template`, `with_push`, 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
 | Shared resource, update, execution, and verification path | [`BindingAcceleratioStructureTestInstance::iterate()`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L373-L586) | Applies one selected update, executes the pipeline, copies the image, and returns pass/fail. |
-| Test geometry and expected values | [geometry creation and `verify()`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L588-L723) | Connects traversal output to the exact host oracle. |
+| Test geometry and expected values | [geometry creation and `verify()`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L642-L724) | Connects traversal output to the exact host oracle. |
 | Ray-query compute representative | [`BindingAcceleratioStructureComputeTestInstance`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L1316-L1368) | Reconstructs the compact representative shader and dispatch shape. |
 | Ray-query ray-pipeline stages | [`BindingAcceleratioStructureRayTracingTestInstance`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L1370-L1842) | Shows how ray query runs in ray-generation, hit, miss, intersection, and callable stages. |
 | Pipeline ray-tracing behavior | [`BindingAcceleratioStructureRayTracingRayTracingTestInstance`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateASTests.cpp#L1844-L2281) | Builds the two ray paths, shader groups, SBTs, and service TLAS. |

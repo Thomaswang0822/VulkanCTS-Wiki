@@ -130,9 +130,9 @@ void main ()
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|----------------------------------------|----------|
-| Dynamic state type | `stencil`, `viewport`, `scissor`, `depth`, `blend`, and `line` all reuse this exact fragment shader; only host-recorded dynamic commands and attachment verification change. | [`createInstance()`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L677-L698) |
+| Dynamic state type | `stencil`, `viewport`, `scissor`, `depth`, `blend`, and `line` all reuse this exact fragment shader; only host-recorded dynamic commands and attachment verification change. | [`createInstance()`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L686-L707) |
 | Pipeline construction type | The same `discard.vert`/`discard.frag` pair is used for monolithic, pipeline-library, fast-linked-library, and shader-object construction; construction changes pipeline setup, not GLSL. | [`DiscardTestCase::initPrograms()`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L700-L738) |
-| Uniform value | This file registers no varying value: every case zero-fills `discard_all`, so the surviving color-write path is present in GLSL but not taken at runtime. | [`DiscardTestInstance::iterate()`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L292-L351) |
+| Uniform value | This file registers no varying value: every case zero-fills `discard_all`, so the surviving color-write path is present in GLSL but not taken at runtime. | [`DiscardTestInstance::iterate()`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L301-L367) |
 
 #### SPIR-V
 
@@ -203,6 +203,7 @@ void main ()
 
 ## Runtime Execution and Result Checking
 
+- Before clearing the depth/stencil image, `beginRenderPass()` selects the initial transition from the format's actual aspects: stencil-only, combined depth/stencil, or depth-only. Combined formats transition both aspects to `GENERAL`, rather than only stencil, with transfer-write access at the transfer stage ([aspect selection](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L258-L282)).
 - `checkSupport()` only checks pipeline construction requirements for all leaves. No device extension is required ([checkSupport](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L671-L675)).
 - Each test instance creates a depth/stencil image and view in addition to the shared color target. The vertex data is a full-screen triangle strip in green ([constructor](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L114-L149)).
 - `iterate()` allocates a uniform buffer, zeroes it, begins the render pass with a black color clear and a zeroed depth/stencil clear, records the leaf-specific `setDynamicState()` commands, binds the pipeline, draws the triangle strip, and ends the render pass. The shared harness submits and waits ([iterate](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L292-L358)).
@@ -267,7 +268,7 @@ void main ()
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Registration | [`DynamicStateDiscardTests::init()`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L759-L778) | Registers the six dynamic-state-type leaves. |
+| Registration | [`DynamicStateDiscardTests::init()`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L768-L787) | Registers the six dynamic-state-type leaves. |
 | Support check | [`DiscardTestCase::checkSupport()`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L671-L675) | Pipeline construction requirements for all leaves. |
 | Shared base | [`DynamicStateBaseClass`](../../../modules/vulkan/dynamic_state/vktDynamicStateBaseClass.hpp#L43) | Resource setup, render pass, and submit flow shared by all leaves. |
 | `stencil` instance | [`StencilTestInstance`](../../../modules/vulkan/dynamic_state/vktDynamicStateDiscardTests.cpp#L360-L419) | Dynamic stencil state and stencil-aspect verification. |

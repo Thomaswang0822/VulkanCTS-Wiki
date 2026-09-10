@@ -3,7 +3,7 @@
 **Core question:** after a copy command writes data into an image, can a later graphics pass consume that image through realistic usage and still observe exactly the values that were copied?
 
 - Source file: [`vktApiUseAfterCopyTests.cpp`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1) (and matching header [`vktApiUseAfterCopyTests.hpp`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.hpp#L1)).
-- Test category: `api`. The family is registered twice under the `copy_and_blit` test category: as `api.copy_and_blit.core.use_after_copy` (with `indirect=false`) and as `api.copy_and_blit.copy_memory_indirect.use_after_copy` (with `indirect=true`). Both roots share the same implementation entry point [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1716-L1958).
+- Test category: `api`. The family is registered twice under the `copy_and_blit` test category: as `api.copy_and_blit.core.use_after_copy` (with `indirect=false`) and as `api.copy_and_blit.copy_memory_indirect.use_after_copy` (with `indirect=true`). Both roots share the same implementation entry point [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1725-L1972).
 - Core test idea: copy source data into a destination image, then consume that image in a later graphics pass (sampled as a texture for color formats, or bound as a depth/stencil attachment for depth/stencil formats), and compare the framebuffer result against a CPU-synthesized reference.
 - The page documents what the test proves, which parameter axes drive behavior, how validation works, and what a failure means for each behavioral route.
 
@@ -252,7 +252,9 @@ The runtime support gate is [`AfterUsageCase::checkSupport()`](../../../modules/
 
 ### Design-based pruning
 
-The generator removes several combinations before runtime support checks, all in [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1716-L1958):
+The generator removes several combinations before runtime support checks, all in [`createUseAfterXferGroup()`](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1725-L1972):
+
+- Multisampled image-to-image copies of depth/stencil formats are restricted to the universal queue, because they need a graphics queue. This removes the compute-only and transfer-only variants rather than skipping them at execution time ([registration predicate](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1881-L1885)).
 
 - Indirect DS copies only remain on the universal queue, due to VUID-VkCopyMemoryToImageIndirectInfoKHR-commandBuffer-07674 ([source](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1781-L1784)).
 - Vulkan SC excludes single-slice `use3DImage` cases because `VK_EXT_image_2d_view_of_3d` is unavailable ([source](../../../modules/vulkan/api/vktApiUseAfterCopyTests.cpp#L1814-L1818)).

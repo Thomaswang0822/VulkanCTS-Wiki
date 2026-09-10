@@ -134,7 +134,7 @@ void main(void)
 | Cube or 3D | The generated coordinate and sampler types become `vec3` with `samplerCube` or `sampler3D`. | [Type and lookup selection](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L386-L395) |
 | Integer-coordinate image-view minimum LOD | Dedicated shaders use `texelFetch` with a uniform integer LOD. | [2D explicit-fetch shaders](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L2338-L2401) |
 | Projected cube derivatives | The special cube case uses supplied `dx` and `dy` vectors in `textureGrad`. | [`MiscTestCase::initPrograms`](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L3104-L3216) |
-| Gather | The fragment shader uses `textureGather` with the registered component index. | [`TextureGatherMinLodTest::initPrograms`](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L2775-L2807) |
+| Gather | The fragment shader uses `textureGather` with the registered component index. | [`TextureGatherMinLodTest::initPrograms`](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L2767-L2799) |
 
 #### SPIR-V
 
@@ -299,14 +299,14 @@ void main(void)
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Test-family dispatcher | [`createTextureTests`](../../../modules/vulkan/texture/vktTextureTests.cpp#L48-L66) | Registers `mipmap` under the `texture` test category. |
-| Mipmap family creation | [`createTextureMipmappingTests`](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L4198-L4201) | Creates the registered `mipmap` test family. |
-| Matrix and direct-child population | [`populateTextureMipmappingTests`](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L3343-L4196) | Defines the parameter tables, direct children, deeper intermediate nodes, and graphics or compute leaves. |
+| Mipmap family creation | [`createTextureMipmappingTests`](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L4190-L4193) | Creates the registered `mipmap` test family. |
+| Matrix and direct-child population | [`populateTextureMipmappingTests`](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L3335-L4188) | Defines the parameter tables, direct children, deeper intermediate nodes, and graphics or compute leaves. |
 | Ordinary sampled-image execution | [2D](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L149-L401), [cube](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L432-L665), [3D](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L696-L984) | Creates colored mip chains, executes the lookup matrix, and applies precision-aware verification. |
 | LOD-control execution | [2D](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L1013-L1265), [cube](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L1293-L1554), [3D](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L1780-L2042) | Applies sampler and image-view controls per cell. |
 | Image-view-minimum-LOD variants | [Extension instances](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L2044-L2311), [integer 2D and 3D shaders](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L2313-L2653) | Covers floating and integer-coordinate behavior plus feature checks. |
 | Gather path | [`TextureGatherMinLodTest`](../../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L2661-L3100) | Generates the gather shader and performs exact host comparison. |
-| Shared GLSL specialization | [`initializePrograms`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L210-L760) | Produces ordinary graphics and compute shader programs. |
-| Texture image and view setup | [`TextureBinding::updateTextureData`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L808-L921), [`updateTextureViewMipLevels`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L923-L967) | Creates sampled images and updates image-view mip restrictions. |
+| Shared GLSL specialization | [`initializePrograms`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L209-L759) | Produces ordinary graphics and compute shader programs. |
+| Texture image and view setup | [`TextureBinding::updateTextureData`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L807-L920), [`updateTextureViewMipLevels`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L923-L967) | Creates sampled images and updates image-view mip restrictions. |
 | Precision-aware lookup verification | [`computeTextureLookupDiff` for 2D](../../../../../framework/opengl/gluTextureTestUtil.cpp#L1550-L1699), [cube](../../../../../framework/opengl/gluTextureTestUtil.cpp#L1769-L1931), [3D](../../../../../framework/opengl/gluTextureTestUtil.cpp#L1968-L2126) | Checks ideal values and the bounded set of valid lookup results. |
 | Vulkan sampler state | [Samplers chapter](../../../../vulkan-docs/src/chapters/samplers.adoc#L78-L171) | Defines minification, magnification, mipmap mode, bias, and sampler LOD clamps. |
 | Vulkan LOD and image-level selection | [Textures chapter](../../../../vulkan-docs/src/chapters/textures.adoc#L1524-L1802) | Defines derivative or explicit LOD, clamp order, image-view bounds, and nearest or linear level selection. |

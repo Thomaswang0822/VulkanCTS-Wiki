@@ -100,7 +100,7 @@ ycbcr.copy_dimensions
 └── src8192x6_dst8192x6
 ```
 
-The three roots are created by [`createCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L1023-L1026), [`createSinglePlanarCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L1028-L1031), and [`createDimensionsCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L1033-L1036). Their direct children come from [`initYcbcrDefaultCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L807-L868), [`initYcbcrSinglePlanarCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L870-L921), and [`initYcbcrDimensionsCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L923-L1019). The default inventory records these roots in [`ycbcr.txt`](../../../mustpass/main/vk-default/ycbcr.txt).
+The three roots are created by [`createCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L1023-L1026), [`createSinglePlanarCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L1028-L1031), and [`createDimensionsCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L1033-L1036). Their direct children come from [`initYcbcrDefaultCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L811-L872), [`initYcbcrSinglePlanarCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L874-L925), and [`initYcbcrDimensionsCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L927-L1023). The default inventory records these roots in [`ycbcr.txt`](../../../mustpass/main/vk-default/ycbcr.txt).
 
 ## Parameter Dimensions and Observed Values
 
@@ -212,12 +212,12 @@ This implementation has no shader. `imageCopyTest()` obtains its result from tra
 |-------------|------|----------------|
 | Configuration structures | [`ImageConfig` and `TestConfig`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L64-L95) | Defines the image and copy choices carried into each case. |
 | Support checks | [`checkFormatSupport()` and `checkSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L97-L195) | Defines image limits, extension and feature requirements, transfer support, compatible-plane support, and disjoint support. |
-| Region generator | [`genCopies()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L346-L414) | Selects compatible plane pairs and block-aligned copy regions. |
-| Compatibility filter | [`isCopyCompatible()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L758-L805) | Filters source and destination format pairs. |
-| Runtime and oracle | [`imageCopyTest()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L477-L755) | Generates data, creates images and buffers, records copies and barriers, reads back results, builds the reference, and compares bytes. |
-| Default family registration | [`initYcbcrDefaultCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L807-L868) | Defines the default format, tiling, disjoint, and buffer matrix. |
-| Single-plane registration | [`initYcbcrSinglePlanarCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L870-L921) | Defines the two explicit format directions and extents. |
-| Dimension registration | [`initYcbcrDimensionsCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L923-L1019) | Defines the five formats and sixteen large dimensions. |
+| Region generator | [`genCopies()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L350-L418) | Selects compatible plane pairs and block-aligned copy regions. |
+| Compatibility filter | [`isCopyCompatible()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L762-L809) | Filters source and destination format pairs. |
+| Runtime and oracle | [`imageCopyTest()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L481-L760) | Generates data, creates images and buffers, records copies and barriers, reads back results, builds the reference, and compares bytes. |
+| Default family registration | [`initYcbcrDefaultCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L811-L872) | Defines the default format, tiling, disjoint, and buffer matrix. |
+| Single-plane registration | [`initYcbcrSinglePlanarCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L874-L925) | Defines the two explicit format directions and extents. |
+| Dimension registration | [`initYcbcrDimensionsCopyTests()`](../../../modules/vulkan/ycbcr/vktYCbCrCopyTests.cpp#L927-L1023) | Defines the five formats and sixteen large dimensions. |
 | Plane byte storage | [`MultiPlaneImageData`](../../../modules/vulkan/ycbcr/vktYCbCrUtil.hpp#L58-L102) | Defines the per-plane host-side data representation. |
 | Staging upload and readback | [`uploadImage()` and `downloadImage()`](../../../modules/vulkan/ycbcr/vktYCbCrUtil.cpp#L420-L629) | Shows how optimal-tiled image data moves through per-plane staging buffers. |
 | Vulkan copy semantics | [Image copy chapter](../../../../vulkan-docs/src/chapters/copies.adoc#L293-L344) | Defines per-plane copying, compatible-plane formats, and block alignment. |

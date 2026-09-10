@@ -2,7 +2,7 @@
 
 ## One-Sentence Test Purpose
 
-This test checks whether a fragment shader construct that requires implicit sample shading produces at least one fragment invocation for every covered sample while pipeline sample shading is disabled.
+This test checks whether a fragment shader construct that requires implicit sample shading produces at least one fragment invocation for every covered sample, with pipeline sample shading either disabled or enabled at a configured rate below 1.0.
 
 ## Background Knowledge
 
@@ -13,7 +13,7 @@ A multisampled attachment contains several coverage samples for each pixel. Pixe
 The pipeline can request sample shading explicitly, but Vulkan also defines implicit triggers. Static use of `gl_SampleID` or `gl_SamplePosition` requires sample shading at a rate of 1.0. A dynamically used fragment input decorated with `sample` also requires sample-rate behavior. See [sample shading](https://registry.khronos.org/vulkan/specs/latest/html/chapters/primsrast.html#primsrast-sampleshading).
 
 Why it matters here:
-- The test deliberately sets explicit pipeline sample shading off, leaving the shader construct as the only intended trigger.
+- The base leaves disable explicit pipeline sample shading. The override leaves enable it with `minSampleShading` set to 0.0, 0.25, or 0.5; the shader trigger must still force full sample shading.
 - Counting shader invocations distinguishes a sample-rate result from a pixel-rate result without relying on a color-image comparison.
 
 ### The counter is the observable result
@@ -26,7 +26,7 @@ Why it matters here:
 
 ## One Concrete Example
 
-Consider the `sample_id_static_use` test case leaf. Its generated fragment shader has this essential form (simplified from [`initPrograms()`](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L151-L166)):
+Consider the `sample_id_static_use` test case leaf. Its generated fragment shader has this essential form (simplified from [`initPrograms()`](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L155-L170)):
 
 ```glsl
 layout (std430, binding = 0) buffer Output {
@@ -51,7 +51,7 @@ The `sample_decoration_dynamic_use` case uses a different trigger: the vertex sh
 [host] generate vertex and fragment GLSL specialized for that trigger
 [host] allocate and clear a host-visible one-uint storage buffer
 [host] create a 4 × 4 four-sample color attachment and bind the storage buffer at fragment binding 0
-[host] create a pipeline with sampleShadingEnable = VK_FALSE and minSampleShading = 0.0
+[host] create a pipeline with the selected base or override sample-shading state
 [host] record one full-screen triangle draw through a render pass or dynamic rendering
 [device] execute fragment shader invocations; each invocation atomically increments the storage-buffer counter
 [host] add a fragment-write-to-host-read buffer barrier, submit, wait, invalidate mapped memory, and read the counter
@@ -64,10 +64,10 @@ The dynamic-rendering primary, partial-secondary, and complete-secondary paths a
 
 ### Generated or loaded program artifacts
 
-- [`initPrograms()`](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L127-L168) generates GLSL 4.50 vertex and fragment shaders for the chosen `Trigger`.
+- [`initPrograms()`](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L131-L172) generates GLSL 4.50 vertex and fragment shaders for the chosen `Trigger`.
 - The vertex shader constructs a full-screen triangle from constant positions. For `sample_decoration_dynamic_use`, it also exports `verify` at location 0.
 - The fragment shader always declares the storage buffer and atomically increments its counter. It conditionally emits `gl_SampleID;`, `gl_SamplePosition;`, or a `sample`-decorated `verify` input.
-- Pipeline multisample state is generated with four rasterization samples but with `sampleShadingEnable = VK_FALSE` and `minSampleShading = 0.0` ([`multisampling`](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L345-L365)).
+- Pipeline multisample state is generated with four rasterization samples and per-leaf values: base leaves use `sampleShadingEnable = VK_FALSE` with `minSampleShading = 0.0`, and `minSampleShadingValue_*` leaves use `VK_TRUE` with 0.0, 0.25, or 0.5 ([`multisampling`](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L350-L356)).
 
 ### Bound resources and memory objects
 
@@ -79,16 +79,16 @@ The dynamic-rendering primary, partial-secondary, and complete-secondary paths a
 
 ## What Is Checked
 
-- The expected lower bound is declared as `sampleCount * width * height`, where `sampleCount` is `VK_SAMPLE_COUNT_4_BIT` and width/height are both 4 ([`constants`](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L99-L102)).
+- The expected lower bound is declared as `sampleCount * width * height`, where `sampleCount` is `VK_SAMPLE_COUNT_4_BIT` and width/height are both 4 ([`constants`](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L103-L106)).
 - After the draw and host visibility steps, the test copies the mapped storage-buffer value to `result`.
-- `result < expectedCounter` fails with `Atomic counter value lower than expected: <result>`; every value at least 64 passes ([`result check`](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L472-L491)).
+- `result < expectedCounter` fails with `Atomic counter value lower than expected: <result>`; every value at least 64 passes ([`result check`](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L477-L496)).
 - The test proves the required lower bound, not an exact count. It therefore does not infer an error from additional permitted fragment invocations.
 
 ## Behavior Parameter Identification
 
-> **Behavior parameter:** test case leaf (fragment-shader implicit-sample-shading trigger)
+> **Behavior parameter:** test case leaf (fragment-shader implicit-sample-shading trigger, plus an optional `minSampleShadingValue_*` pipeline override)
 >
-> **Candidate values:** `sample_decoration_dynamic_use`, `sample_id_static_use`, `sample_position_static_use`
+> **Candidate values:** `sample_decoration_dynamic_use`, `sample_id_static_use`, `sample_position_static_use`, each optionally prefixed-patterned as `minSampleShadingValue_{zero,quarter,half}_<trigger>`
 
 ## What Failure Means
 
@@ -99,6 +99,7 @@ The dynamic-rendering primary, partial-secondary, and complete-secondary paths a
 | `sample_decoration_dynamic_use` | Failure to apply sample-qualified interpolation or implicit sample-rate execution; fragment input interface/lowering error; counter or synchronization problem. |
 | `sample_id_static_use` | Failure to treat static `gl_SampleID` use as an implicit sample-shading trigger; fragment built-in handling; counter or synchronization problem. |
 | `sample_position_static_use` | Failure to treat static `gl_SamplePosition` use as an implicit sample-shading trigger; fragment built-in handling; counter or synchronization problem. |
+| Any `minSampleShadingValue_zero/quarter/half_*` leaf | The configured `minSampleShading` rate was applied instead of the forced full shading rate; pipeline multisample state handling; counter or synchronization problem. |
 | Any value | Multisample attachment, pipeline sample state, draw coverage, atomic storage, barrier, or host readback can produce a low counter. |
 
 ## Important Variations and Special Cases
@@ -106,18 +107,19 @@ The dynamic-rendering primary, partial-secondary, and complete-secondary paths a
 - The three trigger leaves share the fixed sample count and counter validation. The shader declaration/use is the intended behavioral difference.
 - `sample_decoration_dynamic_use` differs from the two built-in leaves by using a live interface input. The generated `verify` values make `ceil(verify)` equal 1, keeping its counter contribution comparable with the built-in leaves.
 - Render-pass and three non-nested dynamic-rendering paths register this family. Nested dynamic-rendering paths do not: [`createChildren()`](../../../modules/vulkan/draw/vktDrawTests.cpp#L70-L101) skips the family whenever `nestedSecondaryCmdBuffer` is true. This is a dispatcher scope decision, not an unsupported-feature result.
-- All cases require `fragmentStoresAndAtomics` and `sampleRateShading`; dynamic rendering also requires `VK_KHR_dynamic_rendering` ([`checkSupport()`](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L113-L125)).
+- All cases require `fragmentStoresAndAtomics` and `sampleRateShading`; dynamic rendering also requires `VK_KHR_dynamic_rendering` ([`checkSupport()`](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L117-L129)).
+- Each trigger additionally registers `minSampleShadingValue_zero/quarter/half_<trigger>` leaves with `sampleShadingEnable = VK_TRUE` and `minSampleShading` 0.0, 0.25, or 0.5 ([registration](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L524-L549)). These overrides are skipped when `secondaryCmdBufferCompletelyContainsDynamicRenderpass` is true, so the complete-secondary root keeps only the three base leaves.
 
 ## Source Mapping
 
 | Topic | Source link | Why it matters |
 |---|---|---|
-| Trigger variants | [`Trigger` and `TestParameters`](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L59-L72) | Defines the selected shader behavior. |
-| Feature checks | [`checkSupport()`](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L113-L125) | Establishes required features and dynamic-rendering gate. |
-| Generated shaders | [`initPrograms()`](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L127-L168) | Shows exact trigger constructs and counter increment. |
-| Resource and pipeline setup | [`iterate()` setup](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L182-L365) | Creates the counter/attachment and disables explicit pipeline sample shading. |
-| Command execution and verdict | [`iterate()` execution](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L390-L491) | Records draw variants, synchronizes readback, and checks the lower bound. |
-| Family registration | [`createSampleAttributeTests()`](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L496-L519) | Registers exact test case leaves. |
+| Trigger variants | [`Trigger` and `TestParameters`](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L59-L75) | Defines the selected shader behavior and sample-shading override fields. |
+| Feature checks | [`checkSupport()`](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L117-L129) | Establishes required features and dynamic-rendering gate. |
+| Generated shaders | [`initPrograms()`](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L131-L172) | Shows exact trigger constructs and counter increment. |
+| Resource and pipeline setup | [`iterate()` setup](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L186-L370) | Creates the counter/attachment and applies the per-leaf pipeline sample-shading state. |
+| Command execution and verdict | [`iterate()` execution](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L395-L496) | Records draw variants, synchronizes readback, and checks the lower bound. |
+| Family registration | [`createSampleAttributeTests()`](../../../modules/vulkan/draw/vktDrawSampleAttributeTests.cpp#L501-L553) | Registers the base leaves and the `minSampleShadingValue_*` overrides. |
 | Draw-path dispatcher | [`createChildren()` and `createTests()`](../../../modules/vulkan/draw/vktDrawTests.cpp#L70-L198) | Establishes rendering-path coverage and nested omission. |
 | Vulkan semantics | [Sample shading](https://registry.khronos.org/vulkan/specs/latest/html/chapters/primsrast.html#primsrast-sampleshading) | Defines the implicit-trigger behavior. |
 
@@ -131,6 +133,6 @@ The dynamic-rendering primary, partial-secondary, and complete-secondary paths a
 ## Conversion Notes for Final Wiki Rewrite
 
 - Retain the two concise prerequisite bullets on sample shading and sample-related fragment inputs.
-- Use the three registered leaves as the final page's behavior parameter values.
+- Cover the three trigger mechanisms and their `minSampleShadingValue_*` override leaves. Vulkan SC includes all 12 render-pass leaves; Vulkan includes 39 leaves across the four non-nested rendering roots.
 - Copy the failure-cause mapping table unchanged into the final page; write detailed cause analysis separately.
-- Keep the full-screen triangle, fixed 4 × 4 × 4 lower bound, and disabled pipeline sample-shading state in runtime/result checking rather than Background Knowledge.
+- Keep the full-screen triangle, fixed 4 × 4 × 4 lower bound, and per-leaf pipeline sample-shading state in runtime/result checking rather than Background Knowledge.

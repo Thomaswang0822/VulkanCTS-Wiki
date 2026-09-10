@@ -29,7 +29,7 @@ The four codec groups share the same DPB and layout suffixes. Their leaves diffe
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Codec group | `h264`, `h265`, `av1`, `vp9` | Selects the codec-specific Vulkan decode operation and profile. | [`createVideoDecodeTests`](../../../modules/vulkan/video/vktVideoDecodeTests.cpp#L1976-L2031) |
+| Codec group | `h264`, `h265`, `av1`, `vp9` | Selects the codec-specific Vulkan decode operation and profile. | [`createVideoDecodeTests`](../../../modules/vulkan/video/vktVideoDecodeTests.cpp#L1986-L2044) |
 | Test case leaf | `i`, `i_p`, `i_p_b_13`, `basic_8`, `tile_1x4`, and other exact leaves used by the matrix | Selects the stream or API behavior under test. | [`testTypeToStr`](../../../modules/vulkan/video/vktVideoDecodeTests.cpp#L253-L456) |
 | DPB organization | `layered_dpb`, `separated_dpb` | Uses an image array with a layer per decode surface, or separate reference images. | [`TestDefinition::getTestName`](../../../modules/vulkan/video/vktVideoDecodeTests.cpp#L771-L785), [`StartVideoSequence`](../../../modules/vulkan/video/vktVideoBaseDecodeUtils.cpp#L591-L624) |
 | Image layout | `general_layout`, `video_layout` | Uses `VK_IMAGE_LAYOUT_GENERAL`, or the dedicated decode destination and DPB layouts. | [`TestDefinition::getTestName`](../../../modules/vulkan/video/vktVideoDecodeTests.cpp#L771-L785), [`DecodePictureWithParameters`](../../../modules/vulkan/video/vktVideoBaseDecodeUtils.cpp#L1801-L1804) |
@@ -60,7 +60,7 @@ VP9 cases cover keyframe and basic streams, cached order, show-existing-frames, 
 
 ### `interleaved` and `h265_interleaved`: alternating decode sessions
 
-The interleaving leaves exercise two cached streams on the same decode queue. `interleaved` uses two H.264 `clip-a` streams. `h265_interleaved` pairs an H.264 `clip-a` stream with an H.265 `clip-d` stream. The host records one command from each stream at each cached index, submits the two streams alternately, then checks each stream separately. See [`g_InterleavingTests`](../../../modules/vulkan/video/vktVideoDecodeTests.cpp#L691-L703) and [`InterleavingDecodeTestInstance::iterate`](../../../modules/vulkan/video/vktVideoDecodeTests.cpp#L1563-L1705).
+The interleaving leaves exercise two cached streams on the same decode queue. `interleaved` uses two H.264 `clip-a` streams. `h265_interleaved` pairs an H.264 `clip-a` stream with an H.265 `clip-d` stream. The host records one command from each stream at each cached index, submits the two streams alternately, then checks each stream separately. See [`g_InterleavingTests`](../../../modules/vulkan/video/vktVideoDecodeTests.cpp#L691-L703) and [`InterleavingDecodeTestInstance::iterate`](../../../modules/vulkan/video/vktVideoDecodeTests.cpp#L1571-L1714).
 
 ## Shader Analysis
 
@@ -163,19 +163,19 @@ These exclusions define the intended matrix and unresolved coverage boundary. Th
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Decode registration and matrix | [`createVideoDecodeTests`](../../../modules/vulkan/video/vktVideoDecodeTests.cpp#L1976-L2033) | Creates codec groups, four DPB/layout variants, ordinary cases, and interleaving cases. |
+| Decode registration and matrix | [`createVideoDecodeTests`](../../../modules/vulkan/video/vktVideoDecodeTests.cpp#L1986-L2044) | Creates codec groups, four DPB/layout variants, ordinary cases, and interleaving cases. |
 | Case parameter table | [`g_DecodeTests`](../../../modules/vulkan/video/vktVideoDecodeTests.cpp#L591-L688) | Defines exact leaves, clips, frame counts, and decoder options. |
 | Interleaving parameter table | [`g_InterleavingTests`](../../../modules/vulkan/video/vktVideoDecodeTests.cpp#L691-L703) | Defines the two two-stream cases. |
 | Test naming and support flags | [`TestDefinition::getTestName`](../../../modules/vulkan/video/vktVideoDecodeTests.cpp#L771-L833) | Defines suffixes and device feature flags. |
-| Support checks | [`VideoDecodeTestCase::checkSupport`](../../../modules/vulkan/video/vktVideoDecodeTests.cpp#L1749-L1933) | Enforces codec, synchronization, maintenance, standard-version, and general-layout gates. |
+| Support checks | [`VideoDecodeTestCase::checkSupport`](../../../modules/vulkan/video/vktVideoDecodeTests.cpp#L1757-L1943) | Enforces codec, synchronization, maintenance, standard-version, and general-layout gates. |
 | Clip metadata | [`ClipInfo`](../../../modules/vulkan/video/vktVideoClipInfo.hpp#L121-L136) and [`Clips`](../../../modules/vulkan/video/vktVideoClipInfo.cpp#L515-L1082) | Maps clips to filenames, profiles, framing, dimensions, frame totals, and checksums. |
 | Session and image setup | [`StartVideoSequence`](../../../modules/vulkan/video/vktVideoBaseDecodeUtils.cpp#L493-L633) | Queries capabilities, validates extents, creates sessions, and selects layered or separated resources. |
-| Decode resource binding | [`DecodePictureWithParameters`](../../../modules/vulkan/video/vktVideoBaseDecodeUtils.cpp#L1714-L1985) | Assigns layouts, array layers, reference slots, output resources, and barriers. |
+| Decode resource binding | [`DecodePictureWithParameters`](../../../modules/vulkan/video/vktVideoBaseDecodeUtils.cpp#L1729-L2004) | Assigns layouts, array layers, reference slots, output resources, and barriers. |
 | Command recording and status | [`RecordCommandBuffer`](../../../modules/vulkan/video/vktVideoBaseDecodeUtils.cpp#L2085-L2192) and [`QueryDecodeResults`](../../../modules/vulkan/video/vktVideoBaseDecodeUtils.cpp#L2229-L2252) | Records reset, query, inline-parameter, decode, and status operations. |
 | Cached command order | [`decodeFramesOutOfOrder`](../../../modules/vulkan/video/vktVideoBaseDecodeUtils.cpp#L2254-L2300) | Records shuffled commands and submits them in original order. |
 | Host copy and hash | [`getDecodedImage`](../../../modules/vulkan/video/vktVideoDecodeTests.cpp#L919-L1298) | Transfers planes, normalizes samples, and returns downloaded data for MD5. |
 | Ordinary result checking | [`VideoDecodeTestInstance::iterate`](../../../modules/vulkan/video/vktVideoDecodeTests.cpp#L1381-L1557) | Applies checksums, film-grain PSNR, and pass/fail messages. |
-| Interleaved result checking | [`InterleavingDecodeTestInstance::iterate`](../../../modules/vulkan/video/vktVideoDecodeTests.cpp#L1563-L1705) | Records, submits, and checks two streams. |
+| Interleaved result checking | [`InterleavingDecodeTestInstance::iterate`](../../../modules/vulkan/video/vktVideoDecodeTests.cpp#L1571-L1714) | Records, submits, and checks two streams. |
 | Vulkan decode operation rules | [`Video Decode Operations`](../../../../vulkan-docs/src/chapters/video/decode.adoc#video-decode-operations) | Defines resource roles, layouts, decode steps, and unsuccessful output contents. |
 | Codec decode chapters | [`H.264`](../../../../vulkan-docs/src/chapters/video/h264_decode.adoc#decode-h264), [`H.265`](../../../../vulkan-docs/src/chapters/video/h265_decode.adoc#decode-h265), [`AV1`](../../../../vulkan-docs/src/chapters/video/av1_decode.adoc#decode-av1), and [`VP9`](../../../../vulkan-docs/src/chapters/video/vp9_decode.adoc#decode-vp9) | Defines codec-specific bitstream and reference semantics. |
 | DPB and sessions | [`DPB state`](../../../../vulkan-docs/src/chapters/videocoding.adoc#dpb-state-and-backing-store) and [`Video Sessions`](../../../../vulkan-docs/src/chapters/videocoding.adoc#video-session) | Explains session-owned DPB state and image-backed slots. |

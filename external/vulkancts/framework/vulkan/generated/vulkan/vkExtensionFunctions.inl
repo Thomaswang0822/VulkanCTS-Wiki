@@ -156,8 +156,8 @@ void getInstanceExtensionFunctions (uint32_t apiVersion, const std::vector<std::
 	}
 	if (extName == "VK_ARM_data_graph_optical_flow")
 	{
-		functions.push_back("vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM");
 		functions.push_back("vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM");
+		functions.push_back("vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM");
 		return;
 	}
 	if (extName == "VK_ARM_format_pack")
@@ -196,6 +196,10 @@ void getInstanceExtensionFunctions (uint32_t apiVersion, const std::vector<std::
 	if (extName == "VK_ARM_shader_instrumentation")
 	{
 		functions.push_back("vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM");
+		return;
+	}
+	if (extName == "VK_ARM_tensor_controls")
+	{
 		return;
 	}
 	if (extName == "VK_ARM_tensors")
@@ -258,6 +262,11 @@ void getInstanceExtensionFunctions (uint32_t apiVersion, const std::vector<std::
 	}
 	if (extName == "VK_EXT_conservative_rasterization")
 	{
+		return;
+	}
+	if (extName == "VK_EXT_cooperative_matrix_maintenance1")
+	{
+		functions.push_back("vkGetPhysicalDeviceCooperativeMatrixProperties2EXT");
 		return;
 	}
 	if (extName == "VK_EXT_custom_border_color")
@@ -477,6 +486,10 @@ void getInstanceExtensionFunctions (uint32_t apiVersion, const std::vector<std::
 	{
 		return;
 	}
+	if (extName == "VK_EXT_image_tiling_control")
+	{
+		return;
+	}
 	if (extName == "VK_EXT_image_view_min_lod")
 	{
 		return;
@@ -543,6 +556,10 @@ void getInstanceExtensionFunctions (uint32_t apiVersion, const std::vector<std::
 		return;
 	}
 	if (extName == "VK_EXT_multisampled_render_to_single_sampled")
+	{
+		return;
+	}
+	if (extName == "VK_EXT_multisampled_render_to_swapchain")
 	{
 		return;
 	}
@@ -700,6 +717,10 @@ void getInstanceExtensionFunctions (uint32_t apiVersion, const std::vector<std::
 		return;
 	}
 	if (extName == "VK_EXT_shader_object")
+	{
+		return;
+	}
+	if (extName == "VK_EXT_shader_ocp_microscaling_types")
 	{
 		return;
 	}
@@ -882,6 +903,10 @@ void getInstanceExtensionFunctions (uint32_t apiVersion, const std::vector<std::
 	{
 		return;
 	}
+	if (extName == "VK_IMG_filter_linear_2d")
+	{
+		return;
+	}
 	if (extName == "VK_IMG_format_pvrtc")
 	{
 		return;
@@ -1019,6 +1044,10 @@ void getInstanceExtensionFunctions (uint32_t apiVersion, const std::vector<std::
 		return;
 	}
 	if (extName == "VK_KHR_dynamic_rendering_local_read")
+	{
+		return;
+	}
+	if (extName == "VK_KHR_extended_flags")
 	{
 		return;
 	}
@@ -1466,6 +1495,10 @@ void getInstanceExtensionFunctions (uint32_t apiVersion, const std::vector<std::
 	{
 		return;
 	}
+	if (extName == "VK_KHR_video_encode_feedback2")
+	{
+		return;
+	}
 	if (extName == "VK_KHR_video_encode_h264")
 	{
 		return;
@@ -1614,6 +1647,10 @@ void getInstanceExtensionFunctions (uint32_t apiVersion, const std::vector<std::
 	if (extName == "VK_NV_cooperative_matrix2")
 	{
 		functions.push_back("vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV");
+		return;
+	}
+	if (extName == "VK_NV_cooperative_matrix_decode_vector")
+	{
 		return;
 	}
 	if (extName == "VK_NV_cooperative_vector")
@@ -2202,6 +2239,10 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 		functions.push_back("vkClearShaderInstrumentationMetricsARM");
 		return;
 	}
+	if (extName == "VK_ARM_tensor_controls")
+	{
+		return;
+	}
 	if (extName == "VK_ARM_tensors")
 	{
 		functions.push_back("vkCreateTensorARM");
@@ -2274,6 +2315,10 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 		return;
 	}
 	if (extName == "VK_EXT_conservative_rasterization")
+	{
+		return;
+	}
+	if (extName == "VK_EXT_cooperative_matrix_maintenance1")
 	{
 		return;
 	}
@@ -2504,8 +2549,8 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 		if (extensionIsSupported(vDEP, "VK_EXT_provoking_vertex")) {
 			functions.push_back("vkCmdSetProvokingVertexModeEXT");
 		}
-		// Dependencies: VK_EXT_line_rasterization
-		if ((extensionIsSupported(vDEP, "VK_EXT_line_rasterization") || extensionIsSupported(vDEP, "VK_EXT_line_rasterization"))) {
+		// Dependencies: VK_VERSION_1_4,VK_KHR_line_rasterization,VK_EXT_line_rasterization
+		if ((checkVersion(1, 4, apiVersion) || extensionIsSupported(vDEP, "VK_KHR_line_rasterization") || extensionIsSupported(vDEP, "VK_EXT_line_rasterization"))) {
 			functions.push_back("vkCmdSetLineRasterizationModeEXT");
 			functions.push_back("vkCmdSetLineStippleEnableEXT");
 		}
@@ -2661,6 +2706,10 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 	{
 		return;
 	}
+	if (extName == "VK_EXT_image_tiling_control")
+	{
+		return;
+	}
 	if (extName == "VK_EXT_image_view_min_lod")
 	{
 		return;
@@ -2738,6 +2787,10 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 		return;
 	}
 	if (extName == "VK_EXT_multisampled_render_to_single_sampled")
+	{
+		return;
+	}
+	if (extName == "VK_EXT_multisampled_render_to_swapchain")
 	{
 		return;
 	}
@@ -2923,10 +2976,6 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 	}
 	if (extName == "VK_EXT_shader_object")
 	{
-		functions.push_back("vkCreateShadersEXT");
-		functions.push_back("vkDestroyShaderEXT");
-		functions.push_back("vkGetShaderBinaryDataEXT");
-		functions.push_back("vkCmdBindShadersEXT");
 		functions.push_back("vkCmdSetCullModeEXT");
 		functions.push_back("vkCmdSetFrontFaceEXT");
 		functions.push_back("vkCmdSetPrimitiveTopologyEXT");
@@ -2945,7 +2994,6 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 		functions.push_back("vkCmdSetDepthBiasEnableEXT");
 		functions.push_back("vkCmdSetLogicOpEXT");
 		functions.push_back("vkCmdSetPrimitiveRestartEnableEXT");
-		functions.push_back("vkCmdSetTessellationDomainOriginEXT");
 		functions.push_back("vkCmdSetDepthClampEnableEXT");
 		functions.push_back("vkCmdSetPolygonModeEXT");
 		functions.push_back("vkCmdSetRasterizationSamplesEXT");
@@ -2956,6 +3004,11 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 		functions.push_back("vkCmdSetColorBlendEnableEXT");
 		functions.push_back("vkCmdSetColorBlendEquationEXT");
 		functions.push_back("vkCmdSetColorWriteMaskEXT");
+		functions.push_back("vkCmdSetTessellationDomainOriginEXT");
+		functions.push_back("vkCreateShadersEXT");
+		functions.push_back("vkDestroyShaderEXT");
+		functions.push_back("vkGetShaderBinaryDataEXT");
+		functions.push_back("vkCmdBindShadersEXT");
 		// Dependencies: VK_EXT_transform_feedback
 		if (extensionIsSupported(vDEP, "VK_EXT_transform_feedback")) {
 			functions.push_back("vkCmdSetRasterizationStreamEXT");
@@ -2981,8 +3034,8 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 		if (extensionIsSupported(vDEP, "VK_EXT_provoking_vertex")) {
 			functions.push_back("vkCmdSetProvokingVertexModeEXT");
 		}
-		// Dependencies: VK_EXT_line_rasterization
-		if ((extensionIsSupported(vDEP, "VK_EXT_line_rasterization") || extensionIsSupported(vDEP, "VK_EXT_line_rasterization"))) {
+		// Dependencies: VK_VERSION_1_4,VK_KHR_line_rasterization,VK_EXT_line_rasterization
+		if ((checkVersion(1, 4, apiVersion) || extensionIsSupported(vDEP, "VK_KHR_line_rasterization") || extensionIsSupported(vDEP, "VK_EXT_line_rasterization"))) {
 			functions.push_back("vkCmdSetLineRasterizationModeEXT");
 			functions.push_back("vkCmdSetLineStippleEnableEXT");
 		}
@@ -3025,6 +3078,10 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 		if (extensionIsSupported(vDEP, "VK_EXT_depth_clamp_control")) {
 			functions.push_back("vkCmdSetDepthClampRangeEXT");
 		}
+		return;
+	}
+	if (extName == "VK_EXT_shader_ocp_microscaling_types")
+	{
 		return;
 	}
 	if (extName == "VK_EXT_shader_replicated_composites")
@@ -3231,6 +3288,10 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 	{
 		return;
 	}
+	if (extName == "VK_IMG_filter_linear_2d")
+	{
+		return;
+	}
 	if (extName == "VK_IMG_format_pvrtc")
 	{
 		return;
@@ -3361,13 +3422,13 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 	}
 	if (extName == "VK_KHR_descriptor_update_template")
 	{
-		functions.push_back("vkCreateDescriptorUpdateTemplateKHR");
-		functions.push_back("vkDestroyDescriptorUpdateTemplateKHR");
-		functions.push_back("vkUpdateDescriptorSetWithTemplateKHR");
 		// Dependencies: VK_KHR_push_descriptor
 		if ((checkVersion(1, 4, apiVersion) || extensionIsSupported(vDEP, "VK_KHR_push_descriptor"))) {
 			functions.push_back("vkCmdPushDescriptorSetWithTemplateKHR");
 		}
+		functions.push_back("vkCreateDescriptorUpdateTemplateKHR");
+		functions.push_back("vkDestroyDescriptorUpdateTemplateKHR");
+		functions.push_back("vkUpdateDescriptorSetWithTemplateKHR");
 		return;
 	}
 	if (extName == "VK_KHR_device_address_commands")
@@ -3425,12 +3486,6 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 	}
 	if (extName == "VK_KHR_device_group")
 	{
-		functions.push_back("vkGetDeviceGroupPeerMemoryFeaturesKHR");
-		functions.push_back("vkCmdSetDeviceMaskKHR");
-		functions.push_back("vkCmdDispatchBaseKHR");
-		if(apiVersion < VK_API_VERSION_1_1) functions.push_back("vkGetDeviceGroupPresentCapabilitiesKHR");
-		if(apiVersion < VK_API_VERSION_1_1) functions.push_back("vkGetDeviceGroupSurfacePresentModesKHR");
-		if(apiVersion < VK_API_VERSION_1_1) functions.push_back("vkAcquireNextImage2KHR");
 		// Dependencies: VK_KHR_surface
 		if (extensionIsSupported(vIEP, "VK_KHR_surface")) {
 			if(apiVersion >= VK_API_VERSION_1_1) functions.push_back("vkGetDeviceGroupPresentCapabilitiesKHR");
@@ -3443,6 +3498,12 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 		if (extensionIsSupported(vDEP, "VK_KHR_swapchain")) {
 			if(apiVersion >= VK_API_VERSION_1_1) functions.push_back("vkAcquireNextImage2KHR");
 		}
+		if(apiVersion < VK_API_VERSION_1_1) functions.push_back("vkGetDeviceGroupPresentCapabilitiesKHR");
+		if(apiVersion < VK_API_VERSION_1_1) functions.push_back("vkGetDeviceGroupSurfacePresentModesKHR");
+		if(apiVersion < VK_API_VERSION_1_1) functions.push_back("vkAcquireNextImage2KHR");
+		functions.push_back("vkGetDeviceGroupPeerMemoryFeaturesKHR");
+		functions.push_back("vkCmdSetDeviceMaskKHR");
+		functions.push_back("vkCmdDispatchBaseKHR");
 		if(apiVersion < VK_API_VERSION_1_1) functions.push_back("vkGetDeviceGroupPresentCapabilitiesKHR");
 		if(apiVersion < VK_API_VERSION_1_1) functions.push_back("vkGetDeviceGroupSurfacePresentModesKHR");
 		if(apiVersion < VK_API_VERSION_1_1) functions.push_back("vkAcquireNextImage2KHR");
@@ -3481,6 +3542,10 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 	{
 		functions.push_back("vkCmdSetRenderingAttachmentLocationsKHR");
 		functions.push_back("vkCmdSetRenderingInputAttachmentIndicesKHR");
+		return;
+	}
+	if (extName == "VK_KHR_extended_flags")
+	{
 		return;
 	}
 	if (extName == "VK_KHR_external_fence")
@@ -3767,9 +3832,9 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 	}
 	if (extName == "VK_KHR_ray_tracing_pipeline")
 	{
+		functions.push_back("vkGetRayTracingShaderGroupHandlesKHR");
 		functions.push_back("vkCmdTraceRaysKHR");
 		functions.push_back("vkCreateRayTracingPipelinesKHR");
-		functions.push_back("vkGetRayTracingShaderGroupHandlesKHR");
 		functions.push_back("vkGetRayTracingCaptureReplayShaderGroupHandlesKHR");
 		functions.push_back("vkCmdTraceRaysIndirectKHR");
 		functions.push_back("vkGetRayTracingShaderGroupStackSizeKHR");
@@ -3993,6 +4058,10 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 	{
 		return;
 	}
+	if (extName == "VK_KHR_video_encode_feedback2")
+	{
+		return;
+	}
 	if (extName == "VK_KHR_video_encode_h264")
 	{
 		return;
@@ -4150,6 +4219,10 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 	{
 		return;
 	}
+	if (extName == "VK_NV_cooperative_matrix_decode_vector")
+	{
+		return;
+	}
 	if (extName == "VK_NV_cooperative_vector")
 	{
 		functions.push_back("vkConvertCooperativeVectorMatrixNV");
@@ -4299,6 +4372,13 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 	}
 	if (extName == "VK_NV_low_latency")
 	{
+		functions.push_back("vkSetLatencySleepModeLegacyNV");
+		functions.push_back("vkLatencySleepLegacyNV");
+		functions.push_back("vkSetLatencyMarkerLegacyNV");
+		functions.push_back("vkGetLatencyTimingsLegacyNV");
+		functions.push_back("vkQueueNotifyOutOfBandLegacyNV");
+		functions.push_back("vkGetSleepStatusLegacyNV");
+		functions.push_back("vkShutdownLatencyDeviceLegacyNV");
 		return;
 	}
 	if (extName == "VK_NV_low_latency2")
@@ -4761,12 +4841,14 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 	"VK_KHR_shader_fma",
 	"VK_KHR_maintenance9",
 	"VK_KHR_video_maintenance2",
+	"VK_KHR_video_encode_feedback2",
 	"VK_KHR_depth_clamp_zero_one",
 	"VK_KHR_robustness2",
 	"VK_KHR_present_mode_fifo_latest_ready",
 	"VK_KHR_opacity_micromap",
 	"VK_KHR_maintenance10",
 	"VK_KHR_maintenance11",
+	"VK_KHR_extended_flags",
 	"VK_NV_glsl_shader",
 	"VK_EXT_depth_range_unrestricted",
 	"VK_IMG_filter_cubic",
@@ -5023,6 +5105,7 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 	"VK_NV_command_buffer_inheritance",
 	"VK_NV_shader_atomic_float16_vector",
 	"VK_EXT_shader_replicated_composites",
+	"VK_ARM_tensor_controls",
 	"VK_EXT_shader_float8",
 	"VK_NV_ray_tracing_validation",
 	"VK_NV_cluster_acceleration_structure",
@@ -5035,6 +5118,7 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 	"VK_HUAWEI_hdr_vivid",
 	"VK_NV_cooperative_matrix2",
 	"VK_ARM_pipeline_opacity_micromap",
+	"VK_IMG_filter_linear_2d",
 	"VK_EXT_external_memory_metal",
 	"VK_ARM_performance_counters_by_region",
 	"VK_ARM_shader_instrumentation",
@@ -5042,6 +5126,7 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 	"VK_ARM_format_pack",
 	"VK_VALVE_fragment_density_map_layered",
 	"VK_NV_present_metering",
+	"VK_EXT_multisampled_render_to_swapchain",
 	"VK_EXT_fragment_density_map_offset",
 	"VK_EXT_zero_initialize_device_memory",
 	"VK_EXT_shader_64bit_indexing",
@@ -5052,11 +5137,15 @@ void getDeviceExtensionFunctions (uint32_t apiVersion, const std::vector<std::st
 	"VK_SEC_pipeline_cache_incremental_mode",
 	"VK_EXT_shader_uniform_buffer_unsized_array",
 	"VK_NV_compute_occupancy_priority",
+	"VK_EXT_cooperative_matrix_maintenance1",
 	"VK_EXT_shader_subgroup_partitioned",
+	"VK_EXT_shader_ocp_microscaling_types",
 	"VK_VALVE_shader_mixed_float_dot_product",
 	"VK_SEC_throttle_hint",
 	"VK_ARM_data_graph_neural_accelerator_statistics",
 	"VK_EXT_primitive_restart_index",
+	"VK_EXT_image_tiling_control",
+	"VK_NV_cooperative_matrix_decode_vector",
 	"VK_KHR_acceleration_structure",
 	"VK_KHR_ray_tracing_pipeline",
 	"VK_KHR_ray_query",

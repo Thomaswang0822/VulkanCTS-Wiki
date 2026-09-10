@@ -24,7 +24,7 @@ tessellation.geometry_interaction.scatter
 └── geometry_scatter_layers
 ```
 
-[`createGeometryInteractionTests()`](../../../modules/vulkan/tessellation/vktTessellationTests.cpp#L52-L61) adds `scatter` beneath `geometry_interaction`. [`createGeometryGridRenderScatterTests()`](../../../modules/vulkan/tessellation/vktTessellationGeometryGridRenderTests.cpp#L764-L782) registers the three leaves shown above. The [Vulkan](../../../mustpass/main/vk-default/tessellation.txt#L32-L34) and [Vulkan SC](../../../mustpass/main/vksc-default/tessellation.txt#L32-L34) default mustpass lists contain the corresponding paths.
+[`createGeometryInteractionTests()`](../../../modules/vulkan/tessellation/vktTessellationTests.cpp#L52-L61) adds `scatter` beneath `geometry_interaction`. [`createGeometryGridRenderScatterTests()`](../../../modules/vulkan/tessellation/vktTessellationGeometryGridRenderTests.cpp#L765-L783) registers the three leaves shown above. The [Vulkan](../../../mustpass/main/vk-default/tessellation.txt#L32-L34) and [Vulkan SC](../../../mustpass/main/vksc-default/tessellation.txt#L32-L34) default mustpass lists contain the corresponding paths.
 
 ## Parameter Dimensions and Observed Values
 
@@ -622,7 +622,7 @@ void main (void)
 | Generated graphics shaders | [`GridRenderTestCase::initPrograms()`](../../../modules/vulkan/tessellation/vktTessellationGeometryGridRenderTests.cpp#L147-L430) | Generates the small source patch and all three geometry scatter branches. |
 | Exact image predicate | [`verifyResultLayer()`](../../../modules/vulkan/tessellation/vktTessellationGeometryGridRenderTests.cpp#L578-L616) | Defines the green/blue threshold and failure mask. |
 | Resource setup, draw, and copyback | [`GridRenderTestInstance::iterate()`](../../../modules/vulkan/tessellation/vktTessellationGeometryGridRenderTests.cpp#L618-L729) | Requires features, creates one/eight-layer resources, draws, copies, and verifies each layer. |
-| Scatter-family registration | [`createGeometryGridRenderScatterTests()`](../../../modules/vulkan/tessellation/vktTessellationGeometryGridRenderTests.cpp#L764-L782) | Registers the exact leaves and flag combinations. |
+| Scatter-family registration | [`createGeometryGridRenderScatterTests()`](../../../modules/vulkan/tessellation/vktTessellationGeometryGridRenderTests.cpp#L765-L783) | Registers the exact leaves and flag combinations. |
 | Parent family placement | [`createGeometryInteractionTests()`](../../../modules/vulkan/tessellation/vktTessellationTests.cpp#L52-L61) | Places `scatter` under `tessellation.geometry_interaction`. |
 | Tessellation semantics | [Vulkan tessellation chapter](../../../../vulkan-docs/src/chapters/tessellation.adoc#tessellation) | Defines patch subdivision and tessellation-generated triangles. |
 | Geometry shader semantics | [Vulkan geometry chapter](../../../../vulkan-docs/src/chapters/geometry.adoc#geometry) | Defines input primitives, output strips, multiple invocations, and invocation identity. |

@@ -311,8 +311,8 @@ void main()
 | `createShaderSpec()` | [`createShaderSpec()`](../../../modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp#L92-L123) | Builds the generated single-sampler and sampler-array source. |
 | Resource and execution path | [`evalShader()`](../../../modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp#L399-L500) | Creates Vulkan objects, uploads the image, binds descriptors, and executes the shader. |
 | Feature checks | [`checkSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp#L526-L646) | Defines the support and requirement-based pruning rules. |
-| Main test and comparison | [`textureConversionTest()`](../../../modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp#L650-L1128) | Fills input channels, calculates bounds, compares outputs, and returns status. |
-| Matrix generation | [`buildTests()`](../../../modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp#L1362-L2139) | Generates format groups and conversion, reconstruction, and one-to-one cases. |
+| Main test and comparison | [`textureConversionTest()`](../../../modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp#L816-L1296) | Fills input channels, calculates bounds, compares outputs, and returns status. |
+| Matrix generation | [`buildTests()`](../../../modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp#L1548-L2374) | Generates format groups and conversion, reconstruction, and one-to-one cases. |
 | Sampler-array generation | [`buildArrayOfSamplersTests()`](../../../modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp#L2141-L2180) | Generates the sampler-array cases and binding variants. |
 | Bounds reference | [`calculateBounds()`](../../../modules/vulkan/ycbcr/vktYCbCrUtil.cpp#L1625-L1670) | Computes the permitted result intervals. |
 | Sampler specification | [`Samplers`](../../../../vulkan-docs/src/chapters/samplers.adoc#samplers) | Defines sampler filtering and addressing semantics used by the setup. |

@@ -78,12 +78,12 @@ The registered usage-pair names remain exact inventory values. This grouping is 
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Usage-to-stage/access mapping | [`usageToStageFlags()` and `usageToAccessFlags()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L413-L494) | Defines the scopes enabled by each registered usage. |
-| Random operation legality and cache model | [`State` and `getAvailableOps()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L8024-L8370) | Restricts generation to operations whose dependencies are valid. |
-| Barrier generation | [`createCmdCommand()` barrier cases](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L8936-L9053) | Builds layout transitions and global, buffer, or image barriers. |
-| Iteration and verification | [`MemoryTestInstance`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L9407-L9669) | Iterates memory types and seeds, executes commands, and collects failures. |
-| Shader generation | [`AddPrograms::init()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L9672-L10105) | Generates graphics programs for shader-visible reads. |
-| Registration | [`createPipelineBarrierTests()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L10126-L10250) | Defines exact intermediate nodes and leaves. |
+| Usage-to-stage/access mapping | [`usageToStageFlags()` and `usageToAccessFlags()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTestUtils.cpp#L252-L319) | Defines the scopes enabled by each registered usage. |
+| Random operation legality and cache model | [`State` and `getAvailableOps()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTestUtils.cpp#L5000-L5480) | Restricts generation to operations whose dependencies are valid. |
+| Barrier generation | [`createCmdCommand()` barrier cases](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTestUtils.cpp#L5481-L5560) | Builds layout transitions and global, buffer, or image barriers. |
+| Iteration and verification | [`MemoryTestInstance`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTestUtils.cpp#L5744-L5890) | Iterates memory types and seeds, executes commands, and collects failures. |
+| Shader generation | [`AddPrograms::init()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierGraphicsTests.cpp#L3601-L3717) | Generates graphics programs for shader-visible reads. |
+| Registration | [`createPipelineBarrierTests()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L39-L47) | Defines exact intermediate nodes and leaves. |
 | Parent registration | [`createMemoryTests()`](../../../modules/vulkan/memory/vktMemoryTests.cpp#L50-L82) | Attaches the family below `memory`. |
 | Vulkan memory dependency semantics | [`synchronization.adoc`](../../../../vulkan-docs/src/chapters/synchronization.adoc#L114-L147) | Defines availability, visibility, and memory dependencies. |
 

@@ -93,7 +93,13 @@ def extract_local_links(markdown_content: str, md_file_path: Path) -> List[LinkR
     links: List[LinkRecord] = []
     lines = markdown_content.split('\n')
 
+    in_fenced_code = False
     for line_num, line in enumerate(lines, start=1):
+        if line.lstrip().startswith('```'):
+            in_fenced_code = not in_fenced_code
+            continue
+        if in_fenced_code:
+            continue
         for match in MARKDOWN_LINK_PATTERN.finditer(line):
             link_text = match.group(2)
             link_target = match.group(3).strip()

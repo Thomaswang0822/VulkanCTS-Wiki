@@ -36,7 +36,7 @@ The two roots use the same direct test families; the second root enables device-
 | Bind packaging | `multiple_sparse_memory_bind`, `multiple_sparse_image_opaque_memory_bind_info`, `multiple_bind_sparse_info` | Selects how opaque binds are arranged in sparse submissions | [`BindType` and `toString`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseBinding.cpp#L58-L82) |
 | Image type | `1D`, `1DArray`, `2D`, `2DArray`, `3D`, `Cube`, `CubeArray` | Changes image dimensionality, layer count, and copy extents | [`imageParameters`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseBinding.cpp#L635-L656) |
 | Image sizes | Three sizes per type, including values such as `512x256x1`, `1024x128x1`, and `11x137x1` | Exercises regular and odd dimensions while preserving type-specific layer counts | [`imageParameters`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseBinding.cpp#L635-L656) |
-| Format | Formats from `getTestFormats()`, plus `VK_FORMAT_A8_UNORM_KHR` for regular cases outside Vulkan SC | Changes element size, plane count, alignment, and comparison rules | [`getSparseBindingTestFormats`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseBinding.cpp#L619-L626), [`getTestFormats`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTestsUtil.cpp#L52-L118) |
+| Format | Formats from `getTestFormats()`, plus `VK_FORMAT_A8_UNORM_KHR` for regular cases outside Vulkan SC | Changes element size, plane count, alignment, and comparison rules | [`getSparseBindingTestFormats`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseBinding.cpp#L624-L638), [`getTestFormats`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTestsUtil.cpp#L54-L120) |
 
 ## Behavior Parameters
 
@@ -124,11 +124,11 @@ No shader code participates in this test. The device-side work uses transfer com
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| Registration and parameter generation | [`createImageSparseBindingTestsCommon`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseBinding.cpp#L631-L705) | Builds both roots, three bind families, and the image matrix |
+| Registration and parameter generation | [`createImageSparseBindingTestsCommon`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseBinding.cpp#L642-L720) | Builds both roots, three bind families, and the image matrix |
 | Support validation | [`ImageSparseBindingCase::checkSupport`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseBinding.cpp#L107-L163) | Checks features, image limits, sparse support, memory, and queues |
 | Sparse bind execution | [`ImageSparseBindingInstance::iterate`, bind switch](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseBinding.cpp#L257-L427) | Packages and submits the three binding variants |
 | Data transfer and validation | [`ImageSparseBindingInstance::iterate`, transfer path](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseBinding.cpp#L429-L611) | Copies all planes and mip levels and performs the masked comparison |
-| Shared format and image helpers | [`getTestFormats`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTestsUtil.cpp#L52-L118) | Supplies the format matrix and planar formats |
+| Shared format and image helpers | [`getTestFormats`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTestsUtil.cpp#L54-L120) | Supplies the format matrix and planar formats |
 | Opaque sparse image binding semantics | [`VkSparseImageOpaqueMemoryBindInfo`](../../../../vulkan-docs/src/chapters/sparsemem.adoc#L1516-L1568) | Defines the structure and its intended use |
 | Queue submission semantics | [`vkQueueBindSparse`](../../../../vulkan-docs/src/chapters/sparsemem.adoc#L1691-L1758) | Defines sparse batch ordering and completion |
 | Device-group sparse binding | [`VkDeviceGroupBindSparseInfo`](../../../../vulkan-docs/src/chapters/sparsemem.adoc#L1877-L1921) | Defines resource and memory device indices |

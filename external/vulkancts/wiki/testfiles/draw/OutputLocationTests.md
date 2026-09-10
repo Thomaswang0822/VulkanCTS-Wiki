@@ -20,7 +20,7 @@ draw.renderpass.output_location
 
 `createOutputLocationTests()` creates the `output_location` group through `createTestGroup()` ([source](../../../modules/vulkan/draw/vktDrawOutputLocationTests.cpp#L127-L131)). The draw dispatcher adds that group only while building the render-pass branch and only when `CTS_USES_VULKANSC` is not defined and `useDynamicRendering` is false ([dispatcher](../../../modules/vulkan/draw/vktDrawTests.cpp#L103-L117)). Therefore this page describes neither a Vulkan SC registration nor a dynamic-rendering variant.
 
-The public entry point is declared in [`vktDrawOutputLocationTests.hpp`](../../../modules/vulkan/draw/vktDrawOutputLocationTests.hpp#L27-L40), and the wrapper implementation is [`vktDrawOutputLocationTests.cpp`](../../../modules/vulkan/draw/vktDrawOutputLocationTests.cpp#L25-L135).
+The public entry point is declared in [`vktDrawOutputLocationTests.hpp`](../../../modules/vulkan/draw/vktDrawOutputLocationTests.hpp#L27-L40), and the wrapper implementation is [`vktDrawOutputLocationTests.cpp`](../../../modules/vulkan/draw/vktDrawOutputLocationTests.cpp#L25-L134).
 
 ## Parameter Dimensions and Observed Values
 
@@ -393,7 +393,7 @@ A `NotSupportedError` from this callback means the case was pruned for the decla
 
 Mustpass cross-check:
 
-The default Vulkan draw mustpass lists the registered path under `draw.renderpass.output_location`, including the `array` and `shuffle` cases ([`draw.txt`](../../../mustpass/main/vk-default/draw.txt#L28946-L28975)). The mustpass names are the compatibility-sensitive identifiers; they should remain exactly as registered in the C++ arrays.
+The default Vulkan draw mustpass lists the registered path under `draw.renderpass.output_location`, including the `array` and `shuffle` cases ([`draw.txt`](../../../mustpass/main/vk-default/draw.txt#L28991-L29020)). The mustpass names are the compatibility-sensitive identifiers; they should remain exactly as registered in the C++ arrays.
 
 Source evidence:
 

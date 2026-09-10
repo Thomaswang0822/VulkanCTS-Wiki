@@ -118,12 +118,12 @@ A failure in any value can also come from the shared descriptor-resource setup, 
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Support checks | [`DescriptorSetRandomTestCase::checkSupport`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L347-L477) | Gates stages, indexing modes, descriptor limits, inline uniform blocks, set count, and runtime arrays. |
-| Random layout generation | [`generateRandomLayout`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L512-L788) | Chooses binding counts, types, arrays, write targets, and variable descriptor counts. |
-| Shader generation | [`DescriptorSetRandomTestCase::initPrograms`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L832-L1449) | Emits declarations, indexing expressions, checks, and stage-specific GLSL with a SPIR-V 1.4 target. |
+| Support checks | [`DescriptorSetRandomTestCase::checkSupport`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L342-L472) | Gates stages, indexing modes, descriptor limits, inline uniform blocks, set count, and runtime arrays. |
+| Random layout generation | [`generateRandomLayout`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L507-L783) | Chooses binding counts, types, arrays, write targets, and variable descriptor counts. |
+| Shader generation | [`DescriptorSetRandomTestCase::initPrograms`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L827-L1444) | Emits declarations, indexing expressions, checks, and stage-specific GLSL with a SPIR-V 1.4 target. |
 | Runtime setup and descriptor updates | [`DescriptorSetRandomTestInstance::iterate`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L1472-L2492) | Creates resources, writes descriptor data, updates and binds descriptor sets, and handles update-after-bind. |
 | Execution and host checks | [command recording and verification](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L2946-L3145) | Executes the selected stage, copies results, and computes the final failure count. |
-| Registration matrix | [`createDescriptorSetRandomTests`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L3150-L3435) | Defines exact registered values, pruning, leaf names, and internal seed order. |
+| Registration matrix | [`createDescriptorSetRandomTests`](../../../modules/vulkan/binding_model/vktBindingDescriptorSetRandomTests.cpp#L3147-L3433) | Defines exact registered values, pruning, leaf names, and internal seed order. |
 | Representative leaf | [`binding-model.txt`](../../../mustpass/main/vk-default/binding-model.txt#L28091) | Confirms the exact executable path used for the walkthrough. |
 | Descriptor layout contract | [Descriptor Set Layout](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L17-L27) | Defines the type, count, and stage interface of each binding. |
 | Indexing flag contract | [`VkDescriptorBindingFlagBits`](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L753-L816) | Defines update-after-bind and variable descriptor count behavior. |

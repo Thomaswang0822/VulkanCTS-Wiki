@@ -2,10 +2,10 @@
 
 **Core question:** Do pipeline barriers and host cache operations make each write visible to the next legal consumer across the tested memory types and resource views?
 
-- This page covers the `memory.pipeline_barrier` test family implemented by `vktMemoryPipelineBarrierTests.cpp`.
+- This page covers the `memory.pipeline_barrier` test family registered by `vktMemoryPipelineBarrierTests.cpp` and implemented across the graphics, compute, transfer, and shared utility files.
 - The family generates deterministic randomized command sequences over one memory allocation, using host accesses, transfer commands, vertex/index fetch, shader resources, and image layouts.
-- A software state model chooses legal operations and tracks expected data. Command-specific checks compare mapped bytes, copied bytes, or rendered pixels with that model.
-- Registered usage pairs isolate domain and consumer transitions. `all` and `all_device` mix the supported registered usages in longer sequences.
+- A software cache/state model chooses legal operations and tracks expected data. Command-specific checks compare mapped bytes, copied bytes, or rendered/compute results with that model.
+- The three execution backends are registered as `graphics`, `compute`, and `transfer`; their available usage pairs differ and must not be described as one shared leaf set.
 
 ## Background Knowledge
 
@@ -17,43 +17,24 @@ For the shared concepts memory dependencies, host-visible and non-coherent memor
 
 ```text
 memory.pipeline_barrier
-├── host_read_host_write
-├── host_write_transfer_src
-├── host_write_vertex_buffer
-├── host_write_index_buffer
-├── host_write_uniform_buffer
-├── host_write_uniform_texel_buffer
-├── host_write_storage_buffer
-├── host_write_storage_texel_buffer
-├── host_write_storage_image
-├── host_write_image_sampled
-├── host_read_transfer_dst
-├── transfer_src_transfer_dst
-├── transfer_dst_vertex_buffer
-├── transfer_dst_index_buffer
-├── transfer_dst_uniform_buffer
-├── transfer_dst_uniform_texel_buffer
-├── transfer_dst_storage_buffer
-├── transfer_dst_storage_texel_buffer
-├── transfer_dst_storage_image
-├── transfer_dst_image_sampled
-├── all
-└── all_device
+├── graphics
+├── compute
+└── transfer
 ```
 
-The first 20 intermediate nodes are the Cartesian product of two write usages and ten read usages. Token order comes from `usageToName()`, not producer-before-consumer order. Thus `host_read_transfer_dst` represents transfer-destination writes and host reads.
+The source registers separate graphics, compute, and transfer branches. Each branch owns its execution-domain-specific producer/consumer leaves; the current default mustpass inventory contains branch-qualified paths such as `dEQP-VK.memory.pipeline_barrier.graphics.host_write_storage_buffer.1024`, `dEQP-VK.memory.pipeline_barrier.compute.host_write_storage_buffer.1024`, and `dEQP-VK.memory.pipeline_barrier.transfer.host_write_transfer_src.1024`.
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Write usage | `host_write`, `transfer_dst` | Selects host-domain or transfer-stage production for each pair group. | [`writeUsages`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L10144) |
-| Read usage | `host_read`, `transfer_src`, `vertex_buffer`, `index_buffer`, `uniform_buffer`, `uniform_texel_buffer`, `storage_buffer`, `storage_texel_buffer`, `storage_image`, `image_sampled` | Selects the destination domain, pipeline stage, access type, and verification command. | [`readUsages`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L10139-L10142) |
-| Combined usage | `all`, `all_device` | Mixes all twelve registered usages, with host usages removed from `all_device`. | [`all` registration](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L10194-L10247) |
-| Allocation size | `1024`, `8192`, `65536`, `1048576` bytes | Changes allocation pressure and the amount of reference data. | [`sizes`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L10129-L10134) |
-| Vertex stride | `2`, `4` | Changes vertex-input byte interpretation. It appears on vertex-buffer pair groups and both combined groups. | [`vertexStrides`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L10146-L10149) |
-| Memory type | Every compatible non-protected type; host groups require host visibility | Exercises the same registered leaf across supported memory properties. | [`createCommandsAndAllocateMemory()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L9476-L9558) |
-| Randomized workload | 5 iterations × 50 operations per memory type | Produces deterministic legal sequences rather than a fixed write-barrier-read triplet. | [`MemoryTestInstance` constructor](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L9407-L9417) |
+| Write usage | `host_write`, `transfer_dst` | Selects host-domain or transfer-stage production; the exact combinations depend on the backend. | [`createGraphicsTests`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierGraphicsTests.cpp#L3601-L3631), [`createComputeTests`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierComputeTests.cpp#L2227-L2245), [`createTransferTests`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTransferTests.cpp#L47-L65) |
+| Read usage | Backend-specific subsets of `host_read`, `transfer_src`, vertex/index input, and shader resources | Selects the destination domain, pipeline stage, access type, and verification command. | [`createGraphicsTests`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierGraphicsTests.cpp#L3601-L3631), [`createComputeTests`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierComputeTests.cpp#L2227-L2245), [`createTransferTests`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTransferTests.cpp#L47-L65) |
+| Combined usage | `all`, `all_device` | Graphics-only mixed-use groups; `all_device` removes host usages. | [`all` registration](../../../modules/vulkan/memory/vktMemoryPipelineBarrierGraphicsTests.cpp) |
+| Allocation size | `1024`, `8192`, `65536`, `1048576` bytes | Changes allocation pressure and the amount of reference data. | [`createGraphicsTests`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierGraphicsTests.cpp#L3601-L3631) |
+| Vertex stride | `2`, `4` | Graphics vertex-buffer and combined groups append `_vertex_buffer_stride_2` or `_vertex_buffer_stride_4`; compute and transfer use the default stride and do not append this suffix. | [`createGraphicsTests`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierGraphicsTests.cpp#L3640-L3717) |
+| Memory type | Every compatible non-protected type; host groups require host visibility | Exercises the same registered leaf across supported memory properties. | [`createCommandsAndAllocateMemory()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTestUtils.cpp#L5962-L6043) |
+| Randomized workload | Five iterations, with operation count selected by the runtime setup | Produces deterministic legal sequences rather than a fixed write-barrier-read triplet. | [`MemoryTestInstance`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTestUtils.cpp#L5892-L6043) |
 
 ## Behavior Parameters
 
@@ -94,13 +75,13 @@ Shaders are direct consumers in the uniform/storage buffer, texel-buffer, storag
 Representative path:
 
 ```text
-dEQP-VK.memory.pipeline_barrier.host_write_storage_buffer.1024
+dEQP-VK.memory.pipeline_barrier.graphics.host_write_storage_buffer.1024
 ```
 
 | Parameter choice | Meaning in this representative case |
 |------------------|-------------------------------------|
-| `host_write_storage_buffer` | Host writes must become visible to a vertex-stage storage-buffer read. |
-| `1024` | The test allocates 1024 bytes and iterates all compatible host-visible memory types. |
+| `host_write_storage_buffer` | Host writes must become visible to a graphics vertex-stage storage-buffer read. |
+| `1024` | The test allocates 1024 bytes; runtime iteration covers compatible memory types supported by the selected configuration. |
 | Vertex shader from `AddPrograms::init()` | The central shader consumer reads packed coordinates from binding 0 and turns them into points. |
 
 #### Purpose
@@ -157,9 +138,9 @@ void main (void) {
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Read usage | Vertex/index input uses direct fixed-function fetch; uniform/storage buffers use blocks; texel buffers use `texelFetch` or `imageLoad`; image cases use `imageLoad` or `texelFetch` on 2D resources. | [`AddPrograms::init()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L9672-L10105) |
-| Shader stage | Shader-readable resources have vertex and fragment consumers. The fragment paths emit encoded colors rather than point positions. | [`AddPrograms::init()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L9704-L10079) |
-| Size | The runtime-sized storage block keeps the GLSL unchanged; host-side resource sizing and draw counts vary. | [`storage-buffer programs`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L9789-L9860) |
+| Read usage | Vertex/index input uses direct fixed-function fetch; uniform/storage buffers use blocks; texel buffers use `texelFetch` or `imageLoad`; image cases use `imageLoad` or `texelFetch` on 2D resources. | [`AddPrograms::init()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierGraphicsTests.cpp#L3601-L3717) |
+| Shader stage | Shader-readable resources have vertex and fragment consumers. The fragment paths emit encoded colors rather than point positions. | [`AddPrograms::init()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierGraphicsTests.cpp#L3149-L3600) |
+| Size | The runtime-sized storage block keeps the GLSL unchanged; host-side resource sizing and draw counts vary. | [`storage-buffer programs`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierGraphicsTests.cpp#L3149-L3400) |
 
 #### SPIR-V
 
@@ -439,15 +420,15 @@ void main (void) {
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Usage names and Vulkan flags | [`usageToName()` through `usageToAccessFlags()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L305-L494) | Maps registered names to resource, stage, and access flags. |
-| Cache-state dependency model | [`CacheState`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L7500-L7927) | Tracks execution completion, write availability, and access visibility. |
-| Legal operation generation | [`State`, `getAvailableOps()`, and `applyOp()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L8024-L8870) | Defines legal randomized state transitions. |
-| Barrier command construction | [`createCmdCommand()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L8918-L9053) | Constructs image transitions and global, buffer, and image barriers. |
-| Sequence construction | [`createCommands()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L9266-L9330) | Builds each deterministic 50-operation workload. |
-| Runtime and verification | [`MemoryTestInstance`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L9407-L9669) | Iterates memory types and workloads, then collects command results. |
-| Shader builders | [`AddPrograms::init()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L9672-L10105) | Generates programs for shader-visible consumers. |
-| Test family registration | [`createPipelineBarrierTests()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L10126-L10250) | Registers usage groups, sizes, and vertex strides. |
-| Parent registration | [`createChildren()`](../../../modules/vulkan/memory/vktMemoryTests.cpp#L52-L78) | Registers `pipeline_barrier` under `memory` for Vulkan, not Vulkan SC. |
+| Usage names and Vulkan flags | [`usageToName()` through `usageToAccessFlags()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTestUtils.cpp#L144-L319) | Maps registered names to resource, stage, and access flags. |
+| Cache-state dependency model | [`CacheState`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTestUtils.cpp#L4380-L4815) | Tracks execution completion, write availability, and access visibility. |
+| Legal operation generation | [`State`, `getAvailableOps()`, and `applyOp()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTestUtils.cpp#L5000-L5480) | Defines legal randomized state transitions. |
+| Barrier command construction | [`createCmdCommand()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTestUtils.cpp#L5481-L5560) | Constructs image transitions and global, buffer, and image barriers. |
+| Sequence construction | [`createCommands()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTestUtils.cpp#L5744-L5794) | Builds each seeded randomized workload. |
+| Runtime and verification | [`MemoryTestInstance`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTestUtils.cpp#L5892-L6198) | Iterates memory types and workloads, then collects command results. |
+| Shader builders | [`AddPrograms::init()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierGraphicsTests.cpp#L3601-L3717) | Generates programs for shader-visible consumers. |
+| Test family registration | [`createPipelineBarrierTests()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L39-L47) | Registers the graphics, compute, and transfer branches. |
+| Parent registration | [`createChildren()`](../../../modules/vulkan/memory/vktMemoryTests.cpp#L53-L80) | Registers `pipeline_barrier` under `memory` for Vulkan, not Vulkan SC. |
 | Default mustpass inventory | [`memory.txt`](../../../mustpass/main/vk-default/memory.txt#L5607-L5710) | Lists the default registered leaves. |
 | Vulkan synchronization semantics | [`synchronization.adoc`](../../../../vulkan-docs/src/chapters/synchronization.adoc#L114-L147) | Defines availability, visibility, and memory dependencies. |
 | Pipeline barrier specification | [`synchronization.adoc`](../../../../vulkan-docs/src/chapters/synchronization.adoc#L6508-L6685) | Defines pipeline barrier commands and dependency scopes. |

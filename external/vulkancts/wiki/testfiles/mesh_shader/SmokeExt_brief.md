@@ -99,9 +99,9 @@ For `dEQP-VK.mesh_shader.ext.smoke.monolithic.mesh_shader_triangle`, the mesh sh
 | Depth-only variants | [depth-only functions](../../../modules/vulkan/mesh_shader/vktMeshShaderSmokeTestsEXT.cpp#L2267-L2543) | Shows generated point/triangle geometry and depth comparison. |
 | EXT support helpers | [vktMeshShaderUtil.cpp](../../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L111-L141) | Defines common task/mesh feature checks and EXT shader build setup. |
 | Default coverage | [mesh-shader.txt](../../../mustpass/main/vk-default/mesh-shader.txt) | Contains 67 smoke paths: 13 monolithic, 21 optimized-library, 21 fast-library, and 12 shader-object paths. |
-| Mesh/task specification | [VK_EXT_mesh_shader](../../../../vulkan-docs/src/chapters/VK_EXT_mesh_shader.adoc) | Defines task/mesh shader execution and output rules. |
-| Pipeline libraries | [VK_EXT_graphics_pipeline_library](../../../../vulkan-docs/src/chapters/VK_EXT_graphics_pipeline_library.adoc) | Defines graphics pipeline library construction and linking. |
-| Shader objects | [VK_EXT_shader_object](../../../../vulkan-docs/src/chapters/VK_EXT_shader_object.adoc) | Defines per-stage shader-object creation and binding. |
+| Mesh/task specification | [VK_EXT_mesh_shader](../../../../vulkan-docs/src/appendices/VK_EXT_mesh_shader.adoc) | Defines task/mesh shader execution and output rules. |
+| Pipeline libraries | [VK_EXT_graphics_pipeline_library](../../../../vulkan-docs/src/appendices/VK_EXT_graphics_pipeline_library.adoc) | Defines graphics pipeline library construction and linking. |
+| Shader objects | [VK_EXT_shader_object](../../../../vulkan-docs/src/appendices/VK_EXT_shader_object.adoc) | Defines per-stage shader-object creation and binding. |
 
 ## Questions / Risk Points for User Audit
 

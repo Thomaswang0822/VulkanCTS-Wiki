@@ -28,7 +28,7 @@ The three test case leaves are registered directly under `physical_storage_buffe
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Pass method | `push_constants`, `push_constants_function`, `addrs_in_ssbo` | How the two buffer device addresses are communicated to the shader. This is the primary behavioral axis and maps one-to-one to a test case leaf. | [PassMethod enum](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L55-L60) |
+| Pass method | `push_constants`, `push_constants_function`, `addrs_in_ssbo`, `ptr_access_chain_from_ubo` | How the physical storage-buffer address is communicated to the shader. The UBO variant reads the address and uses `OpPtrAccessChain`; the host expects `42`. | [PassMethod enum](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L55-L61) |
 | Element count | `64` | Number of int32 elements to copy. Fixed for all three cases; not a behavioral axis. | [registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L758-L759) |
 | SPIR-V target | `spirv1.4` | All three cases build with `vk::SPIRV_VERSION_1_4`; required for `OpSelect` on pointers and the physical-storage-buffer addressing model. | [build options](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L529-L530) |
 

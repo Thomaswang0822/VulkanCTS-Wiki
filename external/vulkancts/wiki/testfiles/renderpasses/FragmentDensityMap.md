@@ -101,7 +101,7 @@ flowchart TD
 
 #### Shader Code
 
-Reconstructed from the exact `frag_produce_subsampled` source emitted by [`FragmentDensityMapTest::initPrograms()`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1371-L1413).
+Reconstructed from the exact `frag_produce_subsampled` source emitted by [`FragmentDensityMapTest::initPrograms()`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1396-L1540).
 
 ```glsl
 #version 450
@@ -287,7 +287,7 @@ For the density-formula leaves, the verification additionally checks the texel-s
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Test family factory | [`createFragmentDensityMapTests`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5482-L5488) | Creates the group and dispatches to `createChildren`. |
-| Child group construction | [`createChildren`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4954-L5473) | Builds the `1_view`, multiview, `depth_format`, `properties`, `offset`, and `density_formula` subtrees. |
+| Child group construction | [`createChildren`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5132-L5672) | Builds the `1_view`, multiview, `depth_format`, `properties`, `offset`, and `density_formula` subtrees. |
 | Offset subgroup construction | [offset group](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5362-L5469) | Builds `oversized_fdm`, `min_shift`, and `clamp_to_edge` under non-legacy rendering types. |
 | Density formula subgroup | [density_formula group](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5114-L5155) | Verifies the spec-version-3 texel-size formula with a 33/16 render multiplier. |
 | Image verification | [`verifyImage`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L3130-L3200) | Builds the framebuffer color histogram and checks it against the expected fragment invocation distribution. |

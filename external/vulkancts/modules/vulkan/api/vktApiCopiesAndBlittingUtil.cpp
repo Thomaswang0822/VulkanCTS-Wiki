@@ -276,6 +276,9 @@ void checkExtensionSupport(Context &context, uint32_t flags)
     if (flags & MAINTENANCE_10)
         context.requireDeviceFunctionality("VK_KHR_maintenance10");
 
+    if (flags & MAINTENANCE_11)
+        context.requireDeviceFunctionality("VK_KHR_maintenance11");
+
     if (flags & DEVICE_ADDRESS_COMMANDS)
         context.requireDeviceFunctionality("VK_KHR_device_address_commands");
 }
@@ -461,6 +464,23 @@ void checkTransferQueueGranularity(const Context &context, const VkImageCreateIn
                 << mipExtent.depth << ")";
             TCU_THROW(NotSupportedError, msg.str());
         }
+    }
+}
+
+void checkSparseBindingSupport(const Context &context, ImageParms image)
+{
+    const InstanceInterface &vki        = context.getInstanceInterface();
+    const VkPhysicalDevice vkPhysDevice = context.getPhysicalDevice();
+
+    VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    VkImageCreateFlags flags =
+        getCreateFlags(image) | VK_IMAGE_CREATE_SPARSE_BINDING_BIT | VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT;
+
+    VkImageFormatProperties imageFormatProperties;
+    if (vki.getPhysicalDeviceImageFormatProperties(vkPhysDevice, image.format, image.imageType, image.tiling, usage,
+                                                   flags, &imageFormatProperties) == VK_ERROR_FORMAT_NOT_SUPPORTED)
+    {
+        TCU_THROW(NotSupportedError, "Image format not supported");
     }
 }
 

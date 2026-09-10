@@ -1401,11 +1401,11 @@ void main (void)
 | Clip-volume shaders | [`addSimplePrograms()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L360-L397) | Trivial vert/frag shaders used by inside, outside, depth_clamp, depth_clip, wide_lines. |
 | Topology support check | [`checkTopologySupport()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L416-L430) | Prunes triangle fans on portability subset without triangleFans. |
 | Inside test instance | [`testPrimitivesInside()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L451-L527) | Draws primitives at three depths, checks minimum non-black pixels. |
-| Outside test instance | [`testPrimitivesOutside()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L530-L576) | Draws primitives outside clip volume, requires all-black output. |
-| Depth clamp test instance | [`testPrimitivesDepthClamp()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L585-L673) | Toggles depthClampEnable for near/far straddling primitives. |
-| Depth clip test instance | [`testPrimitivesDepthClip()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L684-L815) | Tests explicit depthClipEnable with and without depth clamp. |
-| Large points test instance | [`testLargePoints()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L823-L904) | Point clipping with maintenance2 behavior query. |
-| Wide lines test instance | [`testWideLines()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L961-L1081) | Wide-line clipping with reference image comparison. |
+| Outside test instance | [`testPrimitivesOutside()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L531-L577) | Draws primitives outside clip volume, requires all-black output. |
+| Depth clamp test instance | [`testPrimitivesDepthClamp()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L586-L674) | Toggles depthClampEnable for near/far straddling primitives. |
+| Depth clip test instance | [`testPrimitivesDepthClip()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L685-L816) | Tests explicit depthClipEnable with and without depth clamp. |
+| Large points test instance | [`testLargePoints()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L826-L905) | Point clipping with maintenance2 behavior query. |
+| Wide lines test instance | [`testWideLines()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L962-L1082) | Wide-line clipping with reference image comparison. |
 | User-defined shader generation | [`ClipDistance::initPrograms()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L1113-L1448) | Generates vert, tesc, tese, geom, frag shaders for clip/cull distance cases. |
 | User-defined test instance | [`testClipDistance()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L1486-L1553) | Draws bars, checks black-pixel counts and fragment-read colors. |
 | Complementarity shaders | [`ClipDistanceComplementarity::initPrograms()`](../../../modules/vulkan/clipping/vktClippingTests.cpp#L1561-L1602) | Vertex shader writes last clip distance from w; fragment outputs blend color. |

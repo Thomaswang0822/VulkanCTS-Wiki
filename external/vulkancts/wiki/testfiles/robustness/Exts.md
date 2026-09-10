@@ -18,10 +18,20 @@ For the shared model of bounded resource access, robustness contracts, and shade
 The `robustness` test category registers the three extension test families implemented by this source file.
 
 ```text
-robustness
-├── robustness2
+robustness.robustness2
+├── 64b_indexing
+├── bind
+├── long_vector
+├── misc
+└── push
+
+robustness.image_robustness
+├── bind
+└── push
+
+robustness.pipeline_robustness
 ├── image_robustness
-└── pipeline_robustness
+└── robustness2
 ```
 
 `pipeline_robustness` is excluded from Vulkan SC builds. The factories and literal test family names are visible in the [top-level registration code](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L4311-L4372). Deeper generated paths are documented under parameter dimensions and behavior parameters.
@@ -38,6 +48,7 @@ robustness
 | Shader stage | `comp`, `frag`, `vert`, `rgen` (rgen non-Vulkan SC) | Selects compute, fragment, vertex, or ray-generation execution. | [`stageCases[]`](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L3912-L3923) |
 | Pipeline construction | monolithic; fast GPL and optimized GPL (graphics pipeline, non-Vulkan SC) | Changes where pipeline robustness state is attached and consumed. | [Pipeline expansion](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L4182-L4205) |
 | Access modifiers | `notemplate`/`template` (template non-Vulkan SC), `dontunroll`/`unroll`, `nonvolatile`/`volatile`, `no_fmt_qual`/`fmt_qual`, `readwrite`/`readonly` | Covers descriptor-update and shader-access paths that exercise robustness for update templates, loop control, memory volatility, image format declarations, and storage read/write behavior. | [Parameter arrays](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L3930-L3962) |
+| Long-vector matrix | `f16`, `f32`, `i32`, `u32`; widths 5, 7, 8, 11, 13, 16; UBO/SSBO and dynamic variants | Exercises `GL_EXT_shader_long_vector` loads, and SSBO stores where applicable, across compact and padded buffer lengths and unrolled/non-unrolled compute paths. | [long-vector registration](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L4100-L4240) |
 
 ## Behavior Parameters
 

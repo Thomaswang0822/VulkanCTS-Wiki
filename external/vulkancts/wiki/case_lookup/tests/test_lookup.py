@@ -103,7 +103,12 @@ class LookupTests(unittest.TestCase):
             "dEQP-VK.info.build",
         )
 
-    def test_component_boundary_prevents_raw_prefix_match(self) -> None:
+    def test_accepts_sc_namespace(self) -> None:
+        self.assertEqual(
+            self.index.validate_path("dEQP-VKSC.sc.api.allowed_extensions"),
+            "dEQP-VKSC.sc.api.allowed_extensions",
+        )
+
         self.assertIsNone(self.index.lookup("dEQP-VK.api.buffer2.max_size"))
 
     def test_runtime_has_no_suffix_fallback(self) -> None:

@@ -50,7 +50,7 @@ shader_object.performance
 └── binary_memcpy
 ```
 
-The `performance` test family is attached directly below the `shader_object` test category by [createTests](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L47-L60). The draw names are the cross product of six `DrawType` values and four comparison types, followed by `binary_bind_shaders`; the dispatch and binary names are added separately by [createShaderObjectPerformanceTests](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L1262-L1308).
+The `performance` test family is attached directly below the `shader_object` test category by [createTests](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L48-L61). The draw names are the cross product of six `DrawType` values and four comparison types, followed by `binary_bind_shaders`; the dispatch and binary names are added separately by [createShaderObjectPerformanceTests](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L1262-L1308).
 
 The source registers this family, but the mustpass configuration excludes every path matching `dEQP-VK.shader_object.performance.*` in [`excluded-tests.txt`](../../../mustpass/main/src/excluded-tests.txt). No performance mustpass file is present under the shader-object mustpass directory. The timing cases therefore document source registration and intentional exclusion rather than conformance-run coverage.
 
@@ -394,6 +394,6 @@ Binary operation axis:
 | Dispatch timing loop | [vktShaderObjectPerformanceTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L944-L1080) | Measures direct, base, and indirect compute dispatches and discards the first iteration. |
 | Binary timing loop | [vktShaderObjectPerformanceTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L1132-L1225) | Compares binary shader creation with SPIR-V creation or an equal-size memory copy. |
 | Performance registration | [vktShaderObjectPerformanceTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L1262-L1310) | Creates all 30 registered performance test cases. |
-| Parent category registration | [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L47-L60) | Attaches the performance test family to `shader_object`. |
+| Parent category registration | [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L48-L61) | Attaches the performance test family to `shader_object`. |
 | Performance exclusion | [`excluded-tests.txt`](../../../mustpass/main/src/excluded-tests.txt) | Excludes `dEQP-VK.shader_object.performance.*` from mustpass selection. |
 | Shader object creation and binary semantics | [Shader Object Creation](../../../../vulkan-docs/src/chapters/shaders.adoc#shaders-objects-creation) | Defines the shader-object creation, binary-code, and result-handle semantics behind the tested API paths. |

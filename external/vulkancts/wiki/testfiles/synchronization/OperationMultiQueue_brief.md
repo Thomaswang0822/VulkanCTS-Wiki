@@ -59,12 +59,12 @@ A failure means that at least one supported queue pair did not produce the expec
 
 | Topic | Source |
 |---|---|
-| Registration and generated matrix | [`createTests`](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L1444-L1644) |
-| Factory and `multi_queue` group | [`createSynchronizedOperationMultiQueueTests`](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L1657-L1664) |
+| Registration and generated matrix | [`createTests`](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L1371-L1571) |
+| Factory and `multi_queue` group | [`createSynchronizedOperationMultiQueueTests`](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L1584-L1590) |
 | Legacy/sync2 parent registration | [`OperationTests::init`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L83-L87) |
-| Queue selection and custom queues | [`MultiQueues`](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L99-L250) |
-| Primitive implementations | [`FenceTestInstance`](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L1124-L1230), [`BinarySemaphoreTestInstance`](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L572-L918), [`TimelineSemaphoreTestInstance`](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L919-L1123) |
-| Intermediate barrier case | [`IntermediateBarrierCase`](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L1330-L1436) |
+| Queue selection and custom queues | [`MultiQueues`](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L99-L327) |
+| Primitive implementations | [`FenceTestInstance`](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L1050-L1158), [`BinarySemaphoreTestInstance`](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L498-L632), [`TimelineSemaphoreTestInstance`](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L845-L1048) |
+| Intermediate barrier case | [`IntermediateBarrierCase`](../../../modules/vulkan/synchronization/vktSynchronizationOperationMultiQueueTests.cpp#L1296-L1363) |
 | Operation stage/access/layout data | [`vktSynchronizationOperation.cpp`](../../../modules/vulkan/synchronization/vktSynchronizationOperation.cpp) |
 | Mustpass lists | [`synchronization.txt`](../../../mustpass/main/vk-default/synchronization.txt), [`synchronization2.txt`](../../../mustpass/main/vk-default/synchronization2.txt) |
 

@@ -128,7 +128,7 @@ void main()
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|------------------------------------------|----------|
-| Registered case | This family registers one fixed `compute` leaf, so the shader has no within-family stage or operation variants. | [case registration](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L381-L396) |
+| Registered case | This family registers one fixed `compute` leaf, so the shader has no within-family stage or operation variants. | [case registration](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L381-L392) |
 
 #### SPIR-V
 

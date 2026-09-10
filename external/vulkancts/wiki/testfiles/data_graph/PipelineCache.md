@@ -24,7 +24,7 @@ data_graph.cache
 └── submit_pipeline
 ```
 
-`create_pipeline` then registers the two implementation paths `single_call` and `multi_calls`; their generated leaves are the cache-sequence names described in the parameter sections. The exact registrations are in [`createPipelineTests`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L834-L838) and [`createPipelineSingleCallTests` / `createPipelineMultiCallsTests`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L796-L832). The mustpass file contains the corresponding `data_graph.cache.create_pipeline.single_call`, `data_graph.cache.create_pipeline.multi_calls`, and `data_graph.cache.submit_pipeline` prefixes [mustpass examples](../../../mustpass/main/vk-default/data-graph.txt#L3181-L3184) [submit prefix](../../../mustpass/main/vk-default/data-graph.txt#L5981-L5984).
+`create_pipeline` then registers the two implementation paths `single_call` and `multi_calls`; their generated leaves are the cache-sequence names described in the parameter sections. The exact registrations are in [`createPipelineTests`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L831-L835) and [`createPipelineSingleCallTests` / `createPipelineMultiCallsTests`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L793-L829). The mustpass file contains the corresponding `data_graph.cache.create_pipeline.single_call`, `data_graph.cache.create_pipeline.multi_calls`, and `data_graph.cache.submit_pipeline` prefixes [mustpass examples](../../../mustpass/main/vk-default/data-graph.txt#L3181-L3184) [submit prefix](../../../mustpass/main/vk-default/data-graph.txt#L5981-L5984).
 
 ## Parameter Dimensions and Observed Values
 
@@ -163,13 +163,13 @@ This pruning means that the removed case is unsupported or invalid for the selec
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Cache support gate | [`checkSupport`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L129-L146) | Requires `pipelineCreationCacheControl` and delegates shared data graph/tensor feature checks. |
-| Single-call registration | [`createPipelineSingleCallTests`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L796-L820) | Defines the exact `FillHitHitHit`, `FillHitMissHit`, and early-return registrations. |
-| Multi-call registration | [`createPipelineMultiCallsTests`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L822-L831) | Defines the exact batched `FillHitMissHit` registration. |
-| Submit registration | [`submitPipelineTests`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L840-L848) | Defines the exact `FillHitHit` cache-aware dispatch registration. |
-| Single-call creation checks | [`createPipelineSingleCallTest`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L347-L577) | Builds the batch and validates compile-required, null-handle, and early-return behavior. |
-| Multi-call creation checks | [`createPipelineMultiCallsTest`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L148-L345) | Isolates fresh-cache misses and checks pipeline creation feedback. |
-| Cache-aware dispatch checks | [`submitPipelineTest`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L580-L792) | Creates sessions, dispatches all successful pipelines, and verifies tensor outputs. |
+| Cache support gate | [`checkSupport`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L128-L145) | Requires `pipelineCreationCacheControl` and delegates shared data graph/tensor feature checks. |
+| Single-call registration | [`createPipelineSingleCallTests`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L793-L817) | Defines the exact `FillHitHitHit`, `FillHitMissHit`, and early-return registrations. |
+| Multi-call registration | [`createPipelineMultiCallsTests`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L819-L829) | Defines the exact batched `FillHitMissHit` registration. |
+| Submit registration | [`submitPipelineTests`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L837-L846) | Defines the exact `FillHitHit` cache-aware dispatch registration. |
+| Single-call creation checks | [`createPipelineSingleCallTest`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L346-L575) | Builds the batch and validates compile-required, null-handle, and early-return behavior. |
+| Multi-call creation checks | [`createPipelineMultiCallsTest`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L147-L344) | Isolates fresh-cache misses and checks pipeline creation feedback. |
+| Cache-aware dispatch checks | [`submitPipelineTest`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L577-L790) | Creates sessions, dispatches all successful pipelines, and verifies tensor outputs. |
 | Generated dimensions | [`getTestParamsVariations`](../../../modules/vulkan/data_graph/vktDataGraphTestUtil.cpp#L175-L215) | Produces valid TOSA/resource/stride/binding/tiling/sparsity combinations and provider formats. |
 | Mustpass evidence | [`data-graph.txt`](../../../mustpass/main/vk-default/data-graph.txt#L3181-L3184) | Shows the registered `multi_calls` prefix and generated cache leaves. |
 | Vulkan pipeline-cache semantics | [`pipelines.adoc`](../../../../vulkan-docs/src/chapters/pipelines.adoc#L7978-L8067) | Defines cache reuse and cache consultation during pipeline creation. |

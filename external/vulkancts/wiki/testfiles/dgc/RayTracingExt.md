@@ -2,8 +2,8 @@
 
 **Core question:** Does EXT device-generated command execution preserve ray-tracing shader selection, launch coordinates, and shader-visible results?
 
-- This page covers `dgc.ext.ray_tracing`, implemented by [RayTracingCase::initPrograms](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L419-L845) and [RayTracingInstance::iterate](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L852-L1988).
-- The sixteen registered leaves combine execution-set use, explicit preprocessing, unordered sequences, and compute-queue submission.
+- This page covers `dgc.ext.ray_tracing.basic`, implemented by [RayTracingCase::initPrograms](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L419-L845) and [RayTracingInstance::iterate](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L852-L1988), plus the sibling `dgc.ext.ray_tracing.conditional_rendering` family implemented by [vktDGCRayTracingConditionalTestsExt.cpp](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingConditionalTestsExt.cpp#L57-L667).
+- The basic family has sixteen leaves combining execution-set use, explicit preprocessing, unordered sequences, and compute-queue submission. The conditional-rendering family adds `general` and `preprocess` groups with independent condition, inversion, pipeline-token, queue, count-buffer, and preprocessing-state dimensions.
 - Each case emits two `16 x 8 x 1` trace-ray commands and checks a `16 x 16` result grid. The shaders record payloads, ray built-ins, hit attributes, transforms, launch values, and shader-record-buffer data.
 
 ## Background Knowledge
@@ -15,7 +15,7 @@
 ## Registration Hierarchy
 
 ```text
-dgc.ext.ray_tracing
+dgc.ext.ray_tracing.basic
 ├── no_execution_set
 ├── no_execution_set_cq
 ├── no_execution_set_preprocess
@@ -32,9 +32,13 @@ dgc.ext.ray_tracing
 ├── with_execution_set_preprocess_unordered_cq
 ├── with_execution_set_unordered
 └── with_execution_set_unordered_cq
+
+dgc.ext.ray_tracing.conditional_rendering
+├── general
+└── preprocess
 ```
 
-The leaves come from the nested Boolean loops in [createDGCRayTracingTestsExt](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L1993-L2010) and appear in [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4334-L4349).
+The `basic` leaves come from the nested Boolean loops in [createDGCRayTracingBasicTestsExt](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L1993-L2010) and appear in [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4316-L4331). The conditional-rendering families are registered by [createDGCRayTracingConditionalTestsExt](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingConditionalTestsExt.cpp#L607-L671).
 
 ## Parameter Dimensions and Observed Values
 
@@ -46,6 +50,7 @@ The leaves come from the nested Boolean loops in [createDGCRayTracingTestsExt](.
 | Queue | graphics-capable context queue, `cq` | Submits on the context queue, or selects a compute queue. | [queue selection and support](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L990-L997), [checkSupport](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L382-L393) |
 | Geometry | triangles, AABBs | Exercises triangle culling and custom intersection traversal. | [BLAS construction](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L256-L316) |
 | Shader-record form | first eight rows without SRB, second eight rows with SRB | Selects SBT records without or with `layout(shaderRecordEXT, std430)` data. | [SBT and shader sets](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L1136-L1226) |
+| Conditional-rendering family | `general`, `preprocess` | Selects direct generated execution or preprocess-before-execution while conditional rendering controls whether the generated ray-tracing work runs. | [conditional registration](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingConditionalTestsExt.cpp#L607-L667) |
 
 ## Behavior Parameters
 
@@ -71,6 +76,14 @@ The layout sets `VK_INDIRECT_COMMANDS_LAYOUT_USAGE_UNORDERED_SEQUENCES_BIT_EXT`.
 
 The case requests a compute queue before command-pool creation. The queue must exist; an unavailable queue is handled by support checking rather than by the result comparison.
 
+### `conditional_rendering.general`: conditional generated ray tracing
+
+The general family varies indirect pipeline-token use, indirect-count-buffer use, the condition value, the inverted flag, and universal versus compute-queue execution. The condition buffer controls whether the generated ray-tracing dispatch writes the output buffer; the expected output therefore depends on the condition and inversion combination.
+
+### `conditional_rendering.preprocess`: conditional preprocessing
+
+The preprocess family varies the condition value, inverted flag, execution queue, and whether preprocessing uses a separate state command buffer. A compute-queue execution is registered only with separate state, matching the requirement that preprocessing and execution use compatible queue state.
+
 ## Shader Analysis
 
 The generator emits raygen, miss, closest-hit, intersection, and two callable stages. Each stage has a pair of SBT variants: one without SRB data and one with `layout(shaderRecordEXT, std430)`. The following walkthrough uses the first registered leaf and the raygen stage because it connects the generated command parameters to every later shader stage.
@@ -82,7 +95,7 @@ The generator emits raygen, miss, closest-hit, intersection, and two callable st
 Representative path:
 
 ```text
-dEQP-VK.dgc.ext.ray_tracing.no_execution_set
+dEQP-VK.dgc.ext.ray_tracing.basic.no_execution_set
 ```
 
 | Parameter choice | Meaning in this representative case |
@@ -582,6 +595,7 @@ void main()
 - For execution-set cases, the DGC stream starts each record with index 0 or 1. Every record then contains the push constant and a `VkTraceRaysIndirectCommand2KHR` structure with four SBT regions and the dispatch dimensions.
 - After execution, the host invalidates the output allocation and compares all 256 cells. It predicts culling, miss or hit traversal, payload offsets, hit attributes, built-ins, transforms, and SRB values. Integer and vector fields use exact comparisons; floating-point fields use a `1.0f / 256.0f` threshold.
 - A mismatch logs the field and cell coordinate and returns `tcu::TestStatus::fail("Fail; check log for details")`. A complete match returns `tcu::TestStatus::pass("Pass")`. See [verification loop](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L1410-L1988).
+- Conditional-rendering cases use a one-word output buffer. They expect the push-constant value when conditional rendering enables execution and the initialized zero value when it disables execution; preprocessing cases additionally validate the preprocess-to-execute state transition ([conditional execution](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingConditionalTestsExt.cpp#L157-L600)).
 
 ## Failure Meaning
 
@@ -594,6 +608,8 @@ void main()
 | `_preprocess` combinations | Preprocessed generated state or the preprocess-to-execute dependency differs from direct execution. |
 | `_unordered` combinations | Per-sequence data, launch-coordinate mapping, or unordered execution handling changes the destination or shader inputs. |
 | `_cq` combinations | The generated work or its synchronization produces a different result on the selected compute queue. |
+| `conditional_rendering.general` | Conditional-rendering state, pipeline-token binding, indirect-count handling, queue selection, or condition inversion produces the wrong output-buffer value. |
+| `conditional_rendering.preprocess` | Preprocessed conditional state, separate-state command recording, queue compatibility, or condition inversion produces the wrong output-buffer value. |
 
 ### Cause Analysis
 
@@ -633,6 +649,7 @@ void main()
 
 - The case requires `VK_KHR_acceleration_structure`, `VK_KHR_ray_tracing_pipeline`, and `VK_KHR_ray_tracing_maintenance1`. DGC support must cover the ray-tracing stages used by the generated pipeline.
 - Cases ending in `_cq` require a compute queue. `checkSupport` calls `context.getComputeQueue()` and rejects the case when the queue is unavailable.
+- Conditional-rendering cases require `VK_EXT_conditional_rendering`, ray-tracing pipeline support, and DGC support for the ray-generation stage. Compute variants require a compute queue ([conditional support](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingConditionalTestsExt.cpp#L74-L107)).
 
 These checks remove cases that cannot legally use the requested Vulkan functionality or queue.
 
@@ -641,6 +658,7 @@ These checks remove cases that cannot legally use the requested Vulkan functiona
 - The implementation registers four Boolean dimensions, not separate leaves for every geometry, flag, or SBT combination. A fixed seed of `1720182500u` fills the 256 cell parameters.
 - Two `16 x 8` records cover the 16-row result without losing the distinction between the two SBT sets. The inactive BLAS geometry sits behind the ray origin so one BLAS can carry both geometry options.
 - The generated shader set uses two values for each miss, closest-hit, intersection, and callable index and two SRB forms. These choices expose selection and data flow without turning each cell combination into a separate registered leaf.
+- Conditional general cases enumerate five Boolean dimensions. Conditional preprocess cases omit `executeOnCompute && !separateState` because the source requires compatible preprocessing and execution queue state ([registration pruning](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingConditionalTestsExt.cpp#L635-L663)).
 
 These exclusions are part of the test design rather than support failures.
 
@@ -660,4 +678,4 @@ These exclusions are part of the test design rather than support failures.
 | Acceleration structures | [makeBottomLevelASWithParams and makeTopLevelASWithParams](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L256-L330) | Creates the geometry, inactive geometry, and translated instances. |
 | DGC layout and records | [layout](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L1092-L1104), [records and execution](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L1289-L1408) | Defines tokens, SBT regions, dimensions, preprocessing, execution, and barriers. |
 | Result model | [cell output verification](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L1410-L1988) | Computes expected traversal and shader results and returns CTS status. |
-| Registration and mustpass | [createDGCRayTracingTestsExt](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L1993-L2010), [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4334-L4349) | Confirms all sixteen registered identifiers. |
+| Registration and mustpass | [createDGCRayTracingBasicTestsExt](../../../modules/vulkan/device_generated_commands/vktDGCRayTracingTestsExt.cpp#L1993-L2010), [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4316-L4331) | Confirms all sixteen registered identifiers. |

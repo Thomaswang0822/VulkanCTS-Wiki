@@ -2,7 +2,7 @@
 
 **Core question:** Does robust buffer access remain correct when a storage-buffer access is performed through a pointer produced by a runtime-dependent SPIR-V `OpSelect`?
 
-- This page covers `robustness.buffer_access.through_pointers`, implemented by [vktRobustBufferAccessWithVariablePointersTests.cpp](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1-L2005).
+- This page covers `robustness.buffer_access.through_pointers`, implemented by [vktRobustBufferAccessWithVariablePointersTests.cpp](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1-L1898).
 - The source generates direct SPIR-V for storage-buffer reads and writes in compute, vertex, and fragment stages.
 - The pointer candidates given to `OpSelect` are intentionally identical; the selector is loaded at run time so the access still passes through a variable pointer. The resulting access can be inside the allocation but outside the descriptor range, or beyond the backing allocation, and the host accepts only values permitted by the robustness checks.
 
@@ -20,19 +20,19 @@ robustness.buffer_access.through_pointers
 └── compute
 ```
 
-The root is inserted below `buffer_access` by [vktRobustnessTests.cpp](../../../modules/vulkan/robustness/vktRobustnessTests.cpp#L69-L82). The factory creates the `graphics` and `compute` direct children in [vktRobustBufferAccessWithVariablePointersTests.cpp](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1897-L2001).
+The root is inserted below `buffer_access` by [vktRobustnessTests.cpp](../../../modules/vulkan/robustness/vktRobustnessTests.cpp#L69-L82). The factory creates the `graphics` and `compute` direct children in [vktRobustBufferAccessWithVariablePointersTests.cpp](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1790-L1895).
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Execution path | `graphics`, `compute` | Selects a graphics pipeline or compute dispatch. | [Factory](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1897-L2001) |
-| Access direction | `reads`, `writes` | Places the selected pointer on a load or store operation. | [Case generation](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1958-L1984) |
-| Graphics stage | `vertex`, `fragment` | Chooses the graphics shader that performs the variable-pointer access. | [Stage mapping](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1945-L1953) |
+| Execution path | `graphics`, `compute` | Selects a graphics pipeline or compute dispatch. | [Factory](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1790-L1895) |
+| Access direction | `reads`, `writes` | Places the selected pointer on a load or store operation. | [Case generation](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1851-L1895) |
+| Graphics stage | `vertex`, `fragment` | Chooses the graphics shader that performs the variable-pointer access. | [Stage mapping](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1839-L1846) |
 | Copy type | `vec4`, `scalar` | Usually changes the generated load/store width and result shape; for 64-bit integer formats, registered `vec4` cases deliberately use the scalar generation path. | [Type array and R64 mapping](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L843-L845) |
-| Format | `s32`, `u32`, `f32`, `s64`, `u64` | Selects scalar representation and required shader capabilities. | [Format array](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1923-L1927) |
-| Descriptor range | `1B`, `3B`, `4B`, `16B`, `32B` | Sets the storage-buffer range visible through the descriptor, creating complete and partial boundary crossings. | [Range sizes](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1929-L1931) |
-| Boundary mode | `in_memory`, `out_of_memory` | Distinguishes descriptor-range overrun from backing-allocation overrun. | [Read/write registration](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1955-L1983) |
+| Format | `s32`, `u32`, `f32`, `s64`, `u64` | Selects scalar representation and required shader capabilities. | [Format array](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1816-L1819) |
+| Descriptor range | `1B`, `3B`, `4B`, `16B`, `32B` | Sets the storage-buffer range visible through the descriptor, creating complete and partial boundary crossings. | [Range sizes](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1822-L1824) |
+| Boundary mode | `in_memory`, `out_of_memory` | Distinguishes descriptor-range overrun from backing-allocation overrun. | [Read/write registration](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1865-L1877) |
 
 ## Behavior Parameters
 
@@ -157,7 +157,7 @@ Cases are skipped when variable-pointer storage-buffer support is unavailable, o
 
 ### Design-based pruning
 
-The registered type array contains only `vec4` and `scalar`; the source enum's matrix-copy value is not registered. The factory also uses a fixed five-format and five-range matrix rather than every possible storage-buffer type [registration](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1923-L1984).
+The registered type array contains only `vec4` and `scalar`; the source enum's matrix-copy value is not registered. The factory also uses a fixed five-format and five-range matrix rather than every possible storage-buffer type [registration](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1816-L1877).
 
 ## Key Takeaways
 
@@ -170,8 +170,8 @@ The registered type array contains only `vec4` and `scalar`; the source enum's m
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Direct SPIR-V generation | [MakeShader()](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L839-L1239) | Builds capabilities, declarations, pointer selection, and load/store operations. |
+| Direct SPIR-V generation | [MakeShader()](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L805-L1204) | Builds capabilities, declarations, pointer selection, and load/store operations. |
 | Device and support setup | [Support and device creation](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L67-L87) | Enables required robustness and variable-pointer features. |
 | Runtime environments | [Instance setup](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1352-L1540) | Creates buffers, descriptors, and compute/graphics execution. |
-| Result verification | [verifyResult()](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1632-L1848) | Defines accepted values and final status. |
-| Registration | [Factory](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1897-L2001) | Defines the registered hierarchy and leaf matrix. |
+| Result verification | [verifyResult()](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1545-L1761) | Defines accepted values and final status. |
+| Registration | [Factory](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1790-L1895) | Defines the registered hierarchy and leaf matrix. |

@@ -413,6 +413,7 @@ class CommonFunctionCase : public TestCase
 {
 public:
     CommonFunctionCase(tcu::TestContext &testCtx, const char *name);
+    CommonFunctionCase(tcu::TestContext &testCtx, const char *name, int numValues);
     ~CommonFunctionCase(void);
     void initPrograms(vk::SourceCollections &programCollection) const override
     {
@@ -434,6 +435,12 @@ protected:
 CommonFunctionCase::CommonFunctionCase(tcu::TestContext &testCtx, const char *name)
     : TestCase(testCtx, name)
     , m_numValues(100)
+{
+}
+
+CommonFunctionCase::CommonFunctionCase(tcu::TestContext &testCtx, const char *name, int numValues)
+    : TestCase(testCtx, name)
+    , m_numValues(numValues)
 {
 }
 
@@ -464,18 +471,17 @@ void CommonFunctionCase::checkSupport(Context &context) const
 
 // CommonFunctionTestInstance
 
-class CommonFunctionTestInstance : public TestInstance
+class CommonFunctionTestInstance : public MultiQueueRunnerTestInstance
 {
 public:
     CommonFunctionTestInstance(Context &context, const ShaderSpec &spec, int numValues, const char *name)
-        : TestInstance(context)
+        : MultiQueueRunnerTestInstance(context, COMPUTE_QUEUE)
         , m_spec(spec)
         , m_numValues(numValues)
         , m_name(name)
-        , m_executor(createExecutor(context, glu::SHADERTYPE_COMPUTE, spec))
     {
     }
-    virtual tcu::TestStatus iterate(void);
+    virtual tcu::TestStatus queuePass(const QueueData &queueData) override;
 
 protected:
     virtual void getInputValues(int numValues, void *const *values) const       = 0;
@@ -488,12 +494,14 @@ protected:
     const char *m_name;
 
     std::ostringstream m_failMsg; //!< Comparison failure help message.
-
-    de::UniquePtr<ShaderExecutor> m_executor;
 };
 
-tcu::TestStatus CommonFunctionTestInstance::iterate(void)
+tcu::TestStatus CommonFunctionTestInstance::queuePass(const QueueData &queueData)
 {
+    const UserQueue userQueue(queueData.handle, queueData.familyIndex);
+    de::UniquePtr<ShaderExecutor> executor(
+        createExecutor(m_context, glu::SHADERTYPE_COMPUTE, m_spec, VK_NULL_HANDLE, userQueue));
+
     const int numInputBytes  = computeTotalByteSize(m_spec.inputs);
     const int numOutputBytes = computeTotalByteSize(m_spec.outputs);
     vector<uint8_t> inputData(numInputBytes * m_numValues);
@@ -505,7 +513,7 @@ tcu::TestStatus CommonFunctionTestInstance::iterate(void)
     getInputValues(m_numValues, &inputPointers[0]);
 
     // Execute shader.
-    m_executor->execute(m_numValues, &inputPointers[0], &outputPointers[0]);
+    executor->execute(m_numValues, &inputPointers[0], &outputPointers[0]);
 
     // Compare results.
     {
@@ -1086,6 +1094,90 @@ public:
     }
 };
 
+class ClampConstArrayDynamicIndexCaseInstance : public CommonFunctionTestInstance
+{
+public:
+    ClampConstArrayDynamicIndexCaseInstance(Context &context, const ShaderSpec &spec, int numValues, const char *name)
+        : CommonFunctionTestInstance(context, spec, numValues, name)
+    {
+    }
+
+    void getInputValues(int numValues, void *const *values) const
+    {
+        int *typedPtr = static_cast<int *>(values[0]);
+        for (int ndx = 0; ndx < numValues; ndx++)
+        {
+            typedPtr[ndx] = ndx % 4;
+        }
+    }
+
+    bool compare(const void *const *inputs, const void *const *outputs)
+    {
+        const int in0        = *static_cast<const int *>(inputs[0]);
+        const float *out0Ptr = static_cast<const float *>(outputs[0]);
+        const float out0_x   = out0Ptr[0];
+        const float out0_y   = out0Ptr[1];
+
+        float ref_x = 0.0f;
+        float ref_y = 0.0f;
+        switch (in0)
+        {
+        case 0:
+            ref_x = -1.0f;
+            ref_y = -1.0f;
+            break;
+        case 1:
+            ref_x = 3.0f;
+            ref_y = -1.0f;
+            break;
+        case 2:
+            ref_x = -1.0f;
+            ref_y = 3.0f;
+            break;
+        case 3:
+            ref_x = 3.0f;
+            ref_y = 3.0f;
+            break;
+        default:
+            DE_ASSERT(false);
+        }
+
+        ref_x = de::clamp(ref_x, 0.0f, 1.0f);
+        ref_y = de::clamp(ref_y, 0.0f, 1.0f);
+
+        if (!(de::abs(out0_x - ref_x) <= 0.0001f) || !(de::abs(out0_y - ref_y) <= 0.0001f))
+        {
+            m_failMsg << "Expected (" << ref_x << ", " << ref_y << "), got (" << out0_x << ", " << out0_y
+                      << ") for input index " << in0;
+            return false;
+        }
+        return true;
+    }
+};
+
+class ClampConstArrayDynamicIndexCase : public CommonFunctionCase
+{
+public:
+    ClampConstArrayDynamicIndexCase(tcu::TestContext &testCtx, const char *name) : CommonFunctionCase(testCtx, name, 4)
+    {
+        m_spec.inputs.push_back(Symbol("in0", glu::VarType(glu::TYPE_INT, glu::PRECISION_HIGHP)));
+        m_spec.outputs.push_back(Symbol("out0", glu::VarType(glu::TYPE_FLOAT_VEC2, glu::PRECISION_HIGHP)));
+        m_spec.globalDeclarations = "const vec2 data[4] = vec2[](\n"
+                                    "    vec2(-1.0, -1.0),\n"
+                                    "    vec2(3.0, -1.0),\n"
+                                    "    vec2(-1.0, 3.0),\n"
+                                    "    vec2(3.0, 3.0)\n"
+                                    ");\n";
+        m_spec.source             = "vec2 pos_xy = data[clamp(in0, 0, 3)];\n"
+                                    "out0 = clamp(pos_xy, vec2(0.0, 0.0), vec2(1.0, 1.0));\n";
+    }
+
+    TestInstance *createInstance(Context &ctx) const
+    {
+        return new ClampConstArrayDynamicIndexCaseInstance(ctx, m_spec, m_numValues, getName());
+    }
+};
+
 } // namespace
 
 ShaderCommonFunctionTests::ShaderCommonFunctionTests(tcu::TestContext &testCtx) : tcu::TestCaseGroup(testCtx, "common")
@@ -1131,7 +1223,14 @@ void ShaderCommonFunctionTests::init(void)
             uintGroup->addChild(new BitsToFloatCase(getTestContext(), uintType));
         }
     }
+    {
+        tcu::TestCaseGroup *clampGroup = new tcu::TestCaseGroup(m_testCtx, "clamp");
+        addChild(clampGroup);
+        clampGroup->addChild(new ClampConstArrayDynamicIndexCase(getTestContext(), "clamp_const_array_dynamic_index"));
+    }
 }
 
 } // namespace shaderexecutor
 } // namespace vkt
+
+//test

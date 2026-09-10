@@ -2,8 +2,8 @@
 
 **Core question:** Does `VK_EXT_device_generated_commands` preprocess and execute generated compute commands correctly across queue, count-buffer, and state-command-buffer variants?
 
-- This page covers the implementation and registrations in [`vktDGCComputePreprocessTestsExt.cpp`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L51-L575) for `dgc.ext.compute.preprocess`.
-- The 24 registered test cases vary four preprocessing/execution queue methods, three count-buffer modes, and two state command buffer placements.
+- This page covers the implementation and registrations in [`vktDGCComputePreprocessTestsExt.cpp`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L51-L586) for `dgc.ext.compute.preprocess`.
+- The 18 registered test cases vary four preprocessing/execution queue methods, three count-buffer modes, and two state command buffer placements.
 - Each case prepares two generated compute sequences, preprocesses them explicitly, executes them with `isPreprocessed` set to `VK_TRUE`, and checks two host-visible output buffers.
 - The page explains the registered paths, the generated command and preprocess buffers, queue synchronization, state command buffers, and result checking.
 
@@ -15,7 +15,7 @@
 
 ## Registration Hierarchy
 
-The page covers one implementation-bearing test family with 24 registered direct children:
+The page covers one implementation-bearing test family with 18 registered direct children:
 
 ```text
 dgc.ext.compute.preprocess
@@ -25,19 +25,13 @@ dgc.ext.compute.preprocess
 ├── parallel_preprocessing_compute_with_count_buffer_separate_state_cmd_buffer
 ├── parallel_preprocessing_compute_with_count_buffer_zero_count
 ├── parallel_preprocessing_compute_with_count_buffer_zero_count_separate_state_cmd_buffer
-├── parallel_preprocessing_compute_with_universal_exec
 ├── parallel_preprocessing_compute_with_universal_exec_separate_state_cmd_buffer
-├── parallel_preprocessing_compute_with_universal_exec_with_count_buffer
 ├── parallel_preprocessing_compute_with_universal_exec_with_count_buffer_separate_state_cmd_buffer
-├── parallel_preprocessing_compute_with_universal_exec_with_count_buffer_zero_count
 ├── parallel_preprocessing_compute_with_universal_exec_with_count_buffer_zero_count_separate_state_cmd_buffer
 ├── parallel_preprocessing_universal
 ├── parallel_preprocessing_universal_separate_state_cmd_buffer
-├── parallel_preprocessing_universal_with_compute_exec
 ├── parallel_preprocessing_universal_with_compute_exec_separate_state_cmd_buffer
-├── parallel_preprocessing_universal_with_compute_exec_with_count_buffer
 ├── parallel_preprocessing_universal_with_compute_exec_with_count_buffer_separate_state_cmd_buffer
-├── parallel_preprocessing_universal_with_compute_exec_with_count_buffer_zero_count
 ├── parallel_preprocessing_universal_with_compute_exec_with_count_buffer_zero_count_separate_state_cmd_buffer
 ├── parallel_preprocessing_universal_with_count_buffer
 ├── parallel_preprocessing_universal_with_count_buffer_separate_state_cmd_buffer
@@ -49,14 +43,14 @@ dgc.ext.compute.preprocess
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| `Method` | `universal`, `compute`, `compute_with_universal_exec`, `universal_with_compute_exec` | Chooses the queue used for preprocessing and, for the last two values, the different queue used for execution. | [`Method` and queue selection](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L51-L57), [`parallelPreprocessRun` queue setup](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L318-L344) |
-| `CountBuffer` | no suffix, `with_count_buffer`, `with_count_buffer_zero_count` | Selects no sequence count buffer, a count of one, or a count of zero for each of the two sequences. | [`countBufferCases`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L544-L552), [`sequence count setup`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L143-L161) |
-| `StateCmdBuffer` | no suffix, `separate_state_cmd_buffer` | Records preprocessing state in the current command buffer or in another command buffer. | [`stateCmdBufferCases`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L554-L561), [`state command buffer recording`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L349-L375) |
-| Registered combination | 4 × 3 × 2 exact names in the hierarchy above | The source constructs every combination of the three dimensions. | [`createDGCComputePreprocessTestsExt`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L526-L575) |
+| `Method` | `universal`, `compute`, `compute_with_universal_exec`, `universal_with_compute_exec` | Chooses the queue used for preprocessing and, for the last two values, the different queue used for execution. | [`Method` and queue selection](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L51-L57), [`parallelPreprocessRun` queue setup](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L323-L349) |
+| `CountBuffer` | no suffix, `with_count_buffer`, `with_count_buffer_zero_count` | Selects no sequence count buffer, a count of one, or a count of zero for each of the two sequences. | [`countBufferCases`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L549-L557), [`sequence count setup`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L148-L166) |
+| `StateCmdBuffer` | no suffix, `separate_state_cmd_buffer` | Records preprocessing state in the current command buffer or in another command buffer. | [`stateCmdBufferCases`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L559-L566), [`state command buffer recording`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L354-L380) |
+| Registered combination | 18 exact names after queue/state pruning | The source skips cross-queue methods with `StateCmdBuffer::SAME`. | [`createDGCComputePreprocessTestsExt`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L532-L587) |
 
 ## Behavior Parameters
 
-`Method` is the primary behavioral axis because it changes which queue preprocesses the generated commands and which queue executes them. `CountBuffer` and `StateCmdBuffer` are secondary dimensions applied to every method.
+`Method` is the primary behavioral axis because it changes which queue preprocesses the generated commands and which queue executes them. `CountBuffer` applies to every method. Cross-queue methods require `StateCmdBuffer::OTHER`.
 
 ### `universal` method
 
@@ -68,7 +62,7 @@ The compute queue preprocesses and executes the generated commands. This is the 
 
 ### `compute_with_universal_exec` method
 
-The compute queue preprocesses the first sequence and the universal queue executes it. The test transfers the buffers used by preprocessing and execution between queue families when their family indices differ.
+The compute queue preprocesses the first sequence and the universal queue executes it. The test transfers the buffers used by preprocessing and execution between the selected queues. The source identifies a queue switch from `Method`, rather than comparing family indices.
 
 ### `universal_with_compute_exec` method
 
@@ -80,11 +74,11 @@ The secondary dimensions change the common flow as follows:
 - `CountBuffer::YES` creates two sequence count buffers and writes one to each. The preprocessing information uses a maximum sequence count of `100` to satisfy the source's EXT validity workaround, while the actual count buffer value remains one.
 - `CountBuffer::YES_BUT_ZERO` creates the same two buffers but writes zero. The commands are still preprocessed and submitted, but neither counted sequence should modify its output buffer.
 - `StateCmdBuffer::SAME` binds the descriptor set and compute pipeline in the command buffer that records preprocessing.
-- `StateCmdBuffer::OTHER` records those bindings in a separate state command buffer from the same queue's command pool and passes it to preprocessing.
+- `StateCmdBuffer::OTHER` records those bindings in a separate state command buffer from the execution queue's command pool and passes it to preprocessing.
 
 ## Shader Analysis
 
-The device-side program is fixed across all 24 registered paths. Queue selection, count-buffer handling, and state command buffer placement occur in host-side command recording, so one representative walkthrough covers the shader behavior.
+The device-side program is fixed across all 18 registered paths. Queue selection, count-buffer handling, and state command buffer placement occur in host-side command recording, so one representative walkthrough covers the shader behavior.
 
 ### Representative Shader Walkthrough 1
 
@@ -93,13 +87,14 @@ The device-side program is fixed across all 24 registered paths. Queue selection
 Representative path:
 
 ```text
-dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_compute_with_universal_exec_with_count_buffer
+dEQP-VK.dgc.ext.compute.preprocess.parallel_preprocessing_compute_with_universal_exec_with_count_buffer_separate_state_cmd_buffer
 ```
 
 | Parameter choice | Meaning in this representative case |
 |------------------|-------------------------------------|
 | `compute_with_universal_exec` | The first sequence is preprocessed on the compute queue and executed on the universal queue. |
 | `with_count_buffer` | Each sequence has a count buffer containing `1`. |
+| `separate_state_cmd_buffer` | Preprocessing receives state from a command buffer allocated from the execution queue's pool. |
 | Generated command layout | Each sequence contains one push-constant token followed by one indirect dispatch token. |
 | Push constant values | The two sequences supply `100` and `101`. |
 
@@ -126,17 +121,17 @@ void main (void) { outputBuffer.value = pc.value; }
 
 #### Additional Info
 
-- `storePushConstantProgram` supplies the compute shader. The generated layout adds a push-constant token at offset zero and a dispatch token after it ([shader and layout setup](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L97-L107), [generated command layout](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L223-L228)).
-- Each command stream contains four `uint32_t` values: one push constant and the three fields of `VkDispatchIndirectCommand`. The two streams use `100` and `101` ([generated command data](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L230-L249)).
+- `storePushConstantProgram` supplies the compute shader. The generated layout adds a push-constant token at offset zero and a dispatch token after it ([shader and layout setup](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L102-L112), [generated command layout](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L228-L233)).
+- Each command stream contains four `uint32_t` values: one push constant and the three fields of `VkDispatchIndirectCommand`. The two streams use `100` and `101` ([generated command data](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L235-L254)).
 - The shader does not vary with `Method`, `CountBuffer`, or `StateCmdBuffer`; those values affect command information, queue submissions, and whether execution occurs.
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| `Method` | The shader remains unchanged. The selected queues and ownership barriers determine where preprocessing and execution happen. | [queue selection and barriers](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L318-L429) |
-| `CountBuffer` | The shader remains unchanged. The count buffer controls whether the generated dispatch runs. | [count-buffer setup](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L143-L161), [result reference](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L496-L517) |
-| `StateCmdBuffer` | The shader remains unchanged. The choice changes where descriptor and pipeline state are recorded for preprocessing. | [state command buffer recording](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L360-L375) |
+| `Method` | The shader remains unchanged. The selected queues and ownership barriers determine where preprocessing and execution happen. | [queue selection and barriers](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L323-L434) |
+| `CountBuffer` | The shader remains unchanged. The count buffer controls whether the generated dispatch runs. | [count-buffer setup](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L148-L166), [result reference](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L501-L522) |
+| `StateCmdBuffer` | The shader remains unchanged. The choice changes where descriptor and pipeline state are recorded for preprocessing. | [state command buffer recording](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L365-L380) |
 
 #### SPIR-V
 
@@ -208,7 +203,7 @@ void main (void) { outputBuffer.value = pc.value; }
 - It creates two host-visible storage output buffers and initializes each to zero. It creates two descriptor sets, one per output buffer, plus a compute pipeline and its push-constant range.
 - It creates an explicit-preprocess indirect command layout with a push-constant token followed by a dispatch token. It writes one four-word command stream per sequence and allocates one `PreprocessBufferExt` per sequence from the queried EXT preprocess-memory requirements.
 - Count-buffer variants create two `DGCBuffer` objects of one `uint32_t` each. `YES` writes `1` to both buffers. `YES_BUT_ZERO` writes `0` to both. The resulting device addresses become `sequenceCountAddress` in the two `DGCGenCmdsInfo` structures.
-- The test selects the preprocessing and execution queue from `Method`. The first sequence is recorded with descriptor and pipeline state, preprocessed, and submitted with a fence. When queue families differ, release barriers cover the output buffer, generated command buffer, preprocess buffer, and count buffer, followed by an acquire barrier on the execution queue.
+- The test selects the preprocessing and execution queue from `Method`. The first sequence is recorded with descriptor and pipeline state, preprocessed, and submitted with a fence. For queue-switch methods, release barriers cover the output buffer, generated command buffer, preprocess buffer, and count buffer, followed by an acquire barrier on the execution queue.
 - The execution command buffer binds the first descriptor set and pipeline, then calls `vkCmdExecuteGeneratedCommandsEXT` with `isPreprocessed` equal to `VK_TRUE`. The test also records preprocessing and execution for the second sequence. For a queue switch, it submits the execution command buffer and the second sequence's preprocessing/execution command buffer to their respective queues and waits on both fences.
 - A shader-write-to-host barrier makes the output writes available for host reads. The host invalidates each output allocation, reads one `uint32_t`, and compares it with `i + 100` for output buffer `i` when execution is enabled.
 - In `YES_BUT_ZERO` cases, the expected value is `0` for both buffers because the count buffers suppress the generated sequences. Any mismatch logs the buffer position, expected value, and observed value, then fails the test.
@@ -272,14 +267,14 @@ void main (void) { outputBuffer.value = pc.value; }
 
 ### Design-based pruning
 
-- The source registers exactly the 4 × 3 × 2 combinations shown in the hierarchy. No other queue, count, or state combinations are implied by the parameter enums.
+- The source starts with four queue methods, three count modes, and two state placements, then skips the six cross-queue combinations with `StateCmdBuffer::SAME`. The remaining 18 cases keep the state command buffer on the execution queue.
 - The test uses two sequences so it can preprocess one sequence separately, execute it, and then preprocess plus execute the second sequence in the later submission flow.
 - The zero-count cases remain separate registrations because they check the boundary where preprocessing still occurs but counted execution must not change the initialized outputs.
 
 ## Key Takeaways
 
 - The test separates explicit preprocessing from execution and checks that `VK_TRUE` execution consumes the prepared state correctly.
-- The 24 registered names encode queue method, count-buffer mode, and state command buffer placement without changing the compute shader.
+- The 18 registered names encode queue method, count-buffer mode, and state command buffer placement without changing the compute shader.
 - Count-buffer cases check both a nonzero count and the zero-count boundary. The latter must leave both initialized output buffers at zero.
 - Cross-queue methods check ownership and visibility for every buffer used by preprocessing and execution, including the preprocess and count buffers.
 - The host-visible output values provide the final contract: `100` and `101` when the generated sequences run, and `0` in the zero-count cases.
@@ -288,12 +283,12 @@ void main (void) { outputBuffer.value = pc.value; }
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Parameter enums and support gate | [Method, StateCmdBuffer, CountBuffer, and `checkDGCComputeAndQueueSupport`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L51-L95) | Defines the three dimensions and the compute-queue requirement. |
-| Compute shader generator | [`storePushConstantProgram`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L97-L107) | Defines the shader's push-constant to output-buffer behavior. |
-| Resource and generated-command setup | [`parallelPreprocessRun` setup](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L125-L302) | Creates output, count, generated-command, preprocess, descriptor, pipeline, and command-layout resources. |
-| Queue selection and ownership | [`parallelPreprocessRun` queue setup](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L304-L348) | Maps methods to queues and prepares queue-family barriers. |
-| Preprocessing and execution submissions | [`parallelPreprocessRun` submissions](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L349-L494) | Shows state command buffers, fences, barriers, preprocessing, and `VK_TRUE` execution. |
-| Result checking | [`parallelPreprocessRun` verification](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L496-L521) | Defines expected values and the failure result. |
-| Registration matrix | [`createDGCComputePreprocessTestsExt`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L526-L575) | Forms all 4 × 3 × 2 registered test cases. |
+| Parameter enums and support gate | [Method, StateCmdBuffer, CountBuffer, and `checkDGCComputeAndQueueSupport`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L51-L100) | Defines the three dimensions and the compute-queue requirement. |
+| Compute shader generator | [`storePushConstantProgram`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L102-L112) | Defines the shader's push-constant to output-buffer behavior. |
+| Resource and generated-command setup | [`parallelPreprocessRun` setup](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L132-L527) | Creates output, count, generated-command, preprocess, descriptor, pipeline, and command-layout resources. |
+| Queue selection and ownership | [`parallelPreprocessRun` queue setup](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L309-L353) | Maps methods to queues and prepares queue-family barriers. |
+| Preprocessing and execution submissions | [`parallelPreprocessRun` submissions](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L354-L499) | Shows state command buffers, fences, barriers, preprocessing, and `VK_TRUE` execution. |
+| Result checking | [`parallelPreprocessRun` verification](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L501-L526) | Defines expected values and the failure result. |
+| Registration matrix | [`createDGCComputePreprocessTestsExt`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L532-L587) | Forms all 4 × 3 × 2 registered test cases. |
 | EXT preprocessing semantics | [Vulkan device-generated commands specification](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc#L1827-L1918) | Defines EXT preprocess-buffer requirements and generated-command execution information. |
 | Explicit preprocessing rules | [Vulkan layout usage and processing rules](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc#L326-L337) | Defines explicit preprocessing and the separate preprocessing operation. |

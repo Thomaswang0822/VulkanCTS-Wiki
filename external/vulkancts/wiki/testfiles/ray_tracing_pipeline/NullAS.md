@@ -21,13 +21,13 @@ ray_tracing_pipeline.null_as
 └── test
 ```
 
-The two direct children are registered by [createNullAccelerationStructureTests](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L756-L769). `test` is a `RayTracingTestCase` with an 8x8 dispatch; `mixed_dispatches` is a `RayTracingDescriptorTestCase` with no `CaseDef` parameters.
+The two direct children are registered by [createNullAccelerationStructureTests](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L753-L766). `test` is a `RayTracingTestCase` with an 8x8 dispatch; `mixed_dispatches` is a `RayTracingDescriptorTestCase` with no `CaseDef` parameters.
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Test case leaf | `test`, `mixed_dispatches` | Selects the tested property: null-AS always-miss, or descriptor-state preservation across pipeline bind point switches. This is the primary behavioral axis. | [createNullAccelerationStructureTests](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L756-L769) |
+| Test case leaf | `test`, `mixed_dispatches` | Selects the tested property: null-AS always-miss, or descriptor-state preservation across pipeline bind point switches. This is the primary behavioral axis. | [createNullAccelerationStructureTests](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L753-L766) |
 | Dispatch size (`test`) | `width=8`, `height=8` | Fixed 8x8 launch dimensions for the always-miss trace. | [CaseDef](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L761-L764) |
 | Dispatch size (`mixed_dispatches`) | `singleDispatchCount=16` | Fixed 16-element half-buffer written by each of the four dispatches. Used as a specialization constant in both rgen and compute shaders. | [initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L715-L716) |
 | SPIR-V target | `spirv1.4` | All generated shaders use `vk::SPIRV_VERSION_1_4`. | [ShaderBuildOptions](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L315) |
@@ -286,5 +286,5 @@ void main()
 | `validateBuffer` | [vktRayTracingNullASTests.cpp#L528-L545](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L528-L545) | Per-pixel expected-value `4` check for the `test` leaf |
 | `RayTracingDescriptorTestInstance::iterate` | [vktRayTracingNullASTests.cpp#L572-L689](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L572-L689) | `mixed_dispatches` execution: dual pipelines, dual descriptor sets, four alternating dispatches, four-section result check |
 | `RayTracingDescriptorTestCase::initPrograms` | [vktRayTracingNullASTests.cpp#L713-L747](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L713-L747) | rgen and compute shaders for `mixed_dispatches`, specialized with `singleDispatchCount=16` |
-| `createNullAccelerationStructureTests` | [vktRayTracingNullASTests.cpp#L756-L769](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L756-L769) | Registration of the `null_as` group and its two children |
+| `createNullAccelerationStructureTests` | [vktRayTracingNullASTests.cpp#L753-L766](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L753-L766) | Registration of the `null_as` group and its two children |
 | shared rgen shader helper | [vkRayTracingUtil.cpp#L118-L138](../../../framework/vulkan/vkRayTracingUtil.cpp#L118-L138) | `getCommonRayGenerationShader` used by the `test` leaf's rgen |

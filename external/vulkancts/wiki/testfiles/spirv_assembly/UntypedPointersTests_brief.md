@@ -42,7 +42,7 @@ Untyped pointers must also interoperate with the rest of the pointer machinery i
 
 Representative compute case: `dEQP-VK.spirv_assembly.instruction.compute.untyped_pointers.vulkan_memory_model.basic_usecase.load.storage.uint32`.
 
-The C++ builder [`addLoadTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L6967-L7083) holds four `tcu::StringTemplate`s — `shaderHeader`, `shaderAnnotations`, `shaderVariables`, `shaderFunctions` — built once from `createShaderHeader()`, `createShaderAnnotations(BaseTestCases::LOAD)`, `createShaderVariables(BaseTestCases::LOAD)`, and `createShaderMain(BaseTestCases::LOAD)`. For the `storage` container and `uint32` data type the host fills the spec map with:
+The C++ builder [`addLoadTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmUntypedPointersTests.cpp#L6968-L7084) holds four `tcu::StringTemplate`s — `shaderHeader`, `shaderAnnotations`, `shaderVariables`, `shaderFunctions` — built once from `createShaderHeader()`, `createShaderAnnotations(BaseTestCases::LOAD)`, `createShaderVariables(BaseTestCases::LOAD)`, and `createShaderMain(BaseTestCases::LOAD)`. For the `storage` container and `uint32` data type the host fills the spec map with:
 
 - `${baseType}` = `uint32`, `${baseDecl}` = `OpTypeInt   32 0`
 - `${storageClass}` = `StorageBuffer` (from `getStorageClass(STORAGE_BUFFER)`)

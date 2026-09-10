@@ -80,7 +80,7 @@ The cases use simple graphics shaders and vary command recording rather than sha
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
 | `index_access` execution and checking | [`DrawIndexedInstance::iterate()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L165-L461) | Builds the out-of-bounds draw and validates the image. |
-| `bind_index_buffer2` execution and checking | [`BindIndexBuffer2Instance::iterate()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L787-L1113) | Applies offset/size/index conditions and samples the result. |
+| `bind_index_buffer2` execution and checking | [`BindIndexBuffer2Instance::iterate()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L892-L1228) | Applies offset/size/index conditions and samples the result. |
 | `bind_index_buffer2` registration | [`createCmdBindIndexBuffer2Tests()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1116-L1172) | Defines offsets, modes, out-of-range types, and address variants. |
 | `index_access` registration | [`createIndexAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1174-L1205) | Defines the seven direct test case leaves. |
 

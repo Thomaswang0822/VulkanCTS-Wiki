@@ -100,8 +100,8 @@ All values also depend on correct stage execution, descriptor or descriptor-heap
 | Shader generation | [GLSL builders](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L318-L699) | Defines non-texel and texel access expressions for all three stages. |
 | Device and feature setup | [instance creation](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L721-L905) | Selects regular, pipeline-robustness, or descriptor-heap execution. |
 | Resource setup | [test environments](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L918-L1536) | Creates ranges, allocations, bindings, descriptor heaps, draws, and dispatches. |
-| Result validation | [`BufferAccessInstance::verifyResult()`](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1634-L1851) | Defines the accepted values and final pass/fail decision. |
-| Matrix registration | [`addBufferAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1930-L2095) | Generates stages, access shapes, formats, ranges, and operations. |
+| Result validation | [`BufferAccessInstance::verifyResult()`](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1558-L1776) | Defines the accepted values and final pass/fail decision. |
+| Matrix registration | [`addBufferAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1835-L2000) | Generates stages, access shapes, formats, ranges, and operations. |
 | Shared verification helpers | [robustness utilities](../../../modules/vulkan/robustness/vktRobustnessUtil.cpp#L166-L305) | Checks zero, input-derived values, vector patterns, and input initialization. |
 | Registered mustpass examples | [`robustness.txt`](../../../mustpass/main/vk-default/robustness.txt#L42-L449) | Confirms regular `buffer_access` path components and generated leaves. |
 

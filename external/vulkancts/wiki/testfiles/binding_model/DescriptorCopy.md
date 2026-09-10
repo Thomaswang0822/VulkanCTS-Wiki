@@ -26,7 +26,7 @@ binding_model.descriptor_copy
 └── misc
 ```
 
-The parent binding-model factory attaches the `descriptor_copy` test family under `binding_model` ([`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L60)). The descriptor-copy factory creates all four intermediate nodes in [`createDescriptorCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3754-L3786). The same source file implements each branch, so none is registration only.
+The parent binding-model factory attaches the `descriptor_copy` test family under `binding_model` ([`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L54-L80)). The descriptor-copy factory creates all four intermediate nodes in [`createDescriptorCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3754-L3786). The same source file implements each branch, so none is registration only.
 
 ## Parameter Dimensions and Observed Values
 
@@ -348,7 +348,7 @@ Design-based pruning reduces redundant combinations. An omitted combination is n
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Binding-model category attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L60) | Attaches `descriptor_copy` under `binding_model`. |
+| Binding-model category attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L54-L80) | Attaches `descriptor_copy` under `binding_model`. |
 | Descriptor-copy factory | [`createDescriptorCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3754-L3786) | Creates the four intermediate nodes and the immutable-sampler leaves. |
 | Descriptor-type branch registration | [`createTestsForAllDescriptorTypes()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L3713-L3751) | Applies ordinary, graphics-only, update-after-bind, and Vulkan SC registration gates. |
 | Ordinary copy scenarios | [`addDescriptorCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCopyTests.cpp#L2605-L2865) | Defines set placement, copy histories, array ranges, and dynamic-offset scenarios. |

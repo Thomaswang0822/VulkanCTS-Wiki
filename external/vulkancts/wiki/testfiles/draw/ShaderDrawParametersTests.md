@@ -30,7 +30,7 @@ The `base_vertex_only` and `base_instance_only` test families are registered onl
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |---|---|---|---|
-| Test family | `base_vertex`, `base_vertex_only`, `base_instance`, `base_instance_only`, `draw_index` | Selects which shader draw parameter is checked and whether the check is isolated. | [`ShaderDrawParametersTests::init`](../../../modules/vulkan/draw/vktDrawShaderDrawParametersTests.cpp#L467-L538) |
+| Test family | `base_vertex`, `base_vertex_only`, `base_instance`, `base_instance_only`, `draw_index` | Selects which shader draw parameter is checked and whether the check is isolated. | [`ShaderDrawParametersTests::init`](../../../modules/vulkan/draw/vktDrawShaderDrawParametersTests.cpp#L484-L556) |
 | Command form | `draw`, `draw_indexed`, `draw_indirect`, `draw_indexed_indirect` | Moves command parameters between direct API arguments, index data, and indirect records. | [`addDrawCase`](../../../modules/vulkan/draw/vktDrawShaderDrawParametersTests.cpp#L357-L387) |
 | Instancing | absent or `_instanced` | Uses one instance or `MAX_INSTANCE_COUNT` (3) instances and exercises base-instance addressing. | [`DrawTest::draw`](../../../modules/vulkan/draw/vktDrawShaderDrawParametersTests.cpp#L281-L355) |
 | First instance | absent or `_first_instance` | Uses nonzero `firstInstance` values in indirect commands. | [`DrawTest::draw`](../../../modules/vulkan/draw/vktDrawShaderDrawParametersTests.cpp#L301-L328) |
@@ -392,6 +392,6 @@ void main() {
 | Combined shader | [`VertexFetchShaderDrawParameters.vert`](../../../data/vulkan/draw/VertexFetchShaderDrawParameters.vert) | Exercises all three shader draw-parameter built-ins. |
 | Isolated shaders | [`VertexFetchShaderDrawParametersBaseVert.vert`](../../../data/vulkan/draw/VertexFetchShaderDrawParametersBaseVert.vert), [`VertexFetchShaderDrawParametersBaseInst.vert`](../../../data/vulkan/draw/VertexFetchShaderDrawParametersBaseInst.vert) | Separate base-vertex and base-instance checks. |
 | Draw-index shader | [`VertexFetchShaderDrawParametersDrawIndex.vert`](../../../data/vulkan/draw/VertexFetchShaderDrawParametersDrawIndex.vert) | Uses draw ID to select per-draw offsets and colors. |
-| Mustpass registration | [`draw.txt`](../../../mustpass/main/vk-default/draw.txt#L28999-L29022) | Confirms the `draw.renderpass.shader_draw_parameters` hierarchy and leaves. |
+| Mustpass registration | [`draw.txt`](../../../mustpass/main/vk-default/draw.txt#L29044-L29067) | Confirms the `draw.renderpass.shader_draw_parameters` hierarchy and leaves. |
 | Vulkan feature requirements | [`features.adoc`](../../../../vulkan-docs/src/chapters/features.adoc#L1795-L1805) | Defines the relevant shader-draw-parameter and draw-command feature context. |
 | Vulkan draw semantics | [`drawing.adoc`](../../../../vulkan-docs/src/chapters/drawing.adoc#L1540-L1580) | Defines direct and indirect draw parameter behavior. |

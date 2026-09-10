@@ -510,7 +510,7 @@ A failure in any value can also come from shader compilation or stage lowering, 
 - Subgroup operations and `VK_SUBGROUP_FEATURE_BALLOT_BIT` are required. The selected shader stages must also support subgroup operations.
 - Required-subgroup-size variants require `VK_EXT_subgroup_size_control`, `subgroupSizeControl`, `computeFullSubgroups`, and support for the selected stage in `requiredSubgroupSizeStages`.
 - Required sizes are the powers of two from `minSubgroupSize` through `maxSubgroupSize`, matching the Vulkan subgroup-size-control limits.
-- Ray-tracing paths require `VK_KHR_ray_tracing_pipeline`. Mesh and task paths require `VK_EXT_mesh_shader`, vertex-pipeline stores and atomics, and the task shader feature when a task case is selected.
+- Ray-tracing paths require `VK_KHR_ray_tracing_pipeline`. Mesh and task paths require `VK_EXT_mesh_shader`, and the task shader feature when a task case is selected.
 - Unsupported graphics or ray-tracing stages are removed by the shared stage-support helpers. Geometry and tessellation point-size behavior is generated only when the implementation supports it.
 
 ### Design-based pruning
@@ -537,10 +537,10 @@ A failure in any value can also come from shader compilation or stage lowering, 
 | Framebuffer and general program builders | [`initFrameBufferPrograms` and `initPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsBallotOtherTests.cpp#L278-L307) | Selects the SPIR-V target and delegates stage wrapper generation. |
 | Feature and stage support | [`supportedCheck`](../../../modules/vulkan/subgroups/vktSubgroupsBallotOtherTests.cpp#L309-L358) | Applies ballot, subgroup-size-control, ray-tracing, mesh, task, and stage requirements. |
 | Runtime routing and size sweep | [`test`](../../../modules/vulkan/subgroups/vktSubgroupsBallotOtherTests.cpp#L381-L450) | Selects the shared execution helper and iterates required subgroup sizes. |
-| Test matrix registration | [`createSubgroupsBallotOtherTests`](../../../modules/vulkan/subgroups/vktSubgroupsBallotOtherTests.cpp#L458-L569) | Builds the execution-family, operation, stage, and required-size paths. |
+| Test matrix registration | [`createSubgroupsBallotOtherTests`](../../../modules/vulkan/subgroups/vktSubgroupsBallotOtherTests.cpp#L457-L568) | Builds the execution-family, operation, stage, and required-size paths. |
 | Compute shader wrapper | [`initStdPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1406-L1434) | Adds local-size specialization, result indexing, and the final SSBO write. |
 | Scalar result callbacks | [`check` and `checkComputeOrMesh`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2640-L2663) | Requires every observed value to equal `0xf`. |
-| Compute and mesh host flow | [`makeComputeOrMeshTestRequiredSubgroupSize`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L3762-L4063) | Creates storage, pipelines, dispatches, synchronization, readback, and pass or fail results. |
+| Compute and mesh host flow | [`makeComputeOrMeshTestRequiredSubgroupSize`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L3764-L4068) | Creates storage, pipelines, dispatches, synchronization, readback, and pass or fail results. |
 | Executable path inventory | [`subgroups.txt`](../../../mustpass/main/vk-default/subgroups.txt#L18288-L18371) | Confirms all 84 default mustpass leaves and the representative path. |
 | Vulkan subgroup and ballot semantics | [`shaders.adoc`](../../../../vulkan-docs/src/chapters/shaders.adoc#L3447-L3523) | Defines subgroup-scoped group operations and ballot functionality. |
 | Ballot feature support | [`limits.adoc`](../../../../vulkan-docs/src/chapters/limits.adoc#L1428-L1453) | Connects `VK_SUBGROUP_FEATURE_BALLOT_BIT` to `GroupNonUniformBallot`. |

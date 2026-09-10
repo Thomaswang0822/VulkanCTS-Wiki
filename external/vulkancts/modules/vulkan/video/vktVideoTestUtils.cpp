@@ -299,7 +299,7 @@ VkDevice VideoBaseTestInstance::getDeviceSupportingQueue(const VkQueueFlags queu
     return m_videoDevice.getDeviceSupportingQueue(queueFlagsRequired, videoCodecOperationFlags, videoDeviceFlags);
 }
 
-const DeviceDriver &VideoBaseTestInstance::getDeviceDriver(void)
+const DeviceInterface &VideoBaseTestInstance::getDeviceDriver(void)
 {
     return m_videoDevice.getDeviceDriver();
 }
@@ -863,6 +863,9 @@ vector<AllocationPtr> getAndBindVideoSessionMemory(const DeviceInterface &vkd, c
 
     vector<AllocationPtr> allocations(videoSessionMemoryRequirements.size());
     vector<VkBindVideoSessionMemoryInfoKHR> videoBindsMemoryKHR(videoSessionMemoryRequirements.size());
+
+    if (allocations.empty())
+        return allocations;
 
     for (size_t ndx = 0; ndx < allocations.size(); ++ndx)
     {
@@ -1661,7 +1664,7 @@ de::MovePtr<StdVideoH265SequenceParameterSet> getStdVideoH265SequenceParameterSe
 }
 
 de::MovePtr<StdVideoH265PictureParameterSet> getStdVideoH265PictureParameterSet(
-    const VkVideoEncodeH265CapabilitiesKHR *videoH265CapabilitiesExtension)
+    const VkVideoEncodeH265CapabilitiesKHR *videoH265CapabilitiesExtension, uint32_t tileColumns, uint32_t tileRows)
 {
     uint32_t weighted_pred_flag =
         (videoH265CapabilitiesExtension->stdSyntaxFlags & VK_VIDEO_ENCODE_H265_STD_WEIGHTED_PRED_FLAG_SET_BIT_KHR) ? 1 :
@@ -1675,6 +1678,10 @@ de::MovePtr<StdVideoH265PictureParameterSet> getStdVideoH265PictureParameterSet(
             1 :
             0;
 
+    // Tiles are enabled when tileColumns/Rows exceed 1. uniform_spacing_flag is set to 1 when tiles are enabled
+    // because the tests rely on uniform spacing to simplify validation.
+    const bool tilesEnabled = (tileColumns > 1u) || (tileRows > 1u);
+
     const StdVideoH265PpsFlags stdVideoH265PpsFlags = {
         0,                                //  dependent_slice_segments_enabled_flag : 1;
         0,                                //  output_flag_present_flag : 1;
@@ -1687,9 +1694,9 @@ de::MovePtr<StdVideoH265PictureParameterSet> getStdVideoH265PictureParameterSet(
         weighted_pred_flag,               //  weighted_pred_flag : 1;
         0,                                //  weighted_bipred_flag : 1;
         0,                                //  transquant_bypass_enabled_flag : 1;
-        0,                                //  tiles_enabled_flag : 1;
+        tilesEnabled ? 1u : 0u,           //  tiles_enabled_flag : 1;
         entropy_coding_sync_enabled_flag, //  entropy_coding_sync_enabled_flag : 1;
-        0,                                //  uniform_spacing_flag : 1;
+        tilesEnabled ? 1u : 0u,           //  uniform_spacing_flag : 1 when tiles are used
         0,                                //  loop_filter_across_tiles_enabled_flag : 1;
         1,                                //  pps_loop_filter_across_slices_enabled_flag : 1;
         0,                                //  deblocking_filter_control_present_flag : 1;
@@ -1737,15 +1744,15 @@ de::MovePtr<StdVideoH265PictureParameterSet> getStdVideoH265PictureParameterSet(
         0u,                   //  uint8_t pps_num_palette_predictor_initializers;
         0u,                   //  uint8_t luma_bit_depth_entry_minus8;
         0u,                   //  uint8_t chroma_bit_depth_entry_minus8;
-        0u,                   //  uint8_t num_tile_columns_minus1;
-        0u,                   //  uint8_t num_tile_rows_minus1;
-        0u,                   //  uint8_t reserved1;
-        0u,                   //  uint8_t reserved2;
-        {},                   //  uint16_t column_width_minus1[STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_COLS_LIST_SIZE];
-        {},                   //  uint16_t row_height_minus1[STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_ROWS_LIST_SIZE];
-        0u,                   //  uint32_t reserved3;
-        nullptr,              //  const StdVideoH265ScalingLists* pScalingLists;
-        nullptr,              //  const StdVideoH265PredictorPaletteEntries* pPredictorPaletteEntries;
+        static_cast<uint8_t>(tileColumns > 0 ? tileColumns - 1 : 0), //  uint8_t num_tile_columns_minus1;
+        static_cast<uint8_t>(tileRows > 0 ? tileRows - 1 : 0),       //  uint8_t num_tile_rows_minus1;
+        0u,                                                          //  uint8_t reserved1;
+        0u,                                                          //  uint8_t reserved2;
+        {},      //  uint16_t column_width_minus1[STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_COLS_LIST_SIZE];
+        {},      //  uint16_t row_height_minus1[STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_ROWS_LIST_SIZE];
+        0u,      //  uint32_t reserved3;
+        nullptr, //  const StdVideoH265ScalingLists* pScalingLists;
+        nullptr, //  const StdVideoH265PredictorPaletteEntries* pPredictorPaletteEntries;
     };
 
     return de::MovePtr<StdVideoH265PictureParameterSet>(
@@ -2369,24 +2376,76 @@ void generateYCbCrFile(std::string fileName, uint32_t n_frames, uint32_t width, 
 }
 #endif
 
-const char *getVideoCodecString(VkVideoCodecOperationFlagBitsKHR codec)
+const char *getVideoCodecPathSegment(VkVideoCodecOperationFlagBitsKHR codec)
 {
-    static struct
+    switch (codec)
     {
-        VkVideoCodecOperationFlagBitsKHR eCodec;
-        const char *name;
-    } aCodecName[] = {
-        {VK_VIDEO_CODEC_OPERATION_NONE_KHR, "None"},
-        {VK_VIDEO_CODEC_OPERATION_DECODE_H264_BIT_KHR, "AVC/H.264"},
-        {VK_VIDEO_CODEC_OPERATION_DECODE_H265_BIT_KHR, "H.265/HEVC"},
-    };
-
-    for (auto &i : aCodecName)
-    {
-        if (codec == i.eCodec)
-            return aCodecName[codec].name;
+    case VK_VIDEO_CODEC_OPERATION_DECODE_H264_BIT_KHR:
+        return "video.decode.h264";
+    case VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR:
+        return "video.encode.h264";
+    case VK_VIDEO_CODEC_OPERATION_DECODE_H265_BIT_KHR:
+        return "video.decode.h265";
+    case VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR:
+        return "video.encode.h265";
+    case VK_VIDEO_CODEC_OPERATION_DECODE_AV1_BIT_KHR:
+        return "video.decode.av1";
+    case VK_VIDEO_CODEC_OPERATION_ENCODE_AV1_BIT_KHR:
+        return "video.encode.av1";
+    case VK_VIDEO_CODEC_OPERATION_DECODE_VP9_BIT_KHR:
+        return "video.decode.vp9";
+    default:
+        TCU_THROW(InternalError, "Unknown video codec");
     }
 
+    return "";
+}
+
+std::string getVideoDumpPath(bool output, const std::string &testName, const std::string &codecSegment,
+                             const std::string &ext, int index)
+{
+    static const char *const dumpDir = "video_dumps";
+
+    // Tolerate a concurrent creator racing us between the exists() check and the create.
+    if (!de::FilePath(dumpDir).exists())
+    {
+        try
+        {
+            de::createDirectoryAndParents(dumpDir);
+        }
+        catch (const std::runtime_error &)
+        {
+            if (!de::FilePath(dumpDir).exists())
+                TCU_THROW(InternalError, "Unable to create path");
+        }
+    }
+
+    std::string baseName = (output ? "out_" : "in_") + codecSegment + "." + testName;
+    if (index >= 0)
+        baseName += "_" + std::to_string(index);
+    baseName += "." + ext;
+
+    return de::FilePath::join(de::FilePath(dumpDir), de::FilePath(baseName)).getPath();
+}
+
+const char *getVideoCodecString(VkVideoCodecOperationFlagBitsKHR codec)
+{
+    switch (codec)
+    {
+    case VK_VIDEO_CODEC_OPERATION_DECODE_H264_BIT_KHR:
+    case VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR:
+        return "AVC/H.264";
+    case VK_VIDEO_CODEC_OPERATION_DECODE_H265_BIT_KHR:
+    case VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR:
+        return "HEVC/H.265";
+    case VK_VIDEO_CODEC_OPERATION_DECODE_AV1_BIT_KHR:
+    case VK_VIDEO_CODEC_OPERATION_ENCODE_AV1_BIT_KHR:
+        return "AV1";
+    case VK_VIDEO_CODEC_OPERATION_DECODE_VP9_BIT_KHR:
+        return "VP9";
+    default:
+        break;
+    }
     return "Unknown";
 }
 

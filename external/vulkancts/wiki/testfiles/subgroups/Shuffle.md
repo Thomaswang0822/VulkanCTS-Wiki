@@ -465,7 +465,7 @@ Failures across all values can also come from shared stage plumbing, input initi
 - Rotate requires `shaderSubgroupRotate`; clustered rotate requires `shaderSubgroupRotateClustered`. Both require extension specification version 2 or later when supplied by `VK_KHR_shader_subgroup_rotate`.
 - The selected data format and shader stage must support subgroup operations. Narrow framebuffer formats also require matching 8-bit or 16-bit UBO storage support.
 - Required-subgroup-size cases require `VK_EXT_subgroup_size_control`, `subgroupSizeControl`, `computeFullSubgroups`, and support for the selected stage in `requiredSubgroupSizeStages`.
-- Ray-tracing cases require `VK_KHR_ray_tracing_pipeline`. Mesh cases require `VK_EXT_mesh_shader`, vertex-pipeline stores and atomics, and `taskShader` for task-stage cases.
+- Ray-tracing cases require `VK_KHR_ray_tracing_pipeline`. Mesh cases require `VK_EXT_mesh_shader`, and `taskShader` for task-stage cases.
 
 ### Design-based pruning
 
@@ -493,7 +493,7 @@ Failures across all values can also come from shared stage plumbing, input initi
 | Shader test bodies | [`getNonClusteredTestSource()` and `getClusteredTestSource()`](../../../modules/vulkan/subgroups/vktSubgroupsShuffleTests.cpp#L227-L336) | Generates operation calls, expected indices, guards, comparisons, and cluster loops. |
 | Shader builders and SPIR-V targets | [`initFrameBufferPrograms()` and `initPrograms()`](../../../modules/vulkan/subgroups/vktSubgroupsShuffleTests.cpp#L350-L379) | Connects generated bodies to common stage builders. |
 | Support checks | [`supportedCheck()`](../../../modules/vulkan/subgroups/vktSubgroupsShuffleTests.cpp#L381-L483) | Applies feature, format, stage, and subgroup-size gates. |
-| Runtime routing | [`noSSBOtest()` and `test()`](../../../modules/vulkan/subgroups/vktSubgroupsShuffleTests.cpp#L485-L654) | Creates inputs, selects harnesses, and performs required-size sweeps. |
+| Runtime routing | [`noSSBOtest()` and `test()`](../../../modules/vulkan/subgroups/vktSubgroupsShuffleTests.cpp#L484-L653) | Creates inputs, selects harnesses, and performs required-size sweeps. |
 | Registration matrix | [`createSubgroupsShuffleTests()`](../../../modules/vulkan/subgroups/vktSubgroupsShuffleTests.cpp#L661-L860) | Generates the five direct stage families and their leaves. |
 | Common compute builder | [`initStdPrograms()`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1406-L1434) | Wraps the test body and writes one result per global invocation. |
 | Input initialization | [`initializeMemory()`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2293-L2407) | Supplies deterministic input data and flushes host writes. |

@@ -5,7 +5,7 @@
 - Source file: [vktApiGetMemoryCommitment.cpp](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L1) in the `api` source directory.
 - Test category `api`, test family `get_memory_commitment`, registered under `dEQP-VK.api.get_memory_commitment`.
 - Two test case leaves: `memory_commitment` exercises a transient color attachment image bound to lazily allocated memory and queries commitment before and after a render pass; `memory_commitment_allocate_only` queries commitment on unbound lazy allocations of randomized sizes.
-- The implementation registers the family root; [createMemoryCommitmentTests()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L479-L496) creates the `get_memory_commitment` group and adds both leaves directly.
+- The implementation registers the family root; [createMemoryCommitmentTests()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L478-L495) creates the `get_memory_commitment` group and adds both leaves directly.
 - The page covers a host-side memory-query test. Shaders exist in `memory_commitment` only to drive rendering work against the transient image; they are not the behavior under test.
 
 ## Background Knowledge
@@ -22,13 +22,13 @@ api.get_memory_commitment
 └── memory_commitment_allocate_only
 ```
 
-The test family has no intermediate nodes; [createMemoryCommitmentTests()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L479-L496) registers both test case leaves directly under `get_memory_commitment`. The parent dispatcher attaches `get_memory_commitment` to the `api` test category unconditionally at [vktApiTests.cpp#L115](../../../modules/vulkan/api/vktApiTests.cpp#L115), with no VulkanSC guard.
+The test family has no intermediate nodes; [createMemoryCommitmentTests()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L478-L495) registers both test case leaves directly under `get_memory_commitment`. The parent dispatcher attaches `get_memory_commitment` to the `api` test category unconditionally at [vktApiTests.cpp#L115](../../../modules/vulkan/api/vktApiTests.cpp#L115), with no VulkanSC guard.
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Test case leaf | `memory_commitment`, `memory_commitment_allocate_only` | Each leaf tests the commitment query against a different upper bound: image memory requirements size for bound memory, or allocation size for unbound memory. | [createMemoryCommitmentTests()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L479-L496) |
+| Test case leaf | `memory_commitment`, `memory_commitment_allocate_only` | Each leaf tests the commitment query against a different upper bound: image memory requirements size for bound memory, or allocation size for unbound memory. | [createMemoryCommitmentTests()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L478-L495) |
 | Image format | `VK_FORMAT_R32_UINT` | Fixed format for the transient color attachment in `memory_commitment`. | [L147](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L147) |
 | Image extent | `256x256` | Fixed extent for the transient image; also defines `pixelDataSize` used by the commitment check. | [L148](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L148) |
 | Image usage | `VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT \| VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT` | Required to make the image a transient color attachment compatible with lazy memory. | [L153](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L153) |
@@ -43,7 +43,7 @@ The primary behavioral axis is the test case leaf. Each leaf tests a different u
 
 ### `memory_commitment`: commitment upper bound for memory bound to a transient image
 
-The leaf creates a `256x256` `VK_FORMAT_R32_UINT` transient color attachment image, binds lazily allocated memory, builds a graphics pipeline, and queries `vkGetDeviceMemoryCommitment` before and after a render pass that performs a clear attachment operation. The check, [isDeviceMemoryCommitmentOk()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L447-L477), verifies that for at least one lazy memory type, a fresh `pixelDataSize`-byte allocation reports commitment less than or equal to the bound image's `memoryRequirements.size`.
+The leaf creates a `256x256` `VK_FORMAT_R32_UINT` transient color attachment image, binds lazily allocated memory, builds a graphics pipeline, and queries `vkGetDeviceMemoryCommitment` before and after a render pass that performs a clear attachment operation. The check, [isDeviceMemoryCommitmentOk()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L446-L476), verifies that for at least one lazy memory type, a fresh `pixelDataSize`-byte allocation reports commitment less than or equal to the bound image's `memoryRequirements.size`.
 
 ### `memory_commitment_allocate_only`: commitment upper bound for unbound lazy allocations
 
@@ -51,13 +51,13 @@ The leaf allocates lazy memory of 10 randomized sizes (1 to 1000 bytes) per supp
 
 ## Shader Analysis
 
-Shader code is not part of the tested behavior. The `memory_commitment` leaf builds a graphics pipeline with simple vertex and fragment shaders ([initPrograms()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L410-L428)) solely to issue rendering work against the transient color attachment; the shader logic itself is not under test. The `memory_commitment_allocate_only` leaf creates no pipeline at all. No representative shader walkthrough is provided.
+Shader code is not part of the tested behavior. The `memory_commitment` leaf builds a graphics pipeline with simple vertex and fragment shaders ([initPrograms()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L409-L427)) solely to issue rendering work against the transient color attachment; the shader logic itself is not under test. The `memory_commitment_allocate_only` leaf creates no pipeline at all. No representative shader walkthrough is provided.
 
 ## Runtime Execution and Result Checking
 
 `memory_commitment` ([MemoryCommitmentTestInstance::iterate()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L113-L332)):
 
-- Throws `NotSupportedError` if no memory type supports `VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT` ([L139-L140](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L139-L140)).
+- The case support callback first skips if no lazily allocated memory type exists ([callback](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L402-L407)).
 - Creates a `256x256` `VK_FORMAT_R32_UINT` image with `VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT` and `VK_IMAGE_TILING_OPTIMAL` ([L142-L158](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L142-L158)).
 - Allocates and binds lazy memory to the image ([L160-L164](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L160-L164)).
 - Creates image view, render pass, framebuffer, descriptor set layout, pipeline layout, shader modules, and graphics pipeline ([L166-L264](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L166-L264)).
@@ -67,9 +67,9 @@ Shader code is not part of the tested behavior. The `memory_commitment` leaf bui
 - Calls `isDeviceMemoryCommitmentOk(memoryRequirements)` again after rendering ([L326](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L326)).
 - Passes if both calls returned `true`; otherwise fails.
 
-`memory_commitment_allocate_only` ([MemoryCommitmentAllocateOnlyTestInstance::iterate()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L362-L408)):
+`memory_commitment_allocate_only` ([MemoryCommitmentAllocateOnlyTestInstance::iterate()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L361-L400)):
 
-- Throws `NotSupportedError` if no memory type supports `VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT` ([L375-L376](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L375-L376)).
+- The allocation-only support callback first skips if no lazily allocated memory type exists ([callback](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L349-L354)).
 - Generates 10 random allocation sizes in the range 1 to 1000 bytes using `rand() % 1000 + 1` ([L379-L382](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L379-L382)). The test does not seed the RNG deterministically.
 - For each lazy memory type, for each of the 10 sizes: allocates `VkDeviceMemory`, queries `vkGetDeviceMemoryCommitment`, logs a warning if commitment is non-zero, and returns `fail` if commitment exceeds the allocation size ([L384-L406](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L384-L406)).
 - Passes if no allocation reported commitment greater than its size.
@@ -89,7 +89,7 @@ Final pass/fail for both leaves: each leaf returns `tcu::TestStatus::pass("Pass"
 
 #### Commitment exceeds the upper bound
 
-**Possible failure symptoms:** the case returns `tcu::TestStatus::fail("Fail")`. `memory_commitment` fails when [isDeviceMemoryCommitmentOk()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L447-L477) returns `false` because no lazy memory type reports commitment less than or equal to `memoryRequirements.size`. `memory_commitment_allocate_only` fails when the comparison at [L403-L404](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L403-L404) trips for some size and memory type. Neither leaf logs a per-cause message identifying which memory type or size triggered the failure.
+**Possible failure symptoms:** the case returns `tcu::TestStatus::fail("Fail")`. `memory_commitment` fails when [isDeviceMemoryCommitmentOk()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L446-L476) returns `false` because no lazy memory type reports commitment less than or equal to `memoryRequirements.size`. `memory_commitment_allocate_only` fails when the comparison at [L403-L404](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L403-L404) trips for some size and memory type. Neither leaf logs a per-cause message identifying which memory type or size triggered the failure.
 
 **Possible implementation causes:** per the Vulkan specification, `vkGetDeviceMemoryCommitment` must return a value less than or equal to the size of the allocation. A value exceeding the allocation size, or exceeding the bound resource's memory requirements size in the bound case, indicates the implementation is reporting more committed memory than the allocation can hold. This points to driver-side accounting for lazy memory types: the reported commitment value is computed incorrectly, or the lazy-allocation path is not backing the memory lazily and reports a fixed inflated size. The test symptom alone does not identify which lazy memory type or which internal counter is wrong; source-level investigation of the driver's lazy-memory commitment reporting is needed to pinpoint the cause.
 

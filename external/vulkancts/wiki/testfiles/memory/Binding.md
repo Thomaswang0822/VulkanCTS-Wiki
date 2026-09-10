@@ -26,7 +26,7 @@ memory.binding
 └── maintenance6
 ```
 
-The root dispatcher adds this test family to `memory` in [`createChildren`](../../../modules/vulkan/memory/vktMemoryTests.cpp#L52-L78). The default mustpass list contains 336 `dEQP-VK.memory.binding.*` test cases.
+The root dispatcher adds this test family to `memory` in [`createChildren`](../../../modules/vulkan/memory/vktMemoryTests.cpp#L53-L80). The default mustpass list contains 336 `dEQP-VK.memory.binding.*` test cases.
 
 ## Parameter Dimensions and Observed Values
 

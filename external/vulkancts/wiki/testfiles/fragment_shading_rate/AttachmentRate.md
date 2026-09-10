@@ -144,14 +144,14 @@ void main()
 #### Additional Info
 
 - The source generator emits `#extension GL_EXT_fragment_shading_rate : enable` and maps the built-in to Vulkan's `ShadingRateKHR` interface.
-- The vertex shader is the fixed triangle generator from [`initPrograms`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L2465-L2495); the `setup_with_fragment` path separately uses a large triangle to cover the shading-rate image at [`initPrograms`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L2497-L2516).
+- The vertex shader is the fixed triangle generator from [`initPrograms`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L2465-L2495); the `setup_with_fragment` path separately uses a large triangle to cover the shading-rate image at [`initPrograms`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L2416-L2507).
 - `calculateRate()` stores width in bits 2 and 3 and height in bits 0 and 1. For `rate_2x2`, the encoded value is `5`. See [`calculateRate`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L161-L164).
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Setup mode | The final `frag` shader stays fixed. Only `setup_with_fragment`, `memory_access`, and `maintenance5` add `vert_setup` and `frag_setup`; the other modes prepare the image without this setup shader. | [`initPrograms`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L2439-L2529) |
+| Setup mode | The final `frag` shader stays fixed. Only `setup_with_fragment`, `memory_access`, and `maintenance5` add `vert_setup` and `frag_setup`; the other modes prepare the image without this setup shader. | [`initPrograms`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L2416-L2507) |
 | Requested fragment size | The final shader has no rate literal. The host injects the selected value into the attachment producer, and `gl_ShadingRateEXT` reports the resulting code. | [`calculateRate`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L161-L164) |
 | Attachment format | The final shader remains `uvec4`; the selected format changes the attachment image and its required format features, while the first component carries the code. | [`srFormats`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L2548-L2565) |
 
@@ -311,16 +311,16 @@ void main()
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `AttachmentRateTestCase::checkSupport` | [`checkSupport`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L2336-L2437) | Device features, format capabilities, supported rates, queue-independent pruning, and extension requirements. |
-| `AttachmentRateTestCase::initPrograms` | [`initPrograms`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L2439-L2530) | Generated compute, setup, vertex, and final fragment shaders. |
-| `AttachmentRateInstance::verifyUsingAtomicChecks` | [`verifyUsingAtomicChecks`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L1042-L1200) | Decodes output, checks fragment-rate codes, groups atomic values, and handles triangle edges. |
-| `AttachmentRateInstance::runComputeShaderMode` | [`runComputeShaderMode`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L1207-L1360) | Compute storage-image production and compute-to-attachment synchronization. |
-| `AttachmentRateInstance::runFragmentShaderMode` | [`runFragmentShaderMode`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L1362-L1524) | Fragment setup draw, memory-access variant, final draw, and readback. |
-| `AttachmentRateInstance::runCopyMode` | [`runCopyMode`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L1526-L1678) | Same-queue source-image clear and copy. |
-| `AttachmentRateInstance::runCopyModeOnTransferQueue` | [`runCopyModeOnTransferQueue`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L1680-L2019) | Separate transfer and graphics queues, concurrent sharing, and exclusive ownership transfer. |
-| `AttachmentRateInstance::runFillLinearTiledImage` | [`runFillLinearTiledImage`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L2021-L2147) | Host writes through the linear image subresource layout. |
-| `AttachmentRateInstance::runTwoSubpassMode` | [`runTwoSubpassMode`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L2149-L2313) | Two subpasses with different shading-rate attachments and two output checks. |
-| Registration and mode matrix | [`createAttachmentRateTests`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L2539-L2753) | Exact group names, format/rate values, duplicate cases, and `misc` leaves. |
+| `AttachmentRateTestCase::checkSupport` | [`checkSupport`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L2313-L2414) | Device features, format capabilities, supported rates, queue-independent pruning, and extension requirements. |
+| `AttachmentRateTestCase::initPrograms` | [`initPrograms`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L2416-L2507) | Generated compute, setup, vertex, and final fragment shaders. |
+| `AttachmentRateInstance::verifyUsingAtomicChecks` | [`verifyUsingAtomicChecks`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L1020-L1177) | Decodes output, checks fragment-rate codes, groups atomic values, and handles triangle edges. |
+| `AttachmentRateInstance::runComputeShaderMode` | [`runComputeShaderMode`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L1185-L1340) | Compute storage-image production and compute-to-attachment synchronization. |
+| `AttachmentRateInstance::runFragmentShaderMode` | [`runFragmentShaderMode`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L1342-L1506) | Fragment setup draw, memory-access variant, final draw, and readback. |
+| `AttachmentRateInstance::runCopyMode` | [`runCopyMode`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L1508-L1662) | Same-queue source-image clear and copy. |
+| `AttachmentRateInstance::runCopyModeOnTransferQueue` | [`runCopyModeOnTransferQueue`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L1664-L1994) | Separate transfer and graphics queues, concurrent sharing, and exclusive ownership transfer. |
+| `AttachmentRateInstance::runFillLinearTiledImage` | [`runFillLinearTiledImage`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L1996-L2124) | Host writes through the linear image subresource layout. |
+| `AttachmentRateInstance::runTwoSubpassMode` | [`runTwoSubpassMode`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L2126-L2290) | Two subpasses with different shading-rate attachments and two output checks. |
+| Registration and mode matrix | [`createAttachmentRateTests`](../../../modules/vulkan/fragment_shading_rate/vktAttachmentRateTests.cpp#L2516-L2731) | Exact group names, format/rate values, duplicate cases, and `misc` leaves. |
 | Top-level permutations | [`createTests`](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateTests.cpp#L534-L557) and [`createDynamicRenderingPermutations`](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateTests.cpp#L594-L625) | Monolithic/secondary-command-buffer gating and dynamic-rendering placement. |
 | Attachment fragment-rate semantics | [Vulkan primitive rasterization](../../../../vulkan-docs/src/chapters/primsrast.adoc#primsrast-fragment-shading-rate-attachment) | Pixel-to-texel mapping and first-component encoding. |
 | Dynamic-rendering attachment structure | [Vulkan render pass](../../../../vulkan-docs/src/chapters/renderpass.adoc#renderpass) | `VkRenderingFragmentShadingRateAttachmentInfoKHR`, null-image default, layout, and usage requirements. |

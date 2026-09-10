@@ -97,7 +97,7 @@ renderpasses.renderpass1.suballocation.multisample
 The `multisample` test family is created by
 [`createRenderPassMultisampleTests()`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L2513-L2516).
 Its format-named intermediate nodes are added in
-[`initTests()`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L2392-L2509), and the
+[`initTests()`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L2427-L2550), and the
 `separate_stencil_usage` node is attached at the end of that same function
 ([vktRenderPassMultisampleTests.cpp#L2456-L2508](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L2456-L2508)).
 Each format-named node expands to `samples_<N>` test case leaves for N in {2, 4, 8, 16, 32}; the
@@ -630,7 +630,7 @@ for dynamic rendering):
   ([postRenderCommands](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L1668-L1677)).
 
 Result checking happens per sample in
-[`verifyResult()`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L1679-L1934). For each sample
+[`verifyResult()`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L1711-L1966). For each sample
 the host recomputes the same XOR-based reference the shader used, then compares the readback buffer against it:
 
 - **Depth** uses `tcu::floatThresholdCompare` with a threshold of `1.0f / 1024.0f`

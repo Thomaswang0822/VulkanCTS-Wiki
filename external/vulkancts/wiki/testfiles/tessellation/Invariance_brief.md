@@ -118,8 +118,8 @@ Geometry-capture families can also fail if the capture path reports too few prim
 | Primitive and triangle comparators | [`compareTriangleSets()` and `comparePrimitivesExact()`](../../../modules/vulkan/tessellation/vktTessellationInvarianceTests.cpp#L1278-L1386) | Defines ordered primitive and unordered triangle equality. |
 | Shared rules 1, 5, 6, and 7 runtime | [`InvarianceTestInstance`](../../../modules/vulkan/tessellation/vktTessellationInvarianceTests.cpp#L1388-L2024) | Generates level variants, performs duplicate-patch checks, and dispatches family-specific comparisons. |
 | Rule-8 shader and runtime | [`TessCoordComponent`](../../../modules/vulkan/tessellation/vktTessellationInvarianceTests.cpp#L2082-L2428) | Writes and checks coordinate components. |
-| Registration | [`createInvarianceTests()`](../../../modules/vulkan/tessellation/vktTessellationInvarianceTests.cpp#L2434-L2513) | Registers all nine families and their parameter matrices. |
-| Portability support helper | [`checkSupportCase()`](../../../modules/vulkan/tessellation/vktTessellationUtil.hpp#L526-L549) | Rejects unsupported point-mode or primitive combinations under the portability subset. |
+| Registration | [`createInvarianceTests()`](../../../modules/vulkan/tessellation/vktTessellationInvarianceTests.cpp#L2438-L2514) | Registers all nine families and their parameter matrices. |
+| Portability support helper | [`checkSupportCase()`](../../../modules/vulkan/tessellation/vktTessellationUtil.hpp#L538-L550) | Rejects unsupported point-mode or primitive combinations under the portability subset. |
 | Default mustpass coverage | [`tessellation.txt#L35-L226`](../../../mustpass/main/vk-default/tessellation.txt#L35-L226) | Lists all 192 Vulkan leaves. |
 
 ## Questions / Risk Points for User Audit

@@ -218,6 +218,7 @@ void main()
 ### `samplerless`
 
 - The host creates the source image and output framebuffer with `VK_FORMAT_R8G8B8A8_UNORM`. The source image is cleared to `kDescriptorColor`, `(0, 1, 0, 1)`.
+- The graphics color-attachment reference uses the selected `attachmentLayout`, matching the attachment description rather than always forcing `COLOR_ATTACHMENT_OPTIMAL` ([reference](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L634-L640)).
 - The host creates empty descriptor-set layouts before the selected set when `descriptorSet` is 1, then adds binding 0 with the selected image descriptor type. The compute path also adds a storage-image output binding.
 - The host writes the selected `VkDescriptorImageInfo`, using the selected sampler field, image view, and image layout. The graphics path records a full-screen draw. The compute path dispatches `64 x 64 x 1` invocations.
 - The host copies the output image to a host-visible buffer. It scans the result and fails with `Pixel mismatch` if any pixel differs from the green descriptor color.
@@ -287,7 +288,7 @@ A failure identifies a mismatch between the selected descriptor-update contract 
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Binding-model category attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L59) | Attaches `descriptor_update` under `binding_model`. |
+| Binding-model category attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L54-L80) | Attaches `descriptor_update` under `binding_model`. |
 | Empty-binding implementation | [`EmptyDescriptorUpdateCase()`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L62-L145) | Creates the zero-count binding and writes binding 2. |
 | Samplerless parameter and shader setup | [`SamplerlessDescriptorWriteTestCase`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L148-L330) | Defines descriptor types, sampler fields, generated shaders, and format support. |
 | Samplerless case registration | [`createSamplerlessWriteTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L883-L930) | Generates the exact 60-leaf matrix and removes input-attachment compute cases. |

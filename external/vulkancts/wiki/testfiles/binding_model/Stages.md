@@ -23,7 +23,7 @@ binding_model.stages
 └── combined_image_sampler
 ```
 
-The binding-model factory adds `stages` only outside `CTS_USES_VULKANSC` builds ([`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L71)). [`createStagesTests()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L586-L613) creates the family and its three direct leaves. The default Vulkan mustpass file confirms `dEQP-VK.binding_model.stages.combined_image_sampler`, `dEQP-VK.binding_model.stages.storage_buffer`, and `dEQP-VK.binding_model.stages.uniform_buffer` ([mustpass paths](../../../mustpass/main/vk-default/binding-model.txt#L146932-L146934)).
+The binding-model factory adds `stages` only outside `CTS_USES_VULKANSC` builds ([`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L54-L80)). [`createStagesTests()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L588-L616) creates the family and its three direct leaves. The default Vulkan mustpass file confirms `dEQP-VK.binding_model.stages.combined_image_sampler`, `dEQP-VK.binding_model.stages.storage_buffer`, and `dEQP-VK.binding_model.stages.uniform_buffer` ([mustpass paths](../../../mustpass/main/vk-default/binding-model.txt#L146932-L146934)).
 
 ## Parameter Dimensions and Observed Values
 
@@ -33,7 +33,7 @@ The binding-model factory adds `stages` only outside `CTS_USES_VULKANSC` builds 
 | Descriptor-binding stage mask | `VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_COMPUTE_BIT` | Makes one `vkCmdBindDescriptorSets2` operation apply descriptor-set state to graphics and compute bind points. | [set layouts](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L100-L110), [bind info](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L372-L384) |
 | Pipeline operation | graphics draw, then compute dispatch | Observes set 0 through a fragment shader and a compute shader after the single binding call. | [command order](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L404-L412) |
 | Output observation | `32 x 32` RGBA image, four-float storage buffer | Separates graphics and compute evidence while keeping the expected logical values equivalent. | [output setup](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L303-L350), [checks](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L436-L468) |
-| Required functionality | `VK_KHR_maintenance6` | Provides the `vkCmdBindDescriptorSets2` path used by every leaf. | [`checkSupport()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L579-L582) |
+| Required functionality | `VK_KHR_maintenance6` | Provides the `vkCmdBindDescriptorSets2` path used by every leaf. | [`checkSupport()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L581-L584) |
 
 ## Behavior Parameters
 
@@ -348,7 +348,7 @@ A failure means at least one selected bind point did not produce the expected de
 
 ### Requirement-based pruning
 
-- Every case requires `VK_KHR_maintenance6`; an implementation without that functionality reports the case as unsupported before execution ([`checkSupport()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L579-L582)).
+- Every case requires `VK_KHR_maintenance6`; an implementation without that functionality reports the case as unsupported before execution ([`checkSupport()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L581-L584)).
 - The parent factory places `stages` inside `#ifndef CTS_USES_VULKANSC`, so the family is absent from Vulkan SC builds ([parent registration](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L61-L71)).
 - No descriptor-type-specific optional feature gate or runtime device-limit pruning appears in this test family. The resources use fixed small sizes and ordinary storage-buffer, uniform-buffer, combined-image-sampler, color-attachment, and transfer usage.
 
@@ -374,8 +374,8 @@ Design-based omissions define the test's focused contract. They are not unsuppor
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Binding-model category attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L71) | Attaches `stages` outside Vulkan SC builds. |
-| Stages registration | [`createStagesTests()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L586-L613) | Registers the exact three descriptor-type leaves. |
+| Binding-model category attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L54-L80) | Attaches `stages` outside Vulkan SC builds. |
+| Stages registration | [`createStagesTests()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L588-L616) | Registers the exact three descriptor-type leaves. |
 | Descriptor layouts and shared pipeline layout | [`StagesTestInstance::iterate()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L90-L113) | Makes set bindings visible to fragment and compute stages. |
 | Buffer input path | [`StagesTestInstance::iterate()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L143-L187) | Creates, updates, initializes, and flushes storage or uniform input. |
 | Image input path | [`StagesTestInstance::iterate()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L189-L300) | Creates the combined image sampler and performs upload synchronization. |
@@ -383,8 +383,8 @@ Design-based omissions define the test's focused contract. They are not unsuppor
 | Pipeline and descriptor binding setup | [`StagesTestInstance::iterate()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L352-L405) | Uses one shared layout and one fragment-plus-compute descriptor bind. |
 | Command order and copyback | [`StagesTestInstance::iterate()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L407-L434) | Records draw, dispatch, color barrier, and image-to-buffer copy. |
 | Host result checks | [`StagesTestInstance::iterate()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L436-L468) | Compares four compute floats and every graphics pixel component. |
-| GLSL generation | [`StagesTestCase::initPrograms()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L493-L576) | Defines all descriptor-type and shader-stage branches. |
-| Support gate | [`StagesTestCase::checkSupport()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L579-L582) | Requires `VK_KHR_maintenance6`. |
+| GLSL generation | [`StagesTestCase::initPrograms()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L495-L579) | Defines all descriptor-type and shader-stage branches. |
+| Support gate | [`StagesTestCase::checkSupport()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L581-L584) | Requires `VK_KHR_maintenance6`. |
 | Exact mustpass paths | [`binding-model.txt`](../../../mustpass/main/vk-default/binding-model.txt#L146932-L146934) | Confirms all three executable leaves. |
 | Descriptor updates | [Descriptor Set Updates](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L2900-L2992) | Defines descriptor writes and resource validity used before binding. |
 | Stage-scoped descriptor binding | [`vkCmdBindDescriptorSets2` and `VkBindDescriptorSetsInfo`](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L4688-L4774) | Defines the one-call binding and stage-mask-to-bind-point behavior. |

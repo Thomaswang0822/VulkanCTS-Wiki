@@ -140,11 +140,11 @@ All 256 by 256 invocations run the same checks. Each writes `1` to its `r32ui` t
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Test category routing | [`createChildren`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L70) | Registers `buffer_device_address` in `binding_model`. |
+| Test category routing | [`createChildren`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L54-L80) | Registers `buffer_device_address` in `binding_model`. |
 | Ordinary support and generated checks | [`checkSupport`, `checkBuffer`, `fillBuffer`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L173-L368) | Defines feature gates, recursive shader checks, and matching host bytes. |
-| Ordinary shader builders | [`BufferAddressTestCase::initPrograms`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L370-L559) | Produces stage-specific GLSL and target versions. |
+| Ordinary shader builders | [`BufferAddressTestCase::initPrograms`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L414-L603) | Produces stage-specific GLSL and target versions. |
 | Ordinary runtime and validator | [`BufferAddressTestInstance::iterate`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L582-L1324) | Creates resources, handles replay, submits work, and scans the result image. |
-| Capture-replay stress | [`CaptureReplayTestInstance::iterate`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L1400-L1542) | Recreates 100 buffers and compares addresses. |
+| Capture-replay stress | [`CaptureReplayTestInstance::iterate`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L1455-L1605) | Recreates 100 buffers and compares addresses. |
 | Memory-model offset | [`MemoryModelOffsetTestCase` and instance](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L1544-L1736) | Provides direct SPIR-V and checks the 512-byte address increment. |
 | Fragment physical-pointer store | [`FragmentStoreTestCase` and instance](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L1738-L2218) | Builds the nested pointer resources and checks the 28-word print record. |
 | Buffer-reference struct copy | [`BufferDeviceAddressMiscTestCase` and instance](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L2220-L2363) | Copies `Foo` in GLSL and checks the target store. |

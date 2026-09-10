@@ -404,11 +404,11 @@ void main()
 ## Runtime Execution and Result Checking
 
 - `createAmberTestCase()` constructs each script path by prefixing `vulkan/amber/`, then appending the registered family and script filename. It also transfers CTS-side requirement strings to the `AmberTestCase`. [`vktAmberTestCaseUtil.cpp`](../../../modules/vulkan/amber/vktAmberTestCaseUtil.cpp#L200-L216)
-- The test case parses the script, compiles GLSL recipes into the CTS program collection, and supplies the compiled shader binaries to Amber for execution. [`AmberTestCase::parse()`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L407-L432) and [`AmberTestCase::initPrograms()`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L435-L544)
+- The test case parses the script, compiles GLSL recipes into the CTS program collection, and supplies the compiled shader binaries to Amber for execution. [`AmberTestCase::parse()`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L408-L434) and [`AmberTestCase::initPrograms()`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L436-L545)
 - Amber runs the recipe with Vulkan execution. A successful Amber result becomes `tcu::TestStatus::pass("Pass")`; any Amber execution error is logged and becomes `tcu::TestStatus::fail("Fail")`. [`AmberTestInstance::iterate()`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L546-L615)
 - `combined_operations` uses framebuffer `EXPECT` commands. The five SSBO-backed crash scripts use `EXPECT ssbo_buffer IDX 0 EQ 42`; the fragment crash script checks its known red pixel. `initialized_struct` checks four SSBO offsets. `undefined_memory` has no script-level comparison. [`undefined_memory.amber`](../../../data/vulkan/amber/logical_copy/undefined_memory.amber#L47-L60)
-- Tessellation-control and tessellation-evaluation cases require `tessellationShader`; the geometry case requires `geometryShader`. Their C++ registration and Amber `DEVICE_FEATURE` declarations must match, and `validateRequirements()` rejects a mismatch. [`vktAmberGlslTests.cpp`](../../../modules/vulkan/amber/vktAmberGlslTests.cpp#L63-L76) and [`AmberTestCase::validateRequirements()`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L648-L707)
-- In compute-only mode, `AmberTestInstance::iterate()` rejects a recipe containing a non-compute shader. The graphics-script cases are therefore unsupported in that mode, while `divbyzero_comp` uses only a compute shader. [`AmberTestInstance::iterate()`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L557-L569)
+- Tessellation-control and tessellation-evaluation cases require `tessellationShader`; the geometry case requires `geometryShader`. Their C++ registration and Amber `DEVICE_FEATURE` declarations must match, and `validateRequirements()` rejects a mismatch. [`vktAmberGlslTests.cpp`](../../../modules/vulkan/amber/vktAmberGlslTests.cpp#L63-L76) and [`AmberTestCase::validateRequirements()`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L635-L695)
+- Amber receives the instance's `VkPhysicalDeviceFeatures2` when configuring Vulkan execution. Ordinary GLSL Amber cases use the context's features; a caller supplying custom features can override that configuration ([instance configuration](../../../modules/vulkan/amber/vktAmberTestCase.hpp#L51-L69), [engine configuration](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L67-L83)).
 
 ## Failure Meaning
 
@@ -446,7 +446,7 @@ void main()
 
 - The entire Amber area is absent when Vulkan SC is in use because `createGlslTests()` registers it inside `#ifndef CTS_USES_VULKANSC`. [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1281-L1287)
 - `divbyzero_tesc` and `divbyzero_tese` require `tessellationShader`; `divbyzero_geom` requires `geometryShader`. Missing requirements make the corresponding case unsupported. [`vktAmberGlslTests.cpp`](../../../modules/vulkan/amber/vktAmberGlslTests.cpp#L54-L78) and [`AmberTestCase::checkSupport()`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L229-L248)
-- Compute-only mode excludes every recipe with a graphics shader. This leaves `divbyzero_comp` eligible and excludes the graphics cases. [`AmberTestInstance::iterate()`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L557-L569)
+- The former `--deqp-compute-only` recipe rejection has been removed. Shader-stage support and the recipe's declared requirements still determine support; Amber no longer rejects graphics recipes through that command-line check ([execution and requirements](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L547-L603)).
 
 ### Design-based pruning
 

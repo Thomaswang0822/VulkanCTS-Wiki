@@ -76,7 +76,7 @@ The shaders support valid pipeline creation and observable work. Binary identity
 
 | Topic | Source link | Why it matters |
 |---|---|---|
-| Category registration | [`createChildren`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L94-L158) | Creates `pipeline_binary` for non-shader-object construction paths |
+| Category registration | [`createChildren`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L95-L223) | Creates `pipeline_binary` for non-shader-object construction paths |
 | Basic binary families | [`addPipelineBinaryBasicTests`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L2461-L2466) | Reuses the binary mode graphics, data, and monolithic compute matrix |
 | Creation feedback family | [`addPipelineBinaryCreationFeedbackTests`](../../../modules/vulkan/pipeline/vktPipelineCreationFeedbackTests.cpp#L1513-L1520) | Adds binary-mode creation-feedback cases |
 | Dedicated registration | [`addPipelineBinaryDedicatedTests`](../../../modules/vulkan/pipeline/vktPipelineBinaryTests.cpp#L1470-L1528) | Defines the dedicated families and monolithic-only leaves |
@@ -85,7 +85,7 @@ The shaders support valid pipeline creation and observable work. Binary identity
 
 ## Questions / Risk Points for User Audit
 
-- The rewritten pair preserves the legacy `vktPipelineBinaryTests.md` page and documents the existing `pipeline_binary` registration and mustpass split.
+- The page and brief document the `pipeline_binary` registration and mustpass split.
 - The mustpass files available in this checkout use `fast-linked-library.txt`, `pipeline-library.txt`, and `no-queues.txt`; the source registration also describes monolithic coverage, so counts should be read as file-scoped evidence rather than a single category total.
 
 ## Conversion Notes for Final Wiki Rewrite

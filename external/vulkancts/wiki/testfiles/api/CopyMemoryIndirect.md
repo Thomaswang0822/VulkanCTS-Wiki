@@ -89,6 +89,8 @@ No shader runs in the in-file indirect-copy or mandatory-format cases. They use 
 
 ### Buffer-to-buffer indirect copy (`size_*`)
 
+Host writes to the source, destination initialization, and indirect-record allocations are flushed before submission. The memory-to-image indirect-record upload is also flushed after copying records into mapped memory ([buffer preparation](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L1984-L2019), [image records](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L658-L662)).
+
 [host] Load sample text from `vulkan/data/copy_memory_indirect/sample_text.txt` and pad to 64-byte alignment ([line 1899](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L1899), [line 1903](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L1903)).
 
 [host] Allocate `srcBuffer`, `dstBuffer`, and `indirectBuffer`. All three require `VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT`; `indirectBuffer` also requires `VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT`. Memory must be host-visible and expose a device address ([line 1926 through line 1949](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L1926-L1949)).
@@ -175,6 +177,8 @@ Runtime execution lives in [`vktApiUseAfterCopyTests.cpp`](../../../modules/vulk
 - Each memory-to-image case checks `VK_FORMAT_FEATURE_2_COPY_IMAGE_INDIRECT_DST_BIT_KHR` for the selected format and tiling; transfer-only cases also check transfer granularity ([lines 745–805](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L745-L805)).
 
 ### Design-based pruning
+
+- The memory-to-image `buffer_offset_relaxed` case now includes transfer-only queues, with `MAINTENANCE_11` added, as well as universal queues ([registration](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L1260-L1280)). The shared enum currently aliases this flag with `DEVICE_ADDRESS_COMMANDS`, so the support helper requires both maintenance11 and device-address-commands functionality. This source defect remains unresolved ([flags](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L132-L145), [checks](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.cpp#L279-L283)).
 
 - For `size_4`, the registration loop skips `offset_4` because the offset (4 bytes) is not strictly less than the copy size (4 bytes). The pruning happens at [line 2313](../../../modules/vulkan/api/vktApiCopyMemoryIndirectTests.cpp#L2313). `size_12` and `size_full` keep both `offset_0` and `offset_4`.
 

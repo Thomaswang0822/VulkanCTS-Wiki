@@ -104,7 +104,7 @@ Both values share the protected image, render-pass, submission, and validator pa
 | Static and random registration | [`createAttachmentLoadTests`](../../../modules/vulkan/protected_memory/vktProtectedMemAttachmentLoadTests.cpp#L216-L350) | Defines seven fixed cases, ten seeded random cases, and the registered hierarchy. |
 | Protected support requirements | [`checkProtectedContextSupport`](../../../modules/vulkan/protected_memory/vktProtectedMemUtils.cpp#L102-L127) | Checks the API, protected-memory feature, and protected queue. |
 | Render-pass helper | [`createRenderPass`](../../../modules/vulkan/protected_memory/vktProtectedMemUtils.cpp#L399-L405) | Routes creation through the common single-color render-pass helper. |
-| Common render-pass construction | [`makeRenderPass`](../../../framework/vulkan/vkObjUtil.cpp#L614-L690) | Defines the attachment load operation and layouts used by the helper. |
+| Common render-pass construction | [`makeRenderPass`](../../../framework/vulkan/vkObjUtil.cpp#L616-L700) | Defines the attachment load operation and layouts used by the helper. |
 | Validator shader and comparison | [`ImageValidator::initPrograms`](../../../modules/vulkan/protected_memory/vktProtectedMemImageValidator.cpp#L47-L115) | Defines the sampling check, threshold, and mismatch path. |
 | Validator resources and dispatch | [`ImageValidator::validateImage`](../../../modules/vulkan/protected_memory/vktProtectedMemImageValidator.cpp#L117-L264) | Binds the protected image and reference data and executes validation. |
 

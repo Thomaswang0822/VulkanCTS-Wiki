@@ -2,8 +2,8 @@
 
 **Core question:** Does a data graph pipeline report its available properties and return each requested property through both complete and deliberately incomplete queries?
 
-- This page covers `data_graph.properties`, implemented by `vktDataGraphPropertiesTests.cpp` and registered below the `available` and `get` test families [propertiesTestsGroup()](../../../modules/vulkan/data_graph/vktDataGraphPropertiesTests.cpp#L547-L551).
-- `available` checks the two-call count-and-array form of `vkGetDataGraphPipelineAvailablePropertiesARM`; `get` first obtains the property list and then queries property data with either one call for the whole array or one call per property [availablePropertiesTests()](../../../modules/vulkan/data_graph/vktDataGraphPropertiesTests.cpp#L506-L522), [getPropertiesTests()](../../../modules/vulkan/data_graph/vktDataGraphPropertiesTests.cpp#L524-L545).
+- This page covers `data_graph.properties`, implemented by `vktDataGraphPropertiesTests.cpp` and registered below the `available` and `get` test families [propertiesTestsGroup()](../../../modules/vulkan/data_graph/vktDataGraphPropertiesTests.cpp#L546-L550).
+- `available` checks the two-call count-and-array form of `vkGetDataGraphPipelineAvailablePropertiesARM`; `get` first obtains the property list and then queries property data with either one call for the whole array or one call per property [availablePropertiesTests()](../../../modules/vulkan/data_graph/vktDataGraphPropertiesTests.cpp#L505-L521), [getPropertiesTests()](../../../modules/vulkan/data_graph/vktDataGraphPropertiesTests.cpp#L523-L544).
 - Every generated case uses the current TOSA provider and a valid generated data graph pipeline. The generated suffix records graph shape, memory and tensor-layout choices, while the query prefix records complete/incomplete and, for `get`, single-call/multiple-call retrieval.
 - The test checks the API return code and, for the single-call `get` path, checks that each supplied result buffer was overwritten. It does not compare property contents with a fixed string or binary format.
 

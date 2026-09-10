@@ -132,7 +132,7 @@ A failure in either group can also come from shared pipeline setup, blending, im
 | Tessellation-passthrough shaders | [`IdentityTessellationShaderTestCase::initPrograms()`](../../../modules/vulkan/tessellation/vktTessellationGeometryPassthroughTests.cpp#L320-L387) | Generates identity tessellation and geometry-input variants. |
 | Shared execution and oracle | [`PassthroughTestInstance::iterate()`](../../../modules/vulkan/tessellation/vktTessellationGeometryPassthroughTests.cpp#L465-L668) | Builds both pipelines, renders, copies, and compares. |
 | Pipeline pairs | [`createInstance()` implementations](../../../modules/vulkan/tessellation/vktTessellationGeometryPassthroughTests.cpp#L670-L743) | Defines the exact stage arrangements and input data. |
-| Registration | [`createGeometryPassthroughTests()`](../../../modules/vulkan/tessellation/vktTessellationGeometryPassthroughTests.cpp#L766-L781) | Registers the three geometry-passthrough and two tessellation-passthrough leaves. |
+| Registration | [`createGeometryPassthroughTests()`](../../../modules/vulkan/tessellation/vktTessellationGeometryPassthroughTests.cpp#L767-L782) | Registers the three geometry-passthrough and two tessellation-passthrough leaves. |
 | Vulkan default mustpass | [`tessellation.txt`](../../../mustpass/main/vk-default/tessellation.txt#L20-L24) | Lists all five executable Vulkan paths. |
 | Tessellation model | [`tessellation.adoc`](../../../../vulkan-docs/src/chapters/tessellation.adoc#L7-L32) | Defines the control, fixed-function tessellator, and evaluation sequence. |
 | Geometry model | [`geometry.adoc`](../../../../vulkan-docs/src/chapters/geometry.adoc#L6-L28) | Defines geometry shader input and emitted output primitives. |

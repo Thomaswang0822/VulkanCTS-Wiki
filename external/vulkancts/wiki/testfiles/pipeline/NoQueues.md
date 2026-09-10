@@ -25,7 +25,7 @@ pipeline.no_queues
 └── shader_binary
 ```
 
-[`createNoQueuesTests()`](../../../modules/vulkan/pipeline/vktPipelineNoQueuesTests.cpp#L1723-L1785) registers all three intermediate nodes below the one independent root. The VK mustpass file has 36 executable leaves: 14 each for `pipeline_cache` and `pipeline_binary`, plus eight non-ray-tracing leaves for `shader_binary`, in [`pipeline/no-queues.txt`](../../../mustpass/main/vk-default/pipeline/no-queues.txt#L1-L36).
+[`createNoQueuesTests()`](../../../modules/vulkan/pipeline/vktPipelineNoQueuesTests.cpp#L1718-L1779) registers all three intermediate nodes below the one independent root. The VK mustpass file has 36 executable leaves: 14 each for `pipeline_cache` and `pipeline_binary`, plus eight non-ray-tracing leaves for `shader_binary`, in [`pipeline/no-queues.txt`](../../../mustpass/main/vk-default/pipeline/no-queues.txt#L1-L36).
 
 ## Parameter Dimensions and Observed Values
 
@@ -129,7 +129,7 @@ The source generates stage-specific GLSL in [`initPrograms()`](../../../modules/
 | Binary consumption setup | [pipeline-binary recreation](../../../modules/vulkan/pipeline/vktPipelineNoQueuesTests.cpp#L814-L842) | Builds `VkPipelineBinaryInfoKHR` from the saved keys and data. |
 | Capture branch | [cache and binary retrieval](../../../modules/vulkan/pipeline/vktPipelineNoQueuesTests.cpp#L1265-L1319) | Retrieves the selected reusable representation after the first pass. |
 | Execution oracle | [submission and output comparison](../../../modules/vulkan/pipeline/vktPipelineNoQueuesTests.cpp#L1658-L1710) | Runs second-pass work and requires every output value to equal `1.0f`. |
-| Family registration | [`createNoQueuesTests()`](../../../modules/vulkan/pipeline/vktPipelineNoQueuesTests.cpp#L1723-L1785) | Registers the three intermediate nodes and stage leaves. |
-| Mustpass scope | [`pipeline/no-queues.txt`](../../../mustpass/main/vk-default/pipeline/no-queues.txt#L1-L37) | Lists the 37 VK executable leaves. |
+| Family registration | [`createNoQueuesTests()`](../../../modules/vulkan/pipeline/vktPipelineNoQueuesTests.cpp#L1718-L1779) | Registers the three intermediate nodes and stage leaves. |
+| Mustpass scope | [`pipeline/no-queues.txt`](../../../mustpass/main/vk-default/pipeline/no-queues.txt#L1-L36) | Lists the 36 VK executable leaves. |
 | Pipeline cache contract | [Pipeline Cache](../../../../vulkan-docs/src/chapters/pipelines.adoc#pipelines-cache) | Defines the pipeline-cache concept used by the cache branch. |
 | Compute pipeline cache parameter | [Compute Pipelines](../../../../vulkan-docs/src/chapters/pipelines.adoc#pipelines-compute) | Documents the valid `pipelineCache` input form used by compute leaves. |

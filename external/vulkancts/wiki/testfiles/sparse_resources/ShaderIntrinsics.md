@@ -4,7 +4,7 @@
 
 - `vktSparseResourcesShaderIntrinsics.cpp` registers `sparse_resources.shader_intrinsics` and creates cases for five sparse image operations across supported image types, formats, sizes, and operands.
 - The implementation is split between sampled-image graphics cases, storage-image compute cases, and the shared sparse-image setup and result checking.
-- This page explains the generated case matrix, the storage compute path, the residency check, and the failure signals. The old source-style page remains available as a navigation aid.
+- This page explains the generated case matrix, the storage compute path, the residency check, and the failure signals.
 
 ## Background Knowledge
 

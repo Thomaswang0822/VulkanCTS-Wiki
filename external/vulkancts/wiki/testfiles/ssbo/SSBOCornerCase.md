@@ -19,7 +19,7 @@ ssbo.corner_case
 └── long_shader_bitwise_and
 ```
 
-The `corner_case` test family is added to the `ssbo` test category by the parent [`createTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L2235-L2255). [`createSSBOCornerCaseTests()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L330-L334) creates the family and its single test case leaf.
+The `corner_case` test family is added to the `ssbo` test category by the parent [`createTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L2246-L2266). [`createSSBOCornerCaseTests()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L330-L334) creates the family and its single test case leaf.
 
 ## Parameter Dimensions and Observed Values
 
@@ -27,7 +27,7 @@ The `corner_case` test family is added to the `ssbo` test category by the parent
 |---|---|---|---|
 | Test case leaf | `long_shader_bitwise_and` | Selects the physical-storage-buffer stress implementation. | [`createSSBOCornerCaseTests()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L330-L334) |
 | Comparison count | `589` | Controls the number of generated indexed comparisons and the size of the tested buffer. The source comment identifies 589 as the minimum value that caused the targeted crash. | [`CornerCase`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L46-L60) |
-| Generated comparison constants | Deterministic values in `[-9, 9]` | Supplies the right-hand `ivec4` value for each comparison. A fixed random seed makes the generated shader reproducible. | [`useCornerCaseShader()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L62-L99) |
+| Generated comparison constants | Deterministic values in `[-9, 9]` | Supplies the right-hand `ivec4` value for each comparison. A fixed random seed makes the generated shader reproducible. | [`useCornerCaseShader()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L63-L100) |
 
 ## Behavior Parameters
 
@@ -692,7 +692,7 @@ void main (void)
 
 #### Additional Info
 
-- [`useCornerCaseShader()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L62-L99) seeds `de::Random` with `1` and calls `getInt(-9, 9)` four times per comparison, so the first generated constant is `ivec4(2, 0, 6, 5)` and the last is `ivec4(-4, 9, -8, 6)`.
+- [`useCornerCaseShader()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L63-L100) seeds `de::Random` with `1` and calls `getInt(-9, 9)` four times per comparison, so the first generated constant is `ivec4(2, 0, 6, 5)` and the last is `ivec4(-4, 9, -8, 6)`.
 - The 589 `ivec4` reads require 9,424 bytes at the `std430` stride of 16 bytes; the host allocates `64 * 589 = 37,696` bytes with storage-buffer and shader-device-address usage, then pushes its address. [`SSBOCornerCaseInstance::iterate()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L211-L246)
 - `initPrograms()` supplies ordinary `glu::ComputeSource` without explicit `vk::ShaderBuildOptions`, so the CTS baseline target is SPIR-V 1.0. [`CornerCase::initPrograms()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L310-L315)
 
@@ -701,8 +701,8 @@ void main (void)
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | Test case leaf | No sibling leaf exists in `corner_case`; this exact compute shader is the family’s sole registered shader case. | [`createSSBOCornerCaseTests()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L330-L334) |
-| Comparison count | Fixed at 589 by `m_testSize`; changing it would change the number of indexed reads, constants, comparisons, and bitwise-AND updates emitted into `main()`. | [`CornerCase`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L46-L60), [`useCornerCaseShader()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L62-L99) |
-| Generated constants | Fixed for this case by RNG seed `1`; changing the seed or range would alter comparison literals but not declarations or control flow. | [`useCornerCaseShader()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L62-L99) |
+| Comparison count | Fixed at 589 by `m_testSize`; changing it would change the number of indexed reads, constants, comparisons, and bitwise-AND updates emitted into `main()`. | [`CornerCase`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L46-L60), [`useCornerCaseShader()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L63-L100) |
+| Generated constants | Fixed for this case by RNG seed `1`; changing the seed or range would alter comparison literals but not declarations or control flow. | [`useCornerCaseShader()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L63-L100) |
 
 #### SPIR-V
 
@@ -10830,11 +10830,11 @@ void main (void)
 
 ## Runtime Execution and Result Checking
 
-- `CornerCase::createInstance()` checks buffer-device-address support and reports `NotSupportedError` when physical storage-buffer pointers are unavailable. [`createInstance()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L317-L322)
+- `CornerCase::checkSupport()` checks buffer-device-address support and reports `NotSupportedError` when physical storage-buffer pointers are unavailable ([support check](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L311-L315)). The instance uses `MultiQueueRunnerTestInstance` with `COMPUTE_QUEUE`; each `queuePass()` rebuilds resources and uses the supplied queue and family ([queue selection](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L150-L176)).
 - The instance creates a 4-byte host-visible storage buffer for `ac_numIrrelevant`, clears it, and flushes the mapped memory. [`SSBOCornerCaseInstance::iterate()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L168-L217)
 - It creates a second storage buffer with `VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT`. Its size is `64 * 589` bytes, which accommodates the 589 `ivec4` elements read by the shader, and the host obtains its device address with `vkGetBufferDeviceAddress`. [`SSBOCornerCaseInstance::iterate()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L217-L241)
 - The host builds a descriptor set with one storage-buffer binding for the auxiliary buffer and a pipeline layout with one compute-stage push-constant range large enough for `VkDeviceAddress`. [`SSBOCornerCaseInstance::iterate()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L188-L211), [`SSBOCornerCaseInstance::iterate()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L243-L283)
-- The command buffer binds the compute pipeline, pushes the buffer address, binds the descriptor set, and dispatches `(1, 1, 1)`. The host submits that primary command buffer to the universal queue and waits for completion. [`SSBOCornerCaseInstance::iterate()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L285-L304)
+- The command buffer binds the compute pipeline, pushes the buffer address, binds the descriptor set, and dispatches `(1, 1, 1)`. The host submits that primary command buffer to the current queue pass's queue and waits for completion. [`SSBOCornerCaseInstance::queuePass()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L286-L305)
 - After the wait returns, the instance reports `pass("Test did not cause a crash")`. The test has no host-side comparison or expected-value check. [`SSBOCornerCaseInstance::iterate()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L300-L307)
 
 ## Failure Meaning
@@ -10857,7 +10857,7 @@ void main (void)
 
 ### Requirement-based pruning
 
-`CornerCase::createInstance()` skips the test with `NotSupportedError` unless the context supports buffer-device addresses. This excludes implementations that cannot provide the physical storage-buffer pointer feature required by the shader. [`createInstance()`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L317-L322)
+`CornerCase::checkSupport()` skips the test with `NotSupportedError` unless the context supports buffer-device addresses. This excludes implementations that cannot provide the physical storage-buffer pointer feature required by the shader. [Support check](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L311-L315).
 
 ### Design-based pruning
 

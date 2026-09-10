@@ -48,6 +48,7 @@ The seven construction-type roots are assembled by [`createTests()`](../../modul
 | `dynamic vertex attributes` | [DynamicVertexAttribute.md](../testfiles/pipeline/DynamicVertexAttribute.md) | Test intent, behavioral axis, execution, validation, pruning, and failure meaning for dynamic vertex attributes. |
 | `input attribute offsets` | [InputAttributeOffset.md](../testfiles/pipeline/InputAttributeOffset.md) | Test intent, behavioral axis, execution, validation, pruning, and failure meaning for input attribute offsets. |
 | `color write enable` | [ColorWriteEnable.md](../testfiles/pipeline/ColorWriteEnable.md) | Test intent, behavioral axis, execution, validation, pruning, and failure meaning for color write enable. |
+| `primitive restart index` | [PrimitiveRestartIndex.md](../testfiles/pipeline/PrimitiveRestartIndex.md) | Test intent, behavioral axis, execution, validation, pruning, and failure meaning for custom primitive restart indices. |
 
 ### Descriptors, constants, and shader interfaces
 
@@ -131,5 +132,5 @@ The seven construction-type roots are assembled by [`createTests()`](../../modul
 
 ## Category Notes
 
-- [`vktPipelineTests.cpp`](../../modules/vulkan/pipeline/vktPipelineTests.cpp#L1) is the registration-only category dispatcher. Its direct roots and construction-type predicates are represented here rather than as a standalone Level-3 page.
+- [`vktPipelineTests.cpp`](../../modules/vulkan/pipeline/vktPipelineTests.cpp#L95-L220) is the registration-only category dispatcher. Its direct roots and construction-type predicates are represented here rather than as a standalone Level-3 page. The dispatcher adds `primitive_restart_index` to monolithic, graphics-pipeline-library, fast-linked-library, and unlinked-SPIR-V shader-object roots; the source excludes it for linked/binary shader-object variants.
 - The category uses multiple mustpass files beneath [`mustpass/main/vk-default/pipeline`](../../mustpass/main/vk-default/pipeline/). Each Level-3 page records the construction roots relevant to its own test family.

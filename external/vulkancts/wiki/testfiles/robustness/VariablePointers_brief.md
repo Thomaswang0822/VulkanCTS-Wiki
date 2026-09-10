@@ -8,11 +8,11 @@ This test checks whether robust storage-buffer access remains correct when a sha
 
 ### Descriptor ranges and robust buffer access
 
-`robustBufferAccess` bounds checks accesses through a buffer descriptor against the descriptor's range, which can be smaller than the underlying allocation. Out-of-bounds reads may return zero or data from memory bound to the buffer. Out-of-bounds storage-buffer writes may be discarded or may change data within memory bound to that buffer, but must not modify unrelated memory. Non-atomic accesses wider than 32 bits may be checked as separate 32-bit accesses. These rules are described in [Robust Buffer Access](../../../vulkan-docs/src/chapters/shaders.adoc#L1925-L1975).
+`robustBufferAccess` bounds checks accesses through a buffer descriptor against the descriptor's range, which can be smaller than the underlying allocation. Out-of-bounds reads may return zero or data from memory bound to the buffer. Out-of-bounds storage-buffer writes may be discarded or may change data within memory bound to that buffer, but must not modify unrelated memory. Non-atomic accesses wider than 32 bits may be checked as separate 32-bit accesses. These rules are described in [Robust Buffer Access](../../../../vulkan-docs/src/chapters/shaders.adoc#L1925-L1975).
 
 ### Variable pointers in SPIR-V
 
-The `variablePointersStorageBuffer` feature allows the `VariablePointersStorageBuffer` capability used by this test. The generated module declares `SPV_KHR_variable_pointers`, builds ordinary `OpAccessChain` candidates, and uses `OpSelect` to produce a pointer whose value depends on data loaded at runtime. The feature definition requires the implementation to support that SPIR-V capability ([feature definition](../../../vulkan-docs/src/chapters/features.adoc#L1066-L1077)).
+The `variablePointersStorageBuffer` feature allows the `VariablePointersStorageBuffer` capability used by this test. The generated module declares `SPV_KHR_variable_pointers`, builds ordinary `OpAccessChain` candidates, and uses `OpSelect` to produce a pointer whose value depends on data loaded at runtime. The feature definition requires the implementation to support that SPIR-V capability ([feature definition](../../../../vulkan-docs/src/chapters/features.adoc#L1066-L1077)).
 
 ## One Concrete Example
 
@@ -86,11 +86,11 @@ A representative scalar read case uses `16B_in_memory_with_scalar_f32`. The shad
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| SPIR-V generation | [MakeShader()](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L839-L1239) | Emits capabilities, resources, pointer selection, and stage entry points. |
+| SPIR-V generation | [MakeShader()](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L805-L1204) | Emits capabilities, resources, pointer selection, and stage entry points. |
 | Read and write program registration | [initPrograms()](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1278-L1349) | Maps each case to compute, vertex, and fragment SPIR-V modules. |
 | Host setup | [AccessInstance constructor](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1352-L1540) | Creates buffers, descriptors, indices, and execution environments. |
-| Result checking | [verifyResult()](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1632-L1848) | Defines accepted in-bounds, partial, and out-of-bounds results. |
-| Registration matrix | [createBufferAccessWithVariablePointersTests()](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1897-L2001) | Defines the registered hierarchy and generated leaf dimensions. |
+| Result checking | [verifyResult()](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1545-L1761) | Defines accepted in-bounds, partial, and out-of-bounds results. |
+| Registration matrix | [createBufferAccessWithVariablePointersTests()](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1790-L1895) | Defines the registered hierarchy and generated leaf dimensions. |
 
 ## Questions / Risk Points for User Audit
 

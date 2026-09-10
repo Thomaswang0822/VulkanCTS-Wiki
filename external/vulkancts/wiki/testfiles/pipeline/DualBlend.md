@@ -73,7 +73,7 @@ The source registration loop is [`addDualBlendMultiAttachmentTests()`](../../../
 | Dual-source mask | `dstColorFactor | dstAlphaFactor` | Enables `SRC1` choices for the destination color and alpha factors in the generated state. | [`iterate()`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L1174-L1180) |
 | Blend factors | Ordinary factors plus `SRC1_COLOR`, `SRC1_ALPHA`, and their complements | Supplies the operands used by the generic and dual-source equations. | [`getBlendWithDualSourceFactors()`](../../../modules/vulkan/pipeline/vktPipelineBlendTestsCommon.cpp#L113-L147) |
 | Blend operations | `ADD`, `SUBTRACT`, `REVERSE_SUBTRACT`, `MIN`, `MAX` | Selects the color and alpha equation applied by the attachment blend state. | [`getBlendOps()`](../../../modules/vulkan/pipeline/vktPipelineBlendTestsCommon.cpp#L150-L155) |
-| Attachment count | 4 | Tests the dual-source path alongside multiple render targets. | `ATTACHMENT_COUNT` and [`createRenderPassesAndFramebuffers()`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L593-L680) |
+| Attachment count | 4 | Tests the dual-source path alongside multiple render targets. | `ATTACHMENT_COUNT` and [`createRenderPassesAndFramebuffers()`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L595-L682) |
 
 ## Behavior Parameters
 
@@ -291,7 +291,7 @@ The source applies no additional design-based pruning after the requirement chec
 ## Source Reference Appendix
 
 - Test registration: [`addDualBlendMultiAttachmentTests()`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L1758-L1774), called from [`createBlendTests()`](../../../modules/vulkan/pipeline/vktPipelineBlendTests.cpp#L2976-L2983).
-- Support and generated programs: [`checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L871-L901), [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L903-L945).
+- Support and generated programs: [`checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L872-L902), [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L903-L945).
 - Format and blend-factor sets: [`getBlendFormats()`](../../../modules/vulkan/pipeline/vktPipelineBlendTestsCommon.cpp#L41-L89), [`getBlendWithDualSourceFactors()`](../../../modules/vulkan/pipeline/vktPipelineBlendTestsCommon.cpp#L113-L147), [`getBlendOps()`](../../../modules/vulkan/pipeline/vktPipelineBlendTestsCommon.cpp#L150-L155).
 - Behavior generation: [`BlendAttachmentStateGenerator`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L952-L1155).
 - Runtime flow and checks: [`iterate()`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L1157-L1245), [`iteratePerArgs()`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L1249-L1609), [`compareBuffers()`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L1619-L1677).

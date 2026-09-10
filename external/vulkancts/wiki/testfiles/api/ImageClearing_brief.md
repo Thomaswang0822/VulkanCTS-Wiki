@@ -189,8 +189,8 @@ Detailed `### Cause Analysis` is written fresh during the final Level-3 rewrite.
 | `createDedicatedAllocationImageClearingTests()` | [`vktApiImageClearingTests.cpp#L3197-L3200`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L3197-L3200) | Wraps `createImageClearingTestsCommon()` with `ALLOCATION_KIND_DEDICATED`. |
 | `createImageClearingTests()` (public entry) | [`vktApiImageClearingTests.cpp#L3204-L3214`](../../../modules/vulkan/api/vktApiImageClearingTests.cpp#L3204-L3214) | Adds `core` and `dedicated_allocation` direct children under `image_clearing`. |
 | Parent-category registration | [`vktApiTests.cpp#L110`](../../../modules/vulkan/api/vktApiTests.cpp#L110) | `image_clearing` group added under `api` by `createApiTests()`. |
-| Mustpass evidence (`core`) | [`api.txt#L277512`](../../../mustpass/main/vk-default/api.txt#L277512) | Primary `core.clear_color_image` mustpass range start; `core.clear_color_attachment.cube_layers` starts at [`api.txt#L272367`](../../../mustpass/main/vk-default/api.txt#L272367). |
-| Mustpass evidence (`dedicated_allocation`) | [`api.txt#L300330`](../../../mustpass/main/vk-default/api.txt#L300330) | `dedicated_allocation.clear_color_image` mustpass range start. |
+| Mustpass evidence (`core`) | [`api.txt#L277512`](../../../mustpass/main/vk-default/api.txt#L267497) | Primary `core.clear_color_image` mustpass range start; `core.clear_color_attachment.cube_layers` starts at [`api.txt#L272367`](../../../mustpass/main/vk-default/api.txt#L267497). |
+| Mustpass evidence (`dedicated_allocation`) | [`api.txt#L300330`](../../../mustpass/main/vk-default/api.txt#L267497) | `dedicated_allocation.clear_color_image` mustpass range start. |
 
 ## Questions / Risk Points for User Audit
 

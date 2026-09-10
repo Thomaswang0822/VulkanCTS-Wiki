@@ -55,7 +55,7 @@ The 28 direct leaves above match the Vulkan default mustpass list.
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Behavioral group | patch counts, built-ins/patch data, `gl_Position`, barrier, cross-invocation | Selects the shader generator and the tested interface rule. | [`createShaderInputOutputTests()`](../../../modules/vulkan/tessellation/vktTessellationShaderInputOutputTests.cpp#L971-L1085) |
+| Behavioral group | patch counts, built-ins/patch data, `gl_Position`, barrier, cross-invocation | Selects the shader generator and the tested interface rule. | [`createShaderInputOutputTests()`](../../../modules/vulkan/tessellation/vktTessellationShaderInputOutputTests.cpp#L972-L1086) |
 | Patch sizes | `5 -> 10`, `10 -> 5`, and fixed group-specific sizes | Separates pipeline input patch size from shader output patch size. | [`PatchVertexCount`](../../../modules/vulkan/tessellation/vktTessellationShaderInputOutputTests.cpp#L215-L333) |
 | Built-in or route | `gl_PrimitiveID`, `gl_PatchVerticesIn`, tessellation levels, `gl_Position` paths | Selects the value transported through the tessellation interfaces. | [`PerPatchData`](../../../modules/vulkan/tessellation/vktTessellationShaderInputOutputTests.cpp#L335-L518), [`GLPosition`](../../../modules/vulkan/tessellation/vktTessellationShaderInputOutputTests.cpp#L520-L643) |
 | Cross-invocation storage | `per_vertex`, `per_patch` | Chooses per-control-point outputs or patch arrays. | [`CrossInvocation`](../../../modules/vulkan/tessellation/vktTessellationShaderInputOutputTests.cpp#L792-L967) |
@@ -178,7 +178,7 @@ void main (void)
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|----------------------------------------|----------|
-| Behavioral group | Selects a different TCS/TES generator and interface rule. | [`createShaderInputOutputTests()`](../../../modules/vulkan/tessellation/vktTessellationShaderInputOutputTests.cpp#L971-L1085) |
+| Behavioral group | Selects a different TCS/TES generator and interface rule. | [`createShaderInputOutputTests()`](../../../modules/vulkan/tessellation/vktTessellationShaderInputOutputTests.cpp#L972-L1086) |
 | Cross-invocation storage | Changes varying declarations between per-vertex outputs and patch arrays. | [`CrossInvocation::initPrograms()`](../../../modules/vulkan/tessellation/vktTessellationShaderInputOutputTests.cpp#L823-L929) |
 | Cross-invocation type | Changes scalar/vector/matrix declarations and location strides. | [`CrossInvocation::initPrograms()`](../../../modules/vulkan/tessellation/vktTessellationShaderInputOutputTests.cpp#L823-L929) |
 
@@ -408,7 +408,7 @@ void main (void)
 | `gl_Position` routes | [`GLPosition`](../../../modules/vulkan/tessellation/vktTessellationShaderInputOutputTests.cpp#L520-L643) | Tests built-in and user-defined stage transport. |
 | Barrier case | [`Barrier`](../../../modules/vulkan/tessellation/vktTessellationShaderInputOutputTests.cpp#L645-L790) | Defines the six ordered phases. |
 | Typed communication | [`CrossInvocation`](../../../modules/vulkan/tessellation/vktTessellationShaderInputOutputTests.cpp#L792-L967) | Defines storage/type dimensions and TES validation. |
-| Registration | [`createShaderInputOutputTests()`](../../../modules/vulkan/tessellation/vktTessellationShaderInputOutputTests.cpp#L971-L1085) | Registers all 28 leaves. |
+| Registration | [`createShaderInputOutputTests()`](../../../modules/vulkan/tessellation/vktTessellationShaderInputOutputTests.cpp#L972-L1086) | Registers all 28 leaves. |
 | Mustpass coverage | [`tessellation.txt`](../../../mustpass/main/vk-default/tessellation.txt#L388-L415) | Lists all Vulkan `shader_input_output` paths. |
 | TCS execution model | [`shaders.adoc`](../../../../vulkan-docs/src/chapters/shaders.adoc#L2634-L2685) | Defines output patch size, parallel invocations, and barriers. |
 | Built-in semantics | [`interfaces.adoc`](../../../../vulkan-docs/src/chapters/interfaces.adoc#L3459-L3488) | Defines `gl_InvocationID`; nearby sections define the other built-ins. |

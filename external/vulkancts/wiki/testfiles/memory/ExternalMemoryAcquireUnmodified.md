@@ -122,7 +122,7 @@ Both values share the full-image transfer, ownership barrier, partial update, re
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Test-family attachment | [`createChildren()`](../../../modules/vulkan/memory/vktMemoryTests.cpp#L52-L78) | Registers this test family under `memory` in non-Vulkan-SC builds. |
+| Test-family attachment | [`createChildren()`](../../../modules/vulkan/memory/vktMemoryTests.cpp#L53-L80) | Registers this test family under `memory` in non-Vulkan-SC builds. |
 | Support checks | [`TestCase::checkSupport()`](../../../modules/vulkan/memory/vktMemoryExternalMemoryAcquireUnmodifiedTests.cpp#L196-L215) | Defines common and handle-specific extension requirements. |
 | Expected-image setup | [`TestInstance::iterate()`](../../../modules/vulkan/memory/vktMemoryExternalMemoryAcquireUnmodifiedTests.cpp#L272-L345) | Creates the buffers, gradients, and centered update rectangle. |
 | DMA-BUF modifier loop | [`testDmaBuf()`](../../../modules/vulkan/memory/vktMemoryExternalMemoryAcquireUnmodifiedTests.cpp#L352-L386) | Aggregates results while retaining per-modifier diagnostics. |

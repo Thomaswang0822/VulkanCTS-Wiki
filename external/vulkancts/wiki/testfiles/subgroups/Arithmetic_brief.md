@@ -108,7 +108,7 @@ All three values also depend on correct stage support reporting, input binding, 
 | Operator helpers | [`getScanOpName()`, `getOpOperation()`, `getIdentity()`, and `getCompare()`](../../../modules/vulkan/subgroups/vktSubgroupsScanHelpers.cpp#L39-L349) | Expands exact built-in names, reference expressions, identities, and comparison tolerances. |
 | Program construction | [`initFrameBufferPrograms()` and `initPrograms()`](../../../modules/vulkan/subgroups/vktSubgroupsArithmeticTests.cpp#L252-L277) | Selects common builders and SPIR-V targets. |
 | Feature checks | [`supportedCheck()`](../../../modules/vulkan/subgroups/vktSubgroupsArithmeticTests.cpp#L279-L345) | Defines API, feature, type, stage, and subgroup-size gates. |
-| Runtime dispatch | [`noSSBOtest()` and `test()`](../../../modules/vulkan/subgroups/vktSubgroupsArithmeticTests.cpp#L347-L468) | Routes cases to framebuffer, compute, graphics, ray-tracing, and mesh harnesses. |
+| Runtime dispatch | [`noSSBOtest()` and `test()`](../../../modules/vulkan/subgroups/vktSubgroupsArithmeticTests.cpp#L346-L467) | Routes cases to framebuffer, compute, graphics, ray-tracing, and mesh harnesses. |
 | Registration | [`createSubgroupsArithmeticTests()`](../../../modules/vulkan/subgroups/vktSubgroupsArithmeticTests.cpp#L475-L665) | Generates the five direct intermediate nodes and their case matrices. |
 | Common generated compute shader | [`initStdPrograms()` compute branch](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1406-L1434) | Supplies descriptors, invocation indexing, and final result write. |
 | Host result rule | [`check()` and `checkComputeOrMesh()`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2640-L2663) | Requires `0x3` for every result element. |

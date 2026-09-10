@@ -82,9 +82,9 @@ The test generates one GLSL source per stage in the selected flow through `Shade
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Test registration and matrix generation | [`createShaderCompDecorLayoutMatchingTests()`](../../../modules/vulkan/pipeline/vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp#L1172-L1249) | Defines every registered dimension and valid component-width combination. |
+| Test registration and matrix generation | [`createShaderCompDecorLayoutMatchingTests()`](../../../modules/vulkan/pipeline/vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp#L1175-L1253) | Defines every registered dimension and valid component-width combination. |
 | Interface declaration generator | [`ShaderGen::genLayout()`](../../../modules/vulkan/pipeline/vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp#L430-L454) | Emits the component-decorated declarations. |
-| Execution and readback | [`iterate()`](../../../modules/vulkan/pipeline/vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp#L968-L1057) | Renders, copies the image, waits, and returns pass or fail. |
+| Execution and readback | [`iterate()`](../../../modules/vulkan/pipeline/vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp#L970-L1060) | Renders, copies the image, waits, and returns pass or fail. |
 | Specification rule | [Location and Component Assignment](../../../../vulkan-docs/src/chapters/interfaces.adoc#L194-L248) | Defines component-slot consumption and overlap rules. |
 
 ## Questions / Risk Points for User Audit

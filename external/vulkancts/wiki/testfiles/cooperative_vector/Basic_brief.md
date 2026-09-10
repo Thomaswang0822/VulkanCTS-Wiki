@@ -97,11 +97,11 @@ The `longvec` counterpart keeps the registered dimensions and changes the genera
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
 | Category registration | [vktCooperativeVectorTests.cpp](../../../modules/vulkan/cooperative_vector/vktCooperativeVectorTests.cpp#L37-L58) | Registers `basic`, `longvec`, `matmul`, and `training`; the first two use a shared factory and the latter two use separate factories. |
-| Group and parameter matrix | [createCooperativeVectorBasicTests](../../../modules/vulkan/cooperative_vector/vktCooperativeVectorBasicTests.cpp#L3901-L4059) | Defines operation, type, size, storage, stage, and pruning dimensions. |
-| Support checks | [CooperativeVectorTestCase::checkSupport](../../../modules/vulkan/cooperative_vector/vktCooperativeVectorBasicTests.cpp#L310-L483) | Selects NV property checks or the EXT long-vector feature and limit checks. |
-| GLSL generation | [CooperativeVectorTestCase::initPrograms](../../../modules/vulkan/cooperative_vector/vktCooperativeVectorBasicTests.cpp#L564-L1750) | Emits extensions, resources, vector operations, stage code, and SPIR-V 1.4 build options. |
-| Runtime setup | [CooperativeVectorTestInstance::iterate](../../../modules/vulkan/cooperative_vector/vktCooperativeVectorBasicTests.cpp#L1796-L2352) | Allocates buffers, fills inputs, builds descriptors, and prepares specialization data. |
-| Result checking | [CooperativeVectorTestInstance::iterate](../../../modules/vulkan/cooperative_vector/vktCooperativeVectorBasicTests.cpp#L2791-L3896) | Computes references and compares output values. |
+| Group and parameter matrix | [createCooperativeVectorBasicTests](../../../modules/vulkan/cooperative_vector/vktCooperativeVectorBasicTests.cpp#L3953-L4111) | Defines operation, type, size, storage, stage, and pruning dimensions. |
+| Support checks | [CooperativeVectorTestCase::checkSupport](../../../modules/vulkan/cooperative_vector/vktCooperativeVectorBasicTests.cpp#L347-L535) | Selects NV property checks or the EXT long-vector feature and limit checks, and rejects compute workgroup cases whose shared input arrays exceed `maxComputeSharedMemorySize`. |
+| GLSL generation | [CooperativeVectorTestCase::initPrograms](../../../modules/vulkan/cooperative_vector/vktCooperativeVectorBasicTests.cpp#L616-L1802) | Emits extensions, resources, vector operations, stage code, and SPIR-V 1.4 build options. |
+| Runtime setup | [CooperativeVectorTestInstance::iterate](../../../modules/vulkan/cooperative_vector/vktCooperativeVectorBasicTests.cpp#L1848-L2404) | Allocates buffers, fills inputs, builds descriptors, and prepares specialization data. |
+| Result checking | [CooperativeVectorTestInstance::iterate](../../../modules/vulkan/cooperative_vector/vktCooperativeVectorBasicTests.cpp#L2843-L3948) | Computes references and compares output values. |
 | Vulkan semantics | [Vulkan shader cooperative vectors](https://registry.khronos.org/vulkan/specs/latest/html/vkspec.html#shaders-cooperative-vector) | Defines cooperative-vector types, supported combinations, and operations. |
 
 ## Questions / Risk Points for User Audit

@@ -104,13 +104,13 @@ The first two values are the registered linear shader direction. Optimal leaves 
 |-------|-------------|----------------|
 | Test-category registration | [`createTests`](../../../modules/vulkan/tensor/vktTensorTests.cpp#L37-L49) | Adds `basic_access` below `tensor`. |
 | Basic-access registration | [`createBasicAccessTests`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L1025-L1036) | Creates the test family and adds format, layout, staging, offset, max-rank, and DMA cases. |
-| Linear and optimal matrix | [`addShaderAccessTests`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L853-L953) | Defines shapes, packed/non-packed strides, directions, optimal cases, forced staging, offset, and max-rank leaves. |
+| Linear and optimal matrix | [`addShaderAccessTests`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L854-L954) | Defines shapes, packed/non-packed strides, directions, optimal cases, forced staging, offset, and max-rank leaves. |
 | DMA matrix | [`addDmaHeapBufferAccessTestInternal`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L956-L1013) | Registers DMA-heap, staging, and offset variants. |
 | Shader generation | [`genShaderTensorAccess`](../../../modules/vulkan/tensor/shaders/vktTensorAccessShaders.cpp#L40-L94) | Emits tensor declarations, dimension queries, coordinate mapping, and read/write operation. |
 | Format mapping | [`getTensorFormat`](../../../modules/vulkan/tensor/shaders/vktTensorShaderUtil.cpp#L39-L71) | Maps Vulkan formats to GLSL types. |
 | Linear execution and check | [`LinearTensorAccessTestInstance::iterate`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L401-L616) | Creates resources, dispatches, synchronizes, downloads, and compares. |
 | Optimal execution and check | [`OptimalTensorAccessTestInstance::iterate`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L618-L850) | Runs the two-direction round trip and compares source and destination buffers. |
-| Support helpers | [`formatSupportTensorFlags` and feature helpers](../../../modules/vulkan/tensor/vktTensorTestsUtil.cpp#L341-L432) | Checks format features, shader tensor features, stages, non-packed tensors, and DMA import. |
+| Support helpers | [`formatSupportTensorFlags` and feature helpers](../../../modules/vulkan/tensor/vktTensorTestsUtil.cpp#L341-L441) | Checks format features, shader tensor features, stages, non-packed tensors, and DMA import. |
 | Tensor operation rules | [Tensor Operations](../../../../vulkan-docs/src/chapters/VK_ARM_tensors/tensorops.adoc#tensors) | Defines tensor coordinates, compatibility validation, format conversion, and read/write behavior. |
 
 ## Questions / Risk Points for User Audit

@@ -27,7 +27,7 @@ dgc.ext.compute.layout
 └── execution_set_complementary_push_dispatch
 ```
 
-The registration loop appends suffixes for the Boolean dimensions described below. The complete registered paths appear in [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L62-L245), for example [the shader-object, compute-queue, dynamic-layout, descriptor-heap case](../../../mustpass/main/vk-default/dgc.txt#L238-L245).
+The registration loop appends suffixes for the Boolean dimensions described below. The complete registered paths appear in [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L50-L233), for example [the shader-object, compute-queue, dynamic-layout, descriptor-heap case](../../../mustpass/main/vk-default/dgc.txt#L226-L233).
 
 ## Parameter Dimensions and Observed Values
 
@@ -395,7 +395,7 @@ void main (void) {
 | `LayoutTestInstance::iterate()` | [runtime execution](../../../modules/vulkan/device_generated_commands/vktDGCComputeLayoutTestsExt.cpp#L835-L1102) | Creates resources, preprocesses commands, submits work, and reads back results. |
 | Result scan | [validation](../../../modules/vulkan/device_generated_commands/vktDGCComputeLayoutTestsExt.cpp#L1108-L1152) | Defines expected values and pass/fail behavior. |
 | `createDGCComputeLayoutTestsExt()` | [registration](../../../modules/vulkan/device_generated_commands/vktDGCComputeLayoutTestsExt.cpp#L1157-L1207) | Builds the nine-family matrix and suffix combinations. |
-| Mustpass coverage | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L62-L245) | Lists the registered EXT compute layout paths. |
+| Mustpass coverage | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L50-L233) | Lists the registered EXT compute layout paths. |
 | Shared DGC layout helpers | [vktDGCUtilExt.cpp](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.cpp#L661-L721) | Supplies common layout construction and token sizing behavior. |
 | Vulkan DGC semantics | [Device-Generated Commands](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc#device-generated-commands) | Defines generated-command layout, preprocessing, and execution semantics. |
 | Vulkan dispatch semantics | [Dispatching Commands](../../../../vulkan-docs/src/chapters/dispatch.adoc#dispatching-commands) | Defines indirect dispatch dimensions and workgroup behavior. |

@@ -29,9 +29,9 @@ Each image-type test family contains a format intermediate node and `samples_<co
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Image type test family | `2d`, `2d_array`, `cube`, `cube_array`, `3d` | Selects the standard block-shape table and image geometry. | [`createImageBlockShapesTests()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageBlockShapes.cpp#L528-L545) |
+| Image type test family | `2d`, `2d_array`, `cube`, `cube_array`, `3d` | Selects the standard block-shape table and image geometry. | [`createImageBlockShapesTests()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageBlockShapes.cpp#L537-L597) |
 | Image size | `512x256x1`, `512x256x6`, `256x256x1`, `256x256x6`, `512x256x16` | Supplies the extent and, for array or cube types, the layer count. | [`imageParameters`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageBlockShapes.cpp#L532-L537) |
-| Format | Shared sparse formats plus BC, ETC2/EAC, and ASTC block-compressed formats | Determines plane size, compressed block dimensions, and YCbCr block extent adjustments. | [`getImageTestFormats()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageBlockShapes.cpp#L488-L525) |
+| Format | Shared sparse formats plus BC, ETC2/EAC, and ASTC block-compressed formats | Determines plane size, compressed block dimensions, and YCbCr block extent adjustments. | [`getImageTestFormats()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageBlockShapes.cpp#L497-L535) |
 | Sample count | `1`, `2`, `4`, `8`, `16` | Selects the single-sample or multisample 2D table. | [`sampleCounts`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageBlockShapes.cpp#L539-L579) |
 | Image format alignment | Format-dependent | Removes YCbCr cases whose fixed image size does not satisfy the format's width or height alignment. | [`createImageBlockShapesTests()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageBlockShapes.cpp#L561-L569) |
 
@@ -120,9 +120,9 @@ No shader code participates in this test. The implementation checks image metada
 
 | Entry point | Link | Why it matters |
 |------------|------|----------------|
-| Test registration and matrix generation | [`createImageBlockShapesTests()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageBlockShapes.cpp#L528-L587) | Defines image types, extents, formats, sample counts, alignment filtering, and registered test case leaves. |
+| Test registration and matrix generation | [`createImageBlockShapesTests()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageBlockShapes.cpp#L537-L597) | Defines image types, extents, formats, sample counts, alignment filtering, and registered test case leaves. |
 | Device support checks | [`ImageBlockShapesCase::checkSupport()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageBlockShapes.cpp#L87-L137) | Checks image limits, sparse features, sample-count support, and R64 atomic requirements. |
-| Image creation and sparse requirement query | [`ImageBlockShapesInstance::iterate()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageBlockShapes.cpp#L165-L248) | Creates the sparse image, checks format support, and selects image aspects for comparison. |
+| Image creation and sparse requirement query | [`ImageBlockShapesInstance::iterate()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageBlockShapes.cpp#L169-L488) | Creates the sparse image, checks format support, and selects image aspects for comparison. |
 | Standard granularity tables and comparison | [`ImageBlockShapesInstance::iterate()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageBlockShapes.cpp#L259-L478) | Computes expected 2D, multisample, and 3D shapes, applies format extents, and returns the result. |
 | Shared image and format helpers | [`vktSparseResourcesTestsUtil.hpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTestsUtil.hpp#L78-L115), [`vktSparseResourcesTestsUtil.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTestsUtil.cpp#L52-L118) | Supplies shared sparse image types, formats, layer handling, and format information. |
 | Vulkan API test-plan entry | [`apitests.adoc`](../../../../../doc/testspecs/VK/apitests.adoc#L273-L276) | Places sparse resources in the Vulkan API test plan. |

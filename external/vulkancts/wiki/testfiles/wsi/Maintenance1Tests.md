@@ -36,7 +36,7 @@ wsi.headless.maintenance1
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Test family | `present_fence`, `present_modes`, `scaling`, `deferred_alloc`, `release_images` | Selects the maintenance1 contract under test. | [`createMaintenance1Tests`](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L2661-L2673) |
+| Test family | `present_fence`, `present_modes`, `scaling`, `deferred_alloc`, `release_images` | Selects the maintenance1 contract under test. | [`createMaintenance1Tests`](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L2658-L2670) |
 | Present mode | `immediate`, `mailbox`, `fifo`, `fifo_relaxed`, `demand`, `continuous`, `fifo_latest_ready` | Selects the presentation scheduling behavior used for queries, presents, allocation, and release. Runtime support checks remove unavailable modes. | [`populatePresentFenceGroup`](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L1156-L1170) |
 | Scaling mode | `one_to_one`, `aspect_stretch`, `stretch`; `no_scaling` for `release_images` | Selects the surface scaling contract. `no_scaling` keeps the release family independent of scaling support. | [`populateScalingTests`](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L1943-L1951), [`populateReleaseImagesGroup`](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L2591-L2598) |
 | Gravity | `min`, `max`, `center` on each axis | Selects the placement of a nonmatching swapchain rectangle for the non-`stretch` scaling modes. | [`populateScalingTests`](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L1953-L1961) |
@@ -45,7 +45,7 @@ wsi.headless.maintenance1
 | Present-mode case | `query`, `change_modes`, `change_modes_multi_swapchain`, `change_modes_with_deferred_alloc`, and `heterogenous` leaves | Separates capability-query checks from mode changes on one or more swapchains. | [`populatePresentModesGroup`](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L1421-L1505) |
 | Deferred allocation case | `basic`, `bind_image`, `bind_image_multi_swapchain` | Selects ordinary delayed allocation or explicit `VkBindImageMemorySwapchainInfoKHR` binding. | [`populateDeferredAllocGroup`](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L2121-L2151) |
 | Release case | `basic`, `release_before_present`, `resize_window`, `resize_window_after_acquire`, `resize_window_after_acquire_release_before_retire` | Selects when the window changes and when the test releases acquired images relative to submission, present, and swapchain retirement. | [`populateReleaseImagesGroup`](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L2612-L2648) |
-| Extension preference | `preferExt` true or false | Alternates preference for the EXT and KHR maintenance1 names. `chooseExt` falls back when only one version is available. | [`chooseExt`](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L83-L111) |
+| Extension preference | `preferExt` true or false | Alternates preference for the EXT and KHR maintenance1 names. `chooseExt` falls back when only one version is available. | [`chooseExt`](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L92-L112) |
 
 The source uses `demand` and `continuous` for the two shared present modes. It omits `bind_image` for those modes and omits multi-swapchain cases for Android, direct DRM, and direct display WSI types.
 
@@ -167,10 +167,10 @@ These tests contain no shader source or generated shader artifact. They use tran
 | Compatible-mode query execution | [`presentModesQueryTest`](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L1231-L1391) | Checks counts, sentinels, supported modes, duplicates, and stable results. |
 | Mode-change registration | [`populatePresentModesGroup`](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L1393-L1507) | Defines query, mode-change, multi-swapchain, deferred, and heterogeneous cases. |
 | Scaling execution | [`scalingQueryTest`, `scalingQueryCompatibleModesTest`, and `scalingTest`](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L1546-L1925) | Implements capability checks and colored-quadrant presentation. |
-| Deferred allocation registration | [`populateDeferredAllocGroup`](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L2099-L2157) | Defines deferred and bind-image coverage. |
-| Image release execution | [`releaseImagesTest`](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L2179-L2567) | Implements randomized acquire, release, resize, out-of-date, and retirement paths. |
-| Family registration | [`createMaintenance1Tests`](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L2661-L2673) | Defines the five direct children shown in the hierarchy. |
-| Dispatcher routing | [`createTypeSpecificTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L50-L74) | Routes `maintenance1` into each WSI type. |
+| Deferred allocation registration | [`populateDeferredAllocGroup`](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L2097-L2156) | Defines deferred and bind-image coverage. |
+| Image release execution | [`releaseImagesTest`](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L2177-L2564) | Implements randomized acquire, release, resize, out-of-date, and retirement paths. |
+| Family registration | [`createMaintenance1Tests`](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L2658-L2670) | Defines the five direct children shown in the hierarchy. |
+| Dispatcher routing | [`createTypeSpecificTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L52-L83) | Routes `maintenance1` into each WSI type. |
 | Mustpass evidence | [`wsi.txt`](../../../mustpass/main/vk-default/wsi.txt) | Contains platform-specific `dEQP-VK.wsi.<type>.maintenance1...` leaves, including the headless maintenance1 paths. |
 | Swapchain ownership and release semantics | [Vulkan WSI chapter](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L5600-L5621) | Defines acquire, present, and explicit release ownership. |
 | Deferred allocation semantics | [Vulkan WSI chapter](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L6309-L6314) | Defines when deferred swapchain image memory must become available. |

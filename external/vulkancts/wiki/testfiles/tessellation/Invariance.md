@@ -337,6 +337,6 @@ Geometry-capture families can also fail if the capture path reports too few prim
 | Shared rules 1, 5, 6, and 7 runtime | [`InvarianceTestInstance`](../../../modules/vulkan/tessellation/vktTessellationInvarianceTests.cpp#L1388-L1737) | Draws duplicate patches, reads records, and compares program or level variants. |
 | Rule-specific triangle comparisons | [`PrimitiveSetInvariance` subclasses](../../../modules/vulkan/tessellation/vktTessellationInvarianceTests.cpp#L1739-L2024) | Selects whole, interior, or edge-connected triangle sets. |
 | Rule-8 implementation | [`TessCoordComponent`](../../../modules/vulkan/tessellation/vktTessellationInvarianceTests.cpp#L2082-L2428) | Generates coordinate checks, reads individual invocations, and contains the result-propagation limitation. |
-| Registration matrix | [`createInvarianceTests()`](../../../modules/vulkan/tessellation/vktTessellationInvarianceTests.cpp#L2434-L2513) | Registers all nine families and 192 leaves. |
-| Portability checks | [`checkSupportCase()`](../../../modules/vulkan/tessellation/vktTessellationUtil.hpp#L526-L549) | Prunes unsupported primitive and point-mode combinations. |
+| Registration matrix | [`createInvarianceTests()`](../../../modules/vulkan/tessellation/vktTessellationInvarianceTests.cpp#L2438-L2514) | Registers all nine families and 192 leaves. |
+| Portability checks | [`checkSupportCase()`](../../../modules/vulkan/tessellation/vktTessellationUtil.hpp#L538-L550) | Prunes unsupported primitive and point-mode combinations. |
 | Default mustpass entries | [`tessellation.txt#L35-L226`](../../../mustpass/main/vk-default/tessellation.txt#L35-L226) | Confirms the complete Vulkan leaf inventory. |

@@ -97,7 +97,7 @@ The format and image-size dimensions change the sparse-block geometry and data r
 | Rebind and clear sequence | [`ImageSparseRebindInstance::iterate`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageRebind.cpp#L455-L626) | Shows the two full binds followed by the partial bind. |
 | Copyback and validation | [`ImageSparseRebindInstance::iterate`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageRebind.cpp#L629-L833) | Defines the readback and pass/fail comparisons. |
 | Registration matrix | [`createImageSparseRebindTestsCommon`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageRebind.cpp#L843-L897) | Defines image types, sizes, formats, and test-case names. |
-| Sparse block and aliasing semantics | [`Sparse Partially-Resident Images`](../../../vulkan-docs/src/chapters/sparsemem.adoc#sparsememory-partially-resident-images), [`Sparse image memory aliasing`](../../../vulkan-docs/src/chapters/sparsemem.adoc#sparsememory-sparse-image-memory-aliasing) | Grounds the block layout and aliasing prerequisites. |
+| Sparse block and aliasing semantics | [`Sparse Partially-Resident Images`](../../../../vulkan-docs/src/chapters/sparsemem.adoc#L221-L250), [`Sparse image memory aliasing`](../../../../vulkan-docs/src/chapters/sparsemem.adoc#L537-L593) | Grounds the block layout and aliasing prerequisites. |
 
 ## Questions / Risk Points for User Audit
 

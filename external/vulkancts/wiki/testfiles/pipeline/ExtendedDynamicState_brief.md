@@ -94,16 +94,16 @@ The direct intermediate node is the primary behavioral axis. The eight ordinary 
 - The mesh-shader branch is compiled only outside Vulkan SC and also requires mesh-shader support.
 - Shader-object construction omits `between_pipelines` and `after_pipelines`, because those ordering concepts depend on the pipeline-binding sequence that shader objects do not use in the same way.
 - Some state leaves need further extensions or features, such as line rasterization, depth-bias control, conservative rasterization, or `VK_KHR_maintenance10`; unsupported requirements result in NotSupported rather than an incorrect rendering failure.
-- `misc` is registered by the main factory but implemented in `vktPipelineExtendedDynamicStateMiscTests.cpp`; its separate legacy page remains its navigation source.
+- `misc` is registered by the main factory but implemented in `vktPipelineExtendedDynamicStateMiscTests.cpp`; see [ExtendedDynamicStateMisc.md](ExtendedDynamicStateMisc.md).
 
 ## Source Mapping
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Factory and ordering registration | [`createExtendedDynamicStateTests()`](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.cpp#L6974-L7036) | Defines the registered ordering names and shader-object omission. |
-| Dynamic command recording and draw order | [`ExtendedDynamicStateInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.cpp#L6405-L6651) | Shows the placement of `setDynamicStates`, pipeline binds, and draws. |
-| Attachment and counter validation | [result checking](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.cpp#L6653-L6890) | Defines color/depth/stencil and optional counter pass conditions. |
-| Static/dynamic reversal | [value-swap rationale](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.cpp#L3102-L3110) | Explains sequences that must finish with a correct static pipeline. |
+| Factory and ordering registration | [`createExtendedDynamicStateTests()`](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.cpp#L7006-L7060) | Defines the registered ordering names and shader-object omission. |
+| Dynamic command recording and draw order | [`ExtendedDynamicStateInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.cpp#L5048-L6924) | Shows the placement of `setDynamicStates`, pipeline binds, and draws. |
+| Attachment and counter validation | [result checking](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.cpp#L6686-L6922) | Defines color/depth/stencil and optional counter pass conditions. |
+| Static/dynamic reversal | [value-swap rationale](../../../modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.cpp#L3109-L3116) | Explains sequences that must finish with a correct static pipeline. |
 | Vulkan dynamic-state rules | [pipeline dynamic state](../../../../vulkan-docs/src/chapters/pipelines.adoc#L2143-L2297) | Supplies the API-level context for EDS3 dynamic state. |
 
 ## Questions / Risk Points for User Audit

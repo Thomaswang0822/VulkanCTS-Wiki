@@ -18,23 +18,26 @@ For the shared model of bounded resource access, robustness contracts, and shade
 ```text
 robustness.oob_access
 ├── robust_on
-└── robust_off
+├── robust_off
+└── misc
 ```
 
-The factory creates both direct children, while the generated test case leaves carry the resource, access, format, size, and robustness-level choices ([`createOOBAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L965-L1058)).
+The factory creates both direct children, while the generated test case leaves carry the resource, access, format, size, and robustness-level choices ([`createOOBAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L1007-L1122)).
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Robustness mode | `robust_on`, `robust_off` | Selects whether defined robust behavior is requested; `robust_off` is generated only for storage images. | [`createOOBAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L973-L1054) |
+| Robustness mode | `robust_on`, `robust_off` | Selects whether defined robust behavior is requested; `robust_off` is generated only for storage images. | [`createOOBAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L1007-L1122) |
 | Access distance | `off_by_one`, `off` | Uses the first invalid element/coordinate or a farther invalid location. | [`OOBAccessType`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L54-L58), [index calculation](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L341-L349) |
-| Resource kind | `texel_buffer_uniform`, `texel_buffer_storage`, storage image | Changes the descriptor and resource bounds being exercised. Uniform texel-buffer writes are not generated. | [`createOOBAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L982-L1024) |
-| Direction | `read`, `write` | Reads expose the returned value; writes test whether valid resource contents remain unchanged. | [`createOOBAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L990-L1051) |
+| Resource kind | `texel_buffer_uniform`, `texel_buffer_storage`, storage image | Changes the descriptor and resource bounds being exercised. Uniform texel-buffer writes are not generated. | [`createOOBAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L1007-L1122) |
+| Direction | `read`, `write` | Reads expose the returned value; writes test whether valid resource contents remain unchanged. | [`createOOBAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L1007-L1122) |
 | Format | `VK_FORMAT_R32_UINT`, `VK_FORMAT_R64_UINT` | Exercises 32-bit and 64-bit unsigned texels. | [format loops](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L995-L996), [image format loop](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L1030-L1033) |
 | Texel-buffer robustness level | `rba`, `rba2` | Selects core robust buffer access or `VK_EXT_robustness2`; explicit result comparison is performed for `rba2`. | [robustness loop](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L999-L1002), [buffer verification](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L517-L540) |
 | Texel-buffer backing size | `256`, `1024`, `4096` bytes | Varies allocation size while the tested access remains outside the view. | [`createOOBAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L997-L998) |
 | Storage-image extent | `16x16`, `64x64`, `128x128` | Varies image bounds and therefore the invalid coordinate. | [`createOOBAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L1034-L1050) |
+
+The non-VulkanSC `misc` subgroup also contains `fma_test_hang`. It is an Amber regression case for a partially out-of-bounds subgroup-uniform read-only shared-memory load where the out-of-bounds portion is unmapped; it requires `robustBufferAccess` and asserts successful execution rather than a generated numeric result. See [`OOBPartialAccessTestCase`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L951-L994).
 
 ## Behavior Parameters
 
@@ -106,7 +109,7 @@ void main (void)
 
 #### Additional Info
 
-- The generator requests SPIR-V 1.0 for this 32-bit case; only 64-bit formats select SPIR-V 1.3 ([`OOBBufferTestCase::initPrograms()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L236-L305)).
+- The generator requests SPIR-V 1.0 for this 32-bit case; only 64-bit formats select SPIR-V 1.3 ([`OOBBufferTestCase::initPrograms()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L239-L308)).
 - The host derives index 128 from a 512-byte view and a four-byte texel, while the backing allocation remains 1024 bytes ([index calculation](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L341-L349)).
 
 #### Parameter Variation Summary
@@ -256,7 +259,7 @@ void main (void)
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Factory and parameter matrix | [`createOOBAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L965-L1058) | Registers `robust_on`, `robust_off`, and their generated leaves. |
+| Factory and parameter matrix | [`createOOBAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L1007-L1122) | Registers `robust_on`, `robust_off`, and their generated leaves. |
 | Texel-buffer support and programs | [`OOBBufferTestCase`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L162-L305) | Defines requirements, capabilities, and generated compute shaders. |
 | Texel-buffer execution and checks | [`OOBBufferTestInstance::iterate()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L341-L540) | Builds the bounded view, dispatches, and validates checked robust outcomes. |
 | Storage-image support and programs | [`OOBImageTestCase`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L578-L695) | Defines image requirements and generated compute shaders. |

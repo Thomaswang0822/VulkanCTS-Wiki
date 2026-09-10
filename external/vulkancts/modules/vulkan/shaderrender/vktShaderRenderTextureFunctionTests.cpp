@@ -2784,6 +2784,7 @@ private:
     TestSize m_testSize;
     tcu::IVec3 m_expectedSize;
     int m_iterationCounter;
+    bool m_resultPassed;
 };
 
 TextureSizeInstance::TextureSizeInstance(Context &context, const bool isVertexCase, const TextureSpec &textureSpec,
@@ -2792,16 +2793,9 @@ TextureSizeInstance::TextureSizeInstance(Context &context, const bool isVertexCa
     , m_testSize()
     , m_expectedSize()
     , m_iterationCounter(0)
+    , m_resultPassed(true)
 {
     deMemset(&m_testSize, 0, sizeof(TestSize));
-
-#ifdef CTS_USES_VULKANSC
-    const VkDevice vkDevice         = getDevice();
-    const DeviceInterface &vk       = getDeviceInterface();
-    const uint32_t queueFamilyIndex = getUniversalQueueFamilyIndex();
-    m_externalCommandPool           = de::SharedPtr<Unique<VkCommandPool>>(new vk::Unique<VkCommandPool>(
-        createCommandPool(vk, vkDevice, VK_COMMAND_POOL_CREATE_TRANSIENT_BIT, queueFamilyIndex)));
-#endif // CTS_USES_VULKANSC
 
     m_renderSize = tcu::UVec2(1, 1);
 }
@@ -2953,20 +2947,22 @@ tcu::TestStatus TextureSizeInstance::iterate(void)
     m_iterationCounter++;
 
     if (m_iterationCounter == lastIterationIndex)
+    {
+        // Report the verdict only once every iteration has run. Returning early
+        // on the first failing iteration leaves the Vulkan SC subprocess having
+        // created fewer objects than the main process recorded, which corrupts
+        // the command pool reservation for subsequent tests in the batch.
+        if (!m_resultPassed)
+            return tcu::TestStatus::fail("Got unexpected result");
         return tcu::TestStatus::pass("Pass");
+    }
     else
     {
         // set current test size
         m_testSize = testSizes[m_iterationCounter - 1];
 
-        bool result = testTextureSize();
-#ifdef CTS_USES_VULKANSC
-        if (m_context.getTestContext().getCommandLine().isSubProcess())
-#endif // CTS_USES_VULKANSC
-        {
-            if (!result)
-                return tcu::TestStatus::fail("Got unexpected result");
-        }
+        if (!testTextureSize())
+            m_resultPassed = false;
         return tcu::TestStatus::incomplete();
     }
 }
@@ -3094,10 +3090,12 @@ static vk::VkImageType getVkImageType(TextureType type)
 class TextureSizeMSInstance : public TextureQueryInstance
 {
 public:
-    TextureSizeMSInstance(Context &context, const bool isVertexCase, const TextureSpec &textureSpec);
+    TextureSizeMSInstance(Context &context, const bool isVertexCase, const TextureSpec &textureSpec,
+                          bool useStorageImg);
     virtual ~TextureSizeMSInstance(void);
 
-    virtual tcu::TestStatus iterate(void);
+    void setupUniforms(const tcu::Vec4 &) override;
+    tcu::TestStatus iterate(void) override;
 
 private:
     void initTexture(vk::VkSampleCountFlagBits samples, const tcu::IVec3 &dim);
@@ -3105,11 +3103,17 @@ private:
 
     unsigned m_iterationCounter;
     vector<vk::VkSampleCountFlagBits> m_iterations;
+    const bool m_useStorageImg;
+    bool m_resultPassed;
 };
 
-TextureSizeMSInstance::TextureSizeMSInstance(Context &context, const bool isVertexCase, const TextureSpec &textureSpec)
+TextureSizeMSInstance::TextureSizeMSInstance(Context &context, const bool isVertexCase, const TextureSpec &textureSpec,
+                                             bool useStorageImg)
     : TextureQueryInstance(context, isVertexCase, textureSpec)
     , m_iterationCounter(0)
+    , m_iterations()
+    , m_useStorageImg(useStorageImg)
+    , m_resultPassed(true)
 {
     m_renderSize = tcu::UVec2(1, 1);
 
@@ -3160,6 +3164,11 @@ TextureSizeMSInstance::~TextureSizeMSInstance(void)
 {
 }
 
+void TextureSizeMSInstance::setupUniforms(const tcu::Vec4 &)
+{
+    useSampler(0, 0, m_useStorageImg);
+}
+
 tcu::TestStatus TextureSizeMSInstance::iterate(void)
 {
     const tcu::IVec3 testSizes[] = {
@@ -3173,16 +3182,15 @@ tcu::TestStatus TextureSizeMSInstance::iterate(void)
 
     if (m_iterationCounter++ < m_iterations.size() * DE_LENGTH_OF_ARRAY(testSizes))
     {
-        bool result = testSize(m_iterations[sampleIdx], testSizes[dimIdx]);
-#ifdef CTS_USES_VULKANSC
-        if (m_context.getTestContext().getCommandLine().isSubProcess())
-#endif // CTS_USES_VULKANSC
-        {
-            if (!result)
-                return tcu::TestStatus::fail("Got unexpected result");
-        }
+        if (!testSize(m_iterations[sampleIdx], testSizes[dimIdx]))
+            m_resultPassed = false;
         return tcu::TestStatus::incomplete();
     }
+    // Defer the verdict until every iteration has run: an early-out would leave
+    // the Vulkan SC subprocess with a different object count than the main
+    // process recorded, corrupting the command pool reservation for the batch.
+    else if (!m_resultPassed)
+        return tcu::TestStatus::fail("Got unexpected result");
     else
         return tcu::TestStatus::pass("Pass");
 }
@@ -3289,12 +3297,14 @@ private:
 
     int m_iterationCounter;
     vector<vk::VkSampleCountFlagBits> m_iterations;
+    bool m_resultPassed;
 };
 
 TextureSamplesInstance::TextureSamplesInstance(Context &context, const bool isVertexCase,
                                                const TextureSpec &textureSpec, const bool useCompute)
     : TextureQueryInstance(context, isVertexCase, textureSpec, useCompute)
     , m_iterationCounter(0)
+    , m_resultPassed(true)
 {
     m_renderSize = tcu::UVec2(1, 1);
 
@@ -3384,9 +3394,6 @@ tcu::TestStatus TextureSamplesInstance::iterate(void)
         const tcu::TextureLevel &result = getResultImage();
         tcu::IVec4 output               = result.getAccess().getPixelInt(0, 0);
 
-#ifdef CTS_USES_VULKANSC
-        if (m_context.getTestContext().getCommandLine().isSubProcess())
-#endif // CTS_USES_VULKANSC
         {
             if (output.x() == (int)m_iterations[m_iterationCounter])
             {
@@ -3398,13 +3405,20 @@ tcu::TestStatus TextureSamplesInstance::iterate(void)
                 // failure
                 log << tcu::TestLog::Message << "Result: " << output.x() << tcu::TestLog::EndMessage;
                 log << tcu::TestLog::Message << "Failed" << tcu::TestLog::EndMessage;
-                return tcu::TestStatus::fail("Got unexpected result");
+                // Do not early-out: that would leave the Vulkan SC subprocess with a
+                // different object count than the main process recorded, corrupting the
+                // command pool reservation for subsequent tests in the batch.
+                m_resultPassed = false;
             }
         }
 
         m_iterationCounter++;
         if (m_iterationCounter == (int)m_iterations.size())
+        {
+            if (!m_resultPassed)
+                return tcu::TestStatus::fail("Got unexpected result");
             return tcu::TestStatus::pass("Pass");
+        }
         else
             return tcu::TestStatus::incomplete();
     }
@@ -3450,6 +3464,7 @@ private:
     TestSize m_testSize;
     int m_levels;
     int m_iterationCounter;
+    bool m_resultPassed;
 };
 
 TextureQueryLevelsInstance::TextureQueryLevelsInstance(Context &context, const bool isVertexCase,
@@ -3458,18 +3473,11 @@ TextureQueryLevelsInstance::TextureQueryLevelsInstance(Context &context, const b
     , m_testSize()
     , m_levels(0)
     , m_iterationCounter(0)
+    , m_resultPassed(true)
 {
     deMemset(&m_testSize, 0, sizeof(TestSize));
 
     m_renderSize = tcu::UVec2(1, 1);
-
-#ifdef CTS_USES_VULKANSC
-    const VkDevice vkDevice         = getDevice();
-    const DeviceInterface &vk       = getDeviceInterface();
-    const uint32_t queueFamilyIndex = getUniversalQueueFamilyIndex();
-    m_externalCommandPool           = de::SharedPtr<Unique<VkCommandPool>>(new vk::Unique<VkCommandPool>(
-        createCommandPool(vk, vkDevice, VK_COMMAND_POOL_CREATE_TRANSIENT_BIT, queueFamilyIndex)));
-#endif // CTS_USES_VULKANSC
 }
 
 TextureQueryLevelsInstance::~TextureQueryLevelsInstance(void)
@@ -3536,20 +3544,22 @@ tcu::TestStatus TextureQueryLevelsInstance::iterate(void)
     m_iterationCounter++;
 
     if (m_iterationCounter == lastIterationIndex)
+    {
+        // Report the verdict only once every iteration has run. Returning early
+        // on the first failing iteration leaves the Vulkan SC subprocess having
+        // created fewer objects than the main process recorded, which corrupts
+        // the command pool reservation for subsequent tests in the batch.
+        if (!m_resultPassed)
+            return tcu::TestStatus::fail("Got unexpected result");
         return tcu::TestStatus::pass("Pass");
+    }
     else
     {
         // set current test size
         m_testSize = testSizes[m_iterationCounter - 1];
 
-        bool result = testTextureLevels();
-#ifdef CTS_USES_VULKANSC
-        if (m_context.getTestContext().getCommandLine().isSubProcess())
-#endif // CTS_USES_VULKANSC
-        {
-            if (!result)
-                return tcu::TestStatus::fail("Got unexpected result");
-        }
+        if (!testTextureLevels())
+            m_resultPassed = false;
         return tcu::TestStatus::incomplete();
     }
 }
@@ -3952,7 +3962,7 @@ class TextureQueryCase : public ShaderRenderCase
 public:
     TextureQueryCase(tcu::TestContext &testCtx, const std::string &name, const std::string &samplerType,
                      const TextureSpec &texture, bool isVertexCase, QueryFunction function, TestMode mode = 0,
-                     bool useCompute = false);
+                     bool useCompute = false, bool useStorageImg = false);
     virtual ~TextureQueryCase(void);
 
     virtual TestInstance *createInstance(Context &context) const;
@@ -3966,18 +3976,22 @@ protected:
     const QueryFunction m_function;
     const TestMode m_mode;
     const bool m_useCompute;
+    const bool m_useStorageImg;
 };
 
 TextureQueryCase::TextureQueryCase(tcu::TestContext &testCtx, const std::string &name, const std::string &samplerType,
                                    const TextureSpec &texture, bool isVertexCase, QueryFunction function, TestMode mode,
-                                   bool useCompute)
+                                   bool useCompute, bool useStorageImg)
     : ShaderRenderCase(testCtx, name, isVertexCase, (ShaderEvaluator *)nullptr, nullptr, nullptr)
     , m_samplerTypeStr(samplerType)
     , m_textureSpec(texture)
     , m_function(function)
     , m_mode(mode)
     , m_useCompute(useCompute)
+    , m_useStorageImg(useStorageImg)
 {
+    if (m_useStorageImg)
+        DE_ASSERT(m_function == QUERYFUNCTION_TEXTURESIZEMS);
     initShaderSources();
 }
 
@@ -3992,7 +4006,7 @@ TestInstance *TextureQueryCase::createInstance(Context &context) const
     case QUERYFUNCTION_TEXTURESIZE:
         return new TextureSizeInstance(context, m_isVertexCase, m_textureSpec, m_useCompute);
     case QUERYFUNCTION_TEXTURESIZEMS:
-        return new TextureSizeMSInstance(context, m_isVertexCase, m_textureSpec);
+        return new TextureSizeMSInstance(context, m_isVertexCase, m_textureSpec, m_useStorageImg);
     case QUERYFUNCTION_TEXTUREQUERYLOD:
         return new TextureQueryLodInstance(context, m_isVertexCase, m_textureSpec, m_mode, m_useCompute);
     case QUERYFUNCTION_TEXTUREQUERYLEVELS:
@@ -4022,7 +4036,14 @@ void TextureQueryCase::initShaderSources(void)
         uint32_t binding = 0;
 
         // uniforms
-        comp << "layout(set = 0, binding = " << binding++ << ") uniform highp " << m_samplerTypeStr << " u_sampler;\n";
+        std::string formatQual;
+        if (m_useStorageImg)
+        {
+            const vk::VkFormat format = vk::mapTextureFormat(glu::mapGLInternalFormat(m_textureSpec.format));
+            formatQual                = ", " + vk::getSpirvFormat(format);
+        }
+        comp << "layout(set = 0, binding = " << binding++ << formatQual << ") uniform highp " << m_samplerTypeStr
+             << " u_sampler;\n";
 
         if (m_function == QUERYFUNCTION_TEXTURESIZE)
             comp << "layout(set = 0, binding = " << binding++ << ") uniform buf0 { highp int u_lod; };\n";
@@ -4085,7 +4106,8 @@ void TextureQueryCase::initShaderSources(void)
         {
             const int resultComponents = glu::getDataTypeScalarSize(getTextureSizeFuncResultType(m_textureSpec.type));
 
-            comp << "textureSize(u_sampler)";
+            const auto glslFunction = (m_useStorageImg ? "imageSize" : "textureSize");
+            comp << glslFunction << "(u_sampler)";
             for (int ndx = 0; ndx < 3 - resultComponents; ndx++)
                 comp << ", 0.0";
             comp << ", 1.0";
@@ -4148,7 +4170,13 @@ void TextureQueryCase::initShaderSources(void)
         }
 
         // uniforms
-        op << "layout(set = 0, binding = 0) uniform highp " << m_samplerTypeStr << " u_sampler;\n";
+        std::string formatQual;
+        if (m_useStorageImg)
+        {
+            const vk::VkFormat format = vk::mapTextureFormat(glu::mapGLInternalFormat(m_textureSpec.format));
+            formatQual                = ", " + vk::getSpirvFormat(format);
+        }
+        op << "layout(set = 0, binding = 0" << formatQual << ") uniform highp " << m_samplerTypeStr << " u_sampler;\n";
         if (m_function == QUERYFUNCTION_TEXTURESIZE)
             op << "layout(set = 0, binding = 1) uniform buf0 { highp int u_lod; };\n";
 
@@ -4189,7 +4217,8 @@ void TextureQueryCase::initShaderSources(void)
                 const int resultComponents =
                     glu::getDataTypeScalarSize(getTextureSizeFuncResultType(m_textureSpec.type));
 
-                op << "textureSize(u_sampler)";
+                const auto glslFunction = (m_useStorageImg ? "imageSize" : "textureSize");
+                op << glslFunction << "(u_sampler)";
                 for (int ndx = 0; ndx < 3 - resultComponents; ndx++)
                     op << ", 0.0";
                 op << ", 1.0";
@@ -5021,6 +5050,7 @@ void ShaderTextureFunctionTests::init(void)
         {tcu::Sampler::MIRRORED_ONCE, "mirrored"},
     };
     // Samplers
+    static const tcu::Sampler unusedSampler;
     static const tcu::Sampler samplerNearestNoMipmap(
         tcu::Sampler::REPEAT_GL, tcu::Sampler::REPEAT_GL, tcu::Sampler::REPEAT_GL, tcu::Sampler::NEAREST,
         tcu::Sampler::NEAREST, 0.0f /* LOD threshold */, true /* normalized coords */, tcu::Sampler::COMPAREMODE_NONE,
@@ -5059,9 +5089,13 @@ void ShaderTextureFunctionTests::init(void)
     // Default textures.
     //                                                Type                    Format                    W        H        D    L    Sampler
     static const TextureSpec tex2DFixed(TEXTURETYPE_2D, GL_RGBA8, 256, 256, 1, 1, samplerLinearNoMipmap);
+    static const TextureSpec img2DFixed(TEXTURETYPE_2D, GL_RGBA8, 256, 256, 1, 1, unusedSampler);
     static const TextureSpec tex2DFloat(TEXTURETYPE_2D, GL_RGBA16F, 256, 256, 1, 1, samplerLinearNoMipmap);
+    static const TextureSpec img2DFloat(TEXTURETYPE_2D, GL_RGBA16F, 256, 256, 1, 1, unusedSampler);
     static const TextureSpec tex2DInt(TEXTURETYPE_2D, GL_RGBA8I, 256, 256, 1, 1, samplerNearestNoMipmap);
+    static const TextureSpec img2DInt(TEXTURETYPE_2D, GL_RGBA8I, 256, 256, 1, 1, unusedSampler);
     static const TextureSpec tex2DUint(TEXTURETYPE_2D, GL_RGBA8UI, 256, 256, 1, 1, samplerNearestNoMipmap);
+    static const TextureSpec img2DUint(TEXTURETYPE_2D, GL_RGBA8UI, 256, 256, 1, 1, unusedSampler);
     static const TextureSpec tex2DMipmapFixed(TEXTURETYPE_2D, GL_RGBA8, 256, 256, 1, 9, samplerLinearMipmap);
     static const TextureSpec tex2DMipmapFloat(TEXTURETYPE_2D, GL_RGBA16F, 256, 256, 1, 9, samplerLinearMipmap);
     static const TextureSpec tex2DMipmapInt(TEXTURETYPE_2D, GL_RGBA8I, 256, 256, 1, 9, samplerNearestMipmap);
@@ -5093,9 +5127,13 @@ void ShaderTextureFunctionTests::init(void)
                                                  samplerShadowMipmap);
 
     static const TextureSpec tex2DArrayFixed(TEXTURETYPE_2D_ARRAY, GL_RGBA8, 128, 128, 4, 1, samplerLinearNoMipmap);
+    static const TextureSpec img2DArrayFixed(TEXTURETYPE_2D_ARRAY, GL_RGBA8, 128, 128, 4, 1, unusedSampler);
     static const TextureSpec tex2DArrayFloat(TEXTURETYPE_2D_ARRAY, GL_RGBA16F, 128, 128, 4, 1, samplerLinearNoMipmap);
+    static const TextureSpec img2DArrayFloat(TEXTURETYPE_2D_ARRAY, GL_RGBA16F, 128, 128, 4, 1, unusedSampler);
     static const TextureSpec tex2DArrayInt(TEXTURETYPE_2D_ARRAY, GL_RGBA8I, 128, 128, 4, 1, samplerNearestNoMipmap);
+    static const TextureSpec img2DArrayInt(TEXTURETYPE_2D_ARRAY, GL_RGBA8I, 128, 128, 4, 1, unusedSampler);
     static const TextureSpec tex2DArrayUint(TEXTURETYPE_2D_ARRAY, GL_RGBA8UI, 128, 128, 4, 1, samplerNearestNoMipmap);
+    static const TextureSpec img2DArrayUint(TEXTURETYPE_2D_ARRAY, GL_RGBA8UI, 128, 128, 4, 1, unusedSampler);
     static const TextureSpec tex2DArrayMipmapFixed(TEXTURETYPE_2D_ARRAY, GL_RGBA8, 128, 128, 4, 8, samplerLinearMipmap);
     static const TextureSpec tex2DArrayMipmapFloat(TEXTURETYPE_2D_ARRAY, GL_RGBA16F, 128, 128, 4, 8,
                                                    samplerLinearMipmap);
@@ -8123,6 +8161,36 @@ void ShaderTextureFunctionTests::init(void)
                 group->addChild(new TextureQueryCase(m_testCtx, (std::string(caseSpec.name) + "_fragment"),
                                                      caseSpec.samplerName, caseSpec.textureSpec, false,
                                                      QUERYFUNCTION_TEXTURESIZEMS));
+            }
+
+            queryGroup->addChild(group.release());
+        }
+
+        // imageSize() cases for multisample images
+        {
+            const TexQueryFuncCaseSpec imageSizeMSCases[] = {
+                {"image2dms_fixed", "image2DMS", img2DFixed},
+                {"image2dms_float", "image2DMS", img2DFloat},
+                {"iimage2dms", "iimage2DMS", img2DInt},
+                {"uimage2dms", "uimage2DMS", img2DUint},
+                {"image2dmsarray_fixed", "image2DMSArray", img2DArrayFixed},
+                {"image2dmsarray_float", "image2DMSArray", img2DArrayFloat},
+                {"iimage2dmsarray", "iimage2DMSArray", img2DArrayInt},
+                {"uimage2dmsarray", "uimage2DMSArray", img2DArrayUint},
+            };
+
+            de::MovePtr<tcu::TestCaseGroup> group(new tcu::TestCaseGroup(m_testCtx, "imagesizems"));
+
+            for (int ndx = 0; ndx < DE_LENGTH_OF_ARRAY(imageSizeMSCases); ++ndx)
+            {
+                const TexQueryFuncCaseSpec &caseSpec = imageSizeMSCases[ndx];
+
+                group->addChild(new TextureQueryCase(m_testCtx, (std::string(caseSpec.name) + "_vertex"),
+                                                     caseSpec.samplerName, caseSpec.textureSpec, true,
+                                                     QUERYFUNCTION_TEXTURESIZEMS, 0, false, true));
+                group->addChild(new TextureQueryCase(m_testCtx, (std::string(caseSpec.name) + "_fragment"),
+                                                     caseSpec.samplerName, caseSpec.textureSpec, false,
+                                                     QUERYFUNCTION_TEXTURESIZEMS, 0, false, true));
             }
 
             queryGroup->addChild(group.release());

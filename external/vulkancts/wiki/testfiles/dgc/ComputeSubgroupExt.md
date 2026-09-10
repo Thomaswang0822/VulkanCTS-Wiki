@@ -1022,4 +1022,4 @@ The registration loops use the same ordered values for workgroup and subgroup si
 | `PreprocessBufferExt` | [vktDGCUtilExt.cpp#L724-L803](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.cpp#L724-L803) | Queries preprocess memory requirements and creates the device-addressable buffer. |
 | `DGCComputePipelineExt` | [vktDGCUtilExt.cpp#L818-L878](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.cpp#L818-L878) | Adds required subgroup size and the indirect-bindable pipeline creation flag. |
 | EXT generated-command execution model | [device-generated commands](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc#device-generated-commands) | Defines execution sets, token layouts, preprocessing, and generated command execution. |
-| Mustpass registration | [dgc.txt#L448-L487](../../../mustpass/main/vk-default/dgc.txt#L448-L487) | Lists the registered EXT test case identifiers. |
+| Mustpass registration | [dgc.txt#L430-L469](../../../mustpass/main/vk-default/dgc.txt#L430-L469) | Lists the registered EXT test case identifiers. |

@@ -2,7 +2,7 @@
 
 **Core question:** Do queues created with global priorities complete the registered cross-queue workloads and produce the expected results?
 
-- This page covers the LEGACY-only `synchronization.global_priority_transition` test family implemented by [`createGlobalPriorityQueueTests()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2281-L2420).
+- This page covers the LEGACY-only `synchronization.global_priority_transition` test family implemented by [`createGlobalPriorityQueueTests()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2281-L2407).
 - The four priority branches run graphics, compute, and transfer work across two distinct queue families that request the same global priority. The `preemption` branch submits a large workload before a smaller workload on a higher-priority queue.
 - The tests check resource contents or workload output. They do not prove that the implementation physically preempted one queue, because Vulkan global priorities impose no scheduling or ordering guarantee.
 - Parent registration adds this family only under `synchronization`, not `synchronization2`, and excludes it from Vulkan SC builds.
@@ -32,18 +32,18 @@ The four priority intermediate nodes expand through `no_sync` or `semaphore`, th
 | Dimension | Registered or observed values | Meaning in this test | Evidence |
 |---|---|---|---|
 | Global priority | `low`, `medium`, `high`, `realtime` | Both selected queue families request the same value. | [`prios` and `TestConfig`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2296-L2301) |
-| Submission ordering | `no_sync`, `semaphore` | Both forms wait for the producer fence before submitting the consumer. `semaphore` also signals from the producer and waits in the consumer submission. | [`submitCommands()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L322-L373) |
+| Submission ordering | `no_sync`, `semaphore` | Both forms wait for the producer fence before submitting the consumer. `semaphore` also signals from the producer and waits in the consumer submission. | [`submitCommands()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L323-L375) |
 | Modifier | `no_modifiers`, `sparse`, `protected` | Requests ordinary, sparse-binding, or protected queues and resources. | [`modifiers`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2293-L2295) |
 | Direction leaf | `from_graphics_to_compute`, `from_compute_to_graphics`, `from_compute_to_transfer`, `from_transfer_to_compute` | Selects the producer and consumer queue capabilities and the resource path between them. | [registration filter](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2326-L2363) |
 | Extent | 34×25 or 25×34 | Alternates when each direction leaf is generated. | [extent assignment](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2308-L2310) |
-| Image format | first supported value from `R32_SINT`, `R32_UINT`, `R8_SINT`, `R8_UINT` | Supplies the single R channel used by image-producing and image-reading paths. | [`GPQCase::checkSupport()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L484-L497) |
+| Image format | first supported value from `R32_SINT`, `R32_UINT`, `R8_SINT`, `R8_UINT` | Supplies the single R channel used by image-producing and image-reading paths. | [`GPQCase::checkSupport()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L485-L556) |
 
 ### Preemption branch
 
 | Dimension | Registered or observed values | Meaning in this test | Evidence |
 |---|---|---|---|
 | Queue A and B type | `graphics`, `compute`, `exclusive-compute`, `transfer`, `exclusive-transfer` | Selects graphics rendering, compute buffer writes, or transfer copies for each device. Exclusive variants require queue families without broader graphics or compute capability. | [queue-type names and support lookup](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L1516-L1616) |
-| Priority pair | `low`, `medium`, `high`, `realtime`, with A lower than B | Queue A runs the large workload and queue B runs the small higher-priority workload. | [preemption registration loops](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2381-L2415) |
+| Priority pair | `low`, `medium`, `high`, `realtime`, with A lower than B | Queue A runs the large workload and queue B runs the small higher-priority workload. | [preemption registration loops](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2381-L2407) |
 | Submission count for B | ordinary name or `_double_preemption` suffix | The suffix submits and waits for queue B's command buffer a second time. | [`PreemptionInstance::iterate()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2215-L2226) |
 | Workload extent | A: 512×512; B: 8×8 | Makes A much larger than B while preserving the same output rule for a selected queue type. | [workload sizing](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2110-L2128) |
 
@@ -165,7 +165,7 @@ void main()
 | Modifier | `protected` registers `protectedConsumerComp`; ordinary and sparse cases register `consumerComp`, which writes one pass/fail value per pixel to a host-readable buffer instead of looping. | [`GPQCase::initPrograms()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L575-L656) |
 | Image format | The selected R format specializes the storage-image format qualifier and signed or unsigned image type. The ordered candidates are `R32_SINT`, `R32_UINT`, `R8_SINT`, and `R8_UINT`. | [format selection](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L484-L497), [specialization map](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L640-L650) |
 | Direction | Image-consuming directions use `cpyi`; `from_compute_to_transfer` instead uses the `cpyb` buffer-copy producer and has no image-validation consumer shader. | [shader registration](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L652-L658), [direction implementations](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L661-L1368) |
-| Global priority and submission ordering | Priority changes queue creation, while `no_sync` versus `semaphore` changes submission synchronization; neither changes this shader's generated text. | [registration](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2296-L2363), [`submitCommands()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L322-L373) |
+| Global priority and submission ordering | Priority changes queue creation, while `no_sync` versus `semaphore` changes submission synchronization; neither changes this shader's generated text. | [registration](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2296-L2363), [`submitCommands()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L323-L375) |
 
 #### SPIR-V
 
@@ -305,14 +305,14 @@ void main()
 
 ### Queue-transition execution
 
-1. [`GPQCase::checkSupport()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L484-L555) selects a supported R-channel format and two distinct queue families with the requested priority and queue flags.
+1. [`GPQCase::checkSupport()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L485-L556) selects a supported R-channel format and two distinct queue families with the requested priority and queue flags.
 2. [`SpecialDevice`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueUtils.cpp#L91-L213) creates one device with the two queue families and attaches the requested global priority to both queue create infos.
 3. The selected direction records producer and consumer command buffers:
    - `from_graphics_to_compute` renders `113` to an image and checks it with compute work;
    - `from_compute_to_graphics` generates vertex positions with compute work, renders `113`, then checks the image with compute work;
    - `from_compute_to_transfer` copies generated vertex positions to a host-readable buffer and compares each position;
    - `from_transfer_to_compute` uploads `113` to an image, performs explicit image ownership release and acquire barriers, and checks the image with compute work.
-4. [`submitCommands()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L322-L373) submits the producer, waits up to ten seconds for its fence, submits the consumer, and waits up to ten seconds for the consumer fence. The `semaphore` form also carries a signal and wait semaphore between those submissions. The `no_sync` name therefore means no semaphore, not unordered concurrent submissions.
+4. [`submitCommands()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L323-L375) submits the producer, waits up to ten seconds for its fence, submits the consumer, and waits up to ten seconds for the consumer fence. The `semaphore` form also carries a signal and wait semaphore between those submissions. The `no_sync` name therefore means no semaphore, not unordered concurrent submissions.
 5. Non-protected image-validation paths pass when the host reads `1` at result pixel (0, 0). The compute-to-transfer path compares copied `vec2` values. Protected paths cannot read the resource back; image-consuming protected paths turn a mismatch into a consumer timeout. The protected compute-to-transfer path checks submission completion only.
 
 The source uses explicit queue-family ownership release and acquire barriers for `from_compute_to_transfer` and `from_transfer_to_compute`. The graphics-to-compute and compute-to-graphics implementations use their resources across the selected families without encoding a matching ownership transfer in the shown resource barriers. This page describes that behavior without treating those paths as proof of correct queue-family ownership transfer.
@@ -391,7 +391,7 @@ The source uses explicit queue-family ownership release and acquire barriers for
 | Transition device setup | [`SpecialDevice`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueUtils.cpp#L91-L213) | Selects queue families and creates queues with global priority. |
 | Preemption setup and support | [`PreemptionCase` and `DeviceHelper`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L1430-L1805) | Selects queue types and priorities and creates the custom devices. |
 | Preemption commands and checks | [`WorkLoadData` and `PreemptionInstance::iterate()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L1807-L2277) | Records workloads, submits them, and validates their output. |
-| Complete registration matrix | [`createGlobalPriorityQueueTests()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2281-L2420) | Registers all priority, synchronization, modifier, direction, and preemption leaves. |
+| Complete registration matrix | [`createGlobalPriorityQueueTests()`](../../../modules/vulkan/synchronization/vktGlobalPriorityQueueTests.cpp#L2281-L2407) | Registers all priority, synchronization, modifier, direction, and preemption leaves. |
 | Parent registration | [`createTestsInternal()`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L114-L159) | Shows LEGACY-only and non-Vulkan-SC placement. |
 | Default legacy mustpass selection | [`synchronization.txt`](../../../mustpass/main/vk-default/synchronization.txt#L31336-L31731) | Lists the 396 selected leaves. |
 | Default synchronization2 mustpass selection | [`synchronization2.txt`](../../../mustpass/main/vk-default/synchronization2.txt) | Confirms that this family has no synchronization2 leaves. |

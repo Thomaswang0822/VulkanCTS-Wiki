@@ -81,7 +81,7 @@ The test generates a small compute shader specialized for texel-buffer or storag
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Registration and generated matrix | [`createOOBAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L965-L1058) | Defines the exact modes, resources, directions, formats, and sizes. |
+| Registration and generated matrix | [`createOOBAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L1007-L1122) | Defines the exact modes, resources, directions, formats, and sizes. |
 | Texel-buffer support and shader | [`OOBBufferTestCase`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L162-L305) | Defines feature gates and generated buffer-access programs. |
 | Texel-buffer runtime check | [`OOBBufferTestInstance::iterate()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L341-L540) | Shows initialization, dispatch, and robust2 validation. |
 | Storage-image support and shader | [`OOBImageTestCase`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L578-L695) | Defines image feature gates and generated programs. |

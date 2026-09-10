@@ -137,23 +137,23 @@ A secondary axis within the operation families is the `BehaviorFlags` value: `de
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Main registration | [createFloatControlsTestGroup()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L5383-L5410) | Creates `fp16`/`fp32`/`fp64` operation groups and calls `createSettingsTests`. |
+| Main registration | [createFloatControlsTestGroup()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L5404-L5431) | Creates `fp16`/`fp32`/`fp64` operation groups and calls `createSettingsTests`. |
 | Operation compute template | [m_operationShaderTemplate](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3978-L4044) | The compute shader string template for all operation tests. |
 | Settings compute template | [m_settingsShaderTemplate](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4046-L4099) | The compute shader string template for independence settings tests. |
-| Settings test case list | [ComputeTestGroupBuilder::createSettingsTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4130-L4269) | Enumerates all independence_settings cases and the property-only case. |
-| Operation test creation | [ComputeTestGroupBuilder::createOperationTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4102-L4128) | Builds per-operation compute cases. |
+| Settings test case list | [ComputeTestGroupBuilder::createSettingsTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4150-L4289) | Enumerates all independence_settings cases and the property-only case. |
+| Operation test creation | [ComputeTestGroupBuilder::createOperationTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4122-L4148) | Builds per-operation compute cases. |
 | Operation shader spec fill | [ComputeTestGroupBuilder::fillShaderSpec(OperationTestCaseInfo)](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4271-L4460) | Specializes the operation template and sets up buffers/features. |
 | Settings shader spec fill | [ComputeTestGroupBuilder::fillShaderSpec(SettingsTestCaseInfo)](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4462-L4554) | Specializes the settings template, picks per-width execution modes and expected results. |
-| Behavior to capability map | [getBehaviorCapabilityAndExecutionMode()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3793-L3818) | Translates `BehaviorFlags` into `OpCapability` + `OpExecutionMode` strings. |
-| Float-controls property setup | [setupFloatControlsProperties()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3820-L3849) | Mirrors requested execution modes into `VkPhysicalDeviceFloatControlsProperties`. |
-| Property consistency check | [verifyIndependenceSettings()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3878-L3960) | Property-only case that validates reported support bits against the independence level. |
-| Result verification | [checkValue()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3440-L3530), [checkFloats()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3532-L3549) | `ValueId`-decoded bit comparison with NaN/denorm/multi-result handling. |
-| Mixed-width verification | [checkMixedFloats()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3551-L3570) | Per-width dispatch for settings tests. |
+| Behavior to capability map | [getBehaviorCapabilityAndExecutionMode()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3802-L3827) | Translates `BehaviorFlags` into `OpCapability` + `OpExecutionMode` strings. |
+| Float-controls property setup | [setupFloatControlsProperties()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3829-L3888) | Mirrors requested execution modes into `VkPhysicalDeviceFloatControlsProperties`. |
+| Property consistency check | [verifyIndependenceSettings()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3892-L3967) | Property-only case that validates reported support bits against the independence level. |
+| Result verification | [checkValue()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3440-L3530), [checkFloats()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3542-L3558) | `ValueId`-decoded bit comparison with NaN/denorm/multi-result handling. |
+| Mixed-width verification | [checkMixedFloats()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3560-L3589) | Per-width dispatch for settings tests. |
 | Operation map | [createOperationMap()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L2142-L2650) | SPIR-V command snippets per `OperationId`. |
 | BehaviorFlags enum | [BehaviorFlagBits](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L109-L116) | The five tested float-control behaviors. |
 | ValueId enum | [ValueId](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L122-L276) | Encoded argument/result values. |
 | Graphics builder no-op settings | [GraphicsTestGroupBuilder::createSettingsTests()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4972-L4977) | Documents the compute-only decision for settings. |
-| Graphics instance context | [GraphicsTestGroupBuilder::createInstanceContext()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4979-L5379) | Builds the graphics pipeline context for vertex/fragment operation tests. |
+| Graphics instance context | [GraphicsTestGroupBuilder::createInstanceContext()](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L5001-L5400) | Builds the graphics pipeline context for vertex/fragment operation tests. |
 
 ## Questions / Risk Points for User Audit
 

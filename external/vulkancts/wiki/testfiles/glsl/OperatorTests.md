@@ -247,9 +247,9 @@ void main()
 ## Runtime Execution and Result Checking
 
 - `ShaderOperatorCaseInstance` maps each case's source ranges onto grid attributes before rendering ([`#L743-L821`](../../../modules/vulkan/shaderrender/vktShaderRenderOperatorTests.cpp#L743-L821)).
-- The shared `ShaderRenderCaseInstance` creates the render setup, compiles the vertex and fragment shader modules, renders the selected case, and copies the result image ([`ShaderRenderCaseInstance::iterate()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L773-L805)).
-- The evaluator computes a reference image for the same grid. Vertex cases use `computeVertexReference()` and fragment cases use `computeFragmentReference()` before comparison ([`#L793-L800`](../../../modules/vulkan/vktShaderRender.cpp#L793-L800)).
-- `iterate()` passes `0.2f` to `compareImages()`. With the case's non-fuzzy setting, the helper uses `pixelThresholdCompare()` with an RGBA threshold of `(1, 1, 1, 1)` ([`#L2721-L2730`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2721-L2730)).
+- The shared `ShaderRenderCaseInstance` creates the render setup, compiles the vertex and fragment shader modules, renders the selected case, and copies the result image ([`ShaderRenderCaseInstance::iterate()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L774-L807)).
+- The evaluator computes a reference image for the same grid. Vertex cases use `computeVertexReference()` and fragment cases use `computeFragmentReference()` before comparison ([`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L793-L800)).
+- `iterate()` passes `0.2f` to `compareImages()`. With the case's non-fuzzy setting, the helper uses `pixelThresholdCompare()` with an RGBA threshold of `(1, 1, 1, 1)` ([`#L2721-L2727`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2721-L2727)).
 - A matching image returns `TestStatus::pass("Result image matches reference")`; otherwise the case returns `TestStatus::fail("Image mismatch")` ([`#L799-L805`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L799-L805)). Shader compilation or pipeline setup errors can fail before this image comparison.
 
 ## Failure Meaning

@@ -124,6 +124,6 @@ Distinguishing between a driver reporting wrong metadata and a test-environment 
 | `testFilesExist()` | [vktApiDeviceDrmPropertiesTests.cpp#L53-L78](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L53-L78) | Auto-satisfies unreported categories, enumerates DRM devices, throws `NotSupportedError` if neither resolves. |
 | `enum TestType` | [vktApiDeviceDrmPropertiesTests.cpp#L42-L45](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L42-L45) | Defines the only internal test type, `TEST_FILES_EXIST`. |
 | Parent registration | [vktApiTests.cpp#L96-L98](../../../modules/vulkan/api/vktApiTests.cpp#L96-L98) | Adds the family under `api` only for non-VulkanSC builds. |
-| Mustpass entry | [api.txt#L269229](../../../mustpass/main/vk-default/api.txt#L269229) | Registers `dEQP-VK.api.device_drm_properties.drm_files_exist` in the default `api` mustpass. |
+| Mustpass entry | [api.txt#L269229](../../../mustpass/main/vk-default/api.txt#L267497) | Registers `dEQP-VK.api.device_drm_properties.drm_files_exist` in the default `api` mustpass. |
 | `tcu::LibDrm` header | [tcuLibDrm.hpp](../../../../../framework/common/tcuLibDrm.hpp) | Framework helper that loads `libdrm` and exposes `getDevices()` / `findDeviceNode()`. |
 | `findDeviceNode()` | [tcuLibDrm.cpp#L111-L135](../../../../../framework/common/tcuLibDrm.cpp#L111-L135) | Stats each DRM device node and matches the reported major/minor pair against `st_rdev`. |

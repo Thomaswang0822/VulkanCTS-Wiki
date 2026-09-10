@@ -28,7 +28,7 @@ subgroups.clustered
 |-----------|-------------------|----------------------|----------|
 | Operation | `subgroupClusteredAdd`, `subgroupClusteredMul`, `subgroupClusteredMin`, `subgroupClusteredMax`, `subgroupClusteredAnd`, `subgroupClusteredOr`, `subgroupClusteredXor` | Selects the clustered built-in, identity, reference expression, and comparison rule. | [`getOperator` and `getOpTypeName`](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L42-L106) |
 | Data type and vector width | Signed and unsigned integer, floating-point, double, Boolean, and supported extended types with widths 1, 2, 3, 4, and 8 where available | Changes GLSL declarations, format extensions, identity values, reference expressions, and comparison behavior. | [`getAllFormats`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1878-L1912) and [`getFormatNameForGLSL`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1821-L1875) |
-| Execution path | `graphics`, `compute`, `framebuffer`, `ray_tracing`, `mesh` | Routes the shared clustered body through different shader stages and result transports. | [`createSubgroupsClusteredTests`](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L384-L566) |
+| Execution path | `graphics`, `compute`, `framebuffer`, `ray_tracing`, `mesh` | Routes the shared clustered body through different shader stages and result transports. | [`createSubgroupsClusteredTests`](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L383-L565) |
 | Framebuffer stage | `vertex`, `tess_control`, `tess_eval`, `geometry` | Selects which graphics stage evaluates the operation in a framebuffer path. | [`fbStages`](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L394-L399) |
 | Mesh stage | `mesh`, `task` | Selects the mesh stage that runs the body or the task stage that records the result. | [`meshStages`](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L400-L405) |
 | Required subgroup size | disabled, enabled for compute and mesh | The enabled case reruns the test for each supported power-of-two size. | [`test` required-size loop](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L295-L339) |
@@ -1405,7 +1405,7 @@ A failure in any row can also come from incorrect active-lane ballot handling, i
 - The device must support Vulkan subgroups, clustered subgroup operations, the selected data format, and the selected shader stage.
 - Extended 8-bit, 16-bit, 64-bit, float16, double, long-vector, and Boolean cases use the corresponding format and storage checks in [`supportedCheck`](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L188-L232).
 - Required-subgroup-size cases need `VK_EXT_subgroup_size_control`, both `subgroupSizeControl` and `computeFullSubgroups`, and required-size support for the selected stage.
-- Ray-tracing cases need `VK_KHR_ray_tracing_pipeline`. Mesh cases need `VK_EXT_mesh_shader` and vertex-pipeline stores and atomics; task cases also need `taskShader`.
+- Ray-tracing cases need `VK_KHR_ray_tracing_pipeline`. Mesh cases need `VK_EXT_mesh_shader`; task cases also need `taskShader`.
 
 ### Design-based pruning
 
@@ -1429,8 +1429,8 @@ A failure in any row can also come from incorrect active-lane ballot handling, i
 | Operation model and shader body | [`CaseDefinition`, `getOperator`, `getExtHeader`, `getTestSrc`](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L42-L159) | Defines operation names, type-dependent source, cluster-size loop, reference fold, and result flag. |
 | Program build options | [`initFrameBufferPrograms` and `initPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L161-L186) | Selects SPIR-V 1.3 or 1.4 according to the execution path. |
 | Support checks | [`supportedCheck`](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L188-L254) | Enforces subgroup feature, format, stage, and required-size requirements. |
-| Runtime routing | [`noSSBOtest` and `test`](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L256-L377) | Selects compute, graphics, framebuffer, ray-tracing, or mesh execution. |
-| Registration matrix | [`createSubgroupsClusteredTests`](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L384-L566) | Creates exact execution-path names and operation, format, stage, and required-size combinations. |
+| Runtime routing | [`noSSBOtest` and `test`](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L255-L376) | Selects compute, graphics, framebuffer, ray-tracing, or mesh execution. |
+| Registration matrix | [`createSubgroupsClusteredTests`](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L383-L565) | Creates exact execution-path names and operation, format, stage, and required-size combinations. |
 | Common shader wrappers | [`initStdPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1406-L1675) | Supplies stage declarations, global indexing, and result writes. |
 | Operation helpers | [`vktSubgroupsScanHelpers.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsScanHelpers.cpp#L39-L348) | Defines built-in names, identities, reference operators, and comparisons. |
 | Host result callbacks | [`check` and `checkComputeOrMesh`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2640-L2663) | Require every observed result to equal `1`. |

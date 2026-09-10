@@ -1,6 +1,6 @@
 ## Overview
 
-**Core question:** When a vertex buffer is bound at different byte offsets, does Vulkan still fetch the intended `vec2` or `vec4` attribute bytes for packed, padded, and overlapping layouts under static and dynamic vertex-input state?
+**Core question:** When a vertex buffer is bound at different byte offsets, does Vulkan still fetch the intended `vec2` or `vec4` attribute bytes for packed, padded, and overlapping layouts under static and dynamic vertex-input state, including the two-binding packed-SNORM8 case?
 
 [`vktPipelineInputAttributeOffsetTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L1) creates the `input_attribute_offset` group for the requested pipeline-construction type; the monolithic invocation is `pipeline.monolithic.input_attribute_offset`. The test renders vertex data to a 4×4 opaque-blue image, then checks every pixel with zero tolerance.
 
@@ -19,23 +19,25 @@ Static cases put `VkVertexInputBindingDescription` and `VkVertexInputAttributeDe
 ```text
 pipeline.monolithic.input_attribute_offset
 ├── vec2
-└── vec4
+├── vec4
+└── two_binds_vec4
 ```
 
-[`createInputAttributeOffsetTests()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L511-L563) creates these families for each construction type. Each family then expands by `offset_N`, stride case, memory-offset choice, and static or dynamic state.
+[`createInputAttributeOffsetTests()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L646-L715) creates these families for each construction type. Each of the first two families expands by `offset_N`, stride case, memory-offset choice, and static or dynamic state; `two_binds_vec4` registers a separate `offset_0` through `offset_3` subtree with one `dynamic` leaf each.
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |---|---|---|---|
 | Data type | `TYPE_FLOAT_VEC2`, `TYPE_FLOAT_VEC4` | Selects attribute size and Vulkan format. | [`getTypeSize()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L101-L115) |
-| `bindingOffset` | `0` through `typeSize - 1` | Selects every possible byte offset for the vertex-buffer binding. | [`offset` loop](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L517-L525) |
+| `bindingOffset` | `0` through `typeSize - 1` | Selects every possible byte offset for the vertex-buffer binding. | [`offset` loop](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L657-L665) |
 | `strideCase` | `PACKED`, `PADDED`, `OVERLAPPING` | Selects record stride and buffer layout; `OVERLAPPING` is `vec2` only. | [`StrideCase`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L53-L99) |
-| `useMemoryOffset` | `false`, `true` | Selects zero or aligned nonzero buffer-memory binding offset. | [`memoryOffset` calculation](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L370-L391) |
-| Vertex-input state | `static`, `dynamic` | Selects pipeline creation state or command-buffer state. | [`dynamic` setup](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L407-L435) |
-| Pipeline construction | `PipelineConstructionType` | Selects the pipeline construction path. | [`TestParams`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L117-L124) |
+| `useMemoryOffset` | `false`, `true` | Selects zero or aligned nonzero buffer-memory binding offset. | [`memoryOffset` calculation](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L481-L491) |
+| Vertex-input state | `static`, `dynamic` | Selects pipeline creation state or command-buffer state. | [`dynamic` setup](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L526-L535) |
+| Pipeline construction | `PipelineConstructionType` | Selects the pipeline construction path. | [`TestParams`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L117-L182) |
+| `two_binds_vec4` attribute offset | `0` through `3` | Selects the byte offset inside one 4-byte packed `R8G8B8A8_SNORM` record, split across two bindings. | [`two_binds_vec4` registration](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L697-L712) |
 
-`vec2` has 8 byte-offset values. Each combines 3 layouts, 2 memory-offset choices, and 2 state modes for 96 leaves. `vec4` has 16 offsets and omits `OVERLAPPING`, producing 128 leaves. Each construction root therefore has 224 leaves. `monolithic.txt` contains 224 `dEQP-VK.pipeline.monolithic.input_attribute_offset.` paths.
+`vec2` has 8 byte-offset values. Each combines 3 layouts, 2 memory-offset choices, and 2 state modes for 96 leaves. `vec4` has 16 offsets and omits `OVERLAPPING`, producing 128 leaves. `two_binds_vec4` adds 4 dynamic-only leaves. Each construction root therefore has 228 leaves, including the Vulkan SC monolithic root. The monolithic split file [`pipeline/monolithic/input-attribute-offset.txt`](../../../mustpass/main/vk-default/pipeline/monolithic/input-attribute-offset.txt) contains 228 `dEQP-VK.pipeline.monolithic.input_attribute_offset.` paths.
 
 ## Behavior Parameters
 
@@ -51,9 +53,13 @@ pipeline.monolithic.input_attribute_offset
 
 This variant is limited to `TYPE_FLOAT_VEC2`. `attributeFormat()` selects `VK_FORMAT_R32G32B32A32_SFLOAT`, and the shader input becomes `vec4` while the buffer remains a sequence of `vec2` records. The host appends a zero `vec2` so the last four-component fetch remains inside the buffer. The shader uses `.xy` for position and evaluates `.zw`, preventing an implementation from reading only two components.
 
+### `two_binds_vec4`: packed SNORM8 attributes across two bindings
+
+These dynamic-only leaves split 48 vertices across two vertex-buffer bindings. Buffer 1 stores `[bindingOffset][attributeOffset][v0..v23]` and is bound at `bindingOffset`; buffer 2 stores one half-vertex-count stride of zero padding followed by `v24..v47` and is bound at offset zero. Both bindings use the `R8G8B8A8_SNORM` format with the same 4-byte stride, and the attribute offset varies from 0 to 3 within each packed record. The vertex shader declares `inPos0` at location 0 and `inPos1` at location 1 and selects `inPos0` when `gl_VertexIndex < 24`, otherwise `inPos1`. A single draw of 48 vertices feeds both bindings through one `cmdSetVertexInputEXT` call with two `VkVertexInputBindingDescription2EXT` and two `VkVertexInputAttributeDescription2EXT` structures. [`two_binds_vec4` registration](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L697-L712) [`two-binds buffers`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L446-L478) [`two-binds draw`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L560-L594)
+
 ## Shader Analysis
 
-[`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L329-L358) generates both GLSL programs. The vertex shader reads location 0 and writes `gl_Position`. The fragment shader does not consume vertex input; it writes default blue. Fixed-function vertex-input state performs the behavior under test.
+[`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L369-L417) generates both GLSL programs. The ordinary vertex shader reads location 0 and writes `gl_Position`; the `two_binds_vec4` variant declares two `vec4` inputs and selects between them by `gl_VertexIndex`. The fragment shader does not consume vertex input; it writes default blue. Fixed-function vertex-input state performs the behavior under test.
 
 ### Representative Shader Walkthrough 1
 
@@ -100,10 +106,10 @@ void main (void) { gl_Position = vec4(inPos.xy, floor(abs(inPos.z) / 1000.0), (f
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---|---|---|
-| `dynamic` | None; only the description-submission path changes. | [`dynamic` branch](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L407-L435) |
-| `bindingOffset` | None; host buffer address and compensated attribute offset change. | [`attributeOffset()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L152-L158) |
-| `useMemoryOffset` | None; allocation memory-binding offset changes. | [`memoryOffset` calculation](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L376-L390) |
-| `strideCase` | Only `OVERLAPPING` uses this `vec4` shader. `PACKED` and `PADDED` use a `vec2` input. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L339-L356) |
+| `dynamic` | None; only the description-submission path changes. | [`dynamic` branch](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L526-L535) |
+| `bindingOffset` | None; host buffer address and compensated attribute offset change. | [`attributeOffset()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L160-L167) |
+| `useMemoryOffset` | None; allocation memory-binding offset changes. | [`memoryOffset` calculation](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L481-L491) |
+| `strideCase` | Only `OVERLAPPING` uses this `vec4` shader. `PACKED` and `PADDED` use a `vec2` input. | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L388-L407) |
 
 #### SPIR-V
 
@@ -190,10 +196,10 @@ void main (void) { gl_Position = vec4(inPos.xy, floor(abs(inPos.z) / 1000.0), (f
 
 ## Runtime Execution and Result Checking
 
-1. `generateVertices()` makes triangles that cover the 4×4 framebuffer. `buildVertexBufferData()` writes bytes using the binding offset, compensated attribute offset, stride, and padding; overlap storage adds one `vec2`.
-2. The test creates a `VK_BUFFER_USAGE_VERTEX_BUFFER_BIT` buffer in host-visible memory. With `useMemoryOffset`, it adds `lcm(vertexBufferReqs.alignment, attributeSize())` to the allocation and binds memory at that offset.
+1. `generateVertices()` makes triangles that cover the 4×4 framebuffer. `buildVertexBufferData()` writes bytes using the binding offset, compensated attribute offset, stride, and padding; overlap storage adds one `vec2`, and the two-binds variant packs each vertex as four SNORM8 bytes.
+2. The test creates a `VK_BUFFER_USAGE_VERTEX_BUFFER_BIT` buffer in host-visible memory. With `useMemoryOffset`, it adds `lcm(vertexBufferReqs.alignment, attributeSize())` to the allocation and binds memory at that offset. The two-binds variant instead creates two vertex buffers and fills them with the first and second vertex halves.
 3. It creates a `VK_FORMAT_R8G8B8A8_UNORM` color image, render pass, framebuffer, pipeline layout, and graphics pipeline. Dynamic leaves enable `VK_DYNAMIC_STATE_VERTEX_INPUT_EXT`.
-4. The command buffer binds the pipeline and vertex buffer. Dynamic leaves call `cmdSetVertexInputEXT`, then all leaves call `cmdDraw`. The test copies the color image to a buffer, submits, and waits.
+4. The command buffer binds the pipeline and vertex buffer. Dynamic leaves call `cmdSetVertexInputEXT`, then all leaves call `cmdDraw`; the two-binds variant binds both buffers and supplies both binding and attribute pairs in one call. The test copies the color image to a buffer, submits, and waits.
 5. The host invalidates the allocation and compares it with `getDefaultColor()` using `tcu::floatThresholdCompare` and `tcu::Vec4(0.0f)`. Any non-blue result fails.
 
 ## Failure Meaning
@@ -205,6 +211,7 @@ void main (void) { gl_Position = vec4(inPos.xy, floor(abs(inPos.z) / 1000.0), (f
 | `PACKED` | Attribute address computation, bound-buffer offset handling, format interpretation, or static/dynamic state setup selects the wrong bytes. |
 | `PADDED` | Stride calculation or padding skip is wrong, or the implementation uses attribute width rather than declared stride for a later vertex. |
 | `OVERLAPPING` | A four-component fetch from adjacent `vec2` records is incomplete, reads the wrong neighboring bytes, or the `.zw` validation path receives unexpected values. |
+| `two_binds_vec4` | The per-binding offset is misapplied for one of the two bindings, SNORM8 unpacking of a shifted record is wrong, or the dynamic two-binding description pair selects the wrong buffer for vertices 24 through 47. |
 
 ### Cause Analysis
 
@@ -232,6 +239,12 @@ void main (void) { gl_Position = vec4(inPos.xy, floor(abs(inPos.z) / 1000.0), (f
 
 **Possible implementation causes:** `cmdSetVertexInputEXT` may not establish the supplied descriptions, or memory binding and buffer binding offsets may combine incorrectly. Dynamic leaves require `VK_EXT_vertex_input_dynamic_state`.
 
+#### Two-binding packed-format error
+
+**Possible failure symptoms:** `two_binds_vec4` fails while single-binding `vec4` leaves pass, potentially only for vertices 24 through 47 or only at the larger attribute offsets.
+
+**Possible implementation causes:** The implementation may apply the binding offset to the wrong binding, fetch from the wrong buffer when two bindings feed locations 0 and 1, or unpack `VK_FORMAT_R8G8B8A8_SNORM` records that start at a nonzero byte offset within the stride. Compare both buffer layouts against the two `cmdBindVertexBuffers` calls.
+
 ## Case Pruning
 
 ### Requirement-based pruning
@@ -244,12 +257,13 @@ void main (void) { gl_Position = vec4(inPos.xy, floor(abs(inPos.z) / 1000.0), (f
 
 - `vec2` covers offsets `0` through `7`; `vec4` covers offsets `0` through `15`.
 - `OVERLAPPING` is omitted for `vec4` because it models a `vec4` fetch from `vec2` storage.
-- Every offset has both memory-binding choices and both state modes. The monolithic mustpass file contains all 224 leaves.
+- Every offset has both memory-binding choices and both state modes. `two_binds_vec4` covers offsets `0` through `3` with a `dynamic` leaf only. The monolithic split mustpass file contains all 228 leaves.
 
 ## Key Takeaways
 
 - The matrix separates buffer binding offset, compensated attribute offset, optional memory-binding offset, and binding stride.
 - `PACKED`, `PADDED`, and `OVERLAPPING` exercise distinct byte layouts. `OVERLAPPING` exposes adjacent-record fetches through `.zw` use.
+- `two_binds_vec4` extends the offset matrix to two simultaneously bound buffers with a packed SNORM8 format.
 - Static and dynamic vertex-input descriptions must produce identical opaque-blue output.
 - The zero-threshold image comparison exposes fetch, state, and layout defects.
 
@@ -257,10 +271,10 @@ void main (void) { gl_Position = vec4(inPos.xy, floor(abs(inPos.z) / 1000.0), (f
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| Parameters and layout helpers | [`TestParams`, `attributeOffset()`, and `bindingStride()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L117-L173) | Defines dimensions and byte layout. |
-| Vertex-buffer construction | [`buildVertexBufferData()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L178-L220) | Shows padding, overlap tail, and byte placement. |
-| Generated programs | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L329-L358) | Defines vertex input types and blue fragment output. |
-| Runtime and comparison | [`InputAttributeOffsetInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L360-L507) | Shows setup, draw, readback, and oracle. |
-| Registration | [`createInputAttributeOffsetTests()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L511-L563) | Defines the 224-leaf matrix per construction root. |
+| Parameters and layout helpers | [`TestParams`, `attributeOffset()`, and `bindingStride()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L117-L182) | Defines dimensions and byte layout. |
+| Vertex-buffer construction | [`buildVertexBufferData()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L203-L260) | Shows padding, overlap tail, SNORM8 packing, and byte placement. |
+| Generated programs | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L369-L417) | Defines vertex input types, the two-input selector, and blue fragment output. |
+| Runtime and comparison | [`InputAttributeOffsetInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L419-L642) | Shows setup, draw, readback, and oracle. |
+| Registration | [`createInputAttributeOffsetTests()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L646-L715) | Defines the 228-leaf matrix per construction root. |
 | Specification context | [Vertex input](../../../../vulkan-docs/src/chapters/fxvertex.adoc#L14-L38) | Describes vertex input bindings and attributes. |
-| Mustpass evidence | [`monolithic.txt`](../../../mustpass/main/vk-default/pipeline/monolithic/monolithic.txt) | Confirms monolithic coverage. |
+| Mustpass evidence | [`input-attribute-offset.txt`](../../../mustpass/main/vk-default/pipeline/monolithic/input-attribute-offset.txt) | Confirms monolithic coverage. |

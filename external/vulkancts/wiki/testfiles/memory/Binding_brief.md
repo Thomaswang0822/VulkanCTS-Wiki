@@ -103,7 +103,7 @@ The source generates a registration matrix from resource sizes, allocation modes
 | Batched binding and status checks | [binding functions](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L726-L815) | Builds the bind arrays and checks optional per-bind results. |
 | Transfer and host comparison | [copy/check helpers](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L817-L988) | Establishes synchronization, copyback, and byte validation. |
 | Regular and aliasing flows | [test instances](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L990-L1084) | Shows same-resource round trips versus paired-alias round trips. |
-| Registration matrix | [`createMemoryBindingTests`](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L1126-L1237) | Defines the exact hierarchy, sizes, factors, and variant nesting. |
+| Registration matrix | [`createMemoryBindingTests`](../../../modules/vulkan/memory/vktMemoryBindingTests.cpp#L1132-L1244) | Defines the exact hierarchy, sizes, factors, and variant nesting. |
 | Bind-memory semantics | [Vulkan resources chapter](../../../../vulkan-docs/src/chapters/resources.adoc#L10511-L10562) | Defines multi-resource binding and command failure behavior. |
 | Priority semantics | [Vulkan memory chapter](../../../../vulkan-docs/src/chapters/memory.adoc#L2108-L2170) | Defines allocation-time and dynamic priority ranges and operations. |
 

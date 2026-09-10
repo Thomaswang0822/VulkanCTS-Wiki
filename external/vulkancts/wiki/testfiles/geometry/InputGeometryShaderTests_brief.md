@@ -137,7 +137,6 @@ A failure suggests that the implementation may mishandle one of the geometry-sha
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Old source-navigation page | [vktGeometryInputGeometryShaderTests.md](vktGeometryInputGeometryShaderTests.md) | Inventory of registered groups, parameters, support checks, and delegated helpers. |
 | Input test instance data | [GeometryInputTestInstance::genVertexAttribData()](../../../modules/vulkan/geometry/vktGeometryInputGeometryShaderTests.cpp#L85) | Defines the fixed position/color pattern rendered by all leaves. |
 | Support gating | [GeometryExpanderRenderTest::checkSupport()](../../../modules/vulkan/geometry/vktGeometryInputGeometryShaderTests.cpp#L134) | Requires geometry shader support and handles triangle-fan portability-subset rejection. |
 | Shader generation | [GeometryExpanderRenderTest::initPrograms()](../../../modules/vulkan/geometry/vktGeometryInputGeometryShaderTests.cpp#L149) | Emits the vertex, geometry, optional point-size geometry, and fragment programs. |

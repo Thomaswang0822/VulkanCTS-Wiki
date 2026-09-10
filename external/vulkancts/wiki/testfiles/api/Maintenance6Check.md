@@ -114,4 +114,4 @@ Because `api.maintenance6_check.maintenance6_properties` is a single fixed case 
 | Per-format descriptor count query | [vktApiMaintenance6Check.cpp#L90-L99](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L90-L99) | Chains `VkSamplerYcbcrConversionImageFormatProperties` and calls `getPhysicalDeviceImageFormatProperties2` per format. |
 | Pass/fail comparison | [vktApiMaintenance6Check.cpp#L100-L113](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L100-L113) | Fails on the first per-format value exceeding the limit, otherwise passes. |
 | Non-VulkanSC guard | [vktApiMaintenance6Check.cpp#L39](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L39) | The file is compiled only when `CTS_USES_VULKANSC` is not defined. |
-| Mustpass entry | [api.txt#L327291](../../../mustpass/main/vk-default/api.txt#L327291) | The single `dEQP-VK.api.maintenance6_check.maintenance6_properties` line. |
+| Mustpass entry | [api.txt#L327291](../../../mustpass/main/vk-default/api.txt#L267497) | The single `dEQP-VK.api.maintenance6_check.maintenance6_properties` line. |

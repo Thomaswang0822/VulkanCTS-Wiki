@@ -31,14 +31,11 @@
 #include "vktTestCaseUtil.hpp"
 #include "vkImageWithMemory.hpp"
 
-#include "vktTestCase.hpp"
-
 #include "vkDefs.hpp"
 #include "vkTypeUtil.hpp"
 #include "vkQueryUtil.hpp"
 #include "vkObjUtil.hpp"
 #include "vkBufferWithMemory.hpp"
-#include "vkImageWithMemory.hpp"
 #include "vkBuilderUtil.hpp"
 #include "vkCmdUtil.hpp"
 #include "vkImageUtil.hpp"
@@ -51,20 +48,12 @@
 
 #include <vector>
 #include <sstream>
-#include <algorithm>
-#include <utility>
 #include <iterator>
 #include <string>
-#include <limits>
 #include <memory>
-#include <functional>
-#include <cstddef>
-#include <set>
 #include <numeric>
 
-namespace vkt
-{
-namespace conditional
+namespace vkt::conditional
 {
 namespace
 {
@@ -87,21 +76,28 @@ std::unique_ptr<BufferWithMemory> makeBufferForImage(const DeviceInterface &vkd,
     return outBuffer;
 }
 
+void commonCheckSupport(Context &context, const ConditionalData &data)
+{
+    context.requireDeviceFunctionality("VK_EXT_conditional_rendering");
+    if (data.conditionInherited && !context.getConditionalRenderingFeaturesEXT().inheritedConditionalRendering)
+        TCU_THROW(NotSupportedError, "Device does not support inherited conditional rendering");
+
+    if (data.secondaryCommandBufferNested)
+    {
+        context.requireDeviceFunctionality("VK_EXT_nested_command_buffer");
+        const auto &features = context.getNestedCommandBufferFeaturesEXT();
+        if (!features.nestedCommandBuffer)
+            TCU_THROW(NotSupportedError, "nestedCommandBuffer is not supported");
+    }
+}
+
 class ConditionalIgnoreClearColorTestCase : public vkt::TestCase
 {
 public:
     ConditionalIgnoreClearColorTestCase(tcu::TestContext &context, const std::string &name,
                                         const ConditionalData &data);
-    void initPrograms(SourceCollections &) const override
-    {
-    }
+    void checkSupport(Context &context) const override;
     TestInstance *createInstance(Context &context) const override;
-    void checkSupport(Context &context) const override
-    {
-        context.requireDeviceFunctionality("VK_EXT_conditional_rendering");
-        if (m_data.conditionInherited && !context.getConditionalRenderingFeaturesEXT().inheritedConditionalRendering)
-            TCU_THROW(NotSupportedError, "Device does not support inherited conditional rendering");
-    }
 
 private:
     const ConditionalData m_data;
@@ -125,6 +121,11 @@ ConditionalIgnoreClearColorTestCase::ConditionalIgnoreClearColorTestCase(tcu::Te
     : vkt::TestCase(context, name)
     , m_data(data)
 {
+}
+
+void ConditionalIgnoreClearColorTestCase::checkSupport(Context &context) const
+{
+    commonCheckSupport(context, m_data);
 }
 
 TestInstance *ConditionalIgnoreClearColorTestCase::createInstance(Context &context) const
@@ -193,14 +194,6 @@ tcu::TestStatus ConditionalIgnoreClearColorTestInstance::queuePass(const QueueDa
     auto conditionalBuffer = createConditionalRenderingBuffer(m_context, m_data);
     //prepare command buffers
     const bool useSecondaryCmdBuffer = m_data.conditionInherited || m_data.conditionInSecondaryCommandBuffer;
-
-    if (m_data.secondaryCommandBufferNested)
-    {
-        m_context.requireDeviceFunctionality("VK_EXT_nested_command_buffer");
-        const auto &features = m_context.getNestedCommandBufferFeaturesEXT();
-        if (!features.nestedCommandBuffer)
-            TCU_THROW(NotSupportedError, "nestedCommandBuffer is not supported");
-    }
 
     VkCommandBufferInheritanceConditionalRenderingInfoEXT conditionalRenderingInheritanceInfo = initVulkanStructure();
     conditionalRenderingInheritanceInfo.conditionalRenderingEnable = m_data.conditionInherited ? VK_TRUE : VK_FALSE;
@@ -312,16 +305,8 @@ class ConditionalIgnoreClearDepthTestCase : public vkt::TestCase
 public:
     ConditionalIgnoreClearDepthTestCase(tcu::TestContext &context, const std::string &name,
                                         const ConditionalData &data);
-    void initPrograms(SourceCollections &) const override
-    {
-    }
+    void checkSupport(Context &context) const override;
     TestInstance *createInstance(Context &context) const override;
-    void checkSupport(Context &context) const override
-    {
-        context.requireDeviceFunctionality("VK_EXT_conditional_rendering");
-        if (m_data.conditionInherited && !context.getConditionalRenderingFeaturesEXT().inheritedConditionalRendering)
-            TCU_THROW(NotSupportedError, "Device does not support inherited conditional rendering");
-    }
 
 private:
     const ConditionalData m_data;
@@ -345,6 +330,11 @@ ConditionalIgnoreClearDepthTestCase::ConditionalIgnoreClearDepthTestCase(tcu::Te
     : vkt::TestCase(context, name)
     , m_data(data)
 {
+}
+
+void ConditionalIgnoreClearDepthTestCase::checkSupport(Context &context) const
+{
+    commonCheckSupport(context, m_data);
 }
 
 TestInstance *ConditionalIgnoreClearDepthTestCase::createInstance(Context &context) const
@@ -413,14 +403,6 @@ tcu::TestStatus ConditionalIgnoreClearDepthTestInstance::iterate(void)
     auto conditionalBuffer = createConditionalRenderingBuffer(m_context, m_data);
     //prepare command buffers
     const bool useSecondaryCmdBuffer = m_data.conditionInherited || m_data.conditionInSecondaryCommandBuffer;
-
-    if (m_data.secondaryCommandBufferNested)
-    {
-        m_context.requireDeviceFunctionality("VK_EXT_nested_command_buffer");
-        const auto &features = m_context.getNestedCommandBufferFeaturesEXT();
-        if (!features.nestedCommandBuffer)
-            TCU_THROW(NotSupportedError, "nestedCommandBuffer is not supported");
-    }
 
     VkCommandBufferInheritanceConditionalRenderingInfoEXT conditionalRenderingInheritanceInfo = initVulkanStructure();
     conditionalRenderingInheritanceInfo.conditionalRenderingEnable = m_data.conditionInherited ? VK_TRUE : VK_FALSE;
@@ -573,6 +555,7 @@ tcu::TestStatus pushConstantTest(Context &context, GeneralCmdParams params)
     auto &outBufferAlloc = outBuffer.getAllocation();
     {
         memset(outBufferAlloc.getHostPtr(), 0, sizeof(uint32_t));
+        flushAlloc(ctx.vkd, ctx.device, outBufferAlloc);
     }
 
     const auto crBufferSize  = static_cast<VkDeviceSize>(sizeof(uint32_t));
@@ -669,6 +652,7 @@ tcu::TestStatus updateBufferTest(Context &context, GeneralCmdParams params)
     auto &bufferAlloc = buffer.getAllocation();
     {
         memcpy(bufferAlloc.getHostPtr(), &initialValues, sizeof(initialValues));
+        flushAlloc(ctx.vkd, ctx.device, bufferAlloc);
     }
 
     const auto crBufferSize  = static_cast<VkDeviceSize>(sizeof(uint32_t));
@@ -736,6 +720,7 @@ tcu::TestStatus fillBufferTest(Context &context, GeneralCmdParams params)
     auto &bufferAlloc = buffer.getAllocation();
     {
         memcpy(bufferAlloc.getHostPtr(), &initialValues, sizeof(initialValues));
+        flushAlloc(ctx.vkd, ctx.device, bufferAlloc);
     }
 
     const auto crBufferSize  = static_cast<VkDeviceSize>(sizeof(uint32_t));
@@ -1587,6 +1572,7 @@ tcu::TestStatus copyBufferToImageTest(Context &context, GeneralCmdParams params)
         auto &alloc = srcBuffer.getAllocation();
         tcu::PixelBufferAccess srcAccess(tcuFormat, extent, alloc.getHostPtr());
         tcu::clear(srcAccess, srcColor);
+        flushAlloc(ctx.vkd, ctx.device, alloc);
     }
 
     const auto crBufferSize  = static_cast<VkDeviceSize>(sizeof(uint32_t));
@@ -1683,6 +1669,7 @@ tcu::TestStatus copyBufferTest(Context &context, GeneralCmdParams params)
         auto &alloc = srcBuffer.getAllocation();
         tcu::PixelBufferAccess srcAccess(tcuFormat, extent, alloc.getHostPtr());
         tcu::clear(srcAccess, srcColor);
+        flushAlloc(ctx.vkd, ctx.device, alloc);
     }
 
     const auto crBufferSize  = static_cast<VkDeviceSize>(sizeof(uint32_t));
@@ -1813,6 +1800,7 @@ tcu::TestStatus graphicsBindTest(Context &context, GraphicsBindParams params)
     {
         auto &alloc = goodColorsBuffer.getAllocation();
         memcpy(alloc.getHostPtr(), &goodColors, sizeof(goodColors));
+        flushAlloc(ctx.vkd, ctx.device, alloc);
     }
 
     BufferWithMemory badColorsBuffer(ctx.vkd, ctx.device, ctx.allocator, colorsBufferCreateInfo,
@@ -1820,6 +1808,7 @@ tcu::TestStatus graphicsBindTest(Context &context, GraphicsBindParams params)
     {
         auto &alloc = badColorsBuffer.getAllocation();
         memcpy(alloc.getHostPtr(), &badColors, sizeof(badColors));
+        flushAlloc(ctx.vkd, ctx.device, alloc);
     }
 
     // Vertex buffers.
@@ -1840,6 +1829,7 @@ tcu::TestStatus graphicsBindTest(Context &context, GraphicsBindParams params)
     {
         auto &alloc = goodVertexBuffer.getAllocation();
         memcpy(alloc.getHostPtr(), de::dataOrNull(goodVertices), de::dataSize(goodVertices));
+        flushAlloc(ctx.vkd, ctx.device, alloc);
     }
 
     BufferWithMemory badVertexBuffer(ctx.vkd, ctx.device, ctx.allocator, vertexBufferCreateInfo,
@@ -1847,6 +1837,7 @@ tcu::TestStatus graphicsBindTest(Context &context, GraphicsBindParams params)
     {
         auto &alloc = badVertexBuffer.getAllocation();
         memcpy(alloc.getHostPtr(), de::dataOrNull(badVertices), de::dataSize(badVertices));
+        flushAlloc(ctx.vkd, ctx.device, alloc);
     }
 
     // Index buffers.
@@ -1863,6 +1854,7 @@ tcu::TestStatus graphicsBindTest(Context &context, GraphicsBindParams params)
     {
         auto &alloc = goodIndexBuffer.getAllocation();
         memcpy(alloc.getHostPtr(), de::dataOrNull(goodIndices), de::dataSize(goodIndices));
+        flushAlloc(ctx.vkd, ctx.device, alloc);
     }
 
     BufferWithMemory badIndexBuffer(ctx.vkd, ctx.device, ctx.allocator, indexBufferCreateInfo,
@@ -1870,6 +1862,7 @@ tcu::TestStatus graphicsBindTest(Context &context, GraphicsBindParams params)
     {
         auto &alloc = badIndexBuffer.getAllocation();
         memcpy(alloc.getHostPtr(), de::dataOrNull(badIndices), de::dataSize(badIndices));
+        flushAlloc(ctx.vkd, ctx.device, alloc);
     }
 
     // Fragment shaders.
@@ -2436,5 +2429,4 @@ void ConditionalIgnoreTests::init(void)
     }
 }
 
-} // namespace conditional
-} // namespace vkt
+} // namespace vkt::conditional

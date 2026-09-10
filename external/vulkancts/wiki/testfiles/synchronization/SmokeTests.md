@@ -15,7 +15,7 @@
 
 ## Registration Hierarchy
 
-The implementation registers one test family under each test category. Both trees contain the same ten shared leaves; only the legacy tree adds `fences`.
+The implementation registers ten shared leaves under both categories. The legacy tree also adds `fences` and `queue_type_image_barrier_external`.
 
 ```text
 synchronization.smoke
@@ -29,7 +29,8 @@ synchronization.smoke
 ├── queue_type_ignore_image_ignored
 ├── queue_type_ignore_image_external
 ├── queue_type_ignore_image_foreign
-└── queue_type_ignore_image_arbitrary
+├── queue_type_ignore_image_arbitrary
+└── queue_type_image_barrier_external
 ```
 
 The synchronization2 test category registers the shared leaves under a separate root:
@@ -165,7 +166,7 @@ void main (void) {
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | Queue-family suffix | None; `FamilyType` changes barrier queue-family indices only, not generated shader text. | [family mapping and shader registration](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1358-L1391), [image barrier index](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1492-L1505) |
-| Synchronization API | None; `params.sync2` selects barrier structures and commands around the same shader pair. | [synchronization2 image barriers](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1541-L1583), [synchronization2 registration](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1755-L1784) |
+| Synchronization API | None; `params.sync2` selects barrier structures and commands around the same shader pair. | [synchronization2 image barriers](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1536-L1579), [synchronization2 registration](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1753-L1782) |
 | Image extent and format | None in shader text; host setup fixes a 1x1 `VK_FORMAT_R8G8B8A8_UNORM` render target for this family. | [image setup](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1492-L1505) |
 
 #### SPIR-V
@@ -299,6 +300,7 @@ void main (void) {
 
 ## Runtime Execution and Result Checking
 
+- The legacy-only `queue_type_image_barrier_external` case creates a 16 × 16 image, transitions it from `UNDEFINED` to `GENERAL`, then records a release from the executing queue family to `VK_QUEUE_FAMILY_EXTERNAL` while changing the layout to `COLOR_ATTACHMENT_OPTIMAL`. It submits and waits without drawing or comparing pixels; successful completion is the verdict ([implementation](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1659-L1703)). Unlike the `queue_type_ignore_*` cases, this barrier uses different source and destination queue-family indices.
 - `fences` creates two unsignaled fences, records a 256x256 draw, and submits it with the first fence. Zero-timeout and two-second waits may return either `VK_SUCCESS` or `VK_TIMEOUT`; the infinite wait must return `VK_SUCCESS`. A one-nanosecond wait on the unsubmitted fence must return `VK_TIMEOUT`, and the submitted fence must then report `VK_SUCCESS`. The rendered image is logged but not compared.
 - Each semaphore leaf creates a device with two queues from one graphics queue family and records one draw per queue. The host submits the first draw with a semaphore signal and waits for its fence. It then submits the second draw with a wait on that semaphore and waits for the second fence. Both images are invalidated and logged, but their pixels do not determine pass or fail.
 - Each buffer leaf fills a host-visible buffer on the device, executes either `vkCmdPipelineBarrier` or `vkCmdPipelineBarrier2`, waits for completion, invalidates the allocation, and compares all 64 words with `0xAABBCCDD`.
@@ -368,11 +370,11 @@ The source does not prune queue-family suffixes by test category. The only struc
 ## Source Reference Appendix
 
 - [Semaphore configuration, shader payload, and two-queue device setup](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L73-L220)
-- [`testFences()` state and wait checks](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1054-L1151)
-- [`testSemaphores()` two-queue signal/wait flow](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1154-L1283)
+- [`testFences()` state and wait checks](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1017-L1115)
+- [`testSemaphores()` two-queue signal/wait flow](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1117-L1231)
 - [Queue-family value mapping and support checks](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1296-L1355)
-- [`ignoreQueueFamilyTypeBuffer()` barrier and word comparison](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1393-L1489)
-- [`ignoreQueueFamilyTypeImage()` transitions, rendering, and pixel comparison](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1492-L1709)
+- [`ignoreQueueFamilyTypeBuffer()` barrier and word comparison](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1340-L1437)
+- [`ignoreQueueFamilyTypeImage()` transitions, rendering, and pixel comparison](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1439-L1657)
 - [`synchronization.smoke` and `synchronization2.smoke` registration](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1725-L1781)
 - [Legacy mustpass entries](../../../mustpass/main/vk-default/synchronization.txt#L60017-L60027)
 - [Synchronization2 mustpass entries](../../../mustpass/main/vk-default/synchronization2.txt#L78736-L78745)

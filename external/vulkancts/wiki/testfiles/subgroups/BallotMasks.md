@@ -295,7 +295,7 @@ void main (void)
 
 - `supportedCheck` first requires subgroup support, `VK_EXT_shader_subgroup_ballot`, 64-bit integer shader support, and subgroup support for the selected shader stage.
 - Required subgroup size cases also require `VK_EXT_subgroup_size_control`, `subgroupSizeControl`, `computeFullSubgroups`, and support for the selected stage in `requiredSubgroupSizeStages`.
-- Ray tracing cases require `VK_KHR_ray_tracing_pipeline`. Mesh cases require vertex-pipeline stores and atomics plus `VK_EXT_mesh_shader`; task cases also require the `taskShader` feature.
+- Ray tracing cases require `VK_KHR_ray_tracing_pipeline`. Mesh cases require `VK_EXT_mesh_shader`; task cases also require the `taskShader` feature.
 - Compute and mesh paths use shared helpers to allocate an `R32_UINT` result buffer, execute the workload, make the result host-visible, and call `checkComputeOrMesh` over the full global invocation count.
 - Graphics and ray tracing paths run the relation in each supported stage selected by the shared subgroup helpers. Their result callbacks require every checked element to equal `0xf`.
 - Framebuffer variants export the status through a stage output, render it to an `R32_UINT` target, and use the same `0xf` reference check.

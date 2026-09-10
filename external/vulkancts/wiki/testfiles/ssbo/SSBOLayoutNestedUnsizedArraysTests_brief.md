@@ -96,14 +96,14 @@ The registered test has one test case leaf. The generated outer length is the pr
 | Topic | Source link | Why it matters |
 |---|---|---|
 | Test registration | [`appendNestedUnsizedArraysTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1155-L1158) | Adds the exact `nested_unsized_arrays` test case leaf. |
-| Parent registration | [`createUnsizedArrayTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L2202-L2231) | Places the leaf under `ssbo.unsized_array_length`. |
+| Parent registration | [`createUnsizedArrayTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L2213-L2242) | Places the leaf under `ssbo.unsized_array_length`. |
 | Structure generation | [`generateStructure()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1027-L1104) | Defines generated types, fixed arrays, and the final unsized array. |
 | Feature gate | [`NestedUnsizedArraysTestCase::checkSupport()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1106-L1117) | Requires both descriptor-array features. |
 | Shader generation | [`NestedUnsizedArraysTestCase::initPrograms()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1119-L1151) | Emits the compute shader, `std430` block, and non-uniform root access. |
 | Runtime and verification | [`NestedUnsizedArraysTestInstance::iterate()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L887-L959), [`verify()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L961-L1011) | Defines allocation, descriptor updates, dispatch, expected data, and comparison. |
 | Shared layout support | [`SSBOLayoutCase`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.hpp#L293-L330) and [`generateComputeShader()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L1529-L1644) | Provides the shared SSBO layout model and generated compute-test conventions used by the family. |
 | Mustpass | [`vk-default/ssbo.txt`](../../../mustpass/main/vk-default/ssbo.txt#L12225), [`vksc-default/ssbo.txt`](../../../mustpass/main/vksc-default/ssbo.txt#L12162) | Confirms Vulkan and Vulkan SC registration. |
-| Vulkan specification | [`descriptorsets.adoc`](../../../vulkan-docs/src/chapters/descriptorsets.adoc), [`features.adoc`](../../../vulkan-docs/src/chapters/features.adoc), [`resources.adoc`](../../../vulkan-docs/src/chapters/resources.adoc), [`shaders.adoc`](../../../vulkan-docs/src/chapters/shaders.adoc) | Spec chapters consulted for descriptor arrays, feature requirements, buffer resources, and shader execution. |
+| Vulkan specification | [`descriptorsets.adoc`](../../../../vulkan-docs/src/chapters/descriptorsets.adoc), [`features.adoc`](../../../../vulkan-docs/src/chapters/features.adoc), [`resources.adoc`](../../../../vulkan-docs/src/chapters/resources.adoc), [`shaders.adoc`](../../../../vulkan-docs/src/chapters/shaders.adoc) | Spec chapters consulted for descriptor arrays, feature requirements, buffer resources, and shader execution. |
 
 ## Questions / Risk Points for User Audit
 

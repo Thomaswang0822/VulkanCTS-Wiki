@@ -32,6 +32,8 @@
 #include "vkImageUtil.hpp"
 #include "vkObjUtil.hpp"
 #include "vktCustomInstancesDevices.hpp"
+#include "vktTestCaseUtil.hpp"
+#include "tcuImageCompare.hpp"
 #include "deRandom.hpp"
 
 #include <algorithm>
@@ -39,6 +41,7 @@
 #include <filesystem>
 #include <functional>
 #include <iomanip>
+#include <memory>
 #include <numeric>
 #include <random>
 #include <sstream>
@@ -374,12 +377,12 @@ public:
         , m_imageRegion(makeBufferImageCopy(makeExtent3D(m_renderWidth, m_renderHeight, 1u),
                                             makeImageSubresourceLayers(VK_IMAGE_ASPECT_COLOR_BIT, 0u, 0u, 1u)))
         , m_usedExtensions()
-        , m_device(createDualBlendDevice(ctx))
-        , m_driver(std::make_shared<DeviceDriver>(ctx.getPlatformInterface(), ctx.getInstance(), *m_device,
-                                                  ctx.getUsedApiVersion(), ctx.getTestContext().getCommandLine()))
-        , m_vkd(*m_driver)
-        , m_allocator(m_vkd, *m_device,
-                      getPhysicalDeviceMemoryProperties(ctx.getInstanceInterface(), ctx.getPhysicalDevice()))
+        , m_instance(ctx)
+        , m_vki(m_instance.getDriver())
+        , m_physicalDevice(m_instance.getPhysicalDevice())
+        , m_device(createDualBlendDevice(ctx, m_instance))
+        , m_vkd(m_device.getDriver())
+        , m_allocator(m_device.getAllocator())
         , m_queue(getDeviceQueue(m_vkd, *m_device, ctx.getUniversalQueueFamilyIndex(), 0u))
         , m_vertexShaderModule(
               isConstructionTypeShaderObject(m_params.pipelineConstructionType) ?
@@ -416,11 +419,9 @@ public:
         , m_inputBinding2(makeVertexInputBinding2(m_inputBinding))
         , m_inputAttribute2(makeVertexInputAttribute2(m_inputAttribute))
         , m_genericPipeline(std::make_unique<GraphicsPipelineWrapper>(
-              ctx.getInstanceInterface(), m_vkd, ctx.getPhysicalDevice(), *m_device, ctx.getDeviceExtensions(),
-              m_params.pipelineConstructionType))
+              m_vki, m_vkd, m_physicalDevice, *m_device, ctx.getDeviceExtensions(), m_params.pipelineConstructionType))
         , m_dualSourcePipeline(std::make_unique<GraphicsPipelineWrapper>(
-              ctx.getInstanceInterface(), m_vkd, ctx.getPhysicalDevice(), *m_device, ctx.getDeviceExtensions(),
-              m_params.pipelineConstructionType))
+              m_vki, m_vkd, m_physicalDevice, *m_device, ctx.getDeviceExtensions(), m_params.pipelineConstructionType))
     {
         const uint32_t queueFamilyIndex = 0u;
         const std::vector<uint32_t> queueFamilyIndices{queueFamilyIndex};
@@ -736,8 +737,7 @@ private:
             attachments.at(0)                     = dualSourceState;
             colorBlendStateParams.attachmentCount = 1;
 
-            auto p = std::make_unique<GraphicsPipelineWrapper>(m_context.getInstanceInterface(), m_vkd,
-                                                               m_context.getPhysicalDevice(), *m_device,
+            auto p = std::make_unique<GraphicsPipelineWrapper>(m_vki, m_vkd, m_physicalDevice, *m_device,
                                                                m_usedExtensions, m_params.pipelineConstructionType);
             p->setDefaultRasterizationState()
                 .setDefaultDepthStencilState()
@@ -756,8 +756,7 @@ private:
         {
             colorBlendStateParams.attachmentCount = ATTACHMENT_COUNT;
 
-            auto p = std::make_unique<GraphicsPipelineWrapper>(m_context.getInstanceInterface(), m_vkd,
-                                                               m_context.getPhysicalDevice(), *m_device,
+            auto p = std::make_unique<GraphicsPipelineWrapper>(m_vki, m_vkd, m_physicalDevice, *m_device,
                                                                m_usedExtensions, m_params.pipelineConstructionType);
             p->setDefaultRasterizationState()
                 .setDefaultDepthStencilState()
@@ -824,7 +823,7 @@ private:
         m_vkd.cmdBeginRendering(cmd, &renderingInfo);
     }
 
-    Move<VkDevice> createDualBlendDevice(Context &ctx);
+    CustomDevice createDualBlendDevice(Context &ctx, const InstanceWrapper &instance);
 
 private:
     const uint32_t m_renderWidth;
@@ -835,10 +834,12 @@ private:
     const VkImageSubresourceRange m_imageRange;
     const VkBufferImageCopy m_imageRegion;
     std::vector<std::string> m_usedExtensions;
-    Move<VkDevice> m_device;
-    std::shared_ptr<DeviceDriver> m_driver;
+    const InstanceWrapper m_instance;
+    const InstanceInterface &m_vki;
+    const vk::VkPhysicalDevice m_physicalDevice;
+    const DeviceWrapper m_device;
     const DeviceInterface &m_vkd;
-    SimpleAllocator m_allocator;
+    vk::Allocator &m_allocator;
     const VkQueue m_queue;
     ShaderWrapper m_vertexShaderModule;
     ShaderWrapper m_fragmentModuleGeneric;
@@ -1329,14 +1330,17 @@ tcu::TestStatus DualSourceBlendMAInstance::iteratePerArgs(const VkFormat format,
         // clang-format off
 
         auto cleanImages = [&](const VkClearValue (&colors)[ATTACHMENT_COUNT],
-                               const std::shared_ptr<BufferWithMemory> (&buffers)[ATTACHMENT_COUNT])
+                               const std::shared_ptr<BufferWithMemory> (&buffers)[ATTACHMENT_COUNT],
+                               VkPipelineStageFlags srcStageMask,
+                               VkAccessFlags srcAccessMask,
+                               VkImageLayout oldLayout)
         {
             m_vkd.cmdPipelineBarrier(cmd,
-                VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+                srcStageMask, VK_PIPELINE_STAGE_TRANSFER_BIT,
                 VK_DEPENDENCY_BY_REGION_BIT, 0u, nullptr, 0u, nullptr,
                 ATTACHMENT_COUNT, transformImages(0, ATTACHMENT_COUNT,
-                    VK_ACCESS_NONE, VK_ACCESS_TRANSFER_WRITE_BIT,
-                    VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL));
+                    srcAccessMask, VK_ACCESS_TRANSFER_WRITE_BIT,
+                    oldLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL));
 
             for (uint32_t i = 0; i < ATTACHMENT_COUNT; ++i)
             {
@@ -1367,8 +1371,10 @@ tcu::TestStatus DualSourceBlendMAInstance::iteratePerArgs(const VkFormat format,
                     VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_GENERAL));
         };
 
-        cleanImages(sourceValues, m_sourceAttachments);
-        cleanImages(clearValues, m_destAttachments);
+        cleanImages(sourceValues, m_sourceAttachments, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_ACCESS_NONE,
+                    VK_IMAGE_LAYOUT_UNDEFINED);
+        cleanImages(clearValues, m_destAttachments, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_ACCESS_TRANSFER_READ_BIT,
+                    VK_IMAGE_LAYOUT_GENERAL);
 
         // clang-format off
     };
@@ -1676,11 +1682,10 @@ bool DualSourceBlendMAInstance::compareBuffers(const BufferWithMemory &received,
     return result;
 }
 
-Move<VkDevice> DualSourceBlendMAInstance::createDualBlendDevice(Context &ctx)
+CustomDevice DualSourceBlendMAInstance::createDualBlendDevice(Context &ctx, const InstanceWrapper &instance)
 {
-    VkInstance instance       = ctx.getInstance();
-    const auto &vki           = ctx.getInstanceInterface();
-    const auto physicalDevice = ctx.getPhysicalDevice();
+    const auto &vki           = instance.getDriver();
+    const auto physicalDevice = instance.getPhysicalDevice();
     const float queuePriority = 1.0f;
 
     // Create a universal queue that supports graphics and compute
@@ -1750,7 +1755,7 @@ Move<VkDevice> DualSourceBlendMAInstance::createDualBlendDevice(Context &ctx)
         nullptr                               // const VkPhysicalDeviceFeatures* pEnabledFeatures;
     };
 
-    return createCustomDevice(ctx.getPlatformInterface(), instance, vki, physicalDevice, &deviceParams);
+    return instance.createCustomDevice(physicalDevice, &deviceParams);
 }
 
 } // unnamed namespace

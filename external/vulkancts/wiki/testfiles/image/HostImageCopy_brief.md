@@ -120,13 +120,13 @@ This is the primary behavioral axis because it changes the assertion being made.
 | Format feature helper and main parameters | [helpers and parameter model](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L118-L297) | Defines input generation, host-transfer format gate, and main-matrix parameters. |
 | Main matrix runtime | [`HostImageCopyTestInstance::iterate()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L391-L1201) | Creates copy/observer resources, executes routes, and verifies data. |
 | Main support and generated programs | [`HostImageCopyTestCase`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L1204-L1407) | Defines feature/layout checks and generated vertex, fragment, and compute shaders. |
-| Preinitialized/image-to-image runtime | [`PreinitializedTestInstance::iterate()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L1488-L1739) | Covers image-to-image, memcpy, allocation offsets, and copyback verification. |
+| Preinitialized/image-to-image runtime | [`PreinitializedTestInstance::iterate()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L1492-L1744) | Covers image-to-image, memcpy, allocation offsets, and copyback verification. |
 | Properties and query cases | [`PropertiesTestInstance` and `QueryTestInstance`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L1913-L2180) | Validates extension properties and performance-query relationships. |
 | Identical-memory-layout runtime | [`IdenticalMemoryLayoutTestInstance::iterate()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L2222-L2584) | Compares memory layouts with and without host-transfer image usage. |
 | Depth/stencil and array runtimes | [depth/stencil](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L2659-L3210) and [array](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L3231-L3434) | Defines aspect-aware and layered-copy validation. |
 | Simple round-trip and its gate | [`SimpleHostImageCopyTestInstance` and case](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L3527-L4350) | Defines broad nonplanar-format round trips and special comparisons. |
-| Registration | [`testGenerator()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L4353-L5013) | Defines every direct family, hierarchy, matrix, and pruning rule. |
-| Parent registration | [`createChildren()`](../../../modules/vulkan/image/vktImageTests.cpp#L49-L100) | Shows the non-VulkanSC registration condition and image-category placement. |
+| Registration | [`testGenerator()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L4365-L5018) | Defines every direct family, hierarchy, matrix, and pruning rule. |
+| Parent registration | [`createChildren()`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L101) | Shows the non-VulkanSC registration condition and image-category placement. |
 
 ## Questions / Risk Points for User Audit
 

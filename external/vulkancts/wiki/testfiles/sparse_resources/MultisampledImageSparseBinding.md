@@ -29,7 +29,7 @@ sparse_resources.multisampled_image_sparse_binding
 └── r32i
 ```
 
-Each format test family contains the test case leaves `samples_2`, `samples_4`, `samples_8`, `samples_16`, `samples_32`, and `samples_64` ([`createSparseResourcesMultisampledImageCommonTests`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMultisampledImageSparseBinding.cpp#L671-L713)).
+Each format test family contains the test case leaves `samples_2`, `samples_4`, `samples_8`, `samples_16`, `samples_32`, and `samples_64` ([`createSparseResourcesMultisampledImageCommonTests`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMultisampledImageSparseBinding.cpp#L670-L707)).
 
 ## Parameter Dimensions and Observed Values
 

@@ -18,7 +18,7 @@ With `robustBufferAccess` enabled, an out-of-range vertex input access is constr
 
 Conceptually, the test builds a 3-by-3 tile grid with sixteen logical vertices, then marks logical vertices `5`, `6`, `9`, and `10` as invalid. `GenerateTriangles()` moves those invalid logical vertices to the end of the generated allocation while retaining their original positions in the index mapping [mesh generation](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L396-L456).
 
-One representative layout uses a `Vertex` structure containing `position`, `color1`, `color2`, and unused fields. Both bindings use `sizeof(Vertex)` stride, but the second binding's supplied data is shortened before `color2` for the invalid vertices. The shader receives three `vec4` inputs and writes green only when the fetched colors belong to the accepted valid or invalid sets [single-buffer case](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L252-L293), [generated shader](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L887-L932).
+One representative layout uses a `Vertex` structure containing `position`, `color1`, `color2`, and unused fields. Both bindings use `sizeof(Vertex)` stride, but the second binding's supplied data is shortened before `color2` for the invalid vertices. The shader receives three `vec4` inputs and writes green only when the fetched colors belong to the accepted valid or invalid sets [single-buffer case](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L252-L293), [generated shader](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L847-L892).
 
 ## End-to-End Test Flow
 
@@ -39,8 +39,8 @@ One representative layout uses a `Vertex` structure containing `position`, `colo
 
 ### Generated or loaded program artifacts
 
-- `Robustness1AccessTest::initPrograms()` generates a vertex shader with `in_position`, `in_color0`, and `in_color1`. `in_position.z` distinguishes valid generated vertices from invalid ones; the shader accepts `expectedColor` and `unusedColor` for valid vertices and the broader `invalidColors` set for invalid vertices [shader generation](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L887-L932).
-- A minimal fragment shader copies the vertex result to its color output [fragment shader](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L932-L940).
+- `Robustness1AccessTest::initPrograms()` generates a vertex shader with `in_position`, `in_color0`, and `in_color1`. `in_position.z` distinguishes valid generated vertices from invalid ones; the shader accepts `expectedColor` and `unusedColor` for valid vertices and the broader `invalidColors` set for invalid vertices [shader generation](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L847-L892).
+- A minimal fragment shader copies the vertex result to its color output [fragment shader](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L893-L900).
 - No verified shader-analyzer or disassembler artifact is available for an exact registered path in this task, so this brief does not reconstruct GLSL or SPIR-V beyond the source-backed behavior above.
 
 ### Bound resources and memory objects
@@ -58,7 +58,7 @@ One representative layout uses a `Vertex` structure containing `position`, `colo
 
 - Valid generated vertices must fetch `expectedColor` or `unusedColor` for their color attributes.
 - Invalid/out-of-range vertices may fetch `expectedColor`, `unusedColor`, `vec4(0.0)`, or `vec4(0.0, 0.0, 0.0, 1.0)`, matching the source's accepted `invalidColors` set [color sets](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L123-L130).
-- The vertex shader emits `vec4(0,1,0,1)` when the classification is valid; otherwise it forwards `in_color0` [validation shader](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L922-L931).
+- The vertex shader emits `vec4(0,1,0,1)` when the classification is valid; otherwise it forwards `in_color0` [validation shader](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L882-L891).
 - The host reads the `VK_FORMAT_R8G8B8A8_UNORM` color attachment and requires every `12 x 12` pixel to equal the green vector [host check](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L761-L779).
 
 ## Behavior Parameter Identification
@@ -93,8 +93,8 @@ One representative layout uses a `Vertex` structure containing `position`, `colo
 | Registered leaves and input layouts | [`robustness1Tests`](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L195-L389) | Defines the four exact identifiers, buffers, attributes, strides, and invalid indices. |
 | Padded data arrangement | [`PaddedAlloc`](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L136-L193) | Explains the recognizable data before and after the valid range. |
 | Mesh and index mapping | [`GenerateTriangles()`](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L391-L456) | Establishes the 3-by-3 grid and invalid logical vertices. |
-| Device, pipeline, draw, and image check | [`robustness1TestFn()`](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L480-L779) | Supplies the host/device timeline and final pass condition. |
-| Shader classification | [`Robustness1AccessTest::initPrograms()`](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L887-L940) | Defines accepted colors and green output. |
+| Device, pipeline, draw, and image check | [`robustness1TestFn()`](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L479-L777) | Supplies the host/device timeline and final pass condition. |
+| Shader classification | [`Robustness1AccessTest::initPrograms()`](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L847-L900) | Defines accepted colors and green output. |
 | Robust device creation | [`createRobustBufferAccessDevice()`](../../../modules/vulkan/robustness/vktRobustnessUtil.cpp#L53-L87) | Shows that `robustBufferAccess` is enabled. |
 | Registered paths | [`robustness.txt`](../../../mustpass/main/vk-default/robustness.txt#L15026-L15029) | Confirms the four default-profile leaves. |
 

@@ -33,7 +33,7 @@ const uint coord_0 = offset_y / (1 * size_d1 * size_d2) % size_d0;
 const uint coord_1 = offset_y / (1 * size_d2) % size_d1;
 const uint coord_2 = offset_y / 1 % size_d2;
 const uint coord_3 = offset_x;
-tensorReadARM(tens, uint[](coord_0, coord_1, coord_2, coord_3), tmp);
+tensorReadARM(tens, uint[] (coord_0, coord_1, coord_2, coord_3), tmp);
 ```
 
 ## End-to-End Test Flow
@@ -105,13 +105,13 @@ tensorReadARM(tens, uint[](coord_0, coord_1, coord_2, coord_3), tmp);
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Registration root and direct child | [vktTensorTests.cpp#L37-L47](../../modules/vulkan/tensor/vktTensorTests.cpp#L37-L47) | Places `array_access` under `tensor`. |
-| Test construction and matrix | [vktTensorArrayAccess.cpp#L712-L777](../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L712-L777) | Defines formats, tilings, shape, array lengths, variants, and max cases. |
-| Shader generator | [vktTensorArrayAccessShaders.cpp#L40-L116](../../modules/vulkan/tensor/shaders/vktTensorArrayAccessShaders.cpp#L40-L116) | Emits declarations, coordinate indexing, and read/write branches. |
-| Support gates | [vktTensorArrayAccess.cpp#L134-L168](../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L134-L168) | Checks extension, rank, shader access, format/tiling, array length, and byte-size limits. |
-| Runtime and linear verification | [vktTensorArrayAccess.cpp#L330-L495](../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L330-L495) | Shows setup, dispatch, barriers, readback, and comparison. |
-| Runtime and optimal verification | [vktTensorArrayAccess.cpp#L498-L709](../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L498-L709) | Shows staging tensor copies and synchronization. |
-| Registered cases | [tensor.txt#L1-L128](../../mustpass/main/vk-default/tensor.txt#L1-L128) | Confirms the 128 `array_access` leaves. |
+| Registration root and direct child | [vktTensorTests.cpp#L37-L47](../../../modules/vulkan/tensor/vktTensorTests.cpp#L37-L47) | Places `array_access` under `tensor`. |
+| Test construction and matrix | [vktTensorArrayAccess.cpp#L712-L777](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L712-L777) | Defines formats, tilings, shape, array lengths, variants, and max cases. |
+| Shader generator | [vktTensorArrayAccessShaders.cpp#L40-L116](../../../modules/vulkan/tensor/shaders/vktTensorArrayAccessShaders.cpp#L40-L116) | Emits declarations, coordinate indexing, and read/write branches. |
+| Support gates | [vktTensorArrayAccess.cpp#L134-L168](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L134-L168) | Checks extension, rank, shader access, format/tiling, array length, and byte-size limits. |
+| Runtime and linear verification | [vktTensorArrayAccess.cpp#L330-L495](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L330-L495) | Shows setup, dispatch, barriers, readback, and comparison. |
+| Runtime and optimal verification | [vktTensorArrayAccess.cpp#L498-L709](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L498-L709) | Shows staging tensor copies and synchronization. |
+| Registered cases | [tensor.txt#L1-L128](../../../mustpass/main/vk-default/tensor.txt#L1-L128) | Confirms the 128 `array_access` leaves. |
 | Tensor read/write semantics | [tensorops.adoc#L8-L24](../../../../vulkan-docs/src/chapters/VK_ARM_tensors/tensorops.adoc#L8-L24) | Defines tensor operations. |
 
 ## Questions / Risk Points for User Audit

@@ -2,7 +2,7 @@
 
 **Core question:** Does `VK_AMD_shader_explicit_vertex_parameter` let a fragment shader reconstruct the same interpolated value as Vulkan's standard interpolation path?
 
-- The [`explicit_vertex_parameter`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L764-L768) test family generates smooth and noperspective cases, with no auxiliary qualifier or with `sample`/`centroid`. Render-pass and primary-command-buffer paths generate sample counts 1 through 64; secondary-command-buffer paths are pruned to 1, 2, and 4.
+- The [`explicit_vertex_parameter`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L771-L775) test family generates smooth and noperspective cases, with no auxiliary qualifier or with `sample`/`centroid`. Render-pass and primary-command-buffer paths generate sample counts 1 through 64; secondary-command-buffer paths are pruned to 1, 2, and 4.
 - The vertex shader exports one value through `__explicitInterpAMD` and a second copy through the selected ordinary interpolation qualifier. The fragment shader fetches the first copy at each primitive vertex with `interpolateAtVertexAMD`, combines those values with the matching `gl_BaryCoord*AMD` coordinates, and compares the result with the ordinary input.
 - The host reads the per-fragment expected/computed pairs from a storage buffer. The family is registered below the draw category's render-pass path and, when supported, each dynamic-rendering command-buffer path.
 
@@ -34,7 +34,7 @@ Within each applicable `explicit_vertex_parameter` test family, the direct behav
 
 The direct behavior branches are `smooth_samples_<count>`, `noperspective_samples_<count>`, `smooth_sample_samples_<count>`, `noperspective_sample_samples_<count>`, `smooth_centroid_samples_<count>`, and `noperspective_centroid_samples_<count>`.
 
-The family is attached by [`createChildren()`](../../../modules/vulkan/draw/vktDrawTests.cpp#L70-L120), and its branches are created by [`createTests()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L727-L760).
+The family is attached by [`createChildren()`](../../../modules/vulkan/draw/vktDrawTests.cpp#L70-L120), and its branches are created by [`createTests()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L734-L767).
 
 The generated default mustpass lists confirm 38 render-pass cases and 38 primary-command-buffer cases. Each secondary-command-buffer path contains 14 cases because it retains only sample counts 1, 2, and 4. Vulkan SC has only the 38 render-pass cases. See the [`vk-default` draw list](../../../mustpass/main/vk-default/draw.txt) and [`vksc-default` draw list](../../../mustpass/main/vksc-default/draw.txt).
 
@@ -44,7 +44,7 @@ The generated default mustpass lists confirm 38 render-pass cases and 38 primary
 |---|---|---|---|
 | Interpolation | `smooth`, `noperspective` | Selects both the ordinary comparison qualifier and the matching AMD barycentric coordinate family. | [`Interpolation`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L62-L66), [`getTestName()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L166-L177) |
 | Auxiliary qualifier | none, `sample`, `centroid` | Changes the sampling rule for the ordinary input and selects `gl_BaryCoord*SampleAMD` or `gl_BaryCoord*CentroidAMD`. | [`AuxiliaryQualifier`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L68-L73), [`barycentricVariableString()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L115-L146) |
-| Sample count | Render pass/primary: `1`, `2`, `4`, `8`, `16`, `32`, `64`; secondary: `1`, `2`, `4` | Controls multisample attachments and the number of result values per pixel. | [`samples[]` and secondary pruning](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L731-L748) |
+| Sample count | Render pass/primary: `1`, `2`, `4`, `8`, `16`, `32`, `64`; secondary: `1`, `2`, `4` | Controls multisample attachments and the number of result values per pixel. | [`samples[]` and secondary pruning](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L738-L755) |
 | Rendering path | `renderpass`; dynamic rendering `primary_cmd_buff`, `partial_secondary_cmd_buff`, `complete_secondary_cmd_buff` | Reuses the same interpolation matrix with different rendering and command-buffer recording. | [`createTests()` dispatcher](../../../modules/vulkan/draw/vktDrawTests.cpp#L126-L198) |
 | Render target | 16 × 16 pixels, `VK_FORMAT_R8G8B8A8_UNORM` | Bounds the color target and storage-buffer indexing workload. | [`WIDTH`/`HEIGHT`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L75-L79), image creation [`#L356-L379`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L356-L379) |
 
@@ -66,7 +66,7 @@ These branches apply the auxiliary qualifier to the ordinary input and use the c
 
 ## Shader Analysis
 
-[`DrawTestCase::initPrograms()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L257-L331) generates both shader stages from the interpolation mode, auxiliary qualifier, and sample count. The fragment stage is primary because it performs the explicit per-vertex fetch, barycentric reconstruction, and comparison; the vertex stage is included because its two output paths establish the values being compared.
+[`DrawTestCase::initPrograms()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L259-L333) generates both shader stages from the interpolation mode, auxiliary qualifier, and sample count. The fragment stage is primary because it performs the explicit per-vertex fetch, barycentric reconstruction, and comparison; the vertex stage is included because its two output paths establish the values being compared.
 
 ### Representative Shader Walkthrough 1
 
@@ -180,7 +180,7 @@ void main() {
 #### Additional Info
 
 - The vertex shader keeps the same assignments across the family; only the ordinary output's interpolation/auxiliary qualifiers and generated name vary. It is required here because it proves that both fragment inputs originate from the same per-vertex scalar.
-- For this case, `numValues` is `16 * 16 * 4 = 1024`, but template substitution declares `numValues * samples = 4096` entries. The host allocates and the shader indexes only the first 1024 entries ([shader specialization](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L257-L327), [buffer allocation](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L451-L460)).
+- For this case, `numValues` is `16 * 16 * 4 = 1024`, but template substitution declares `numValues * samples = 4096` entries. The host allocates and the shader indexes only the first 1024 entries ([shader specialization](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L259-L329), [buffer allocation](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L451-L460)).
 - The source-generated comment before `data2` says “Vertex 1”; the call uses vertex index 2 and the documented `(I = 0, J = 1, K = 0)` mapping. The walkthrough preserves that source comment verbatim.
 
 #### Parameter Variation Summary
@@ -188,9 +188,9 @@ void main() {
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | Interpolation | `noperspective` renames the ordinary interface variables, applies `noperspective`, and replaces the barycentric built-in with the corresponding `gl_BaryCoordNoPersp*AMD` form. | [`interpolationToString()` and `barycentricVariableString()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L100-L147) |
-| Auxiliary qualifier | No qualifier selects the base barycentric built-in; `centroid` replaces `sample` on both ordinary interfaces and selects the `*CentroidAMD` built-in. | [`auxiliaryQualifierToString()` and `barycentricVariableString()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L115-L161) |
-| Sample count | Substitutes the stride in the SSBO index and both factors in the declared result-array length; it does not change the interpolation algorithm. | [`initPrograms()` substitutions](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L257-L327) |
-| Rendering path | Render-pass and dynamic-rendering variants compile the same shader templates; the parameter is consumed only by host setup and command recording. | [`DrawParams` and `initPrograms()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L92-L98), [`iterate()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L338-L627) |
+| Auxiliary qualifier | No qualifier selects the base barycentric built-in; `centroid` replaces `sample` on both ordinary interfaces and selects the `*CentroidAMD` built-in. | [`auxiliaryQualifierToString()` and `barycentricVariableString()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L115-L164) |
+| Sample count | Substitutes the stride in the SSBO index and both factors in the declared result-array length; it does not change the interpolation algorithm. | [`initPrograms()` substitutions](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L259-L329) |
+| Rendering path | Render-pass and dynamic-rendering variants compile the same shader templates; the parameter is consumed only by host setup and command recording. | [`DrawParams` and `initPrograms()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L92-L98), [`iterate()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L340-L627) |
 
 #### SPIR-V
 
@@ -467,9 +467,10 @@ void main() {
 
 ## Runtime Execution and Result Checking
 
-- Support checking requires `VK_AMD_shader_explicit_vertex_parameter`, a supported framebuffer color sample count, and the core `sampleRateShading` feature. Dynamic-rendering variants additionally require `VK_KHR_dynamic_rendering`; unsupported combinations are reported as unsupported. See [`checkSupport()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L244-L255).
+- Support checking requires `VK_AMD_shader_explicit_vertex_parameter`, a supported framebuffer color sample count, and the core `sampleRateShading` feature. Dynamic-rendering variants additionally require `VK_KHR_dynamic_rendering`; unsupported combinations are reported as unsupported. See [`checkSupport()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L246-L257).
 - The instance creates a single-sample color image and, for multisample cases, a multisample color image plus resolve attachment. It also creates a host-visible vertex buffer and host-visible storage buffer, binds the latter at descriptor binding 0, and builds a graphics pipeline using `VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP`.
 - The command path records either a render pass or dynamic rendering. Secondary-buffer variants record the draw in a secondary command buffer and execute it from a primary buffer; the complete variant contains the dynamic-rendering scope in the secondary buffer.
+- In the dynamic-rendering path, [`beginDynamicRender()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L691-L731) first applies an initial layout transition of the color target image — and, for multisample cases, the multisample target image — to `VK_IMAGE_LAYOUT_GENERAL` with `VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT` ([initial transitions](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L696-L701)), and the rendering info then binds both the attachment view and the resolve view in that same `VK_IMAGE_LAYOUT_GENERAL` layout.
 - A four-vertex triangle strip is drawn into the 16 × 16 target. After `submitCommandsAndWait`, the host invalidates the storage-buffer allocation and checks every `WIDTH * HEIGHT * samples` entry. Any `abs(expected - computed) > 0.0005` changes the result to fail. See [`iterate()` readback](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L606-L627).
 
 ### Verdict limitations visible in the source
@@ -477,7 +478,7 @@ void main() {
 - The SSBO is initialized to zero, and an untouched entry therefore contains `(expected, computed) = (0, 0)` and passes. The check detects disagreement in shader-written entries, but by itself does not prove that every intended pixel/sample invocation wrote an entry.
 - The host uses `> 0.0005`, whereas the shader color uses `< 0.0005`; a difference exactly equal to the threshold passes host verification but produces red. Because the color attachment is not read back, the host rule is the effective pass/fail rule.
 - A NaN in either stored component also does not satisfy the host's `> 0.0005` condition under ordinary floating-point comparison. Thus the readback predicate is specifically a finite-difference check, not a comprehensive validation of stored numeric values.
-- The fragment block is declared with `WIDTH * HEIGHT * samples * samples` elements because the already sample-scaled `numValues` is multiplied by `samples` again during template substitution ([shader specialization](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L257-L327)). The backing buffer and all actual indices use only `WIDTH * HEIGHT * samples`; the extra declared range is not accessed by this shader.
+- The fragment block is declared with `WIDTH * HEIGHT * samples * samples` elements because the already sample-scaled `numValues` is multiplied by `samples` again during template substitution ([shader specialization](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L259-L329)). The backing buffer and all actual indices use only `WIDTH * HEIGHT * samples`; the extra declared range is not accessed by this shader.
 
 ## Failure Meaning
 
@@ -515,13 +516,13 @@ void main() {
 
 ### Requirement-based pruning
 
-- `sample` and `centroid` cases are not registered for `VK_SAMPLE_COUNT_1_BIT`, because the source treats those qualifiers as ineffective for a single sample ([`createTests()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L744-L758)).
-- A requested sample count is skipped as unsupported when it is absent from `framebufferColorSampleCounts` ([`checkSupport()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L244-L250)).
+- `sample` and `centroid` cases are not registered for `VK_SAMPLE_COUNT_1_BIT`, because the source treats those qualifiers as ineffective for a single sample ([`createTests()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L751-L765)).
+- A requested sample count is skipped as unsupported when it is absent from `framebufferColorSampleCounts` ([`checkSupport()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L246-L252)).
 - Dynamic-rendering cases require `VK_KHR_dynamic_rendering`, and all cases require `VK_AMD_shader_explicit_vertex_parameter` and sample-rate shading.
 
 ### Design-based pruning
 
-- Secondary-command-buffer dynamic-rendering variants keep only sample counts 1, 2, and 4 to control the generated test count ([`createTests()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L744-L748)).
+- Secondary-command-buffer dynamic-rendering variants keep only sample counts 1, 2, and 4 to control the generated test count ([`createTests()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L751-L755)).
 - Nested secondary variants are omitted at category registration time because `vktDrawTests.cpp` intentionally registers only `basic` for nested modes. This is a dispatcher design boundary, not evidence that explicit vertex parameters are unsupported there.
 
 ## Key Takeaways
@@ -535,11 +536,11 @@ void main() {
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| Test-family factory | [`createExplicitVertexParameterTests()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L764-L768) | Registers `explicit_vertex_parameter`. |
-| Case generator | [`createTests()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L727-L760) | Defines interpolation, auxiliary, sample-count, and pruning matrix. |
-| Support gate | [`DrawTestCase::checkSupport()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L244-L255) | Defines required extension, feature, sample-count, and dynamic-rendering support. |
-| Shader generation | [`DrawTestCase::initPrograms()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L257-L331) | Generates the compared vertex/fragment shader paths. |
-| Host execution and verdict | [`DrawTestInstance::iterate()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L338-L627) | Creates resources, records rendering, reads results, and applies tolerance. |
+| Test-family factory | [`createExplicitVertexParameterTests()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L771-L775) | Registers `explicit_vertex_parameter`. |
+| Case generator | [`createTests()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L734-L767) | Defines interpolation, auxiliary, sample-count, and pruning matrix. |
+| Support gate | [`DrawTestCase::checkSupport()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L246-L257) | Defines required extension, feature, sample-count, and dynamic-rendering support. |
+| Shader generation | [`DrawTestCase::initPrograms()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L259-L333) | Generates the compared vertex/fragment shader paths. |
+| Host execution and verdict | [`DrawTestInstance::iterate()`](../../../modules/vulkan/draw/vktDrawExplicitVertexParameterTests.cpp#L340-L627) | Creates resources, records rendering, reads results, and applies tolerance. |
 | Draw dispatcher | [`createChildren()`](../../../modules/vulkan/draw/vktDrawTests.cpp#L70-L120) | Establishes variant coverage and nested-mode omission. |
 | Default mustpass coverage | [`vk-default/draw.txt`](../../../mustpass/main/vk-default/draw.txt) | Confirms 104 Vulkan cases: 38 render-pass, 38 primary, and 14 per secondary path. |
 | Vulkan SC mustpass coverage | [`vksc-default/draw.txt`](../../../mustpass/main/vksc-default/draw.txt) | Confirms the 38 render-pass-only Vulkan SC cases. |

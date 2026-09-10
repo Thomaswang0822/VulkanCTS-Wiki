@@ -20,7 +20,7 @@ ssbo.unsized_array_length
 └── nested_unsized_arrays
 ```
 
-[`createUnsizedArrayTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L2202-L2231) creates the parent test family, and [`appendNestedUnsizedArraysTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1155-L1158) adds this test case leaf. Mustpass includes `dEQP-VK.ssbo.unsized_array_length.nested_unsized_arrays` and `dEQP-VKSC.ssbo.unsized_array_length.nested_unsized_arrays`.
+[`createUnsizedArrayTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L2213-L2242) creates the parent test family, and [`appendNestedUnsizedArraysTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1155-L1158) adds this test case leaf. Mustpass includes `dEQP-VK.ssbo.unsized_array_length.nested_unsized_arrays` and `dEQP-VKSC.ssbo.unsized_array_length.nested_unsized_arrays`.
 
 ## Parameter Dimensions and Observed Values
 
@@ -2047,6 +2047,7 @@ void main() {
 
 ## Runtime Execution and Result Checking
 
+- `NestedUnsizedArraysTestInstance` uses `MultiQueueRunnerTestInstance` with `COMPUTE_QUEUE`. Each `queuePass()` rebuilds the test resources and uses `QueueData.handle` and `QueueData.familyIndex` for submission and command recording, repeating the same layout check on the selected compute-capable queues ([instance and execution](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L831-L897)).
 - [`NestedUnsizedArraysTestInstance::iterate()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L887-L959) computes an aligned descriptor stride, allocates one host-visible coherent storage buffer, and makes one storage-buffer descriptor range for each guard or active element.
 - The descriptor set layout has one storage-buffer array binding. The test writes every array element at binding 0, with each descriptor pointing at the next aligned range of the same buffer.
 - The host fills the entire buffer with `1`, creates a compute pipeline from the generated shader, binds the descriptor set, pushes `seed` and `visits`, and dispatches `1 x 1 x 1` workgroups. The shader's local X size supplies the active invocation count.
@@ -2106,7 +2107,7 @@ The test exposes one registered test case leaf, not a cross-product of user-sele
 
 | Evidence | Source |
 |---|---|
-| Registration under the parent test family | [`createUnsizedArrayTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L2202-L2231), [`appendNestedUnsizedArraysTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1155-L1158) |
+| Registration under the parent test family | [`createUnsizedArrayTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L2213-L2242), [`appendNestedUnsizedArraysTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1155-L1158) |
 | Generated structure shapes and size choices | [`NestedUnsizedArraysTestCase::generateStructure()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1027-L1104) |
 | Required descriptor-indexing features | [`NestedUnsizedArraysTestCase::checkSupport()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1106-L1117) |
 | Generated compute shader | [`NestedUnsizedArraysTestCase::initPrograms()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1119-L1151) |

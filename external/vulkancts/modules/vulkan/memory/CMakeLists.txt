@@ -15,12 +15,22 @@ set(DEQP_VK_VKSC_MEMORY_SRCS
 	vktMemoryConcurrentAccessTests.hpp
 	vktMemoryPipelineBarrierTests.hpp
 	vktMemoryPipelineBarrierTests.cpp
+	vktMemoryPipelineBarrierTestUtils.hpp
+	vktMemoryPipelineBarrierTestUtils.cpp
+	vktMemoryPipelineBarrierGraphicsTests.hpp
+	vktMemoryPipelineBarrierGraphicsTests.cpp
+	vktMemoryPipelineBarrierComputeTests.hpp
+	vktMemoryPipelineBarrierComputeTests.cpp
+	vktMemoryPipelineBarrierTransferTests.hpp
+	vktMemoryPipelineBarrierTransferTests.cpp
 	vktMemoryRequirementsTests.cpp
 	vktMemoryRequirementsTests.hpp
 	vktMemoryBindingTests.cpp
 	vktMemoryBindingTests.hpp
 	vktMemoryExternalMemoryHostTests.cpp
 	vktMemoryExternalMemoryHostTests.hpp
+	vktMemoryOpaqueAndDmaImageTests.cpp
+	vktMemoryOpaqueAndDmaImageTests.hpp
 	)
 
 set(DEQP_VK_MEMORY_SRCS

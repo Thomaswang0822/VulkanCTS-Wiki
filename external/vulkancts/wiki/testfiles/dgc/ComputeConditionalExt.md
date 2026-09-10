@@ -23,17 +23,17 @@ dgc.ext.compute.conditional_rendering
 
 ## Parameter Dimensions and Observed Values
 
-The source registers 56 test case leaves: 32 under `general` and 24 under `preprocess`.
+The source registers 44 test case leaves: 32 under `general` and 12 under `preprocess`.
 
 ### `general`
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Pipeline binding | `classic_bind`, `pipeline_token` | Uses an ordinary bound pipeline or prepends a generated compute-pipeline token backed by an indirect execution set. | [pipeline and layout construction](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L208-L223) |
-| Sequence count | `with_count_buffer`, `without_count_buffer` | Reads the actual count of `1` from a buffer with a maximum of 256, or passes the count `1` directly. | [sequence-count setup](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L270-L297) |
-| Predicate | `condition_false`, `condition_true` | Stores `0` or `2` in the conditional-rendering buffer. | [predicate buffer](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L244-L256) |
-| Inversion | no suffix, `inverted_flag` | Uses normal zero versus nonzero semantics or reverses them. | [conditional begin helper](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L127-L142) |
-| Queue | `_cq`, `_uq` | Submits the complete command buffer on the compute queue or universal queue. | [queue selection](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L158-L165) |
+| Pipeline binding | `classic_bind`, `pipeline_token` | Uses an ordinary bound pipeline or prepends a generated compute-pipeline token backed by an indirect execution set. | [pipeline and layout construction](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L207-L222) |
+| Sequence count | `with_count_buffer`, `without_count_buffer` | Reads the actual count of `1` from a buffer with a maximum of 256, or passes the count `1` directly. | [sequence-count setup](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L269-L296) |
+| Predicate | `condition_false`, `condition_true` | Stores `0` or `2` in the conditional-rendering buffer. | [predicate buffer](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L243-L255) |
+| Inversion | no suffix, `inverted_flag` | Uses normal zero versus nonzero semantics or reverses them. | [conditional begin helper](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L126-L141) |
+| Queue | `_cq`, `_uq` | Submits the complete command buffer on the compute queue or universal queue. | [queue selection](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L157-L164) |
 
 The exact registered leaf grammar is:
 
@@ -47,23 +47,22 @@ All choices in that grammar are combined, including the optional `inverted_flag`
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Predicate | `condition_false`, `condition_true` | Stores `0` or `256` in the conditional-rendering buffer. | [preprocess predicate buffer](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L419-L430) |
-| Inversion | no suffix, `inverted_flag` | Uses the predicate directly or inverts it. | [registration loop](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L617-L643) |
-| Conditional-block placement | no suffix, `preprocess_only` | Applies conditional rendering to execution, or only to the preprocessing command buffer. | [conditional recording and expected result](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L513-L577) |
-| State command buffer | no suffix, `separate_state` | Uses the preprocessing command buffer as state or supplies the execution command buffer as separate state. | [state command buffer selection](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L503-L539) |
-| Execution queue | no suffix, `exec_on_compute` | Executes on the universal queue or a compute queue after preprocessing on the universal queue. | [queue switch and ownership barriers](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L441-L500) |
+| Predicate | `condition_false`, `condition_true` | Stores `0` or `256` in the conditional-rendering buffer. | [preprocess predicate buffer](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L418-L429) |
+| Inversion | no suffix, `inverted_flag` | Uses the predicate directly or inverts it. | [registration loop](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L609-L637) |
+| State command buffer | no suffix, `separate_state` | Uses the preprocessing command buffer as state or supplies the execution command buffer as separate state. | [state command buffer selection](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L501-L532) |
+| Execution queue | no suffix, `exec_on_compute` | Executes on the universal queue or a compute queue after preprocessing on the universal queue. | [queue switch and ownership barriers](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L440-L498) |
 
 The exact registered leaf grammar, in suffix order, is:
 
 ```text
-{condition_false|condition_true}[_inverted_flag][_preprocess_only][_separate_state][_exec_on_compute]
+{condition_false|condition_true}[_inverted_flag][_separate_state][_exec_on_compute]
 ```
 
-The generator removes every combination containing `preprocess_only` without `separate_state`. The remaining 24 leaves comprise eight without separate state, eight with `separate_state`, and eight with both `preprocess_only` and `separate_state`.
+The generator skips `execOnCompute && !separateState`: the state command buffer must use the execution queue. The remaining 12 leaves comprise four without separate state on the universal queue and eight with separate state across the two execution queues. The source no longer registers `preprocess_only` variants.
 
 ## Behavior Parameters
 
-The primary behavioral axis is the conditional execution outcome. The predicate and optional inversion produce effective true or false execution. `preprocess_only` adds a third behavior because conditional rendering surrounds preprocessing but not execution.
+The primary behavioral axis is the conditional execution outcome. The predicate and optional inversion produce effective true or false execution. Both families apply conditional rendering to execution.
 
 ### `effective condition true` - generated dispatch executes
 
@@ -72,10 +71,6 @@ A nonzero predicate without inversion or a zero predicate with `inverted_flag` p
 ### `effective condition false` - generated dispatch is suppressed
 
 A zero predicate without inversion or a nonzero predicate with `inverted_flag` suppresses execution. The shader does not run, so the output word remains `0`.
-
-### `preprocess_only` - preprocessing ignores the conditional block
-
-Conditional rendering begins and ends in the preprocessing command buffer only. The later execution command buffer has no active conditional block, so all `preprocess_only` variants must dispatch and produce `777`, regardless of predicate or inversion. Separate state is mandatory for this registered behavior.
 
 Pipeline binding, count input, queue selection, and state-command-buffer placement carry these outcomes through different EXT DGC paths without changing the shader result.
 
@@ -135,11 +130,11 @@ void main (void) { outputBuffer.value = pc.value; }
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| `classic_bind` or `pipeline_token` | No shader change. The pipeline is bound directly or selected by a generated pipeline token. | [pipeline setup](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L208-L223) |
-| Count-buffer choice | No shader change. Both paths execute one sequence when the effective condition permits it. | [count setup](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L270-L297) |
-| Predicate and inversion | No shader change. Conditional rendering either invokes or suppresses the dispatch. | [general command recording](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L303-L323) |
-| Queue | No shader change. The selected queue executes the same generated stream. | [queue selection](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L158-L165) |
-| `preprocess` variants | No shader change. They alter preprocessing state, conditional-block placement, synchronization, and execution queue. | [preprocess runtime](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L503-L577) |
+| `classic_bind` or `pipeline_token` | No shader change. The pipeline is bound directly or selected by a generated pipeline token. | [pipeline setup](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L207-L222) |
+| Count-buffer choice | No shader change. Both paths execute one sequence when the effective condition permits it. | [count setup](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L269-L296) |
+| Predicate and inversion | No shader change. Conditional rendering either invokes or suppresses the dispatch. | [general command recording](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L302-L322) |
+| Queue | No shader change. The selected queue executes the same generated stream. | [queue selection](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L157-L164) |
+| `preprocess` variants | No shader change. They alter preprocessing state, conditional-block placement, synchronization, and execution queue. | [preprocess runtime](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L501-L569) |
 
 #### SPIR-V
 
@@ -214,10 +209,10 @@ void main (void) { outputBuffer.value = pc.value; }
 - General cases build a command stream with optional pipeline index `0`, push constant `777`, and dispatch dimensions `(1, 1, 1)`. The preprocess buffer allows 256 sequences, but execution uses one. With `with_count_buffer`, the command info advertises 256 as the maximum and the count buffer supplies `1`; without it, the command info directly supplies `1`.
 - The general command buffer begins conditional rendering, binds descriptors and the selected pipeline path, calls `vkCmdExecuteGeneratedCommandsEXT` with `isPreprocessed = VK_FALSE`, ends conditional rendering, and inserts a shader-write to host-read barrier.
 - Preprocess cases use a normal pipeline and an explicit-preprocess layout for one sequence. Without `separate_state`, the universal-queue preprocessing command buffer records pipeline, descriptors, and conditional state and also acts as its own state command buffer. The execution command buffer records matching state later.
-- With `separate_state`, the execution command buffer records compute state first and serves as the state command buffer for preprocessing. Unless `preprocess_only` is selected, it also records conditional rendering for later execution.
+- With `separate_state`, the execution command buffer records compute state first and serves as the state command buffer for preprocessing. It also records conditional rendering for later execution.
 - Preprocessing always runs on the universal queue. The source inserts a preprocess-write to indirect-command-read barrier. `exec_on_compute` cases add queue-family release and acquire barriers for the output, generated-command, and preprocess buffers before execution on the compute queue.
-- Execution calls `vkCmdExecuteGeneratedCommandsEXT` with `isPreprocessed = VK_TRUE`. For ordinary preprocess cases, conditional rendering surrounds execution. For `preprocess_only`, only preprocessing was inside a conditional block, so execution proceeds unconditionally.
-- After submission completes, the host invalidates the output allocation and reads one word. General and ordinary preprocess cases expect `777` when `conditionValue != inverted` and `0` otherwise. Every `preprocess_only` case expects `777`. A mismatch reports the expected and observed words.
+- Execution calls `vkCmdExecuteGeneratedCommandsEXT` with `isPreprocessed = VK_TRUE`. Conditional rendering surrounds execution in every preprocess case.
+- After submission completes, the host invalidates the output allocation and reads one word. General and preprocess cases expect `777` when `conditionValue != inverted` and `0` otherwise. A mismatch reports the expected and observed words.
 
 ## Failure Meaning
 
@@ -227,7 +222,6 @@ void main (void) { outputBuffer.value = pc.value; }
 |----------------------------------------|---------------------------|
 | `effective condition true` | The permitted dispatch did not write `777`; predicate evaluation, generated-command decoding, pipeline or shader execution, synchronization, queue ownership, or host readback may be wrong. |
 | `effective condition false` | A suppressed dispatch changed the output, or output initialization and host readback did not preserve the expected `0`. |
-| `preprocess_only` | Conditional rendering incorrectly affected preprocessing, or the separate-state, preprocessed execution, queue-transfer, or result path failed to produce `777`. |
 
 ### Cause Analysis
 
@@ -245,9 +239,9 @@ void main (void) { outputBuffer.value = pc.value; }
 
 #### Explicit preprocessing and state matching
 
-**Possible failure symptoms:** Direct general cases pass, but equivalent preprocess cases return the wrong value. Failures may track `separate_state` or `preprocess_only`.
+**Possible failure symptoms:** Direct general cases pass, but equivalent preprocess cases return the wrong value. Failures may track `separate_state` or the execution queue.
 
-**Possible implementation causes:** The implementation may mishandle explicit preprocessing, the state command buffer, matching compute or conditional state, or the rule that conditional rendering around preprocessing alone does not suppress the later execution. The source follows the required matching-state flow; isolating a specific implementation defect needs command validation and source-level investigation.
+**Possible implementation causes:** The implementation may mishandle explicit preprocessing, the state command buffer, matching compute or conditional state, or the requirement that the state command buffer use the execution queue. The source follows the required matching-state flow; isolating a specific implementation defect needs command validation and source-level investigation.
 
 #### Cross-queue synchronization or host visibility
 
@@ -266,7 +260,7 @@ void main (void) { outputBuffer.value = pc.value; }
 ### Design-based pruning
 
 - `general` registers the full Cartesian product of five binary dimensions, producing 32 leaves.
-- The preprocess generator starts from five binary dimensions but skips `preprocess_only && !separateState`. Such a combination would tell preprocessing that conditional rendering is active through its state command buffer while leaving execution outside conditional rendering. The remaining matrix contains 24 leaves.
+- The preprocess generator starts from four binary dimensions and skips `execOnCompute && !separateState`. Cross-queue execution requires a separate state command buffer from the execution queue. The remaining matrix contains 12 leaves.
 - `preprocess` fixes the pipeline to an ordinary bind, uses one sequence, and always performs explicit preprocessing. Those are setup choices rather than omitted registered dimensions.
 - General count-buffer cases store `1` in the count buffer while allowing up to 256 sequences. The larger number is capacity and an upper bound, not another executed count or case variant.
 - True predicates use `2` in `general` and `256` in `preprocess`. Both choices confirm zero versus nonzero semantics without relying on value `1`.
@@ -275,20 +269,20 @@ void main (void) { outputBuffer.value = pc.value; }
 
 - The effective execution decision is the predicate combined with `inverted_flag`: true writes `777`, while false preserves `0`.
 - Pipeline-token and count-buffer variants change how EXT DGC reaches the same one-dispatch result. Queue variants change where it executes.
-- Explicit preprocessing must preserve matching state for later execution. Conditional rendering around preprocessing alone must not suppress that execution.
+- Explicit preprocessing must preserve matching state for later execution. The state command buffer must come from the execution queue.
 - The test reports one output mismatch. Its variant name helps map that symptom to predicate handling, generated-command transport, preprocessing, synchronization, or readback, but the mismatch does not prove a unique cause.
 
 ## Source Reference Appendix
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `TestParams` and `ConditionalPreprocessParams` | [parameter structures](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L54-L70) | Define all generated registration dimensions. |
-| Support checks | [conditional DGC compute support](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L72-L96) | Apply extension, generated pipeline-binding, and queue requirements. |
-| Shader and predicate helpers | [program and conditional begin](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L98-L156) | Build the observable shader and apply inversion. |
-| `conditionalDispatchRun` | [general runtime](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L158-L331) | Covers direct generated execution, count behavior, queue choice, and checking. |
-| `conditionalPreprocessRun` | [preprocess runtime](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L343-L584) | Covers state command buffers, conditional placement, queue transfer, and preprocessed execution. |
-| `createDGCComputeConditionalTestsExt` | [registration and design pruning](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L589-L647) | Registers all 56 leaves and skips the invalid `preprocess_only` combination. |
+| `TestParams` and `ConditionalPreprocessParams` | [parameter structures](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L54-L69) | Define all generated registration dimensions. |
+| Support checks | [conditional DGC compute support](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L71-L95) | Apply extension, generated pipeline-binding, and queue requirements. |
+| Shader and predicate helpers | [program and conditional begin](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L97-L155) | Build the observable shader and apply inversion. |
+| `conditionalDispatchRun` | [general runtime](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L157-L330) | Covers direct generated execution, count behavior, queue choice, and checking. |
+| `conditionalPreprocessRun` | [preprocess runtime](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L342-L576) | Covers state command buffers, conditional placement, queue transfer, and preprocessed execution. |
+| `createDGCComputeConditionalTestsExt` | [registration and design pruning](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTestsExt.cpp#L581-L641) | Registers all 44 leaves and skips compute-queue execution without separate state. |
 | EXT support helper | [checkDGCExtComputeSupport](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.cpp#L44-L75) | Checks EXT DGC stage and pipeline-binding properties. |
 | Conditional rendering rules | [Conditional Rendering](../../../../vulkan-docs/src/chapters/drawing.adoc#L2086-L2184) | Defines affected commands, predicate values, and inversion. |
 | Explicit-preprocess rules | [generated-command execution validity](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc#L3037-L3089) | Requires preprocessing and execution to use matching inputs and state. |
-| Exact registered paths | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L1-L56) | Lists the 32 general and 24 preprocess test cases. |
+| Exact registered paths | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L1-L44) | Lists the 32 general and 12 preprocess test cases. |

@@ -131,10 +131,10 @@ For the Amber `copy_memory` and `zero_ext` cases, the host side is replaced by t
 ### Generated or loaded program artifacts
 
 - Inline GLSL shader source for every `alias`, `zero`, `padding`, and `size` case, built from the case definition
-  ([`AliasTest::initPrograms`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L424-L505),
-  [`ZeroTest::initPrograms`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L783-L833),
-  [`PaddingTest::initPrograms`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1018-L1067),
-  [`SizeTest::initPrograms`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1165-L1209)).
+  ([`AliasTest::initPrograms`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L425-L506),
+  [`ZeroTest::initPrograms`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L785-L835),
+  [`PaddingTest::initPrograms`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1021-L1070),
+  [`SizeTest::initPrograms`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1169-L1213)).
 - SPIR-V-ASM compute shaders under `data/vulkan/amber/compute/workgroup_memory_explicit_layout/` for the `copy_memory`
   and `zero_ext` cases.
 - A `ComputePipelineWrapper` constructed with one of the three pipeline-construction types via the standard
@@ -186,16 +186,16 @@ The Amber tests rely on `EXPECT result_buffer EQ_BUFFER expected_buffer` or `EXP
 - The `padding` family has two flavors: 32-bit `uint` slots whose offsets are always multiples of 4 bytes, and 8-bit
   `uint8_t` slots whose offsets can be any byte (those cases require `layout(scalar)` and the
   `workgroupMemoryExplicitLayoutScalarBlockLayout` feature)
-  ([`AddPaddingTests`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1069-L1108)).
+  ([`AddPaddingTests`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1072-L1111)).
 - The `zero` family rejects `float16_t` element types in `useType()` because the `zero` path only covers integral and
   floating types that compare cleanly to zero
-  ([`ZeroTest::checkSupport`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L738-L750)).
+  ([`ZeroTest::checkSupport`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L740-L753)).
 - The `copy_memory.variable_pointers` Amber case additionally requires `VariablePointerFeatures.variablePointers` and
   `VK_EXT_descriptor_indexing`
   ([`AddCopyMemoryTests`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1266-L1268)).
 - The `size` family rejects sizes larger than `maxComputeSharedMemorySize` at `checkSupport` time, so a `NotSupportedError`
   is the expected signal rather than a `compute failed`
-  ([`SizeTest::checkSupport`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1153-L1159)).
+  ([`SizeTest::checkSupport`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1157-L1167)).
 - The `copy_memory` and `zero_ext` families are only registered under `pipeline` (not under `shader_object_*`); the
   factory guards on `isComputePipelineConstructionTypeShaderObject`
   ([`createWorkgroupMemoryExplicitLayoutTests`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1312-L1321)).
@@ -205,14 +205,14 @@ The Amber tests rely on `EXPECT result_buffer EQ_BUFFER expected_buffer` or `EXP
 | Topic | Source link | Why it matters |
 |-------|--------------|----------------|
 | Feature gating helper | [`checkSupportWithParams`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L77-L141) | Centralizes `workgroupMemoryExplicitLayout*`, `shaderInt8/16/64`, `shaderFloat16`, and `shaderFloat64` checks. |
-| `alias` shader generation | [`AliasTest::initPrograms`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L424-L505) | Builds the per-case two-block shader with the matching `layout(...)` qualifier. |
-| `alias` case data | [`AddAliasTests`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L536-L671) | Lists every type pair, layout mask, and requirement mask. |
-| `zero` shader generation | [`ZeroTest::initPrograms`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L783-L833) | Manually populates `A` with non-zero then zero, then expects `B` to read zero. |
-| `padding` shader generation | [`PaddingTest::initPrograms`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1018-L1067) | Compares 32 backing words against a per-case expected array. |
-| `size` shader generation | [`SizeTest::initPrograms`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1165-L1209) | Eight workgroup-memory blocks each hold `size/4` words, written in a striped pattern. |
+| `alias` shader generation | [`AliasTest::initPrograms`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L425-L506) | Builds the per-case two-block shader with the matching `layout(...)` qualifier. |
+| `alias` case data | [`AddAliasTests`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L537-L672) | Lists every type pair, layout mask, and requirement mask. |
+| `zero` shader generation | [`ZeroTest::initPrograms`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L785-L835) | Manually populates `A` with non-zero then zero, then expects `B` to read zero. |
+| `padding` shader generation | [`PaddingTest::initPrograms`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1021-L1070) | Compares 32 backing words against a per-case expected array. |
+| `size` shader generation | [`SizeTest::initPrograms`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1169-L1213) | Eight workgroup-memory blocks each hold `size/4` words, written in a striped pattern. |
 | Shared `runCompute` | [`runCompute`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L143-L219) | Records the per-case shader, dispatches once, scans the result buffer. |
-| Amber wrapper | [`CreateAmberTestCase`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1231-L1254) | Adds `VK_KHR_workgroup_memory_explicit_layout`, `VK_KHR_spirv_1_4`, optional `VK_KHR_zero_initialize_workgroup_memory`, and optional `VK_EXT_shader_object` requirements. |
-| Family factory | [`createWorkgroupMemoryExplicitLayoutTests`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1289-L1324) | Mounts `alias`, `zero`, `padding`, `size`, and conditionally `copy_memory` and `zero_ext`. |
+| Amber wrapper | [`CreateAmberTestCase`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1235-L1258) | Adds `VK_KHR_workgroup_memory_explicit_layout`, `VK_KHR_spirv_1_4`, optional `VK_KHR_zero_initialize_workgroup_memory`, and optional `VK_EXT_shader_object` requirements. |
+| Family factory | [`createWorkgroupMemoryExplicitLayoutTests`](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1293-L1328) | Mounts `alias`, `zero`, `padding`, `size`, and conditionally `copy_memory` and `zero_ext`. |
 | Category dispatcher | [`vktComputeTests.cpp#L48-L64`](../../../modules/vulkan/compute/vktComputeTests.cpp#L48-L64), [`vktComputeTests.cpp#L68-L85`](../../../modules/vulkan/compute/vktComputeTests.cpp#L68-L85) | Mounts the factory under `pipeline`, `shader_object_spirv`, and `shader_object_binary`. |
 | Amber scripts | [`copy_memory_basic.amber`](../../../data/vulkan/amber/compute/workgroup_memory_explicit_layout/copy_memory_basic.amber), [`copy_memory_two_invocations.amber`](../../../data/vulkan/amber/compute/workgroup_memory_explicit_layout/copy_memory_two_invocations.amber), [`copy_memory_variable_pointers.amber`](../../../data/vulkan/amber/compute/workgroup_memory_explicit_layout/copy_memory_variable_pointers.amber), [`zero_ext_block.amber`](../../../data/vulkan/amber/compute/workgroup_memory_explicit_layout/zero_ext_block.amber), [`zero_ext_other_block.amber`](../../../data/vulkan/amber/compute/workgroup_memory_explicit_layout/zero_ext_other_block.amber), [`zero_ext_block_with_offset.amber`](../../../data/vulkan/amber/compute/workgroup_memory_explicit_layout/zero_ext_block_with_offset.amber) | Provide the `copy_memory` and `zero_ext` Amber scripts. |
 

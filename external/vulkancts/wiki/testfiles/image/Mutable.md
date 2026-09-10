@@ -36,7 +36,7 @@ image.swapchain_mutable
 └── direct
 ```
 
-Both roots are added under `image` by [`createImageTests()`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L100). The ordinary factory creates generated leaves directly below `2d` and `2d_array`. The swapchain factory iterates every `vk::wsi::Type` before `TYPE_LAST`, then adds the same two image-type groups and generated leaves below each WSI group ([`createSwapchainImageMutableTests()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L2380-L2446)).
+Both roots are added under `image` by [`createImageTests()`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L100). The ordinary factory creates generated leaves directly below `2d` and `2d_array`. The swapchain factory iterates every `vk::wsi::Type` before `TYPE_LAST`, then adds the same two image-type groups and generated leaves below each WSI group ([`createSwapchainImageMutableTests()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L2390-L2457)).
 
 The checked-in default mustpass inventory is split by family: [`image/mutable.txt`](../../../mustpass/main/vk-default/image/mutable.txt) contains **10,118 `image.mutable` leaves**, while [`image/swapchain-mutable.txt`](../../../mustpass/main/vk-default/image/swapchain-mutable.txt) contains **3,240 `image.swapchain_mutable` leaves**. The latter includes the nine WSI paths shown above; platform availability can still prune individual executions.
 
@@ -55,7 +55,7 @@ The checked-in default mustpass inventory is split by family: [`image/mutable.tx
 | Resolve variant | `_resolve`, `_resolve_mutable_resolve_att`, `_resolve_mutable_color_att` | Uses draw/copy only; chooses whether both attachments, only the resolve attachment, or only the multisampled color attachment is mutable. |
 | Load-op-clear variant | `_load_op_clear` | A 2D draw/copy case only; draws a smaller quad so the render pass's `VK_ATTACHMENT_LOAD_OP_CLEAR` result remains observable outside it. |
 
-The normal route matrix is generated for every permitted pair. `store` is skipped when the view format is not image-load/store capable; `load` and `texture` are likewise skipped for such a view format. The support callback then checks route-specific optimal-tiling feature bits ([`checkSupport()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1774-L1856)).
+The normal route matrix is generated for every permitted pair. `store` is skipped when the view format is not image-load/store capable; `load` and `texture` are likewise skipped for such a view format. The support callback then checks route-specific optimal-tiling feature bits ([`checkSupport()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1816-L1901)).
 
 ## Behavior Parameters
 
@@ -161,7 +161,7 @@ void main(void)
 |---------------------|------------------------------------------|----------|
 | Image type | `2d_array` changes both storage-image types to `image2DArray`, coordinates to `ivec3`, and dispatch depth to four layers; `gl_GlobalInvocationID.z` selects the layer color. | [`initPrograms()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L414-L500) |
 | View format | The view format selects the storage-image format qualifier and `image*`, `iimage*`, or `uimage*` type; integer uploads also use `ivec4` or `uvec4` color tables. | [`initPrograms()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L414-L484) |
-| Upload route | Only `store` generates this upload compute shader; `draw` generates vertex/fragment stages, while transfer `clear` and `copy` need no upload shader. | [`initPrograms()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L363-L467) |
+| Upload route | Only `store` generates this upload compute shader; `draw` generates vertex/fragment stages, while transfer `clear` and `copy` need no upload shader. | [`initPrograms()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L364-L539) |
 | Download route | `load` uses `imageLoad` and two storage images; `texture` uses `texelFetch` with a sampler and output storage image, while `copy` needs no download shader. | [`initPrograms()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L469-L536) |
 
 #### SPIR-V
@@ -352,10 +352,10 @@ read selected view
 copy result to host-visible buffer → invalidate mapping → compare every pixel
 ```
 
-- The reference tables contain four float colors and four integer colors. Layer `z` uses entry `z % 4`; the 2D case uses entry zero. Integer values are masked to the channel width used by the writer to avoid problematic reinterpretations ([`getClearValueInt()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L170-L217)).
-- `clear` and `copy` write in the image's creation-format interpretation. `store` and `draw` access the alternate view format. The comparison similarly interprets readback in `imageFormat` for `clear`/`copy` and `viewFormat` for `store`/`draw` ([`testMutable()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1724-L1771)).
+- The reference tables contain four float colors and four integer colors. Layer `z` uses entry `z % 4`; the 2D case uses entry zero. Integer values are masked to the channel width used by the writer to avoid problematic reinterpretations ([`getClearValueInt()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L171-L218)).
+- `clear` and `copy` write in the image's creation-format interpretation. `store` and `draw` access the alternate view format. The comparison similarly interprets readback in `imageFormat` for `clear`/`copy` and `viewFormat` for `store`/`draw` ([`testMutable()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1766-L1814)).
 - `load` and `texture` first write a separate, non-mutable output image in `viewFormat`, then copy that image to the host buffer. The executor records layout/access barriers between the upload, shader access, transfer copy, and host read.
-- If the selected writing interpretation is sRGB, `generateExpectedImage()` applies the source's linear-to-sRGB conversion rule. Integer comparison permits one unit per component; other formats use a `0.01` float threshold ([`generateExpectedImage()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L819-L846)).
+- If the selected writing interpretation is sRGB, `generateExpectedImage()` applies the source's linear-to-sRGB conversion rule. Integer comparison permits one unit per component; other formats use a `0.01` float threshold ([`generateExpectedImage()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L820-L847)).
 
 ## Failure Meaning
 
@@ -411,11 +411,11 @@ Identical formats are deliberately excluded. Resolve and load-op-clear leaves ar
 | Topic | Source |
 |---|---|
 | Case definitions, colors, formats, pair filter | [`vktImageMutableTests.cpp#L78-L303`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L78-L303) |
-| Generated draw/store/load/texture shaders | [`initPrograms()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L363-L536) |
-| Image creation and optional format list | [`makeImage()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L540-L572) |
+| Generated draw/store/load/texture shaders | [`initPrograms()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L364-L539) |
+| Image creation and optional format list | [`makeImage()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L541-L574) |
 | Expected-image generation and route usage | [`generateExpectedImage()` / `getImageUsageForTestCase()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L819-L895) |
-| Ordinary executor and comparison | [`run()` / `testMutable()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1081-L1175) and [`testMutable()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1724-L1771) |
+| Ordinary executor and comparison | [`run()` / `testMutable()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1082-L1814) and [`testMutable()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1766-L1814) |
 | Support and ordinary registration | [`checkSupport()` / `createImageMutableTests()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1774-L1987) |
-| Mutable swapchain setup, execution, registration | [`makeSwapchain()` / `testSwapchainMutable()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L2208-L2377) and [`createSwapchainImageMutableTests()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L2380-L2446) |
+| Mutable swapchain setup, execution, registration | [`makeSwapchain()` / `testSwapchainMutable()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L2208-L2377) and [`createSwapchainImageMutableTests()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L2390-L2457) |
 | Parent registration | [`vktImageTests.cpp#L61-L100`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L100) |
 | Default mustpass inventory | [`image/mutable.txt`](../../../mustpass/main/vk-default/image/mutable.txt) |

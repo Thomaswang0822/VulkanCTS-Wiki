@@ -103,10 +103,9 @@ void createShaders(SourceCollections &dst, TestParams params)
 tcu::TestStatus createPipelineCacheTest(Context &context, TestParams testParams)
 {
     const vk::PlatformInterface &vkp = context.getPlatformInterface();
-    const CustomInstance instance(createCustomInstanceFromContext(context));
-    const InstanceDriver &instanceDriver(instance.getDriver());
-    const VkPhysicalDevice physicalDevice =
-        chooseDevice(instanceDriver, instance, context.getTestContext().getCommandLine());
+    const InstanceWrapper instance(createCustomInstanceFromContext(context));
+    const InstanceInterface &instanceDriver(instance.getDriver());
+    const VkPhysicalDevice physicalDevice = instance.getPhysicalDevice();
 
     std::string graphicsPID = "PCST_GRAPHICS";
     std::string computePID  = "PCST_COMPUTE";
@@ -283,15 +282,16 @@ tcu::TestStatus createPipelineCacheTest(Context &context, TestParams testParams)
         nullptr,                              // pEnabledFeatures;
     };
 
-    VkDeviceObjectReservationCreateInfo objectInfo = resetDeviceObjectReservationCreateInfo();
-    objectInfo.pNext                               = nullptr;
-    objectInfo.pipelineLayoutRequestCount          = 2u;
-    objectInfo.renderPassRequestCount              = 1u;
-    objectInfo.subpassDescriptionRequestCount      = 1u;
-    objectInfo.attachmentDescriptionRequestCount   = 1u;
-    objectInfo.graphicsPipelineRequestCount        = 1u;
-    objectInfo.computePipelineRequestCount         = 1u;
-    objectInfo.pipelineCacheRequestCount           = 2u;
+    VkDeviceObjectReservationCreateInfo objectInfo =
+        context.getResourceInterface()->getDefaultDeviceObjectReservationCreateInfo();
+    objectInfo.pNext                             = nullptr;
+    objectInfo.pipelineLayoutRequestCount        = 2u;
+    objectInfo.renderPassRequestCount            = 1u;
+    objectInfo.subpassDescriptionRequestCount    = 1u;
+    objectInfo.attachmentDescriptionRequestCount = 1u;
+    objectInfo.graphicsPipelineRequestCount      = 1u;
+    objectInfo.computePipelineRequestCount       = 1u;
+    objectInfo.pipelineCacheRequestCount         = 2u;
 
     VkPipelineCacheCreateInfo pipelineCacheCreateInfo = {
         VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO, // VkStructureType sType;
@@ -304,12 +304,6 @@ tcu::TestStatus createPipelineCacheTest(Context &context, TestParams testParams)
     objectInfo.pipelineCacheCreateInfoCount = 1u;
     objectInfo.pPipelineCacheCreateInfos    = &pipelineCacheCreateInfo;
 
-    std::vector<VkPipelinePoolSize> poolSizes = context.getResourceInterface()->getPipelinePoolSizes();
-    if (!poolSizes.empty())
-    {
-        objectInfo.pipelinePoolSizeCount = uint32_t(poolSizes.size());
-        objectInfo.pPipelinePoolSizes    = poolSizes.data();
-    }
     void *pNext = &objectInfo;
 
     VkPhysicalDeviceVulkanSC10Features sc10Features = createDefaultSC10Features();
@@ -319,10 +313,10 @@ tcu::TestStatus createPipelineCacheTest(Context &context, TestParams testParams)
     deviceCreateInfo.pNext = pNext;
 
     tcu::TestStatus testStatus = tcu::TestStatus::pass("Pass");
-    Move<VkDevice> device;
+    DeviceWrapper device;
     {
-        VkDevice object = VK_NULL_HANDLE;
-        VkResult result = instanceDriver.createDevice(physicalDevice, &deviceCreateInfo, nullptr, &object);
+        UncheckedDevice object;
+        VkResult result = instance.createUncheckedDevice(physicalDevice, &deviceCreateInfo, nullptr, &object);
         switch (testParams.type)
         {
         case PCTT_WRONG_VENDOR_ID:
@@ -335,7 +329,7 @@ tcu::TestStatus createPipelineCacheTest(Context &context, TestParams testParams)
         }
         if (result != VK_SUCCESS)
             return testStatus;
-        device = Move<VkDevice>(check<VkDevice>(object), Deleter<VkDevice>(vkp, instance, object, nullptr));
+        device = std::move(object);
     }
 
     // create our own pipeline cache in subprocess. Use VK functions directly

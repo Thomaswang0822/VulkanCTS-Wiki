@@ -1,0 +1,378 @@
+## Overview
+
+**Core question:** Can a deliberately long-running compute dispatch finish and preserve the storage-buffer values expected by its generated shader?
+
+- The `shader_timeout` family is an experimental postmortem test registered below `postmortem.shader_timeout` by `createShaderTimeoutTests` ([registration](../../../modules/vulkan/postmortem/vktPostmortemShaderTimeoutTests.cpp#L240-L251)); the experimental dispatcher exposes it through `createChildrenExperimental` ([dispatcher](../../../modules/vulkan/postmortem/vktPostmortemTests.cpp#L47-L54)).
+- Sixteen leaves select equal outer and inner loop bounds: `compute_1x1` through `compute_32768x32768`. The suffix is the iteration count, not a wall-clock timeout value.
+- Every leaf dispatches 1024 one-invocation workgroups. Each invocation repeatedly increments its own `uint` in a storage buffer, with a buffer memory barrier and execution barrier after every increment.
+- The test is experimental-only: this source is not evidence of standard mustpass coverage.
+
+## Background Knowledge
+
+- **Compute workgroups and built-ins:** `vkCmdDispatch(1024, 1, 1)` launches 1024 workgroups. The declared local size is `1×1×1`, so each workgroup contains one invocation. Workgroup and local-invocation built-ins are therefore used to derive the invocation's linear buffer index.
+- **Vulkan visibility barriers:** Host writes must be made visible to compute shader reads before dispatch, and shader writes must be made visible to host reads before inspection. These are pipeline ordering and memory-visibility operations, separate from GLSL's `memoryBarrierBuffer()` and `barrier()` inside the shader.
+
+## Registration Hierarchy
+
+```text
+postmortem.shader_timeout
+├── compute_1x1
+├── compute_2x2
+├── compute_4x4
+├── compute_8x8
+├── compute_16x16
+├── compute_32x32
+├── compute_64x64
+├── compute_128x128
+├── compute_256x256
+├── compute_512x512
+├── compute_1024x1024
+├── compute_2048x2048
+├── compute_4096x4096
+├── compute_8192x8192
+├── compute_16384x16384
+└── compute_32768x32768
+```
+
+The factory registers all sixteen powers of two from 1 through 32768; each name is a separate direct test-case leaf even though the generated shader and result check are shared ([registration](../../../modules/vulkan/postmortem/vktPostmortemShaderTimeoutTests.cpp#L240-L251)).
+
+## Parameter Dimensions and Observed Values
+
+| Dimension | Registered values | Effect |
+|---|---|---|
+| Equal shader loop bounds | `1`, `2`, `4`, `8`, `16`, `32`, `64`, `128`, `256`, `512`, `1024`, `2048`, `4096`, `8192`, `16384`, `32768` | The host writes the selected value to both `bounds.x` and `bounds.y`; each invocation performs the corresponding square number of increments ([uniform setup](../../../modules/vulkan/postmortem/vktPostmortemShaderTimeoutTests.cpp#L151-L159)). |
+
+## Behavior Parameters
+
+### Compute workload
+
+For `compute_NxN`, both loop bounds equal `N`. The dispatch dimensions, local size, descriptors, and buffer size remain fixed; only the amount of repeated shader work changes. The test does not define a required duration, watchdog threshold, or device-loss outcome.
+
+## Shader Analysis
+
+### Representative Shader Walkthrough 1
+
+#### Parameter Values Chosen
+
+Representative path:
+
+```text
+dEQP-VK.postmortem.shader_timeout.compute_1024x1024
+```
+
+| Parameter choice | Meaning in this representative case |
+|---|---|
+| `compute_1024x1024` | Equal loop bounds of 1024; [registration](../../../modules/vulkan/postmortem/vktPostmortemShaderTimeoutTests.cpp#L243-L248) |
+| `bounds.x`, `bounds.y` | Both uniform loop bounds are 1024; [uniform setup](../../../modules/vulkan/postmortem/vktPostmortemShaderTimeoutTests.cpp#L151-L159) |
+| Dispatch | 1024 one-invocation workgroups; [dispatch](../../../modules/vulkan/postmortem/vktPostmortemShaderTimeoutTests.cpp#L205-L213) |
+| Local size | One invocation per workgroup; [shader generator](../../../modules/vulkan/postmortem/vktPostmortemShaderTimeoutTests.cpp#L87-L118) |
+
+#### Purpose
+
+This case holds topology and resources constant while selecting `N = 1024`, so each invocation performs `1024²` increments. It represents the workload axis, not a timeout threshold.
+
+#### Structural Design
+
+- Derive one linear storage-buffer index from built-ins.
+- Execute the `bounds.y × bounds.x` nested loop.
+- Increment one element, then apply `memoryBarrierBuffer()` and `barrier()` after each increment.
+
+#### Shader Code
+
+```glsl
+#version 320 es
+
+/// One invocation per workgroup; dispatch dimensions provide the work-item count.
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+/// Loop bounds supplied through the uniform descriptor at binding 0.
+layout(binding = 0) uniform Params {
+    int x;
+    int y;
+} bounds;
+
+/// Per-invocation counters stored in the runtime-sized storage buffer at binding 1.
+layout(std430, binding = 1) buffer Output {
+    uint values[];
+} sb_out;
+
+void main()
+{
+    /// Flatten the workgroup size and ID into the base offset for this workgroup.
+    uint localSize = gl_WorkGroupSize.x * gl_WorkGroupSize.y * gl_WorkGroupSize.z;
+    uint globalNdx = gl_NumWorkGroups.x * gl_NumWorkGroups.y * gl_WorkGroupID.z +
+                     gl_NumWorkGroups.x * gl_WorkGroupID.y + gl_WorkGroupID.x;
+    uint globalOffs = localSize * globalNdx;
+
+    /// Flatten the local invocation ID; localSize is one for this test.
+    uint localOffs = gl_WorkGroupSize.x * gl_WorkGroupSize.y * gl_LocalInvocationID.z +
+                     gl_WorkGroupSize.x * gl_LocalInvocationID.y + gl_LocalInvocationID.x;
+    uint sum = uint(0);
+
+    /// Repeat the counter update for the selected square workload.
+    for (int y = 0; y < bounds.y; ++y)
+    {
+        for (int x = 0; x < bounds.x; ++x)
+        {
+            /// Update this invocation's storage-buffer element.
+            sb_out.values[globalOffs + localOffs] =
+                sb_out.values[globalOffs + localOffs] + uint(1);
+
+            /// Make the update visible and synchronize the workgroup before continuing.
+            memoryBarrierBuffer();
+            barrier();
+        }
+    }
+}
+```
+
+#### Additional Info
+
+- `sum` is declared but unused; the storage-buffer update is the tested operation ([shader generator](../../../modules/vulkan/postmortem/vktPostmortemShaderTimeoutTests.cpp#L87-L119)).
+
+#### Parameter Variation Summary
+
+| Parameter dimension | Shader-level variation from this shader | Evidence |
+|---|---|---|
+| Loop bound | `compute_1x1` performs one increment per invocation | [registration](../../../modules/vulkan/postmortem/vktPostmortemShaderTimeoutTests.cpp#L243-L248) |
+| Loop bound | `compute_32768x32768` uses the largest registered loop bound with the same shader structure | [registration](../../../modules/vulkan/postmortem/vktPostmortemShaderTimeoutTests.cpp#L243-L248) |
+
+#### SPIR-V
+
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `comp`
+- Target SPIRV version: `spirv1.0`
+
+<details>
+<summary>Click to expand SPIRV asm code</summary>
+
+```llvm
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 11
+; Bound: 103
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_NumWorkGroups %gl_WorkGroupID %gl_LocalInvocationID
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource ESSL 320
+               OpName %main "main"
+               OpName %localSize "localSize"
+               OpName %globalNdx "globalNdx"
+               OpName %gl_NumWorkGroups "gl_NumWorkGroups"
+               OpName %gl_WorkGroupID "gl_WorkGroupID"
+               OpName %globalOffs "globalOffs"
+               OpName %localOffs "localOffs"
+               OpName %gl_LocalInvocationID "gl_LocalInvocationID"
+               OpName %sum "sum"
+               OpName %y "y"
+               OpName %Params "Params"
+               OpMemberName %Params 0 "x"
+               OpMemberName %Params 1 "y"
+               OpName %bounds "bounds"
+               OpName %x "x"
+               OpName %Output "Output"
+               OpMemberName %Output 0 "values"
+               OpName %sb_out "sb_out"
+               OpDecorate %gl_NumWorkGroups BuiltIn NumWorkgroups
+               OpDecorate %gl_WorkGroupID BuiltIn WorkgroupId
+               OpDecorate %gl_LocalInvocationID BuiltIn LocalInvocationId
+               OpDecorate %Params Block
+               OpMemberDecorate %Params 0 Offset 0
+               OpMemberDecorate %Params 1 Offset 4
+               OpDecorate %bounds Binding 0
+               OpDecorate %bounds DescriptorSet 0
+               OpDecorate %_runtimearr_uint ArrayStride 4
+               OpDecorate %Output BufferBlock
+               OpMemberDecorate %Output 0 Offset 0
+               OpDecorate %sb_out Binding 1
+               OpDecorate %sb_out DescriptorSet 0
+               OpDecorate %gl_WorkGroupSize BuiltIn WorkgroupSize
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+%_ptr_Function_uint = OpTypePointer Function %uint
+     %uint_1 = OpConstant %uint 1
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_NumWorkGroups = OpVariable %_ptr_Input_v3uint Input
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_uint = OpTypePointer Input %uint
+%gl_WorkGroupID = OpVariable %_ptr_Input_v3uint Input
+     %uint_2 = OpConstant %uint 2
+%gl_LocalInvocationID = OpVariable %_ptr_Input_v3uint Input
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+      %int_0 = OpConstant %int 0
+     %Params = OpTypeStruct %int %int
+%_ptr_Uniform_Params = OpTypePointer Uniform %Params
+     %bounds = OpVariable %_ptr_Uniform_Params Uniform
+      %int_1 = OpConstant %int 1
+%_ptr_Uniform_int = OpTypePointer Uniform %int
+       %bool = OpTypeBool
+%_runtimearr_uint = OpTypeRuntimeArray %uint
+     %Output = OpTypeStruct %_runtimearr_uint
+%_ptr_Uniform_Output = OpTypePointer Uniform %Output
+     %sb_out = OpVariable %_ptr_Uniform_Output Uniform
+%_ptr_Uniform_uint = OpTypePointer Uniform %uint
+    %uint_72 = OpConstant %uint 72
+   %uint_264 = OpConstant %uint 264
+%gl_WorkGroupSize = OpConstantComposite %v3uint %uint_1 %uint_1 %uint_1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+  %localSize = OpVariable %_ptr_Function_uint Function
+  %globalNdx = OpVariable %_ptr_Function_uint Function
+ %globalOffs = OpVariable %_ptr_Function_uint Function
+  %localOffs = OpVariable %_ptr_Function_uint Function
+        %sum = OpVariable %_ptr_Function_uint Function
+          %y = OpVariable %_ptr_Function_int Function
+          %x = OpVariable %_ptr_Function_int Function
+               OpStore %localSize %uint_1
+         %16 = OpAccessChain %_ptr_Input_uint %gl_NumWorkGroups %uint_0
+         %17 = OpLoad %uint %16
+         %18 = OpAccessChain %_ptr_Input_uint %gl_NumWorkGroups %uint_1
+         %19 = OpLoad %uint %18
+         %20 = OpIMul %uint %17 %19
+         %23 = OpAccessChain %_ptr_Input_uint %gl_WorkGroupID %uint_2
+         %24 = OpLoad %uint %23
+         %25 = OpIMul %uint %20 %24
+         %26 = OpAccessChain %_ptr_Input_uint %gl_NumWorkGroups %uint_0
+         %27 = OpLoad %uint %26
+         %28 = OpAccessChain %_ptr_Input_uint %gl_WorkGroupID %uint_1
+         %29 = OpLoad %uint %28
+         %30 = OpIMul %uint %27 %29
+         %31 = OpIAdd %uint %25 %30
+         %32 = OpAccessChain %_ptr_Input_uint %gl_WorkGroupID %uint_0
+         %33 = OpLoad %uint %32
+         %34 = OpIAdd %uint %31 %33
+               OpStore %globalNdx %34
+         %36 = OpLoad %uint %localSize
+         %37 = OpLoad %uint %globalNdx
+         %38 = OpIMul %uint %36 %37
+               OpStore %globalOffs %38
+         %41 = OpAccessChain %_ptr_Input_uint %gl_LocalInvocationID %uint_2
+         %42 = OpLoad %uint %41
+         %43 = OpIMul %uint %uint_1 %42
+         %44 = OpAccessChain %_ptr_Input_uint %gl_LocalInvocationID %uint_1
+         %45 = OpLoad %uint %44
+         %46 = OpIMul %uint %uint_1 %45
+         %47 = OpIAdd %uint %43 %46
+         %48 = OpAccessChain %_ptr_Input_uint %gl_LocalInvocationID %uint_0
+         %49 = OpLoad %uint %48
+         %50 = OpIAdd %uint %47 %49
+               OpStore %localOffs %50
+               OpStore %sum %uint_0
+               OpStore %y %int_0
+               OpBranch %56
+         %56 = OpLabel
+               OpLoopMerge %58 %59 None
+               OpBranch %60
+         %60 = OpLabel
+         %61 = OpLoad %int %y
+         %67 = OpAccessChain %_ptr_Uniform_int %bounds %int_1
+         %68 = OpLoad %int %67
+         %70 = OpSLessThan %bool %61 %68
+               OpBranchConditional %70 %57 %58
+         %57 = OpLabel
+               OpStore %x %int_0
+               OpBranch %72
+         %72 = OpLabel
+               OpLoopMerge %74 %75 None
+               OpBranch %76
+         %76 = OpLabel
+         %77 = OpLoad %int %x
+         %78 = OpAccessChain %_ptr_Uniform_int %bounds %int_0
+         %79 = OpLoad %int %78
+         %80 = OpSLessThan %bool %77 %79
+               OpBranchConditional %80 %73 %74
+         %73 = OpLabel
+         %85 = OpLoad %uint %globalOffs
+         %86 = OpLoad %uint %localOffs
+         %87 = OpIAdd %uint %85 %86
+         %88 = OpLoad %uint %globalOffs
+         %89 = OpLoad %uint %localOffs
+         %90 = OpIAdd %uint %88 %89
+         %92 = OpAccessChain %_ptr_Uniform_uint %sb_out %int_0 %90
+         %93 = OpLoad %uint %92
+         %94 = OpIAdd %uint %93 %uint_1
+         %95 = OpAccessChain %_ptr_Uniform_uint %sb_out %int_0 %87
+               OpStore %95 %94
+               OpMemoryBarrier %uint_1 %uint_72
+               OpControlBarrier %uint_2 %uint_2 %uint_264
+               OpBranch %75
+         %75 = OpLabel
+         %98 = OpLoad %int %x
+         %99 = OpIAdd %int %98 %int_1
+               OpStore %x %99
+               OpBranch %72
+         %74 = OpLabel
+               OpBranch %59
+         %59 = OpLabel
+        %100 = OpLoad %int %y
+        %101 = OpIAdd %int %100 %int_1
+               OpStore %y %101
+               OpBranch %56
+         %58 = OpLabel
+               OpReturn
+               OpFunctionEnd
+```
+
+</details>
+
+## Runtime Execution and Result Checking
+
+- The host allocates a host-visible storage buffer for 1024 `uint32_t` values and a two-`uint32_t` uniform buffer ([allocation](../../../modules/vulkan/postmortem/vktPostmortemShaderTimeoutTests.cpp#L129-L139)).
+- It initializes element `i` to `i`, writes `N` to both uniform members, binds the uniform buffer at descriptor binding 0 and storage buffer at binding 1, and builds the compute pipeline ([initialization and descriptors](../../../modules/vulkan/postmortem/vktPostmortemShaderTimeoutTests.cpp#L141-L190)).
+- The command buffer orders host writes before compute reads, dispatches `(1024, 1, 1)`, then orders compute writes before host reads ([barriers and dispatch](../../../modules/vulkan/postmortem/vktPostmortemShaderTimeoutTests.cpp#L192-L216)).
+- After invalidation, element `i` must equal `i + N²`. A mismatch reports `sb_out.values[i]`, reference, and result; otherwise the test passes with `Test succeeded without device loss` ([verification](../../../modules/vulkan/postmortem/vktPostmortemShaderTimeoutTests.cpp#L218-L235)).
+
+## Failure Meaning
+
+### Failure Cause Mapping
+
+| Observation | What it establishes | What it does not establish |
+|---|---|---|
+| Buffer comparison mismatch | At least one observed element differs from the source-defined `i + N²` oracle. | It does not isolate shader arithmetic, addressing, descriptors, synchronization, memory visibility, or device behavior. |
+| Submission/wait does not reach the result scan | Completion or device status requires investigation for that workload. | It does not prove a portable timeout threshold; the source defines none. |
+
+### Cause Analysis
+
+#### Output mismatch
+
+**Possible failure symptoms:** `Comparison failed for sb_out.values[i] ref:<ref> res:<res>`.
+
+**Possible implementation causes:** Investigate the generated shader, storage-buffer indexing, descriptor setup, host/device visibility, and result readback. The test's single comparison cannot localize the cause further.
+
+#### Completion or device-loss behavior
+
+**Possible failure symptoms:** The success message is not returned after submission, wait, invalidation, and comparison.
+
+**Possible implementation causes:** Workload-sensitive device behavior requires investigation; the source does not require a timeout or device loss and cannot distinguish driver, hardware, scheduler, or environment causes.
+
+## Case Pruning
+
+### Requirement-based pruning
+
+The implementation has no feature or device-limit check and does not prune individual leaves. The family is exposed through the experimental dispatcher ([dispatcher](../../../modules/vulkan/postmortem/vktPostmortemTests.cpp#L47-L65)).
+
+### Design-based pruning
+
+Registration deliberately stops at the 16 powers of two from 1 through 32768 ([registration](../../../modules/vulkan/postmortem/vktPostmortemShaderTimeoutTests.cpp#L240-L251)). This is a source-defined workload selection, not a Vulkan conformance limit.
+
+## Key Takeaways
+
+- `compute_NxN` controls both loop bounds, so each of 1024 invocations performs `N²` increments on one storage-buffer element.
+- The oracle is exact: initialized value `i` must become `i + N²`.
+- The host-side barriers and shader-side barriers serve different visibility and execution-order roles.
+- The family probes completion under increasing work; it does not define a universal wall-clock timeout or require device loss.
+
+## Source Reference Appendix
+
+- [shader generation](../../../modules/vulkan/postmortem/vktPostmortemShaderTimeoutTests.cpp#L87-L119)
+- [resource setup and descriptors](../../../modules/vulkan/postmortem/vktPostmortemShaderTimeoutTests.cpp#L129-L190)
+- [command recording and submission](../../../modules/vulkan/postmortem/vktPostmortemShaderTimeoutTests.cpp#L192-L216)
+- [verification](../../../modules/vulkan/postmortem/vktPostmortemShaderTimeoutTests.cpp#L218-L235)
+- [experimental registration](../../../modules/vulkan/postmortem/vktPostmortemTests.cpp#L47-L65)

@@ -473,7 +473,7 @@ A failure says that the selected cross-mechanism contract did not produce its so
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Binding-model category attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L70) | Attaches this Vulkan-only test family under `binding_model`. |
+| Binding-model category attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L54-L80) | Attaches this Vulkan-only test family under `binding_model`. |
 | Test family and leaf registration | [`populateDescriptorCombinationTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L668-L691) | Registers `basic` and both exact leaves. |
 | First-leaf resource and descriptor setup | [`DescriptorCombinationTestInstance::iterate()` setup](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L81-L204) | Creates the three descriptor paths, descriptor bytes, layouts, and pipelines. |
 | First-leaf command and result sequence | [compute recording and comparison](../../../modules/vulkan/binding_model/vktBindingDescriptorCombinationTests.cpp#L208-L312) | Records all state transitions and checks the exact arrays. |

@@ -339,4 +339,4 @@ void main(void)
 | DGC layout and command data | [`iterate`, generated command construction](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMultiviewTestsExt.cpp#L483-L598) | Defines tokens, four sequences, and indexed offset handling. |
 | Submission and result checking | [`iterate`, execution and comparisons](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMultiviewTestsExt.cpp#L604-L762) | Clears, preprocesses, executes, copies back, and compares results. |
 | Registration | [`createDGCGraphicsMultiviewTestsExt`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMultiviewTestsExt.cpp#L817-L831) | Registers `multiview` and the three view-mask test families. |
-| Mustpass coverage | [`dgc.txt` multiview entries](../../../mustpass/main/vk-default/dgc.txt#L2372-L2467) | Lists the 96 registered combinations. |
+| Mustpass coverage | [`dgc.txt` multiview entries](../../../mustpass/main/vk-default/dgc.txt#L2354-L2449) | Lists the 96 registered combinations. |

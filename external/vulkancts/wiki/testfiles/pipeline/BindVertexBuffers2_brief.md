@@ -83,17 +83,17 @@ The direct intermediate nodes select different command shapes or range semantics
 - `single` calls `vkCmdBindVertexBuffers2` once for all `2 * count` regular bindings. `separate` performs one call per binding ([recording](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L517-L543)).
 - The regular matrix uses seven exact stride/offset tuples and `count_1` through `count_4` under each binding mode ([registration](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1783-L1904)).
 - `dynamic_stride.binding_stride_index_mismatch` is registered only for monolithic construction.
-- `maintenance5` is not built for Vulkan SC. Its ordinary leaves use `triangle_list` or `triangle_strip`, 5 or 9 buffers, seeds 321 or 432, and `whole_size` or `true_size`. Its `robustness2` leaves use seeds 543 or 654 and add `beyond_buffer` or, for `true_size`, `beyond_size` ([registration](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1906-L2016)).
+- `maintenance5` is not built for Vulkan SC. Its ordinary leaves use `triangle_list` or `triangle_strip`, 5 or 9 buffers, seeds 321 or 432, and `whole_size` or `true_size`. Its `robustness2` leaves use seeds 543 or 654 and add `beyond_buffer` or, for `true_size`, `beyond_size` ([registration](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1847-L1958)).
 
 ## Source Mapping
 
 | Topic | Source link | Why it matters |
 |---|---|---|
 | Category registration | [pipeline registration](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L188-L191) | Adds `bind_buffers_2` to the pipeline test category. |
-| Regular registration | [`createCmdBindBuffers2Tests()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1780-L1904) | Defines the direct intermediate nodes and the regular matrix. |
-| Maintenance5 registration | [`createCmdBindVertexBuffers2Tests()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1906-L2016) | Defines the topology, count, seed, size, and robustness paths. |
-| Regular execution | [`BindBuffers2Instance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L266-L600) | Records the bind calls, draw, readback, and exact pixel comparison. |
-| Maintenance5 execution | [`BindVertexBuffers2Instance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1331-L1510) | Builds the range cases and their two image predicates. |
+| Regular registration | [`createCmdBindBuffers2Tests()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1723-L1845) | Defines the direct intermediate nodes and the regular matrix. |
+| Maintenance5 registration | [`createCmdBindVertexBuffers2Tests()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1847-L1958) | Defines the topology, count, seed, size, and robustness paths. |
+| Regular execution | [`BindBuffers2Instance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L215-L549) | Records the bind calls, draw, readback, and exact pixel comparison. |
+| Maintenance5 execution | [`BindVertexBuffers2Instance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1284-L1463) | Builds the range cases and their two image predicates. |
 | API contract | [vertex-input command semantics](../../../../vulkan-docs/src/chapters/fxvertex.adoc#L765-L849) | Defines updated offsets, sizes, `VK_WHOLE_SIZE`, and dynamic strides. |
 
 ## Questions / Risk Points for User Audit

@@ -53,7 +53,6 @@ The output checks localize a failure to identifier production, identifier-backed
 
 ## Source Trail
 
-- [Legacy navigation page](vktPipelineShaderModuleIdentifierTests.md)
 - [Identifier helpers and support check](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L80)
 - [Constant-identifier comparison](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L1570)
 - [Identifier-backed runtime path and result checks](../../../modules/vulkan/pipeline/vktPipelineShaderModuleIdentifierTests.cpp#L2025)

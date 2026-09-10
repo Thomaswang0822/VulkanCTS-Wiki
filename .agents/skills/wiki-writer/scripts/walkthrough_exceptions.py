@@ -5,7 +5,18 @@ category directory names and values are sets of Markdown filenames.
 """
 
 PAGES_WITHOUT_WALKTHROUGH: dict[str, set[str]] = {
+    'sc': {
+        'Api.md',
+        'ApplicationParameters.md',
+        'CommandPoolReservation.md',
+        'DeviceReservation.md',
+        'FaultHandling.md',
+        'ObjectRefresh.md',
+        'PipelineCache.md',
+        'PipelineIdentifier.md',
+    },
     'api': {
+        'Array.md',
         'Blitting.md',
         'Buffer.md',
         'BufferMemoryRequirements.md',
@@ -36,6 +47,7 @@ PAGES_WITHOUT_WALKTHROUGH: dict[str, set[str]] = {
         'ImageClearing.md',
         'ImageCompressionControl.md',
         'Maintenance3Check.md',
+        'Maintenance11.md',
         'Maintenance6Check.md',
         'Maintenance7.md',
         'MemoryRequirementInvariance.md',
@@ -128,6 +140,7 @@ PAGES_WITHOUT_WALKTHROUGH: dict[str, set[str]] = {
         'Multisample.md',
         'MultisampleResolveRenderArea.md',
         'NoQueues.md',
+        'PrimitiveRestartIndex.md',
         'RenderToImage.md',
         'Stencil.md',
         'Timestamp.md',
@@ -168,6 +181,7 @@ PAGES_WITHOUT_WALKTHROUGH: dict[str, set[str]] = {
         'CreateTests.md',
         'LinkTests.md',
         'PipelineInteractionTests.md',
+        'IndependentSetsTests.md',
     },
     'sparse_resources': {
         'ImageAlignedMipSize.md',

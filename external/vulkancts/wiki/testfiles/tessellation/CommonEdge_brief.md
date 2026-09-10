@@ -99,7 +99,7 @@ No descriptor sets, push constants, specialization constants, or generated SPIR-
 | Generated shaders | [`initPrograms()`](../../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L107-L241) | Emits the edge levels, interpolation, `precise` qualifiers, parity amplifier, and colors. |
 | Grid and patch indices | [`test()` data generation](../../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L257-L328) | Builds adjacent patches and changes local index ordering for precise cases. |
 | Pipeline, draw, and readback | [`test()` runtime path](../../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L330-L480) | Shows resource setup, indexed draw, image copy, and verifier call. |
-| Registration matrix | [`createCommonEdgeTests()`](../../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L494-L518) | Generates all 12 leaves from primitive, case type, and spacing mode. |
+| Registration matrix | [`createCommonEdgeTests()`](../../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L495-L519) | Generates all 12 leaves from primitive, case type, and spacing mode. |
 | Spacing semantics | [`tessellation-tessellator-spacing`](../../../../vulkan-docs/src/chapters/tessellation.adoc#tessellation-tessellator-spacing) | Specifies segment rounding and matching fractional segment placement. |
 | `NoContraction` semantics | [`spirvenv-op-prec`](../../../../vulkan-docs/src/appendices/spirvenv.adoc#spirvenv-op-prec) | Grounds the precise arithmetic failure interpretation. |
 | Mustpass coverage | [`tessellation.txt#L1-L12`](../../../mustpass/main/vk-default/tessellation.txt#L1-L12) | Confirms all 12 registered leaves in the default mustpass list. |

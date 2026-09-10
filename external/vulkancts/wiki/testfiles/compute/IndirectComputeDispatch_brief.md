@@ -10,7 +10,7 @@ This test checks whether compute pipelines correctly honor dispatch parameters s
 
 ### Two flavors, one parameter matrix
 
-The page covers two intermediate nodes (`upload_buffer`, `gen_in_compute`) under `compute.pipeline.indirect_dispatch`. The two flavors share the exact same `s_dispatchCases` parameter matrix declared in [`createIndirectComputeDispatchTests`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L842-L872), so the only structural difference between them is *how* the indirect command buffer is populated before each dispatch. Both flavors register a base case and a `_compute_only_queue` variant for every entry in `s_dispatchCases`, and non-VulkanSC builds also add a `_device_address` variant that uses `vkCmdDispatchIndirect2KHR` instead of `vkCmdDispatchIndirect`. The matrix alternates device-address variants between `upload_buffer` and `gen_in_compute` based on `(ndx % 2) == (computePipelineConstructionType % 2)` so each pipeline-construction type registers roughly half of the device-address cases under each subgroup [`vktComputeIndirectComputeDispatchTests.cpp#L899-L917`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L899-L917).
+The page covers two intermediate nodes (`upload_buffer`, `gen_in_compute`) under `compute.pipeline.indirect_dispatch`. The two flavors share the exact same `s_dispatchCases` parameter matrix declared in [`createIndirectComputeDispatchTests`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L427-L505), so the only structural difference between them is *how* the indirect command buffer is populated before each dispatch. Both flavors register a base case for every entry in `s_dispatchCases`; empty commands additionally register directional `empty_command_x`, `empty_command_y`, and `empty_command_z` leaves (and selected device-address leaves), replacing the former blanket `_compute_only_queue` variants, and non-VulkanSC builds also add a `_device_address` variant that uses `vkCmdDispatchIndirect2KHR` instead of `vkCmdDispatchIndirect`. The matrix alternates device-address variants between `upload_buffer` and `gen_in_compute` based on `(ndx % 2) == (computePipelineConstructionType % 2)` so each pipeline-construction type registers roughly half of the device-address cases under each subgroup [`vktComputeIndirectComputeDispatchTests.cpp#L609-L655`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L609-L655).
 
 Why it matters here:
 
@@ -28,7 +28,7 @@ Why it matters here:
 
 ### Compute-to-indirect synchronization barrier
 
-`gen_in_compute` does not upload the indirect command buffer from the host; it dispatches a small compute shader that writes the triplets into the indirect buffer and then needs the indirect-command consumer to see those writes. The barrier required by the Vulkan spec for that handoff is `VkBufferMemoryBarrier` from `VK_ACCESS_SHADER_WRITE_BIT` (compute writes the indirect buffer) to `VK_ACCESS_INDIRECT_COMMAND_READ_BIT`, with `VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT` as the source stage and `VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT` as the destination stage [`vktComputeIndirectComputeDispatchTests.cpp#L751-L768`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L751-L768).
+`gen_in_compute` does not upload the indirect command buffer from the host; it dispatches a small compute shader that writes the triplets into the indirect buffer and then needs the indirect-command consumer to see those writes. The barrier required by the Vulkan spec for that handoff is `VkBufferMemoryBarrier` from `VK_ACCESS_SHADER_WRITE_BIT` (compute writes the indirect buffer) to `VK_ACCESS_INDIRECT_COMMAND_READ_BIT`, with `VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT` as the source stage and `VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT` as the destination stage [`vktComputeIndirectComputeDispatchTests.cpp#L570-L588`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L570-L588).
 
 Why it matters here:
 
@@ -46,7 +46,7 @@ Why it matters here:
 
 ### Compute-only queue families
 
-Each base case in `s_dispatchCases` is duplicated as a `<case>_compute_only_queue` variant. The `_compute_only_queue` variant requires a queue family that has `VK_QUEUE_COMPUTE_BIT` but not `VK_QUEUE_GRAPHICS_BIT`, and the host builds a custom device that exposes that queue family alongside the universal queue family [`vktComputeIndirectComputeDispatchTests.cpp#L88-L206`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L88-L206), [`vktComputeIndirectComputeDispatchTests.cpp#L661-L681`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L661-L681). The device-address variant additionally checks `VK_KHR_device_address_commands` [`vktComputeIndirectComputeDispatchTests.cpp#L683-L684`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L683-L684).
+Each base case in `s_dispatchCases` is registered directly, and zero-axis cases also register directional `empty_command_x`, `empty_command_y`, and `empty_command_z` leaves. Runtime instances use the runner-selected compute queue and family index [`vktComputeIndirectComputeDispatchTests.cpp#L88-L206`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L88-L206), [`vktComputeIndirectComputeDispatchTests.cpp#L661-L681`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L661-L681). The device-address variant additionally checks `VK_KHR_device_address_commands` [`vktComputeIndirectComputeDispatchTests.cpp#L683-L684`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L683-L684).
 
 Why it matters here:
 
@@ -88,7 +88,7 @@ For the `_compute_only_queue` variant the host additionally builds a custom devi
 ### Generated or loaded program artifacts
 
 - Inline GLSL compute shader `indirect_dispatch_<case>_verify` specialized with `LOCAL_SIZE_X/Y/Z` from the registered workgroup size [`vktComputeIndirectComputeDispatchTests.cpp#L624-L654`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L624-L654).
-- Inline GLSL compute shader `indirect_dispatch_<case>_generate` for `gen_in_compute` only. The shader has hard-coded `local_size = (1,1,1)` and emits one `writeCmd(offset, uvec3)` call per registered dispatch command, where the `offset` argument is the byte offset divided by `sizeof(uint32_t)` and the `uvec3` triplet is the registered `numWorkGroups` [`vktComputeIndirectComputeDispatchTests.cpp#L790-L830`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L790-L830).
+- Inline GLSL compute shader `indirect_dispatch_<case>_generate` for `gen_in_compute` only. The shader has hard-coded `local_size = (1,1,1)` and emits one `writeCmd(offset, uvec3)` call per registered dispatch command, where the `offset` argument is the byte offset divided by `sizeof(uint32_t)` and the `uvec3` triplet is the registered `numWorkGroups` [`vktComputeIndirectComputeDispatchTests.cpp#L427-L505`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L427-L505).
 - `ComputePipelineWrapper` instance for the verifier pipeline; `makeComputePipeline` for the generator pipeline (gen_in_compute only).
 
 ### Bound resources and memory objects
@@ -120,7 +120,7 @@ The `empty_command` case is special: it dispatches `(0,0,0)` workgroups, so the 
 >
 > **Candidate values:** `upload_buffer`, `gen_in_compute`
 
-If the identification is wrong, the failure analysis below will need to be redone. The flavor is chosen as the primary behavioral axis because it determines the command-buffer construction mechanism (host upload vs compute generation) and therefore the only nontrivial synchronization (the compute-to-indirect barrier). The `_compute_only_queue` and `_device_address` modifiers live inside the parameter dimension table; they are secondary axes, not flavors.
+If the identification is wrong, the failure analysis below will need to be redone. The flavor is chosen as the primary behavioral axis because it determines the command-buffer construction mechanism (host upload vs compute generation) and therefore the only nontrivial synchronization (the compute-to-indirect barrier). The `_device_address` modifier is a secondary axis, not a flavor.
 
 ## What Failure Means
 
@@ -135,7 +135,7 @@ If the identification is wrong, the failure analysis below will need to be redon
 
 - **`empty_command` is a zero-dispatch smoke test.** The triplet is `(0,0,0)` and the expected `numPassed` is `0`; the shader does not run but the host check still exercises the indirect-dispatch code path. A driver that fails to honor a `(0,0,0)` dispatch (for example, by treating it as an error) would fail this case even though it is also exercised in `multiple_groups`.
 - **`multi_dispatch_reuse_command` repeats offsets.** Several offsets (`0`, `104`, `52`) appear twice; the test expects the same triplet to be honored twice. A driver that incorrectly treats each indirect dispatch as a strict sequence (and refuses to reuse a previous offset) would fail this case.
-- **`_device_address` alternates between subgroups.** `(ndx % 2) == (computePipelineConstructionType % 2)` decides whether a `_device_address` case lands in `upload_buffer` or `gen_in_compute` [`vktComputeIndirectComputeDispatchTests.cpp#L907-L916`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L907-L916). For each pipeline-construction type, roughly half of the device-address variants land in each subgroup.
+- **`_device_address` alternates between subgroups.** `(ndx % 2) == (computePipelineConstructionType % 2)` decides whether a `_device_address` case lands in `upload_buffer` or `gen_in_compute` [`vktComputeIndirectComputeDispatchTests.cpp#L609-L655`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L609-L655). For each pipeline-construction type, roughly half of the device-address variants land in each subgroup.
 - **`_compute_only_queue` always runs alongside the base case.** Every entry in `s_dispatchCases` produces both a base case and a `_compute_only_queue` case under both flavors.
 - **Buffer alignment.** The result buffer size is rounded up to `minStorageBufferOffsetAlignment`, so the offset arithmetic on the host side does not need to handle unaligned blocks [`vktComputeIndirectComputeDispatchTests.cpp#L215-L227`](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L215-L227).
 
@@ -143,15 +143,15 @@ If the identification is wrong, the failure analysis below will need to be redon
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Test case matrix | [vktComputeIndirectComputeDispatchTests.cpp#L842-L872](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L842-L872) | Shared `s_dispatchCases` array used by both flavors |
-| Registration loop | [vktComputeIndirectComputeDispatchTests.cpp#L874-L921](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L874-L921) | Both flavors, plus `_compute_only_queue` and `_device_address` modifiers |
+| Test case matrix | [vktComputeIndirectComputeDispatchTests.cpp#L427-L505](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L427-L505) | Shared `s_dispatchCases` array used by both flavors |
+| Registration loop | [vktComputeIndirectComputeDispatchTests.cpp#L427-L738](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L427-L738) | Both flavors, plus `_compute_only_queue` and `_device_address` modifiers |
 | Uploaded buffer fill | [vktComputeIndirectComputeDispatchTests.cpp#L326-L349](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L326-L349) | Host writes triplets, then `flushAlloc` |
-| Compute-generated buffer fill | [vktComputeIndirectComputeDispatchTests.cpp#L717-L769](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L717-L769) | Generator shader + compute-to-indirect barrier |
+| Compute-generated buffer fill | [vktComputeIndirectComputeDispatchTests.cpp#L707-L738](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L707-L738) | Generator shader + compute-to-indirect barrier |
 | Dispatch loop | [vktComputeIndirectComputeDispatchTests.cpp#L466-L538](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L466-L538) | Descriptor bind + `cmdDispatchIndirect` (or `cmdDispatchIndirect2KHR`) |
 | Result verification | [vktComputeIndirectComputeDispatchTests.cpp#L557-L590](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L557-L590) | Per-block `numPassed == expected` check |
 | `checkSupport` | [vktComputeIndirectComputeDispatchTests.cpp#L661-L688](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L661-L688) | Compute-only queue, device-address commands, shader-object requirements |
 | Verifier shader generation | [vktComputeIndirectComputeDispatchTests.cpp#L624-L654](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L624-L654) | `indirect_dispatch_<case>_verify` shader template |
-| Generator shader generation | [vktComputeIndirectComputeDispatchTests.cpp#L790-L830](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L790-L830) | `indirect_dispatch_<case>_generate` shader template |
+| Generator shader generation | [vktComputeIndirectComputeDispatchTests.cpp#L427-L505](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L427-L505) | `indirect_dispatch_<case>_generate` shader template |
 | Custom compute-only device | [vktComputeIndirectComputeDispatchTests.cpp#L88-L206](../../../modules/vulkan/compute/vktComputeIndirectComputeDispatchTests.cpp#L88-L206) | Builds a custom device for the `_compute_only_queue` variant |
 | Category dispatcher | [vktComputeTests.cpp#L48-L85](../../../modules/vulkan/compute/vktComputeTests.cpp#L48-L85) | `pipeline`/`shader_object_spirv`/`shader_object_binary` roots |
 

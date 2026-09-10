@@ -33,10 +33,10 @@ The nine children are the values returned by `getDrawCommandTypeName()`. The dee
 
 | Dimension | Registered or observed values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Draw command | `draw`, `draw_indexed`, `draw_indirect`, `draw_indexed_indirect`, `draw_multi_ext`, `draw_multi_indexed_ext`, `draw_indirect_byte_count_ext`, `draw_indirect_count`, `draw_indexed_indirect_count` | Selects the Vulkan command used inside each conditional transform-feedback section. | [`DrawCommandType` and `getDrawCommandTypeName()`](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L49-L90) |
-| Shader variant | `VertexFetch.geom`, `VertexFetchWritePoint.geom` | Selects the geometry shader. The second variant adds `gl_PointSize` when the device supports geometry point size. | [`AddProgramsDraw::init()`](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L657-L700) |
-| Stream index | `0`, `1`, `2`, `3` | Pushes the selected geometry stream and selects its six-float transform-feedback range. | [`iterate()` stream loop](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L578-L594) |
-| Predicate source | Query result 0 or query result 1 | Alternates between a predicate expected to suppress work and one expected to allow work. | [`iterate()` query and conditional setup](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L550-L590) |
+| Draw command | `draw`, `draw_indexed`, `draw_indirect`, `draw_indexed_indirect`, `draw_multi_ext`, `draw_multi_indexed_ext`, `draw_indirect_byte_count_ext`, `draw_indirect_count`, `draw_indexed_indirect_count` | Selects the Vulkan command used inside each conditional transform-feedback section. | [`DrawCommandType` and `getDrawCommandTypeName()`](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L47-L88) |
+| Shader variant | `VertexFetch.geom`, `VertexFetchWritePoint.geom` | Selects the geometry shader. The second variant adds `gl_PointSize` when the device supports geometry point size. | [`AddProgramsDraw::init()`](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L655-L698) |
+| Stream index | `0`, `1`, `2`, `3` | Pushes the selected geometry stream and selects its six-float transform-feedback range. | [`iterate()` stream loop](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L576-L592) |
+| Predicate source | Query result 0 or query result 1 | Alternates between a predicate expected to suppress work and one expected to allow work. | [`iterate()` query and conditional setup](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L548-L588) |
 
 ## Behavior Parameters
 
@@ -163,9 +163,9 @@ void main() {
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Draw command | The shader text remains the same. The host changes the draw command used to invoke it. | [`recordDraw()`](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L386-L455) |
-| Geometry point-size support | The selected geometry source adds `gl_PointSize = 1.0f` when the device exposes geometry point size. | [`AddProgramsDraw::init()` point-size branch](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L657-L700) |
-| Stream index | The shader branches on the push constant and emits only the matching stream output. | [`AddProgramsDraw::init()` geometry source](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L659-L697) |
+| Draw command | The shader text remains the same. The host changes the draw command used to invoke it. | [`recordDraw()`](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L384-L453) |
+| Geometry point-size support | The selected geometry source adds `gl_PointSize = 1.0f` when the device exposes geometry point size. | [`AddProgramsDraw::init()` point-size branch](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L655-L698) |
+| Stream index | The shader branches on the push constant and emits only the matching stream output. | [`AddProgramsDraw::init()` geometry source](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L657-L695) |
 
 #### SPIR-V
 
@@ -373,15 +373,15 @@ void main() {
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Command enum and names | [`DrawCommandType`](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L49-L90) | Defines the nine behavior values. |
-| Capability checks | [`checkSupport()`](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L131-L160) | Defines extension, feature, and transform-feedback property requirements. |
-| Buffer preparation | [`createIndirectBuffer()` and related helpers](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L219-L314) | Shows the indexed, indirect, count, and transform-feedback buffer data. |
-| Stream pipeline | [`createStreamPipeline()`](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L316-L384) | Creates the geometry-stream pipeline and push-constant layout. |
-| Command selection | [`recordDraw()`](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L386-L455) | Records the command associated with each child. |
-| End-to-end execution | [`iterate()`](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L457-L601) | Records queries, barriers, conditional rendering, transform feedback, and submission. |
-| Result validation | [`iterate()` result checks](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L603-L634) | Checks query values and all 24 captured floats. |
-| Shader generation | [`AddProgramsDraw::init()`](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L636-L714) | Defines the generated vertex, geometry, and fragment stages. |
-| Shared conditional buffer utility | [`createConditionalRenderingBuffer()`](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L70-L121) | Creates host-visible or device-local predicate buffers for related conditional-rendering tests. |
+| Command enum and names | [`DrawCommandType` and `getDrawCommandTypeName()`](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L47-L88) | Defines the nine behavior values. |
+| Capability checks | [`checkSupport()`](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L129-L158) | Defines extension, feature, and transform-feedback property requirements. |
+| Buffer preparation | [`createIndirectBuffer()` and related helpers](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L217-L312) | Shows the indexed, indirect, count, and transform-feedback buffer data. |
+| Stream pipeline | [`createStreamPipeline()`](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L314-L382) | Creates the geometry-stream pipeline and push-constant layout. |
+| Command selection | [`recordDraw()`](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L384-L453) | Records the command associated with each child. |
+| End-to-end execution | [`iterate()`](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L455-L632) | Records queries, barriers, conditional rendering, transform feedback, submission, and result checks. |
+| Result validation | [`iterate()` result checks](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L601-L631) | Checks query values and all 24 captured floats. |
+| Shader generation | [`AddProgramsDraw::init()`](../../../modules/vulkan/conditional_rendering/vktConditionalTransformFeedbackTests.cpp#L634-L712) | Defines the generated vertex, geometry, and fragment stages. |
+| Shared conditional buffer utility | [`createConditionalRenderingBuffer()`](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L69-L121) | Creates host-visible or device-local predicate buffers for related conditional-rendering tests. |
 | Mustpass registration | [`conditional-rendering.txt`](../../../mustpass/main/vk-default/conditional-rendering.txt#L1022-L1030) | Lists the nine registered `transform_feedback` test paths. |
 | Conditional-rendering specification | [Conditional Rendering](../../../../vulkan-docs/src/chapters/drawing.adoc#drawing-conditional-rendering) | Defines predicate interpretation, active scope, and affected command classes. |
 | Synchronization specification | [Pipeline stages and access masks](../../../../vulkan-docs/src/chapters/synchronization.adoc#synchronization-pipeline-stages) | Defines conditional-rendering predicate reads and transform-feedback writes. |

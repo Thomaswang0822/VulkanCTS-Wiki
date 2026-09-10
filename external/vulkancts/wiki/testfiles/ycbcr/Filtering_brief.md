@@ -116,16 +116,16 @@ The graphics/compute choice, format, and size pair are important matrix dimensio
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Case registration | [`createFilteringTests()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L787-L838) | Defines the eight formats, two chroma filters, and graphics/compute cases. |
+| Case registration | [`createFilteringTests()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L819-L871) | Defines the eight formats, two chroma filters, and graphics/compute cases. |
 | Conversion and sampler setup | [`createYCbCrConversion()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L135-L157) and [`getSamplerInfo()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L62-L84) | Defines conversion parameters and linear texture sampler state. |
-| Graphics execution | [`LinearFilteringTestInstance::iterate()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L389-L488) | Creates resources, renders the full-screen quad, generates pixel-center coordinates, and checks results. |
-| Compute execution | [`LinearFilteringComputeTestInstance::iterate()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L526-L676) | Dispatches the compute shader, copies the output image, downloads it, and checks results. |
-| Shader generation | [`LinearFilteringTestCase::initPrograms()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L740-L782) | Emits the vertex, fragment, and compute shader sources. |
+| Graphics execution | [`LinearFilteringTestInstance::iterate()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L417-L517) | Creates resources, renders the full-screen quad, generates pixel-center coordinates, and checks results. |
+| Compute execution | [`LinearFilteringComputeTestInstance::iterate()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L557-L708) | Dispatches the compute shader, copies the output image, downloads it, and checks results. |
+| Shader generation | [`LinearFilteringTestCase::initPrograms()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L772-L815) | Emits the vertex, fragment, and compute shader sources. |
 | Feature gates | [`LinearFilteringTestCase::checkSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L704-L730) | Defines support requirements and pruning behavior. |
 | Shared reference setup | [`fillGradient()`](../../../modules/vulkan/ycbcr/vktYCbCrUtil.cpp#L364-L388) and [`uploadImage()`](../../../modules/vulkan/ycbcr/vktYCbCrUtil.cpp#L420-L454) | Builds per-plane gradient data and uploads it into the image. |
 | Bounds calculation | [`calculateBounds()`](../../../modules/vulkan/ycbcr/vktYCbCrUtil.cpp#L1625-L1665) | Produces the expected interval for each sampled pixel. |
 
-The relevant Vulkan semantics are described in the Vulkan specification's [`Sampler YCbCr Conversion`](../../../vulkan-docs/src/chapters/samplers.adoc#samplers-YCbCr-conversion) and [`Image Operations`](../../../vulkan-docs/src/chapters/textures.adoc#textures-sampler-YCbCr-conversion) sections.
+The relevant Vulkan semantics are described in the Vulkan specification's [`Sampler YCbCr Conversion`](../../../../vulkan-docs/src/chapters/samplers.adoc#samplers-YCbCr-conversion) and [`Image Operations`](../../../../vulkan-docs/src/chapters/textures.adoc#textures-sampler-YCbCr-conversion) sections.
 
 ## Questions / Risk Points for User Audit
 

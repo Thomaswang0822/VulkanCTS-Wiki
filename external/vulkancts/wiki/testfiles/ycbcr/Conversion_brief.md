@@ -101,8 +101,8 @@ The sampler-array variant binds up to four samplers in one descriptor binding. T
 | Shader specification | [`createShaderSpec()`](../../../modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp#L92-L123) | Defines the single-sampler and sampler-array shader bodies. |
 | Resource and descriptor setup | [`evalShader()`](../../../modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp#L399-L500) | Creates conversions, samplers, image views, descriptors, uploads the image, and executes the shader. |
 | Feature checks | [`checkSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp#L526-L646) | Shows the extension, feature, format-feature, filtering, reconstruction, disjoint, and chroma-location requirements. |
-| Input and result checking | [`textureConversionTest()`](../../../modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp#L650-L1128) | Fills gradients, generates coordinates, computes bounds, executes sampling, and decides pass or fail. |
-| Test generation | [`buildTests()`](../../../modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp#L1362-L2139) | Generates format, conversion, reconstruction, and one-to-one cases. |
+| Input and result checking | [`textureConversionTest()`](../../../modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp#L816-L1296) | Fills gradients, generates coordinates, computes bounds, executes sampling, and decides pass or fail. |
+| Test generation | [`buildTests()`](../../../modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp#L1548-L2374) | Generates format, conversion, reconstruction, and one-to-one cases. |
 | Sampler arrays | [`buildArrayOfSamplersTests()`](../../../modules/vulkan/ycbcr/vktYCbCrConversionTests.cpp#L2141-L2180) | Generates the sampler-array family and its binding variants. |
 | Bounds calculation | [`calculateBounds()`](../../../modules/vulkan/ycbcr/vktYCbCrUtil.cpp#L1625-L1670) | Establishes the reference interval from filtering and conversion precision. |
 | Sampler semantics | [`Samplers`](../../../../vulkan-docs/src/chapters/samplers.adoc#samplers) | Defines sampler filtering, addressing, and sampler-object behavior. |

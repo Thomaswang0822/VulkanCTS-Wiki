@@ -360,34 +360,34 @@ PACKAGES = [
     GitRepo(
         "https://github.com/KhronosGroup/SPIRV-Tools.git",
         "git@github.com:KhronosGroup/SPIRV-Tools.git",
-        "0bb521870594a00a7079381e119da2b4e1a2f859",
+        "e39e5c5838bc4b4162c349f2a2e5f163efe5432f",
         "spirv-tools"),
     GitRepo(
         "https://github.com/KhronosGroup/glslang.git",
         "git@github.com:KhronosGroup/glslang.git",
-        "972068c206742412ea26978ae410ec001dfb0620",
+        "2cc82463217481bf7f187d4f9f3bdf652de363dd",
         "glslang",
         removeTags = ["main-tot", "master-tot"]),
     GitRepo(
         "https://github.com/KhronosGroup/SPIRV-Headers.git",
         "git@github.com:KhronosGroup/SPIRV-Headers.git",
-        "98c842bd561ac67c5ff98d599c8c960ba9edb7fd",
+        "0d25db97cb9b8f725e4c95e4553001710e7fc39d",
         "spirv-headers"),
     GitRepo(
         "https://github.com/KhronosGroup/Vulkan-Docs.git",
         "git@github.com:KhronosGroup/Vulkan-Docs.git",
-        "45285e2553e499bbcdb885f71fd789c1f20cab80",
+        "090f1b190d60ced4a1d198fd3747d071cc271b1c",
         "vulkan-docs"),
     GitRepo(
         "https://github.com/KhronosGroup/Vulkan-ValidationLayers.git",
         "git@github.com:KhronosGroup/Vulkan-ValidationLayers.git",
-        "3d79815f35c2c54d5eaa261204e2e3fc2e90bebb",
+        "6d4c4f8b14241307a822f21bb9453b2380b66117",
         "vulkan-validationlayers",
         postCheckout="python3 scripts/update_deps.py --dir external  --optional tests  --api vulkan"),
     GitRepo(
         "https://github.com/google/amber.git",
         "git@github.com:google/amber.git",
-        "fc02f9bad7ddaf5ca685ad01c3a0668d19910fbf",
+        "a76118c1c79ae5615e6684bc3fa267e20c14baf2",
         "amber"),
     GitRepo(
         "https://github.com/open-source-parsers/jsoncpp.git",
@@ -397,12 +397,12 @@ PACKAGES = [
     GitRepo(
         "https://github.com/KhronosGroup/VulkanSC-pcutil.git",
         "git@github.com:KhronosGroup/VulkanSC-pcutil.git",
-        "1de6df7e8173762e6a27dfa2cec604687bc03dab",
+        "d4e3e47797c035e122f32651a4ebc62e4777da10",
         "vulkansc-pcutil"),
     GitRepo(
         "https://github.com/KhronosGroup/Vulkan-Video-Samples.git",
         "git@github.com:KhronosGroup/Vulkan-Video-Samples.git",
-        "v0.3.9",
+        "v0.5.0",
         "vulkan-video-samples"),
     # NOTE: Temporary video generator repo .
     GitRepo(

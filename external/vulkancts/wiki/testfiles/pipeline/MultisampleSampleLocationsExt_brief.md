@@ -91,12 +91,12 @@ For `pipeline.monolithic.multisample.sample_locations_ext.verify_interpolation.s
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
 | Support and property query | [`checkSupportSampleLocations()` and property helpers](../../../modules/vulkan/pipeline/vktPipelineMultisampleSampleLocationsExtTests.cpp#L152-L267) | Selects extension or standard support and retrieves sample-location properties. |
-| Query validators | [`testQuerySampleLocationProperties()` and `testQueryMultisampleProperties()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleSampleLocationsExtTests.cpp#L1174-L1285) | Defines the property and grid checks. |
-| Verify support and shaders | [`checkSupportVerifyTests()` and generated programs](../../../modules/vulkan/pipeline/vktPipelineMultisampleSampleLocationsExtTests.cpp#L1346-L1485) | Defines feature requirements and green-or-red verification shaders. |
-| Verify test instances | [`VerifyLocationTest` and `VerifyInterpolationTest`](../../../modules/vulkan/pipeline/vktPipelineMultisampleSampleLocationsExtTests.cpp#L1838-L1932) | Implements sample-location and interpolation observations. |
-| Draw support and programs | [`checkSupportDrawTests()` and `Draw::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleSampleLocationsExtTests.cpp#L2050-L2195) | Defines draw requirements and generated shaders. |
-| Registration matrix | [`createTestsInGroup()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleSampleLocationsExtTests.cpp#L3511-L3680) | Builds families, sample-count coverage, options, and compatible draw leaves. |
-| Group selection | [`createMultisampleSampleLocationsTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleSampleLocationsExtTests.cpp#L3692) selects the group using `useStdLocations`, choosing `sample_locations_ext` or `std_sample_locations`. |
+| Query validators | [`testQuerySampleLocationProperties()` and `testQueryMultisampleProperties()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleSampleLocationsExtTests.cpp#L1192-L1303) | Defines the property and grid checks. |
+| Verify support and shaders | [`checkSupportVerifyTests()` and generated programs](../../../modules/vulkan/pipeline/vktPipelineMultisampleSampleLocationsExtTests.cpp#L1364-L1503) | Defines feature requirements and green-or-red verification shaders. |
+| Verify test instances | [`VerifyLocationTest` and `VerifyInterpolationTest`](../../../modules/vulkan/pipeline/vktPipelineMultisampleSampleLocationsExtTests.cpp#L1856-L1950) | Implements sample-location and interpolation observations. |
+| Draw support and programs | [`checkSupportDrawTests()` and `Draw::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleSampleLocationsExtTests.cpp#L2068-L2213) | Defines draw requirements and generated shaders. |
+| Registration matrix | [`createTestsInGroup()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleSampleLocationsExtTests.cpp#L3529-L3698) | Builds families, sample-count coverage, options, and compatible draw leaves. |
+| Group selection | [`createMultisampleSampleLocationsTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleSampleLocationsExtTests.cpp#L3710) selects the group using `useStdLocations`, choosing `sample_locations_ext` or `std_sample_locations`. |
 
 ## Questions / Risk Points for User Audit
 

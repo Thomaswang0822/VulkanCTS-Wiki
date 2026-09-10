@@ -144,7 +144,7 @@ void main ()
 
 - The writer is the supporting shader in this walkthrough. This leaf uses it to create the converted image that the verifier reads.
 - The verifier uses exact vector inequality. No host-side numeric tolerance participates in this path.
-- [`AmberTestCase::initPrograms`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L435-L543) compiles Amber GLSL with a default SPIR-V 1.0 target when the script declares no other target.
+- [`AmberTestCase::initPrograms`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L436-L545) compiles Amber GLSL with a default SPIR-V 1.0 target when the script declares no other target.
 
 #### Parameter Variation Summary
 
@@ -990,13 +990,13 @@ A broad failure across all three paths can also come from shared image-format ca
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Texture dispatcher | [`createTextureTests`](../../../modules/vulkan/texture/vktTextureTests.cpp#L48-L67) | Registers `conversion` below `texture` in non-VulkanSC builds. |
-| Conversion factory | [`createTextureConversionTests`](../../../modules/vulkan/texture/vktTextureConversionTests.cpp#L424-L440) | Creates the test family and its three direct children. |
+| Conversion factory | [`createTextureConversionTests`](../../../modules/vulkan/texture/vktTextureConversionTests.cpp#L438-L441) | Creates the test family and its three direct children. |
 | UFLOAT registration and recipe | [`populateUfloatNegativeValuesTests`](../../../modules/vulkan/texture/vktTextureConversionTests.cpp#L291-L322), [`b10g11r11-ufloat-pack32.amber`](../../../data/vulkan/amber/texture/conversion/ufloat_negative_values/b10g11r11-ufloat-pack32.amber) | Defines the image requirement, shaders, dispatches, bindings, and expectation. |
 | Direct SNORM registration and recipe | [`populateSnormClampTests`](../../../modules/vulkan/texture/vktTextureConversionTests.cpp#L324-L380), [`r8-snorm.amber`](../../../data/vulkan/amber/texture/conversion/snorm_clamp/r8-snorm.amber) | Defines all formats and shows most-negative fill, exact checking, and framebuffer validation. |
 | Linear construction and execution | [`SnormLinearClampInstance` constructor](../../../modules/vulkan/texture/vktTextureConversionTests.cpp#L91-L129), [`iterate`](../../../modules/vulkan/texture/vktTextureConversionTests.cpp#L217-L252) | Creates matching textures, configures sampling, renders, and builds the reference. |
 | Linear verification | [`SnormLinearClampInstance::verifyPixels`](../../../modules/vulkan/texture/vktTextureConversionTests.cpp#L145-L215) | Performs lookup-difference and returned-range checks. |
 | Linear format and leaf matrix | [`populateSnormLinearClampTests`](../../../modules/vulkan/texture/vktTextureConversionTests.cpp#L382-L422) | Defines formats, output sizes, suffixes, and current shared parameter behavior. |
-| Shared shader generator | [`initializePrograms`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L210-L760) | Emits fragment and compute `PROGRAM_2D_FLOAT` shaders. |
-| Amber execution | [`AmberTestCase::initPrograms`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L435-L543), [`AmberTestInstance::iterate`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L546-L615) | Compiles recipe shaders and maps Amber success to CTS status. |
+| Shared shader generator | [`initializePrograms`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L209-L759) | Emits fragment and compute `PROGRAM_2D_FLOAT` shaders. |
+| Amber execution | [`AmberTestCase::initPrograms`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L436-L545), [`AmberTestInstance::iterate`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L546-L615) | Compiles recipe shaders and maps Amber success to CTS status. |
 | Mustpass coverage | [`vk-default/texture.txt`](../../../mustpass/main/vk-default/texture.txt#L1813-L1852) | Lists all 40 default Vulkan conversion leaves. |
 | Specification | [Floating-point format conversion](../../../../vulkan-docs/src/chapters/fundamentals.adoc#L1595-L1608), [fixed-point conversion](../../../../vulkan-docs/src/chapters/fundamentals.adoc#L1682-L1717), [numeric formats](../../../../vulkan-docs/src/chapters/formats.adoc#L1620-L1644) | Defines negative-to-UFLOAT conversion, SNORM endpoint handling, post-filter clamping, and numeric-format interpretation. |

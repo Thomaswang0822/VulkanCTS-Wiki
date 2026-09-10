@@ -110,7 +110,7 @@ void main (void)
 | Shader language | GLSL uses the evaluation-shader layout qualifier; HLSL uses hull-shader `domain` and `outputtopology` attributes. | [`WindingTest::initPrograms()`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L227-L365) |
 | Winding | Changes `ccw` to `cw` in GLSL and selects the corresponding HLSL output topology. | [`WindingTest::initPrograms()`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L265-L277), [`getOutputTopologyName()`](../../../modules/vulkan/tessellation/vktTessellationUtil.hpp#L285-L300) |
 | Domain origin | Does not change the shader text. It changes pipeline tessellation state and the spec interpretation of the generated order. | [`WindingTestInstance::iterate()`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L447-L471), [`tessellation.adoc#tessellation-vertex-winding-order`](../../../../vulkan-docs/src/chapters/tessellation.adoc#tessellation-vertex-winding-order) |
-| `yflip` | Does not change the shader text. It changes the viewport's Y transform and the expected image orientation. | [`WindingTestInstance::iterate()`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L528-L535), [`verifyResultImage()`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L83-L193) |
+| `yflip` | Does not change the shader text. It changes the viewport's Y transform and the expected image orientation. | [`WindingTestInstance::iterate()`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L528-L535), [`verifyResultImage()`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L84-L194) |
 
 #### SPIR-V
 

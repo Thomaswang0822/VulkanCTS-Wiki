@@ -43,15 +43,17 @@ image
 ├── depth_stencil_separate_access
 ├── non_uniform_offset_sample
 ├── device_scope_access
+├── store_load_consistency
 ├── 2d_array_compatible
 └── general_layout
 ```
 
-One Level-3 page can cover several direct test families when one implementation source owns them. `LoadStore` covers seven storage-image families, `Mutable` covers `mutable` and `swapchain_mutable`, and the remaining pages cover one direct family each. `vktImageTests.cpp` is registration-only dispatcher code and is folded into this page.
+One Level-3 page can cover several direct test families when one implementation source owns them. `LoadStore` covers seven storage-image families, `Mutable` covers `mutable` and `swapchain_mutable`, and the remaining pages cover one direct family each. `vktImageTests.cpp` is registration-only dispatcher code and is folded into this page. `store_load_consistency` is implemented in `vktImageLoadStoreTests.cpp` and covers 1D, 2D, and 3D storage-image store/load consistency cases.
 
 ## How the Families Fit Together
 
 - **Storage-image behavior** begins with `store`, `load_store`, multisample load/store, format reinterpretation, SPIR-V operand variants, and device-scope access. These families vary declarations, formats, view types, sample indices, and synchronization while comparing results with a host reference.
+- `store_load_consistency` adds three fixed cases, `1d`, `2d`, and `3d`, using `R32G32B32A32_SFLOAT`, `R32_SINT`, and `R8G8B8A8_UNORM` respectively. The compute shader writes a checkerboard to one storage image, loads it, and writes the loaded value to a second image before host comparison ([registration and shader generation](../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L4242-L4260), [Vulkan mustpass](../../mustpass/main/vk-default/image/store-load-consistency.txt)).
 - **Format and view compatibility** covers mutable images, mismatched declared formats, mismatched write operands, compressed block views, extended usage, ASTC decode mode, and 2D-array-compatible views of 3D images.
 - **Sampling and shader-visible properties** covers compressed texture sampling, cubemap sampling, non-uniform offsets, `imageSize`, qualifiers, and atomics.
 - **Layout, copying, and host access** covers subresource layout queries, `GENERAL`-layout operations, queue transfer, concurrent copy, and `VK_EXT_host_image_copy`.

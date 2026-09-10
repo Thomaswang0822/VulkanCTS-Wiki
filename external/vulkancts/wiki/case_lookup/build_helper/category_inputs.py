@@ -17,7 +17,49 @@ CATEGORY_MUSTPASS_FILES: dict[str, tuple[Path, ...]] = {
         Path("pipeline/monolithic/monolithic.txt"),
         Path("pipeline/pipeline-library.txt"),
         Path("pipeline/fast-linked-library.txt"),
-        Path("pipeline/shader-object-unlinked-spirv/shader-object-unlinked-spirv.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/attachment-feedback-loop-layout.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/bind-buffers-2.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/bind-point.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/blend-operation-advanced.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/blend.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/cache.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/color-write-enable-maxa.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/color-write-enable.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/creation-feedback.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/depth-range-unrestricted.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/depth.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/descriptor-limits.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/dynamic-control-points.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/dynamic-offset.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/dynamic-vertex-attribute.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/early-destroy.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/empty-fs.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/extended-dynamic-state.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/framebuffer-attachment.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/image-2d-view-3d-image.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/image-view.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/image.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/input-assembly.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/input-attribute-offset.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/interface-matching.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/logic-op-na-formats.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/logic-op.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/max-varyings.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/misc.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/multisample-interpolation.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/multisample-with-fragment-shading-rate.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/multisample.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/no-position.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/primitive-restart-index.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/push-constant.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/push-descriptor.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/render-to-image.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/sampler.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/shader-stencil-export.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/spec-constant.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/stencil.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/timestamp.txt"),
+        Path("pipeline/shader-object-unlinked-spirv/vertex-input.txt"),
         Path("pipeline/shader-object-unlinked-binary.txt"),
         Path("pipeline/shader-object-linked-spirv.txt"),
         Path("pipeline/shader-object-linked-binary.txt"),
@@ -114,4 +156,27 @@ CATEGORY_MUSTPASS_FILES: dict[str, tuple[Path, ...]] = {
     "cooperative_vector": (Path("cooperative-vector.txt"),),
     "tensor": (Path("tensor.txt"),),
     "data_graph": (Path("data-graph.txt"),),
+    "postmortem": (Path("postmortem.txt"),),
+    "sc": (Path("sc.txt"),),
 }
+
+# Most categories use the ordinary Vulkan default package. Safety-critical
+# tests are shipped in their own package and retain the dEQP-VKSC namespace.
+CATEGORY_MUSTPASS_ROOTS: dict[str, Path] = {
+    "sc": Path("vksc-default"),
+}
+
+CATEGORY_PACKAGE_PREFIXES: dict[str, str] = {
+    "sc": "dEQP-VKSC",
+}
+
+
+def mustpass_root_for(category: str, repo_root: Path) -> Path:
+    """Return the repository mustpass directory for one category."""
+    root = CATEGORY_MUSTPASS_ROOTS.get(category, Path("vk-default"))
+    return repo_root / "external/vulkancts/mustpass/main" / root
+
+
+def package_prefix_for(category: str) -> str:
+    """Return the registration package prefix used by a category."""
+    return CATEGORY_PACKAGE_PREFIXES.get(category, "dEQP-VK")

@@ -99,14 +99,14 @@ The primary behavioral axis is the reconvergence control-flow form. The other re
 |-------|-------------|----------------|
 | Test-family construction and four compute axes | [`createSubgroupUniformControlFlowTests()`](../../../modules/vulkan/subgroups/vktSubgroupUniformControlFlowTests.cpp#L206-L337) | Registers large and small, full and partial, control and non-control families and their 21 Amber basenames. |
 | Small and discard registration | [`createSubgroupUniformControlFlowTests()`](../../../modules/vulkan/subgroups/vktSubgroupUniformControlFlowTests.cpp#L339-L451) | Registers the small variants and the fragment discard case. |
-| Amber filename route | [`addTestsForAmberFiles()`](../../../modules/vulkan/subgroups/vktSubgroupUniformControlFlowTests.cpp#L175-L201) | Builds the `vulkan/amber/<data_dir>/<subdir>/<basename>.amber` path and constructs `AmberTestCase`. |
+| Amber filename route | [`addTestsForAmberFiles()`](../../../modules/vulkan/subgroups/vktSubgroupUniformControlFlowTests.cpp#L176-L202) | Builds the `vulkan/amber/<data_dir>/<subdir>/<basename>.amber` path and constructs `AmberTestCase`. |
 | Amber parse and GLSL program route | [`AmberTestCase::parse()` and `initPrograms()`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L407-L475) | Shows delayed script parsing and GLSL compute source compilation from Amber metadata. |
 | Amber execution and result mapping | [`AmberTestInstance::iterate()`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L546-L615) | Executes the recipe and maps Amber success to CTS pass or fail. |
 | Representative Amber script | [`subgroup_reconverge00.amber`](../../../data/vulkan/amber/subgroup_uniform_control_flow/large/subgroup_reconverge00.amber#L1-L76) | Defines the two shaders, buffers, pipelines, runs, and expectations. |
 | Partial-case exclusion | [`test-issues.txt`](../../../mustpass/main/src/test-issues.txt#L23-L24) | Excludes every path containing `partial` from the default mustpass selection. |
 | Representative mustpass path | [`subgroups.txt`](../../../mustpass/main/vk-default/subgroups.txt#L47724) | Confirms the exact `large_full.subgroup_reconverge00` case is selected. |
-| Vulkan feature semantics | [`VK_KHR_shader_subgroup_uniform_control_flow`](../../../vulkan-docs/src/appendices/VK_KHR_shader_subgroup_uniform_control_flow.adoc#L21-L34) | Defines the stronger reconvergence guarantee and its SPIR-V extension relationship. |
-| SPIR-V execution-mode requirements | [`spirvenv.adoc`](../../../vulkan-docs/src/appendices/spirvenv.adoc#L2742-L2752) | Requires the feature and supported stage for `SubgroupUniformControlFlowKHR`. |
+| Vulkan feature semantics | [`VK_KHR_shader_subgroup_uniform_control_flow`](../../../../vulkan-docs/src/appendices/VK_KHR_shader_subgroup_uniform_control_flow.adoc#L21-L34) | Defines the stronger reconvergence guarantee and its SPIR-V extension relationship. |
+| SPIR-V execution-mode requirements | [`spirvenv.adoc`](../../../../vulkan-docs/src/appendices/spirvenv.adoc#L2742-L2752) | Requires the feature and supported stage for `SubgroupUniformControlFlowKHR`. |
 
 ## Questions / Risk Points for User Audit
 

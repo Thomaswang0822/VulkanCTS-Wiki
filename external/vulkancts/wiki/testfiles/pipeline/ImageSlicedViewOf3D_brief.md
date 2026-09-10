@@ -85,9 +85,9 @@ The `load` and `store` families reverse the data direction across the sliced vie
 |---|---|---|
 | Parameter helpers | [`TestParams`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L71-L188) | Defines effective mip depth, range, and slice extent |
 | Shader generation | [`SlicedViewTestCase::initPrograms`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L283-L378) | Generates storage-image and sampling shaders |
-| Load execution | [`SlicedViewLoadTestInstance::iterate`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L742-L857) | Initializes, dispatches, copies, and compares load results |
-| Store execution | [`SlicedViewStoreTestInstance::iterate`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L859-L972) | Initializes, dispatches, copies, and compares store results |
-| Registration | [`createImageSlicedViewOf3DTests`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L978-L1223) | Builds the four test families and generated leaves |
+| Load execution | [`SlicedViewLoadTestInstance::iterate`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L743-L858) | Initializes, dispatches, copies, and compares load results |
+| Store execution | [`SlicedViewStoreTestInstance::iterate`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L860-L973) | Initializes, dispatches, copies, and compares store results |
+| Registration | [`createImageSlicedViewOf3DTests`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L979-L1226) | Builds the four test families and generated leaves |
 | Vulkan contract | [`VkImageViewSlicedCreateInfoEXT`](../../../../vulkan-docs/src/chapters/resources.adoc#_vk_image_view_sliced_create_info_ext) | Defines offset, count, mip, and storage-image semantics |
 
 ## Questions / Risk Points for User Audit

@@ -136,7 +136,7 @@ The `on` and `off` names are the two outer blend branches. Their deeper `on`/`of
 | Tessellation spacing | [spacing rules](../../../../vulkan-docs/src/chapters/tessellation.adoc#L181-L220) | Grounds the `equal`, `even`, and `odd` interpretation. |
 | Patch interface mismatch | [mismatch generation and run](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L3019-L3227) | Shows the two patch declarations and stage rebind. |
 | Push-constant layout and check | [push-constant implementation](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L3230-L3405) | Defines offsets, ranges, generated 8-bit members, and packed output. |
-| Push constants specification | [push constant validity](../../../../vulkan-docs/src/chapters/commonvalidity/push_constants_common.adoc#L1-L40) | Provides the relevant range and stage-layout rules. |
+| Push constants specification | [push constant validity](../../../../vulkan-docs/src/chapters/commonvalidity/push_constants_common.adoc#L7-L26) | Provides the relevant range and stage-layout rules. |
 
 ## Questions / Risk Points for User Audit
 

@@ -8,7 +8,7 @@ This test checks whether a render-pass multisample resolve preserves the first f
 
 ### Render areas and resolve attachments
 
-A render pass affects its `renderArea`, subject to the render-pass rules in [the Vulkan render-pass chapter](../../../../vulkan-docs/src/chapters/renderpass.adoc#renderpass). A color resolve attachment receives the single-sample result of a multisample color attachment. In this test the multisample color attachment is attachment 0 and the distinct single-sample resolve attachment is attachment 1 in [`makeRenderPass`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L104-L177).
+A render pass affects its `renderArea`, subject to the render-pass rules in [the Vulkan render-pass chapter](../../../../vulkan-docs/src/chapters/renderpass.adoc#renderpass). A color resolve attachment receives the single-sample result of a multisample color attachment. In this test the multisample color attachment is attachment 0 and the distinct single-sample resolve attachment is attachment 1 in [`makeRenderPass`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L119-L188).
 
 The first render pass clears both attachments across the 32 by 32 framebuffer. The second pass uses a centered 16 by 16 render area. Its clear and yellow shape should affect only that smaller area. Pixels outside it should retain the first pass's red result after resolve.
 
@@ -26,6 +26,7 @@ The leaf `pipeline.monolithic.multisample.resolve.renderpass_renderarea.diamond_
 [host] select a shape and sample count, then check image-format and pipeline-construction support
 [host] create multisample and single-sample color images, render passes, framebuffers, shaders, a pipeline, and a readback buffer
 [device] clear both attachments red through a full-frame render pass
+[host] insert a color-attachment image memory barrier so the full-area writes complete before the second pass
 [device] begin a second render pass with the centered 16 by 16 render area, clear it green, and draw the yellow shape
 [device] resolve the multisample attachment to the single-sample attachment and copy that image to the readback buffer
 [host] wait, invalidate the host allocation, inspect the center, an interior uncovered pixel where applicable, and all pixels outside the smaller area
@@ -36,7 +37,7 @@ The leaf `pipeline.monolithic.multisample.resolve.renderpass_renderarea.diamond_
 
 ### Generated or loaded program artifacts
 
-[`initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L477-L517) generates a pass-through vertex shader and a fragment shader that writes constant yellow `vec4(1.0, 1.0, 0.0, 1.0)`. The shader does not calculate resolve values. Fixed-function rasterization, render-pass clears, and the resolve attachment create the observation.
+[`initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L467-L498) generates a pass-through vertex shader and a fragment shader that writes constant yellow `vec4(1.0, 1.0, 0.0, 1.0)`. The shader does not calculate resolve values. Fixed-function rasterization, render-pass clears, and the resolve attachment create the observation.
 
 ### Bound resources and memory objects
 
@@ -50,7 +51,7 @@ The leaf `pipeline.monolithic.multisample.resolve.renderpass_renderarea.diamond_
 
 ## What Is Checked
 
-The host checks three observations in [`iterate`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L440-L473):
+The host checks three observations in [`iterate`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L394-L429):
 
 - The framebuffer center must be yellow, proving that the draw and resolve reached the expected covered point.
 - For `diamond` and `parallelogram`, a selected uncovered point inside the second render area must be green. `rectangle` covers that point, so the source deliberately skips this check for that shape.
@@ -83,11 +84,11 @@ The host checks three observations in [`iterate`](../../../modules/vulkan/pipeli
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Attachment and resolve setup | [`makeRenderPass`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L104-L177) | Creates separate multisample color and resolve attachments. |
-| Pipeline setup | [`preparePipelineWrapper`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L179-L210) | Selects the requested multisample count. |
-| Two-pass execution and checks | [`MultisampleRenderAreaTestInstance::iterate`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L212-L473) | Records passes, copies the result, and validates colors. |
-| Shader generation | [`MultisampleRenderAreaTest::initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L477-L517) | Generates pass-through and constant-yellow shaders. |
-| Registration | [`createMultisampleResolveRenderpassRenderAreaTests`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L519-L570) | Registers shapes and sample counts. |
+| Attachment and resolve setup | [`makeRenderPass`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L119-L188) | Creates separate multisample color and resolve attachments. |
+| Pipeline setup | [`preparePipelineWrapper`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L190-L219) | Selects the requested multisample count. |
+| Two-pass execution and checks | [`MultisampleRenderAreaTestInstance::iterate`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L221-L437) | Records passes, copies the result, and validates colors. |
+| Shader generation | [`MultisampleRenderAreaTest::initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L467-L498) | Generates pass-through and constant-yellow shaders. |
+| Registration | [`createMultisampleResolveRenderpassRenderAreaTests`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L527-L577) | Registers shapes and sample counts. |
 | Render-pass rules | [Render-pass render area and resolves](../../../../vulkan-docs/src/chapters/renderpass.adoc#renderpass) | Defines the render-area scope and resolve-attachment model. |
 
 ## Questions / Risk Points for User Audit

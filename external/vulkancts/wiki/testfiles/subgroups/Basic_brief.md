@@ -110,10 +110,10 @@ For `dEQP-VK.subgroups.basic.compute.subgroupbarrier_requiredsubgroupsize`, the 
 | Main program builder | [`initPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsBasicTests.cpp#L1760-L1786) | Selects the SPIR-V target and routes each stage set. |
 | Support checks | [`supportedCheck`](../../../modules/vulkan/subgroups/vktSubgroupsBasicTests.cpp#L1788-L1845) | Enforces operation, stage, extension, and size-control requirements. |
 | Runtime and callbacks | [`test`](../../../modules/vulkan/subgroups/vktSubgroupsBasicTests.cpp#L1922-L2188) | Selects helper paths, resources, callbacks, and required-size loops. |
-| Registration | [`createSubgroupsBasicTests`](../../../modules/vulkan/subgroups/vktSubgroupsBasicTests.cpp#L2196-L2314) | Constructs exact hierarchy and test names. |
+| Registration | [`createSubgroupsBasicTests`](../../../modules/vulkan/subgroups/vktSubgroupsBasicTests.cpp#L2195-L2313) | Constructs exact hierarchy and test names. |
 | Shared ballot helper | [`getSharedMemoryBallotHelper`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L867-L895) | Explains how compute election counts one winner using shared memory. |
 | Compute/mesh result scan | [`checkComputeOrMesh`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2655-L2663) | Reduces the invocation grid to an element-wise reference check. |
-| Required-size execution helper | [`makeComputeOrMeshTestRequiredSubgroupSize`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L3762-L4064) | Creates, submits, reads back, and checks compute/mesh runs. |
+| Required-size execution helper | [`makeComputeOrMeshTestRequiredSubgroupSize`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L3764-L4068) | Creates, submits, reads back, and checks compute/mesh runs. |
 | Mustpass representative case | [`subgroups.txt`](../../../mustpass/main/vk-default/subgroups.txt#L18372-L18383) | Proves the exact compute leaves, including the selected walkthrough case. |
 | Subgroup and basic operation semantics | [`shaders.adoc`](../../../../vulkan-docs/src/chapters/shaders.adoc#L3220-L3247) and [`shaders.adoc`](../../../../vulkan-docs/src/chapters/shaders.adoc#L3447-L3474) | Defines subgroup scope, group operations, election, and barriers. |
 | Required subgroup size | [`pipelines.adoc`](../../../../vulkan-docs/src/chapters/pipelines.adoc#L1503-L1549) | Defines the pipeline field and its power-of-two range constraints. |

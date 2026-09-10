@@ -197,6 +197,7 @@ void main ()
 
 ## Runtime Execution and Result Checking
 
+- Both execution paths obtain the instance interface and physical device from the selected `DeviceHelper`, together with its device interface, queue, and allocator. The NV shading-rate-image helper owns an `InstanceWrapper` and creates its `DeviceWrapper` through that instance, so capability queries and resource creation use the same device context ([helpers](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L570-L764), [transfer setup](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L961-L975), [compute setup](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L1053-L1067)). This changes device management, not the registered state matrix or buffer verdict.
 - `checkSupport()` checks pipeline construction requirements, then walks each state's extension requirements through `getDynamicStateInfo()`. The `line_stipple_ext` state accepts either `VK_KHR_line_rasterization` or `VK_EXT_line_rasterization`. The `depth_bounds_test_enable_ext` state also requires the `depthBounds` core feature ([checkSupport](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L840-L872)).
 - A device helper is selected per state. States requiring `VK_NV_shading_rate_image` use a custom device with the extension and its `VkPhysicalDeviceShadingRateImageFeaturesNV` feature enabled; all other states use the default context device ([getDeviceHelper](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L738-L753)).
 - **Transfer path:** creates a source and destination buffer with one element per dynamic state. For each state, it records the state command (before or after) around a one-element `vkCmdCopyBuffer`. After submit, it invalidates the destination allocation and requires every element to match the source ([iterateTransfer](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L935-L1025)).
@@ -260,11 +261,11 @@ void main ()
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Registration (factory) | [`createDynamicStateComputeTests()`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L1187-L1284) | Builds the `single` and `multi` nodes and their nested groups. |
+| Registration (factory) | [`createDynamicStateComputeTests()`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L1213-L1310) | Builds the `single` and `multi` nodes and their nested groups. |
 | Dispatcher guard | [vktDynamicStateTests.cpp](../../../modules/vulkan/dynamic_state/vktDynamicStateTests.cpp#L63-L66) | Restricts registration to `monolithic` and `shader_object_unlinked_spirv`. |
 | Dynamic state list | [`dynamicStateList[]`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L474-L509) | The full set of graphics dynamic states tested. |
 | State info and requirements | [`getDynamicStateInfo()`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L519-L567) | Extension requirements and recorder function per state. |
-| Support checks | [`DynamicStateComputeCase::checkSupport()`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L840-L872) | Per-state extension and feature gating. |
-| Transfer verification | [`iterateTransfer()`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L935-L1025) | Buffer-copy result check. |
-| Compute verification | [`iterateCompute()`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L1027-L1175) | Compute output buffer check and shader-object state substitution. |
+| Support checks | [`DynamicStateComputeCase::checkSupport()`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L866-L898) | Per-state extension and feature gating. |
+| Transfer verification | [`iterateTransfer()`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L961-L1051) | Buffer-copy result check. |
+| Compute verification | [`iterateCompute()`](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L1053-L1201) | Compute output buffer check and shader-object state substitution. |
 | Shaders | [initPrograms](../../../modules/vulkan/dynamic_state/vktDynamicStateComputeTests.cpp#L874-L911) | One-line compute store and stand-in vertex shader. |

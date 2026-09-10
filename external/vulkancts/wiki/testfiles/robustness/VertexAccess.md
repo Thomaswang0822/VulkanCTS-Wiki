@@ -2,7 +2,7 @@
 
 **Core question:** Does robust vertex input access preserve attributes whose checked fetches remain in range and return only permitted values when a draw fetches beyond a bound vertex buffer?
 
-- This page covers the `robustness.vertex_access` test family implemented and registered by [vktRobustnessVertexAccessTests.cpp](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L52-L1297).
+- This page covers the `robustness.vertex_access` test family implemented and registered by [vktRobustnessVertexAccessTests.cpp](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L52-L1207).
 - Each case binds vertex-rate and instance-rate data, then deliberately makes one kind of fetch cross or meet the end of a bound vertex buffer.
 - The vertex shader copies three fetched attributes into a storage buffer. After accounting for Vulkan's same-binding allowance, the host checks fetches that remain in range against the populated data and classifies out-of-range results using the values allowed by robust vertex input semantics.
 - The matrix covers 15 input formats, non-indexed and indexed draws, and six test case leaves. The default mustpass profile contains 90 paths [robustness.txt](../../../mustpass/main/vk-default/robustness.txt#L96874-L96963).
@@ -36,16 +36,16 @@ robustness.vertex_access
 └── a2b10g10r10_unorm_pack32
 ```
 
-Each format intermediate node contains `draw` and `draw_indexed`. Each of those nodes contains three executable leaves [registration](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1190-L1297), [mustpass](../../../mustpass/main/vk-default/robustness.txt#L96874-L96963).
+Each format intermediate node contains `draw` and `draw_indexed`. Each of those nodes contains three executable leaves [registration](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1190-L1203), [mustpass](../../../mustpass/main/vk-default/robustness.txt#L96874-L96963).
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Vertex input format | `r32_uint`, `r32_sint`, `r32_sfloat`, `r32g32_uint`, `r32g32_sint`, `r32g32_sfloat`, `r32g32b32_uint`, `r32g32b32_sint`, `r32g32b32_sfloat`, `r32g32b32a32_uint`, `r32g32b32a32_sint`, `r32g32b32a32_sfloat`, `r64_uint`, `r64_sint`, `a2b10g10r10_unorm_pack32` | Changes the shader input/output types, component count, buffer stride, and host comparison path. | [`vertexFormats`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1258-L1287) |
-| Draw mode | `draw`, `draw_indexed` | Chooses sequential vertex indices or an explicit index buffer containing valid and large indices. | [`createDrawTests()` and `createDrawIndexedTests()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1190-L1256) |
-| Non-indexed test case leaf | `vertex_out_of_bounds`, `vertex_incomplete`, `instance_out_of_bounds` | Chooses which bound vertex buffer range or record boundary the draw exceeds. | [`createDrawTests()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1202-L1224) |
-| Indexed test case leaf | `last_index_out_of_bounds`, `indices_out_of_bounds`, `triangle_out_of_bounds` | Chooses where indices `100`, `101`, and `102` appear among valid indices. | [`s_indexConfigs`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L421-L435), [`createDrawIndexedTests()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1227-L1256) |
+| Vertex input format | `r32_uint`, `r32_sint`, `r32_sfloat`, `r32g32_uint`, `r32g32_sint`, `r32g32_sfloat`, `r32g32b32_uint`, `r32g32b32_sint`, `r32g32b32_sfloat`, `r32g32b32a32_uint`, `r32g32b32a32_sint`, `r32g32b32a32_sfloat`, `r64_uint`, `r64_sint`, `a2b10g10r10_unorm_pack32` | Changes the shader input/output types, component count, buffer stride, and host comparison path. | [`vertexFormats`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1165-L1194) |
+| Draw mode | `draw`, `draw_indexed` | Chooses sequential vertex indices or an explicit index buffer containing valid and large indices. | [`createDrawTests()` and `createDrawIndexedTests()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1097-L1162) |
+| Non-indexed test case leaf | `vertex_out_of_bounds`, `vertex_incomplete`, `instance_out_of_bounds` | Chooses which bound vertex buffer range or record boundary the draw exceeds. | [`createDrawTests()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1097-L1131) |
+| Indexed test case leaf | `last_index_out_of_bounds`, `indices_out_of_bounds`, `triangle_out_of_bounds` | Chooses where indices `100`, `101`, and `102` appear among valid indices. | [`s_indexConfigs`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L421-L435), [`createDrawIndexedTests()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1134-L1162) |
 | Input rate | `VK_VERTEX_INPUT_RATE_VERTEX`, `VK_VERTEX_INPUT_RATE_INSTANCE` | Locations 0 and 1 share the vertex-rate binding. Location 2 uses the instance-rate binding. | [binding and attribute descriptions](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L541-L589) |
 
 ## Behavior Parameters
@@ -54,7 +54,7 @@ The primary behavioral axis is the test case leaf. The same six leaves repeat fo
 
 ### `vertex_out_of_bounds` — sequential vertex fetches cross the buffer end
 
-The host creates six complete vertex records but draws nine vertices. The first six vertex indices address populated data; the final three make locations 0 and 1 fetch beyond the vertex-rate buffer [non-indexed configurations](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1202-L1212).
+The host creates six complete vertex records but draws nine vertices. The first six vertex indices address populated data; the final three make locations 0 and 1 fetch beyond the vertex-rate buffer [non-indexed configurations](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1111-L1129).
 
 ### `vertex_incomplete` — the vertex-rate buffer ends inside a record
 
@@ -62,7 +62,7 @@ The vertex-rate buffer contains only one selected-format value, which is half of
 
 ### `instance_out_of_bounds` — later instances exceed instance-rate data
 
-The vertex-rate buffer has enough data for the draw, but the instance-rate buffer holds one element while the command draws three instances. Location 2 is valid for the first instance and outside the checked range for later instances [non-indexed configurations](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1202-L1212).
+The vertex-rate buffer has enough data for the draw, but the instance-rate buffer holds one element while the command draws three instances. Location 2 is valid for the first instance and outside the checked range for later instances [non-indexed configurations](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1111-L1129).
 
 ### `last_index_out_of_bounds` — one final indexed fetch is outside the range
 
@@ -155,7 +155,7 @@ void main (void)
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | Vertex input format | Changes scalar or vector input declarations, output scalar type, component stores, extensions for 64-bit input, and output array length. | [format-dependent shader generation](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L271-L355) |
-| Test case leaf | Changes the generated output array length through vertex and instance counts. The capture statements keep the same form. | [non-indexed case parameters](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1202-L1222) |
+| Test case leaf | Changes the generated output array length through vertex and instance counts. The capture statements keep the same form. | [non-indexed case parameters](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1111-L1129) |
 | Draw mode | Indexed cases use the same shader generator; host-side index data changes which vertex-rate records feed `attr0` and `attr1`. | [indexed construction](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L421-L488) |
 
 #### SPIR-V
@@ -334,7 +334,7 @@ All six values can also expose incorrect vertex format conversion, shader captur
 
 ### Design-based pruning
 
-- The source registers the same six leaves for each of 15 formats. It does not generate a Cartesian product of arbitrary buffer lengths, draw counts, and index lists; those values are fixed per behavior leaf [case registration](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1190-L1287).
+- The source registers the same six leaves for each of 15 formats. It does not generate a Cartesian product of arbitrary buffer lengths, draw counts, and index lists; those values are fixed per behavior leaf [case registration](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1097-L1203).
 - Indexed cases use three six-index patterns. Other placements of out-of-range indices are outside this test family's registered design.
 
 ## Key Takeaways
@@ -350,14 +350,14 @@ All six values can also expose incorrect vertex format conversion, shader captur
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Test and instance types | [vktRobustnessVertexAccessTests.cpp#L52-L238](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L52-L238) | Defines the common test parameters, runtime resources, and draw-specific instances. |
-| Shader generation | [`VertexAccessTest::initPrograms()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L263-L366) | Emits format-specific vertex inputs, SSBO capture stores, and the fixed fragment shader. |
+| Shader generation | [`VertexAccessTest::initPrograms()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L238-L341) | Emits format-specific vertex inputs, SSBO capture stores, and the fixed fragment shader. |
 | Indexed patterns | [`DrawIndexedAccessTest::s_indexConfigs`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L421-L435) | Defines the three indexed behavior leaves' index sequences. |
-| Vertex input and resource setup | [`VertexAccessInstance`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L493-L800) | Creates bindings, buffers, descriptor state, and graphics draw configuration. |
+| Vertex input and resource setup | [`VertexAccessInstance`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L114-L179) | Creates bindings, buffers, descriptor state, and graphics draw configuration. |
 | Submission and result checking | [`iterate()` and `verifyResult()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L806-L1003) | Submits the draw, reads the SSBO, and applies in-range and robust out-of-range checks. |
 | Format-sensitive checks | [`isValueWithinVertexBufferOrZero()` and `isExpectedValueFromVertexBuffer()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1005-L1097) | Handles packed, integer, floating-point, and 64-bit values. |
-| Non-indexed registration | [`createDrawTests()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1190-L1225) | Registers the three non-indexed test case leaves. |
-| Indexed registration | [`createDrawIndexedTests()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1227-L1256) | Registers the three indexed test case leaves. |
-| Format matrix and test family root | [`addVertexFormatTests()` and `createVertexAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1258-L1297) | Registers 15 format intermediate nodes under `robustness.vertex_access`. |
+| Non-indexed registration | [`createDrawTests()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1097-L1131) | Registers the three non-indexed test case leaves. |
+| Indexed registration | [`createDrawIndexedTests()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1134-L1162) | Registers the three indexed test case leaves. |
+| Format matrix and test family root | [`addVertexFormatTests()` and `createVertexAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1165-L1203) | Registers 15 format intermediate nodes under `robustness.vertex_access`. |
 | Robust vertex input semantics | [Vulkan specification: Robust Buffer Access](../../../../vulkan-docs/src/chapters/shaders.adoc#L1925-L2030) | Defines checked ranges, same-binding behavior, and permitted out-of-range values. |
 | Vertex input state | [Vulkan specification: Vertex Input Description](../../../../vulkan-docs/src/chapters/fxvertex.adoc#L257-L409) | Defines bindings, input rates, formats, and offsets. |
 | Mustpass inventory | [robustness.txt#L96874-L96963](../../../mustpass/main/vk-default/robustness.txt#L96874-L96963) | Confirms 90 registered paths for the 15 by 2 by 3 matrix. |

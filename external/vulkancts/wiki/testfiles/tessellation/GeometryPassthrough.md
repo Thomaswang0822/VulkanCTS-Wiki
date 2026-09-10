@@ -31,7 +31,7 @@ tessellation.geometry_interaction.passthrough
 
 ## Parameter Dimensions and Observed Values
 
-[`createGeometryPassthroughTests()`](../../../modules/vulkan/tessellation/vktTessellationGeometryPassthroughTests.cpp#L766-L781) generates the leaves from two behavioral groups and their supported primitive types.
+[`createGeometryPassthroughTests()`](../../../modules/vulkan/tessellation/vktTessellationGeometryPassthroughTests.cpp#L767-L782) generates the leaves from two behavioral groups and their supported primitive types.
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
@@ -300,7 +300,7 @@ A failure in either group can also come from shared pipeline setup, blending, im
 | Tessellation-passthrough program generation | [`IdentityTessellationShaderTestCase::initPrograms()`](../../../modules/vulkan/tessellation/vktTessellationGeometryPassthroughTests.cpp#L320-L387) | Generates unit-level identity tessellation and geometry-input variants. |
 | Shared execution and image oracle | [`PassthroughTestInstance::iterate()`](../../../modules/vulkan/tessellation/vktTessellationGeometryPassthroughTests.cpp#L465-L668) | Creates resources, renders both pipelines, copies images, and decides pass or fail. |
 | Pipeline-pair parameters | [`createInstance()` implementations](../../../modules/vulkan/tessellation/vktTessellationGeometryPassthroughTests.cpp#L670-L743) | Defines vertices, levels, stage presence, shader names, and test messages. |
-| Leaf construction and registration | [`createGeometryPassthroughTests()`](../../../modules/vulkan/tessellation/vktTessellationGeometryPassthroughTests.cpp#L745-L781) | Names and registers all five leaves. |
+| Leaf construction and registration | [`createGeometryPassthroughTests()`](../../../modules/vulkan/tessellation/vktTessellationGeometryPassthroughTests.cpp#L767-L782) | Names and registers all five leaves. |
 | Vulkan default mustpass | [`tessellation.txt`](../../../mustpass/main/vk-default/tessellation.txt#L20-L24) | Confirms all five Vulkan paths. |
 | Tessellation stage semantics | [`tessellation.adoc`](../../../../vulkan-docs/src/chapters/tessellation.adoc#L7-L32) | Defines active and disabled tessellation behavior. |
 | Geometry stage semantics | [`geometry.adoc`](../../../../vulkan-docs/src/chapters/geometry.adoc#L6-L28) | Defines geometry input primitives and emitted output. |

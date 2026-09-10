@@ -443,7 +443,7 @@ The oracle therefore checks that no opaque red fragment from the first draw rema
 
 ### Requirement-based pruning
 
-The C++ registration loop does not prune individual cases beyond attaching their feature requirements. [`AmberTestCase::checkSupport()`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L203-L248) reports a case as unsupported before execution when an attached feature is unavailable:
+The C++ registration loop does not prune individual cases beyond attaching their feature requirements. [`AmberTestCase::checkSupport()`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L204-L287) reports a case as unsupported before execution when an attached feature is unavailable:
 
 - `depth_bias_triangle_list_fill` has no additional requirement.
 - `depth_bias_triangle_list_line` and `depth_bias_triangle_list_point` require `Features.fillModeNonSolid`.

@@ -306,7 +306,6 @@ void main()
 
 | Topic | Source |
 |---|---|
-| Original navigation page | [`vktPipelineDynamicOffsetTests.md`](vktPipelineDynamicOffsetTests.md) |
 | Implementation and registration | [`vktPipelineDynamicOffsetTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineDynamicOffsetTests.cpp) |
 | Public declaration | [`vktPipelineDynamicOffsetTests.hpp`](../../../modules/vulkan/pipeline/vktPipelineDynamicOffsetTests.hpp) |
 | Pipeline category registration | [`vktPipelineTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L102-L115) |

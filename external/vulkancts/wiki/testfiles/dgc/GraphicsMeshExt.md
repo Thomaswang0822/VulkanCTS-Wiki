@@ -23,7 +23,7 @@ dgc.ext.graphics.mesh
 └── token_draw_count
 ```
 
-`conditional_rendering` is attached by this registration function but implemented by [`createDGCGraphicsMeshConditionalTestsExt`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshConditionalTestsExt.cpp#L680-L718). Its detailed `general` and `preprocess` paths remain in [the legacy conditional-rendering page](vktDGCGraphicsMeshConditionalTestsExt.md).
+`conditional_rendering` is attached by this registration function but implemented by [`createDGCGraphicsMeshConditionalTestsExt`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshConditionalTestsExt.cpp#L680-L718). [GraphicsMeshConditionalExt.md](GraphicsMeshConditionalExt.md) documents its `general` and `preprocess` paths.
 
 ## Parameter Dimensions and Observed Values
 
@@ -31,7 +31,7 @@ The registration loops in [`createDGCGraphicsMeshTestsExt`](../../../modules/vul
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |---|---|---|---|
-| Direct test family | `token_draw`, `token_draw_count`, `misc`, `conditional_rendering` | Selects the mesh action, count-form action, supporting paths, or delegated conditional rendering. | [registration](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L2320-L2424), [mustpass](../../../mustpass/main/vk-default/dgc.txt#L1806-L2113) |
+| Direct test family | `token_draw`, `token_draw_count`, `misc`, `conditional_rendering` | Selects the mesh action, count-form action, supporting paths, or delegated conditional rendering. | [registration](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L2320-L2424), [mustpass](../../../mustpass/main/vk-default/dgc.txt#L1788-L2095) |
 | Draw form | `token_draw`, `token_draw_count` | Direct cases use eight generated sequences. Count-form cases group the eight direct draws into four indirect draw sequences, each with its own count record and indirect mesh-draw records. | [draw type and registration](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L159-L163), [count buffers](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L791-L819) |
 | Pipeline construction | `monolithic`, `shader_objects`, `gpl_fast`, `gpl_optimized`, `gpl_mix_base_fast`, `gpl_mix_base_opt` | Selects a monolithic pipeline, shader objects, or graphics pipeline library construction. The mix forms alternate fast and optimized library construction per sequence. | [pipeline cases](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L165-L208), [pipeline setup](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L935-L999) |
 | Task shader | no suffix, `_with_task_shader` | Uses direct mesh workgroup indexing or task payload indexing. | [task parameter](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L218-L306), [shader generation](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L449-L559) |
@@ -537,6 +537,6 @@ void main() {
 | No-fragment path | [`NoFragCase` and `NoFragInstance`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L1549-L2088) | Tests task and mesh storage-buffer writes with pipeline, execution-set, and preprocess variants. |
 | Many-sequence path | [`manySequencesRun`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L2090-L2316) | Tests `64`, `1024`, `8192`, and `131072` sequences and checks one counter per sequence. |
 | Registration | [`createDGCGraphicsMeshTestsExt`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L2320-L2424) | Registers the four direct children and exact variant-construction loops. |
-| Mustpass evidence | [mesh paths in `dgc.txt`](../../../mustpass/main/vk-default/dgc.txt#L1806-L2113) | Records all 308 registered paths. |
+| Mustpass evidence | [mesh paths in `dgc.txt`](../../../mustpass/main/vk-default/dgc.txt#L1788-L2095) | Records all 308 registered paths. |
 | Mesh shader semantics | [mesh.adoc](../../../../vulkan-docs/src/chapters/VK_NV_mesh_shader/mesh.adoc) | Defines task and mesh workgroup behavior and emitted primitives. |
 | DGC layout semantics | [generatedcommands.adoc](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc#indirectmdslayout) | Defines mesh action tokens, explicit preprocessing, synchronization, and sequence ordering. |

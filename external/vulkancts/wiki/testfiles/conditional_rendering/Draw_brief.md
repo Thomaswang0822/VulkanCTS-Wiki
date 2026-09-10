@@ -97,13 +97,13 @@ The primary behavioral axis is the condition-data row, because its values select
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Draw test registration and six command leaves | [ConditionalDrawTests::init()](../../../modules/vulkan/conditional_rendering/vktConditionalDrawTests.cpp#L618-L643) | Creates one condition-data test family and six draw-command leaves per row. |
+| Draw test registration and six command leaves | [ConditionalDrawTests::init()](../../../modules/vulkan/conditional_rendering/vktConditionalDrawTests.cpp#L612-L637) | Creates one condition-data test family and six draw-command leaves per row. |
 | Condition-data values and row names | [`ConditionalData` and `s_testsData`](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.hpp#L44-L144) | Defines predicate placement, inversion, inheritance, clear, nesting, expected result, and memory variants. |
-| Condition buffer construction | [createConditionalRenderingBuffer()](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L70-L121) | Shows host-visible staging, device-local copies, offsets, and predicate bytes. |
-| Conditional block setup | [beginConditionalRendering()](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L124-L136) | Maps padding and inversion to `VkConditionalRenderingBeginInfoEXT`. |
-| Draw command encoding | [recordDraw()](../../../modules/vulkan/conditional_rendering/vktConditionalDrawTests.cpp#L326-L374) | Selects the six direct, indexed, indirect, and count commands. |
-| Command-buffer and render-pass control flow | [ConditionalDraw::iterate()](../../../modules/vulkan/conditional_rendering/vktConditionalDrawTests.cpp#L376-L559) | Records primary, secondary, inherited, nested, and render-pass-clear paths. |
-| Image validation | [ConditionalDraw::iterate()](../../../modules/vulkan/conditional_rendering/vktConditionalDrawTests.cpp#L561-L604) | Builds the expected image and performs the fuzzy comparison. |
+| Condition buffer construction | [createConditionalRenderingBuffer()](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L69-L121) | Shows host-visible staging, device-local copies, offsets, and predicate bytes. |
+| Conditional block setup | [beginConditionalRendering()](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L123-L134) | Maps padding and inversion to `VkConditionalRenderingBeginInfoEXT`. |
+| Draw command encoding | [recordDraw()](../../../modules/vulkan/conditional_rendering/vktConditionalDrawTests.cpp#L310-L358) | Selects the six direct, indexed, indirect, and count commands. |
+| Command-buffer and render-pass control flow | [ConditionalDraw::iterate()](../../../modules/vulkan/conditional_rendering/vktConditionalDrawTests.cpp#L360-L543) | Records primary, secondary, inherited, nested, and render-pass-clear paths. |
+| Image validation | [ConditionalDraw::iterate()](../../../modules/vulkan/conditional_rendering/vktConditionalDrawTests.cpp#L545-L588) | Builds the expected image and performs the fuzzy comparison. |
 | Extension semantics | [VK_EXT_conditional_rendering description](../../../../vulkan-docs/src/appendices/VK_EXT_conditional_rendering.adoc#L21-L45) | Grounds the affected-command and secondary-command-buffer behavior. |
 
 ## Questions / Risk Points for User Audit

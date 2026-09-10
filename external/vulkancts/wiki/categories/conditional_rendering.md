@@ -46,4 +46,4 @@ Together, the families cover predicate interpretation, inversion, memory placeme
 
 ## Category Notes
 
-The legacy dispatcher page `vktConditionalTests.md` is folded into this category gateway because it contains registration rather than an independent implementation-bearing test family. The legacy family pages remain as source-navigation records; the shortened pages above are the canonical rewritten documentation.
+This category gateway covers the registration-only dispatcher; the Level-3 pages above document the implementation-bearing test families.

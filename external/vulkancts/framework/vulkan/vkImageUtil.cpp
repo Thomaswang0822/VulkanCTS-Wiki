@@ -2017,6 +2017,48 @@ PlanarFormatDescription getCorePlanarFormatDescription(VkFormat format)
                                               }};
         return desc;
     }
+    case VK_FORMAT_R64G64B64A64_UINT:
+    {
+        const PlanarFormatDescription desc = {1, // planes
+                                              chanR | chanG | chanB | chanA,
+                                              1,
+                                              1,
+                                              {
+                                                  //        Size    WDiv    HDiv    planeCompatibleFormat
+                                                  {32, 1, 1, VK_FORMAT_R64G64B64A64_UINT},
+                                                  {0, 0, 0, VK_FORMAT_UNDEFINED},
+                                                  {0, 0, 0, VK_FORMAT_UNDEFINED},
+                                              },
+                                              {
+                                                  //        Plane    Type    Offs    Size    Stride
+                                                  {0, uint, 0, 64, 32},   // R
+                                                  {0, uint, 64, 64, 32},  // G
+                                                  {0, uint, 128, 64, 32}, // B
+                                                  {0, uint, 192, 64, 32}  // A
+                                              }};
+        return desc;
+    }
+    case VK_FORMAT_R64G64B64A64_SINT:
+    {
+        const PlanarFormatDescription desc = {1, // planes
+                                              chanR | chanG | chanB | chanA,
+                                              1,
+                                              1,
+                                              {
+                                                  //        Size    WDiv    HDiv    planeCompatibleFormat
+                                                  {32, 1, 1, VK_FORMAT_R64G64B64A64_SINT},
+                                                  {0, 0, 0, VK_FORMAT_UNDEFINED},
+                                                  {0, 0, 0, VK_FORMAT_UNDEFINED},
+                                              },
+                                              {
+                                                  //        Plane    Type    Offs    Size    Stride
+                                                  {0, sint, 0, 64, 32},   // R
+                                                  {0, sint, 64, 64, 32},  // G
+                                                  {0, sint, 128, 64, 32}, // B
+                                                  {0, sint, 192, 64, 32}  // A
+                                              }};
+        return desc;
+    }
 
     case VK_FORMAT_R8G8_UINT:
     {
@@ -5012,17 +5054,19 @@ void copyBufferToImageIndirect(const DeviceInterface &vk, const InstanceInterfac
 
     // Create indirect buffer for copy commands
     const VkDeviceSize indirectBufferSize = copyRegions.size() * sizeof(VkCopyMemoryToImageIndirectCommandKHR);
+    const auto indirectBufferUsage =
+        static_cast<VkBufferUsageFlags>(VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT |
+                                        VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT);
 
     const VkBufferCreateInfo indirectBufferCreateInfo = {
         VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO, // VkStructureType sType
         nullptr,                              // const void* pNext
         0u,                                   // VkBufferCreateFlags flags
         indirectBufferSize,                   // VkDeviceSize size
-        VK_BUFFER_USAGE_TRANSFER_SRC_BIT |    // VkBufferUsageFlags usage
-            VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT,
-        VK_SHARING_MODE_EXCLUSIVE, // VkSharingMode sharingMode
-        0u,                        // uint32_t queueFamilyIndexCount
-        nullptr                    // const uint32_t* pQueueFamilyIndices
+        indirectBufferUsage,                  // VkBufferUsageFlags usage
+        VK_SHARING_MODE_EXCLUSIVE,            // VkSharingMode sharingMode
+        0u,                                   // uint32_t queueFamilyIndexCount
+        nullptr                               // const uint32_t* pQueueFamilyIndices
     };
 
     Move<VkBuffer> indirectBuffer = createBuffer(vk, device, &indirectBufferCreateInfo);
@@ -5851,7 +5895,7 @@ ImageWithBuffer::ImageWithBuffer(const DeviceInterface &vkd, const VkDevice devi
                                  vk::VkExtent3D extent, vk::VkFormat imageFormat, vk::VkImageUsageFlags usage,
                                  vk::VkImageType imageType, vk::VkImageSubresourceRange ssr, uint32_t arrayLayers,
                                  vk::VkSampleCountFlagBits samples, vk::VkImageTiling tiling, uint32_t mipLevels,
-                                 vk::VkSharingMode sharingMode)
+                                 vk::VkSharingMode sharingMode, HostIntent hostIntent)
 {
 
     if (imageType == VK_IMAGE_TYPE_3D)
@@ -5904,11 +5948,11 @@ ImageWithBuffer::ImageWithBuffer(const DeviceInterface &vkd, const VkDevice devi
     const auto tcuFormat = mapVkFormat(imageFormat);
     const auto verificationBufferSize =
         tcuFormat.getPixelSize() * extent.width * extent.height * arrayLayers * extent.depth;
-    const auto verificationBufferCreateInfo =
-        makeBufferCreateInfo(verificationBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+    const auto verificationBufferUsage      = (VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+    const auto verificationBufferCreateInfo = makeBufferCreateInfo(verificationBufferSize, verificationBufferUsage);
 
     buffer = std::unique_ptr<BufferWithMemory>(
-        new BufferWithMemory(vkd, device, alloc, verificationBufferCreateInfo, HostIntent::R));
+        new BufferWithMemory(vkd, device, alloc, verificationBufferCreateInfo, hostIntent));
     size = verificationBufferSize;
 }
 

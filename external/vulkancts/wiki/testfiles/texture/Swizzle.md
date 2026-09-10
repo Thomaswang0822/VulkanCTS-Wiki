@@ -29,7 +29,7 @@ texture.swizzle
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Behavior branch | `component_mapping.color`, `component_mapping.depth`, `component_mapping.stencil`, `texture_coordinate` | Selects the property under test. | [registration loops](../../../modules/vulkan/texture/vktTextureSwizzleTests.cpp#L511-L648) |
+| Behavior branch | `component_mapping.color`, `component_mapping.depth`, `component_mapping.stencil`, `texture_coordinate` | Selects the property under test. | [registration loops](../../../modules/vulkan/texture/vktTextureSwizzleTests.cpp#L494-L632) |
 | Color format | 119 formats: 81 uncompressed and 38 ETC2, EAC, or ASTC | Covers normalized, scaled, integer, floating-point, sRGB, packed, and compressed samples. | [color formats](../../../modules/vulkan/texture/vktTextureSwizzleTests.cpp#L315-L439) |
 | Depth/stencil format | six depth formats; four stencil formats | Selects one aspect and its float or unsigned-integer sampler path. | [aspect formats](../../../modules/vulkan/texture/vktTextureSwizzleTests.cpp#L441-L458) |
 | Extent | `pot` = 128 by 64; `npot` = 51 by 65 | Covers power-of-two and non-power-of-two addressing. Non-square dimensions expose axis changes. | [sizes](../../../modules/vulkan/texture/vktTextureSwizzleTests.cpp#L461-L473) |
@@ -333,7 +333,7 @@ void main (void)
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |-----------|-----------|----------|
-| Suffix | `.xx` or `.yy` replaces `.yx` on center and neighbor coordinates. | [coordinate cases](../../../modules/vulkan/texture/vktTextureSwizzleTests.cpp#L613-L644) |
+| Suffix | `.xx` or `.yy` replaces `.yx` on center and neighbor coordinates. | [coordinate cases](../../../modules/vulkan/texture/vktTextureSwizzleTests.cpp#L596-L628) |
 | Component mapping | Removes the suffix and changes view state instead. | [mapping cases](../../../modules/vulkan/texture/vktTextureSwizzleTests.cpp#L517-L546) |
 | Extent | Changes `u_viewSize` and workgroup count. | [dispatch](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L2726-L2744) |
 | Sparse backing | Changes allocation/upload, not shader text. | [upload paths](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L808-L920) |
@@ -812,7 +812,7 @@ A failure in any branch can also come from image upload, sparse binding/residenc
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Category dispatch | [`createTextureTests`](../../../modules/vulkan/texture/vktTextureTests.cpp#L48-L66) | Attaches `swizzle` under `texture`. |
-| Matrix registration | [`populateTextureSwizzleTests`](../../../modules/vulkan/texture/vktTextureSwizzleTests.cpp#L311-L649) | Defines parameters, hierarchy, and leaves. |
+| Matrix registration | [`populateTextureSwizzleTests`](../../../modules/vulkan/texture/vktTextureSwizzleTests.cpp#L311-L632) | Defines parameters, hierarchy, and leaves. |
 | Support | [`SwizzleTestCase::checkSupport`](../../../modules/vulkan/texture/vktTextureSwizzleTests.cpp#L75-L90) | Applies maintenance5 gates. |
 | Runtime and verifier | [`Swizzle2DTestInstance`](../../../modules/vulkan/texture/vktTextureSwizzleTests.cpp#L129-L307) | Creates resources, renders the reference, applies swizzles, and compares. |
 | Shader generator | [`initializePrograms`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L210-L510) | Emits graphics/compute programs and coordinate suffixes. |
@@ -821,4 +821,4 @@ A failure in any branch can also come from image upload, sparse binding/residenc
 | Compute backend | [`ComputeBackend`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L2528-L2806) | Dispatches, stores, and copies output. |
 | Vulkan semantics | [Component Swizzle](../../../../vulkan-docs/src/chapters/textures.adoc#L731-L810) | Defines mapping and the depth/stencil condition. |
 | Maintenance5 property | [Physical Device Limits](../../../../vulkan-docs/src/chapters/limits.adoc#L1863-L1868) | Defines `depthStencilSwizzleOneSupport`. |
-| Current leaves | [`vk-default/texture.txt`](../../../mustpass/main/vk-default/texture.txt#L15774-L27277) | Confirms current names and coverage. |
+| Current leaves | [`vk-default/texture.txt`](../../../mustpass/main/vk-default/texture.txt#L15774-L25645) | Confirms current names and coverage. |

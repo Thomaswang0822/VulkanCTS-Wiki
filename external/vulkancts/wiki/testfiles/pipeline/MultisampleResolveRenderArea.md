@@ -2,7 +2,7 @@
 
 **Core question:** Does a render-pass multisample resolve keep the first full-frame result outside a later restricted render area while resolving that area's clear and draw correctly?
 
-- [`vktPipelineMultisampleResolveRenderAreaTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L40-L570) implements the `resolve.renderpass_renderarea` test family under the `multisample` test category.
+- [`vktPipelineMultisampleResolveRenderAreaTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L40-L580) implements the `resolve.renderpass_renderarea` test family under the `multisample` test category.
 - The family uses two separate color attachments: a multisample source and a single-sample resolve destination. It first clears both red across a 32 by 32 framebuffer, then runs a second pass in the centered 16 by 16 render area, clears it green, and draws a yellow shape.
 - The host reads the resolved destination. It checks a covered point, an uncovered point for non-rectangular shapes, and every pixel outside the second render area.
 
@@ -26,10 +26,10 @@ The source returns the `resolve` intermediate node and adds `renderpass_renderar
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Shape group | `rectangle`, `diamond`, `parallelogram` | Chooses the geometry and therefore the edge coverage within the restricted area. | [shape registration](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L521-L530) |
-| Sample-count leaf | `samples_2`, `samples_4`, `samples_8`, `samples_16` | Selects the multisample count for the source attachment and graphics pipeline. | [sample-count registration](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L532-L558) |
-| Framebuffer | 32 by 32 | Fixes the attachment extent and readback size. | [case construction](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L552-L556) |
-| Second render area | centered 16 by 16 | Limits the clear and draw in the second render pass. | [render-area setup](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L374-L379) |
+| Shape group | `rectangle`, `diamond`, `parallelogram` | Chooses the geometry and therefore the edge coverage within the restricted area. | [shape registration](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L536-L542) |
+| Sample-count leaf | `samples_2`, `samples_4`, `samples_8`, `samples_16` | Selects the multisample count for the source attachment and graphics pipeline. | [sample-count registration](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L544-L562) |
+| Framebuffer | 32 by 32 | Fixes the attachment extent and readback size. | [case construction](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L568-L570) |
+| Second render area | centered 16 by 16 | Limits the clear and draw in the second render pass. | [render-area setup](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L334-L349) |
 | Pipeline construction | `monolithic`, `fast_linked_library`, `pipeline_library`, `shader_object_linked_binary`, `shader_object_linked_spirv`, `shader_object_unlinked_binary`, `shader_object_unlinked_spirv` | Exercises the same test logic through each registered pipeline construction path. | [mustpass entries](../../../mustpass/main/vk-default/pipeline/) |
 
 The literal `.multisample.resolve.renderpass_renderarea.` path has 12 leaves in each of `monolithic`, `fast_linked_library`, `pipeline_library`, `shader_object_linked_binary`, `shader_object_linked_spirv`, `shader_object_unlinked_binary`, and `shader_object_unlinked_spirv`: 84 mustpass leaves in total.
@@ -52,14 +52,14 @@ The parallelogram also leaves the selected interior point uncovered, but its sla
 
 ## Shader Analysis
 
-[`initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L477-L517) generates a pass-through vertex shader and a fragment shader that writes constant yellow `vec4(1.0, 1.0, 0.0, 1.0)`. The test does not compare shader algorithms or embed a fixed shader artifact. The shader supplies recognizable coverage; fixed-function rasterization, render-pass clear behavior, and attachment resolve are the behavior under test.
+[`initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L467-L498) generates a pass-through vertex shader and a fragment shader that writes constant yellow `vec4(1.0, 1.0, 0.0, 1.0)`. The test does not compare shader algorithms or embed a fixed shader artifact. The shader supplies recognizable coverage; fixed-function rasterization, render-pass clear behavior, and attachment resolve are the behavior under test.
 
 ## Runtime Execution and Result Checking
 
 - CTS checks whether `VK_FORMAT_R8G8B8A8_UNORM` supports the requested multisample count for color-attachment and transfer-source use, then checks the selected pipeline construction type.
-- CTS creates a multisample color image and a distinct single-sample resolve image, each with a view. [`makeRenderPass`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L104-L177) assigns attachment 0 as the color attachment and attachment 1 as its resolve attachment.
+- CTS creates a multisample color image and a distinct single-sample resolve image, each with a view. [`makeRenderPass`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L119-L188) assigns attachment 0 as the color attachment and attachment 1 as its resolve attachment.
 - CTS creates two equivalent render passes and framebuffers over the same two images. It uploads vertices for the selected shape and builds a pipeline with the selected sample count.
-- The first pass begins with the full framebuffer as `renderArea`, clears both attachments red, and ends. The second pass begins with the centered 16 by 16 `renderArea`, clears it green, binds the pipeline and vertices, draws six vertices, and ends. Its resolve writes the single-sample destination.
+- The first pass begins with the full framebuffer as `renderArea`, clears both attachments red, and ends. A color-attachment image memory barrier between the passes orders the full-area writes before the restricted-area pass, avoiding an unordered write-after-write hazard. The second pass begins with the centered 16 by 16 `renderArea`, clears it green, binds the pipeline and vertices, draws six vertices, and ends. Its resolve writes the single-sample destination.
 - CTS copies the resolve image to a host-visible buffer, waits for completion, and invalidates the allocation. It requires yellow at the center. For `diamond` and `parallelogram`, it also requires green at the selected uncovered point inside the smaller area. Finally it scans every pixel outside the smaller area and requires red.
 
 ## Failure Meaning
@@ -96,7 +96,7 @@ The parallelogram also leaves the selected interior point uncovered, but its sla
 
 ### Requirement-based pruning
 
-[`checkSupport`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L501-L517) rejects a leaf when the selected color format does not support its requested sample count for `VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT`. It also checks pipeline-construction support.
+[`checkSupport`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L506-L523) rejects a leaf when the selected color format does not support its requested sample count for `VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT`. It also checks pipeline-construction support.
 
 ### Design-based pruning
 
@@ -112,10 +112,10 @@ The registration creates the full Cartesian product of three shape groups and fo
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Image setup | [`makeImageCreateInfo`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L77-L102) | Defines the color-attachment and transfer-source image use. |
-| Render-pass setup | [`makeRenderPass`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L104-L177) | Defines distinct multisample color and single-sample resolve attachments. |
-| Pipeline setup | [`preparePipelineWrapper`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L179-L210) | Uses the requested rasterization sample count. |
-| Execution and checks | [`MultisampleRenderAreaTestInstance::iterate`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L220-L421) | Records both passes, copies readback, and checks colors. |
-| Shader generation | [`MultisampleRenderAreaTest::initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L477-L499) | Generates the pass-through and constant-yellow shaders. |
-| Support and registration | [`checkSupport` and `createMultisampleResolveRenderpassRenderAreaTests`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L501-L570) | Defines requirements, shapes, and sample-count leaves. |
+| Image setup | [`makeImageCreateInfo`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L94-L117) | Defines the color-attachment and transfer-source image use. |
+| Render-pass setup | [`makeRenderPass`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L119-L188) | Defines distinct multisample color and single-sample resolve attachments. |
+| Pipeline setup | [`preparePipelineWrapper`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L190-L219) | Uses the requested rasterization sample count. |
+| Execution and checks | [`MultisampleRenderAreaTestInstance::iterate`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L221-L437) | Records both passes, copies readback, and checks colors. |
+| Shader generation | [`MultisampleRenderAreaTest::initPrograms`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L467-L498) | Generates the pass-through and constant-yellow shaders. |
+| Support and registration | [`checkSupport` and `createMultisampleResolveRenderpassRenderAreaTests`](../../../modules/vulkan/pipeline/vktPipelineMultisampleResolveRenderAreaTests.cpp#L506-L577) | Defines requirements, shapes, and sample-count leaves. |
 | Vulkan contract | [Render-pass render area and resolve attachments](../../../../vulkan-docs/src/chapters/renderpass.adoc#renderpass) | Defines the scoped render area and resolve-attachment behavior. |

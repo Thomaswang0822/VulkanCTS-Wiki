@@ -1316,10 +1316,10 @@ All values can also expose incorrect data-type lowering, stage-specific subgroup
 | Generated test body | [`getTestSrc`](../../../modules/vulkan/subgroups/vktSubgroupsBallotBroadcastTests.cpp#L101-L207) | Emits constant-ID, dynamic-ID, and first-active validation logic. |
 | Program builder | [`initPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsBallotBroadcastTests.cpp#L242-L262) | Selects SPIR-V 1.3, 1.4, or 1.5 and invokes the shared generator. |
 | Support checks | [`supportedCheck`](../../../modules/vulkan/subgroups/vktSubgroupsBallotBroadcastTests.cpp#L264-L347) | Applies subgroup, format, extension, stage, and subgroup-size requirements. |
-| Runtime routing | [`test`](../../../modules/vulkan/subgroups/vktSubgroupsBallotBroadcastTests.cpp#L379-L454) | Defines input resources and selects each execution helper. |
+| Runtime routing | [`test`](../../../modules/vulkan/subgroups/vktSubgroupsBallotBroadcastTests.cpp#L378-L453) | Defines input resources and selects each execution helper. |
 | Registration | [`createSubgroupsBallotBroadcastTests`](../../../modules/vulkan/subgroups/vktSubgroupsBallotBroadcastTests.cpp#L461-L693) | Generates the operation, type, stage, extension, and size matrix. |
 | Shared shader wrappers | [`initStdPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1406-L1675) | Builds compute, graphics, mesh, task, and ray-tracing GLSL. |
-| Compute and mesh execution | [`makeComputeOrMeshTestRequiredSubgroupSize`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L3762-L4063) | Creates resources and pipelines, executes local-size variants, synchronizes, and reads results. |
+| Compute and mesh execution | [`makeComputeOrMeshTestRequiredSubgroupSize`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L3764-L4068) | Creates resources and pipelines, executes local-size variants, synchronizes, and reads results. |
 | Common result checks | [`check`, `checkComputeOrMesh`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2640-L2663) | Requires every result element to equal the reference value. |
 | Mustpass hierarchy | [`subgroups.txt`](../../../mustpass/main/vk-default/subgroups.txt#L12111) | Confirms the representative executable and registered family prefix. |
 | Subgroup and ballot semantics | [`shaders.adoc`](../../../../vulkan-docs/src/chapters/shaders.adoc#L3447-L3523) | Defines subgroup group operations and ballot broadcast behavior. |

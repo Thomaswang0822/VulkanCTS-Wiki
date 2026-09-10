@@ -18,36 +18,13 @@
 
 ```text
 video.capabilities
-├── av1_decode_capabilities_query
-├── av1_decode_dpb_video_format_support_query
-├── av1_decode_dst_video_format_support_query
-├── av1_encode_capabilities_query
-├── av1_encode_dpb_video_format_support_query
-├── av1_encode_intra_refresh_capabilities_query
-├── av1_encode_src_video_format_support_query
-├── h264_decode_capabilities_query
-├── h264_decode_dpb_video_format_support_query
-├── h264_decode_dst_video_format_support_query
-├── h264_encode_capabilities_query
-├── h264_encode_dpb_video_format_support_query
-├── h264_encode_intra_refresh_capabilities_query
-├── h264_encode_src_video_format_support_query
-├── h265_decode_capabilities_query
-├── h265_decode_dpb_video_format_support_query
-├── h265_decode_dst_video_format_support_query
-├── h265_encode_capabilities_query
-├── h265_encode_dpb_video_format_support_query
-├── h265_encode_intra_refresh_capabilities_query
-├── h265_encode_src_video_format_support_query
-├── queue_support_query
-├── vp9_decode_capabilities_query
-├── vp9_decode_dpb_video_format_support_query
-└── vp9_decode_dst_video_format_support_query
+├── extended_flags
+└── none
 
 video.formats
 ```
 
-The `capabilities` and `formats` families are both implemented by this source file and owned by this page. The `capabilities` tree lists its 25 exact registered leaves. The `formats` tree is a bare root because its 1701 generated leaves are flat single components that each combine a codec operation, format, usage, subsampling, and bit depth; the matrix is described in the parameter sections rather than expanded in the tree.
+`video.capabilities` and `video.formats` retain their existing family roots. The upstream mustpass reorganizes capability leaves below `extended_flags` and `none`, while the large `video.formats` matrix remains a separate flat generated family.
 
 ## Parameter Dimensions and Observed Values
 
@@ -74,7 +51,7 @@ The family queries queue-family video properties and `vkGetPhysicalDeviceVideoCa
 
 The 25 leaves cover queue support; H.264, H.265, AV1, and VP9 decode capability queries; H.264, H.265, and AV1 encode capability queries; decode and encode video-format support queries that use the simpler query instance; and H.264, H.265, and AV1 encode intra-refresh capability queries. The exact leaf names appear in [`getTestName`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L1891-L1948) and the mustpass file [`video.txt`](../../../mustpass/main/vk-default/video.txt#L1-L25).
 
-For generic capabilities, the test compares flags, bitstream-buffer alignments, picture access granularity, coded extents, DPB slots, active reference pictures, and the Video Std header version. It rejects unknown flags, zero alignments or dimensions, invalid extents, and zero DPB or active-reference limits. Decode flags are restricted to DPB/output coincidence flags. Encode results also require nonzero rate-control layer and quality-level counts; when `VK_KHR_video_maintenance2` is supported, the disabled rate-control mode must be reported. See [`validateVideoCapabilities`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L508-L560), [`validateVideoDecodeCapabilities`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L562-L575), and [`validateVideoEncodeCapabilities`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L577-L611).
+For generic capabilities, the test compares flags, bitstream-buffer alignments, picture access granularity, coded extents, DPB slots, active reference pictures, and the Video Std header version. It rejects unknown flags, zero alignments or dimensions, invalid extents, and zero DPB or active-reference limits. Decode flags are restricted to DPB/output coincidence flags. Encode results also require nonzero rate-control layer and quality-level counts; when `VK_KHR_video_maintenance2` is supported, the disabled rate-control mode must be reported. See [`validateVideoCapabilities`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L555-L607), [`validateVideoDecodeCapabilities`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L562-L575), and [`validateVideoEncodeCapabilities`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L577-L611).
 
 Codec-specific checks compare the fields that belong to the selected codec. H.264 checks its maximum level and field granularity. H.265 checks its maximum level. AV1 and VP9 check their maximum levels. Encode H.264 and H.265 check reference counts, slice limits, temporal behavior, quantizer ranges, and allowed codec flags. AV1 encode checks reference counts, operating-point and layer limits, quantizer indices, superblock sizes, and allowed flags. The source performs these checks in the codec-specific validation methods linked from the appendix.
 
@@ -161,10 +138,10 @@ This source contains no shader or shader-generated artifact. The capability and 
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Queue-family query | [`VideoQueueQueryTestInstance::iterate`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L108-L180) | Queries queue-family video properties and checks queue flags, codec operations, queue counts, and support gates. |
+| Queue-family query | [`VideoQueueQueryTestInstance::iterate`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L112-L185) | Queries queue-family video properties and checks queue flags, codec operations, queue counts, and support gates. |
 | Capability leaf registration | [`createVideoCapabilitiesTests`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L2297-L2313) | Registers the `video.capabilities` family and its 25 exact leaves. |
 | Capability support and dispatch | [`checkSupport` and `createInstance`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L1750-L1889) | Shows build, extension, maintenance2, and intra-refresh gates and maps leaves to implementations. |
-| Generic capability validation | [`validateVideoCapabilities`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L508-L560) | Checks repeated generic fields, flags, alignments, extents, DPB limits, and reference limits. |
+| Generic capability validation | [`validateVideoCapabilities`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L555-L607) | Checks repeated generic fields, flags, alignments, extents, DPB limits, and reference limits. |
 | Encode and intra-refresh validation | [`validateVideoEncodeCapabilities`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L577-L611) and [`validateIntraRefreshCapabilities`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L1434-L1483) | Checks encode fields, maintenance2 behavior, codec reference requirements, modes, and limits. |
 | Format matrix registration | [`createVideoFormatsTests`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L2315-L2486) | Defines codecs, formats, usages, subsampling, bit depths, names, and design pruning. |
 | Format query helper | [`getVideoFormatProperties`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L2077-L2129) | Performs count and data queries and classifies Vulkan return codes. |

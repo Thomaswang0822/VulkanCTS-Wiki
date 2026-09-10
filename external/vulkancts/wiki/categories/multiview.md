@@ -29,9 +29,12 @@ multiview
 ├── multisample_resolve
 ├── nested_cmd_buffer
 ├── non_precise_queries
+├── non_precise_queries_and_timestamps
 ├── non_precise_queries_with_availability
+├── non_precise_queries_with_availability_and_timestamps
 ├── point_size
 ├── queries
+├── queries_and_timestamps
 ├── readback_explicit_clear
 ├── readback_implicit_clear
 ├── renderpass2
@@ -57,8 +60,8 @@ The category varies the way multiview work is submitted and the observable resul
 |---|---|---|
 | All implementation-bearing multiview families, including the `index`, `renderpass2`, and `dynamic_rendering` areas | [RenderTests.md](../testfiles/multiview/RenderTests.md) | Behavior parameters, generated shader paths, host-side image/query checks, support gates, and failure meaning |
 
-The old [`vktMultiViewTests.md`](../testfiles/multiview/vktMultiViewTests.md) page describes only the registration dispatcher and is folded into this gateway rather than rewritten as a separate technical page.
+This gateway covers the registration-only dispatcher rather than assigning it a separate technical page.
 
 ## Category Notes
 
-The default Vulkan mustpass contains 694 multiview paths. The non-VulkanSC-only `dynamic_rendering` paths are part of that registration evidence; the source loop omits `input_attachments` below that rendering path because dynamic rendering has no `subpassLoad()` operation.
+The default Vulkan mustpass contains 838 multiview paths; Vulkan SC contains 564. The three `_and_timestamps` families add timestamp checks to their corresponding occlusion-query families. The base query families do not require timestamp support. The non-VulkanSC-only `dynamic_rendering` paths are part of that registration evidence; the source loop omits `input_attachments` below that rendering path because dynamic rendering has no `subpassLoad()` operation.

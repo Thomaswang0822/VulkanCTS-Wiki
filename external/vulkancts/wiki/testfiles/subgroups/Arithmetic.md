@@ -495,7 +495,7 @@ All three values also depend on correct stage support reporting, input binding, 
 - The device must support Vulkan subgroups, arithmetic subgroup operations, the selected shader stage, and the selected format.
 - Extended 8-bit and 16-bit input types require the corresponding shader and storage capabilities. Integer 64-bit, floating 16-bit, and double cases likewise depend on their format support checks.
 - `_requiredsubgroupsize` cases require `VK_EXT_subgroup_size_control`, `subgroupSizeControl`, `computeFullSubgroups`, and required-size support for the tested stage.
-- Ray-tracing cases require `VK_KHR_ray_tracing_pipeline`. Mesh cases require vertex-pipeline stores and atomics plus `VK_EXT_mesh_shader`; task cases also require `taskShader`.
+- Ray-tracing cases require `VK_KHR_ray_tracing_pipeline`. Mesh cases require `VK_EXT_mesh_shader`; task cases also require `taskShader`.
 - The common stage-support check skips stages that cannot execute the requested subgroup operation.
 
 ### Design-based pruning
@@ -522,7 +522,7 @@ All three values also depend on correct stage support reporting, input binding, 
 | Shader test body | [`getExtHeader()`, `getIndexVars()`, `getTestSrc()`](../../../modules/vulkan/subgroups/vktSubgroupsArithmeticTests.cpp#L172-L249) | Generates extensions, contributor range, reference fold, subgroup call, and result bits. |
 | Program builders | [`initFrameBufferPrograms()` and `initPrograms()`](../../../modules/vulkan/subgroups/vktSubgroupsArithmeticTests.cpp#L252-L277) | Selects common wrappers and SPIR-V targets. |
 | Support checks | [`supportedCheck()`](../../../modules/vulkan/subgroups/vktSubgroupsArithmeticTests.cpp#L279-L345) | Enforces subgroup, format, stage, extended-type, and size-control requirements. |
-| Runtime routing | [`noSSBOtest()` and `test()`](../../../modules/vulkan/subgroups/vktSubgroupsArithmeticTests.cpp#L347-L468) | Selects framebuffer, compute, graphics, ray-tracing, or mesh execution. |
+| Runtime routing | [`noSSBOtest()` and `test()`](../../../modules/vulkan/subgroups/vktSubgroupsArithmeticTests.cpp#L346-L467) | Selects framebuffer, compute, graphics, ray-tracing, or mesh execution. |
 | Registration matrix | [`createSubgroupsArithmeticTests()`](../../../modules/vulkan/subgroups/vktSubgroupsArithmeticTests.cpp#L475-L665) | Creates the five direct intermediate nodes and exact case names. |
 | Scan and comparison helpers | [`vktSubgroupsScanHelpers.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsScanHelpers.cpp#L39-L349) | Defines built-in names, reference operations, identities, and comparison tolerances. |
 | Common GLSL wrappers | [`initStdFrameBufferPrograms()`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1275-L1371) and [`initStdPrograms()`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1406-L1675) | Supplies stage interfaces, buffers, indexing, and output writes. |

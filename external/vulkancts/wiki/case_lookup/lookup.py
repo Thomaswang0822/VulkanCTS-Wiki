@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Sequence
 
 PATH_COMPONENT_RE = re.compile(r"^[A-Za-z0-9_-]+$")
+PACKAGE_PREFIXES = frozenset({"dEQP-VK", "dEQP-VKSC"})
 
 
 class InvalidPathError(ValueError):
@@ -48,11 +49,11 @@ class LookupIndex:
         components = normalized.split(".")
         if (
             len(components) < 3
-            or components[0] != "dEQP-VK"
+            or components[0] not in PACKAGE_PREFIXES
             or not all(PATH_COMPONENT_RE.fullmatch(component) for component in components[1:])
         ):
             raise InvalidPathError(
-                "请输入以 dEQP-VK. 开头的完整 registration path。"
+                "请输入以 dEQP-VK. 或 dEQP-VKSC. 开头的完整 registration path。"
             )
         return normalized
 

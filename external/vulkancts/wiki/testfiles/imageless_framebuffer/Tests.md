@@ -2,7 +2,7 @@
 
 **Core question:** Can one imageless framebuffer accept compatible attachment image views at render pass begin time and produce the same attachment results expected from those views?
 
-- This page covers all six test families implemented and registered by [vktImagelessFramebufferTests.cpp](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp): `color`, `depth_stencil`, `color_resolve`, `depth_stencil_resolve`, `multisubpass`, and `different_attachments`.
+- This page covers twelve registered paths: the six test families implemented by [vktImagelessFramebufferTests.cpp](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp) (`color`, `depth_stencil`, `color_resolve`, `depth_stencil_resolve`, `multisubpass`, and `different_attachments`) under both `none` and `extended_flags`.
 - Every family creates a framebuffer with `VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT`, leaves `VkFramebufferCreateInfo::pAttachments` null, describes compatible images through `VkFramebufferAttachmentsCreateInfo`, and supplies the actual image views through `VkRenderPassAttachmentBeginInfo` when beginning a render pass.
 - The six families vary attachment roles, sample counts, subpass use, and whether one framebuffer is reused with different image views. Host-side reference images and readback comparisons decide the result.
 
@@ -15,7 +15,15 @@
 ## Registration Hierarchy
 
 ```text
-imageless_framebuffer
+imageless_framebuffer.extended_flags
+├── color
+├── depth_stencil
+├── color_resolve
+├── depth_stencil_resolve
+├── multisubpass
+└── different_attachments
+
+imageless_framebuffer.none
 ├── color
 ├── depth_stencil
 ├── color_resolve
@@ -24,7 +32,7 @@ imageless_framebuffer
 └── different_attachments
 ```
 
-Each direct child is an executable test case leaf implemented in the same source file. The six paths appear in the default mustpass list [imageless-framebuffer.txt](../../../mustpass/main/vk-default/imageless-framebuffer.txt#L1-L6).
+Each leaf is an executable test case implemented in the same source file. The twelve paths appear in the default Vulkan mustpass list [imageless-framebuffer.txt](../../../mustpass/main/vk-default/imageless-framebuffer.txt#L1-L12); the Vulkan SC list has the corresponding twelve paths.
 
 ## Parameter Dimensions and Observed Values
 
@@ -36,10 +44,11 @@ Each direct child is an executable test case leaf implemented in the same source
 | Extent and layers | `32 x 32`, one layer | Fixes the framebuffer compatibility dimensions, rendered area, and readback size. | [instance construction](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L953-L969), [attachment image information](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L575-L676) |
 | Sample count | `VK_SAMPLE_COUNT_1_BIT`, `VK_SAMPLE_COUNT_4_BIT` | Single-sample families copy attachment images directly. Resolve families also inspect a four-sample source image and a single-sample resolve image. | [single-sample depth path](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L1436-L1497), [color resolve](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L1684-L1727), [depth/stencil resolve](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L1974-L2053) |
 | Render pass structure | one subpass, two subpasses, or two render pass instances | Distinguishes ordinary attachment binding, input-attachment reuse across subpasses, and rebinding one framebuffer slot between render pass instances. | [render pass builders](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L233-L548), [`different_attachments` recording](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L2596-L2632) |
+| Extended image flags | `none`, `extended_flags` | In the extended variant, each attachment descriptor chains `VkImageUsageFlags2CreateInfoKHR` to `VkImageCreateFlags2CreateInfoKHR` and clears the legacy flags/usage fields; the variant requires `VK_KHR_extended_flags` and is compiled out for Vulkan SC. | [`makeFramebuffer()`](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L576-L735), [`BaseTestCase::checkSupport()`](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L2744-L2760), [`createTests()`](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L3066-L3090) |
 
 ## Behavior Parameters
 
-The primary behavioral axis is the registered test family. Each value changes which attachment compatibility and deferred-binding behavior the test exercises.
+The behavioral axes are the registered test family and the image-info flag representation. Each family changes which attachment compatibility and deferred-binding behavior it exercises. The `extended_flags` group repeats the families using the extended flags/usage pNext chain.
 
 ### color: one color attachment
 
@@ -74,7 +83,7 @@ The tests use small vertex and fragment shaders to produce deterministic image p
 - `makeFramebuffer` builds the common imageless object. It derives one `VkFramebufferAttachmentImageInfo` per attachment slot, chains them through `VkFramebufferAttachmentsCreateInfo`, sets `VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT`, and passes `nullptr` for `pAttachments` [framebuffer construction](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L575-L708).
 - Each runtime path creates images, memory, views, readback buffers, a compatible render pass, and graphics pipelines. It records the selected views in a `VkRenderPassAttachmentBeginInfo` passed to the render pass begin helper.
 - After rendering, image barriers make attachment writes available to transfer operations. The test copies single-sample color, depth, and stencil aspects to host-visible buffers. Resolve cases copy their single-sample resolve images to buffers, then separately render each selected sample from the multisample source into a single-sample verification image and copy that image to a buffer [sample extraction](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L972-L1111).
-- The host invalidates mapped memory before reading it. For non-multisampled depth and stencil, helper functions convert aspect values to one-channel color images before comparison [conversion and verification](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L883-L922), [`verifyBuffer`](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L1135-L1175).
+- The host invalidates mapped memory before reading it. For non-multisampled depth and stencil, helper functions convert aspect values to one-channel color images before comparison [conversion and verification](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L883-L922), [`verifyBuffer`](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L1161-L1203).
 - `verifyBufferInternal` first tries an exact byte comparison. If that differs, `tcu::intThresholdCompare` permits an unsigned per-channel difference of 1. A family passes only when every aspect, sample, subpass output, or rebound image selected by that family matches its procedural reference [comparison](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L1114-L1132).
 
 | Family | Host-visible outputs checked |
@@ -125,14 +134,14 @@ A failure in any family can also come from the shared copy, synchronization, or 
 
 ### Requirement-based pruning
 
-- Every family requires `VK_KHR_imageless_framebuffer` functionality and `imagelessFramebuffer == VK_TRUE`. Unsupported implementations report `NotSupported` before execution [base instance checks](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L953-L969).
+- Every family requires `VK_KHR_imageless_framebuffer` functionality and `imagelessFramebuffer == VK_TRUE`. Unsupported implementations report `NotSupported` before execution [base instance checks](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L953-L969). The `extended_flags` paths additionally require `VK_KHR_extended_flags` through `checkSupport`, and are not compiled for Vulkan SC [support check](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L2744-L2760).
 - `checkImageFormatProperties` rejects a fixed format when the required optimal-tiling usage, one layer, or `32 x 32` extent is unavailable. Depth/stencil families repeat this check for `VK_FORMAT_D24_UNORM_S8_UINT`; resolve families include sampled-image usage because they extract individual samples [format support helper](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L845-L868), [resolve usage checks](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L1620-L1629).
 - `color_resolve` and `depth_stencil_resolve` require `limits.standardSampleLocations == VK_TRUE` [case support](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L2715-L2722).
 - `depth_stencil_resolve` also requires `VK_KHR_depth_stencil_resolve` [instance construction](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L1835-L1863). Vulkan requires sample-zero support for both depth and stencil resolve modes when those operations are available [limits.adoc](../../../../vulkan-docs/src/chapters/limits.adoc#L3127-L3162).
 
 ### Design-based pruning
 
-- Registration creates exactly six fixed leaves. The source does not generate combinations of formats, extents, layer counts, sample counts, resolve modes, or attachment orders [registration](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L2953-L3038).
+- Registration creates exactly twelve fixed leaves: six families in each of the `none` and `extended_flags` groups. The source does not generate combinations of formats, extents, layer counts, sample counts, resolve modes, or attachment orders [registration](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L3066-L3090).
 - `VK_FORMAT_R8G8B8A8_UNORM`, `VK_FORMAT_D24_UNORM_S8_UINT`, a `32 x 32` extent, one layer, and four samples in resolve families are deliberate fixed choices. They keep the matrix focused on attachment roles and deferred image-view binding rather than broad format or size coverage.
 - `TEST_TYPE_LAST` is an enum sentinel and is never registered as a test family [test type enum](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L60-L69).
 
@@ -154,6 +163,6 @@ A failure in any family can also come from the shared copy, synchronization, or 
 | Six runtime implementations | [vktImagelessFramebufferTests.cpp#L1222-L2688](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L1222-L2688) | Implements rendering, copyback, and checks for every test family. |
 | Support and shader setup | [vktImagelessFramebufferTests.cpp#L2691-L2927](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L2691-L2927) | Applies resolve support checks and generates the utility shaders used by each path. |
 | Family dispatch and registration | [vktImagelessFramebufferTests.cpp#L2930-L3040](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L2930-L3040) | Maps each registered leaf to its instance class and creates the exact six-child hierarchy. |
-| Default mustpass entries | [imageless-framebuffer.txt#L1-L6](../../../mustpass/main/vk-default/imageless-framebuffer.txt#L1-L6) | Confirms all six executable paths. |
+| Default mustpass entries | [imageless-framebuffer.txt#L1-L12](../../../mustpass/main/vk-default/imageless-framebuffer.txt#L1-L12) | Confirms all twelve executable paths. |
 | Imageless framebuffer specification | [renderpass.adoc#L6180-L6269](../../../../vulkan-docs/src/chapters/renderpass.adoc#L6180-L6269) | Defines attachment compatibility information and `VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT`. |
 | Begin-time attachment validity | [renderpass.adoc#L7243-L7400](../../../../vulkan-docs/src/chapters/renderpass.adoc#L7243-L7400) | Defines how supplied image views must match an imageless framebuffer and render pass. |

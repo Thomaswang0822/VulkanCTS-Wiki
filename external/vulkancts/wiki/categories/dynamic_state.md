@@ -32,7 +32,7 @@ The families share one theme: each verifies that a specific set of dynamic state
 - **General state** (`general_state`) tests state switching, reordering, persistence across pipeline binds, and the static-mask-zero edge case, catching interaction bugs that single-state families would miss.
 - **Inheritance** (`inheritance`) tests whether secondary command buffers correctly inherit viewport/scissor state from the primary under `VK_NV_inherited_viewport_scissor`, including nested command buffer variants.
 - **Side-effect isolation** families (`image`, `compute_transfer`) verify that image-manipulation or compute/transfer commands recorded between dynamic state setup and a draw do not corrupt the dynamic state.
-- **Edge-case families** (`discard`, `line_width`) cover discard-rectangle extension behavior and line-width dynamic state.
+- **Edge-case families** (`discard`, `line_width`) cover fragment-shader discard interaction and line-width dynamic state.
 
 ## Level-3 Pages Navigation
 
@@ -47,7 +47,7 @@ The families share one theme: each verifies that a specific set of dynamic state
 | `image` | [Clear](../testfiles/dynamic_state/Clear.md) | Image-manipulation commands do not corrupt dynamic blend constants |
 | `discard` | [Discard](../testfiles/dynamic_state/Discard.md) | GLSL `discard` interaction with dynamic state |
 | `line_width` | [LineWidth](../testfiles/dynamic_state/LineWidth.md) | Dynamic line width with draw-order interaction |
-| `compute_transfer` | [Compute](../testfiles/dynamic_state/Compute.md) | Compute/transfer commands do not corrupt dynamic state |
+| `compute_transfer` | [Compute](../testfiles/dynamic_state/Compute.md) | Graphics dynamic state commands do not corrupt compute/transfer results |
 
 ## Category Notes
 

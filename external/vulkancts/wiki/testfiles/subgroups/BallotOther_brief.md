@@ -133,11 +133,11 @@ These variations broaden stage and subgroup-size coverage without changing the p
 | Operation enumeration and names | [`OpType` and `getOpTypeName`](../../../modules/vulkan/subgroups/vktSubgroupsBallotOtherTests.cpp#L41-L97) | Defines the seven exact behavioral values and registered leaf stems. |
 | Generated operation checks | [`getTestString`](../../../modules/vulkan/subgroups/vktSubgroupsBallotOtherTests.cpp#L147-L276) | Defines every shader-side pass bit and boundary loop. |
 | Representative compute builder | [`initPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsBallotOtherTests.cpp#L290-L307) | Selects build options and delegates compute shader assembly. |
-| Registration matrix | [`createSubgroupsBallotOtherTests`](../../../modules/vulkan/subgroups/vktSubgroupsBallotOtherTests.cpp#L458-L569) | Builds execution-family, stage, operation, and required-size paths. |
+| Registration matrix | [`createSubgroupsBallotOtherTests`](../../../modules/vulkan/subgroups/vktSubgroupsBallotOtherTests.cpp#L457-L568) | Builds execution-family, stage, operation, and required-size paths. |
 | Runtime selection and required-size loop | [`test`](../../../modules/vulkan/subgroups/vktSubgroupsBallotOtherTests.cpp#L381-L450) | Routes each family into the shared harness and iterates required subgroup sizes. |
 | Compute shader assembly | [`initStdPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1406-L1434) | Shows specialization-controlled local size, output addressing, and result write. |
 | Host result validation | [`check` and `checkComputeOrMesh`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2640-L2663) | Proves that every scalar must equal `0xf`. |
-| Compute resource, dispatch, and readback flow | [`makeComputeOrMeshTestRequiredSubgroupSize`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L3762-L4063) | Creates the result buffer, binds it, dispatches, synchronizes, invalidates, and calls the checker. |
+| Compute resource, dispatch, and readback flow | [`makeComputeOrMeshTestRequiredSubgroupSize`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L3764-L4068) | Creates the result buffer, binds it, dispatches, synchronizes, invalidates, and calls the checker. |
 | Mustpass registration evidence | [`subgroups.txt`](../../../mustpass/main/vk-default/subgroups.txt#L18288-L18371) | Lists the executable `ballot_other` cases. |
 | Vulkan ballot model | [`shaders.adoc`](../../../../vulkan-docs/src/chapters/shaders.adoc#L3447-L3523) | Defines subgroup group-operation scope and ballot behavior. |
 | Ballot support capability | [`limits.adoc`](../../../../vulkan-docs/src/chapters/limits.adoc#L1428-L1453) | Connects `VK_SUBGROUP_FEATURE_BALLOT_BIT` to `GroupNonUniformBallot`. |

@@ -95,7 +95,7 @@ dEQP-VK.draw.renderpass.vertex_attribute_divisor.ext.static_pipeline.draw.zero.2
 | `zero` | Starts the absolute instance index at zero. |
 | `2` | Repeats each binding-1 element for two consecutive relative instances. |
 
-This path is present in the `vk-default` mustpass inventory ([mustpass entry](../../../mustpass/main/vk-default/draw.txt#L29176)). It chooses divisor 2 as an easy-to-observe advancement interval, but its shader binary is identical to every other leaf's. At runtime, the host iterates instance counts `0`, `1`, `2`, `4`, and `20`; this walkthrough describes the non-empty draws, for which the shader arithmetic is observable ([runtime loop](../../../modules/vulkan/draw/vktDrawVertexAttribDivisorTests.cpp#L478-L505)).
+This path is present in the `vk-default` mustpass inventory ([mustpass entry](../../../mustpass/main/vk-default/draw.txt#L29203)). It chooses divisor 2 as an easy-to-observe advancement interval, but its shader binary is identical to every other leaf's. At runtime, the host iterates instance counts `0`, `1`, `2`, `4`, and `20`; this walkthrough describes the non-empty draws, for which the shader arithmetic is observable ([runtime loop](../../../modules/vulkan/draw/vktDrawVertexAttribDivisorTests.cpp#L478-L505)).
 
 #### Purpose
 

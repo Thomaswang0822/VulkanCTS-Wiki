@@ -2,7 +2,7 @@
 
 ## One-Sentence Test Purpose
 
-This source checks that Vulkan vertex fetch reaches the intended attribute bytes when a vertex buffer is bound at each non-aligned byte offset supported by its attribute width, with packed, padded, and overlapping storage plus static and dynamic vertex-input state.
+This source checks that Vulkan vertex fetch reaches the intended attribute bytes when a vertex buffer is bound at each non-aligned byte offset supported by its attribute width, with packed, padded, and overlapping storage plus static and dynamic vertex-input state, and adds a two-binding packed-SNORM8 variant.
 
 ## Background Knowledge
 
@@ -63,22 +63,23 @@ The test renders one triangle per pixel of a 4 by 4 attachment. It compares the 
 | `PACKED` | Attribute address computation, bound-buffer offset handling, format interpretation, or static/dynamic state setup selects the wrong bytes. |
 | `PADDED` | Stride calculation or padding skip is wrong, or the implementation uses attribute width rather than declared stride for a later vertex. |
 | `OVERLAPPING` | A four-component fetch from adjacent `vec2` records is incomplete, reads the wrong neighboring bytes, or the `.zw` validation path receives unexpected values. |
+| `two_binds_vec4` | The per-binding offset is misapplied for one of the two bindings, SNORM8 unpacking of a shifted record is wrong, or the dynamic two-binding description pair selects the wrong buffer for vertices 24 through 47. |
 
 ## Important Variations and Special Cases
 
-- The factory creates 8 `vec2` byte-offset groups and 16 `vec4` groups. Each `vec2` offset has three layouts, two memory-offset choices, and static/dynamic leaves; each `vec4` offset omits `OVERLAPPING`. The source therefore registers 224 leaves for a construction root.
-- The current `vk-default` pipeline mustpass configuration includes all 224 `input_attribute_offset` leaves under `monolithic`.
+- The factory creates 8 `vec2` byte-offset groups and 16 `vec4` groups. Each `vec2` offset has three layouts, two memory-offset choices, and static/dynamic leaves; each `vec4` offset omits `OVERLAPPING`. The `two_binds_vec4` group registers four dynamic-only leaves at offsets 0 through 3, splitting 48 vertices across two bindings with `R8G8B8A8_SNORM` records and a shader that selects between the two inputs at `gl_VertexIndex < 24`. The source therefore registers 228 leaves for a construction root.
+- The current `vk-default` pipeline mustpass configuration includes all 228 `input_attribute_offset` leaves under `monolithic` via the split file `pipeline/monolithic/input-attribute-offset.txt`.
 - `checkSupport()` checks the requested pipeline construction. Dynamic cases require `VK_EXT_vertex_input_dynamic_state`. When `VK_KHR_portability_subset` is present, unsupported stride alignments are skipped.
 
 ## Source Mapping
 
 | Topic | Source link | Why it matters |
 |---|---|---|
-| Parameters and buffer layout | [`TestParams` and `buildVertexBufferData()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L117-L220) | Defines offset compensation, stride, padding, and overlap storage. |
-| Generated shaders | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L329-L358) | Defines the location-0 inputs and overlap check. |
-| Runtime and result oracle | [`InputAttributeOffsetInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L360-L507) | Creates state, draws, copies output, and compares it. |
-| Registration | [`createInputAttributeOffsetTests()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L511-L563) | Defines all parameter combinations and names. |
-| Mustpass evidence | [`monolithic.txt`](../../../mustpass/main/vk-default/pipeline/monolithic/monolithic.txt) | Contains 224 selected leaves. |
+| Parameters and buffer layout | [`TestParams` and `buildVertexBufferData()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L117-L260) | Defines offset compensation, stride, padding, overlap storage, and SNORM8 packing. |
+| Generated shaders | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L369-L417) | Defines the location-0 inputs, the two-input selector, and the overlap check. |
+| Runtime and result oracle | [`InputAttributeOffsetInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L419-L642) | Creates state, draws, copies output, and compares it. |
+| Registration | [`createInputAttributeOffsetTests()`](../../../modules/vulkan/pipeline/vktPipelineInputAttributeOffsetTests.cpp#L646-L715) | Defines all parameter combinations and names. |
+| Mustpass evidence | [`input-attribute-offset.txt`](../../../mustpass/main/vk-default/pipeline/monolithic/input-attribute-offset.txt) | Contains 228 selected leaves. |
 
 ## Questions / Risk Points for User Audit
 
@@ -89,4 +90,4 @@ The test renders one triangle per pixel of a 4 by 4 attachment. It compares the 
 
 - Use `strideCase` as the behavior axis and retain the three-row failure mapping.
 - Include one representative overlap shader walkthrough; the static/dynamic distinction belongs to host state setup.
-- State the complete 224-leaf monolithic mustpass count and separate it from the source’s construction-type parameter.
+- State the complete 228-leaf monolithic mustpass count and separate it from the source’s construction-type parameter.

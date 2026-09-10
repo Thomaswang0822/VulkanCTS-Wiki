@@ -14,6 +14,7 @@ vk-main-2026-03-01/geometry.txt
 vk-main-2026-03-01/glsl.txt
 vk-main-2026-03-01/image/2d-array-compatible.txt
 vk-main-2026-03-01/image/astc-decode-mode.txt
+vk-main-2026-03-01/image/atomic-operations.txt
 vk-main-2026-03-01/image/concurrent-copy.txt
 vk-main-2026-03-01/image/depth-stencil-descriptor.txt
 vk-main-2026-03-01/image/general-layout.txt
@@ -24,9 +25,11 @@ vk-main-2026-03-01/image/mutable.txt
 vk-main-2026-03-01/image/non-uniform-offset-sample.txt
 vk-main-2026-03-01/image/queue-transfer.txt
 vk-main-2026-03-01/image/store.txt
+vk-main-2026-03-01/image/store-load-consistency.txt
 vk-main-2026-03-01/image/subresource-layout.txt
 vk-main-2026-03-01/image/swapchain-mutable.txt
 vk-main-2026-03-01/image-processing.txt
+vk-main-2026-03-01/imageless-framebuffer.txt
 vk-main-2026-03-01/info.txt
 vk-main-2026-03-01/memory.txt
 vk-main-2026-03-01/mesh-shader.txt
@@ -39,6 +42,7 @@ vk-main-2026-03-01/pipeline/shader-object-linked-binary.txt
 vk-main-2026-03-01/pipeline/shader-object-linked-spirv.txt
 vk-main-2026-03-01/pipeline/shader-object-unlinked-binary.txt
 vk-main-2026-03-01/pipeline/shader-object-unlinked-spirv.txt
+vk-main-2026-03-01/postmortem.txt
 vk-main-2026-03-01/protected-memory.txt
 vk-main-2026-03-01/query-pool.txt
 vk-main-2026-03-01/rasterization.txt
@@ -48,6 +52,7 @@ vk-main-2026-03-01/reconvergence.txt
 vk-main-2026-03-01/renderpasses.txt
 vk-main-2026-03-01/robustness.txt
 vk-main-2026-03-01/shader-object/link.txt
+vk-main-2026-03-01/shader-object/m11-independent-sets.txt
 vk-main-2026-03-01/shader-object/misc.txt
 vk-main-2026-03-01/shader-object/rendering.txt
 vk-main-2026-03-01/shader-object/tessellation.txt

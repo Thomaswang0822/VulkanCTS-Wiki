@@ -24,7 +24,7 @@ ssbo
 └── corner_case
 ```
 
-[`createTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L2235-L2255) builds this hierarchy. The direct paths are present in [`vk-default/ssbo.txt`](../../../mustpass/main/vk-default/ssbo.txt#L1), including representative `layout`, `unsized_array_length`, `readonly`, `phys`, and `corner_case` leaves. `vksc-default/ssbo.txt` also contains `layout`, `readonly`, `phys`, and `corner_case` leaves; the source excludes its 64-bit unsized-array subcases under `CTS_USES_VULKANSC`.
+[`createTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L2246-L2266) builds this hierarchy. The direct paths are present in [`vk-default/ssbo.txt`](../../../mustpass/main/vk-default/ssbo.txt#L1), including representative `layout`, `unsized_array_length`, `readonly`, `phys`, and `corner_case` leaves. `vksc-default/ssbo.txt` also contains `layout`, `readonly`, `phys`, and `corner_case` leaves; the source excludes its 64-bit unsized-array subcases under `CTS_USES_VULKANSC`.
 
 ## Parameter Dimensions and Observed Values
 
@@ -202,11 +202,13 @@ void main (void) {
 
 ## Runtime Execution and Result Checking
 
+- Generated layout, readonly, and physical-storage cases use `MultiQueueRunnerTestInstance` with `COMPUTE_QUEUE`. Each `queuePass()` takes its submission queue and command-pool family from `QueueData` and clears buffers and allocations left by the previous pass before rebuilding resources ([queue pass](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2288-L2304)). Queue passes repeat the same registered case and result checks; they do not add mustpass leaves.
+- With a minimum-alignment descriptor offset and an explicit range, the runtime-array test allocates at least `minStorageBufferOffsetAlignment + params.bufferBindLength` bytes. It sets the end position to that sum and derives the visible range by subtracting the offset, preserving the requested range without exceeding the buffer ([allocation](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L1109-L1121), [descriptor range](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L1178-L1202)).
 - [`SSBOLayoutCase::delayedInit()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2756-L2777) computes the reference layout, allocates initial and expected-write reference storage, fills deterministic values, preserves fields the shader will not write, and generates the compute shader.
 - The layout harness creates a host-visible pass-counter buffer at binding 0. It adds a storage-buffer descriptor for every generated block; block arrays become descriptor-array bindings.
 - In `per_block_buffer` mode, each block gets its own storage buffer. In `single_buffer` mode, the harness packs blocks into one buffer and rounds each binding offset to `minStorageBufferOffsetAlignment` ([`iterate()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2291-L2460)).
 - The `phys` path adds `VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT`, queries `VkDeviceAddress` values for the descriptors, and pushes those addresses before the dispatch ([`iterate()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2463-L2508)).
-- The harness dispatches one compute workgroup, records shader-write to host-read buffer barriers, waits for the universal queue, invalidates mapped allocations, and checks the pass counter and byte-for-byte data comparison ([`iterate()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2552-L2648)).
+- Each queue pass dispatches one compute workgroup, records shader-write to host-read buffer barriers, waits for its selected queue, invalidates mapped allocations, and checks the pass counter and byte-for-byte data comparison ([`queuePass()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2555-L2651)).
 - `unsized_array_length` builds its own two-binding descriptor set, dispatches once, and compares the output against `(boundLength / elementSize)` after accounting for the descriptor offset ([`ssboUnsizedArrayLengthTest()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L1044-L1258)).
 
 ## Failure Meaning
@@ -250,7 +252,8 @@ void main (void) {
 
 ### Requirement-based pruning
 
-- [`SSBOLayoutCase::checkSupport()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2718-L2754) skips generated cases that require unsupported relaxed block layout, 16-bit or 8-bit storage, scalar block layout, buffer device address, descriptor indexing, runtime descriptor arrays, 64-bit indexing, or more storage-buffer descriptors than the device limit permits.
+- The generated 64-bit-indexing cases require a device-local heap of at least `(1ull << 32) + (1ull << 28)` bytes. `delayedInit()` checks this before allocating host reference data, and `checkSupport()` reports `NotSupportedError` if no such heap exists. This is a heap-capacity precondition, not a guarantee of currently free memory ([heap check](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2721-L2740), [support and delayed initialization](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2763-L2810)).
+- [`SSBOLayoutCase::checkSupport()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2743-L2787) skips generated cases that require unsupported relaxed block layout, 16-bit or 8-bit storage, scalar block layout, buffer device address, descriptor indexing, runtime descriptor arrays, 64-bit indexing, or more storage-buffer descriptors than the device limit permits.
 - `unsized_array_length` checks `variablePointersStorageBuffer` for variable-pointer cases and, outside Vulkan SC, `shader64BitIndexing` for 64-bit cases ([`checkSupportUnsizedArrays()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L2190-L2200)). Deliberate allocations at least 4 GiB may report unsupported on out-of-memory.
 
 ### Design-based pruning
@@ -270,13 +273,13 @@ void main (void) {
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Category dispatcher | [`createTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L2235-L2255) | Registers the five direct `ssbo` children and mode wrappers |
-| Generated family registration | [`SSBOLayoutTests::init()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L1297-L2188) | Defines fixed and seeded layout case dimensions |
+| Category dispatcher | [`createTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L2246-L2266) | Registers the five direct `ssbo` children and mode wrappers |
+| Generated family registration | [`SSBOLayoutTests::init()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L1308-L2199) | Defines fixed and seeded layout case dimensions |
 | Runtime-array program and support | [`createUnsizedArrayLengthProgs()` and `checkSupportUnsizedArrays()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L1014-L1042) | Generates the dedicated shader and selects its SPIR-V target |
 | Runtime-array execution | [`ssboUnsizedArrayLengthTest()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L1044-L1258) | Defines descriptor setup, expected length, and pass condition |
 | Reference layout and generated shader | [`SSBOLayoutCase::delayedInit()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2756-L2777) | Builds reference data and compute source |
 | Layout shader generator | [`generateComputeShader()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L1529-L1645) | Emits declarations, comparison, counter increment, and writes |
 | Layout execution and result checks | [`SSBOLayoutCaseInstance::iterate()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2291-L2648) | Binds resources, dispatches, synchronizes, and compares results |
-| Feature and limit gates | [`SSBOLayoutCase::checkSupport()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2718-L2754) | Defines requirement-based pruning |
+| Feature and limit gates | [`SSBOLayoutCase::checkSupport()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2743-L2787) | Defines requirement-based pruning |
 | Default Vulkan mustpass evidence | [`vk-default/ssbo.txt`](../../../mustpass/main/vk-default/ssbo.txt#L1) | Confirms registered `dEQP-VK.ssbo` prefixes |
 | Vulkan SC mustpass evidence | [`vksc-default/ssbo.txt`](../../../mustpass/main/vksc-default/ssbo.txt#L1) | Confirms the Vulkan SC `ssbo` leaf set where present |

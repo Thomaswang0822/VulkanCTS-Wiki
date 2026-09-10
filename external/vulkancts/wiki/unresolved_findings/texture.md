@@ -26,7 +26,7 @@
 
 ### 观察到的代码路径
 
-[`TextureGatherMinLodTest::checkSupport()`](../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L2809-L2828) 查询 robustness2 features，并在 `robustImageAccess2` 不受支持时跳过测试。`minlod_1_1` 还通过 `getRequiredCapabilitiesId()` 选择 custom device。
+[`TextureGatherMinLodTest::checkSupport()`](../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L2801-L2821) 查询 robustness2 features，并在 `robustImageAccess2` 不受支持时跳过测试。`minlod_1_1` 还通过 `getRequiredCapabilitiesId()` 选择 custom device。
 
 但该 custom device 的 [`initDeviceCapabilities()`](../../modules/vulkan/texture/vktTextureMipmapTests.cpp#L2728-L2745) 注册的是：
 
@@ -64,7 +64,7 @@ caps.addFeature(&VkPhysicalDeviceFeatures::robustBufferAccess);
 
 ### 观察到的代码路径
 
-[`verifyTexCompareResult()`](../../modules/vulkan/texture/vktTextureShadowTests.cpp#L155-L191) 对浮点 depth texture 复制一份 software source，然后调用 `clampFloatingPointTexture()`。旁边的注释说明它假定 texture upload 会把浮点 depth 数据限制到 `[0,1]`，所以 software copy 也要做相同处理。
+[`verifyTexCompareResult()`](../../modules/vulkan/texture/vktTextureShadowTests.cpp#L156-L210) 对浮点 depth texture 复制一份 software source，然后调用 `clampFloatingPointTexture()`。旁边的注释说明它假定 texture upload 会把浮点 depth 数据限制到 `[0,1]`，所以 software copy 也要做相同处理。
 
 Vulkan upload 路径却没有显示这种数值转换：
 
@@ -86,7 +86,7 @@ Vulkan upload 路径却没有显示这种数值转换：
 3. 当前参数矩阵中哪些 case 实际采样到了 `[0,1]` 外的浮点 depth 值？
 4. 能否添加一个专门包含负值和大于 1 值的最小 case，用来验证 device image 与 software reference 的实际约定？
 
-相关证据：[`verifyTexCompareResult()`](../../modules/vulkan/texture/vktTextureShadowTests.cpp#L155-L191)，[`TestTexture::write()`](../../modules/vulkan/pipeline/vktPipelineImageUtil.cpp#L923-L967)，[Vulkan buffer-image depth aspect copy](../../../vulkan-docs/src/chapters/copies.adoc#L903-L947)。
+相关证据：[`verifyTexCompareResult()`](../../modules/vulkan/texture/vktTextureShadowTests.cpp#L156-L210)，[`TestTexture::write()`](../../modules/vulkan/pipeline/vktPipelineImageUtil.cpp#L923-L967)，[Vulkan buffer-image depth aspect copy](../../../vulkan-docs/src/chapters/copies.adoc#L903-L947)。
 
 ## 3. `TexelBuffer`：BGRA SNORM case 查询了 SINT format capability
 

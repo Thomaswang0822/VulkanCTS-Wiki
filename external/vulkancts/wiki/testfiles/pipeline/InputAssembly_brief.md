@@ -2,7 +2,7 @@
 
 ## One-Sentence Test Purpose
 
-This test checks whether Vulkan assembles primitives from the selected topology and index type, honors primitive restart, and preserves restart state when indexed and non-indexed draws are mixed.
+This test checks whether Vulkan assembles primitives from the selected topology and index type, honors primitive restart, preserves restart state when indexed and non-indexed draws are mixed, and honors dynamically set assembly state when the pipeline's input-assembly state pointer is null.
 
 ## Background Knowledge
 
@@ -51,12 +51,13 @@ A restart case can draw a strip with a sequence equivalent to `A, B, C, RESTART,
 - `primitive_topology` and `primitive_restart` render a color image and compare it with `ReferenceRenderer` using an integer threshold of `UVec4(2, 2, 2, 2)` and position deviation `IVec3(1, 1, 0)`.
 - `restart_mix` clears expected quadrants and compares the readback image with `tcu::floatThresholdCompare` at a zero threshold.
 - Amber `restart_disabled_*` cases are executed by the Amber runner; their purpose is to show that an index equal to the restart value is ordinary index data when restart is disabled.
+- `misc` requires the readback color buffer to stay at the clear color while rasterizer discard is active, and requires `vertexIndex + 1` in a storage buffer for every drawn vertex except the restart index.
 
 ## Behavior Parameter Identification
 
 > **Behavior parameter:** test family and restart mode
 >
-> **Candidate values:** `primitive_topology`, `primitive_restart` with `NORMAL`, `NONE`, `ALL`, `DIVIDE`, or `SECOND_PASS`, `restart_mix`, and monolithic-only `restart_disabled_*`
+> **Candidate values:** `primitive_topology`, `primitive_restart` with `NORMAL`, `NONE`, `ALL`, `DIVIDE`, or `SECOND_PASS`, `restart_mix`, monolithic-only `restart_disabled_*`, and `misc` with static or dynamic rasterizer discard
 
 ## What Failure Means
 
@@ -72,6 +73,7 @@ A restart case can draw a strip with a sequence equivalent to `A, B, C, RESTART,
 | `primitive_restart.SECOND_PASS` | Restart handling or state retained across the second draw pass is incorrect. |
 | `restart_mix` | Primitive-restart state leaks into or is lost across indexed/non-indexed draws, topology changes, or a large non-indexed draw. |
 | `restart_disabled_*` | A disabled restart state is treated as enabled, or the Amber setup/expected result is wrong. |
+| `misc` | A pipeline with null input-assembly state ignores dynamically set topology, restart enable, or rasterizer discard, or the vertex stage does not run for drawn vertices. |
 
 ## Important Variations and Special Cases
 
@@ -79,17 +81,18 @@ A restart case can draw a strip with a sequence equivalent to `A, B, C, RESTART,
 - `primitive_restart` uses 11 topology values for ordinary restart modes, while `DIVIDE` and `SECOND_PASS` use six list topologies. `POINT_LIST` is omitted for `ALL`.
 - List and patch restart cases require `VK_EXT_primitive_topology_list_restart` and the matching feature bits. Adjacency and patch cases also require geometry or tessellation shader support.
 - The `restart_mix` matrix has four booleans. `largeNonIndexedDraw` is valid only with `triangleList=true`.
-- `primitive_restart` and `restart_mix` are inside `#ifndef CTS_USES_VULKANSC`; the `restart_disabled_*` Amber cases are monolithic-only.
+- `primitive_restart`, `restart_mix`, and `misc` are inside `#ifndef CTS_USES_VULKANSC`; the `restart_disabled_*` Amber cases are monolithic-only; `misc` exists only for monolithic, fast-linked-library, and shader-object-unlinked-SPIR-V construction types and requires `VK_EXT_extended_dynamic_state`, `VK_EXT_extended_dynamic_state3` with `dynamicPrimitiveTopologyUnrestricted`, and `vertexPipelineStoresAndAtomics`.
 
 ## Source Mapping
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Common support, data creation, and shader generation | [`InputAssemblyTest::checkSupport()` and `initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L242-L320) | Defines feature gates and the pass-through shader pair. |
-| Topology registration | [`createPrimitiveTopologyTests()`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L1703-L1731) | Registers the three index-type branches and ten topology leaves. |
-| Restart setup and support | [`PrimitiveRestartTest` constructor and `checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L702-L784) | Defines restart modes, index placement, and list-restart requirements. |
-| Mixed indexed/non-indexed registration | [`createPrimitiveRestartTests()`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L2186-L2336) | Defines restart leaves, Amber cases, and the `restart_mix` matrix. |
-| Mixed draw execution and check | [`PrimitiveRestartMixCase::checkSupport()` and `PrimitiveRestartMixTest::iterate()`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L1799-L2184) | Shows dynamic topology, draw ordering, expected quadrants, and exact comparison. |
+| Common support, data creation, and shader generation | [`InputAssemblyTest::checkSupport()` and `initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L244-L361) | Defines feature gates and the pass-through shader pair. |
+| Topology registration | [`createPrimitiveTopologyTests()`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L1705-L1734) | Registers the three index-type branches and ten topology leaves. |
+| Restart setup and support | [`PrimitiveRestartTest` constructor and `checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L704-L786) | Defines restart modes, index placement, and list-restart requirements. |
+| Mixed indexed/non-indexed registration | [`createPrimitiveRestartTests()`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L2507-L2656) | Defines restart leaves, Amber cases, and the `restart_mix` matrix. |
+| Mixed draw execution and check | [`PrimitiveRestartMixCase::checkSupport()` and `PrimitiveRestartMixTest::iterate()`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L1801-L2186) | Shows dynamic topology, draw ordering, expected quadrants, and exact comparison. |
+| Null-state family | [`NullStateTestCase::checkSupport()` and `NullStateTestInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineInputAssemblyTests.cpp#L2245-L2505) | Gates and runs the null input-assembly-state leaves with dual verification. |
 | Specification semantics | [Input assembly and primitive restart](../../../../vulkan-docs/src/chapters/drawing.adoc#L49-L89) | Defines topology, restart index values, and list-topology restrictions. |
 
 ## Questions / Risk Points for User Audit

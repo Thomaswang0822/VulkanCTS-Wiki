@@ -117,7 +117,7 @@ The test does not initialize or inspect tensor element data. For linear tiling, 
 | Tensor and output setup | [TensorDimensionsQueriesTestInstance::iterate](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L92-L153) | Creates and binds the tensor view and result buffer. |
 | Dispatch and synchronization | [TensorDimensionsQueriesTestInstance::iterate](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L155-L194) | Runs one compute dispatch and makes writes visible to the host. |
 | Result comparison | [TensorDimensionsQueriesTestInstance::iterate](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L196-L218) | Defines the per-dimension pass/fail check. |
-| Format list and support helpers | [getAllTestFormats](../../../modules/vulkan/tensor/vktTensorTestsUtil.cpp#L48-L56), [support helpers](../../../modules/vulkan/tensor/vktTensorTestsUtil.cpp#L341-L412) | Supplies formats and implements format, feature, and stage queries. |
+| Format list and support helpers | [getAllTestFormats](../../../modules/vulkan/tensor/vktTensorTestsUtil.cpp#L48-L56), [support helpers](../../../modules/vulkan/tensor/vktTensorTestsUtil.cpp#L341-L421) | Supplies formats and implements format, feature, and stage queries. |
 | Mustpass cases | [tensor.txt#L761-L840](../../../mustpass/main/vk-default/tensor.txt#L761-L840) | Confirms the 80 registered default mustpass cases. |
 | Tensor query semantics | [tensorops.adoc#L231-L239](../../../../vulkan-docs/src/chapters/VK_ARM_tensors/tensorops.adoc#L231-L239) | Defines `OpTensorQuerySizeARM` as a descriptor-size query. |
 

@@ -48,7 +48,7 @@ mesh_shader.nv.builtin
 └── primitive_shading_rate_1x1_1x1
 ```
 
-`createMeshShaderBuiltinTests` creates the `builtin` test family and adds the first 20 children explicitly. It then loops over the three `FragmentSize` values for the top and bottom halves, producing the nine remaining names. The category dispatcher routes this factory under `mesh_shader.nv.builtin`; the obsolete page is retained as a source-navigation aid.
+`createMeshShaderBuiltinTests` creates the `builtin` test family and adds the first 20 children explicitly. It then loops over the three `FragmentSize` values for the top and bottom halves, producing the nine remaining names. The category dispatcher routes this factory under `mesh_shader.nv.builtin`.
 
 ## Parameter Dimensions and Observed Values
 
