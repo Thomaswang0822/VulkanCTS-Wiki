@@ -681,8 +681,8 @@ Failures shared by all three values can also come from grid upload, sampler crea
 | Registered matrix | [`createFilteringAnisotropyTests`](../../../modules/vulkan/texture/vktTextureFilteringAnisotropyTests.cpp#L207-L322) | Defines the hierarchy, 128 leaves, and graphics/compute pairs. |
 | Shader generator | [`initializePrograms`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L210-L759) | Generates the 2D graphics and compute GLSL paths. |
 | Renderer selection and readback | [`TextureRenderer`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L1023-L1053) and [`renderQuad`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L1079-L1337) | Selects the backend, builds frame resources, submits, and reads the output. |
-| Graphics sampler state | [`GraphicsBackend::createFrameResources`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L2212-L2330) | Enables anisotropy only when the renderer argument exceeds one. |
-| Compute sampler state | [`ComputeBackend::createFrameResources`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L2611-L2677) | Applies the same sampler rule to the compute route. |
+| Graphics sampler state | [`GraphicsBackend::createFrameResources`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L2230-L2447) | Enables anisotropy only when the renderer argument exceeds one. |
+| Compute sampler state | [`ComputeBackend::createFrameResources`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L2630-L2731) | Applies the same sampler rule to the compute route. |
 | Base Vulkan sampler mapping | [`mapSampler`](../../../framework/vulkan/vkImageUtil.cpp#L4472-L4509) | Maps CTS filters, mipmap mode, LOD limits, and initial disabled anisotropy state. |
 | Image comparison utilities | [`tcuImageCompare.cpp`](../../../../../framework/common/tcuImageCompare.cpp#L224-L244) | Implements the fuzzy comparison used for the first condition. |
 | Mustpass paths | [`texture.txt`](../../../mustpass/main/vk-default/texture.txt#L9743-L9870) | Confirms registered `basic`, `mipmap`, and `single_level` leaves. |

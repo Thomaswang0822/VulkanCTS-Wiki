@@ -2,7 +2,7 @@
 
 **Core question:** Do fragment shading rate properties, attachment reads, and attachment enablement follow the Vulkan contract in the edge cases that ordinary rendering does not cover?
 
-- This page covers the `misc` test group assembled by [`createMiscTests()`](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateTests.cpp#L514-L531) and extended by [`createFragmentShadingRateMiscTests()`](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateMiscTests.cpp#L1497-L1507).
+- This page covers the `misc` test group assembled by [`createMiscTests()`](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateTests.cpp#L515-L533) and extended by [`createFragmentShadingRateMiscTests()`](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateMiscTests.cpp#L1471-L1504).
 - The group checks reported limits and `vkGetPhysicalDeviceFragmentShadingRatesKHR`, then exercises attachment enablement, rendering without a fragment shader, and out-of-bounds fragment shading rate attachment access.
 - Renderpass2 monolithic runs contain `limits`, `shading_rates`, `enable_disable_attachment`, `no_frag_shader`, `test_oob_attachment`, and `test_oob_attachment_robustness2`. Dynamic-rendering primary-command-buffer monolithic runs add `explicit_and_implicit_enable` outside Vulkan SC.
 - The page explains the support checks, the host-side image comparisons, and what each failure can establish.

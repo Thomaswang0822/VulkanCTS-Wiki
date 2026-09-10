@@ -30,7 +30,7 @@ Each child contains format-named test cases. The source skips a format when the 
 |---|---|---|---|
 | Image type | `2d`, `2d_array`, `cube`, `cube_array`, `3d` | Selects the Vulkan image type, layer mapping, and base extent used for the sparse layout query. | [`createImageAlignedMipSizeTests`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageAlignedMipSize.cpp#L250-L266) |
 | Base extent | `512x256x1`, `512x256x6`, `256x256x1`, `256x256x6`, `512x256x16` | Supplies the dimensions from which the test derives mip levels. | [`imageParameters`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageAlignedMipSize.cpp#L254-L259) |
-| Format | The entries from `getTestFormats()` for the selected image type | Changes format properties, sparse support, block granularity, and the generated test-case name. | [`getTestFormats`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTestsUtil.cpp#L52-L118) |
+| Format | The entries from `getTestFormats()` for the selected image type | Changes format properties, sparse support, block granularity, and the generated test-case name. | [`getTestFormats`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTestsUtil.cpp#L54-L120) |
 | Format-alignment filter | Format-dependent `getImageSizeAlignment(format)` values | Removes 2D cases whose fixed width or height is not compatible with the format alignment. | [`getImageSizeAlignment` filtering](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageAlignedMipSize.cpp#L267-L280) |
 
 ## Behavior Parameters

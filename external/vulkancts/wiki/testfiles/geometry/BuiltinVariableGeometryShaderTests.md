@@ -37,7 +37,7 @@ The default mustpass list confirms the six executable paths at
 | Intermediate node | `in_block`, `outside_block`, `primitive_id` | Separates GLSL interface-block cases, the HLSL position case, and cross-stage primitive-ID matching. | [registration](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L688-L709) |
 | Built-in mode | `TEST_POINT_SIZE`, `TEST_PRIMITIVE_ID_IN`, `TEST_PRIMITIVE_ID`, `TEST_POSITION` | Selects the generated shaders, topology, and validation image name. | [VariableTest](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L64-L70) |
 | Primitive topology | point list, line strip, triangle strip | Matches the built-in being tested: points for point size/output primitive ID, lines for input primitive ID, triangle strip for position. | [constructor](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L91-L99) |
-| Vertex data | five fixed positions and five fixed secondary attributes | Provides deterministic geometry and attribute values. | [genVertexAttribData()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L103-L120) |
+| Vertex data | five fixed positions and five fixed secondary attributes | Provides deterministic geometry and attribute values. | [genVertexAttribData()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L104-L133) |
 | Indexed restart | off for four leaves; on for `primitive_id_in_restarted` | Tests `gl_PrimitiveIDIn` across an explicit `0xFFFF` primitive-restart marker. | [restart indices](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L121-L130) |
 | Validation target | reference PNG named after the leaf | The rendered image is compared with `vulkan/data/geometry/<leaf>.png`. | [compareWithFileImage()](../../../modules/vulkan/geometry/vktGeometryTestsUtil.cpp#L412-L425) |
 
@@ -87,9 +87,9 @@ must not all be zero. It requires geometry-shader and tessellation-shader core f
 [registration](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L704-L709)).
 
 The shared point, line, and attribute data come from
-[genVertexAttribData()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L103-L132). The indexed
+[genVertexAttribData()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L104-L133). The indexed
 restart variant switches from `vkCmdDraw` to `vkCmdDrawIndexed` in
-[drawCommand()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L161-L170).
+[drawCommand()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L162-L172).
 
 ## Shader Analysis
 
@@ -475,7 +475,7 @@ void main(triangle VSOut input[3], inout TriangleStream<VSOut> TriStream)
   ([topology selection](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L91-L99)).
 - The `primitive_id_in_restarted` leaf additionally binds a `uint16_t` index buffer and issues `vkCmdDrawIndexed`; all other leaves
   issue `vkCmdDraw` over the five input vertices
-  ([drawCommand()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L161-L170)).
+  ([drawCommand()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L162-L172)).
 - After rendering, the host copies the color image to the copyback buffer, invalidates the host allocation, and calls
   `compareWithFileImage()`
   ([copy and compare](../../../modules/vulkan/geometry/vktGeometryBasicClass.cpp#L185-L200)).
@@ -595,13 +595,13 @@ parameter value.
 |-------|-------------|
 | Primary source file | [vktGeometryBuiltinVariableGeometryShaderTests.cpp](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L1) |
 | Built-in mode enum | [VariableTest](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L64-L70) |
-| Test-instance constructor and topology selection | [BuiltinVariableRenderTestInstance::BuiltinVariableRenderTestInstance()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L91-L101) |
-| Fixed positions, attributes, and restart indices | [BuiltinVariableRenderTestInstance::genVertexAttribData()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L103-L132) |
-| Index-buffer creation | [BuiltinVariableRenderTestInstance::createIndicesBuffer()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L134-L159) |
-| Draw command selection | [BuiltinVariableRenderTestInstance::drawCommand()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L161-L170) |
-| Feature support checks | [BuiltinVariableRenderTest::checkSupport()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L194-L200) |
-| Shader generation | [BuiltinVariableRenderTest::initPrograms()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L202-L419) |
-| Test instance creation | [BuiltinVariableRenderTest::createInstance()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L421-L424) |
+| Test-instance constructor and topology selection | [BuiltinVariableRenderTestInstance::BuiltinVariableRenderTestInstance()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L92-L102) |
+| Fixed positions, attributes, and restart indices | [BuiltinVariableRenderTestInstance::genVertexAttribData()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L104-L133) |
+| Index-buffer creation | [BuiltinVariableRenderTestInstance::createIndicesBuffer()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L135-L160) |
+| Draw command selection | [BuiltinVariableRenderTestInstance::drawCommand()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L162-L172) |
+| Feature support checks | [BuiltinVariableRenderTest::checkSupport()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L195-L201) |
+| Shader generation | [BuiltinVariableRenderTest::initPrograms()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L203-L420) |
+| Test instance creation | [BuiltinVariableRenderTest::createInstance()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L422-L425) |
 | Registration | [createBuiltinVariableGeometryShaderTests()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L428-L448) |
 | Shared render and compare flow | [GeometryExpanderRenderTestInstance::iterate()](../../../modules/vulkan/geometry/vktGeometryBasicClass.cpp#L71-L202) |
 | Reference-image comparison helper | [compareWithFileImage()](../../../modules/vulkan/geometry/vktGeometryTestsUtil.cpp#L412-L425) |

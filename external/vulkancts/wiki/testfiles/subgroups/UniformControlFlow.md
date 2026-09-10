@@ -409,7 +409,7 @@ void main()
 |-------------|------|----------------|
 | `createSubgroupUniformControlFlowTests()` | [`large`, `small`, partial, and discard registration](../../../modules/vulkan/subgroups/vktSubgroupUniformControlFlowTests.cpp#L206-L451) | Defines the direct families, exact case leaves, stage, occupancy, and subgroup-size-control parameters. |
 | `SubgroupUniformControlFlowTestCase::checkSupport()` | [`checkSupport()`](../../../modules/vulkan/subgroups/vktSubgroupUniformControlFlowTests.cpp#L99-L172) | Applies extension, operation, subgroup-size-control, and large-workgroup checks. |
-| `addTestsForAmberFiles()` | [`addTestsForAmberFiles()`](../../../modules/vulkan/subgroups/vktSubgroupUniformControlFlowTests.cpp#L175-L201) | Constructs the Amber resource filename and the Amber-backed test case. |
+| `addTestsForAmberFiles()` | [`addTestsForAmberFiles()`](../../../modules/vulkan/subgroups/vktSubgroupUniformControlFlowTests.cpp#L176-L202) | Constructs the Amber resource filename and the Amber-backed test case. |
 | `AmberTestCase::parse()` and `initPrograms()` | [`parse()` and `initPrograms()`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L407-L475) | Parses the script and maps its GLSL shader metadata to CTS shader sources and the requested SPIR-V target. |
 | `AmberTestInstance::iterate()` | [`iterate()`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L546-L615) | Executes the Amber recipe and maps Amber success or failure to CTS status. |
 | Representative Amber program | [`subgroup_reconverge00.amber`](../../../data/vulkan/amber/subgroup_uniform_control_flow/large/subgroup_reconverge00.amber#L1-L76) | Defines the exact `fill` and `test` shaders, resources, pipelines, runs, and expectations. |

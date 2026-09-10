@@ -18,7 +18,7 @@ api.maintenance11
 └── queue_properties
 ```
 
-[`createMaintenance11Tests()`](../../../modules/vulkan/api/vktApiMaintenance11Tests.cpp#L143-L151) registers the single leaf. The [API dispatcher](../../../modules/vulkan/api/vktApiTests.cpp#L142-L148) excludes it from Vulkan SC.
+[`createMaintenance11Tests()`](../../../modules/vulkan/api/vktApiMaintenance11Tests.cpp#L145-L152) registers the single leaf. The [API dispatcher](../../../modules/vulkan/api/vktApiTests.cpp#L142-L148) excludes it from Vulkan SC.
 
 ## Behavior Parameters
 

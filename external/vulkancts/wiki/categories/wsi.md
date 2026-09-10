@@ -61,5 +61,5 @@ Together these families cover the WSI contract from native-target discovery thro
 
 ## Category Notes
 
-- [`createWsiTests()`](../../modules/vulkan/wsi/vktWsiTests.cpp#L76-L91) creates the category root, the nine platform branches, and the three direct-display branches.
+- [`createWsiTests()`](../../modules/vulkan/wsi/vktWsiTests.cpp#L85-L100) creates the category root, the nine platform branches, and the three direct-display branches.
 - Platform availability and build configuration prune branches before execution. A missing branch does not by itself indicate a conformance failure.

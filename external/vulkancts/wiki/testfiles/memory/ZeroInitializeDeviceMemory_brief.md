@@ -91,7 +91,7 @@ Within `image_transition`, the read path (`xfer`, `comp`, `frag`, or depth/stenc
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Zero-initialize allocation | [`allocateZeroInitMemory`](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L113-L133) | Adds `VK_MEMORY_ALLOCATE_ZERO_INITIALIZE_BIT_EXT` to the allocation chain. |
+| Zero-initialize allocation | [`allocateZeroInitMemory`](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L114-L134) | Adds `VK_MEMORY_ALLOCATE_ZERO_INITIALIZE_BIT_EXT` to the allocation chain. |
 | Buffer validation | [`clearBufferAllocation`](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L136-L221) | Iterates memory types, copies non-host-visible data, and compares bytes. |
 | Image shader generation | [`ImageTransitionCase::initPrograms`](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L445-L528) | Generates compute, vertex, and fragment programs for image reads. |
 | Image execution and comparison | [`ImageTransitionTest::iterate`](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L530-L884) | Performs the layout transition, access path, readback, and comparison. |

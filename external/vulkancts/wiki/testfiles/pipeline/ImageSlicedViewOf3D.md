@@ -25,7 +25,7 @@ pipeline.monolithic.sliced_view_of_3d_image
 └── mip_level
 ```
 
-[`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L202-L209) registers this test family only for `PIPELINE_CONSTRUCTION_TYPE_MONOLITHIC`. Its factory registers the four intermediate nodes and their leaves in [`createImageSlicedViewOf3DTests()`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L978-L1223). The relevant mustpass scope is [`monolithic.txt`](../../../mustpass/main/vk-default/pipeline/monolithic/monolithic.txt).
+[`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L202-L209) registers this test family only for `PIPELINE_CONSTRUCTION_TYPE_MONOLITHIC`. Its factory registers the four intermediate nodes and their leaves in [`createImageSlicedViewOf3DTests()`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L979-L1226). The relevant mustpass scope is [`monolithic.txt`](../../../mustpass/main/vk-default/pipeline/monolithic/monolithic.txt).
 
 ## Parameter Dimensions and Observed Values
 
@@ -47,11 +47,11 @@ The primary behavior parameter is the operation: `load` and `store` reverse the 
 
 ### load: Read through the sliced view
 
-The host copies reference pixels into the selected region of the full 3D image. The shader reads `slicedImage` and writes the pixels into a reduced-depth auxiliary image. The host copies that auxiliary image to a verification buffer and compares it with the original reference buffer. [`SlicedViewLoadTestInstance::iterate`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L742-L857) implements this direction.
+The host copies reference pixels into the selected region of the full 3D image. The shader reads `slicedImage` and writes the pixels into a reduced-depth auxiliary image. The host copies that auxiliary image to a verification buffer and compares it with the original reference buffer. [`SlicedViewLoadTestInstance::iterate`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L743-L858) implements this direction.
 
 ### store: Write through the sliced view
 
-The host fills the reduced-depth auxiliary image from the reference buffer. The shader reads that image and writes into `slicedImage`. The host copies the selected region from the full 3D image to a verification buffer and compares it with the reference buffer. [`SlicedViewStoreTestInstance::iterate`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L859-L972) implements this direction.
+The host fills the reduced-depth auxiliary image from the reference buffer. The shader reads that image and writes into `slicedImage`. The host copies the selected region from the full 3D image to a verification buffer and compares it with the reference buffer. [`SlicedViewStoreTestInstance::iterate`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L860-L973) implements this direction.
 
 ## Shader Analysis
 
@@ -287,8 +287,8 @@ The test case skips when `VK_EXT_image_sliced_view_of_3d` is unavailable. Fragme
 | Parameter and range helpers | [`TestParams`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L71-L188) | Converts ranges and mip levels into actual slice extents. |
 | Feature gate and generated shaders | [`SlicedViewTestCase::checkSupport` and `initPrograms`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L273-L378) | Defines requirements and shader-visible behavior. |
 | Descriptor and pipeline execution | [`SlicedViewTestInstance::runPipeline`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L532-L610) | Binds storage images and executes the selected stage. |
-| Optional sampling verification | [`SlicedViewTestInstance::runSamplingPipeline`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L613-L739) | Shows the separate combined-sampler check. |
+| Optional sampling verification | [`SlicedViewTestInstance::runSamplingPipeline`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L614-L741) | Shows the separate combined-sampler check. |
 | Load and store lifecycles | [`SlicedViewLoadTestInstance::iterate` and `SlicedViewStoreTestInstance::iterate`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L742-L972) | Shows initialization, synchronization, readback, and exact comparison. |
-| Test-family registration | [`createImageSlicedViewOf3DTests`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L978-L1223) | Registers the intermediate nodes and test case leaves. |
+| Test-family registration | [`createImageSlicedViewOf3DTests`](../../../modules/vulkan/pipeline/vktPipelineImageSlicedViewOf3DTests.cpp#L979-L1226) | Registers the intermediate nodes and test case leaves. |
 | Parent registration | [`createChildren`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L202-L209) | Restricts the family to monolithic construction. |
 | Vulkan view contract | [`VkImageViewSlicedCreateInfoEXT`](../../../../vulkan-docs/src/chapters/resources.adoc#_vk_image_view_sliced_create_info_ext) | Defines slice offsets, counts, mip restriction, and descriptor behavior. |

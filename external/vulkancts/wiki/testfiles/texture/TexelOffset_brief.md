@@ -112,7 +112,7 @@ Because this family has no varying behavior parameter, any failure means that at
 | Texture category dispatch | [`createTextureTests`](../../../modules/vulkan/texture/vktTextureTests.cpp#L48-L66) | Attaches `texel_offset` under `texture` and excludes it from Vulkan SC. |
 | Family and case registration | [`createTextureTexelOffsetTests`](../../../modules/vulkan/texture/vktTextureTexelOffsetTests.cpp#L36-L55) | Registers the sole `texel_offset` Amber file and test case leaf. |
 | Complete Amber program | [`texel_offset.amber`](../../../data/vulkan/amber/texture/texel_offset/texel_offset.amber#L1-L58) | Defines shaders, resources, pipelines, draws, and the exact expected image region. |
-| Amber compilation | [`AmberTestCase::initPrograms`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L435-L499) | Shows the default SPIR-V 1.0 target and GLSL stage insertion. |
+| Amber compilation | [`AmberTestCase::initPrograms`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L436-L545) | Shows the default SPIR-V 1.0 target and GLSL stage insertion. |
 | Amber execution and result | [`AmberTestInstance::iterate`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L546-L615) | Executes with Vulkan and maps Amber success or failure to the CTS result. |
 | Exact mustpass leaf | [`vk-default/texture.txt`](../../../mustpass/main/vk-default/texture.txt#L25669) | Confirms `dEQP-VK.texture.texel_offset.texel_offset`. |
 | Offset coordinate semantics | [`textures.adoc`](../../../../vulkan-docs/src/chapters/textures.adoc#L1805-L1915) | Defines offset addition and nearest texel-coordinate selection. |

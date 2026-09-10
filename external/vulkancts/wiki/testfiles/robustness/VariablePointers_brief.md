@@ -86,10 +86,10 @@ A representative scalar read case uses `16B_in_memory_with_scalar_f32`. The shad
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| SPIR-V generation | [MakeShader()](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L839-L1239) | Emits capabilities, resources, pointer selection, and stage entry points. |
+| SPIR-V generation | [MakeShader()](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L805-L1204) | Emits capabilities, resources, pointer selection, and stage entry points. |
 | Read and write program registration | [initPrograms()](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1278-L1349) | Maps each case to compute, vertex, and fragment SPIR-V modules. |
 | Host setup | [AccessInstance constructor](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1352-L1540) | Creates buffers, descriptors, indices, and execution environments. |
-| Result checking | [verifyResult()](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1632-L1848) | Defines accepted in-bounds, partial, and out-of-bounds results. |
+| Result checking | [verifyResult()](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1545-L1761) | Defines accepted in-bounds, partial, and out-of-bounds results. |
 | Registration matrix | [createBufferAccessWithVariablePointersTests()](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1790-L1895) | Defines the registered hierarchy and generated leaf dimensions. |
 
 ## Questions / Risk Points for User Audit

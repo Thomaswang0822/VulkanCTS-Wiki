@@ -362,8 +362,8 @@ A failure across several families may instead come from shared sampler compare-s
 | Matrix and family registration | [`populateTextureShadowTests()`](../../../modules/vulkan/texture/vktTextureShadowTests.cpp#L1729-L2077) | Defines direct families, filter nodes, leaves, formats, compare operations, backing, and seam modes. |
 | Shared comparison verification | [`verifyTexCompareResult()`](../../../modules/vulkan/texture/vktTextureShadowTests.cpp#L155-L210) | Builds the reference, handles floating depth copies, computes invalid pixels, and logs images. |
 | Representative 2D implementation | [`Texture2DShadowTestInstance`](../../../modules/vulkan/texture/vktTextureShadowTests.cpp#L246-L468) | Shows resource patterns, FilterCases, draws, and the two-tier decision. |
-| Shader generator | [`initializePrograms()`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L210-L760) | Generates all shadow sampler declarations and lookup signatures. |
-| Regular and sparse image setup | [`TextureBinding::updateTextureData()`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L808-L921) | Creates, binds, uploads, and transitions sampled images. |
+| Shader generator | [`initializePrograms()`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L209-L759) | Generates all shadow sampler declarations and lookup signatures. |
+| Regular and sparse image setup | [`TextureBinding::updateTextureData()`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L807-L920) | Creates, binds, uploads, and transitions sampled images. |
 | Staging-buffer serialization | [`TestTexture::write()`](../../../modules/vulkan/pipeline/vktPipelineImageUtil.cpp#L923-L967) | Copies format-native source texels into staging memory without numeric conversion. |
 | Sampler mapping | [`mapSampler()`](../../../framework/vulkan/vkImageUtil.cpp#L4472-L4510) | Maps filter, mipmap, compare, address, and cube edge state to Vulkan. |
 | Per-pixel legality check | [`computeTextureCompareDiff()`](../../../../../framework/opengl/gluTextureTestUtil.cpp#L2648-L2765) | Reconstructs 2D coordinates and LOD bounds and checks legal compare results. |

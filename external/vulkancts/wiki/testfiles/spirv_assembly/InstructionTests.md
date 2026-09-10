@@ -213,7 +213,7 @@ flowchart TD
 
 #### Shader Code
 
-This case has no GLSL or HLSL shader source. [`createOpNopGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L1089-L1141) directly constructs the authoritative CTS SPIR-V assembly by concatenating the shared compute preamble, type, and SSBO-layout helpers with the case-specific function body. The complete specialized module was assembled with `spirv-as --target-env spv1.0`, validated with `spirv-val --target-env spv1.0`, and disassembled with `spirv-dis`; the full validated assembly is published once in the final `#### SPIR-V` subsection.
+This case has no GLSL or HLSL shader source. [`createOpNopGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L1091-L1143) directly constructs the authoritative CTS SPIR-V assembly by concatenating the shared compute preamble, type, and SSBO-layout helpers with the case-specific function body. The complete specialized module was assembled with `spirv-as --target-env spv1.0`, validated with `spirv-val --target-env spv1.0`, and disassembled with `spirv-dis`; the full validated assembly is published once in the final `#### SPIR-V` subsection.
 
 #### Additional Info
 
@@ -225,7 +225,7 @@ This case has no GLSL or HLSL shader source. [`createOpNopGroup`](../../../modul
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Instruction group | Sibling groups author different function bodies containing operations such as `OpFRem`, `OpSRem`, `OpSMod`, `OpQuantizeToF16`, `OpPhi`, `OpCopyMemory`, atomics, and conversions; they do not literally derive their modules by replacing this case's `OpNop`. | [`createOpNopGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L1089-L1141), [`createOpSRemComputeGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L2526-L2626) |
+| Instruction group | Sibling groups author different function bodies containing operations such as `OpFRem`, `OpSRem`, `OpSMod`, `OpQuantizeToF16`, `OpPhi`, `OpCopyMemory`, atomics, and conversions; they do not literally derive their modules by replacing this case's `OpNop`. | [`createOpNopGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L1091-L1143), [`createOpSRemComputeGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L2526-L2626) |
 | Number of input SSBOs | `opnop` uses one input at binding 0 and one output at binding 1; `opsrem` and `opsmod` add a second input at binding 1 and move the output to binding 2. | [`createOpSRemComputeGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L2570-L2586) |
 | Storage representation | Most inline compute groups use the default `Uniform` plus `BufferBlock` helpers; `opatomic_storage_buffer` and `opatomic_storage_buffer_volatile` opt into `StorageBuffer` plus `Block`. | [`getComputeAsmInputOutputBufferTraits`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderTestUtil.cpp#L123-L133) |
 | Mismatch result | `opnop` uses the default `QP_TEST_RESULT_FAIL`; the `OpSRem`/`OpSMod` registrations select `PASS` for the baseline negative-operand cases, `QUALITY_WARNING` under `android`, or `FAIL` under `maintenance8`. This changes host-side grading rather than this shader's descriptor shell. | [`createOpSRemComputeGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L2526-L2626) |

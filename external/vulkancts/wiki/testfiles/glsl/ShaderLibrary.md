@@ -37,12 +37,12 @@ The `440` intermediate node contains the registered `linkage` test family. The d
 |---|---|---|---|
 | Data-file root | `arrays`, `conditionals`, `constant_expressions`, `constants`, `conversions`, `functions`, `linkage`, `scoping`, `swizzles` | Selects an ES310 GLSL language-feature library. | [`s_es310Tests[]`](../../../modules/vulkan/vktTestPackage.cpp#L1220-L1233) |
 | Core-version root | `440` → `linkage` | Selects the core GLSL 4.40 linkage library. | [`s_440Tests[]`](../../../modules/vulkan/vktTestPackage.cpp#L1235-L1251) |
-| Declarative hierarchy | `group`, `case`, `import` | Changes the generated test-group and test-case paths. | [`parseShaderGroup()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1660-L1696), [`parseImport()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1698-L1716) |
+| Declarative hierarchy | `group`, `case`, `import` | Changes the generated test-group and test-case paths. | [`parseShaderGroup()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1684-L1720), [`parseImport()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1698-L1716) |
 | Case stage form | `both`, `vertex`/`fragment` and other explicit stages, pipeline programs | Selects vertex-only/fragment-only generation or a complete program description. | [`parseShaderCase()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1507-L1657) |
 | Value sets | One or more `input`, `output`, and `uniform` values | Provides per-sub-case data and expected results. | [`parseShaderCase()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1500-L1506), [`getNumSubCases()`](../../../modules/vulkan/vktShaderLibrary.cpp#L1566-L1572) |
 | Output mode | Default `OUTPUT_RESULT`; `output_color <format>` | Chooses shader-side pass encoding or direct color comparison. | [`parseShaderCase()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1461-L1499) |
 | Render extent | `64 x 64` | Defines the image extent scanned by result checking. | [`ShaderCaseInstance`](../../../modules/vulkan/vktShaderLibrary.cpp#L1227-L1248) |
-| Requirements | Extensions, limits, GLSL support, and capability directives | Restricts cases and injects required extension statements into generated sources. | [`parseRequirement()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1220-L1303), [`injectExtensionRequirements()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1852-L1870) |
+| Requirements | Extensions, limits, GLSL support, and capability directives | Restricts cases and injects required extension statements into generated sources. | [`parseRequirement()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1226-L1310), [`injectExtensionRequirements()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1852-L1870) |
 
 ## Behavior Parameters
 
@@ -137,7 +137,7 @@ void main()
 #### Additional Info
 
 - The parser turns the `both` source into separate `_vertex` and `_fragment` cases; this path selects the latter ([`parseShaderCase()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1570-L1610)).
-- The generated vertex counterpart is fixed infrastructure for this case: it reads `dEQP_Position` and `a_in0`, writes `gl_Position`, and flat-transports `in0` to location 0 ([`genVertexShader()`](../../../modules/vulkan/vktShaderLibrary.cpp#L152-L203)).
+- The generated vertex counterpart is fixed infrastructure for this case: it reads `dEQP_Position` and `a_in0`, writes `gl_Position`, and flat-transports `in0` to location 0 ([`genVertexShader()`](../../../modules/vulkan/vktShaderLibrary.cpp#L157-L206)).
 - The exact path is present in the default GLSL mustpass list ([`glsl.txt`](../../../mustpass/main/vk-default/glsl.txt#L77)); the three input/reference alternatives are declared in the source data ([`arrays.test`](../../../data/vulkan/glsl/es310/arrays.test#L20-L42)).
 
 #### Parameter Variation Summary
@@ -146,7 +146,7 @@ void main()
 |---------------------|---------------------------------------|----------|
 | Stage suffix `_fragment` → `_vertex` | Runs the same array-constructor body in the vertex stage, adds `dEQP_Position`, vertex attributes, and flat output declarations, and moves the `isOk` comparison into a generated fragment shader. | [`parseShaderCase()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1570-L1610), [`ShaderCase::initPrograms()`](../../../modules/vulkan/vktShaderLibrary.cpp#L1716-L1731) |
 | Value alternative | Does not change shader source; the host supplies one of three `in0` vectors and the matching `ref.out0`, and each must produce white pixels. | [`arrays.test`](../../../data/vulkan/glsl/es310/arrays.test#L22-L26), [`iterate()`](../../../modules/vulkan/vktShaderLibrary.cpp#L1607-L1686) |
-| Constructor shape/type | Sibling cases change the array length, constructor element type, input swizzle, output vector type, and generated comparison overload. | [`arrays.test`](../../../data/vulkan/glsl/es310/arrays.test#L44-L140), [`genCompareFunctions()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1888-L1967) |
+| Constructor shape/type | Sibling cases change the array length, constructor element type, input swizzle, output vector type, and generated comparison overload. | [`arrays.test`](../../../data/vulkan/glsl/es310/arrays.test#L44-L140), [`genCompareFunctions()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1912-L2020) |
 | Explicit `output_color` instead of default output mode | Bypasses this shader-side reference comparison and makes the selected output value the attachment color checked by the host. | [`parseShaderCase()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1461-L1499), [`iterate()`](../../../modules/vulkan/vktShaderLibrary.cpp#L1624-L1678) |
 
 #### SPIR-V
@@ -345,7 +345,7 @@ void main()
 
 ### Requirement-based pruning
 
-- Cases with unsupported or unsatisfied extension, capability, limit, or GLSL-support requirements are filtered according to the parser and Vulkan test framework's requirement handling. The parser accepts extension alternatives, limits, and support directives in [`parseRequirement()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1220-L1303).
+- Cases with unsupported or unsatisfied extension, capability, limit, or GLSL-support requirements are filtered according to the parser and Vulkan test framework's requirement handling. The parser accepts extension alternatives, limits, and support directives in [`parseRequirement()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1226-L1310).
 - Invalid case shapes are rejected by shared validation, including incompatible stage combinations and incomplete complete cases ([`isValid()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L210-L224)).
 - The Vulkan wrapper rejects `expect` values other than `EXPECT_PASS` ([`ShaderCase::initPrograms()`](../../../modules/vulkan/vktShaderLibrary.cpp#L1707-L1715)).
 
@@ -369,8 +369,8 @@ void main()
 | GLSL registration | [`createGlslTests()`](../../../modules/vulkan/vktTestPackage.cpp#L1215-L1251) | Registers the ES310 roots and `440.linkage`. |
 | Vulkan shader-library factory | [`createShaderLibraryGroup()`](../../../modules/vulkan/vktShaderLibrary.cpp#L1825-L1829) | Creates each lazy shader-library group. |
 | Lazy data-file loading | [`ShaderLibraryGroup::init()`](../../../modules/vulkan/vktShaderLibrary.cpp#L1790-L1817) | Parses a `.test` file and attaches generated children. |
-| Declarative group parsing | [`parseShaderGroup()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1660-L1696) | Maps `group` blocks to test groups. |
-| Declarative case parsing | [`parseShaderCase()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1449-L1657) | Maps stage blocks, values, output mode, and requirements to cases. |
+| Declarative group parsing | [`parseShaderGroup()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1684-L1720) | Maps `group` blocks to test groups. |
+| Declarative case parsing | [`parseShaderCase()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1455-L1682) | Maps stage blocks, values, output mode, and requirements to cases. |
 | Program specialization | [`ShaderCase::initPrograms()`](../../../modules/vulkan/vktShaderLibrary.cpp#L1707-L1759) | Generates missing stages and specializes complete programs. |
 | Host/device iteration | [`ShaderCaseInstance::iterate()`](../../../modules/vulkan/vktShaderLibrary.cpp#L1607-L1686) | Writes values, submits work, checks images, and advances sub-cases. |
 | Representative ES310 array data | [`arrays.test`](../../../data/vulkan/glsl/es310/arrays.test#L18-L66) | Shows array-constructor cases and `both` shader expansion. |

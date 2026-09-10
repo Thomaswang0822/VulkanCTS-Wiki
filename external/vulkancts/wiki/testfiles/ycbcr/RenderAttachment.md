@@ -91,7 +91,7 @@ void main(void) { outColor = vec4(1.0); }
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---|---|---|
-| Plane | `plane0`, `plane1`, `plane2` | Host selects the compatible plane view. [`createRenderAttachmentTests`](../../../modules/vulkan/ycbcr/vktYCbCrRenderAttachmentTests.cpp#L380-L430) |
+| Plane | `plane0`, `plane1`, `plane2` | Host selects the compatible plane view. [`createRenderAttachmentTests`](../../../modules/vulkan/ycbcr/vktYCbCrRenderAttachmentTests.cpp#L415-L478) |
 | Binding mode | `joint`, `disjoint` | Host selects image allocation strategy. [`RenderAttachmentTestInstance`](../../../modules/vulkan/ycbcr/vktYCbCrRenderAttachmentTests.cpp#L90-L150) |
 
 #### SPIR-V

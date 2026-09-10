@@ -97,10 +97,10 @@ The test family is the primary axis because it selects two different Vulkan cont
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Queue-family query | [`VideoQueueQueryTestInstance::iterate`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L108-L180) | Attaches `VkQueueFamilyVideoPropertiesKHR`, checks queue flags and codec operations, and applies encode/decode support gates. |
+| Queue-family query | [`VideoQueueQueryTestInstance::iterate`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L112-L185) | Attaches `VkQueueFamilyVideoPropertiesKHR`, checks queue flags and codec operations, and applies encode/decode support gates. |
 | Profile format query | [`VideoFormatPropertiesQueryTestInstance::iterate`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L340-L456) | Builds the profile and usage query, checks returned formats, and handles opaque DPB results. |
 | Capability chain and repeated queries | [`VideoCapabilitiesQueryH264DecodeTestInstance::iterate`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L652-L713) | Shows the two initialized result chains and generic/decode/codec validation sequence. |
-| Generic capability validation | [`validateVideoCapabilities`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L508-L560) | Defines field equality, allowed flags, nonzero values, extent, DPB, and reference checks. |
+| Generic capability validation | [`validateVideoCapabilities`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L555-L607) | Defines field equality, allowed flags, nonzero values, extent, DPB, and reference checks. |
 | Encode and intra-refresh validation | [`validateVideoEncodeCapabilities`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L577-L611) and [`validateIntraRefreshCapabilities`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L1434-L1483) | Defines encode field checks, maintenance2 behavior, and intra-refresh constraints. |
 | Capability support gates | [`VideoCapabilitiesQueryTestCase::checkSupport`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L1750-L1829) | Maps each leaf to `VK_KHR_video_queue`, codec, maintenance2, and intra-refresh requirements. |
 | Format matrix and pruning | [`createVideoFormatsTests`](../../../modules/vulkan/video/vktVideoCapabilitiesTests.cpp#L2315-L2486) | Registers codec, format, usage, subsampling, and bit-depth combinations and prunes incompatible cases. |

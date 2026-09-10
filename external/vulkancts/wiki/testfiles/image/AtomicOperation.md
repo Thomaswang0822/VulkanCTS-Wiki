@@ -29,7 +29,7 @@ image.atomic_operations
 └── indexing
 ```
 
-[`createChildren()`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L89) registers `atomic_operations` under the `image` test category. [`createImageAtomicOperationTests()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2477-L2655) registers these eleven operation values and the leaves below each one.
+[`createChildren()`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L89) registers `atomic_operations` under the `image` test category. [`createImageAtomicOperationTests()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2640-L2824) registers these eleven operation values and the leaves below each one.
 
 ## Parameter Dimensions and Observed Values
 
@@ -359,5 +359,5 @@ void main (void)
 | Generated atomic shaders | [`BinaryAtomicEndResultCase::initPrograms()` and `BinaryAtomicIntermValuesCase::initPrograms()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L1194-L1418) | Generates GLSL and selects specialized SPIR-V assembly. |
 | Shared execution path | [`BinaryAtomicInstanceBase::iterate()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L1498-L1663) | Allocates resources, initializes, dispatches, synchronizes, reads back, and reports pass/fail. |
 | Validation | [`BinaryAtomicEndResultInstance::verifyResult()` and `BinaryAtomicIntermValuesInstance::verifyRecursive()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L1935-L2099) | Implements final-value and returned-value sequence checks. |
-| Case matrix factory | [`createImageAtomicOperationTests()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2477-L2655) | Registers the operation, type, resource, and result-checking matrix. |
+| Case matrix factory | [`createImageAtomicOperationTests()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2640-L2824) | Registers the operation, type, resource, and result-checking matrix. |
 | SPIR-V template interface | [`vktImageAtomicSpirvShaders.hpp`](../../../modules/vulkan/image/vktImageAtomicSpirvShaders.hpp#L35-L57) | Defines selection of specialized templates for the SPIR-V-only operations. |

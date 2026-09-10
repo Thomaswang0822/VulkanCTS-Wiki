@@ -115,9 +115,9 @@ All six values can also expose incorrect vertex format conversion, shader captur
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Shader generation | [`VertexAccessTest::initPrograms()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L263-L366) | Generates format-specific inputs and writes the fetched values to the output SSBO. |
+| Shader generation | [`VertexAccessTest::initPrograms()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L238-L341) | Generates format-specific inputs and writes the fetched values to the output SSBO. |
 | Indexed patterns | [`DrawIndexedAccessTest::s_indexConfigs`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L421-L435) | Defines the three arrangements of valid and out-of-range indices. |
-| Vertex input and resources | [`VertexAccessInstance`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L493-L800) | Creates bindings, attributes, buffers, the descriptor, and draw configuration. |
+| Vertex input and resources | [`VertexAccessInstance`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L114-L179) | Creates bindings, attributes, buffers, the descriptor, and draw configuration. |
 | Submission and verdict | [`iterate()` and `verifyResult()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L806-L1003) | Runs the draw, reads the SSBO, and applies the robust-value rules. |
 | Format-sensitive checks | [`isValueWithinVertexBufferOrZero()` and `isExpectedValueFromVertexBuffer()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1005-L1097) | Handles packed, integer, float, and 64-bit comparisons. |
 | Non-indexed registration | [`createDrawTests()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1097-L1131) | Defines the three direct-draw behavior leaves. |

@@ -145,7 +145,7 @@ A broad failure across families can also come from shared image-format capabilit
 | Linear execution | [`SnormLinearClampInstance::iterate`](../../../modules/vulkan/texture/vktTextureConversionTests.cpp#L217-L252) | Configures linear repeat sampling, renders, and generates the software reference. |
 | Linear validation | [`SnormLinearClampInstance::verifyPixels`](../../../modules/vulkan/texture/vktTextureConversionTests.cpp#L145-L215) | Performs the lookup-difference and explicit range checks. |
 | Linear case matrix | [`populateSnormLinearClampTests`](../../../modules/vulkan/texture/vktTextureConversionTests.cpp#L382-L422) | Defines formats, sizes, registered suffixes, and the shared-parameter behavior. |
-| Shared shader generator | [`initializePrograms`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L210-L760) | Emits fragment and compute sampling programs for `PROGRAM_2D_FLOAT`. |
+| Shared shader generator | [`initializePrograms`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L209-L759) | Emits fragment and compute sampling programs for `PROGRAM_2D_FLOAT`. |
 | Amber execution | [`AmberTestInstance::iterate`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L546-L615) | Compiles supplied programs into execution data and converts Amber success into CTS status. |
 | Mustpass inventory | [`vk-default/texture.txt`](../../../mustpass/main/vk-default/texture.txt#L1813-L1852) | Confirms 40 registered conversion leaves in the default Vulkan list. |
 | SNORM specification | [Fixed-point conversion](../../../../vulkan-docs/src/chapters/fundamentals.adoc#L1682-L1717) | Defines direct SNORM conversion and post-processing range clamping. |

@@ -308,7 +308,7 @@ void main(void)
 
 - [`vktRobustnessIndexAccessTests.cpp`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1-L1207) — implementation and registration.
 - [`DrawIndexedInstance::iterate()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L165-L461) — `index_access` setup, command recording, and validation.
-- [`BindIndexBuffer2Instance::iterate()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L787-L1113) — sized-binding setup, draws, and sampled validation.
+- [`BindIndexBuffer2Instance::iterate()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L892-L1228) — sized-binding setup, draws, and sampled validation.
 - [`createCmdBindIndexBuffer2Tests()` and `createIndexAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1116-L1205) — registered matrix.
 - [`vktRobustnessTests.cpp`](../../../modules/vulkan/robustness/vktRobustnessTests.cpp#L61-L99) — category registration and VulkanSC guard.
 - [`robustness.txt`](../../../mustpass/main/vk-default/robustness.txt#L1-L41) and [`index_access` entries](../../../mustpass/main/vk-default/robustness.txt#L13746-L13752) — default mustpass evidence.

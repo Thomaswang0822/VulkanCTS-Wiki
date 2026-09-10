@@ -48,7 +48,7 @@ mesh_shader.ext.properties
 └── max_mesh_output_size_with_payload_per_vertex_view_index_in_mesh_and_frag
 ```
 
-The `mesh_shader` test category reaches this family through its `ext` branch and the `properties` test family. The factory creates `limits` first, then the explicit payload/shared-memory and fixed-property children, the primitive/vertex count loops, and the 18-case output-size matrix in [`createMeshShaderPropertyTestsEXT`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L2429-L2543). The mustpass file confirms the 30 executable leaves listed above.
+The `mesh_shader` test category reaches this family through its `ext` branch and the `properties` test family. The factory creates `limits` first, then the explicit payload/shared-memory and fixed-property children, the primitive/vertex count loops, and the 18-case output-size matrix in [`createMeshShaderPropertyTestsEXT`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L2427-L2542). The mustpass file confirms the 30 executable leaves listed above.
 
 ## Parameter Dimensions and Observed Values
 
@@ -201,7 +201,7 @@ void main (void) {
 | Payload mode | `_with_payload` adds a task shader, specializes `payloadElements`, checks `taskPayloadSharedEXT`, and uses payload offset `10u` when the check succeeds. | [`MaxMeshOutputSizeCase::initPrograms`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L2001-L2044) |
 | Location qualifier | `_per_vertex` removes `perprimitiveEXT` and uses the per-vertex allocation granularity. | [`locationQualifier`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L2001-L2006) |
 | View-index mode | Fragment-only mode enables multiview in the fragment shader; mesh-and-fragment mode also enables it in the mesh shader and offsets values by `4 * gl_ViewIndex`. | [`viewIndexInMesh`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L2046-L2052), [`multiViewExt`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L2089-L2092) |
-| Derived location count | `locationCount` is computed from output bytes, built-in output storage, granularity, view factor, and the component limit. | [`MaxMeshOutputSizeCase::getParamsFromContext`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L1920-L1989) |
+| Derived location count | `locationCount` is computed from output bytes, built-in output storage, granularity, view factor, and the component limit. | [`MaxMeshOutputSizeCase::getParamsFromContext`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L1918-L1988) |
 
 #### SPIR-V
 
@@ -504,11 +504,11 @@ void main (void) {
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| EXT property registration | [`createMeshShaderPropertyTestsEXT`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L2429-L2543) | Builds the `properties` family and all 30 leaves. |
+| EXT property registration | [`createMeshShaderPropertyTestsEXT`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L2427-L2542) | Builds the `properties` family and all 30 leaves. |
 | EXT support helper | [`checkTaskMeshShaderSupportEXT`](../../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L126-L139) | Requires the extension and selected task/mesh features. |
 | Query-only limits check | [`limitsRun`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L2345-L2425) | Validates required minima and granularity maxima. |
 | Task payload and shared memory | [`TaskPayloadShMemSizeCase`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L84-L527) | Generates task/mesh shaders and checks payload and shared-memory result flags. |
-| View and layer checks | [`MaxViewIndexInstance::iterate`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L675-L802), [`MaxOutputLayersInstance::iterate`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L877-L1016) | Validates `gl_ViewIndex` and `gl_Layer` through image readback. |
+| View and layer checks | [`MaxViewIndexInstance::iterate`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L674-L801), [`MaxOutputLayersInstance::iterate`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L876-L1015) | Validates `gl_ViewIndex` and `gl_Layer` through image readback. |
 | Output count and components | [`MaxMeshOutputPrimVertCase`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L1018-L1291), [`MaxMeshOutputComponentsCase`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L1293-L1556) | Implements count, output-component, and SSBO/image checks. |
 | Mesh payload and shared memory | [`MeshPayloadShMemSizeCase`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L1558-L1812) | Tests mesh-stage allocation combinations and optional task payload. |
 | Output-size derivation and shaders | [`MaxMeshOutputSizeCase`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L1820-L2343) | Derives specialization constants and generates the output-size matrix. |

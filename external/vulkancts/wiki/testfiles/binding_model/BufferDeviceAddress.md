@@ -1047,9 +1047,9 @@ Both ordinary replay and capture-replay stress now capture on a separate custom 
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Test category registration | [`createChildren`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L70) | Adds `buffer_device_address` under `binding_model`. |
+| Test category registration | [`createChildren`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L54-L80) | Adds `buffer_device_address` under `binding_model`. |
 | Ordinary support and recursive data model | [`checkSupport`, `checkBuffer`, `fillBuffer`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L173-L368) | Defines feature gates and matching shader/host tree traversal. |
-| Ordinary shader generation | [`BufferAddressTestCase::initPrograms`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L370-L559) | Emits stage, conversion, and layout variants with explicit SPIR-V targets. |
+| Ordinary shader generation | [`BufferAddressTestCase::initPrograms`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L414-L603) | Emits stage, conversion, and layout variants with explicit SPIR-V targets. |
 | Ordinary runtime | [`BufferAddressTestInstance::iterate`](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L582-L1324) | Creates addresses and resources, handles replay, executes, copies back, and scans. |
 | Capture-replay stress | [`CaptureReplayTestCase` and instance](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L1327-L1542) | Recreates 100 seeded buffers and compares addresses. |
 | Memory-model offset | [`MemoryModelOffsetTestCase` and instance](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L1544-L1736) | Supplies direct SPIR-V 1.5 and checks base plus 512. |

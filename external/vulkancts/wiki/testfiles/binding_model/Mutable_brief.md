@@ -128,15 +128,15 @@ The test family is the primary behavioral axis because it changes the descriptor
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Binding-model attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L71) | Attaches `mutable_descriptor` for Vulkan but not Vulkan SC. |
-| Family construction | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp#L3953-L4344) | Creates the eight top-level test families and their descriptor shapes. |
+| Binding-model attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L54-L80) | Attaches `mutable_descriptor` for Vulkan but not Vulkan SC. |
+| Family construction | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp#L3958-L4349) | Creates the eight top-level test families and their descriptor shapes. |
 | Mutable and array model | [`BindingInterface`, `SingleBinding`, and `ArrayBinding`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp#L934-L1530) | Defines type rotation, resources, GLSL declarations, array aliasing, and shader checks. |
 | Pool and layout type lists | [`DescriptorSet`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp#L1536-L2075) | Builds mutable pools and layouts, update-after-bind flags, partially-bound flags, and variable-count bindings. |
 | Parameter record | [`TestParams`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp#L2077-L2305) | Maps update, source, pool, moment, access, and stage selections to Vulkan flags. |
-| Shader generator | [`MutableTypesTest::initPrograms()`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp#L2384-L2735) | Emits type-specific iteration shaders and passthrough stages. |
-| Support and pruning | [`MutableTypesTest::checkSupport()`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp#L2808-L3056) | Applies extension, feature, descriptor-indexing, layout, stage, and dynamic-indexing gates. |
-| Runtime and validation | [`MutableTypesInstance::iterate()`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp#L3236-L3751) | Creates resources, orders update and bind, submits work, and checks result and storage writeback. |
-| Variant generator | [`createMutableTestVariants()`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp#L3755-L3928) | Expands and prunes the secondary dimensions. |
+| Shader generator | [`MutableTypesTest::initPrograms()`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp#L2392-L2744) | Emits type-specific iteration shaders and passthrough stages. |
+| Support and pruning | [`MutableTypesTest::checkSupport()`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp#L2816-L3064) | Applies extension, feature, descriptor-indexing, layout, stage, and dynamic-indexing gates. |
+| Runtime and validation | [`MutableTypesInstance::iterate()`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp#L3244-L3756) | Creates resources, orders update and bind, submits work, and checks result and storage writeback. |
+| Variant generator | [`createMutableTestVariants()`](../../../modules/vulkan/binding_model/vktBindingMutableTests.cpp#L3760-L3934) | Expands and prunes the secondary dimensions. |
 | Mustpass inventory | [`binding-model.txt`](../../../mustpass/main/vk-default/binding-model.txt#L46192-L60501) | Confirms 14,310 registered leaves across all eight families. |
 | Mutable descriptor semantics | [Mutable descriptors](../../../../vulkan-docs/src/chapters/descriptors.adoc#L593-L652) | Defines allowed and active types plus consumption validity. |
 | Mutable descriptor feature contract | [Mutable descriptor feature](../../../../vulkan-docs/src/chapters/features.adoc#L5552-L5605) | Defines the mandatory supported type combination and descriptor-indexing interactions. |

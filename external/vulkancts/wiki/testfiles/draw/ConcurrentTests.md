@@ -39,7 +39,7 @@ draw.dynamic_rendering.complete_secondary_cmd_buff.concurrent
 
 | Dimension | Registered or observed values | Meaning in this test | Evidence |
 |---|---|---|---|
-| Rendering path | `renderpass`; `dynamic_rendering.primary_cmd_buff`; `dynamic_rendering.partial_secondary_cmd_buff`; `dynamic_rendering.complete_secondary_cmd_buff` | Selects legacy render-pass recording or one of the supported primary/secondary dynamic-rendering arrangements. | [`createTests` and `createChildren`](../../../modules/vulkan/draw/vktDrawTests.cpp#L70-L198) |
+| Rendering path | `renderpass`; `dynamic_rendering.primary_cmd_buff`; `dynamic_rendering.partial_secondary_cmd_buff`; `dynamic_rendering.complete_secondary_cmd_buff` | Selects legacy render-pass recording or one of the supported primary/secondary dynamic-rendering arrangements. | [`createTests` and `createChildren`](../../../modules/vulkan/draw/vktDrawTests.cpp#L70-L202) |
 | Test case | `compute_and_triangle_list` | Selects the one fixed pair of independent compute and graphics workloads. | [`ConcurrentDrawTests::init`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L472-L483) |
 | Graphics shaders | `vulkan/draw/VertexFetch.vert`, `vulkan/draw/VertexFetch.frag` | Produces a blue rectangle only when the fetched reference vertex indices match `gl_VertexIndex`. | [`testSpec`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L474-L478) |
 | Compute shader | `vulkan/draw/ConcurrentPayload.comp` | Replaces every storage-buffer value with its bitwise complement. | [`testSpec`](../../../modules/vulkan/draw/vktDrawConcurrentTests.cpp#L474-L478), [`ConcurrentPayload.comp`](../../../data/vulkan/draw/ConcurrentPayload.comp) |

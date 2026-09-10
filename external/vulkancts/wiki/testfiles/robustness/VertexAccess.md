@@ -350,9 +350,9 @@ All six values can also expose incorrect vertex format conversion, shader captur
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Test and instance types | [vktRobustnessVertexAccessTests.cpp#L52-L238](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L52-L238) | Defines the common test parameters, runtime resources, and draw-specific instances. |
-| Shader generation | [`VertexAccessTest::initPrograms()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L263-L366) | Emits format-specific vertex inputs, SSBO capture stores, and the fixed fragment shader. |
+| Shader generation | [`VertexAccessTest::initPrograms()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L238-L341) | Emits format-specific vertex inputs, SSBO capture stores, and the fixed fragment shader. |
 | Indexed patterns | [`DrawIndexedAccessTest::s_indexConfigs`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L421-L435) | Defines the three indexed behavior leaves' index sequences. |
-| Vertex input and resource setup | [`VertexAccessInstance`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L493-L800) | Creates bindings, buffers, descriptor state, and graphics draw configuration. |
+| Vertex input and resource setup | [`VertexAccessInstance`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L114-L179) | Creates bindings, buffers, descriptor state, and graphics draw configuration. |
 | Submission and result checking | [`iterate()` and `verifyResult()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L806-L1003) | Submits the draw, reads the SSBO, and applies in-range and robust out-of-range checks. |
 | Format-sensitive checks | [`isValueWithinVertexBufferOrZero()` and `isExpectedValueFromVertexBuffer()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1005-L1097) | Handles packed, integer, floating-point, and 64-bit values. |
 | Non-indexed registration | [`createDrawTests()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1097-L1131) | Registers the three non-indexed test case leaves. |

@@ -147,8 +147,8 @@ void main (void)
 
 #### Additional Info
 
-- The consumer shader has the same generated copy-loop structure as the producer for this SSBO-to-SSBO case, but its descriptor wiring reverses the role of the shared resource: binding 0 is the imported buffer and binding 1 is host-visible readback storage. It varies when the selected read operation, shader stage, buffer type, or resource size varies. [`BufferImplementation`](../../../modules/vulkan/synchronization/vktSynchronizationOperation.cpp#L1766-L1963)
-- `SharingTestInstance::iterate()` records the producer before the external release, records the consumer after the external acquire, transfers the semaphore handle between instances, and compares `writeOp->getData()` against `readOp->getData()`. [`SharingTestInstance::iterate()`](../../../modules/vulkan/synchronization/vktSynchronizationCrossInstanceSharingTests.cpp#L720-L1006)
+- The consumer shader has the same generated copy-loop structure as the producer for this SSBO-to-SSBO case, but its descriptor wiring reverses the role of the shared resource: binding 0 is the imported buffer and binding 1 is host-visible readback storage. It varies when the selected read operation, shader stage, buffer type, or resource size varies. [`BufferImplementation`](../../../modules/vulkan/synchronization/vktSynchronizationOperation.cpp#L1762-L1986)
+- `SharingTestInstance::iterate()` records the producer before the external release, records the consumer after the external acquire, transfers the semaphore handle between instances, and compares `writeOp->getData()` against `readOp->getData()`. [`SharingTestInstance::iterate()`](../../../modules/vulkan/synchronization/vktSynchronizationCrossInstanceSharingTests.cpp#L719-L1005)
 - The exact representative leaf is present in the default mustpass list. [`synchronization.txt`](../../../mustpass/main/vk-default/synchronization.txt#L13209)
 
 #### Parameter Variation Summary
@@ -438,9 +438,9 @@ A timeline-only counter mismatch points to external timeline semaphore payload o
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Two-instance/device management | [`InstanceAndDevice`](../../../modules/vulkan/synchronization/vktSynchronizationCrossInstanceSharingTests.cpp#L222-L305) | Creates and retains the independent Vulkan objects used as A and B. |
-| External resource import | [`importResource()`](../../../modules/vulkan/synchronization/vktSynchronizationCrossInstanceSharingTests.cpp#L446-L543) | Recreates the resource on B and binds imported memory through the selected allocation path. |
+| External resource import | [`importResource()`](../../../modules/vulkan/synchronization/vktSynchronizationCrossInstanceSharingTests.cpp#L478-L544) | Recreates the resource on B and binds imported memory through the selected allocation path. |
 | External release and acquire barriers | [`recordWriteBarrier()` and `recordReadBarrier()`](../../../modules/vulkan/synchronization/vktSynchronizationCrossInstanceSharingTests.cpp#L545-L633) | Transfers ownership through `VK_QUEUE_FAMILY_EXTERNAL` with operation-specific scopes and layouts. |
-| Execution and validation | [`SharingTestInstance::iterate()`](../../../modules/vulkan/synchronization/vktSynchronizationCrossInstanceSharingTests.cpp#L720-L1006) | Exports/imports handles, submits both sides, and performs the counter and data checks. |
+| Execution and validation | [`SharingTestInstance::iterate()`](../../../modules/vulkan/synchronization/vktSynchronizationCrossInstanceSharingTests.cpp#L719-L1005) | Exports/imports handles, submits both sides, and performs the counter and data checks. |
 | Capability checks | [`SharingTestCase::checkSupport()`](../../../modules/vulkan/synchronization/vktSynchronizationCrossInstanceSharingTests.cpp#L1019-L1178) | Applies extension, external property, format, sample-count, and import/export gates. |
 | Leaf generation | [`createTests()`](../../../modules/vulkan/synchronization/vktSynchronizationCrossInstanceSharingTests.cpp#L1199-L1276) | Builds both allocation modes and the operation/resource/semaphore/handle matrix. |
 | Category registration | [`createTestsInternal()`](../../../modules/vulkan/synchronization/vktSynchronizationTests.cpp#L114-L159) | Attaches the family to both test categories and excludes it from Vulkan SC. |

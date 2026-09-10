@@ -53,19 +53,19 @@ The primary behavioral axis is the test family. Each direct child of `glsl.built
 
 ### `precision` | 32-bit floating-point built-ins
 
-`precision` creates the regular floating-point factory set, then makes compute cases at `mediump` and `highp`. The factories cover arithmetic, trigonometric, exponential and logarithmic, common, geometric, matrix, `frexp`, `ldexp`, and `fma` operations. The test evaluates random or specialized samples against intervals derived from the selected format. [`createBuiltinCases()`](../../../modules/vulkan/shaderexecutor/vktShaderBuiltinPrecisionTests.cpp#L8418-L8511) and [`createFuncGroup()`](../../../modules/vulkan/shaderexecutor/vktShaderBuiltinPrecisionTests.cpp#L8681-L8701) define this path.
+`precision` creates the regular floating-point factory set, then makes compute cases at `mediump` and `highp`. The factories cover arithmetic, trigonometric, exponential and logarithmic, common, geometric, matrix, `frexp`, `ldexp`, and `fma` operations. The test evaluates random or specialized samples against intervals derived from the selected format. [`createBuiltinCases()`](../../../modules/vulkan/shaderexecutor/vktShaderBuiltinPrecisionTests.cpp#L8426-L8517) and [`createFuncGroup()`](../../../modules/vulkan/shaderexecutor/vktShaderBuiltinPrecisionTests.cpp#L8686-L8707) define this path.
 
 ### `precision_fp16_storage16b` | 16-bit arithmetic with 16-bit storage access
 
-This family uses the 16-bit factory set and a 16-bit precision model. It requests both 16-bit shader arithmetic and 16-bit uniform and storage-buffer access. Its cases therefore test the built-in operation and the storage path used to supply and retrieve 16-bit values. [`createFuncGroup16Bit()`](../../../modules/vulkan/shaderexecutor/vktShaderBuiltinPrecisionTests.cpp#L8722-L8736) and the family constructor at [`vktShaderBuiltinPrecisionTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderBuiltinPrecisionTests.cpp#L8797-L8809) define the distinction.
+This family uses the 16-bit factory set and a 16-bit precision model. It requests both 16-bit shader arithmetic and 16-bit uniform and storage-buffer access. Its cases therefore test the built-in operation and the storage path used to supply and retrieve 16-bit values. [`createFuncGroup16Bit()`](../../../modules/vulkan/shaderexecutor/vktShaderBuiltinPrecisionTests.cpp#L8727-L8742) and the family constructor at [`vktShaderBuiltinPrecisionTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderBuiltinPrecisionTests.cpp#L8797-L8809) define the distinction.
 
 ### `precision_fp16_storage32b` | 16-bit arithmetic with 32-bit storage
 
-This family also uses 16-bit arithmetic, but its `storage32` path does not request 16-bit uniform and storage-buffer access. The distinction changes storage requirements while retaining the 16-bit floating-point reference model. [`createFuncGroup16Bit()`](../../../modules/vulkan/shaderexecutor/vktShaderBuiltinPrecisionTests.cpp#L8722-L8736) and the family constructor at [`vktShaderBuiltinPrecisionTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderBuiltinPrecisionTests.cpp#L8811-L8823) provide the source evidence.
+This family also uses 16-bit arithmetic, but its `storage32` path does not request 16-bit uniform and storage-buffer access. The distinction changes storage requirements while retaining the 16-bit floating-point reference model. [`createFuncGroup16Bit()`](../../../modules/vulkan/shaderexecutor/vktShaderBuiltinPrecisionTests.cpp#L8727-L8742) and the family constructor at [`vktShaderBuiltinPrecisionTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderBuiltinPrecisionTests.cpp#L8811-L8823) provide the source evidence.
 
 ### `precision_double` | 64-bit floating-point built-ins
 
-`precision_double` builds the double factory set and runs one compute case per factory with a 64-bit floating-point format. The case context enables the 64-bit shader-float feature path. [`createBuiltinDoubleCases()`](../../../modules/vulkan/shaderexecutor/vktShaderBuiltinPrecisionTests.cpp#L8514-L8584) and [`createFuncGroupDouble()`](../../../modules/vulkan/shaderexecutor/vktShaderBuiltinPrecisionTests.cpp#L8704-L8718) define this behavior.
+`precision_double` builds the double factory set and runs one compute case per factory with a 64-bit floating-point format. The case context enables the 64-bit shader-float feature path. [`createBuiltinDoubleCases()`](../../../modules/vulkan/shaderexecutor/vktShaderBuiltinPrecisionTests.cpp#L8519-L8589) and [`createFuncGroupDouble()`](../../../modules/vulkan/shaderexecutor/vktShaderBuiltinPrecisionTests.cpp#L8709-L8725) define this behavior.
 
 ### `precision_fconvert` | conversions between floating-point and integer representations
 
@@ -341,7 +341,7 @@ Support failures are reported before execution when the device lacks a required 
 
 **Possible failure symptoms:** CTS raises `NotSupportedError` before the result comparison because the selected stage, vector length, floating-point type, storage access, extension, or compute workgroup count is unavailable.
 
-**Possible implementation causes:** The device or configuration lacks the feature or limit checked by the case. This is a support result, not evidence that an executed shader returned an incorrect value. The exact feature checks are in [`FConvertTestCase::checkSupport()`](../../../modules/vulkan/shaderexecutor/vktShaderFConvertTests.cpp#L973-L1065), the integer checks at [`IntegerFunctionCase::checkSupport()`](../../../modules/vulkan/shaderexecutor/vktShaderIntegerFunctionTests.cpp#L309-L329), and the precision setup at [`createFuncGroup16Bit()`](../../../modules/vulkan/shaderexecutor/vktShaderBuiltinPrecisionTests.cpp#L8722-L8736).
+**Possible implementation causes:** The device or configuration lacks the feature or limit checked by the case. This is a support result, not evidence that an executed shader returned an incorrect value. The exact feature checks are in [`FConvertTestCase::checkSupport()`](../../../modules/vulkan/shaderexecutor/vktShaderFConvertTests.cpp#L973-L1065), the integer checks at [`IntegerFunctionCase::checkSupport()`](../../../modules/vulkan/shaderexecutor/vktShaderIntegerFunctionTests.cpp#L309-L329), and the precision setup at [`createFuncGroup16Bit()`](../../../modules/vulkan/shaderexecutor/vktShaderBuiltinPrecisionTests.cpp#L8727-L8742).
 
 ## Case Pruning
 

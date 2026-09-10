@@ -90,10 +90,10 @@ The direct intermediate nodes select different command shapes or range semantics
 | Topic | Source link | Why it matters |
 |---|---|---|
 | Category registration | [pipeline registration](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L188-L191) | Adds `bind_buffers_2` to the pipeline test category. |
-| Regular registration | [`createCmdBindBuffers2Tests()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1780-L1904) | Defines the direct intermediate nodes and the regular matrix. |
+| Regular registration | [`createCmdBindBuffers2Tests()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1723-L1845) | Defines the direct intermediate nodes and the regular matrix. |
 | Maintenance5 registration | [`createCmdBindVertexBuffers2Tests()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1847-L1958) | Defines the topology, count, seed, size, and robustness paths. |
-| Regular execution | [`BindBuffers2Instance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L266-L600) | Records the bind calls, draw, readback, and exact pixel comparison. |
-| Maintenance5 execution | [`BindVertexBuffers2Instance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1331-L1510) | Builds the range cases and their two image predicates. |
+| Regular execution | [`BindBuffers2Instance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L215-L549) | Records the bind calls, draw, readback, and exact pixel comparison. |
+| Maintenance5 execution | [`BindVertexBuffers2Instance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1284-L1463) | Builds the range cases and their two image predicates. |
 | API contract | [vertex-input command semantics](../../../../vulkan-docs/src/chapters/fxvertex.adoc#L765-L849) | Defines updated offsets, sizes, `VK_WHOLE_SIZE`, and dynamic strides. |
 
 ## Questions / Risk Points for User Audit

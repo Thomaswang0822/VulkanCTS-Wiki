@@ -2,7 +2,7 @@
 
 **Core question:** When a render pass instance captures per-region performance counters via `VK_ARM_performance_counters_by_region`, does the implementation write counter values into the correct tile regions of the capture buffer, and do those values match the expected value for each region?
 
-- This page covers the `performance_counters_by_region` test family in [`vktRenderPassPerformanceCountersByRegionTests.cpp`](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp). The family is created by [`createRenderPassPerformanceCountersByRegionTests()`](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1610-L1614) and attached under each rendering variant root (`renderpass1`, `renderpass2`, `dynamic_rendering`) at the rendering-type level.
+- This page covers the `performance_counters_by_region` test family in [`vktRenderPassPerformanceCountersByRegionTests.cpp`](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp). The family is created by [`createRenderPassPerformanceCountersByRegionTests()`](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1612-L1616) and attached under each rendering variant root (`renderpass1`, `renderpass2`, `dynamic_rendering`) at the rendering-type level.
 - It registers a small matrix of test case leaves that combine one color format (`R8G8B8A8_UNORM`) with one or two attachment layers, each capturing a single counter named "Fragment warps".
 - The core idea is to render a full-screen blue quad into a color attachment whose render pass instance has per-region performance counters enabled, then read back the counter buffer and check that each tile region's counter value matches the expected value for a complete region (or falls within `[1, expectedMax]` for a partial region), where the expected value scales with the layer index.
 - The test also writes per-pixel device timestamps into an SSBO via `clockRealtimeEXT()` and checks that timestamps from different logical devices do not overlap, as a side-channel consistency check.
@@ -436,7 +436,7 @@ Timestamp verification gathers per-region start and end timestamps from the SSBO
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Test family factory | [`createRenderPassPerformanceCountersByRegionTests`](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1610-L1614) | Creates the group and dispatches to `initTests`. |
+| Test family factory | [`createRenderPassPerformanceCountersByRegionTests`](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1612-L1616) | Creates the group and dispatches to `initTests`. |
 | Registration loop | [`initTests`](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1581-L1606) | Generates the `r8g8b8a8_unorm.layers_{1,2}` leaves. |
 | Counter verification | [per-region range check](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1223-L1275) | Walks the region grid and checks each counter value against the expected min/max. |
 | Attachment verification | [color check](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1313-L1344) | Checks every pixel is blue within `0.01` tolerance. |

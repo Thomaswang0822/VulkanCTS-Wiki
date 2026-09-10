@@ -436,9 +436,9 @@ Matrix reductions keep `mat4_copy` for floating-point formats, restrict `vec4_me
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Shader generation | [genBufferShaderAccess()](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L318-L699) | Emits the stage- and format-specific GLSL access logic. |
+| Shader generation | [genBufferShaderAccess()](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L291-L490) | Emits the stage- and format-specific GLSL access logic. |
 | Device and feature setup | [Read/write instance creation](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L721-L905) | Selects robust, pipeline-robustness, and descriptor-heap paths. |
 | Resource setup | [Buffer and descriptor setup](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L918-L1536) | Creates buffers, descriptors, and execution environments. |
 | Host verification | [verifyResult()](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1543-L1851) | Defines accepted values and final status. |
-| Registration | [addBufferAccessTests()](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1929-L2035) | Defines roots, direct children, and parameter reductions. |
+| Registration | [addBufferAccessTests()](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1835-L2000) | Defines roots, direct children, and parameter reductions. |
 | Category insertion | [Dispatcher](../../../modules/vulkan/robustness/vktRobustnessTests.cpp#L65-L95) | Attaches the roots below `robustness`. |

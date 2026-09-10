@@ -97,8 +97,8 @@ All values can also fail if `subgroupBallotBitExtract`, `subgroupBallotBitCount`
 | Standard program builder | [`initPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinMaskVarTests.cpp#L1178-L1194) | Selects SPIR-V target and invokes the shared stage generator. |
 | Stage wrappers | [`initStdPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1406-L1675) | Embeds the core check in compute, graphics, mesh/task, and ray-tracing shaders. |
 | Support checks | [`supportedCheck`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinMaskVarTests.cpp#L1196-L1245) | Applies subgroup, ballot, stage, subgroup-size, mesh, and ray-tracing requirements. |
-| Runtime routing | [`test`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinMaskVarTests.cpp#L1266-L1333) | Selects execution helper and loops over required subgroup sizes. |
-| Registration | [`createSubgroupsBuiltinMaskVarTests`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinMaskVarTests.cpp#L1335-L1450) | Constructs all families and exact leaf names. |
+| Runtime routing | [`test`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinMaskVarTests.cpp#L1265-L1332) | Selects execution helper and loops over required subgroup sizes. |
+| Registration | [`createSubgroupsBuiltinMaskVarTests`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinMaskVarTests.cpp#L1334-L1449) | Constructs all families and exact leaf names. |
 | Result callbacks | [`check` and `checkComputeOrMesh`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2640-L2663) | Require every returned value to equal one. |
 | Built-in semantics | [Vulkan interfaces chapter](../../../../vulkan-docs/src/chapters/interfaces.adoc#L4983-L5120) | Defines the five relational masks and their input-vector form. |
 | Ray invocation repacking | [Vulkan ray-tracing chapter](../../../../vulkan-docs/src/chapters/raytracing.adoc#L150-L175) | Explains why ray-tracing mask built-ins use volatile semantics around repack instructions. |

@@ -288,7 +288,7 @@ A failure identifies a mismatch between the selected descriptor-update contract 
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Binding-model category attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L59) | Attaches `descriptor_update` under `binding_model`. |
+| Binding-model category attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L54-L80) | Attaches `descriptor_update` under `binding_model`. |
 | Empty-binding implementation | [`EmptyDescriptorUpdateCase()`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L62-L145) | Creates the zero-count binding and writes binding 2. |
 | Samplerless parameter and shader setup | [`SamplerlessDescriptorWriteTestCase`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L148-L330) | Defines descriptor types, sampler fields, generated shaders, and format support. |
 | Samplerless case registration | [`createSamplerlessWriteTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L883-L930) | Generates the exact 60-leaf matrix and removes input-attachment compute cases. |

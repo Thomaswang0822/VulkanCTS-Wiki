@@ -131,7 +131,7 @@ The mustpass list contains 63 leaves implemented by this page: one `empty_descri
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| `binding_model` attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L59) | Registers `descriptor_update` under the test category. |
+| `binding_model` attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L54-L80) | Registers `descriptor_update` under the test category. |
 | Reserved-binding case | [`EmptyDescriptorUpdateCase()`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L62-L145) | Builds bindings 0, 1, and 2 and writes only binding 2. |
 | Samplerless programs and support | [`SamplerlessDescriptorWriteTestCase`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L148-L330) | Defines parameters, generated observer shaders, and format gates. |
 | Samplerless runtime and validation | [`queuePass()`](../../../modules/vulkan/binding_model/vktBindingDescriptorUpdateTests.cpp#L460-L881) | Creates images and descriptor sets, submits work, and checks green pixels. |

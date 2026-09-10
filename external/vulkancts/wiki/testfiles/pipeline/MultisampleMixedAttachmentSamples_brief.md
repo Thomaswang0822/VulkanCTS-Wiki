@@ -77,7 +77,7 @@ The first two nodes share the attachment-sample validator but differ in the sour
 | Topic | Source link | Why it matters |
 |---|---|---|
 | Factory and root registration | [`createMultisampleMixedAttachmentSamplesTests`](../../../modules/vulkan/pipeline/vktPipelineMultisampleMixedAttachmentSamplesTests.cpp#L2158-L2165) | Creates `mixed_attachment_samples`. |
-| Pipeline multisample state | [`preparePipelineWrapper`](../../../modules/vulkan/pipeline/vktPipelineMultisampleMixedAttachmentSamplesTests.cpp#L176-L252) | Sets rasterization samples and attaches location or coverage-reduction state. |
+| Pipeline multisample state | [`preparePipelineWrapper`](../../../modules/vulkan/pipeline/vktPipelineMultisampleMixedAttachmentSamplesTests.cpp#L177-L325) | Sets rasterization samples and attaches location or coverage-reduction state. |
 | Requirements | [`VerifySamples::checkRequirements`](../../../modules/vulkan/pipeline/vktPipelineMultisampleMixedAttachmentSamplesTests.cpp#L1319-L1416) | Checks extensions, NV combinations, programmable locations, shading rate, and construction support. |
 | Per-sample validation | [`VerifySamples::test`](../../../modules/vulkan/pipeline/vktPipelineMultisampleMixedAttachmentSamplesTests.cpp#L1418-L1508) | Dispatches the compute checker and consumes its checksum bits. |
 | Built-in validation | [`ShaderBuiltins::test`](../../../modules/vulkan/pipeline/vktPipelineMultisampleMixedAttachmentSamplesTests.cpp#L1824-L1905) | Renders, resolves/copies, and requires a green image. |

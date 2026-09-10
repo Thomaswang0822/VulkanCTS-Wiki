@@ -106,7 +106,7 @@ The format child is the primary behavioral axis because it changes the image's c
 | Case execution | [`testFormat()`](../../../modules/vulkan/ycbcr/vktYCbCrFormatTests.cpp#L353-L631) | Creates resources, samples, builds references, and checks results. |
 | Common image support | [`checkImageSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrUtil.cpp#L176-L204) | Checks conversion and plane feature support. |
 | Generated compute wrapper | [`ComputeShaderExecutor::generateComputeShader()`](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.cpp#L3061-L3110) | Adds buffers, invocation indexing, and the generated operation. |
-| Buffer declarations and I/O | [`declareBufferBlocks()` and `generateExecBufferIo()`](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.cpp#L2034-L2130) | Defines executor input/output resources and transfers values. |
+| Buffer declarations and I/O | [`declareBufferBlocks()` and `generateExecBufferIo()`](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.cpp#L2130-L2226) | Defines executor input/output resources and transfers values. |
 | Multi-planar format semantics | [`formats.adoc`](../../../../vulkan-docs/src/chapters/formats.adoc#L901-L965) | Defines plane components and subsampling. |
 | Sampler conversion semantics | [`samplers.adoc`](../../../../vulkan-docs/src/chapters/samplers.adoc#L773-L1045) | Defines conversion state, midpoint locations, and reconstruction. |
 

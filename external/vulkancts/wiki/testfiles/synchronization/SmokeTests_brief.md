@@ -116,11 +116,11 @@ The fence and semaphore cases load a pass-through vertex shader and a fragment s
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
 | Shader payload and custom two-queue device | [shader and device setup](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L73-L220) | Defines the semaphore configuration, graphics payload, extensions, and queue requirement. |
-| Fence checks | [`testFences()`](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1054-L1151) | Defines every checked fence result. |
-| Semaphore flow | [`testSemaphores()`](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1154-L1283) | Defines signal/wait submissions and completion checks. |
+| Fence checks | [`testFences()`](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1017-L1115) | Defines every checked fence result. |
+| Semaphore flow | [`testSemaphores()`](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1117-L1231) | Defines signal/wait submissions and completion checks. |
 | Queue-family values and support gates | [family selection and support](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1296-L1355) | Maps registered suffixes to exact values and extensions. |
-| Buffer result check | [`ignoreQueueFamilyTypeBuffer()`](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1393-L1489) | Defines barrier variants and word comparison. |
-| Image result check | [`ignoreQueueFamilyTypeImage()`](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1492-L1709) | Defines transitions, draw, copyback, and exact pixel comparison. |
+| Buffer result check | [`ignoreQueueFamilyTypeBuffer()`](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1340-L1437) | Defines barrier variants and word comparison. |
+| Image result check | [`ignoreQueueFamilyTypeImage()`](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1439-L1657) | Defines transitions, draw, copyback, and exact pixel comparison. |
 | Registration | [both smoke factories](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1725-L1781) | Shows the legacy-only fence leaf and shared leaf matrix. |
 
 ## Questions / Risk Points for User Audit

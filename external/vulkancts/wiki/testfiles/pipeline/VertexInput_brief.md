@@ -87,9 +87,9 @@ The main matrix compares a red-left/blue-right reference image with the rendered
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Attribute/binding layout construction | [`VertexInputTest::createInstance()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L516-L693) | Builds descriptions, offsets, strides, and buffers. |
-| Generated matrix shaders | [`VertexInputTest::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L695-L720) | Creates the diagnostic vertex and fragment shaders. |
-| Main image comparison | [`VertexInputInstance::verifyImage()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1776-L1816) | Defines the pass/fail image check. |
+| Attribute/binding layout construction | [`VertexInputTest::createInstance()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L518-L695) | Builds descriptions, offsets, strides, and buffers. |
+| Generated matrix shaders | [`VertexInputTest::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L697-L722) | Creates the diagnostic vertex and fragment shaders. |
+| Main image comparison | [`VertexInputInstance::verifyImage()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1778-L1818) | Defines the pass/fail image check. |
 | Focused misc cases | [`StrideChangeCase`, `UnusedBinding`, and `UnboundInput`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L2277-L3050) | Define the stride, unused-binding, and absent-attribute flows. |
 | Null-state family | [`NullState` namespace](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3054-L3333) | Builds the null vertex-input-state pipeline and checks the storage write and clear attachment. |
 | Registration | [`createVertexInputTests()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3393-L3419) | Registers the direct test-family paths and guards. |

@@ -96,7 +96,7 @@ No shader is involved in this test family. The copy is performed by fixed-functi
 - The host uploads the source and destination patterns, records a pipeline barrier from `HOST` to `TRANSFER` for the source, records the copy command, records a barrier from `TRANSFER` to `HOST` for the destination, and submits ([recordAndSubmitCommandBuffer()](../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L188)).
 - The copy command is selected by `extensionFlags`: `vkCmdCopyBuffer` for `NONE`, `vkCmdCopyBuffer2` for `COPY_COMMANDS_2`, `vkCmdCopyMemoryKHR` for `DEVICE_ADDRESS_COMMANDS` ([recordAndSubmitCommandBuffer()](../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L212-L263)).
 - After submission, the host invalidates the destination allocation and reads it back as `VK_FORMAT_R32_UINT` ([iterate()](../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L131-L139)).
-- The result is checked by [checkTestResult()](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.cpp#L1456-L1485) from the base class, which performs `intThresholdCompare` with a zero threshold against the CPU reference.
+- The result is checked by [checkTestResult()](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.cpp#L1476-L1505) from the base class, which performs `intThresholdCompare` with a zero threshold against the CPU reference.
 - The `buffer_to_buffer_with_offset` sibling uses a separate flow in [bufferOffsetTest()](../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L326): it zeroes the destination, fills the source with nonzero bytes, copies `kMaxOffset` blocks of increasing size (1 through 8), and verifies with [checkZerosAt()](../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L311) that bytes before `dstOffset` and after the copy region remain zero, while copied bytes match the source exactly.
 
 ## Failure Meaning
@@ -115,7 +115,7 @@ No shader is involved in this test family. The copy is performed by fixed-functi
 
 #### Basic copy path failure or host/device visibility failure
 
-**Possible failure symptoms:** The destination buffer does not match the CPU reference after a whole-buffer copy. `checkTestResult` reports `intThresholdCompare` failure with a zero threshold, meaning at least one byte differs from the expected value ([checkTestResult()](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.cpp#L1456-L1485)).
+**Possible failure symptoms:** The destination buffer does not match the CPU reference after a whole-buffer copy. `checkTestResult` reports `intThresholdCompare` failure with a zero threshold, meaning at least one byte differs from the expected value ([checkTestResult()](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.cpp#L1476-L1505)).
 
 **Possible implementation causes:** The source bytes were not visible to the device at copy time, or the destination bytes were not visible to the host at readback time, due to missing or incorrectly scoped memory barriers ([recordAndSubmitCommandBuffer()](../../../modules/vulkan/api/vktApiCopyBufferToBufferTests.cpp#L196-L210)). Alternatively, the driver's copy implementation did not transfer the exact bytes for the whole-buffer region. Distinguishing between visibility and copy-logic failures requires source-level investigation of the barrier setup and the driver's `vkCmdCopyBuffer` path.
 
@@ -184,6 +184,6 @@ No shader is involved in this test family. The copy is performed by fixed-functi
 | Core variant entry | [addCoreCopiesAndBlittingTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L232) | Adds the `core` variant and calls `addCopyBufferToBufferOffsetTests()`. |
 | Device-address variant entry | [addDeviceAddressTests()](../../../modules/vulkan/api/vktApiCopiesAndBlittingTests.cpp#L249) | Adds the `device_address` variant with `DEVICE_ADDRESS_COMMANDS`. |
 | Extension support check | [checkExtensionSupport()](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.cpp#L253-L281) | Gates each variant on its required extension. |
-| Result comparison | [checkTestResult()](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.cpp#L1456-L1485) | `intThresholdCompare` with zero threshold against the CPU reference. |
+| Result comparison | [checkTestResult()](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.cpp#L1476-L1505) | `intThresholdCompare` with zero threshold against the CPU reference. |
 | Test params and constants | [vktApiCopiesAndBlittingUtil.hpp#L161-L166](../../../modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp#L161-L166) | Defines `defaultSize`, `defaultQuarterSize`, and `defaultLargeSize`. |
 | Mustpass evidence | [api.txt](../../../mustpass/main/vk-default/api.txt) | Contains the registered `dEQP-VK.api.copy_and_blit.*.buffer_to_buffer.*` paths. |

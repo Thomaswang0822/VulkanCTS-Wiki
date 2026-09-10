@@ -41,7 +41,7 @@ The direct children are registered by [`populateTestGroup()`](../../../modules/v
 | Device-group mode | `device_group_` variants where registered | Separates resource-device and memory-device indices during sparse binding | [`populateTestGroup()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferTests.cpp#L2607-L2610) |
 | Helper buffer size | `2^10`, `2^12`, `2^16`, `2^17`, `2^20`, `2^24` in the binding, aliasing, and residency helpers; `2^16`, `2^18`, `2^20`, `2^24` for rebind | Changes the number and layout of sparse blocks exercised | [`vktSparseResourcesBufferSparseBinding.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferSparseBinding.cpp#L348-L356), [`vktSparseResourcesBufferRebind.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferRebind.cpp#L412-L418) |
 | Nonresident operation | copy, fill, update | Checks how commands interact with holes | [`BufferInitCommand`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferSparseResidency.cpp#L65-L83) |
-| Texel-buffer matrix | uniform or storage; sparse fetch, sparse read, or ordinary read; `2^10`, `2^16`, `2^24`; `VK_FORMAT_R32_UINT` or `VK_FORMAT_R64_UINT`; strict or non-strict | Varies the resource type, operation, format, and residency rule | [`addTexelBufferSparseResidencyTests()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferSparseResidency.cpp#L1838-L1884) |
+| Texel-buffer matrix | uniform or storage; sparse fetch, sparse read, or ordinary read; `2^10`, `2^16`, `2^24`; `VK_FORMAT_R32_UINT` or `VK_FORMAT_R64_UINT`; strict or non-strict | Varies the resource type, operation, format, and residency rule | [`addTexelBufferSparseResidencyTests()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferSparseResidency.cpp#L1837-L1883) |
 
 ## Behavior Parameters
 
@@ -401,7 +401,7 @@ void main(void)
 - The common instance requests a sparse-binding queue and a graphics/compute queue. If the families need separate queue families, it creates the buffer with concurrent sharing for those families. The base device setup reports `NotSupportedError` when the requested queues or features are unavailable ([`SparseResourcesBaseInstance`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBase.cpp#L88-L194)).
 - The host queries sparse requirements, constructs memory binds, resource holes, memory holes, or aliased binds, creates the buffer, and submits `vkQueueBindSparse`. The bind helper waits on a fence before later work uses the resource ([`bindSparseBuffer`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferTests.cpp#L788-L837)).
 - Staging data initializes bound ranges. Families then submit transfer, draw, compute, transform-feedback, indirect draw, indirect dispatch, or indirect-copy work.
-- Graphics paths copy the color image to a host-visible buffer. `imageHasErrorPixels()` treats red or blank pixels as failure ([`imageHasErrorPixels()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferTests.cpp#L447-L462)).
+- Graphics paths copy the color image to a host-visible buffer. `imageHasErrorPixels()` treats red or blank pixels as failure ([`imageHasErrorPixels()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBufferTests.cpp#L449-L463)).
 - Transfer and residency helpers compare host-visible bytes. Compute and indirect-dispatch paths compare result vectors. The test case fails when the relevant comparison finds a mismatch.
 
 ## Failure Meaning

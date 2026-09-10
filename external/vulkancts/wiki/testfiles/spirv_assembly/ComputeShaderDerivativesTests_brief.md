@@ -123,8 +123,8 @@ Detailed per-cause analysis is deferred to `## Failure Meaning` → `### Cause A
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Test case class and `checkSupport` | [`ComputeShaderDerivativeCase::checkSupport`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L2830-L2907) | Feature/property/subgroup gating logic for every test case. |
-| Test instance `iterate` | [`ComputeShaderDerivativeInstance::iterate`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L2415-L2822) | Host-side command buffer recording, dispatch/draw, and result check entry. |
+| Test case class and `checkSupport` | [`ComputeShaderDerivativeCase::checkSupport`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L2854-L2931) | Feature/property/subgroup gating logic for every test case. |
+| Test instance `iterate` | [`ComputeShaderDerivativeInstance::iterate`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L2434-L2845) | Host-side command buffer recording, dispatch/draw, and result check entry. |
 | Compute shader template | [`ShaderType::COMPUTE` block in `initPrograms`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3068-L3187) | The SPIR-V assembly string template for the compute variant. |
 | Mesh shader template | [`ShaderType::MESH` block in `initPrograms`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3188-L3353) | The SPIR-V assembly string template for the mesh variant. |
 | Task shader template | [`ShaderType::TASK` block in `initPrograms`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3354-L3477) | The SPIR-V assembly string template for the task variant. |
@@ -135,11 +135,11 @@ Detailed per-cause analysis is deferred to `## Failure Meaning` → `### Cause A
 | `quad_op` specialization | [`TestType::QUAD_OPERATIONS` block`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3557-L3588) | specMap for quad_op cases. |
 | `lod_sample` specialization | [`TestType::LOD_SAMPLE` block`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3589-L3629) | specMap for lod_op.sample cases. |
 | `lod_query` specialization | [`TestType::LOD_QUERY` block`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3630-L3671) | specMap for lod_op.query cases. |
-| Result verification | [`ComputeShaderDerivativeInstance::checkResult`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L1842-L2413) | Per-testType expected-value generation and comparison logic. |
-| Test value generator (derivative_value) | [`getTestValueCode`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L345-L424) | Builds the per-feature/variant/dataType SPIR-V fragment that computes `%test_value`. |
-| Texture coordinate generator (lod_op) | [`genTexCoords`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L489-L518) | Builds the per-feature/mipLvl SPIR-V fragment that computes texture coordinates. |
+| Result verification | [`ComputeShaderDerivativeInstance::checkResult`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L1861-L2432) | Per-testType expected-value generation and comparison logic. |
+| Test value generator (derivative_value) | [`getTestValueCode`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L359-L438) | Builds the per-feature/variant/dataType SPIR-V fragment that computes `%test_value`. |
+| Texture coordinate generator (lod_op) | [`genTexCoords`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L508-L537) | Builds the per-feature/mipLvl SPIR-V fragment that computes texture coordinates. |
 | Swap-value generators (quad_op swap) | [`getHorizontallySwappedValues` / `getVerticallySwappedValues` / `getDiagonallySwappedValues`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L621-L1123) | Host-side expected buffers for the three swap directions. |
-| Registration root | [`createComputeShaderDerivativesTests`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3729-L4176) | Builds the `compute_shader_derivatives` group and all leaves. |
+| Registration root | [`createComputeShaderDerivativesTests`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderDerivativesTests.cpp#L3767-L4235) | Builds the `compute_shader_derivatives` group and all leaves. |
 | Mustpass listing | [`spirv-assembly.txt`](../../../mustpass/main/vk-default/spirv-assembly.txt) | All test case leaves registered in the default mustpass. |
 
 ## Questions / Risk Points for User Audit

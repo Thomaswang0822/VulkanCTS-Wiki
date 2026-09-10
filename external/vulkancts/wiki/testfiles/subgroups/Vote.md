@@ -406,7 +406,7 @@ Failures shared across operation values can also come from stage-specific result
 | Framebuffer shader generation | [`initFrameBufferPrograms` and `initFrameBufferProgramsFrag`](../../../modules/vulkan/subgroups/vktSubgroupsVoteTests.cpp#L188-L303) | Builds framebuffer and helper-fragment variants with explicit SPIR-V targets. |
 | Primary shader builder | [`initPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsVoteTests.cpp#L305-L321) | Configures `initStdPrograms` for compute, graphics, mesh, and ray tracing. |
 | Support checks | [`supportedCheck` and `ssboTestSupportCheck`](../../../modules/vulkan/subgroups/vktSubgroupsVoteTests.cpp#L323-L405) | Defines feature, extension, stage, format, and required-size gates. |
-| Runtime selection | [`noSSBOtest` and `test`](../../../modules/vulkan/subgroups/vktSubgroupsVoteTests.cpp#L407-L540) | Selects framebuffer, compute, graphics, mesh, and ray-tracing harnesses. |
+| Runtime selection | [`noSSBOtest` and `test`](../../../modules/vulkan/subgroups/vktSubgroupsVoteTests.cpp#L406-L539) | Selects framebuffer, compute, graphics, mesh, and ray-tracing harnesses. |
 | Registration matrix | [`createSubgroupsVoteTests`](../../../modules/vulkan/subgroups/vktSubgroupsVoteTests.cpp#L545-L767) | Generates the exact hierarchy, leaves, and design-based exclusions. |
 | Shared shader wrappers | [`initStdFrameBufferPrograms` and `initStdPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1275-L1434) | Supplies stage declarations, resources, addressing, and result writes. |
 | Shared mask checks | [`check` and `checkComputeOrMesh`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2640-L2663) | Requires the expected value for every output element. |

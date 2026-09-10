@@ -76,7 +76,7 @@ The encode branch uses the same five H.265 profiles and the same CTS compatibili
 
 The encode branch tests main, high, and professional profiles without a film-grain parameter. It applies the same AV1 chroma and depth rules as decode, including equal depths for non-monochrome profiles.
 
-The source implements these codec rules in one compatibility function ([`validateProfileCodec`](../../../modules/vulkan/video/vktVideoProfilesValidationTests.cpp#L240-L392)).
+The source implements these codec rules in one compatibility function ([`validateProfileCodec`](../../../modules/vulkan/video/vktVideoProfilesValidationTests.cpp#L242-L394)).
 
 ## Shader Analysis
 
@@ -181,9 +181,9 @@ Vulkan defines the same chain of obligations: supported profiles return capabili
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Parameter storage and test instance | [test structures and instance declaration](../../../modules/vulkan/video/vktVideoProfilesValidationTests.cpp#L38-L125) | Shows the profile, capability chains, and validation stages held by each case. |
-| Codec compatibility rules | [`validateProfileCodec`](../../../modules/vulkan/video/vktVideoProfilesValidationTests.cpp#L240-L392) | Defines which codec, chroma, and depth combinations the test accepts. |
-| Format and image-format checks | [`validateVideoFormatsWithProfile`](../../../modules/vulkan/video/vktVideoProfilesValidationTests.cpp#L582-L744) | Cross-validates usages, component depths, decode capability flags, format features, image-format support, and format pairs. |
-| Capability decision | [`iterate`](../../../modules/vulkan/video/vktVideoProfilesValidationTests.cpp#L746-L783) | Distinguishes invalid-profile acceptance, supported execution, unsupported profiles, and unexpected query errors. |
+| Codec compatibility rules | [`validateProfileCodec`](../../../modules/vulkan/video/vktVideoProfilesValidationTests.cpp#L242-L394) | Defines which codec, chroma, and depth combinations the test accepts. |
+| Format and image-format checks | [`validateVideoFormatsWithProfile`](../../../modules/vulkan/video/vktVideoProfilesValidationTests.cpp#L584-L746) | Cross-validates usages, component depths, decode capability flags, format features, image-format support, and format pairs. |
+| Capability decision | [`iterate`](../../../modules/vulkan/video/vktVideoProfilesValidationTests.cpp#L749-L791) | Distinguishes invalid-profile acceptance, supported execution, unsupported profiles, and unexpected query errors. |
 | Generated names and registration | [`getTestName` and `createVideoProfilesValidationTests`](../../../modules/vulkan/video/vktVideoProfilesValidationTests.cpp#L1000-L1324) | Defines exact path tokens, dimensions, omission rules, and hierarchy. |
 | Vulkan video profiles | [Video Profiles](../../../../vulkan-docs/src/chapters/videocoding.adoc#L321-L390) | Defines profile fields, complete profile chains, and profile-specific error meanings. |
 | Vulkan video formats | [Video Format Capabilities](../../../../vulkan-docs/src/chapters/videocoding.adoc#L939-L1211) | Defines requested usages, returned properties, and cross-query requirements. |

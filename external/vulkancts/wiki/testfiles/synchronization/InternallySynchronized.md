@@ -143,8 +143,8 @@ void main()
 #### Additional Info
 
 - The vertex shader is fixed for all draw variants; it matters here because its location-0 output is the source of the fragment shader's red/green validation payload. [`initPrograms()`](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedTests.cpp#L1632-L1643) emits this exact pair.
-- For `small2_small2`, `runDraw()` selects `vkQueueSubmit2` for both variable workers, while the fixed `small` and `large` workers use `vkQueueSubmit`; all four workers nevertheless use the same retrieved queue. [`runDraw()`](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedTests.cpp#L1145-L1333)
-- The host checker samples the copied 8x8 output and permits a one-byte red/green tolerance; the source returns `Pass` after joining the workers without consulting `hasFailed()`. [`iterate()`](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedTests.cpp#L1420-L1584)
+- For `small2_small2`, `runDraw()` selects `vkQueueSubmit2` for both variable workers, while the fixed `small` and `large` workers use `vkQueueSubmit`; all four workers nevertheless use the same retrieved queue. [`runDraw()`](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedTests.cpp#L1143-L1331)
+- The host checker samples the copied 8x8 output and permits a one-byte red/green tolerance; the source returns `Pass` after joining the workers without consulting `hasFailed()`. [`iterate()`](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedTests.cpp#L1418-L1577)
 
 #### Parameter Variation Summary
 

@@ -48,7 +48,7 @@ This intermediate node renders values into a multisampled image, then samples it
 
 ### `storage_image`: storage-image load/store comparison
 
-This intermediate node accesses a multisampled image through storage-image operations. The test produces two layered outputs and applies [`compareImages()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2075-L2140), which permits the source-defined integer-format error handling before declaring a mismatch.
+This intermediate node accesses a multisampled image through storage-image operations. The test produces two layered outputs and applies [`compareImages()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2076-L2141), which permits the source-defined integer-format error handling before declaring a mismatch.
 
 ### `standardsampleposition`: standard-location identity
 

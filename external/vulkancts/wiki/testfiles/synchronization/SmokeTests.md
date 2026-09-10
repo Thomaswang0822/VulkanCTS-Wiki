@@ -370,11 +370,11 @@ The source does not prune queue-family suffixes by test category. The only struc
 ## Source Reference Appendix
 
 - [Semaphore configuration, shader payload, and two-queue device setup](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L73-L220)
-- [`testFences()` state and wait checks](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1054-L1151)
-- [`testSemaphores()` two-queue signal/wait flow](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1154-L1283)
+- [`testFences()` state and wait checks](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1017-L1115)
+- [`testSemaphores()` two-queue signal/wait flow](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1117-L1231)
 - [Queue-family value mapping and support checks](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1296-L1355)
-- [`ignoreQueueFamilyTypeBuffer()` barrier and word comparison](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1393-L1489)
-- [`ignoreQueueFamilyTypeImage()` transitions, rendering, and pixel comparison](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1492-L1709)
+- [`ignoreQueueFamilyTypeBuffer()` barrier and word comparison](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1340-L1437)
+- [`ignoreQueueFamilyTypeImage()` transitions, rendering, and pixel comparison](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1439-L1657)
 - [`synchronization.smoke` and `synchronization2.smoke` registration](../../../modules/vulkan/synchronization/vktSynchronizationSmokeTests.cpp#L1725-L1781)
 - [Legacy mustpass entries](../../../mustpass/main/vk-default/synchronization.txt#L60017-L60027)
 - [Synchronization2 mustpass entries](../../../mustpass/main/vk-default/synchronization2.txt#L78736-L78745)

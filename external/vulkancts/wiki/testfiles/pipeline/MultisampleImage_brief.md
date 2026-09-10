@@ -57,7 +57,7 @@ The source constructs GLSL strings for each behavior. `sampled_image` uses fragm
 ## What Is Checked
 
 - `sampled_image` compares each sample-derived checksum against the expected rendered color.
-- `storage_image` reads multisample storage-image data through two paths and compares the resulting layered images, with integer-format tolerance handling in [`compareImages()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2075-L2140).
+- `storage_image` reads multisample storage-image data through two paths and compares the resulting layered images, with integer-format tolerance handling in [`compareImages()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2076-L2141).
 - `standardsampleposition` counts checksum failures after rendering colors derived from standard sample locations.
 - `samples_mapping_order` calculates a sample-index-weighted value per pixel and requires every storage-buffer value to match the first.
 - `3d` uses its dedicated 3D image setup and checksum validation path.

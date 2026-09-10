@@ -119,8 +119,8 @@ A failure in any row can also come from incorrect active-lane ballot handling, i
 | Clustered body generator | [`getTestSrc`](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L115-L159) | Emits every cluster-size call and its independent reference loop. |
 | Program builders | [`initFrameBufferPrograms` and `initPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L161-L186) | Select stage wrappers and SPIR-V targets. |
 | Support checks | [`supportedCheck`](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L188-L254) | Defines subgroup, clustered feature, format, stage, and size-control requirements. |
-| Runtime routing | [`noSSBOtest` and `test`](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L256-L377) | Routes cases through framebuffer, compute, graphics, ray tracing, or mesh helpers. |
-| Registration matrix | [`createSubgroupsClusteredTests`](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L384-L566) | Registers stage families, operations, formats, pruning, and required-size variants. |
+| Runtime routing | [`noSSBOtest` and `test`](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L255-L376) | Routes cases through framebuffer, compute, graphics, ray tracing, or mesh helpers. |
+| Registration matrix | [`createSubgroupsClusteredTests`](../../../modules/vulkan/subgroups/vktSubgroupsClusteredTests.cpp#L383-L565) | Registers stage families, operations, formats, pruning, and required-size variants. |
 | Operation helpers | [`vktSubgroupsScanHelpers.cpp`](../../../modules/vulkan/subgroups/vktSubgroupsScanHelpers.cpp#L39-L348) | Supplies operation names, identities, reference expressions, and comparisons. |
 | Result callbacks | [`check` and `checkComputeOrMesh`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2640-L2663) | Require every read-back value to equal 1. |
 | Vulkan clustered semantics | [`shaders.adoc`](../../../../vulkan-docs/src/chapters/shaders.adoc#L3543-L3552) | Defines consecutive power-of-two partitions and supported operations. |

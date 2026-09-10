@@ -344,7 +344,7 @@ void main (void)
 | Generated shader source | [`generateSpecConstantCode`, `generateSSBOCode`, and `initPrograms`](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L330-L513) | Inserts case code into the selected shader stage. |
 | Compute runtime | [`ComputeTestInstance::iterate`](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L552-L630) | Dispatches and reads the compute SSBO. |
 | Graphics runtime | [`GraphicsTestInstance::iterate`](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L665-L830) | Draws and reads the graphics SSBO. |
-| Local-size cases | [`createWorkGroupSizeTests`](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L1593-L1711) | Defines local-size IDs and expected workgroup count. |
+| Local-size cases | [`createWorkGroupSizeTests`](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L1594-L1712) | Defines local-size IDs and expected workgroup count. |
 | Registered family | [`createSpecConstantTests`](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L2932-L2994) | Creates stages, test mechanisms, and the monolithic compute boundary. |
 | Default mustpass scope | [`external/vulkancts/mustpass/main/vk-default/pipeline/`](../../../mustpass/main/vk-default/pipeline/) | Contains the five graphics-only split lists and `monolithic/monolithic.txt`. |
 | Vulkan contract | [specialization constants and map entries](../../../../vulkan-docs/src/chapters/pipelines.adoc#L9505-L9599) | Defines pipeline-time constants, map fields, and entry validity requirements. |

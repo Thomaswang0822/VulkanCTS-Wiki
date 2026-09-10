@@ -24,7 +24,7 @@ tessellation.geometry_interaction.limits
 └── output_required_max_invocations
 ```
 
-[`createGeometryInteractionTests()`](../../../modules/vulkan/tessellation/vktTessellationTests.cpp#L52-L61) adds the `limits` family beneath `geometry_interaction`. [`createGeometryGridRenderLimitsTests()`](../../../modules/vulkan/tessellation/vktTessellationGeometryGridRenderTests.cpp#L740-L761) registers the three leaves shown above. The [Vulkan](../../../mustpass/main/vk-default/tessellation.txt#L17-L19) and [Vulkan SC](../../../mustpass/main/vksc-default/tessellation.txt#L17-L19) default mustpass lists contain all three paths.
+[`createGeometryInteractionTests()`](../../../modules/vulkan/tessellation/vktTessellationTests.cpp#L52-L61) adds the `limits` family beneath `geometry_interaction`. [`createGeometryGridRenderLimitsTests()`](../../../modules/vulkan/tessellation/vktTessellationGeometryGridRenderTests.cpp#L744-L762) registers the three leaves shown above. The [Vulkan](../../../mustpass/main/vk-default/tessellation.txt#L17-L19) and [Vulkan SC](../../../mustpass/main/vksc-default/tessellation.txt#L17-L19) default mustpass lists contain all three paths.
 
 ## Parameter Dimensions and Observed Values
 
@@ -583,7 +583,7 @@ void main (void)
 | Generated shader programs | [`GridRenderTestCase::initPrograms()`](../../../modules/vulkan/tessellation/vktTessellationGeometryGridRenderTests.cpp#L147-L430) | Emits all five graphics stages and specializes them from the selected flags. |
 | Exact image predicate | [`verifyResultLayer()`](../../../modules/vulkan/tessellation/vktTessellationGeometryGridRenderTests.cpp#L578-L616) | Defines the all-pixel green/blue threshold and error-mask output. |
 | Resource setup, draw, and copyback | [`GridRenderTestInstance::iterate()`](../../../modules/vulkan/tessellation/vktTessellationGeometryGridRenderTests.cpp#L618-L729) | Requires features, renders one patch, copies the image, and returns pass or fail. |
-| Limit-family registration | [`createGeometryGridRenderLimitsTests()`](../../../modules/vulkan/tessellation/vktTessellationGeometryGridRenderTests.cpp#L740-L761) | Registers `limits` and its three test case leaves. |
+| Limit-family registration | [`createGeometryGridRenderLimitsTests()`](../../../modules/vulkan/tessellation/vktTessellationGeometryGridRenderTests.cpp#L744-L762) | Registers `limits` and its three test case leaves. |
 | Parent family placement | [`createGeometryInteractionTests()`](../../../modules/vulkan/tessellation/vktTessellationTests.cpp#L52-L61) | Places `limits` under `tessellation.geometry_interaction`. |
 | Tessellation semantics | [Vulkan tessellation chapter](../../../../vulkan-docs/src/chapters/tessellation.adoc#tessellation) | Defines the control, fixed-function generation, and evaluation stages. |
 | Geometry shader semantics | [Vulkan geometry chapter](../../../../vulkan-docs/src/chapters/geometry.adoc#geometry) | Defines primitive input, output strips, output vertex limits, and multiple invocations. |

@@ -72,7 +72,7 @@ No shader participates. The test validates reserved object counts and pipeline-p
 
 ## Runtime Execution and Result Checking
 
-- The base iterator creates a custom instance, selects the physical device, prepares a one-queue `VkDeviceCreateInfo`, copies the default reservation structure, attaches it through `pNext`, and invokes the selected test implementation ([`DeviceObjectReservationInstance::iterate`](../../../modules/vulkan/sc/vktDeviceObjectReservationTests.cpp#L775-L816)).
+- The base iterator creates a custom instance, selects the physical device, prepares a one-queue `VkDeviceCreateInfo`, copies the default reservation structure, attaches it through `pNext`, and invokes the selected test implementation ([`DeviceObjectReservationInstance::iterate`](../../../modules/vulkan/sc/vktDeviceObjectReservationTests.cpp#L783-L824)).
 - The selected `createTestDevice` populates reservation fields and may prepend a feature structure to the chain. `performTest` then creates the requested objects using CTS wrappers or direct Vulkan calls.
 - Ordinary creation failures are surfaced by `VK_CHECK` or `TCU_CHECK`. The iterator waits for queue 0 with `queueWaitIdle`, then invokes `verifyTestResults`; the base verifier returns true after successful setup and creation ([`vktDeviceObjectReservationTests.cpp`](../../../modules/vulkan/sc/vktDeviceObjectReservationTests.cpp#L816-L845)).
 - Pipeline-pool subprocess mode retains each direct result, stops at the first non-success result after cleaning up successful pipelines, and compares the last result with the expected result ([`vktDeviceObjectReservationTests.cpp`](../../../modules/vulkan/sc/vktDeviceObjectReservationTests.cpp#L1887-L1941)).

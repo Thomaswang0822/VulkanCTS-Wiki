@@ -76,7 +76,7 @@ The shaders support valid pipeline creation and observable work. Binary identity
 
 | Topic | Source link | Why it matters |
 |---|---|---|
-| Category registration | [`createChildren`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L94-L158) | Creates `pipeline_binary` for non-shader-object construction paths |
+| Category registration | [`createChildren`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L95-L223) | Creates `pipeline_binary` for non-shader-object construction paths |
 | Basic binary families | [`addPipelineBinaryBasicTests`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L2461-L2466) | Reuses the binary mode graphics, data, and monolithic compute matrix |
 | Creation feedback family | [`addPipelineBinaryCreationFeedbackTests`](../../../modules/vulkan/pipeline/vktPipelineCreationFeedbackTests.cpp#L1513-L1520) | Adds binary-mode creation-feedback cases |
 | Dedicated registration | [`addPipelineBinaryDedicatedTests`](../../../modules/vulkan/pipeline/vktPipelineBinaryTests.cpp#L1470-L1528) | Defines the dedicated families and monolithic-only leaves |

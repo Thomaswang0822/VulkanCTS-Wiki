@@ -3,7 +3,7 @@
 **Core question:** When `VK_EXT_legacy_dithering` is enabled, does the implementation modify color output by at most one ULP (or four ULP for additive blending), and does it leave depth and stencil untouched?
 
 - [vktRenderPassDitheringTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp) implements the `dithering` test family under the `renderpasses` test category, covering `VK_EXT_legacy_dithering`.
-- The entry point [`createRenderPassDitheringTests`](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1356-L1365) attaches the family under every rendering root (`renderpass1`, `renderpass2`, and each `dynamic_rendering.*` command-buffer variant).
+- The entry point [`createRenderPassDitheringTests`](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1362-L1371) attaches the family under every rendering root (`renderpass1`, `renderpass2`, and each `dynamic_rendering.*` command-buffer variant).
 - The core test idea is a side-by-side comparison: the same draw is rendered twice with identical inputs, once without dithering and once with dithering enabled. The dithered color output must stay within a tight ULP threshold of the non-dithered reference, while depth and stencil must match exactly.
 - Three behavioral groups exercise this property under different fixed-function conditions: plain color output, depth/stencil interaction, and blending. A revision dimension (`v1`, `v2`) distinguishes the two extension spec versions, since revision 2 added the pipeline create flag used with dynamic rendering.
 
@@ -20,7 +20,7 @@ renderpasses.renderpass1.dithering
 └── v1
 ```
 
-The tree shows the `renderpass1` representative scope. The same `dithering.v1` subtree is registered under `renderpasses.renderpass2.dithering` and under every `renderpasses.dynamic_rendering.*.dithering` path. Under dynamic rendering only, an additional `v2` child is added by [`createDitheringRevision2GroupTests`](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1350-L1354). Both revisions build the same three behavioral groups (`base`, `depth_stencil`, `blend`) through the shared [`createChildren`](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1152-L1334) function, differing only in the `revision2` parameter that selects the pipeline create flag path.
+The tree shows the `renderpass1` representative scope. The same `dithering.v1` subtree is registered under `renderpasses.renderpass2.dithering` and under every `renderpasses.dynamic_rendering.*.dithering` path. Under dynamic rendering only, an additional `v2` child is added by [`createDitheringRevision2GroupTests`](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1350-L1354). Both revisions build the same three behavioral groups (`base`, `depth_stencil`, `blend`) through the shared [`createChildren`](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1158-L1340) function, differing only in the `revision2` parameter that selects the pipeline create flag path.
 
 ## Parameter Dimensions and Observed Values
 

@@ -34,7 +34,7 @@ Why it matters here:
 
 ## One Concrete Example
 
-The `compute.opnop.all` case ([`createOpNopGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L1089-L1141)) is the smallest representative of the inline compute pattern. The shader loads one `float` per invocation from the input SSBO, negates it with `OpFNegate`, and stores the result to the output SSBO. An `OpNop` is placed in the function body between the invocation-id extraction and the load. The host fills the input with 100 random positive floats in `[1, 100]`, expects the output to be the exact negation, and dispatches `100×1×1` invocations.
+The `compute.opnop.all` case ([`createOpNopGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L1091-L1143)) is the smallest representative of the inline compute pattern. The shader loads one `float` per invocation from the input SSBO, negates it with `OpFNegate`, and stores the result to the output SSBO. An `OpNop` is placed in the function body between the invocation-id extraction and the load. The host fills the input with 100 random positive floats in `[1, 100]`, expects the output to be the exact negation, and dispatches `100×1×1` invocations.
 
 ```text
 ; excerpt of the test body (full module under #### Source Code in the page)

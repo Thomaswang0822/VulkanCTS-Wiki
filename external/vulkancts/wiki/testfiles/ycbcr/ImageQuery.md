@@ -321,5 +321,5 @@ void main (void)
 | Case registration | [`populateQueryInShaderGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L548-L577) | Adds reference, YCbCr, and disjoint format cases. |
 | Query-family registration | [`populateImageQueryGroup()`](../../../modules/vulkan/ycbcr/vktYCbCrImageQueryTests.cpp#L593-L605) | Registers `ycbcr.query`, `size_lod`, and `levels`. |
 | Compute shader wrapping | [`generateComputeShader()`](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.cpp#L3061-L3122) | Wraps the generated operation in the compute executor source. |
-| Executor buffer interface | [`declareBufferBlocks()` and `generateExecBufferIo()`](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.cpp#L2034-L2130) | Defines input/output storage buffers and transports query values. |
+| Executor buffer interface | [`declareBufferBlocks()` and `generateExecBufferIo()`](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.cpp#L2130-L2226) | Defines input/output storage buffers and transports query values. |
 | Vulkan image-query semantics | [SPIR-V image queries](../../../../vulkan-docs/src/chapters/images.adoc#images-spirv-queries) | Defines the values returned by `OpImageQuerySizeLod` and `OpImageQueryLevels`. |

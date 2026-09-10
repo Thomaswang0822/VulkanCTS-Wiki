@@ -20,7 +20,7 @@ ssbo.unsized_array_length
 └── nested_unsized_arrays
 ```
 
-[`createUnsizedArrayTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L2202-L2231) creates the parent test family, and [`appendNestedUnsizedArraysTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1155-L1158) adds this test case leaf. Mustpass includes `dEQP-VK.ssbo.unsized_array_length.nested_unsized_arrays` and `dEQP-VKSC.ssbo.unsized_array_length.nested_unsized_arrays`.
+[`createUnsizedArrayTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L2213-L2242) creates the parent test family, and [`appendNestedUnsizedArraysTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1155-L1158) adds this test case leaf. Mustpass includes `dEQP-VK.ssbo.unsized_array_length.nested_unsized_arrays` and `dEQP-VKSC.ssbo.unsized_array_length.nested_unsized_arrays`.
 
 ## Parameter Dimensions and Observed Values
 
@@ -2107,7 +2107,7 @@ The test exposes one registered test case leaf, not a cross-product of user-sele
 
 | Evidence | Source |
 |---|---|
-| Registration under the parent test family | [`createUnsizedArrayTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L2202-L2231), [`appendNestedUnsizedArraysTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1155-L1158) |
+| Registration under the parent test family | [`createUnsizedArrayTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L2213-L2242), [`appendNestedUnsizedArraysTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1155-L1158) |
 | Generated structure shapes and size choices | [`NestedUnsizedArraysTestCase::generateStructure()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1027-L1104) |
 | Required descriptor-indexing features | [`NestedUnsizedArraysTestCase::checkSupport()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1106-L1117) |
 | Generated compute shader | [`NestedUnsizedArraysTestCase::initPrograms()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1119-L1151) |

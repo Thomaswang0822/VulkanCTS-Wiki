@@ -214,9 +214,9 @@ visibility-making acquire, then the result is distributed to the workgroup befor
 The host-side setup is shared by the main generated cases, while the device-side middle of the flow differs between
 `message_passing`, `write_after_read`, and `transitive`. The high-level timeline below follows the template's `[host]` /
 `[device]` format and uses sub-steps for the three shader flows. Registration and pruning are built in
-[createTests()](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2060-L2415), shader generation happens in
-[initPrograms()](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L368-L1030) and
-[initProgramsTransitive()](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1032-L1349), and runtime execution
+[createTests()](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2117-L2486), shader generation happens in
+[initPrograms()](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L386-L1086) and
+[initProgramsTransitive()](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1088-L1405), and runtime execution
 is handled by the host loop
 [vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1356-L2018).
 
@@ -285,8 +285,8 @@ is handled by the host loop
 
 | Artifact | Generated/loaded where | Role |
 |----------|------------------------|------|
-| Regular GLSL shader source | [MemoryModelTestCase::initPrograms()](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L368-L1030) | Implements `message_passing` and `write_after_read` cases across compute, vertex, and fragment stages. |
-| Transitive GLSL shader source | [MemoryModelTestCase::initProgramsTransitive()](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1032-L1349) | Implements compute-only availability/visibility-chain cases with `sharedSkip`. |
+| Regular GLSL shader source | [MemoryModelTestCase::initPrograms()](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L386-L1086) | Implements `message_passing` and `write_after_read` cases across compute, vertex, and fragment stages. |
+| Transitive GLSL shader source | [MemoryModelTestCase::initProgramsTransitive()](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1088-L1405) | Implements compute-only availability/visibility-chain cases with `sharedSkip`. |
 | Fragment helper vertex shader | Regular fragment-stage path | Draws a fullscreen triangle strip so the fragment shader can run over the test grid. |
 | Specialization constants | Host pipeline setup | Set `DIM` and `NUM_WORKGROUP_EACH_DIM`; also define compute local size through local-size IDs. |
 | Pipeline state | Host pipeline setup | Compute pipeline for compute cases; graphics pipeline for vertex/fragment cases. |
@@ -459,8 +459,8 @@ that `transitive` appears after `shared` entries in the file and includes both `
   transitive availability/visibility chains.
 - Preserve one regular `message_passing` walkthrough and one additional `transitive` walkthrough.
 - Make the reconstructed GLSL in both walkthroughs longer and effectively complete, following the generated structure from
-  [initPrograms()](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L368-L1030) and
-  [initProgramsTransitive()](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1032-L1349), rather than using
+  [initPrograms()](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L386-L1086) and
+  [initProgramsTransitive()](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1088-L1405), rather than using
   only the short conceptual snippets from this brief.
 - Preserve the resource table in a more formal final-wiki style because it directly addresses generated-artifact vs real
   Vulkan-resource confusion.

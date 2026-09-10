@@ -97,7 +97,7 @@ The format is the page's registration dimension; the blend-state combination is 
 |-------|-------------|----------------|
 | Format registration | [`addDualBlendMultiAttachmentTests()`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L1758-L1774) and [`getBlendFormats()`](../../../modules/vulkan/pipeline/vktPipelineBlendTestsCommon.cpp#L41-L89) | Defines the test case leaves and format set. |
 | Shader generation | [`DualSourceBlendMACase::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L903-L945) | Defines all three generated shader artifacts. |
-| Feature checks | [`DualSourceBlendMACase::checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L871-L901) | Defines feature, limit, construction, and format pruning. |
+| Feature checks | [`DualSourceBlendMACase::checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L872-L902) | Defines feature, limit, construction, and format pruning. |
 | Blend-state matrix | [`BlendAttachmentStateGenerator`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L952-L1155) and [`getBlendOps()`](../../../modules/vulkan/pipeline/vktPipelineBlendTestsCommon.cpp#L150-L155) | Defines the generated behavior combinations. |
 | Per-case setup and draws | [`iteratePerArgs()`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L1249-L1609) | Defines colors, clears, barriers, generic and dual-source draws, and comparisons. |
 | Pixel comparison | [`compareBuffers()`](../../../modules/vulkan/pipeline/vktPipelineDualBlendTests.cpp#L1619-L1677) | Defines the host-side tolerance check. |

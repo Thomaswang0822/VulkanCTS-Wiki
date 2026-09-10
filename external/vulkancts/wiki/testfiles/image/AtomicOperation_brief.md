@@ -110,7 +110,7 @@ The atomic-operation test family uses operation as its primary behavioral axis. 
 | Generated GLSL and specialized SPIR-V selection | [`BinaryAtomicEndResultCase::initPrograms()` and `BinaryAtomicIntermValuesCase::initPrograms()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L1194-L1418) | Builds the shaders and selects the SPIR-V templates. |
 | Resource creation, initialization, dispatch, and host synchronization | [`BinaryAtomicInstanceBase::iterate()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L1498-L1663) | Implements the shared host/device execution path. |
 | End-result and returned-value checks | [`verifyResult()`, `isValueCorrect()`, and `verifyRecursive()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L1935-L2099) | Defines the final-state and valid-sequence contracts. |
-| Matrix registration and pruning | [`createImageAtomicOperationTests()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2477-L2655) | Defines registered operations, shapes, formats, resource modes, and result-check leaves. |
+| Matrix registration and pruning | [`createImageAtomicOperationTests()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2640-L2824) | Defines registered operations, shapes, formats, resource modes, and result-check leaves. |
 
 ## Questions / Risk Points for User Audit
 

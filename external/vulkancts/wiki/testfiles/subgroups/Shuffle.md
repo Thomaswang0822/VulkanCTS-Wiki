@@ -493,7 +493,7 @@ Failures across all values can also come from shared stage plumbing, input initi
 | Shader test bodies | [`getNonClusteredTestSource()` and `getClusteredTestSource()`](../../../modules/vulkan/subgroups/vktSubgroupsShuffleTests.cpp#L227-L336) | Generates operation calls, expected indices, guards, comparisons, and cluster loops. |
 | Shader builders and SPIR-V targets | [`initFrameBufferPrograms()` and `initPrograms()`](../../../modules/vulkan/subgroups/vktSubgroupsShuffleTests.cpp#L350-L379) | Connects generated bodies to common stage builders. |
 | Support checks | [`supportedCheck()`](../../../modules/vulkan/subgroups/vktSubgroupsShuffleTests.cpp#L381-L483) | Applies feature, format, stage, and subgroup-size gates. |
-| Runtime routing | [`noSSBOtest()` and `test()`](../../../modules/vulkan/subgroups/vktSubgroupsShuffleTests.cpp#L485-L654) | Creates inputs, selects harnesses, and performs required-size sweeps. |
+| Runtime routing | [`noSSBOtest()` and `test()`](../../../modules/vulkan/subgroups/vktSubgroupsShuffleTests.cpp#L484-L653) | Creates inputs, selects harnesses, and performs required-size sweeps. |
 | Registration matrix | [`createSubgroupsShuffleTests()`](../../../modules/vulkan/subgroups/vktSubgroupsShuffleTests.cpp#L661-L860) | Generates the five direct stage families and their leaves. |
 | Common compute builder | [`initStdPrograms()`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1406-L1434) | Wraps the test body and writes one result per global invocation. |
 | Input initialization | [`initializeMemory()`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2293-L2407) | Supplies deterministic input data and flushes host writes. |

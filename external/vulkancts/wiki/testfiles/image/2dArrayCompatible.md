@@ -27,7 +27,7 @@ image.2d_array_compatible
 └── extended_create_usage
 ```
 
-[`createImage2dArrayCompatibleTests()`](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L464-L555) registers the three layer-configuration groups plus the non-Vulkan-SC extended create/usage flag cases. Each contains `linear` and `optimal`, and each tiling contains `3d`; non-Vulkan-SC builds also register `2d`. The extended cases require `VK_KHR_extended_flags`. [`createChildren()`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L100) adds this family to `image`.
+[`createImage2dArrayCompatibleTests()`](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L497-L566) registers the three layer-configuration groups plus the non-Vulkan-SC extended create/usage flag cases. Each contains `linear` and `optimal`, and each tiling contains `3d`; non-Vulkan-SC builds also register `2d`. The extended cases require `VK_KHR_extended_flags`. [`createChildren()`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L100) adds this family to `image`.
 
 The Vulkan default mustpass inventory contains all twelve leaves, while the Vulkan SC inventory contains the six `3d` leaves: [`vk-default`](../../../mustpass/main/vk-default/image/2d-array-compatible.txt) and [`vksc-default`](../../../mustpass/main/vksc-default/image/2d-array-compatible.txt).
 
@@ -277,9 +277,9 @@ Both leaves also vary the registered source/destination/depth triple and tiling.
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Test parameters and layer helpers | [Definitions and transitions](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L44-L110) | Defines the source/destination/depth parameters and the per-slice layout-transition helpers. |
-| Image, view, resource, and command setup | [`ArrayCompatibleTestInstance::iterate()`](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L112-L385) | Creates the compatible 3D image, performs transfers and dispatch, and decides pass or fail. |
+| Image, view, resource, and command setup | [`ArrayCompatibleTestInstance::iterate()`](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L114-L415) | Creates the compatible 3D image, performs transfers and dispatch, and decides pass or fail. |
 | Support checks | [`ArrayCompatibleTestCase::checkSupport()`](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L407-L429) | Requires maintenance9, verifies the requested image format configuration, and gates the 2D view path. |
 | Generated compute shader | [`ArrayCompatibleTestCase::initPrograms()`](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L431-L460) | Selects the `sampler2D` or `sampler3D` shader declaration and coordinate construction. |
-| Case registration | [`createImage2dArrayCompatibleTests()`](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L464-L524) | Registers the exact layer, tiling, and view-type matrix. |
+| Case registration | [`createImage2dArrayCompatibleTests()`](../../../modules/vulkan/image/vktImage2dArrayCompatibleTests.cpp#L497-L566) | Registers the exact layer, tiling, and view-type matrix. |
 | Parent registration | [`createChildren()`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L100) | Places `2d_array_compatible` in the `image` category. |
 | Mustpass inventories | [`vk-default`](../../../mustpass/main/vk-default/image/2d-array-compatible.txt) and [`vksc-default`](../../../mustpass/main/vksc-default/image/2d-array-compatible.txt) | Confirm the default Vulkan and Vulkan SC leaf sets. |

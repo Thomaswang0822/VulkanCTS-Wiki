@@ -519,8 +519,8 @@ void main(void)
 | Shader generation | [`testShaders()`](../../../modules/vulkan/protected_memory/vktProtectedMemYCbCrConversionTests.cpp#L585-L738) | Emits compute and fragment checks. |
 | Fragment path | [`renderYCbCrToColor()`](../../../modules/vulkan/protected_memory/vktProtectedMemYCbCrConversionTests.cpp#L781-L932) | Renders and transitions protected results. |
 | Reference generation | [`generateYCbCrImage()`](../../../modules/vulkan/protected_memory/vktProtectedMemYCbCrConversionTests.cpp#L934-L1092) | Generates source values and intervals. |
-| Case execution | [`conversionTest()`](../../../modules/vulkan/protected_memory/vktProtectedMemYCbCrConversionTests.cpp#L1094-L1226) | Connects resources and path validation. |
-| Registration | [`createYCbCrConversionTests()`](../../../modules/vulkan/protected_memory/vktProtectedMemYCbCrConversionTests.cpp#L1230-L1353) | Generates the matrix. |
+| Case execution | [`conversionTest()`](../../../modules/vulkan/protected_memory/vktProtectedMemYCbCrConversionTests.cpp#L1095-L1227) | Connects resources and path validation. |
+| Registration | [`createYCbCrConversionTests()`](../../../modules/vulkan/protected_memory/vktProtectedMemYCbCrConversionTests.cpp#L1231-L1354) | Generates the matrix. |
 | Protected memory | [`memory.adoc`](../../../../vulkan-docs/src/chapters/memory.adoc#L5564-L5653) | Defines visibility and protected operations. |
 | YCbCr conversion | [`samplers.adoc`](../../../../vulkan-docs/src/chapters/samplers.adoc#L773-L1095) | Defines conversion state and models. |
 | Descriptor count | [`capabilities.adoc`](../../../../vulkan-docs/src/chapters/capabilities.adoc#L935-L971) | Defines multi-planar descriptor consumption. |

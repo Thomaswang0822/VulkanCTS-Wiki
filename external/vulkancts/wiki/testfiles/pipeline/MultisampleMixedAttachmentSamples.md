@@ -266,7 +266,7 @@ void main(void)
 | Topic | Source reference | Evidence |
 |---|---|---|
 | Family registration | [`createMultisampleMixedAttachmentSamplesTests`](../../../modules/vulkan/pipeline/vktPipelineMultisampleMixedAttachmentSamplesTests.cpp#L2158-L2165) | Creates the `mixed_attachment_samples` family. |
-| Pipeline multisample state | [`preparePipelineWrapper`](../../../modules/vulkan/pipeline/vktPipelineMultisampleMixedAttachmentSamplesTests.cpp#L176-L252) | Sets `rasterizationSamples` and optional sample-location and coverage-reduction state. |
+| Pipeline multisample state | [`preparePipelineWrapper`](../../../modules/vulkan/pipeline/vktPipelineMultisampleMixedAttachmentSamplesTests.cpp#L177-L325) | Sets `rasterizationSamples` and optional sample-location and coverage-reduction state. |
 | Per-sample setup and draw | [`createPerSubpassData` and `draw`](../../../modules/vulkan/pipeline/vktPipelineMultisampleMixedAttachmentSamplesTests.cpp#L1200-L1317) | Creates resources, expected data, vertices, and draw inputs. |
 | Compute checker and synchronization | [`dispatchImageCheck`](../../../modules/vulkan/pipeline/vktPipelineMultisampleMixedAttachmentSamplesTests.cpp#L1094-L1198) | Dispatches image checking and makes results host-visible. |
 | Per-sample result check | [`VerifySamples::test`](../../../modules/vulkan/pipeline/vktPipelineMultisampleMixedAttachmentSamplesTests.cpp#L1418-L1508) | Checks color, depth, and stencil checksum bits. |

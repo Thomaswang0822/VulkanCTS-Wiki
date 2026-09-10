@@ -30,7 +30,7 @@ subgroups.basic
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Execution path | `graphics`, `compute`, `framebuffer`, `ray_tracing`, `mesh` | Selects pipeline type, shader-stage coverage, result transport, and runtime helper. | [`createSubgroupsBasicTests`](../../../modules/vulkan/subgroups/vktSubgroupsBasicTests.cpp#L2196-L2314) |
+| Execution path | `graphics`, `compute`, `framebuffer`, `ray_tracing`, `mesh` | Selects pipeline type, shader-stage coverage, result transport, and runtime helper. | [`createSubgroupsBasicTests`](../../../modules/vulkan/subgroups/vktSubgroupsBasicTests.cpp#L2195-L2313) |
 | Operation test case leaf stem | `subgroupelect`, `subgroupbarrier`, `subgroupmemorybarrier`, `subgroupmemorybarrierbuffer`, `subgroupmemorybarriershared`, `subgroupmemorybarrierimage` | Selects the election rule or the memory/resource class whose subgroup barrier behavior is checked. | [`OpType` and `getOpTypeName`](../../../modules/vulkan/subgroups/vktSubgroupsBasicTests.cpp#L43-L52) |
 | Framebuffer stage suffix | `fragment`, `vertex`, `tess_eval`, `tess_control`, `geometry` | Runs the tested operation in one graphics stage and returns values through an attachment rather than an SSBO. | [`fbStages`](../../../modules/vulkan/subgroups/vktSubgroupsBasicTests.cpp#L2204-L2210) |
 | Mesh stage suffix | `mesh`, `task` | Runs the same generated logic in a mesh or task shader. | [`meshStages`](../../../modules/vulkan/subgroups/vktSubgroupsBasicTests.cpp#L2211-L2216) |
@@ -441,10 +441,10 @@ void main (void)
 | Compute/mesh template | [`initComputeOrMeshPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsBasicTests.cpp#L1611-L1758) | Owns the representative compute shader and mesh/task specializations. |
 | Exact builder | [`initPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsBasicTests.cpp#L1760-L1786) | Selects SPIR-V 1.3 or 1.4 and routes the stage set. |
 | Support and runtime | [`supportedCheck` and `test`](../../../modules/vulkan/subgroups/vktSubgroupsBasicTests.cpp#L1788-L2188) | Applies feature gates, resources, helpers, callbacks, and required-size sweeps. |
-| Registration | [`createSubgroupsBasicTests`](../../../modules/vulkan/subgroups/vktSubgroupsBasicTests.cpp#L2196-L2314) | Constructs exact hierarchy and executable leaf names. |
+| Registration | [`createSubgroupsBasicTests`](../../../modules/vulkan/subgroups/vktSubgroupsBasicTests.cpp#L2195-L2313) | Constructs exact hierarchy and executable leaf names. |
 | Shared compute ballot | [`getSharedMemoryBallotHelper`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L867-L895) | Counts elected invocations for compute and mesh election. |
 | Result scan | [`checkComputeOrMesh`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2655-L2663) | Checks every compute-like result against one reference value. |
-| Compute/mesh execution | [`makeComputeOrMeshTestRequiredSubgroupSize`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L3762-L4064) | Builds, submits, reads back, and validates compute-like runs. |
+| Compute/mesh execution | [`makeComputeOrMeshTestRequiredSubgroupSize`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L3764-L4068) | Builds, submits, reads back, and validates compute-like runs. |
 | Mustpass paths | [`subgroups.txt`](../../../mustpass/main/vk-default/subgroups.txt#L18372-L18441) | Confirms the registered compute, framebuffer, graphics, mesh, and ray-tracing leaves. |
 | Subgroup semantics | [`shaders.adoc`](../../../../vulkan-docs/src/chapters/shaders.adoc#L3220-L3247) and [`shaders.adoc`](../../../../vulkan-docs/src/chapters/shaders.adoc#L3447-L3474) | Defines subgroup scope, basic operations, election, and barriers. |
 | Required size rules | [`pipelines.adoc`](../../../../vulkan-docs/src/chapters/pipelines.adoc#L1503-L1549) | Defines required subgroup size and its legal range. |

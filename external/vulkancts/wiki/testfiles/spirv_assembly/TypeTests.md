@@ -40,7 +40,7 @@ Each vector-width intermediate node contains eight type subgroups (`i8`/`i16`/`i
 | Input range | `RANGE_FULL`, `RANGE_BIT_WIDTH`, `RANGE_BIT_WIDTH_SUM` | `RANGE_FULL` passes operands unchanged; `RANGE_BIT_WIDTH` masks the second operand to the type's bit width (shift count); `RANGE_BIT_WIDTH_SUM` clamps offset+count to the bit width (bit-field) | [`combine()` binary overload](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L1339-L1422) |
 | Input width | `WIDTH_DEFAULT`, `_shift8`/`_shift16`/`_shift32`/`_shift64`, `_offset{8,16,32,64}_count{8,16,32,64}` | Selects `OpSConvert` between the test type width and the shift-count or bit-field offset/count operand width. Exercises cross-width conversion | [`getOtherSizeTypes()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L944-L975) |
 | Filter | `FILTER_NONE`, `FILTER_ZERO`, `FILTER_SIGNED_DIV`, `FILTER_NEGATIVES_AND_ZERO`, `FILTER_MIN_GT_MAX` | Excludes division by zero, signed division overflow, negative/zero divisor cases, and invalid clamp bounds so the host expected buffer matches defined SPIR-V semantics | [Filter functions](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L2822-L2855) |
-| Stage | `_comp`, `_vert`, `_tessc`, `_tesse`, `_geom`, `_frag` | Selects the shader stage that runs the assembled SPIR-V. Compute uses `SpvAsmComputeShaderCase`; graphics use the per-stage templates | [`createTestsForAllStages()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmGraphicsShaderTestUtil.cpp#L4902-L4928) |
+| Stage | `_comp`, `_vert`, `_tessc`, `_tesse`, `_geom`, `_frag` | Selects the shader stage that runs the assembled SPIR-V. Compute uses `SpvAsmComputeShaderCase`; graphics use the per-stage templates | [`createTestsForAllStages()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmGraphicsShaderTestUtil.cpp#L4901-L4927) |
 
 ## Behavior Parameters
 
@@ -147,7 +147,7 @@ This direct-SPIR-V case does not use GLSL or HLSL. CTS supplies SPIR-V assembly 
 | Operation family | Replaces the operation fragment with arithmetic, shift, bitwise, comparison, bit-field, GLSL.std.450, or constant/initializer instructions and any required result post-processing. | [Operation macros](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L4032-L4211), [`finalizeFullOperation()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L2753-L2796) |
 | Shift width | Adds a shift-count input at width 8, 16, 32, or 64 and converts it to the test type; the host masks the count to the test width. | [`getOtherSizeTypes()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L944-L975), [`combine()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L1339-L1422) |
 | Bit-field offset/count width | Adds scalar offset/count resources and converts each operand before `OpBitField*`; non-32-bit cases request `VK_KHR_maintenance9` outside VulkanSC. | [`isBitManipulationTest()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTypeTests.cpp#L1870-L1875) |
-| Stage suffix | Keeps the `test_code` operation body while selecting compute or a graphics stage through `createTestsForAllStages()`. | [`createTestsForAllStages()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmGraphicsShaderTestUtil.cpp#L4902-L4928) |
+| Stage suffix | Keeps the `test_code` operation body while selecting compute or a graphics stage through `createTestsForAllStages()`. | [`createTestsForAllStages()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmGraphicsShaderTestUtil.cpp#L4901-L4927) |
 
 #### SPIR-V
 
@@ -317,7 +317,7 @@ The host-side flow is shared across every type-test case:
 - Each case is checked independently; results are not aggregated across cases.
 - For the scalar-only switch tests, the host checks a single `int32` flag in the binding-2 SSBO equals 1 via `verifyComputeSwitchResult()` instead of comparing the output buffer.
 
-Graphics-stage variants (`_vert`/`_tessc`/`_tesse`/`_geom`/`_frag`) replace the compute dispatch with a draw through [`createTestsForAllStages()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmGraphicsShaderTestUtil.cpp#L4902-L4928). Their runner verifies the stage's rendered output and then invokes the same `resources.verifyIO` callback to compare the output SSBO; the SPIR-V `test_code` body is the same.
+Graphics-stage variants (`_vert`/`_tessc`/`_tesse`/`_geom`/`_frag`) replace the compute dispatch with a draw through [`createTestsForAllStages()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmGraphicsShaderTestUtil.cpp#L4901-L4927). Their runner verifies the stage's rendered output and then invokes the same `resources.verifyIO` callback to compare the output SSBO; the SPIR-V `test_code` body is the same.
 
 ## Failure Meaning
 

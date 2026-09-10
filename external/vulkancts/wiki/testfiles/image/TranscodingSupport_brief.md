@@ -98,7 +98,7 @@ The fragment shader samples the source at the fragment coordinate and stores the
 | Texture resource arrangement | [`GraphicsTextureTestInstance::transcode()`](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L764-L965) | Defines sampled and storage descriptor bindings, barriers, draw, and copyback. |
 | Generated shaders | [`ImageTranscodingCase::initPrograms()`](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L987-L1072) | Generates the attachment and texture fragment shaders. |
 | Support and featureless-format selection | [`isFormatUsageFlagSupported()`, `checkSupport()`, and `createInstance()`](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L1074-L1169) | Establishes supported inputs and the featureless-format condition. |
-| Test registration | [`createImageTranscodingSupportTests()`](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L1180-L1261) | Registers the four direct test families and their format leaves. |
+| Test registration | [`createImageTranscodingSupportTests()`](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L1193-L1274) | Registers the four direct test families and their format leaves. |
 | Vulkan semantics | [`resources.adoc`](../../../../vulkan-docs/src/chapters/resources.adoc#L1822-L1834) | Defines valid image usages with and without `VK_IMAGE_CREATE_EXTENDED_USAGE_BIT`. |
 
 ## Questions / Risk Points for User Audit

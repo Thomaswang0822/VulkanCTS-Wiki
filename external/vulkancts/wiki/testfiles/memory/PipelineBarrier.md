@@ -428,7 +428,7 @@ void main (void) {
 | Runtime and verification | [`MemoryTestInstance`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTestUtils.cpp#L5892-L6198) | Iterates memory types and workloads, then collects command results. |
 | Shader builders | [`AddPrograms::init()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierGraphicsTests.cpp#L3601-L3717) | Generates programs for shader-visible consumers. |
 | Test family registration | [`createPipelineBarrierTests()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L39-L47) | Registers the graphics, compute, and transfer branches. |
-| Parent registration | [`createChildren()`](../../../modules/vulkan/memory/vktMemoryTests.cpp#L52-L78) | Registers `pipeline_barrier` under `memory` for Vulkan, not Vulkan SC. |
+| Parent registration | [`createChildren()`](../../../modules/vulkan/memory/vktMemoryTests.cpp#L53-L80) | Registers `pipeline_barrier` under `memory` for Vulkan, not Vulkan SC. |
 | Default mustpass inventory | [`memory.txt`](../../../mustpass/main/vk-default/memory.txt#L5607-L5710) | Lists the default registered leaves. |
 | Vulkan synchronization semantics | [`synchronization.adoc`](../../../../vulkan-docs/src/chapters/synchronization.adoc#L114-L147) | Defines availability, visibility, and memory dependencies. |
 | Pipeline barrier specification | [`synchronization.adoc`](../../../../vulkan-docs/src/chapters/synchronization.adoc#L6508-L6685) | Defines pipeline barrier commands and dependency scopes. |

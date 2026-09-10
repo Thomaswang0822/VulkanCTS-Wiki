@@ -2,7 +2,7 @@
 
 **Core question:** For every core Vulkan format the implementation advertises as supporting uniform or storage texel buffer usage, can `vkCreateBufferView` succeed when the buffer is bound through both suballocated and dedicated-allocation memory?
 
-[`vktApiBufferViewCreateTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L1) implements the `buffer_view.create` test family. The family is registered as the `create` child of the `buffer_view` group at [`createBufferViewTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L78-L84), which the `api` test category mounts via [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L106).
+[`vktApiBufferViewCreateTests.cpp`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L1) implements the `buffer_view.create` test family. The family is registered as the `create` child of the `buffer_view` group at [`createBufferViewTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L81-L87), which the `api` test category mounts via [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L106).
 
 - The family sweeps every core Vulkan format from `VK_FORMAT_UNDEFINED + 1` through `VK_CORE_FORMAT_LAST - 1` and asks the implementation to create a `VkBufferView` for each format that the device reports as supporting the corresponding texel buffer feature.
 - Two intermediate nodes split the family by memory binding strategy: `suballocation` exercises the standard `vkAllocateMemory` plus `vkBindBufferMemory` path, and `dedicated_alloc` exercises the `VK_KHR_dedicated_allocation` path with `VkMemoryDedicatedAllocateInfo` in the `pNext` chain.
@@ -59,7 +59,7 @@ No shader is involved in this test family. The test exercises only host-side Vul
 - It calls `vkGetPhysicalDeviceFormatProperties` for the case's `VkFormat` and throws `NotSupportedError` if `properties.bufferFeatures` does not contain the required `VK_FORMAT_FEATURE_*_TEXEL_BUFFER_BIT` flag. This skips the case rather than failing it.
 - For `dedicated_alloc` cases, it throws `NotSupportedError` if the device does not support `VK_KHR_dedicated_allocation`.
 
-[`BufferViewTestInstance::iterate()`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L319-L386) executes the per-case host-side flow:
+[`BufferViewTestInstance::iterate()`](../../../modules/vulkan/api/vktApiBufferViewCreateTests.cpp#L316-L383) executes the per-case host-side flow:
 
 - Allocates a buffer of `3 * 5 * 7 * 64` bytes through the `IBufferAllocator` selected by `bufferAllocationKind`. The suballocation and dedicated-allocation allocators each perform their own `vkCreateBuffer`, memory requirements query, memory allocation, and `vkBindBufferMemory` steps, with internal pass/fail checks at each stage.
 - Creates the primary `VkBufferView` with `offset = 0` and `range = VK_WHOLE_SIZE`. A thrown `vk::Error` is caught and converted to a `tcu::TestStatus::fail` result.

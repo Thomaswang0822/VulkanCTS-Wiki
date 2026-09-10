@@ -404,7 +404,7 @@ void main (void)
 | Shared image support | [`checkImageSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrUtil.cpp#L176-L204) | Checks conversion, chroma, and disjoint format features. |
 | Generated shader dispatch | [`generateSources()`](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.cpp#L4198-L4230) | Selects the executor's shader generator for each stage. |
 | Compute wrapper | [`ComputeShaderExecutor::generateComputeShader()`](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.cpp#L3061-L3110) | Adds compute layout, input and output buffers, indexing, and the sampled operation. |
-| Buffer I/O | [`declareBufferBlocks()` and `generateExecBufferIo()`](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.cpp#L2034-L2130) | Defines executor storage buffers and transfers values to and from them. |
+| Buffer I/O | [`declareBufferBlocks()` and `generateExecBufferIo()`](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.cpp#L2130-L2226) | Defines executor storage buffers and transfers values to and from them. |
 | Multi-planar format rules | [`formats.adoc`](../../../../vulkan-docs/src/chapters/formats.adoc#L901-L965) | Defines plane components, dimensions, and subsampling. |
 | Sampler conversion rules | [`samplers.adoc`](../../../../vulkan-docs/src/chapters/samplers.adoc#L773-L1045) | Defines conversion fields, feature requirements, and reconstruction. |
 | Registered coverage | [`vk-default/ycbcr.txt`](../../../mustpass/main/vk-default/ycbcr.txt) | Lists the Vulkan mustpass leaves for the category. |

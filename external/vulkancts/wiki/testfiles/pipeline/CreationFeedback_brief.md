@@ -85,7 +85,7 @@ Compute cases create descriptor-backed storage-buffer resources and three comput
 | Feature requirements | [`BaseTestCase::checkSupport`](../../../modules/vulkan/pipeline/vktPipelineCreationFeedbackTests.cpp#L190-L210) | Shows extension and binary requirements |
 | Graphics creation lifecycle | [`GraphicsTestInstance::GraphicsTestInstance`](../../../modules/vulkan/pipeline/vktPipelineCreationFeedbackTests.cpp#L450-L669) | Creates reference, derivative, and cached or binary-backed pipelines |
 | Feedback-chain setup | [`preparePipelineWrapper`](../../../modules/vulkan/pipeline/vktPipelineCreationFeedbackTests.cpp#L671-L835) | Sets pipeline-part and stage feedback counts and pointers |
-| Graphics validation | [`GraphicsTestInstance::verifyTestResult`](../../../modules/vulkan/pipeline/vktPipelineCreationFeedbackTests.cpp#L836-L1030) | Checks flags, cache hits, base acceleration, and durations |
+| Graphics validation | [`GraphicsTestInstance::verifyTestResult`](../../../modules/vulkan/pipeline/vktPipelineCreationFeedbackTests.cpp#L834-L1029) | Checks flags, cache hits, base acceleration, and durations |
 | Compute validation | [`ComputeTestInstance::verifyTestResult`](../../../modules/vulkan/pipeline/vktPipelineCreationFeedbackTests.cpp#L1278-L1440) | Applies the feedback contract to pipeline and compute-stage records |
 | Registration | [`createTestsInternal`](../../../modules/vulkan/pipeline/vktPipelineCreationFeedbackTests.cpp#L1444-L1504) | Defines the two direct families and their construction-type gating |
 | Vulkan feedback contract | [Pipeline Creation Feedback](../../../../vulkan-docs/src/chapters/pipelines.adoc#pipelines-creation-feedback) | Defines structure fields, validity, cache-hit, base-pipeline, and duration semantics |

@@ -290,9 +290,9 @@ This reconstruction matches the artifact's `OpEntryPoint`, `Location 0`/`Locatio
 |---|---|
 | Test-family registration and construction guards | [`createVertexInputTests()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3393-L3419) |
 | Type, binding, layout, and location dimensions | [`VertexInputTest` enums](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L119-L208) |
-| Attribute and binding description generation | [`VertexInputTest::createInstance()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L516-L693) |
+| Attribute and binding description generation | [`VertexInputTest::createInstance()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L518-L695) |
 | Generated shader and component diagnostic | [`initPrograms()` and `getGlslVertexCheck()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L695-L849) |
-| Matrix image reference and comparison | [`VertexInputInstance::verifyImage()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1776-L1816) |
+| Matrix image reference and comparison | [`VertexInputInstance::verifyImage()`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L1778-L1818) |
 | Focused stride, unused-binding, and unbound-input cases | [`StrideChangeCase`, `UnusedBinding`, `UnboundInput`](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L2277-L3050) |
 | Null-state pipeline with dynamic vertex input | [`NullState` namespace](../../../modules/vulkan/pipeline/vktPipelineVertexInputTests.cpp#L3054-L3333) |
 | Mustpass coverage | [`fast-linked-library.txt`](../../../mustpass/main/vk-default/pipeline/fast-linked-library.txt), [`monolithic.txt`](../../../mustpass/main/vk-default/pipeline/monolithic/monolithic.txt), [`pipeline-library.txt`](../../../mustpass/main/vk-default/pipeline/pipeline-library.txt), and shader-object pipeline lists under [`mustpass/main/vk-default/pipeline/`](../../../mustpass/main/vk-default/pipeline/) |

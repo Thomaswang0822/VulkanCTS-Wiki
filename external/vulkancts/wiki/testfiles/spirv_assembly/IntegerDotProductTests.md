@@ -35,7 +35,7 @@ The tree expands the direct children implemented by this source file. Each famil
 | Input range | `all`, `small`, `limits`, `limits-neg`, `small-neg`, `small-nosat`, `nosat` | Controls randomized operand ranges and, for AccSat cases, whether the addend is near the maximum or minimum limit. | [`createOp*Dot*KHRComputeGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L1175-L1320) |
 | Packing and operand signs | unpacked/packed plus `ss`, `su`, `us`, `uu` | Selects ordinary vectors or the 4×8-bit packed representation and the signedness of each encoded input. | [`dotProductPacking`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L222-L225) |
 | Vector shape | `v2i8`, `v3i8`, `v4i8`, `v2i16`, `v3i16`, `v4i16`, `v2i32`, `v3i32`, `v4i32` | Changes operand element width and the number of multiplicands in each dot product. | [`dotProductVector*`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L227-L244) |
-| Result width | `out8`, `out16`, `out32` where permitted | Changes the scalar result type and its saturation limits for AccSat cases. | [`getDotProductTestName`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L533-L539) |
+| Result width | `out8`, `out16`, `out32` where permitted | Changes the scalar result type and its saturation limits for AccSat cases. | [`getDotProductTestName`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L534-L540) |
 | Workload size | `200` elements | Sets one compute invocation and one result per generated vector pair. | [`addOpSDotKHRComputeTests`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L569-L611) |
 
 ## Behavior Parameters
@@ -68,7 +68,7 @@ The behavior parameter is the direct instruction-family child under `spirv_assem
 
 ## Shader Analysis
 
-The representative case is `dEQP-VK.spirv_assembly.instruction.compute.opsdotkhr.small_ss_v4i8_out32`. CTS authors this compute module directly as SPIR-V assembly in [`generateIntegerDotProductCode`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L354-L500); there is no GLSL or HLSL source to reconstruct. The specialization below was assembled with `spirv-as`, validated with `spirv-val`, and disassembled with `spirv-dis` for the SPIR-V 1.0 environment.
+The representative case is `dEQP-VK.spirv_assembly.instruction.compute.opsdotkhr.small_ss_v4i8_out32`. CTS authors this compute module directly as SPIR-V assembly in [`generateIntegerDotProductCode`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L355-L501); there is no GLSL or HLSL source to reconstruct. The specialization below was assembled with `spirv-as`, validated with `spirv-val`, and disassembled with `spirv-dis` for the SPIR-V 1.0 environment.
 
 ### Representative Shader Walkthrough 1
 
@@ -104,7 +104,7 @@ This case checks an ordinary signed four-component 8-bit dot product and writes 
 
 #### Shader Code
 
-This representative case does not use GLSL or HLSL. CTS supplies the compute shader directly as SPIR-V assembly assembled from C++ string fragments. [`generateIntegerDotProductCode`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L354-L500) selects the capabilities, extension, types, descriptor bindings, loads, exact dot-product instruction, and store from the case parameters; the shared compute helpers contribute the entry point, `LocalSize 1 1 1`, and common types. The complete assembled, validated, and disassembled module is presented in the final `SPIR-V` subsection.
+This representative case does not use GLSL or HLSL. CTS supplies the compute shader directly as SPIR-V assembly assembled from C++ string fragments. [`generateIntegerDotProductCode`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L355-L501) selects the capabilities, extension, types, descriptor bindings, loads, exact dot-product instruction, and store from the case parameters; the shared compute helpers contribute the entry point, `LocalSize 1 1 1`, and common types. The complete assembled, validated, and disassembled module is presented in the final `SPIR-V` subsection.
 
 #### Additional Info
 
@@ -116,9 +116,9 @@ This representative case does not use GLSL or HLSL. CTS supplies the compute sha
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|-------------------------------------------|----------|
-| Instruction family | Replaces signed `OpSDotKHR` with `OpUDotKHR`, `OpSUDotKHR`, or the corresponding `AccSat` instruction; AccSat forms also load and pass an addend. | [`generateIntegerDotProductCode`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L354-L500) |
+| Instruction family | Replaces signed `OpSDotKHR` with `OpUDotKHR`, `OpSUDotKHR`, or the corresponding `AccSat` instruction; AccSat forms also load and pass an addend. | [`generateIntegerDotProductCode`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L355-L501) |
 | Packed 4×8-bit | Replaces vector operands with packed 32-bit scalars, selects `DotProductInput4x8BitPackedKHR`, and appends `PackedVectorFormat4x8BitKHR`. | [`generateIntegerDotProductCode`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L369-L414) |
-| Vector width and element width | Selects two-, three-, or four-component vectors, adjusts `ArrayStride`, emits `Int8`/`Int16` when needed, and uses `DotProductInputAllKHR` except for four-component 8-bit vectors. | [`generateIntegerDotProductTypeDeclsAndStrideDecors`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L250-L352) |
+| Vector width and element width | Selects two-, three-, or four-component vectors, adjusts `ArrayStride`, emits `Int8`/`Int16` when needed, and uses `DotProductInputAllKHR` except for four-component 8-bit vectors. | [`generateIntegerDotProductTypeDeclsAndStrideDecors`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L251-L353) |
 | Result width | Changes the scalar result and output-array type to signed or unsigned 8-, 16-, or 32-bit integers and emits the narrow-integer capability when required. | [`generateIntegerDotProductCode`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L363-L384) |
 | Accumulation | Adds binding `2` for the addend, shifts output to binding `3`, loads the addend, and supplies it to an `AccSat` instruction. | [`generateIntegerDotProductCode`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L433-L497) |
 
@@ -211,10 +211,10 @@ This representative case does not use GLSL or HLSL. CTS supplies the compute sha
 ## Runtime Execution and Result Checking
 
 - **Input generation.** Each family seeds `de::Random` from the group name. It generates 200 LHS and RHS vectors for each selected range. For a three-component vector, the fourth element of each aligned host slot is set to zero.
-- **Non-accumulating reference.** [`fillDotProductOutputs`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L493-L531) groups each invocation's operands, calls the host `dotProduct` helper, and writes one expected output scalar.
+- **Non-accumulating reference.** [`fillDotProductOutputs`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L511-L532) groups each invocation's operands, calls the host `dotProduct` helper, and writes one expected output scalar.
 - **AccSat setup.** The AccSat builders create a third input buffer. `useMaxAddend` fills it near `numeric_limits<AddendT>::max()`, while false fills it near the minimum. The input-range registrations select which of those cases runs.
 - **Dispatch.** The builders attach two input buffers and one output buffer for ordinary operations, or three inputs plus one output for AccSat operations. They dispatch `IVec3(numElements, 1, 1)`, so 200 invocations each write one scalar result.
-- **Result checking.** Ordinary cases use the compute harness's bytewise expected-output comparison. AccSat cases install [`compareDotProductAccSat`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L94-L183). For each addend/output slot, it splits the operands into same-sign and opposite-sign contributions, forms two `int64_t` partial dot products, and compares the saturated add only when both partial products are within the `AddendT` range. If either partial product is outside that range, the callback performs no comparison for that slot and continues; therefore an AccSat pass does not establish correctness for skipped slots.
+- **Result checking.** Ordinary cases use the compute harness's bytewise expected-output comparison. AccSat cases install [`compareDotProductAccSat`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L95-L184). For each addend/output slot, it splits the operands into same-sign and opposite-sign contributions, forms two `int64_t` partial dot products, and compares the saturated add only when both partial products are within the `AddendT` range. If either partial product is outside that range, the callback performs no comparison for that slot and continues; therefore an AccSat pass does not establish correctness for skipped slots.
 
 ## Failure Meaning
 
@@ -259,7 +259,7 @@ This representative case does not use GLSL or HLSL. CTS supplies the compute sha
 
 ### Requirement-based pruning
 
-- Every case requests `VK_KHR_shader_integer_dot_product` and `shaderIntegerDotProduct` through [`addDotProductExtensionAndFeatures`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L198-L220).
+- Every case requests `VK_KHR_shader_integer_dot_product` and `shaderIntegerDotProduct` through [`addDotProductExtensionAndFeatures`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIntegerDotProductTests.cpp#L199-L221).
 - An unpacked 8-bit operand or an 8-bit output also requests `shaderInt8`, `storageBuffer8BitAccess`, and `VK_KHR_8bit_storage`.
 - A 16-bit element or output requests `shaderInt16`, `storageBuffer16BitAccess`, `uniformAndStorageBuffer16BitAccess`, and `VK_KHR_16bit_storage`.
 - The legacy page records this source as non-VulkanSC only; its registrations are not available in VulkanSC builds.

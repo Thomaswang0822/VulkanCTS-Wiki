@@ -40,7 +40,7 @@ The name families group the corpus by test origin or comparison style rather tha
 |---|---|---|---|
 | Case count | 757 direct test cases | Selects one index entry and one Amber script. | [`index.txt`](../../data/vulkan/amber/graphicsfuzz/index.txt#L1-L757), [`graphicsfuzz.txt`](../../mustpass/main/vk-default/graphicsfuzz.txt#L1-L757) |
 | Index metadata | Filename, registered test name, description | Connects the registered leaf to its archived script and reader-facing case description. | [`AmberIndexFileParser::parse()`](../../modules/vulkan/amber/vktAmberTestCaseUtil.cpp#L116-L169) |
-| Optional requirements | Per-case extension, feature, property, image, and buffer requirements | Determines whether the case is supported before execution. | [`AmberIndexFileParser::parse()`](../../modules/vulkan/amber/vktAmberTestCaseUtil.cpp#L149-L163), [`AmberTestCase::checkSupport()`](../../modules/vulkan/amber/vktAmberTestCase.cpp#L203-L286) |
+| Optional requirements | Per-case extension, feature, property, image, and buffer requirements | Determines whether the case is supported before execution. | [`AmberIndexFileParser::parse()`](../../modules/vulkan/amber/vktAmberTestCaseUtil.cpp#L149-L163), [`AmberTestCase::checkSupport()`](../../modules/vulkan/amber/vktAmberTestCase.cpp#L204-L287) |
 | Corpus themes | `cov-*`, `spv-*`, `stable-*`, and direct control-flow or shader cases | Identifies common origins or comparison styles in the data; it does not create nested registered families. | [`index.txt`](../../data/vulkan/amber/graphicsfuzz/index.txt#L21-L40) |
 
 ## Behavior Parameters
@@ -89,13 +89,13 @@ A common failure cause is an inconsistent CTS-versus-Amber requirement declarati
 
 **Possible failure symptoms:** CTS reports that the Amber source could not be parsed or that the case has no executable recipe.
 
-**Possible implementation causes:** The archived script may be malformed for the Amber parser, or the CTS archive may not provide the file named by the index entry. The source checks the script result in [`AmberTestCase::parse()`](../../modules/vulkan/amber/vktAmberTestCase.cpp#L407-L432).
+**Possible implementation causes:** The archived script may be malformed for the Amber parser, or the CTS archive may not provide the file named by the index entry. The source checks the script result in [`AmberTestCase::parse()`](../../modules/vulkan/amber/vktAmberTestCase.cpp#L408-L434).
 
 #### Unsupported declared requirement
 
 **Possible failure symptoms:** The case is reported unsupported before the recipe runs, or CTS detects a mismatch between its requirements and Amber's requirements.
 
-**Possible implementation causes:** The selected physical device may lack an extension, feature, property, image capability, or buffer format required by the case. The page cannot localize a later driver defect from this pruning result; the relevant support check is [`AmberTestCase::checkSupport()`](../../modules/vulkan/amber/vktAmberTestCase.cpp#L203-L286).
+**Possible implementation causes:** The selected physical device may lack an extension, feature, property, image capability, or buffer format required by the case. The page cannot localize a later driver defect from this pruning result; the relevant support check is [`AmberTestCase::checkSupport()`](../../modules/vulkan/amber/vktAmberTestCase.cpp#L204-L287).
 
 #### Shader, pipeline, or resource expectation
 
@@ -128,9 +128,9 @@ The index is the corpus boundary. Prefixes such as `cov-`, `spv-`, and `stable-`
 | Category factory | [`createGraphicsFuzzTests()`](../../modules/vulkan/amber/vktAmberGraphicsFuzzTests.cpp#L46-L49) | Creates the root and loads `index.txt`. |
 | Index parser | [`createAmberTestsFromIndexFile()`](../../modules/vulkan/amber/vktAmberTestCaseUtil.cpp#L175-L189) | Adds one registered Amber case for each parsed entry. |
 | Index entry parser | [`AmberIndexFileParser::parse()`](../../modules/vulkan/amber/vktAmberTestCaseUtil.cpp#L116-L169) | Reads script filename, registered name, description, and requirements. |
-| Support checks | [`AmberTestCase::checkSupport()`](../../modules/vulkan/amber/vktAmberTestCase.cpp#L203-L286) | Checks extensions, features, properties, images, and buffers. |
+| Support checks | [`AmberTestCase::checkSupport()`](../../modules/vulkan/amber/vktAmberTestCase.cpp#L204-L287) | Checks extensions, features, properties, images, and buffers. |
 | Requirement consistency | [`AmberTestCase::validateRequirements()`](../../modules/vulkan/amber/vktAmberTestCase.cpp#L648-L695) | Compares CTS and Amber requirement declarations. |
-| Amber parsing | [`AmberTestCase::parse()`](../../modules/vulkan/amber/vktAmberTestCase.cpp#L407-L432) | Builds the executable Amber recipe. |
+| Amber parsing | [`AmberTestCase::parse()`](../../modules/vulkan/amber/vktAmberTestCase.cpp#L408-L434) | Builds the executable Amber recipe. |
 | Amber execution | [`AmberTestInstance::iterate()`](../../modules/vulkan/amber/vktAmberTestCase.cpp#L546-L615) | Executes the recipe and maps the result to CTS pass/fail. |
 | Corpus index | [`index.txt`](../../data/vulkan/amber/graphicsfuzz/index.txt#L1-L757) | Defines the registered GraphicsFuzz cases and their metadata. |
 | Mustpass coverage | [`graphicsfuzz.txt`](../../mustpass/main/vk-default/graphicsfuzz.txt#L1-L757) | Lists the 757 default Vulkan registered paths. |

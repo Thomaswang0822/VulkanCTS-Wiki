@@ -29,7 +29,7 @@ The `ray_tracing` and `mesh` intermediate nodes are omitted from Vulkan SC build
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
 | Shape operation | `clustered`, `quad` | Selects consecutive power-of-two partition membership or four-member quad membership. | [`getBodySource()`](../../../modules/vulkan/subgroups/vktSubgroupsShapeTests.cpp#L94-L151) |
-| Execution family | `graphics`, `compute`, `framebuffer`, `ray_tracing`, `mesh` | Routes the same membership check through different shader-stage and result-transport harnesses. | [`createSubgroupsShapeTests()`](../../../modules/vulkan/subgroups/vktSubgroupsShapeTests.cpp#L389-L500) |
+| Execution family | `graphics`, `compute`, `framebuffer`, `ray_tracing`, `mesh` | Routes the same membership check through different shader-stage and result-transport harnesses. | [`createSubgroupsShapeTests()`](../../../modules/vulkan/subgroups/vktSubgroupsShapeTests.cpp#L388-L499) |
 | Explicit stage | framebuffer: `vertex`, `tess_eval`, `tess_control`, `geometry`; mesh: `mesh`, `task` | Selects the stage that executes the subgroup shape body in stage-specific families. | [Stage arrays and registration loops](../../../modules/vulkan/subgroups/vktSubgroupsShapeTests.cpp#L399-L488) |
 | Required subgroup size | disabled, enabled for compute and mesh or task | Enabled leaves repeat the same shape check for every supported power-of-two size from the reported minimum through maximum. | [`test()` required-size loop](../../../modules/vulkan/subgroups/vktSubgroupsShapeTests.cpp#L325-L362) |
 | Cluster size | powers of two from 1 through 128, limited at runtime by `gl_SubgroupSize` | Checks every cluster partition size supported by the generated shader and current subgroup. | [`getBodySource()` clustered loop](../../../modules/vulkan/subgroups/vktSubgroupsShapeTests.cpp#L101-L127) |
@@ -418,9 +418,9 @@ A failure in either value can also come from stage-specific execution, result st
 | Program builders | [`initFrameBufferPrograms()` and `initPrograms()`](../../../modules/vulkan/subgroups/vktSubgroupsShapeTests.cpp#L168-L225) | Selects common wrappers, stage declarations, and SPIR-V 1.3 or 1.4. |
 | Support gates | [`supportedCheck()`](../../../modules/vulkan/subgroups/vktSubgroupsShapeTests.cpp#L227-L292) | Enforces operation, stage, extension, and required-size prerequisites. |
 | Runtime routing | [`test()`](../../../modules/vulkan/subgroups/vktSubgroupsShapeTests.cpp#L315-L381) | Routes execution families and iterates requested subgroup sizes. |
-| Registration | [`createSubgroupsShapeTests()`](../../../modules/vulkan/subgroups/vktSubgroupsShapeTests.cpp#L389-L500) | Generates the five intermediate nodes and 24 ordinary Vulkan mustpass leaves. |
+| Registration | [`createSubgroupsShapeTests()`](../../../modules/vulkan/subgroups/vktSubgroupsShapeTests.cpp#L388-L499) | Generates the five intermediate nodes and 24 ordinary Vulkan mustpass leaves. |
 | Common shader wrappers | [`initStdPrograms()`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1406-L1671) | Wraps the body for compute, graphics, mesh, task, and ray-tracing stages. |
-| Compute-like runtime matrix | [`makeComputeOrMeshTest()`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L4090-L4113) | Defines workgroup counts and local-size coverage. |
+| Compute-like runtime matrix | [`makeComputeOrMeshTest()`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L4094-L4118) | Defines workgroup counts and local-size coverage. |
 | Result validators | [`check()` and `checkComputeOrMesh()`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2640-L2663) | Requires every expected result marker to equal `1`. |
 | Cluster semantics | [Vulkan shader chapter](../../../../vulkan-docs/src/chapters/shaders.adoc#L3543-L3552) | Defines consecutive power-of-two clustered partitions. |
 | Quad semantics | [Vulkan shader chapter](../../../../vulkan-docs/src/chapters/shaders.adoc#L3283-L3369) | Defines four-invocation quad scope and stage availability. |

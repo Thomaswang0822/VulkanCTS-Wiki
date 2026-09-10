@@ -24,15 +24,15 @@ image.extended_usage_bit
 └── texture_write
 ```
 
-[`createImageTranscodingSupportTests()`](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L1180-L1261) registers the direct test families and their per-format test case leaves. The default Vulkan mustpass inventory contains leaves below all four families, including `dEQP-VK.image.extended_usage_bit.texture_write.r8g8b8a8_unorm`.
+[`createImageTranscodingSupportTests()`](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L1193-L1274) registers the direct test families and their per-format test case leaves. The default Vulkan mustpass inventory contains leaves below all four families, including `dEQP-VK.image.extended_usage_bit.texture_write.r8g8b8a8_unorm`.
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Direct test family | `attachment_read`, `attachment_write`, `texture_read`, `texture_write` | Selects the tested usage, its paired usage, the image that receives extended usage, and the fragment-shader access form. | [`createImageTranscodingSupportTests()`](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L1180-L1261) |
+| Direct test family | `attachment_read`, `attachment_write`, `texture_read`, `texture_write` | Selects the tested usage, its paired usage, the image that receives extended usage, and the fragment-shader access form. | [`createImageTranscodingSupportTests()`](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L1193-L1274) |
 | Featured format | Admitted formats from 8-bit, 16-bit, 24-bit, 32-bit, 48-bit, 64-bit, 96-bit, 128-bit, 192-bit, and 256-bit compatible-format lists | Supplies the view format, shader type, attachment format, and selected usage capability. | [Compatible-format lists and factory loop](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L1173-L1253) |
-| Featureless format | First compatible, framework-supported, uncompressed format that lacks the selected usage but supports the remaining image usages | Becomes the parent-image format on the extended-usage side. Its lack of the selected usage makes the case exercise the flag. | [`ImageTranscodingCase::createInstance()`](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L1103-L1169) |
+| Featureless format | First compatible, framework-supported, uncompressed format that lacks the selected usage but supports the remaining image usages | Becomes the parent-image format on the extended-usage side. Its lack of the selected usage makes the case exercise the flag. | [`ImageTranscodingCase::createInstance()`](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L1116-L1182) |
 | Tested and paired usage | Input attachment/color attachment or sampled/storage, each with transfer source and transfer destination | Creates the complementary source and destination arrangements for the selected direct family. | [Usage arrays and parameter construction](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L1188-L1250) |
 | Image shape | `IMAGE_TYPE_2D`, `UVec3(16u, 16u, 1u)`, one mip level, one layer, optimal tiling | Fixes addressing and resource shape so the matrix varies formats and usage arrangements rather than geometry. | [Factory](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L1241-L1250), [image construction](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L661-L689) |
 
@@ -277,7 +277,7 @@ void main (void)
 | Texture transcode | [`GraphicsTextureTestInstance::transcode()`](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L764-L965) | Defines the sampled-image and storage-image view arrangements and descriptor bindings. |
 | Generated shaders | [`ImageTranscodingCase::initPrograms()`](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L987-L1072) | Generates the fullscreen vertex shader and attachment or texture fragment shader. |
 | Support and candidate selection | [`isFormatUsageFlagSupported()`, `checkSupport()`, and `createInstance()`](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L1074-L1169) | Checks requirements and finds the featureless compatible format. |
-| Test registration | [`createImageTranscodingSupportTests()`](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L1180-L1261) | Registers the direct test families and per-format leaves. |
+| Test registration | [`createImageTranscodingSupportTests()`](../../../modules/vulkan/image/vktImageTranscodingSupportTests.cpp#L1193-L1274) | Registers the direct test families and per-format leaves. |
 | Default Vulkan inventory | [`extended-usage-bit.txt`](../../../mustpass/main/vk-default/image/extended-usage-bit.txt) | Confirms executable leaves under all four direct test families. |
 | Extended-usage rule | [`resources.adoc`](../../../../vulkan-docs/src/chapters/resources.adoc#L1822-L1834) | Defines valid image usages with and without `VK_IMAGE_CREATE_EXTENDED_USAGE_BIT`. |
 | View-usage rule | [`resources.adoc`](../../../../vulkan-docs/src/chapters/resources.adoc#L6771-L6797) | Defines `VkImageViewUsageCreateInfo` and its override of inherited view usage. |

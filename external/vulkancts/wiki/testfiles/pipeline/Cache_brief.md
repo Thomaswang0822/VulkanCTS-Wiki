@@ -87,12 +87,12 @@ The shaders are small fixtures used to construct and execute graphics or compute
 
 | Topic | Source link | Why it matters |
 |---|---|---|
-| Cache registration and family matrix | [createCacheTests and `createPipelineBlobTestsInternal`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L2288-L2458) | Defines the cache root, direct test families, construction-type gating, and stage combinations |
+| Cache registration and family matrix | [createCacheTests and `createPipelineBlobTestsInternal`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L2324-L2489) | Defines the cache root, direct test families, construction-type gating, and stage combinations |
 | Base cache setup and submit/check flow | [`BaseTestInstance`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L243-L323) | Creates the cache and establishes the common execution sequence |
 | Graphics cache comparison | [`GraphicsTestInstance`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L340-L1100) | Builds the two graphics pipelines and compares their results |
-| Incomplete cache blob | [`PipelineFromIncompleteBlobsTestInstance`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L1373-L1439) | Produces and consumes truncated cache data |
+| Incomplete cache blob | [`PipelineFromIncompleteBlobsTestInstance`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L1415-L1427) | Produces and consumes truncated cache data |
 | Cache merging | [`MergeBlobsTestInstance`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L1492-L1710) | Builds source/destination cache states and calls `vkMergePipelineCaches` |
-| Concurrent internal synchronization | [`InternallySynchronizedInstance::iterate`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L2075-L2240) | Exercises concurrent creation and merge, then recreates the exported cache |
+| Concurrent internal synchronization | [`InternallySynchronizedInstance::iterate`](../../../modules/vulkan/pipeline/vktPipelineCacheTests.cpp#L2179-L2277) | Exercises concurrent creation and merge, then recreates the exported cache |
 | Vulkan cache contract | [Pipeline Cache](../../../../vulkan-docs/src/chapters/pipelines.adoc#pipelines-cache) | Defines cache creation, data export, and merge semantics |
 
 ## Questions / Risk Points for User Audit

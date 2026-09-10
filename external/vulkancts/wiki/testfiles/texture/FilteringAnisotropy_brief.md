@@ -68,7 +68,7 @@ The first dispatch binds a sampler with anisotropy disabled by passing `1.0` to 
 
 [`FilteringAnisotropyTests::initPrograms`](../../../modules/vulkan/texture/vktTextureFilteringAnisotropyTests.cpp#L181-L186) selects `PROGRAM_2D_FLOAT`. [`initializePrograms`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L210-L759) generates GLSL 4.50 vertex, fragment, and compute programs. The graphics route passes a `vec2` coordinate from the vertex shader and samples a `sampler2D` with `texture(...)`. The compute route reconstructs perspective interpolation, calls `textureGrad(...)`, and writes an `rgba8` storage image. No explicit `ShaderBuildOptions` are supplied, so the source collection uses its baseline SPIR-V 1.0 target.
 
-Sampler state is generated twice per executable case. [`GraphicsBackend::createFrameResources`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L2212-L2330) and [`ComputeBackend::createFrameResources`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L2611-L2657) leave anisotropy disabled for `1.0`, and set `anisotropyEnable = VK_TRUE` with the requested value when it is greater than one.
+Sampler state is generated twice per executable case. [`GraphicsBackend::createFrameResources`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L2230-L2447) and [`ComputeBackend::createFrameResources`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L2630-L2731) leave anisotropy disabled for `1.0`, and set `anisotropyEnable = VK_TRUE` with the requested value when it is greater than one.
 
 ### Bound resources and memory objects
 
@@ -134,7 +134,7 @@ Failures shared by all three values can also come from grid upload, sampler crea
 | Support check | [`FilteringAnisotropyTests::checkSupport`](../../../modules/vulkan/texture/vktTextureFilteringAnisotropyTests.cpp#L193-L199) | Requires `samplerAnisotropy`. |
 | Registered matrix | [`createFilteringAnisotropyTests`](../../../modules/vulkan/texture/vktTextureFilteringAnisotropyTests.cpp#L207-L322) | Defines all three intermediate nodes, anisotropy requests, filters, and graphics/compute pairs. |
 | Generated shaders | [`initializePrograms`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L210-L759) | Generates the graphics `texture` path and compute `textureGrad` path. |
-| Sampler creation | [`GraphicsBackend` and `ComputeBackend`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L2212-L2330) | Converts the renderer argument into disabled or enabled Vulkan anisotropy state. |
+| Sampler creation | [`GraphicsBackend` and `ComputeBackend`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L2058-L2628) | Converts the renderer argument into disabled or enabled Vulkan anisotropy state. |
 | Sampler mapping defaults | [`mapSampler`](../../../framework/vulkan/vkImageUtil.cpp#L4472-L4509) | Maps CTS filter values, mipmap mode, LOD range, and the initial disabled anisotropy state. |
 | Mustpass examples | [`texture.txt`](../../../mustpass/main/vk-default/texture.txt#L9743-L9870) | Confirms all three intermediate nodes and paired graphics/compute leaves. |
 | Vulkan anisotropy semantics | [`textures.adoc`](../../../../vulkan-docs/src/chapters/textures.adoc#L1574-L1651) | Defines footprint scales, anisotropy ratio, sampling rate, and implementation latitude. |

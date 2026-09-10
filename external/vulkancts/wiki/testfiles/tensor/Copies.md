@@ -147,7 +147,7 @@ These are support decisions made by `checkSupport`; they do not represent failed
 | Tensor parameters | [`TensorParameters`](../../../modules/vulkan/tensor/vktTensorTestsUtil.hpp#L68-L101) | Defines rank, element count, host data size, and packed detection. |
 | Host strided storage | [`StridedMemoryUtils`](../../../framework/vulkan/vkTensorMemoryUtil.hpp#L154-L317) | Fills logical elements and resolves coordinates through byte strides. |
 | Tensor upload, readback, and clear | [`vkTensorUtil.cpp`](../../../framework/vulkan/vkTensorUtil.cpp#L41-L189) | Defines direct host access, staging aliases, barriers, waits, and invalidation. |
-| Tensor creation description | [`makeTensorDescription`](../../../framework/vulkan/vkObjUtil.cpp#L849-L867) | Passes tiling, format, dimensions, strides, and usage to tensor creation. |
+| Tensor creation description | [`makeTensorDescription`](../../../framework/vulkan/vkObjUtil.cpp#L852-L868) | Passes tiling, format, dimensions, strides, and usage to tensor creation. |
 | Tensor object and memory | [`TensorWithMemory`](../../../framework/vulkan/vkTensorWithMemory.hpp#L37-L79) | Creates a tensor and binds its allocation. |
 | Copy command semantics | [Copying Data Between Tensors](../../../../vulkan-docs/src/chapters/copies.adoc#copies-tensors) | Defines raw copying, compatible formats, and copy structures. |
 | Copy constraints | [Tensor copy valid usage](../../../../vulkan-docs/src/chapters/copies.adoc#copies-tensors-format-size-compatibility) | Defines equal dimensions, one full region, transfer features, usage, and binding requirements. |

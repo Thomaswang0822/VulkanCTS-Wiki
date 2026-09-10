@@ -409,7 +409,7 @@ void main (void)
 | Buffer and image helper implementations | [`setupImages()` and buffer helpers](../../../modules/vulkan/subgroups/vktSubgroupsUniformDescriptorIndexingTests.cpp#L438-L581) | Defines sizes, formats, colors, alignment, and views. |
 | Barriers, draw, and copyback | [`iterate()` command flow](../../../modules/vulkan/subgroups/vktSubgroupsUniformDescriptorIndexingTests.cpp#L284-L351) | Defines synchronization, render-pass execution, copyback, and queue completion. |
 | Host-side result classification | [`iterate()` result check](../../../modules/vulkan/subgroups/vktSubgroupsUniformDescriptorIndexingTests.cpp#L353-L378) | Defines the pass condition and failure messages. |
-| Category dispatcher | [`createChildren()`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L40-L81) | Establishes the non-VulkanSC include and registration boundary. |
+| Category dispatcher | [`createChildren()`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L55-L82) | Establishes the non-VulkanSC include and registration boundary. |
 | Default mustpass coverage | [`subgroups.txt`](../../../mustpass/main/vk-default/subgroups.txt#L47808-L47816) | Lists the nine executable descriptor-family paths. |
 | Descriptor-indexing expression requirements | [Descriptor resource indexing](../../../../vulkan-docs/src/chapters/interfaces.adoc#L1358-L1405) | Distinguishes the feature/capability pairs for dynamically uniform and non-uniform indexing for every descriptor class. |
 | Descriptor-indexing feature semantics | [Descriptor-indexing features](../../../../vulkan-docs/src/chapters/features.adoc#L2004-L2077) | Defines descriptor-array non-uniform-indexing feature behavior. |

@@ -125,8 +125,8 @@ The shaders provide a known attachment value rather than the behavior under test
 | Render-pass and image construction | [`makeRenderPass()` and `makeImage()`](../../../modules/vulkan/pipeline/vktPipelineRenderToImageTests.cpp#L322-L431) | Builds per-slice attachments/subpasses and Vulkan images. |
 | Program generation | [`initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineRenderToImageTests.cpp#L692-L745) | Emits the pass-through vertex and known-color fragment programs. |
 | Attachment-size execution and oracle | [`testAttachmentSize()`](../../../modules/vulkan/pipeline/vktPipelineRenderToImageTests.cpp#L1125-L1292) | Records draws, barriers, copyback, and pixel comparison. |
-| Support gates | [`checkImageViewTypeRequirements()` and `checkSupportAttachmentSize()`](../../../modules/vulkan/pipeline/vktPipelineRenderToImageTests.cpp#L1295-L1368) | Enforces feature, extension, image, and format requirements. |
-| Mipmap execution and oracle | [`testRenderToMipMaps()`](../../../modules/vulkan/pipeline/vktPipelineRenderToImageTests.cpp#L1610-L1787) | Renders, copies, and compares all mip levels. |
+| Support gates | [`checkImageViewTypeRequirements()` and `checkSupportAttachmentSize()`](../../../modules/vulkan/pipeline/vktPipelineRenderToImageTests.cpp#L1284-L1347) | Enforces feature, extension, image, and format requirements. |
+| Mipmap execution and oracle | [`testRenderToMipMaps()`](../../../modules/vulkan/pipeline/vktPipelineRenderToImageTests.cpp#L1512-L1777) | Renders, copies, and compares all mip levels. |
 | Matrix and registration | [`addTestCasesWithFunctions()` and `createRenderToImageTests()`](../../../modules/vulkan/pipeline/vktPipelineRenderToImageTests.cpp#L1852-L2029) | Generates leaves and registers `core` plus `dedicated_allocation`. |
 | Vulkan image layout contract | [Image Layouts](../../../../vulkan-docs/src/chapters/resources.adoc#L5229-L5518) | Defines image layouts and their use by commands. |
 | Vulkan synchronization contract | [Pipeline Barriers](../../../../vulkan-docs/src/chapters/synchronization.adoc#L6509-L6738) | Defines execution and memory dependencies used before transfer and host access. |

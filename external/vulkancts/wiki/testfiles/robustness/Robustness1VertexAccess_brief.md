@@ -93,7 +93,7 @@ One representative layout uses a `Vertex` structure containing `position`, `colo
 | Registered leaves and input layouts | [`robustness1Tests`](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L195-L389) | Defines the four exact identifiers, buffers, attributes, strides, and invalid indices. |
 | Padded data arrangement | [`PaddedAlloc`](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L136-L193) | Explains the recognizable data before and after the valid range. |
 | Mesh and index mapping | [`GenerateTriangles()`](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L391-L456) | Establishes the 3-by-3 grid and invalid logical vertices. |
-| Device, pipeline, draw, and image check | [`robustness1TestFn()`](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L480-L779) | Supplies the host/device timeline and final pass condition. |
+| Device, pipeline, draw, and image check | [`robustness1TestFn()`](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L479-L777) | Supplies the host/device timeline and final pass condition. |
 | Shader classification | [`Robustness1AccessTest::initPrograms()`](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L847-L900) | Defines accepted colors and green output. |
 | Robust device creation | [`createRobustBufferAccessDevice()`](../../../modules/vulkan/robustness/vktRobustnessUtil.cpp#L53-L87) | Shows that `robustBufferAccess` is enabled. |
 | Registered paths | [`robustness.txt`](../../../mustpass/main/vk-default/robustness.txt#L15026-L15029) | Confirms the four default-profile leaves. |

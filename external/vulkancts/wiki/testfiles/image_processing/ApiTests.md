@@ -23,8 +23,8 @@ image_processing.api
 
 | Dimension | Registered values | Meaning | Evidence |
 |---|---|---|---|
-| Operation | `block_matching_sad`, `block_matching_ssd`, `weight_sampling`, `box_filtering` | Selects feature and property checks. | [`createImageProcessingApiTests()`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L192-L207) |
-| Iterations | `1..20` | Repeats the deterministic query. | [`iterate()`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L104-L181) |
+| Operation | `block_matching_sad`, `block_matching_ssd`, `weight_sampling`, `box_filtering` | Selects feature and property checks. | [`createImageProcessingApiTests()`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L191-L205) |
+| Iterations | `1..20` | Repeats the deterministic query. | [`iterate()`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L130-L182) |
 
 ## Behavior Parameters
 
@@ -34,7 +34,7 @@ The operation selects the relevant feature and minimum limits:
 - `maxWeightFilterPhases` must be at least `1024`, and both dimensions of `maxWeightFilterDimension` must be at least `64` for weighted sampling;
 - both dimensions of `maxBoxFilterBlockSize` must be at least `64` for box filtering.
 
-The comparisons are implemented in [`ImageProcessingApiTestInstance::iterate()`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L104-L181).
+The comparisons are implemented in [`ImageProcessingApiTestInstance::iterate()`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L130-L182).
 
 ## Shader Analysis
 
@@ -82,6 +82,6 @@ There are no generated combinations beyond the four operation cases and repeated
 
 | Entry point | Link | Purpose |
 |---|---|---|
-| Registration | [`createImageProcessingApiTests()`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L192-L207) | Registers the four cases. |
+| Registration | [`createImageProcessingApiTests()`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L191-L205) | Registers the four cases. |
 | Checks | [`ImageProcessingApiTest`](../../../modules/vulkan/image_processing/vktImageProcessingApiTests.cpp#L75-L181) | Implements support, query, and validation behavior. |
 | Mustpass | [`image-processing.txt`](../../../mustpass/main/vk-default/image-processing.txt) | Lists the cases. |

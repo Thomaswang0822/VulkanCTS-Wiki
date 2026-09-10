@@ -86,7 +86,7 @@ No shader or generated program artifact participates in this test. The device wo
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Bind-family registration and matrix | [`createImageSparseBindingTestsCommon`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseBinding.cpp#L631-L705) | Defines roots, bind families, image types, formats, and sizes |
+| Bind-family registration and matrix | [`createImageSparseBindingTestsCommon`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseBinding.cpp#L642-L720) | Defines roots, bind families, image types, formats, and sizes |
 | Support checks | [`ImageSparseBindingCase::checkSupport`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseBinding.cpp#L107-L163) | Establishes feature, limit, and queue requirements |
 | Bind packaging | [`ImageSparseBindingInstance::iterate`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseBinding.cpp#L257-L427) | Implements the three submission layouts and device-group extension |
 | Transfer and comparison | [`ImageSparseBindingInstance::iterate`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseBinding.cpp#L429-L611) | Defines the data path and pass/fail check |

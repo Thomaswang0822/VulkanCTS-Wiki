@@ -29,7 +29,7 @@ The source creates the same two direct test families for each supported non-shad
 
 | Dimension | Registered or observed values | Meaning in this test | Evidence |
 |---|---|---|---|
-| Pipeline construction type | monolithic, pipeline library, fast-linked library | Selects the pipeline wrapper and construction path. | [`createTests()` registration](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L224-L263) |
+| Pipeline construction type | monolithic, pipeline library, fast-linked library | Selects the pipeline wrapper and construction path. | [`createTests()` registration](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L227-L267) |
 | Robustness family | `robustness`, `robustness2` | Selects the robustness enum values and feature requirements. | [`robustnessTests`](../../../modules/vulkan/pipeline/vktPipelineRobustnessCacheTests.cpp#L819-L827) |
 | Resource type | `storage`, `uniform`, `vertex_input`, `image` | Selects the out-of-bounds access being observed. | [`typeTests`](../../../modules/vulkan/pipeline/vktPipelineRobustnessCacheTests.cpp#L828-L837) |
 | Execution path | graphics, monolithic compute | Selects draw or dispatch. Compute is omitted for `vertex_input` and non-monolithic construction. | [`createPipelineRobustnessCacheTests()`](../../../modules/vulkan/pipeline/vktPipelineRobustnessCacheTests.cpp#L839-L855) |

@@ -33,7 +33,7 @@ wsi.display
 └── get_display_plane_capabilities2
 ```
 
-[`createDisplayCoverageTests`](../../../modules/vulkan/wsi/vktWsiDisplayTests.cpp#L2199-L2228) registers these names. The WSI dispatcher attaches the family at `wsi.display` in [`createWsiTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L76-L91). All 12 paths appear in the default Vulkan mustpass list at [`external/vulkancts/mustpass/main/vk-default/wsi.txt`](../../../mustpass/main/vk-default/wsi.txt#L11503-L11514).
+[`createDisplayCoverageTests`](../../../modules/vulkan/wsi/vktWsiDisplayTests.cpp#L2199-L2228) registers these names. The WSI dispatcher attaches the family at `wsi.display` in [`createWsiTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L85-L100). All 12 paths appear in the default Vulkan mustpass list at [`external/vulkancts/mustpass/main/vk-default/wsi.txt`](../../../mustpass/main/vk-default/wsi.txt#L11503-L11514).
 
 ## Parameter Dimensions and Observed Values
 
@@ -212,6 +212,6 @@ This test family has no shader code or device-side rendering. All checks operate
 | Extensible display and plane queries | [`get_display_properties2` and `get_display_plane_properties2`](../../../modules/vulkan/wsi/vktWsiDisplayTests.cpp#L1698-L1942) | Repeats enumeration checks with wrapper integrity validation. |
 | Extensible capability and mode queries | [`get_display_plane_capabilities2` and `get_display_mode_properties2`](../../../modules/vulkan/wsi/vktWsiDisplayTests.cpp#L1951-L2163) | Checks nested capabilities or modes and their wrapper headers. |
 | Registration | [`createDisplayCoverageTests`](../../../modules/vulkan/wsi/vktWsiDisplayTests.cpp#L2199-L2228) | Provides the exact test case leaf names. |
-| WSI dispatcher | [`createWsiTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L76-L91) | Places this test family at `wsi.display`. |
+| WSI dispatcher | [`createWsiTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L85-L100) | Places this test family at `wsi.display`. |
 | Vulkan display specification | [`Presenting Directly to Display Devices`](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L1299-L1400) | Defines direct-display objects and base display properties. |
 | Mustpass coverage | [`vk-default/wsi.txt`](../../../mustpass/main/vk-default/wsi.txt#L11503-L11514) | Lists all 12 registered paths in the default Vulkan mustpass set. |

@@ -70,10 +70,10 @@ The test never dispatches the compute shader. Pipeline creation is the observabl
 | Topic | Source link | Why it matters |
 |---|---|---|
 | Maintenance5 capability gate | [`checkSupport`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L60-L64) | Requires `VK_KHR_maintenance5` for its dedicated leaf |
-| Minimal compute program | [`initComputeDerivativePrograms`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L66-L78) | Defines the shared no-op `comp` shader |
-| Parent-handle creation | [`testComputeDerivativeByHandle`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L80-L127) | Creates the parent and child in separate calls and selects flags2 when requested |
-| Parent-index creation | [`testComputeDerivativeByIndex`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L129-L166) | Creates both entries in one call with base index `0` |
-| Leaf registration | [`createDerivativeTests`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L170-L186) | Registers the exact `compute` leaves |
+| Minimal compute program | [`initComputeDerivativePrograms`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L68-L80) | Defines the shared no-op `comp` shader |
+| Parent-handle creation | [`testComputeDerivativeByHandle`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L82-L129) | Creates the parent and child in separate calls and selects flags2 when requested |
+| Parent-index creation | [`testComputeDerivativeByIndex`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L131-L168) | Creates both entries in one call with base index `0` |
+| Leaf registration | [`createDerivativeTests`](../../../modules/vulkan/pipeline/vktPipelineDerivativeTests.cpp#L172-L188) | Registers the exact `compute` leaves |
 | Monolithic-only registration | [`createPipelineTests`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L198-L205) | Places the family under the monolithic construction path |
 | Derivative contract | [Pipeline Derivatives](../../../../vulkan-docs/src/chapters/pipelines.adoc#L7940-L7967) | Defines parent selection, ordering, and `ALLOW_DERIVATIVES` requirements |
 

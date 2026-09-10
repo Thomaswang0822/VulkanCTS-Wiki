@@ -114,7 +114,7 @@ A failure in any value can also come from incorrect image upload, descriptor bin
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
 | Category registration | [`createTextureTests`](../../../modules/vulkan/texture/vktTextureTests.cpp#L46-L69) | Attaches the `explicit_lod` test family directly under `texture`. |
-| Family and intermediate-node registration | [`createExplicitLodTests` and `create2DTests`](../../../modules/vulkan/texture/vktTextureFilteringExplicitLodTests.cpp#L1398-L1418) | Establishes `texture.explicit_lod.2d` and its `sizes`, `formats`, and `derivatives` descendants. |
+| Family and intermediate-node registration | [`createExplicitLodTests` and `create2DTests`](../../../modules/vulkan/texture/vktTextureFilteringExplicitLodTests.cpp#L1402-L1423) | Establishes `texture.explicit_lod.2d` and its `sizes`, `formats`, and `derivatives` descendants. |
 | Shader operation construction | [`genLookupCode`](../../../modules/vulkan/texture/vktTextureFilteringExplicitLodTests.cpp#L158-L287) and [`initSpec`](../../../modules/vulkan/texture/vktTextureFilteringExplicitLodTests.cpp#L940-L959) | Selects `textureLod` or `textureGrad` and wires its operands. |
 | Image and sampler setup | [`genTestCaseData`](../../../modules/vulkan/texture/vktTextureFilteringExplicitLodTests.cpp#L986-L1020) | Defines the full mip chain, sampler limits, address modes, and shader stage. |
 | Test data generation | [`Generator`](../../../modules/vulkan/texture/vktTextureFilteringExplicitLodTests.cpp#L1032-L1138) | Builds gradient mip levels and per-sample coordinates, LODs, or gradients. |

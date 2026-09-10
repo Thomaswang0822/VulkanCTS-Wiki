@@ -2,7 +2,7 @@
 
 **Core question:** Does a sampler apply linear texture filtering and YCbCr chroma reconstruction to supported 4:2:0 images inside the allowed precision bounds?
 
-- `vktYCbCrFilteringTests.cpp` implements the `ycbcr.filtering` test family through [`createFilteringTests()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L787-L838).
+- `vktYCbCrFilteringTests.cpp` implements the `ycbcr.filtering` test family through [`createFilteringTests()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L819-L871).
 - Each of eight explicit 4:2:0 UNORM formats receives nearest and linear chroma-filter cases for both graphics and compute execution.
 - The test fills the image planes with gradients, samples through a `VkSamplerYcbcrConversion`, and compares the observed output against bounds calculated from the source planes.
 - The page covers the registered matrix, both execution paths, one fragment shader, and the meaning of a bounds failure.
@@ -51,14 +51,14 @@ ycbcr.filtering
 └── linear_sampler_with_chroma_linear_filtering_g8_b8r8_2plane_420_unorm_graphics
 ```
 
-The direct children are generated from the eight entries in `ycbcrFormats`, the two `VkFilter` values, and the graphics/compute choice in [`createFilteringTests()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L795-L835).
+The direct children are generated from the eight entries in `ycbcrFormats`, the two `VkFilter` values, and the graphics/compute choice in [`createFilteringTests()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L819-L871).
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
 | Format | `g8_b8_r8_3plane_420_unorm`, `g8_b8r8_2plane_420_unorm`, `g10_b10_r10_3plane_420_unorm_3pack16`, `g10_b10r10_2plane_420_unorm_3pack16`, `g12_b12_r12_3plane_420_unorm_3pack16`, `g12_b12r12_2plane_420_unorm_3pack16`, `g16_b16_r16_3plane_420_unorm`, `g16_b16r16_2plane_420_unorm` | Selects plane count and component bit depth for the sampled 4:2:0 image and the reference precision. | [`ycbcrFormats`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L795-L804) |
-| Chroma filter | `VK_FILTER_NEAREST`, `VK_FILTER_LINEAR` | Selects nearest-neighbour or interpolated chroma reconstruction while texture minification and magnification remain linear. | [`createFilteringTests()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L809-L834) |
+| Chroma filter | `VK_FILTER_NEAREST`, `VK_FILTER_LINEAR` | Selects nearest-neighbour or interpolated chroma reconstruction while texture minification and magnification remain linear. | [`createFilteringTests()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L819-L871) |
 | Execution path | `graphics`, `compute` | Chooses a fragment shader and framebuffer, or a compute shader and storage-image result. | [`LinearFilteringTestCase::createInstance()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L732-L738) |
 | Image and output sizes | image `8 x 8` to output `64 x 64`; image `64 x 32` to output `32 x 64` | Exercises upsampling and a non-square size relationship while preserving pixel-center coordinates. | [`LinearFilteringTestInstance::LinearFilteringTestInstance()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L359-L367) and [`LinearFilteringComputeTestInstance::LinearFilteringComputeTestInstance()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L514-L523) |
 
@@ -138,7 +138,7 @@ void main (void)
 |---------------------|---------------------------------------|----------|
 | Chroma filter | The sampler conversion changes `chromaFilter` between `VK_FILTER_NEAREST` and `VK_FILTER_LINEAR`; the GLSL source remains the same. | [`createYCbCrConversion()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L135-L157) |
 | Format | The sampler conversion and image view use the selected 2-plane or 3-plane 4:2:0 format and its bit depth; the shader interface remains `sampler2D`. | [`createImageView()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L182-L201) and [`ycbcrFormats`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L795-L804) |
-| Execution path | Graphics uses `vert` plus `frag`; compute uses `comp`, with an additional storage-image binding and `imageStore`. | [`initPrograms()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L740-L782) and [`LinearFilteringComputeTestInstance::iterate()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L526-L675) |
+| Execution path | Graphics uses `vert` plus `frag`; compute uses `comp`, with an additional storage-image binding and `imageStore`. | [`initPrograms()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L772-L815) and [`LinearFilteringComputeTestInstance::iterate()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L557-L708) |
 
 #### SPIR-V
 
@@ -202,7 +202,7 @@ void main (void)
 - The host creates a 2D optimal-tiled image with `VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT`, allocates memory, creates a conversion-backed image view, and binds the sampled image through a combined image sampler.
 - [`fillGradient()`](../../../modules/vulkan/ycbcr/vktYCbCrUtil.cpp#L364-L388) fills every available plane with a component gradient. [`uploadImage()`](../../../modules/vulkan/ycbcr/vktYCbCrUtil.cpp#L420-L454) uploads the plane data and leaves the image in `VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL`.
 - Graphics draws a triangle strip full-screen quad and reads the `VK_FORMAT_R32G32B32A32_SFLOAT` framebuffer. Compute binds the sampled image at descriptor binding 0 and an `rgba32f` storage image at binding 1, dispatches `(width + 7) / 8` by `(height + 7) / 8` workgroups, transitions the output to `VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL`, and downloads it.
-- Both paths build pixel-center texture coordinates and call [`verifyFilteringResult()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L206-L331). That function calls [`calculateBounds()`](../../../modules/vulkan/ycbcr/vktYCbCrUtil.cpp#L1625-L1665), then fails a pixel when any result component falls below its minimum bound or exceeds its maximum bound.
+- Both paths build pixel-center texture coordinates and call [`verifyFilteringResult()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L235-L358). That function calls [`calculateBounds()`](../../../modules/vulkan/ycbcr/vktYCbCrUtil.cpp#L1625-L1665), then fails a pixel when any result component falls below its minimum bound or exceeds its maximum bound.
 
 ## Failure Meaning
 
@@ -252,11 +252,11 @@ void main (void)
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Test registration and matrix | [`createFilteringTests()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L787-L838) | Defines the `ycbcr.filtering` direct children and their parameters. |
+| Test registration and matrix | [`createFilteringTests()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L819-L871) | Defines the `ycbcr.filtering` direct children and their parameters. |
 | Sampler conversion setup | [`createYCbCrConversion()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L135-L157) | Sets the YCbCr model, range, sample locations, and chroma filter. |
-| Graphics path | [`LinearFilteringTestInstance::iterate()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L389-L488) | Creates the sampled image, draws the quad, and checks framebuffer pixels. |
-| Compute path | [`LinearFilteringComputeTestInstance::iterate()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L526-L675) | Dispatches the compute shader, copies the output, and checks downloaded pixels. |
+| Graphics path | [`LinearFilteringTestInstance::iterate()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L417-L517) | Creates the sampled image, draws the quad, and checks framebuffer pixels. |
+| Compute path | [`LinearFilteringComputeTestInstance::iterate()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L557-L708) | Dispatches the compute shader, copies the output, and checks downloaded pixels. |
 | Support checks | [`LinearFilteringTestCase::checkSupport()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L704-L730) | Defines feature-based case pruning. |
-| Shader generation | [`LinearFilteringTestCase::initPrograms()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L740-L782) | Emits the vertex, fragment, and compute GLSL. |
-| Result validation | [`verifyFilteringResult()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L206-L331) | Compares every output component with calculated bounds. |
+| Shader generation | [`LinearFilteringTestCase::initPrograms()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L772-L815) | Emits the vertex, fragment, and compute GLSL. |
+| Result validation | [`verifyFilteringResult()`](../../../modules/vulkan/ycbcr/vktYCbCrFilteringTests.cpp#L235-L358) | Compares every output component with calculated bounds. |
 | Reference image setup | [`fillGradient()`](../../../modules/vulkan/ycbcr/vktYCbCrUtil.cpp#L364-L388) and [`calculateBounds()`](../../../modules/vulkan/ycbcr/vktYCbCrUtil.cpp#L1625-L1665) | Creates source gradients and derives permitted sampled intervals. |

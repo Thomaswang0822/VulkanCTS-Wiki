@@ -84,8 +84,8 @@ The source registers the same family under several pipeline-construction roots. 
 |-------|-------------|----------------|
 | Test registration | [`addAttachmentTestCasesWithFunctions`](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L1938-L2096) | Builds every test case leaf and applies construction-type exclusions. |
 | Family entry point | [`createFramebufferAttachmentTests`](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L2101-L2105) | Registers `framebuffer_attachment`. |
-| Larger-attachment path | [`test`](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L359-L655) | Clears, renders, copies, and compares a larger attachment. |
-| No-attachment path | [`testNoAtt`](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L768-L954) | Uses storage-image output without color attachments. |
+| Larger-attachment path | [`test`](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L363-L656) | Clears, renders, copies, and compares a larger attachment. |
+| No-attachment path | [`testNoAtt`](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L775-L955) | Uses storage-image output without color attachments. |
 | Multiple-attachment path | [`testMultiAttachments`](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L1017-L1364) | Checks different-size and not-exported attachment behavior. |
 | Resolve/input path | [`testInputResolveSameAttachment`](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L1478-L1752) | Exercises input attachment and resolve target pairing. |
 | Unused-attachment path | [`testUnusedAtt`](../../../modules/vulkan/pipeline/vktPipelineFramebufferAttachmentTests.cpp#L1754-L1783) | Completes a render pass with `VK_ATTACHMENT_UNUSED`. |

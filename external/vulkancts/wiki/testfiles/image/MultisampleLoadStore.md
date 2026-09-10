@@ -29,7 +29,7 @@ Each image-type intermediate node contains format groups and `samples_<count>` t
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
 | Image type | `2d`, `2d_array` | Chooses a one-layer 2D texture or a four-layer 2D-array texture. | [`textures`](../../../modules/vulkan/image/vktImageMultisampleLoadStoreTests.cpp#L543-L549) |
-| View binding | all layers; `<format>_single_layer` for `2d_array` | Chooses an array view and one z-sized dispatch, or a 2D view and one dispatch per layer. | [`insertImageViews()`](../../../modules/vulkan/image/vktImageMultisampleLoadStoreTests.cpp#L242-L264) |
+| View binding | all layers; `<format>_single_layer` for `2d_array` | Chooses an array view and one z-sized dispatch, or a 2D view and one dispatch per layer. | [`insertImageViews()`](../../../modules/vulkan/image/vktImageMultisampleLoadStoreTests.cpp#L243-L265) |
 | Sample count | `2`, `4`, `8`, `16`, `32`, `64` | Sets the number of `imageStore` and `imageLoad` operations each invocation performs. | [`samples`](../../../modules/vulkan/image/vktImageMultisampleLoadStoreTests.cpp#L567-L570) |
 | Format | `r32g32b32a32_sfloat`, `r16g16b16a16_sfloat`, `r32_sfloat`, `r32g32b32a32_uint`, `r16g16b16a16_uint`, `r8g8b8a8_uint`, `r32_uint`, `r32g32b32a32_sint`, `r16g16b16a16_sint`, `r8g8b8a8_sint`, `r32_sint`, `r8g8b8a8_unorm`, `r8g8b8a8_snorm`, and non-VulkanSC `a8_unorm` | Chooses image declaration type, value conversion, and comparison rule. | [`formats`](../../../modules/vulkan/image/vktImageMultisampleLoadStoreTests.cpp#L551-L565) |
 

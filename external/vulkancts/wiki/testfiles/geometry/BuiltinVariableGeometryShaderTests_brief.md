@@ -147,10 +147,10 @@ For every leaf, the final pass/fail decision is made by comparing the rendered i
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
 | Built-in test enum | [VariableTest](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L64-L70) | Enumerates the implemented built-in-variable modes. |
-| Fixed positions and attributes | [genVertexAttribData()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L103-L132) | Defines the five shared inputs and the restart index data. |
-| Indexed draw path | [drawCommand()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L161-L170) | Switches only the restarted leaf to `vkCmdDrawIndexed`. |
+| Fixed positions and attributes | [genVertexAttribData()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L104-L133) | Defines the five shared inputs and the restart index data. |
+| Indexed draw path | [drawCommand()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L162-L172) | Switches only the restarted leaf to `vkCmdDrawIndexed`. |
 | Feature gates | [checkSupport()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L194-L200) | Requires geometry shaders and point-size support when needed. |
-| Shader generation | [BuiltinVariableRenderTest::initPrograms()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L202-L419) | Generates the GLSL/HLSL stages for each leaf. |
+| Shader generation | [BuiltinVariableRenderTest::initPrograms()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L203-L420) | Generates the GLSL/HLSL stages for each leaf. |
 | Shared render/compare path | [GeometryExpanderRenderTestInstance::iterate()](../../../modules/vulkan/geometry/vktGeometryBasicClass.cpp#L71-L202) | Creates the render target, draws, copies back, and calls the file-image comparator. |
 | Reference PNG comparison | [compareWithFileImage()](../../../modules/vulkan/geometry/vktGeometryTestsUtil.cpp#L412-L425) | Loads `vulkan/data/geometry/<testName>.png` and performs image comparison. |
 | Registration | [createBuiltinVariableGeometryShaderTests()](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L428-L448) | Registers `in_block` and `outside_block` leaves. |

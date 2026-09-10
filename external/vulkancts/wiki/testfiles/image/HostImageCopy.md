@@ -47,7 +47,7 @@ image.host_image_copy
 └── simple
 ```
 
-[`createImageHostImageCopyTests()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L5008-L5013) creates the `host_image_copy` group and delegates its contents to [`testGenerator()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L4353-L5005). The image category adds it only outside VulkanSC ([guarded parent registration](../../../modules/vulkan/image/vktImageTests.cpp#L49-L51), [child addition](../../../modules/vulkan/image/vktImageTests.cpp#L92-L94)).
+[`createImageHostImageCopyTests()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L5008-L5013) creates the `host_image_copy` group and delegates its contents to [`testGenerator()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L4365-L5018). The image category adds it only outside VulkanSC ([guarded parent registration](../../../modules/vulkan/image/vktImageTests.cpp#L49-L51), [child addition](../../../modules/vulkan/image/vktImageTests.cpp#L92-L94)).
 
 ## Parameter Dimensions and Observed Values
 
@@ -410,12 +410,12 @@ void main()
 | Helpers and main parameters | [`generateData()`, feature helper, and parameter model](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L118-L297) | Defines test bytes, format-feature support, and main-matrix configuration. |
 | Main runtime | [`HostImageCopyTestInstance::iterate()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L391-L1201) | Executes the main host/queue routes, observer, and comparison. |
 | Main support and shaders | [`HostImageCopyTestCase`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L1204-L1407) | Checks feature/layout support and generates shaders. |
-| Preinitialized/image-to-image runtime | [`PreinitializedTestInstance::iterate()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L1488-L1739) | Covers allocation data, host image-to-image copies, memcpy, and readback. |
-| Preinitialized support | [`PreinitializedTestCase::checkSupport()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L1783-L1910) | Defines configuration-dependent extension, layout, format, and layer gates. |
+| Preinitialized/image-to-image runtime | [`PreinitializedTestInstance::iterate()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L1492-L1744) | Covers allocation data, host image-to-image copies, memcpy, and readback. |
+| Preinitialized support | [`PreinitializedTestCase::checkSupport()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L1787-L1915) | Defines configuration-dependent extension, layout, format, and layer gates. |
 | Properties and query | [`PropertiesTestInstance` and `QueryTestInstance`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L1924-L2180) | Validates returned extension properties and performance-query relationships. |
-| Identical memory layout | [`IdenticalMemoryLayoutTestInstance::iterate()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L2414-L2584) | Compares paired allocation byte layouts. |
-| Depth/stencil | [`DepthStencilHostImageCopyInstance::iterate()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L2860-L3210) | Defines aspect-specific copies, rendering, and expected-value checks. |
-| Array | [`HostImageArrayCopyTestInstance::iterate()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L3246-L3434) | Defines layered host memory/image/image copy flow. |
-| Simple | [`SimpleHostImageCopyTestInstance::iterate()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L3927-L4220) | Defines broad direct round-trip and special-format validation. |
-| Registration | [`testGenerator()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L4353-L5005) | Defines hierarchy, axes, and design pruning. |
-| Parent registration | [`createChildren()`](../../../modules/vulkan/image/vktImageTests.cpp#L49-L100) | Places the family in `image` and shows the VulkanSC guard. |
+| Identical memory layout | [`IdenticalMemoryLayoutTestInstance::iterate()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L2403-L2579) | Compares paired allocation byte layouts. |
+| Depth/stencil | [`DepthStencilHostImageCopyInstance::iterate()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L2854-L3205) | Defines aspect-specific copies, rendering, and expected-value checks. |
+| Array | [`HostImageArrayCopyTestInstance::iterate()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L3240-L3429) | Defines layered host memory/image/image copy flow. |
+| Simple | [`SimpleHostImageCopyTestInstance::iterate()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L3939-L4233) | Defines broad direct round-trip and special-format validation. |
+| Registration | [`testGenerator()`](../../../modules/vulkan/image/vktImageHostImageCopyTests.cpp#L4365-L5018) | Defines hierarchy, axes, and design pruning. |
+| Parent registration | [`createChildren()`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L101) | Places the family in `image` and shows the VulkanSC guard. |

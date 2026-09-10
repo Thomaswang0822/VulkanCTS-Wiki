@@ -104,7 +104,7 @@ The first two values are the registered linear shader direction. Optimal leaves 
 |-------|-------------|----------------|
 | Test-category registration | [`createTests`](../../../modules/vulkan/tensor/vktTensorTests.cpp#L37-L49) | Adds `basic_access` below `tensor`. |
 | Basic-access registration | [`createBasicAccessTests`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L1025-L1036) | Creates the test family and adds format, layout, staging, offset, max-rank, and DMA cases. |
-| Linear and optimal matrix | [`addShaderAccessTests`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L853-L953) | Defines shapes, packed/non-packed strides, directions, optimal cases, forced staging, offset, and max-rank leaves. |
+| Linear and optimal matrix | [`addShaderAccessTests`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L854-L954) | Defines shapes, packed/non-packed strides, directions, optimal cases, forced staging, offset, and max-rank leaves. |
 | DMA matrix | [`addDmaHeapBufferAccessTestInternal`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L956-L1013) | Registers DMA-heap, staging, and offset variants. |
 | Shader generation | [`genShaderTensorAccess`](../../../modules/vulkan/tensor/shaders/vktTensorAccessShaders.cpp#L40-L94) | Emits tensor declarations, dimension queries, coordinate mapping, and read/write operation. |
 | Format mapping | [`getTensorFormat`](../../../modules/vulkan/tensor/shaders/vktTensorShaderUtil.cpp#L39-L71) | Maps Vulkan formats to GLSL types. |

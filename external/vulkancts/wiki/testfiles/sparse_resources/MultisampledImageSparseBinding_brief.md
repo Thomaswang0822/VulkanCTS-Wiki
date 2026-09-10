@@ -79,7 +79,7 @@ The format list covers floating-point, unsigned-integer, and signed-integer stor
 | Support checks and generated shader | [`MultisampledImageSparseBindingCase`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMultisampledImageSparseBinding.cpp#L139-L214) | Defines feature gates, format checks, and shader behavior. |
 | Sparse image creation and opaque binds | [`MultisampledImageSparseBindingInstance::iterate`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMultisampledImageSparseBinding.cpp#L246-L368) | Shows complete alignment-sized binding and semaphore ordering. |
 | Dispatch and result checking | [`MultisampledImageSparseBindingInstance::iterate`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMultisampledImageSparseBinding.cpp#L419-L518) | Defines execution, copyback, and pass/fail behavior. |
-| Registration matrix | [`createSparseResourcesMultisampledImageCommonTests`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMultisampledImageSparseBinding.cpp#L671-L713) | Defines exact format and sample-count paths. |
+| Registration matrix | [`createSparseResourcesMultisampledImageCommonTests`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMultisampledImageSparseBinding.cpp#L670-L707) | Defines exact format and sample-count paths. |
 | Sparse binding semantics | [`Sparse Resource Features`](../../../../vulkan-docs/src/chapters/sparsemem.adoc#sparsememory-sparseresourcefeatures) | Defines sparse binding and multisampled sparse-residency distinctions. |
 
 ## Questions / Risk Points for User Audit

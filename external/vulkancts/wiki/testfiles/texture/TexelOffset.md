@@ -375,7 +375,7 @@ Because this family has no varying behavior parameter, any failure means that at
 | Texture dispatcher | [`createTextureTests`](../../../modules/vulkan/texture/vktTextureTests.cpp#L48-L66) | Places `texel_offset` under the Vulkan `texture` test category and excludes Vulkan SC. |
 | Family registration | [`createTextureTexelOffsetTests`](../../../modules/vulkan/texture/vktTextureTexelOffsetTests.cpp#L36-L55) | Registers the sole test case leaf and Amber filename. |
 | Executable recipe | [`texel_offset.amber`](../../../data/vulkan/amber/texture/texel_offset/texel_offset.amber#L1-L58) | Defines both shaders, resources, pipelines, draws, and the exact expectation. |
-| Amber GLSL compilation | [`AmberTestCase::initPrograms`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L435-L499) | Selects SPIR-V 1.0 by default and inserts the fragment shader sources. |
+| Amber GLSL compilation | [`AmberTestCase::initPrograms`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L436-L545) | Selects SPIR-V 1.0 by default and inserts the fragment shader sources. |
 | Amber execution | [`AmberTestInstance::iterate`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L546-L615) | Executes the recipe with Vulkan and maps its result to CTS pass or fail. |
 | Sampler defaults | [`Sampler` data members](../../../../amber/src/src/sampler.h#L98-L110) | Defines nearest filters, repeat addressing, and normalized coordinates used by the bare `SAMPLER` declaration. |
 | Default mustpass | [`texture.txt`](../../../mustpass/main/vk-default/texture.txt#L25669) | Confirms the exact executable Vulkan path. |

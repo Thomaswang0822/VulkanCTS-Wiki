@@ -49,7 +49,7 @@ The dispatcher has no behavioral parameter of its own. Its only behavior choice 
 
 ## Shader Analysis
 
-The dispatcher source is registration-only: [`createTests`](../../../modules/vulkan/data_graph/vktDataGraphTests.cpp#L39-L47) constructs the root and forwards each direct child to a factory, but contains no shader source, shader selection, shader-module build, or shader execution. The child implementations own any shader behavior, including the TOSA-backed paths represented in mustpass. This page is therefore recorded in the source-reviewed no-walkthrough exception registry; adding a representative shader here would misattribute child behavior to the dispatcher.
+The dispatcher source is registration-only: [`createTests`](../../../modules/vulkan/data_graph/vktDataGraphTests.cpp#L44-L58) constructs the root and forwards each direct child to a factory, but contains no shader source, shader selection, shader-module build, or shader execution. The child implementations own any shader behavior, including the TOSA-backed paths represented in mustpass. This page is therefore recorded in the source-reviewed no-walkthrough exception registry; adding a representative shader here would misattribute child behavior to the dispatcher.
 
 ## Runtime Execution and Result Checking
 

@@ -23,7 +23,7 @@ image.general_layout
 └── msaa
 ```
 
-[`createImageGeneralLayoutTests()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2304-L2373) registers the four families. `memory_barrier` and the ASTC host-copy leaves are absent when `CTS_USES_VULKANSC` is defined. Each family has a separate parameter matrix described below.
+[`createImageGeneralLayoutTests()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2253-L2370) registers the four families. `memory_barrier` and the ASTC host-copy leaves are absent when `CTS_USES_VULKANSC` is defined. Each family has a separate parameter matrix described below.
 
 ## Parameter Dimensions and Observed Values
 
@@ -275,11 +275,11 @@ The factory fixes the ASTC operations, barrier combinations, input-attachment co
 
 | Topic | Source reference |
 |-------|------------------|
-| ASTC setup, operations, validation, and support gates | [`AstcSampleTestInstance::iterate()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L239-L599), [`AstcSampleCase::checkSupport()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L617-L635) |
-| Generated ASTC and memory-barrier programs | [`AstcSampleCase::initPrograms()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L642-L665), [`MemoryBarrierCase::initPrograms()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L1091-L1165) |
+| ASTC setup, operations, validation, and support gates | [`AstcSampleTestInstance::iterate()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L239-L599), [`AstcSampleCase::checkSupport()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L620-L638) |
+| Generated ASTC and memory-barrier programs | [`AstcSampleCase::initPrograms()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L645-L668), [`MemoryBarrierCase::initPrograms()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L1037-L1111) |
 | Memory-barrier resource setup, synchronization, and comparisons | [`MemoryBarrierTestInstance::iterate()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L690-L1063) |
-| Input-attachment execution, generated programs, and support gates | [`InputAttachmentTestInstance::iterate()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L1197-L1719), [`InputAttachmentCase`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L1721-L1791) |
-| MSAA setup, validation, generated programs, and support gate | [`MsaaTestInstance::iterate()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L1812-L2237), [`MsaaCase`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2239-L2300) |
-| Registration | [`createImageGeneralLayoutTests()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2304-L2373) |
+| Input-attachment execution, generated programs, and support gates | [`InputAttachmentTestInstance::iterate()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L1143-L1667), [`InputAttachmentCase`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L1721-L1791) |
+| MSAA setup, validation, generated programs, and support gate | [`MsaaTestInstance::iterate()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L1760-L2186), [`MsaaCase`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2239-L2300) |
+| Registration | [`createImageGeneralLayoutTests()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2253-L2370) |
 | Vulkan layout and synchronization semantics | [`resources.adoc`](../../../../vulkan-docs/src/chapters/resources.adoc), [`synchronization.adoc`](../../../../vulkan-docs/src/chapters/synchronization.adoc) |
 | Copy, render-pass, and dynamic local-read semantics | [`copies.adoc`](../../../../vulkan-docs/src/chapters/copies.adoc), [`renderpass.adoc`](../../../../vulkan-docs/src/chapters/renderpass.adoc) |

@@ -318,7 +318,7 @@ These checks report unsupported cases rather than failed tensor results.
 |-------------|------|----------------|
 | Tensor category registration | [`createTests`](../../../modules/vulkan/tensor/vktTensorTests.cpp#L37-L49) | Adds the `basic_access` test family below `tensor`. |
 | Basic-access registration | [`createBasicAccessTests`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L1025-L1036) | Defines the page boundary and format-type instantiations. |
-| Linear and special-case matrix | [`addShaderAccessTests`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L853-L953) | Registers shapes, strides, directions, staging, offsets, optimal leaves, and max-rank leaves. |
+| Linear and special-case matrix | [`addShaderAccessTests`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L854-L954) | Registers shapes, strides, directions, staging, offsets, optimal leaves, and max-rank leaves. |
 | DMA matrix | [`addDmaHeapBufferAccessTestInternal`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L956-L1013) | Registers DMA-BUF, staging, and DMA-offset leaves. |
 | Linear runtime | [`LinearTensorAccessTestInstance::iterate`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L401-L616) | Creates resources, dispatches, synchronizes, transfers, and compares. |
 | Optimal runtime | [`OptimalTensorAccessTestInstance::iterate`](../../../modules/vulkan/tensor/vktTensorBasicShaderAccess.cpp#L618-L850) | Runs buffer-to-tensor-to-buffer and compares the two host buffers. |

@@ -30,7 +30,7 @@ binding_model.inline_uniform_blocks
 └── copy_from_offset_nonzero
 ```
 
-The parent binding-model factory attaches this family under `binding_model` ([`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L72)). The family factory creates the `inline_uniform_blocks` test family and adds the write and copy leaves ([`createDescriptorInlineUniformTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L846-L853)). The nine exact leaves appear in the default mustpass list ([`binding-model.txt`](../../../mustpass/main/vk-default/binding-model.txt#L46183-L46191)).
+The parent binding-model factory attaches this family under `binding_model` ([`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L54-L80)). The family factory creates the `inline_uniform_blocks` test family and adds the write and copy leaves ([`createDescriptorInlineUniformTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L846-L853)). The nine exact leaves appear in the default mustpass list ([`binding-model.txt`](../../../mustpass/main/vk-default/binding-model.txt#L46183-L46191)).
 
 ## Parameter Dimensions and Observed Values
 
@@ -235,7 +235,7 @@ void main()
 - The fixed vertex shader and generated fragment shader are compiled into the graphics pipeline. The command buffer clears the framebuffer red, binds the pipeline and all descriptor sets, draws six vertices, ends the render pass, and copies the image to the output buffer ([pipeline and draw](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L604-L656)).
 - After waiting for the submission, the host invalidates the output allocation and calls `verifyResultImage`. The function compares all `1 x 16` pixels against exact green with a zero threshold. The test returns `Pass` only if every pixel matches; otherwise it returns `Fail("Rendered image(s) are incorrect")` ([verification](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L464-L483), [final status](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L659-L666)).
 
-The shader checks only slots whose `m_updateStatus` is not `UPD_STATUS_NONE`. The source computes `updIdx = offset / 4` and `updSize = size / 4`, then loops while `i < updSize`. For offset zero, this covers the requested slot count. For a nonzero offset, the loop does not use `updIdx + updSize` as its upper bound. For example, offset 4 and size 8 mark only index 1. This is source-side coverage behavior, not a Vulkan definition of the byte range ([`changeStatus`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L109-L155)).
+The shader checks only slots whose `m_updateStatus` is not `UPD_STATUS_NONE`. The source computes `updIdx = offset / 4` and `updSize = size / 4`, then loops while `i < updSize`. For offset zero, this covers the requested slot count. For a nonzero offset, the loop does not use `updIdx + updSize` as its upper bound. For example, offset 4 and size 8 mark only index 1. This is source-side coverage behavior, not a Vulkan definition of the byte range ([`changeStatus`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L149-L156)).
 
 ## Failure Meaning
 
@@ -312,13 +312,13 @@ The three copy rows classify operation shape, not an exclusive fault location. `
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Binding-model category attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L72) | Attaches the `inline_uniform_blocks` family under `binding_model`. |
+| Binding-model category attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L54-L80) | Attaches the `inline_uniform_blocks` family under `binding_model`. |
 | Descriptor data and slot model | [`InlineUniformBlockDescriptor`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L78-L155) | Defines byte capacity, four-byte slot storage, initial values, verification data, and update status. |
 | Write operation | [`InlineUniformBlockWrite`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L160-L211) | Builds `VkWriteDescriptorSetInlineUniformBlockEXT` data and records destination ranges. |
 | Copy operation | [`InlineUniformBlockCopy`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L215-L272) | Records source and destination bindings, offsets, and copy size. |
 | Operation bookkeeping | [`DescriptorOps`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L280-L385) | Computes expected copy data and orders writes before copies. |
 | Descriptor pool, layouts, and updates | [`DescriptorInlineUniformTestInstance::iterate()`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L486-L573) | Creates descriptor resources and submits the tested writes and copies. |
-| Generated vertex and fragment programs | [`DescriptorInlineUniformTestCase::initPrograms()`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L699-L763) | Defines the shader-visible blocks, comparisons, and diagnostic colors. |
+| Generated vertex and fragment programs | [`DescriptorInlineUniformTestCase::initPrograms()`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L704-L764) | Defines the shader-visible blocks, comparisons, and diagnostic colors. |
 | Host result check | [`verifyResultImage()`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L464-L483) | Compares the rendered image with exact green. |
 | Write case registration | [`createInlineUniformWriteTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L766-L798) | Defines the four exact write leaves. |
 | Copy case registration | [`createInlineUniformCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L800-L843) | Defines the five exact copy leaves. |

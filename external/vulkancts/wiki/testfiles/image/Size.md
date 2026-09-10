@@ -29,7 +29,7 @@ image.image_size
 └── buffer
 ```
 
-[`createImageSizeTests()`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L558-L611) creates these eight direct subgroups. The image category registers the family through [`createChildren()`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L100).
+[`createImageSizeTests()`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L559-L613) creates these eight direct subgroups. The image category registers the family through [`createChildren()`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L100).
 
 ## Parameter Dimensions and Observed Values
 
@@ -129,7 +129,7 @@ void main (void)
 
 #### Additional Info
 
-- [`SizeTest::initPrograms()`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L236-L270) generates this source shape. It selects `image1D` for the 1D kind and appends `readonly` from the selected flag.
+- [`SizeTest::initPrograms()`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L237-L271) generates this source shape. It selects `image1D` for the 1D kind and appends `readonly` from the selected flag.
 - Other image kinds change the generated image type and the conversion to `ivec3`; the test still uses one compute invocation and the same output-buffer layout.
 
 #### Parameter Variation Summary
@@ -274,8 +274,8 @@ void main (void)
 |-------------|------|----------------|
 | Texture construction and expected size | [`getTexture()` and `getExpectedImageSizeResult()`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L57-L168) | Defines the resource shape and the expected query result for every image kind. |
 | Support and generated shader | [`SizeTest::checkSupport()` and `SizeTest::initPrograms()`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L210-L270) | Defines feature and format gates plus the generated GLSL. |
-| Execution and comparison | [`SizeTestInstance::iterate()`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L312-L387) | Records the dispatch, synchronizes the result buffer, and applies the pass/fail comparison. |
+| Execution and comparison | [`SizeTestInstance::iterate()`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L332-L388) | Records the dispatch, synchronizes the result buffer, and applies the pass/fail comparison. |
 | Image and buffer resource paths | [instance implementations](../../../modules/vulkan/image/vktImageSizeTests.cpp#L389-L546) | Shows the distinct descriptors and resources used for images and texel buffers. |
-| Case matrix registration | [`createImageSizeTests()`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L558-L611) | Registers all image-kind groups and generates qualifier, extent, and 2D-view cases. |
+| Case matrix registration | [`createImageSizeTests()`](../../../modules/vulkan/image/vktImageSizeTests.cpp#L559-L613) | Registers all image-kind groups and generates qualifier, extent, and 2D-view cases. |
 | Category registration | [`vktImageTests.cpp`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L100) | Adds `image_size` to the image category. |
 | Default SPIR-V target | [`getBaselineSpirvVersion()`](../../../framework/vulkan/vkPrograms.cpp#L1048-L1052) | Supplies SPIR-V 1.0 when this shader source does not provide explicit build options. |

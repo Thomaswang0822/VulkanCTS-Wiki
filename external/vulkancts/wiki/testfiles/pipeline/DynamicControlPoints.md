@@ -312,7 +312,7 @@ The family fixes the dynamic count at three and uses exactly two draws. The pipe
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| Pipeline-category registration | [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L94-L113) | Adds this family for each pipeline construction path. |
+| Pipeline-category registration | [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L95-L223) | Adds this family for each pipeline construction path. |
 | Family registration | [`createDynamicControlPointTests()`](../../../modules/vulkan/pipeline/vktPipelineDynamicControlPoints.cpp#L429-L458) | Defines all leaf configurations and expected colors. |
 | Support checks | [`DynamicControlPointsTestCase::checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineDynamicControlPoints.cpp#L116-L126) | Requires tessellation and dynamic patch-control-point support. |
 | Program generation | [`DynamicControlPointsTestCase::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineDynamicControlPoints.cpp#L128-L235) | Builds the tessellation programs and the output/winding variants. |

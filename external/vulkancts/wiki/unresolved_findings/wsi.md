@@ -26,7 +26,7 @@ Vulkan 的 `VkSurfaceFormatKHR` 将一个图像格式和一个 `VkColorSpaceKHR`
 
 ### 观察到的代码路径
 
-在 [`colorspaceCompareTest`](../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L425-L563) 中，测试先 acquire image，提交绘制并调用 `vkQueuePresentKHR`。随后，对刚刚 present 的同一个 `swapchainImages[imageNdx]` 直接调用 `getPixel`：
+在 [`colorspaceCompareTest`](../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L423-L560) 中，测试先 acquire image，提交绘制并调用 `vkQueuePresentKHR`。随后，对刚刚 present 的同一个 `swapchainImages[imageNdx]` 直接调用 `getPixel`：
 
 ```cpp
 vkQueuePresentKHR(..., &swapchainImages[imageNdx], ...);

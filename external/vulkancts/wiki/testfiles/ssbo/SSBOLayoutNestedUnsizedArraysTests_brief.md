@@ -96,7 +96,7 @@ The registered test has one test case leaf. The generated outer length is the pr
 | Topic | Source link | Why it matters |
 |---|---|---|
 | Test registration | [`appendNestedUnsizedArraysTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1155-L1158) | Adds the exact `nested_unsized_arrays` test case leaf. |
-| Parent registration | [`createUnsizedArrayTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L2202-L2231) | Places the leaf under `ssbo.unsized_array_length`. |
+| Parent registration | [`createUnsizedArrayTests()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L2213-L2242) | Places the leaf under `ssbo.unsized_array_length`. |
 | Structure generation | [`generateStructure()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1027-L1104) | Defines generated types, fixed arrays, and the final unsized array. |
 | Feature gate | [`NestedUnsizedArraysTestCase::checkSupport()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1106-L1117) | Requires both descriptor-array features. |
 | Shader generation | [`NestedUnsizedArraysTestCase::initPrograms()`](../../../modules/vulkan/ssbo/vktSSBOLayoutNestedUnsizedArraysTests.cpp#L1119-L1151) | Emits the compute shader, `std430` block, and non-uniform root access. |

@@ -170,8 +170,8 @@ The registered type array contains only `vec4` and `scalar`; the source enum's m
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Direct SPIR-V generation | [MakeShader()](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L839-L1239) | Builds capabilities, declarations, pointer selection, and load/store operations. |
+| Direct SPIR-V generation | [MakeShader()](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L805-L1204) | Builds capabilities, declarations, pointer selection, and load/store operations. |
 | Device and support setup | [Support and device creation](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L67-L87) | Enables required robustness and variable-pointer features. |
 | Runtime environments | [Instance setup](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1352-L1540) | Creates buffers, descriptors, and compute/graphics execution. |
-| Result verification | [verifyResult()](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1632-L1848) | Defines accepted values and final status. |
+| Result verification | [verifyResult()](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1545-L1761) | Defines accepted values and final status. |
 | Registration | [Factory](../../../modules/vulkan/robustness/vktRobustBufferAccessWithVariablePointersTests.cpp#L1790-L1895) | Defines the registered hierarchy and leaf matrix. |

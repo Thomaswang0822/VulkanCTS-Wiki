@@ -86,7 +86,7 @@ A failure limited to a sparse suffix can also indicate sparse-image allocation, 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
 | Feature checks | [`checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineImage2DViewOf3DTests.cpp#L831-L839) | Gates the required extension features. |
-| Resource setup and validation | [`iterate()`](../../../modules/vulkan/pipeline/vktPipelineImage2DViewOf3DTests.cpp#L409-L806) | Creates the image and view, runs work, and compares output. |
+| Resource setup and validation | [`iterate()`](../../../modules/vulkan/pipeline/vktPipelineImage2DViewOf3DTests.cpp#L399-L802) | Creates the image and view, runs work, and compares output. |
 | Test registration | [`createImage2DViewOf3DTests()`](../../../modules/vulkan/pipeline/vktPipelineImage2DViewOf3DTests.cpp#L1014-L1071) | Generates descriptor, mip, layer, and sparse variants. |
 | Pipeline dispatcher | [`createChildren()`](../../../modules/vulkan/pipeline/vktPipelineTests.cpp#L123-L124) | Attaches the family outside Vulkan SC. |
 

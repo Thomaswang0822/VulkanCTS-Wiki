@@ -106,12 +106,12 @@ The test family is the primary behavioral axis because it changes the resource o
 | Topic | Source link | Why it matters |
 |---|---|---|
 | Case definitions and format predicate | [`case definitions`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L78-L303) | Defines formats, routes, reference colors, and pair filtering. |
-| Generated shader programs | [`initPrograms()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L363-L536) | Shows the exact draw, storage, load, and texture shader branches. |
-| Mutable image creation | [`makeImage()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L540-L572) | Shows optional `VkImageFormatListCreateInfo` chaining. |
-| Ordinary execution and comparison | [`run()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1081-L1175), [`testMutable()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1724-L1771) | Connects resource setup, barriers, copyback, and thresholds. |
+| Generated shader programs | [`initPrograms()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L364-L539) | Shows the exact draw, storage, load, and texture shader branches. |
+| Mutable image creation | [`makeImage()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L541-L574) | Shows optional `VkImageFormatListCreateInfo` chaining. |
+| Ordinary execution and comparison | [`run()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1082-L1176), [`testMutable()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1766-L1814) | Connects resource setup, barriers, copyback, and thresholds. |
 | Support and ordinary registration | [`checkSupport()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1774-L1987) | Shows feature gates and generated ordinary leaves. |
-| Mutable swapchain setup | [`makeSwapchain()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L2208-L2256), [`testSwapchainMutable()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L2258-L2377) | Shows WSI format checks, acquire, submission, and comparison. |
-| Swapchain registration | [`createSwapchainImageMutableTests()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L2380-L2446) | Shows WSI/image-type loops and route pruning. |
+| Mutable swapchain setup | [`makeSwapchain()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L2218-L2266), [`testSwapchainMutable()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L2268-L2388) | Shows WSI format checks, acquire, submission, and comparison. |
+| Swapchain registration | [`createSwapchainImageMutableTests()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L2390-L2457) | Shows WSI/image-type loops and route pruning. |
 | Vulkan mutable-image rules | [`resources.adoc`](../../../../vulkan-docs/src/chapters/resources.adoc#L2480-L2790) | Grounds mutable flags, format lists, view formats, and usage semantics. |
 | Vulkan mutable-format swapchains | [`wsi.adoc`](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L6200-L6225) | Grounds swapchain format-list and mutable-format requirements. |
 

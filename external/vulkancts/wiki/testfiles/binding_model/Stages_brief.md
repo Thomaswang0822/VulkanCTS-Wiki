@@ -121,8 +121,8 @@ The leaf is the primary behavioral axis because it changes the set 0 descriptor 
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Binding-model attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L71) | Attaches `stages` under `binding_model` outside Vulkan SC builds. |
-| Test-family factory | [`createStagesTests()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L586-L613) | Registers the exact three descriptor-type leaves. |
+| Binding-model attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L54-L80) | Attaches `stages` under `binding_model` outside Vulkan SC builds. |
+| Test-family factory | [`createStagesTests()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L588-L616) | Registers the exact three descriptor-type leaves. |
 | Layouts and descriptor sets | [`StagesTestInstance::iterate()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L90-L113) | Creates two set layouts visible to fragment and compute stages and one shared pipeline layout. |
 | Buffer input setup | [`StagesTestInstance::iterate()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L143-L187) | Creates, updates, and initializes storage or uniform input. |
 | Image input setup | [`StagesTestInstance::iterate()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L189-L300) | Creates the sampled image and performs transfer-to-shader synchronization. |
@@ -130,7 +130,7 @@ The leaf is the primary behavioral axis because it changes the set 0 descriptor 
 | Pipelines and one-call bind | [`StagesTestInstance::iterate()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L337-L405) | Builds both pipelines and records `vkCmdBindDescriptorSets2` with both stage bits. |
 | Mixed draw/dispatch and copyback | [`StagesTestInstance::iterate()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L407-L434) | Records graphics work, compute work, the color-image barrier, and copyback in order. |
 | Result comparison | [`StagesTestInstance::iterate()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L436-L468) | Checks all four compute floats and every framebuffer component. |
-| Shader generation | [`StagesTestCase::initPrograms()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L493-L576) | Emits exact descriptor-type-dependent compute and fragment shaders. |
+| Shader generation | [`StagesTestCase::initPrograms()`](../../../modules/vulkan/binding_model/vktBindingStagesTests.cpp#L495-L579) | Emits exact descriptor-type-dependent compute and fragment shaders. |
 | Mustpass inventory | [`binding-model.txt`](../../../mustpass/main/vk-default/binding-model.txt#L146932-L146934) | Confirms the three executable registered paths. |
 | Multi-bind-point stage semantics | [`vkCmdBindDescriptorSets2` and `VkBindDescriptorSetsInfo`](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L4688-L4774) | Defines how fragment and compute stage bits select graphics and compute bind points in one call. |
 | Layout visibility, compatibility, and validity | [layout bindings](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L435-L469), [layout compatibility](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L2021-L2055), [descriptor validity](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L4583-L4618) | Defines the conditions under which both pipelines can consume the bound sets. |

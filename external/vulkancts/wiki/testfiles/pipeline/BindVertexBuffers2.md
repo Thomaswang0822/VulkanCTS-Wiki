@@ -26,7 +26,7 @@ pipeline.monolithic.bind_buffers_2
 └── maintenance5
 ```
 
-The root above is the concrete monolithic path used for hierarchy validation. `single` and `separate` are present for every construction root. `dynamic_stride` is monolithic-only. `maintenance5` is omitted from Vulkan SC by source conditional compilation. The exact registration code is [`createCmdBindBuffers2Tests()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1780-L1904) and [`createCmdBindVertexBuffers2Tests()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1847-L1958).
+The root above is the concrete monolithic path used for hierarchy validation. `single` and `separate` are present for every construction root. `dynamic_stride` is monolithic-only. `maintenance5` is omitted from Vulkan SC by source conditional compilation. The exact registration code is [`createCmdBindBuffers2Tests()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1723-L1845) and [`createCmdBindVertexBuffers2Tests()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1847-L1958).
 
 The default Vulkan mustpass files contain 97 monolithic leaves and 96 leaves for each non-monolithic construction root: 56 regular leaves, 40 maintenance5 leaves, plus the monolithic mismatch leaf. The Vulkan SC monolithic file contains 57 leaves because it has the 56 regular leaves and the mismatch leaf but no `maintenance5` paths. See [`monolithic.txt`](../../../mustpass/main/vk-default/pipeline/monolithic/monolithic.txt) and [`vksc-default/pipeline/monolithic.txt`](../../../mustpass/main/vksc-default/pipeline/monolithic.txt).
 
@@ -139,8 +139,8 @@ void main() {
 |---------------------|---------------------------------------|----------|
 | `bufferCount` | Emits one color input and `bufferCount - 1` `vec2` position inputs; the generated position sum changes accordingly. | [`BindVertexBuffers2Case::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1672-L1701) |
 | `topology` | Does not change shader text; it changes the host vertex count and the position data template consumed by the same shader. | [`BindVertexBuffers2Instance::createBuffers()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1138-L1218) |
-| `rndSeed` | Does not change shader text; it changes host-side buffer offsets and strides while the interface locations remain fixed. | [`BindVertexBuffers2Instance::createBuffers()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1252-L1313) |
-| `wholeSize` / `beyondType` | Does not change shader text; it changes the bound range and which fetched record is out of bounds, with robustness determining the observed value. | [`BindVertexBuffers2Instance::createBuffers()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1249-L1313) |
+| `rndSeed` | Does not change shader text; it changes host-side buffer offsets and strides while the interface locations remain fixed. | [`BindVertexBuffers2Instance::createBuffers()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1074-L1270) |
+| `wholeSize` / `beyondType` | Does not change shader text; it changes the bound range and which fetched record is out of bounds, with robustness determining the observed value. | [`BindVertexBuffers2Instance::createBuffers()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1074-L1270) |
 
 #### SPIR-V
 
@@ -359,10 +359,10 @@ void main() {
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| Regular case parameters and execution | [`BindBuffers2Instance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L266-L600) | Creates regular data, records binding calls, and checks every output pixel. |
-| Mismatch instance | [`BindBuffers2MismatchInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L623-L895) | Uses bindings 0 and 2 to test stride association. |
-| Maintenance5 buffer construction | [`BindVertexBuffers2Instance::createBuffers()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1128-L1316) | Defines seeded data layout, explicit sizes, and deliberate robustness overruns. |
-| Maintenance5 execution and oracle | [`BindVertexBuffers2Instance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1331-L1510) | Records the multi-buffer draw and evaluates the two predicates. |
+| Regular case parameters and execution | [`BindBuffers2Instance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L215-L549) | Creates regular data, records binding calls, and checks every output pixel. |
+| Mismatch instance | [`BindBuffers2MismatchInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L572-L845) | Uses bindings 0 and 2 to test stride association. |
+| Maintenance5 buffer construction | [`BindVertexBuffers2Instance::createBuffers()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1074-L1270) | Defines seeded data layout, explicit sizes, and deliberate robustness overruns. |
+| Maintenance5 execution and oracle | [`BindVertexBuffers2Instance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1284-L1463) | Records the multi-buffer draw and evaluates the two predicates. |
 | Generated programs and support checks | [`BindBuffers2Case` and `BindVertexBuffers2Case`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1512-L1778) | Defines generated shaders, requirements, and robust-device creation. |
 | Registration | [`createCmdBindBuffers2Tests()` and `createCmdBindVertexBuffers2Tests()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1723-L1958) | Defines the exact hierarchy and leaf matrix. |
 | Vulkan command contract | [vertex-input binding updates](../../../../vulkan-docs/src/chapters/fxvertex.adoc#L765-L849) | Defines the offset, size, `VK_WHOLE_SIZE`, and dynamic-stride semantics. |

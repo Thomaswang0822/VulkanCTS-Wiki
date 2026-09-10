@@ -37,11 +37,11 @@ dgc.nv.compute.preprocess
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Preprocessing queue | `compute`, `universal` | Selects the queue family used to preprocess the generated command sequence. | [`createComputePreprocessTests`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTests.cpp#L502-L538) |
-| Execution queue | implicit same-queue, `with_compute_exec`, `with_universal_exec` | Selects whether execution stays on the preprocessing queue or switches to the named queue. | [`createComputePreprocessTests`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTests.cpp#L502-L538) |
-| Execution-count source | recorded sequence count, `with_count_buffer` | Chooses between the count recorded for the generated sequence and a GPU-visible count buffer. | [`createComputePreprocessTests`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTests.cpp#L502-L538) |
+| Preprocessing queue | `compute`, `universal` | Selects the queue family used to preprocess the generated command sequence. | [`createComputePreprocessTests`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTests.cpp#L498-L535) |
+| Execution queue | implicit same-queue, `with_compute_exec`, `with_universal_exec` | Selects whether execution stays on the preprocessing queue or switches to the named queue. | [`createComputePreprocessTests`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTests.cpp#L498-L535) |
+| Execution-count source | recorded sequence count, `with_count_buffer` | Chooses between the count recorded for the generated sequence and a GPU-visible count buffer. | [`createComputePreprocessTests`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTests.cpp#L498-L535) |
 | Count value | nonzero, `zero_count` | Distinguishes normal generated execution from the boundary case where the count buffer supplies zero. | [`runComputePreprocessTest`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTests.cpp#L430-L491) |
-| Registered family | exact names listed above | The source registers selected combinations rather than every possible cross-product. | [`createComputePreprocessTests`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTests.cpp#L502-L538) |
+| Registered family | exact names listed above | The source registers selected combinations rather than every possible cross-product. | [`createComputePreprocessTests`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTests.cpp#L498-L535) |
 
 ## Behavior Parameters
 
@@ -297,7 +297,7 @@ void main (void) { outputBuffer.value = pc.value; }
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Registration and case construction | [`createComputePreprocessTests`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTests.cpp#L502-L538) | Defines the exact registered families and their parameter combinations. |
+| Registration and case construction | [`createComputePreprocessTests`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTests.cpp#L498-L535) | Defines the exact registered families and their parameter combinations. |
 | Execution and result verification | [`parallelPreprocessRun`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTests.cpp#L119-L492) | Shows command execution, count handling, and host-side result checking. |
 | DGC helper behavior | [device-generated-commands helpers](../../../modules/vulkan/device_generated_commands/) | Provides the helper implementation used by the test. |
 | DGC specification | [Device-Generated Commands](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc) | Defines preprocessing and generated-command execution semantics. |

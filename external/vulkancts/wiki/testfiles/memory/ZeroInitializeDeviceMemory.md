@@ -280,7 +280,7 @@ void main(void) {
 
 ## Runtime Execution and Result Checking
 
-- [`allocateZeroInitMemory`](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L113-L133) adds the zero-initialize flag for every tested allocation.
+- [`allocateZeroInitMemory`](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L114-L134) adds the zero-initialize flag for every tested allocation.
 - `clear_buffer` iterates all compatible memory types except protected and unsupported AMD device-coherent types. It copies non-host-visible buffer contents to a host-visible destination, invalidates the destination allocation, and runs `memcmp` against zero bytes.
 - Color image cases transition the complete image from `VK_IMAGE_LAYOUT_ZERO_INITIALIZED_EXT`. Transfer cases copy the selected mip. Shader cases bind the image at descriptor binding 0 and the result buffer at binding 1, then dispatch or draw before host comparison.
 - Integer outputs use `intThresholdCompare`; floating-point and normalized outputs use `floatThresholdCompare`. Both use zero thresholds. The reference includes an alpha value of one when the observed format has no alpha channel.
@@ -352,7 +352,7 @@ void main(void) {
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Allocation helper | [`allocateZeroInitMemory`](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L113-L133) | Adds the flag under test. |
+| Allocation helper | [`allocateZeroInitMemory`](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L114-L134) | Adds the flag under test. |
 | Buffer path | [`clearBufferAllocation`](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L136-L221) | Implements memory-type iteration and byte comparison. |
 | Shader builder | [`ImageTransitionCase::initPrograms`](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L445-L528) | Generates all color-image shader variants. |
 | Color image path | [`ImageTransitionTest::iterate`](../../../modules/vulkan/memory/vktMemoryZeroInitializeDeviceMemoryTests.cpp#L530-L884) | Implements transitions, transfer/shader reads, and comparison. |

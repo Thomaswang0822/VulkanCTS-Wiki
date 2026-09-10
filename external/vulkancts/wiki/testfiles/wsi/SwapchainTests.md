@@ -218,13 +218,13 @@ These checks remove cases that the selected platform or implementation cannot su
 |-------------|------|----------------|
 | Family registration | [`createSwapchainTests`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L2953-L2973) | Registers the eight direct children shown in the hierarchy. |
 | Creation dimension names and values | [`TestDimension` and `generateSwapchainParameterCases`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L340-L605) | Defines the generated matrix and its valid baseline. |
-| Normal creation | [`createSwapchainTest`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L619-L739) | Checks image properties, expected OOM pressure cases, and swapchain creation. |
-| Private data | [`createSwapchainPrivateDataTest`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L747-L889) | Implements slot creation, initial-value checks, writes, and readback. |
-| Simulated OOM | [`createSwapchainSimulateOOMTest`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L891-L1005) | Injects failures and validates allocation callbacks. |
-| Baseline rendering | [`basicRenderTest`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L1180-L1289) | Contains the 600-frame acquire, submit, and present loop. |
-| Swapchain-memory image aliases | [`testImageSwapchainCreateInfo`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L1297-L1515) | Creates and binds application images to swapchain memory. |
-| Multi-swapchain rendering | [`multiSwapchainRenderTest`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L1632-L1802) | Batches two or ten swapchains into presentation calls. |
-| Device-group rendering | [`deviceGroupRenderTest`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L1804-L2015), [`deviceGroupRenderTest2`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L2017-L2366) | Implements local and split-instance/remote device-group variants. |
+| Normal creation | [`createSwapchainTest`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L620-L760) | Checks image properties, expected OOM pressure cases, and swapchain creation. |
+| Private data | [`createSwapchainPrivateDataTest`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L768-L910) | Implements slot creation, initial-value checks, writes, and readback. |
+| Simulated OOM | [`createSwapchainSimulateOOMTest`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L912-L1027) | Injects failures and validates allocation callbacks. |
+| Baseline rendering | [`basicRenderTest`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L1206-L1314) | Contains the 600-frame acquire, submit, and present loop. |
+| Swapchain-memory image aliases | [`testImageSwapchainCreateInfo`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L1322-L1541) | Creates and binds application images to swapchain memory. |
+| Multi-swapchain rendering | [`multiSwapchainRenderTest`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L1661-L1830) | Batches two or ten swapchains into presentation calls. |
+| Device-group rendering | [`deviceGroupRenderTest`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L1832-L2047), [`deviceGroupRenderTest2`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L2049-L2428) | Implements local and split-instance/remote device-group variants. |
 | Resize, image query, lifetime, and acquisition | [`resizeSwapchainTest` through `acquireTooManyTimeoutTest`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L2384-L2868) | Owns the remaining host-side behavior checks. |
 | Render workload shaders | [`WsiTriangleRenderer::getPrograms`](../../../framework/vulkan/vkWsiUtil.cpp#L1171-L1194) | Supplies the fixed rotating-triangle workload. |
 | Swapchain creation and retirement rules | [Vulkan WSI specification](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L5734-L6045) | Defines image equivalence, creation fields, `oldSwapchain`, and retirement. |

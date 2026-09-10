@@ -135,11 +135,11 @@ These five values preserve all nine registered leaves while separating write sem
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Category attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L52-L72) | Attaches the inline uniform block group under `binding_model`. |
+| Category attachment | [`createChildren()`](../../../modules/vulkan/binding_model/vktBindingModelTests.cpp#L54-L80) | Attaches the inline uniform block group under `binding_model`. |
 | Descriptor data model | [`InlineUniformBlockDescriptor`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L78-L155) | Defines four-byte storage, unique initial values, verification data, and update status. |
 | Write and copy operation builders | [`DescriptorOps`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L280-L385) | Records ranges, expected copy results, descriptor writes, and descriptor copies. |
 | Descriptor setup and update | [`DescriptorInlineUniformTestInstance::iterate()`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L486-L573) | Creates the pool and layouts, then submits write and copy updates. |
-| Generated shaders | [`DescriptorInlineUniformTestCase::initPrograms()`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L699-L763) | Defines descriptor declarations, slot comparisons, and green or magenta output. |
+| Generated shaders | [`DescriptorInlineUniformTestCase::initPrograms()`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L704-L764) | Defines descriptor declarations, slot comparisons, and green or magenta output. |
 | Host result validation | [`verifyResultImage()`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L464-L483) | Requires an exact all-green `1 x 16` result. |
 | Registered write leaves | [`createInlineUniformWriteTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L766-L798) | Defines the four write cases and their capacities, offsets, and sizes. |
 | Registered copy leaves | [`createInlineUniformCopyTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorInlineUniformTests.cpp#L800-L843) | Defines the five copy cases and their source and destination ranges. |
