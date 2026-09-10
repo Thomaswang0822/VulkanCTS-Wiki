@@ -2,7 +2,7 @@
 
 **Core question:** Can Vulkan images remain in `VK_IMAGE_LAYOUT_GENERAL` while the selected transfer, shader synchronization, attachment-local read, or multisample attachment path produces the expected result?
 
-- [`vktImageGeneralLayoutTests.cpp`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L47-L2435) implements the `image.general_layout` test family.
+- [`vktImageGeneralLayoutTests.cpp`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L47-L2373) implements the `image.general_layout` test family.
 - Every family retains its exercised images in `GENERAL` for the relevant operations. The tests then establish the dependencies needed for the next access, copy an observable result to host-visible memory, and compare it with generated reference data.
 - The source combines four distinct behaviors: ASTC compressed-image transfer and sampling, synchronization2 memory-barrier coverage, input-attachment reads through render passes or dynamic rendering, and multisample color-attachment arrangements.
 
@@ -23,22 +23,22 @@ image.general_layout
 └── msaa
 ```
 
-[`createImageGeneralLayoutTests()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2304-L2435) registers the four families. `memory_barrier` and the ASTC host-copy leaves are absent when `CTS_USES_VULKANSC` is defined. Each family has a separate parameter matrix described below.
+[`createImageGeneralLayoutTests()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2304-L2373) registers the four families. `memory_barrier` and the ASTC host-copy leaves are absent when `CTS_USES_VULKANSC` is defined. Each family has a separate parameter matrix described below.
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Test family | `astc_sample`, `memory_barrier`, `input_attachment`, `msaa` | Selects the image-use property under test. | [Registration](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2304-L2435) |
+| Test family | `astc_sample`, `memory_barrier`, `input_attachment`, `msaa` | Selects the image-use property under test. | [Registration](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2304-L2373) |
 | ASTC transfer form | `copy_into_image`, `copy_from_image`, `host_copy_into_image`, `host_copy_from_image`, `sample_alias` | Chooses the operation between two sampling passes, or the mutable ASTC alias-view path. The host-copy forms are not VulkanSC leaves. | [ASTC leaves](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2310-L2329) |
-| Barrier shader stage | `compute` | The current factory uses compute producer and consumer dispatches. | [Execution and registration](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L915-L962), [registration](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2333-L2374) |
-| Barrier ordering | `write_read`, `read_write` | Selects whether the first shader writes the image or reads the uploaded value before the synchronization2 barrier. | [Ordering matrix](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2354-L2374) |
+| Barrier shader stage | `compute` | The current factory uses compute producer and consumer dispatches. | [Execution and registration](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L915-L962), [registration](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2333-L2373) |
+| Barrier ordering | `write_read`, `read_write` | Selects whether the first shader writes the image or reads the uploaded value before the synchronization2 barrier. | [Ordering matrix](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2354-L2373) |
 | Barrier access pair | `shader_read_write`, `sampled_read_storage_write`, `storage_read_storage_write` | Supplies the `VkAccessFlags2` values used for the selected read and write accesses. | [Access matrix](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2343-L2352) |
-| Input read form | `input_attachment`, `sampled` | Selects `subpassLoad` or `texture` in the first fragment shader. | [Input matrix](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2390-L2416) |
-| Input dependency form | `execution`, `memory`, `image` | Selects no explicit barrier, a same-layout memory barrier, or a same-layout image barrier between the two passes. | [Barrier matrix](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2380-L2388) |
-| Input rendering form | `render_pass`, `dynamic_rendering` | Selects two subpasses or two dynamic-rendering instances. | [Rendering matrix](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2401-L2411) |
-| MSAA arrangement | `same`, `different` | Selects whether the initial multisample and single-sample targets are reused as the final multi-attachment render targets or whether separate images are resolved afterward. | [MSAA matrix](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2418-L2433) |
-| MSAA attachment count | `4`, `8`, `16` | Selects the number of color attachments written by the final graphics pipeline. | [MSAA leaves](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2424-L2429) |
+| Input read form | `input_attachment`, `sampled` | Selects `subpassLoad` or `texture` in the first fragment shader. | [Input matrix](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2288-L2292) |
+| Input dependency form | `execution`, `memory`, `image` | Selects no explicit barrier, a same-layout memory barrier, or a same-layout image barrier between the two passes. | [Barrier matrix](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2314-L2322) |
+| Input rendering form | `render_pass`, `dynamic_rendering` | Selects two subpasses or two dynamic-rendering instances. | [Rendering matrix](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2324-L2350) |
+| MSAA arrangement | `same`, `different` | Selects whether the initial multisample and single-sample targets are reused as the final multi-attachment render targets or whether separate images are resolved afterward. | [MSAA matrix](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2352-L2367) |
+| MSAA attachment count | `4`, `8`, `16` | Selects the number of color attachments written by the final graphics pipeline. | [MSAA leaves](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2358-L2364) |
 
 All families use a 128 by 128, one-layer image extent. ASTC uses `VK_FORMAT_ASTC_8x8_UNORM_BLOCK` for the sampled view and `R8G8B8A8_UNORM` output. The barrier family uses `R32_SFLOAT`; input-attachment and MSAA families use `R8G8B8A8_UNORM`. MSAA targets use four samples for the multisampled images.
 
@@ -263,7 +263,7 @@ void main()
 
 ### Design-based pruning
 
-The factory fixes the ASTC operations, barrier combinations, input-attachment combinations, and MSAA arrangements and counts to the matrices described above; it registers no values outside those matrices ([registration](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2304-L2435)).
+The factory fixes the ASTC operations, barrier combinations, input-attachment combinations, and MSAA arrangements and counts to the matrices described above; it registers no values outside those matrices ([registration](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2304-L2373)).
 
 ## Key Takeaways
 
@@ -280,6 +280,6 @@ The factory fixes the ASTC operations, barrier combinations, input-attachment co
 | Memory-barrier resource setup, synchronization, and comparisons | [`MemoryBarrierTestInstance::iterate()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L690-L1063) |
 | Input-attachment execution, generated programs, and support gates | [`InputAttachmentTestInstance::iterate()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L1197-L1719), [`InputAttachmentCase`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L1721-L1791) |
 | MSAA setup, validation, generated programs, and support gate | [`MsaaTestInstance::iterate()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L1812-L2237), [`MsaaCase`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2239-L2300) |
-| Registration | [`createImageGeneralLayoutTests()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2304-L2435) |
+| Registration | [`createImageGeneralLayoutTests()`](../../../modules/vulkan/image/vktImageGeneralLayoutTests.cpp#L2304-L2373) |
 | Vulkan layout and synchronization semantics | [`resources.adoc`](../../../../vulkan-docs/src/chapters/resources.adoc), [`synchronization.adoc`](../../../../vulkan-docs/src/chapters/synchronization.adoc) |
 | Copy, render-pass, and dynamic local-read semantics | [`copies.adoc`](../../../../vulkan-docs/src/chapters/copies.adoc), [`renderpass.adoc`](../../../../vulkan-docs/src/chapters/renderpass.adoc) |

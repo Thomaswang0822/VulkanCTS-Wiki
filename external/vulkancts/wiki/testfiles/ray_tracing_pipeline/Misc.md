@@ -134,13 +134,14 @@ ray_tracing_pipeline.misc
 └── update_empty_top
 ```
 
-The `misc` family has no intermediate nodes. All 113 direct children are test case leaves. The leaves group into 18 behavioral clusters explained in `## Behavior Parameters`. The registered identifiers use the suffixes `1TL1BL1G`, `1TL1BLnG`, `1TLnBL1G`, and `1TLnBLnG` for the four acceleration structure layouts (one/many TL, one/many BL, one/many geometries), and `AABB` or `tri` for the geometry type.
+The `misc` family has no intermediate nodes. All 113 direct children are test case leaves. The leaves group into 18 behavioral clusters explained in `## Behavior Parameters`. The registered identifiers use the suffixes `1TL1BL1G`, `1TL1BLnG`, `1TLnBL1G`, and `1TLnBLnG` for the four acceleration structure layouts (one/many TL, one/many BL, one/many geometries), and `AABB` or `tri` for the geometry type. `preserve_flip_facing` is a standalone leaf that checks front/back-facing preservation through instance transforms rather than participating in the suffix matrix.
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
 | Behavioral group | `callableshaderstress`, `AS_stresstest`, `cullmask`, `maxrayhitattributesize`, `maxrtinvocations`, `NO_DUPLICATE_ANY_HIT`, `mixedPrimTL`, `report_intersection_result`, `raypayloadin`, `recursiveTraces`, `shaderRecord`, `Op*` termination, `memory_access`, `null_miss`, `empty_pipeline_layout`, `reuse`, `update_empty`, `shaders_from_lib` | Selects which ray tracing mechanism the leaf exercises. This is the primary behavioral axis. | [vktRayTracingMiscTests.cpp#L10910-L11241](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L10910-L11241) |
+| Standalone facing leaf | `preserve_flip_facing` | Checks facing preservation under the instance-transform path without using the generated layout/geometry suffix matrix. | [registration](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L11225-L11241) |
 | Acceleration structure layout | `1TL1BL1G`, `1TL1BLnG`, `1TLnBL1G`, `1TLnBLnG` | Varies TLAS/BLAS/geometry count. Used by `callableshaderstress`, `NO_DUPLICATE_ANY_HIT`, `maxrayhitattributesize`. `AS_stresstest`, `cullmask`, `maxrtinvocations`, `raypayloadin`, `recursiveTraces` fix one layout. | [vktRayTracingMiscTests.cpp#L309-L357](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L309-L357) |
 | Geometry type | `AABB`, `tri` | Triangle BLAS or AABB procedural BLAS. AABB needs an intersection shader. Used by most matrix-expanded groups. | [vktRayTracingMiscTests.cpp#L309-L357](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L309-L357) |
 | Callable stress mode | `static`, `dynamic` | `dynamic` chains 8 callable levels; `static` chains 2. | [vktRayTracingMiscTests.cpp#L10917-L10931](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L10917-L10931) |
@@ -153,6 +154,10 @@ The `misc` family has no intermediate nodes. All 113 direct children are test ca
 ## Behavior Parameters
 
 The primary behavioral axis is the behavioral group. The `misc` family is heterogeneous, so no single registered dimension controls behavior across all 111 leaves. Each subsection below covers one behavioral cluster and its registered leaves.
+
+### `preserve_flip_facing`: preserve facing under instance transforms
+
+This standalone leaf checks that a transformed ray-tracing instance preserves the expected front/back-facing classification through traversal. It does not participate in the acceleration-structure-layout or geometry-type suffix matrices used by the generated families.
 
 ### callableshaderstress — Callable shader invocation stress
 
@@ -650,7 +655,7 @@ The generic runner `RayTracingMiscTestInstance` drives every leaf that goes thro
 
 ## Key Takeaways
 
-- The `misc` family is a heterogeneous collection of 111 test case leaves grouped into 18 behavioral clusters. The primary behavioral axis is the behavioral group, not a single registered dimension.
+- The `misc` family is a heterogeneous collection of 111 test case leaves grouped into 18 behavioral clusters. The primary behavioral axis is the behavioral group, not a single registered dimension. The standalone `preserve_flip_facing` leaf is described separately because it does not use the generated suffix matrices.
 - Most leaves share the generic runner `RayTracingMiscTestInstance` and the result-storage-buffer pattern (binding 0, `atomicAdd` for item indexing, per-test `verifyResultBuffer`). The standalone leaves (`null_miss`, `empty_pipeline_layout`, `reuse_*`, `update_empty_*`, `shaders_from_lib`) use their own instance functions but verify the same kind of host-observable outcome.
 - `recursiveTraces_*` is the largest subfamily (32 leaves) and the representative walkthrough target. The `MAX_RECURSIVE_DEPTH` specialization constant gates recursion in closest-hit and miss shaders; the rgen only seeds level 0.
 - `shaderRecord*` is the largest matrix-expanded group (24 leaves) and the main consumer of feature gates (`VK_EXT_scalar_block_layout`, `shaderFloat64`, `storageBuffer8BitAccess`, `shaderInt16`, `shaderInt64`).

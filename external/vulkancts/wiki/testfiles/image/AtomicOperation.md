@@ -35,7 +35,7 @@ image.atomic_operations
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Atomic operation | `add`, `sub`, `inc`, `dec`, `min`, `max`, `and`, `or`, `xor`, `exchange`, `compare_exchange` | Selects the atomic instruction and the reference rule. | [Operation enum and factory](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L306-L321) |
+| Atomic operation | `add`, `sub`, `inc`, `dec`, `min`, `max`, `and`, `or`, `xor`, `exchange`, `compare_exchange` | Selects the atomic instruction and the reference rule. The separate `indexing` child is a fixed storage-texel-buffer boundary test rather than another operation value. | [Operation enum and factory](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L306-L321), [indexing registration](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2818-L2821) |
 | Resource shape | `1d`, `1d_array`, `2d`, `2d_array`, `3d`, `cube`, `cube_array`, `buffer` | Changes coordinate dimensionality, layer handling, image-view type, and, for `buffer`, descriptor type. | [Image parameter array](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2481-L2499) |
 | Format | `r32ui`, `r32i`, `r32f`, `r64ui`, `r64i`, plus non-Vulkan-SC `rg16f` and `rgba16f` | Selects integer, float, 64-bit, or half-vector operation and reference type. | [Format array](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2501-L2511) |
 | Tiling | optimal; `linear` suffix | Changes format-feature support and excludes unsupported sparse or buffer combinations. | [Tiling array and factory pruning](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2513-L2516) |
@@ -93,6 +93,10 @@ The primary behavioral axis is **atomic operation**. The type, compute-stage, re
 ### `compare_exchange`: Conditional replacement
 
 `compare_exchange` replaces a texel only when its old value equals the fixed comparison value: 18 for 32-bit paths and 820338753304 for 64-bit paths. Its final-state check accepts a submitted replacement value, because one contender can win the comparison before the value changes.
+
+### `indexing`: 32-bit texel-buffer index boundary
+
+The `indexing` leaf is not part of the operation/format/image-type matrix. It creates an `R32_UINT` storage texel buffer with 131072 elements and performs `imageAtomicAdd` at index 65536. The check requires element 65536 to become `1` while element 0 remains `0`, catching accidental 16-bit index truncation ([implementation](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2475-L2634)).
 
 ## Shader Analysis
 

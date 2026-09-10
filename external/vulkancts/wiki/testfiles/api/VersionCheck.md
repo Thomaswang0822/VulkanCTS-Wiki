@@ -34,7 +34,7 @@ All three children are test case leaves directly under the `version_check` test 
 | Extension state | no extensions enabled, all supported `VK_KHR_`/`VK_EXT_` extensions enabled | Splits `entry_points` into a negative path (disabled extensions must return `nullptr`) and a positive path (enabled extension functions must resolve). | [no-extension block](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L155-L247), [enabled-extension block](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L249-L312), [filterMultiAuthorExtensions()](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L340-L355) |
 | Function category | core, disabled-extension, enabled-extension, non-existent | Each category carries a different nullability expectation under Vulkan's proc-address rules. | [specialCasesCheck()](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L533-L548), [regularCheck()](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L550-L599) |
 | Loader context | proper, improper | `regularCheck` uses the proper loader for each origin; `mixupAddressProcCheck` queries through the wrong loader to confirm `nullptr`. | [mixupAddressProcCheck()](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L510-L531) |
-| Requested API version | each version present in `functionsPerVersion` up to the device's supported API version | For each requested version, `unavailable_entry_points` checks that device functions introduced in higher versions are unavailable. | [APIUnavailableEntryPointsTestInstance::iterate()](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L627-L753) |
+| Requested API version | each version present in `functionsPerVersion` up to the device's supported API version | For each requested version, `unavailable_entry_points` checks that device functions introduced in higher versions are unavailable. | [APIUnavailableEntryPointsTestInstance::iterate()](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L627-L748) |
 | Optional 1.4 host-image-copy functions | appended only when the `hostImageCopy` Vulkan 1.4 feature is present | Optional promotion of `VK_EXT_host_image_copy` entry points into Vulkan 1.4. | [hostImageCopy block](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L170-L181) |
 
 ## Behavior Parameters
@@ -59,7 +59,7 @@ A single failure counter accumulates mismatches across all phases. The leaf fail
 
 ### unavailable_entry_points — Per-version function availability
 
-`unavailable_entry_points` iterates over each API version present in the framework's per-version function map, creates a fresh instance and device that request that specific API version, then for each higher API version iterates the device functions it introduced and verifies that `vkGetDeviceProcAddr` returns `NULL` for them [vktApiVersionCheck.cpp](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L627-L753). The leaf requires `VK_KHR_maintenance5` because Maintenance5 defines the predictable null-return behavior for functions outside the requested API version that this test exercises.
+`unavailable_entry_points` iterates over each API version present in the framework's per-version function map, creates a fresh instance and device that request that specific API version, then for each higher API version iterates the device functions it introduced and verifies that `vkGetDeviceProcAddr` returns `NULL` for them [vktApiVersionCheck.cpp](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L627-L748). The leaf requires `VK_KHR_maintenance5` because Maintenance5 defines the predictable null-return behavior for functions outside the requested API version that this test exercises.
 
 The leaf skips Vulkan 1.0 requests because `VK_KHR_maintenance5` requires at least Vulkan 1.1 [vktApiVersionCheck.cpp](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L641-L642). It stops at the device's supported API version and skips re-checking the highest version present in the map, since there is no higher version to test against.
 
@@ -110,8 +110,8 @@ No shader is involved in this test family. The leaves exercise host-side version
 
 ### Requirement-based pruning
 
-- `unavailable_entry_points` requires `VK_KHR_maintenance5` through `checkSupport()`, so the test case is reported as unsupported rather than failed when the extension or feature is absent [vktApiVersionCheck.cpp](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L764-L767).
-- `unavailable_entry_points` is not registered for VulkanSC builds; the test case leaf exists only behind `#ifndef CTS_USES_VULKANSC` [vktApiVersionCheck.cpp](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L783-L785).
+- `unavailable_entry_points` requires `VK_KHR_maintenance5` through `checkSupport()`, so the test case is reported as unsupported rather than failed when the extension or feature is absent [vktApiVersionCheck.cpp](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L748-L748).
+- `unavailable_entry_points` is not registered for VulkanSC builds; the test case leaf exists only behind `#ifndef CTS_USES_VULKANSC` [vktApiVersionCheck.cpp](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L748-L748).
 - The Vulkan 1.4 host-image-copy entry points are only appended to the core function map when `m_context.getDeviceVulkan14Features().hostImageCopy` is true; otherwise those names are not tested as core 1.4 functions [vktApiVersionCheck.cpp](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L170-L181).
 - `unavailable_entry_points` skips Vulkan 1.0 instances because `VK_KHR_maintenance5` requires at least Vulkan 1.1 [vktApiVersionCheck.cpp](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L641-L642).
 
@@ -136,11 +136,11 @@ No shader is involved in this test family. The leaves exercise host-side version
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Test family registration | [vktApiTests.cpp#L90](../../../modules/vulkan/api/vktApiTests.cpp#L90) | Attaches `version_check` as a child of the `api` test category. |
-| Test family factory | [vktApiVersionCheck.cpp#L777-L788](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L777-L788) | Creates the `version_check` group and adds the three test case leaves, with `unavailable_entry_points` behind `#ifndef CTS_USES_VULKANSC`. |
+| Test family factory | [vktApiVersionCheck.cpp#L777-L788](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L748-L748) | Creates the `version_check` group and adds the three test case leaves, with `unavailable_entry_points` behind `#ifndef CTS_USES_VULKANSC`. |
 | Header declaration | [vktApiVersionCheck.hpp#L37](../../../modules/vulkan/api/vktApiVersionCheck.hpp#L37) | Declares `createVersionSanityCheckTests`. |
 | `version` test instance | [vktApiVersionCheck.cpp#L70-L103](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L70-L103) | Logs version info and fails when the device version exceeds the framework maximum. |
 | `entry_points` test instance | [vktApiVersionCheck.cpp#L123-L600](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L123-L600) | Runs the five proc-address sub-checks across no-extension and enabled-extension instance/device pairs. |
-| `unavailable_entry_points` test instance | [vktApiVersionCheck.cpp#L620-L753](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L620-L753) | Iterates requested API versions and checks that higher-version device functions return `NULL`. |
+| `unavailable_entry_points` test instance | [vktApiVersionCheck.cpp#L620-L753](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L620-L748) | Iterates requested API versions and checks that higher-version device functions return `NULL`. |
 | Proc-address helpers | [vktApiVersionCheck.cpp#L465-L494](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L465-L494) | `reportFail`, `checkPlatformFunction`, `checkInstanceFunction`, and `checkDeviceFunction` implement the nullability comparison used by every `entry_points` sub-check. |
-| Maintenance5 support gate | [vktApiVersionCheck.cpp#L764-L767](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L764-L767) | `checkSupport` for `unavailable_entry_points` requires `VK_KHR_maintenance5`. |
-| Mustpass entries | [api.txt#L327793-L327795](../../../mustpass/main/vk-default/api.txt#L327793-L327795) | The three `dEQP-VK.api.version_check.*` lines in the default mustpass list. |
+| Maintenance5 support gate | [vktApiVersionCheck.cpp#L764-L767](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L748-L748) | `checkSupport` for `unavailable_entry_points` requires `VK_KHR_maintenance5`. |
+| Mustpass entries | [api.txt#L327793-L327795](../../../mustpass/main/vk-default/api.txt#L267497-L267497) | The three `dEQP-VK.api.version_check.*` lines in the default mustpass list. |

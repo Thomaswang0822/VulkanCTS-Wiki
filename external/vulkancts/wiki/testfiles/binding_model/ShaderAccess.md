@@ -384,7 +384,7 @@ The shared `verifyDriverSupport()` now runs in the case support callbacks rather
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Matrix registration | [createShaderAccessTests()](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp#L9724-L10011) | Builds both command-buffer binding paths and every common parameter dimension. |
+| Matrix registration | [createShaderAccessTests()](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp#L9696-L9984) | Builds both command-buffer binding paths and every common parameter dimension. |
 | Resource-specific leaf generation | [image](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp#L9578-L9645), [texel buffer](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp#L9648-L9673), [buffer](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp#L9676-L9719) | Adds executable image-view and offset variants and applies design pruning. |
 | Descriptor binding helper | [bindDescriptorSets()](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp#L478-L508) | Selects the legacy or maintenance6 descriptor-set bind command. |
 | Graphics command-buffer path | [SingleCmdRenderInstance::renderToTarget()](../../../modules/vulkan/binding_model/vktBindingShaderAccessTests.cpp#L1001-L1062) | Records the inline primary path or executes the recorded secondary path. |

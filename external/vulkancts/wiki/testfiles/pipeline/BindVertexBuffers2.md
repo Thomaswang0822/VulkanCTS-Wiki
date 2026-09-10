@@ -26,7 +26,7 @@ pipeline.monolithic.bind_buffers_2
 └── maintenance5
 ```
 
-The root above is the concrete monolithic path used for hierarchy validation. `single` and `separate` are present for every construction root. `dynamic_stride` is monolithic-only. `maintenance5` is omitted from Vulkan SC by source conditional compilation. The exact registration code is [`createCmdBindBuffers2Tests()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1780-L1904) and [`createCmdBindVertexBuffers2Tests()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1906-L2016).
+The root above is the concrete monolithic path used for hierarchy validation. `single` and `separate` are present for every construction root. `dynamic_stride` is monolithic-only. `maintenance5` is omitted from Vulkan SC by source conditional compilation. The exact registration code is [`createCmdBindBuffers2Tests()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1780-L1904) and [`createCmdBindVertexBuffers2Tests()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1847-L1958).
 
 The default Vulkan mustpass files contain 97 monolithic leaves and 96 leaves for each non-monolithic construction root: 56 regular leaves, 40 maintenance5 leaves, plus the monolithic mismatch leaf. The Vulkan SC monolithic file contains 57 leaves because it has the 56 regular leaves and the mismatch leaf but no `maintenance5` paths. See [`monolithic.txt`](../../../mustpass/main/vk-default/pipeline/monolithic/monolithic.txt) and [`vksc-default/pipeline/monolithic.txt`](../../../mustpass/main/vksc-default/pipeline/monolithic.txt).
 
@@ -34,14 +34,14 @@ The default Vulkan mustpass files contain 97 monolithic leaves and 96 leaves for
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |---|---|---|---|
-| Intermediate node | `single`, `separate`, `dynamic_stride`, `maintenance5` | Selects a bind-call shape, a non-contiguous vertex-input binding check, or maintenance5 range behavior. | [registration](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1783-L2016) |
+| Intermediate node | `single`, `separate`, `dynamic_stride`, `maintenance5` | Selects a bind-call shape, a non-contiguous vertex-input binding check, or maintenance5 range behavior. | [registration](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1723-L1958) |
 | Regular stride and offset tuple | `stride_0_4_offset_0_0`, `stride_0_4_offset_1_0`, `stride_4_4_offset_0_0`, `stride_5_5_offset_0_7`, `stride_5_8_offset_15_22`, `stride_7_22_offset_100_0`, `stride_40_28_offset_0_0` | Provides color stride, vertex stride, color offset, and vertex offset in float units. | [tuple array](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1813-L1864) |
 | Regular count leaf | `count_1` to `count_4` | Chooses one through four color/position buffer pairs and the matching generated input layout. | [count array](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1877-L1885) |
 | Maintenance5 topology | `triangle_list`, `triangle_strip` | Chooses a six-vertex list or four-vertex strip draw. | [topology selection](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1372-L1384) |
-| Maintenance5 buffer count | `buffers5`, `buffers9` | Sets one color buffer plus four or eight position buffers. | [registration](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1909-L2016) |
+| Maintenance5 buffer count | `buffers5`, `buffers9` | Sets one color buffer plus four or eight position buffers. | [registration](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1847-L1958) |
 | Random layout seed | 321, 432, 543, 654 | Creates reproducible nonzero padding offsets and strides for maintenance5 buffers. | [seed arrays](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1909-L1913) |
 | Bound-size mode | `whole_size`, `true_size` | Uses `VK_WHOLE_SIZE` or an explicit returned byte range. | [size assignment](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1249-L1313) |
-| Robustness overrun mode | `beyond_buffer`, `beyond_size` | Places the intended position fetch beyond allocation bytes or only beyond the explicit range. `beyond_size` occurs only with `true_size`. | [robust registration](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1961-L2011) |
+| Robustness overrun mode | `beyond_buffer`, `beyond_size` | Places the intended position fetch beyond allocation bytes or only beyond the explicit range. `beyond_size` occurs only with `true_size`. | [robust registration](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1902-L1955) |
 
 ## Behavior Parameters
 
@@ -364,7 +364,7 @@ void main() {
 | Maintenance5 buffer construction | [`BindVertexBuffers2Instance::createBuffers()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1128-L1316) | Defines seeded data layout, explicit sizes, and deliberate robustness overruns. |
 | Maintenance5 execution and oracle | [`BindVertexBuffers2Instance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1331-L1510) | Records the multi-buffer draw and evaluates the two predicates. |
 | Generated programs and support checks | [`BindBuffers2Case` and `BindVertexBuffers2Case`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1512-L1778) | Defines generated shaders, requirements, and robust-device creation. |
-| Registration | [`createCmdBindBuffers2Tests()` and `createCmdBindVertexBuffers2Tests()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1780-L2016) | Defines the exact hierarchy and leaf matrix. |
+| Registration | [`createCmdBindBuffers2Tests()` and `createCmdBindVertexBuffers2Tests()`](../../../modules/vulkan/pipeline/vktPipelineBindVertexBuffers2Tests.cpp#L1723-L1958) | Defines the exact hierarchy and leaf matrix. |
 | Vulkan command contract | [vertex-input binding updates](../../../../vulkan-docs/src/chapters/fxvertex.adoc#L765-L849) | Defines the offset, size, `VK_WHOLE_SIZE`, and dynamic-stride semantics. |
 | Default Vulkan mustpass evidence | [`monolithic.txt`](../../../mustpass/main/vk-default/pipeline/monolithic/monolithic.txt) | Confirms monolithic executable leaves. |
 | Vulkan SC mustpass evidence | [`monolithic.txt`](../../../mustpass/main/vksc-default/pipeline/monolithic.txt) | Confirms the maintenance5 exclusion from Vulkan SC coverage. |

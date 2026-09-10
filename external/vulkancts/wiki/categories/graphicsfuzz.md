@@ -129,7 +129,7 @@ The index is the corpus boundary. Prefixes such as `cov-`, `spv-`, and `stable-`
 | Index parser | [`createAmberTestsFromIndexFile()`](../../modules/vulkan/amber/vktAmberTestCaseUtil.cpp#L175-L189) | Adds one registered Amber case for each parsed entry. |
 | Index entry parser | [`AmberIndexFileParser::parse()`](../../modules/vulkan/amber/vktAmberTestCaseUtil.cpp#L116-L169) | Reads script filename, registered name, description, and requirements. |
 | Support checks | [`AmberTestCase::checkSupport()`](../../modules/vulkan/amber/vktAmberTestCase.cpp#L203-L286) | Checks extensions, features, properties, images, and buffers. |
-| Requirement consistency | [`AmberTestCase::validateRequirements()`](../../modules/vulkan/amber/vktAmberTestCase.cpp#L648-L707) | Compares CTS and Amber requirement declarations. |
+| Requirement consistency | [`AmberTestCase::validateRequirements()`](../../modules/vulkan/amber/vktAmberTestCase.cpp#L648-L695) | Compares CTS and Amber requirement declarations. |
 | Amber parsing | [`AmberTestCase::parse()`](../../modules/vulkan/amber/vktAmberTestCase.cpp#L407-L432) | Builds the executable Amber recipe. |
 | Amber execution | [`AmberTestInstance::iterate()`](../../modules/vulkan/amber/vktAmberTestCase.cpp#L546-L615) | Executes the recipe and maps the result to CTS pass/fail. |
 | Corpus index | [`index.txt`](../../data/vulkan/amber/graphicsfuzz/index.txt#L1-L757) | Defines the registered GraphicsFuzz cases and their metadata. |

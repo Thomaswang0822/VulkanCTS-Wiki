@@ -29,7 +29,7 @@ The factory [`createImageCompressionControlTests()`](../../../modules/vulkan/api
 - `android_hardware_buffer` exposes four flag intermediate nodes: `default`, `fixed_rate_default`, `disabled`, `explicit`. Each flag leaf expands to one test case leaf per format in a fixed list of 11 AHB-compatible formats, for 44 leaves total. See [`addAhbCompressionControlTests()`](../../../modules/vulkan/api/vktApiImageCompressionControlTests.cpp#L712-L734).
 - `swapchain` exposes one WSI-platform intermediate node per `vk::wsi::Type` value (`android`, `direct`, `direct_drm`, `headless`, `metal`, `wayland`, `win32`, `xcb`, `xlib`), and each WSI node has four test case leaves named `default`, `fixed_rate_default`, `disabled`, `explicit`, for 36 leaves total. See [`createImageCompressionControlTests()` swapchain branch](../../../modules/vulkan/api/vktApiImageCompressionControlTests.cpp#L783-L797).
 
-Total registered leaves: 920, verified against [`api.txt`](../../../mustpass/main/vk-default/api.txt#L318003-L318922).
+Total registered leaves: 920, verified against [`api.txt`](../../../mustpass/main/vk-default/api.txt#L267497-L267497).
 
 ## Parameter Dimensions and Observed Values
 
@@ -188,4 +188,4 @@ The setup preceding `validate()` differs per image source:
 | Compression-control support gate | [`checkImageCompressionControlSupport()`](../../../modules/vulkan/api/vktApiImageCompressionControlTests.cpp#L80-L100) | Requires `VK_EXT_image_compression_control` and the `imageCompressionControl` feature; for swapchain also requires `VK_EXT_image_compression_control_swapchain` and `imageCompressionControlSwapchain`. |
 | AHB support gate | [`checkAhbImageSupport()`](../../../modules/vulkan/api/vktApiImageCompressionControlTests.cpp#L219-L291) | Verifies AHB format allocatability, external memory features, and compression flag overlap before creating an AHB-backed image. |
 | Swapchain device creation | [`createDeviceWithWsi()`](../../../modules/vulkan/api/vktApiImageCompressionControlTests.cpp#L507-L558) | Creates a custom device with `VK_KHR_swapchain`, the WSI platform extension, and both compression-control extensions. |
-| Mustpass range | [`api.txt#L318003-L318922`](../../../mustpass/main/vk-default/api.txt#L318003-L318922) | All 920 `dEQP-VK.api.image_compression_control.*` entries. |
+| Mustpass range | [`api.txt#L318003-L318922`](../../../mustpass/main/vk-default/api.txt#L267497-L267497) | All 920 `dEQP-VK.api.image_compression_control.*` entries. |

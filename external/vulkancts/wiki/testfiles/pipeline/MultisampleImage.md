@@ -3,7 +3,7 @@
 **Core question:** Do multisampled-image rendering, access, ordering, and resolve paths preserve the expected per-sample behavior and final image values?
 
 - This page documents the `pipeline.multisample` image-access intermediate nodes implemented by [`vktPipelineMultisampleImageTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1-L2989).
-- The source is mixed implementation and registration code. It implements `sampled_image`, `storage_image`, `standardsampleposition`, `samples_mapping_order`, and `3d`, while [`createMultisampleTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L7247-L8096) attaches those intermediate nodes below each multisample construction root.
+- The source is mixed implementation and registration code. It implements `sampled_image`, `storage_image`, `standardsampleposition`, `samples_mapping_order`, and `3d`, while [`createMultisampleTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L7700-L7720) attaches those intermediate nodes below each multisample construction root.
 - The direct intermediate node is the behavioral axis. Format, extent, layer count, sample count, and construction type broaden the coverage of its selected mechanism.
 
 ## Background Knowledge
@@ -36,7 +36,7 @@ The same factories create the corresponding intermediate nodes under `pipeline.f
 | 3D extent and layers | `64x64x8_1` | Uses the separate 3D-image setup. | [`addTestCasesWithFunctions3d()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2802-L2846) |
 | Format | `r8g8b8a8_unorm`, `r32_uint`, `r16g16_sint`, `r32g32b32a32_sfloat`; position path also uses `r32g32b32a32_sfloat` | Changes the storage and comparison representation. | [2D matrix](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2764-L2800), [position matrix](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2848-L2886) |
 | Sample count | `samples_2`, `samples_4`, `samples_8`, `samples_16`, `samples_32`, `samples_64` | Changes the number of per-pixel values the selected mechanism must handle. | [Common matrix](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2755-L2800) |
-| Pipeline construction type | Supported construction variants | Repeats each C++ matrix through the pipeline registration framework. | [Parent registration](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L7247-L8096) |
+| Pipeline construction type | Supported construction variants | Repeats each C++ matrix through the pipeline registration framework. | [Parent registration](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L7700-L7720) |
 
 ## Behavior Parameters
 
@@ -444,6 +444,6 @@ void main()
 | Storage-image path | [`StorageImage`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1866-L2212) | Implements storage-image access and image comparison. |
 | Position and ordering paths | [`StandardSamplePosition` and `SamplesMappingOrder`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2214-L2726) | Implement standard-position and sample-order validators. |
 | Matrix and factories | [`addTestCasesWithFunctions()` through `createMultisample3dImageTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L2749-L2989) | Builds the registered matrices and intermediate nodes. |
-| Parent dispatcher | [`createMultisampleTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L7247-L8096) | Attaches these factories below multisample construction roots. |
+| Parent dispatcher | [`createMultisampleTests()`](../../../modules/vulkan/pipeline/vktPipelineMultisampleTests.cpp#L7700-L7720) | Attaches these factories below multisample construction roots. |
 | Vulkan multisample state | [`VkPipelineMultisampleStateCreateInfo`](../../../../vulkan-docs/src/chapters/pipelines.adoc#L2188-L2200) | Defines pipeline multisample state. |
 | Multisampled storage-image feature | [`shaderStorageImageMultisample`](../../../../vulkan-docs/src/chapters/features.adoc#L577-L581) | Defines support for multisampled storage images. |

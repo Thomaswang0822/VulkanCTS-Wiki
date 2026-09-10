@@ -41,11 +41,11 @@ The compute tree contains only `basic`. The graphics construction variants each 
 | Dimension | Registered values | Meaning | Evidence |
 |---|---|---|---|
 | Input variation | `basic`, random variants | Selects generated image data. | [factory](../../../modules/vulkan/image_processing/vktImageProcessingBoxFilterSamplingTests.cpp#L1430-L1670) |
-| Pipeline path | compute, monolithic, fast-lib, shader-object graphics | Selects execution construction. | [dispatcher](../../../modules/vulkan/image_processing/vktImageProcessingTests.cpp#L43-L85) |
+| Pipeline path | compute, monolithic, fast-lib, shader-object graphics | Selects execution construction. Compute and all graphics paths register `basic`; only monolithic graphics additionally registers the parameter groups below. | [dispatcher](../../../modules/vulkan/image_processing/vktImageProcessingTests.cpp#L43-L85), [common factory](../../../modules/vulkan/image_processing/vktImageProcessingBoxFilterSamplingTests.cpp#L1400-L1655) |
 
 ## Behavior Parameters
 
-Each case varies image format, input data, coordinates, and box size within the supported property limits.
+Each case varies image format, input data, coordinates, and box size within the supported property limits. The `basic` leaf is generated for both random-reference values and every supported format in each construction path. The monolithic-only groups isolate box parameters, sampler address and reduction modes, tiling, component swizzles, image layouts, shader stages, descriptor update-after-bind, and unnormalized coordinates; fast-linked and shader-object graphics intentionally do not duplicate those groups ([conditional registration](../../../modules/vulkan/image_processing/vktImageProcessingBoxFilterSamplingTests.cpp#L1448-L1654)).
 
 ## Shader Analysis
 
@@ -152,7 +152,7 @@ Only supported format and parameter combinations are registered.
 ## Key Takeaways
 
 - The family validates functional box filtering rather than only advertised limits.
-- Compute and graphics paths share the reference calculation but use different execution plumbing.
+- Compute and graphics paths share the reference calculation but use different execution plumbing. The graphics `basic` family is present for monolithic, fast-linked-library, and shader-object construction; the additional graphics parameter groups are monolithic-only by source design.
 
 ## Source Reference Appendix
 

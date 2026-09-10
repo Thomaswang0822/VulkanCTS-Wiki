@@ -38,7 +38,7 @@ The tree shows only direct children. Beneath the image-type groups, registration
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Root | `image_sparse_residency`, `device_group_image_sparse_residency` | Selects regular sparse binds or device-group sparse-bind metadata. | [`createImageSparseResidencyTests`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseResidency.cpp#L2140-L2149) |
+| Root | `image_sparse_residency`, `device_group_image_sparse_residency` | Selects regular sparse binds or device-group sparse-bind metadata. | [`createImageSparseResidencyTests`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseResidency.cpp#L2135-L2145) |
 | Image type | `2d`, `2d_array`, `cube`, `cube_array`, `3d` | Selects image dimensionality and layer or depth interpretation. | [`createImageSparseResidencyTestsCommon`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseResidency.cpp#L2029-L2045) |
 | Regular image size | `512_256_1`, `1024_128_1`, `11_137_1` for `2d`; `512_256_6`, `1024_128_8`, `11_137_3` for `2d_array`; `256_256_1`, `128_128_1`, `137_137_1` for `cube`; `256_256_6`, `128_128_8`, `137_137_3` for `cube_array`; `512_256_16`, `1024_128_8`, `11_137_3` for `3d` | Varies sparse block counts, image extent, array layers, or 3D depth. | [`createImageSparseResidencyTestsCommon`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseResidency.cpp#L2030-L2045) |
 | Format | Formats from `getSparseResidencyTestFormats`; applicable regular non-device-group cases also include `VK_FORMAT_A8_UNORM_KHR` | Selects channel class, plane layout, storage compatibility, and format-specific feature checks. | [`ImageSparseResidencyCase::checkSupport`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseResidency.cpp#L276-L336) |
@@ -303,7 +303,7 @@ The regular matrix adds `mutable` only to the non-device-group root because the 
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createImageSparseResidencyTests` and `createDeviceGroupImageSparseResidencyTests` | [`vktSparseResourcesImageSparseResidency.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseResidency.cpp#L2140-L2149) | Registers the two category-qualified roots. |
+| `createImageSparseResidencyTests` and `createDeviceGroupImageSparseResidencyTests` | [`vktSparseResourcesImageSparseResidency.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseResidency.cpp#L2135-L2145) | Registers the two category-qualified roots. |
 | `createImageSparseResidencyTestsCommon` | [`vktSparseResourcesImageSparseResidency.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseResidency.cpp#L2025-L2137) | Defines image types, sizes, formats, and the regular-only mutable branch. |
 | `ImageSparseResidencyCase::checkSupport` | [`vktSparseResourcesImageSparseResidency.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseResidency.cpp#L276-L337) | Defines image, format, and feature support gates. |
 | `ImageSparseResidencyInstance::iterate` | [`vktSparseResourcesImageSparseResidency.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageSparseResidency.cpp#L365-L1205) | Creates resources, binds sparse memory, dispatches shaders, copies planes, and validates resident and nonresident data. |

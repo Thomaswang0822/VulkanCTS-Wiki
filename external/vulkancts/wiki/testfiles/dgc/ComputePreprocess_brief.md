@@ -90,7 +90,7 @@ The host reads the result buffer after execution and compares its values with th
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Registration and case construction | [vktDGCComputePreprocessTests registration](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTests.cpp#L502-L560) | Defines the registered families and their parameter combinations. |
+| Registration and case construction | [vktDGCComputePreprocessTests registration](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTests.cpp#L498-L535) | Defines the registered families and their parameter combinations. |
 | Execution and result verification | [vktDGCComputePreprocessTests verification](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTests.cpp#L430-L491) | Shows command execution and host-side result checking. |
 | DGC helper behavior | [device-generated-commands helpers](../../../modules/vulkan/device_generated_commands/) | Provides the helper implementation used by the test. |
 | DGC specification | [Device-Generated Commands](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc) | Defines preprocessing and generated-command execution semantics. |

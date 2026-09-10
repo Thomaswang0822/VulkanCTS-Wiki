@@ -2,7 +2,7 @@
 
 **Core question:** Does the robustness buffer-access generator preserve permitted results for uniform, storage, and texel-buffer accesses that cross a descriptor or allocation boundary?
 
-- This page covers `robustness.buffer_access`, `robustness.pipeline_robustness_buffer_access`, and `robustness.descriptor_heap_buffer_access` from [vktRobustnessBufferAccessTests.cpp](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1930-L2122).
+- This page covers `robustness.buffer_access`, `robustness.pipeline_robustness_buffer_access`, and `robustness.descriptor_heap_buffer_access` from [vktRobustnessBufferAccessTests.cpp](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1929-L2035).
 - The shared generator varies shader stage, access form, format, range, and read/write operation; the latter two roots are non-VulkanSC variants with different feature/device setup.
 - The host checks in-range values, partial accesses, out-of-bounds results, and untouched output bytes against the local robustness predicates.
 
@@ -37,19 +37,19 @@ robustness.descriptor_heap_buffer_access
 └── vertex
 ```
 
-`pipeline_robustness_buffer_access` and `descriptor_heap_buffer_access` are registered only outside Vulkan SC. The shared factory and dispatcher are [here](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1930-L2122) and [here](../../../modules/vulkan/robustness/vktRobustnessTests.cpp#L65-L95).
+`pipeline_robustness_buffer_access` and `descriptor_heap_buffer_access` are registered only outside Vulkan SC. The shared factory and dispatcher are [here](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1929-L2035) and [here](../../../modules/vulkan/robustness/vktRobustnessTests.cpp#L65-L95).
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Root mode | `buffer_access`, `pipeline_robustness_buffer_access`, `descriptor_heap_buffer_access` | Selects ordinary robust-device setup, pipeline robustness, or descriptor-heap binding. | [Factory flags](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L2097-L2122) |
+| Root mode | `buffer_access`, `pipeline_robustness_buffer_access`, `pipeline_robustness_heap_buffer_access`, `descriptor_heap_buffer_access` | Selects ordinary robust-device setup, pipeline robustness, pipeline robustness with heap-backed access, or descriptor-heap binding. | [Factory flags](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L2002-L2035) |
 | Shader stage | `vertex`, `fragment`, `compute` | Runs equivalent access logic in graphics or compute execution. | [Stage registration](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1939-L1943) |
 | Access type | `mat4_copy`, `vec4_copy`, `vec4_member_copy`, `scalar_copy`, `texel_copy` | Changes access granularity and generated resource declarations. | [Shader types](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L49-L58) |
 | Format | `r32_sint`, `r32_uint`, `r64_sint`, `r64_uint`, `r32_sfloat`, plus four-component texel formats | Changes scalar width, component layout, and required features. | [Format arrays](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1945-L1951) |
-| Operation | `oob_uniform_read`, `oob_storage_read`, `oob_storage_write` | Selects the access direction and descriptor class. | [Operation groups](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L2023-L2058) |
+| Operation | `oob_uniform_read`, `oob_storage_read`, `oob_storage_write` | Selects the access direction and descriptor class. | [Operation groups](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1929-L1998) |
 | Range | `range_1_byte`, `range_3_bytes`, `range_4_bytes`, `range_32_bytes`, `range_1_texel`, `range_3_texels` | Creates complete or partial boundary crossings. | [Range arrays](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1953-L1963) |
-| Boundary group | ordinary range and `out_of_alloc` | Separates descriptor-range overrun from backing-allocation overrun. | [Out-of-allocation generation](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L2063-L2089) |
+| Boundary group | ordinary range and `out_of_alloc` | Separates descriptor-range overrun from backing-allocation overrun. | [Out-of-allocation generation](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1968-L1993) |
 
 ## Behavior Parameters
 
@@ -423,7 +423,7 @@ Cases are skipped when required robust-buffer, stage-store, 64-bit, texel-format
 
 ### Design-based pruning
 
-Matrix reductions keep `mat4_copy` for floating-point formats, restrict `vec4_member_copy` to accesses no wider than 16 bytes, reduce pipeline-robustness formats, and omit pipeline-robustness storage reads as duplicated coverage [generation](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L2009-L2089).
+Matrix reductions keep `mat4_copy` for floating-point formats, restrict `vec4_member_copy` to accesses no wider than 16 bytes, reduce pipeline-robustness formats, and omit pipeline-robustness storage reads as duplicated coverage [generation](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1929-L1998).
 
 ## Key Takeaways
 
@@ -440,5 +440,5 @@ Matrix reductions keep `mat4_copy` for floating-point formats, restrict `vec4_me
 | Device and feature setup | [Read/write instance creation](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L721-L905) | Selects robust, pipeline-robustness, and descriptor-heap paths. |
 | Resource setup | [Buffer and descriptor setup](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L918-L1536) | Creates buffers, descriptors, and execution environments. |
 | Host verification | [verifyResult()](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1543-L1851) | Defines accepted values and final status. |
-| Registration | [addBufferAccessTests()](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1930-L2122) | Defines roots, direct children, and parameter reductions. |
+| Registration | [addBufferAccessTests()](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1929-L2035) | Defines roots, direct children, and parameter reductions. |
 | Category insertion | [Dispatcher](../../../modules/vulkan/robustness/vktRobustnessTests.cpp#L65-L95) | Attaches the roots below `robustness`. |

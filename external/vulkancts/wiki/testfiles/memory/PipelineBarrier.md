@@ -420,10 +420,10 @@ void main (void) {
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Usage names and Vulkan flags | [`usageToName()` through `usageToAccessFlags()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L305-L494) | Maps registered names to resource, stage, and access flags. |
-| Cache-state dependency model | [`CacheState`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L7500-L7927) | Tracks execution completion, write availability, and access visibility. |
-| Legal operation generation | [`State`, `getAvailableOps()`, and `applyOp()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L8024-L8870) | Defines legal randomized state transitions. |
-| Barrier command construction | [`createCmdCommand()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTests.cpp#L8918-L9053) | Constructs image transitions and global, buffer, and image barriers. |
+| Usage names and Vulkan flags | [`usageToName()` through `usageToAccessFlags()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTestUtils.cpp#L144-L319) | Maps registered names to resource, stage, and access flags. |
+| Cache-state dependency model | [`CacheState`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTestUtils.cpp#L4380-L4815) | Tracks execution completion, write availability, and access visibility. |
+| Legal operation generation | [`State`, `getAvailableOps()`, and `applyOp()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTestUtils.cpp#L5000-L5480) | Defines legal randomized state transitions. |
+| Barrier command construction | [`createCmdCommand()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTestUtils.cpp#L5481-L5560) | Constructs image transitions and global, buffer, and image barriers. |
 | Sequence construction | [`createCommands()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTestUtils.cpp#L5744-L5794) | Builds each seeded randomized workload. |
 | Runtime and verification | [`MemoryTestInstance`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierTestUtils.cpp#L5892-L6198) | Iterates memory types and workloads, then collects command results. |
 | Shader builders | [`AddPrograms::init()`](../../../modules/vulkan/memory/vktMemoryPipelineBarrierGraphicsTests.cpp#L3601-L3717) | Generates programs for shader-visible consumers. |

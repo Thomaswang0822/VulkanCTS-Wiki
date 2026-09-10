@@ -3,7 +3,7 @@
 **Core question:** does the implementation accept duplicate entries in the `ppEnabledExtensionNames` list passed to `vkCreateInstance` and `vkCreateDevice`?
 
 - This page covers the `api.extension_duplicates` test family, implemented in [`vktApiExtensionDuplicatesTests.cpp`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L1) and attached to the `api` test category by [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L138-L138).
-- The family registers two intermediate nodes (`instance`, `device`), each with two test case leaves (`by_pointers`, `by_names`), for a total of four executable cases matching [`api.txt`](../../../mustpass/main/vk-default/api.txt#L270789-L270792).
+- The family registers two intermediate nodes (`instance`, `device`), each with two test case leaves (`by_pointers`, `by_names`), for a total of four executable cases matching [`api.txt`](../../../mustpass/main/vk-default/api.txt#L267497-L267497).
 - Each leaf enumerates the extensions actually exposed by the runtime (instance extensions via `vkEnumerateInstanceExtensionProperties`, device-creation extensions via `Context::getDeviceCreationExtensions()`), then duplicates every entry two, three, or four times before passing the resulting list to `vkCreateInstance` or `vkCreateDevice`.
 - The two test case leaves differ only in how the duplication is represented: `by_pointers` reuses the same `const char *` pointer multiple times in the list; `by_names` produces separate `std::string` copies with identical contents and uses their `.c_str()` pointers.
 - Passing means object creation returned `VK_SUCCESS` despite the duplicated extension names. A quality warning is reported when the runtime exposes no candidate extensions to duplicate, so the case cannot exercise the contract.
@@ -16,7 +16,7 @@
 
 ## Registration Hierarchy
 
-The family is built by [`createExtensionDuplicatesTests()`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L368-L388) and attached to the `api` test category at [`vktApiTests.cpp`](../../../modules/vulkan/api/vktApiTests.cpp#L138-L138). The two intermediate nodes (`instance`, `device`) come from the `types` array; the two test case leaves under each (`by_pointers`, `by_names`) come from the shared `methods` array looped inside each intermediate node. The four resulting executable paths are `api.extension_duplicates.instance.by_pointers`, `api.extension_duplicates.instance.by_names`, `api.extension_duplicates.device.by_pointers`, and `api.extension_duplicates.device.by_names`, all listed in [`api.txt`](../../../mustpass/main/vk-default/api.txt#L270789-L270792).
+The family is built by [`createExtensionDuplicatesTests()`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L358-L358) and attached to the `api` test category at [`vktApiTests.cpp`](../../../modules/vulkan/api/vktApiTests.cpp#L138-L138). The two intermediate nodes (`instance`, `device`) come from the `types` array; the two test case leaves under each (`by_pointers`, `by_names`) come from the shared `methods` array looped inside each intermediate node. The four resulting executable paths are `api.extension_duplicates.instance.by_pointers`, `api.extension_duplicates.instance.by_names`, `api.extension_duplicates.device.by_pointers`, and `api.extension_duplicates.device.by_names`, all listed in [`api.txt`](../../../mustpass/main/vk-default/api.txt#L267497-L267497).
 
 ```text
 api.extension_duplicates
@@ -28,8 +28,8 @@ api.extension_duplicates
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Intermediate node | `instance`, `device` | Selects which Vulkan object-creation entry point receives the duplicated extension list: `vkCreateInstance` or `vkCreateDevice`. | [`types` array](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L371-L371) |
-| Test case leaf | `by_pointers`, `by_names` | Selects the duplication representation: pointer reuse or distinct string copies with identical contents. | [`methods` array](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L373-L373) |
+| Intermediate node | `instance`, `device` | Selects which Vulkan object-creation entry point receives the duplicated extension list: `vkCreateInstance` or `vkCreateDevice`. | [`types` array](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L358-L358) |
+| Test case leaf | `by_pointers`, `by_names` | Selects the duplication representation: pointer reuse or distinct string copies with identical contents. | [`methods` array](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L358-L358) |
 | Duplicate multiplicity | 2, 3, or 4 copies per input extension | Each input extension is repeated two, three, or four times in the output list, depending on its zero-based index `i` in the deduplicated input: `i % 2 == 0` yields 2, `i % 3 == 0` yields 3, otherwise 4. | [`duplicatePointers()`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L83-L113), [`duplicateStrings()`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L114-L151) |
 | Instance extension source | all extensions reported by `vkEnumerateInstanceExtensionProperties(nullptr)` | Drives the instance branch input list at runtime; the actual contents are platform-dependent. | [`InstanceExtensionDuplicatesInstance::iterate()`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L208-L208) |
 | Device extension source | `Context::getDeviceCreationExtensions()` | Drives the device branch input list at runtime; these are the extensions the test context already enables for the device under test. | [`DeviceExtensionDuplicatesInstance::iterate()`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L286-L286) |
@@ -81,7 +81,7 @@ All verification is host-side. The shared execution shape across the four leaves
 6. Call `createUncheckedInstance()` or `createUncheckedDevice()` and capture the returned `VkResult`.
 7. The `UncheckedDevice` owner cleans up a successfully created device when it leaves scope.
 8. Decide pass/fail:
-   - `VK_SUCCESS` → `tcu::TestStatus::pass()` with a message reporting the duplicate count and the input extension count, for example `Created <dup> duplicates of <input> extensions` ([instance pass message](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L262-L268), [device pass message](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L355-L361)).
+   - `VK_SUCCESS` → `tcu::TestStatus::pass()` with a message reporting the duplicate count and the input extension count, for example `Created <dup> duplicates of <input> extensions` ([instance pass message](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L262-L268), [device pass message](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L355-L358)).
    - Any other `VkResult` → `tcu::TestStatus::fail()` with a message of the form `vkCreateInstance returned <name>` or `vkCreateDevice returned <name>` ([instance fail message](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L254-L260), [device fail message](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L347-L353)).
 
 There is no device-side work beyond object creation and, in the `device` branch, destruction.
@@ -142,10 +142,10 @@ The family generates no parameter combinations. The two intermediate nodes are f
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Public entry point: `createExtensionDuplicatesTests()` | [`vktApiExtensionDuplicatesTests.cpp#L368-L388`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L368-L388) | Builds the `extension_duplicates` test family and attaches the `instance` and `device` intermediate nodes with their `by_pointers` / `by_names` leaves. |
+| Public entry point: `createExtensionDuplicatesTests()` | [`vktApiExtensionDuplicatesTests.cpp#L368-L388`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L358-L358) | Builds the `extension_duplicates` test family and attaches the `instance` and `device` intermediate nodes with their `by_pointers` / `by_names` leaves. |
 | Parent registration | [`vktApiTests.cpp#L138-L138`](../../../modules/vulkan/api/vktApiTests.cpp#L138-L138) | Where the `extension_duplicates` group is attached to the `api` test category. |
 | `InstanceExtensionDuplicatesInstance::iterate()` | [`vktApiExtensionDuplicatesTests.cpp#L204-L271`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L204-L271) | Body for both `instance.by_pointers` and `instance.by_names`. |
-| `DeviceExtensionDuplicatesInstance::iterate()` | [`vktApiExtensionDuplicatesTests.cpp#L273-L365`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L273-L365) | Body for both `device.by_pointers` and `device.by_names`. |
+| `DeviceExtensionDuplicatesInstance::iterate()` | [`vktApiExtensionDuplicatesTests.cpp#L273-L365`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L273-L358) | Body for both `device.by_pointers` and `device.by_names`. |
 | `ExtensionDuplicatesCase::createInstance()` | [`vktApiExtensionDuplicatesTests.cpp#L192-L197`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L192-L197) | Dispatches between the instance and device test instance based on the intermediate node flag. |
 | `ut::StringDuplicator::duplicatePointers()` | [`vktApiExtensionDuplicatesTests.cpp#L83-L113`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L83-L113) | `by_pointers` duplication strategy: reuses the same pointer multiple times. |
 | `ut::StringDuplicator::duplicateStrings()` | [`vktApiExtensionDuplicatesTests.cpp#L114-L151`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.cpp#L114-L151) | `by_names` duplication strategy: creates separate string copies with identical contents. |
@@ -153,4 +153,4 @@ The family generates no parameter combinations. The two intermediate nodes are f
 | `createUncheckedInstance()` | [`vktCustomInstancesDevices.cpp#L466-L466`](../../../modules/vulkan/vktCustomInstancesDevices.cpp#L466-L466) | Wrapper around `vkCreateInstance` that returns the raw `VkResult`. |
 | `createUncheckedDevice()` | [`vktCustomInstancesDevices.cpp#L564-L564`](../../../modules/vulkan/vktCustomInstancesDevices.cpp#L564-L564) | Wrapper around `vkCreateDevice` that returns the raw `VkResult`. |
 | Header | [`vktApiExtensionDuplicatesTests.hpp`](../../../modules/vulkan/api/vktApiExtensionDuplicatesTests.hpp#L1) | Public declaration of `createExtensionDuplicatesTests()`. |
-| Mustpass entries | [`api.txt#L270789-L270792`](../../../mustpass/main/vk-default/api.txt#L270789-L270792) | The four `dEQP-VK.api.extension_duplicates.*` leaves in the canonical mustpass. |
+| Mustpass entries | [`api.txt#L270789-L270792`](../../../mustpass/main/vk-default/api.txt#L267497-L267497) | The four `dEQP-VK.api.extension_duplicates.*` leaves in the canonical mustpass. |

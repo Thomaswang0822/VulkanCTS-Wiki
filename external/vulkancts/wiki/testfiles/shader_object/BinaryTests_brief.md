@@ -175,7 +175,7 @@ Feature-block index axis (leaves of every stage and linked subgroup under `devic
 | Feature block constants | [vktShaderObjectBinaryTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBinaryTests.cpp#L700-L736) | The 5-times-10 core and 30-step pNext grouping. |
 | Feature struct list | [vkDeviceFeaturesForShaderObject.inl](../../../framework/vulkan/generated/vulkan/vkDeviceFeaturesForShaderObject.inl#L207-L408) | The ~200 extension feature structures entering the pNext chain. |
 | Support checks of the three nodes | [vktShaderObjectBinaryTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBinaryTests.cpp#L420-L429) | `VK_EXT_shader_object` plus stage feature gates. |
-| Registration | [vktShaderObjectBinaryTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBinaryTests.cpp#L836-L946) | Builds `query`, `incompatible`, and `device_features`. |
+| Registration | [vktShaderObjectBinaryTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectBinaryTests.cpp#L828-L938) | Builds `query`, `incompatible`, and `device_features`. |
 | `createShaderFromBinary` | [vktShaderObjectCreateUtil.cpp](../../../modules/vulkan/shader_object/vktShaderObjectCreateUtil.cpp#L96-L120) | The unlinked binary recreation used by `shader_from_binary`. |
 | Basic shader sources | [vktShaderObjectCreateUtil.cpp](../../../modules/vulkan/shader_object/vktShaderObjectCreateUtil.cpp#L122-L211) | The shared creation input for all six stages. |
 | Parent registration | [vktShaderObjectTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L47-L63) | Attaches `binary` under the `shader_object` test category. |

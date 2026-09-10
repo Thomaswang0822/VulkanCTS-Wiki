@@ -31,7 +31,7 @@ The first two leaves are registered directly by [createMaintenance3Tests()](../.
 - `_nonzero_binding_offset` is present or absent.
 - `_create_layout` is present or absent.
 
-The complete leaf set is visible in [api.txt](../../../mustpass/main/vk-default/api.txt#L327103-L327280).
+The complete leaf set is visible in [api.txt](../../../mustpass/main/vk-default/api.txt#L267497-L267497).
 
 ## Parameter Dimensions and Observed Values
 
@@ -160,4 +160,4 @@ No shader is involved in this test family. All checks are host-side API queries 
 | Variable count support check | [testCountLayoutSupport()](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L682-L855) | Queries `VkDescriptorSetVariableDescriptorCountLayoutSupport` and validates consistency. |
 | Support and count helper | [getSetLayoutSupportAndCount()](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L668-L680) | Chains the variable-count structure and pre-fills `maxVariableDescriptorCount` with `UINT32_MAX`. |
 | Support gates | [checkSupportCountLayoutSupport()](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L644-L660) | Requires `VK_KHR_maintenance3`, `VK_EXT_descriptor_indexing`, the variable-count feature, and `VK_EXT_inline_uniform_block` where applicable. |
-| Mustpass entries | [api.txt#L327103-L327280](../../../mustpass/main/vk-default/api.txt#L327103-L327280) | Lists all 178 `dEQP-VK.api.maintenance3_check.*` leaves. |
+| Mustpass entries | [api.txt#L327103-L327280](../../../mustpass/main/vk-default/api.txt#L267497-L267497) | Lists all 178 `dEQP-VK.api.maintenance3_check.*` leaves. |

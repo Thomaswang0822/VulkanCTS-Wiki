@@ -32,6 +32,8 @@ The WSI dispatcher registers this `swapchain` test family below each platform-sp
 
 ## Parameter Dimensions and Observed Values
 
+The `extended_flags` child is a direct swapchain family that exercises the extended swapchain-create flag path. It is separate from the `private_data` metadata family.
+
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
 | WSI platform | `xlib`, `xcb`, `wayland`, `android`, `win32`, `metal`, `headless`, `direct_drm`, `direct` | Selects native window, surface, and platform extent behavior. Availability depends on the build and mustpass configuration. | [WSI type names](../../../framework/vulkan/vkWsiUtil.cpp#L64-L70), [WSI dispatcher](../../../modules/vulkan/wsi/vktWsiTests.cpp#L76-L83) |

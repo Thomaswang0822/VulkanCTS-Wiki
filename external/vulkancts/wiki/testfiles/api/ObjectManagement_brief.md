@@ -148,7 +148,7 @@ The object type (the test case leaf, e.g. `instance`, `buffer_uniform_small`, `i
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Test family registration | [vktApiObjectManagementTests.cpp#L3601-L4130](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3601-L4130) | `createObjectManagementTests` adds every intermediate node and defines per-leaf `EMPTY_CASE_DESC` exclusions. |
+| Test family registration | [vktApiObjectManagementTests.cpp#L3601-L4130](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L3601-L4050) | `createObjectManagementTests` adds every intermediate node and defines per-leaf `EMPTY_CASE_DESC` exclusions. |
 | Parent registration | [vktApiTests.cpp#L101](../../../modules/vulkan/api/vktApiTests.cpp#L101) | `createObjectManagementTests` is added to the `api` test category. |
 | `single` test body | [vktApiObjectManagementTests.cpp#L2542-L2553](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L2542-L2553) | `createSingleTest` shows the create-then-destroy contract. |
 | `multiple_unique_resources` test body | [vktApiObjectManagementTests.cpp#L2555-L2572](../../../modules/vulkan/api/vktApiObjectManagementTests.cpp#L2555-L2572) | Four independent resource chains. |

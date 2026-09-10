@@ -39,12 +39,12 @@ The compute tree contains only `basic`. The graphics construction variants each 
 
 | Dimension | Registered values | Meaning | Evidence |
 |---|---|---|---|
-| Pipeline path | compute, monolithic, fast-lib, shader-object graphics | Selects execution construction. | [dispatcher](../../../modules/vulkan/image_processing/vktImageProcessingTests.cpp#L43-L85) |
+| Pipeline path | compute, monolithic, fast-lib, shader-object graphics | Selects execution construction. Compute and all graphics paths register `basic`; only monolithic graphics additionally registers the parameter groups below. | [dispatcher](../../../modules/vulkan/image_processing/vktImageProcessingTests.cpp#L43-L85), [common factory](../../../modules/vulkan/image_processing/vktImageProcessingWeightImageSamplingTests.cpp#L1280-L1600) |
 | Weight/input data | factory-generated supported combinations | Changes source and weight images used by the reference. | [factory](../../../modules/vulkan/image_processing/vktImageProcessingWeightImageSamplingTests.cpp#L1280-L1600) |
 
 ## Behavior Parameters
 
-Cases vary weight-image dimensions, formats, coordinates, and pipeline construction while respecting the implementation's advertised limits.
+Cases vary weight-image dimensions, formats, coordinates, and pipeline construction while respecting the implementation's advertised limits. The `basic` leaf is generated for both random-reference values and every supported format in each construction path. The monolithic-only groups isolate weight-filter parameters, sampler address and reduction modes, tiling, component swizzles, image layouts, shader stages, descriptor update-after-bind, and unnormalized coordinates; fast-linked and shader-object graphics intentionally do not duplicate those groups ([conditional registration](../../../modules/vulkan/image_processing/vktImageProcessingWeightImageSamplingTests.cpp#L1280-L1600)).
 
 ## Shader Analysis
 
@@ -151,7 +151,7 @@ Only supported combinations are registered.
 ## Key Takeaways
 
 - The family tests functional weighted sampling, not merely property reporting.
-- Compute and graphics paths share expected-value logic but differ in execution construction.
+- Compute and graphics paths share expected-value logic but differ in execution construction. The graphics `basic` family is present for monolithic, fast-linked-library, and shader-object construction; the additional graphics parameter groups are monolithic-only by source design.
 
 ## Source Reference Appendix
 

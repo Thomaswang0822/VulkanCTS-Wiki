@@ -82,6 +82,8 @@ robustness.bind_index_buffer2
 
 ## Parameter Dimensions and Observed Values
 
+The added uint8/uint16 and pipeline-robustness leaves are direct test cases under `robustness.index_access`; they vary the index element width, indirect/count draw form, device-address path, and selected vertex/geometry/tessellation/fragment pipeline stages. They are not descendants of another intermediate registration node.
+
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
 | Test family | `index_access`, `bind_index_buffer2` | Selects out-of-bounds `firstIndex` behavior or sized-binding behavior. | [registration](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1116-L1205) |

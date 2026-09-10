@@ -29,8 +29,9 @@ representative ownership root while retaining the original runtime path.
 
 ## Parameter Dimensions and Observed Values
 
-| Dimension | Registered values | Meaning in this test | Evidence |
+| Dimension | Registered values | Meaning | Evidence |
 |---|---|---|---|
+| WSI platform variant | `android`, `direct`, `direct_drm`, `headless`, `metal`, `wayland`, `win32`, `xcb`, `xlib` | Selects the platform-specific surface and swapchain registration. The page displays `headless` as the representative ownership tree; the lookup builder preserves each original runtime path and maps the other variants to that representative root. | [`createMultisampledRenderToSwapchainTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L81-L92), [variant mapping](../../case_lookup/build_helper/category_handlers.py) |
 | Color-format combination | `b8g8r8a8_unorm...`, `r8g8b8a8_unorm...` | Selects swapchain and render-target formats. | [`vktWsiMultisampledRenderToSwapchainTests.cpp`](../../../modules/vulkan/wsi/vktWsiMultisampledRenderToSwapchainTests.cpp) |
 | Sample count | `2x`, `4x`, `8x`, `16x` | Selects the multisample count. | [`vktWsiMultisampledRenderToSwapchainTests.cpp`](../../../modules/vulkan/wsi/vktWsiMultisampledRenderToSwapchainTests.cpp) |
 | Rendering mode | `render_pass`, `dynamic_rendering` | Selects the command encoding for the render operation. | [`vktWsiMultisampledRenderToSwapchainTests.cpp`](../../../modules/vulkan/wsi/vktWsiMultisampledRenderToSwapchainTests.cpp) |

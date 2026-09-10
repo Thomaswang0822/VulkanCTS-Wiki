@@ -227,7 +227,7 @@ Secondary axes (swap cross product and unbind style):
 | Bindings matrix instance | [vktShaderObjectBindingTests.cpp#L895-L1048](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L895-L1048) | The 8-stage combination loop and the null-pointer unbind call. |
 | Mesh swap instance | [vktShaderObjectBindingTests.cpp#L1068-L1267](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1068-L1267) | Two mesh draws with a task or mesh swap between them. |
 | Final unbind instance | [vktShaderObjectBindingTests.cpp#L1503-L1964](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L1503-L1964) | VTG unbind, task/mesh unbind, and mesh-draw-then-vertex-draw sequences. |
-| Registration | [vktShaderObjectBindingTests.cpp#L2073-L2200](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L2073-L2200) | Builds all 273 leaves of the `binding` group. |
+| Registration | [vktShaderObjectBindingTests.cpp#L2069-L2196](../../../modules/vulkan/shader_object/vktShaderObjectBindingTests.cpp#L2069-L2196) | Builds all 273 leaves of the `binding` group. |
 | Shared shader set and bind helpers | [vktShaderObjectCreateUtil.cpp#L122-L211](../../../modules/vulkan/shader_object/vktShaderObjectCreateUtil.cpp#L122-L211), [vktShaderObjectCreateUtil.cpp#L420-L489](../../../modules/vulkan/shader_object/vktShaderObjectCreateUtil.cpp#L420-L489) | Basic GLSL set, `bindGraphicsShaders`, and null-stage bind helpers. |
 | Mustpass evidence | [binding.txt](../../../mustpass/main/vk-default/shader-object/binding.txt) | All 273 registered `dEQP-VK.shader_object.binding.*` case paths. |
 

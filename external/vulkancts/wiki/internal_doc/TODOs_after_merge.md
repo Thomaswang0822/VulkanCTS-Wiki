@@ -27,9 +27,9 @@ Temporary tracker for the 2026-09 upstream sync. Do not treat this file as a dur
 
 - [x] Inspect the pipeline mustpass reshaping: nested mustpass discovery and pipeline validation are complete. The current `vk-default/pipeline` layout contains 102 TXT files. The deleted unlinked-SPIR-V aggregate file has been replaced by family-specific evidence links in the repaired pages.
 - [x] Confirm recursive mustpass discovery and registration validation for `pipeline` and the shader-object-linked/unlinked variants. `verify_registration_paths.py pipeline` collected 452 paths and passed; the validator loaded the nested pipeline files. `verify_registration_paths.py shader_object` collected 83 paths and passed.
-- [ ] Inspect newly added mustpass coverage: `image/store-load-consistency.txt`, `postmortem.txt`, `shader-object/m11-independent-sets.txt`, and `vksc-fraction-mandatory-tests.txt`.
-- [ ] Check source/mustpass naming mappings: `renderpass` → `renderpasses`, `device_generated_commands` → `dgc`, `ray_tracing` → `ray_tracing_pipeline`, `modifiers` → `drm_format_modifiers`; also normalize hyphenated mustpass names such as `binding-model` and `query-pool`.
-- [ ] Keep generated Vulkan/framework changes separate from user-facing category facts unless they change documented behavior or evidence links.
+- [x] Inspect newly added mustpass coverage: `image/store-load-consistency.txt`, `postmortem.txt`, `shader-object/m11-independent-sets.txt`, and `vksc-fraction-mandatory-tests.txt`.
+- [x] Check source/mustpass naming mappings: `renderpass` → `renderpasses`, `device_generated_commands` → `dgc`, `ray_tracing` → `ray_tracing_pipeline`, `modifiers` → `drm_format_modifiers`; also normalize hyphenated mustpass names such as `binding-model` and `query-pool`.
+- [x] Keep generated Vulkan/framework changes separate from user-facing category facts unless they change documented behavior or evidence links.
 
 ## Category Review Queue
 
@@ -858,58 +858,41 @@ Priority is an initial triage based on changed-path scale and visible add/delete
 
 ## Changed Source Outside a Category Page
 
-- [ ] Review these root-level Vulkan module changes for cross-category impact; do not create a category decision from stat alone:
-  - `M` `external/vulkancts/modules/vulkan/CMakeLists.txt`
-  - `M` `external/vulkancts/modules/vulkan/vktBuildPrograms.cpp`
-  - `M` `external/vulkancts/modules/vulkan/vktContextManager.cpp`
-  - `M` `external/vulkancts/modules/vulkan/vktContextManager.hpp`
-  - `M` `external/vulkancts/modules/vulkan/vktCustomInstancesDevices.cpp`
-  - `M` `external/vulkancts/modules/vulkan/vktCustomInstancesDevices.hpp`
-  - `M` `external/vulkancts/modules/vulkan/vktShaderLibrary.cpp`
-  - `M` `external/vulkancts/modules/vulkan/vktTestCase.cpp`
-  - `M` `external/vulkancts/modules/vulkan/vktTestCase.hpp`
-  - `M` `external/vulkancts/modules/vulkan/vktTestGroupUtil.hpp`
-  - `M` `external/vulkancts/modules/vulkan/vktTestPackage.cpp`
-- [ ] Review these mustpass/framework-level changes for validator or global mapping impact:
-  - `M` `external/vulkancts/mustpass/main/src/excluded-tests.txt`
-  - `A` `external/vulkancts/mustpass/main/src/fraction-mandatory-tests-sc.txt`
-  - `M` `external/vulkancts/mustpass/main/vk-default.txt`
-  - `M` `external/vulkancts/mustpass/main/vk-fraction-mandatory-tests.txt`
-  - `M` `external/vulkancts/mustpass/main/vksc-default.txt`
-  - `A` `external/vulkancts/mustpass/main/vksc-fraction-mandatory-tests.txt`
+### Cross-category review
 
+The root-level framework and mustpass changes were reviewed against all completed categories. They affect build/package plumbing, shared context helpers, shader-program construction, and mustpass aggregation; no additional user-facing test-family behavior or ownership change was found beyond the category updates recorded above. The new fraction mandatory-test file is an inventory input, not a new test family.
 These items are coordination/validator checks, not automatic requests for a new wiki page.
 
 ## Category Pages with No Paths in the Upstream Scope
 
 The following existing category pages have no changed source/mustpass path under the scoped comparison. Record them as checked/no upstream-triggered review only after confirming the category mapping is not indirect:
-- [ ] `clipping` — no direct path in `e6b2240610e7d1dcefd84c8c5c32f88306e05f87..cf7edb26d3be2d8763595ed08fdc41f3c1b1966f`.
-- [ ] `depth` — no direct path in `e6b2240610e7d1dcefd84c8c5c32f88306e05f87..cf7edb26d3be2d8763595ed08fdc41f3c1b1966f`.
-- [ ] `fragment_operations` — no direct path in `e6b2240610e7d1dcefd84c8c5c32f88306e05f87..cf7edb26d3be2d8763595ed08fdc41f3c1b1966f`.
-- [ ] `fragment_shader_interlock` — no direct path in `e6b2240610e7d1dcefd84c8c5c32f88306e05f87..cf7edb26d3be2d8763595ed08fdc41f3c1b1966f`.
-- [ ] `fragment_shading_barycentric` — no direct path in `e6b2240610e7d1dcefd84c8c5c32f88306e05f87..cf7edb26d3be2d8763595ed08fdc41f3c1b1966f`.
-- [ ] `graphicsfuzz` — no direct path in `e6b2240610e7d1dcefd84c8c5c32f88306e05f87..cf7edb26d3be2d8763595ed08fdc41f3c1b1966f`.
-- [ ] `ubo` — no direct path in `e6b2240610e7d1dcefd84c8c5c32f88306e05f87..cf7edb26d3be2d8763595ed08fdc41f3c1b1966f`.
+- [x] `clipping` — no direct path in `e6b2240610e7d1dcefd84c8c5c32f88306e05f87..cf7edb26d3be2d8763595ed08fdc41f3c1b1966f`.
+- [x] `depth` — no direct path in `e6b2240610e7d1dcefd84c8c5c32f88306e05f87..cf7edb26d3be2d8763595ed08fdc41f3c1b1966f`.
+- [x] `fragment_operations` — no direct path in `e6b2240610e7d1dcefd84c8c5c32f88306e05f87..cf7edb26d3be2d8763595ed08fdc41f3c1b1966f`.
+- [x] `fragment_shader_interlock` — no direct path in `e6b2240610e7d1dcefd84c8c5c32f88306e05f87..cf7edb26d3be2d8763595ed08fdc41f3c1b1966f`.
+- [x] `fragment_shading_barycentric` — no direct path in `e6b2240610e7d1dcefd84c8c5c32f88306e05f87..cf7edb26d3be2d8763595ed08fdc41f3c1b1966f`.
+- [x] `graphicsfuzz` — no direct path in `e6b2240610e7d1dcefd84c8c5c32f88306e05f87..cf7edb26d3be2d8763595ed08fdc41f3c1b1966f`.
+- [x] `ubo` — no direct path in `e6b2240610e7d1dcefd84c8c5c32f88306e05f87..cf7edb26d3be2d8763595ed08fdc41f3c1b1966f`.
 
 Inventory check: `53` category pages found; `52` mapped categories have direct changed paths; `7` have none.
 
 ## Recommended Execution Order
 
 1. [x] Pipeline pages and mustpass validation repaired. English structure, links, and registration pass. Remaining merge-wide naming/link audit is tracked separately.
-2. [ ] Review P0 categories in queue order, grouping only tightly coupled pairs: `ray_query` + `ray_tracing_pipeline`, `shader_object` + `pipeline`, and `synchronization` + `synchronization2`.
-3. [ ] Review P1 categories and explicitly record no-update decisions where changes are mechanical.
-4. [ ] Review P2 categories and all existing pages with no direct paths for indirect/global effects.
-5. [ ] Run category-scoped link and registration validation after each edited batch; validate both members of shared-category groups.
-6. [ ] Run the practical user-facing whole-wiki link sweep after all category decisions are complete.
-7. [ ] Update `merge_update_log.md` with the concise durable sync entry.
-8. [ ] Decide with the user whether this temporary tracker remains during review or is removed before final commit; do not delete it automatically.
+2. [x] Review P0 categories in queue order, grouping only tightly coupled pairs: `ray_query` + `ray_tracing_pipeline`, `shader_object` + `pipeline`, and `synchronization` + `synchronization2`.
+3. [x] Review P1 categories and explicitly record no-update decisions where changes are mechanical.
+4. [x] Review P2 categories and all existing pages with no direct paths for indirect/global effects.
+5. [x] Run category-scoped link and registration validation after each edited batch; validate both members of shared-category groups.
+6. [x] Run the practical user-facing whole-wiki link sweep after all category decisions are complete.
+7. [x] Update `merge_update_log.md` with the concise durable sync entry.
+8. [x] Decide with the user whether this temporary tracker remains during review or is removed before final commit; do not delete it automatically.
 
 ## Completion Gate
 
-- [ ] Every category queue item has an evidence-backed `update` or `no wiki update` decision.
-- [ ] Every structural mustpass risk is resolved or explicitly deferred.
-- [ ] Edited pages pass link validation and registration validation.
-- [ ] User-facing global link sweep passes, with expected internal/non-user-facing findings identified separately.
-- [ ] `merge_update_log.md` has the new sync entry.
-- [ ] User has the final manual `git switch vkcts-wiki` / `git merge --no-ff merge_main_26-09-04` commands after review is complete.
+- [x] Every category queue item has an evidence-backed `update` or `no wiki update` decision.
+- [x] Every structural mustpass risk is resolved or explicitly deferred.
+- [x] Edited pages pass link validation and registration validation.
+- [x] User-facing global link sweep passes, with expected internal/non-user-facing findings identified separately.
+- [x] `merge_update_log.md` has the new sync entry.
+- [x] User has the final manual `git switch vkcts-wiki` / `git merge --no-ff merge_main_26-09-04` commands after review is complete.
 

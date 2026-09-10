@@ -32,6 +32,8 @@ These five direct children are intermediate nodes below the `rendering` test fam
 
 ## Parameter Dimensions and Observed Values
 
+The `push_data` child is a direct rendering family that checks push-data interaction with shader objects; it is not another descendant of `output_array`.
+
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
 | Direct intermediate node | `color_attachment_count_0`, `color_attachment_count_1`, `color_attachment_count_4`, `color_attachment_count_8`, `output_array` | Selects the base attachment count or the separate output-array mechanism. | [top-level registration](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1199-L1212), [output array](../../../modules/vulkan/shader_object/vktShaderObjectRenderingTests.cpp#L1355-L1394) |

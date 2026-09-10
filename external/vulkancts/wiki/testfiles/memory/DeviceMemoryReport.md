@@ -23,13 +23,13 @@ memory.device_memory_report
 └── external_memory
 ```
 
-The `memory` test category registers this test family only for Vulkan, not Vulkan SC, through [`createChildren()`](../../../modules/vulkan/memory/vktMemoryTests.cpp#L52-L78). The source then registers the three intermediate nodes shown above in [`createDeviceMemoryReportTests()`](../../../modules/vulkan/memory/vktMemoryDeviceMemoryReportTests.cpp#L2199-L2357).
+The `memory` test category registers this test family only for Vulkan, not Vulkan SC, through [`createChildren()`](../../../modules/vulkan/memory/vktMemoryTests.cpp#L52-L78). The source then registers the three intermediate nodes shown above in [`createDeviceMemoryReportTests()`](../../../modules/vulkan/memory/vktMemoryDeviceMemoryReportTests.cpp#L2199-L2351).
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Behavior family | `create_and_destroy_object`, `vk_device_memory`, `external_memory` | Selects lifecycle pairing, detailed `VkDeviceMemory` field checks, or external-memory identity checks. | [Group registration](../../../modules/vulkan/memory/vktMemoryDeviceMemoryReportTests.cpp#L2349-L2355) |
+| Behavior family | `create_and_destroy_object`, `vk_device_memory`, `external_memory` | Selects lifecycle pairing, detailed `VkDeviceMemory` field checks, or external-memory identity checks. | [Group registration](../../../modules/vulkan/memory/vktMemoryDeviceMemoryReportTests.cpp#L2349-L2351) |
 | Object case in `create_and_destroy_object` | 41 leaves covering device, memory, buffer, buffer view, image, image view, synchronization, query, shader/pipeline, descriptor, framebuffer, command-pool, and command-buffer objects | Exercises allocations associated with object types and object configurations that may consume device memory. | [Object case definitions](../../../modules/vulkan/memory/vktMemoryDeviceMemoryReportTests.cpp#L2238-L2322) |
 | Buffer size and use | 1 KiB and 16 MiB uniform or storage buffers | Varies the requested object size and usage without changing lifecycle validation. | [Buffer cases](../../../modules/vulkan/memory/vktMemoryDeviceMemoryReportTests.cpp#L2244-L2261) |
 | Image or image-view shape | 1D, 2D, 3D; array, cube, and cube-array views | Covers allocations associated with several image shapes and view types. | [Image and view cases](../../../modules/vulkan/memory/vktMemoryDeviceMemoryReportTests.cpp#L2270-L2280) |
@@ -129,7 +129,7 @@ The source registers only five external handle types: opaque FD, opaque Win32, o
 | Object lifecycle execution | [`createDestroyObjectTest()`](../../../modules/vulkan/memory/vktMemoryDeviceMemoryReportTests.cpp#L1737-L1764) | Creates and destroys each object case, then applies shared validation. |
 | Direct memory execution and checks | [`vkDeviceMemoryAllocateAndFreeTest()`](../../../modules/vulkan/memory/vktMemoryDeviceMemoryReportTests.cpp#L1766-L1847) | Checks timing, object type, identity, size, heap, and callback presence. |
 | External-memory support and execution | [External-memory path](../../../modules/vulkan/memory/vktMemoryDeviceMemoryReportTests.cpp#L1859-L2172) | Selects required extensions, exports and imports memory, and validates shared identity. |
-| Registration and parameter definitions | [`createDeviceMemoryReportTests()`](../../../modules/vulkan/memory/vktMemoryDeviceMemoryReportTests.cpp#L2199-L2357) | Defines all object leaves and registers the three intermediate nodes. |
+| Registration and parameter definitions | [`createDeviceMemoryReportTests()`](../../../modules/vulkan/memory/vktMemoryDeviceMemoryReportTests.cpp#L2199-L2351) | Defines all object leaves and registers the three intermediate nodes. |
 | Parent registration | [`createChildren()`](../../../modules/vulkan/memory/vktMemoryTests.cpp#L52-L78) | Places `device_memory_report` under the `memory` test category. |
 | Mustpass inventory | [`memory.txt`](../../../mustpass/main/vk-default/memory.txt#L855-L901) | Confirms the 47 executable paths in the default Vulkan mustpass set. |
 | Extension semantics | [`VK_EXT_device_memory_report`](../../../../vulkan-docs/src/appendices/VK_EXT_device_memory_report.adoc#L17-L27) | Describes callback purpose, hidden device allocations, and debugging-tool use. |

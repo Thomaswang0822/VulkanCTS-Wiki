@@ -386,4 +386,4 @@ void main (void)
 | `misc.txt` | [mustpass entries](../../../mustpass/main/vk-default/shader-object/misc.txt) | Contains 744 default mustpass entries for this test family. |
 | Tessellation stages and spacing | [Vulkan tessellation chapter](../../../../vulkan-docs/src/chapters/tessellation.adoc#L7-L19), [spacing rules](../../../../vulkan-docs/src/chapters/tessellation.adoc#L181-L220) | Grounds the control, tessellator, evaluation, subdivision, and spacing explanations. |
 | Shader-object stage creation | [Vulkan shader-object creation](../../../../vulkan-docs/src/chapters/shaders.adoc#L46-L60), [shader create info](../../../../vulkan-docs/src/chapters/shaders.adoc#L270-L306) | Grounds independent stage objects, `nextStage`, descriptors, and push-constant ranges. |
-| Push-constant validity | [common push-constant rules](../../../../vulkan-docs/src/chapters/commonvalidity/push_constants_common.adoc#L1-L40) | Grounds the range and stage-layout discussion. |
+| Push-constant validity | [common push-constant rules](../../../../vulkan-docs/src/chapters/commonvalidity/push_constants_common.adoc#L7-L26) | Grounds the range and stage-layout discussion. |

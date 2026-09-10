@@ -20,7 +20,7 @@ memory.address_binding_report
 └── create_and_destroy_object
 ```
 
-[`createObjectTestsGroup()`](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L1632-L1660) builds `create_and_destroy_object`. [`createAddressBindingReportTests()`](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L1831-L1985) assembles its 23 object-specific case arrays.
+[`createObjectTestsGroup()`](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L1632-L1660) builds `create_and_destroy_object`. [`createAddressBindingReportTests()`](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L1831-L1965) assembles its 23 object-specific case arrays.
 
 ## Parameter Dimensions and Observed Values
 
@@ -150,7 +150,7 @@ All rows share the same recorder and validator. A failure in any row can also in
 | Custom device setup | [`createDeviceWithAdressBindingReport()`](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L194-L232) | Enables the extension and feature for each isolated test device. |
 | Object creation and lifetime | [`createDestroyObjectTest()`](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L1763-L1827) | Installs the messenger, creates the object in a scope, destroys dependencies, and invokes validation. |
 | Pairing validator | [`validateCallbackRecords()`](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L1663-L1733) | Defines the pass/fail contract for BIND and UNBIND records. |
-| Test registration and matrix | [`createAddressBindingReportTests()`](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L1831-L1985) | Defines the hierarchy, object case names, parameter values, and 23 object types. |
+| Test registration and matrix | [`createAddressBindingReportTests()`](../../../modules/vulkan/memory/vktMemoryAddressBindingTests.cpp#L1831-L1965) | Defines the hierarchy, object case names, parameter values, and 23 object types. |
 | Root memory registration | [`createChildren()`](../../../modules/vulkan/memory/vktMemoryTests.cpp#L52-L77) | Adds `address_binding_report` below the `memory` test category. |
 | Vulkan callback semantics | [`VkDeviceAddressBindingCallbackDataEXT`](../../../../vulkan-docs/src/chapters/debugging.adoc#VkDeviceAddressBindingCallbackDataEXT) | Defines required callback fields, event types, object association, and reporting conditions. |
 | Feature semantics | [`reportAddressBinding`](../../../../vulkan-docs/src/chapters/features.adoc#features-reportAddressBinding) | Defines the feature that controls address-binding reporting support. |

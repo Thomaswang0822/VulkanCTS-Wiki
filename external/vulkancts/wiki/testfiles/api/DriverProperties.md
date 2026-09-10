@@ -3,7 +3,7 @@
 **Core question:** does the implementation's reported `VkPhysicalDeviceDriverProperties` contain sane, spec-shaped driver metadata?
 
 - This page covers the `api.driver_properties` test family implemented in [vktApiDriverPropertiesTests.cpp](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp) and attached to the `api` test category by [createApiTests()](../../../modules/vulkan/api/vktApiTests.cpp#L91-L91).
-- The family registers exactly five test case leaves, one per field of `VkPhysicalDeviceDriverProperties` that CTS validates: `driver_id_match`, `name_is_not_empty`, `name_zero_terminated`, `info_zero_terminated`, and `conformance_version` [createTestCases()](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L163-L170), [api.txt](../../../mustpass/main/vk-default/api.txt#L269464-L269468).
+- The family registers exactly five test case leaves, one per field of `VkPhysicalDeviceDriverProperties` that CTS validates: `driver_id_match`, `name_is_not_empty`, `name_zero_terminated`, `info_zero_terminated`, and `conformance_version` [createTestCases()](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L163-L170), [api.txt](../../../mustpass/main/vk-default/api.txt#L267497-L267497).
 - Each leaf runs the same host-side query through `vkGetPhysicalDeviceProperties2` and dispatches to one targeted validator selected by an enum.
 - The family is property-validation only: it queries driver metadata on the host and checks the returned fields, with no shaders or device-side resources involved.
 - Passing means the queried driver metadata satisfies the leaf-specific sanity rule. Each leaf produces its own pass/fail result.
@@ -30,7 +30,7 @@ api.driver_properties
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Test case leaf | `driver_id_match`, `name_is_not_empty`, `name_zero_terminated`, `info_zero_terminated`, `conformance_version` | Selects which field of `VkPhysicalDeviceDriverProperties` is validated after the shared query. | [createTestCases()](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L163-L170), [api.txt](../../../mustpass/main/vk-default/api.txt#L269464-L269468) |
+| Test case leaf | `driver_id_match`, `name_is_not_empty`, `name_zero_terminated`, `info_zero_terminated`, `conformance_version` | Selects which field of `VkPhysicalDeviceDriverProperties` is validated after the shared query. | [createTestCases()](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L163-L170), [api.txt](../../../mustpass/main/vk-default/api.txt#L267497-L267497) |
 | Test-type enum | `TEST_TYPE_DRIVER_ID_MATCH`, `TEST_TYPE_NAME_IS_NOT_EMPTY`, `TEST_TYPE_NAME_ZERO_TERMINATED`, `TEST_TYPE_INFO_ZERO_TERMINATED`, `TEST_TYPE_VERSION` | Carries the leaf selection into the shared validator's `switch` dispatch. | [enum TestType](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L41-L48) |
 | Struct chain | `VkPhysicalDeviceProperties2` → `VkPhysicalDeviceDriverProperties` | Single query path used by every leaf; the driver-properties struct is attached through `pNext`. | [testQueryProperties() struct setup](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L125-L136) |
 | Sentinel fill | `0xaa` byte pattern | Pre-fills both structs before the query. The inspected code does not re-check sentinel bytes after the query, so this is a defense-in-depth pattern, not a verified overwrite detector. | [deMemset() calls](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L128-L133) |
@@ -165,4 +165,4 @@ The test design splits driver-metadata validation into five independent leaves r
 | `enum TestType` | [vktApiDriverPropertiesTests.cpp#L41-L48](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L41-L48) | Leaf-to-validator dispatch enum. |
 | Parent registration | [vktApiTests.cpp#L91-L91](../../../modules/vulkan/api/vktApiTests.cpp#L91-L91) | Where the `driver_properties` group is attached to the `api` test category. |
 | Header | [vktApiDriverPropertiesTests.hpp](../../../modules/vulkan/api/vktApiDriverPropertiesTests.hpp) | Public declaration of `createDriverPropertiesTests()`. |
-| Mustpass entries | [api.txt#L269464-L269468](../../../mustpass/main/vk-default/api.txt#L269464-L269468) | The five `dEQP-VK.api.driver_properties.*` leaves in the canonical mustpass. |
+| Mustpass entries | [api.txt#L269464-L269468](../../../mustpass/main/vk-default/api.txt#L267497-L267497) | The five `dEQP-VK.api.driver_properties.*` leaves in the canonical mustpass. |

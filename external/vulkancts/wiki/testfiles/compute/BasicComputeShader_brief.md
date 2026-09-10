@@ -15,11 +15,11 @@ Core question: **does the driver turn each registered compute pipeline construct
 The page covers three sibling families (`basic`, `64b_indexing`, `device_group`) that are all registered from one implementation file. This is a structural grouping, not a behavioral one: the families share dispatcher setup, descriptor-set, buffer, and pipeline-construction plumbing, but each family stresses a different facet of compute behavior.
 
 - `basic` covers everyday compute execution: empty shaders and empty workgroups, max workgroup size limits, buffer-to-buffer inverts, read/write SSBO variations, local and command-buffer barriers, shared variables and atomics, image copies, image atomics, image barriers, compute-only queues, replicated composites, Amber regression cases, undefined values, and dispatch sequencing. Upstream also migrated several cases to `MultiQueueRunnerTestInstance`; their shader and host checks are unchanged, but queue handle/family selection now comes from the runner pass
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5986-L6233).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5754-L6002).
 - `64b_indexing` covers SSBOs whose total size exceeds the 32-bit element range and the untyped-pointer path
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L6237-L6265).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L6005-L6033).
 - `device_group` covers `cmdDispatchBase`, the maintenance5 variant of base dispatch, and the `gl_DeviceIndex` builtin used in a single shader that runs across physical devices
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L6268-L6284).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L6036-L6053).
 
 Why the grouping matters here:
 
@@ -35,7 +35,7 @@ The category dispatcher creates three roots (`pipeline`, `shader_object_spirv`, 
 [vktComputeTests.cpp](../../../modules/vulkan/compute/vktComputeTests.cpp#L48-L85). Some families explicitly skip the shader-object roots:
 
 - The Amber regression cases inside `basic` are skipped when the construction type is a shader object, because Amber scripts target pipelines
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L6182-L6224).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5950-L5992).
 - The replicated-composite family is non-VulkanSC and runs only when `!isComputePipelineConstructionTypeShaderObject(...)` is false.
 - `64b_indexing` and `device_group` use the same construction-type parameter even though they are not pipeline-specific.
 
@@ -47,7 +47,7 @@ Why it matters here:
 ### Dispatch shape, local size, and workgroup count
 
 Each `basic` test case is registered with explicit `tcu::IVec3` values for local size and work size, plus optional buffer count, buffer type, and bounds-check flag. The matrix explores combinations such as `local_size = (1,1,1)`, `(3,2,5)`, `(2,4,1)` paired with work counts that yield either single-invocation, single-workgroup, multi-invocation-per-group, or multi-group workloads
-[vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L6000-L6124). The same compute-pipeline wrapper is used for pipeline-construction variants.
+[vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5754-L6002). The same compute-pipeline wrapper is used for pipeline-construction variants.
 
 Why it matters here:
 
@@ -64,7 +64,7 @@ The `basic` family distinguishes two barrier forms:
 - **Local barriers** (within a workgroup) use `barrier()` and `memoryBarrierShared()` in the shader and do not require a `cmdPipelineBarrier` between dispatches
   [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L501-L612).
 - **Command-buffer barriers** (cross-workgroup) require `cmdPipelineBarrier(PIPELINE_STAGE_COMPUTE_SHADER_BIT → PIPELINE_STAGE_HOST_BIT)` or other explicit barriers between dispatches to make shader writes visible to subsequent reads
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L6097-L6101).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5754-L6002).
 
 Image barriers (`image_barrier_single`, `image_barrier_multiple`) use two compute shaders (`comp0` writes an `r32ui` storage image, `comp1` reads it and atomically adds the values) with a `cmdPipelineBarrier` between dispatches
 [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L2880-L2905).
@@ -99,7 +99,7 @@ Why it matters here:
 - `untyped_pointers` uses a hand-written SPIR-V assembly fragment with `OpCapability UntypedPointersKHR`, `OpUntypedVariableKHR`, and `OpUntypedArrayLengthKHR`, and it sets `VK_PIPELINE_CREATE_2_64_BIT_INDEXING_BIT_EXT` on the pipeline.
 
 All `64b_indexing` cases are non-VulkanSC and require either `VK_EXT_shader_64bit_indexing` (with `shader64BitIndexing`) or `VK_KHR_shader_untyped_pointers`
-[vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1311-L1333), [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1857-L1862), [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L6237-L6265).
+[vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1311-L1333), [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1857-L1862), [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L6005-L6033).
 
 Why it matters here:
 
@@ -235,7 +235,7 @@ If the identification is wrong the failure analysis below will need to be redone
 ## Important Variations and Special Cases
 
 - **Shader-object exclusion** — The Amber regression cases inside `basic` and the entire `replicated_composites_*` family under `basic` are skipped when the construction type is a shader object
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L6154-L6224). This means `compute.shader_object_spirv.basic.write_ssbo_array` and `compute.shader_object_spirv.basic.replicated_composites_*` are not registered test cases; they exist only under `compute.pipeline.basic`.
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5922-L5992). This means `compute.shader_object_spirv.basic.write_ssbo_array` and `compute.shader_object_spirv.basic.replicated_composites_*` are not registered test cases; they exist only under `compute.pipeline.basic`.
 - **Pipeline create-flag variants for 64-bit indexing** — `copy_ssbo_64b` uses the create flag, `copy_ssbo_64b_execution_mode` uses the GLSL pragma. Both must succeed, but they exercise different parts of the shader compiler and pipeline-creation code paths.
 - **VulkanSC gating** — Replicated composites and `dispatch_base_maintenance5` are non-VulkanSC; everything else (including 64-bit indexing and dispatch base) runs under VulkanSC.
 - **Bounds-check variants** — `copy_ssbo_bounds`, `copy_ssbo_64b_bounds`, and `copy_ssbo_64b_bounds_local` build a robust-buffer-access device (`getRobustDevice`) that returns zero for out-of-range reads. Without `robustBufferAccess2` the case is `NotSupportedError`
@@ -249,7 +249,7 @@ If the identification is wrong the failure analysis below will need to be redone
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Test family registrations | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5986-L6285) | All three families are registered from one file |
+| Test family registrations | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5754-L6053) | All three families are registered from one file |
 | `BufferToBufferInvertTest` (SSBO/UBO) | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1222-L1638) | Core buffer-to-buffer copy/invert semantics, optional bounds check, optional 64-bit indexing flag |
 | `SharedVarTest`, `SharedVarAtomicOpTest` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L123-L497) | Workgroup-shared memory and atomics |
 | `EmptyWorkGroupCase` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L4553-L4696) | Empty workgroup axes |

@@ -23,7 +23,7 @@ robustness.robustness1_vertex_access
 └── out_of_bounds_stride_8_middle_of_buffer_separate
 ```
 
-The group is created by `createRobustness1VertexAccessTests(testCtx)` and adds the four leaves from `robustness1Tests` [registration](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L202-L210), [factory](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L943-L951). The same four paths are present in the inspected default mustpass list [robustness.txt](../../../mustpass/main/vk-default/robustness.txt#L15026-L15029).
+The group is created by `createRobustness1VertexAccessTests(testCtx)` and adds the four leaves from `robustness1Tests` [registration](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L202-L210), [factory](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L903-L912). The same four paths are present in the inspected default mustpass list [robustness.txt](../../../mustpass/main/vk-default/robustness.txt#L15026-L15029).
 
 ## Parameter Dimensions and Observed Values
 
@@ -544,7 +544,7 @@ void main()
 - The helper creates a `VK_FORMAT_R8G8B8A8_UNORM` color image, render pass, framebuffer, host-visible vertex buffers, an index buffer, descriptor state, and one graphics pipeline for the supplied `InputInfo` [resource setup](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L480-L710).
 - `GenerateTriangles()` builds the 3-by-3 grid, remaps invalid logical indices to the final generated records, and emits six indices per tile for triangle-list drawing [mesh generation](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L396-L456).
 - The command buffer binds each case's pipeline, descriptors, vertex buffers, and index buffer, then submits `vkCmdDrawIndexed` and waits for completion [draw and submission](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L725-L759).
-- The vertex shader applies its generated one-sided component predicates using `validColors` or `invalidColors`. The fragment shader copies the vertex result to the color attachment [shader generation](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L887-L940).
+- The vertex shader applies its generated one-sided component predicates using `validColors` or `invalidColors`. The fragment shader copies the vertex result to the color attachment [shader generation](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L847-L900).
 - The host reads the color attachment and requires every pixel to equal `vec4(0, 1, 0, 1)`. The first mismatch logs the result image and returns `TestStatus::fail("Image comparison failed.")` [result check](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L761-L779).
 
 ## Failure Meaning
@@ -609,8 +609,8 @@ All four leaves can also expose errors in generated shader classification, verte
 | Padded allocation helper | [`PaddedAlloc`](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L136-L193) | Places recognizable values before and after valid data. |
 | Triangle/index generation | [`GenerateTriangles()`](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L391-L456) | Builds the mesh and remaps invalid logical vertices. |
 | Graphics setup and draw | [`robustness1TestFn()`](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L480-L779) | Creates resources, pipelines, submits indexed drawing, and checks the image. |
-| Generated shader | [`Robustness1AccessTest::initPrograms()`](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L887-L940) | Defines accepted valid/invalid colors and green-result logic. |
-| Test registration | [`createRobustness1VertexAccessTests()`](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L943-L951) | Adds the four leaves under `robustness1_vertex_access`. |
+| Generated shader | [`Robustness1AccessTest::initPrograms()`](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L847-L900) | Defines accepted valid/invalid colors and green-result logic. |
+| Test registration | [`createRobustness1VertexAccessTests()`](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L903-L912) | Adds the four leaves under `robustness1_vertex_access`. |
 | Robust device helper | [`createRobustBufferAccessDevice()`](../../../modules/vulkan/robustness/vktRobustnessUtil.cpp#L53-L87) | Enables `robustBufferAccess` for the test device. |
 | Mustpass coverage | [`robustness.txt`](../../../mustpass/main/vk-default/robustness.txt#L15026-L15029) | Confirms the four default-profile registered paths. |
 | Robust access semantics | [Vulkan specification: Robust Buffer Access](../../../../vulkan-docs/src/chapters/shaders.adoc#L1925-L2030) | Defines the relevant bounds and permitted out-of-range result rules. |

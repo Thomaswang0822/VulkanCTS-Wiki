@@ -96,8 +96,8 @@ The host creates a device with no queues, creates the compute pipeline and its s
 | Two-device loop | [`NoQueuesTestInstance::iterate()`](../../../modules/vulkan/pipeline/vktPipelineNoQueuesTests.cpp#L614-L670) | Creates the zero-queue and one-queue devices. |
 | Cache and binary capture | [`iterate()` capture branch](../../../modules/vulkan/pipeline/vktPipelineNoQueuesTests.cpp#L1265-L1319) | Extracts cache, pipeline-binary, or shader-binary data after the first pass. |
 | Execution and output check | [`iterate()` submission and validation](../../../modules/vulkan/pipeline/vktPipelineNoQueuesTests.cpp#L1658-L1710) | Submits the second-pass work and checks output values. |
-| Registration | [`createNoQueuesTests()`](../../../modules/vulkan/pipeline/vktPipelineNoQueuesTests.cpp#L1723-L1785) | Defines the three test families, 14 stages, and shader-binary pruning. |
-| Mustpass leaves | [`no-queues.txt`](../../../mustpass/main/vk-default/pipeline/no-queues.txt#L1-L37) | Records the 37 executable VK leaves. |
+| Registration | [`createNoQueuesTests()`](../../../modules/vulkan/pipeline/vktPipelineNoQueuesTests.cpp#L1718-L1779) | Defines the three test families, 14 stages, and shader-binary pruning. |
+| Mustpass leaves | [`no-queues.txt`](../../../mustpass/main/vk-default/pipeline/no-queues.txt#L1-L36) | Records the 36 executable VK leaves. |
 
 ## Questions / Risk Points for User Audit
 
