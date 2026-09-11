@@ -253,7 +253,7 @@ void main (void) {
 ### Requirement-based pruning
 
 - The generated 64-bit-indexing cases require a device-local heap of at least `(1ull << 32) + (1ull << 28)` bytes. `delayedInit()` checks this before allocating host reference data, and `checkSupport()` reports `NotSupportedError` if no such heap exists. This is a heap-capacity precondition, not a guarantee of currently free memory ([heap check](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2721-L2740), [support and delayed initialization](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2763-L2810)).
-- [`SSBOLayoutCase::checkSupport()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2743-L2787) skips generated cases that require unsupported relaxed block layout, 16-bit or 8-bit storage, scalar block layout, buffer device address, descriptor indexing, runtime descriptor arrays, 64-bit indexing, or more storage-buffer descriptors than the device limit permits.
+- [`SSBOLayoutCase::checkSupport()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2771-L2821) skips generated cases that require unsupported relaxed block layout, 16-bit or 8-bit storage, scalar block layout, buffer device address, descriptor indexing, runtime descriptor arrays, 64-bit indexing, or more storage-buffer descriptors than the device limit permits.
 - `unsized_array_length` checks `variablePointersStorageBuffer` for variable-pointer cases and, outside Vulkan SC, `shader64BitIndexing` for 64-bit cases ([`checkSupportUnsizedArrays()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L2190-L2200)). Deliberate allocations at least 4 GiB may report unsupported on out-of-memory.
 
 ### Design-based pruning
@@ -280,6 +280,6 @@ void main (void) {
 | Reference layout and generated shader | [`SSBOLayoutCase::delayedInit()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2756-L2777) | Builds reference data and compute source |
 | Layout shader generator | [`generateComputeShader()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L1529-L1645) | Emits declarations, comparison, counter increment, and writes |
 | Layout execution and result checks | [`SSBOLayoutCaseInstance::iterate()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2291-L2648) | Binds resources, dispatches, synchronizes, and compares results |
-| Feature and limit gates | [`SSBOLayoutCase::checkSupport()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2743-L2787) | Defines requirement-based pruning |
+| Feature and limit gates | [`SSBOLayoutCase::checkSupport()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2771-L2821) | Defines requirement-based pruning |
 | Default Vulkan mustpass evidence | [`vk-default/ssbo.txt`](../../../mustpass/main/vk-default/ssbo.txt#L1) | Confirms registered `dEQP-VK.ssbo` prefixes |
 | Vulkan SC mustpass evidence | [`vksc-default/ssbo.txt`](../../../mustpass/main/vksc-default/ssbo.txt#L1) | Confirms the Vulkan SC `ssbo` leaf set where present |

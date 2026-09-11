@@ -111,13 +111,13 @@ All four families also depend on ordinary surface creation, swapchain creation, 
 |-------|-------------|----------------|
 | Version 2 surface support | [`surfaceSupportsPresentIdWait2`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L92-L108) | Queries and combines the two version 2 surface capability flags. |
 | Device features | [`createDeviceWithWsi`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L199-L274) | Enables the feature structure corresponding to each requested extension. |
-| Swapchain flags and FIFO mode | [`getBasicSwapchainParameters`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L295-L341) | Applies both version 2 flags and fixes the present mode. |
-| Frame acquisition and submission | [`recordAndSubmitFrame`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L520-L561) | Produces a rendered image and the semaphore consumed by presentation. |
-| Present and wait checks | [`PresentIdWaitSimpleInstance::run`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L563-L677) | Attaches IDs, checks present results, issues both wait APIs, and validates timeout duration. |
-| ID sequences | [`PresentIdZeroInstance` through `PresentIdInterleavedInstance`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L803-L913) | Defines zero, increasing, and interleaved present operations. |
+| Swapchain flags and FIFO mode | [`getBasicSwapchainParameters`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L293-L339) | Applies both version 2 flags and fixes the present mode. |
+| Frame acquisition and submission | [`recordAndSubmitFrame`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L518-L559) | Produces a rendered image and the semaphore consumed by presentation. |
+| Present and wait checks | [`PresentIdWaitSimpleInstance::run`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L561-L675) | Attaches IDs, checks present results, issues both wait APIs, and validates timeout duration. |
+| ID sequences | [`PresentIdZeroInstance` through `PresentIdInterleavedInstance`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L801-L803) | Defines zero, increasing, and interleaved present operations. |
 | Wait sequences | [`PresentWaitSingleFrameInstance` through `PresentWaitFutureFrameInstance`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L914-L1109) | Defines successful, past-ID, and version 1 timeout scenarios. |
-| Two-swapchain path | [`PresentWaitDualInstance::iterate`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1157-L1306) | Presents paired IDs and waits against the corresponding swapchains. |
-| Family and leaf registration | [`createPresentIdTests` through `createPresentIdWaitTests`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1401-L1488) | Registers all four families and their exact leaves. |
+| Two-swapchain path | [`PresentWaitDualInstance::iterate`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1155-L1304) | Presents paired IDs and waits against the corresponding swapchains. |
+| Family and leaf registration | [`createPresentIdTests` through `createPresentIdWaitTests`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1465-L1483) | Registers all four families and their exact leaves. |
 | WSI routing | [`createTypeSpecificTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L52-L83) | Places `present_id_wait` below each WSI platform branch. |
 | Present ID and wait semantics | [Vulkan WSI chapter](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L8144-L8404) | Defines version 1 and version 2 IDs, waits, capabilities, flags, and valid usage. |
 | Mustpass paths | [`wsi.txt`](../../../mustpass/main/vk-default/wsi.txt#L14812-L14826) | Confirms the four families and executable leaves for the headless branch. |

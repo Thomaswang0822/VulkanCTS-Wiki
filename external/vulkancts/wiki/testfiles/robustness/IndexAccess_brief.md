@@ -13,15 +13,16 @@ An indexed draw reads an index, then uses that value to fetch vertex data. An ac
 Why it matters here:
 - `robustBufferAccess2` defines deterministic behavior for the out-of-bounds index fetch used by `index_access`.
 - `vkCmdBindIndexBuffer2` supplies an explicit binding size, so offset and size jointly define the accessible index range.
+- The binding offset and size are byte quantities, so only the 1- and 2-byte index widths can put the start or the end of that range on an offset that is not a multiple of 4.
 
 ## One Concrete Example
 
-For `robustness.index_access.draw_indexed_2`, the host prepares a six-point indexed draw but sets `firstIndex` near `UINT32_MAX`. The resulting index fetch is out of bounds. With robustness2 enabled, the fetched index must behave as zero, producing one fragment in the expected middle-top image region.
+For `robustness.index_access.draw_indexed_2`, the host prepares a seven-index draw and sets `firstIndex` near `UINT32_MAX`. The resulting index fetch is out of bounds. With robustness2 enabled, the fetched index must behave as zero, producing one fragment in the expected middle-top image region. The `draw_indexed_2_uint8` and `draw_indexed_2_uint16` leaves keep the same expected image but move `firstIndex` to 7, the first index after the bound range, so a usable range that a driver rounds up to a 4-byte boundary stops being equivalent to a correctly clipped one.
 
 ## End-to-End Test Flow
 
 ```text
-[host] select the draw mode, binding mode, offset, and out-of-range condition
+[host] select the draw mode, binding mode, offset, index width, and out-of-range condition
 [host] create deterministic vertex/index data and a color target
 [host] bind buffers by handle or device address
 [host] record the selected direct, indirect, indirect-count, or multi-indexed draw
@@ -71,18 +72,19 @@ The cases use simple graphics shaders and vary command recording rather than sha
 
 ## Important Variations and Special Cases
 
-- `index_access` covers direct, indirect, indirect-count, and multi-indexed draws; non-VulkanSC non-multi modes also have `_device_address` variants.
-- `bind_index_buffer2` uses `offset_0` and `offset_100`, with device-address variants only for selected `offset_100` non-multi cases.
-- Indirect-count, multi-draw, robustness2, maintenance5, and device-address variants are pruned when their required extensions or features are unavailable.
+- `index_access` covers direct, indirect, indirect-count, and multi-indexed draws; non-VulkanSC non-multi modes also have `_device_address` variants, and the `uint8`/`uint16` leaves take their starting index offset from draw-mode parity.
+- `bind_index_buffer2` uses `offset_0` and `offset_100`, with device-address variants only for selected `offset_100` non-multi cases, plus a `type` node whose fourteen leaves pair each draw mode with a `uint8` or `uint16` width under fixed `oo_size` semantics.
+- Indirect-count, multi-draw, robustness2, maintenance5, `indexTypeUint8`, and device-address variants are pruned when their required extensions or features are unavailable.
 
 ## Source Mapping
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| `index_access` execution and checking | [`DrawIndexedInstance::iterate()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L165-L461) | Builds the out-of-bounds draw and validates the image. |
-| `bind_index_buffer2` execution and checking | [`BindIndexBuffer2Instance::iterate()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L892-L1228) | Applies offset/size/index conditions and samples the result. |
-| `bind_index_buffer2` registration | [`createCmdBindIndexBuffer2Tests()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1116-L1172) | Defines offsets, modes, out-of-range types, and address variants. |
-| `index_access` registration | [`createIndexAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1174-L1205) | Defines the seven direct test case leaves. |
+| `index_access` execution and checking | [`DrawIndexedInstance::iterate()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L162-L594) | Builds the out-of-bounds draw and validates the image. |
+| `bind_index_buffer2` execution and checking | [`BindIndexBuffer2Instance::iterate()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L906-L1262) | Applies offset/size/width/index conditions and samples the result. |
+| index element byte width | [`getIndexSize()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L90-L93) | Turns an index type into the byte quantities used for every binding offset and size. |
+| `bind_index_buffer2` registration | [`createCmdBindIndexBuffer2Tests()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1264-L1347) | Defines offsets, modes, out-of-range types, the `type` node, and address variants. |
+| `index_access` registration | [`createIndexAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1349-L1423) | Defines the leaves, their index widths, and their `firstIndex` choices. |
 
 ## Questions / Risk Points for User Audit
 

@@ -46,7 +46,7 @@ The `basic` and `hdr` cases repeat acquisition, rendering, and presentation for 
 ### Generated or loaded program artifacts
 
 - `WsiTriangleRenderer::getPrograms` emits the `tri-vert` vertex shader and `tri-frag` fragment shader. The source is in [vkWsiUtil.cpp#L1171-L1194](../../../framework/vulkan/vkWsiUtil.cpp#L1171-L1194).
-- The source collection supplies those programs through `addFunctionCaseWithPrograms` for `basic`, `hdr`, and each comparison-format test. The registrations are in [vktWsiColorSpaceTests.cpp#L755-L779](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L755-L779).
+- The source collection supplies those programs through `addFunctionCaseWithPrograms` for `basic`, `hdr`, and each comparison-format test. The registrations are in [vktWsiColorSpaceTests.cpp#L696-L726](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L696-L726).
 - The graphics pipeline has one color attachment, a vertex-stage push-constant range containing one `uint32_t`, and no descriptor sets. The pipeline-layout setup is in [vkWsiUtil.cpp#L848-L865](../../../framework/vulkan/vkWsiUtil.cpp#L848-L865).
 
 ### Bound resources and memory objects

@@ -114,7 +114,7 @@ These values identify the primary behavioral axis because each mode changes the 
 | Reference layout and shader generation | [`delayedInit()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2756-L2777) | Establishes reference data and generated compute source |
 | Layout shader generator | [`generateComputeShader()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L1529-L1645) | Declares resources, compares input, increments the counter, and emits writes |
 | Host execution and comparison | [`SSBOLayoutCaseInstance::iterate()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2291-L2648) | Binds buffers, dispatches, barriers, reads back, and returns status |
-| Support gates | [`SSBOLayoutCase::checkSupport()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2743-L2787) | Maps layout features and device limits to CTS support decisions |
+| Support gates | [`SSBOLayoutCase::checkSupport()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2771-L2821) | Maps layout features and device limits to CTS support decisions |
 | Registration evidence | [`vk-default/ssbo.txt`](../../../mustpass/main/vk-default/ssbo.txt#L1) and [`vksc-default/ssbo.txt`](../../../mustpass/main/vksc-default/ssbo.txt#L1) | Confirms the `ssbo` direct hierarchy and default Vulkan/Vulkan SC coverage |
 
 ## Questions / Risk Points for User Audit

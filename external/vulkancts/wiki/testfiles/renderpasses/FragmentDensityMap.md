@@ -101,7 +101,7 @@ flowchart TD
 
 #### Shader Code
 
-Reconstructed from the exact `frag_produce_subsampled` source emitted by [`FragmentDensityMapTest::initPrograms()`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1396-L1540).
+Reconstructed from the exact `frag_produce_subsampled` source emitted by [`FragmentDensityMapTest::initPrograms()`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1390-L1534).
 
 ```glsl
 #version 450
@@ -287,10 +287,10 @@ For the density-formula leaves, the verification additionally checks the texel-s
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Test family factory | [`createFragmentDensityMapTests`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5482-L5488) | Creates the group and dispatches to `createChildren`. |
-| Child group construction | [`createChildren`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5132-L5672) | Builds the `1_view`, multiview, `depth_format`, `properties`, `offset`, and `density_formula` subtrees. |
+| Child group construction | [`createChildren`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5129-L5669) | Builds the `1_view`, multiview, `depth_format`, `properties`, `offset`, and `density_formula` subtrees. |
 | Offset subgroup construction | [offset group](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5362-L5469) | Builds `oversized_fdm`, `min_shift`, and `clamp_to_edge` under non-legacy rendering types. |
 | Density formula subgroup | [density_formula group](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5114-L5155) | Verifies the spec-version-3 texel-size formula with a 33/16 render multiplier. |
-| Image verification | [`verifyImage`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L3130-L3200) | Builds the framebuffer color histogram and checks it against the expected fragment invocation distribution. |
+| Image verification | [`verifyImage`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L3198-L3280) | Builds the framebuffer color histogram and checks it against the expected fragment invocation distribution. |
 | Offset verification | [offset comparators](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4679-L4729) | Compares half-image regions with `tcu::floatThresholdCompare` and raises `QualityWarning` for non-exact offsets. |
 | Support checks | [offset support](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L3369-L3373), [base support](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1515) | Requires the FDM, FDM2, and offset extensions plus `shaderSampleRate` as applicable. |
 | Vulkan spec: fragment density map | [VK_EXT_fragment_density_map.adoc](../../../../vulkan-docs/src/appendices/VK_EXT_fragment_density_map.adoc) | Defines fragment density maps, fragment areas, and the invocation-broadcast model. |

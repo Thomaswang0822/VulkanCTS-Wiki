@@ -32,9 +32,9 @@ The dispatcher places the same `present_id_wait` family below the `android`, `di
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
 | WSI platform | `android`, `direct`, `direct_drm`, `headless`, `metal`, `wayland`, `win32`, `xcb`, `xlib` | Selects the native surface integration and its required instance extension. | [`createWsiTests` and `createTypeSpecificTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L50-L83) |
-| Test family | `id`, `id2`, `wait`, `wait2` | Selects the version 1 or version 2 ID and wait contract. | [`createPresentIdWaitTests`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1467-L1488) |
-| ID leaf | `zero`, `increasing`, `interleaved` | Chooses the present-ID sequence for `id` and `id2`. | [`createPresentIdTests` and `createPresentId2Tests`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1401-L1423) |
-| Wait leaf | `single_no_timeout`, `past_no_timeout`, `no_frames`, `no_frame_id`, `future_frame`, `two_swapchains` for `wait`; `single_no_timeout`, `past_no_timeout`, `two_swapchains` for `wait2` | Chooses successful, timeout, or per-swapchain wait behavior. | [`createPresentWaitTests` and `createPresentWait2Tests`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1425-L1463) |
+| Test family | `id`, `id2`, `wait`, `wait2` | Selects the version 1 or version 2 ID and wait contract. | [`createPresentIdWaitTests`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1465-L1483) |
+| ID leaf | `zero`, `increasing`, `interleaved` | Chooses the present-ID sequence for `id` and `id2`. | [`createPresentIdTests` and `createPresentId2Tests`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1399-L1409) |
+| Wait leaf | `single_no_timeout`, `past_no_timeout`, `no_frames`, `no_frame_id`, `future_frame`, `two_swapchains` for `wait`; `single_no_timeout`, `past_no_timeout`, `two_swapchains` for `wait2` | Chooses successful, timeout, or per-swapchain wait behavior. | [`createPresentWaitTests` and `createPresentWait2Tests`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1423-L1443) |
 | Present ID values | `0`, `1`, `2`, `3`, `4`, `5`, `6`, `UINT64_MAX`, or no ID, depending on the leaf | Exercises zero/no-ID handling, monotonic ordering, the maximum 64-bit value, and independent streams. | [ID and wait sequences](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L823-L1109), [dual sequence](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1215-L1229) |
 | Wait timeout | `0`, `1` second, `10` seconds | Selects an immediate check, a bounded timeout case, or a long completion wait. Values are passed in nanoseconds. | [`k10sec`, `k1sec`, and wait execution](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L65-L90) |
 | Version 2 support | `presentId2Supported` and `presentWait2Supported` | Allows `id2` and `wait2` to run only when both capabilities are reported for the surface. | [`surfaceSupportsPresentIdWait2`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L92-L108) |
@@ -153,15 +153,15 @@ All four families also depend on ordinary surface creation, swapchain creation, 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | WSI dispatcher | [`createTypeSpecificTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L52-L83) | Routes `present_id_wait` below each platform-specific WSI branch. |
-| Family registration | [`createPresentIdWaitTests`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1401-L1488) | Registers the four families and exact executable leaves. |
+| Family registration | [`createPresentIdWaitTests`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1465-L1483) | Registers the four families and exact executable leaves. |
 | Version 2 surface query | [`surfaceSupportsPresentIdWait2`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L92-L108) | Checks both version 2 surface capability flags. |
 | Device setup | [`createDeviceWithWsi`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L199-L274) | Adds mandatory extensions and version-specific feature structures. |
-| Swapchain setup | [`getBasicSwapchainParameters`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L295-L341) | Selects FIFO and applies version 2 creation flags. |
-| Frame submission | [`recordAndSubmitFrame`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L520-L561) | Acquires, renders, submits, and signals each frame. |
-| Present and wait runner | [`PresentIdWaitSimpleInstance::run`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L563-L677) | Implements structure chaining, result checks, waits, and timeout measurement. |
-| ID sequences | [`PresentIdZeroInstance` through `PresentIdInterleavedInstance`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L803-L913) | Defines the three `id` and `id2` leaves. |
+| Swapchain setup | [`getBasicSwapchainParameters`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L293-L339) | Selects FIFO and applies version 2 creation flags. |
+| Frame submission | [`recordAndSubmitFrame`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L518-L559) | Acquires, renders, submits, and signals each frame. |
+| Present and wait runner | [`PresentIdWaitSimpleInstance::run`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L561-L675) | Implements structure chaining, result checks, waits, and timeout measurement. |
+| ID sequences | [`PresentIdZeroInstance` through `PresentIdInterleavedInstance`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L801-L803) | Defines the three `id` and `id2` leaves. |
 | Wait sequences | [`PresentWaitSingleFrameInstance` through `PresentWaitFutureFrameInstance`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L914-L1109) | Defines success, past-ID, timeout, and future-ID cases. |
-| Dual-swapchain runner | [`PresentWaitDualInstance::iterate`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1157-L1306) | Keeps IDs and waits paired with two swapchains. |
+| Dual-swapchain runner | [`PresentWaitDualInstance::iterate`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1155-L1304) | Keeps IDs and waits paired with two swapchains. |
 | Renderer programs | [`WsiTriangleRenderer::getPrograms`](../../../framework/vulkan/vkWsiUtil.cpp#L1171-L1194) | Supplies the fixed triangle shaders that provide the render workload. |
 | Present-ID and wait specification | [Vulkan WSI chapter](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L8144-L8404) | Defines version 1 and version 2 association, wait, timeout, capability, and valid-usage rules. |
 | Feature descriptions | [Present ID and wait features](../../../../vulkan-docs/src/chapters/features.adoc#L6444-L6532) | Defines the four feature structures enabled by the test setup. |

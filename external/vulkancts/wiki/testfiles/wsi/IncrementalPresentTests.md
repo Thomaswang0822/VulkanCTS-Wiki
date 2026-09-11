@@ -338,13 +338,13 @@ A failure caused only by exceeding the out-of-date/suboptimal retry limit points
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Damage rectangles and partial rendering | [`getRenderFrameRect`, `getUpdatedRects`, and `cmdRenderFrame`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L226-L284) | Defines frame 0, later rectangles, push constants, scissors, and draws. |
-| Per-image catch-up command recording | [`createCommandBuffer`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L286-L329) | Replays all updates missed by one acquired image. |
-| Format and extent configurations | [`selectRepresentativeFormats` and `generateSwapchainConfigs`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L576-L719) | Selects formats, checks supported parameters, and creates the configurations under test. |
-| Swapchain resource lifetime | [`initSwapchainResources` and `deinitSwapchainResources`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L779-L848) | Owns per-configuration rendering and synchronization resources. |
-| Acquire, submit, and present paths | [`IncrementalPresentTestInstance::render`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L850-L952) | Implements per-image state, region chaining, result checks, and semaphore rotation. |
-| Frame count and retry logic | [`IncrementalPresentTestInstance::iterate`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L954-L1034) | Runs each configuration and handles out-of-date or suboptimal results. |
+| Per-image catch-up command recording | [`createCommandBuffer`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L259-L302) | Replays all updates missed by one acquired image. |
+| Format and extent configurations | [`selectRepresentativeFormats` and `generateSwapchainConfigs`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L550-L577) | Selects formats, checks supported parameters, and creates the configurations under test. |
+| Swapchain resource lifetime | [`initSwapchainResources` and `deinitSwapchainResources`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L752-L789) | Owns per-configuration rendering and synchronization resources. |
+| Acquire, submit, and present paths | [`IncrementalPresentTestInstance::render`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L823-L925) | Implements per-image state, region chaining, result checks, and semaphore rotation. |
+| Frame count and retry logic | [`IncrementalPresentTestInstance::iterate`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L927-L1007) | Runs each configuration and handles out-of-date or suboptimal results. |
 | Shader source | [`Programs::init`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1037-L1074) | Supplies the fixed quad vertex shader and frame-dependent fragment shader. |
-| Family registration | [`createIncrementalPresentTests`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1077-L1175) | Defines every registered dimension and conditional scaling branch. |
+| Family registration | [`createIncrementalPresentTests`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1087-L1182) | Defines every registered dimension and conditional scaling branch. |
 | WSI dispatcher | [`createTypeSpecificTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L52-L83) | Registers the test family under each platform branch. |
 | Platform properties | [`getPlatformProperties`](../../../framework/vulkan/vkWsiUtil.cpp#L83-L158) | Defines which platforms use window-size scaling. |
 | Incremental-present specification | [`VkPresentRegionsKHR`, `VkPresentRegionKHR`, and `VkRectLayerKHR`](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L7584-L7685) | Defines hint semantics, region association, coordinates, transforms, and bounds. |

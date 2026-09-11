@@ -56,7 +56,7 @@ The same `surface` test family appears under all nine WSI platform paths. Each p
 | Window size | `(64, 64)`, `(124, 119)`, `(256, 512)` | Exercises both square and nonsquare extents for initial-size and resize tracking. | [Size-aware tests](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L1578-L1669) |
 | Surface query form | base KHR, KHR2, EXT, or null-surface extension path | Checks base results, extensible structures, extension-specific data, and `VK_GOOGLE_surfaceless_query`. | [Capability and format queries](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L499-L1121) |
 | Enumeration capacity | full count or a reduced count, usually one-third or one-half | Every implemented reduced-capacity call must produce `VK_INCOMPLETE`; the base format/mode and KHR2 format paths also check that unwritten storage remains untouched. | [`CheckIncompleteResult`](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L117-L169), [KHR2 short-format check](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L849-L870), [other short calls](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L953-L960) |
-| OOM injection position | 0 through 1024 allowed allocations | Moves the deterministic failure point until surface creation succeeds or the bound is reached. | [`createSurfaceSimulateOOMTest()`](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L297-L350) |
+| OOM injection position | 0 through 1024 allowed allocations | Moves the deterministic failure point until surface creation succeeds or the bound is reached. | [`createSurfaceSimulateOOMTest()`](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L301-L354) |
 
 ## Behavior Parameters
 

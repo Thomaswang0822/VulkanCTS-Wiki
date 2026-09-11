@@ -115,7 +115,7 @@ The present-mode intermediate node changes the presentation semantics and whethe
 | Timed and reference presentation | [presentation branches](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L905-L975) | Builds `VkPresentTimesInfoGOOGLE`, injects the present-ID-80 case, or uses ordinary presentation. |
 | Completion and out-of-date handling | [DisplayTimingTestInstance::iterate](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L986-L1046) | Defines recreation and final result behavior. |
 | Shader programs | [Programs::init](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L1048-L1085) | Shows that shaders produce changing frame content but no timing result. |
-| Test registration | [createDisplayTimingTests](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L1089-L1124) | Defines present-mode intermediate nodes and the two leaves. |
+| Test registration | [createDisplayTimingTests](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L1085-L1114) | Defines present-mode intermediate nodes and the two leaves. |
 | Present timing query semantics | [Vulkan WSI specification](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L5293-L5465) | Defines refresh duration, returned timing fields, and present-mode differences. |
 | Desired presentation time | [Vulkan WSI specification](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L8077-L8141) | Defines `VkPresentTimesInfoGOOGLE` and `VkPresentTimeGOOGLE`. |
 | Mustpass paths | [default WSI mustpass list](../../../mustpass/main/vk-default/wsi.txt#L11528-L11537) | Confirms the representative `headless` hierarchy and registered leaves. |

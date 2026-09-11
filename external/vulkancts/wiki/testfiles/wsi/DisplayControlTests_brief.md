@@ -110,14 +110,14 @@ The shader supplies presentable work. The source intends to observe the display 
 | Topic | Source link | Why it matters |
 |---|---|---|
 | Custom instance and device | [`createInstance` and `createTestDevice`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L70-L143) | Defines counter-path extension sets and rejects platform WSI display ownership. |
-| Display, plane, and surface selection | [`getDisplayAndDisplayPlane` and `createSurface`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L146-L245) | Selects a compatible plane and creates the direct surface. |
+| Display, plane, and surface selection | [`getDisplayAndDisplayPlane` and `createSurface`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L129-L165) | Selects a compatible plane and creates the direct surface. |
 | Counter configuration | [`createSwapchainCounterConfig` and `createSwapchainConfig`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L464-L540) | Enables vblank counting and checks support for the fixed FIFO mode. |
-| Counter execution and unreachable check | [`render`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L698-L760), [`iterate`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L762-L803) | Shows 20 presentations, the guarded query, and loop termination before the guard can become true. |
+| Counter execution and unreachable check | [`render`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L676-L738), [`iterate`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L740-L782) | Shows 20 presentations, the guarded query, and loop termination before the guard can become true. |
 | Representative shaders | [`initPrograms`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L822-L840) | Defines the fixed vertex and fragment shaders. |
-| Direct-display enumeration | [`getDisplays`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L853-L887) | Finds displays for the function cases and rejects platform WSI ownership. |
-| Power control | [`testDisplayPowerControl`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L889-L930) | Defines the state sequence, waits, and return-value checks. |
-| Event registration | [`testDisplayEvent` and `testDeviceEvent`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L932-L984) | Defines event types, return-value checks, and fence lifetime. |
-| Registration | [`createDisplayControlTests`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L988-L994), [`createWsiTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L85-L100) | Registers the four leaves under `wsi.display_control`. |
+| Direct-display enumeration | [`getDisplays`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L845-L864) | Finds displays for the function cases and rejects platform WSI ownership. |
+| Power control | [`testDisplayPowerControl`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L866-L904) | Defines the state sequence, waits, and return-value checks. |
+| Event registration | [`testDisplayEvent` and `testDeviceEvent`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L906-L933) | Defines event types, return-value checks, and fence lifetime. |
+| Registration | [`createDisplayControlTests`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L987-L993), [`createWsiTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L85-L100) | Registers the four leaves under `wsi.display_control`. |
 | Default mustpass | [`wsi.txt`](../../../mustpass/main/vk-default/wsi.txt#L11515-L11518) | Lists all four executable paths. |
 | Extension semantics | [display control](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L2181-L2234), [surface counters](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L6434-L6491), [event fences](../../../../vulkan-docs/src/chapters/synchronization.adoc#L2882-L2989) | Grounds the power, counter, and event-fence descriptions. |
 

@@ -26,7 +26,7 @@ Vulkan 的 `VkSurfaceFormatKHR` 将一个图像格式和一个 `VkColorSpaceKHR`
 
 ### 观察到的代码路径
 
-在 [`colorspaceCompareTest`](../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L423-L560) 中，测试先 acquire image，提交绘制并调用 `vkQueuePresentKHR`。随后，对刚刚 present 的同一个 `swapchainImages[imageNdx]` 直接调用 `getPixel`：
+在 [`colorspaceCompareTest`](../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L393-L527) 中，测试先 acquire image，提交绘制并调用 `vkQueuePresentKHR`。随后，对刚刚 present 的同一个 `swapchainImages[imageNdx]` 直接调用 `getPixel`：
 
 ```cpp
 vkQueuePresentKHR(..., &swapchainImages[imageNdx], ...);
@@ -54,7 +54,7 @@ WSI 规范规定，queue present 会释放对 presentable image 的 acquisition�
 3. 重新 acquire 后，比较的对象是否仍然符合原测试意图，尤其是在 present 可能选择不同 image 的情况下？
 4. 修复后是否需要分别覆盖六种注册格式和多个 color space，而不是只验证一个代表 case？
 
-相关证据：[`colorspaceCompareTest`](../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L438-L545)，[Vulkan presentable-image reacquisition rule](../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L7419-L7426)。
+相关证据：[`colorspaceCompareTest`](../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L393-L527)，[Vulkan presentable-image reacquisition rule](../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L7419-L7426)。
 
 ## 2. `PresentIdWaitTests`：version 2 wait 失败诊断仍然使用错误的 API 名称
 
@@ -155,7 +155,7 @@ present-ID 测试为每次 presentation 关联一个 ID，随后可以等待某�
 
 ### 观察到的代码路径
 
-[`createTestDevice`](../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L96-L143) 遍历所有 WSI 类型：只要有一个 `platform.hasDisplay(wsiType)` 返回 true，就把 `displayAvailable` 设为 false，随后抛出 `NotSupportedError`。
+[`createTestDevice`](../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L86-L127) 遍历所有 WSI 类型：只要有一个 `platform.hasDisplay(wsiType)` 返回 true，就把 `displayAvailable` 设为 false，随后抛出 `NotSupportedError`。
 
 当前 Linux、Android、macOS 和 Windows 平台实现都至少对一个 WSI 类型返回 true。例如 Linux 的 `hasDisplay` 实现见 [`tcuLnxVulkanPlatform.cpp`](../../../../framework/platform/lnx/tcuLnxVulkanPlatform.cpp#L509-L539)。这意味着 `createTestDevice` 在这些常见平台上会把相关 case 直接筛掉。
 
@@ -183,7 +183,7 @@ present-ID 测试为每次 presentation 关联一个 ID，随后可以等待某�
 3. gate 是否应该只检查当前测试选定的 WSI 类型，而不是遍历所有类型？
 4. 如果这些家族确实无法在当前平台执行，是否应调整 registration、skip message 或 mustpass 预期？
 
-相关证据：[`createTestDevice`](../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L96-L143)，Linux `hasDisplay` 实现（同上），[display-control specification](../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L1450-L1475)。
+相关证据：[`createTestDevice`](../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L86-L127)，Linux `hasDisplay` 实现（同上），[display-control specification](../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L1450-L1475)。
 
 ## 5. `DisplayControlTests`：surface counter 检查位于已结束的 frame loop 之后
 
@@ -197,7 +197,7 @@ present-ID 测试为每次 presentation 关联一个 ID，随后可以等待某�
 
 ### 观察到的代码路径
 
-在 [`SwapchainCounterTestInstance::render`](../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L730-L760) 中，counter query 被放在：
+在 [`SwapchainCounterTestInstance::render`](../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L676-L738) 中，counter query 被放在：
 
 ```cpp
 if (m_frameNdx >= m_frameCount)
@@ -225,7 +225,7 @@ if (m_frameNdx >= m_frameCount)
 2. 期望的 counter 范围是否仍然适用于实际的 display refresh 和 queue/presentation 延迟？
 3. 修复后如何在没有稳定物理 display 的 CI 中建立可重复的回归验证？
 
-相关证据：[`render`](../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L730-L760)，[`iterate`](../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L762-L803)。
+相关证据：[`render`](../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L676-L738)，[`iterate`](../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L740-L782)。
 
 ## 6. `DisplayTests`：用违反 valid usage 的参数验证 display mode 创建失败
 
@@ -245,7 +245,7 @@ Display mode 描述物理 display 的可用模式，例如可见区域大小和�
 
 ### 观察到的代码路径
 
-完整流程见 [`testCreateDisplayModeKHR`](../../modules/vulkan/wsi/vktWsiDisplayTests.cpp#L1226-L1330)。它确实把这三个零值送入 Vulkan API，并把返回结果作为测试 oracle。
+完整流程见 [`testCreateDisplayModeKHR`](../../modules/vulkan/wsi/vktWsiDisplayTests.cpp#L1195-L1300)。它确实把这三个零值送入 Vulkan API，并把返回结果作为测试 oracle。
 
 ### 为什么需要确认
 
@@ -266,7 +266,7 @@ Vulkan 规范对 `VkDisplayModeParametersKHR` 明确要求 visible region 的 wi
 3. 这三个 negative calls 是否应移除、改为 validation-only 场景，或改用符合规范的边界输入？
 4. 是否需要把合法 mode 的 conformance checks 与 invalid-input robustness checks 分成不同测试？
 
-相关证据：[`testCreateDisplayModeKHR`](../../modules/vulkan/wsi/vktWsiDisplayTests.cpp#L1263-L1327)，[VkDisplayModeParametersKHR valid usage](../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L1930-L1955)。
+相关证据：[`testCreateDisplayModeKHR`](../../modules/vulkan/wsi/vktWsiDisplayTests.cpp#L1195-L1300)，[VkDisplayModeParametersKHR valid usage](../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L1930-L1955)。
 
 ## 7. `DisplayTests`：创建 display surface 前未检查 identity transform 支持
 
@@ -285,7 +285,7 @@ display surface 创建时，`VkDisplaySurfaceCreateInfoKHR` 会指定 display mo
 
 ### 观察到的代码路径
 
-在 [`testDisplaySurface`](../../modules/vulkan/wsi/vktWsiDisplayTests.cpp#L1494-L1688) 中，源码检查了 full-display extent 和 opaque alpha 支持，然后无条件把 transform 写成 `VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR`，调用 `vkCreateDisplayPlaneSurfaceKHR`。它没有检查对应 display properties 的 `supportedTransforms` 是否包含 identity bit。
+在 [`testDisplaySurface`](../../modules/vulkan/wsi/vktWsiDisplayTests.cpp#L1463-L1652) 中，源码检查了 full-display extent 和 opaque alpha 支持，然后无条件把 transform 写成 `VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR`，调用 `vkCreateDisplayPlaneSurfaceKHR`。它没有检查对应 display properties 的 `supportedTransforms` 是否包含 identity bit。
 
 ### 为什么需要确认
 
@@ -304,7 +304,7 @@ display surface 创建时，`VkDisplaySurfaceCreateInfoKHR` 会指定 display mo
 3. 若测试希望覆盖非 identity transform，是否应按能力枚举选择合法 transform 并分别验证？
 4. 针对不支持 identity 的 display，预期是 skip、选择另一 transform，还是保留 negative test？
 
-相关证据：[`testDisplaySurface`](../../modules/vulkan/wsi/vktWsiDisplayTests.cpp#L1494-L1688)，[VkDisplaySurfaceCreateInfoKHR valid usage](../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L2275-L2334)。
+相关证据：[`testDisplaySurface`](../../modules/vulkan/wsi/vktWsiDisplayTests.cpp#L1463-L1652)，[VkDisplaySurfaceCreateInfoKHR valid usage](../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L2275-L2334)。
 
 ## 关联材料
 

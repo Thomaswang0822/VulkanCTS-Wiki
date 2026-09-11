@@ -28,16 +28,16 @@ wsi.display_control
 
 | Dimension | Registered or observed values | Meaning in this test | Evidence |
 |---|---|---|---|
-| Test case leaf | `swapchain_counter`, `display_power_control`, `register_display_event`, `register_device_event` | Selects the source path, including whether the ownership gate blocks its intended operation. | [`createDisplayControlTests`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L988-L994) |
-| Display set | All handles returned by `vkGetPhysicalDeviceDisplayPropertiesKHR` | If their ownership gate were passed, the power and display-event cases would repeat for each available display. | [`getDisplays`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L853-L887) |
-| Display ownership | No platform WSI type may report display access | Gates the counter, power, and display-event cases. Every repository platform implementation reports at least one available type, so these three cases currently stop as `NotSupported`; the device-event case does not run this check. | [`createTestDevice`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L96-L143), [`getDisplays`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L868-L875), [Linux](../../../../../framework/platform/lnx/tcuLnxVulkanPlatform.cpp#L509-L539), [Android](../../../../../framework/platform/android/tcuAndroidPlatform.cpp#L412-L417), [macOS](../../../../../framework/platform/osx/tcuOSXVulkanPlatform.cpp#L150-L159), [Windows](../../../../../framework/platform/win32/tcuWin32VulkanPlatform.cpp#L318-L324) |
-| Power sequence | `ON`, `SUSPEND`, `OFF`, `ON`; 1000 ms after each request | Defines the intended three-state exercise and restoration to `ON`, after the currently blocking ownership gate. | [`testDisplayPowerControl`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L889-L930) |
-| Display event type | `VK_DISPLAY_EVENT_TYPE_FIRST_PIXEL_OUT_EXT` | Defines one intended fence request per display after the currently blocking ownership gate. | [`testDisplayEvent`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L932-L962) |
+| Test case leaf | `swapchain_counter`, `display_power_control`, `register_display_event`, `register_device_event` | Selects the source path, including whether the ownership gate blocks its intended operation. | [`createDisplayControlTests`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L987-L993) |
+| Display set | All handles returned by `vkGetPhysicalDeviceDisplayPropertiesKHR` | If their ownership gate were passed, the power and display-event cases would repeat for each available display. | [`getDisplays`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L845-L864) |
+| Display ownership | No platform WSI type may report display access | Gates the counter, power, and display-event cases. Every repository platform implementation reports at least one available type, so these three cases currently stop as `NotSupported`; the device-event case does not run this check. | [`createTestDevice`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L86-L127), [`getDisplays`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L868-L875), [Linux](../../../../../framework/platform/lnx/tcuLnxVulkanPlatform.cpp#L509-L539), [Android](../../../../../framework/platform/android/tcuAndroidPlatform.cpp#L412-L417), [macOS](../../../../../framework/platform/osx/tcuOSXVulkanPlatform.cpp#L150-L159), [Windows](../../../../../framework/platform/win32/tcuWin32VulkanPlatform.cpp#L318-L324) |
+| Power sequence | `ON`, `SUSPEND`, `OFF`, `ON`; 1000 ms after each request | Defines the intended three-state exercise and restoration to `ON`, after the currently blocking ownership gate. | [`testDisplayPowerControl`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L866-L904) |
+| Display event type | `VK_DISPLAY_EVENT_TYPE_FIRST_PIXEL_OUT_EXT` | Defines one intended fence request per display after the currently blocking ownership gate. | [`testDisplayEvent`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L906-L933) |
 | Device event type | `VK_DEVICE_EVENT_TYPE_DISPLAY_HOTPLUG_EXT` | Requests one fence for a display plug or unplug event. | [`testDeviceEvent`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L964-L984) |
-| Counter path frame count | `20` | Would set the number of acquire, submit, and present iterations after the currently blocking ownership gate. | [`SwapchainCounterTestInstance`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L604-L637), [`iterate`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L762-L803) |
+| Counter path frame count | `20` | Would set the number of acquire, submit, and present iterations after the currently blocking ownership gate. | [`SwapchainCounterTestInstance`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L582-L616), [`iterate`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L740-L782) |
 | Counter path present mode | `VK_PRESENT_MODE_FIFO_KHR` | Fixes presentation behavior for the swapchain case. | [`SwapchainCounterTestInstance`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L624-L630) |
 | Enabled surface counter | `VK_SURFACE_COUNTER_VBLANK_EXT` | Adds the vblank counter to swapchain creation. The current loop does not reach the query. | [`createSwapchainCounterConfig`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L464-L469), [`render`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L748-L759) |
-| Out-of-date recovery limit | `10` recoveries | Bounds swapchain recreation after acquire or present reports `VK_ERROR_OUT_OF_DATE_KHR`. | [`iterate`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L762-L803) |
+| Out-of-date recovery limit | `10` recoveries | Bounds swapchain recreation after acquire or present reports `VK_ERROR_OUT_OF_DATE_KHR`. | [`iterate`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L740-L782) |
 
 ## Behavior Parameters
 
@@ -111,15 +111,15 @@ void main (void) {
 #### Additional Info
 
 - [`initPrograms`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L822-L840) generates `quad-vert` and the fixed `quad-frag` stage. The fragment stage does not vary and is not part of the test's observation.
-- [`createPipeline`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L428-L452) binds both modules. [`createCommandBuffer`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L288-L330) records a six-vertex draw.
+- [`createPipeline`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L406-L431) binds both modules. [`createCommandBuffer`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L266-L309) records a six-vertex draw.
 - The source passes no explicit `vk::ShaderBuildOptions`, so the CTS uses the SPIR-V 1.0 baseline target ([baseline target](../../../framework/vulkan/vkPrograms.cpp#L1048-L1052)).
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---|---|---|
-| Test case leaf | Only `swapchain_counter` builds the quad shaders. The three function cases have no shader stage. | [`SwapchainCounterTestCase::initPrograms`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L806-L840), [`createDisplayControlTests`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L988-L994) |
-| Counter and present-mode values | `VK_SURFACE_COUNTER_VBLANK_EXT` and `VK_PRESENT_MODE_FIFO_KHR` affect host setup, while the generated GLSL remains fixed. | [`SwapchainCounterTestInstance`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L604-L637) |
+| Test case leaf | Only `swapchain_counter` builds the quad shaders. The three function cases have no shader stage. | [`SwapchainCounterTestCase::initPrograms`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L800-L818), [`createDisplayControlTests`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L987-L993) |
+| Counter and present-mode values | `VK_SURFACE_COUNTER_VBLANK_EXT` and `VK_PRESENT_MODE_FIFO_KHR` affect host setup, while the generated GLSL remains fixed. | [`SwapchainCounterTestInstance`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L582-L616) |
 
 #### SPIR-V
 

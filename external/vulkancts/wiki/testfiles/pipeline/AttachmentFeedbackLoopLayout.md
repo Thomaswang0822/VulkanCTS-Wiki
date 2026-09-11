@@ -196,11 +196,11 @@ void main (void)
 
 ## Runtime Execution and Result Checking
 
-- A sampler leaf selects its parameters, creates feedback-loop-capable images and views, prepares descriptors, initializes image contents, and records the render operations in [`AttachmentFeedbackLoopLayoutImageSamplingInstance::setup`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L422-L1035) or its depth/stencil counterpart.
+- A sampler leaf selects its parameters, creates feedback-loop-capable images and views, prepares descriptors, initializes image contents, and records the render operations in [`AttachmentFeedbackLoopLayoutImageSamplingInstance::setup`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L415-L1016) or its depth/stencil counterpart.
 - The pipeline setup derives static flags from the selected image aspect. Dynamic-state leaves set the selected aspect during command recording, while `DYNAMIC_WITH_ZERO_STATIC` and `DYNAMIC_WITH_CONTRADICTORY_STATIC` ensure the result depends on dynamic state rather than matching static flags.
 - [`iterate`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L1766-L1859) submits the command buffer and waits. The verification path reads each image in the selected layout and creates a reference texture by replaying the source's access-pattern calculation on the host.
-- Color paths use `tcu::floatThresholdCompare` or `tcu::intThresholdCompare`; [`AttachmentFeedbackLoopLayoutDepthStencilImageSamplingInstance::verifyImage`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L1626-L1764) performs separate depth and stencil checks.
-- [`noColorAttachmentTest`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2590-L2850) submits its draws, compares both color images exactly, and verifies the atomic counter. [`feedbackLoopDiffMipsRun`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2877-L3158) performs the separate-mip draw, copyback, and threshold comparison.
+- Color paths use `tcu::floatThresholdCompare` or `tcu::intThresholdCompare`; [`AttachmentFeedbackLoopLayoutDepthStencilImageSamplingInstance::verifyImage`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L1619-L1757) performs separate depth and stencil checks.
+- [`noColorAttachmentTest`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2589-L2842) submits its draws, compares both color images exactly, and verifies the atomic counter. [`feedbackLoopDiffMipsRun`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2876-L3153) performs the separate-mip draw, copyback, and threshold comparison.
 
 ## Failure Meaning
 
@@ -238,7 +238,7 @@ void main (void)
 
 **Possible failure symptoms:** `no_color_draw` returns a counter value other than the framebuffer pixel count, either exact color-image comparison fails, or the case fails during setup or submission.
 
-**Possible implementation causes:** An atomic-count failure may involve the no-color-attachment render path, fragment execution, storage-buffer binding, atomic operations, or synchronization before host readback. An image mismatch may instead involve preservation of the image transitioned to feedback-loop layout or the independent color render and copyback path. [`noColorAttachmentSupport`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2550-L2554) skips missing feature prerequisites, but the combined checks still require the specific failing assertion to localize the affected path.
+**Possible implementation causes:** An atomic-count failure may involve the no-color-attachment render path, fragment execution, storage-buffer binding, atomic operations, or synchronization before host readback. An image mismatch may instead involve preservation of the image transitioned to feedback-loop layout or the independent color render and copyback path. [`noColorAttachmentSupport`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2549-L2553) skips missing feature prerequisites, but the combined checks still require the specific failing assertion to localize the affected path.
 
 #### Subresource selection or copyback for separate mip levels
 
@@ -250,8 +250,8 @@ void main (void)
 
 ### Requirement-based pruning
 
-- [`AttachmentFeedbackLoopLayoutSamplerTest::checkSupport`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L1984-L2109) requires `VK_EXT_attachment_feedback_loop_layout` for sampler leaves and checks construction-type support. It also requires `VK_EXT_attachment_feedback_loop_dynamic_state` for non-static state, `VK_KHR_unified_image_layouts` for the general-layout path, and selected stencil-export or maintenance5 support where applicable.
-- [`noColorAttachmentSupport`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2550-L2554) requires `VK_EXT_attachment_feedback_loop_layout` and fragment stores and atomics for `no_color_draw`.
+- [`AttachmentFeedbackLoopLayoutSamplerTest::checkSupport`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L1977-L2028) requires `VK_EXT_attachment_feedback_loop_layout` for sampler leaves and checks construction-type support. It also requires `VK_EXT_attachment_feedback_loop_dynamic_state` for non-static state, `VK_KHR_unified_image_layouts` for the general-layout path, and selected stencil-export or maintenance5 support where applicable.
+- [`noColorAttachmentSupport`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2549-L2553) requires `VK_EXT_attachment_feedback_loop_layout` and fragment stores and atomics for `no_color_draw`.
 - Unsupported features cause a skip through the CTS support check rather than a failed image comparison.
 
 ### Design-based pruning
@@ -272,10 +272,10 @@ void main (void)
 | Entry point | Link | Why it matters |
 |---|---|---|
 | Family registration | [`createAttachmentFeedbackLoopLayoutTests`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L3366-L3390) | Creates the family and monolithic-only root `misc` group. |
-| Sampler matrix registration | [`createAttachmentFeedbackLoopLayoutSamplerTests`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L3160-L3364) | Registers layouts, descriptors, view types, formats, access patterns, and state variants. |
-| Color sampler execution | [`AttachmentFeedbackLoopLayoutImageSamplingInstance::setup`, `verifyImage`, and `iterate`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L422-L1035) | Creates the color sampler path, reads back images, and compares the reference. |
-| Depth/stencil verification | [`AttachmentFeedbackLoopLayoutDepthStencilImageSamplingInstance::verifyImage`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L1626-L1764) | Performs aspect-specific image comparison. |
-| Support and shader generation | [`checkSupport` and `initPrograms`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L1984-L2548) | Applies feature gates and generates sampler shaders. |
-| No-color leaf | [`noColorAttachmentSupport`, `noColorAttachmentPrograms`, and `noColorAttachmentTest`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2550-L2850) | Uses storage-buffer atomic output without a color attachment. |
-| Separate-mip leaves | [`feedbackLoopDiffMipsInitPrograms` and `feedbackLoopDiffMipsRun`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2852-L3158) | Generates, runs, and validates the separate-mip cases. |
+| Sampler matrix registration | [`createAttachmentFeedbackLoopLayoutSamplerTests`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L3159-L3363) | Registers layouts, descriptors, view types, formats, access patterns, and state variants. |
+| Color sampler execution | [`AttachmentFeedbackLoopLayoutImageSamplingInstance::setup`, `verifyImage`, and `iterate`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L415-L1016) | Creates the color sampler path, reads back images, and compares the reference. |
+| Depth/stencil verification | [`AttachmentFeedbackLoopLayoutDepthStencilImageSamplingInstance::verifyImage`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L1619-L1757) | Performs aspect-specific image comparison. |
+| Support and shader generation | [`checkSupport` and `initPrograms`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L1977-L2028) | Applies feature gates and generates sampler shaders. |
+| No-color leaf | [`noColorAttachmentSupport`, `noColorAttachmentPrograms`, and `noColorAttachmentTest`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2549-L2553) | Uses storage-buffer atomic output without a color attachment. |
+| Separate-mip leaves | [`feedbackLoopDiffMipsInitPrograms` and `feedbackLoopDiffMipsRun`](../../../modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp#L2851-L2874) | Generates, runs, and validates the separate-mip cases. |
 | Vulkan feedback-loop rules | [`renderpass-feedbackloop`](../../../../vulkan-docs/src/chapters/renderpass.adoc#renderpass-feedbackloop) | Defines the layout and aspect-state contract used by the test. |

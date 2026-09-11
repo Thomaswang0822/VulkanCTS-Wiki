@@ -1,0 +1,155 @@
+# Upstream delta: cf7edb26d3be2d8763595ed08fdc41f3c1b1966f..659bbe6987197b4ff7ac20011261b92009286100
+# Recorded: 2026-09-10, branch merge_main_26-09-10
+
+## git diff --stat cf7edb26d3be2d8763595ed08fdc41f3c1b1966f..659bbe6987197b4ff7ac20011261b92009286100
+ AndroidGen.bp                                      |    2 +
+ AndroidKhronosCTSGen.bp                            |    2 +
+ android/cts/main/vk-main-2026-03-01/dgc.txt        |    1 +
+ .../vk-main-2026-03-01/fragment-shading-rate.txt   |  160 +++
+ .../cts/main/vk-main-2026-03-01/renderpasses.txt   |  170 +++
+ android/cts/main/vk-main-2026-03-01/robustness.txt |   14 +
+ external/vulkancts/README.md                       |    6 +
+ .../vulkan/generated/vulkan/vkDeviceFeatures.inl   |   65 +
+ .../vulkan/generated/vulkan/vkDeviceProperties.inl |   44 +
+ .../vulkan/generated/vulkansc/vkDeviceFeatures.inl |   40 +
+ .../generated/vulkansc/vkDeviceProperties.inl      |   33 +
+ .../vulkansc/vkKnownConformanceVersions.inl        |    2 -
+ .../framework/vulkan/vkDeviceFeatures.cpp          |    5 +
+ .../framework/vulkan/vkDeviceFeatures.hpp          |    1 +
+ external/vulkancts/modules/vulkan/CMakeLists.txt   |    1 +
+ .../vulkan/api/vktApiCopiesAndBlittingUtil.hpp     |    2 +-
+ .../vktBindingDescriptorHeapTests.cpp              |    8 +-
+ .../vktBindingUnusedInvalidDescriptorTests.cpp     |    4 +-
+ .../compute/vktComputeBasicComputeShaderTests.cpp  |    5 +
+ .../vktCooperativeVectorBasicTests.cpp             |   16 +
+ .../device_generated_commands/CMakeLists.txt       |    2 +
+ .../vktDGCComputePushIndexHeapTestsExt.cpp         |  326 +++++
+ .../vktDGCComputePushIndexHeapTestsExt.hpp         |   38 +
+ .../device_generated_commands/vktDGCTests.cpp      |    2 +
+ .../vktFragmentShadingRateBasic.cpp                |   49 +-
+ .../vulkan/memory/vktMemoryAllocationTests.cpp     |    6 +
+ ...ktPipelineAttachmentFeedbackLoopLayoutTests.cpp |   18 +-
+ .../vktPipelineExtendedDynamicStateTests.cpp       |   20 +-
+ .../pipeline/vktPipelinePushDescriptorTests.cpp    |   20 +-
+ .../vktPipelineSamplerBorderSwizzleTests.cpp       |   10 +
+ .../query_pool/vktQueryPoolStatisticsTests.cpp     |   12 +-
+ .../modules/vulkan/renderpass/CMakeLists.txt       |    2 +
+ .../vktDynamicRenderingSuspendResumeTestsUtil.cpp  | 1315 ++++++++++++++++++++
+ .../vktDynamicRenderingSuspendResumeTestsUtil.hpp  |  124 ++
+ .../renderpass/vktRenderPassCustomResolveTests.cpp |  225 +++-
+ .../vktRenderPassDepthStencilResolveTests.cpp      |    6 +-
+ .../vktRenderPassFragmentDensityMapTests.cpp       |   15 +-
+ .../vktRenderPassLowResolutionZTests.cpp           |    5 +
+ .../vktRenderPassMultisampleResolveTests.cpp       |  688 +++++++++-
+ .../robustness/vktRobustnessBufferAccessTests.cpp  |    2 +-
+ .../robustness/vktRobustnessIndexAccessTests.cpp   |  230 ++--
+ .../shaderexecutor/vktShaderExpectAssumeTests.cpp  |   16 +-
+ .../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp      |   40 +
+ .../vktTransformFeedbackSimpleTests.cpp            |   12 +-
+ .../vulkancts/modules/vulkan/vktContextManager.cpp |   28 +-
+ .../vulkancts/modules/vulkan/vktTestPackage.cpp    |  189 ++-
+ .../vulkancts/modules/vulkan/vktTestPackage.hpp    |    9 +
+ .../modules/vulkan/vktTestPackageEntry.cpp         |    6 +
+ .../vulkan/wsi/vktWsiAcquireDrmDisplayTests.cpp    |   14 +-
+ .../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp   |  153 +--
+ .../vulkan/wsi/vktWsiDisplayControlTests.cpp       |  118 +-
+ .../modules/vulkan/wsi/vktWsiDisplayTests.cpp      |  117 +-
+ .../vulkan/wsi/vktWsiDisplayTimingTests.cpp        |  174 ++-
+ .../vulkan/wsi/vktWsiFullScreenExclusiveTests.cpp  |   71 +-
+ .../vulkan/wsi/vktWsiIncrementalPresentTests.cpp   |  154 +--
+ .../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp |  211 ++--
+ .../vktWsiMultisampledRenderToSwapchainTests.cpp   |   89 +-
+ .../modules/vulkan/wsi/vktWsiPreTransformTests.cpp |  100 +-
+ .../vulkan/wsi/vktWsiPresentIdWaitTests.cpp        |    8 +-
+ .../vulkan/wsi/vktWsiPresentTimingTests.cpp        |  133 +-
+ .../wsi/vktWsiSharedPresentableImageTests.cpp      |  198 ++-
+ .../modules/vulkan/wsi/vktWsiSurfaceTests.cpp      |  200 +--
+ .../modules/vulkan/wsi/vktWsiSwapchainTests.cpp    |  309 +++--
+ .../vulkancts/mustpass/main/vk-default/dgc.txt     |    1 +
+ .../main/vk-default/fragment-shading-rate.txt      |  160 +++
+ .../mustpass/main/vk-default/renderpasses.txt      |  170 +++
+ .../mustpass/main/vk-default/robustness.txt        |   14 +
+ .../main/vksc-default/fragment-shading-rate.txt    |   80 ++
+ .../mustpass/main/vksc-default/renderpasses.txt    |    2 +
+ external/vulkancts/scripts/gen_framework.py        |   31 +
+ framework/common/tcuCommandLine.cpp                |   26 +-
+ framework/common/tcuCommandLine.hpp                |    8 +
+ framework/common/tcuTexture.cpp                    |    5 +
+ framework/common/tcuTexture.hpp                    |    1 +
+ 74 files changed, 5285 insertions(+), 1258 deletions(-)
+
+## git diff --name-status --find-renames cf7edb26d3be2d8763595ed08fdc41f3c1b1966f..659bbe6987197b4ff7ac20011261b92009286100
+M	AndroidGen.bp
+M	AndroidKhronosCTSGen.bp
+M	android/cts/main/vk-main-2026-03-01/dgc.txt
+M	android/cts/main/vk-main-2026-03-01/fragment-shading-rate.txt
+M	android/cts/main/vk-main-2026-03-01/renderpasses.txt
+M	android/cts/main/vk-main-2026-03-01/robustness.txt
+M	external/vulkancts/README.md
+M	external/vulkancts/framework/vulkan/generated/vulkan/vkDeviceFeatures.inl
+M	external/vulkancts/framework/vulkan/generated/vulkan/vkDeviceProperties.inl
+M	external/vulkancts/framework/vulkan/generated/vulkansc/vkDeviceFeatures.inl
+M	external/vulkancts/framework/vulkan/generated/vulkansc/vkDeviceProperties.inl
+M	external/vulkancts/framework/vulkan/generated/vulkansc/vkKnownConformanceVersions.inl
+M	external/vulkancts/framework/vulkan/vkDeviceFeatures.cpp
+M	external/vulkancts/framework/vulkan/vkDeviceFeatures.hpp
+M	external/vulkancts/modules/vulkan/CMakeLists.txt
+M	external/vulkancts/modules/vulkan/api/vktApiCopiesAndBlittingUtil.hpp
+M	external/vulkancts/modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp
+M	external/vulkancts/modules/vulkan/binding_model/vktBindingUnusedInvalidDescriptorTests.cpp
+M	external/vulkancts/modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp
+M	external/vulkancts/modules/vulkan/cooperative_vector/vktCooperativeVectorBasicTests.cpp
+M	external/vulkancts/modules/vulkan/device_generated_commands/CMakeLists.txt
+A	external/vulkancts/modules/vulkan/device_generated_commands/vktDGCComputePushIndexHeapTestsExt.cpp
+A	external/vulkancts/modules/vulkan/device_generated_commands/vktDGCComputePushIndexHeapTestsExt.hpp
+M	external/vulkancts/modules/vulkan/device_generated_commands/vktDGCTests.cpp
+M	external/vulkancts/modules/vulkan/fragment_shading_rate/vktFragmentShadingRateBasic.cpp
+M	external/vulkancts/modules/vulkan/memory/vktMemoryAllocationTests.cpp
+M	external/vulkancts/modules/vulkan/pipeline/vktPipelineAttachmentFeedbackLoopLayoutTests.cpp
+M	external/vulkancts/modules/vulkan/pipeline/vktPipelineExtendedDynamicStateTests.cpp
+M	external/vulkancts/modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp
+M	external/vulkancts/modules/vulkan/pipeline/vktPipelineSamplerBorderSwizzleTests.cpp
+M	external/vulkancts/modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp
+M	external/vulkancts/modules/vulkan/renderpass/CMakeLists.txt
+A	external/vulkancts/modules/vulkan/renderpass/vktDynamicRenderingSuspendResumeTestsUtil.cpp
+A	external/vulkancts/modules/vulkan/renderpass/vktDynamicRenderingSuspendResumeTestsUtil.hpp
+M	external/vulkancts/modules/vulkan/renderpass/vktRenderPassCustomResolveTests.cpp
+M	external/vulkancts/modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp
+M	external/vulkancts/modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp
+M	external/vulkancts/modules/vulkan/renderpass/vktRenderPassLowResolutionZTests.cpp
+M	external/vulkancts/modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp
+M	external/vulkancts/modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp
+M	external/vulkancts/modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp
+M	external/vulkancts/modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp
+M	external/vulkancts/modules/vulkan/ssbo/vktSSBOLayoutCase.cpp
+M	external/vulkancts/modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp
+M	external/vulkancts/modules/vulkan/vktContextManager.cpp
+M	external/vulkancts/modules/vulkan/vktTestPackage.cpp
+M	external/vulkancts/modules/vulkan/vktTestPackage.hpp
+M	external/vulkancts/modules/vulkan/vktTestPackageEntry.cpp
+M	external/vulkancts/modules/vulkan/wsi/vktWsiAcquireDrmDisplayTests.cpp
+M	external/vulkancts/modules/vulkan/wsi/vktWsiColorSpaceTests.cpp
+M	external/vulkancts/modules/vulkan/wsi/vktWsiDisplayControlTests.cpp
+M	external/vulkancts/modules/vulkan/wsi/vktWsiDisplayTests.cpp
+M	external/vulkancts/modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp
+M	external/vulkancts/modules/vulkan/wsi/vktWsiFullScreenExclusiveTests.cpp
+M	external/vulkancts/modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp
+M	external/vulkancts/modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp
+M	external/vulkancts/modules/vulkan/wsi/vktWsiMultisampledRenderToSwapchainTests.cpp
+M	external/vulkancts/modules/vulkan/wsi/vktWsiPreTransformTests.cpp
+M	external/vulkancts/modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp
+M	external/vulkancts/modules/vulkan/wsi/vktWsiPresentTimingTests.cpp
+M	external/vulkancts/modules/vulkan/wsi/vktWsiSharedPresentableImageTests.cpp
+M	external/vulkancts/modules/vulkan/wsi/vktWsiSurfaceTests.cpp
+M	external/vulkancts/modules/vulkan/wsi/vktWsiSwapchainTests.cpp
+M	external/vulkancts/mustpass/main/vk-default/dgc.txt
+M	external/vulkancts/mustpass/main/vk-default/fragment-shading-rate.txt
+M	external/vulkancts/mustpass/main/vk-default/renderpasses.txt
+M	external/vulkancts/mustpass/main/vk-default/robustness.txt
+M	external/vulkancts/mustpass/main/vksc-default/fragment-shading-rate.txt
+M	external/vulkancts/mustpass/main/vksc-default/renderpasses.txt
+M	external/vulkancts/scripts/gen_framework.py
+M	framework/common/tcuCommandLine.cpp
+M	framework/common/tcuCommandLine.hpp
+M	framework/common/tcuTexture.cpp
+M	framework/common/tcuTexture.hpp

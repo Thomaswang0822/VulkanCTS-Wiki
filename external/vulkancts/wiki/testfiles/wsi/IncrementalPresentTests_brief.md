@@ -107,13 +107,13 @@ A failure caused only by exceeding the out-of-date/suboptimal retry limit points
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
 | Region generation and partial draw | [`getRenderFrameRect`, `getUpdatedRects`, and `cmdRenderFrame`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L226-L284) | Defines the full first update, later damage rectangles, and frame-dependent draw. |
-| Per-image catch-up rendering | [`createCommandBuffer`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L286-L329) | Replays every update missed by the acquired image. |
-| Configuration generation | [`selectRepresentativeFormats` and `generateSwapchainConfigs`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L576-L719) | Selects formats, extents, and support checks. |
-| Resource setup | [`initSwapchainResources`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L779-L816) | Creates per-swapchain rendering and synchronization objects. |
-| Frame submission and presentation | [`IncrementalPresentTestInstance::render`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L850-L952) | Shows acquisition, catch-up tracking, submission, both present paths, and result checks. |
-| Retry and completion logic | [`IncrementalPresentTestInstance::iterate`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L954-L1034) | Defines 300-frame runs, configuration iteration, and out-of-date handling. |
+| Per-image catch-up rendering | [`createCommandBuffer`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L259-L302) | Replays every update missed by the acquired image. |
+| Configuration generation | [`selectRepresentativeFormats` and `generateSwapchainConfigs`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L550-L577) | Selects formats, extents, and support checks. |
+| Resource setup | [`initSwapchainResources`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L752-L789) | Creates per-swapchain rendering and synchronization objects. |
+| Frame submission and presentation | [`IncrementalPresentTestInstance::render`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L823-L925) | Shows acquisition, catch-up tracking, submission, both present paths, and result checks. |
+| Retry and completion logic | [`IncrementalPresentTestInstance::iterate`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L927-L1007) | Defines 300-frame runs, configuration iteration, and out-of-date handling. |
 | Shader programs | [`Programs::init`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1037-L1074) | Supplies the fixed quad and frame-dependent fragment shader. |
-| Registration matrix | [`createIncrementalPresentTests`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1077-L1175) | Registers scaling, present mode, transform, alpha, and leaf dimensions. |
+| Registration matrix | [`createIncrementalPresentTests`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1087-L1182) | Registers scaling, present mode, transform, alpha, and leaf dimensions. |
 | WSI family routing | [`createTypeSpecificTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L52-L83) | Places `incremental_present` below each platform branch. |
 | Platform scaling properties | [`getPlatformProperties`](../../../framework/vulkan/vkWsiUtil.cpp#L83-L158) | Explains which platform branches can register scaled cases. |
 | Vulkan incremental-present semantics | [`VkPresentRegionsKHR`, `VkPresentRegionKHR`, and `VkRectLayerKHR`](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L7584-L7685) | Defines the hint, coordinate/transform rules, and rectangle validity. |

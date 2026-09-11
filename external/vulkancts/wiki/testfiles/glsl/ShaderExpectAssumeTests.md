@@ -1,6 +1,6 @@
 ## Overview
 
-[`vktShaderExpectAssumeTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L20-L28) implements the `glsl.shader_expect_assume` group for `VK_KHR_shader_expect_assume`. It generates GLSL using the `SPV_KHR_expect_assume` intrinsics, runs each case through a vertex, fragment, or compute pipeline, and checks a two-word result for each of 32 elements. The public factory is [`createShaderExpectAssumeTests()`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1516-L1519).
+[`vktShaderExpectAssumeTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L20-L28) implements the `glsl.shader_expect_assume` group for `VK_KHR_shader_expect_assume`. It generates GLSL using the `SPV_KHR_expect_assume` intrinsics, runs each case through a vertex, fragment, or compute pipeline, and checks a two-word result for each of 32 elements. The public factory is [`createShaderExpectAssumeTests()`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1511-L1514).
 
 The group is added to the GLSL package only in non-Vulkan-SC builds ([registration](../../../modules/vulkan/vktTestPackage.cpp#L1281-L1287)). This page describes source-defined coverage and behavior; it does not claim that the cases were run on the current host.
 
@@ -30,7 +30,7 @@ glsl.shader_expect_assume.compute
 └── assume
 ```
 
-The factory creates the three stage groups and their two direct operation groups in [`addShaderExpectAssumeTests()`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1416-L1511). Each stage has 43 `expect` leaves and 4 `assume` leaves, for 47 leaves per stage. The leaf names are generated from the parameter table and receive `_vec2`–`_vec4` and/or `_wrong_expected` suffixes where applicable ([parameter loop](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1424-L1503)).
+The factory creates the three stage groups and their two direct operation groups in [`addShaderExpectAssumeTests()`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1411-L1507). Each stage has 43 `expect` leaves and 4 `assume` leaves, for 47 leaves per stage. The leaf names are generated from the parameter table and receive `_vec2`–`_vec4` and/or `_wrong_expected` suffixes where applicable ([parameter loop](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1424-L1503)).
 
 ## Behavior Parameters
 
@@ -456,4 +456,4 @@ The registration loop intentionally avoids a full Cartesian product. It loops ov
 | Vertex and graphics fragment templates | [`vktShaderExpectAssumeTests.cpp#L1231-L1322`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1231-L1322) | Generates the vertex operation and flat-value handoff. |
 | Fragment shader template | [`vktShaderExpectAssumeTests.cpp#L1324-L1410`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1324-L1410) | Generates the fragment operation and direct color output. |
 | Test registration and pruning | [`vktShaderExpectAssumeTests.cpp#L1416-L1511`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1416-L1511) | Builds stage/operation groups, expands the parameter table, and applies vector and wrong-expectation filters. |
-| Factory definition | [`vktShaderExpectAssumeTests.cpp#L1516-L1519`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1516-L1519) | Creates the `shader_expect_assume` root group. |
+| Factory definition | [`vktShaderExpectAssumeTests.cpp#L1511-L1514`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1511-L1514) | Creates the `shader_expect_assume` root group. |
