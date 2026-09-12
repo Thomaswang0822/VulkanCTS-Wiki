@@ -5,7 +5,7 @@
 - This page covers the `renderpasses.renderpass2.depth_stencil_resolve` test family, implemented in
   [vktRenderPassDepthStencilResolveTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp) and
   registered under the `renderpass2` test category root as `"depth_stencil_resolve"`
-  ([createRenderPass2DepthStencilResolveTests](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L2191-L2194)).
+  ([createRenderPass2DepthStencilResolveTests](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L2189-L2192)).
 - The test exercises `VK_KHR_depth_stencil_resolve` / Vulkan 1.2 subpass depth/stencil resolve through
   `VkSubpassDescriptionDepthStencilResolve` in `VkRenderPassCreateInfo2`, using a multisample depth/stencil attachment
   and a single-sample resolve attachment.
@@ -44,23 +44,23 @@ renderpasses.renderpass2.depth_stencil_resolve
 ```
 
 The six `image_2d_*` children are full resolve-matrix test families sharing one implementation
-([DepthStencilResolveTest](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L213-L265)).
+([DepthStencilResolveTest](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L209-L261)).
 `misc` holds three leaf cases that query properties and probe non-present-aspect resolve behavior
-([misc registration](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1861-L1873)).
+([misc registration](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1859-L1871)).
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Image geometry | `image_2d_32_32`, `image_2d_8_32`, `image_2d_49_13`, `image_2d_5_1`, `image_2d_17_1` | Five non-layered geometries with differing render areas and clear values, chosen so both full-framebuffer and sub-rectangle resolves, plus 1-pixel-tall strips, are exercised. | [imagesTestData](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1832-L1838) |
-| Layered framebuffer | `image_2d_16_64_6` | A 16×64 image with 6 layers; rendering targets layers 4–6 while the resolve attachment base layer is 1, so non-zero-base-layer resolve is covered. Requires the geometry shader to broadcast draws across layers. | [layeredTextureTestData](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L2069), [geometry shader](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1098-L1129) |
-| Sample count | 2, 4, 8, 16, 32, 64 | Iterates `sampleCounts` under `samples_N`; expected depth values and the number of stencil render passes depend on this. | [sampleCounts](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1839) |
-| Format | `d16_unorm`, `x8_d24_unorm_pack32`, `d32_sfloat`, `s8_uint`, `d16_unorm_s8_uint`, `d24_unorm_s8_uint`, `d32_sfloat_s8_uint` | Covers depth-only, stencil-only, and combined depth/stencil formats; combined formats also get a `_separate_layouts` variant. | [formats](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1795-L1803) |
-| Resolve mode | `none`, `zero`, `average`, `min`, `max` | Drives `depthResolveMode`/`stencilResolveMode`; stencil `average` and double-`none` are skipped by design. | [resolveModes](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1810-L1814) |
-| Separate layouts | boolean | Adds a `_separate_layouts` subgroup for combined formats, using per-aspect layouts via `VK_KHR_separate_depth_stencil_layouts`. | [separate layout loop](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1902-L1909) |
-| Unused resolve | boolean | Adds an `_unused_resolve` variant where the resolve attachment is `VK_ATTACHMENT_UNUSED` and the single-sample image is cleared outside the render pass. | [unusedIdx loop](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1922-L1951) |
-| Sample mask | boolean (stencil, `SAMPLE_ZERO` only) | Adds a `_samplemask` variant that uses `VkPipelineMultisampleStateCreateInfo::pSampleMask` to enable one sample per pass instead of using `discard`. | [samplemask registration](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L2026-L2034) |
-| Compatible format | `D32_SFLOAT`, `D16_UNORM`, `X8_D24_UNORM_PACK32`, `S8_UINT` | Adds a `compatibility_*` case for the first image/sample using a format-compatible resolve attachment (fewer aspects, same bit depth). | [compatibility registration](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1981-L2049), [DepthCompatibilityManager](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L147-L167) |
+| Image geometry | `image_2d_32_32`, `image_2d_8_32`, `image_2d_49_13`, `image_2d_5_1`, `image_2d_17_1` | Five non-layered geometries with differing render areas and clear values, chosen so both full-framebuffer and sub-rectangle resolves, plus 1-pixel-tall strips, are exercised. | [imagesTestData](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1830-L1836) |
+| Layered framebuffer | `image_2d_16_64_6` | A 16×64 image with 6 layers; rendering targets layers 4–6 while the resolve attachment base layer is 1, so non-zero-base-layer resolve is covered. Requires the geometry shader to broadcast draws across layers. | [layeredTextureTestData](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L2067), [geometry shader](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1094-L1125) |
+| Sample count | 2, 4, 8, 16, 32, 64 | Iterates `sampleCounts` under `samples_N`; expected depth values and the number of stencil render passes depend on this. | [sampleCounts](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1837) |
+| Format | `d16_unorm`, `x8_d24_unorm_pack32`, `d32_sfloat`, `s8_uint`, `d16_unorm_s8_uint`, `d24_unorm_s8_uint`, `d32_sfloat_s8_uint` | Covers depth-only, stencil-only, and combined depth/stencil formats; combined formats also get a `_separate_layouts` variant. | [formats](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1793-L1801) |
+| Resolve mode | `none`, `zero`, `average`, `min`, `max` | Drives `depthResolveMode`/`stencilResolveMode`; stencil `average` and double-`none` are skipped by design. | [resolveModes](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1808-L1812) |
+| Separate layouts | boolean | Adds a `_separate_layouts` subgroup for combined formats, using per-aspect layouts via `VK_KHR_separate_depth_stencil_layouts`. | [separate layout loop](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1900-L1907) |
+| Unused resolve | boolean | Adds an `_unused_resolve` variant where the resolve attachment is `VK_ATTACHMENT_UNUSED` and the single-sample image is cleared outside the render pass. | [unusedIdx loop](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1920-L1949) |
+| Sample mask | boolean (stencil, `SAMPLE_ZERO` only) | Adds a `_samplemask` variant that uses `VkPipelineMultisampleStateCreateInfo::pSampleMask` to enable one sample per pass instead of using `discard`. | [samplemask registration](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L2024-L2032) |
+| Compatible format | `D32_SFLOAT`, `D16_UNORM`, `X8_D24_UNORM_PACK32`, `S8_UINT` | Adds a `compatibility_*` case for the first image/sample using a format-compatible resolve attachment (fewer aspects, same bit depth). | [compatibility registration](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1979-L2047), [DepthCompatibilityManager](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L143-L163) |
 
 ## Behavior Parameters
 
@@ -73,13 +73,13 @@ either depth or stencil via the `testing_depth` / `testing_stencil` suffix.
 `VK_RESOLVE_MODE_SAMPLE_ZERO_BIT` copies sample 0 of the multisample attachment into the single-sample attachment. This
 is the only mandatory mode for both aspects, so every format and sample count registers a `zero` case. The expected
 depth value is `0.04` and the expected stencil value is `1` regardless of sample count
-([expected value tables](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1840-L1855)).
+([expected value tables](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1838-L1853)).
 
 ### `average`: arithmetic mean of samples (depth only)
 
 `VK_RESOLVE_MODE_AVERAGE_BIT` resolves to the average of the per-sample depth values. The fragment shader writes one of
 four depth values (`0.04`, `0.02`, `0.16`, `0.32`) per sample
-([depth fragment shader](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1142-L1157)), so the
+([depth fragment shader](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1138-L1153)), so the
 expected average is `0.135` for sample counts ≥ 4 and `0.03` for 2 samples. `average` is never registered for stencil
 because the spec forbids it.
 
@@ -89,7 +89,7 @@ because the spec forbids it.
 depth (`0.02` for `min`, `0.32` for `max`), and the host sets stencil references so the first half of samples hold `1`
 and the second half hold `255`. Expected depth is `0.02` (`min`) or `0.32`/`0.04` (`max` at ≥4 / 2 samples); expected
 stencil is `1` (`min`) or `255` (`max`)
-([stencil pass setup](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L798-L863)).
+([stencil pass setup](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L794-L859)).
 
 ### `none`: no resolve for that aspect
 
@@ -103,10 +103,10 @@ Beyond the resolve-matrix leaves, three `misc` cases probe separate contracts:
 
 - `properties` queries `VkPhysicalDeviceDepthStencilResolveProperties` and asserts that `SAMPLE_ZERO` is present for
   both aspects, `AVERAGE` is absent for stencil, and that `independentResolve` implies `independentResolveNone`
-  ([PropertiesTestInstance::iterate](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1325-L1352)).
+  ([PropertiesTestInstance::iterate](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1322-L1349)).
 - `resolve_stencil_aspect_that_is_not_present` uses a depth-only format and asks the implementation to resolve a
   non-present stencil aspect; it then verifies the present depth aspect still resolves correctly across two render
-  passes ([ResolveNonPresentAspectTestInstance](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1448-L1706)).
+  passes ([ResolveNonPresentAspectTestInstance](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1445-L1703)).
 - `resolve_depth_aspect_that_is_not_present` is the symmetric case using `S8_UINT` and resolving a non-present depth
   aspect.
 
@@ -199,21 +199,21 @@ void main(void)
 #### Additional Info
 
 - The vertex shader builds the quad without any bound vertex buffer
-  ([quad-vert](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1131-L1140)).
+  ([quad-vert](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1127-L1136)).
 - Depth testing is always enabled with `VK_COMPARE_OP_ALWAYS`, so every sample's `gl_FragDepth` is written
-  ([depth/stencil pipeline state](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L612-L633)).
+  ([depth/stencil pipeline state](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L608-L629)).
 - The render pass is created with `VkRenderPassCreateInfo2` and chains
   `VkSubpassDescriptionDepthStencilResolve` only on the final render pass, with the multisample image as the
   depth/stencil attachment and the single-sample image as the resolve attachment
-  ([createRenderPass](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L359-L517)).
+  ([createRenderPass](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L355-L513)).
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Testing aspect | For stencil-testing leaves, the fragment shader discards all samples except the one identified by a push constant, sets `gl_FragDepth = 0.5`, and the host iterates one render pass per sample with a per-pass stencil reference. | [stencil fragment shader](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1173-L1184), [stencil submission loop](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L798-L863) |
-| Sample mask | The `_samplemask` stencil variant replaces `discard` with `VkSampleMask` so each render pass writes exactly one sample. | [samplemask state](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L603-L611) |
-| Layered framebuffer | Layered cases add a geometry shader that broadcasts each triangle to three layers via `gl_Layer`. | [quad-geom](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1098-L1129) |
+| Testing aspect | For stencil-testing leaves, the fragment shader discards all samples except the one identified by a push constant, sets `gl_FragDepth = 0.5`, and the host iterates one render pass per sample with a per-pass stencil reference. | [stencil fragment shader](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1169-L1180), [stencil submission loop](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L794-L859) |
+| Sample mask | The `_samplemask` stencil variant replaces `discard` with `VkSampleMask` so each render pass writes exactly one sample. | [samplemask state](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L599-L607) |
+| Layered framebuffer | Layered cases add a geometry shader that broadcasts each triangle to three layers via `gl_Layer`. | [quad-geom](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1094-L1125) |
 
 #### SPIR-V
 
@@ -387,30 +387,30 @@ The representative vertex and fragment shaders were compiled with `glslangValida
 - **Resources.** The test creates a multisample depth/stencil image, a single-sample resolve image (using the
   `compatibleFormat` when set), a host-visible readback buffer sized for all layers, and a framebuffer holding both
   image views
-  ([constructor](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L267-L303)).
+  ([constructor](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L263-L299)).
 - **Unused-resolve pre-clear.** When the resolve attachment is `VK_ATTACHMENT_UNUSED`, the single-sample image is
   cleared to the configured clear value outside the render pass using `vkCmdClearDepthStencilImage` with explicit
   layout transitions, so the expected-value check still applies
-  ([unusedResolve block](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L705-L761)).
+  ([unusedResolve block](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L701-L757)).
 - **Depth submission.** One render pass clears both attachments, binds the pipeline, and records a 6-vertex draw; the
   resolve happens at `cmdEndRenderPass`
-  ([depth path](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L770-L795)).
+  ([depth path](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L766-L791)).
 - **Stencil submission.** Because a stencil reference applies to one sample at a time, the host records one render pass
   per sample (`sampleCount` passes), pushing the sample index as a constant and setting a per-pass stencil reference
   (`1` for the first half of samples, `255` for the second half). A `LATE_FRAGMENT_TESTS → EARLY_FRAGMENT_TESTS`
   barrier separates passes so the store/load between them is observable
-  ([stencil path](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L798-L863)).
+  ([stencil path](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L794-L859)).
 - **Copyback.** A `COLOR_ATTACHMENT_WRITE_BIT → TRANSFER_READ_BIT` image barrier (the spec requires color-attachment
   access masks to synchronize depth/stencil *resolve* operations) precedes `vkCmdCopyImageToBuffer` of the single-sample
   image into the host-visible buffer, followed by a `TRANSFER_WRITE_BIT → HOST_READ_BIT` buffer barrier
-  ([copyback barriers](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L866-L926)).
+  ([copyback barriers](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L862-L922)).
 - **Depth check.** The host walks every pixel of every view layer, extracts the tightly-packed depth using a
   format-specific getter (16/24/32-bit), and compares against the expected value for the selected resolve mode with
   epsilon `0.002`. Pixels outside the render area must equal the clear value
-  ([verifyDepth](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L933-L1015)).
+  ([verifyDepth](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L929-L1011)).
 - **Stencil check.** The host walks every pixel and compares the `uint8_t` stencil exactly against the expected value
   for the selected resolve mode; pixels outside the render area must equal the clear stencil
-  ([verifyStencil](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1017-L1076)).
+  ([verifyStencil](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1013-L1072)).
 
 | Resource | Created/configured by host? | Bound to GPU? | Device access | Host readback | Role |
 |----------|-----------------------------|---------------|---------------|---------------|------|
@@ -441,8 +441,8 @@ The representative vertex and fragment shaders were compiled with `glslangValida
 
 **Possible failure symptoms:** `verifyDepth` or `verifyStencil` reports a pixel whose value differs from the `SAMPLE_ZERO`
 expected value (`0.04` depth or `1` stencil), or an out-of-render-area pixel differs from the clear value
-([verifyDepth](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L933-L1015),
-[verifyStencil](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1017-L1076)).
+([verifyDepth](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L929-L1011),
+[verifyStencil](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1013-L1072)).
 
 **Possible implementation causes:** The resolve operation did not select sample 0, the single-sample attachment was not
 loaded with the resolved value at end of subpass, or the copyback image/buffer barrier pipeline stages or access masks
@@ -470,7 +470,7 @@ format. The spec allows implementation-defined precision for `AVERAGE` on float/
 
 **Possible implementation causes:** For depth, the implementation did not pick the true per-sample min/max. For stencil,
 the multi-pass submission that sets one stencil reference per sample
-([stencil loop](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L798-L863)) may have
+([stencil loop](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L794-L859)) may have
 mis-set the reference or the push-constant sample index, or sample shading / `discard` may not have isolated the
 intended sample. Source-level investigation is needed to distinguish a driver resolve bug from a test harness issue
 before blaming the implementation.
@@ -479,8 +479,8 @@ before blaming the implementation.
 
 **Possible failure symptoms:** For a `none` leaf, `verifyDepth`/`verifyStencil` reports a value other than the configured
 `clearValue.depth` / `clearValue.stencil` on the resolve attachment
-([expected value override](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L946-L948),
-[stencil override](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1033-L1035)).
+([expected value override](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L942-L944),
+[stencil override](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1029-L1031)).
 
 **Possible implementation causes:** When `depthResolveMode`/`stencilResolveMode` is `NONE` the spec states no resolve is
 performed for that aspect, so the single-sample attachment must retain whatever was written by its load op. A failure
@@ -490,7 +490,7 @@ the wrong `loadOp` or layout transition).
 #### Incorrect reported VkPhysicalDeviceDepthStencilResolveProperties
 
 **Possible failure symptoms:** `misc.properties` fails one of its four assertions
-([PropertiesTestInstance::iterate](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1325-L1352)).
+([PropertiesTestInstance::iterate](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1322-L1349)).
 
 **Possible implementation causes:** The driver reported a `supportedDepthResolveModes` / `supportedStencilResolveModes`
 mask missing `SAMPLE_ZERO`, reported `AVERAGE` for stencil, or reported `independentResolve == VK_TRUE` without
@@ -501,7 +501,7 @@ mask missing `SAMPLE_ZERO`, reported `AVERAGE` for stencil, or reported `indepen
 
 **Possible failure symptoms:** `resolve_stencil_aspect_that_is_not_present` or `resolve_depth_aspect_that_is_not_present`
 returns `fail`, crashes, or reports a wrong value in the four bottom fragments of the 16×16 image
-([non-present-aspect check](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1635-L1703)).
+([non-present-aspect check](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1632-L1700)).
 
 **Possible implementation causes:** The render pass requests a resolve mode for an aspect the format does not have; the
 spec says no resolve is performed for a missing aspect, and the present aspect must still resolve correctly across two
@@ -516,8 +516,8 @@ other than the base, or the case fails to draw at all.
 **Possible implementation causes:** The layered test renders to layers 4–6 of a 6-layer image and resolves into a view
 starting at base layer 1, so a failure can come from layered resolve, non-zero-base-layer resolve, or the geometry
 shader that broadcasts triangles via `gl_Layer`
-([layered setup](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L2064-L2069),
-[geometry shader](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1098-L1129)). The
+([layered setup](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L2062-L2067),
+[geometry shader](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1094-L1125)). The
 `geometryShader` device feature is required and gated.
 
 #### Resolve-attachment-unused path or external pre-clear failure
@@ -528,45 +528,47 @@ attachment is `VK_ATTACHMENT_UNUSED` and the single-sample image is cleared exte
 **Possible implementation causes:** The external `vkCmdClearDepthStencilImage` and its layout transitions did not take
 effect, the framebuffer still wrote through the unused attachment, or the resolve attachment's contents became
 undefined inside the render pass. The expected value for an unused resolve is the clear value
-([unusedResolve handling](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L705-L761)).
+([unusedResolve handling](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L701-L757)).
 
 ## Case Pruning
 
 ### Requirement-based pruning
 
-- `VK_KHR_depth_stencil_resolve` is required for every case
-  ([checkSupport](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1209)).
+- `VK_KHR_create_renderpass2` and `VK_KHR_depth_stencil_resolve` are both required for every case, whatever rendering
+  root the leaf sits under, so a device without `VK_KHR_create_renderpass2` reports the case as unsupported rather than
+  running it through the `renderpass1` path
+  ([checkSupport](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1205-L1206)).
 - `DEVICE_CORE_FEATURE_SAMPLE_RATE_SHADING` is required for every case because the fragment shader relies on per-sample
-  writes ([sampleRateShading](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1207)).
+  writes ([sampleRateShading](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1203)).
 - `DEVICE_CORE_FEATURE_GEOMETRY_SHADER` is required when `imageLayers > 1` (the `image_2d_16_64_6` family)
-  ([geometryShader gate](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1210-L1211)).
+  ([geometryShader gate](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1207-L1208)).
 - `VK_KHR_separate_depth_stencil_layouts` is required for every `_separate_layouts` variant
-  ([separateDepthStencilLayouts gate](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1213-L1214)).
+  ([separateDepthStencilLayouts gate](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1210-L1211)).
 - Each requested depth/stencil resolve mode must be present in the reported `supportedDepthResolveModes` /
   `supportedStencilResolveModes`; mixed depth/stencil modes additionally require `independentResolve` or
   `independentResolveNone` as appropriate. Unsupported cases raise `NotSupportedError`, not failure
-  ([mode and independence checks](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1230-L1261)).
+  ([mode and independence checks](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1227-L1258)).
 - Format, sample-count, and array-layer limits are queried via `getPhysicalDeviceImageFormatProperties`; unsupported
   combinations raise `NotSupportedError`
-  ([format/limit checks](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1270-L1302)).
+  ([format/limit checks](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1267-L1299)).
 
 ### Design-based pruning
 
 - Stencil `AVERAGE` is never registered because the spec forbids it
-  ([skip](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1924-L1927),
-  [layered skip](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L2146-L2148)).
+  ([skip](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1922-L1925),
+  [layered skip](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L2144-L2146)).
 - Depth `NONE` + stencil `NONE` together is skipped because the spec forbids both being `NONE` when a resolve
   attachment is present and not unused
-  ([skip](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1931-L1933)).
+  ([skip](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1929-L1931)).
 - For depth-only formats, a non-`NONE` stencil mode must equal the depth mode; the symmetric rule holds for
   stencil-only formats
-  ([aspect-match skips](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1935-L1945)).
+  ([aspect-match skips](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1933-L1943)).
 - The `compatibility_*` cases are registered only for the first image (`image_2d_32_32`) at the first sample count (2)
   to avoid exploding the matrix
-  ([compatibility gating](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1981-L1996),
-  [stencil compatibility gating](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L2039-L2049)).
+  ([compatibility gating](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1979-L1994),
+  [stencil compatibility gating](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L2037-L2047)).
 - The `_samplemask` stencil variant is registered only when the depth mode is `SAMPLE_ZERO`
-  ([samplemask gating](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L2026-L2034)).
+  ([samplemask gating](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L2024-L2032)).
 
 ## Key Takeaways
 
@@ -587,17 +589,17 @@ undefined inside the render pass. The expected value for an unused resolve is th
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Test registration root | [createRenderPass2DepthStencilResolveTests](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L2191-L2194) | Adds the `depth_stencil_resolve` group under `renderpass2`. |
-| Matrix generator (non-layered + layered + misc) | [initTests](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1783-L2187) | Builds the six `image_2d_*` families, the layered family, and the `misc` leaves. |
-| Test instance and resources | [DepthStencilResolveTest](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L213-L303) | Creates images, framebuffer, render passes, and pipelines used by every resolve-matrix leaf. |
-| Render pass construction | [createRenderPass](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L359-L517) | Wires `VkSubpassDescriptionDepthStencilResolve` with the requested depth/stencil modes. |
-| Submission and copyback | [submit](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L698-L931) | Records the depth or stencil render path and the image-to-buffer copyback with correct barriers. |
-| Depth/stencil verification | [verifyDepth](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L933-L1015), [verifyStencil](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1017-L1076) | Per-pixel host checks against expected resolve values and clear values outside the render area. |
-| Shader generation | [Programs::init](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1093-L1188) | Emits the vertex, fragment, and (for layered) geometry shaders. |
-| Support and feature gates | [checkSupport](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1205-L1303) | Requires the extension, features, resolve-mode support, independence, and format/limit checks. |
-| `misc.properties` instance | [PropertiesTestInstance::iterate](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1325-L1352) | Asserts the four spec invariants on reported properties. |
-| `misc` non-present-aspect instance | [ResolveNonPresentAspectTestInstance::iterate](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1448-L1706) | Resolves a non-present aspect and verifies the present aspect still resolves. |
-| Expected value tables | [depthExpectedValue / stencilExpectedValue](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1840-L1855) | Drives the per-mode expected depth/stencil values used by the verifiers. |
+| Test registration root | [createRenderPass2DepthStencilResolveTests](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L2189-L2192) | Adds the `depth_stencil_resolve` group under `renderpass2`. |
+| Matrix generator (non-layered + layered + misc) | [initTests](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1781-L2185) | Builds the six `image_2d_*` families, the layered family, and the `misc` leaves. |
+| Test instance and resources | [DepthStencilResolveTest](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L209-L299) | Creates images, framebuffer, render passes, and pipelines used by every resolve-matrix leaf. |
+| Render pass construction | [createRenderPass](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L355-L513) | Wires `VkSubpassDescriptionDepthStencilResolve` with the requested depth/stencil modes. |
+| Submission and copyback | [submit](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L694-L927) | Records the depth or stencil render path and the image-to-buffer copyback with correct barriers. |
+| Depth/stencil verification | [verifyDepth](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L929-L1011), [verifyStencil](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1013-L1072) | Per-pixel host checks against expected resolve values and clear values outside the render area. |
+| Shader generation | [Programs::init](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1089-L1184) | Emits the vertex, fragment, and (for layered) geometry shaders. |
+| Support and feature gates | [checkSupport](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1201-L1300) | Requires the extension, features, resolve-mode support, independence, and format/limit checks. |
+| `misc.properties` instance | [PropertiesTestInstance::iterate](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1322-L1349) | Asserts the four spec invariants on reported properties. |
+| `misc` non-present-aspect instance | [ResolveNonPresentAspectTestInstance::iterate](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1445-L1703) | Resolves a non-present aspect and verifies the present aspect still resolves. |
+| Expected value tables | [depthExpectedValue / stencilExpectedValue](../../../modules/vulkan/renderpass/vktRenderPassDepthStencilResolveTests.cpp#L1838-L1853) | Drives the per-mode expected depth/stencil values used by the verifiers. |
 | Mustpass (vk-default) | [renderpasses.txt](../../../mustpass/main/vk-default/renderpasses.txt) | Lists every `dEQP-VK.renderpasses.renderpass2.depth_stencil_resolve.*` case. |
 | Spec: resolve operations | [renderpass.adoc](../../../../vulkan-docs/src/chapters/renderpass.adoc) | Defines `VkSubpassDescriptionDepthStencilResolve`, resolve modes, and synchronization rules. |
 | Spec: resolve properties | [limits.adoc](../../../../vulkan-docs/src/chapters/limits.adoc) | Defines `VkPhysicalDeviceDepthStencilResolveProperties` and the mandatory-mode invariants. |

@@ -51,7 +51,7 @@ Suppose frame 12 acquires an image last used through frame 9. The command buffer
 
 ### Generated or loaded program artifacts
 
-- `Programs::init` supplies a fixed vertex shader that emits a full-screen two-triangle quad.
+- `IncrementalPresentTestCase::initPrograms` supplies a fixed vertex shader that emits a full-screen two-triangle quad.
 - The fixed fragment shader reads a 32-bit frame index through a push constant and combines it with `gl_FragCoord` bits to produce a frame-dependent RGB pattern.
 - The graphics pipeline uses a dynamic scissor. Each frame changes the scissor to the rectangle returned by `getRenderFrameRect`; frame 0 covers the full image.
 - `generateSwapchainConfigs` chooses at most one `VK_COLOR_SPACE_SRGB_NONLINEAR_KHR` format and one non-SRGB format, then creates two extent configurations for each selected format.
@@ -106,13 +106,13 @@ A failure caused only by exceeding the out-of-date/suboptimal retry limit points
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Region generation and partial draw | [`getRenderFrameRect`, `getUpdatedRects`, and `cmdRenderFrame`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L226-L284) | Defines the full first update, later damage rectangles, and frame-dependent draw. |
+| Region generation and partial draw | [`getRenderFrameRect`, `getUpdatedRects`, and `cmdRenderFrame`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L199-L257) | Defines the full first update, later damage rectangles, and frame-dependent draw. |
 | Per-image catch-up rendering | [`createCommandBuffer`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L259-L302) | Replays every update missed by the acquired image. |
 | Configuration generation | [`selectRepresentativeFormats` and `generateSwapchainConfigs`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L550-L577) | Selects formats, extents, and support checks. |
 | Resource setup | [`initSwapchainResources`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L752-L789) | Creates per-swapchain rendering and synchronization objects. |
 | Frame submission and presentation | [`IncrementalPresentTestInstance::render`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L823-L925) | Shows acquisition, catch-up tracking, submission, both present paths, and result checks. |
 | Retry and completion logic | [`IncrementalPresentTestInstance::iterate`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L927-L1007) | Defines 300-frame runs, configuration iteration, and out-of-date handling. |
-| Shader programs | [`Programs::init`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1037-L1074) | Supplies the fixed quad and frame-dependent fragment shader. |
+| Shader programs | [`IncrementalPresentTestCase::initPrograms`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1044-L1078) | Supplies the fixed quad and frame-dependent fragment shader. |
 | Registration matrix | [`createIncrementalPresentTests`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1087-L1182) | Registers scaling, present mode, transform, alpha, and leaf dimensions. |
 | WSI family routing | [`createTypeSpecificTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L52-L83) | Places `incremental_present` below each platform branch. |
 | Platform scaling properties | [`getPlatformProperties`](../../../framework/vulkan/vkWsiUtil.cpp#L83-L158) | Explains which platform branches can register scaled cases. |

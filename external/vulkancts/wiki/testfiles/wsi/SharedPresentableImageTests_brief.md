@@ -50,7 +50,7 @@ The host creates a one-image swapchain with `VK_PRESENT_MODE_SHARED_DEMAND_REFRE
 
 ### Generated or loaded program artifacts
 
-`Programs::init` adds one vertex shader and one fragment shader. The vertex shader generates quad positions from `gl_VertexIndex` and passes a flat quad index. The fragment shader combines the quad index, frame index, and fragment coordinates to produce a changing color pattern. The pipeline has a four-byte fragment-stage push-constant range for the frame index.
+`SharedPresentableImageTestCase::initPrograms` adds one vertex shader and one fragment shader. The vertex shader generates quad positions from `gl_VertexIndex` and passes a flat quad index. The fragment shader combines the quad index, frame index, and fragment coordinates to produce a changing color pattern. The pipeline has a four-byte fragment-stage push-constant range for the frame index.
 
 The shaders provide a changing graphics workload. Their output is not read back or compared, so shader arithmetic is not the property under test.
 
@@ -106,13 +106,13 @@ The shaders provide a changing graphics workload. Their output is not read back 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
 | Per-platform registration | [createTypeSpecificTests](../../../modules/vulkan/wsi/vktWsiTests.cpp#L50-L73) | Registers `shared_presentable_image` under each applicable WSI platform. |
-| Parameter registration | [createSharedPresentableImageTests](../../../modules/vulkan/wsi/vktWsiSharedPresentableImageTests.cpp#L964-L1044) | Defines scaling, transform, alpha, and present-mode identifiers. |
-| Swapchain configuration | [generateSwapchainConfigs](../../../modules/vulkan/wsi/vktWsiSharedPresentableImageTests.cpp#L477-L575) | Selects extents, checks support, sets one image, and iterates surface formats. |
-| Shared usage capabilities | [getPhysicalDeviceSurfaceCapabilities](../../../modules/vulkan/wsi/vktWsiSharedPresentableImageTests.cpp#L577-L600) | Queries shared-present usage and requires color-attachment support. |
-| Resource initialization | [initSwapchainResources](../../../modules/vulkan/wsi/vktWsiSharedPresentableImageTests.cpp#L663-L735) | Creates image-dependent objects, acquires image zero, and performs the one layout transition. |
-| Per-frame behavior | [render](../../../modules/vulkan/wsi/vktWsiSharedPresentableImageTests.cpp#L754-L834) | Shows submission, mode-dependent presentation, fences, semaphores, and status queries. |
-| Recovery and result | [iterate](../../../modules/vulkan/wsi/vktWsiSharedPresentableImageTests.cpp#L836-L916) | Implements frame/configuration iteration and out-of-date recovery. |
-| Shader workload | [Programs::init](../../../modules/vulkan/wsi/vktWsiSharedPresentableImageTests.cpp#L918-L960) | Generates the changing quad pattern that drives color-attachment writes. |
+| Parameter registration | [createSharedPresentableImageTests](../../../modules/vulkan/wsi/vktWsiSharedPresentableImageTests.cpp#L979-L1068) | Defines scaling, transform, alpha, and present-mode identifiers. |
+| Swapchain configuration | [generateSwapchainConfigs](../../../modules/vulkan/wsi/vktWsiSharedPresentableImageTests.cpp#L442-L540) | Selects extents, checks support, sets one image, and iterates surface formats. |
+| Shared usage capabilities | [getPhysicalDeviceSurfaceCapabilities](../../../modules/vulkan/wsi/vktWsiSharedPresentableImageTests.cpp#L542-L565) | Queries shared-present usage and requires color-attachment support. |
+| Resource initialization | [initSwapchainResources](../../../modules/vulkan/wsi/vktWsiSharedPresentableImageTests.cpp#L628-L700) | Creates image-dependent objects, acquires image zero, and performs the one layout transition. |
+| Per-frame behavior | [render](../../../modules/vulkan/wsi/vktWsiSharedPresentableImageTests.cpp#L719-L799) | Shows submission, mode-dependent presentation, fences, semaphores, and status queries. |
+| Recovery and result | [iterate](../../../modules/vulkan/wsi/vktWsiSharedPresentableImageTests.cpp#L801-L881) | Implements frame/configuration iteration and out-of-date recovery. |
+| Shader workload | [SharedPresentableImageTestCase::initPrograms](../../../modules/vulkan/wsi/vktWsiSharedPresentableImageTests.cpp#L931-L970) | Generates the changing quad pattern that drives color-attachment writes. |
 | Shared present semantics | [Vulkan WSI shared present modes](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L4392-L4414) | Defines demand and continuous refresh behavior. |
 | Shared image operation | [Vulkan shared presentable image behavior](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L5652-L5689) | Defines one-time acquisition, concurrent access, and presentation requirements. |
 | Shared layout | [Vulkan image layout rules](../../../../vulkan-docs/src/chapters/resources.adoc#L5423-L5429) | Restricts `VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR` to shared presentable images and supported uses. |

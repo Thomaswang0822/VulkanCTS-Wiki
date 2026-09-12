@@ -34,7 +34,7 @@ dgc.nv.compute.misc
 └── scratch_space
 ```
 
-The category root is attached by [`createTests()`](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L72-L93). The fourteen direct children are created by [`createDGCComputeMiscTests()`](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTests.cpp#L733-L757) and listed in [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4626-L4639).
+The category root is attached by [`createTests()`](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L73-L94). The fourteen direct children are created by [`createDGCComputeMiscTests()`](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTests.cpp#L733-L757) and listed in [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4626-L4639).
 
 ## Parameter Dimensions and Observed Values
 

@@ -75,7 +75,7 @@ Before either descriptor bind, the host records eight `vec4` push-constant value
 
 - The two Amber leaves load fixed scripts from [`binding_model/dynamic_offset`](../../../data/vulkan/amber/binding_model/dynamic_offset/). Their embedded GLSL belongs to the scripts; `vktBindingDynamicOffsetTests.cpp` does not generate it.
 - The generated `two_pipelines*` leaves specialize one C++ string template into `comp0` and `comp1`. `comp0` copies its input and declares the push-constant block only for `singleLayout`. `comp1` always declares the 8-element block, replaces the input value with `pc.color[0]`, adds elements 1 through 7, and selects its output set from `differentSets` ([`DynamicOffsetPCCase::initPrograms`](../../../modules/vulkan/binding_model/vktBindingDynamicOffsetTests.cpp#L91-L149)).
-- Neither generated shader supplies explicit shader build options, so the CTS default GLSL build target uses baseline SPIR-V 1.0 ([default source collections](../../../modules/vulkan/vktTestPackage.cpp#L476-L483), [baseline version](../../../framework/vulkan/vkPrograms.cpp#L1048-L1052)).
+- Neither generated shader supplies explicit shader build options, so the CTS default GLSL build target uses baseline SPIR-V 1.0 ([default source collections](../../../modules/vulkan/vktTestPackage.cpp#L547-L553), [baseline version](../../../framework/vulkan/vkPrograms.cpp#L1048-L1052)).
 
 ### Bound resources and memory objects
 

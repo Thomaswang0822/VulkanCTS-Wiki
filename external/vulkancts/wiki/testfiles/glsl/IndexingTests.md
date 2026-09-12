@@ -26,7 +26,7 @@ glsl.indexing
 └── matrix_subscript
 ```
 
-[`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1263) adds `createIndexingTests()` directly below `glsl`. The factory returns the `indexing` group, and `ShaderIndexingTests::init()` creates the five intermediate nodes shown above ([factory and registration](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1184-L1360)). The Vulkan default mustpass list contains all 760 generated leaves ([mustpass range](../../../mustpass/main/vk-default/glsl.txt#L7183-L7942)).
+[`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1302-L1312) adds `createIndexingTests()` directly below `glsl`. The factory returns the `indexing` group, and `ShaderIndexingTests::init()` creates the five intermediate nodes shown above ([factory and registration](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1184-L1360)). The Vulkan default mustpass list contains all 760 generated leaves ([mustpass range](../../../mustpass/main/vk-default/glsl.txt#L7183-L7942)).
 
 ## Parameter Dimensions and Observed Values
 
@@ -444,6 +444,6 @@ These exclusions define the intended test design. They are different from runtim
 | Vector builder and evaluator | [`vector_subscript` implementation](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L707-L921) | Covers whole-vector, component, subscript, and loop forms. |
 | Matrix builder and evaluator | [`matrix_subscript` implementation](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L926-L1166) | Covers column indexing for all registered matrix shapes. |
 | Family registration | [`ShaderIndexingTests::init()` and factory](../../../modules/vulkan/shaderrender/vktShaderRenderIndexingTests.cpp#L1184-L1360) | Defines the hierarchy and every generated leaf. |
-| GLSL package registration | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1263) | Places `indexing` directly below `glsl`. |
+| GLSL package registration | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1302-L1312) | Places `indexing` directly below `glsl`. |
 | Shared execution and comparison | [`ShaderRenderCase`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L607-L632), [`iterate()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L774-L807), and [`compareImages()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2714-L2724) | Compiles the shaders, renders the quad, computes the reference, and reports the image result. |
 | Vulkan default mustpass coverage | [`glsl.txt`](../../../mustpass/main/vk-default/glsl.txt#L7183-L7942) | Lists all 760 concrete `dEQP-VK.glsl.indexing.*` leaves. |

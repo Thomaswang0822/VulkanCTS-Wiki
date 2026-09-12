@@ -35,7 +35,7 @@ The dispatcher places the same `present_id_wait` family below the `android`, `di
 | Test family | `id`, `id2`, `wait`, `wait2` | Selects the version 1 or version 2 ID and wait contract. | [`createPresentIdWaitTests`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1465-L1483) |
 | ID leaf | `zero`, `increasing`, `interleaved` | Chooses the present-ID sequence for `id` and `id2`. | [`createPresentIdTests` and `createPresentId2Tests`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1399-L1409) |
 | Wait leaf | `single_no_timeout`, `past_no_timeout`, `no_frames`, `no_frame_id`, `future_frame`, `two_swapchains` for `wait`; `single_no_timeout`, `past_no_timeout`, `two_swapchains` for `wait2` | Chooses successful, timeout, or per-swapchain wait behavior. | [`createPresentWaitTests` and `createPresentWait2Tests`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1423-L1443) |
-| Present ID values | `0`, `1`, `2`, `3`, `4`, `5`, `6`, `UINT64_MAX`, or no ID, depending on the leaf | Exercises zero/no-ID handling, monotonic ordering, the maximum 64-bit value, and independent streams. | [ID and wait sequences](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L823-L1109), [dual sequence](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1215-L1229) |
+| Present ID values | `0`, `1`, `2`, `3`, `4`, `5`, `6`, `UINT64_MAX`, or no ID, depending on the leaf | Exercises zero/no-ID handling, monotonic ordering, the maximum 64-bit value, and independent streams. | [ID and wait sequences](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L821-L1107), [dual sequence](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1213-L1227) |
 | Wait timeout | `0`, `1` second, `10` seconds | Selects an immediate check, a bounded timeout case, or a long completion wait. Values are passed in nanoseconds. | [`k10sec`, `k1sec`, and wait execution](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L65-L90) |
 | Version 2 support | `presentId2Supported` and `presentWait2Supported` | Allows `id2` and `wait2` to run only when both capabilities are reported for the surface. | [`surfaceSupportsPresentIdWait2`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L92-L108) |
 
@@ -128,7 +128,7 @@ All four families also depend on ordinary surface creation, swapchain creation, 
 
 ### Requirement-based pruning
 
-- The test skips when `VK_KHR_surface`, the selected platform surface extension, or `VK_KHR_swapchain` is unavailable.
+- [`PresentIdWaitCase::checkSupport`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1367-L1397) skips the case when `VK_KHR_surface`, the selected platform surface extension, or `VK_KHR_swapchain` is unavailable.
 - `id` and `wait` require the matching version 1 device extensions. `id2` and `wait2` require `VK_KHR_get_surface_capabilities2`, `VK_KHR_present_id2`, and `VK_KHR_present_wait2`, plus both version 2 surface capability flags.
 - The platform must support the requested native surface and queue family. The dual cases also require `maxWindowsPerDisplay >= 2`.
 - Version 2 swapchains require both `VK_SWAPCHAIN_CREATE_PRESENT_ID_2_BIT_KHR` and `VK_SWAPCHAIN_CREATE_PRESENT_WAIT_2_BIT_KHR` because the source sets both flags for every version 2 case.

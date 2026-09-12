@@ -1001,7 +1001,7 @@ void main (void)
 | `FragmentInputComponentCase::createInstance()` | [`createInstance()`](../../../modules/vulkan/shaderrender/vktShaderRenderLimitTests.cpp#L212-L237) | Checks `maxFragmentInputComponents` and `maxVertexOutputComponents` before execution. |
 | `createLimitTests()` | [`createLimitTests()`](../../../modules/vulkan/shaderrender/vktShaderRenderLimitTests.cpp#L241-L261) | Registers `limits`, `near_max`, `fragment_input`, and the 15 leaves. |
 | GLSL parent registration | [`createGlslTests()`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1269) | Attaches the limit test group to the GLSL package. |
-| Vulkan package root | [`Vulkan package registration`](../../../modules/vulkan/vktTestPackage.cpp#L1345-L1354) | Attaches the GLSL group to the Vulkan package. |
-| Vulkan SC package root | [`Vulkan SC package registration`](../../../modules/vulkan/vktTestPackage.cpp#L1413-L1422) | Attaches the GLSL group to the Vulkan SC package. |
+| Vulkan package root | [`Vulkan package registration`](../../../modules/vulkan/vktTestPackage.cpp#L1402-L1411) | Attaches the GLSL group to the Vulkan package. |
+| Vulkan SC package root | [`Vulkan SC package registration`](../../../modules/vulkan/vktTestPackage.cpp#L1470-L1479) | Attaches the GLSL group to the Vulkan SC package. |
 | Vulkan default mustpass | [`glsl.txt`](../../../mustpass/main/vk-default/glsl.txt#L8015-L8029) | Lists all 15 `dEQP-VK.glsl.limits.near_max.fragment_input` leaves. |
 | Vulkan SC default mustpass | [`glsl.txt`](../../../mustpass/main/vksc-default/glsl.txt#L7096-L7110) | Lists the same 15 leaves under the `dEQP-VKSC` prefix. |

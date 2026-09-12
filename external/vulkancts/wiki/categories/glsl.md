@@ -22,7 +22,7 @@ glsl
 └── Amber families: combined_operations, crash_test, and logical_copy
 ```
 
-[`createGlslTests()`](../../modules/vulkan/vktTestPackage.cpp#L1215-L1288) assembles these direct children from four source areas rather than from a dedicated `modules/vulkan/glsl/` directory. `invariance` and `precise`, and `discard` and non-VulkanSC `demote`, share their respective Level-3 pages. The non-VulkanSC-only direct children are `demote`, `bfloat16`, the three Amber families, and `shader_expect_assume`.
+[`createGlslTests()`](../../modules/vulkan/vktTestPackage.cpp#L1292-L1366) assembles these direct children from four source areas rather than from a dedicated `modules/vulkan/glsl/` directory. `invariance` and `precise`, and `discard` and non-VulkanSC `demote`, share their respective Level-3 pages. The non-VulkanSC-only direct children are `demote`, `bfloat16`, the three Amber families, and `shader_expect_assume`.
 
 ## How the Families Fit Together
 
@@ -63,4 +63,4 @@ The category tests the same language surface through four complementary test mec
 
 ## Category Notes
 
-The shared category aggregator lives in [`vktTestPackage.cpp`](../../modules/vulkan/vktTestPackage.cpp#L1215-L1288). Detailed parameter matrices, support checks, shader walkthroughs, and result-validation mechanics remain in the corresponding Level-3 pages.
+The shared category aggregator lives in [`vktTestPackage.cpp`](../../modules/vulkan/vktTestPackage.cpp#L1292-L1366). Detailed parameter matrices, support checks, shader walkthroughs, and result-validation mechanics remain in the corresponding Level-3 pages.

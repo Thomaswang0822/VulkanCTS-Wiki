@@ -23,7 +23,7 @@ glsl.bfloat16
 └── various
 ```
 
-The GLSL package registers `createBFloat16Tests()` only in non-Vulkan-SC builds ([package registration](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1260)). The family factory creates the three intermediate nodes shown above ([family factory](../../../modules/vulkan/shaderexecutor/vktShaderBFloat16Tests.cpp#L200-L211)). The Vulkan default mustpass list contains all 16 executable leaves ([mustpass entries](../../../mustpass/main/vk-default/glsl.txt#L1215-L1230)).
+The GLSL package registers `createBFloat16Tests()` only in non-Vulkan-SC builds ([package registration](../../../modules/vulkan/vktTestPackage.cpp#L1302-L1309)). The family factory creates the three intermediate nodes shown above ([family factory](../../../modules/vulkan/shaderexecutor/vktShaderBFloat16Tests.cpp#L200-L211)). The Vulkan default mustpass list contains all 16 executable leaves ([mustpass entries](../../../mustpass/main/vk-default/glsl.txt#L1215-L1230)).
 
 ## Parameter Dimensions and Observed Values
 
@@ -389,7 +389,7 @@ All three behavior branches depend on GLSL-to-SPIR-V compilation, descriptor bin
 
 ### Requirement-based pruning
 
-- The GLSL package does not register `glsl.bfloat16` in Vulkan SC builds ([registration guard](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1260)).
+- The GLSL package does not register `glsl.bfloat16` in Vulkan SC builds ([registration guard](../../../modules/vulkan/vktTestPackage.cpp#L1302-L1309)).
 - Every leaf requires `storageBuffer16BitAccess`; unsupported devices return `NotSupported` before creating the storage-buffer execution path ([dot check](../../../modules/vulkan/shaderexecutor/vktShaderBFloat16DotTests.cpp#L83-L109), [constant check](../../../modules/vulkan/shaderexecutor/vktShaderBFloat16ConstantTests.cpp#L135-L156), [various check](../../../modules/vulkan/shaderexecutor/vktShaderBFloat16ComboTests.cpp#L72-L83)).
 - `dot` also requires both `shaderBFloat16Type` and `shaderBFloat16DotProduct`.
 - BF16 `constant` leaves require `shaderBFloat16Type`, while E5M2 and E4M3 leaves require `shaderFloat8`. The check follows the registered format, so unsupported FP8 does not remove BF16 coverage.
@@ -428,5 +428,5 @@ These are runtime support decisions for registered leaves. They differ from the 
 | Constant registration | [`createBFloat16ConstantTests()`](../../../modules/vulkan/shaderexecutor/vktShaderBFloat16ConstantTests.cpp#L1150-L1174) | Registers the three-format by three-stage matrix. |
 | Various shader behaviors | [Composite, swizzle, access-chain, and function shaders](../../../modules/vulkan/shaderexecutor/vktShaderBFloat16ComboTests.cpp#L208-L794) | Implements the four BF16 data-manipulation leaves and their references. |
 | Various shared runtime and registration | [`iterate()` and `createBFloat16ComboTests()`](../../../modules/vulkan/shaderexecutor/vktShaderBFloat16ComboTests.cpp#L796-L889) | Dispatches runtime variants, checks output, and registers the four leaves. |
-| GLSL package registration | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1260) | Places the test under `glsl` and excludes Vulkan SC builds. |
+| GLSL package registration | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1302-L1309) | Places the test under `glsl` and excludes Vulkan SC builds. |
 | Vulkan default mustpass coverage | [`glsl.txt`](../../../mustpass/main/vk-default/glsl.txt#L1215-L1230) | Lists all 16 concrete `dEQP-VK.glsl.bfloat16.*` leaves. |

@@ -156,15 +156,15 @@ A custom allocator that receives no calls produces a quality warning rather than
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
 | Per-platform routing | [createTypeSpecificTests()](../../../modules/vulkan/wsi/vktWsiTests.cpp#L52-L83) | Registers `surface` beneath each WSI platform path. |
-| Shared instance and surface setup | [createInstanceWithWsi() and `InstanceHelper`](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L173-L221) | Enables required surface extensions and builds the instance used by most cases. |
+| Shared instance and surface setup | [createInstanceWithWsi() and `InstanceHelper`](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L178-L215) | Enables required surface extensions and builds the instance used by most cases. |
 | Lifecycle and allocation paths | [surface creation, custom allocator, and OOM tests](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L223-L351) | Implements the creation and allocation-failure behavior. |
 | Support queries | [surface and native presentation support](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L353-L442) | Checks queue-family support and cross-query agreement. |
-| Capability validation | [`validateSurfaceCapabilities()` and capability queries](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L444-L638) | Defines field checks and KHR2/protected-chain validation. |
-| Format queries | [base, surfaceless, and KHR2 format tests](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L640-L878) | Implements format requirements, consistency, and incomplete-array checks. |
-| Present-mode queries | [base, EXT, and surfaceless present-mode tests](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L880-L1307) | Implements required-mode, extension-version, and comparison rules. |
+| Capability validation | [`validateSurfaceCapabilities()` and capability queries](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L449-L649) | Defines field checks and KHR2/protected-chain validation. |
+| Format queries | [base, surfaceless, and KHR2 format tests](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L651-L900) | Implements format requirements, consistency, and incomplete-array checks. |
+| Present-mode queries | [base, EXT, and surfaceless present-mode tests](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L902-L1347) | Implements required-mode, extension-version, and comparison rules. |
 | Device-group queries | [device-group capabilities and modes](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L1309-L1576) | Checks masks, flags, guard bytes, rectangles, and incomplete results. |
-| Window size and null destruction | [initial size, resize, and null-handle tests](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L1578-L1690) | Implements extent tracking and the null-handle no-op check. |
-| Case registration | [createSurfaceTests()](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L1694-L1748) | Lists all leaves and both feature-conditional registrations. |
+| Window size and null destruction | [initial size, resize, and null-handle tests](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L1611-L1723) | Implements extent tracking and the null-handle no-op check. |
+| Case registration | [createSurfaceTests()](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L1812-L1881) | Lists all leaves and both feature-conditional registrations. |
 | Platform feature table | [getPlatformProperties() table](../../../framework/vulkan/vkWsiUtil.cpp#L90-L158) | Determines which platform paths receive size-related leaves. |
 | Default mustpass example | [XCB surface entries](../../../mustpass/main/vk-default/wsi.txt#L31918-L31939) | Shows all 22 possible leaves on a platform with both window-size features. |
 | WSI surface semantics | [Vulkan WSI chapter](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L53-L82) | Defines the surface abstraction and platform-specific creation model. |

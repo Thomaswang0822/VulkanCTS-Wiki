@@ -51,7 +51,7 @@ The test also checks every returned timing record against the host timestamp cap
 
 ### Generated or loaded program artifacts
 
-`Programs::init` adds a fixed vertex shader and fragment shader to the CTS source collection. The vertex shader generates full-screen triangles from `gl_VertexIndex`. The fragment shader combines the frame index and fragment coordinates into a changing color pattern. The shaders make successive swapchain images visible, but neither shader measures time or contributes a timing validation result.
+`DisplayTimingTestCase::initPrograms` adds a fixed vertex shader and fragment shader to the CTS source collection. The vertex shader generates full-screen triangles from `gl_VertexIndex`. The fragment shader combines the frame index and fragment coordinates into a changing color pattern. The shaders make successive swapchain images visible, but neither shader measures time or contributes a timing validation result.
 
 The graphics pipeline also has a four-byte fragment-stage push-constant range. The command buffer writes the current frame index into that range before drawing 16 quads.
 
@@ -109,12 +109,12 @@ The present-mode intermediate node changes the presentation semantics and whethe
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Device extension selection | [createDeviceWithWsi](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L105-L136) | Shows which extensions each leaf enables and which extensions the support loop checks. |
+| Device extension selection | [createDeviceWithWsi](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L76-L99) | Shows which extensions each leaf enables and which extensions the support loop checks. |
 | Swapchain and timing-state initialization | [DisplayTimingTestInstance::initSwapchainResources](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L638-L687) | Creates per-swapchain resources and obtains `refreshDuration`. |
 | Timing-record inspection | [DisplayTimingTestInstance::render](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L737-L887) | Contains timestamp consistency, late/early classification, and target-duration adaptation. |
 | Timed and reference presentation | [presentation branches](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L905-L975) | Builds `VkPresentTimesInfoGOOGLE`, injects the present-ID-80 case, or uses ordinary presentation. |
 | Completion and out-of-date handling | [DisplayTimingTestInstance::iterate](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L986-L1046) | Defines recreation and final result behavior. |
-| Shader programs | [Programs::init](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L1048-L1085) | Shows that shaders produce changing frame content but no timing result. |
+| Shader programs | [DisplayTimingTestCase::initPrograms](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L1042-L1076) | Shows that shaders produce changing frame content but no timing result. |
 | Test registration | [createDisplayTimingTests](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L1085-L1114) | Defines present-mode intermediate nodes and the two leaves. |
 | Present timing query semantics | [Vulkan WSI specification](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L5293-L5465) | Defines refresh duration, returned timing fields, and present-mode differences. |
 | Desired presentation time | [Vulkan WSI specification](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L8077-L8141) | Defines `VkPresentTimesInfoGOOGLE` and `VkPresentTimeGOOGLE`. |

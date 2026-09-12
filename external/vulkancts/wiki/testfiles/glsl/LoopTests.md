@@ -21,7 +21,7 @@ glsl.loops
 └── special
 ```
 
-`ShaderLoopTests::init()` creates both direct children and then creates the nine syntax/count subgroups below each child (`for|while|do_while` × `constant|uniform|dynamic`). [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1264) places the group under the GLSL category.
+`ShaderLoopTests::init()` creates both direct children and then creates the nine syntax/count subgroups below each child (`for|while|do_while` × `constant|uniform|dynamic`). [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1302-L1313) places the group under the GLSL category.
 
 ## Parameter Dimensions and Observed Values
 
@@ -324,7 +324,7 @@ The `no_iterations` pattern is intentionally not registered for `do_while`, beca
 | Special shader builder | [`createSpecialLoopCase()`](../../../modules/vulkan/shaderrender/vktShaderRenderLoopTests.cpp#L565-L1510) | Generates named control-flow patterns and computes expected counts. |
 | Registration | [`ShaderLoopTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderLoopTests.cpp#L1534-L1614) | Builds the two direct children and all generated leaves. |
 | Public factory | [`createLoopTests()`](../../../modules/vulkan/shaderrender/vktShaderRenderLoopTests.cpp#L1618-L1621) | Returns the `glsl.loops` test group. |
-| Parent category | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1264) | Adds the group to the GLSL test category. |
+| Parent category | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1302-L1313) | Adds the group to the GLSL test category. |
 | Shared render harness | [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L575-L633) | Supplies shader installation and rendered-result execution. |
 | Uniform installation | [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L945-L1058) | Shows how generated uniform values reach the case instance. |
 | Vulkan default coverage | [`glsl.txt`](../../../mustpass/main/vk-default/glsl.txt#L8101-L8724) | Contains the 624 `dEQP-VK.glsl.loops` leaves. |

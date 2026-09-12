@@ -31,8 +31,8 @@ All three direct test families are rooted in the same implementation file and sh
 | Test family | `allocation`, `device_group_allocation`, `pageable_allocation` | Selects the ordinary, device-group, or pageable device-local allocation mode. | [`createAllocationTestsCommon`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L1027-L1043) |
 | Behavior area | `basic`, `random` | Selects a deterministic count/order matrix or bounded seeded allocation/free stress. | [`createAllocationTestsCommon`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L1000-L1174) |
 | Nominal allocation size | `64`, `128`, `256`, `512`, `1KiB`, `4KiB`, `8KiB`, `1MiB`; `percent_1` | Changes the allocation size or selects one percent of the current heap. | [`createAllocationTestsCommon`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L1045-L1057) |
-| Allocation count | `1`, `10`, `100`, `1000`, computed count | Changes the number of concurrently live memory objects. | [`createAllocationTestsCommon`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L1083-L1115) |
-| Free order | `forward`, `reverse`, `mixed` | Changes when objects are freed: reverse index, allocation index, or immediately after each allocation. | [`AllocateFreeTestInstance::iterate`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L514-L596) |
+| Allocation count | `1`, `10`, `100`, `1000`, computed count | Changes the number of concurrently live memory objects. | [`createAllocationTestsCommon`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L1089-L1121) |
+| Free order | `forward`, `reverse`, `mixed` | Changes when objects are freed: reverse index, allocation index, or immediately after each allocation. | [`AllocateFreeTestInstance::iterate`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L517-L602) |
 | Device mask | nonzero subset masks or all devices | Device-group mode repeats work for the masks allowed by the selected physical-device group. | [`AllocateFreeTestInstance::iterate`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L503-L513) |
 
 ## Behavior Parameters
@@ -67,8 +67,9 @@ No shader code participates in this test. The test observes allocation API resul
 
 ## Runtime Execution and Result Checking
 
-- `basic` iterates each reported memory type. It creates a transfer source/destination buffer, retrieves its requirements, chooses the requested allocation size, and calls `vkAllocateMemory` for each object. [`AllocateFreeTestInstance::iterate`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L392-L631)
+- `basic` iterates each reported memory type. It creates a transfer source/destination buffer, retrieves its requirements, chooses the requested allocation size, and calls `vkAllocateMemory` for each object. [`AllocateFreeTestInstance::iterate`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L392-L637)
 - The test fails on an allocation error or null result handle that is not covered by its explicit capacity and protected-memory exceptions. It also records an invalid memory-type heap index.
+- Both `basic` allocation loops reset the runner watchdog after every allocation taken from a memory type that advertises `VK_MEMORY_PROPERTY_PROTECTED_BIT`, so the long protected-heap loop is not mistaken for a stalled process ([first loop](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L513-L514), [allocate-and-free loop](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L567-L568)).
 - The source skips a case when the rounded allocation total exceeds the heap. On 32-bit builds it avoids runs that would exceed its host virtual-address threshold for host-visible allocations. [`AllocateFreeTestInstance::iterate`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L475-L500)
 - `random` tracks heap usage and system/device-memory limits, performs 128 operations per seeded case, then releases remaining objects. [`RandomAllocFreeTestInstance::iterate`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L812-L979)
 
@@ -115,7 +116,7 @@ No shader code participates in this test. The test observes allocation API resul
 ### Requirement-based pruning
 
 - All three families are registered only outside Vulkan SC because they require freeing allocations; the random path also uses non-null allocation callbacks.
-- `device_group_allocation` requires at least two physical devices in the selected group. [`commonCheckSupport`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L1013-L1023)
+- `device_group_allocation` requires at least two physical devices in the selected group. [`commonCheckSupport`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L991-L993)
 - `pageable_allocation` requires `VK_EXT_pageable_device_local_memory`.
 - Unsupported AMD device-coherent memory types, insufficient heap capacity, and incompatible memory-type cases are skipped by the source checks.
 
@@ -137,7 +138,7 @@ No shader code participates in this test. The test observes allocation API resul
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Custom-device setup | [`BaseAllocateTestInstance`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L124-L368) | Selects ordinary, device-group, or pageable feature configuration. |
-| Deterministic allocation/free | [`AllocateFreeTestInstance::iterate`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L392-L631) | Implements memory-type iteration, allocations, free order, and result collection. |
+| Deterministic allocation/free | [`AllocateFreeTestInstance::iterate`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L392-L637) | Implements memory-type iteration, allocations, free order, and result collection. |
 | Random stress sequence | [`RandomAllocFreeTestInstance::iterate`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L812-L979) | Implements bounded seeded allocation/free stress. |
 | Registered matrices | [`createAllocationTestsCommon`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L1000-L1174) | Defines family names, matrix values, and random case registration. |
 | Mustpass coverage | [`memory.txt`](../../../mustpass/main/vk-default/memory.txt) | Contains 202 selected cases for each of the three allocation families. |

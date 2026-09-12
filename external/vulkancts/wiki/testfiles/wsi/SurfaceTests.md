@@ -52,10 +52,10 @@ The same `surface` test family appears under all nine WSI platform paths. Each p
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
 | WSI platform path | `xlib`, `xcb`, `wayland`, `android`, `win32`, `metal`, `headless`, `direct_drm`, `direct` | Selects the native objects, platform surface extension, creation command, and platform-specific rules. | [Platform registration](../../../modules/vulkan/wsi/vktWsiTests.cpp#L50-L83) |
-| Behavior leaf | 20 unconditional leaves including `query_capabilities2_extended_flags`; `initial_size` and `resize` when their platform features exist | Selects which lifecycle, support, query, enumeration, device-group, or extent contract the case checks. | [Surface registration](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L1694-L1748) |
+| Behavior leaf | 20 unconditional leaves including `query_capabilities2_extended_flags`; `initial_size` and `resize` when their platform features exist | Selects which lifecycle, support, query, enumeration, device-group, or extent contract the case checks. | [Surface registration](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L1812-L1881) |
 | Window size | `(64, 64)`, `(124, 119)`, `(256, 512)` | Exercises both square and nonsquare extents for initial-size and resize tracking. | [Size-aware tests](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L1578-L1669) |
-| Surface query form | base KHR, KHR2, EXT, or null-surface extension path | Checks base results, extensible structures, extension-specific data, and `VK_GOOGLE_surfaceless_query`. | [Capability and format queries](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L499-L1121) |
-| Enumeration capacity | full count or a reduced count, usually one-third or one-half | Every implemented reduced-capacity call must produce `VK_INCOMPLETE`; the base format/mode and KHR2 format paths also check that unwritten storage remains untouched. | [`CheckIncompleteResult`](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L117-L169), [KHR2 short-format check](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L849-L870), [other short calls](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L953-L960) |
+| Surface query form | base KHR, KHR2, EXT, or null-surface extension path | Checks base results, extensible structures, extension-specific data, and `VK_GOOGLE_surfaceless_query`. | [Capability and format queries](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L504-L1154) |
+| Enumeration capacity | full count or a reduced count, usually one-third or one-half | Every implemented reduced-capacity call must produce `VK_INCOMPLETE`; the base format/mode and KHR2 format paths also check that unwritten storage remains untouched. | [`CheckIncompleteResult`](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L108-L160), [KHR2 short-format check](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L871-L892), [other short calls](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L975-L982) |
 | OOM injection position | 0 through 1024 allowed allocations | Moves the deterministic failure point until surface creation succeeds or the bound is reached. | [`createSurfaceSimulateOOMTest()`](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L301-L354) |
 
 ## Behavior Parameters
@@ -96,7 +96,7 @@ This test family has no shader code. It validates host API calls, returned struc
 
 ## Runtime Execution and Result Checking
 
-- The dispatcher selects a `vk::wsi::Type`. `createInstanceWithWsi()` enables `VK_KHR_surface`, the platform surface extension, `VK_KHR_display` for display surfaces, and any extension required by the chosen leaf.
+- The dispatcher selects a `vk::wsi::Type`. [`commonCheckSupport`](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L218-L222) rejects a platform that lacks the required instance extensions, and `createInstanceWithWsi()` then enables `VK_KHR_surface`, the platform surface extension, `VK_KHR_display` for display surfaces, and any extension required by the chosen leaf.
 - Most leaves create `NativeObjects`, create a `VkSurfaceKHR`, enumerate physical devices, and skip a device-specific surface query when no queue family supports that surface.
 - Support and property cases call one or more WSI queries. `tcu::ResultCollector` lets a case record several field mismatches before returning its final status.
 - Base-versus-extended cases fetch both forms and compare the shared fields, format coverage, or count selected by that leaf. KHR2 cases initialize `sType` and `pNext`; capability cases also copy the input structure and compare its bytes after the call.
@@ -196,15 +196,16 @@ A case passes when all checks in its selected path hold. A thrown `NotSupportedE
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Per-platform routing | [createTypeSpecificTests()](../../../modules/vulkan/wsi/vktWsiTests.cpp#L52-L83) | Places `surface` beneath every WSI platform path. |
-| Instance and extension setup | [createInstanceWithWsi() and `InstanceHelper`](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L173-L221) | Creates the instance used by the surface cases and checks required extensions. |
+| Instance and extension setup | [createInstanceWithWsi() and `InstanceHelper`](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L178-L215) | Creates the instance used by the surface cases. |
+| Shared instance support gate | [`commonCheckSupport`](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L218-L222) | Rejects unsupported instance extensions before an instance is created; per-leaf gates add their own requirements on top of it. |
 | Lifecycle and allocator tests | [surface creation, custom allocator, and OOM paths](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L223-L351) | Implements creation, callback validation, injected failure, and cleanup. |
 | Presentation support | [surface and native support queries](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L353-L442) | Queries queue-family support and compares platform and surface answers. |
-| Capability checks | [`validateSurfaceCapabilities()` and capability variants](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L444-L638) | Defines field constraints and extensible-structure checks. |
-| Format enumeration | [base, surfaceless, and KHR2 format tests](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L640-L878) | Checks required formats, duplicates, query agreement, and short arrays. |
-| Present-mode enumeration | [base, EXT, and surfaceless present-mode tests](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L880-L1307) | Checks required modes and extension-version rules. |
+| Capability checks | [`validateSurfaceCapabilities()` and capability variants](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L449-L649) | Defines field constraints and extensible-structure checks. |
+| Format enumeration | [base, surfaceless, and KHR2 format tests](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L651-L900) | Checks required formats, duplicates, query agreement, and short arrays. |
+| Present-mode enumeration | [base, EXT, and surfaceless present-mode tests](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L902-L1347) | Checks required modes and extension-version rules. |
 | Device-group checks | [present capabilities, modes, and rectangles](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L1309-L1576) | Validates masks, flags, guard bytes, rectangle partitioning, and `VK_INCOMPLETE`. |
-| Extent and null-destruction checks | [initial size, resize, and null-handle tests](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L1578-L1690) | Connects native-window operations to surface capability and lifecycle checks. |
-| Complete leaf registration | [createSurfaceTests()](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L1694-L1748) | Registers the 20 common leaves and two conditional leaves. |
+| Extent and null-destruction checks | [initial size, resize, and null-handle tests](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L1611-L1723) | Connects native-window operations to surface capability and lifecycle checks. |
+| Complete leaf registration | [createSurfaceTests()](../../../modules/vulkan/wsi/vktWsiSurfaceTests.cpp#L1812-L1881) | Registers the 20 common leaves and two conditional leaves. |
 | Platform feature ownership | [getPlatformProperties()](../../../framework/vulkan/vkWsiUtil.cpp#L90-L158) | Controls conditional initial-size and resize registration. |
 | Mustpass coverage | [XCB surface entries](../../../mustpass/main/vk-default/wsi.txt#L31918-L31939) | Shows one platform path with all 22 possible leaves. |
 | Surface and query rules | [Vulkan WSI chapter](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L2508-L2997) | Defines presentation support, surface capabilities, and their required values. |

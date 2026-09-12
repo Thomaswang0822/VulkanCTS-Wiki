@@ -111,9 +111,9 @@ These values identify the primary behavioral axis because each mode changes the 
 | Generated layout families | [`SSBOLayoutTests::init()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L1308-L2199) | Defines fixed and random family dimensions and read-only pruning |
 | Runtime-array shader | [`createUnsizedArrayLengthProgs()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L1014-L1042) | Shows the generated `length()` and `length64()` program |
 | Runtime-array validation | [`ssboUnsizedArrayLengthTest()`](../../../modules/vulkan/ssbo/vktSSBOLayoutTests.cpp#L1044-L1258) | Creates descriptors, dispatches, and computes the expected length |
-| Reference layout and shader generation | [`delayedInit()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2756-L2777) | Establishes reference data and generated compute source |
+| Reference layout and shader generation | [`delayedInit()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2823-L2860) | Establishes reference data and generated compute source |
 | Layout shader generator | [`generateComputeShader()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L1529-L1645) | Declares resources, compares input, increments the counter, and emits writes |
-| Host execution and comparison | [`SSBOLayoutCaseInstance::iterate()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2291-L2648) | Binds buffers, dispatches, barriers, reads back, and returns status |
+| Host execution and comparison | [`SSBOLayoutCaseInstance::iterate()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2297-L2676) | Binds buffers, dispatches, barriers, reads back, and returns status |
 | Support gates | [`SSBOLayoutCase::checkSupport()`](../../../modules/vulkan/ssbo/vktSSBOLayoutCase.cpp#L2771-L2821) | Maps layout features and device limits to CTS support decisions |
 | Registration evidence | [`vk-default/ssbo.txt`](../../../mustpass/main/vk-default/ssbo.txt#L1) and [`vksc-default/ssbo.txt`](../../../mustpass/main/vksc-default/ssbo.txt#L1) | Confirms the `ssbo` direct hierarchy and default Vulkan/Vulkan SC coverage |
 

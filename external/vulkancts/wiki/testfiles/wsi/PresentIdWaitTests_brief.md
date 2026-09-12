@@ -117,7 +117,7 @@ All four families also depend on ordinary surface creation, swapchain creation, 
 | ID sequences | [`PresentIdZeroInstance` through `PresentIdInterleavedInstance`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L801-L803) | Defines zero, increasing, and interleaved present operations. |
 | Wait sequences | [`PresentWaitSingleFrameInstance` through `PresentWaitFutureFrameInstance`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L914-L1109) | Defines successful, past-ID, and version 1 timeout scenarios. |
 | Two-swapchain path | [`PresentWaitDualInstance::iterate`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1155-L1304) | Presents paired IDs and waits against the corresponding swapchains. |
-| Family and leaf registration | [`createPresentIdTests` through `createPresentIdWaitTests`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1465-L1483) | Registers all four families and their exact leaves. |
+| Family and leaf registration | [`createPresentIdTests` through `createPresentIdWaitTests`](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L1399-L1486) | Registers all four families and their exact leaves. |
 | WSI routing | [`createTypeSpecificTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L52-L83) | Places `present_id_wait` below each WSI platform branch. |
 | Present ID and wait semantics | [Vulkan WSI chapter](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L8144-L8404) | Defines version 1 and version 2 IDs, waits, capabilities, flags, and valid usage. |
 | Mustpass paths | [`wsi.txt`](../../../mustpass/main/vk-default/wsi.txt#L14812-L14826) | Confirms the four families and executable leaves for the headless branch. |

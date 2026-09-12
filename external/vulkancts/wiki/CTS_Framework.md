@@ -48,7 +48,7 @@ VK-GL-CTS/
 
 ### 1.2 Test Categories
 
-Vulkan tests are organized into the following top-level categories registered by [`TestPackage::init()`](../modules/vulkan/vktTestPackage.cpp#L1346):
+Vulkan tests are organized into the following top-level categories registered by [`TestPackage::init()`](../modules/vulkan/vktTestPackage.cpp#L1431):
 
 1. **info** - Device and driver information tests
 2. **api** - Core Vulkan API functionality
@@ -104,11 +104,24 @@ Vulkan tests are organized into the following top-level categories registered by
 52. **tensor** - Tensor operations
 53. **data_graph** - Data graph operations
 
+### 1.3 Sibling Top-Level Packages
+
+`dEQP-VK` is not the only package the Vulkan CTS executable registers. [`vktTestPackageEntry.cpp`](../modules/vulkan/vktTestPackageEntry.cpp#L43-L45) declares three package descriptors: `dEQP-VK` (the categories listed above), `dEQP-VK-amber`, and `dEQP-VK-experimental`.
+
+[`AmberTestPackage::init()`](../modules/vulkan/vktTestPackage.cpp#L1504-L1540) does not build a static group tree. It registers `cts_amber::AmberTestCase` leaves directly from the command line:
+
+- `--deqp-amber-test <path>` runs a single Amber script.
+- `--deqp-amber-list-file <path>` runs one script per non-empty line of the given list file.
+
+Each leaf name comes from [`pathToTestName()`](../modules/vulkan/vktTestPackage.cpp#L1490-L1502), which replaces every character outside `A-Za-z0-9` with `_`, so a filesystem path becomes one valid case-name component. When either option is present, [`CaseListFilter`](../../../framework/common/tcuCommandLine.cpp#L1724-L1727) replaces the selected case paths with `dEQP-VK-amber.*`, so these options override `--deqp-case`, `--deqp-caselist`, and the other case-selection options ([option registration](../../../framework/common/tcuCommandLine.cpp#L227-L228)).
+
+The Amber families that live under `dEQP-VK.glsl.*` (`combined_operations`, `crash_test`, and `logical_copy`) are unrelated to this package: they are statically registered leaves of `dEQP-VK`, while `dEQP-VK-amber` only ever contains scripts named on the command line.
+
 ## 2. Test Registration Mechanism
 
 ### 2.1 Registration Pattern
 
-Tests are registered using a hierarchical pattern. The main test package registers top-level test categories in [`vktTestPackage.cpp`](../modules/vulkan/vktTestPackage.cpp#L1346):
+Tests are registered using a hierarchical pattern. The main test package registers top-level test categories in [`vktTestPackage.cpp`](../modules/vulkan/vktTestPackage.cpp#L1431):
 
 ```cpp
 void TestPackage::init(void)

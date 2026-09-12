@@ -102,9 +102,9 @@ The fragment generator emits one branch for each selected sample count. Each bra
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---|---|---|
 | Format combination | Two swapchain formats, one float format, and two integer formats. | [`createMultisampledTestsInGroup`](../../../modules/vulkan/wsi/vktWsiMultisampledRenderToSwapchainTests.cpp#L2462-L2568) |
-| Sample count | `2x`, `4x`, `8x`, `16x` select the generated per-sample output. | [`sampleRange`](../../../modules/vulkan/wsi/vktWsiMultisampledRenderToSwapchainTests.cpp#L2480-L2485) |
+| Sample count | `2x`, `4x`, `8x`, `16x` select the generated per-sample output. | [`sampleRange`](../../../modules/vulkan/wsi/vktWsiMultisampledRenderToSwapchainTests.cpp#L2481-L2486) |
 | Rendering mode | `render_pass` or `dynamic_rendering` selects command encoding. | [`dynamicRenderingGroup`](../../../modules/vulkan/wsi/vktWsiMultisampledRenderToSwapchainTests.cpp#L2505-L2509) |
-| Framebuffer scope | `whole_framebuffer` or `sub_framebuffer` selects the outside-area check. | [`renderToWholeFramebuffer`](../../../modules/vulkan/wsi/vktWsiMultisampledRenderToSwapchainTests.cpp#L2510-L2514) |
+| Framebuffer scope | `whole_framebuffer` or `sub_framebuffer` selects the outside-area check. | [`renderToWholeFramebuffer`](../../../modules/vulkan/wsi/vktWsiMultisampledRenderToSwapchainTests.cpp#L2511-L2515) |
 
 #### SPIR-V
 

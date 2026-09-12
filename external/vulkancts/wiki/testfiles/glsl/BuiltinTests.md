@@ -2,7 +2,7 @@
 
 **Core question:** Do the GLSL built-in implementations produce the required results across supported types, precisions, stages, and conversion paths?
 
-- `createBuiltinTests()` registers the `glsl.builtin` test category beneath the GLSL package. The factory places `function`, four precision families, and `precision_fconvert` below the `builtin` test family. [`vktShaderBuiltinTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderBuiltinTests.cpp#L41-L59) is the registration and aggregation point; [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1274-L1276) attaches it to the GLSL package.
+- `createBuiltinTests()` registers the `glsl.builtin` test category beneath the GLSL package. The factory places `function`, four precision families, and `precision_fconvert` below the `builtin` test family. [`vktShaderBuiltinTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderBuiltinTests.cpp#L41-L59) is the registration and aggregation point; [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1323-L1325) attaches it to the GLSL package.
 - The `function` test family delegates common, integer, and pack/unpack built-ins to three implementation files. The precision families generate reference-checked floating-point cases, and `precision_fconvert` generates type-conversion cases.
 - Cases build GLSL programs, execute them through ShaderExecutor or a compute pipeline, read results back, and compare them with operation-specific host references. Unsupported feature combinations are rejected before execution.
 - This page explains the registered hierarchy, the dimensions that shape the generated matrix, the behavioral families, the shader and host-side checks, and what a reported failure does and does not identify.
@@ -371,7 +371,7 @@ Support failures are reported before execution when the device lacks a required 
 
 | Entry point | Link |
 |---|---|
-| GLSL package attachment | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1274-L1276) |
+| GLSL package attachment | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1323-L1325) |
 | Built-in registration and aggregation | [`vktShaderBuiltinTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderBuiltinTests.cpp#L41-L59) |
 | Common built-in registration and execution | [`vktShaderCommonFunctionTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderCommonFunctionTests.cpp#L495-L563), [`vktShaderCommonFunctionTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderCommonFunctionTests.cpp#L1099-L1133) |
 | Integer built-in generation and execution | [`vktShaderIntegerFunctionTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderIntegerFunctionTests.cpp#L225-L266), [`vktShaderIntegerFunctionTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderIntegerFunctionTests.cpp#L366-L429) |

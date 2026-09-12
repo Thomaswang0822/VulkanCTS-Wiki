@@ -30,9 +30,9 @@ robustness
 └── oob_access
 ```
 
-The dispatcher and its `through_pointers` insertion logic are defined in [vktRobustnessTests.cpp](../../modules/vulkan/robustness/vktRobustnessTests.cpp#L61-L99).
+The dispatcher and its `through_pointers` insertion logic are defined in [vktRobustnessTests.cpp](../../modules/vulkan/robustness/vktRobustnessTests.cpp#L61-L101).
 
-The current upstream implementation also extends `index_access` with 8-bit and 16-bit index types and pipeline-robustness stage combinations, extends the robustness extension matrix with `shader_long_vector`, and adds `oob_access.misc.fma_test_hang` outside Vulkan SC. These are documented on the affected Level-3 pages below.
+The current upstream implementation also extends `index_access` with 8-bit and 16-bit index types and pipeline-robustness stage combinations, gives `bind_index_buffer2` a `type` node that repeats the sized-binding and device-address paths for `VK_INDEX_TYPE_UINT8_EXT` and `VK_INDEX_TYPE_UINT16`, extends the robustness extension matrix with `shader_long_vector`, and adds `oob_access.misc.fma_test_hang` outside Vulkan SC. These are documented on the affected Level-3 pages below.
 
 ## How the Families Fit Together
 

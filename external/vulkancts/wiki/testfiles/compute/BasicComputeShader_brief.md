@@ -15,18 +15,18 @@ Core question: **does the driver turn each registered compute pipeline construct
 The page covers three sibling families (`basic`, `64b_indexing`, `device_group`) that are all registered from one implementation file. This is a structural grouping, not a behavioral one: the families share dispatcher setup, descriptor-set, buffer, and pipeline-construction plumbing, but each family stresses a different facet of compute behavior.
 
 - `basic` covers everyday compute execution: empty shaders and empty workgroups, max workgroup size limits, buffer-to-buffer inverts, read/write SSBO variations, local and command-buffer barriers, shared variables and atomics, image copies, image atomics, image barriers, compute-only queues, replicated composites, Amber regression cases, undefined values, and dispatch sequencing. Upstream also migrated several cases to `MultiQueueRunnerTestInstance`; their shader and host checks are unchanged, but queue handle/family selection now comes from the runner pass
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5754-L6002).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5759-L6007).
 - `64b_indexing` covers SSBOs whose total size exceeds the 32-bit element range and the untyped-pointer path
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L6005-L6033).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L6010-L6038).
 - `device_group` covers `cmdDispatchBase`, the maintenance5 variant of base dispatch, and the `gl_DeviceIndex` builtin used in a single shader that runs across physical devices
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L6036-L6053).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L6041-L6058).
 
 Why the grouping matters here:
 
 - All three families feed into the same pipeline-construction variant mechanism (`pipeline`, `shader_object_spirv`, `shader_object_binary`) at the category dispatcher, but each family has its own shader-object exclusion rules
   [vktComputeTests.cpp](../../../modules/vulkan/compute/vktComputeTests.cpp#L48-L85).
 - All three families pass through `ComputePipelineWrapper` for pipeline construction, which keeps test-instance code uniform
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1311-L1314), and through `vk::ComputePipelineConstructionType` for shader-object gating.
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1316-L1319), and through `vk::ComputePipelineConstructionType` for shader-object gating.
 - The reuse is a deliberate organization choice: page semantics should describe per-family behavior, not pipeline construction plumbing.
 
 ### Compute pipeline construction variants
@@ -35,7 +35,7 @@ The category dispatcher creates three roots (`pipeline`, `shader_object_spirv`, 
 [vktComputeTests.cpp](../../../modules/vulkan/compute/vktComputeTests.cpp#L48-L85). Some families explicitly skip the shader-object roots:
 
 - The Amber regression cases inside `basic` are skipped when the construction type is a shader object, because Amber scripts target pipelines
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5950-L5992).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5955-L5997).
 - The replicated-composite family is non-VulkanSC and runs only when `!isComputePipelineConstructionTypeShaderObject(...)` is false.
 - `64b_indexing` and `device_group` use the same construction-type parameter even though they are not pipeline-specific.
 
@@ -47,15 +47,15 @@ Why it matters here:
 ### Dispatch shape, local size, and workgroup count
 
 Each `basic` test case is registered with explicit `tcu::IVec3` values for local size and work size, plus optional buffer count, buffer type, and bounds-check flag. The matrix explores combinations such as `local_size = (1,1,1)`, `(3,2,5)`, `(2,4,1)` paired with work counts that yield either single-invocation, single-workgroup, multi-invocation-per-group, or multi-group workloads
-[vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5754-L6002). The same compute-pipeline wrapper is used for pipeline-construction variants.
+[vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5759-L6007). The same compute-pipeline wrapper is used for pipeline-construction variants.
 
 Why it matters here:
 
 - The shapes test that `gl_NumWorkGroups`, `gl_WorkGroupSize`, and `gl_GlobalInvocationID` reach shader invocations as the compute-pipeline contract promises.
 - Empty workgroup axes (size 0 on x, y, or z) verify that the implementation skips invocations cleanly while still producing correct buffer reads from surviving invocations
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L6000-L6012).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L6005-L6017).
 - Max local size tests intentionally use `maxComputeWorkGroupSize[axis]` and verify that the limit is honored and that the per-invocation storage buffer index does not exceed `maxStorageBufferRange`
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L4817-L4831).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L4822-L4836).
 
 ### Compute-side barriers
 
@@ -64,16 +64,16 @@ The `basic` family distinguishes two barrier forms:
 - **Local barriers** (within a workgroup) use `barrier()` and `memoryBarrierShared()` in the shader and do not require a `cmdPipelineBarrier` between dispatches
   [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L501-L612).
 - **Command-buffer barriers** (cross-workgroup) require `cmdPipelineBarrier(PIPELINE_STAGE_COMPUTE_SHADER_BIT → PIPELINE_STAGE_HOST_BIT)` or other explicit barriers between dispatches to make shader writes visible to subsequent reads
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5754-L6002).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5759-L6007).
 
 Image barriers (`image_barrier_single`, `image_barrier_multiple`) use two compute shaders (`comp0` writes an `r32ui` storage image, `comp1` reads it and atomically adds the values) with a `cmdPipelineBarrier` between dispatches
-[vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L2880-L2905).
+[vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L2885-L2910).
 
 Why it matters here:
 
 - The two forms are not interchangeable. Local barriers cannot synchronize across dispatches or across workgroups.
 - Image atomic operations across invocations in the same workgroup require a `memoryBarrierImage()` followed by a `barrier()` before the second invocations can `imageAtomicAdd` results that other invocations have just stored
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L2653-L2675).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L2658-L2680).
 - The check rule for barrier cases is always: host compares the post-dispatch buffer/image contents against the expected per-element formula.
 
 ### Shared memory and atomics
@@ -99,7 +99,7 @@ Why it matters here:
 - `untyped_pointers` uses a hand-written SPIR-V assembly fragment with `OpCapability UntypedPointersKHR`, `OpUntypedVariableKHR`, and `OpUntypedArrayLengthKHR`, and it sets `VK_PIPELINE_CREATE_2_64_BIT_INDEXING_BIT_EXT` on the pipeline.
 
 All `64b_indexing` cases are non-VulkanSC and require either `VK_EXT_shader_64bit_indexing` (with `shader64BitIndexing`) or `VK_KHR_shader_untyped_pointers`
-[vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1311-L1333), [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1857-L1862), [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L6005-L6033).
+[vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1316-L1338), [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1862-L1867), [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L6010-L6038).
 
 Why it matters here:
 
@@ -111,18 +111,18 @@ Why it matters here:
 The `device_group` family splits compute work across physical devices:
 
 - `dispatch_base` and `dispatch_base_maintenance5` use `cmdDispatchBase` with explicit `(baseX, baseY, baseZ)` offsets and a partial workgroup count. The pipeline is created with `VK_PIPELINE_CREATE_DISPATCH_BASE`, except in the maintenance5 variant where the `VK_PIPELINE_CREATE_2_DISPATCH_BASE_BIT_KHR` create-flag2 is used instead. The shader uses a uniform buffer to pass the global grid size, so the per-device work counts remain correct regardless of which device executes each chunk
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3276-L3557).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3281-L3562).
 - `device_index` uses a single compute pipeline that reads `gl_DeviceIndex` from the GL_EXT_device_group extension and combines it with a uniform array of base offsets. The test iterates over all non-empty device masks and copies the SBO into a per-device check buffer for host inspection
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3796-L4089).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3801-L4094).
 - `indirect_after_base_dispatch` (in `basic`) chains `cmdDispatchBase` followed by `cmdDispatchIndirect` and verifies that the atomic counter holds the sum of both dispatches' invocations
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3582-L3794).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3587-L3799).
 
 Why it matters here:
 
 - Device-group work splits are computed from `m_splitWorkSize.x()` per device and `m_localSize.{y,z}` within a device; the test asserts that `totalWorkloadSize == multiplyComponents(m_workSize)`, so a missing dispatch or a wrong device mask produces a clear size mismatch
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3413-L3560).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3418-L3565).
 - `device_index` allocates the SBO with `VK_MEMORY_ALLOCATE_DEVICE_MASK_BIT` and a device mask that includes every physical device, because the same memory is read by every device in the mask
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3895-L3956).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3900-L3961).
 
 ### Replicated composites
 
@@ -133,7 +133,7 @@ Why it matters here:
 - `specconstant`: specialization-constant-driven composite.
 
 Each test compares the storage-buffer contents against a host-known reference
-[vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5339-L5858).
+[vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5344-L5863).
 
 Why it matters here:
 
@@ -143,7 +143,7 @@ Why it matters here:
 ## One Concrete Example
 
 Consider `compute.basic.copy_ssbo_single_invocation`. The host fills a 256-element `UVec4` input buffer with random `uint32_t` data, binds the input as `STORAGE_BUFFER` (binding 0) and an output buffer (binding 1) with usage `STORAGE_BUFFER_BIT | TRANSFER_SRC_BIT | TRANSFER_DST_BIT`. The output buffer is pre-filled with `0xBEBEBEBE` using `cmdFillBuffer` so that the test can detect missed writes. The shader is one invocation (`local_size = (1,1,1)`, workgroups `(1,1,1)`); it computes `numValuesPerInv = length / invocations`, derives its offset, and writes `~input[offset + ndx]` into `output[offset + ndx]` for each `ndx`. After dispatch, the host walks the output buffer and expects `output[i].x == ~input[i].x` and `output[i].y == 0`; the `.y == 0` check is implicitly satisfied because `UVec4` elements were initialized with only `x` set, and the shader does not write to `.y`. The same shape is repeated as `copy_ssbo_multiple_invocations` (`local_size = (1,1,1)`, `workgroups = (2,4,1)`) and `copy_ssbo_multiple_groups` (`local_size = (1,4,2)`, `workgroups = (2,2,4)`) to exercise multi-invocation and multi-group coordination
-[vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1336-L1390), [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L6042-L6053).
+[vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1336-L1390), [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L6047-L6058).
 
 ## End-to-End Test Flow
 
@@ -168,10 +168,10 @@ For image atomic and image barrier cases the device step also uses an image-layo
 - Inline GLSL compute shaders generated in `initPrograms(SourceCollections&)` for each test class:
   - Buffer-to-buffer inverts (UBO→SSBO and SSBO→SSBO) [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1336-L1390).
   - Shared variable and shared atomic shaders [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L170-L199), [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L358-L386).
-  - Max-workgroup-size shaders with `local_size_*_id = 0/1/2` specialization constants [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L4787-L4809).
-  - Image atomic and image barrier shaders [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L2653-L2675), [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L2880-L2905).
-  - Dispatch-base and device-index shaders using `#extension GL_EXT_device_group : require` [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3339-L3365), [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3844-L3871).
-- Inline SPIR-V assembly for the untyped-pointer case [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1865-L1901).
+  - Max-workgroup-size shaders with `local_size_*_id = 0/1/2` specialization constants [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L4792-L4814).
+  - Image atomic and image barrier shaders [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L2658-L2680), [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L2885-L2910).
+  - Dispatch-base and device-index shaders using `#extension GL_EXT_device_group : require` [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3344-L3370), [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3844-L3871).
+- Inline SPIR-V assembly for the untyped-pointer case [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1870-L1906).
 - Amber test scripts for the compute-only non-shader-object regression cases inside `basic` (`write_ssbo_array`, `atomic_barrier_sum_small`, `vec2_nclamp_nan_component`, `branch_past_barrier`, `float64_isnan_isinf`, `float16_isnan_isinf`, `webgl_spirv_loop`, `pk_immediate`, `pkadd_immediate`).
 - Specialization constants for replicated composites and `max_local_size_*` tests.
 - `VkSpecializationInfo` (compiled into the pipeline) for replicated-composites float values, cooperative-matrix rows/cols, and per-axis local sizes.
@@ -198,21 +198,21 @@ For image atomic and image barrier cases the device step also uses an image-layo
 The pass condition for nearly every case is a per-element buffer or image comparison:
 
 - For buffer-to-buffer inverts the host expects `output[i].x == ~input[i].x` (or `0xBEBEBEBE` if the element is outside the descriptor range, used as the missed-write sentinel)
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1614-L1628).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1619-L1633).
 - For shared-variable cases the host expects `output[globalOffs + localOffs] == globalOffs + squared(workGroupSize - localOffs - 1)` [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L292-L308).
 - For shared-atomic cases the host expects `output[i] == i + 1` (per-element index, since `atomicAdd(count, 1)` produces sequential values per invocation) [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L481-L497).
 - For max-workgroup-size cases the host expects every SSBO slot to equal `1u` (each invocation writes its own slot)
   [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L4963-L4979).
 - For image-atomic cases the host sums the per-pixel inputs and expects the image pixel value to match
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L2812-L2835).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L2817-L2840).
 - For device-group dispatch-base cases the host checks every buffer element after summing the total workload against `multiplyComponents(m_workSize)`
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3559-L3569).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3564-L3574).
 - For device-index cases the host copies the SBO into a per-device check buffer for each physical device in the mask and expects `bufferPtr[i] == constantValPerLoop + uniformInputData[4 * (physDevIdx + 1)]`
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L4072-L4085).
-- For `indirect_after_base_dispatch` the host expects `counter == 1 + 3*3*1 == 10` [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3780-L3793).
-- For replicated-composites cases the host compares the buffer against the expected reference per composite type and instantiation mode [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5792-L5856).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L4077-L4090).
+- For `indirect_after_base_dispatch` the host expects `counter == 1 + 3*3*1 == 10` [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3785-L3798).
+- For replicated-composites cases the host compares the buffer against the expected reference per composite type and instantiation mode [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5797-L5861).
 - For empty-workgroup cases the host expects exactly `1u` in the verification buffer, confirming that the second `cmdDispatch(1,1,1)` ran and that the empty-axis dispatch contributed no invocations [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L4684-L4696).
-- For `concurrent_compute` the host expects both buffers to be inverted, but it also expects the high-priority fence to be already signalled when the low-priority fence completes (a queue-priority ordering check) [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L4495-L4513).
+- For `concurrent_compute` the host expects both buffers to be inverted, but it also expects the high-priority fence to be already signalled when the low-priority fence completes (a queue-priority ordering check) [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L4500-L4518).
 
 ## Behavior Parameter Identification
 
@@ -235,36 +235,36 @@ If the identification is wrong the failure analysis below will need to be redone
 ## Important Variations and Special Cases
 
 - **Shader-object exclusion** — The Amber regression cases inside `basic` and the entire `replicated_composites_*` family under `basic` are skipped when the construction type is a shader object
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5922-L5992). This means `compute.shader_object_spirv.basic.write_ssbo_array` and `compute.shader_object_spirv.basic.replicated_composites_*` are not registered test cases; they exist only under `compute.pipeline.basic`.
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5927-L5997). This means `compute.shader_object_spirv.basic.write_ssbo_array` and `compute.shader_object_spirv.basic.replicated_composites_*` are not registered test cases; they exist only under `compute.pipeline.basic`.
 - **Pipeline create-flag variants for 64-bit indexing** — `copy_ssbo_64b` uses the create flag, `copy_ssbo_64b_execution_mode` uses the GLSL pragma. Both must succeed, but they exercise different parts of the shader compiler and pipeline-creation code paths.
 - **VulkanSC gating** — Replicated composites and `dispatch_base_maintenance5` are non-VulkanSC; everything else (including 64-bit indexing and dispatch base) runs under VulkanSC.
 - **Bounds-check variants** — `copy_ssbo_bounds`, `copy_ssbo_64b_bounds`, and `copy_ssbo_64b_bounds_local` build a robust-buffer-access device (`getRobustDevice`) that returns zero for out-of-range reads. Without `robustBufferAccess2` the case is `NotSupportedError`
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1322-L1333), [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1420-L1427).
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1327-L1338), [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1420-L1427).
 - **Compute-only queue secondary command buffers** — `secondary_compute_only_queue` creates a custom device with a queue family that has `VK_QUEUE_COMPUTE_BIT` but not `VK_QUEUE_GRAPHICS_BIT`, then records a secondary command buffer and executes it through the standard command buffer. Other migrated cases receive the runner-selected queue handle and family index through `queuePass`
   [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5031-L5137).
 - **`max_local_size_*` with specialization constants** — The shader uses `local_size_x_id = 0`, `local_size_y_id = 1`, `local_size_z_id = 2` and the host provides a specialization info with the chosen axis's max value
-  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L4792-L4809). The pipeline must consume the specialization constants before the workgroup size is fixed.
+  [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L4797-L4814). The pipeline must consume the specialization constants before the workgroup size is fixed.
 
 ## Source Mapping
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Test family registrations | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5754-L6053) | All three families are registered from one file |
-| `BufferToBufferInvertTest` (SSBO/UBO) | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1222-L1638) | Core buffer-to-buffer copy/invert semantics, optional bounds check, optional 64-bit indexing flag |
+| Test family registrations | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5759-L6058) | All three families are registered from one file |
+| `BufferToBufferInvertTest` (SSBO/UBO) | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1222-L1643) | Core buffer-to-buffer copy/invert semantics, optional bounds check, optional 64-bit indexing flag |
 | `SharedVarTest`, `SharedVarAtomicOpTest` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L123-L497) | Workgroup-shared memory and atomics |
-| `EmptyWorkGroupCase` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L4553-L4696) | Empty workgroup axes |
-| `MaxWorkGroupSizeTest` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L4698-L4980) | Maximum workgroup size limits |
-| `SSBOBarrierTest` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L2361-L2605) | SSBO command-buffer barrier between dispatches |
-| `ImageAtomicOpTest` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L2606-L2837) | Image atomics across invocations |
+| `EmptyWorkGroupCase` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L4558-L4701) | Empty workgroup axes |
+| `MaxWorkGroupSizeTest` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L4703-L4985) | Maximum workgroup size limits |
+| `SSBOBarrierTest` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L2366-L2610) | SSBO command-buffer barrier between dispatches |
+| `ImageAtomicOpTest` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L2611-L2842) | Image atomics across invocations |
 | `ImageBarrierTest` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L2838-L3083) | Image barrier across dispatches |
-| `UntypedPointerTest` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1840-L1944) | Inline SPIR-V untyped pointers + 64-bit indexing flag |
-| `WriteToMultipleSSBOTest`, `InvertSSBOInPlaceTest`, `ReadUnboundSSBOTest` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1640-L2359) | Multiple SSBO writes and SSBO read-while-bound |
-| `ConcurrentCompute` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L4091-L4551) | Concurrent compute queue ordering |
-| `ReplicatedCompositesTest` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5339-L5858) | Replicated composites per composite type and instantiation mode |
-| `DispatchBaseTest`, `DeviceIndexTest`, `SequentialDispatchTest` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3276-L4089), [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3582-L3794) | Device-group dispatch base, maintenance5 variant, device index, dispatch sequencing |
+| `UntypedPointerTest` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1845-L1949) | Inline SPIR-V untyped pointers + 64-bit indexing flag |
+| `WriteToMultipleSSBOTest`, `InvertSSBOInPlaceTest`, `ReadUnboundSSBOTest` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L1645-L2364) | Multiple SSBO writes and SSBO read-while-bound |
+| `ConcurrentCompute` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L4096-L4556) | Concurrent compute queue ordering |
+| `ReplicatedCompositesTest` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5344-L5863) | Replicated composites per composite type and instantiation mode |
+| `DispatchBaseTest`, `DeviceIndexTest`, `SequentialDispatchTest` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3281-L4094), [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L3587-L3799) | Device-group dispatch base, maintenance5 variant, device index, dispatch sequencing |
 | `SecondaryCommandBufferComputeOnlyTest` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5137-L5338) | Compute-only queue with secondary command buffers |
-| `UndefinedValues` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5861-L5982) | Defined/undefined values via struct assignment in a 1.2+ shader |
-| `EmptyShaderTest` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L4982-L5029) | Empty shader dispatch smoke |
+| `UndefinedValues` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L5866-L5987) | Defined/undefined values via struct assignment in a 1.2+ shader |
+| `EmptyShaderTest` | [vktComputeBasicComputeShaderTests.cpp](../../../modules/vulkan/compute/vktComputeBasicComputeShaderTests.cpp#L4987-L5034) | Empty shader dispatch smoke |
 | Category dispatcher | [vktComputeTests.cpp](../../../modules/vulkan/compute/vktComputeTests.cpp#L48-L85) | `pipeline`/`shader_object_spirv`/`shader_object_binary` roots |
 
 ## Questions / Risk Points for User Audit

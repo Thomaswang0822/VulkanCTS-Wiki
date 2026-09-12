@@ -27,7 +27,7 @@ depth
 └── bias_outside_range_fs_clamp_unrestricted
 ```
 
-The root is added to the Vulkan package by [`TestPackage::init()`](../../../modules/vulkan/vktTestPackage.cpp#L1393-L1395). The eight direct-child names come from the `TestInfo` table and are mapped to `<name>.amber` in [`createDepthTestCase()` and `createTests()`](../../../modules/vulkan/amber/vktAmberDepthTests.cpp#L103-L156). The same eight executable paths appear in [`depth.txt`](../../../mustpass/main/vk-default/depth.txt#L1-L8).
+The root is added to the Vulkan package by [`TestPackage::init()`](../../../modules/vulkan/vktTestPackage.cpp#L1450-L1452). The eight direct-child names come from the `TestInfo` table and are mapped to `<name>.amber` in [`createDepthTestCase()` and `createTests()`](../../../modules/vulkan/amber/vktAmberDepthTests.cpp#L103-L156). The same eight executable paths appear in [`depth.txt`](../../../mustpass/main/vk-default/depth.txt#L1-L8).
 
 ## Parameter Dimensions and Observed Values
 

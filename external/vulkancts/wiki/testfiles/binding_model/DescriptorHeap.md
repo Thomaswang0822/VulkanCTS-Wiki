@@ -64,7 +64,7 @@ binding_model.descriptor_heap
 └── custom_border_color
 ```
 
-The factory registers these children in one implementation file ([factory](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L15415-L15461)). The default mustpass lists their 457 executable leaves at [`binding-model.txt#L10441-L10897`](../../../mustpass/main/vk-default/binding-model.txt#L10441-L10897). The hierarchy stays one level deep here; generated stage, descriptor-type, mapping, and stride descendants appear in the next sections.
+The factory registers these children in one implementation file ([factory](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L15419-L15465)). The default mustpass lists their 457 executable leaves at [`binding-model.txt#L10441-L10897`](../../../mustpass/main/vk-default/binding-model.txt#L10441-L10897). The hierarchy stays one level deep here; generated stage, descriptor-type, mapping, and stride descendants appear in the next sections.
 
 The mustpass provides exact leaf anchors for each behavior cluster without requiring a 457-leaf inventory:
 
@@ -85,14 +85,14 @@ The mustpass provides exact leaf anchors for each behavior cluster without requi
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Behavior group | the 36 exact children in `## Registration Hierarchy` | Selects the contract under test. The primary axis below clusters these children by mechanism. | [registration functions](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L13331-L15461) |
-| Shader stage | `fragment`, `compute`, `raygen`; graphics variants also use vertex, tessellation control/evaluation, geometry, mesh, task, and fragment stages | Moves heap access through graphics, compute, and ray-tracing execution models. | [`populateBasicTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L13339-L13476), [`populateGraphicsTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14712-L14796) |
-| Descriptor type | sampler, sampled/storage image, uniform/storage texel buffer, uniform/storage buffer, input attachment, acceleration structure; combined image sampler in its dedicated group | Changes descriptor size, heap kind, shader declaration, access operation, support gates, and expected value. | [basic descriptor types](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L13345-L13361) |
+| Behavior group | the 36 exact children in `## Registration Hierarchy` | Selects the contract under test. The primary axis below clusters these children by mechanism. | [registration functions](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L13335-L15465) |
+| Shader stage | `fragment`, `compute`, `raygen`; graphics variants also use vertex, tessellation control/evaluation, geometry, mesh, task, and fragment stages | Moves heap access through graphics, compute, and ray-tracing execution models. | [`populateBasicTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L13343-L13480), [`populateGraphicsTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14716-L14800) |
+| Descriptor type | sampler, sampled/storage image, uniform/storage texel buffer, uniform/storage buffer, input attachment, acceleration structure; combined image sampler in its dedicated group | Changes descriptor size, heap kind, shader declaration, access operation, support gates, and expected value. | [basic descriptor types](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L13349-L13365) |
 | Mapping source | `heap_with_constant_offset`, `heap_with_push_index`, `heap_with_indirect_index`, `resource_heap_data`, `push_data`, `push_address`, `indirect_address`, `heap_with_shader_record_index`, `shader_record_data`, `shader_record_address`, `heap_with_indirect_index_array` | Selects where the shader-visible resource's heap offset or address comes from. | [`populateBindingMappingTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L13637-L13863) |
-| Heap memory mode | ordinary, `sparse`, `protected`, `sparse_and_protected`; sampler heap, resource heap, both, or neither in reserved-range cases | Changes allocation, queue, protection, and reserved-range behavior without changing the payload oracle. | [`populateReservedHeapTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14150-L14204), [`populateSpecialHeapTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14963-L15089) |
-| Mapping layout | default aligned stride, non-packed stride factors `1`, `3`, and `4`, and unaligned source variants | Separates explicit byte arithmetic from an implementation's preferred descriptor stride. | [`populateNonPackedTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L15091-L15259), [`populateUnalignedTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L15261-L15413) |
-| Direct heap access | resource or sampler heap; compute or graphics; six non-uniform resource descriptor types | Uses `ResourceHeapEXT` and `SamplerHeapEXT` without a decorated-binding mapping. | [`populateResourceHeapAccessTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14847-L14863), [`populateNonUniformAccessTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14922-L14961) |
-| SPIR-V operation | 13 leaves for size, untyped pointers, array length, heap built-ins, function calls, variable pointers, image atomics, and 64-bit operations | Isolates extension instructions and resource classification in source-authored SPIR-V assembly. | [`populateSpirvTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14650-L14685) |
+| Heap memory mode | ordinary, `sparse`, `protected`, `sparse_and_protected`; sampler heap, resource heap, both, or neither in reserved-range cases | Changes allocation, queue, protection, and reserved-range behavior without changing the payload oracle. | [`populateReservedHeapTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14150-L14204), [`populateSpecialHeapTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14967-L15093) |
+| Mapping layout | default aligned stride, non-packed stride factors `1`, `3`, and `4`, and unaligned source variants | Separates explicit byte arithmetic from an implementation's preferred descriptor stride. | [`populateNonPackedTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L15095-L15263), [`populateUnalignedTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L15261-L15413) |
+| Direct heap access | resource or sampler heap; compute or graphics; six non-uniform resource descriptor types | Uses `ResourceHeapEXT` and `SamplerHeapEXT` without a decorated-binding mapping. | [`populateResourceHeapAccessTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14851-L14867), [`populateNonUniformAccessTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14922-L14961) |
+| SPIR-V operation | 13 leaves for size, untyped pointers, array length, heap built-ins, function calls, variable pointers, image atomics, and 64-bit operations | Isolates extension instructions and resource classification in source-authored SPIR-V assembly. | [`populateSpirvTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14654-L14689) |
 | Mustpass population | 457 Vulkan leaves | Confirms the current default executable population. `non_packed` accounts for 120 leaves but remains one layout behavior. | [`binding-model.txt`](../../../mustpass/main/vk-default/binding-model.txt#L10441-L10897) |
 
 ## Behavior Parameters
@@ -101,15 +101,15 @@ The primary behavioral axis is the first-level behavior cluster. Each value belo
 
 ### `limits and representation`: Descriptor bits and reproducibility
 
-`limit` checks reported descriptor-heap properties. `invariance` checks deterministic opaque descriptor bytes and write bounds. `capture_replay` recreates capture-compatible resources and checks replayed bytes. `high_binding` exercises large set and binding numbers, while `shader_object_invariance` checks the corresponding shader-object binary and access contract ([limit oracle](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L801-L927), [invariance execution](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L6052-L6120)).
+`limit` checks reported descriptor-heap properties. `invariance` checks deterministic opaque descriptor bytes and write bounds. `capture_replay` recreates capture-compatible resources and checks replayed bytes. `high_binding` exercises large set and binding numbers, while `shader_object_invariance` checks the corresponding shader-object binary and access contract ([limit oracle](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L801-L927), [invariance execution](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L6056-L6124)).
 
 ### `typed access and descriptor semantics`: Descriptor types, nulls, and conversion
 
-`basic` covers ordinary descriptor types across fragment, compute, and ray-generation stages. `dynamic_indexing` selects decorated array elements at runtime. `combined_image_samplers` varies separate or embedded sampler selection. `null_descriptor` and `null_image_queries` check null reads and zero image-query results. `ycbcr` checks multiplanar conversion and the implementation-reported combined descriptor count ([basic registration](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L13339-L13476), [null and YCbCr registration](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14271-L14397)).
+`basic` covers ordinary descriptor types across fragment, compute, and ray-generation stages. `dynamic_indexing` selects decorated array elements at runtime. `combined_image_samplers` varies separate or embedded sampler selection. `null_descriptor` and `null_image_queries` check null reads and zero image-query results. `ycbcr` checks multiplanar conversion and the implementation-reported combined descriptor count ([basic registration](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L13343-L13480), [null and YCbCr registration](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14271-L14397)).
 
 ### `binding mappings and resource selection`: Mapping sources and masks
 
-`binding_mapping` spans all 11 mapping sources. `different_mappings_per_shader` supplies different records to graphics stages. `different_mappings_same_shader` combines mapping sources in one shader. `resource_masking` verifies that a mapping applies only to the selected SPIR-V resource classes. `high_binding` also tests the set and binding match predicate ([mapping registration](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L13637-L13863), [resource masking](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L8743-L9048)).
+`binding_mapping` spans all 11 mapping sources. `different_mappings_per_shader` supplies different records to graphics stages. `different_mappings_same_shader` combines mapping sources in one shader. `resource_masking` verifies that a mapping applies only to the selected SPIR-V resource classes. `high_binding` also tests the set and binding match predicate ([mapping registration](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L13637-L13863), [resource masking](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L8747-L9052)).
 
 ### `heap state lifetime`: Switching, invalidation, and recording
 
@@ -125,7 +125,7 @@ The primary behavioral axis is the first-level behavior cluster. Each value belo
 
 ### `pipeline and stage integration`: Graphics, compute, libraries, and MSAA
 
-`graphics` covers classic and mesh graphics stages, primary and secondary recording, and vector transport. `graphics_and_compute` uses both bind points in one command buffer. `graphics_pipeline_library` covers library-linked pipelines and shader objects. `msaa_image_read` writes and reads four samples through a heap image descriptor ([graphics registration](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14712-L14807), [MSAA registration](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14833-L14845)).
+`graphics` covers classic and mesh graphics stages, primary and secondary recording, and vector transport. `graphics_and_compute` uses both bind points in one command buffer. `graphics_pipeline_library` covers library-linked pipelines and shader objects. `msaa_image_read` writes and reads four samples through a heap image descriptor ([graphics registration](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14716-L14811), [MSAA registration](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L14837-L14849)).
 
 ### `direct heap built-ins`: Resource and sampler heap arrays
 
@@ -133,11 +133,11 @@ The primary behavioral axis is the first-level behavior cluster. Each value belo
 
 ### `irregular mapping layouts`: Non-uniform, non-packed, and unaligned selection
 
-`non_uniform_mappings` uses a non-uniform invocation index with mapped bindings. `non_packed` varies explicit resource and sampler strides across constant, push-index, indirect-index, shader-record-index, and indirect-index-array sources. `unaligned` applies descriptor-sized strides and offsets to push, indirect, and shader-record mappings. Each group catches implementations that substitute preferred packing for the supplied byte formula ([non-uniform mappings](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L10541-L10687), [packing registration](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L15091-L15413)).
+`non_uniform_mappings` uses a non-uniform invocation index with mapped bindings. `non_packed` varies explicit resource and sampler strides across constant, push-index, indirect-index, shader-record-index, and indirect-index-array sources. `unaligned` applies descriptor-sized strides and offsets to push, indirect, and shader-record mappings. Each group catches implementations that substitute preferred packing for the supplied byte formula ([non-uniform mappings](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L10545-L10691), [packing registration](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L15095-L15417)).
 
 ### `SPIR-V operations`: Extension instruction coverage
 
-`spirv` uses source-authored SPIR-V assembly for `OpConstantSizeOfEXT`, `OpUntypedAccessChainKHR`, `OpBufferPointerEXT`, `OpUntypedArrayLengthKHR`, `OpUntypedImageTexelPointerEXT`, heap built-ins, function calls, variable pointers, image atomics, and 64-bit operations. `resource_masking` complements these operation probes by checking how declared resources are classified ([SPIR-V programs and oracle](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L7408-L8681)).
+`spirv` uses source-authored SPIR-V assembly for `OpConstantSizeOfEXT`, `OpUntypedAccessChainKHR`, `OpBufferPointerEXT`, `OpUntypedArrayLengthKHR`, `OpUntypedImageTexelPointerEXT`, heap built-ins, function calls, variable pointers, image atomics, and 64-bit operations. `resource_masking` complements these operation probes by checking how declared resources are classified ([SPIR-V programs and oracle](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L7412-L8685)).
 
 ## Shader Analysis
 
@@ -325,14 +325,14 @@ void main() {
 #### Additional Info
 
 - The reconstructed source follows [`DescriptorHeapTestCasePushDataAccess::initPrograms()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L12713-L12735). Only `///` documentation comments were added.
-- The host specializes the loop, pushes random words, dispatches once, records a compute-to-host dependency, and compares every element ([runtime path](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L12738-L12858)).
+- The host specializes the loop, pushes random words, dispatches once, records a compute-to-host dependency, and compares every element ([runtime path](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L12742-L12862)).
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|------------------------------------------|----------|
 | Push-data role | Mapping groups can consume the bytes as heap indices or addresses instead of copying them as payload. | [mapping-source rules](../../../../vulkan-docs/src/chapters/descriptorheaps.adoc#L1511-L1553) |
-| Push-data size | The specialization value changes with `maxPushDataSize`; the shader structure remains fixed. | [specialization setup](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L12742-L12783) |
+| Push-data size | The specialization value changes with `maxPushDataSize`; the shader structure remains fixed. | [specialization setup](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L12746-L12787) |
 | Heap interface | This shader uses `ResourceHeapEXT`; ordinary mapping cases retain `DescriptorSet` and `Binding`. | [built-in semantics](../../../../vulkan-docs/src/chapters/descriptorheaps.adoc#L926-L960) |
 
 #### SPIR-V
@@ -503,9 +503,9 @@ void main()
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|------------------------------------------|----------|
-| Descriptor type | Other leaves use `texelFetch`, `imageLoad`, texel-buffer operations, or a uniform-buffer member. | [type branches](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L12909-L12955) |
-| Mapping interface | `non_uniform_mappings` uses mapped decorated bindings, while this case directly indexes `ResourceHeapEXT`. | [mapped variant](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L10541-L10687) |
-| Invocation count | The runtime fixes the descriptor count at 64 so one dispatch checks the whole heap slice. | [descriptor count](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L12961-L12986) |
+| Descriptor type | Other leaves use `texelFetch`, `imageLoad`, texel-buffer operations, or a uniform-buffer member. | [type branches](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L12913-L12959) |
+| Mapping interface | `non_uniform_mappings` uses mapped decorated bindings, while this case directly indexes `ResourceHeapEXT`. | [mapped variant](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L10545-L10691) |
+| Invocation count | The runtime fixes the descriptor count at 64 so one dispatch checks the whole heap slice. | [descriptor count](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L12965-L12990) |
 
 #### SPIR-V
 
@@ -699,12 +699,12 @@ void main()
 ### Requirement-based pruning
 
 - Common cases require `VK_EXT_descriptor_heap`, `VK_KHR_shader_untyped_pointers`, `VK_KHR_maintenance5`, `VK_KHR_buffer_device_address`, and `VK_KHR_synchronization2`. Optional paths require their exact ray-query, acceleration-structure, ray-tracing, YCbCr, graphics-pipeline-library, shader-object, dynamic-rendering, robustness, custom-border-color, mesh, variable-pointer, push-descriptor, sample-rate, image-atomic, sparse, protected, or non-uniform indexing feature ([support checks](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L509-L722)).
-- Reserved-heap cases also require timeline semaphores. If all advertised minimum reservation sizes are zero, the case passes without exercising nonzero reserved storage ([reserved support](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L780-L799), [zero-reservation branch](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L6585-L6593)).
+- Reserved-heap cases also require timeline semaphores. If all advertised minimum reservation sizes are zero, the case passes without exercising nonzero reserved storage ([reserved support](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L780-L799), [zero-reservation branch](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L6589-L6597)).
 - Input attachments run only in fragment shaders. Shader-record mappings require a ray-tracing stage. Non-uniform descriptor-array cases require the descriptor-type-specific indexing feature.
 
 ### Design-based pruning
 
-- The generator excludes custom border color from non-sampler descriptors and excludes input attachments from compute and ray-generation stages ([basic filtering](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L13392-L13403)).
+- The generator excludes custom border color from non-sampler descriptors and excludes input attachments from compute and ray-generation stages ([basic filtering](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L13396-L13407)).
 - Mapping, non-packed, and unaligned groups retain only source and descriptor-type combinations that have defined data, address, sampler, or shader-record semantics.
 - This page treats the 120 `non_packed` leaves and other generated dimensions as mechanism variations. The exact first-level tree and mustpass span preserve coverage without a leaf-by-leaf listing.
 
@@ -721,11 +721,11 @@ void main()
 |-------------|------|----------------|
 | Core parameters and helpers | [`TestParams`, `ShaderBinding`, and stride helpers](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L61-L228) | Defines case switches, mapping records, and default descriptor strides. |
 | Common support | [`DescriptorHeapTestCaseBase::checkSupport()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L500-L722) | Applies common and optional feature gates. |
-| Shared generated path | [`DescriptorHeapTestCaseBasic::initQueuePrograms()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L3901-L4217), [`DescriptorHeapTestInstanceBasic::iterate()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L4219-L4847) | Implements broad typed descriptor and mapping access. |
-| Representation path | [`DescriptorHeapTestInstanceInvariance::iterate()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L6052-L6120) | Checks descriptor bytes, bounds, and capture replay. |
+| Shared generated path | [`DescriptorHeapTestCaseBasic::initQueuePrograms()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L4548), [`DescriptorHeapTestInstanceBasic::iterate()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L4893-L5459) | Implements broad typed descriptor and mapping access. |
+| Representation path | [`DescriptorHeapTestInstanceInvariance::iterate()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L6834-L6902) | Checks descriptor bytes, bounds, and capture replay. |
 | Reserved heap path | [`DescriptorHeapTestInstanceReservedHeap::iterate()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L6585-L7050) | Implements queue, timeline, reservation, transfer, and readback behavior. |
 | Source-authored SPIR-V | [`DescriptorHeapTestCaseSpirv::initPrograms()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L7408-L8083) | Builds the isolated extension-operation modules. |
 | Graphics and direct heap paths | [graphics through direct sampler access](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L9634-L11758) | Covers stage integration, MSAA, and built-in heaps. |
 | Push and non-uniform artifacts | [push-data and non-uniform builders](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L12713-L13030) | Owns two reconstructed shaders and their runtime setup. |
-| Complete registration | [`populateDescriptorHeapTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L13331-L15461) | Registers all first-level behavior groups. |
+| Complete registration | [`populateDescriptorHeapTests()`](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L13335-L15465) | Registers all first-level behavior groups. |
 | Local specification | [`descriptorheaps.adoc`](../../../../vulkan-docs/src/chapters/descriptorheaps.adoc#L5-L32), [`limits.adoc`](../../../../vulkan-docs/src/chapters/limits.adoc#L5854-L5870), [`features.adoc`](../../../../vulkan-docs/src/chapters/features.adoc#L9551-L9557) | Defines extension semantics, limits, and feature reporting. |

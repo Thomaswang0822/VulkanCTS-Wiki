@@ -24,7 +24,7 @@ Why it matters here:
 
 ## One Concrete Example
 
-The representative leaf `dEQP-VK.pipeline.monolithic.push_descriptor.compute.binding0_numcalls1_uniform_buffer` creates a push-descriptor set layout with a uniform-buffer input at binding 0 and an output storage buffer at binding 1. The host pushes both writes, dispatches a compute shader, invalidates the readback allocation, and compares the output `vec4` with the input `vec4` ([layout setup](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1301-L1359), [push, dispatch, and check](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1460-L1538)).
+The representative leaf `dEQP-VK.pipeline.monolithic.push_descriptor.compute.binding0_numcalls1_uniform_buffer` creates a push-descriptor set layout with a uniform-buffer input at binding 0 and an output storage buffer at binding 1. The host pushes both writes, dispatches a compute shader, invalidates the readback allocation, and compares the output `vec4` with the input `vec4` ([layout setup](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1301-L1359), [push, dispatch, and check](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1468-L1546)).
 
 ## End-to-End Test Flow
 
@@ -41,7 +41,7 @@ The representative leaf `dEQP-VK.pipeline.monolithic.push_descriptor.compute.bin
 
 ### Generated or loaded program artifacts
 
-Each test case supplies GLSL through `initPrograms()`. The buffer-compute path generates declarations that change from `uniform` to `buffer` for the selected input descriptor and writes `inputData.color` to `outData.color` ([generator](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1571-L1595)). Graphics, image, texel-buffer, and input-attachment paths use their own test classes and source generation.
+Each test case supplies GLSL through `initPrograms()`. The buffer-compute path generates declarations that change from `uniform` to `buffer` for the selected input descriptor and writes `inputData.color` to `outData.color` ([generator](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1579-L1603)). Graphics, image, texel-buffer, and input-attachment paths use their own test classes and source generation.
 
 ### Bound resources and memory objects
 
@@ -55,7 +55,7 @@ Each test case supplies GLSL through `initPrograms()`. The buffer-compute path g
 ## What Is Checked
 
 - Graphics paths render reference-colored geometry, read the color attachment, and use `tcu::intThresholdPositionDeviationCompare()` with an RGBA threshold of `(2, 2, 2, 2)` and a position deviation of `(1, 1, 0)` ([image check](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L629-L664)).
-- Ordinary compute paths invalidate the output allocation and compare each result item to its expected color with `deMemCmp()` ([buffer check](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1526-L1539)).
+- Ordinary compute paths invalidate the output allocation and compare each result item to its expected color with `deMemCmp()` ([buffer check](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1534-L1547)).
 - Incremental compute paths check both output buffers: the first equals the first uniform value, while the second equals the sum of the first and second uniform values ([incremental check](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L734-L1248)).
 
 ## Behavior Parameter Identification
@@ -79,9 +79,9 @@ Each test case supplies GLSL through `initPrograms()`. The buffer-compute path g
 
 ## Important Variations and Special Cases
 
-- The factory registers `graphics` for each construction type. It registers `compute` only for `PIPELINE_CONSTRUCTION_TYPE_MONOLITHIC` ([registration](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4770-L4935)).
-- Input attachments are excluded for shader-object construction because that path uses dynamic rendering ([source condition](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4886-L4894)).
-- Monolithic adds `maintenance5_uniform_texel_buffer`, `maintenance5_storage_texel_buffer`, and `maintenance5_uniform_buffer`, plus four incremental compute leaves ([special leaves](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4902-L4928)).
+- The factory registers `graphics` for each construction type. It registers `compute` only for `PIPELINE_CONSTRUCTION_TYPE_MONOLITHIC` ([registration](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4778-L4943)).
+- Input attachments are excluded for shader-object construction because that path uses dynamic rendering ([source condition](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4894-L4902)).
+- Monolithic adds `maintenance5_uniform_texel_buffer`, `maintenance5_storage_texel_buffer`, and `maintenance5_uniform_buffer`, plus four incremental compute leaves ([special leaves](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4910-L4936)).
 - The inspected pipeline mustpass files contain 276 matching leaves: 76 monolithic, 36 each pipeline-library and fast-linked-library, and 32 in each of the four shader-object lists.
 
 ## Source Mapping
@@ -91,7 +91,7 @@ Each test case supplies GLSL through `initPrograms()`. The buffer-compute path g
 | Support and device setup | [common support and device creation](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L89-L210) | Requires the extension or Vulkan 1.4 feature and construction-type dependencies. |
 | Buffer graphics | [push, draw, and image check](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L267-L664) | Shows per-draw push writes and reference-image validation. |
 | Incremental updates | [command sequence and checker](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L734-L1248) | Shows the three updates, commands2/template alternatives, barrier, and expected results. |
-| Registration matrix | [createPushDescriptorTests](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4770-L4935) | Defines the leaf names, pruning, and special cases. |
+| Registration matrix | [createPushDescriptorTests](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4778-L4943) | Defines the leaf names, pruning, and special cases. |
 
 ## Questions / Risk Points for User Audit
 

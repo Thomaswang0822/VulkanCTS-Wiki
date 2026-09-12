@@ -109,7 +109,7 @@ present-ID 测试为每次 presentation 关联一个 ID，随后可以等待某�
 
 ### 观察到的代码路径
 
-在 [`release_images` 的 present 循环](../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L2475-L2551) 中：
+在 [`release_images` 的 present 循环](../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L2532-L2608) 中：
 
 1. `vkQueuePresentKHR` 的返回值保存到 `aggregateResult`；
 2. `pResults` 中的单 swapchain result 保存到 `result`；
@@ -134,7 +134,7 @@ present-ID 测试为每次 presentation 关联一个 ID，随后可以等待某�
 2. 如果单 swapchain 时两种结果规范上必然一致，是否仍应保留检查以防止测试代码未来扩展到多 swapchain？
 3. 修复后应增加哪种注入或回归场景，才能证明 aggregate 错误不会被遗漏？
 
-相关证据：[`release_images` present/release loop](../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L2475-L2551)，[present result 规则](../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L7290-L7345)。
+相关证据：[`release_images` present/release loop](../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L2532-L2608)，[present result 规则](../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L7290-L7345)。
 
 ## 4. `DisplayControlTests`：platform ownership gate 使三个测试家族不可达
 
@@ -311,4 +311,3 @@ display surface 创建时，`VkDisplaySurfaceCreateInfoKHR` 会指定 display mo
 - [WSI audit summary](wsi_audit_summary.md)
 - [WSI category 页面](../categories/wsi.md)
 - [Vulkan CTS WSI 源码目录](../../modules/vulkan/wsi/)
-- [draw unresolved findings 文档（结构参考）](draw_unresolved_findings.md)

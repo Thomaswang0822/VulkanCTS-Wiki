@@ -144,7 +144,7 @@ void main(void) {
 
 - `pipelineLayout0` has set 0 and no push-constant range. `pipelineLayout1` has sets 0 and 1 plus the 128-byte compute range. The early update uses `pipelineLayout1`; pipeline0 does not consume it.
 - The second bind supplies offsets for set 0 binding 0, set 0 binding 1, and set 1 binding 0 in that order. The final two values match because both storage descriptors refer to the same output buffer.
-- `initPrograms` supplies no explicit `ShaderBuildOptions`, so the CTS default source collection selects baseline SPIR-V 1.0 ([default source collections](../../../modules/vulkan/vktTestPackage.cpp#L476-L483), [baseline version](../../../framework/vulkan/vkPrograms.cpp#L1048-L1052)).
+- `initPrograms` supplies no explicit `ShaderBuildOptions`, so the CTS default source collection selects baseline SPIR-V 1.0 ([default source collections](../../../modules/vulkan/vktTestPackage.cpp#L547-L553), [baseline version](../../../framework/vulkan/vkPrograms.cpp#L1048-L1052)).
 
 #### Parameter Variation Summary
 

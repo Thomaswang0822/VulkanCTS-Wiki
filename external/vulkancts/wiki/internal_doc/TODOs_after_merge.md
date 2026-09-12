@@ -66,36 +66,91 @@
 
 ### Mechanical (lead)
 
-- [ ] Apply source line-reference repairs for the 177 findings (10 page groups + `unresolved_findings/wsi.md`);
-      handle out-of-bounds findings individually because the referenced content shrank.
+- [x] Source line-reference repairs applied: 161 symbol-range repairs (mechanical, checker-proposed spans) + 16
+      out-of-bounds references resolved individually (the WSI support refactor shortened several files, so the
+      referenced functions moved and some referenced ranges shrank). Whole-wiki sweep now reports
+      `errors=0 warnings=0 findings=0`.
+      Individually resolved: `glsl/ShaderExpectAssumeTests.md` factory (`createShaderExpectAssumeTests` now
+      `#L1511-L1514`); `wsi/ColorSpaceTests.md` (`surfaceFormatRenderTests` `#L657-L675`, `createColorSpaceTests`
+      `#L696-L709`, `createColorspaceCompareTests` `#L711-L726`); `wsi/DisplayTimingTests.md`
+      (`createDisplayTimingTests` `#L1085-L1114`); `wsi/FullScreenExclusiveTests.md` (`#L595-L614`);
+      `wsi/PresentIdWaitTests.md` (`#L1465-L1483`); plus the matching briefs.
+- [x] `robustness.md` gateway: dispatcher range `#L61-L99` -> `#L61-L101` and the new `bind_index_buffer2` `type` node
+      recorded in the family summary.
 
 ### Category content work (one canonical page per worker)
 
-- [ ] `renderpasses` / `CustomResolve.md` — suspend/resume and remap-first custom resolve coverage.
-- [ ] `renderpasses` / `MultisampleResolve.md` — `mixed_sample_count_subpasses`.
-- [ ] `renderpasses` gateway (lead) — navigation for the above.
-- [ ] `fragment_shading_rate` / `AttachmentRate.md` + gateway — `ds_baselayer` family.
-- [ ] `dgc` / new `ComputePushIndexHeapExt.md` + gateway — DGC descriptor-heap push-index path.
-- [ ] `robustness` / `IndexAccess.md` — 8-bit and 16-bit index-buffer robustness cases.
-- [ ] `wsi` gateway — `checkSupport` requirement checks across the WSI group.
-- [ ] `pipeline` / `AttachmentFeedbackLoopLayout.md` — support-check and layout changes.
-- [ ] `pipeline` / `PushDescriptor.md` — `incremental_updates` fix.
-- [ ] `pipeline` / `Sampler.md` — custom border-color component-only tests.
-- [ ] `pipeline` / `ExtendedDynamicState.md` — depth-clipping verification fix.
-- [ ] `transform_feedback` / `Simple.md` — source changes plus 9 stale references.
-- [ ] `memory` / `Allocation.md` — watchdog touch during large allocations.
-- [ ] `ssbo` / `SSBOLayoutTests.md` — 64-bit indexing OOM handling.
-- [ ] `glsl` / `AmberGlslTests.md` — amber CLI options and `dEQP-VK-amber` package.
-- [ ] `glsl` / `ShaderExpectAssumeTests.md` — expect/assume source changes.
-- [ ] verify-only: `api`, `binding_model`, `compute`, `cooperative_vector`, `query_pool`, `sc`.
+- [x] `renderpasses` / `MultisampleResolve.md` — `mixed_sample_count_subpasses` documented (tree gained the
+      `mixed_sample_count` group; matrix-shaped families and the fixed group are now separated).
+- [x] `robustness` / `IndexAccess.md` + brief — narrow-index correctness, new `type` node leaves, `indexTypeUint8` gate.
+- [x] `renderpasses` / `CustomResolve.md` — suspend/resume registration and the `_remap_first` resolve-attachment
+      rewrites documented; registration block `#L7168-L7194` and the primary/partial-secondary gate
+      `#L7168-L7176` verified against current source.
+- [x] `fragment_shading_rate` gateway + `Basic.md` — `ds_baselayer` and `ds_baselevel_baselayer` families.
+- [x] `dgc` — new page `ComputePushIndexHeapExt.md` for `dgc.ext.compute.push_index_heap.stage_compute` + gateway rows.
+- [x] `wsi` gateway and support-gate statements across 14 Level-3 pages (15 sources reviewed).
+- [x] `pipeline` / `AttachmentFeedbackLoopLayout.md`, `PushDescriptor.md`, `Sampler.md`, `ExtendedDynamicState.md`.
+- [x] `transform_feedback` / `Simple.md`; `memory` / `Allocation.md`; `ssbo` / `SSBOLayoutTests.md`.
+- [x] `glsl` / `AmberGlslTests.md` (amber CLI + new `dEQP-VK-amber` package) and `ShaderExpectAssumeTests.md`.
+- [x] verify-only: `api`, `binding_model`, `compute`, `cooperative_vector`, `query_pool`, `sc`. `api`, `binding_model`,
+      `compute`, and `sc` needed no content change; `cooperative_vector` (stage store/atomic gates) and `query_pool`
+      (queue-result collection and reservation count) did receive statements.
+- [x] `renderpasses` gateway — `mixed_sample_count_subpasses` row, `custom_resolve` suspend/resume and `_remap_first`
+      additions, and a Category Note for `vktDynamicRenderingSuspendResumeTestsUtil.{cpp,hpp}`.
+- [x] `CTS_Framework.md` section 1.3 "Sibling Top-Level Packages" — `dEQP-VK-amber` and `dEQP-VK-experimental`
+      descriptors, `AmberTestPackage::init()`, `pathToTestName()`, and the `CaseListFilter` override.
+
+Note: work produced before the interruption was committed by the user as `86b1ea2b8a`
+("Update sync: init + some progress"). The four worker assignments listed as re-dispatched had not written any
+page content at that point; the mechanical sweep, `MultisampleResolve.md` and `IndexAccess.md` did land.
+The user's own saved inputs `_tmp_cr_diff.txt` and `_tmp_mp_diff.txt` are now tracked in `internal_doc/`;
+they were not created or removed by this workflow.
+
+### Line-reference audit beyond the mechanical sweep
+
+`check_line_refs.py` reports only `RANGE_SYMBOL_MISMATCH` when a cited range partially overlaps exactly one
+definition, so a reference that drifted entirely outside its named function is invisible to it. A separate
+disjoint-range audit over the whole wiki found:
+
+- 597 links whose label is a defined symbol but whose range does not intersect that definition at all;
+- 38 of them inside files touched by this merge (the actionable set), and 559 in untouched files (pre-existing
+  backlog, belongs to `wiki-auditor`);
+- the earlier SequenceMatcher drift sweep had itself mis-shifted links whose baseline value was already stale,
+  which is why the mechanical sweep could read zero while `glsl.md` still cited the three-line forwarder instead of
+  `createGlslTests()` at `#L1292-L1366`.
+
+Repair was applied through an explicit (page, old anchor, new anchor, expected count) table with a hard count guard:
+27 anchor replacements across 14 pages, plus label corrections where upstream renamed the function
+(`vktSSBOLayoutCase.cpp` now exposes a `queuePass()` OOM wrapper over a `queuePassImpl()` body; no `iterate()`
+exists in that file). After the repairs the actionable set went from 38 to 7, and those 7 are class/constructor
+alias false positives or the pre-existing `DescriptorHeap.md` appendix staleness.
 
 ### Validation
 
-- [ ] Per-category English structure, registration, and link checks after edits.
-- [ ] Whole-wiki structure + registration sweep.
-- [ ] Source line-reference sweep back to zero.
-- [ ] Lookup DB: affected-category builds, full rebuild, lookup tests, configured mustpass coverage.
-- [ ] `git diff --check`.
+- [x] Per-category English structure, registration, and link checks after edits.
+- [x] Whole-wiki structure + registration sweep: `verify_english_structure.py` PASS for the 16 affected categories
+      (286 pages, 0 findings); `verify_registration_paths.py` reported "All paths verified successfully" for the same
+      16 categories.
+- [x] Source line-reference sweep back to zero: `check_line_refs.py . external/vulkancts/wiki` ->
+      `errors=0 warnings=0 findings=0`.
+- [x] Lookup DB: full rebuild, 55 categories, `site/mappings.json` 13474 -> 13485 mappings (the 11 new prefixes are
+      exactly the new upstream families and all resolve to pages updated in this sync); 23 lookup unit tests passed;
+      `py_compile` passed.
+- [x] Configured mustpass coverage: 295364/295364 leaves resolved over the changed in-scope inputs
+      (`vk-default` renderpasses, dgc, fragment-shading-rate, robustness; `vksc-default` sc).
+- [x] `validate_wiki_links.py` over the 97 changed wiki pages: 3 findings, all pre-existing in
+      `unresolved_findings/wsi.md`.
+- [x] `git diff --check`.
+
+### Unresolved findings handed over
+
+- `unresolved_findings/wsi.md` links two never-committed documents (`wsi_audit_summary.md`, twice, and
+  `draw_unresolved_findings.md`, whose actual sibling page is `draw.md`). Pre-existing at the local wiki parent, so
+  the audit page was left for its owner to repoint.
+- `check_line_refs.py` cannot see disjoint ranges, treats a class declaration as a same-named constructor, and does
+  not check symbols for file-name or phrase labels.
+- `binding_model/DescriptorHeap.md` appendix rows for `ReservedHeap` and `Spirv` are stale by roughly 775 lines.
+- 559 disjoint-range candidates remain in files untouched by this merge.
 
 ### Boundary
 

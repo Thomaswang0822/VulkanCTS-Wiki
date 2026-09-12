@@ -3,7 +3,7 @@
 **Core question:** Do the generated GLSL ES 3.10 operator expressions produce the expected rendered values in both shader stages?
 
 - `vktShaderRenderOperatorTests.cpp` implements `glsl.operator`, a generated shader-render family for GLSL ES 3.10 operators and a small set of related built-in functions.
-- The factory `createOperatorTests()` returns the `operator` test family, which the Vulkan test package registers directly under the `glsl` test category ([`vktShaderRenderOperatorTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderOperatorTests.cpp#L1980-L1990), [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1266)).
+- The factory `createOperatorTests()` returns the `operator` test family, which the Vulkan test package registers directly under the `glsl` test category ([`vktShaderRenderOperatorTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderOperatorTests.cpp#L1980-L1990), [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1302-L1315)).
 - Each test case generates vertex and fragment shader sources, evaluates an expression in the selected stage, converts its typed result to a color, and compares the rendered image with a C++ evaluator.
 - The page describes the registered hierarchy, generated parameters, shader construction, runtime comparison, pruning, and what a failure can establish.
 

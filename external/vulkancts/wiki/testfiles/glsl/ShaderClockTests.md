@@ -21,7 +21,7 @@ glsl.shader_clock
 └── compute
 ```
 
-`addShaderClockTests()` creates the three stage groups and adds all four operation entries to each group ([registration loop](../../../modules/vulkan/shaderexecutor/vktShaderClockTests.cpp#L223-L250)). The stage names are `vertex`, `fragment`, and `compute`; this file registers no tessellation, geometry, mesh, or task group. The GLSL package attaches the factory through [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1274-L1279).
+`addShaderClockTests()` creates the three stage groups and adds all four operation entries to each group ([registration loop](../../../modules/vulkan/shaderexecutor/vktShaderClockTests.cpp#L223-L250)). The stage names are `vertex`, `fragment`, and `compute`; this file registers no tessellation, geometry, mesh, or task group. The GLSL package attaches the factory through [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1323-L1328).
 
 ## Parameter Dimensions and Observed Values
 
@@ -371,5 +371,5 @@ The extension requirement is unconditional. The integer feature is conditional o
 | Operation and stage registration | [`addShaderClockTests()`](../../../modules/vulkan/shaderexecutor/vktShaderClockTests.cpp#L223-L250) | Defines the three stage groups and four operation leaves per stage. |
 | Public factory | [`createShaderClockTests()`](../../../modules/vulkan/shaderexecutor/vktShaderClockTests.cpp#L255-L258) | Creates the `shader_clock` group. |
 | Public factory declaration | [`vktShaderClockTests.hpp`](../../../modules/vulkan/shaderexecutor/vktShaderClockTests.hpp#L30-L38) | Declares the shader-clock test factory. |
-| GLSL package registration | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1274-L1279) | Attaches the factory below the GLSL package. |
+| GLSL package registration | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1323-L1328) | Attaches the factory below the GLSL package. |
 | Shared source generation and executor selection | [`generateSources()` and `createExecutor()`](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.cpp#L4198-L4259) | Wraps the operation in stage-specific shader-executor generation and execution. |

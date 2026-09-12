@@ -43,7 +43,7 @@ info
 └── device_group_peer_memory_features (registration only)
 ```
 
-The Vulkan and Vulkan SC package initializers both attach `info` at the package root [Vulkan registration](../../../modules/vulkan/vktTestPackage.cpp#L1375-L1377), [Vulkan SC registration](../../../modules/vulkan/vktTestPackage.cpp#L1444-L1446). The four local leaves occur in both mustpass lists [Vulkan mustpass](../../../mustpass/main/vk-default/info.txt#L1-L23), [Vulkan SC mustpass](../../../mustpass/main/vksc-default/info.txt#L1-L23). The delegated leaves are now registered in both package profiles; the earlier compile-time omission of the two dependency leaves under Vulkan SC was removed [delegated registration](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L9163-L9195).
+The Vulkan and Vulkan SC package initializers both attach `info` at the package root [Vulkan registration](../../../modules/vulkan/vktTestPackage.cpp#L1432-L1434), [Vulkan SC registration](../../../modules/vulkan/vktTestPackage.cpp#L1553-L1555). The four local leaves occur in both mustpass lists [Vulkan mustpass](../../../mustpass/main/vk-default/info.txt#L1-L23), [Vulkan SC mustpass](../../../mustpass/main/vksc-default/info.txt#L1-L23). The delegated leaves are now registered in both package profiles; the earlier compile-time omission of the two dependency leaves under Vulkan SC was removed [delegated registration](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L9163-L9195).
 
 ## Parameter Dimensions and Observed Values
 

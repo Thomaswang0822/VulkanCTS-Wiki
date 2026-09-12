@@ -30,7 +30,7 @@ dgc.nv.misc.properties
 └── valid_limits
 ```
 
-The root is attached below `dgc.nv.misc` by [`createTests()`](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L75-L93). The ten direct children are registered by [`createDGCPropertyTests()`](../../../modules/vulkan/device_generated_commands/vktDGCPropertyTests.cpp#L1232-L1268), and the same paths are listed in the Vulkan default mustpass file [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4724-L4733).
+The root is attached below `dgc.nv.misc` by [`createTests()`](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L76-L94). The ten direct children are registered by [`createDGCPropertyTests()`](../../../modules/vulkan/device_generated_commands/vktDGCPropertyTests.cpp#L1232-L1268), and the same paths are listed in the Vulkan default mustpass file [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4724-L4733).
 
 ## Parameter Dimensions and Observed Values
 

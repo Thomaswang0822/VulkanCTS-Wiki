@@ -20,7 +20,7 @@ glsl
 └── demote
 ```
 
-[`createGlslTests()`](../../../modules/vulkan/vktTestPackage.cpp#L1215-L1288) registers `discard` in all builds and registers `demote` only when `CTS_USES_VULKANSC` is not defined. Each test family contains direct test case leaves named `<template>_<mode>`. The default Vulkan mustpass lists contain all [25 `discard` leaves](../../../mustpass/main/vk-default/glsl.txt#L6954-L6978) and all [30 `demote` leaves](../../../mustpass/main/vk-default/glsl.txt#L5250-L5279).
+[`createGlslTests()`](../../../modules/vulkan/vktTestPackage.cpp#L1264-L1337) registers `discard` in all builds and registers `demote` only when `CTS_USES_VULKANSC` is not defined. Each test family contains direct test case leaves named `<template>_<mode>`. The default Vulkan mustpass lists contain all [25 `discard` leaves](../../../mustpass/main/vk-default/glsl.txt#L6954-L6978) and all [30 `demote` leaves](../../../mustpass/main/vk-default/glsl.txt#L5250-L5279).
 
 ## Parameter Dimensions and Observed Values
 
@@ -353,7 +353,7 @@ A failure confined to one template prefix also points to the function or loop pl
 ### Requirement-based pruning
 
 - `demote` test cases call [`ShaderDiscardCase::checkSupport()`](../../../modules/vulkan/shaderrender/vktShaderRenderDiscardTests.cpp#L143-L150). Devices without `shaderDemoteToHelperInvocation` receive `NotSupportedError` instead of executing the case.
-- Vulkan SC builds do not register the `demote` test family because [`createGlslTests()`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1259) places its factory call under `#ifndef CTS_USES_VULKANSC`. This is a compile-time registration exclusion, not an image-comparison failure.
+- Vulkan SC builds do not register the `demote` test family because [`createGlslTests()`](../../../modules/vulkan/vktTestPackage.cpp#L1302-L1308) places its factory call under `#ifndef CTS_USES_VULKANSC`. This is a compile-time registration exclusion, not an image-comparison failure.
 - The implementation adds no file-local feature check for `discard`; those cases still use the shared ShaderRender setup and its general Vulkan requirements.
 
 ### Design-based pruning
@@ -378,7 +378,7 @@ A failure confined to one template prefix also points to the function or loop pl
 | Shader templates | [`getTemplate()`](../../../modules/vulkan/shaderrender/vktShaderRenderDiscardTests.cpp#L221-L300) | Places the generated statement in direct, function, and loop control flow. |
 | Mode substitution and test case construction | [`makeDiscardCase()`](../../../modules/vulkan/shaderrender/vktShaderRenderDiscardTests.cpp#L344-L400) | Defines each mode's GLSL, expected evaluator, texture use, comparison choice, and leaf name. |
 | Matrix registration | [`ShaderDiscardTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderDiscardTests.cpp#L402-L449) | Generates the direct leaves and omits `discard` derivative cases. |
-| GLSL parent registration | [`createGlslTests()`](../../../modules/vulkan/vktTestPackage.cpp#L1215-L1288) | Places both test families under `glsl` and excludes `demote` from Vulkan SC. |
+| GLSL parent registration | [`createGlslTests()`](../../../modules/vulkan/vktTestPackage.cpp#L1264-L1337) | Places both test families under `glsl` and excludes `demote` from Vulkan SC. |
 | Shared render and compare path | [`ShaderRenderCaseInstance::iterate()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L774-L807) | Renders, computes the reference, compares images, and returns pass or fail. |
 | Discarded-fragment reference and comparison | [`computeFragmentReference()` and `compareImages()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2685-L2724) | Converts discarded reference fragments to clear color and selects fuzzy or pixel-threshold comparison. |
 | Default Vulkan mustpass coverage | [`glsl.discard`](../../../mustpass/main/vk-default/glsl.txt#L6954-L6978), [`glsl.demote`](../../../mustpass/main/vk-default/glsl.txt#L5250-L5279) | Confirms the 25 and 30 registered test case leaves. |

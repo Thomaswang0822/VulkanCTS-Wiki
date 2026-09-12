@@ -3,7 +3,7 @@
 **Core question:** Does the Vulkan CTS execute declarative GLSL shader-library cases with the intended shader stages, values, and output checks?
 
 - This page covers the `ShaderLibraryGroup` implementation in [`vktShaderLibrary.cpp`](../../../modules/vulkan/vktShaderLibrary.cpp#L1689-L1829) and its registered users under the `glsl` test category.
-- [`createGlslTests()`](../../../modules/vulkan/vktTestPackage.cpp#L1215-L1251) registers nine ES310 data files—`arrays`, `conditionals`, `constant_expressions`, `constants`, `conversions`, `functions`, `linkage`, `scoping`, and `swizzles`—plus `440.linkage`.
+- [`createGlslTests()`](../../../modules/vulkan/vktTestPackage.cpp#L1264-L1300) registers nine ES310 data files—`arrays`, `conditionals`, `constant_expressions`, `constants`, `conversions`, `functions`, `linkage`, `scoping`, and `swizzles`—plus `440.linkage`.
 - Each `.test` file supplies declarative groups and cases. The shared parser builds the hierarchy, while the Vulkan factory turns parsed cases into executable `ShaderCase` instances.
 - The runner specializes vertex-only, fragment-only, complete, and value-driven cases, renders a `64 x 64` target, and checks the copied-back pixels.
 
@@ -29,7 +29,7 @@ glsl
 └── 440
 ```
 
-The `440` intermediate node contains the registered `linkage` test family. The direct ES310 test families are created from `s_es310Tests[]`; the `440` group and its `linkage` child are created from `s_440Tests[]` in [`createGlslTests()`](../../../modules/vulkan/vktTestPackage.cpp#L1219-L1251). The tree above intentionally excludes later non-library `glsl` families registered after the shader-library block.
+The `440` intermediate node contains the registered `linkage` test family. The direct ES310 test families are created from `s_es310Tests[]`; the `440` group and its `linkage` child are created from `s_440Tests[]` in [`createGlslTests()`](../../../modules/vulkan/vktTestPackage.cpp#L1268-L1300). The tree above intentionally excludes later non-library `glsl` families registered after the shader-library block.
 
 ## Parameter Dimensions and Observed Values
 
@@ -366,7 +366,7 @@ void main()
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| GLSL registration | [`createGlslTests()`](../../../modules/vulkan/vktTestPackage.cpp#L1215-L1251) | Registers the ES310 roots and `440.linkage`. |
+| GLSL registration | [`createGlslTests()`](../../../modules/vulkan/vktTestPackage.cpp#L1264-L1300) | Registers the ES310 roots and `440.linkage`. |
 | Vulkan shader-library factory | [`createShaderLibraryGroup()`](../../../modules/vulkan/vktShaderLibrary.cpp#L1825-L1829) | Creates each lazy shader-library group. |
 | Lazy data-file loading | [`ShaderLibraryGroup::init()`](../../../modules/vulkan/vktShaderLibrary.cpp#L1790-L1817) | Parses a `.test` file and attaches generated children. |
 | Declarative group parsing | [`parseShaderGroup()`](../../../../../framework/opengl/gluShaderLibrary.cpp#L1684-L1720) | Maps `group` blocks to test groups. |

@@ -38,7 +38,7 @@ The five generated families are registered by `createTests`; `terminate_invocati
 | Generated index | `0` through `249` for nesting 2 to 4, `0` through `99` for nesting 5, `0` through `49` for nesting 6 | Selects a generated case within a seed and nesting group. | [case counts](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L7849-L7866) |
 | Compute dimensions | `sizeX = 7`, `sizeY = 13` | Initial compute dimensions before full-subgroup adjustment. | [compute dimensions](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L7874-L7887) |
 | Maximal fragment Amber leaves | `terminate_invocation`, `demote_invocation`, `demote_entire_quad`, `demote_half_quad_top`, `demote_half_quad_right`, `demote_half_quad_bottom`, `demote_half_quad_left`, `demote_half_quad_slash`, `demote_half_quad_backslash` | Fixed fragment checks below `maximal.fragment`. | [Amber case table](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L7951-L8016) |
-| Main/experimental split | main for `ndx < numTests / 5`; experimental for the remaining indices | Keeps the root and family names unchanged while partitioning generated leaves. | [split predicate](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L7929-L7933), [package registration](../../../modules/vulkan/vktTestPackage.cpp#L1387-L1407) |
+| Main/experimental split | main for `ndx < numTests / 5`; experimental for the remaining indices | Keeps the root and family names unchanged while partitioning generated leaves. | [split predicate](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L7929-L7933), [package registration](../../../modules/vulkan/vktTestPackage.cpp#L1444-L1464) |
 
 ## Behavior Parameters
 
@@ -526,7 +526,7 @@ void main()
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Root declarations | [vktReconvergenceTests.hpp](../../../modules/vulkan/reconvergence/vktReconvergenceTests.hpp#L30-L36) | Declares main and experimental root constructors. |
-| Package registration | [vktTestPackage.cpp](../../../modules/vulkan/vktTestPackage.cpp#L1387-L1407) | Registers both `reconvergence` roots. |
+| Package registration | [vktTestPackage.cpp](../../../modules/vulkan/vktTestPackage.cpp#L1444-L1464) | Registers both `reconvergence` roots. |
 | Generated root builder | [createTests](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L7786-L7948) | Registers five generated families and appends delegated `terminate_invocation`. |
 | Amber fragment registration | [createAmberFragmentTestCases](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L7951-L8069) | Registers fixed maximal fragment leaves and support checks. |
 | Amber source | [terminate_invocation.amber](../../../data/vulkan/amber/reconvergence/maximal/fragment/terminate_invocation.amber#L5-L80) | Provides the exact representative GLSL, pipeline, buffers, and expected result. |

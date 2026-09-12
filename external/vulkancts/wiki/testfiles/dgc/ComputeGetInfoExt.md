@@ -148,5 +148,5 @@ The test never submits generated commands or a dispatch. The shader therefore su
 | Memory-requirements query wrapper | [getGeneratedCommandsMemoryRequirementsExt](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.cpp#L354-L360) | Calls `getGeneratedCommandsMemoryRequirementsEXT` and returns `VkMemoryRequirements`. |
 | EXT compute support | [checkDGCExtComputeSupport](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.cpp#L44-L75) | Applies extension, compute-stage, and pipeline-binding support checks. |
 | EXT utility declarations | [vktDGCUtilExt.hpp](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.hpp#L42-L53) | Declares the support types used by the test factory. |
-| Category registration | [vktDGCTests.cpp](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L72-L120) | Places `get_info` under `dgc.ext.compute`. |
+| Category registration | [vktDGCTests.cpp](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L73-L122) | Places `get_info` under `dgc.ext.compute`. |
 | vk-default mustpass paths | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L45-L49) | Lists the five registered EXT compute get-info paths. |

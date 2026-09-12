@@ -25,7 +25,7 @@ glsl.opaque_type_indexing
 └── atomic_counter
 ```
 
-`createOpaqueTypeIndexingTests()` returns the `opaque_type_indexing` group, and the Vulkan test package places that group directly under `glsl` ([factory](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L2045-L2048), [package registration](../../../modules/vulkan/vktTestPackage.cpp#L1274-L1277)). The registration loop creates the five test families shown above ([family generation](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1918-L2041)).
+`createOpaqueTypeIndexingTests()` returns the `opaque_type_indexing` group, and the Vulkan test package places that group directly under `glsl` ([factory](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L2045-L2048), [package registration](../../../modules/vulkan/vktTestPackage.cpp#L1323-L1326)). The registration loop creates the five test families shown above ([family generation](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1918-L2041)).
 
 ## Parameter Dimensions and Observed Values
 
@@ -424,5 +424,5 @@ The registration code intentionally limits the matrix before creating test case 
 | Atomic shader generator | [`AtomicCounterIndexingCase`](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1801-L1894) | Generates the counter array and four indexed `atomicAdd` calls. |
 | Family matrix and factory | [`OpaqueTypeIndexingTests::init()` and factory](../../../modules/vulkan/shaderexecutor/vktOpaqueTypeIndexingTests.cpp#L1933-L2056) | Defines all registered families, dimensions, stage exclusions, names, and the public entry point. |
 | Shader-executor wrapper | [`BufferIoExecutor` and `ComputeShaderExecutor`](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.cpp#L2034-L2130), [`compute generation and execution`](../../../modules/vulkan/shaderexecutor/vktShaderExecutor.cpp#L3061-L3187) | Supplies stage wrappers, set 0 input/output resources, dispatch, and readback infrastructure. |
-| GLSL package registration | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1274-L1277) | Places `opaque_type_indexing` directly below `glsl`. |
+| GLSL package registration | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1323-L1326) | Places `opaque_type_indexing` directly below `glsl`. |
 | Vulkan default mustpass coverage | [`glsl.txt`](../../../mustpass/main/vk-default/glsl.txt#L10489-L10860) | Lists all 372 concrete test case leaves. |

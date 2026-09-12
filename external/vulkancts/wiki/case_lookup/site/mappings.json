@@ -1,6 +1,6 @@
 {
   "category_count": 55,
-  "mapping_count": 13474,
+  "mapping_count": 13485,
   "mappings": {
     "dEQP-VK.api.array.oversized_array.core": [
       "Array",
@@ -6536,6 +6536,11 @@
       "ComputePreprocessExt",
       "dgc",
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePreprocessExt"
+    ],
+    "dEQP-VK.dgc.ext.compute.push_index_heap.stage_compute": [
+      "ComputePushIndexHeapExt",
+      "dgc",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/dgc/ComputePushIndexHeapExt"
     ],
     "dEQP-VK.dgc.ext.compute.smoke.1024_sequences_device_local_from_compute_no_preprocess_compute_queue": [
       "ComputeSmokeExt",
@@ -31727,7 +31732,17 @@
       "fragment_shading_rate",
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/fragment_shading_rate/Basic"
     ],
+    "dEQP-VK.fragment_shading_rate.renderpass2.monolithic.ds_baselayer": [
+      "Basic",
+      "fragment_shading_rate",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/fragment_shading_rate/Basic"
+    ],
     "dEQP-VK.fragment_shading_rate.renderpass2.monolithic.ds_baselevel": [
+      "Basic",
+      "fragment_shading_rate",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/fragment_shading_rate/Basic"
+    ],
+    "dEQP-VK.fragment_shading_rate.renderpass2.monolithic.ds_baselevel_baselayer": [
       "Basic",
       "fragment_shading_rate",
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/fragment_shading_rate/Basic"
@@ -54797,6 +54812,21 @@
       "renderpasses",
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/renderpasses/RenderPassTests"
     ],
+    "dEQP-VK.renderpasses.dynamic_rendering.partial_secondary_cmd_buff.custom_resolve.fast_lib": [
+      "CustomResolve",
+      "renderpasses",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/renderpasses/CustomResolve"
+    ],
+    "dEQP-VK.renderpasses.dynamic_rendering.partial_secondary_cmd_buff.custom_resolve.monolithic": [
+      "CustomResolve",
+      "renderpasses",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/renderpasses/CustomResolve"
+    ],
+    "dEQP-VK.renderpasses.dynamic_rendering.partial_secondary_cmd_buff.custom_resolve.shader_objects": [
+      "CustomResolve",
+      "renderpasses",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/renderpasses/CustomResolve"
+    ],
     "dEQP-VK.renderpasses.dynamic_rendering.primary_cmd_buff": [
       "RenderPassTests",
       "renderpasses",
@@ -54806,6 +54836,21 @@
       "DynamicRendering",
       "renderpasses",
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/renderpasses/DynamicRendering"
+    ],
+    "dEQP-VK.renderpasses.dynamic_rendering.primary_cmd_buff.custom_resolve.fast_lib": [
+      "CustomResolve",
+      "renderpasses",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/renderpasses/CustomResolve"
+    ],
+    "dEQP-VK.renderpasses.dynamic_rendering.primary_cmd_buff.custom_resolve.monolithic": [
+      "CustomResolve",
+      "renderpasses",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/renderpasses/CustomResolve"
+    ],
+    "dEQP-VK.renderpasses.dynamic_rendering.primary_cmd_buff.custom_resolve.shader_objects": [
+      "CustomResolve",
+      "renderpasses",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/renderpasses/CustomResolve"
     ],
     "dEQP-VK.renderpasses.dynamic_rendering.primary_cmd_buff.depth_stencil_resolve.samples_16": [
       "DynamicRenderingDepthStencilResolve",
@@ -55722,6 +55767,11 @@
       "renderpasses",
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/renderpasses/MultisampleResolve"
     ],
+    "dEQP-VK.renderpasses.renderpass1.suballocation.multisample_resolve.mixed_sample_count": [
+      "MultisampleResolve",
+      "renderpasses",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/renderpasses/MultisampleResolve"
+    ],
     "dEQP-VK.renderpasses.renderpass1.suballocation.sampleread.numsamples_16_selected_sample_7": [
       "SampleRead",
       "renderpasses",
@@ -56188,6 +56238,11 @@
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/IndexAccess"
     ],
     "dEQP-VK.robustness.bind_index_buffer2.offset_100": [
+      "IndexAccess",
+      "robustness",
+      "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/IndexAccess"
+    ],
+    "dEQP-VK.robustness.bind_index_buffer2.type": [
       "IndexAccess",
       "robustness",
       "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/wikis/categories/robustness/IndexAccess"

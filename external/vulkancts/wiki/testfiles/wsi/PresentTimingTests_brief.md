@@ -125,15 +125,15 @@ The test does not read swapchain pixels. The red clear only supplies valid prese
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
 | Device and feature setup | [`createDeviceWithWsi`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L195-L249) | Enables swapchain, present ID, calibrated timestamps, present timing, and case-dependent present-at features. |
-| Surface and swapchain setup | [`getSurfacePresentTimingCapabilities` and `getBasicSwapchainParameters`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L266-L357) | Checks surface support and sets both timing-related swapchain creation flags. |
-| Result normalization and checks | [`PresentTimingHelper`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L470-L545) | Stores reports and verifies IDs, stage masks, counts, and time order. |
-| Present submission | [`presentWithTimingInfo` and `recordAndSubmitFrame`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L819-L882) | Builds the timing/present-ID chain and records the transfer-only frame. |
-| Past timing retrieval | [`getPastPresentationTiming` and `drainPresentationTimingResults`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L925-L1024) | Handles counters, complete reports, queue draining, and polling. |
+| Surface and swapchain setup | [`getSurfacePresentTimingCapabilities` and `getBasicSwapchainParameters`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L269-L360) | Checks surface support and sets both timing-related swapchain creation flags. |
+| Result normalization and checks | [`PresentTimingHelper`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L473-L548) | Stores reports and verifies IDs, stage masks, counts, and time order. |
+| Present submission | [`presentWithTimingInfo` and `recordAndSubmitFrame`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L822-L885) | Builds the timing/present-ID chain and records the transfer-only frame. |
+| Past timing retrieval | [`getPastPresentationTiming` and `drainPresentationTimingResults`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L928-L1027) | Handles counters, complete reports, queue draining, and polling. |
 | Basic and query execution | [`surfaceCapabilitiesTest` through `timingTestWithBackgroundQueryThreads`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L1026-L1564) | Implements capability, queue, matrix-query, large-queue, and concurrent retrieval checks. |
 | Retired swapchains | [`retiredSwapchainTest`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L1597-L1694) | Checks data retrieval from old and replacement swapchains. |
 | Target-time execution | [`presentAtTest`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L1708-L1964) | Computes targets and applies ID, ordering, and early-time checks. |
 | Time-domain checks | [`timeDomainPropertiesTest` and `timeDomainCalibrationTest`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L1916-L2235) | Validates domain metadata and calibrated clock relationships. |
-| Registration matrix | [`populateBasicGroup` through `createPresentTimingTests`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2306-L2449) | Defines the four test families and all registered dimensions. |
+| Registration matrix | [`populateBasicGroup` through `createPresentTimingTests`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2326-L2469) | Defines the four test families and all registered dimensions. |
 | WSI family routing | [`createTypeSpecificTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L52-L83) | Registers `present_timing` under each platform branch. |
 | Present-timing query semantics | [`Present Timing Queries`](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L4738-L5291) | Defines result queues, counters, domains, report availability, ordering, and partial results. |
 | Per-present target semantics | [`VkPresentTimingInfoEXT`](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L7898-L8027) | Defines absolute/relative targets, nearest-cycle behavior, stage queries, and queue-full behavior. |

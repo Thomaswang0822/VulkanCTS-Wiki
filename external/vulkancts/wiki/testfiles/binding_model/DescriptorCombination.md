@@ -56,7 +56,7 @@ The descriptor buffer itself still contains the A, B, C encodings made before de
 
 ## Shader Analysis
 
-Two walkthroughs are needed because the registered leaves use unrelated observability paths. The first shows the storage-buffer read and update that makes descriptor state visible. The second shows how three replayed sampler descriptors become a checked color. Both use the default CTS GLSL build target, `vk::getBaselineSpirvVersion()`, which is SPIR-V 1.0 ([baseline target](../../../framework/vulkan/vkPrograms.cpp#L1048-L1052), [default build options](../../../modules/vulkan/vktTestPackage.cpp#L476-L482)).
+Two walkthroughs are needed because the registered leaves use unrelated observability paths. The first shows the storage-buffer read and update that makes descriptor state visible. The second shows how three replayed sampler descriptors become a checked color. Both use the default CTS GLSL build target, `vk::getBaselineSpirvVersion()`, which is SPIR-V 1.0 ([baseline target](../../../framework/vulkan/vkPrograms.cpp#L1048-L1052), [default build options](../../../modules/vulkan/vktTestPackage.cpp#L547-L553)).
 
 ### Representative Shader Walkthrough 1
 

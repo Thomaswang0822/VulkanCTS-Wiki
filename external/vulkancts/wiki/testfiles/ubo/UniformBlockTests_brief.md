@@ -103,7 +103,7 @@ The page does not reproduce the generated GLSL or SPIR-V: source generators cons
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Package and family registration | [`TestPackage::init()`](../../../modules/vulkan/vktTestPackage.cpp#L1345-L1356) and [`UniformBlockTests::init()`](../../../modules/vulkan/ubo/vktUniformBlockTests.cpp#L446-L1256) | Registers `ubo` and its direct test families. |
+| Package and family registration | [`TestPackage::init()`](../../../modules/vulkan/vktTestPackage.cpp#L1441) and [`UniformBlockTests::init()`](../../../modules/vulkan/ubo/vktUniformBlockTests.cpp#L446-L1256) | Registers `ubo` and its direct test families. |
 | Fixed case construction | [`vktUniformBlockTests.cpp`](../../../modules/vulkan/ubo/vktUniformBlockTests.cpp#L85-L420) | Defines fixed interfaces, stage variants, buffer modes, and random-case creation. |
 | Layout and generated comparisons | [`computeReferenceLayout()`](../../../modules/vulkan/ubo/vktUniformBlockCase.cpp#L572-L767) and [`generateCompareSrc()`](../../../modules/vulkan/ubo/vktUniformBlockCase.cpp#L1612-L1733) | Derives reference bytes and shader checks. |
 | Shader generation | [`generateVertexShader()`](../../../modules/vulkan/ubo/vktUniformBlockCase.cpp#L1755-L1803), [`generateFragmentShader()`](../../../modules/vulkan/ubo/vktUniformBlockCase.cpp#L1805-L1853), and [`generateComputeShader()`](../../../modules/vulkan/ubo/vktUniformBlockCase.cpp#L1855-L1911) | Generates each case's GLSL source. |

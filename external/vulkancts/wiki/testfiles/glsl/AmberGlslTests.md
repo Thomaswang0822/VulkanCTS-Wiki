@@ -4,7 +4,8 @@
 
 - [`vktAmberGlslTests.cpp`](../../../modules/vulkan/amber/vktAmberGlslTests.cpp#L1-L106) registers three Amber-backed test families under the `glsl` test category: `combined_operations`, `crash_test`, and `logical_copy`.
 - The package adds these families only when Vulkan SC is not in use. Each registered test case loads an Amber script from `vulkan/amber/<family>/<case>.amber` through [`createAmberTestCase()`](../../../modules/vulkan/amber/vktAmberTestCaseUtil.cpp#L200-L216).
-- The scripts contain the shaders, pipeline declarations, resources, commands, and `EXPECT` checks. This page explains the three distinct behaviors, their feature requirements, and how Amber converts script results into CTS results.
+- A second selection path exists outside the registered hierarchy: `--deqp-amber-test` and `--deqp-amber-list-file` build one Amber case per script file under a separate `dEQP-VK-amber` package that has no mustpass file of its own.
+- The scripts contain the shaders, pipeline declarations, resources, commands, and `EXPECT` checks. This page explains the three distinct behaviors, their feature requirements, how Amber converts script results into CTS results, and how the two selection paths differ.
 
 ## Background Knowledge
 
@@ -21,7 +22,11 @@ glsl
 └── logical_copy (non-VulkanSC only)
 ```
 
-[`createGlslTests()`](../../../modules/vulkan/vktTestPackage.cpp#L1281-L1287) adds all three test families inside its non-VulkanSC block. The factory functions in [`vktAmberGlslTests.cpp`](../../../modules/vulkan/amber/vktAmberGlslTests.cpp#L37-L102) register the test case leaves listed below.
+[`createGlslTests()`](../../../modules/vulkan/vktTestPackage.cpp#L1359-L1365) adds all three test families inside its non-VulkanSC block. The factory functions in [`vktAmberGlslTests.cpp`](../../../modules/vulkan/amber/vktAmberGlslTests.cpp#L37-L102) register the test case leaves listed below.
+
+Amber cases can also run with no registered group at all. The `deqp-vk` executable registers a second, Vulkan-only package named `dEQP-VK-amber` ([`AmberTestPackage`](../../../modules/vulkan/vktTestPackage.cpp#L1388-L1390), [`g_vktAmberPackageDescriptor`](../../../modules/vulkan/vktTestPackageEntry.cpp#L33-L44)), and its [`AmberTestPackage::init()`](../../../modules/vulkan/vktTestPackage.cpp#L1504-L1540) adds one `AmberTestCase` per script file. `--deqp-amber-test=<path>` adds exactly one case; when that option is absent, `--deqp-amber-list-file=<path>` is read as a text file and each non-empty line adds one case, so only one of the two options takes effect. Both take a filesystem path, not a registered case name, and an unreadable list file simply adds no cases. The registered name is that path with every character outside `a`-`z`, `A`-`Z`, and `0`-`9` replaced by `_` ([`pathToTestName()`](../../../modules/vulkan/vktTestPackage.cpp#L1490-L1502)): the script `tests/example.amber` produces the case `dEQP-VK-amber.tests_example_amber`. Because these names are generated at startup from whatever the command line supplies, no mustpass file lists them, and the tree above covers only the registered `glsl` families.
+
+Selection is replaced rather than narrowed. The two options are declared with no short name and no default ([option registration](../../../../../framework/common/tcuCommandLine.cpp#L226-L227)), and when either is present the framework builds its case filter from the literal pattern `dEQP-VK-amber.*` before it looks at `--deqp-caselist`, `--deqp-caselist-file`, `--deqp-caselist-resource`, `--deqp-stdin-caselist`, or `--deqp-case` ([`CaseListFilter`](../../../../../framework/common/tcuCommandLine.cpp#L1712-L1727)). The framework header records the same rule in its [`createCaseListFilter()`](../../../../../framework/common/tcuCommandLine.hpp#L408-L424) contract: `--deqp-amber*` overrides `--deqp-case*` when specified. `--deqp-exclude-case` is still parsed afterwards and still removes matching cases ([exclusion handling](../../../../../framework/common/tcuCommandLine.cpp#L1771-L1772)). The runner-type filter is independent of this override: `AmberTestCase` reports `RUNNERTYPE_AMBER` ([`getRunnerType()`](../../../modules/vulkan/amber/vktAmberTestCase.hpp#L120-L123)), so `--deqp-runner-type=none` hides Amber cases even when an amber option is given ([`checkRunnerType()`](../../../../../framework/common/tcuCommandLine.hpp#L143-L146)).
 
 ## Parameter Dimensions and Observed Values
 
@@ -444,7 +449,8 @@ void main()
 
 ### Requirement-based pruning
 
-- The entire Amber area is absent when Vulkan SC is in use because `createGlslTests()` registers it inside `#ifndef CTS_USES_VULKANSC`. [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1281-L1287)
+- The entire Amber area is absent when Vulkan SC is in use because `createGlslTests()` registers it inside `#ifndef CTS_USES_VULKANSC`. [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1359-L1365)
+- The `dEQP-VK-amber` file-selection package is likewise full-Vulkan-only. `AmberTestPackage` is declared inside the `#ifdef CTS_USES_VULKAN` block ([`vktTestPackage.hpp`](../../../modules/vulkan/vktTestPackage.hpp#L43-L72)), defined under the same guard ([`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1429-L1548)), and its descriptor lives in the entry file linked only into `deqp-vk`; `deqp-vksc` uses a separate entry file with no Amber package ([`CMakeLists.txt`](../../../modules/vulkan/CMakeLists.txt#L269-L271)).
 - `divbyzero_tesc` and `divbyzero_tese` require `tessellationShader`; `divbyzero_geom` requires `geometryShader`. Missing requirements make the corresponding case unsupported. [`vktAmberGlslTests.cpp`](../../../modules/vulkan/amber/vktAmberGlslTests.cpp#L54-L78) and [`AmberTestCase::checkSupport()`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L229-L248)
 - The former `--deqp-compute-only` recipe rejection has been removed. Shader-stage support and the recipe's declared requirements still determine support; Amber no longer rejects graphics recipes through that command-line check ([execution and requirements](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L547-L603)).
 
@@ -459,13 +465,18 @@ void main()
 - `combined_operations` compares defined rendered output, whereas `crash_test` checks safe completion around operations with unspecified results.
 - The `crash_test` cases cover vertex, tessellation-control, tessellation-evaluation, geometry, fragment, and compute stages, with feature gating where a stage requires it.
 - `logical_copy` separates a checked aggregate assignment from an execution-only uninitialized-local assignment; only `initialized_struct` asserts copied storage-buffer contents.
+- Amber tests arrive through two independent selection paths: the registered `dEQP-VK.glsl.*` leaves chosen by the normal case-list options, and script files given to `--deqp-amber-test`/`--deqp-amber-list-file`, which replace case selection with the `dEQP-VK-amber.*` pattern and run under generated case names.
 
 ## Source Reference Appendix
 
 | Entry point | Link | Why it matters |
 |---|---|---|
 | Amber GLSL family factories | [`vktAmberGlslTests.cpp`](../../../modules/vulkan/amber/vktAmberGlslTests.cpp#L37-L106) | Registers the three test families, their case names, and CTS-side feature requirements. |
-| GLSL package registration | [`createGlslTests()`](../../../modules/vulkan/vktTestPackage.cpp#L1281-L1287) | Places the families below `glsl` only for non-VulkanSC builds. |
+| GLSL package registration | [`createGlslTests()`](../../../modules/vulkan/vktTestPackage.cpp#L1359-L1365) | Non-VulkanSC block that adds the three Amber families below `glsl`. |
+| Amber file-selection options | [`tcuCommandLine.cpp`](../../../../../framework/common/tcuCommandLine.cpp#L227-L228) | Declares `--deqp-amber-test` and `--deqp-amber-list-file`, each taking a script path. |
+| Amber selection override | [`CaseListFilter`](../../../../../framework/common/tcuCommandLine.cpp#L1712-L1727) | Prefers the literal `dEQP-VK-amber.*` pattern over every `--deqp-caselist*`/`--deqp-case` source. |
+| `dEQP-VK-amber` package descriptor | [`vktTestPackageEntry.cpp`](../../../modules/vulkan/vktTestPackageEntry.cpp#L33-L44) | Registers the separate package with the `deqp-vk` executable. |
+| File-driven case creation | [`AmberTestPackage::init()`](../../../modules/vulkan/vktTestPackage.cpp#L1504-L1540) | Builds one `AmberTestCase` per script file with a sanitized case name. |
 | Amber case construction | [`createAmberTestCase()`](../../../modules/vulkan/amber/vktAmberTestCaseUtil.cpp#L200-L216) | Builds the script path and transfers requirements. |
 | Amber parsing, compilation, and execution | [`vktAmberTestCase.cpp`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L407-L615) | Parses recipes, builds GLSL programs, runs Amber, and maps its result to CTS pass or fail. |
 | Combined-operation scripts | [`combined_operations`](../../../data/vulkan/amber/combined_operations) | Defines the two graphics expression cases and framebuffer checks. |

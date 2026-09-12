@@ -277,9 +277,9 @@ void main (void) {
 
 #### Border-color swizzle mismatch
 
-**Possible failure symptoms:** A delegated `border_swizzle` leaf returns an unexpected border component ordering or constant.
+**Possible failure symptoms:** A delegated `border_swizzle` leaf returns an unexpected border component ordering or constant. For a `custom` border-color leaf that uses the compute path, the same mismatch is reported as a Quality Warning, which the framework counts as a warning instead of a failure.
 
-**Possible implementation causes:** The delegated implementation owns detailed diagnosis. A failure indicates that its extension-specific border-color result did not match its expected transformed value.
+**Possible implementation causes:** The delegated implementation owns detailed diagnosis. A failure indicates that its extension-specific border-color result did not match its expected transformed value. The compute leaves submit to a queue requested without `VK_QUEUE_GRAPHICS_BIT` ([compute-leaf device capabilities](../../../modules/vulkan/pipeline/vktPipelineSamplerBorderSwizzleTests.cpp#L334-L350)), where the specification allows undefined values instead of the specified custom border color ([compute-queue allowance](../../../../vulkan-docs/src/chapters/samplers.adoc#L1247-L1249)), so that one combination downgrades its mismatch to `QualityWarning` while every other leaf still fails ([delegated result check](../../../modules/vulkan/pipeline/vktPipelineSamplerBorderSwizzleTests.cpp#L1311-L1322)).
 
 #### LOD contribution or clamp mismatch
 

@@ -2,7 +2,7 @@
 
 **Core question:** Do push-descriptor commands make the selected resource available to graphics and compute work, including partial replacement through ordinary, template, and Commands2 commands?
 
-- [`vktPipelinePushDescriptorTests.cpp`](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1-L4935) implements the `push_descriptor` test family under applicable pipeline-construction roots.
+- [`vktPipelinePushDescriptorTests.cpp`](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1-L4943) implements the `push_descriptor` test family under applicable pipeline-construction roots.
 - The family covers buffer, image, texel-buffer, sampler, and input-attachment descriptors across registered binding and command-count values.
 - Graphics paths compare a rendered image with a software reference. Compute paths compare host-visible output data with expected values.
 - Monolithic construction also tests incremental replacement, descriptor-update-template forms, Commands2 forms, and selected maintenance5 buffer-creation forms.
@@ -22,20 +22,20 @@ pipeline.monolithic.push_descriptor
 └── compute
 ```
 
-`createPushDescriptorTests()` creates `graphics` for all construction types and adds `compute` only for monolithic construction ([factory](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4770-L4935)). The same factory supplies `pipeline_library`, `fast_linked_library`, and shader-object graphics inventories through its `pipelineType` parameter. The inspected split mustpass files contain 276 leaves: `monolithic` has 76, `pipeline_library` and `fast_linked_library` each have 36, and each shader-object list has 32.
+`createPushDescriptorTests()` creates `graphics` for all construction types and adds `compute` only for monolithic construction ([factory](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4778-L4943)). The same factory supplies `pipeline_library`, `fast_linked_library`, and shader-object graphics inventories through its `pipelineType` parameter. The inspected split mustpass files contain 276 leaves: `monolithic` has 76, `pipeline_library` and `fast_linked_library` each have 36, and each shader-object list has 32.
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | What it changes | Evidence |
 |-----------|-------------------|-----------------|----------|
-| Intermediate node | `graphics`, `compute` | Selects graphics rendering or compute dispatch. `compute` exists only for monolithic construction. | [factory](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4770-L4935) |
-| Descriptor type | `uniform_buffer`, `storage_buffer`, `combined_image_sampler`, `sampler`, `sampled_image`, `storage_image`, `uniform_texel_buffer`, `storage_texel_buffer`, `input_attachment` | Selects the resource layout, shader declaration, and test implementation class. | [parameter matrix](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4772-L4808) |
-| Binding | `0`, `1`, `3` | Selects the pushed binding and emitted shader binding. | [leaf-name construction](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4817-L4819) |
-| Number of calls | `1`, `2`; `128` for the storage-buffer matrix | Changes the number of resource writes and associated draws or dispatches. | [parameter matrix](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4772-L4808) |
+| Intermediate node | `graphics`, `compute` | Selects graphics rendering or compute dispatch. `compute` exists only for monolithic construction. | [factory](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4778-L4943) |
+| Descriptor type | `uniform_buffer`, `storage_buffer`, `combined_image_sampler`, `sampler`, `sampled_image`, `storage_image`, `uniform_texel_buffer`, `storage_texel_buffer`, `input_attachment` | Selects the resource layout, shader declaration, and test implementation class. | [parameter matrix](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4780-L4816) |
+| Binding | `0`, `1`, `3` | Selects the pushed binding and emitted shader binding. | [leaf-name construction](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4825-L4827) |
+| Number of calls | `1`, `2`; `128` for the storage-buffer matrix | Changes the number of resource writes and associated draws or dispatches. | [parameter matrix](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4780-L4816) |
 | Construction type | monolithic, pipeline library, fast linked library, shader object variants | Selects the pipeline construction path and controls pruning. | [support gate](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L89-L115) |
-| Monolithic special leaves | `maintenance5_uniform_texel_buffer`, `maintenance5_storage_texel_buffer`, `maintenance5_uniform_buffer`; four `incremental_updates` leaves | The maintenance5 leaves create the selected buffers through `VkBufferUsageFlags2CreateInfoKHR`; the incremental leaves use ordinary, template, Commands2, and template-plus-Commands2 push commands. | [maintenance5 buffer path](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L469-L489), [special registration](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4902-L4928) |
+| Monolithic special leaves | `maintenance5_uniform_texel_buffer`, `maintenance5_storage_texel_buffer`, `maintenance5_uniform_buffer`; four `incremental_updates` leaves | The maintenance5 leaves create the selected buffers through `VkBufferUsageFlags2CreateInfoKHR`; the incremental leaves use ordinary, template, Commands2, and template-plus-Commands2 push commands. | [maintenance5 buffer path](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L469-L489), [special registration](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4910-L4936) |
 
-Input attachments do not register under shader-object construction because they are unsupported with dynamic rendering ([pruning condition](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4886-L4894)).
+Input attachments do not register under shader-object construction because they are unsupported with dynamic rendering ([pruning condition](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4894-L4902)).
 
 ## Behavior Parameters
 
@@ -121,17 +121,17 @@ void main()
 
 #### Additional Info
 
-- `PushDescriptorBufferComputeTest::initPrograms()` changes the input declaration from `uniform` to `buffer` for storage-buffer leaves and derives both binding numbers from the case parameters ([generator](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1571-L1595)).
-- The host pushes the input descriptor and output descriptor together, dispatches, adds a compute-to-host memory barrier, then compares the output allocation ([command recording and check](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1451-L1539)).
+- `PushDescriptorBufferComputeTest::initPrograms()` changes the input declaration from `uniform` to `buffer` for storage-buffer leaves and derives both binding numbers from the case parameters ([generator](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1579-L1603)).
+- The host pushes the input descriptor and output descriptor together, dispatches, adds a compute-to-host memory barrier, then compares the output allocation ([command recording and check](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1459-L1547)).
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Binding | Changes the input declaration's binding and the output binding remains one greater. | [compute generator](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1571-L1595) |
-| Buffer descriptor type | Changes `uniform Block` to `buffer Block` for storage-buffer input. | [compute generator](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1571-L1595) |
-| Calls | Does not change the copy statement. It changes how many input/output pairs are pushed and dispatched. | [recording loop](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1451-L1514) |
-| Image and texel-buffer types | Use separate graphics and compute test classes with type-appropriate declarations and resource operations. | [factory dispatch](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4820-L4899) |
+| Binding | Changes the input declaration's binding and the output binding remains one greater. | [compute generator](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1579-L1603) |
+| Buffer descriptor type | Changes `uniform Block` to `buffer Block` for storage-buffer input. | [compute generator](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1579-L1603) |
+| Calls | Does not change the copy statement. It changes how many input/output pairs are pushed and dispatched. | [recording loop](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1459-L1522) |
+| Image and texel-buffer types | Use separate graphics and compute test classes with type-appropriate declarations and resource operations. | [factory dispatch](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4828-L4907) |
 
 #### SPIR-V
 
@@ -199,9 +199,9 @@ void main()
 
 ## Runtime Execution and Result Checking
 
-- `commonCheckSupported()` requires `VK_KHR_push_descriptor`, plus maintenance5 or maintenance6 when the parameters request them. Template-based incremental leaves also require `VK_KHR_descriptor_update_template` ([incremental support check](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1220-L1225)). It adds pipeline-library feature checks for library construction and shader-object plus dynamic-rendering checks for shader-object construction ([common support checks](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L89-L115)). The device setup enables the push-descriptor extension on pre-1.4 paths or `VkPhysicalDeviceVulkan14Features::pushDescriptor` on later API paths ([device setup](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L128-L210)).
+- `commonCheckSupported()` requires `VK_KHR_push_descriptor`, plus maintenance5 or maintenance6 when the parameters request them. Template-based incremental leaves also require `VK_KHR_descriptor_update_template` ([incremental support check](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1229-L1234)), and only those leaves create `VkDescriptorUpdateTemplate` objects; the non-template incremental leaves leave the three template handles empty and record `vkCmdPushDescriptorSet` or `vkCmdPushDescriptorSet2` instead ([template creation guard](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1012-L1020)). It adds pipeline-library feature checks for library construction and shader-object plus dynamic-rendering checks for shader-object construction ([common support checks](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L89-L115)). The device setup enables the push-descriptor extension on pre-1.4 paths or `VkPhysicalDeviceVulkan14Features::pushDescriptor` on later API paths ([device setup](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L128-L210)).
 - Each ordinary test builds a push-descriptor layout, creates the type-specific resources and pipeline, records `vkCmdPushDescriptorSet` writes, then submits and waits. The graphics buffer path pushes one buffer write before each quad draw ([recording](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L576-L617)).
-- Graphics verification renders the same quads with `ReferenceRenderer`, reads the color attachment, and accepts only the configured threshold/position comparison ([verification](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L629-L664)). Compute verification invalidates host-visible memory and checks each expected `vec4` with `deMemCmp()` ([verification](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1526-L1539)).
+- Graphics verification renders the same quads with `ReferenceRenderer`, reads the color attachment, and accepts only the configured threshold/position comparison ([verification](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L629-L664)). Compute verification invalidates host-visible memory and checks each expected `vec4` with `deMemCmp()` ([verification](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1534-L1547)).
 - Incremental cases dispatch after the first complete update, after a one-binding replacement, and after a second replacement. A compute-to-compute barrier separates the second and third dispatch; there is no barrier between the first and second dispatch because they write different storage buffers. The checker compares the first output with the first uniform data and the second with the sum of both uniform data values. The third dispatch adds the second uniform value into the second dispatch's output, so the second relation also observes whether the barrier orders those shader accesses ([sequence and check](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L734-L1248)).
 
 ## Failure Meaning
@@ -229,7 +229,7 @@ void main()
 
 **Possible failure symptoms:** One output item differs byte-for-byte from its expected color.
 
-**Possible implementation causes:** The selected input or output binding can be interpreted incorrectly, the compute write can be incorrect, or the compute-to-host visibility path can fail. The test records a `VK_ACCESS_SHADER_WRITE_BIT` to `VK_ACCESS_HOST_READ_BIT` barrier before host comparison, so the failure covers that command sequence as well as descriptor access ([barrier and check](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1503-L1539)).
+**Possible implementation causes:** The selected input or output binding can be interpreted incorrectly, the compute write can be incorrect, or the compute-to-host visibility path can fail. The test records a `VK_ACCESS_SHADER_WRITE_BIT` to `VK_ACCESS_HOST_READ_BIT` barrier before host comparison, so the failure covers that command sequence as well as descriptor access ([barrier and check](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1511-L1547)).
 
 #### Incremental descriptor-state replacement
 
@@ -272,10 +272,10 @@ void main()
 
 | Topic | Evidence |
 |-------|----------|
-| Registration and pruning | [createPushDescriptorTests](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4770-L4935) |
+| Registration and pruning | [createPushDescriptorTests](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L4778-L4943) |
 | Support and device feature setup | [commonCheckSupported and createDeviceWithPushDescriptor](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L89-L210) |
 | Buffer graphics push/draw/reference comparison | [PushDescriptorBufferGraphicsTestInstance](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L267-L664) |
-| Buffer compute push/dispatch/readback comparison | [PushDescriptorBufferComputeTestInstance](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1249-L1539) |
+| Buffer compute push/dispatch/readback comparison | [PushDescriptorBufferComputeTestInstance](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L1257-L1547) |
 | Incremental command forms and result check | [PushDescriptorIncrementalUpdatesComputeTestInstance](../../../modules/vulkan/pipeline/vktPipelinePushDescriptorTests.cpp#L734-L1248) |
 | Push-descriptor layout semantics | [descriptor set layouts](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L122-L147) |
 | Descriptor update template semantics | [descriptor update templates](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#L4082-L4186) |

@@ -4,7 +4,7 @@
 
 - This page covers the `colorspace` and `colorspace_compare` test families implemented by [vktWsiColorSpaceTests.cpp](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp).
 - `colorspace` checks extension advertisement, renders with each queried surface format and color-space pair, and repeats the rendering path with HDR metadata.
-- `colorspace_compare` fixes one of six image formats, creates a swapchain for each supported color space, and compares pixel `(128, 128)` exactly across the resulting images. The current source [performs each readback after presenting the image without reacquiring it](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L530-L545), contrary to the [presentable-image reacquisition rule](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L7419-L7426), so this comparison cannot serve as a conformance oracle as implemented.
+- `colorspace_compare` fixes one of six image formats, creates a swapchain for each supported color space, and compares pixel `(128, 128)` exactly across the resulting images. The current source [performs each readback after presenting the image without reacquiring it](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L497-L512), contrary to the [presentable-image reacquisition rule](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L7419-L7426), so this comparison cannot serve as a conformance oracle as implemented.
 - The source owns both families because they share instance, device, swapchain, renderer, presentation, and readback setup. The WSI dispatcher registers them separately under each platform type.
 
 ## Background Knowledge
@@ -36,7 +36,7 @@ The WSI dispatcher registers both families for all nine platform types in [creat
 | `colorspace_compare` format leaf | `b8g8r8a8_unorm`, `r8g8b8a8_unorm`, `r8g8b8a8_srgb`, `r5g6b5_unorm_pack16`, `a2b10g10r10_unorm_pack32`, `r16g16b16a16_sfloat` | Fixes image storage format while the test varies the queried color space. | [format list and registration](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L711-L726) |
 | Surface format and color space | Every `VkSurfaceFormatKHR` returned for the surface | Drives swapchain creation in `basic` and `hdr`; comparison cases keep only entries matching their registered format. | [format iteration](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L657-L675), [comparison filtering](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L438-L452) |
 | Frame index | `0` through `59` for `basic` and `hdr`; `0` for each comparison swapchain | The vertex shader derives triangle rotation from this push constant. | [60-frame loop](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L608-L680), [recordFrame](../../../framework/vulkan/vkWsiUtil.cpp#L1019-L1069) |
-| HDR metadata | absent in `basic`; source-defined `VkHdrMetadataEXT` in `hdr` | Adds the `setHdrMetadataEXT` call without changing shader code. | [HDR setup](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L660-L676) |
+| HDR metadata | absent in `basic`; source-defined `VkHdrMetadataEXT` in `hdr` | Adds the `setHdrMetadataEXT` call without changing shader code. | [HDR setup](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L624-L640) |
 
 ## Behavior Parameters
 
@@ -157,9 +157,9 @@ void main (void) { o_color = vec4(1.0, 0.0, 1.0, 1.0); }
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Color space | None. `VkColorSpaceKHR` is used in swapchain creation and is not passed to a shader. | [getBasicSwapchainParameters](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L250-L307) |
-| Image format | No GLSL source change. It changes the render-pass attachment, image view, pipeline compatibility, and host readback interpretation. | [renderer construction](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L467-L486) |
-| HDR metadata | None. The host calls `setHdrMetadataEXT` on the swapchain. | [HDR metadata call](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L660-L676) |
+| Color space | None. `VkColorSpaceKHR` is used in swapchain creation and is not passed to a shader. | [getBasicSwapchainParameters](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L229-L286) |
+| Image format | No GLSL source change. It changes the render-pass attachment, image view, pipeline compatibility, and host readback interpretation. | [renderer construction](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L434-L453) |
+| HDR metadata | None. The host calls `setHdrMetadataEXT` on the swapchain. | [HDR metadata call](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L624-L640) |
 | Frame index | Changes the vertex rotation angle; comparison cases use `0`, while `basic` and `hdr` use `0` through `59`. | [shader generation](../../../framework/vulkan/vkWsiUtil.cpp#L1171-L1194) |
 | WSI platform type | None in shader source. It changes surface and swapchain setup. | [platform properties](../../../framework/vulkan/vkWsiUtil.cpp#L83-L159) |
 
@@ -364,7 +364,7 @@ Missing a required extension, finding no extended color space, and finding fewer
 
 ### Requirement-based pruning
 
-- All families require the WSI surface extensions for the selected platform and `VK_KHR_swapchain`. Even `extensions` constructs `DeviceHelper`, whose device creation rejects implementations without `VK_KHR_swapchain`, before it performs its enumeration-only check.
+- All families require the WSI surface extensions for the selected platform and `VK_KHR_swapchain`. The shared [`commonCheckSupport`](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L677-L687) enforces those requirements before any instance or device is created, so an unsupported platform is reported not supported rather than failing inside the case body. `extensions` still constructs `DeviceHelper` for its enumeration-only check.
 - `extensions`, `basic`, `hdr`, and all comparison leaves require `VK_EXT_swapchain_colorspace`. Missing support produces a not-supported result.
 - `hdr` requires `VK_EXT_hdr_metadata`.
 - A comparison leaf needs at least two color spaces for its fixed format. With fewer than two, CTS reports the format as unsupported because no cross-color-space comparison is possible.
@@ -390,11 +390,12 @@ Missing a required extension, finding no extended color space, and finding fewer
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | WSI family routing | [createTypeSpecificTests](../../../modules/vulkan/wsi/vktWsiTests.cpp#L50-L74) | Registers `colorspace` and `colorspace_compare` under every WSI platform type. |
-| Instance and device setup | [createInstanceWithWsi and createDeviceWithWsi](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L96-L165) | Enables the surface, swapchain color-space, swapchain, and HDR metadata extensions. |
-| Swapchain configuration | [getBasicSwapchainParameters](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L250-L307) | Selects image format, color space, usage, extent, transform, alpha, and present mode. |
+| Shared support gate | [commonCheckSupport](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L677-L687) | Requires the instance and device extensions for every leaf in this file, including `VK_EXT_hdr_metadata` for `hdr`. |
+| Instance and device setup | [createInstanceWithWsi and createDeviceWithWsi](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L104-L144) | Enables the surface, swapchain color-space, swapchain, and HDR metadata extensions. |
+| Swapchain configuration | [getBasicSwapchainParameters](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L229-L286) | Selects image format, color space, usage, extent, transform, alpha, and present mode. |
 | Pixel copy and readback | [getPixel](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L346-L383) | Copies a presentable image to host-visible memory and reads `(128, 128)`. |
 | Extension enumeration check | [basicExtensionTest](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L385-L416) | Defines the non-default color-space requirement. |
-| Per-format comparison | [colorspaceCompareTest](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L425-L563) | Filters color spaces, renders one image per choice, and performs exact equality. |
+| Per-format comparison | [colorspaceCompareTest](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L393-L527) | Filters color spaces, renders one image per choice, and performs exact equality. |
 | 60-frame render and HDR path | [surfaceFormatRenderTest](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L565-L693) | Defines acquisition, synchronization, HDR metadata, submission, and presentation. |
 | Registrations and fixed formats | [createColorSpaceTests and createColorspaceCompareTests](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L696-L726) | Provides all direct child names and the six comparison formats. |
 | Shared shader generator | [WsiTriangleRenderer::getPrograms](../../../framework/vulkan/vkWsiUtil.cpp#L1171-L1194) | Emits the exact vertex and fragment GLSL used by rendering cases. |

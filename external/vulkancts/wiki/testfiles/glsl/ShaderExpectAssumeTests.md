@@ -1,8 +1,8 @@
 ## Overview
 
-[`vktShaderExpectAssumeTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L20-L28) implements the `glsl.shader_expect_assume` group for `VK_KHR_shader_expect_assume`. It generates GLSL using the `SPV_KHR_expect_assume` intrinsics, runs each case through a vertex, fragment, or compute pipeline, and checks a two-word result for each of 32 elements. The public factory is [`createShaderExpectAssumeTests()`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1511-L1514).
+[`vktShaderExpectAssumeTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L20-L27) implements the `glsl.shader_expect_assume` group for `VK_KHR_shader_expect_assume`. It generates GLSL using the `SPV_KHR_expect_assume` intrinsics, runs each case through a vertex, fragment, or compute pipeline, and checks a two-word result for each of 32 elements. The public factory is [`createShaderExpectAssumeTests()`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1511-L1514).
 
-The group is added to the GLSL package only in non-Vulkan-SC builds ([registration](../../../modules/vulkan/vktTestPackage.cpp#L1281-L1287)). This page describes source-defined coverage and behavior; it does not claim that the cases were run on the current host.
+The group is added to the GLSL package only in non-Vulkan-SC builds ([registration](../../../modules/vulkan/vktTestPackage.cpp#L1359-L1365)). This page describes source-defined coverage and behavior; it does not claim that the cases were run on the current host.
 
 **Core question:** Do `expectKHR` and `assumeTrueKHR` produce the intended result when their operands come from constants, specialization constants, push constants, or storage buffers, across vertex, fragment, and compute shader execution?
 
@@ -12,7 +12,7 @@ The group is added to the GLSL package only in non-Vulkan-SC builds ([registrati
 - `expectKHR` takes a value and an expected value and returns a value of the same data type. The test uses that result to select between an expected value and a deliberately wrong value.
 - `assumeTrueKHR` takes a boolean condition and is emitted before the shader writes the verification value. The test observes the resulting value rather than treating the assumption as a host-side assertion.
 - Operand sourcing is part of the coverage: ordinary constants, specialization constants, push constants, and stage-indexed storage-buffer elements exercise different interfaces between host setup and generated shader code.
-- Storage-buffer vectors use std430-compatible element layout. A three-component element has a four-component stride in the host input initialization, while other widths use their channel count as the stride ([input initialization](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L518-L583)).
+- Storage-buffer vectors use std430-compatible element layout. A three-component element has a four-component stride in the host input initialization, while other widths use their channel count as the stride ([input initialization](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L511-L576)).
 
 ## Registration Hierarchy
 
@@ -30,15 +30,15 @@ glsl.shader_expect_assume.compute
 └── assume
 ```
 
-The factory creates the three stage groups and their two direct operation groups in [`addShaderExpectAssumeTests()`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1411-L1507). Each stage has 43 `expect` leaves and 4 `assume` leaves, for 47 leaves per stage. The leaf names are generated from the parameter table and receive `_vec2`–`_vec4` and/or `_wrong_expected` suffixes where applicable ([parameter loop](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1424-L1503)).
+The factory creates the three stage groups and their two direct operation groups in [`addShaderExpectAssumeTests()`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1411-L1507). Each stage has 43 `expect` leaves and 4 `assume` leaves, for 47 leaves per stage. The leaf names are generated from the parameter table and receive `_vec2`–`_vec4` and/or `_wrong_expected` suffixes where applicable ([parameter loop](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1419-L1498)).
 
 ## Behavior Parameters
 
-The registered behavior is the product of shader stage, operation, operand source, data type, channel count, and (for selected `expect` cases) whether the storage-buffer input contains the expected value or an offset wrong value. The generator iterates expectation state `false` and `true`, channel counts 1 through 4, and the twelve base entries in `testParams[]`, then prunes unsupported combinations before registering leaves ([registration loop](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1424-L1503)).
+The registered behavior is the product of shader stage, operation, operand source, data type, channel count, and (for selected `expect` cases) whether the storage-buffer input contains the expected value or an offset wrong value. The generator iterates expectation state `false` and `true`, channel counts 1 through 4, and the twelve base entries in `testParams[]`, then prunes unsupported combinations before registering leaves ([registration loop](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1419-L1498)).
 
 ### `expectKHR` behavior
 
-The `expect` cases exercise `expectKHR` with an operand and expected value. The generated shader initializes `control` to the wrong value, invokes the intrinsic, and selects the expected or wrong value according to the intrinsic result ([compute](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1190-L1203), [vertex](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1265-L1279), [fragment](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1371-L1384)). Normal cases validate the expected branch; `_wrong_expected` cases deliberately validate the alternate branch.
+The `expect` cases exercise `expectKHR` with an operand and expected value. The generated shader initializes `control` to the wrong value, invokes the intrinsic, and selects the expected or wrong value according to the intrinsic result ([compute](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1185-L1198), [vertex](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1260-L1274), [fragment](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1366-L1379)). Normal cases validate the expected branch; `_wrong_expected` cases deliberately validate the alternate branch.
 
 The scalar base entries are:
 
@@ -53,25 +53,25 @@ The scalar base entries are:
 
 These entries are defined in the source table ([`testParams[]`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1424-L1436)). Storage-buffer `expect` cases additionally generate vector widths 2, 3, and 4, and all five storage-buffer `expect` types additionally generate wrong-expectation variants.
 
-For storage-buffer `expect` cases, the host writes one element per index. Boolean input is true in normal cases and false in wrong-expectation cases; integer input is initialized from the element index plus channel, and wrong-expectation input is offset by one ([input initialization](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L548-L578)). The generated expected vector follows the index and channel values, while the wrong vector uses an index-derived `*2 + 3` expression ([operand setup](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1038-L1063)).
+For storage-buffer `expect` cases, the host writes one element per index. Boolean input is true in normal cases and false in wrong-expectation cases; integer input is initialized from the element index plus channel, and wrong-expectation input is offset by one ([input initialization](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L541-L571)). The generated expected vector follows the index and channel values, while the wrong vector uses an index-derived `*2 + 3` expression ([operand setup](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1031-L1056)).
 
 ### `assumeTrueKHR` behavior
 
-The `assume` cases exercise `assumeTrueKHR` and report the selected operand or its comparison result. Their scalar base entries are `constant`, `specializationconstant`, `pushconstant`, and `storagebuffer`; all use boolean data ([source table](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1437-L1442)). The shader templates emit the intrinsic before writing the verification value ([compute](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1190-L1215), [vertex](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1265-L1292), [fragment](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1371-L1395)).
+The `assume` cases exercise `assumeTrueKHR` and report the selected operand or its comparison result. Their scalar base entries are `constant`, `specializationconstant`, `pushconstant`, and `storagebuffer`; all use boolean data ([source table](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1432-L1437)). The shader templates emit the intrinsic before writing the verification value ([compute](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1185-L1210), [vertex](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1260-L1287), [fragment](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1366-L1390)).
 
-For constant, specialization-constant, and push-constant `assume` cases, the generated value is the boolean operand converted to `uint`. For storage-buffer `assume`, the generated value is the comparison between the indexed input element and `true` ([operand setup](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L996-L1077)).
+For constant, specialization-constant, and push-constant `assume` cases, the generated value is the boolean operand converted to `uint`. For storage-buffer `assume`, the generated value is the comparison between the indexed input element and `true` ([operand setup](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L989-L1070)).
 
 ### Registered dimensions
 
 | Dimension | Source-defined values and restrictions |
 |---|---|
-| Stage | `vertex`, `fragment`, and `compute` ([stage array](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1418-L1455)). |
-| Operation | `expect` and `assume`; each stage receives both direct child groups ([group creation](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1457-L1461)). |
-| Data class | Constant, specialization constant, push constant, or storage buffer ([enum and parameter table](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L67-L73), [table](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1424-L1442)). |
-| Data type | `bool` for all non-integer entries; storage-buffer `expect` also uses `int8`, `int16`, `int32`, and `int64` ([types](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L75-L82)). |
-| Channel count | The loop considers 1–4, but counts above 1 are retained only for storage-buffer `expect`; those leaves receive `_vec2`, `_vec3`, or `_vec4` ([selection](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1463-L1482)). |
-| Expectation state | `wrongExpected` is false and true. The true state is retained only for storage-buffer `expect` and receives `_wrong_expected` ([selection](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1463-L1488)). |
-| Operand source | Constant, specialization constant, push constant, or stage-indexed storage-buffer element. Storage-buffer indexing uses `gl_GlobalInvocationID.x`, `gl_VertexIndex`, or `uint(gl_FragCoord.x)` ([operand setup](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L996-L1077)). |
+| Stage | `vertex`, `fragment`, and `compute` ([stage array](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1413-L1450)). |
+| Operation | `expect` and `assume`; each stage receives both direct child groups ([group creation](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1452-L1456)). |
+| Data class | Constant, specialization constant, push constant, or storage buffer ([enum and parameter table](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L60-L66), [table](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1419-L1437)). |
+| Data type | `bool` for all non-integer entries; storage-buffer `expect` also uses `int8`, `int16`, `int32`, and `int64` ([types](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L68-L75)). |
+| Channel count | The loop considers 1–4, but counts above 1 are retained only for storage-buffer `expect`; those leaves receive `_vec2`, `_vec3`, or `_vec4` ([selection](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1458-L1477)). |
+| Expectation state | `wrongExpected` is false and true. The true state is retained only for storage-buffer `expect` and receives `_wrong_expected` ([selection](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1458-L1483)). |
+| Operand source | Constant, specialization constant, push constant, or stage-indexed storage-buffer element. Storage-buffer indexing uses `gl_GlobalInvocationID.x`, `gl_VertexIndex`, or `uint(gl_FragCoord.x)` ([operand setup](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L989-L1070)). |
 
 ## Shader Analysis
 
@@ -146,18 +146,18 @@ void main()
 
 #### Additional Info
 
-- The compute runtime binds the output buffer at binding 0 and the input buffer at binding 1, dispatches `(1, 1, 1)`, and uses a shader-write-to-host-read barrier before validating the mapped output ([runtime setup](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L609-L750)).
-- `wrongExpectation` changes host initialization by adding one to each stored integer channel, while the shader's wrong-value expression is generated independently from the invocation index ([input initialization and operand setup](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L548-L578), [parameter specialization](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1038-L1063)).
+- The compute runtime binds the output buffer at binding 0 and the input buffer at binding 1, dispatches `(1, 1, 1)`, and uses a shader-write-to-host-read barrier before validating the mapped output ([runtime setup](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L602-L743)).
+- `wrongExpectation` changes host initialization by adding one to each stored integer channel, while the shader's wrong-value expression is generated independently from the invocation index ([input initialization and operand setup](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L541-L571), [parameter specialization](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1031-L1056)).
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Stage | Vertex and fragment cases move the same operation into the vertex or fragment shader; compute uses `gl_GlobalInvocationID.x` and direct storage-buffer output. | [stage dispatch and templates](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1021-L1036), [compute template](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1153-L1229), [graphics templates](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1231-L1409) |
-| Operation | `assume` emits `assumeTrueKHR` before its verification write; `expect` emits the `control` branch shown here. | [operation selection](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L917-L927), [operation templates](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1190-L1203) |
-| Operand source | Constant, specialization constant, and push-constant cases replace the binding-1 indexed load with their source-specific declaration; storage-buffer cases use the stage index shown in `VARNAME`. | [data-class specialization](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L996-L1077) |
-| Type and width | Non-storage-buffer cases stay scalar; storage-buffer `expect` retains `bool`, explicit-width integer types, and vector widths 2–4. Integer types add their matching explicit-arithmetic extension. | [type and extension selection](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L932-L994), [registration pruning](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1463-L1488) |
-| Expectation state | Normal storage-buffer `expect` cases use the expected branch and compare `control` with the expected value; `_wrong_expected` changes host input and validates the wrong-value branch. | [registration and expect output](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1463-L1488), [compute output](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1218-L1222) |
+| Stage | Vertex and fragment cases move the same operation into the vertex or fragment shader; compute uses `gl_GlobalInvocationID.x` and direct storage-buffer output. | [stage dispatch and templates](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1014-L1029), [compute template](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1148-L1224), [graphics templates](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1226-L1404) |
+| Operation | `assume` emits `assumeTrueKHR` before its verification write; `expect` emits the `control` branch shown here. | [operation selection](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L910-L920), [operation templates](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1185-L1198) |
+| Operand source | Constant, specialization constant, and push-constant cases replace the binding-1 indexed load with their source-specific declaration; storage-buffer cases use the stage index shown in `VARNAME`. | [data-class specialization](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L989-L1070) |
+| Type and width | Non-storage-buffer cases stay scalar; storage-buffer `expect` retains `bool`, explicit-width integer types, and vector widths 2–4. Integer types add their matching explicit-arithmetic extension. | [type and extension selection](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L925-L987), [registration pruning](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1458-L1483) |
+| Expectation state | Normal storage-buffer `expect` cases use the expected branch and compare `control` with the expected value; `_wrong_expected` changes host input and validates the wrong-value branch. | [registration and expect output](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1458-L1483), [compute output](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1213-L1217) |
 
 #### SPIR-V
 
@@ -368,14 +368,14 @@ void main()
 
 ## Runtime Execution and Result Checking
 
-- `iterate()` dispatches compute cases or renders graphics cases, invalidates the output allocation, and calls the common validator ([iteration](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L106-L123)).
-- Compute cases bind an output storage buffer, bind a second input storage buffer for storage-buffer operands, push a `VkBool32` true value for push-constant cases, dispatch one workgroup, and insert a compute-to-host memory barrier before waiting and flushing the mapped output ([compute setup and dispatch](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L609-L750)).
-- The compute shader uses one workgroup with `local_size_x = 32` and writes directly to the output buffer ([compute shader](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1187-L1228)).
-- Graphics cases allocate a `32 × 1` color attachment with format `VK_FORMAT_R32G32_UINT`, bind storage-buffer or push-constant resources when needed, and use a six-vertex triangle-list input ([attachment and pipeline setup](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L210-L245), [pipeline and draw](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L285-L477), [draw path](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L752-L843)).
-- Graphics rendering transitions the color image, renders the six vertices, inserts a color-attachment-to-transfer barrier, copies the `32 × 1` image to the output buffer, waits for completion, and flushes the mapped allocation ([render/copy](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L816-L870)).
-- Storage-buffer input is host-visible and sized for 32 elements with up to four 64-bit channels. The host initializes it according to the selected data type and channel count before flushing it ([storage buffers](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L518-L607)).
+- `iterate()` dispatches compute cases or renders graphics cases, invalidates the output allocation, and calls the common validator ([iteration](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L99-L116)).
+- Compute cases bind an output storage buffer, bind a second input storage buffer for storage-buffer operands, push a `VkBool32` true value for push-constant cases, dispatch one workgroup, and insert a compute-to-host memory barrier before waiting and flushing the mapped output ([compute setup and dispatch](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L602-L743)).
+- The compute shader uses one workgroup with `local_size_x = 32` and writes directly to the output buffer ([compute shader](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1182-L1223)).
+- Graphics cases allocate a `32 × 1` color attachment with format `VK_FORMAT_R32G32_UINT`, bind storage-buffer or push-constant resources when needed, and use a six-vertex triangle-list input ([attachment and pipeline setup](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L203-L238), [pipeline and draw](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L278-L470), [draw path](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L745-L836)).
+- Graphics rendering transitions the color image to `VK_IMAGE_LAYOUT_GENERAL`, opens a dynamic rendering pass with `vkCmdBeginRendering`, renders the six vertices, closes it with `vkCmdEndRendering`, inserts a color-attachment-to-transfer barrier, copies the `32 × 1` image to the output buffer, waits for completion, and flushes the mapped allocation ([render/copy](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L745-L864)).
+- Storage-buffer input is host-visible and sized for 32 elements with up to four 64-bit channels. The host initializes it according to the selected data type and channel count before flushing it ([storage buffers](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L511-L600)).
 
-The validator checks every element for the pair `(index, 1)` and returns `Result comparison failed` on the first mismatch; otherwise it returns `Pass` ([validator](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L126-L137)). A passing result establishes agreement among generated GLSL, intrinsic compilation/execution, the selected pipeline/resource path, synchronization, and the host oracle. It does not isolate one layer; conversely, a failed comparison does not by itself identify whether the intrinsic, generated shader, pipeline, or data transfer caused the mismatch.
+The validator checks every element for the pair `(index, 1)` and returns `Result comparison failed` on the first mismatch; otherwise it returns `Pass` ([validator](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L119-L130)). A passing result establishes agreement among generated GLSL, intrinsic compilation/execution, the selected pipeline/resource path, synchronization, and the host oracle. It does not isolate one layer; conversely, a failed comparison does not by itself identify whether the intrinsic, generated shader, pipeline, or data transfer caused the mismatch.
 
 ## Failure Meaning
 
@@ -393,7 +393,7 @@ The validator checks every element for the pair `(index, 1)` and returns `Result
 
 **Possible failure symptoms:** A mismatch means that the generated `expectKHR` path did not produce the value selected by the case's expectation state.
 
-Normal `expect` cases place the expected value in `control` when the intrinsic returns the expected value and validate `control == expected`. `_wrong_expected` cases initialize storage-buffer data to the offset wrong value and validate the alternate branch, so a failure must be interpreted with that suffix in mind ([wrong-expectation input and shader branch](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L548-L578), [expect templates](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1194-L1203)).
+Normal `expect` cases place the expected value in `control` when the intrinsic returns the expected value and validate `control == expected`. `_wrong_expected` cases initialize storage-buffer data to the offset wrong value and validate the alternate branch, so a failure must be interpreted with that suffix in mind ([wrong-expectation input and shader branch](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L541-L571), [expect templates](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1189-L1198)).
 
 **Possible implementation causes:** Possible causes include incorrect intrinsic compilation or execution, incorrect operand/expected-value generation, storage-buffer layout or initialization errors, or a pipeline/resource transfer problem. The common comparison cannot isolate those layers.
 
@@ -407,28 +407,29 @@ Normal `expect` cases place the expected value in `control` when the intrinsic r
 
 **Possible failure symptoms:** All paths use the same output oracle. A shader writes the element index in the first word and the verification result in the second, then the host invalidates and reads the output allocation. An unexpected nonzero or stale output is observable through the common host-side validation.
 
-**Possible implementation causes:** Such output can arise from synchronization, image-to-buffer copying, host memory handling, or pipeline execution rather than from the intrinsic itself ([iteration and validation](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L106-L137), [graphics copy](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L847-L870)).
+**Possible implementation causes:** Such output can arise from synchronization, image-to-buffer copying, host memory handling, or pipeline execution rather than from the intrinsic itself ([iteration and validation](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L99-L130), [graphics copy](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L840-L863)).
 
 ## Case Pruning
 
 ### Requirement-based pruning
 
-- Every case requires `VK_KHR_shader_expect_assume` through [`checkSupport()`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1108-L1111).
-- `int64` cases require `shaderInt64` ([check](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1117-L1121)).
-- `int16` cases require `VK_KHR_16bit_storage`, `shaderInt16`, `storageBuffer16BitAccess`, and `uniformAndStorageBuffer16BitAccess` ([check](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1122-L1135)).
-- `int8` cases require `VK_KHR_shader_float16_int8`, `VK_KHR_8bit_storage`, `shaderInt8`, `storageBuffer8BitAccess`, and `uniformAndStorageBuffer8BitAccess` ([check](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1136-L1149)).
-- The entire group is excluded from package registration in Vulkan SC builds by `#ifndef CTS_USES_VULKANSC` ([registration guard](../../../modules/vulkan/vktTestPackage.cpp#L1281-L1287)).
+- Every case requires `VK_KHR_shader_expect_assume` through [`checkSupport()`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1101-L1105).
+- Vertex and fragment cases additionally require `VK_KHR_dynamic_rendering` because their graphics path records with `vkCmdBeginRendering` and `vkCmdEndRendering`; compute cases do not ([stage check](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1104-L1105)).
+- `int64` cases require `shaderInt64` ([check](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1112-L1116)).
+- `int16` cases require `VK_KHR_16bit_storage`, `shaderInt16`, `storageBuffer16BitAccess`, and `uniformAndStorageBuffer16BitAccess` ([check](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1117-L1130)).
+- `int8` cases require `VK_KHR_shader_float16_int8`, `VK_KHR_8bit_storage`, `shaderInt8`, `storageBuffer8BitAccess`, and `uniformAndStorageBuffer8BitAccess` ([check](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1131-L1144)).
+- The entire group is excluded from package registration in Vulkan SC builds by `#ifndef CTS_USES_VULKANSC` ([registration guard](../../../modules/vulkan/vktTestPackage.cpp#L1359-L1365)).
 
 A missing capability produces a not-supported result through the support checks; it is not a failed shader execution or result comparison.
 
 ### Design-based pruning
 
-The registration loop intentionally avoids a full Cartesian product. It loops over channel counts 1–4 and both expectation states, but when the channel count is greater than one or `wrongExpected` is true, it retains only `expect` cases whose data class is `StorageBuffer` ([filter](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1463-L1488)). Consequently:
+The registration loop intentionally avoids a full Cartesian product. It loops over channel counts 1–4 and both expectation states, but when the channel count is greater than one or `wrongExpected` is true, it retains only `expect` cases whose data class is `StorageBuffer` ([filter](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1458-L1483)). Consequently:
 
 - `assume` remains boolean and scalar.
 - Constants, specialization constants, and push constants remain scalar; their `expect` cases use boolean operands.
 - Storage-buffer `expect` supplies the scalar boolean and integer cases, vector widths 2–4, and `_wrong_expected` variants.
-- Integer data types are used only by `expect`; the source asserts that integer cases are not `assume` cases ([data-type selection](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L944-L982)).
+- Integer data types are used only by `expect`; the source asserts that integer cases are not `assume` cases ([data-type selection](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L937-L975)).
 
 ## Key Takeaways
 
@@ -446,12 +447,12 @@ The registration loop intentionally avoids a full Cartesian product. It loops ov
 |---|---|---|
 | Test implementation and source-defined purpose | [`vktShaderExpectAssumeTests.cpp#L20-L28`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L20-L28) | Identifies the `VK_KHR_shader_expect_assume` coverage and implementation file. |
 | Public factory declaration | [`vktShaderExpectAssumeTests.hpp#L22-L35`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.hpp#L22-L35) | Declares `createShaderExpectAssumeTests()`. |
-| Package registration | [`vktTestPackage.cpp#L1274-L1287`](../../../modules/vulkan/vktTestPackage.cpp#L1274-L1287) | Shows the GLSL package registration and the Vulkan SC guard. |
+| Package registration | [`vktTestPackage.cpp#L1359-L1365`](../../../modules/vulkan/vktTestPackage.cpp#L1359-L1365) | Shows the GLSL package registration and the Vulkan SC guard. |
 | Output constants and data model | [`vktShaderExpectAssumeTests.cpp#L57-L93`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L57-L93) | Defines 32 elements, `VK_FORMAT_R32G32_UINT`, operations, data classes, data types, and test parameters. |
 | Runtime iteration and oracle | [`vktShaderExpectAssumeTests.cpp#L106-L137`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L106-L137) | Dispatches or renders, invalidates output, and checks `(index, 1)` for all elements. |
 | Resource and pipeline setup | [`vktShaderExpectAssumeTests.cpp#L140-L870`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L140-L870) | Creates buffers, graphics attachments, pipelines, dispatches, draws, and copies output. |
 | Parameter specialization | [`vktShaderExpectAssumeTests.cpp#L894-L1105`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L894-L1105) | Maps operation, data type, data class, stage, and expectation state to generated GLSL operands. |
-| Feature support checks | [`vktShaderExpectAssumeTests.cpp#L1108-L1150`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1108-L1150) | Defines extension, feature, and storage prerequisites. |
+| Feature support checks | [`vktShaderExpectAssumeTests.cpp#L1101-L1145`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1101-L1145) | Defines extension, feature, and storage prerequisites. |
 | Compute shader template | [`vktShaderExpectAssumeTests.cpp#L1153-L1229`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1153-L1229) | Generates the compute path and output writes. |
 | Vertex and graphics fragment templates | [`vktShaderExpectAssumeTests.cpp#L1231-L1322`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1231-L1322) | Generates the vertex operation and flat-value handoff. |
 | Fragment shader template | [`vktShaderExpectAssumeTests.cpp#L1324-L1410`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1324-L1410) | Generates the fragment operation and direct color output. |

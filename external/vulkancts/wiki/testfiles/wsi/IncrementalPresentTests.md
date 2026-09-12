@@ -33,8 +33,8 @@ Below each scaling intermediate node, the hierarchy continues through present mo
 |-----------|-------------------|----------------------|----------|
 | WSI platform | `xlib`, `xcb`, `wayland`, `android`, `win32`, `metal`, `headless`, `direct_drm`, `direct` | Selects the native surface integration and platform scaling policy. | [`createWsiTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L85-L100) |
 | Scaling | `scale_none`, conditional `scale_up`, conditional `scale_down` | Chooses an image extent that matches, is smaller than, or is larger than the surface extent. | [`generateSwapchainConfigs`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L618-L643), [`createIncrementalPresentTests`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1116-L1124) |
-| Present mode | `immediate`, `mailbox`, `fifo`, `fifo_relaxed`, `fifo_latest_ready` | Changes how the presentation engine processes and queues present requests. Unsupported modes cause a skip. | [`presentModes`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1085-L1093) |
-| Surface transform | `identity`, `rotate_90`, `rotate_180`, `rotate_270`, `horizontal_mirror`, `horizontal_mirror_rotate_90`, `horizontal_mirror_rotate_180`, `horizontal_mirror_rotate_270`, `inherit` | Chooses the swapchain `preTransform`; incremental regions must remain valid when the presentation engine transforms them with the image. | [`transforms`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1094-L1106) |
+| Present mode | `immediate`, `mailbox`, `fifo`, `fifo_relaxed`, `fifo_latest_ready` | Changes how the presentation engine processes and queues present requests. Unsupported modes cause a skip. | [`presentModes`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1095-L1103) |
+| Surface transform | `identity`, `rotate_90`, `rotate_180`, `rotate_270`, `horizontal_mirror`, `horizontal_mirror_rotate_90`, `horizontal_mirror_rotate_180`, `horizontal_mirror_rotate_270`, `inherit` | Chooses the swapchain `preTransform`; incremental regions must remain valid when the presentation engine transforms them with the image. | [`transforms`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1104-L1116) |
 | Composite alpha | `opaque`, `pre_multiplied`, `post_multiplied`, `inherit` | Chooses how the surface alpha participates in window-system composition. Unsupported values cause a skip. | [`alphas`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1107-L1114) |
 | Test case leaf | `reference`, `incremental_present` | Selects a plain `VkPresentInfoKHR` or one whose `pNext` chain contains `VkPresentRegionsKHR`. | [`leaf registration`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1146-L1162) |
 
@@ -121,9 +121,9 @@ void main (void)
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| WSI platform, scaling, present mode, transform, composite alpha, test case leaf | None. These dimensions change host-side surface, swapchain, or presentation behavior. | [`Programs::init` and registration`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1037-L1176) |
-| Frame index | The host changes the push-constant `mask`; the shader combines it with fragment coordinates. | [`cmdRenderFrame`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L260-L284) |
-| Update rectangle | The host changes the dynamic scissor; shader source stays fixed. | [`cmdRenderFrame`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L277-L284) |
+| WSI platform, scaling, present mode, transform, composite alpha, test case leaf | None. These dimensions change host-side surface, swapchain, or presentation behavior. | [`IncrementalPresentTestCase::initPrograms` and registration](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1044-L1182) |
+| Frame index | The host changes the push-constant `mask`; the shader combines it with fragment coordinates. | [`cmdRenderFrame`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L233-L257) |
+| Update rectangle | The host changes the dynamic scissor; shader source stays fixed. | [`cmdRenderFrame`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L250-L257) |
 
 #### SPIR-V
 
@@ -314,10 +314,10 @@ A failure caused only by exceeding the out-of-date/suboptimal retry limit points
 
 ### Requirement-based pruning
 
-- Device creation requires `VK_KHR_swapchain`; the `incremental_present` leaf also requires `VK_KHR_incremental_present`.
+- [`IncrementalPresentTestCase::checkSupport`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1026-L1042) requires the `VK_KHR_swapchain` device extension; the `incremental_present` leaf also requires `VK_KHR_incremental_present`.
 - A present-mode case skips when the surface does not report that mode. `fifo_latest_ready` also depends on `VK_EXT_present_mode_fifo_latest_ready` and its feature.
 - Transform and composite-alpha cases skip when the surface capability bits do not include the requested value.
-- Instance creation requires `VK_KHR_surface` and the selected platform surface extension. Display-backed and direct-DRM paths add their required instance extensions.
+- The same support gate requires `VK_KHR_surface` and the selected platform surface extension before the instance is created. Display-backed and direct-DRM paths add their required instance extensions there.
 
 ### Design-based pruning
 
@@ -337,13 +337,13 @@ A failure caused only by exceeding the out-of-date/suboptimal retry limit points
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Damage rectangles and partial rendering | [`getRenderFrameRect`, `getUpdatedRects`, and `cmdRenderFrame`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L226-L284) | Defines frame 0, later rectangles, push constants, scissors, and draws. |
+| Damage rectangles and partial rendering | [`getRenderFrameRect`, `getUpdatedRects`, and `cmdRenderFrame`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L199-L257) | Defines frame 0, later rectangles, push constants, scissors, and draws. |
 | Per-image catch-up command recording | [`createCommandBuffer`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L259-L302) | Replays all updates missed by one acquired image. |
 | Format and extent configurations | [`selectRepresentativeFormats` and `generateSwapchainConfigs`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L550-L577) | Selects formats, checks supported parameters, and creates the configurations under test. |
 | Swapchain resource lifetime | [`initSwapchainResources` and `deinitSwapchainResources`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L752-L789) | Owns per-configuration rendering and synchronization resources. |
 | Acquire, submit, and present paths | [`IncrementalPresentTestInstance::render`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L823-L925) | Implements per-image state, region chaining, result checks, and semaphore rotation. |
 | Frame count and retry logic | [`IncrementalPresentTestInstance::iterate`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L927-L1007) | Runs each configuration and handles out-of-date or suboptimal results. |
-| Shader source | [`Programs::init`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1037-L1074) | Supplies the fixed quad vertex shader and frame-dependent fragment shader. |
+| Shader source | [`IncrementalPresentTestCase::initPrograms`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1044-L1078) | Supplies the fixed quad vertex shader and frame-dependent fragment shader. |
 | Family registration | [`createIncrementalPresentTests`](../../../modules/vulkan/wsi/vktWsiIncrementalPresentTests.cpp#L1087-L1182) | Defines every registered dimension and conditional scaling branch. |
 | WSI dispatcher | [`createTypeSpecificTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L52-L83) | Registers the test family under each platform branch. |
 | Platform properties | [`getPlatformProperties`](../../../framework/vulkan/vkWsiUtil.cpp#L83-L158) | Defines which platforms use window-size scaling. |

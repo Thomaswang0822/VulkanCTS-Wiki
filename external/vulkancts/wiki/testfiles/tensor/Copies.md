@@ -143,7 +143,7 @@ These are support decisions made by `checkSupport`; they do not represent failed
 | Linear copy instance | [`LinearTensorCopyTestInstance::iterate`](../../../modules/vulkan/tensor/vktTensorCopies.cpp#L135-L234) | Creates linear tensors, performs one copy, synchronizes, reads back, and compares. |
 | Optimal copy instance | [`OptimalTensorCopyTestInstance::iterate`](../../../modules/vulkan/tensor/vktTensorCopies.cpp#L314-L452) | Creates four tensors and performs the three-copy chain. |
 | Tensor category factory | [`createTests`](../../../modules/vulkan/tensor/vktTensorTests.cpp#L37-L49) | Registers `copies` below the `tensor` test category. |
-| Vulkan package registration | [`VulkanTestPackage::init`](../../../modules/vulkan/vktTestPackage.cpp#L1397-L1400) | Registers the `tensor` test category at the `dEQP-VK` package root. |
+| Vulkan package registration | [`VulkanTestPackage::init`](../../../modules/vulkan/vktTestPackage.cpp#L1454-L1457) | Registers the `tensor` test category at the `dEQP-VK` package root. |
 | Tensor parameters | [`TensorParameters`](../../../modules/vulkan/tensor/vktTensorTestsUtil.hpp#L68-L101) | Defines rank, element count, host data size, and packed detection. |
 | Host strided storage | [`StridedMemoryUtils`](../../../framework/vulkan/vkTensorMemoryUtil.hpp#L154-L317) | Fills logical elements and resolves coordinates through byte strides. |
 | Tensor upload, readback, and clear | [`vkTensorUtil.cpp`](../../../framework/vulkan/vkTensorUtil.cpp#L41-L189) | Defines direct host access, staging aliases, barriers, waits, and invalidation. |

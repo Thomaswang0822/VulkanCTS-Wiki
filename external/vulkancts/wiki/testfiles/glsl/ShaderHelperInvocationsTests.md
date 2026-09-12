@@ -551,7 +551,7 @@ void main (void)
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| GLSL test-category registration | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1274-L1279) | Adds the `helper_invocations` test family under `glsl`. |
+| GLSL test-category registration | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1323-L1328) | Adds the `helper_invocations` test family under `glsl`. |
 | Public factory | [`vktShaderHelperInvocationsTests.hpp`](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.hpp#L29-L34) | Declares the test-family factory. |
 | Behavior types and instance configuration | [`TestType` and constructor](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L55-L142) | Maps each leaf to its resource, descriptor, and pass structure. |
 | Runtime execution and verification | [`HelperInvocationsTestInstance::iterate()`](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L145-L448) | Creates resources, records both draws, reads the image back, and applies both host oracles. |

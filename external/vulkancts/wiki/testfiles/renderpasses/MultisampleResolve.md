@@ -162,19 +162,19 @@ void main (void)
 
 #### Additional Info
 
-- The pipeline layout exposes exactly one four-byte push-constant range to the fragment stage, and `drawCommands` pushes the current `m_sampleMask` immediately before drawing six vertices [pipeline layout](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L1665-L1680), [draw commands](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L696-L709).
-- The shared vertex shader procedurally emits a full-screen quad from `gl_VertexIndex`; it has no resources and does not vary with format, sample count, or resolve mode [vertex generation](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2812-L2821).
+- The pipeline layout exposes exactly one four-byte push-constant range to the fragment stage, and `drawCommands` pushes the current `m_sampleMask` immediately before drawing six vertices [pipeline layout](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L1665-L1680), [draw commands](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L697-L710).
+- The shared vertex shader procedurally emits a full-screen quad from `gl_VertexIndex`; it has no resources and does not vary with format, sample count, or resolve mode [vertex generation](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2813-L2822).
 - Resolve itself is fixed-function behavior. The shader deliberately contains no sampling or averaging operation; its only tested-data contribution is the known value and coverage mask consumed by the attachment resolve.
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|-----------------------------------------|----------|
-| Format channel class | Unsigned integer formats use `uvec4(255)`, signed integer formats use `ivec4(127)`, and floating/fixed-point formats use `vec4(1.0)`. | [channel-class specialization](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2871-L2889) |
-| Attachment count | Basic `RESOLVE` emits four output declarations and stores; `COMPATIBILITY` emits one. The generator creates one output at each location from zero through `attachmentCount - 1`. | [output generation loop](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2895-L2907), [registered configurations](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3167-L3169) |
-| Sample count | The fragment source is unchanged for 2x, 4x, and 8x MSAA. The host changes the rasterization sample count and cycles a correspondingly wider runtime mask. | [sample-count registration](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3138-L3168), [mask iteration](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L1368-L1530) |
-| Layer count | The fragment source stays unchanged. Layer counts 3 and 6 add a geometry shader that broadcasts each triangle and assigns `gl_Layer`. | [geometry-shader branch](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2823-L2853) |
-| `MAX_ATTACHMENTS` test type | This shape replaces the mask-controlled fragment shader with two generated fragment stages: the first writes a format-specific constant to 4, 8, or 16 attachments, and the second combines pairs of resolved input attachments. | [max-attachments shader generation](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2909-L2990) |
+| Format channel class | Unsigned integer formats use `uvec4(255)`, signed integer formats use `ivec4(127)`, and floating/fixed-point formats use `vec4(1.0)`. | [channel-class specialization](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2872-L2890) |
+| Attachment count | Basic `RESOLVE` emits four output declarations and stores; `COMPATIBILITY` emits one. The generator creates one output at each location from zero through `attachmentCount - 1`. | [output generation loop](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2896-L2908), [registered configurations](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3167-L3169) |
+| Sample count | The fragment source is unchanged for 2x, 4x, and 8x MSAA. The host changes the rasterization sample count and cycles a correspondingly wider runtime mask. | [sample-count registration](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3817-L3847), [mask iteration](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L1369-L1531) |
+| Layer count | The fragment source stays unchanged. Layer counts 3 and 6 add a geometry shader that broadcasts each triangle and assigns `gl_Layer`. | [geometry-shader branch](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2824-L2854) |
+| `MAX_ATTACHMENTS` test type | This shape replaces the mask-controlled fragment shader with two generated fragment stages: the first writes a format-specific constant to 4, 8, or 16 attachments, and the second combines pairs of resolved input attachments. | [max-attachments shader generation](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2910-L2991) |
 
 #### SPIR-V
 
@@ -256,7 +256,7 @@ void main (void)
 
 ## Runtime Execution and Result Checking
 
-Each `RESOLVE` test case instance owns its own multisample images, single-sample (resolve) images, render pass, framebuffer, pipeline, and host-visible readback buffers ([constructor](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L658-L694)).
+Each `RESOLVE` test case instance owns its own multisample images, single-sample (resolve) images, render pass, framebuffer, pipeline, and host-visible readback buffers ([constructor](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L659-L695)).
 
 Per mask step:
 
@@ -268,7 +268,7 @@ Per mask step:
 
 The `MAX_ATTACHMENTS` instance runs once (no mask cycling), executing two subpasses and copying all `attachmentCount/2` output attachments back.
 
-Final pass/fail is decided host-side by [`verify`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L1008) for `RESOLVE`/`COMPATIBILITY` and [`MaxAttachmenstsRenderPassTestInstance::verify`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2263) for `MAX_ATTACHMENTS`. Failures are collected in a `tcu::ResultCollector` and the aggregate status is returned when the full mask range has been exercised.
+Final pass/fail is decided host-side by [`verify`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L1009) for `RESOLVE`/`COMPATIBILITY` and [`MaxAttachmenstsRenderPassTestInstance::verify`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2264) for `MAX_ATTACHMENTS`. Failures are collected in a `tcu::ResultCollector` and the aggregate status is returned when the full mask range has been exercised.
 
 ## Failure Meaning
 
@@ -312,7 +312,7 @@ Final pass/fail is decided host-side by [`verify`](../../../modules/vulkan/rende
 
 ### Requirement-based pruning
 
-Defined in [`checkSupport`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2995-L3070):
+Defined in [`checkSupport`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2996-L3071):
 
 - `VK_KHR_maintenance5` is required for `VK_FORMAT_A8_UNORM_KHR`.
 - `DEVICE_CORE_FEATURE_GEOMETRY_SHADER` is required when `layerCount > 1` (layered rendering via geometry shader).
@@ -324,8 +324,8 @@ Defined in [`checkSupport`](../../../modules/vulkan/renderpass/vktRenderPassMult
 
 ### Design-based pruning
 
-- `layerCount == 6` with `sampleCount == 8` is skipped because it is too slow ([source](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3159-L3161)).
-- When a secondary command buffer is used, `sampleCount > 2` or `layerCount > 3` combinations are skipped to reduce test volume ([source](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3163-L3165)).
+- `layerCount == 6` with `sampleCount == 8` is skipped because it is too slow ([source](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3838-L3840)).
+- When a secondary command buffer is used, `sampleCount > 2` or `layerCount > 3` combinations are skipped to reduce test volume ([source](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3842-L3844)).
 - The `baseLayer1`, `resolve_level`, and `MAX_ATTACHMENTS`/`COMPATIBILITY` shapes are monolithic-pipeline-only or conditionally registered (see `## Behavior Parameters`); graphics pipeline library repeats only the `MAX_ATTACHMENTS` dynamic-rendering-local-read subset.
 
 ## Key Takeaways

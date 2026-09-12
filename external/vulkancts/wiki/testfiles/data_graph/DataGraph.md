@@ -27,7 +27,7 @@ data_graph
 └── specialization_constants
 ```
 
-The top-level Vulkan test package adds `data_graph` with `dataGraph::createTests` in [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1398-L1400). The dispatcher adds eight direct children in order in [`vktDataGraphTests.cpp`](../../../modules/vulkan/data_graph/vktDataGraphTests.cpp#L39-L55). The mustpass file contains the corresponding prefixes in [`data-graph.txt`](../../../mustpass/main/vk-default/data-graph.txt#L1-L10176).
+The top-level Vulkan test package adds `data_graph` with `dataGraph::createTests` in [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1455-L1457). The dispatcher adds eight direct children in order in [`vktDataGraphTests.cpp`](../../../modules/vulkan/data_graph/vktDataGraphTests.cpp#L39-L55). The mustpass file contains the corresponding prefixes in [`data-graph.txt`](../../../mustpass/main/vk-default/data-graph.txt#L1-L10176).
 
 ## Parameter Dimensions and Observed Values
 

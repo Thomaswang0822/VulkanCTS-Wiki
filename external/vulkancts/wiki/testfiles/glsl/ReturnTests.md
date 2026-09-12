@@ -14,7 +14,7 @@
 
 ## Registration Hierarchy
 
-`createReturnTests()` adds one test family named `return` below the `glsl` test category in [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1268). The implementation registers all leaves directly under that family.
+`createReturnTests()` adds one test family named `return` below the `glsl` test category in [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1302-L1317). The implementation registers all leaves directly under that family.
 
 ```text
 glsl.return
@@ -361,6 +361,6 @@ The inspected return test source has no return-specific `checkSupport()` overrid
 | `ShaderRenderCaseInstance::iterate()` | [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L773-L805) | Renders, builds the reference image, compares images, and returns the test status. |
 | Reference image generation | [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2603-L2719) | Defines vertex and fragment CPU reference construction. |
 | Image comparison | [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2721-L2727) | Defines fuzzy image comparison and its threshold path. |
-| GLSL package registration | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1268) | Places `return` below the `glsl` test category. |
+| GLSL package registration | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1302-L1317) | Places `return` below the `glsl` test category. |
 | Mustpass registration | [Vulkan](../../../mustpass/main/vk-default/glsl.txt#L14608-L14645), [Vulkan SC](../../../mustpass/main/vksc-default/glsl.txt#L13687-L13724) | Confirms the 38 registered leaves in both default lists. |
 | Shader termination rule | [Vulkan Shaders chapter](../../../../../external/vulkan-docs/src/chapters/shaders.adoc#shaders-termination) | Provides the spec statement for `OpReturn` termination. |

@@ -39,7 +39,7 @@ query_pool.statistics_query
 └── multiple_geom_stats
 ```
 
-[`QueryPoolStatisticsTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L6211) creates these 17 direct intermediate nodes. [`query-pool.txt`](../../../mustpass/main/vk-default/query-pool.txt) contains 17,769 registered leaves below `dEQP-VK.query_pool.statistics_query`; the tree above is therefore a compact view of a much larger generated matrix.
+[`QueryPoolStatisticsTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L6244) creates these 17 direct intermediate nodes. [`query-pool.txt`](../../../mustpass/main/vk-default/query-pool.txt) contains 17,769 registered leaves below `dEQP-VK.query_pool.statistics_query`; the tree above is therefore a compact view of a much larger generated matrix.
 
 ## Parameter Dimensions and Observed Values
 
@@ -51,11 +51,11 @@ query_pool.statistics_query
 | Result layout | 32-bit or 64-bit values, optional availability, destination offset, valid or zero stride | Changes record size, placement, and decoding. |
 | Reset workflow | Normal, host reset, reset before copy, reset after copy | Determines whether CTS expects a completed value or an unavailable result. |
 | Work shape | Compute group and local sizes; graphics topology, stage configuration, clear operation, primitive restart, front-and-back culling, and repeated draws | Supplies the expected count or lower bound. |
-| Queue selection | Each device queue exposed by the context for compute-invocation tests | Repeats the compute query workload on every available queue and fails on the first non-passing result. |
+| Queue selection | Each device queue exposed by the context for compute-invocation tests | Repeats the compute query workload on every available queue and collects the per-queue outcomes, so one failing queue does not stop the remaining queues from running ([queue loop and result collection](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L717-L728)). |
 
 The general generator iterates host-get and command-copy modes, 32-bit and 64-bit results, and destination-offset choices. It suppresses destination-offset cases for host retrieval because that API has no destination-offset parameter. It permits zero stride only for command copies. See [`QueryPoolStatisticsTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L6388).
 
-The standard graphics repeat vector is `{1, 3, 5, 8, 15, 24}`. The test uses it to check scalable counter behavior rather than treating one draw as evidence for all counts. See [`QueryPoolStatisticsTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L6225).
+The standard graphics repeat vector is `{1, 3, 5, 8, 15, 24}`. The test uses it to check scalable counter behavior rather than treating one draw as evidence for all counts. See [`QueryPoolStatisticsTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L6258).
 
 ### Counter families: selected pipeline statistics
 
@@ -65,13 +65,13 @@ Topology expands the graphics cases across point, line, triangle, adjacency, and
 
 ### Command-buffer modes: placement and inheritance
 
-`PRIMARY` records the test in a primary command buffer. `SECONDARY` moves part of the work into a secondary command buffer. `SECONDARY_INHERITED` also supplies inherited pipeline-statistics information through `VkCommandBufferInheritanceInfo`. The source's `beginSecondaryCommandBuffer()` sets that inheritance field before secondary recording. See [`beginSecondaryCommandBuffer()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L400).
+`PRIMARY` records the test in a primary command buffer. `SECONDARY` moves part of the work into a secondary command buffer. `SECONDARY_INHERITED` also supplies inherited pipeline-statistics information through `VkCommandBufferInheritanceInfo`. The source's `beginSecondaryCommandBuffer()` sets that inheritance field before secondary recording. See [`beginSecondaryCommandBuffer()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L401).
 
 ### Result transport: host reads, copies, and records
 
-Host retrieval uses `vkGetQueryPoolResults`; command-copy cases use `vkCmdCopyQueryPoolResults`. The source decodes both paths into shared result-vector forms. `cmdCopyQueryPoolResults()` selects the buffer command or, when a device address is supplied in non-SC builds, `vkCmdCopyQueryPoolResultsToMemoryKHR`. See [`cmdCopyQueryPoolResults()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L264).
+Host retrieval uses `vkGetQueryPoolResults`; command-copy cases use `vkCmdCopyQueryPoolResults`. The source decodes both paths into shared result-vector forms. `cmdCopyQueryPoolResults()` selects the buffer command or, when a device address is supplied in non-SC builds, `vkCmdCopyQueryPoolResultsToMemoryKHR`. See [`cmdCopyQueryPoolResults()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L265).
 
-For availability records, the source uses `(value, availability)` pairs. A requested destination offset leaves a sentinel-filled record before the copied result. The reset-buffer verifier fails if that preceding record changes. See [`StatisticQueryTestInstance::verifyUnavailable()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L589).
+For availability records, the source uses `(value, availability)` pairs. A requested destination offset leaves a sentinel-filled record before the copied result. The reset-buffer verifier fails if that preceding record changes. See [`StatisticQueryTestInstance::verifyUnavailable()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L590).
 
 ### Reset workflows: result lifetime
 
@@ -87,7 +87,7 @@ For a normal workflow, CTS resets, begins the query, submits work, ends the quer
 
 ### Host reset: completed then unavailable
 
-Host-reset cases first read a completed value with availability enabled. CTS requires the expected value and a nonzero availability field. It then calls `vkResetQueryPool`, requests the result without wait or partial flags, and requires `VK_NOT_READY` with availability zero. The source retains the prior value in the local result storage and checks that the unavailable call did not overwrite it. See [`ComputeInvocationsTestInstance::executeTest()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L881).
+Host-reset cases first read a completed value with availability enabled. CTS requires the expected value and a nonzero availability field. It then calls `vkResetQueryPool`, requests the result without wait or partial flags, and requires `VK_NOT_READY` with availability zero. The source retains the prior value in the local result storage and checks that the unavailable call did not overwrite it. See [`ComputeInvocationsTestInstance::executeTest()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L889).
 
 ### Reset before copy: unavailable copy record
 
@@ -95,9 +95,9 @@ These cases end the query, reset it in the command buffer, then copy the result 
 
 ### Multiple queries and multiple geometry statistics
 
-`multiple_queries` enables input-assembly vertex and primitive statistics plus either fragment or vertex invocations. It combines partial and wait flags, host retrieval or command copying, destination offset, and selected zero-stride cases. The generator omits partial-plus-wait combinations because a query intentionally left unissued could wait indefinitely, and it omits zero stride for partial multi-query copies. See [`QueryPoolStatisticsTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L8942).
+`multiple_queries` enables input-assembly vertex and primitive statistics plus either fragment or vertex invocations. It combines partial and wait flags, host retrieval or command copying, destination offset, and selected zero-stride cases. The generator omits partial-plus-wait combinations because a query intentionally left unissued could wait indefinitely, and it omits zero stride for partial multi-query copies. See [`QueryPoolStatisticsTests::init()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L8950).
 
-`multiple_geom_stats` has eight leaves: host get or copy, availability off or on, and inheritance off or on. It enables both geometry-shader invocations and geometry-shader primitives, checks each result item against a lower bound, then checks the rendered color image. See [`MultipleGeomStatsTestInstance::iterate()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L4901).
+`multiple_geom_stats` has eight leaves: host get or copy, availability off or on, and inheritance off or on. It enables both geometry-shader invocations and geometry-shader primitives, checks each result item against a lower bound, then checks the rendered color image. See [`MultipleGeomStatsTestInstance::iterate()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L4909).
 
 ## Shader Analysis
 
@@ -160,18 +160,18 @@ void main (void) {
 
 #### Additional Info
 
-- `QueryPoolComputeStatsTest` always generates and executes three programs. This walkthrough uses primary shader `compute_0`; `compute_1` and `compute_2` retain the same buffer/indexing body but use different local-size and workgroup-size decompositions, each totaling 63 invocations. See [`QueryPoolComputeStatsTest` construction](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L3976) and [`initPrograms()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L4033).
-- CTS clears the storage buffer before each program, dispatches while the query is active, requires the copied query result to equal the local-size/workgroup-size product, and then checks every buffer element against its index. See [`ComputeInvocationsTestInstance::executeTest()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L748).
+- `QueryPoolComputeStatsTest` always generates and executes three programs. This walkthrough uses primary shader `compute_0`; `compute_1` and `compute_2` retain the same buffer/indexing body but use different local-size and workgroup-size decompositions, each totaling 63 invocations. See [`QueryPoolComputeStatsTest` construction](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L3984) and [`initPrograms()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L4041).
+- CTS clears the storage buffer before each program, dispatches while the query is active, requires the copied query result to equal the local-size/workgroup-size product, and then checks every buffer element against its index. See [`ComputeInvocationsTestInstance::executeTest()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L756).
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Generated program (`compute_0`, `compute_1`, `compute_2`) | Only the `layout(local_size_*)` values vary: `(2,2,2)`, `(1,1,1)`, and `(3,7,3)`. Their matching dispatch group counts are `(2,2,2)`, `(3,7,3)`, and `(1,1,1)`, so the expected query totals are 64, 63, and 63. | [`QueryPoolComputeStatsTest` parameter arrays](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L3976) |
-| Result width (`32bits` / `64bits`) | No shader change; this controls `VkQueryResultFlags` and copied query-record width. | [`executeTest()` result-copy setup](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L795) |
-| Retrieval (`getquerypoolresults` / `cmdcopyquerypoolresults`) | No shader change; the completed query is read through the host API or copied to a buffer by command. | [`executeTest()` result retrieval](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L861) |
-| Recording mode (`primary` / secondary variants) | The generated compute programs are unchanged; the variant changes which command buffer records or inherits the query/dispatch work. | [`QueryPoolComputeStatsTest` case construction](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L6417) |
-| Reset, destination-offset, stride, compute-queue, and device-address variants | These alter query lifecycle, result placement, queue selection, or copy command selection without changing the generated shader body. | [`QueryPoolComputeStatsTest` parameters](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L3967) |
+| Generated program (`compute_0`, `compute_1`, `compute_2`) | Only the `layout(local_size_*)` values vary: `(2,2,2)`, `(1,1,1)`, and `(3,7,3)`. Their matching dispatch group counts are `(2,2,2)`, `(3,7,3)`, and `(1,1,1)`, so the expected query totals are 64, 63, and 63. | [`QueryPoolComputeStatsTest` parameter arrays](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L3984) |
+| Result width (`32bits` / `64bits`) | No shader change; this controls `VkQueryResultFlags` and copied query-record width. | [`executeTest()` result-copy setup](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L803) |
+| Retrieval (`getquerypoolresults` / `cmdcopyquerypoolresults`) | No shader change; the completed query is read through the host API or copied to a buffer by command. | [`executeTest()` result retrieval](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L869) |
+| Recording mode (`primary` / secondary variants) | The generated compute programs are unchanged; the variant changes which command buffer records or inherits the query/dispatch work. | [`QueryPoolComputeStatsTest` case construction](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L6459-L6530) |
+| Reset, destination-offset, stride, compute-queue, and device-address variants | These alter query lifecycle, result placement, queue selection, or copy command selection without changing the generated shader body. | [`QueryPoolComputeStatsTest` parameters](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L3979-L3982) |
 
 #### SPIR-V
 
@@ -288,9 +288,9 @@ void main (void) {
 4. It obtains results from host memory or the copied host-visible buffer.
 5. It applies the mode-specific check: exact value, lower bound, availability state, result code, record placement, or image output.
 
-Compute validation compares the query result with the product of local and group dimensions, then checks every storage-buffer element. See [`ComputeInvocationsTestInstance::executeTest()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L878).
+Compute validation compares the query result with the product of local and group dimensions, then checks every storage-buffer element. See [`ComputeInvocationsTestInstance::executeTest()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L886).
 
-The multi-statistic validator decodes each query's enabled statistic bits in bit order. It requires availability after a waited non-partial request, rejects available values below the expected minimum, and bounds unavailable partial values by the expected maximum. See [`VertexShaderMultipleQueryTestInstance::checkResult()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L4545).
+The multi-statistic validator decodes each query's enabled statistic bits in bit order. It requires availability after a waited non-partial request, rejects available values below the expected minimum, and bounds unavailable partial values by the expected maximum. See [`VertexShaderMultipleQueryTestInstance::checkResult()`](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L4553).
 
 ## Failure Meaning
 
@@ -346,8 +346,8 @@ These are source-level matrix decisions, not missing mustpass entries. The mustp
 
 ## Source Reference Appendix
 
-- [Statistics-query implementation and generator](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L6199)
-- [Common statistics and host-reset support checks](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L505)
-- [Query-pool construction and result helpers](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L177)
+- [Statistics-query implementation and generator](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L6207)
+- [Common statistics and host-reset support checks](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L506)
+- [Query-pool construction and result helpers](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L178)
 - [Canonical mustpass entries](../../../mustpass/main/vk-default/query-pool.txt)
 - [Vulkan query result retrieval rules](../../../../vulkan-docs/src/chapters/queries.adoc#queries-pipestats)

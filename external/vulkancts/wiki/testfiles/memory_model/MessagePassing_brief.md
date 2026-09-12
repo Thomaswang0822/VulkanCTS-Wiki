@@ -423,8 +423,8 @@ that `transitive` appears after `shared` entries in the file and includes both `
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Package-level registration | [vktTestPackage.cpp](../../../modules/vulkan/vktTestPackage.cpp#L1368-L1379) | Shows `memory_model` is added as a Vulkan CTS root child. |
-| Vulkan SC registration | [vktTestPackage.cpp](../../../modules/vulkan/vktTestPackage.cpp#L1413-L1447) | Shows the same `memory_model` factory is also registered for Vulkan SC builds. |
+| Package-level registration | [vktTestPackage.cpp](../../../modules/vulkan/vktTestPackage.cpp#L1425-L1436) | Shows `memory_model` is added as a Vulkan CTS root child. |
+| Vulkan SC registration | [vktTestPackage.cpp](../../../modules/vulkan/vktTestPackage.cpp#L1470-L1556) | Shows the same `memory_model` factory is also registered for Vulkan SC builds. |
 | Factory declaration | [vktMemoryModelTests.hpp](../../../modules/vulkan/memory_model/vktMemoryModelTests.hpp#L30-L35) | Declares the memory-model group factory. |
 | Case parameters and support gates | [vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L58-L121), [vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L181-L365) | Defines the test dimensions and feature/memory requirements. |
 | Regular shader generation | [vktMemoryModelMessagePassing.cpp](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L368-L1030) | Generates `message_passing` and `write_after_read` GLSL. |

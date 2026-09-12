@@ -138,3 +138,98 @@ Completed categories not touched by upstream source changes in this sync:
 - Chinese synchronization/publishing was not performed in this branch.
 - `vkcts-wiki-pages/` remained untouched.
 - The next process improvement is to redesign `vkcts-wiki-sync` around a smaller pipeline: establish the merge range and diff artifact, classify changed files into unrelated/framework/category-impact groups, resolve framework-impact items, refresh category-impact items, run wiki-writer validators, update the case-lookup database, and only then synchronize English changes to Chinese pages one worker per category under wiki-publisher rules.
+
+## 2026-09-10 Sync: upstream `main` into `merge_main_26-09-10`
+
+### Git Baseline
+
+- Integration branch: `merge_main_26-09-10`.
+- Long-lived target branch: `vkcts-wiki`.
+- Merge commit: `4bfe03344bbfbab939dcb0232196a8d9b4343e89` (`Merge branch 'main' into merge_main_26-09-10`).
+- Merge parents:
+  - local wiki parent: `4cb10a0ee5da3f43582293ef9a47976035d14bc0`;
+  - upstream main parent: `659bbe6987197b4ff7ac20011261b92009286100`.
+- Upstream range: `cf7edb26d3be2d8763595ed08fdc41f3c1b1966f..659bbe6987197b4ff7ac20011261b92009286100`
+  (`git merge-base START END` == `START`, so the range is contiguous with the previous sync).
+- 28 upstream commits, 74 changed paths, 5285 insertions, 1258 deletions; no renames or deletions.
+- Delta artifact: [git_diff_stat.txt](git_diff_stat.txt).
+- Work-in-progress was committed by the user as `86b1ea2b8a` ("Update sync: init + some progress").
+- Baseline validator state before any sync edit: structure and registration PASS for every affected category;
+  the whole-wiki source line-reference sweep reported 177 errors, all pointing into files touched by this range.
+- Full classification and per-path decisions: [TODOs_after_merge.md](TODOs_after_merge.md).
+
+### Upstream Themes and Wiki Work
+
+- `renderpasses`: new `vktDynamicRenderingSuspendResumeTestsUtil.{cpp,hpp}` plus `custom_resolve.suspend_resume*`
+  and `..._remap_first` coverage in [CustomResolve.md](../testfiles/renderpasses/CustomResolve.md);
+  `mixed_sample_count_subpasses` in [MultisampleResolve.md](../testfiles/renderpasses/MultisampleResolve.md);
+  renderpass2/dynamic-rendering extension gates moved into `checkSupport()` for
+  [DepthStencilResolve.md](../testfiles/renderpasses/DepthStencilResolve.md),
+  [FragmentDensityMap.md](../testfiles/renderpasses/FragmentDensityMap.md) and
+  [LowResolutionZ.md](../testfiles/renderpasses/LowResolutionZ.md); gateway
+  [renderpasses.md](../categories/renderpasses.md) rows and the new shared-util note.
+- `fragment_shading_rate`: `renderpass2.monolithic.ds_baselayer.*` and `ds_baselevel_baselayer.*` in
+  [Basic.md](../testfiles/fragment_shading_rate/Basic.md).
+- `dgc`: new push-index-heap family documented in a new page
+  [ComputePushIndexHeapExt.md](../testfiles/dgc/ComputePushIndexHeapExt.md) plus gateway rows.
+- `robustness`: 8-bit/16-bit index correctness for `bind_index_buffer2.type.*` in
+  [IndexAccess.md](../testfiles/robustness/IndexAccess.md) and the gateway.
+- `wsi`: "check requirements in `checkSupport` part 13" across 15 WSI sources, refreshed in 14 Level-3 pages plus
+  the `wsi` gateway.
+- `pipeline`, `transform_feedback`, `memory`, `ssbo`, `glsl`, `cooperative_vector`, `query_pool`: content updates
+  proportional to their upstream deltas; `api`, `binding_model`, `compute`, and `sc` were reviewed and needed no
+  content change beyond line-reference repair.
+- Framework: `--deqp-amber-test` / `--deqp-amber-list-file` and the new top-level `dEQP-VK-amber` package are
+  documented in [CTS_Framework.md](../CTS_Framework.md) section 1.3 and in
+  [AmberGlslTests.md](../testfiles/glsl/AmberGlslTests.md).
+
+### Line-Reference Repair and Validator Blind Spot
+
+- 161 checker-proposed symbol-range repairs plus 16 individually resolved out-of-bounds references brought the
+  mechanical sweep from 177 findings to zero.
+- A follow-up audit found that `check_line_refs.py` only reports partial overlap, so a reference that drifted
+  completely outside its named function is never reported. A disjoint-range audit produced 597 candidates, of which
+  38 were in files touched by this merge; 27 anchors were relocated against current source through an explicit
+  (page, old anchor, new anchor, expected count) table, and the residual 7 are class/constructor alias false
+  positives or pre-existing appendix staleness.
+- Labels were relabeled where upstream refactored a function name (`vktSSBOLayoutCase.cpp` `iterate()` -> `queuePass()`
+  wrapper and `queuePassImpl()` body).
+
+### Validation Summary
+
+- `verify_english_structure.py` over the 16 affected categories: PASS, 286 pages, 0 findings.
+- `verify_registration_paths.py` over the same 16 categories: "All paths verified successfully".
+- Whole-wiki `check_line_refs.py`: `errors=0 warnings=0 findings=0`.
+- `validate_wiki_links.py` over the 97 changed wiki pages: only the three pre-existing findings listed below.
+- Lookup DB full rebuild: 55 categories, `site/mappings.json` 13474 -> 13485 mappings; the 11 added prefixes are the
+  new `dgc.ext.compute.push_index_heap`, `fragment_shading_rate ... ds_base*layer`, `custom_resolve` (primary and
+  partial-secondary x monolithic/fast_lib/shader_objects), `multisample_resolve.mixed_sample_count`, and
+  `robustness.bind_index_buffer2.type` families, all owned by the pages updated in this sync.
+- Lookup unit tests: 23 passed. `py_compile` over `build.py`, `lookup.py`, and `build_helper/*.py`: passed.
+- Runtime coverage over the changed mustpass inputs: 295364/295364 leaves resolved
+  (`vk-default` renderpasses, dgc, fragment-shading-rate, robustness; `vksc-default` sc).
+- `git diff --check`: clean (only repository-wide LF/CRLF checkout notices).
+
+### Unresolved Findings
+
+- [unresolved_findings/wsi.md](../unresolved_findings/wsi.md) links `wsi_audit_summary.md` (twice) and
+  `draw_unresolved_findings.md`; neither target exists and neither has ever been committed. The sibling audit page is
+  `draw.md`, and the WSI shared summary was an uncommitted scratch document. Present already at `4cb10a0ee5`, so the
+  audit file was left untouched; the link owner should repoint or remove them.
+- Two links in the historical 2026-05 entry of this log are stale: a pipeline mustpass path that has since moved
+  again, and `verify_registration_paths.py` under the removed `wiki-analyzer` skill directory. Historical log text
+  was left as written.
+- `check_line_refs.py` blind spots worth a follow-up change: disjoint ranges are never reported, a class declaration
+  is recorded as a same-named constructor, and links labeled with a file name or a phrase are not symbol-checked.
+- `binding_model/DescriptorHeap.md` and its brief carry an appendix table whose `ReservedHeap` and `Spirv` rows are
+  stale by roughly 775 lines; only the two `iterate()` rows were repaired because this merge touched the source.
+- The disjoint-range audit reported 559 further candidates in files untouched by this merge; that backlog belongs to
+  `wiki-auditor`, not to a merge sync.
+- `vksc-default` mustpass for `renderpasses` and `fragment_shading_rate` is outside `case_lookup` scope by design
+  (only the `sc` category reads `vksc-default`), so those leaves have no lookup owner and were excluded from the
+  coverage run above.
+
+### Scope Boundary and Follow-Up
+
+- Chinese synchronization was not authorized and was not performed; `vkcts-wiki-pages/` remained untouched.
+- C/C++ source, mustpass files, and CMakeLists remained read-only for this workflow.

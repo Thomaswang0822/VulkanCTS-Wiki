@@ -2,7 +2,7 @@
 
 **Core question:** Does the implementation preserve the swapchain contract through creation, use, replacement, destruction, image queries, acquisition pressure, and object metadata operations?
 
-- This page covers the `swapchain` test family implemented and registered by [`vktWsiSwapchainTests.cpp`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L340-L2973).
+- This page covers the `swapchain` test family implemented and registered by [`vktWsiSwapchainTests.cpp`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L319-L3015).
 - The source groups eight kinds of behavior under one file: parameterized creation, allocation-failure handling, rendering and presentation, resizing, destruction and retirement, image enumeration, bounded acquisition, and private data.
 - The same hierarchy is instantiated for each WSI platform. This page uses `wsi.headless.swapchain` as the representative root while preserving the shared child names.
 - Most checks concern host-visible API results and object lifetime. The rendering cases use a fixed triangle shader as a workload but do not compare pixels.
@@ -37,13 +37,13 @@ The `extended_flags` child is a direct swapchain family that exercises the exten
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
 | WSI platform | `xlib`, `xcb`, `wayland`, `android`, `win32`, `metal`, `headless`, `direct_drm`, `direct` | Selects native window, surface, and platform extent behavior. Availability depends on the build and mustpass configuration. | [WSI type names](../../../framework/vulkan/vkWsiUtil.cpp#L64-L70), [WSI dispatcher](../../../modules/vulkan/wsi/vktWsiTests.cpp#L76-L83) |
-| Test family behavior | `create`, `simulate_oom`, `render`, `modify`, `destroy`, `get_images`, `acquire`, `private_data` | Chooses the swapchain contract being exercised. This is the primary behavioral axis. | [`createSwapchainTests`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L2953-L2973) |
-| Creation dimension | `min_image_count`, `image_format`, `image_extent`, `image_array_layers`, `image_usage`, `image_sharing_mode`, `pre_transform`, `composite_alpha`, `present_mode`, `clipped`, `exclusive_nonzero_queues` | Changes one `VkSwapchainCreateInfoKHR` field at a time from a valid baseline. `create` and `simulate_oom` register all eleven values; `private_data` omits `image_extent`. | [`populateSwapchainGroup`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L1523-L1540), [`populateSwapchainPrivateDataGroup`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L1024-L1033) |
-| Image-alias creation | `image_swapchain_create_info`, `image_swapchain_create_info_concurrent` | Creates application-owned images associated with swapchain memory, using exclusive or concurrent queue-family sharing. | [`populateSwapchainGroup`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L1523-L1541) |
-| Render acquisition API | no suffix, suffix `2` | No suffix uses `vkAcquireNextImageKHR`; suffix `2` uses `vkAcquireNextImage2KHR`. | [`populateRenderGroup`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L2880-L2907) |
-| Render topology | `basic`, `device_group`, `device_group2`, `2swapchains`, `10swapchains`, plus suffixed variants | Selects one swapchain, a device-group path, or a presentation batch containing two or ten swapchains. | [`populateRenderGroup`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L2880-L2907) |
-| Resize extent | capability-clamped `128x128`, `256x256`, `512x512` | Replaces and renders swapchains at half, equal, and double the desired `256x256` size. Duplicate sizes can result after clamping. | [`getSwapchainSizeSequence`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L2368-L2382) |
-| Exhausted-image timeout | `0`, `50000000` ns | Selects the non-waiting `VK_NOT_READY` path or the finite-wait `VK_TIMEOUT` path for one extra acquisition request. | [acquisition-limit tests](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L2768-L2868) |
+| Test family behavior | `create`, `simulate_oom`, `render`, `modify`, `destroy`, `get_images`, `acquire`, `private_data` | Chooses the swapchain contract being exercised. This is the primary behavioral axis. | [`createSwapchainTests`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L3060-L3084) |
+| Creation dimension | `min_image_count`, `image_format`, `image_extent`, `image_array_layers`, `image_usage`, `image_sharing_mode`, `pre_transform`, `composite_alpha`, `present_mode`, `clipped`, `exclusive_nonzero_queues` | Changes one `VkSwapchainCreateInfoKHR` field at a time from a valid baseline. `create` and `simulate_oom` register all eleven values; `private_data` omits `image_extent`. | [`populateSwapchainGroup`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L1561-L1584), [`populateSwapchainPrivateDataGroup`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L1050-L1061) |
+| Image-alias creation | `image_swapchain_create_info`, `image_swapchain_create_info_concurrent` | Creates application-owned images associated with swapchain memory, using exclusive or concurrent queue-family sharing. | [`populateSwapchainGroup`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L1561-L1584) |
+| Render acquisition API | no suffix, suffix `2` | No suffix uses `vkAcquireNextImageKHR`; suffix `2` uses `vkAcquireNextImage2KHR`. | [`populateRenderGroup`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L2982-L3012) |
+| Render topology | `basic`, `device_group`, `device_group2`, `2swapchains`, `10swapchains`, plus suffixed variants | Selects one swapchain, a device-group path, or a presentation batch containing two or ten swapchains. | [`populateRenderGroup`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L2982-L3012) |
+| Resize extent | capability-clamped `128x128`, `256x256`, `512x512` | Replaces and renders swapchains at half, equal, and double the desired `256x256` size. Duplicate sizes can result after clamping. | [`getSwapchainSizeSequence`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L2470-L2484) |
+| Exhausted-image timeout | `0`, `50000000` ns | Selects the non-waiting `VK_NOT_READY` path or the finite-wait `VK_TIMEOUT` path for one extra acquisition request. | [acquisition-limit tests](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L2808-L2908) |
 
 The creation generator gives each dimension a source-specific value set:
 
@@ -186,7 +186,7 @@ The rendering-related cases load fixed shaders from `WsiTriangleRenderer::getPro
 
 ### Requirement-based pruning
 
-- All cases require the platform surface extensions and `VK_KHR_swapchain`.
+- All cases require the platform surface extensions and `VK_KHR_swapchain`; [`commonCheckSupport`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L205-L213) enforces both before instance creation.
 - Concurrent-sharing creation needs at least two compatible queue families. The image-alias concurrent case also creates a second queue.
 - `vkAcquireNextImage2KHR`, image-alias binding, and device-group paths require the relevant device-group functionality. The source checks `VK_KHR_swapchain` revision 69 for structures introduced with that revision. `device_group2` also requires at least two physical devices in the selected group.
 - `private_data` requires the `privateData` feature and enables `VK_EXT_private_data`.
@@ -216,8 +216,8 @@ These checks remove cases that the selected platform or implementation cannot su
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Family registration | [`createSwapchainTests`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L2953-L2973) | Registers the eight direct children shown in the hierarchy. |
-| Creation dimension names and values | [`TestDimension` and `generateSwapchainParameterCases`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L340-L605) | Defines the generated matrix and its valid baseline. |
+| Family registration | [`createSwapchainTests`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L3060-L3084) | Registers the eight direct children shown in the hierarchy. |
+| Creation dimension names and values | [`TestDimension` and `generateSwapchainParameterCases`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L319-L584) | Defines the generated matrix and its valid baseline. |
 | Normal creation | [`createSwapchainTest`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L607-L747) | Checks image properties, expected OOM pressure cases, and swapchain creation. |
 | Private data | [`createSwapchainPrivateDataTest`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L764-L903) | Implements slot creation, initial-value checks, writes, and readback. |
 | Simulated OOM | [`createSwapchainSimulateOOMTest`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L910-L1025) | Injects failures and validates allocation callbacks. |
@@ -225,7 +225,7 @@ These checks remove cases that the selected platform or implementation cannot su
 | Swapchain-memory image aliases | [`testImageSwapchainCreateInfo`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L1342-L1554) | Creates and binds application images to swapchain memory. |
 | Multi-swapchain rendering | [`multiSwapchainRenderTest`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L1690-L1850) | Batches two or ten swapchains into presentation calls. |
 | Device-group rendering | [`deviceGroupRenderTest`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L1872-L2072), [`deviceGroupRenderTest2`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L2104-L2468) | Implements local and split-instance/remote device-group variants. |
-| Resize, image query, lifetime, and acquisition | [`resizeSwapchainTest` through `acquireTooManyTimeoutTest`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L2384-L2868) | Owns the remaining host-side behavior checks. |
+| Resize, image query, lifetime, and acquisition | [`resizeSwapchainTest` through `acquireTooManyTimeoutTest`](../../../modules/vulkan/wsi/vktWsiSwapchainTests.cpp#L2424-L2908) | Owns the remaining host-side behavior checks. |
 | Render workload shaders | [`WsiTriangleRenderer::getPrograms`](../../../framework/vulkan/vkWsiUtil.cpp#L1171-L1194) | Supplies the fixed rotating-triangle workload. |
 | Swapchain creation and retirement rules | [Vulkan WSI specification](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L5734-L6045) | Defines image equivalence, creation fields, `oldSwapchain`, and retirement. |
 | Image enumeration and acquisition rules | [Vulkan WSI specification](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L6780-L7004) | Defines `VK_INCOMPLETE`, acquisition synchronization, and timeout results. |

@@ -178,7 +178,7 @@ These conditions mean that the case is not supported by the selected group or im
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Rendering and compute registrations | [`DeviceGroupTestRendering::init()`](../../../modules/vulkan/device_group/vktDeviceGroupRendering.cpp#L2533-L2603) | Defines all direct test-family names and their mode flags. |
-| Package registration | [`createTests()`](../../../modules/vulkan/device_group/vktDeviceGroupRendering.cpp#L2605-L2608), [`addRootChild("device_group", ...)`](../../../modules/vulkan/vktTestPackage.cpp#L1377-L1379) | Places the implementation under the `device_group` test category. |
+| Package registration | [`createTests()`](../../../modules/vulkan/device_group/vktDeviceGroupRendering.cpp#L2605-L2608), [`addRootChild("device_group", ...)`](../../../modules/vulkan/vktTestPackage.cpp#L1434-L1436) | Places the implementation under the `device_group` test category. |
 | Rendering support and programs | [`DeviceGroupTestCase::checkSupport()`](../../../modules/vulkan/device_group/vktDeviceGroupRendering.cpp#L1643-L1714), [`initPrograms()`](../../../modules/vulkan/device_group/vktDeviceGroupRendering.cpp#L1717-L1780) | Defines feature gates and the fixed rendering shader stages. |
 | Rendering execution and checking | [`DeviceGroupTestInstance::iterate()`](../../../modules/vulkan/device_group/vktDeviceGroupRendering.cpp#L313-L1640) | Creates resources, records masks and render areas, copies results, and compares images. |
 | Compute support and resources | [`DeviceGroupComputeTestInstance::init()`](../../../modules/vulkan/device_group/vktDeviceGroupRendering.cpp#L1879-L2000) | Creates the logical device and compute queue and applies compute requirements. |

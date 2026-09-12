@@ -2,7 +2,7 @@
 
 **Core question:** When a render pass instance attaches a fragment density map that specifies per-region fragment invocation density, does the implementation invoke the fragment shader the correct number of times per framebuffer region and broadcast the results to the expected pixels?
 
-- This page covers the `fragment_density_map` test family in [`vktRenderPassFragmentDensityMapTests.cpp`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp). The family is created by [`createFragmentDensityMapTests()`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5482-L5488) and attached under each rendering variant root (`renderpass1`, `renderpass2`, `dynamic_rendering`) at the rendering-type level, monolithic pipeline only.
+- This page covers the `fragment_density_map` test family in [`vktRenderPassFragmentDensityMapTests.cpp`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp). The family is created by [`createFragmentDensityMapTests()`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5678-L5682) and attached under each rendering variant root (`renderpass1`, `renderpass2`, `dynamic_rendering`) at the rendering-type level, monolithic pipeline only.
 - It registers across `VK_EXT_fragment_density_map`, `VK_EXT_fragment_density_map2`, and `VK_EXT_fragment_density_map_offset` (or the Qualcomm variant), exercising static, deferred, and dynamic density maps with subsampled and non-subsampled images, multiple view counts, sample counts, fragment areas, size ratios, and offset behaviors.
 - The core idea is to render a known pattern into a framebuffer whose density map specifies one fragment area, then read back the framebuffer and verify that the color histogram matches the expected fragment-shader invocation distribution for that density. The histogram of each rendered image is the pass/fail signal.
 - The family is large because density maps interact with multiview, sample counts, subsampled images, render-pass copy semantics, framebuffer offsets, and a spec-version-3 texel-size formula, and each interaction has its own parameter matrix.
@@ -24,19 +24,19 @@ renderpasses.renderpass1.fragment_density_map
 └── properties
 ```
 
-The tree shows the three children present under `renderpass1`. The same family is registered under `renderpass2` and under each `dynamic_rendering.*.fragment_density_map` root, where it additionally includes multiview children (`2_views`, `4_views`, `6_views`), the `offset` subgroup (guarded to non-legacy rendering types), and the `density_formula` subgroup added under each view group for spec-version-3 formula verification. Multiview is not supported under the legacy render pass path, so `renderpass1` has only `1_view` ([view-count guard](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4978-L4980)). The `offset` group is added only when `renderingType != RENDERING_TYPE_RENDERPASS_LEGACY` ([offset guard](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5362-L5364)).
+The tree shows the three children present under `renderpass1`. The same family is registered under `renderpass2` and under each `dynamic_rendering.*.fragment_density_map` root, where it additionally includes multiview children (`2_views`, `4_views`, `6_views`), the `offset` subgroup (guarded to non-legacy rendering types), and the `density_formula` subgroup added under each view group for spec-version-3 formula verification. Multiview is not supported under the legacy render pass path, so `renderpass1` has only `1_view` ([view-count guard](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4978-L4980)). The `offset` group is added only when `renderingType != RENDERING_TYPE_RENDERPASS_LEGACY` ([offset guard](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5359-L5361)).
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| View count | `1`, `2`, `4`, `6` | Number of multiview views. Only `1` is present under `renderpass1`; the rest appear under `renderpass2` and `dynamic_rendering`. | [views array](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4958-L4965) |
-| Render type | `render`, `render_copy` | `render` renders directly to the target; `render_copy` renders to an intermediate image and copies it, exercising the density-map copy path. | [renders array](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4967) |
-| Size ratio | `divisible_density_size` (4.0), `non_divisible_density_size` (3.75) | The framebuffer-to-density-map size ratio. A non-integer ratio exercises rounding of density-map texel boundaries. | [sizes array](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4969-L4972) |
+| View count | `1`, `2`, `4`, `6` | Number of multiview views. Only `1` is present under `renderpass1`; the rest appear under `renderpass2` and `dynamic_rendering`. | [views array](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4955-L4962) |
+| Render type | `render`, `render_copy` | `render` renders directly to the target; `render_copy` renders to an intermediate image and copies it, exercising the density-map copy path. | [renders array](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4964) |
+| Size ratio | `divisible_density_size` (4.0), `non_divisible_density_size` (3.75) | The framebuffer-to-density-map size ratio. A non-integer ratio exercises rounding of density-map texel boundaries. | [sizes array](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4966-L4969) |
 | Sample count | `1`, `2`, `4`, `8` | Multisample count of the color attachment. Higher sample counts interact with density-map fragment broadcasting. | [samples array](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4974-L4978) |
-| Fragment area | `{1,2}`, `{2,1}`, `{2,2}` | The per-texel fragment invocation shape written into the density map. Drives the expected histogram. | [fragmentArea](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4983) |
+| Fragment area | `{1,2}`, `{2,1}`, `{2,2}` | The per-texel fragment invocation shape written into the density map. Drives the expected histogram. | [fragmentArea](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4980) |
 | Density map mode | static, deferred, dynamic; subsampled or non-subsampled | How and when the density map is populated, and whether the target image is subsampled. | [test name construction](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5028-L5100) |
-| Depth formats | `D16_UNORM`, `D32_SFLOAT`, `D24_UNORM_S8_UINT` | The `depth_format` subgroup uses deferred density maps with depth enabled to cover depth-specific density behavior. | [depthFormats array](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5162-L5165) |
+| Depth formats | `D16_UNORM`, `D32_SFLOAT`, `D24_UNORM_S8_UINT` | The `depth_format` subgroup uses deferred density maps with depth enabled to cover depth-specific density behavior. | [depthFormats array](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5159-L5162) |
 
 ## Behavior Parameters
 
@@ -132,16 +132,16 @@ void main(void)
 #### Additional Info
 
 - The `GL_EXT_multiview` extension is emitted in this common fragment source even for the one-view representative; view-count-specific routing is supplied by the vertex-side path when multiview cases are selected ([source](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1371-L1388)).
-- `gl_FragSizeEXT` is a flat two-component integer input in the compiled interface. For the selected `{2,2}` fragment area, the expected diagnostic components are `0.5` and `0.5`, whose product is `0.25` ([fragment-area setup](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4981-L4983); [verification](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L3130-L3172)).
+- `gl_FragSizeEXT` is a flat two-component integer input in the compiled interface. For the selected `{2,2}` fragment area, the expected diagnostic components are `0.5` and `0.5`, whose product is `0.25` ([fragment-area setup](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4981-L4983); [verification](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L3127-L3169)).
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | `fragmentArea` | Changes the two `gl_FragSizeEXT` values consumed by the same shader; the source expression is unchanged, while the output z/w values and expected broadcast multiplicity change. | [`TestParams::fragmentArea`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4981-L4983) |
-| View count | The common fragment source remains the same; multiview cases change the vertex-side viewport/layer routing and multiply the expected histogram count by the view count. | [`multiViewport` branch](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1387-L1395); [`verifyImage`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L3149-L3155) |
+| View count | The common fragment source remains the same; multiview cases change the vertex-side viewport/layer routing and multiply the expected histogram count by the view count. | [`multiViewport` branch](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1381-L1389); [`verifyImage`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L3218-L3221) |
 | Density-map mode and subsampling | `static`, `deferred`, and `dynamic`, plus subsampled/non-subsampled variants, reuse this producer shader; they vary map lifecycle and later image handling rather than its GLSL body. | [`initPrograms`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1371-L1503); [shader-module selection](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L2107-L2121) |
-| `render_copy` and sample count | The producer shader remains unchanged; copy variants select a separate input-attachment fragment module, while multisample cases use the corresponding MS copy path. | [copy module selection](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L2111-L2118) |
+| `render_copy` and sample count | The producer shader remains unchanged; copy variants select a separate input-attachment fragment module, while multisample cases use the corresponding MS copy path. | [copy module selection](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L2108-L2115) |
 
 #### SPIR-V
 
@@ -224,7 +224,7 @@ void main(void)
 
 Each test case builds a framebuffer image and a density-map image in the selected formats, populates the density map with the fragment-area values, renders a known pattern, and reads the framebuffer back. The verification builds a histogram of framebuffer colors and checks that the count of each color matches the expected fragment-shader invocation distribution for the fragment area and density-map mode ([verifyImage](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L3130-L3200)).
 
-For the density-formula leaves, the verification additionally checks the texel-size formula against the actual framebuffer-to-density-map size ratio ([checkDensityFormula](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L3174-L3180)). For the offset leaves, the verification compares half-image regions with `tcu::floatThresholdCompare` and raises a `QualityWarning` when an offset is not applied exactly but high-density pixels are preserved ([offset verification](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4679-L4729)).
+For the density-formula leaves, the verification additionally checks the texel-size formula against the actual framebuffer-to-density-map size ratio ([checkDensityFormula](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L3171-L3177)). For the offset leaves, the verification compares half-image regions with `tcu::floatThresholdCompare` and raises a `QualityWarning` when an offset is not applied exactly but high-density pixels are preserved ([offset verification](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4676-L4726)).
 
 ## Failure Meaning
 
@@ -259,17 +259,18 @@ For the density-formula leaves, the verification additionally checks the texel-s
 
 ### Requirement-based pruning
 
-- Every leaf requires the `VK_EXT_fragment_density_map` extension and the `fragmentDensityMap` device feature ([checkSupport](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1515-L1558)).
-- Leaves using more than one sample per pixel additionally require the `sampleRateShading` core feature, checked only when `colorSamples != VK_SAMPLE_COUNT_1_BIT` ([sample-rate feature check](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1635-L1636)).
-- Subsampled loads and coarse reconstruction require `VK_EXT_fragment_density_map2` ([checkSupport](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1566-L1608)).
-- Offset leaves require `VK_EXT_fragment_density_map_offset` or `VK_QCOM_fragment_density_map_offset` ([checkSupport](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L3369-L3373)).
+- Every leaf requires the `VK_EXT_fragment_density_map` extension and the `fragmentDensityMap` device feature ([checkSupport](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1509-L1552)).
+- Leaves using more than one sample per pixel additionally require the `sampleRateShading` core feature, checked only when `colorSamples != VK_SAMPLE_COUNT_1_BIT` ([sample-rate feature check](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1632-L1633)).
+- Subsampled loads and coarse reconstruction require `VK_EXT_fragment_density_map2` ([checkSupport](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1560-L1605)).
+- Offset leaves require `VK_EXT_fragment_density_map_offset` or `VK_QCOM_fragment_density_map_offset` ([checkSupport](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L3366-L3370)).
 - Density-formula leaves require `VK_EXT_fragment_density_map` spec version 3 or later.
-- Multiview leaves require `VK_KHR_multiview`; dynamic-rendering leaves require `VK_KHR_dynamic_rendering` and, where applicable, `VK_KHR_dynamic_rendering_local_read`.
+- Leaves under `renderpass2` require `VK_KHR_create_renderpass2`, and leaves under `dynamic_rendering` require `VK_KHR_dynamic_rendering` plus, for the copy variants, `VK_KHR_dynamic_rendering_local_read` ([rendering-root extension gates](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1571-L1586)).
+- Multiview leaves require `VK_KHR_multiview`.
 
 ### Design-based pruning
 
 - Multiview view counts above 1 are skipped under `renderpass1` because the legacy render pass path does not support multiview ([view-count guard](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4978-L4980)).
-- The `offset` group is registered only under `renderpass2` and `dynamic_rendering` ([offset guard](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5362-L5364)).
+- The `offset` group is registered only under `renderpass2` and `dynamic_rendering` ([offset guard](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5359-L5361)).
 - Secondary command buffer dynamic-rendering variants reduce the view count and sample count matrices to limit test explosion.
 - The `depth_format` group is registered only under `renderpass1` and provides depth-specific density coverage that the multiview-capable paths do not duplicate.
 
@@ -286,13 +287,13 @@ For the density-formula leaves, the verification additionally checks the texel-s
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Test family factory | [`createFragmentDensityMapTests`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5482-L5488) | Creates the group and dispatches to `createChildren`. |
+| Test family factory | [`createFragmentDensityMapTests`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5678-L5682) | Creates the group and dispatches to `createChildren`. |
 | Child group construction | [`createChildren`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5129-L5669) | Builds the `1_view`, multiview, `depth_format`, `properties`, `offset`, and `density_formula` subtrees. |
-| Offset subgroup construction | [offset group](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5362-L5469) | Builds `oversized_fdm`, `min_shift`, and `clamp_to_edge` under non-legacy rendering types. |
+| Offset subgroup construction | [offset group](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5359-L5466) | Builds `oversized_fdm`, `min_shift`, and `clamp_to_edge` under non-legacy rendering types. |
 | Density formula subgroup | [density_formula group](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L5114-L5155) | Verifies the spec-version-3 texel-size formula with a 33/16 render multiplier. |
 | Image verification | [`verifyImage`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L3198-L3280) | Builds the framebuffer color histogram and checks it against the expected fragment invocation distribution. |
-| Offset verification | [offset comparators](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4679-L4729) | Compares half-image regions with `tcu::floatThresholdCompare` and raises `QualityWarning` for non-exact offsets. |
-| Support checks | [offset support](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L3369-L3373), [base support](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1515) | Requires the FDM, FDM2, and offset extensions plus `shaderSampleRate` as applicable. |
+| Offset verification | [offset comparators](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4676-L4726) | Compares half-image regions with `tcu::floatThresholdCompare` and raises `QualityWarning` for non-exact offsets. |
+| Support checks | [offset support](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L3366-L3370), [base support](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1509) | Requires the FDM, FDM2, and offset extensions plus `shaderSampleRate` as applicable. |
 | Vulkan spec: fragment density map | [VK_EXT_fragment_density_map.adoc](../../../../vulkan-docs/src/appendices/VK_EXT_fragment_density_map.adoc) | Defines fragment density maps, fragment areas, and the invocation-broadcast model. |
 | Vulkan spec: FDM2 | [VK_EXT_fragment_density_map2.adoc](../../../../vulkan-docs/src/appendices/VK_EXT_fragment_density_map2.adoc) | Defines subsampled images, deferred density maps, and coarse reconstruction. |
 | Vulkan spec: FDM offset | [VK_EXT_fragment_density_map_offset.adoc](../../../../vulkan-docs/src/appendices/VK_EXT_fragment_density_map_offset.adoc) | Defines density-map offsets and granularity. |

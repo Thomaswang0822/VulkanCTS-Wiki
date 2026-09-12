@@ -101,14 +101,14 @@ The page covers five implemented test families in one source file. Present mode,
 
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
-| Extension preference and instance/device setup | [chooseExt and WSI setup](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L83-L262) | Shows KHR/EXT fallback, required extensions, and the `swapchainMaintenance1` feature chain. |
-| Present fence execution and ordering | [presentFenceTest](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L770-L1154) | Creates swapchains, submits presents, checks results, and verifies fence order. |
-| Present fence registration | [populatePresentFenceGroup](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L1156-L1221) | Defines present modes and the `basic`, `ordering`, multi-swapchain, and `null_handles` cases. |
-| Compatible mode query | [presentModesQueryTest](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L1231-L1391) | Defines the query validation contract. |
-| Scaling behavior | [scalingTest](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L1546-L1925) | Configures scaling and gravity and presents quadrant-filled images. |
+| Extension preference and instance/device setup | [chooseExt and WSI setup](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L66-L256) | Shows KHR/EXT fallback, required extensions, and the `swapchainMaintenance1` feature chain. |
+| Present fence execution and ordering | [presentFenceTest](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L783-L1173) | Creates swapchains, submits presents, checks results, and verifies fence order. |
+| Present fence registration | [populatePresentFenceGroup](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L1175-L1241) | Defines present modes and the `basic`, `ordering`, multi-swapchain, and `null_handles` cases. |
+| Compatible mode query | [presentModesQueryTest](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L1251-L1416) | Defines the query validation contract. |
+| Scaling behavior | [scalingTest](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L1578-L1967) | Configures scaling and gravity and presents quadrant-filled images. |
 | Deferred allocation registration | [populateDeferredAllocGroup](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L2099-L2157) | Defines basic, bind-image, and multi-swapchain deferred cases. |
 | Image release execution | [releaseImagesTest](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L2179-L2567) | Exercises acquire, release, resize, present, out-of-date, and retirement paths. |
-| Family registration | [createMaintenance1Tests](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L2661-L2673) | Registers the five page-scope test families. |
+| Family registration | [createMaintenance1Tests](../../../modules/vulkan/wsi/vktWsiMaintenance1Tests.cpp#L2712-L2673-L2673) | Registers the five page-scope test families. |
 | Vulkan WSI ownership rules | [Vulkan WSI chapter](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc) | Defines acquire, present, release, deferred allocation, and maintenance1 structure semantics. |
 
 ## Questions / Risk Points for User Audit

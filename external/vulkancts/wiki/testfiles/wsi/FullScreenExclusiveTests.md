@@ -36,7 +36,7 @@ The default WSI mustpass list contains the same four leaves under `android`, `di
 |-----------|-------------------|----------------------|----------|
 | WSI platform | `android`, `direct`, `direct_drm`, `headless`, `metal`, `wayland`, `win32`, `xcb`, `xlib` in the default mustpass list | Selects the platform surface extension and native display/window path. The full-screen policy and frame loop remain in the same implementation. | [WSI dispatcher](../../../modules/vulkan/wsi/vktWsiTests.cpp#L50-L83), [default WSI mustpass paths](../../../mustpass/main/vk-default/wsi.txt#L30-L33) |
 | Full-screen policy test case leaf | `default`, `allowed`, `disallowed`, `application_controlled` | Supplies the `fseType` value in `VkSurfaceFullScreenExclusiveInfoEXT` and selects whether the test performs explicit acquire/release. This is the primary behavioral axis. | [full-screen test registration](../../../modules/vulkan/wsi/vktWsiFullScreenExclusiveTests.cpp#L595-L614) |
-| Fixed execution values | 60 frames, two requested swapchain images, FIFO present mode | Bounds the common rendering path. These values are not additional registered dimensions. | [swapchain setup and frame loop](../../../modules/vulkan/wsi/vktWsiFullScreenExclusiveTests.cpp#L392-L460) |
+| Fixed execution values | 60 frames, two requested swapchain images, FIFO present mode | Bounds the common rendering path. These values are not additional registered dimensions. | [swapchain setup and frame loop](../../../modules/vulkan/wsi/vktWsiFullScreenExclusiveTests.cpp#L353-L421) |
 
 ## Behavior Parameters
 
@@ -62,7 +62,7 @@ A failed acquire with `VK_ERROR_INITIALIZATION_FAILED` leaves the mode unacquire
 
 ## Shader Analysis
 
-The test uses `WsiTriangleRenderer::getPrograms()` to build the renderer's common shaders, but shader output is not the tested property and no pixel data enters the pass/fail decision. A shader walkthrough and SPIR-V subsection would therefore add detail without explaining full-screen-exclusive behavior. The relevant source only delegates program creation at [getBasicRenderPrograms](../../../modules/vulkan/wsi/vktWsiFullScreenExclusiveTests.cpp#L613-L616).
+The test uses `WsiTriangleRenderer::getPrograms()` to build the renderer's common shaders, but shader output is not the tested property and no pixel data enters the pass/fail decision. A shader walkthrough and SPIR-V subsection would therefore add detail without explaining full-screen-exclusive behavior. The relevant source only delegates program creation at [getBasicRenderPrograms](../../../modules/vulkan/wsi/vktWsiFullScreenExclusiveTests.cpp#L590-L593).
 
 ## Runtime Execution and Result Checking
 
@@ -119,7 +119,7 @@ The test uses `WsiTriangleRenderer::getPrograms()` to build the renderer's commo
 
 ### Requirement-based pruning
 
-- The test requires the `VK_EXT_full_screen_exclusive` device extension, `VK_KHR_surface` for instance setup, and `VK_KHR_swapchain` for device setup. Missing required extensions produce `NotSupportedError`.
+- [`checkSupport`](../../../modules/vulkan/wsi/vktWsiFullScreenExclusiveTests.cpp#L572-L586) requires the `VK_EXT_full_screen_exclusive` and `VK_KHR_swapchain` device extensions plus `VK_KHR_surface` and the platform surface extension, and it runs before an instance or device is created. Missing required extensions produce `NotSupportedError` there rather than during setup.
 - The selected surface must report `fullScreenExclusiveSupported == true` through `VkSurfaceCapabilitiesFullScreenExclusiveEXT`. Unsupported surfaces are skipped as not supported.
 - The selected platform must provide the WSI extension and a native display/window path. Display WSI adds `VK_KHR_display`; `direct_drm` adds `VK_EXT_direct_mode_display`; Win32 adds the monitor-specific structure when the test uses a Win32 surface.
 - The test returns a hard failure when no `VkSurfaceFormatKHR` is available. It does not prune individual policy leaves based on rendered image contents because it never compares pixels.
@@ -142,10 +142,10 @@ The test uses `WsiTriangleRenderer::getPrograms()` to build the renderer's commo
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | WSI family dispatch | [createTypeSpecificTests](../../../modules/vulkan/wsi/vktWsiTests.cpp#L50-L73) | Registers `full_screen_exclusive` under each platform-specific WSI branch. |
-| Test parameter and extension setup | [TestParams and createDeviceWithWsi](../../../modules/vulkan/wsi/vktWsiFullScreenExclusiveTests.cpp#L63-L140) | Defines the platform and policy inputs and enables the device extensions used by the test. |
+| Test parameter and extension setup | [TestParams and createDeviceWithWsi](../../../modules/vulkan/wsi/vktWsiFullScreenExclusiveTests.cpp#L58-L111) | Defines the platform and policy inputs and enables the device extensions used by the test. |
 | Native window and swapchain configuration | [NativeObjectsFS and getBasicSwapchainParameters](../../../modules/vulkan/wsi/vktWsiFullScreenExclusiveTests.cpp#L213-L264) | Chooses the full-screen-sized window and baseline swapchain parameters. |
-| Capability query and swapchain creation | [fullScreenExclusiveTest setup](../../../modules/vulkan/wsi/vktWsiFullScreenExclusiveTests.cpp#L304-L430) | Chains the policy, queries exclusive support, and creates the swapchain. |
-| Acquire and presentation loop | [fullScreenExclusiveTest frame loop](../../../modules/vulkan/wsi/vktWsiFullScreenExclusiveTests.cpp#L452-L568) | Handles explicit acquisition, 60 frames, synchronization, image acquisition, submission, and presentation. |
+| Capability query and swapchain creation | [fullScreenExclusiveTest setup](../../../modules/vulkan/wsi/vktWsiFullScreenExclusiveTests.cpp#L273-L392) | Chains the policy, queries exclusive support, and creates the swapchain. |
+| Acquire and presentation loop | [fullScreenExclusiveTest frame loop](../../../modules/vulkan/wsi/vktWsiFullScreenExclusiveTests.cpp#L413-L529) | Handles explicit acquisition, 60 frames, synchronization, image acquisition, submission, and presentation. |
 | Release and final status | [fullScreenExclusiveTest result handling](../../../modules/vulkan/wsi/vktWsiFullScreenExclusiveTests.cpp#L576-L610) | Releases application-controlled mode and maps the observed state to pass or quality warning. |
 | Policy registration | [createFullScreenExclusiveTests](../../../modules/vulkan/wsi/vktWsiFullScreenExclusiveTests.cpp#L595-L614) | Maps the four exact leaf names to their `VkFullScreenExclusiveEXT` values. |
 | Full-screen policy semantics | [Vulkan WSI specification](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L3121-L3166) | Defines the policy structure and the four enum values. |

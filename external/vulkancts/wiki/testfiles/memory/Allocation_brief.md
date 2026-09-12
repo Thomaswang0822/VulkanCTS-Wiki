@@ -92,8 +92,8 @@ A second behavioral axis under each family is `basic` versus `random`: determini
 | Topic | Source link | Why it matters |
 |-------|-------------|----------------|
 | Custom-device setup | [`BaseAllocateTestInstance`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L124-L368) | Selects standard, device-group, or pageable setup. |
-| Deterministic allocation/free | [`AllocateFreeTestInstance::iterate`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L392-L631) | Implements type iteration, allocation, order behavior, and result collection. |
-| Random stress | [`RandomAllocFreeTestInstance`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L649-L671) | Implements bounded seeded allocation/free stress. |
+| Deterministic allocation/free | [`AllocateFreeTestInstance::iterate`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L392-L637) | Implements type iteration, allocation, order behavior, and result collection. |
+| Random stress | [`RandomAllocFreeTestInstance`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L655-L677) | Implements bounded seeded allocation/free stress. |
 | Registration | [`createAllocationTestsCommon`](../../../modules/vulkan/memory/vktMemoryAllocationTests.cpp#L1000-L1174) | Defines all names and parameter values. |
 
 ## Questions / Risk Points for User Audit

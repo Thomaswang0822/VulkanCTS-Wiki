@@ -15,7 +15,7 @@
 
 ## Registration Hierarchy
 
-`createSwitchTests()` creates the `switch` test family, and [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1267-L1270) places it under the `glsl` test category. `ShaderSwitchTests::init()` adds every executable leaf directly below `glsl.switch`; there are no intermediate nodes.
+`createSwitchTests()` creates the `switch` test family, and [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1316-L1319) places it under the `glsl` test category. `ShaderSwitchTests::init()` adds every executable leaf directly below `glsl.switch`; there are no intermediate nodes.
 
 ```text
 glsl.switch
@@ -331,7 +331,7 @@ void main (void)
 #### Additional Info
 
 - The secondary vertex shader stays fixed across all fragment-stage leaves: it only supplies position and forwards coordinates, but it is shown because its location-0 varying is the fragment shader's dynamic-selector input ([generator](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L118-L132), [fragment-stage epilogue](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L165-L169)).
-- `makeSwitchCases()` registers this exact leaf by combining `basic`, the `dynamic` selector name, and the `fragment` stage; `createSwitchTests()` contributes the `switch` group under the package's `glsl` group ([leaf construction](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L205-L220), [group factory](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L502-L505), [package registration](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1270)). `initPrograms()` submits the generated pair with default `ShaderBuildOptions`, whose `targetVersion` is SPIR-V 1.0 ([program insertion](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L607-L625), [default options](../../../framework/vulkan/vkShaderProgram.hpp#L67-L73)).
+- `makeSwitchCases()` registers this exact leaf by combining `basic`, the `dynamic` selector name, and the `fragment` stage; `createSwitchTests()` contributes the `switch` group under the package's `glsl` group ([leaf construction](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L205-L220), [group factory](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L502-L505), [package registration](../../../modules/vulkan/vktTestPackage.cpp#L1302-L1319)). `initPrograms()` submits the generated pair with default `ShaderBuildOptions`, whose `targetVersion` is SPIR-V 1.0 ([program insertion](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L607-L625), [default options](../../../framework/vulkan/vkShaderProgram.hpp#L67-L73)).
 - This dynamic case installs `evalSwitchDynamic()` and no uniform setup callback, so the selector has no descriptor-backed resource. The shared runner supplies quad-grid position and coordinate inputs at locations 0 and 1 as `VK_FORMAT_R32G32B32A32_SFLOAT`, renders to its default `VK_FORMAT_R8G8B8A8_UNORM` color target, evaluates the same mapping at fragment-reference pixel centers, and compares the images with threshold `0.2f` ([case factory](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L174-L179), [default instance state](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L658-L683), [vertex inputs](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L1837-L1856), [fragment reference and comparison](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2692-L2727)).
 
 #### Parameter Variation Summary
@@ -601,7 +601,7 @@ The switch implementation has no switch-specific `checkSupport()` override, exte
 | `ShaderSwitchTests::init()` | [`vktShaderRenderSwitchTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L224-L498) | Defines all 21 switch-body templates and registers their leaves. |
 | `createSwitchTests()` | [`vktShaderRenderSwitchTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L502-L505) | Creates the `switch` test family. |
 | Public factory declaration | [`vktShaderRenderSwitchTests.hpp`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.hpp#L23-L36) | Declares `createSwitchTests()`. |
-| GLSL test category registration | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1270) | Adds `glsl.switch` to the test package without a switch-specific build guard. |
+| GLSL test category registration | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1302-L1319) | Adds `glsl.switch` to the test package without a switch-specific build guard. |
 | Shared shader and instance setup | [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L577-L633) | Installs the generated programs and creates the common render instance. |
 | Shared render and image comparison | [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L773-L805) | Renders, builds the CPU reference, compares images, and reports pass or failure. |
 | Reference-image construction | [`vktShaderRender.cpp`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2603-L2719) | Shows the distinct vertex and fragment reference paths. |

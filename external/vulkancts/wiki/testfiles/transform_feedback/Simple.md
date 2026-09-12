@@ -2,7 +2,7 @@
 
 **Core question:** Does the simple transform-feedback generator capture the selected pre-rasterization outputs at the requested offsets across pipeline construction, draw, stream, query, and resume variants?
 
-- This page covers the implementation behind the `simple`, `simple_fast_gpl`, and `simple_optimized_gpl` test families. The root dispatcher invokes the same generator with monolithic, fast linked graphics pipeline library, and link-time optimized graphics pipeline library construction modes ([dispatcher](../../../modules/vulkan/transform_feedback/vktTransformFeedbackTests.cpp#L40-L49), [group naming](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L7264-L7276)).
+- This page covers the implementation behind the `simple`, `simple_fast_gpl`, and `simple_optimized_gpl` test families. The root dispatcher invokes the same generator with monolithic, fast linked graphics pipeline library, and link-time optimized graphics pipeline library construction modes ([dispatcher](../../../modules/vulkan/transform_feedback/vktTransformFeedbackTests.cpp#L40-L49), [group naming](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L7263-L7275)).
 - The generator combines basic capture, resume, stream and built-in output, query, indirect draw, multiview, synchronization, and layout cases. The current mustpass contains 7899 `simple`, 7891 `simple_fast_gpl`, and 7891 `simple_optimized_gpl` entries ([mustpass](../../../mustpass/main/vk-default/transform-feedback.txt#L110039)).
 - Cases write shader outputs into host-visible transform-feedback storage. The host invalidates the allocation and checks values, counters, query results, or an image produced by an indirect draw.
 - The three roots share test behavior. The construction mode changes pipeline creation, while the generated leaf matrices select the transform-feedback operation being exercised.
@@ -28,13 +28,13 @@ The three roots use the same generator. Their construction modes are described b
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |---|---|---|---|
-| Pipeline construction | `simple`, `simple_fast_gpl`, `simple_optimized_gpl` | Selects monolithic, fast linked library, or link-time optimized library construction for the same generator. | [`constructionTypes[]`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackTests.cpp#L40-L49), [`groupNameSuffix`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L7264-L7276) |
-| Buffer count | `1`, `2`, `4`, `8` | Splits captured output across the requested number of transform-feedback buffers in the basic matrix. | [`createTransformFeedbackSimpleTests`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L6455-L6483) |
+| Pipeline construction | `simple`, `simple_fast_gpl`, `simple_optimized_gpl` | Selects monolithic, fast linked library, or link-time optimized library construction for the same generator. | [`constructionTypes[]`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackTests.cpp#L40-L49), [`groupNameSuffix`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L7263-L7275) |
+| Buffer count | `1`, `2`, `4`, `8` | Splits captured output across the requested number of transform-feedback buffers in the basic matrix. | [`createTransformFeedbackSimpleTests`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L6454-L6482) |
 | Buffer size | `256`, `512`, `131072` bytes | Changes the available capture range and exposes offset, stride, resume, and truncation behavior. | [`bufferSizes[]`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L6457-L6459) |
 | Test family | `basic`, `resume`, `xfb_pointsize`, `xfb_clipdistance`, `xfb_culldistance`, `xfb_clip_and_cull`, `draw_outside`, plus stream, query, indirect, and layout families | Chooses the output, command sequence, or validation contract under test. | [`testTypes[]`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L6460-L6469) |
-| Stream and query settings | Stream ids including `0`, indexed query forms, and multi-query variants | Selects the geometry output stream and query operation. | [`stream/query generation`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L6681-L6691) |
+| Stream and query settings | Stream ids including `0`, indexed query forms, and multi-query variants | Selects the geometry output stream and query operation. | [`stream/query generation`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L6680-L6690) |
 | Point-size variant | Base case and `_ptsz` when `pointSize == 0` permits both values | Adds a shader point-size variant where the test needs to distinguish omitted and explicit point-size output. | [`addTransformFeedbackTestCaseVariants`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L6446-L6469) |
-| Special construction | Device-address commands, maintenance-5 buffer usage, shader-object rebind, multiview, topology, and stage selections | Enables the extension or pipeline path required by the selected leaf. | [`checkSupport`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4597-L4724) |
+| Special construction | Device-address commands, maintenance-5 buffer usage, shader-object rebind, multiview, topology, and stage selections | Enables the extension or pipeline path required by the selected leaf. | [`checkSupport`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4594-L4723) |
 
 ## Behavior Parameters
 
@@ -46,15 +46,15 @@ The primary behavioral axis is the registered test family. Each family changes t
 
 ### basic — Capture a vertex output
 
-The basic path binds a transform-feedback buffer, pushes a starting value, begins and ends transform feedback around a draw, then checks the captured sequence. Its representative vertex shader writes `gl_VertexIndex` plus the pushed start value to an `uint` output with a four-byte stride ([shader generation](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4954-L4974)).
+The basic path binds a transform-feedback buffer, pushes a starting value, begins and ends transform feedback around a draw, then checks the captured sequence. Its representative vertex shader writes `gl_VertexIndex` plus the pushed start value to an `uint` output with a four-byte stride ([shader generation](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4953-L4973)).
 
 ### resume — Continue capture at counter-derived positions
 
-The resume path uses one transform-feedback buffer and a counter buffer divided into generated chunks. It ends and resumes capture across multiple draws, inserting a counter write-to-read barrier before each resume. The check confirms that the resumed data continues at the intended buffer position ([resource and counter setup](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1323-L1403)).
+The resume path uses one transform-feedback buffer and a counter buffer divided into generated chunks. It ends and resumes capture across multiple draws, inserting a counter write-to-read barrier before each resume. The check confirms that the resumed data continues at the intended buffer position ([resource and counter setup](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1320-L1400)).
 
 ### xfb_pointsize / xfb_clipdistance / xfb_culldistance / xfb_clip_and_cull — Capture built-in outputs
 
-These families select `gl_PointSize`, `gl_ClipDistance`, `gl_CullDistance`, or both distance arrays as captured outputs. They exercise output declarations, component layout, and the corresponding required limits rather than changing the host capture protocol ([program selection](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4733-L4737), [support limits](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4675-L4713)).
+These families select `gl_PointSize`, `gl_ClipDistance`, `gl_CullDistance`, or both distance arrays as captured outputs. They exercise output declarations, component layout, and the corresponding required limits rather than changing the host capture protocol ([program selection](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4732-L4736), [support limits](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4675-L4713)).
 
 ### draw_indirect_* — Consume captured counts for an indirect draw
 
@@ -132,15 +132,15 @@ void main(void)
 
 #### Additional Info
 
-- The host binds the selected transform-feedback range, pushes the range start in scalar units, draws `numPoints`, and compares the readback against the generated sequence ([basic iterate](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1155-L1235)).
+- The host binds the selected transform-feedback range, pushes the range start in scalar units, draws `numPoints`, and compares the readback against the generated sequence ([basic iterate](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1152-L1232)).
 - This walkthrough does not cover geometry-stream, built-in-output, indirect-draw, query, or resume-specific shader branches. Those branches change the captured declarations or command consumer, not the basic `idx_out` calculation.
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---|---|---|
-| `resume` | Keeps the capture output but changes the host command sequence to resume from counter-derived offsets. | [`resume iterate`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1323-L1403) |
-| `xfb_pointsize` | Adds a point-size output when the selected topology and stage require it. | [`point-size branch`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4733-L4737) |
+| `resume` | Keeps the capture output but changes the host command sequence to resume from counter-derived offsets. | [`resume iterate`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1320-L1400) |
+| `xfb_pointsize` | Adds a point-size output when the selected topology and stage require it. | [`point-size branch`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4732-L4736) |
 | `streams_*` | Uses geometry-stage output and stream-specific capture settings. | [`stream setup`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L7004-L7239) |
 
 #### SPIR-V
@@ -208,10 +208,10 @@ void main(void)
 
 ## Runtime Execution and Result Checking
 
-- `checkSupport()` requires `VK_KHR_get_physical_device_properties2` and `VK_EXT_transform_feedback`, then applies conditional requirements for the selected stage, topology, query, multiview, indirect, device-address, maintenance, shader-object, point-size, and output-limit path ([support checks](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4597-L4724)).
-- The basic path creates a host-visible transform-feedback buffer with transfer-source and transform-feedback usage. It computes binding offsets and sizes, binds the buffer, pushes the starting scalar value, begins transform feedback, draws, ends capture, and inserts a transform-feedback-to-host barrier ([basic iterate](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1155-L1233)).
-- The resume path allocates a transform-feedback counter buffer, ends capture between chunks, and inserts a transform-feedback counter write-to-read barrier before each `vkCmdBeginTransformFeedbackEXT` resume ([resume setup](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1369-L1403), [resume sequence](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1410-L1462)).
-- Stream and built-in cases compare the relevant buffer range. Winding cases compare vertex ordering, while indirect cases also compare a rendered image through `verifyImage()` ([verification helpers](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1125-L1233)).
+- `checkSupport()` requires `VK_KHR_get_physical_device_properties2` and `VK_EXT_transform_feedback`, then applies conditional requirements for the selected stage, topology, query, multiview, indirect, device-address, maintenance, shader-object, point-size, and output-limit path ([support checks](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4594-L4723)). The `multiview` feature requirement covers every multiview indirect-draw leaf — `draw_indirect_multiview` and the counter-buffer-offset variants of it — not only the first ([multiview gate](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4631-L4638)).
+- The basic path creates a host-visible transform-feedback buffer with transfer-source and transform-feedback usage. It computes binding offsets and sizes, binds the buffer, pushes the starting scalar value, begins transform feedback, draws, ends capture, and inserts a transform-feedback-to-host barrier ([basic iterate](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1152-L1230)).
+- The resume path allocates a transform-feedback counter buffer, ends capture between chunks, and inserts a transform-feedback counter write-to-read barrier before each `vkCmdBeginTransformFeedbackEXT` resume ([resume setup](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1366-L1400), [resume sequence](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1410-L1462)).
+- Stream and built-in cases compare the relevant buffer range. Winding cases compare vertex ordering, while indirect cases also compare a rendered image through `verifyImage()` ([verification helpers](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1122-L1230)).
 - Query cases retrieve or copy query results and compare generated and written counts with the expected primitive counts. A successful case returns `Pass`; unsupported combinations are pruned before execution.
 
 ## Failure Meaning
@@ -266,8 +266,8 @@ void main(void)
 ### Design-based pruning
 
 - The basic generator uses buffer counts `{1,2,4,8}` and buffer sizes `{256,512,131072}`. It does not enumerate every buffer size or count.
-- A `_ptsz` leaf is added only when the base point-size value is zero and the resulting combination is legal. Illegal point cases that omit required point-size output are skipped ([variant filter](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L6430-L6452)).
-- GPL roots reuse the generator but do not include monolithic-only device-address and shader-object registrations. This accounts for the observed 7894 versus 7886 mustpass counts ([monolithic-only branches](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L6511-L6518)).
+- A `_ptsz` leaf is added only when the base point-size value is zero and the resulting combination is legal. Illegal point cases that omit required point-size output are skipped ([variant filter](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L6429-L6451)).
+- GPL roots reuse the generator but do not include monolithic-only device-address and shader-object registrations. This accounts for the observed 7894 versus 7886 mustpass counts ([monolithic-only branches](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L6510-L6517)).
 - Generated leaf cases are summarized here instead of expanded in the parseable hierarchy tree.
 
 ## Key Takeaways
@@ -283,11 +283,11 @@ void main(void)
 | Entry point | Link | Why it matters |
 |---|---|---|
 | Category registration and construction modes | [`createTests`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackTests.cpp#L36-L55) | Registers the three simple roots and the other category families. |
-| Group naming and generator entry | [`createTransformFeedbackSimpleTests`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L6430-L6529) | Defines the root suffix and the main basic matrix. |
+| Group naming and generator entry | [`createTransformFeedbackSimpleTests`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L6429-L6528) | Defines the root suffix and the main basic matrix. |
 | Test dispatch | [`TransformFeedbackTestCase::createInstance`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4508-L4607) | Maps registered test families to their instances. |
 | Basic capture sequence | [`TransformFeedbackBasicTestInstance::iterate`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1149-L1230) | Binds, captures, synchronizes, and checks the basic output. |
 | Resume sequence | [`TransformFeedbackResumeTestInstance::iterate`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1317-L1461) | Ends and resumes capture through counter-buffer offsets. |
 | Support and limits | [`TransformFeedbackTestCase::checkSupport`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4609-L4739) | Applies feature, extension, property, and limit gates. |
 | Program generation | [`TransformFeedbackTestCase::initPrograms`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L4741-L6105) | Selects generated GLSL and direct SPIR-V stage programs. |
-| Verification helpers | [`verifyTransformFeedbackBuffer`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1125-L1233) | Provides buffer and image validation paths. |
+| Verification helpers | [`verifyTransformFeedbackBuffer`](../../../modules/vulkan/transform_feedback/vktTransformFeedbackSimpleTests.cpp#L1122-L1230) | Provides buffer and image validation paths. |
 | Current mustpass counts | [`transform-feedback.txt`](../../../mustpass/main/vk-default/transform-feedback.txt#L110039) | Confirms the three sibling root prefixes and generated coverage. |

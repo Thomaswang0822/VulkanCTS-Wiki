@@ -292,7 +292,7 @@ void main (void)
 
 | Entry point | Link |
 |---|---|
-| GLSL category registration | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1255) |
+| GLSL category registration | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1302-L1304) |
 | Public factory declaration and factory definition | [`vktShaderRenderDerivateTests.hpp`](../../../modules/vulkan/shaderrender/vktShaderRenderDerivateTests.hpp#L31-L37), [`createDerivateTests()`](../../../modules/vulkan/shaderrender/vktShaderRenderDerivateTests.cpp#L2183-L2186) |
 | Function enumeration and names | [`DerivateFunc`](../../../modules/vulkan/shaderrender/vktShaderRenderDerivateTests.cpp#L77-L168) |
 | Generated registration matrix | [`ShaderDerivateTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderDerivateTests.cpp#L1680-L2178) |

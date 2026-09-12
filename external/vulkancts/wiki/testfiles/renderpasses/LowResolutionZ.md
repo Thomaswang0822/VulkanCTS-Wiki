@@ -24,14 +24,14 @@ renderpasses.renderpass1.suballocation.low_resolution_z
 └── fuzz
 ```
 
-The dispatcher instantiates the same implementation under the rendering/allocation roots permitted by `SharedGroupParams`. The fixed and fuzz groups are assembled by [createChildren](../../../modules/vulkan/renderpass/vktRenderPassLowResolutionZTests.cpp#L3015-L3065), and the family is created by [createRenderPassLowResolutionZTests](../../../modules/vulkan/renderpass/vktRenderPassLowResolutionZTests.cpp#L3068-L3072).
+The dispatcher instantiates the same implementation under the rendering/allocation roots permitted by `SharedGroupParams`. The fixed and fuzz groups are assembled by [createChildren](../../../modules/vulkan/renderpass/vktRenderPassLowResolutionZTests.cpp#L3020-L3070), and the family is created by [createRenderPassLowResolutionZTests](../../../modules/vulkan/renderpass/vktRenderPassLowResolutionZTests.cpp#L3068-L3072).
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Depth operation | `direction_change`, `direction_preserve`, `blend`, `edge`, `stencil`, `fragment_shader`, `cross_renderpass` | Selects the depth or render-pass interaction under test. | [Test-group construction](../../../modules/vulkan/renderpass/vktRenderPassLowResolutionZTests.cpp#L3015-L3065) |
-| Generated coverage | `fuzz` | Selects the seeded operation-combination group. | [Fuzz registration](../../../modules/vulkan/renderpass/vktRenderPassLowResolutionZTests.cpp#L3015-L3065) |
+| Depth operation | `direction_change`, `direction_preserve`, `blend`, `edge`, `stencil`, `fragment_shader`, `cross_renderpass` | Selects the depth or render-pass interaction under test. | [Test-group construction](../../../modules/vulkan/renderpass/vktRenderPassLowResolutionZTests.cpp#L3020-L3070) |
+| Generated coverage | `fuzz` | Selects the seeded operation-combination group. | [Fuzz registration](../../../modules/vulkan/renderpass/vktRenderPassLowResolutionZTests.cpp#L3020-L3070) |
 
 ## Behavior Parameters
 
@@ -87,7 +87,7 @@ void main()
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Operation group | `fragment_shader` is the representative group; other groups change the depth/render-pass operation. | [Test-group construction](../../../modules/vulkan/renderpass/vktRenderPassLowResolutionZTests.cpp#L3015-L3065) |
+| Operation group | `fragment_shader` is the representative group; other groups change the depth/render-pass operation. | [Test-group construction](../../../modules/vulkan/renderpass/vktRenderPassLowResolutionZTests.cpp#L3020-L3070) |
 | Rendering configuration | `renderpass1.suballocation` is one permitted configuration; other `SharedGroupParams` roots reuse the family. | [Shared dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8577-L8580) |
 
 #### SPIR-V
@@ -139,7 +139,10 @@ A color mismatch identifies an incorrect observable result, but does not alone d
 
 ### Requirement-based pruning
 
-Cases are skipped when the feature or rendering configuration required by the selected `SharedGroupParams` is unavailable.
+- Leaves under `renderpass2` require `VK_KHR_create_renderpass2` and leaves under `dynamic_rendering` require `VK_KHR_dynamic_rendering`, checked against the rendering root the leaf was registered under ([rendering-root extension gates](../../../modules/vulkan/renderpass/vktRenderPassLowResolutionZTests.cpp#L1617-L1620)).
+- Pipeline construction requirements are checked through `checkPipelineConstructionRequirements` for the `pipelineConstructionType` carried by the group parameters ([pipeline construction check](../../../modules/vulkan/renderpass/vktRenderPassLowResolutionZTests.cpp#L1625)).
+- Steps that record into a secondary command buffer require `VK_KHR_maintenance7` ([secondary-command-buffer gate](../../../modules/vulkan/renderpass/vktRenderPassLowResolutionZTests.cpp#L1638-L1639)).
+- Steps that blit or clear into the depth-stencil attachment need a depth-stencil format exposing the matching transfer/blit features; when neither `D24_UNORM_S8_UINT` nor `D32_SFLOAT_S8_UINT` qualifies, the case reports unsupported ([format-feature check](../../../modules/vulkan/renderpass/vktRenderPassLowResolutionZTests.cpp#L1641-L1655)).
 
 ### Design-based pruning
 

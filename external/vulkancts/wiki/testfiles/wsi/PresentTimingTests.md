@@ -32,16 +32,16 @@ Current mustpass data repeats this structure for `android`, `direct`, `direct_dr
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Test family | `basic`, `query`, `time_domain`, `present_at` | Selects capability/queue checks, past-timing retrieval, clock metadata/calibration, or target-time scheduling. | [`createPresentTimingTests`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2443-L2449) |
-| `basic` leaf | `surface_capabilities`, `timing_queue`, `retired_swapchain`, `large_queue_size` | Selects one fixed infrastructure behavior. | [`populateBasicGroup`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2306-L2312) |
-| Query present mode | `immediate`, `mailbox`, `fifo`, `fifo_relaxed`, `demand`, `continuous`, `fifo_latest_ready` | Changes swapchain presentation behavior and result latency. | [`presentModes`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2250-L2262) |
-| Query present stage | `queue_operations_end`, `request_dequeued`, `image_first_pixel_out`, `image_first_pixel_visible` | Selects the single stage timestamp requested by an ordinary query case. | [`presentStages`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2264-L2273) |
-| Time domain | `device`, `clock_monotonic`, `clock_monotonic_raw`, `query_performance_counter`, `present_stage_local`, `swapchain_local` | Selects the advertised clock domain used for result timestamps, calibration, or present-at targets. | [`timeDomains`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2275-L2286) |
+| Test family | `basic`, `query`, `time_domain`, `present_at` | Selects capability/queue checks, past-timing retrieval, clock metadata/calibration, or target-time scheduling. | [`createPresentTimingTests`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2507-L2513) |
+| `basic` leaf | `surface_capabilities`, `timing_queue`, `retired_swapchain`, `large_queue_size` | Selects one fixed infrastructure behavior. | [`populateBasicGroup`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2364-L2370) |
+| Query present mode | `immediate`, `mailbox`, `fifo`, `fifo_relaxed`, `demand`, `continuous`, `fifo_latest_ready` | Changes swapchain presentation behavior and result latency. | [`presentModes`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2270-L2282) |
+| Query present stage | `queue_operations_end`, `request_dequeued`, `image_first_pixel_out`, `image_first_pixel_visible` | Selects the single stage timestamp requested by an ordinary query case. | [`presentStages`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2284-L2293) |
+| Time domain | `device`, `clock_monotonic`, `clock_monotonic_raw`, `query_performance_counter`, `present_stage_local`, `swapchain_local` | Selects the advertised clock domain used for result timestamps, calibration, or present-at targets. | [`timeDomains`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2295-L2306) |
 | Present-at mode | `absolute`, `relative` | Interprets `targetTime` as a timestamp or as a duration from the previous first-pixel-visible event. | [`presentAtModes`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2241-L2248) |
-| Present-at present mode | `fifo`, `fifo_relaxed`, `fifo_latest_ready` | Restricts nonzero target times to the FIFO-based modes allowed by the API. | [`populatePresentAtGroup`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2366-L2395) |
-| Result order | `allow_out_of_order_results`, `disallow_out_of_order_results` | Controls whether retrieval may return reports out of presentation order. | [`outOfOrderResults`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2288-L2295) |
-| Report completeness | `allow_partial_results`, `disallow_partial_results` | Controls whether retrieval may return an incomplete set of requested stages. The host retains complete reports for final checking. | [`partialResults`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2297-L2304) |
-| Target-cycle choice | `nearest`, `after` | Allows the nearest refresh boundary or applies the stricter early-visibility preference. | [`populatePresentAtGroup`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2412-L2423) |
+| Present-at present mode | `fifo`, `fifo_relaxed`, `fifo_latest_ready` | Restricts nonzero target times to the FIFO-based modes allowed by the API. | [`populatePresentAtGroup`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2430-L2503) |
+| Result order | `allow_out_of_order_results`, `disallow_out_of_order_results` | Controls whether retrieval may return reports out of presentation order. | [`outOfOrderResults`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2308-L2315) |
+| Report completeness | `allow_partial_results`, `disallow_partial_results` | Controls whether retrieval may return an incomplete set of requested stages. The host retains complete reports for final checking. | [`partialResults`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2317-L2324) |
+| Target-cycle choice | `nearest`, `after` | Allows the nearest refresh boundary or applies the stricter early-visibility preference. | [`populatePresentAtGroup`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2432-L2443) |
 
 Each platform branch contains 468 executable cases: 4 under `basic`, 169 under `query`, 7 under `time_domain`, and 288 under `present_at`.
 
@@ -121,7 +121,7 @@ This test uses no shader. [`recordAndSubmitFrame`](../../../modules/vulkan/wsi/v
 
 ### Requirement-based pruning
 
-- The selected WSI platform must provide its surface extension, and the device must support `VK_KHR_swapchain`, `VK_KHR_present_id2`, `VK_KHR_calibrated_timestamps`, and `VK_EXT_present_timing` with the needed surface capabilities.
+- [`commonCheckSupport`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L257-L267) requires the selected WSI platform surface extension and the `VK_KHR_swapchain`, `VK_KHR_present_id2`, `VK_KHR_calibrated_timestamps`, and `VK_EXT_present_timing` device extensions before execution; the needed surface capabilities are still checked while the case runs.
 - A query case skips when its present mode, stage query, or time domain is not supported. Calibration also requires its registered domain in the calibratable-domain list.
 - Absolute and relative target cases require their matching device feature and surface capability. `fifo_latest_ready` also requires its extension and feature.
 - The source enables shared-presentable-image support when available so the `demand` and `continuous` query paths can run; unsupported modes skip.
@@ -147,16 +147,16 @@ This test uses no shader. [`recordAndSubmitFrame`](../../../modules/vulkan/wsi/v
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Device and feature setup | [`createDeviceWithWsi`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L195-L249) | Enables required extensions and case-dependent present-at features. |
-| Surface and swapchain setup | [`getSurfacePresentTimingCapabilities` and `getBasicSwapchainParameters`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L266-L357) | Checks support and sets present-timing and present-ID creation flags. |
-| Result model and shared checks | [`PresentTimingHelper`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L470-L545) | Stores normalized reports and checks IDs, stages, counts, and time order. |
+| Surface and swapchain setup | [`getSurfacePresentTimingCapabilities` and `getBasicSwapchainParameters`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L269-L360) | Checks support and sets present-timing and present-ID creation flags. |
+| Result model and shared checks | [`PresentTimingHelper`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L473-L548) | Stores normalized reports and checks IDs, stages, counts, and time order. |
 | Time-domain metadata | [`TimeDomainHelper`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L608-L718) | Enumerates domains, IDs, and counters and compares stable snapshots. |
-| Timed present and transfer frame | [`presentWithTimingInfo` and `recordAndSubmitFrame`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L819-L882) | Builds the `pNext` chain and records the shader-free image clear. |
-| Result retrieval | [`getPastPresentationTiming` and `drainPresentationTimingResults`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L925-L1024) | Polls reports, checks counters, and releases complete entries. |
+| Timed present and transfer frame | [`presentWithTimingInfo` and `recordAndSubmitFrame`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L822-L885) | Builds the `pNext` chain and records the shader-free image clear. |
+| Result retrieval | [`getPastPresentationTiming` and `drainPresentationTimingResults`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L928-L1027) | Polls reports, checks counters, and releases complete entries. |
 | Basic and query tests | [`surfaceCapabilitiesTest` through `timingTestWithBackgroundQueryThreads`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L1026-L1564) | Implements capability, queue, matrix, large-queue, and parallel checks. |
 | Retired swapchain | [`retiredSwapchainTest`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L1597-L1694) | Retrieves timing data for an old swapchain and its replacement. |
 | Present-at behavior | [`presentAtTest`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L1708-L1964) | Computes targets and validates IDs, ordering, and early visibility. |
 | Time-domain behavior | [`timeDomainPropertiesTest` and `timeDomainCalibrationTest`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L1916-L2235) | Checks dynamic domain metadata and calibrated clock relationships. |
-| Parameter arrays and registration | [`presentAtModes` through `createPresentTimingTests`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2241-L2449) | Defines every registered value and the four test families. |
+| Parameter arrays and registration | [`presentAtModes` through `createPresentTimingTests`](../../../modules/vulkan/wsi/vktWsiPresentTimingTests.cpp#L2261-L2469) | Defines every registered value and the four test families. |
 | WSI dispatcher | [`createTypeSpecificTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L52-L83) | Registers `present_timing` under each platform branch. |
 | Present-timing query specification | [`Present Timing Queries`](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L4738-L5291) | Defines queue allocation, timing/domain counters, asynchronous retrieval, ordering, and partial reports. |
 | Target-time specification | [`VkPresentTimingInfoEXT`](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L7898-L8027) | Defines target semantics, stage queries, nearest-cycle selection, and queue-full behavior. |

@@ -46,11 +46,11 @@ The families share one theme: each verifies that a specific render-pass or dynam
 | `remaining_array_layers` | [RemainingArrayLayers](../testfiles/renderpasses/RemainingArrayLayers.md) | `VK_REMAINING_ARRAY_LAYERS` in 2D-array views of 3D images |
 | `multiple_subpasses_multiple_command_buffers` | [MultipleSubpassesMultipleCommandBuffers](../testfiles/renderpasses/MultipleSubpassesMultipleCommandBuffers.md) | Multi-subpass render pass split across two primary command buffers |
 | `multisample` | [Multisample](../testfiles/renderpasses/Multisample.md) | Per-sample write and input-attachment readback |
-| `multisample_resolve` | [MultisampleResolve](../testfiles/renderpasses/MultisampleResolve.md) | Average vs sample-zero resolve across sample-mask patterns |
+| `multisample_resolve` | [MultisampleResolve](../testfiles/renderpasses/MultisampleResolve.md) | Average vs sample-zero resolve across sample-mask patterns, plus the `mixed_sample_count_subpasses` case |
 | `sampleread` | [SampleRead](../testfiles/renderpasses/SampleRead.md) | Shader-internal per-sample input-attachment validation |
 | `depth_stencil_resolve` (RP2) | [DepthStencilResolve](../testfiles/renderpasses/DepthStencilResolve.md) | `VK_KHR_depth_stencil_resolve` resolve-mode matrix |
 | `depth_stencil_write_conditions` (RP1) | [DepthStencilWriteConditions](../testfiles/renderpasses/DepthStencilWriteConditions.md) | Helper-invocation depth/stencil write suppression |
-| `custom_resolve` (RP1/RP2/Dynamic) | [CustomResolve](../testfiles/renderpasses/CustomResolve.md) | `VK_EXT_custom_resolve` shader-driven resolve |
+| `custom_resolve` (RP1/RP2/Dynamic) | [CustomResolve](../testfiles/renderpasses/CustomResolve.md) | `VK_EXT_custom_resolve` shader-driven resolve, including the dynamic-rendering suspend/resume and `_remap_first` variants |
 | `depth_stencil_resolve` under dynamic_rendering | [DynamicRenderingDepthStencilResolve](../testfiles/renderpasses/DynamicRenderingDepthStencilResolve.md) | Pre-computed expected-value table lookup for dynamic-rendering resolve |
 | `subpass_dependencies` | [SubpassDependency](../testfiles/renderpasses/SubpassDependency.md) | External, implicit, late-fragment-test, self-, disjoint-channel, and single-attachment dependencies |
 | `basic` dynamic rendering | [DynamicRendering](../testfiles/renderpasses/DynamicRendering.md) | Basic dynamic rendering and shared `createRenderPassTestsInternal()` routing |
@@ -78,3 +78,4 @@ The families share one theme: each verifies that a specific render-pass or dynam
 - `depth_stencil_resolve` has separate implementation files for render-pass (`vktRenderPassDepthStencilResolveTests.cpp`) and dynamic-rendering (`vktDynamicRenderingDepthStencilResolveTests.cpp`); each has its own Level-3 page.
 - `low_resolution_z` is registered below the shared allocation groups and covers legacy render pass, render pass 2, and dynamic-rendering configurations selected by `SharedGroupParams`.
 - `vktRenderPassTestsUtil.cpp` and `vktRenderPassGroupParams.hpp` are shared utilities without their own Level-3 pages; Level-3 pages reference them as supporting evidence for `GroupParams`, `RenderingType`, and `SynchronizationType`.
+- `vktDynamicRenderingSuspendResumeTestsUtil.cpp` / `.hpp` implement the reusable dynamic-rendering suspend/resume case (`SuspendResume::Case`) that `custom_resolve` registers as its own leaves; the implementation has no Level-3 page of its own and is documented inside [CustomResolve](../testfiles/renderpasses/CustomResolve.md).

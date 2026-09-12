@@ -125,7 +125,7 @@ The five test-family values change the execution-mode or subgroup-operation cont
 | Test-family and stage registration | [createTests](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L7786-L7825) | Defines the five direct generated families, their stage filter, and their relationship to the root. |
 | Nesting, seeds, counts, dimensions, and split | [matrix construction](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L7837-L7938) | Defines exact generated parameter values and main/experimental routing. |
 | Root declarations | [reconvergence header](../../../modules/vulkan/reconvergence/vktReconvergenceTests.hpp#L30-L36) | Declares main and experimental creation functions. |
-| Main and experimental package registration | [test package](../../../modules/vulkan/vktTestPackage.cpp#L1387-L1407) | Shows both packages register the same root name with different constructors. |
+| Main and experimental package registration | [test package](../../../modules/vulkan/vktTestPackage.cpp#L1444-L1464) | Shows both packages register the same root name with different constructors. |
 | Feature and support checks | [checkSupport](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L4395-L4433) | Defines Vulkan version, subgroup operation, stage, UCF, maximal, and compute-limit gates. |
 | Shader generation | [initPrograms](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L4547-L5006) | Defines extensions, resources, execution-mode attributes, and SPIR-V target. |
 | Operation generation | [random generator](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L1010-L1633) | Builds and simulates the generated operation sequence. |

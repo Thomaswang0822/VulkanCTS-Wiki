@@ -38,7 +38,7 @@ glsl.matrix
 └── div_assign
 ```
 
-`createMatrixTests()` creates the `matrix` test family, and the GLSL package registers it below `glsl`. `ShaderMatrixTests::init()` creates the nineteen operation intermediate nodes shown above ([package registration](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1265), [matrix registration](../../../modules/vulkan/shaderrender/vktShaderRenderMatrixTests.cpp#L2326-L2425)).
+`createMatrixTests()` creates the `matrix` test family, and the GLSL package registers it below `glsl`. `ShaderMatrixTests::init()` creates the nineteen operation intermediate nodes shown above ([package registration](../../../modules/vulkan/vktTestPackage.cpp#L1302-L1314), [matrix registration](../../../modules/vulkan/shaderrender/vktShaderRenderMatrixTests.cpp#L2326-L2425)).
 
 The first nine intermediate nodes contain input-source intermediate nodes. `add`, `sub`, `mul`, and `div` use `const`, `uniform`, and `dynamic`; `matrixcompmult`, `outerproduct`, `transpose`, `determinant`, and `inverse` use only `dynamic`. The unary, increment/decrement, and assignment intermediate nodes contain their generated test case leaves directly ([input-source registration](../../../modules/vulkan/shaderrender/vktShaderRenderMatrixTests.cpp#L2396-L2438)).
 
@@ -412,6 +412,6 @@ These exclusions define the generated matrix. They do not indicate runtime skips
 | Shader generation | [`ShaderMatrixCase::setupShader()`](../../../modules/vulkan/shaderrender/vktShaderRenderMatrixTests.cpp#L1932-L2269) | Builds declarations, result types, expressions, stage handoffs, and final colors. |
 | Result reduction | [`genGLSLMatToVec3Reduction()`](../../../modules/vulkan/shaderrender/vktShaderRenderMatrixTests.cpp#L2271-L2323) | Maps each scalar, vector, or matrix result type to RGB. |
 | Test case registration | [`ShaderMatrixTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderMatrixTests.cpp#L2347-L2552) | Creates operation and input-source intermediate nodes and all valid test case leaves. |
-| GLSL package registration | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1265) | Registers `matrix` under the `glsl` test category. |
+| GLSL package registration | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1302-L1314) | Registers `matrix` under the `glsl` test category. |
 | Shared rendering and comparison | [`ShaderRenderCaseInstance::iterate()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L774-L807), [reference and comparison](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2603-L2727) | Renders, computes the stage-specific reference image, and decides pass or fail. |
 | Default matrix mustpass coverage | [Vulkan](../../../mustpass/main/vk-default/glsl.txt#L8725-L10488), [Vulkan SC](../../../mustpass/main/vksc-default/glsl.txt#L7804-L9567) | Confirms the registered leaves included in both default configurations. |
